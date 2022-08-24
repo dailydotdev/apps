@@ -6,31 +6,26 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   errorRegistrationMockData,
+  mockEmailCheck,
+  mockLoginFlow,
+  mockRegistraitonFlow,
   passwordLoginFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
 import { getNodeByKey, LoginPasswordParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
-import LoginForm from './LoginForm';
-import { authUrl } from '../../lib/constants';
+import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
-
-const onSuccessfulLogin = jest.fn();
-
-const mockLoginFlow = (result = passwordLoginFlowMockData) => {
-  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
-    .get('/self-service/login/browser')
-    .reply(200, result);
-};
 
 const defaultToken = getNodeByKey(
   'csrf_token',
@@ -58,9 +53,16 @@ const mockLoginValidationFlow = (
     .reply(responseCode, result);
 };
 
-const renderComponent = (): RenderResult => {
+const onSuccessfulLogin = jest.fn();
+const renderComponent = (
+  props: AuthOptionsProps = {
+    onSuccessfulLogin,
+    formRef: null,
+  },
+): RenderResult => {
   const client = new QueryClient();
   mockLoginFlow();
+  mockRegistraitonFlow();
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -72,28 +74,36 @@ const renderComponent = (): RenderResult => {
         loadedUserFromCache
         refetchBoot={jest.fn()}
       >
-        <LoginForm onSuccessfulLogin={onSuccessfulLogin} />
+        <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
 };
 
-it('should get browser password login flow token', async () => {
+const renderLogin = async (email: string) => {
   renderComponent();
   await waitForNock();
-  const input = (await screen.findByTestId('csrf_token')) as HTMLInputElement;
-  const token = getNodeByKey('csrf_token', passwordLoginFlowMockData.ui.nodes);
-  expect(input).toBeInTheDocument();
-  expect(input.value).toEqual(token.attributes.value);
-});
-
-it('should post login including token', async () => {
-  const email = 'sshanzel@yahoo.com';
-  renderComponent();
-  await waitForNock();
+  mockEmailCheck(email, true);
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
   });
+  await act(async () => {
+    const submit = await screen.findByTestId('email_signup_submit');
+    fireEvent.click(submit);
+    await waitForNock();
+  });
+  await waitFor(async () => {
+    const login = screen.queryByTestId('login_form');
+    expect(login).toBeInTheDocument();
+  });
+  fireEvent.input(screen.getByTestId('login_email'), {
+    target: { value: email },
+  });
+};
+
+it('should post login including token', async () => {
+  const email = 'sshanzel@yahoo.com';
+  await renderLogin(email);
   fireEvent.input(screen.getByPlaceholderText('Password'), {
     target: { value: '#123xAbc' },
   });
@@ -108,11 +118,8 @@ it('should post login including token', async () => {
 
 it('should display error messages', async () => {
   const email = 'sshanzel@yahoo.com';
-  renderComponent();
-  await waitForNock();
-  fireEvent.input(screen.getByPlaceholderText('Email'), {
-    target: { value: email },
-  });
+  await renderLogin(email);
+
   fireEvent.input(screen.getByPlaceholderText('Password'), {
     target: { value: '#123xAbc' },
   });

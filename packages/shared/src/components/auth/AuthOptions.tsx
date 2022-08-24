@@ -27,6 +27,8 @@ import AuthModalHeader from './AuthModalHeader';
 import { AuthFlow, getKratosFlow } from '../../lib/kratos';
 import { fallbackImages } from '../../lib/config';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
+import { providers } from './common';
+import useLogin from '../../hooks/useLogin';
 
 export enum Display {
   Default = 'default',
@@ -38,7 +40,8 @@ export enum Display {
 
 export interface AuthOptionsProps {
   onClose?: CloseModalFunc;
-  onSelectedProvider: (account: SocialProviderAccount) => void;
+  onSuccessfulLogin?: () => unknown;
+  onSelectedProvider?: (account: SocialProviderAccount) => void;
   formRef: MutableRefObject<HTMLFormElement>;
   socialAccount?: SocialProviderAccount;
   defaultDisplay?: Display;
@@ -47,6 +50,7 @@ export interface AuthOptionsProps {
 
 function AuthOptions({
   onClose,
+  onSuccessfulLogin,
   onSelectedProvider,
   className,
   formRef,
@@ -57,6 +61,10 @@ function AuthOptions({
     {},
   );
   const { refetchBoot, referral } = useContext(AuthContext);
+  const {
+    loginHint: [hint, setHint],
+    onPasswordLogin,
+  } = useLogin({ onSuccessfulLogin });
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -121,10 +129,13 @@ function AuthOptions({
       >
         <Tab label={Display.Default}>
           <AuthDefault
+            providers={providers}
             onClose={onClose}
             onSignup={onEmailRegistration}
             onProviderClick={onSocialRegistration}
             onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
+            onPasswordLogin={onPasswordLogin}
+            loginHint={[hint, setHint]}
             isV2={isV2}
           />
         </Tab>
@@ -146,7 +157,7 @@ function AuthOptions({
         <Tab label={Display.SignBack}>
           <AuthSignBack onRegister={() => setActiveDisplay(Display.Default)}>
             <LoginForm
-              onSuccessfulLogin={(e) => onClose(e)}
+              onPasswordLogin={onPasswordLogin}
               onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
             />
           </AuthSignBack>

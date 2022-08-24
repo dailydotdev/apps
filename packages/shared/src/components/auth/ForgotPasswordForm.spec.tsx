@@ -25,7 +25,7 @@ beforeEach(() => {
 
 const mockRecoveryFlow = (result = passwordRecoveryFlowMockData) => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
-    .get('/self-service/recovery/browser')
+    .get('/self-service/recovery/browser?')
     .reply(200, result);
 };
 

@@ -4,9 +4,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
-import AlertContainer, {
-  AlertBackground,
-} from '@dailydotdev/shared/src/components/alert/AlertContainer';
+import { AlertBackground } from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
@@ -53,22 +51,15 @@ function AccountSecurityDefault({
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deletedAccount, setDeletedAccount] = useState(false);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
-  const [email, setEmail] = useState<string>(null);
-  const [resetPasswordSent, setResetPasswordSent] = useState(false);
+  const [, setEmail] = useState<string>(null);
   const { data: userProviders } = useQuery(
     'providers',
     () => getKratosProviders(),
-    {
-      ...disabledRefetch,
-    },
+    { ...disabledRefetch },
   );
 
-  const { data: settings } = useQuery(
-    'settings',
-    () => initializeKratosFlow(AuthFlow.Settings),
-    {
-      ...disabledRefetch,
-    },
+  const { data: settings } = useQuery('settings', () =>
+    initializeKratosFlow(AuthFlow.Settings),
   );
 
   const { mutateAsync: updateSettings } = useMutation(
@@ -116,7 +107,7 @@ function AccountSecurityDefault({
       >
         <AccountTextField
           fieldType="tertiary"
-          value={email ?? user.email}
+          value={user.email}
           onChange={(e) => setEmail(e.currentTarget.value)}
           label="Email"
           inputId="email"
@@ -175,25 +166,12 @@ function AccountSecurityDefault({
       >
         <Button
           className="mt-6 w-fit btn-secondary"
-          onClick={() => setResetPasswordSent(true)}
+          onClick={() => onSwitchDisplay(Display.ChangePassword)}
         >
           Reset password
         </Button>
       </AccountContentSection>
       {/* )} */}
-      {resetPasswordSent && (
-        <AlertContainer
-          className={{
-            container: 'mt-6',
-            overlay: 'bg-overlay-primary-white opacity-[0.12]',
-          }}
-        >
-          <p className="typo-callout">
-            We sent a link to the account email address, please check your spam
-            folder if you {`don't`} see the email.
-          </p>
-        </AlertContainer>
-      )}
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
           onDelete={() => setShowDeleteAccount(true)}

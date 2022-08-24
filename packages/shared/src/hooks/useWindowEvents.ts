@@ -8,9 +8,7 @@ const useWindowEvents: typeof window.addEventListener = (
   useEffect(() => {
     window.addEventListener(event, func);
     return () => window.removeEventListener(event, func);
-  }, []);
-
-  return null;
+  }, [event, func]);
 };
 
 export default useWindowEvents;

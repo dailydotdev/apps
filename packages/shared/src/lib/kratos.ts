@@ -1,6 +1,6 @@
 import { authUrl, heimdallUrl } from './constants';
 
-export type EmptyObjectLiteral = Record<string, never>;
+export type EmptyObjectLiteral = Record<string, never | string>;
 
 interface InitializationNodeAttribute {
   name: string;
@@ -188,8 +188,10 @@ export enum AuthFlow {
 
 export const initializeKratosFlow = async (
   flow: AuthFlow,
+  params: EmptyObjectLiteral = {},
 ): Promise<InitializationData> => {
-  const res = await fetch(`${authUrl}/self-service${flow}/browser`, {
+  const search = new URLSearchParams(params);
+  const res = await fetch(`${authUrl}/self-service${flow}/browser?${search}`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
   });
@@ -224,6 +226,7 @@ export interface RequestResponse<TData = unknown, TError = InitializationData> {
   data?: TData;
   error?: TError;
   redirect?: string;
+  code?: number;
 }
 
 export interface AuthPostParams {
@@ -276,7 +279,7 @@ export const submitKratosFlow = async <
   const json = await res.json();
 
   if (res.status === 422 || json.redirect_browser_to) {
-    return { redirect: json.redirect_browser_to };
+    return { redirect: json.redirect_browser_to, code: res.status };
   }
 
   const hasError = json.ui?.messages?.some(
@@ -288,4 +291,16 @@ export const submitKratosFlow = async <
   }
 
   return { error: json?.error || json };
+};
+
+export const getKratosSession = async (): Promise<AuthSession> => {
+  const res = await fetch(`${authUrl}/sessions/whoami`, {
+    credentials: 'include',
+  });
+
+  if (res.status === 401) {
+    throw new Error('No active user');
+  }
+
+  return res.json();
 };
