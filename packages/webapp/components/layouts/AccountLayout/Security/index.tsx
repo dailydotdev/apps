@@ -1,5 +1,4 @@
 import { getProviderMapClone } from '@dailydotdev/shared/src/components/auth/common';
-import ProviderButton from '@dailydotdev/shared/src/components/auth/ProviderButton';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
@@ -8,9 +7,9 @@ import { AlertBackground } from '@dailydotdev/shared/src/components/alert/AlertC
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React, {
   FormEvent,
+  MutableRefObject,
   ReactElement,
   useContext,
-  useRef,
   useState,
 } from 'react';
 import { useMutation, useQuery } from 'react-query';
@@ -24,7 +23,6 @@ import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
 import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
 import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import AccountContentSection from '../AccountContentSection';
@@ -44,11 +42,11 @@ const providers = Object.values(socialProvider);
 
 export interface ChangePasswordParams {
   password: string;
-  onSuccess: () => void;
 }
 
 interface AccountSecurityDefaultProps {
   isEmailSent?: boolean;
+  updatePasswordRef: MutableRefObject<HTMLFormElement>;
   onSwitchDisplay: (display: Display) => void;
   onUpdatePassword: (form: ChangePasswordParams) => void;
 }
@@ -60,11 +58,10 @@ export interface ManageSocialProvidersProps {
 
 function AccountSecurityDefault({
   isEmailSent,
+  updatePasswordRef,
   onSwitchDisplay,
   onUpdatePassword,
 }: AccountSecurityDefaultProps): ReactElement {
-  const resetPasswordFormRef = useRef<HTMLFormElement>();
-  const { displayToast } = useToastNotification();
   const { user, deleteAccount } = useContext(AuthContext);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deletedAccount, setDeletedAccount] = useState(false);
@@ -100,15 +97,10 @@ function AccountSecurityDefault({
     await updateSettings({ action, params: postData });
   };
 
-  const onPasswordReset = () => {
-    displayToast('Password reset successful!');
-    resetPasswordFormRef.current.reset();
-  };
-
   const onChangePassword = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = formToJson<{ password: string }>(e.currentTarget);
-    onUpdatePassword({ ...form, onSuccess: onPasswordReset });
+    onUpdatePassword(form);
   };
 
   const emailAction = isEmailSent ? (
@@ -151,17 +143,7 @@ function AccountSecurityDefault({
           ({ provider }) =>
             !userProviders?.result.includes(provider.toLowerCase()),
         )}
-      >
-        {!userProviders?.result.includes('password') && (
-          <ProviderButton
-            label="Connect with"
-            provider="Email"
-            icon={<MailIcon secondary />}
-            onClick={() => onSwitchDisplay(Display.ConnectEmail)}
-            style={socialProvider.gitHub.style}
-          />
-        )}
-      </AccountLoginSection>
+      />
       <AccountLoginSection
         title="Connected accounts"
         description="Remove the connection between daily.dev and authorized login providers."
@@ -171,13 +153,12 @@ function AccountSecurityDefault({
           userProviders?.result.includes(provider.toLowerCase()),
         )}
       />
-      {/* {userProviders?.result.includes('password') && ( */}
       <AccountContentSection
-        title="Account Password"
-        description="Change your account password"
+        title="Change your password"
+        description="Please enter your new password"
       >
         <form
-          ref={resetPasswordFormRef}
+          ref={updatePasswordRef}
           className="flex flex-col"
           onSubmit={onChangePassword}
         >
@@ -193,7 +174,6 @@ function AccountSecurityDefault({
           </Button>
         </form>
       </AccountContentSection>
-      {/* )} */}
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
           onDelete={() => setShowDeleteAccount(true)}

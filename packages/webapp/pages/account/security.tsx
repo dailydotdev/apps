@@ -1,10 +1,9 @@
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import usePrivilegedSession from '@dailydotdev/shared/src/hooks/usePrivilegedSession';
 import VerifySessionModal from '@dailydotdev/shared/src/components/auth/VerifySessionModal';
-import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   AuthFlow,
@@ -15,7 +14,7 @@ import {
   getNodeValue,
   ValidateResetPassword,
 } from '@dailydotdev/shared/src/lib/auth';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
@@ -24,12 +23,18 @@ import AccountSecurityDefault, {
 import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
 
 const AccountSecurityPage = (): ReactElement => {
-  const { user } = useContext(AuthContext);
+  const updatePasswordRef = useRef<HTMLFormElement>();
+  const { displayToast } = useToastNotification();
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
   );
+
+  const onSetPassword = () => {
+    displayToast('Password reset successful!');
+    updatePasswordRef.current.reset();
+  };
 
   const {
     showVerifySession,
@@ -40,14 +45,9 @@ const AccountSecurityPage = (): ReactElement => {
   } = usePrivilegedSession();
 
   const { mutateAsync: resetPassword } = useMutation(
-    ({
-      onSuccess,
-      ...params
-    }: ValidateResetPassword & { onSuccess: () => void }) =>
-      submitKratosFlow(params),
+    (params: ValidateResetPassword) => submitKratosFlow(params),
     {
-      onSuccess: (res, { onSuccess }) => {
-        const { redirect, error, code } = res;
+      onSuccess: ({ redirect, error, code }) => {
         if (redirect && code === 403) {
           return initializePrivilegedSession(redirect);
         }
@@ -56,17 +56,16 @@ const AccountSecurityPage = (): ReactElement => {
           return null;
         }
 
-        return onSuccess?.();
+        return onSetPassword();
       },
     },
   );
 
-  const onUpdatePassword = ({ onSuccess, password }: ChangePasswordParams) => {
+  const onUpdatePassword = ({ password }: ChangePasswordParams) => {
     const { action, nodes } = settings.ui;
     const csrfToken = getNodeValue('csrf_token', nodes);
     resetPassword({
       action,
-      onSuccess,
       params: { csrf_token: csrfToken, method: 'password', password },
     });
   };
@@ -76,22 +75,13 @@ const AccountSecurityPage = (): ReactElement => {
     setActiveDisplay(Display.Default);
   };
 
-  const onConnectEmail = (e: FormEvent<HTMLFormElement>) => {
-    const onSuccess = () => {
-      setIsEmailSent(true);
-      setActiveDisplay(Display.Default);
-    };
-    e.preventDefault();
-    const form = formToJson<ChangePasswordParams>(e.currentTarget);
-    onUpdatePassword({ ...form, onSuccess });
-  };
-
   return (
     <>
       <TabContainer showHeader={false} controlledActive={activeDisplay}>
         <Tab label={Display.Default}>
           <AccountSecurityDefault
             isEmailSent={isEmailSent}
+            updatePasswordRef={updatePasswordRef}
             onSwitchDisplay={setActiveDisplay}
             onUpdatePassword={onUpdatePassword}
           />
@@ -100,15 +90,6 @@ const AccountSecurityPage = (): ReactElement => {
           <EmailFormPage
             title="Change email"
             onSubmit={onChangeEmail}
-            onSwitchDisplay={setActiveDisplay}
-          />
-        </Tab>
-        <Tab label={Display.ConnectEmail}>
-          <EmailFormPage
-            emailProps={{ value: user.email, label: 'Current email' }}
-            passwordProps={{ label: 'Password' }}
-            title="Connect email"
-            onSubmit={onConnectEmail}
             onSwitchDisplay={setActiveDisplay}
           />
         </Tab>
