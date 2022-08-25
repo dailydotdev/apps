@@ -73,13 +73,14 @@ export interface InitializationData {
   id: string;
   issued_at: DateString;
   expires_at: DateString;
-  created_at: DateString;
-  updated_at: DateString;
+  created_at?: DateString;
+  updated_at?: DateString;
   request_url: string;
-  type: string;
+  type?: string;
   refresh?: boolean;
   ui: InitializationUI;
-  requested_aal: AuthenticatorLevel;
+  requested_aal?: AuthenticatorLevel;
+  state?: string;
 }
 
 interface KratosEmailData {
@@ -105,9 +106,9 @@ interface IdentityTraits {
 }
 
 interface RecoveryAddress {
-  created_at: Date;
   id: string;
-  updated_at: Date;
+  created_at: DateString;
+  updated_at: DateString;
   value: string;
   via: string;
 }
@@ -119,12 +120,10 @@ interface VerifyableAddress extends RecoveryAddress {
   id: string;
   value: string;
   via: string;
-  created_at: Date;
-  updated_at: Date;
 }
 
-interface Identity {
-  created_at: Date;
+export interface Identity {
+  created_at: DateString;
   credentials?: Record<string, IdentityCredential>;
   id: string;
   metadata_admin?: unknown;
@@ -133,9 +132,9 @@ interface Identity {
   schema_id: string;
   schema_url: string;
   state: 'active';
-  state_changed_at: Date;
+  state_changed_at: DateString;
   traits: IdentityTraits;
-  updated_at: Date;
+  updated_at: DateString;
   verifiable_addresses: VerifyableAddress[];
 }
 

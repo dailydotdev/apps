@@ -1,6 +1,7 @@
 import nock from 'nock';
 import { authUrl, heimdallUrl } from '../../src/lib/constants';
 import {
+  Identity,
   InitializationData,
   SuccessfulRegistrationData,
 } from '../../src/lib/kratos';
@@ -209,7 +210,7 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
       schema_id: 'default',
       schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
       state: 'active',
-      state_changed_at: new Date('2022-07-31T11:55:35.07680546Z'),
+      state_changed_at: '2022-07-31T11:55:35.07680546Z',
       traits: {
         email: 'leeeee@daily.dev',
         name: 'Lee Solevilla',
@@ -223,8 +224,8 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
           verified: false,
           via: 'email',
           status: 'sent',
-          created_at: new Date('2022-07-31T11:55:35.088234Z'),
-          updated_at: new Date('2022-07-31T11:55:35.088234Z'),
+          created_at: '2022-07-31T11:55:35.088234Z',
+          updated_at: '2022-07-31T11:55:35.088234Z',
         },
       ],
       recovery_addresses: [
@@ -232,13 +233,13 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
           id: 'aa978ac6-578b-41de-9bf6-b2d3b048feda',
           value: 'leeeee@daily.dev',
           via: 'email',
-          created_at: new Date('2022-07-31T11:55:35.09292Z'),
-          updated_at: new Date('2022-07-31T11:55:35.09292Z'),
+          created_at: '2022-07-31T11:55:35.09292Z',
+          updated_at: '2022-07-31T11:55:35.09292Z',
         },
       ],
       metadata_public: null,
-      created_at: new Date('2022-07-31T11:55:35.083416Z'),
-      updated_at: new Date('2022-07-31T11:55:35.083416Z'),
+      created_at: '2022-07-31T11:55:35.083416Z',
+      updated_at: '2022-07-31T11:55:35.083416Z',
     },
   },
   identity: {
@@ -246,7 +247,7 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
     schema_id: 'default',
     schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
     state: 'active',
-    state_changed_at: new Date('2022-07-31T11:55:35.07680546Z'),
+    state_changed_at: '2022-07-31T11:55:35.07680546Z',
     traits: {
       email: 'leeeee@daily.dev',
       name: 'Lee Solevilla',
@@ -260,8 +261,8 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
         verified: false,
         via: 'email',
         status: 'sent',
-        created_at: new Date('2022-07-31T11:55:35.088234Z'),
-        updated_at: new Date('2022-07-31T11:55:35.088234Z'),
+        created_at: '2022-07-31T11:55:35.088234Z',
+        updated_at: '2022-07-31T11:55:35.088234Z',
       },
     ],
     recovery_addresses: [
@@ -269,13 +270,13 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
         id: 'aa978ac6-578b-41de-9bf6-b2d3b048feda',
         value: 'leeeee@daily.dev',
         via: 'email',
-        created_at: new Date('2022-07-31T11:55:35.09292Z'),
-        updated_at: new Date('2022-07-31T11:55:35.09292Z'),
+        created_at: '2022-07-31T11:55:35.09292Z',
+        updated_at: '2022-07-31T11:55:35.09292Z',
       },
     ],
     metadata_public: null,
-    created_at: new Date('2022-07-31T11:55:35.083416Z'),
-    updated_at: new Date('2022-07-31T11:55:35.083416Z'),
+    created_at: '2022-07-31T11:55:35.083416Z',
+    updated_at: '2022-07-31T11:55:35.083416Z',
   },
 };
 
@@ -478,6 +479,262 @@ export const emailSentRecoveryMockData = {
   },
   state: 'sent_email',
 };
+
+export const settingsFlowMockData: InitializationData & { identity: Identity } =
+  {
+    id: 'e6927ed7-538f-4f92-83e6-bf993dbfcf75',
+    type: 'browser',
+    expires_at: '2022-08-25T11:50:31.305144345Z',
+    issued_at: '2022-08-25T10:50:31.305144345Z',
+    request_url: 'http://127.0.0.1:4433/self-service/settings/browser?',
+    ui: {
+      action:
+        'http://127.0.0.1:4433/self-service/settings?flow=e6927ed7-538f-4f92-83e6-bf993dbfcf75',
+      method: 'POST',
+      nodes: [
+        {
+          type: 'input',
+          group: 'default',
+          attributes: {
+            name: 'csrf_token',
+            type: 'hidden',
+            value:
+              'ciEKdSgoZprj0Ati51AMyP0ENvrW19wmrS+l6kAlcZvRzooYNJbnK2kwGjNr1lmT3w17oYPbY4FYqUwqCafVVw==',
+            required: true,
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: {},
+        },
+        {
+          type: 'input',
+          group: 'profile',
+          attributes: {
+            name: 'traits.email',
+            type: 'email',
+            value: 'lee@daily.dev',
+            required: true,
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: { label: { id: 1070002, text: 'E-Mail', type: 'info' } },
+        },
+        {
+          type: 'input',
+          group: 'profile',
+          attributes: {
+            name: 'traits.name',
+            type: 'text',
+            value: 'Lee Hansel Solevilla',
+            required: true,
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: { label: { id: 1070002, text: 'Full name', type: 'info' } },
+        },
+        {
+          type: 'input',
+          group: 'profile',
+          attributes: {
+            name: 'traits.username',
+            type: 'text',
+            value: 'lee',
+            required: true,
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: { label: { id: 1070002, text: 'Username', type: 'info' } },
+        },
+        {
+          type: 'input',
+          group: 'profile',
+          attributes: {
+            name: 'traits.image',
+            type: 'text',
+            value:
+              'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: { label: { id: 1070002, text: 'Image', type: 'info' } },
+        },
+        {
+          type: 'input',
+          group: 'profile',
+          attributes: {
+            name: 'traits.github',
+            type: 'text',
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: { label: { id: 1070002, text: 'Github handle', type: 'info' } },
+        },
+        {
+          type: 'input',
+          group: 'profile',
+          attributes: {
+            name: 'method',
+            type: 'submit',
+            value: 'profile',
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: { label: { id: 1070003, text: 'Save', type: 'info' } },
+        },
+        {
+          type: 'input',
+          group: 'password',
+          attributes: {
+            name: 'password',
+            type: 'password',
+            required: true,
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: { label: { id: 1070001, text: 'Password', type: 'info' } },
+        },
+        {
+          type: 'input',
+          group: 'password',
+          attributes: {
+            name: 'method',
+            type: 'submit',
+            value: 'password',
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: { label: { id: 1070003, text: 'Save', type: 'info' } },
+        },
+        {
+          type: 'input',
+          group: 'oidc',
+          attributes: {
+            name: 'link',
+            type: 'submit',
+            value: 'apple',
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: {
+            label: {
+              id: 1050002,
+              text: 'Link apple',
+              type: 'info',
+              context: { provider: 'apple' },
+            },
+          },
+        },
+        {
+          type: 'input',
+          group: 'oidc',
+          attributes: {
+            name: 'link',
+            type: 'submit',
+            value: 'facebook',
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: {
+            label: {
+              id: 1050002,
+              text: 'Link facebook',
+              type: 'info',
+              context: { provider: 'facebook' },
+            },
+          },
+        },
+        {
+          type: 'input',
+          group: 'oidc',
+          attributes: {
+            name: 'link',
+            type: 'submit',
+            value: 'github',
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: {
+            label: {
+              id: 1050002,
+              text: 'Link github',
+              type: 'info',
+              context: { provider: 'github' },
+            },
+          },
+        },
+        {
+          type: 'input',
+          group: 'oidc',
+          attributes: {
+            name: 'unlink',
+            type: 'submit',
+            value: 'google',
+            disabled: false,
+            node_type: 'input',
+          },
+          messages: [],
+          meta: {
+            label: {
+              id: 1050003,
+              text: 'Unlink google',
+              type: 'info',
+              context: { provider: 'google' },
+            },
+          },
+        },
+      ],
+    },
+    identity: {
+      id: '4a1fed11-17f6-42e6-87ee-219bb249c6ba',
+      schema_id: 'default',
+      schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+      state: 'active',
+      state_changed_at: '2022-08-24T03:30:19.668093Z',
+      traits: {
+        name: 'Lee Hansel Solevilla',
+        email: 'lee@daily.dev',
+        image:
+          'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
+        username: 'lee',
+      },
+      verifiable_addresses: [
+        {
+          id: '99a84554-56a8-4a1c-b269-869ddd0b4b8d',
+          value: 'lee@daily.dev',
+          verified: false,
+          via: 'email',
+          status: 'sent',
+          created_at: '2022-08-24T03:30:19.705492Z',
+          updated_at: '2022-08-25T10:36:11.275861Z',
+        },
+      ],
+      recovery_addresses: [
+        {
+          id: 'a530e776-6a87-4b19-9523-4eef4a01b0dd',
+          value: 'lee@daily.dev',
+          via: 'email',
+          created_at: '2022-08-24T03:30:19.714243Z',
+          updated_at: '2022-08-25T10:36:11.280364Z',
+        },
+      ],
+      metadata_public: null,
+      created_at: '2022-08-24T03:30:19.690974Z',
+      updated_at: '2022-08-24T03:30:19.690974Z',
+    },
+    state: 'show_form',
+  };
 
 export const mockLoginFlow = (result = passwordLoginFlowMockData): void => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
