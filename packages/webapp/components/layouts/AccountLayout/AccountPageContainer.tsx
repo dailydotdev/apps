@@ -39,6 +39,7 @@ export const AccountPageContainer = ({
           <Button
             className="mr-2 btn-tertiary"
             icon={<ArrowIcon className="-rotate-90" />}
+            buttonSize="xsmall"
             onClick={onBack}
           />
         )}

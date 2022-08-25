@@ -1,20 +1,23 @@
 import AlertContainer from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 
 interface EmailSentSectionProps {
   onResend?: (e: React.MouseEvent) => void;
   onCancel?: (e: React.MouseEvent) => void;
+  className?: string;
 }
 
 function EmailSentSection({
   onResend,
   onCancel,
+  className,
 }: EmailSentSectionProps): ReactElement {
   return (
     <AlertContainer
       className={{
-        container: 'mt-6 border-theme-status-warning',
+        container: classNames('mt-6 border-theme-status-warning', className),
         overlay: 'bg-overlay-quaternary-bun',
       }}
     >

@@ -27,7 +27,7 @@ const passwordStrengthStates = {
   },
 };
 
-interface PasswordFieldProps extends TextFieldProps {
+export interface PasswordFieldProps extends TextFieldProps {
   showStrength?: boolean;
 }
 
