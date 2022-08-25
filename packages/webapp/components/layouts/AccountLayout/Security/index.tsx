@@ -154,7 +154,7 @@ function AccountSecurityDefault({
         )}
       />
       <AccountContentSection
-        title="Change your password"
+        title="Set your password"
         description="Please enter your new password"
       >
         <form
@@ -170,7 +170,7 @@ function AccountSecurityDefault({
             showStrength={false}
           />
           <Button type="submit" className="mt-6 w-fit btn-secondary">
-            Reset password
+            Submit
           </Button>
         </form>
       </AccountContentSection>
