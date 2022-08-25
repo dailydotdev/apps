@@ -39,7 +39,7 @@ const AccountSecurityPage = (): ReactElement => {
 
   const { mutateAsync: resetPassword } = useMutation(
     ({
-      onPasswordReset: _,
+      onPasswordReset,
       ...params
     }: ValidateResetPassword & { onPasswordReset: () => void }) =>
       submitKratosFlow(params),
