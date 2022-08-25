@@ -10,7 +10,7 @@ interface AccountLoginSectionProps {
   description: string;
   providerActionType: ManageSocialProviderTypes;
   providerAction: (ManageSocialProvidersProps) => void;
-  action?: ReactNode;
+  children?: ReactNode;
 }
 
 function AccountLoginSection({
@@ -19,7 +19,7 @@ function AccountLoginSection({
   description,
   providerActionType,
   providerAction,
-  action,
+  children,
 }: AccountLoginSectionProps): ReactElement {
   if (!providers?.length) {
     return null;
@@ -42,7 +42,7 @@ function AccountLoginSection({
             {...rest}
           />
         ))}
-        {action}
+        {children}
       </div>
     </AccountContentSection>
   );

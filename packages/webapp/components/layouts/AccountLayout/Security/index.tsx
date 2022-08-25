@@ -151,18 +151,17 @@ function AccountSecurityDefault({
           ({ provider }) =>
             !userProviders?.result.includes(provider.toLowerCase()),
         )}
-        action={
-          !user.password && (
-            <ProviderButton
-              label="Connect with"
-              provider="Email"
-              icon={<MailIcon secondary />}
-              onClick={() => onSwitchDisplay(Display.ConnectEmail)}
-              style={socialProvider.gitHub.style}
-            />
-          )
-        }
-      />
+      >
+        {!userProviders?.result.includes('password') && (
+          <ProviderButton
+            label="Connect with"
+            provider="Email"
+            icon={<MailIcon secondary />}
+            onClick={() => onSwitchDisplay(Display.ConnectEmail)}
+            style={socialProvider.gitHub.style}
+          />
+        )}
+      </AccountLoginSection>
       <AccountLoginSection
         title="Connected accounts"
         description="Remove the connection between daily.dev and authorized login providers."
@@ -171,19 +170,8 @@ function AccountSecurityDefault({
         providers={providers.filter(({ provider }) =>
           userProviders?.result.includes(provider.toLowerCase()),
         )}
-        action={
-          user.password && (
-            <ProviderButton
-              label="Remove"
-              provider="Email"
-              icon={<MailIcon secondary />}
-              onClick={() => onSwitchDisplay(Display.ConnectEmail)}
-              className="bg-theme-bg-tertiary hover:bg-theme-status-error"
-            />
-          )
-        }
       />
-      {/* {user.password && ( // temporary enabling */}
+      {/* {userProviders?.result.includes('password') && ( */}
       <AccountContentSection
         title="Account Password"
         description="Change your account password"
