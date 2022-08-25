@@ -165,7 +165,7 @@ function AccountSecurityDefault({
           <PasswordField
             className="mt-6 max-w-sm"
             inputId="new_password"
-            label="New password"
+            label="Password"
             name="password"
             showStrength={false}
           />
