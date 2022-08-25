@@ -1,18 +1,10 @@
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import usePrivilegedSession from '@dailydotdev/shared/src/hooks/usePrivilegedSession';
 import VerifySessionModal from '@dailydotdev/shared/src/components/auth/VerifySessionModal';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import React, {
-  FormEvent,
-  ReactElement,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import React, { FormEvent, ReactElement, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   AuthFlow,
@@ -25,26 +17,14 @@ import {
 } from '@dailydotdev/shared/src/lib/auth';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import AccountSecurityDefault from '../../components/layouts/AccountLayout/Security';
-import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
-import ChangePasswordForm, {
+import AccountSecurityDefault, {
   ChangePasswordParams,
-} from '../../components/layouts/AccountLayout/Security/ChangePasswordForm';
-
-interface ResetFormParams {
-  password: string;
-}
+} from '../../components/layouts/AccountLayout/Security';
+import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
 
 const AccountSecurityPage = (): ReactElement => {
-  const { user } = useContext(AuthContext);
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
-  const { displayToast } = useToastNotification();
-  const formRef = useRef<HTMLFormElement>();
-  const onPasswordReset = () => {
-    displayToast('Password reset successful!');
-    setActiveDisplay(Display.Default);
-  };
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
   );
@@ -58,9 +38,14 @@ const AccountSecurityPage = (): ReactElement => {
   } = usePrivilegedSession();
 
   const { mutateAsync: resetPassword } = useMutation(
-    (params: ValidateResetPassword) => submitKratosFlow(params),
+    ({
+      onPasswordReset,
+      ...params
+    }: ValidateResetPassword & { onPasswordReset: () => void }) =>
+      submitKratosFlow(params),
     {
-      onSuccess: async ({ redirect, code }) => {
+      onSuccess: (res, { onPasswordReset }) => {
+        const { redirect, code } = res;
         if (redirect && code === 403) {
           return initializePrivilegedSession(redirect);
         }
@@ -70,18 +55,18 @@ const AccountSecurityPage = (): ReactElement => {
     },
   );
 
-  const onUpdatePassword = ({ password }: ResetFormParams) => {
+  const onUpdatePassword = ({
+    password,
+    onPasswordReset,
+  }: ChangePasswordParams) => {
     const { action, nodes } = settings.ui;
     const csrfToken = getNodeValue('csrf_token', nodes);
     resetPassword({
       action,
+      onPasswordReset,
       params: { csrf_token: csrfToken, method: 'password', password },
     });
   };
-
-  if (!user) {
-    return null;
-  }
 
   const onChangeEmail = () => {
     setIsEmailSent(true);
@@ -102,13 +87,7 @@ const AccountSecurityPage = (): ReactElement => {
         <AccountSecurityDefault
           isEmailSent={isEmailSent}
           onSwitchDisplay={setActiveDisplay}
-        />
-      </Tab>
-      <Tab label={Display.ChangePassword}>
-        <ChangePasswordForm
-          onActiveDisplay={setActiveDisplay}
           onUpdatePassword={onUpdatePassword}
-          formRef={formRef}
         />
         {showVerifySession && (
           <VerifySessionModal
