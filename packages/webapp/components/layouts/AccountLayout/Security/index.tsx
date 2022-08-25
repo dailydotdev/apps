@@ -170,7 +170,7 @@ function AccountSecurityDefault({
             showStrength={false}
           />
           <Button type="submit" className="mt-6 w-fit btn-secondary">
-            Submit
+            Set password
           </Button>
         </form>
       </AccountContentSection>
