@@ -1,18 +1,17 @@
-import React, { FormEvent, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { AccountPageContainer } from '../AccountPageContainer';
 import { AccountSecurityDisplay as Display } from '../common';
-import EmailForm from '../EmailForm';
+import EmailForm, { EmailFormProps } from '../EmailForm';
 
-interface EmailFormPageProps {
+interface EmailFormPageProps extends EmailFormProps {
   onSwitchDisplay: (display: Display) => void;
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   title: string;
 }
 
 function EmailFormPage({
   onSwitchDisplay,
-  onSubmit,
   title,
+  ...props
 }: EmailFormPageProps): ReactElement {
   return (
     <AccountPageContainer
@@ -20,7 +19,7 @@ function EmailFormPage({
       onBack={() => onSwitchDisplay(Display.Default)}
       className={{ section: 'max-w-sm' }}
     >
-      <EmailForm onSubmit={onSubmit} />
+      <EmailForm {...props} />
     </AccountPageContainer>
   );
 }

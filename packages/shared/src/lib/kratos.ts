@@ -55,7 +55,7 @@ interface InitializationUI {
 
 export type RegistrationInitializationData = InitializationData;
 export type AuthenticatorLevel = 'aal0' | 'aal1';
-export type KratosMethod = 'link' | 'link_recovery' | 'password';
+export type KratosMethod = 'link' | 'link_recovery' | 'password' | 'profile';
 export type AuthenticationType = 'password' | 'oidc';
 
 interface IdentityCredential {

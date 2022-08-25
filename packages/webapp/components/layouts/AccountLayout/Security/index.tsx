@@ -44,7 +44,7 @@ const providers = Object.values(socialProvider);
 
 export interface ChangePasswordParams {
   password: string;
-  onPasswordReset: () => void;
+  onSuccess: () => void;
 }
 
 interface AccountSecurityDefaultProps {
@@ -108,11 +108,11 @@ function AccountSecurityDefault({
   const onChangePassword = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = formToJson<{ password: string }>(e.currentTarget);
-    onUpdatePassword({ ...form, onPasswordReset });
+    onUpdatePassword({ ...form, onSuccess: onPasswordReset });
   };
 
   const emailAction = isEmailSent ? (
-    <EmailSentSection />
+    <EmailSentSection className="max-w-sm" />
   ) : (
     <Button
       className="mt-6 w-fit btn-secondary"
