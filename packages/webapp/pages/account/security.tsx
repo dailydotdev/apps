@@ -12,9 +12,11 @@ import {
 } from '@dailydotdev/shared/src/lib/kratos';
 import {
   getNodeValue,
+  ValidateChangeEmail,
   ValidateResetPassword,
 } from '@dailydotdev/shared/src/lib/auth';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { Simulate } from 'react-dom/test-utils';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
@@ -70,9 +72,51 @@ const AccountSecurityPage = (): ReactElement => {
     });
   };
 
-  const onChangeEmail = () => {
-    setIsEmailSent(true);
-    setActiveDisplay(Display.Default);
+  const { mutateAsync: changeEmail } = useMutation(
+    (params: ValidateChangeEmail) => submitKratosFlow(params),
+    {
+      onSuccess: ({ redirect, error, code }) => {
+        if (redirect && code === 403) {
+          return initializePrivilegedSession(redirect);
+        }
+
+        if (error) {
+          return null;
+        }
+
+        setIsEmailSent(true);
+        setActiveDisplay(Display.Default);
+        return null;
+      },
+    },
+  );
+
+  const onChangeEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const input = Array.from(form.elements).find(
+      (el) => el.getAttribute('name') === 'traits.email',
+    ) as HTMLInputElement;
+    const email = input?.value?.trim();
+
+    if (!email) {
+      return null;
+    }
+
+    const { action, nodes } = settings.ui;
+    const csrfToken = getNodeValue('csrf_token', nodes);
+    changeEmail({
+      action,
+      params: {
+        csrf_token: csrfToken,
+        method: 'profile',
+        'traits.email': email,
+        'traits.name': getNodeValue('traits.name', nodes),
+        'traits.username': getNodeValue('traits.username', nodes),
+        'traits.image': getNodeValue('traits.image', nodes),
+      },
+    });
+    return null;
   };
 
   return (
