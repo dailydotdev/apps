@@ -26,7 +26,6 @@ import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/Delete
 import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import AccountContentSection from '../AccountContentSection';
