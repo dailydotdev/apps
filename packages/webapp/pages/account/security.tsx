@@ -16,7 +16,6 @@ import {
   ValidateResetPassword,
 } from '@dailydotdev/shared/src/lib/auth';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { Simulate } from 'react-dom/test-utils';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
