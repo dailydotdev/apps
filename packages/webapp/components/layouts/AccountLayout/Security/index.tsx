@@ -16,6 +16,7 @@ import { useMutation, useQuery } from 'react-query';
 import {
   AuthFlow,
   getKratosProviders,
+  getKratosSettingsFlow,
   initializeKratosFlow,
   submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
@@ -23,6 +24,8 @@ import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
 import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
 import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
+import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
+import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import AccountContentSection from '../AccountContentSection';
@@ -65,12 +68,26 @@ function AccountSecurityDefault({
   const { user, deleteAccount } = useContext(AuthContext);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deletedAccount, setDeletedAccount] = useState(false);
+  const [alreadyLinkedProvider, setAlreadyLinkedProvider] = useState(false);
+  const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [, setEmail] = useState<string>(null);
   const { data: userProviders } = useQuery('providers', getKratosProviders);
   const { data: settings } = useQuery('settings', () =>
     initializeKratosFlow(AuthFlow.Settings),
   );
+
+  useWindowEvents('message', async (e) => {
+    if (e.data?.flow) {
+      const flow = await getKratosSettingsFlow(AuthFlow.Settings, e.data.flow);
+      const { ui } = flow;
+      const error = ui.messages[0]?.id;
+      if (error === 4000007) {
+        // Provider is already linked to another account
+        setAlreadyLinkedProvider(true);
+      }
+    }
+  });
 
   const { mutateAsync: updateSettings } = useMutation(
     (params: SettingsParams) => submitKratosFlow(params),
@@ -88,6 +105,7 @@ function AccountSecurityDefault({
     type,
     provider,
   }: ManageSocialProvidersProps) => {
+    setLinkProvider(provider);
     const { nodes, action } = settings.ui;
     const csrfToken = getNodeByKey('csrf_token', nodes);
     const postData = {
@@ -204,6 +222,13 @@ function AccountSecurityDefault({
         <DeletedAccountConfirmationModal
           isOpen={deletedAccount}
           onRequestClose={() => window.location.reload()}
+        />
+      )}
+      {alreadyLinkedProvider && (
+        <AlreadyLinkedModal
+          provider={linkProvider}
+          isOpen={alreadyLinkedProvider}
+          onRequestClose={() => setAlreadyLinkedProvider(false)}
         />
       )}
     </AccountPageContainer>
