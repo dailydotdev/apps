@@ -48,7 +48,11 @@ export type BootCacheData = Pick<
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
   const appRoute = app === 'companion' ? '/companion' : '';
-  const params = url ? new URLSearchParams({ url }) : '';
+  const params = new URLSearchParams();
+  params.append('v', process.env.CURRENT_VERSION);
+  if (url) {
+    params.append('url', url);
+  }
   const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
     method: 'GET',
     credentials: 'include',

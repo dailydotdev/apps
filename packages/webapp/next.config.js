@@ -4,6 +4,7 @@ const withPreact = require('next-plugin-preact');
 const withPWA = require('next-pwa');
 const withTM = require('next-transpile-modules')(['@dailydotdev/shared']);
 const sharedPackage = require('../shared/package.json');
+const { version } = require('../extension/package.json');
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -72,7 +73,9 @@ module.exports = withTM(
 
           return config;
         },
-
+        env: {
+          CURRENT_VERSION: `'${version}'`
+        },
         rewrites: () => [
           {
             source: '/api/:path*',
