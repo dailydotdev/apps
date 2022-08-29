@@ -23,6 +23,8 @@ services:
         port: http
     env:
       NEXT_PUBLIC_API_URL: http://gateway
-      NEXT_PUBLIC_SUBS_URL: "ws://${var.hostname}/graphql"
+      NEXT_PUBLIC_SUBS_URL: "ws://${var.api-hostname}/graphql"
       NEXT_PUBLIC_DOMAIN: "${var.hostname}"
       NEXT_PUBLIC_WEBAPP_URL: /
+      NEXT_PUBLIC_AUTH_URL: "http://${var.kratos-hostname}"
+      NEXT_PUBLIC_HEIMDALL_URL: "http://${var.heimdall-hostname}"
