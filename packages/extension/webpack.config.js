@@ -162,7 +162,7 @@ module.exports = {
         process.env.NODE_ENV === 'production' ? './.env.production' : './.env',
     }),
     new webpack.DefinePlugin({
-      'process.env.currentVersion': `'${version}'`,
+      'process.env.CURRENT_VERSION': `'${version}'`,
     }),
     // delete previous build files
     new CleanWebpackPlugin({
