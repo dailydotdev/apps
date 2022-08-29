@@ -47,12 +47,9 @@ export type BootCacheData = Pick<
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
-  const version = await import('../../../extension/package.json').then(
-    ({ version: _version }) => _version,
-  );
   const appRoute = app === 'companion' ? '/companion' : '';
   const params = new URLSearchParams();
-  params.append('v', version);
+  params.append('v', process.env.currentVersion);
   if (url) {
     params.append('url', url);
   }
