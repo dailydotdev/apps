@@ -1,3 +1,4 @@
+import { EmptyObjectLiteral } from './kratos';
 export const nextTick = (): Promise<unknown> =>
   new Promise((resolve) => setTimeout(resolve));
 
@@ -20,3 +21,11 @@ export const disabledRefetch = {
 };
 
 Object.freeze(disabledRefetch);
+
+export const postWindowMessage = (
+  eventKey: string,
+  params: EmptyObjectLiteral,
+  attributes = '*',
+): void => {
+  window.opener.postMessage({ ...params, eventKey }, attributes);
+};

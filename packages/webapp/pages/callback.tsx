@@ -1,3 +1,4 @@
+import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { ReactElement, useEffect } from 'react';
 
@@ -6,7 +7,7 @@ function CallbackPage(): ReactElement {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     const eventKey = params.flow ? AuthEvent.Registration : AuthEvent.Login;
-    window.opener.postMessage({ ...params, eventKey }, '*');
+    postWindowMessage(eventKey, params);
     window.close();
   }, []);
 
