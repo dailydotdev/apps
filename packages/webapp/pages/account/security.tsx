@@ -115,7 +115,6 @@ const AccountSecurityPage = (): ReactElement => {
         'traits.image': getNodeValue('traits.image', nodes),
       },
     });
-    return;
   };
 
   return (
