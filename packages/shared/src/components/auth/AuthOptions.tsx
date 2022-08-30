@@ -20,9 +20,8 @@ import {
   SocialProviderAccount,
 } from './RegistrationForm';
 import { getNodeValue, RegistrationError } from '../../lib/auth';
-import {
+import useWindowEvents, {
   SocialRegistrationFlow,
-  useKeyedWindowEvent,
 } from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
@@ -85,7 +84,7 @@ function AuthOptions({
       onRedirect: (redirect) => window.open(redirect),
     });
 
-  useKeyedWindowEvent<SocialRegistrationFlow>(
+  useWindowEvents<SocialRegistrationFlow>(
     'message',
     AuthEvent.SocialRegistration,
     async (e) => {

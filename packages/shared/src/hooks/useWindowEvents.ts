@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { AuthEvent } from '../lib/kratos';
 
 interface EventData {
@@ -14,31 +14,21 @@ export interface SocialRegistrationFlow extends EventData {
 
 const useWindowEvents = <T extends EventData = EventData>(
   event: EventParameter,
-  func: KeyedWindowEventHandler<T>,
-): void => {
-  useEffect(() => {
-    window.addEventListener(event, func);
-    return () => window.removeEventListener(event, func);
-  }, [event, func]);
-};
-
-export const useKeyedWindowEvent = <T extends EventData = EventData>(
-  event: EventParameter,
   key: string,
   func: KeyedWindowEventHandler<T>,
 ): void => {
-  useWindowEvents(
-    event,
-    useCallback(
-      (e: MessageEvent<T>) => {
-        if (!e.data?.eventKey || e.data.eventKey !== key) {
-          return;
-        }
-        func(e);
-      },
-      [event, key, func],
-    ),
-  );
+  useEffect(() => {
+    const handler = (e: MessageEvent<T>) => {
+      if (!e.data?.eventKey || e.data.eventKey !== key) {
+        return;
+      }
+
+      func(e);
+    };
+
+    window.addEventListener(event, handler);
+    return () => window.removeEventListener(event, handler);
+  }, [event, func]);
 };
 
 export default useWindowEvents;

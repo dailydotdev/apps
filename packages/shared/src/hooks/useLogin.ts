@@ -17,7 +17,7 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import { useKeyedWindowEvent } from './useWindowEvents';
+import useWindowEvents from './useWindowEvents';
 
 interface UseLogin {
   loginFlowData: InitializationData;
@@ -98,7 +98,7 @@ const useLogin = ({
     onPasswordLogin({ action, params });
   };
 
-  useKeyedWindowEvent('message', AuthEvent.Login, async () => {
+  useWindowEvents('message', AuthEvent.Login, async () => {
     if (!session) {
       return;
     }

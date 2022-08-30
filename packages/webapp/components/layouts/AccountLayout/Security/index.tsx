@@ -25,9 +25,8 @@ import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
 import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
 import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
-import {
+import useWindowEvents, {
   SocialRegistrationFlow,
-  useKeyedWindowEvent,
 } from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
@@ -81,7 +80,7 @@ function AccountSecurityDefault({
     initializeKratosFlow(AuthFlow.Settings),
   );
 
-  useKeyedWindowEvent<SocialRegistrationFlow>(
+  useWindowEvents<SocialRegistrationFlow>(
     'message',
     AuthEvent.SocialRegistration,
     async (e) => {
