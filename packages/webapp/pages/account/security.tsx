@@ -99,7 +99,7 @@ const AccountSecurityPage = (): ReactElement => {
     const email = input?.value?.trim();
 
     if (!email) {
-      return null;
+      return;
     }
 
     const { action, nodes } = settings.ui;
@@ -115,7 +115,7 @@ const AccountSecurityPage = (): ReactElement => {
         'traits.image': getNodeValue('traits.image', nodes),
       },
     });
-    return null;
+    return;
   };
 
   return (
