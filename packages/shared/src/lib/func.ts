@@ -1,4 +1,5 @@
 import { EmptyObjectLiteral } from './kratos';
+
 export const nextTick = (): Promise<unknown> =>
   new Promise((resolve) => setTimeout(resolve));
 
