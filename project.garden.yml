@@ -8,6 +8,8 @@ sources:
     repositoryUrl: git@github.com:dailydotdev/daily-api.git#master
   - name: gateway
     repositoryUrl: git@github.com:dailydotdev/daily-gateway.git#master
+  - name: heimdall
+    repositoryUrl: git@github.com:dailydotdev/heimdall.git#main
 environments:
   - name: default
 #    variables:
@@ -15,16 +17,32 @@ environments:
 providers:
   - name: local-kubernetes
 variables:
+  enabledServices:
+    postgres: true
+    mysql: true
+    pubsub: true
+    redis: true
   hostname: apps.local.app.garden
+  api-hostname: api.local.app.garden
+  # API variables
   api-database: api
-  postgres-databases: api
+  # Gateway variables
+  gateway-database: gateway
+  # Heimdall variables
+  heimdall-hostname: heimdall.apps.local.app.garden
+  kratos-image: oryd/kratos:v0.10.1
+  kratos-hostname: sso.apps.local.app.garden
+  kratos-ui-hostname: kratos-ui.apps.local.app.garden
+  kratos-database: kratos
+  kratos-cookie-domain: apps.local.app.garden
+  # Common
+  postgres-databases: api,kratos
   postgres-username: postgres
   postgres-password: 12345
   postgres-healthcheck-database: api
   pubsub-host: "pubsub:8085"
   gcloud-project: local
   debezium-tag: "2.0"
-  gateway-database: gateway
   mysql-databases: gateway
   mysql-username: root
   mysql-password: root

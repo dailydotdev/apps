@@ -98,7 +98,7 @@ const useLogin = ({
   };
 
   useWindowEvents('message', async (e) => {
-    if (e.data?.flow) {
+    if (!e.data?.flow) {
       return;
     }
 
