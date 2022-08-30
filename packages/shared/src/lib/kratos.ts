@@ -1,6 +1,11 @@
+import { MessageEventData } from '../hooks/useWindowEvents';
 import { authUrl, heimdallUrl } from './constants';
 
 export type EmptyObjectLiteral = Record<string, never | string>;
+
+export interface SocialRegistrationFlow extends MessageEventData {
+  flow: string;
+}
 
 interface InitializationNodeAttribute {
   name: string;

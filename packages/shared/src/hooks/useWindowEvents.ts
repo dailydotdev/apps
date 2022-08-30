@@ -1,18 +1,13 @@
 import { useEffect } from 'react';
-import { AuthEvent } from '../lib/kratos';
 
-interface EventData {
-  eventKey?: AuthEvent | string;
+export interface MessageEventData {
+  eventKey?: string;
 }
 
 type EventParameter = keyof WindowEventMap;
 type KeyedWindowEventHandler<T = unknown> = (e: MessageEvent<T>) => void;
 
-export interface SocialRegistrationFlow extends EventData {
-  flow: string;
-}
-
-const useWindowEvents = <T extends EventData = EventData>(
+const useWindowEvents = <T extends MessageEventData = MessageEventData>(
   event: EventParameter,
   key: string,
   func: KeyedWindowEventHandler<T>,
