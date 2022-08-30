@@ -26,6 +26,4 @@ export const postWindowMessage = (
   eventKey: string,
   params: EmptyObjectLiteral,
   attributes = '*',
-): void => {
-  window.opener.postMessage({ ...params, eventKey }, attributes);
-};
+): void => window.opener.postMessage({ ...params, eventKey }, attributes);
