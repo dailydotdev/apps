@@ -20,13 +20,16 @@ import {
   SocialProviderAccount,
 } from './RegistrationForm';
 import { getNodeValue, RegistrationError } from '../../lib/auth';
-import useWindowEvents, {
-  SocialRegistrationFlow,
-} from '../../hooks/useWindowEvents';
+import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthEvent, AuthFlow, getKratosFlow } from '../../lib/kratos';
+import {
+  AuthEvent,
+  AuthFlow,
+  getKratosFlow,
+  SocialRegistrationFlow,
+} from '../../lib/kratos';
 import { fallbackImages } from '../../lib/config';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
