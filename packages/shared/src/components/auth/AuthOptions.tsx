@@ -20,11 +20,11 @@ import {
   SocialProviderAccount,
 } from './RegistrationForm';
 import { getNodeValue, RegistrationError } from '../../lib/auth';
-import useWindowEvents from '../../hooks/useWindowEvents';
+import { EventData, useKeyedWindowEvent } from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthFlow, getKratosFlow } from '../../lib/kratos';
+import { AuthEvent, AuthFlow, getKratosFlow } from '../../lib/kratos';
 import { fallbackImages } from '../../lib/config';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
@@ -46,6 +46,10 @@ export interface AuthOptionsProps {
   socialAccount?: SocialProviderAccount;
   defaultDisplay?: Display;
   className?: string;
+}
+
+interface SocialRegistrationFlow extends EventData {
+  flow: string;
 }
 
 function AuthOptions({
@@ -82,8 +86,14 @@ function AuthOptions({
       onRedirect: (redirect) => window.open(redirect),
     });
 
-  useWindowEvents('message', async (e) => {
-    if (e.data?.flow) {
+  useKeyedWindowEvent<SocialRegistrationFlow>(
+    'message',
+    AuthEvent.Registration,
+    async (e) => {
+      if (!e.data?.flow) {
+        return;
+      }
+
       const flow = await getKratosFlow(AuthFlow.Registration, e.data.flow);
       const { nodes, action } = flow.ui;
       onSelectedProvider({
@@ -96,8 +106,8 @@ function AuthOptions({
         image: getNodeValue('traits.image', nodes) || fallbackImages.avatar,
       });
       setActiveDisplay(Display.Registration);
-    }
-  });
+    },
+  );
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exists
