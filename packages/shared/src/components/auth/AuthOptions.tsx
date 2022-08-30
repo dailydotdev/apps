@@ -20,7 +20,10 @@ import {
   SocialProviderAccount,
 } from './RegistrationForm';
 import { getNodeValue, RegistrationError } from '../../lib/auth';
-import { EventData, useKeyedWindowEvent } from '../../hooks/useWindowEvents';
+import {
+  SocialRegistrationFlow,
+  useKeyedWindowEvent,
+} from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
@@ -46,10 +49,6 @@ export interface AuthOptionsProps {
   socialAccount?: SocialProviderAccount;
   defaultDisplay?: Display;
   className?: string;
-}
-
-interface SocialRegistrationFlow extends EventData {
-  flow: string;
 }
 
 function AuthOptions({
@@ -88,7 +87,7 @@ function AuthOptions({
 
   useKeyedWindowEvent<SocialRegistrationFlow>(
     'message',
-    AuthEvent.Registration,
+    AuthEvent.SocialRegistration,
     async (e) => {
       if (!e.data?.flow) {
         return;

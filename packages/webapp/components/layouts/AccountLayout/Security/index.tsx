@@ -14,6 +14,7 @@ import React, {
 } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
+  AuthEvent,
   AuthFlow,
   getKratosProviders,
   getKratosSettingsFlow,
@@ -24,7 +25,10 @@ import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
 import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
 import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
-import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
+import {
+  SocialRegistrationFlow,
+  useKeyedWindowEvent,
+} from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
@@ -77,17 +81,24 @@ function AccountSecurityDefault({
     initializeKratosFlow(AuthFlow.Settings),
   );
 
-  useWindowEvents('message', async (e) => {
-    if (e.data?.flow) {
-      const flow = await getKratosSettingsFlow(AuthFlow.Settings, e.data.flow);
-      const { ui } = flow;
-      const error = ui.messages[0]?.id;
-      if (error === 4000007) {
-        // Provider is already linked to another account
-        setAlreadyLinkedProvider(true);
+  useKeyedWindowEvent<SocialRegistrationFlow>(
+    'message',
+    AuthEvent.SocialRegistration,
+    async (e) => {
+      if (e.data?.flow) {
+        const flow = await getKratosSettingsFlow(
+          AuthFlow.Settings,
+          e.data.flow,
+        );
+        const { ui } = flow;
+        const error = ui.messages[0]?.id;
+        if (error === 4000007) {
+          // Provider is already linked to another account
+          setAlreadyLinkedProvider(true);
+        }
       }
-    }
-  });
+    },
+  );
 
   const { mutateAsync: updateSettings } = useMutation(
     (params: SettingsParams) => submitKratosFlow(params),

@@ -179,7 +179,7 @@ export interface SuccessfulRegistrationData {
 
 export enum AuthEvent {
   Login = 'login',
-  Registration = 'registration',
+  SocialRegistration = 'social_registration',
 }
 
 export enum AuthFlow {
