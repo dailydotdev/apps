@@ -6,7 +6,9 @@ function CallbackPage(): ReactElement {
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
-    const eventKey = params.flow ? AuthEvent.Registration : AuthEvent.Login;
+    const eventKey = params.flow
+      ? AuthEvent.SocialRegistration
+      : AuthEvent.Login;
     postWindowMessage(eventKey, params);
     window.close();
   }, []);
