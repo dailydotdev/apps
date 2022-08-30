@@ -177,6 +177,11 @@ export interface SuccessfulRegistrationData {
   identity: Identity;
 }
 
+export enum AuthEvent {
+  Login = 'login',
+  Registration = 'registration',
+}
+
 export enum AuthFlow {
   Login = '/login',
   Registration = '/registration',
