@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
 import useLogin from './useLogin';
-import usePersistentContext from './usePersistentContext';
 import { useToastNotification } from './useToastNotification';
 
 interface UsePrivilegedSession {
@@ -22,8 +22,10 @@ const usePrivilegedSession = ({
   onSessionVerified,
 }: UsePrivilegedSessionProps = {}): UsePrivilegedSession => {
   const { displayToast } = useToastNotification();
-  const [verifySessionId, setVerifySessionId] =
-    usePersistentContext(VERIFY_SESSION_KEY);
+  const { data: verifySessionId } = useQuery(VERIFY_SESSION_KEY);
+  const client = useQueryClient();
+  const setVerifySessionId = (value: string) =>
+    client.setQueryData(VERIFY_SESSION_KEY, value);
 
   const { loginFlowData, loginHint, onSocialLogin, onPasswordLogin } = useLogin(
     {
