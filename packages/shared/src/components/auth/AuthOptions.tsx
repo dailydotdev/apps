@@ -61,10 +61,7 @@ function AuthOptions({
     {},
   );
   const { refetchBoot, referral } = useContext(AuthContext);
-  const {
-    loginHint: [hint, setHint],
-    onPasswordLogin,
-  } = useLogin({ onSuccessfulLogin });
+  const { loginHint, onPasswordLogin } = useLogin({ onSuccessfulLogin });
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -135,7 +132,7 @@ function AuthOptions({
             onProviderClick={onSocialRegistration}
             onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
             onPasswordLogin={onPasswordLogin}
-            loginHint={[hint, setHint]}
+            loginHint={loginHint}
             isV2={isV2}
           />
         </Tab>
@@ -157,6 +154,8 @@ function AuthOptions({
         <Tab label={Display.SignBack}>
           <AuthSignBack onRegister={() => setActiveDisplay(Display.Default)}>
             <LoginForm
+              className="mt-3"
+              loginHint={loginHint}
               onPasswordLogin={onPasswordLogin}
               onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
             />
