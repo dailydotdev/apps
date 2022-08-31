@@ -19,13 +19,22 @@ providers:
 variables:
   enabledServices:
     postgres: true
-    mysql: true
     pubsub: true
     redis: true
+    mysql: true
   hostname: apps.local.app.garden
-  api-hostname: api.local.app.garden
   # API variables
+  api-hostname: api.apps.local.app.garden
   api-database: api
+  # Gateway variables
+  gateway-database: gateway
+  # Kratos variables
+  kratos-image: oryd/kratos:v0.10.1
+  kratos-hostname: sso.apps.local.app.garden
+  kratos-ui-hostname: kratos-ui.apps.local.app.garden
+  kratos-database: kratos
+  # Common
+  postgres-databases: api,kratos
   # Gateway variables
   gateway-database: gateway
   # Heimdall variables
@@ -43,6 +52,7 @@ variables:
   pubsub-host: "pubsub:8085"
   gcloud-project: local
   debezium-tag: "2.0"
+  gateway-database: gateway
   mysql-databases: gateway
   mysql-username: root
   mysql-password: root
