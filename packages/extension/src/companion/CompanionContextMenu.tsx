@@ -1,45 +1,42 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
-import ShareIcon from '@dailydotdev/shared/src/components/icons/Forward';
+import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 import FlagIcon from '@dailydotdev/shared/src/components/icons/Flag';
 import FeedbackIcon from '@dailydotdev/shared/src/components/icons/Feedback';
 import EyeIcon from '@dailydotdev/shared/src/components/icons/Eye';
 import { Item, Menu } from '@dailydotdev/react-contexify';
 import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
+import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
+import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
-type CompanionContextMenuProps = {
+interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
   postData: PostBootData;
+  additionalInteractionButtonFeature: string;
   onReport: (T) => void;
   onBlockSource: (T) => void;
   onDisableCompanion: () => void;
-};
+}
 
 export default function CompanionContextMenu({
   postData,
+  additionalInteractionButtonFeature,
   onReport,
   onBlockSource,
   onDisableCompanion,
+  onBookmark,
+  onShare,
 }: CompanionContextMenuProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const [reportModal, setReportModal] = useState<boolean>();
   const [disableModal, setDisableModal] = useState<boolean>();
-  const shareLink = postData?.commentsPermalink;
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    link: shareLink,
-    text: postData?.title,
-    trackObject: () =>
-      postAnalyticsEvent('share post', postData, {
-        extra: { origin: 'companion context menu' },
-      }),
-  });
 
   const onReportPost = async (
     reportPostIndex,
@@ -78,9 +75,21 @@ export default function CompanionContextMenu({
             <CommentIcon size="medium" className="mr-2" /> View discussion
           </a>
         </Item>
-        <Item onClick={() => onShareOrCopyLink()}>
-          <ShareIcon size="medium" className="mr-2" /> Share article
-        </Item>
+        {additionalInteractionButtonFeature ===
+        AdditionalInteractionButtons.Bookmark ? (
+          <Item onClick={onShare}>
+            <ShareIcon size="medium" className="mr-2" /> Share article via...
+          </Item>
+        ) : (
+          <Item onClick={onBookmark}>
+            <BookmarkIcon
+              size="medium"
+              className="mr-2"
+              secondary={postData?.bookmarked}
+            />
+            {postData?.bookmarked ? 'Remove from' : 'Save to'} bookmarks
+          </Item>
+        )}
         <Item onClick={() => setReportModal(true)}>
           <FlagIcon size="medium" className="mr-2" /> Report
         </Item>

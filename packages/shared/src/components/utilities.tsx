@@ -77,6 +77,9 @@ export const getThemeColor = (color: string, fallback: string): ThemeColor => {
   return themeColors[color] ?? themeColors[fallback];
 };
 
+export const upvoteCommentEventName = (upvoted: boolean): string =>
+  upvoted ? 'upvote comment' : 'remove comment upvote';
+
 export const postEventName = (
   update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
 ): string => {
@@ -112,13 +115,12 @@ export const PageWidgets = classed(
 
 export const NewCommentContainer = classed(
   'div',
-  'flex fixed right-0 bottom-0 left-0 z-2 flex-col items-stretch py-3 px-4 w-full bg-theme-bg-primary',
-  'laptop:relative laptop:p-0 laptop:bg-none ',
+  'flex flex-col items-stretch w-full bg-theme-bg-primary',
 );
 
 export const ResponsivePageContainer = classed(
   PageContainer,
-  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
+  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen pb-24',
 );
 
 export const FeedPage = classed(
@@ -158,7 +160,7 @@ export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 
 export const SummaryContainer = classed(
   'div',
-  'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
+  'text-theme-label-secondary multi-truncate mb-6 border-l border-theme-status-cabbage pl-4',
 );
 
 export const TLDRText = classed(
@@ -167,7 +169,7 @@ export const TLDRText = classed(
 );
 
 export const HotLabel = (): ReactElement => (
-  <div className="py-px px-2 font-bold uppercase rounded typo-caption2 bg-theme-status-error text-theme-label-primary">
+  <div className="py-px px-2 font-bold text-white uppercase rounded typo-caption2 bg-theme-status-error">
     Hot
   </div>
 );

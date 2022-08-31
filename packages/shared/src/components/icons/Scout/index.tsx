@@ -4,7 +4,7 @@ import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
 const ScoutIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconOutlined={OutlinedIcon} IconFilled={FilledIcon} />
+  <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
 
 export default ScoutIcon;

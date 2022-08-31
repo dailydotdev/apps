@@ -1,12 +1,11 @@
 import { IFlags } from 'flagsmith';
+import { AdditionalInteractionButtons } from './featureValues';
 
 export class Features {
   static readonly SignupButtonCopy = new Features(
     'signup_button_copy',
     'Access all features',
   );
-
-  static readonly DevcardLimit = new Features('feat_limit_dev_card', '50');
 
   static readonly FeedVersion = new Features('feed_version', '1');
 
@@ -82,34 +81,45 @@ export class Features {
 
   static readonly PostCardHeadingFont = new Features(
     'post_card_heading_font',
-    'bodyBold',
+    'title3Bold',
     ['bodyBold', 'body', 'title3', 'title3Bold'],
   );
 
   static readonly CompanionPermissionPlacement = new Features(
     'companion_permission_placement',
-    'off',
+    'header',
     ['off', 'header', 'sidebar'],
   );
 
   static readonly CompanionPermissionTitle = new Features(
     'companion_permission_title',
-    'The companion lets you comment and upvote directly on an article! 🤯',
+    'Try the new companion feature!',
   );
 
   static readonly CompanionPermissionDescription = new Features(
     'companion_permission_description',
-    'Heads up! We need to ask for some extra permissions so you can enjoy the power of the companion.',
+    "We'll ask for extra permissions so we can show the companion directly on an article!",
   );
 
   static readonly CompanionPermissionLink = new Features(
     'companion_permission_link',
-    'Watch the Companion overview',
+    'Overview Video',
   );
 
   static readonly CompanionPermissionButton = new Features(
     'companion_permission_button',
-    'Add the companion now!',
+    'Activate companion',
+  );
+
+  static readonly PostCardVersion = new Features('post_card_version', 'v1', [
+    'v1',
+    'v2',
+  ]);
+
+  static readonly PostModalByDefault = new Features('post_modal_by_default');
+
+  static readonly PostEngagementNonClickable = new Features(
+    'post_engagement_non_clickable',
   );
 
   static readonly MyFeedOnboardingVersion = new Features(
@@ -117,6 +127,14 @@ export class Features {
     'control',
     ['control', 'v1', 'v2', 'v3'],
   );
+
+  static readonly AdditionalInteractionButton = new Features(
+    'additional_interaction_button',
+    AdditionalInteractionButtons.Bookmark,
+    [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
+  );
+
+  static readonly ShowCommentPopover = new Features('show_comment_popover');
 
   private constructor(
     public readonly id: string,

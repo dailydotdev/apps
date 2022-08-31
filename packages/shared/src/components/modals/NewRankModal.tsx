@@ -22,13 +22,13 @@ import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
+import useDebounce from '../../hooks/useDebounce';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
   progress: number;
   user?: LoggedUser;
   onRequestClose?: (neverShowAgain: boolean) => unknown;
-  showDevCard: boolean;
 }
 
 export default function NewRankModal({
@@ -36,7 +36,6 @@ export default function NewRankModal({
   progress,
   user,
   onRequestClose,
-  showDevCard,
   className,
   style,
   ...props
@@ -46,6 +45,8 @@ export default function NewRankModal({
   const [animatingRank, setAnimatingRank] = useState(false);
   const [rankAnimationEnded, setRankAnimationEnded] = useState(false);
   const inputRef = useRef<HTMLInputElement>();
+  const timeoutRef = useRef<number>();
+  const visibilityRef = useRef(null);
 
   const title = useMemo(() => {
     if (user) {
@@ -71,27 +72,39 @@ export default function NewRankModal({
     onRequestClose?.(inputRef.current?.checked);
   };
 
+  const [animateRank] = useDebounce(() => {
+    if (visibilityRef.current) {
+      document.removeEventListener('visibilitychange', visibilityRef.current);
+    }
+
+    timeoutRef.current = 1000;
+    visibilityRef.current = animateRank;
+
+    if (document.visibilityState === 'hidden') {
+      document.addEventListener('visibilitychange', visibilityRef.current, {
+        once: true,
+      });
+    } else {
+      setAnimatingRank(true);
+      setShownRank(rank);
+      setShownProgress(RANKS[getRank(rank)].steps);
+    }
+  }, timeoutRef.current);
+
   useEffect(() => {
-    const animateRank = () => {
-      if (document.visibilityState === 'hidden') {
-        document.addEventListener(
-          'visibilitychange',
-          () => setTimeout(animateRank, 1000),
-          { once: true },
-        );
-      } else {
-        setAnimatingRank(true);
-        setShownRank(rank);
-        setShownProgress(RANKS[getRank(rank)].steps);
+    timeoutRef.current = 1500;
+    animateRank();
+    return () => {
+      if (visibilityRef.current) {
+        document.removeEventListener('visibilitychange', visibilityRef.current);
       }
     };
-
-    setTimeout(() => animateRank(), 1500);
   }, []);
 
-  const onRankAnimationFinish = () => {
-    setTimeout(() => setRankAnimationEnded(true), 700);
-  };
+  const [onRankAnimationFinish] = useDebounce(
+    () => setRankAnimationEnded(true),
+    700,
+  );
 
   return (
     <ResponsiveModal
@@ -169,9 +182,7 @@ export default function NewRankModal({
       </p>
       {user ? (
         <div className="flex gap-4 self-center">
-          {showDevCard && (
-            <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
-          )}
+          <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
           <Button
             className="btn-primary"
             buttonSize="small"

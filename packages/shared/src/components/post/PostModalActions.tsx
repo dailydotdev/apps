@@ -19,18 +19,17 @@ import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { OnShareOrBookmarkProps } from './PostActions';
 
-export interface PostModalActionsProps {
+export interface PostModalActionsProps extends OnShareOrBookmarkProps {
   post: Post;
+  onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
   inlineActions?: boolean;
-  origin?: PostOrigin;
   notificactionClassName?: string;
+  contextMenuId: string;
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -40,17 +39,20 @@ const BanPostModal = dynamic(() => import('../modals/BanPostModal'));
 const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostModalActions({
+  additionalInteractionButtonFeature,
+  onReadArticle,
+  onShare,
+  onBookmark,
   post,
   onClose,
   inlineActions,
   className,
-  origin = 'article page',
   notificactionClassName,
+  contextMenuId,
   ...props
 }: PostModalActionsProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
-  const { showReportMenu } = useReportPostMenu();
+  const { showReportMenu } = useReportPostMenu(contextMenuId);
   const [showBanPost, setShowBanPost] = useState(false);
   const [showDeletePost, setShowDeletePost] = useState(false);
 
@@ -61,28 +63,26 @@ export function PostModalActions({
     });
   };
 
-  const onReadArticle = () => {
-    trackEvent(
-      postAnalyticsEvent('go to link', post, {
-        extra: { origin },
-      }),
-    );
-  };
-
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <Button
-        className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
-        tag="a"
-        href={post.permalink}
-        target="_blank"
-        icon={<OpenLinkIcon />}
-        onClick={onReadArticle}
+      <SimpleTooltip
+        placement="bottom"
+        content="Read article"
+        disabled={!inlineActions}
       >
-        {!inlineActions && 'Read article'}
-      </Button>
+        <Button
+          className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
+          tag="a"
+          href={post.permalink}
+          target="_blank"
+          icon={<OpenLinkIcon />}
+          onClick={onReadArticle}
+        >
+          {!inlineActions && 'Read article'}
+        </Button>
+      </SimpleTooltip>
       <SimpleTooltip placement="bottom" content="Options">
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
@@ -100,9 +100,13 @@ export function PostModalActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
+        onBookmark={onBookmark}
+        onShare={onShare}
         post={post}
         setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
         setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
+        contextId={contextMenuId}
       />
       {showBanPost && (
         <BanPostModal

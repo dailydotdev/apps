@@ -9,6 +9,10 @@
     &:first-child {
       margin-left: 0;
     }
+
+    &:global(.ml-auto) {
+      margin-left: auto;
+    }
   }
 }
 
@@ -27,7 +31,7 @@
 
   & a,
   & button,
-  & label {
+  & label:not(:global(.readOnly)) {
     pointer-events: all;
     z-index: 1;
   }

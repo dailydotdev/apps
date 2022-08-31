@@ -39,7 +39,6 @@ import AuthContext from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import styles from './PostsSection.module.css';
 import classed from '../../lib/classed';
-import sizeN from '../../../macros/sizeN.macro';
 import FeatherIcon from '../icons/Feather';
 import ScoutIcon from '../icons/Scout';
 
@@ -70,13 +69,13 @@ const iconImage = (post: Post) => {
       >
         {post.isAuthor ? (
           <FeatherIcon
-            filled
+            secondary
             data-testid="post-author-badge"
             className="text-xl text-theme-color-cheese"
           />
         ) : (
           <ScoutIcon
-            filled
+            secondary
             data-testid="post-scout-badge"
             className="text-xl text-theme-color-bun"
           />
@@ -221,14 +220,12 @@ export default function PostsSection({
               maxLength={15}
               validityChanged={updateDisableSubmit}
               valueChanged={() => twitterHint && setTwitterHint(null)}
-              className="self-stretch mb-4"
-              style={{ maxWidth: sizeN(78) }}
+              className="self-stretch mb-4 w-80"
             />
             <Button
-              className="btn-primary"
+              className="w-28 btn-primary"
               type="submit"
               disabled={disableSubmit}
-              style={{ width: sizeN(30) }}
             >
               Save
             </Button>

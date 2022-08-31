@@ -39,7 +39,6 @@ import { LoggedUser } from '../lib/user';
 import { MyRankData } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
-import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {
   SettingsContextData,
   ThemeMode,
@@ -53,6 +52,8 @@ import {
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
+import { FeaturesContextProvider } from '../contexts/FeaturesContext';
+import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -125,7 +126,7 @@ const renderComponent = (
   queryClient = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
     showOnlyUnreadPosts: false,
@@ -151,31 +152,36 @@ const renderComponent = (
     toggleSidebarExpanded: jest.fn(),
   };
   return render(
-    <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          closeLogin: jest.fn(),
-          trackingId: user?.id,
-          loginState: null,
-        }}
-      >
-        <SettingsContext.Provider value={settingsContext}>
-          <Toast autoDismissNotifications={false} />
-          <Feed
-            feedQueryKey={['feed']}
-            query={ANONYMOUS_FEED_QUERY}
-            variables={variables}
-          />
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
-    </QueryClientProvider>,
+    <FeaturesContextProvider
+      flags={{ show_comment_popover: { enabled: true } }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            closeLogin: jest.fn(),
+            trackingId: user?.id,
+            loginState: null,
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <Toast autoDismissNotifications={false} />
+            <Feed
+              feedQueryKey={['feed']}
+              query={ANONYMOUS_FEED_QUERY}
+              variables={variables}
+            />
+          </SettingsContext.Provider>
+        </AuthContext.Provider>
+      </QueryClientProvider>
+      ,
+    </FeaturesContextProvider>,
   );
 };
 
@@ -637,7 +643,7 @@ it('should send comment through the comment popup', async () => {
   upvoteBtn.click();
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   fireEvent.change(input, { target: { value: 'comment' } });
-  const commentBtn = await screen.findByText('Comment');
+  const commentBtn = await screen.findByText('Post');
   commentBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(async () =>

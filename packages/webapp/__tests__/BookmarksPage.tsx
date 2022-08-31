@@ -10,13 +10,17 @@ import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import SettingsContext, {
   SettingsContextData,
+  ThemeMode,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import BookmarksPage from '../pages/bookmarks';
-import ad from './fixture/ad';
-import defaultUser from './fixture/loggedUser';
-import defaultFeedPage from './fixture/feed';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { waitForNock } from './helpers/utilities';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();
@@ -72,7 +76,7 @@ const renderComponent = (
     showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
-    themeMode: 'dark',
+    themeMode: ThemeMode.Dark,
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
     toggleShowOnlyUnreadPosts: jest.fn(),
@@ -81,6 +85,17 @@ const renderComponent = (
     toggleInsaneMode: jest.fn(),
     showTopSites: true,
     toggleShowTopSites: jest.fn(),
+    sidebarExpanded: false,
+    sortingEnabled: true,
+    optOutWeeklyGoal: false,
+    optOutCompanion: false,
+    autoDismissNotifications: true,
+    toggleSidebarExpanded: jest.fn(),
+    toggleSortingEnabled: jest.fn(),
+    toggleOptOutWeeklyGoal: jest.fn(),
+    toggleAutoDismissNotifications: jest.fn(),
+    toggleOptOutCompanion: jest.fn(),
+    updateCustomLinks: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
@@ -93,6 +108,7 @@ const renderComponent = (
           updateUser: jest.fn(),
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
         }}
       >
         <SettingsContext.Provider value={settingsContext}>

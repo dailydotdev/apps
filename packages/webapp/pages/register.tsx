@@ -25,9 +25,9 @@ import MainLayout from '../components/layouts/MainLayout';
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
   const router = useRouter();
-  const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
   const { trackEvent } = useContext(AnalyticsContext);
   const { flags } = useContext(FeaturesContext);
+  const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
 
   const getSignupModalFeatureValue = (featureFlag: Features) => {
     return getFeatureValue(featureFlag, flags);

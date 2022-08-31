@@ -257,29 +257,22 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
-  const getFeedTitle = () => {
-    if (shouldShowMyFeed && alerts?.filter) {
-      return (
+  const header = (
+    <LayoutHeader className="flex-col">
+      {shouldShowMyFeed && alerts?.filter && (
         <CreateMyFeedButton
           action={() => setCreateMyFeed(true)}
           flags={flags}
         />
-      );
-    }
-
-    return <h3 className="typo-headline">{feedTitles[feedName]}</h3>;
-  };
-
-  const header = (
-    <LayoutHeader className="flex-row">
-      {!isSearchOn && getFeedTitle()}
-      <div className="flex flex-row flex-wrap gap-4 items-center mr-px">
+      )}
+      <div className="flex flex-row flex-wrap gap-4 items-center mr-px w-full h-[3.125rem]">
+        <h3 className="flex flex-1 typo-headline">{feedTitles[feedName]}</h3>
         {navChildren}
         {isUpvoted && (
           <Dropdown
             className="w-44"
             buttonSize="large"
-            icon={<CalendarIcon />}
+            icon={<CalendarIcon className="mr-2" />}
             selectedIndex={selectedPeriod}
             options={periodTexts}
             onChange={(_, index) => setSelectedPeriod(index)}

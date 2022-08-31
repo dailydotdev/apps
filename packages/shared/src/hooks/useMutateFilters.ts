@@ -16,7 +16,6 @@ import {
 import { Source } from '../graphql/sources';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
@@ -140,8 +139,7 @@ const onMutateSourcesSettings = async (
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const { shouldShowMyFeed } = useContext(FeaturesContext);
   const shouldFilterLocally = shouldShowMyFeed && !user;
 
   const updateFeedFilters = ({ advancedSettings, ...filters }: FeedSettings) =>

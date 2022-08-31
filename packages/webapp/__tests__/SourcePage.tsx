@@ -18,12 +18,15 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import SourcePage from '../pages/sources/[source]';
-import ad from './fixture/ad';
-import defaultUser from './fixture/loggedUser';
-import defaultFeedPage from './fixture/feed';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { waitForNock } from './helpers/utilities';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();

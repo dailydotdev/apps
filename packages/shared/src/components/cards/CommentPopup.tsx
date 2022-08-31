@@ -77,7 +77,7 @@ export default function CommentPopup({
           onClick={onClose}
           style={{ top: '0.5rem', right: '0.75rem' }}
         />
-        <h3 className="mr-11 ml-2 text-theme-label-primary typo-callout">
+        <h3 className="mr-11 ml-2 font-bold text-theme-label-primary typo-callout">
           {text.title}
         </h3>
         <div
@@ -103,9 +103,9 @@ export default function CommentPopup({
             onClick={() => onSubmit?.(comment)}
             disabled={!comment?.trim().length}
             loading={loading}
-            className={classNames('btn-primary', listMode && 'self-end')}
+            className={classNames('btn-primary', 'self-end')}
           >
-            Comment
+            Post
           </Button>
         </div>
       </div>

@@ -1,0 +1,48 @@
+kind: Project
+name: apps
+dotIgnoreFiles: [ .gitignore ]
+sources:
+  - name: db-services
+    repositoryUrl: git@github.com:dailydotdev/garden-dependencies.git#main
+  - name: api
+    repositoryUrl: git@github.com:dailydotdev/daily-api.git#master
+  - name: gateway
+    repositoryUrl: git@github.com:dailydotdev/daily-gateway.git#master
+  - name: heimdall
+    repositoryUrl: git@github.com:dailydotdev/heimdall.git#main
+environments:
+  - name: default
+#    variables:
+#      dev: true
+providers:
+  - name: local-kubernetes
+variables:
+  enabledServices:
+    postgres: true
+    pubsub: true
+    redis: true
+    mysql: true
+
+  hostname: apps.local.app.garden
+  # API variables
+  api-hostname: api.apps.local.app.garden
+  api-database: api
+  # Gateway variables
+  gateway-database: gateway
+  # Kratos variables
+  kratos-image: oryd/kratos:v0.10.1
+  kratos-hostname: sso.apps.local.app.garden
+  kratos-ui-hostname: kratos-ui.apps.local.app.garden
+  kratos-database: kratos
+  # Common
+  postgres-databases: api,kratos
+  postgres-username: postgres
+  postgres-password: 12345
+  postgres-healthcheck-database: api
+  pubsub-host: "pubsub:8085"
+  gcloud-project: local
+  debezium-tag: "2.0"
+  mysql-databases: gateway
+  mysql-username: root
+  mysql-password: root
+

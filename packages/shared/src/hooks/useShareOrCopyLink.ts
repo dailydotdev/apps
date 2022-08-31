@@ -1,11 +1,12 @@
 import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
+import { ShareProvider } from '../lib/share';
 
 interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
-  trackObject?: () => Record<string, unknown>;
+  trackObject?: (provider: ShareProvider) => Record<string, unknown>;
 }
 export function useShareOrCopyLink({
   link,
@@ -16,17 +17,17 @@ export function useShareOrCopyLink({
   const [copying, copyLink] = useCopyLink(() => link);
 
   const onShareOrCopy: CopyNotifyFunction = async (...args) => {
-    trackEvent(trackObject());
     if ('share' in navigator) {
       try {
         await navigator.share({
-          text,
-          url: link,
+          text: `${text}\n${link}`,
         });
+        trackEvent(trackObject(ShareProvider.Native));
       } catch (err) {
         // Do nothing
       }
     } else {
+      trackEvent(trackObject(ShareProvider.CopyLink));
       copyLink(...args);
     }
   };

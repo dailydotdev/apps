@@ -7,13 +7,15 @@ import XIcon from '../icons/Close';
 import MenuIcon from '../icons/Menu';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
-import { LazyImage } from '../LazyImage';
 import PostMetadata from '../cards/PostMetadata';
+import { ProfilePicture } from '../ProfilePicture';
+import { Image } from '../image/Image';
 
 interface PostItemCardProps {
   className?: string;
   postItem: PostItem;
   showButtons?: boolean;
+  clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   onContextMenu?: (event: React.MouseEvent, post: PostItem) => void;
 }
@@ -23,9 +25,13 @@ const SourceShadow = classed(
   'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
 );
 
+const LinkWrapper = ({ condition, wrapper, children }) =>
+  condition ? wrapper(children) : children;
+
 export default function PostItemCard({
   postItem,
   showButtons = true,
+  clickable = true,
   onHide,
   className,
   onContextMenu,
@@ -37,25 +43,36 @@ export default function PostItemCard({
   };
 
   return (
-    <Link href={post.commentsPermalink}>
+    <LinkWrapper
+      condition={clickable}
+      wrapper={(children) => (
+        <Link href={post.commentsPermalink}>{children}</Link>
+      )}
+    >
       <article
         className={classNames(
-          'flex relative flex-row items-center py-3 pr-5 pl-9 hover:bg-theme-hover hover:cursor-pointer',
+          'flex relative flex-row items-center py-3 pr-5 pl-9',
+          clickable && 'hover:bg-theme-hover hover:cursor-pointer',
           className,
         )}
       >
-        <LazyImage
-          imgSrc={post.image}
-          imgAlt={post.title}
-          className="w-16 laptop:w-24 h-16 rounded-16"
+        <Image
+          src={post.image}
+          alt={post.title}
+          className="object-cover w-16 laptop:w-24 h-16 rounded-16"
+          loading="lazy"
           fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
         />
         <SourceShadow />
-        <LazyImage
-          imgSrc={post.source?.image}
-          imgAlt={`source of ${post.title}`}
-          className="left-6 w-6 h-6 rounded-full"
-          absolute
+        <ProfilePicture
+          size="small"
+          rounded="full"
+          className="absolute left-6"
+          user={{
+            image: post.source?.image,
+            username: `source of ${post.title}`,
+          }}
+          nativeLazyLoading
         />
         <h3 className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
           {post.title}
@@ -67,6 +84,7 @@ export default function PostItemCard({
         </h3>
         {showButtons && onHide && (
           <Button
+            buttonSize="small"
             className="hidden laptop:flex btn-tertiary"
             icon={<XIcon />}
             onClick={onHideClick}
@@ -85,6 +103,6 @@ export default function PostItemCard({
           />
         )}
       </article>
-    </Link>
+    </LinkWrapper>
   );
 }

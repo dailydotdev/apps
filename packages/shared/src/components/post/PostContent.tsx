@@ -12,8 +12,8 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import {
   PostData,
-  PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
+  PostsEngaged,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -42,16 +42,32 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
+import { postEventName } from '../utilities';
+import useBookmarkPost from '../../hooks/useBookmarkPost';
+import useUpdatePost from '../../hooks/useUpdatePost';
+import { useSharePost } from '../../hooks/useSharePost';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import { Origin } from '../../lib/analytics';
+import { useShareComment } from '../../hooks/useShareComment';
+import useOnPostClick from '../../hooks/useOnPostClick';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
 const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
   ssr: false,
 });
+const SharePostModal = dynamic(() => import('../modals/ShareModal'));
 const Custom404 = dynamic(() => import('../Custom404'));
 
 export interface PostContentProps
-  extends Omit<PostModalActionsProps, 'post'>,
+  extends Omit<
+      PostModalActionsProps,
+      | 'post'
+      | 'onShare'
+      | 'onBookmark'
+      | 'contextMenuId'
+      | 'additionalInteractionButtonFeature'
+    >,
     Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>>,
     UsePostCommentOptionalProps {
   postById?: PostData;
@@ -117,11 +133,23 @@ export function PostContent({
     onShowUpvotedComment,
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
+  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
+  const analyticsOrigin = isModal ? Origin.ArticleModal : Origin.ArticlePage;
   const { subject } = useToastNotification();
+  const { sharePost, openSharePost, closeSharePost } =
+    useSharePost(analyticsOrigin);
+  const { shareComment, openShareComment, closeShareComment } =
+    useShareComment(analyticsOrigin);
+  const { updatePost } = useUpdatePost();
+  const onPostClick = useOnPostClick({ origin: analyticsOrigin });
+  const { bookmark, removeBookmark } = useBookmarkPost({
+    onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
+    onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
+  });
 
   useSubscription(
     () => ({
@@ -143,8 +171,6 @@ export function PostContent({
       },
     },
   );
-
-  const analyticsOrigin = isModal ? 'article modal' : 'article page';
 
   useEffect(() => {
     if (!postById?.post) {
@@ -175,25 +201,40 @@ export function PostContent({
     return <Custom404 />;
   }
 
-  const onLinkClick = async () => {
-    trackEvent(
-      postAnalyticsEvent('click', postById.post, {
-        extra: { origin: analyticsOrigin },
-      }),
-    );
-  };
+  const onReadArticle = () => onPostClick({ post: postById.post });
 
   const postLinkProps = {
     href: postById?.post.permalink,
     title: 'Go to article',
     target: '_blank',
     rel: 'noopener',
-    onClick: onLinkClick,
-    onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
+    onClick: onReadArticle,
+    onMouseUp: (event: React.MouseEvent) =>
+      event.button === 1 && onReadArticle(),
   };
 
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
+
+  const onShare = () => openSharePost(postById.post);
+  const toggleBookmark = async (): Promise<void> => {
+    if (!user) {
+      showLogin('bookmark');
+      return;
+    }
+    trackEvent(
+      postAnalyticsEvent(
+        postEventName({ bookmarked: !postById?.post.bookmarked }),
+        postById?.post,
+        { extra: { origin } },
+      ),
+    );
+    if (!postById?.post.bookmarked) {
+      await bookmark({ id: postById?.post.id });
+    } else {
+      await removeBookmark({ id: postById?.post.id });
+    }
+  };
 
   return (
     <Wrapper
@@ -221,11 +262,17 @@ export function PostContent({
           )}
           shouldDisplayTitle={isFixed}
           post={postById.post}
+          onReadArticle={onReadArticle}
           onClose={onClose}
           isModal={isModal}
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
+          onBookmark={toggleBookmark}
+          onShare={onShare}
         />
         <h1
-          className="mt-6 font-bold break-words typo-large-title"
+          className="my-6 font-bold break-words typo-large-title"
           data-testid="post-modal-title"
         >
           {postById.post.title}
@@ -270,6 +317,11 @@ export function PostContent({
           }
         />
         <PostActions
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
+          onBookmark={toggleBookmark}
+          onShare={onShare}
           post={postById.post}
           postQueryKey={postQueryKey}
           onComment={() => openNewComment('comment button')}
@@ -278,7 +330,9 @@ export function PostContent({
         />
         <PostComments
           post={postById.post}
+          origin={analyticsOrigin}
           onClick={onCommentClick}
+          onShare={(comment) => openShareComment(comment, postById.post)}
           onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
@@ -290,6 +344,10 @@ export function PostContent({
         />
       </PostContainer>
       <PostWidgets
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
+        onBookmark={toggleBookmark}
+        onShare={onShare}
+        onReadArticle={onReadArticle}
         post={postById.post}
         isNavigationFixed={hasNavigation && isFixed}
         className="pb-20"
@@ -315,7 +373,25 @@ export function PostContent({
       {postById && showShareNewComment && (
         <ShareNewCommentPopup
           post={postById.post}
-          onRequestClose={() => onShowShareNewComment(false)}
+          commentId={showShareNewComment}
+          onRequestClose={() => onShowShareNewComment(null)}
+        />
+      )}
+      {sharePost && (
+        <SharePostModal
+          isOpen={!!sharePost}
+          post={postById.post}
+          origin={analyticsOrigin}
+          onRequestClose={closeSharePost}
+        />
+      )}
+      {shareComment && (
+        <SharePostModal
+          isOpen={!!shareComment}
+          post={postById.post}
+          comment={shareComment}
+          origin={analyticsOrigin}
+          onRequestClose={closeShareComment}
         />
       )}
     </Wrapper>

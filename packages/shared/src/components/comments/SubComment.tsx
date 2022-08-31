@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Comment } from '../../graphql/comments';
+import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
@@ -11,25 +11,36 @@ import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ScoutBadge from './ScoutBadge';
+import { Post } from '../../graphql/posts';
+import { Origin } from '../../lib/analytics';
 
 export interface Props extends CommentActionProps {
+  post: Post;
   comment: Comment;
+  origin: Origin;
   firstComment: boolean;
   lastComment: boolean;
   parentId: string;
   postAuthorId: string | null;
   postScoutId: string | null;
+  commentHash?: string;
+  commentRef?: React.MutableRefObject<HTMLElement>;
   appendTooltipTo?: () => HTMLElement;
 }
 
 const SubCommentBox = classed(CommentBox, 'mb-1');
 
 export default function SubComment({
+  post,
   comment,
+  origin,
   firstComment,
   lastComment,
   parentId,
+  commentHash,
+  commentRef,
   onComment,
+  onShare,
   onDelete,
   onEdit,
   onShowUpvotes,
@@ -38,7 +49,11 @@ export default function SubComment({
   postScoutId,
 }: Props): ReactElement {
   return (
-    <article className="flex items-stretch mt-4" data-testid="subcomment">
+    <article
+      className="flex items-stretch mt-4 scroll-mt-16"
+      data-testid="subcomment"
+      ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
+    >
       <div className="relative">
         <div
           data-testid="timeline"
@@ -74,9 +89,12 @@ export default function SubComment({
           </div>
         </SubCommentBox>
         <CommentActionButtons
+          post={post}
+          origin={origin}
           comment={comment}
           parentId={parentId}
           onComment={onComment}
+          onShare={onShare}
           onDelete={onDelete}
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}

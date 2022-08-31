@@ -60,9 +60,11 @@ export default function useFeedUpvotePost(
     );
     if (upvoted) {
       await upvotePost({ id: post.id, index });
-      requestIdleCallback(() => {
-        setShowCommentPopupId(post.id);
-      });
+      if (setShowCommentPopupId) {
+        requestIdleCallback(() => {
+          setShowCommentPopupId(post.id);
+        });
+      }
     } else {
       await cancelPostUpvote({ id: post.id, index });
     }

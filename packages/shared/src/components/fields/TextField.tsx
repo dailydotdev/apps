@@ -12,6 +12,7 @@ import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
 import { Button } from '../buttons/Button';
 import { IconProps } from '../Icon';
+import useDebounce from '../../hooks/useDebounce';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
@@ -34,6 +35,7 @@ interface InputFontColorProps {
   disabled?: boolean;
   focused?: boolean;
   hasInput?: boolean;
+  actionIcon?: React.ReactElement<IconProps>;
 }
 
 export const getInputFontColor = ({
@@ -41,7 +43,12 @@ export const getInputFontColor = ({
   disabled,
   focused,
   hasInput,
+  actionIcon,
 }: InputFontColorProps): string => {
+  if (readOnly && actionIcon) {
+    return 'text-theme-label-primary';
+  }
+
   if (readOnly) {
     return 'text-theme-label-quaternary';
   }
@@ -95,17 +102,9 @@ export function TextField({
   const isTertiaryField = fieldType === 'tertiary';
   const [inputLength, setInputLength] = useState<number>(0);
   const [validInput, setValidInput] = useState<boolean>(undefined);
-  const [idleTimeout, setIdleTimeout] = useState<number>(undefined);
-
-  const clearIdleTimeout = () => {
-    if (idleTimeout) {
-      clearTimeout(idleTimeout);
-      setIdleTimeout(null);
-    }
-  };
-
-  // Return the clearIdleTimeout to call it on cleanup
-  useEffect(() => clearIdleTimeout, []);
+  const [idleTimeout, clearIdleTimeout] = useDebounce(() => {
+    setValidInput(inputRef.current.checkValidity());
+  }, 1500);
 
   useEffect(() => {
     if (validityChanged && validInput !== undefined) {
@@ -141,12 +140,7 @@ export function TextField({
     if (inputValidity) {
       setValidInput(true);
     } else {
-      setIdleTimeout(
-        window.setTimeout(() => {
-          setIdleTimeout(null);
-          setValidInput(inputRef.current.checkValidity());
-        }, 1500),
-      );
+      idleTimeout();
     }
   };
 
@@ -204,7 +198,13 @@ export function TextField({
           <span
             className={classNames(
               'mr-2',
-              getInputFontColor({ readOnly, disabled, hasInput, focused }),
+              getInputFontColor({
+                readOnly,
+                disabled,
+                hasInput,
+                focused,
+                actionIcon,
+              }),
             )}
           >
             {leftIcon}
@@ -236,7 +236,13 @@ export function TextField({
             readOnly={readOnly}
             className={classNames(
               'self-stretch',
-              getInputFontColor({ readOnly, disabled, hasInput, focused }),
+              getInputFontColor({
+                readOnly,
+                disabled,
+                hasInput,
+                focused,
+                actionIcon,
+              }),
             )}
             disabled={disabled}
             {...props}
@@ -252,6 +258,7 @@ export function TextField({
         )}
         {actionIcon && (
           <Button
+            data-testid="textfield-action-icon"
             buttonSize="small"
             className="btn-tertiary"
             onClick={onActionIconClick}

@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -17,7 +18,9 @@ import ScrollToTopButton from './ScrollToTopButton';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
-import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
+import useFeedOnPostClick, {
+  FeedPostClick,
+} from '../hooks/feed/useFeedOnPostClick';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
@@ -30,12 +33,14 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import { PostModal } from './modals/PostModal';
+import FeaturesContext from '../contexts/FeaturesContext';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
+import { useSharePost } from '../hooks/useSharePost';
+import { Origin } from '../lib/analytics';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -52,7 +57,8 @@ interface RankVariables {
   ranking?: string;
 }
 
-const nativeShareSupport = false;
+const SharePostModal = dynamic(() => import('./modals/ShareModal'));
+const PostModal = dynamic(() => import('./modals/PostModal'));
 
 const listGaps = {
   cozy: 'gap-5',
@@ -109,6 +115,12 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
+  const {
+    postCardVersion,
+    postModalByDefault,
+    postEngagementNonClickable,
+    showCommentPopover,
+  } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -140,6 +152,7 @@ export default function Feed<T>({
     selectedPost,
     isFetchingNextPage,
   } = usePostModalNavigation(items, fetchPage);
+  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -147,24 +160,7 @@ export default function Feed<T>({
     }
   }, [emptyFeed]);
 
-  const {
-    showCommentPopupId,
-    setShowCommentPopupId,
-    comment,
-    isSendingComment,
-  } = useCommentPopup(feedName);
   const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
-
-  const onShare = async (post: Post): Promise<void> => {
-    trackEvent({
-      category: 'Post',
-      action: 'Share',
-    });
-    await navigator.share({
-      text: post.title,
-      url: post.commentsPermalink,
-    });
-  };
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -174,10 +170,17 @@ export default function Feed<T>({
     return <></>;
   }
 
+  const {
+    showCommentPopupId,
+    setShowCommentPopupId,
+    comment,
+    isSendingComment,
+  } = useCommentPopup(feedName);
+
   const onUpvote = useFeedUpvotePost(
     items,
     updatePost,
-    setShowCommentPopupId,
+    showCommentPopover && setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
     ranking,
@@ -197,7 +200,35 @@ export default function Feed<T>({
     ranking,
   );
 
-  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
+  const onReadArticleClick = useFeedOnPostClick(
+    items,
+    updatePost,
+    virtualizedNumCards,
+    feedName,
+    ranking,
+    'go to link',
+  );
+
+  const onPostModalOpen = (index: number, callback?: () => unknown) => {
+    document.body.classList.add('hidden-scrollbar');
+    callback?.();
+    onOpenModal(index);
+  };
+
+  const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
+    await onPostClick(post, index, row, column, {
+      skipPostUpdate: postModalByDefault,
+    });
+
+    if (!postModalByDefault) {
+      return;
+    }
+
+    onPostModalOpen(index);
+  };
+
+  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
+    useFeedContextMenu();
 
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
@@ -210,16 +241,16 @@ export default function Feed<T>({
     row: number,
     column: number,
   ): void => {
-    document.body.classList.add('hidden-scrollbar');
-    trackEvent(
-      postAnalyticsEvent('comments click', post, {
-        columns: virtualizedNumCards,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking),
-      }),
+    onPostModalOpen(index, () =>
+      trackEvent(
+        postAnalyticsEvent('comments click', post, {
+          columns: virtualizedNumCards,
+          column,
+          row,
+          ...feedAnalyticsExtra(feedName, ranking),
+        }),
+      ),
     );
-    onOpenModal(index);
   };
 
   const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
@@ -236,12 +267,23 @@ export default function Feed<T>({
   const style = {
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
-    ...getStyle(useList, spaciness),
-  };
+  } as React.CSSProperties;
+  const cardContainerStye = { ...getStyle(useList, spaciness) };
 
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
   }
+
+  const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
+    useSharePost(Origin.Feed);
+  const onShareClick = (post: Post, row?: number, column?: number) =>
+    openSharePost(post, virtualizedNumCards, column, row);
+
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
+  }, []);
 
   useEffect(() => {
     if (!selectedPost) {
@@ -252,72 +294,115 @@ export default function Feed<T>({
   return (
     <div
       className={classNames(
-        'relative mx-auto w-full',
-        className,
-        styles.feed,
-        !useList && styles.cards,
+        'flex flex-col laptopL:mx-auto w-full',
+        styles.container,
       )}
       style={style}
-      aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
-      data-testid="posts-feed"
     >
-      {selectedPost && (
-        <PostModal
-          isOpen
-          id={selectedPost.id}
-          onRequestClose={() => onCloseModal(false)}
-          onPreviousPost={onPrevious}
-          onNextPost={onNext}
-          isFetchingNextPage={isFetchingNextPage}
-        />
-      )}
       {header}
-      <ScrollToTopButton />
       <div
         className={classNames(
-          'grid',
-          gapClass(useList, spaciness),
-          cardClass(useList, numCards),
+          'relative mx-auto w-full',
+          className,
+          styles.feed,
+          !useList && styles.cards,
         )}
+        style={cardContainerStye}
+        aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
+        data-testid="posts-feed"
       >
-        {items.map((item, index) => (
-          <FeedItemComponent
-            items={items}
-            index={index}
-            row={calculateRow(index, numCards)}
-            column={calculateColumn(index, numCards)}
-            columns={virtualizedNumCards}
-            key={getFeedItemKey(items, index)}
-            useList={useList}
-            openNewTab={openNewTab}
-            insaneMode={insaneMode}
-            nativeShareSupport={nativeShareSupport}
-            postMenuIndex={postMenuIndex}
-            showCommentPopupId={showCommentPopupId}
-            setShowCommentPopupId={setShowCommentPopupId}
-            isSendingComment={isSendingComment}
-            comment={comment}
-            user={user}
-            feedName={feedName}
-            ranking={ranking}
-            onUpvote={onUpvote}
-            onBookmark={onBookmark}
-            onPostClick={onPostClick}
-            onShare={onShare}
-            onMenuClick={onMenuClick}
-            onCommentClick={onCommentClick}
-            onAdClick={onAdClick}
+        {selectedPost && (
+          <PostModal
+            isOpen
+            id={selectedPost.id}
+            onRequestClose={() => onCloseModal(false)}
+            onPreviousPost={onPrevious}
+            onNextPost={onNext}
+            isFetchingNextPage={isFetchingNextPage}
           />
-        ))}
+        )}
+        <ScrollToTopButton />
+        <div
+          className={classNames(
+            'grid',
+            gapClass(useList, spaciness),
+            cardClass(useList, numCards),
+          )}
+        >
+          {items.map((item, index) => (
+            <FeedItemComponent
+              additionalInteractionButtonFeature={
+                additionalInteractionButtonFeature
+              }
+              items={items}
+              index={index}
+              row={calculateRow(index, numCards)}
+              column={calculateColumn(index, numCards)}
+              columns={virtualizedNumCards}
+              key={getFeedItemKey(items, index)}
+              useList={useList}
+              openNewTab={openNewTab}
+              insaneMode={insaneMode}
+              postMenuIndex={postMenuIndex}
+              showCommentPopupId={showCommentPopupId}
+              setShowCommentPopupId={setShowCommentPopupId}
+              isSendingComment={isSendingComment}
+              comment={comment}
+              user={user}
+              feedName={feedName}
+              ranking={ranking}
+              onUpvote={onUpvote}
+              onBookmark={onBookmark}
+              onPostClick={onPostCardClick}
+              onShare={onShareClick}
+              onMenuClick={onMenuClick}
+              onCommentClick={onCommentClick}
+              onAdClick={onAdClick}
+              onReadArticleClick={onReadArticleClick}
+              postCardVersion={postCardVersion}
+              postModalByDefault={postModalByDefault}
+              postEngagementNonClickable={postEngagementNonClickable}
+            />
+          ))}
+        </div>
+        <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+        <PostOptionsMenu
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
+          onShare={() =>
+            openSharePost(
+              (items[postMenuIndex] as PostItem)?.post,
+              virtualizedNumCards,
+              postMenuLocation.row,
+              postMenuLocation.column,
+            )
+          }
+          onBookmark={() =>
+            onBookmark(
+              (items[postMenuIndex] as PostItem)?.post,
+              postMenuIndex,
+              postMenuLocation.row,
+              postMenuLocation.column,
+              !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
+            )
+          }
+          feedName={feedName}
+          postIndex={postMenuIndex}
+          post={(items[postMenuIndex] as PostItem)?.post}
+          onHidden={() => setPostMenuIndex(null)}
+          onRemovePost={onRemovePost}
+        />
+        {sharePost && (
+          <SharePostModal
+            isOpen={!!sharePost}
+            post={sharePost}
+            origin={Origin.Feed}
+            {...sharePostFeedLocation}
+            onRequestClose={closeSharePost}
+          />
+        )}
       </div>
-      <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-      <PostOptionsMenu
-        feedName={feedName}
-        postIndex={postMenuIndex}
-        post={(items[postMenuIndex] as PostItem)?.post}
-        onHidden={() => setPostMenuIndex(null)}
-        onRemovePost={onRemovePost}
-      />
     </div>
   );
 }

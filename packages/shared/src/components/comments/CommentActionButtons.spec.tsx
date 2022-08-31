@@ -5,14 +5,18 @@ import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import CommentActionButtons, { Props } from './CommentActionButtons';
 import {
-  Comment,
   CANCEL_COMMENT_UPVOTE_MUTATION,
+  Comment,
   UPVOTE_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
+import comment from '../../../__tests__/fixture/comment';
+import post from '../../../__tests__/fixture/post';
+import { Origin } from '../../lib/analytics';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
@@ -24,42 +28,18 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const loggedUser = {
-  id: 'u1',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '',
-};
-
-const baseComment = {
-  id: 'c1',
-  content: 'my comment',
-  author: {
-    image: 'https://daily.dev/ido.png',
-    id: 'u1',
-    name: 'Ido',
-    permalink: 'https://daily.dev/ido',
-  },
-  createdAt: new Date().toISOString(),
-  upvoted: false,
-  permalink: 'https://daily.dev',
-  numUpvotes: 0,
-};
-
 const renderComponent = (
-  comment: Partial<Comment> = {},
+  commentUpdate: Partial<Comment> = {},
   user: LoggedUser = null,
   mocks: MockedGraphQLResponse[] = [],
 ): RenderResult => {
   const props: Props = {
+    post,
     comment: {
-      ...baseComment,
       ...comment,
+      ...commentUpdate,
     },
+    origin: Origin.Feed,
     parentId: 'c1',
     onComment,
     onDelete,
@@ -157,29 +137,29 @@ it('should call onComment callback', async () => {
   renderComponent();
   const el = await screen.findByLabelText('Comment');
   el.click();
-  expect(onComment).toBeCalledWith(baseComment, 'c1');
+  expect(onComment).toBeCalledWith(comment, 'c1');
 });
 
 it('should call onDelete callback', async () => {
   renderComponent({}, loggedUser);
   const el = await screen.findByLabelText('Delete');
   el.click();
-  expect(onDelete).toBeCalledWith(baseComment, 'c1');
+  expect(onDelete).toBeCalledWith(comment, 'c1');
 });
 
 it('should call onEdit callback', async () => {
   renderComponent({}, loggedUser);
   const el = await screen.findByLabelText('Edit');
   el.click();
-  expect(onEdit).toBeCalledWith(baseComment);
+  expect(onEdit).toBeCalledWith(comment);
 });
 
 it('should call onShowUpvotes callback', async () => {
-  baseComment.numUpvotes = 1;
-  renderComponent({}, loggedUser);
+  const numUpvotes = 1;
+  renderComponent({ numUpvotes }, loggedUser);
   const el = await screen.findByLabelText('See who upvoted');
   el.click();
-  expect(onShowUpvotes).toBeCalledWith(baseComment.id, baseComment.numUpvotes);
+  expect(onShowUpvotes).toBeCalledWith(comment.id, numUpvotes);
 });
 
 it('should not show num upvotes when it is zero', async () => {

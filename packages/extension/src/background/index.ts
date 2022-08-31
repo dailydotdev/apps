@@ -11,10 +11,6 @@ import {
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
-import {
-  getExtensionAlerts,
-  updateExtensionAlerts,
-} from '../lib/extensionAlerts';
 
 const excludedCompanionOrigins = [
   'http://localhost',
@@ -36,7 +32,7 @@ const isExcluded = (origin: string) => {
 };
 
 const sendBootData = async (_, tab: Tabs.Tab) => {
-  const { origin, pathname } = new URL(tab.url);
+  const { origin, pathname, search } = new URL(tab.url);
   if (isExcluded(origin)) {
     return;
   }
@@ -46,7 +42,7 @@ const sendBootData = async (_, tab: Tabs.Tab) => {
     return;
   }
 
-  const href = origin + pathname;
+  const href = origin + pathname + search;
 
   const [
     deviceId,
@@ -146,21 +142,13 @@ browser.browserAction.onClicked.addListener(() => {
 });
 
 browser.runtime.onInstalled.addListener(async (details) => {
-  const alerts = getExtensionAlerts();
-
-  if (typeof alerts.displayCompanionPopup === 'undefined') {
-    if (details.reason === 'update') {
-      updateExtensionAlerts(alerts, { displayCompanionPopup: true });
-    }
-
-    if (details.reason === 'install') {
-      updateExtensionAlerts(alerts, { displayCompanionPopup: false });
-    }
-  }
-
   await Promise.all([
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);
+
+  if (details.reason === 'update') {
+    await getContentScriptPermissionAndRegister();
+  }
 });
 
 browser.runtime.onStartup.addListener(async () => {

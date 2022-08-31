@@ -4,7 +4,6 @@ import { Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
-import { LoggedUser } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import {
   COMMENT_ON_COMMENT_MUTATION,
@@ -19,18 +18,8 @@ import {
 } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { RecommendedMention } from '../RecommendedMention';
-
-const defaultUser = {
-  id: 'u1',
-  username: 'idoshamun',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '',
-};
+import comment from '../../../__tests__/fixture/comment';
+import user from '../../../__tests__/fixture/loggedUser';
 
 const onRequestClose = jest.fn();
 const onComment = jest.fn();
@@ -43,7 +32,6 @@ beforeEach(() => {
 const renderComponent = (
   props: Partial<NewCommentModalProps> = {},
   mocks: MockedGraphQLResponse[] = [],
-  user: Partial<LoggedUser> = {},
 ): RenderResult => {
   const defaultProps: NewCommentModalProps = {
     authorImage: 'https://daily.dev/nimrod.png',
@@ -71,7 +59,7 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user: { ...defaultUser, ...user },
+          user,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -105,7 +93,7 @@ it('should show author profile picture', async () => {
 
 it('should show user profile picture', async () => {
   renderComponent();
-  const el = await screen.findByAltText(`idoshamun's profile`);
+  const el = await screen.findByAltText(`${user.username}'s profile`);
   expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
 });
 
@@ -123,8 +111,8 @@ it('should disable submit button when no input', async () => {
 
 it('should enable submit button when no input', async () => {
   renderComponent();
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'My new comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'My new comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   expect(el.getAttribute('disabled')).toBeFalsy();
@@ -155,8 +143,8 @@ it('should send commentOnPost mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -189,8 +177,8 @@ it('should send commentOnComment mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -223,8 +211,8 @@ it('should not send comment if the input is spaces only', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '   ';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '   ';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -246,8 +234,8 @@ it('should show alert in case of an error', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -265,18 +253,11 @@ it('should show alert in case of an error', async () => {
 
 it('should send editComment mutation', async () => {
   let mutationCalled = false;
-  const comment = {
-    __typename: 'Comment',
-    id: 'edit',
-    content: 'comment',
-    createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
-    permalink: 'https://daily.dev',
-  };
   renderComponent({ editId: 'c1', editContent: 'My comment to edit' }, [
     {
       request: {
         query: EDIT_COMMENT_MUTATION,
-        variables: { id: 'c1', content: 'comment' },
+        variables: { id: 'c1', content: comment.content },
       },
       result: () => {
         mutationCalled = true;
@@ -288,8 +269,8 @@ it('should send editComment mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = comment.content;
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Update');
   el.click();
@@ -317,9 +298,9 @@ it('should recommend users previously mentioned', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '@';
-  Simulate.keyDown(input, { key: '@' });
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '@';
+  Simulate.keyUp(input, { key: '@' });
   await waitForNock();
   expect(queryPreviouslyMentioned).toBeTruthy();
 });
@@ -359,12 +340,12 @@ it('should recommend users based on query', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '@';
-  Simulate.keyDown(input, { key: '@' });
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '@';
+  Simulate.keyUp(input, { key: '@' });
   await new Promise((resolve) => setTimeout(resolve, 500));
-  input.innerText = '@l';
-  Simulate.keyDown(input, { key: 'l' });
+  input.value = '@l';
+  Simulate.keyUp(input, { key: 'l' });
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();
 });
@@ -407,8 +388,8 @@ it('should send previewComment query', async () => {
     },
   });
   renderComponent();
-  const input = await screen.findByRole('textbox');
-  input.innerText = '# Test';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '# Test';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const preview = await screen.findByText('Preview');
   preview.click();

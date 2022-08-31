@@ -7,6 +7,7 @@ import { Comment, PostCommentsData } from '../graphql/comments';
 import { Edge } from '../graphql/common';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
+import useDebounce from './useDebounce';
 
 export interface UsePostCommentOptionalProps {
   enableShowShareNewComment?: boolean;
@@ -21,7 +22,7 @@ export interface UsePostComment {
   updatePostComments: (comment: Comment, isNew?: boolean) => void;
   deleteCommentCache: (commentId: string, parentId?: string) => void;
   parentComment: ParentComment;
-  showShareNewComment: boolean;
+  showShareNewComment: string;
 }
 
 const getParentAndCurrentIndex = (
@@ -51,16 +52,17 @@ export const usePostComment = (
   const comments = client.getQueryData<PostCommentsData>(key);
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
-  const [showShareNewComment, setShowShareNewComment] = useState(false);
+  const [showShareNewComment, setShowShareNewComment] = useState(null);
+  const [showNewComment] = useDebounce((id) => setShowShareNewComment(id), 700);
 
   const closeNewComment = () => {
     setParentComment(null);
     document.documentElement.scrollTop = lastScroll;
   };
 
-  const onNewComment = (_: Comment, parentId: string | null): void => {
+  const onNewComment = (comment: Comment, parentId: string | null): void => {
     if (!parentId) {
-      setTimeout(() => setShowShareNewComment(true), 700);
+      showNewComment(comment.id);
     }
   };
 
@@ -201,7 +203,7 @@ export const usePostComment = (
 
   useEffect(() => {
     if (enableShowShareNewComment) {
-      setTimeout(() => setShowShareNewComment(true), 700);
+      showNewComment();
     }
   }, [enableShowShareNewComment]);
 

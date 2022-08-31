@@ -1,33 +1,38 @@
 import React, { CSSProperties, ReactElement } from 'react';
-import classNames from 'classnames';
-import { Post } from '../../graphql/posts';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
+import { getSourcePermalink, Source } from '../../graphql/sources';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
 
-export default function SourceButton({
-  post,
-  className,
-  style,
-  tooltipPosition = 'bottom',
-}: {
-  post: Post;
+interface SourceButtonProps {
+  source: Source;
   className?: string;
   style?: CSSProperties;
   tooltipPosition?: TooltipPosition;
-}): ReactElement {
-  return (
+}
+
+export default function SourceButton({
+  source,
+  tooltipPosition = 'bottom',
+  ...props
+}: SourceButtonProps): ReactElement {
+  return source ? (
     <LinkWithTooltip
-      href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/${post.source.id}`}
+      href={getSourcePermalink(source.id)}
       prefetch={false}
-      tooltip={{ content: post.source.name, placement: tooltipPosition }}
+      tooltip={{ content: source.name, placement: tooltipPosition }}
     >
-      <a className={classNames('flex cursor-pointer', className)} style={style}>
-        <img
-          src={post.source.image}
-          alt={post.source.name}
-          className="w-6 h-6 rounded-full bg-theme-bg-tertiary"
-        />
-      </a>
+      <ProfileImageLink
+        {...props}
+        picture={{ size: 'medium', rounded: 'full' }}
+        user={{
+          id: source.id,
+          name: source.name,
+          image: source.image,
+          permalink: getSourcePermalink(source.id),
+          username: source.id,
+        }}
+      />
     </LinkWithTooltip>
-  );
+  ) : null;
 }

@@ -31,8 +31,12 @@ import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
-import defaultUser from './fixture/loggedUser';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
 import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
@@ -140,19 +144,21 @@ const renderPost = (
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-        }}
-      >
-        <PostPage {...defaultProps} {...props} />
-      </AuthContext.Provider>
+      <FeaturesContextProvider flags={{}}>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+          }}
+        >
+          <PostPage {...defaultProps} {...props} />
+        </AuthContext.Provider>
+      </FeaturesContextProvider>
     </QueryClientProvider>,
   );
 };

@@ -16,27 +16,40 @@ import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import ShareIcon from '../icons/Share';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { upvoteCommentEventName } from '../utilities';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { Origin } from '../../lib/analytics';
+import { Post } from '../../graphql/posts';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
+  onShare: (comment: Comment) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
   onEdit: (comment: Comment, parentComment?: Comment) => void;
   onShowUpvotes: (commentId: string, upvotes: number) => void;
 }
 
 export interface Props extends CommentActionProps {
+  post: Post;
   comment: Comment;
+  origin: Origin;
   parentId: string | null;
 }
 
 export default function CommentActionButtons({
+  post,
   comment,
+  origin,
   parentId,
   onComment,
+  onShare,
   onDelete,
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
 
   const [upvoted, setUpvoted] = useState(comment.upvoted);
@@ -90,10 +103,20 @@ export default function CommentActionButtons({
 
   const toggleUpvote = () => {
     if (user) {
-      // TODO: add GA tracking
       if (upvoted) {
+        trackEvent(
+          postAnalyticsEvent(upvoteCommentEventName(false), post, {
+            extra: { origin, commentId: comment.id },
+          }),
+        );
         return cancelCommentUpvote();
       }
+
+      trackEvent(
+        postAnalyticsEvent(upvoteCommentEventName(true), post, {
+          extra: { origin, commentId: comment.id },
+        }),
+      );
       return upvoteComment();
     }
     showLogin('comment upvote');
@@ -108,7 +131,7 @@ export default function CommentActionButtons({
           buttonSize="small"
           pressed={upvoted}
           onClick={toggleUpvote}
-          icon={<UpvoteIcon filled={upvoted} />}
+          icon={<UpvoteIcon secondary={upvoted} />}
           className="mr-3 btn-tertiary-avocado"
         />
       </SimpleTooltip>
@@ -137,10 +160,18 @@ export default function CommentActionButtons({
             buttonSize="small"
             onClick={() => onDelete(comment, parentId)}
             icon={<TrashIcon />}
-            className="btn-tertiary"
+            className="mr-3 btn-tertiary"
           />
         </SimpleTooltip>
       )}
+      <SimpleTooltip content="Share comment">
+        <Button
+          buttonSize="small"
+          onClick={() => onShare(comment)}
+          icon={<ShareIcon />}
+          className="mr-3 btn-tertiary-cabbage"
+        />
+      </SimpleTooltip>
       {numUpvotes > 0 && (
         <SimpleTooltip content="See who upvoted">
           <ClickableText

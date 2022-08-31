@@ -15,8 +15,8 @@ import { apiUrl } from '../lib/config';
 import { generateQueryKey } from '../lib/query';
 import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import usePersistentContext from './usePersistentContext';
+import useDebounce from './useDebounce';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -74,14 +74,17 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const { shouldShowMyFeed } = useContext(FeaturesContext);
   const [avoidRefresh, setAvoidRefresh] = usePersistentContext(
     AVOID_REFRESH_KEY,
     false,
     [true, false],
     false,
   );
+  const [invaliateQueries] = useDebounce(() => {
+    queryClient.invalidateQueries(generateQueryKey('popular', user));
+    queryClient.invalidateQueries(generateQueryKey('my-feed', user));
+  }, 100);
 
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
@@ -116,10 +119,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       return;
     }
 
-    setTimeout(() => {
-      queryClient.invalidateQueries(generateQueryKey('popular', user));
-      queryClient.invalidateQueries(generateQueryKey('my-feed', user));
-    }, 100);
+    invaliateQueries();
   }, [tagsCategories, feedSettings, avoidRefresh]);
 
   return useMemo(() => {

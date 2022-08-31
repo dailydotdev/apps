@@ -12,7 +12,7 @@ export const cleanupEmptySpaces = (text: string): string =>
   text.replaceAll?.('\xa0', ' ') || text;
 
 export const removeLinkTargetElement = (link: string): string => {
-  const { origin, pathname } = new URL(link);
+  const { origin, pathname, search } = new URL(link);
 
-  return origin + pathname;
+  return origin + pathname + search;
 };

@@ -15,16 +15,7 @@ import {
 } from '../../graphql/common';
 import { POST_UPVOTES_BY_ID_QUERY } from '../../graphql/posts';
 import { UpvotedPopupModal, UpvotedPopupModalProps } from './UpvotedPopupModal';
-
-const defaultUser = {
-  id: 'u1',
-  bio: 'Software Engineer in the most amazing company in the globe',
-  name: 'Lee Hansel',
-  email: 'lee@abc.com',
-  image: 'https://daily.dev/lee.png',
-  username: 'sshanzel',
-  permalink: 'https://daily.dev/lee',
-};
+import user from '../../../__tests__/fixture/loggedUser';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -67,7 +58,7 @@ const fetchUpvotesMock = ({
           {
             node: {
               createdAt: new Date(),
-              user: defaultUser,
+              user,
             },
           },
         ],
@@ -89,7 +80,7 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user: { ...defaultUser },
+          user,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -120,28 +111,28 @@ it('should show upvoter list for comment', async () => {
 
 it("should show user's handle", async () => {
   renderComponent();
-  await screen.findByText(`@${defaultUser.username}`);
+  await screen.findByText(`@${user.username}`);
 });
 
 it('should show name', async () => {
   renderComponent();
-  await screen.findByText(defaultUser.name);
+  await screen.findByText(user.name);
 });
 
 it('should show bio', async () => {
   renderComponent();
-  await screen.findByText(defaultUser.bio);
+  await screen.findByText(user.bio);
 });
 
 it('should show permalink', async () => {
   renderComponent();
   expect(await screen.findByRole('link')).toHaveAttribute(
     'href',
-    defaultUser.permalink,
+    user.permalink,
   );
 });
 
 it('should show avatar', async () => {
   renderComponent();
-  await screen.findByAltText(`${defaultUser.username}'s profile`);
+  await screen.findByAltText(`${user.username}'s profile`);
 });

@@ -5,6 +5,7 @@ import { Post } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import { FeedItem, PostItem } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
+import { Origin } from '../lib/analytics';
 
 interface UsePostModalNavigation {
   onPrevious: () => void;
@@ -112,7 +113,7 @@ export const usePostModalNavigation = (
         const current = items[openedPostIndex] as PostItem;
         trackEvent(
           postAnalyticsEvent('navigate previous', current.post, {
-            extra: { origin: 'article modal' },
+            extra: { origin: Origin.ArticleModal },
           }),
         );
         onChangeSelected(index);
@@ -144,7 +145,7 @@ export const usePostModalNavigation = (
         setIsFetchingNextPage(false);
         trackEvent(
           postAnalyticsEvent('navigate next', current.post, {
-            extra: { origin: 'article modal' },
+            extra: { origin: Origin.ArticleModal },
           }),
         );
         onChangeSelected(index);

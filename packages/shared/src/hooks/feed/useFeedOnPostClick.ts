@@ -1,15 +1,18 @@
-import { useContext } from 'react';
+import { useMemo } from 'react';
 import { Post } from '../../graphql/posts';
 import { FeedItem, PostItem } from '../useFeed';
-import useIncrementReadingRank from '../useIncrementReadingRank';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
+import useOnPostClick from '../useOnPostClick';
+
+interface PostClickOptionalProps {
+  skipPostUpdate?: boolean;
+}
 
 export type FeedPostClick = (
   post: Post,
   index: number,
   row: number,
   column: number,
+  optional?: PostClickOptionalProps,
 ) => Promise<void>;
 
 export default function useFeedOnPostClick(
@@ -18,23 +21,27 @@ export default function useFeedOnPostClick(
   columns: number,
   feedName: string,
   ranking?: string,
+  eventName = 'click',
 ): FeedPostClick {
-  const { incrementReadingRank } = useIncrementReadingRank();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const onPostClick = useOnPostClick({
+    eventName,
+    columns,
+    feedName,
+    ranking,
+  });
 
-  return async (post, index, row, column): Promise<void> => {
-    trackEvent(
-      postAnalyticsEvent('click', post, {
-        columns,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking),
-      }),
-    );
-    if (!post.read) {
-      await incrementReadingRank();
-    }
-    const item = items[index] as PostItem;
-    updatePost(item.page, item.index, { ...post, read: true });
-  };
+  return useMemo(
+    () =>
+      async (post, index, row, column, optional): Promise<void> => {
+        await onPostClick({ post, row, column, optional });
+
+        if (optional?.skipPostUpdate) {
+          return;
+        }
+
+        const item = items[index] as PostItem;
+        updatePost(item.page, item.index, { ...post, read: true });
+      },
+    [items, updatePost, columns, feedName, ranking],
+  );
 }

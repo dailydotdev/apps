@@ -45,9 +45,7 @@ const ListItem = ({
     )}
   >
     <CardLink
-      href={post.permalink}
-      target="_blank"
-      rel="noopener"
+      href={post.commentsPermalink}
       title={post.title}
       onClick={() => onLinkClick(post)}
       onMouseUp={(event) => event.button === 1 && onLinkClick(post)}
@@ -89,7 +87,7 @@ const ListItem = ({
         className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
         pressed={post.bookmarked}
         buttonSize="small"
-        icon={<BookmarkIcon filled={post.bookmarked} />}
+        icon={<BookmarkIcon secondary={post.bookmarked} />}
         onClick={() => onBookmark(post)}
       />
     </SimpleTooltip>
@@ -156,7 +154,7 @@ export default function SimilarPosts({
       )}
 
       {Separator}
-      <Link href="/" passHref>
+      <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL} passHref>
         <Button
           className="self-start my-2 ml-2 btn-tertiary"
           buttonSize="small"

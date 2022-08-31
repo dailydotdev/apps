@@ -2,6 +2,7 @@ import { FeedItem, PostItem } from '../hooks/useFeed';
 import { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { PostBootData } from './boot';
+import { Origin } from './analytics';
 
 export function optimisticPostUpdateInFeed(
   items: FeedItem[],
@@ -61,10 +62,11 @@ export function feedAnalyticsExtra(
   extra?: {
     scroll_y?: number;
   },
+  origin?: Origin,
 ): FeedAnalyticsExtra {
   return {
     extra: {
-      origin: 'feed',
+      origin: origin ?? Origin.Feed,
       feed: feedName,
       ...(ranking && { ranking }),
       ...(extra && extra),
@@ -72,13 +74,15 @@ export function feedAnalyticsExtra(
   };
 }
 
+export interface FeedItemPosition {
+  columns?: number;
+  column?: number;
+  row?: number;
+}
 export function postAnalyticsEvent(
   eventName: string,
   post: Post | ReadHistoryPost | PostBootData,
-  opts?: {
-    columns?: number;
-    column?: number;
-    row?: number;
+  opts?: FeedItemPosition & {
     extra?: Record<string, unknown>;
   },
 ): PostItemAnalyticsEvent {

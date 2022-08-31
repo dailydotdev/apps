@@ -15,7 +15,6 @@ module.exports = (api) => {
           },
         ],
       ],
-      plugins: ['macros'],
       env: {
         test: {
           presets: [['@babel/preset-env', { targets: { node: 'current' } }]],
@@ -26,7 +25,6 @@ module.exports = (api) => {
 
   return {
     presets: ['next/babel'],
-    plugins: ['macros'],
     env: {
       test: {
         plugins: ['dynamic-import-node'],

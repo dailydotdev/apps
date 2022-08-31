@@ -1,6 +1,7 @@
 import { MutableRefObject, useMemo } from 'react';
 import { AnalyticsEvent, PushToQueueFunc } from './useAnalyticsQueue';
 import { getCurrentLifecycleState } from '../../lib/lifecycle';
+import { Origin } from '../../lib/analytics';
 
 export type AnalyticsContextData = {
   trackEvent: (event: AnalyticsEvent) => void;
@@ -14,7 +15,7 @@ const generateEventId = (now = new Date()): string => {
   return `${timePart}${randomStr}`;
 };
 
-export type PostOrigin = 'article page' | 'article modal';
+export type PostOrigin = Origin.ArticlePage | Origin.ArticleModal;
 
 const getGlobalSharedProps = (): Partial<AnalyticsEvent> => ({
   screen_height: window.screen?.height,

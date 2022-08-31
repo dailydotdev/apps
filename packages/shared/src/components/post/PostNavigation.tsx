@@ -8,12 +8,16 @@ import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
 export interface PostNavigationProps
-  extends Pick<PostModalActionsProps, 'post' | 'onClose'> {
+  extends Pick<
+    PostModalActionsProps,
+    'post' | 'onClose' | 'onShare' | 'onBookmark' | 'onReadArticle'
+  > {
   onPreviousPost: () => unknown;
   onNextPost: () => unknown;
   shouldDisplayTitle?: boolean;
   isModal?: boolean;
   className?: string;
+  additionalInteractionButtonFeature: string;
 }
 
 export function PostNavigation({
@@ -23,7 +27,11 @@ export function PostNavigation({
   className,
   isModal,
   post,
+  onReadArticle,
   onClose,
+  onShare,
+  onBookmark,
+  additionalInteractionButtonFeature,
 }: PostNavigationProps): ReactElement {
   const published = `Published on ${post?.source.name}`;
   const subtitle = !post?.author
@@ -78,12 +86,16 @@ export function PostNavigation({
         </div>
       )}
       <PostModalActions
+        onShare={onShare}
+        onBookmark={onBookmark}
+        onReadArticle={onReadArticle}
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         post={post}
         onClose={onClose}
         inlineActions={shouldDisplayTitle || isModal}
         className={getClasses()}
         notificactionClassName="ml-4"
-        origin={isModal ? 'article modal' : 'article page'}
+        contextMenuId="post-navigation-context"
       />
     </div>
   );

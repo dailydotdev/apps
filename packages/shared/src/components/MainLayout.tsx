@@ -33,6 +33,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   useNavButtonsNotLinks?: boolean;
   mobileTitle?: string;
   showDnd?: boolean;
+  dndActive?: boolean;
   screenCentered?: boolean;
   customBanner?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
@@ -83,7 +84,7 @@ const LogoAndGreeting = ({
 };
 
 const mainLayoutClass = (sidebarExpanded: boolean) =>
-  sidebarExpanded ? 'laptop:pl-70' : 'laptop:pl-11';
+  sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
 
 export default function MainLayout({
   children,
@@ -93,6 +94,7 @@ export default function MainLayout({
   useNavButtonsNotLinks,
   mobileTitle,
   showDnd,
+  dndActive,
   customBanner,
   additionalButtons,
   screenCentered = true,
@@ -141,7 +143,7 @@ export default function MainLayout({
               className="block laptop:hidden btn-tertiary"
               iconOnly
               onClick={() => trackAndToggleMobileSidebar(true)}
-              icon={<MenuIcon filled />}
+              icon={<MenuIcon secondary />}
             />
             <div className="flex flex-row flex-1 justify-center laptop:justify-start">
               {mobileTitle && (
@@ -189,6 +191,7 @@ export default function MainLayout({
             enableSearch={enableSearch}
             activePage={activePage}
             showDnd={showDnd}
+            dndActive={dndActive}
             useNavButtonsNotLinks={useNavButtonsNotLinks}
             onShowDndClick={onShowDndClick}
             setOpenMobileSidebar={() => trackAndToggleMobileSidebar(false)}
