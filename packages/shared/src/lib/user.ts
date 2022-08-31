@@ -1,5 +1,6 @@
 import nodeFetch from 'node-fetch';
 import { apiUrl } from './config';
+import { USER_BY_ID_STATIC_FIELDS_QUERY } from '../graphql/users';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -30,7 +31,7 @@ export interface PublicProfile {
 
 export interface UserProfile {
   name: string;
-  email: string;
+  email?: string;
   username?: string;
   company?: string;
   title?: string;
@@ -61,6 +62,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   username: string;
   timezone?: string;
   referralLink?: string;
+  password?: string;
 }
 
 interface BaseError {
@@ -144,19 +146,33 @@ export async function changeProfileImage(file: File): Promise<LoggedUser> {
   throw new Error('Unexpected response');
 }
 
-export async function getProfileSSR(id: string): Promise<PublicProfile> {
-  const userRes = await nodeFetch(`${apiUrl}/v1/users/${id}`);
+const getProfileRequest = async (method = fetch, id: string) => {
+  const userRes = await method(`${apiUrl}/graphql`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: USER_BY_ID_STATIC_FIELDS_QUERY,
+      variables: {
+        id,
+      },
+    }),
+  });
   if (userRes.status === 404) {
     throw new Error('not found');
   }
-  return userRes.json();
+
+  const response = await userRes.json();
+  return response?.data?.user;
+};
+
+export async function getProfileSSR(id: string): Promise<PublicProfile> {
+  return await getProfileRequest(nodeFetch, id);
 }
 
 export async function getProfile(id: string): Promise<PublicProfile> {
-  const res = await fetch(`${apiUrl}/v1/users/${id}`, {
-    credentials: 'include',
-  });
-  return res.json();
+  return await getProfileRequest(fetch, id);
 }
 
 export async function getLoggedUser(
