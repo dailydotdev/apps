@@ -154,7 +154,7 @@ export default function SimilarPosts({
       )}
 
       {Separator}
-      <Link href="/" passHref>
+      <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL} passHref>
         <Button
           className="self-start my-2 ml-2 btn-tertiary"
           buttonSize="small"
