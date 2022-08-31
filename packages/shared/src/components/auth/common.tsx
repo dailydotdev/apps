@@ -1,7 +1,7 @@
 import React, { CSSProperties, forwardRef, useContext } from 'react';
 import classNames from 'classnames';
 import cloneDeep from 'lodash.clonedeep';
-import TwitterIcon from '../icons/Twitter';
+// import TwitterIcon from '../icons/Twitter';
 import FacebookIcon from '../icons/Facebook';
 import GoogleIcon from '../icons/Google';
 import GitHubIcon from '../icons/GitHub';
@@ -20,7 +20,7 @@ export interface Provider {
 }
 
 enum SocialProvider {
-  Twitter = 'twitter',
+  // Twitter = 'twitter',
   Facebook = 'facebook',
   Google = 'google',
   GitHub = 'gitHub',
@@ -30,11 +30,11 @@ enum SocialProvider {
 type ProviderMap = Record<SocialProvider, Provider>;
 
 export const providerMap: ProviderMap = {
-  twitter: {
-    icon: <TwitterIcon />,
-    provider: 'Twitter',
-    style: { backgroundColor: '#1D9BF0' },
-  },
+  // twitter: {
+  //   icon: <TwitterIcon />,
+  //   provider: 'Twitter',
+  //   style: { backgroundColor: '#1D9BF0' },
+  // },
   facebook: {
     icon: <FacebookIcon />,
     provider: 'Facebook',
