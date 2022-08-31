@@ -19,15 +19,14 @@ import {
   getKratosProviders,
   getKratosSettingsFlow,
   initializeKratosFlow,
+  SocialRegistrationFlow,
   submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
 import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
 import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
 import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
-import useWindowEvents, {
-  SocialRegistrationFlow,
-} from '@dailydotdev/shared/src/hooks/useWindowEvents';
+import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
