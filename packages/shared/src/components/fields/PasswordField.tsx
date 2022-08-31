@@ -32,7 +32,7 @@ export interface PasswordFieldProps extends TextFieldProps {
 }
 
 export function PasswordField({
-  type,
+  type = 'password',
   showStrength = true,
   ...props
 }: PasswordFieldProps): ReactElement {
