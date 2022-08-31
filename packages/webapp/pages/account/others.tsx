@@ -62,6 +62,7 @@ const AccountOthersPage = (): ReactElement => {
           name="newsletter"
           className="mt-6"
           compact={false}
+          checked={user.acceptedMarketing}
           onToggle={() =>
             updateUserProfile({ acceptedMarketing: !user.acceptedMarketing })
           }
