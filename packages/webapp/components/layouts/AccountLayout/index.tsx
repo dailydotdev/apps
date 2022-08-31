@@ -7,18 +7,15 @@ import { NextSeo } from 'next-seo';
 import dynamic from 'next/dynamic';
 import { getLayout as getMainLayout } from '../MainLayout';
 import SidebarNav from './SidebarNav';
-import { AccountPage } from './common';
 
 const Custom404 = dynamic(() => import('../../../pages/404'));
 
 export interface AccountLayoutProps {
   profile: PublicProfile;
   children?: ReactNode;
-  activePage?: AccountPage;
 }
 
 export default function AccountLayout({
-  activePage,
   children,
 }: AccountLayoutProps): ReactElement {
   const { user: profile } = useContext(AuthContext);
@@ -56,7 +53,6 @@ export default function AccountLayout({
       <main className="flex relative flex-row flex-1 pt-0 mx-auto w-[calc(100vw-17.5rem)]">
         <SidebarNav
           className="px-6 pt-6 ml-auto border-l border-theme-divider-tertiary"
-          activePage={activePage}
           basePath="account"
         />
         {children}

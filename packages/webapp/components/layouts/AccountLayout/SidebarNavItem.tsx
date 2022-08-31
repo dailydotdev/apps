@@ -7,6 +7,7 @@ interface SidebarNavItemProps {
   title: string;
   icon: ReactNode;
   href: string;
+  isActive?: boolean;
   className?: string;
 }
 
@@ -14,16 +15,16 @@ function SidebarNavItem({
   icon,
   href,
   title,
+  isActive,
   className,
 }: SidebarNavItemProps): ReactElement {
-  const isActive = window.location.pathname === href;
-
   return (
     <Link href={href}>
       <a
         className={classNames(
           'flex flex-row p-4 rounded-16 w-64',
           isActive && 'border border-theme-divider-tertiary bg-theme-active',
+          isActive && 'p-[0.9375rem]', // to avoid layout shift for when the border (1px) is displayed being active
           className,
         )}
       >

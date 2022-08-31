@@ -12,7 +12,6 @@ import {
 
 interface SidebarNavProps {
   className?: string;
-  activePage?: AccountPage;
   basePath?: string;
 }
 
@@ -21,7 +20,6 @@ const pageKeys = Object.keys(accountPage) as AccountPage[];
 function SidebarNav({
   className,
   basePath = '',
-  activePage = AccountPage.Profile,
 }: SidebarNavProps): ReactElement {
   const { user } = useContext(AuthContext);
 
@@ -31,17 +29,20 @@ function SidebarNav({
 
   return (
     <div className={classNames('flex flex-col items-center', className)}>
-      {pageKeys.map((key) => (
-        <SidebarNavItem
-          key={key}
-          title={accountPage[key].title}
-          href={`/${basePath}${accountPage[key].href}`}
-          icon={accountPage[key].getIcon({
-            user,
-            isActive: key === activePage,
-          })}
-        />
-      ))}
+      {pageKeys.map((key) => {
+        const href = `/${basePath}${accountPage[key].href}`;
+        const isActive = window.location.pathname === href;
+
+        return (
+          <SidebarNavItem
+            key={key}
+            title={accountPage[key].title}
+            href={href}
+            isActive={isActive}
+            icon={accountPage[key].getIcon({ user, isActive })}
+          />
+        );
+      })}
       <AccountSidebarPagesSection>
         {accountSidebarPages.map((accountSidebarPage) => (
           <Link
