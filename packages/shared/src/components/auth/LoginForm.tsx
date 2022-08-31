@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { FormEvent, ReactElement, useState } from 'react';
 import { LoginPasswordParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
@@ -11,7 +12,8 @@ import { AuthForm } from './common';
 interface LoginFormProps {
   onForgotPassword?: () => unknown;
   onPasswordLogin?: (params: LoginFormParams) => void;
-  loginHint?: ReturnType<typeof useState>;
+  loginHint: ReturnType<typeof useState>;
+  className?: string;
 }
 
 export type LoginFormParams = Pick<
@@ -27,6 +29,7 @@ function LoginForm({
   onForgotPassword,
   onPasswordLogin,
   loginHint: [hint, setHint],
+  className,
 }: LoginFormProps): ReactElement {
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,7 +38,11 @@ function LoginForm({
   };
 
   return (
-    <AuthForm className="gap-2" onSubmit={onLogin} data-testid="login_form">
+    <AuthForm
+      className={classNames('gap-2', className)}
+      onSubmit={onLogin}
+      data-testid="login_form"
+    >
       <TextField
         leftIcon={<MailIcon />}
         inputId="identifier"
