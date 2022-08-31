@@ -33,16 +33,7 @@ variables:
   kratos-hostname: sso.apps.local.app.garden
   kratos-ui-hostname: kratos-ui.apps.local.app.garden
   kratos-database: kratos
-  # Common
-  postgres-databases: api,kratos
-  # Gateway variables
-  gateway-database: gateway
-  # Heimdall variables
   heimdall-hostname: heimdall.apps.local.app.garden
-  kratos-image: oryd/kratos:v0.10.1
-  kratos-hostname: sso.apps.local.app.garden
-  kratos-ui-hostname: kratos-ui.apps.local.app.garden
-  kratos-database: kratos
   kratos-cookie-domain: apps.local.app.garden
   # Common
   postgres-databases: api,kratos
@@ -52,7 +43,6 @@ variables:
   pubsub-host: "pubsub:8085"
   gcloud-project: local
   debezium-tag: "2.0"
-  gateway-database: gateway
   mysql-databases: gateway
   mysql-username: root
   mysql-password: root
