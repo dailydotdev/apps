@@ -25,13 +25,17 @@ export const AuthSignBack = ({
   const [signback] = useState<Provider>(() => {
     const method = storage.getItem(SIGNIN_METHOD_KEY);
     storage.removeItem(SIGNIN_METHOD_KEY);
-    return providerMap[method];
+    const provider = providerMap[method];
+    return provider || providerMap.google;
   });
 
   return (
     <>
       <AuthModalHeader title="Login to daily.dev" onClose={onClose} />
       <ColumnContainer>
+        <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
+          Sign back in with
+        </p>
         <ProviderButton
           provider={signback.provider}
           label="Login with"
