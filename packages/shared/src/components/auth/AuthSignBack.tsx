@@ -42,7 +42,7 @@ export const AuthSignBack = ({
           {...signback}
         />
         <OrDivider />
-        <div className="grid grid-cols-4 gap-3 w-fit">
+        <div className="flex flex-row gap-3 justify-center">
           {providers
             .filter(({ provider }) => provider !== signback.provider)
             .map(({ provider, style, ...props }) => (
