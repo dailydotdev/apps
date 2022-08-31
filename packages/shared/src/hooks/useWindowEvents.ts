@@ -1,13 +1,28 @@
 import { useEffect } from 'react';
 
-// to make intellisense work on the first parameter
-const useWindowEvents: typeof window.addEventListener = (
-  event: string,
-  func: (e: Event) => void,
+export interface MessageEventData {
+  eventKey?: string;
+}
+
+type EventParameter = keyof WindowEventMap;
+type KeyedWindowEventHandler<T = unknown> = (e: MessageEvent<T>) => void;
+
+const useWindowEvents = <T extends MessageEventData = MessageEventData>(
+  event: EventParameter,
+  key: string,
+  func: KeyedWindowEventHandler<T>,
 ): void => {
   useEffect(() => {
-    window.addEventListener(event, func);
-    return () => window.removeEventListener(event, func);
+    const handler = (e: MessageEvent<T>) => {
+      if (!e.data?.eventKey || e.data.eventKey !== key) {
+        return;
+      }
+
+      func(e);
+    };
+
+    window.addEventListener(event, handler);
+    return () => window.removeEventListener(event, handler);
   }, [event, func]);
 };
 

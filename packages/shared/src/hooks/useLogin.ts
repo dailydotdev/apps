@@ -9,6 +9,7 @@ import {
   ValidateLoginParams,
 } from '../lib/auth';
 import {
+  AuthEvent,
   AuthFlow,
   EmptyObjectLiteral,
   getKratosSession,
@@ -97,12 +98,17 @@ const useLogin = ({
     onPasswordLogin({ action, params });
   };
 
-  useWindowEvents('message', async (e) => {
-    if (!e.data?.flow) {
+  useWindowEvents('message', AuthEvent.Login, async () => {
+    if (!session) {
       return;
     }
 
     const verified = await getKratosSession();
+
+    if (!verified) {
+      return;
+    }
+
     const hasRenewedSession =
       session.authenticated_at !== verified.authenticated_at;
 

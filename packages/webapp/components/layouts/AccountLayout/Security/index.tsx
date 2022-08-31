@@ -14,10 +14,12 @@ import React, {
 } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
+  AuthEvent,
   AuthFlow,
   getKratosProviders,
   getKratosSettingsFlow,
   initializeKratosFlow,
+  SocialRegistrationFlow,
   submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
 import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
@@ -77,17 +79,24 @@ function AccountSecurityDefault({
     initializeKratosFlow(AuthFlow.Settings),
   );
 
-  useWindowEvents('message', async (e) => {
-    if (e.data?.flow) {
-      const flow = await getKratosSettingsFlow(AuthFlow.Settings, e.data.flow);
-      const { ui } = flow;
-      const error = ui.messages[0]?.id;
-      if (error === 4000007) {
-        // Provider is already linked to another account
-        setAlreadyLinkedProvider(true);
+  useWindowEvents<SocialRegistrationFlow>(
+    'message',
+    AuthEvent.SocialRegistration,
+    async (e) => {
+      if (e.data?.flow) {
+        const flow = await getKratosSettingsFlow(
+          AuthFlow.Settings,
+          e.data.flow,
+        );
+        const { ui } = flow;
+        const error = ui.messages[0]?.id;
+        if (error === 4000007) {
+          // Provider is already linked to another account
+          setAlreadyLinkedProvider(true);
+        }
       }
-    }
-  });
+    },
+  );
 
   const { mutateAsync: updateSettings } = useMutation(
     (params: SettingsParams) => submitKratosFlow(params),

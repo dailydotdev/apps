@@ -1,6 +1,11 @@
+import { MessageEventData } from '../hooks/useWindowEvents';
 import { authUrl, heimdallUrl } from './constants';
 
 export type EmptyObjectLiteral = Record<string, never | string>;
+
+export interface SocialRegistrationFlow extends MessageEventData {
+  flow: string;
+}
 
 interface InitializationNodeAttribute {
   name: string;
@@ -175,6 +180,11 @@ export interface AuthSession extends Partial<LogoutSessionData> {
 export interface SuccessfulRegistrationData {
   session: AuthSession;
   identity: Identity;
+}
+
+export enum AuthEvent {
+  Login = 'login',
+  SocialRegistration = 'social_registration',
 }
 
 export enum AuthFlow {
