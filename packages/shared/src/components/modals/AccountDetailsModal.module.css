@@ -10,7 +10,7 @@
 }
 .myFeedModal {
   & :global(.modal) {
-    padding: 3rem 0 4.0625rem 0;
+    padding: 4.0625rem 0 4.0625rem 0;
 
     @screen responsiveModalBreakpoint {
       max-height: 40rem;

@@ -88,7 +88,7 @@ export default function CreateMyFeedModal({
       {...modalProps}
       style={{
         content: {
-          height: '180rem',
+          height: '100%',
         },
       }}
       onRequestClose={closableVariants.includes(version) && onRequestClose}
