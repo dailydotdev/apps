@@ -20,6 +20,12 @@ export function ReactModalAdapter({
     <Modal
       portalClassName={className.toString()}
       overlayClassName={classNames('overlay', overlayClassName)}
+      style={{
+        content: {
+          maxHeight: '100%',
+          maxWidth: '26.25rem',
+        },
+      }}
       className={classNames('focus:outline-none modal', contentClassName)}
       {...props}
     />
