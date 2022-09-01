@@ -10,8 +10,6 @@
     right: 0;
     bottom: 0;
     max-height: 100vh;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
     background: var(--theme-overlay-quaternary);
     z-index: 10;
   }

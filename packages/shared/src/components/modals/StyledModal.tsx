@@ -21,6 +21,10 @@ export function ReactModalAdapter({
       portalClassName={className.toString()}
       overlayClassName={classNames('overlay', overlayClassName)}
       style={{
+        overlay: {
+          paddingLeft: '1.25rem',
+          paddingRight: '1.25rem',
+        },
         content: {
           maxHeight: '100%',
           maxWidth: '26.25rem',
