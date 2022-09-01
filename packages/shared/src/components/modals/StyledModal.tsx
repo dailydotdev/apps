@@ -21,7 +21,7 @@ export function ReactModalAdapter({
       portalClassName={className.toString()}
       overlayClassName={classNames('overlay', overlayClassName)}
       style={{
-        // stylelint-disable-next-line property-no-unknown
+        // stylelint-disable-next-line selector-type-no-unknown
         overlay: {
           paddingLeft: '1.25rem',
           paddingRight: '1.25rem',
