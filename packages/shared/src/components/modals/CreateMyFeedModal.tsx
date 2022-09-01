@@ -84,11 +84,11 @@ export default function CreateMyFeedModal({
 
   return (
     <ResponsiveModal
-      className={classNames(className, styles.accountDetailsModal)}
+      className={classNames(className, styles.myFeedModal)}
       {...modalProps}
       style={{
         content: {
-          height: '180rem',
+          height: '100%',
         },
       }}
       onRequestClose={closableVariants.includes(version) && onRequestClose}
@@ -107,12 +107,18 @@ export default function CreateMyFeedModal({
           )}
         </header>
       )}
-      <section className={classNames('flex-1', !showIntro && 'mt-6')}>
+      <section
+        className={classNames(
+          ' flex-1',
+          showIntro && 'flex items-center justify-center',
+          !showIntro && 'mt-6',
+        )}
+      >
         {showIntro ? <MyFeedIntro /> : <TagsFilter />}
       </section>
       <footer
         className={classNames(
-          'flex fixed responsiveModalBreakpoint:sticky bottom-0 items-center border-t border-theme-divider-tertiary bg-theme-bg-tertiary py-3',
+          'flex w-full fixed responsiveModalBreakpoint:sticky bottom-0 left-0 items-center border-t border-theme-divider-tertiary bg-theme-bg-tertiary py-3',
           version === 'v3' ? 'justify-between px-4' : 'justify-center',
         )}
       >

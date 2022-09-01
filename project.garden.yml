@@ -34,6 +34,8 @@ variables:
   kratos-hostname: sso.apps.local.app.garden
   kratos-ui-hostname: kratos-ui.apps.local.app.garden
   kratos-database: kratos
+  heimdall-hostname: heimdall.apps.local.app.garden
+  kratos-cookie-domain: apps.local.app.garden
   # Common
   postgres-databases: api,kratos
   postgres-username: postgres
