@@ -16,9 +16,9 @@ import { useMutation, useQuery } from 'react-query';
 import {
   AuthEvent,
   AuthFlow,
-  getKratosProviders,
   getKratosSettingsFlow,
   initializeKratosFlow,
+  KratosProviderData,
   SocialRegistrationFlow,
   submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
@@ -51,6 +51,7 @@ export interface ChangePasswordParams {
 
 interface AccountSecurityDefaultProps {
   isEmailSent?: boolean;
+  userProviders?: KratosProviderData;
   updatePasswordRef: MutableRefObject<HTMLFormElement>;
   onSwitchDisplay: (display: Display) => void;
   onUpdatePassword: (form: ChangePasswordParams) => void;
@@ -63,6 +64,7 @@ export interface ManageSocialProvidersProps {
 
 function AccountSecurityDefault({
   isEmailSent,
+  userProviders,
   updatePasswordRef,
   onSwitchDisplay,
   onUpdatePassword,
@@ -74,7 +76,6 @@ function AccountSecurityDefault({
   const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [, setEmail] = useState<string>(null);
-  const { data: userProviders } = useQuery('providers', getKratosProviders);
   const { data: settings } = useQuery('settings', () =>
     initializeKratosFlow(AuthFlow.Settings),
   );
@@ -154,6 +155,7 @@ function AccountSecurityDefault({
           onChange={(e) => setEmail(e.currentTarget.value)}
           label="Email"
           inputId="email"
+          data-testid="current_email"
           leftIcon={<MailIcon />}
           rightIcon={<LockIcon className="text-theme-label-secondary" />}
           readOnly

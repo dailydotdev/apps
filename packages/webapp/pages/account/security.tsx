@@ -7,6 +7,7 @@ import React, { ReactElement, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   AuthFlow,
+  getKratosProviders,
   initializeKratosFlow,
   submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
@@ -28,6 +29,7 @@ const AccountSecurityPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
+  const { data: userProviders } = useQuery('providers', getKratosProviders);
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
   );
@@ -139,6 +141,7 @@ const AccountSecurityPage = (): ReactElement => {
       {showVerifySession && (
         <VerifySessionModal
           isOpen={showVerifySession}
+          userProviders={userProviders}
           onRequestClose={() => onCloseVerifySession()}
           onPasswordLogin={onPasswordLogin}
           onSocialLogin={onSocialLogin}
