@@ -17,10 +17,6 @@ export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const initialDataKey = 'initial';
-export const authUrl =
-  process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
-export const heimdallUrl =
-  process.env.NEXT_PUBLIC_HEIMDALL_URL || 'http://127.0.0.1:3000';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
@@ -33,3 +29,9 @@ export const isBrave = (): boolean => {
   }
   return typeof navigator.brave?.isBrave === 'function';
 };
+
+export const authUrl =
+  process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
+export const heimdallUrl = isDevelopment
+  ? process.env.NEXT_PUBLIC_HEIMDALL_URL || 'http://127.0.0.1:3000'
+  : authUrl;
