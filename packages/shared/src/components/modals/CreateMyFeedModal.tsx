@@ -88,7 +88,7 @@ export default function CreateMyFeedModal({
       {...modalProps}
       style={{
         content: {
-          height: '180rem',
+          height: '100%',
         },
       }}
       onRequestClose={closableVariants.includes(version) && onRequestClose}
@@ -118,7 +118,7 @@ export default function CreateMyFeedModal({
       </section>
       <footer
         className={classNames(
-          'flex w-full fixed responsiveModalBreakpoint:sticky bottom-0 items-center border-t border-theme-divider-tertiary bg-theme-bg-tertiary py-3',
+          'flex w-full fixed responsiveModalBreakpoint:sticky bottom-0 left-0 items-center border-t border-theme-divider-tertiary bg-theme-bg-tertiary py-3',
           version === 'v3' ? 'justify-between px-4' : 'justify-center',
         )}
       >
