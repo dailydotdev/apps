@@ -53,8 +53,7 @@ export interface RegistrationParameters {
 export type ValidateRecoveryParams =
   KratosFormParams<AccountRecoveryParameters>;
 
-export interface SettingsParameters {
-  csrf_token: string;
+export interface SettingsParameters extends AuthPostParams {
   link?: string;
   unlink?: string;
 }
