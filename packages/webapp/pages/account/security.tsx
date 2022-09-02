@@ -124,6 +124,7 @@ const AccountSecurityPage = (): ReactElement => {
       <TabContainer showHeader={false} controlledActive={activeDisplay}>
         <Tab label={Display.Default}>
           <AccountSecurityDefault
+            settings={settings}
             isEmailSent={isEmailSent}
             updatePasswordRef={updatePasswordRef}
             onSwitchDisplay={setActiveDisplay}

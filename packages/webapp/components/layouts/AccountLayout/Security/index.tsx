@@ -12,12 +12,12 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation } from 'react-query';
 import {
   AuthEvent,
   AuthFlow,
   getKratosSettingsFlow,
-  initializeKratosFlow,
+  InitializationData,
   KratosProviderData,
   SocialRegistrationFlow,
   submitKratosFlow,
@@ -50,6 +50,7 @@ export interface ChangePasswordParams {
 }
 
 interface AccountSecurityDefaultProps {
+  settings: InitializationData;
   isEmailSent?: boolean;
   userProviders?: KratosProviderData;
   updatePasswordRef: MutableRefObject<HTMLFormElement>;
@@ -63,6 +64,7 @@ export interface ManageSocialProvidersProps {
 }
 
 function AccountSecurityDefault({
+  settings,
   isEmailSent,
   userProviders,
   updatePasswordRef,
@@ -76,9 +78,6 @@ function AccountSecurityDefault({
   const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [, setEmail] = useState<string>(null);
-  const { data: settings } = useQuery('settings', () =>
-    initializeKratosFlow(AuthFlow.Settings),
-  );
 
   useWindowEvents<SocialRegistrationFlow>(
     'message',

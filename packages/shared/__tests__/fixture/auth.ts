@@ -1,10 +1,12 @@
 import nock from 'nock';
 import { authUrl, heimdallUrl } from '../../src/lib/constants';
 import {
+  AuthPostParams,
   AuthSession,
   EmptyObjectLiteral,
   Identity,
   InitializationData,
+  KratosFormParams,
   SuccessfulRegistrationData,
 } from '../../src/lib/kratos';
 
@@ -1068,7 +1070,7 @@ export const successfulSettingsFlowData = {
   state: 'success',
 };
 
-const loginVerificationMockData = {
+export const loginVerificationMockData = {
   id: 'e9716552-632f-4b9b-a1ce-c1f844ff5b98',
   type: 'browser',
   expires_at: '2022-08-31T11:17:42.324836417Z',
@@ -1231,12 +1233,87 @@ const loginVerificationMockData = {
   requested_aal: 'aal1',
 };
 
+export const verifiedLoginData = {
+  session: {
+    id: '1ee3591b-db3d-4f5d-ae52-571da88d486c',
+    active: true,
+    expires_at: '2022-09-03T05:20:46.587518802Z',
+    authenticated_at: '2022-09-02T05:20:46.587518802Z',
+    authenticator_assurance_level: 'aal1',
+    authentication_methods: [
+      {
+        method: 'password',
+        aal: 'aal1',
+        completed_at: '2022-09-01T08:03:05.236219507Z',
+      },
+      {
+        method: 'password',
+        aal: 'aal1',
+        completed_at: '2022-09-02T05:20:46.587512719Z',
+      },
+    ],
+    issued_at: '2022-09-02T05:20:46.587518802Z',
+    identity: {
+      id: '318b8590-135a-42d0-8c50-6820784ad869',
+      schema_id: 'default',
+      schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+      state: 'active',
+      state_changed_at: '2022-08-25T03:32:25.542997Z',
+      traits: {
+        name: 'Lee Hansel Solevilla',
+        email: 'sshanzel@yahoo.com',
+        username: 'abc123',
+      },
+      verifiable_addresses: [
+        {
+          id: '0aa85371-7e37-4c00-aa85-24e2ae617715',
+          value: 'sshanzel@yahoo.com',
+          verified: false,
+          via: 'email',
+          status: 'sent',
+          created_at: '2022-08-25T03:32:25.562374Z',
+          updated_at: '2022-08-25T03:35:25.5825Z',
+        },
+      ],
+      recovery_addresses: [
+        {
+          id: 'c29fc594-d6f3-44dc-bf26-3b8425f9d2ac',
+          value: 'sshanzel@yahoo.com',
+          via: 'email',
+          created_at: '2022-08-25T03:32:25.569222Z',
+          updated_at: '2022-08-25T03:35:25.585227Z',
+        },
+      ],
+      metadata_public: null,
+      created_at: '2022-08-25T03:32:25.548644Z',
+      updated_at: '2022-08-25T03:32:25.548644Z',
+    },
+  },
+};
+
 export const mockSettingsValidation = (
   params: Partial<EmptyObjectLiteral>,
   result: unknown = successfulSettingsFlowData,
   code = 200,
 ): void => {
   const url = new URL(settingsFlowMockData.ui.action);
+  nock(authUrl, {
+    reqheaders: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+  })
+    .post(url.pathname + url.search, params)
+    .reply(code, result);
+};
+
+export const mockKratosPost = <T = EmptyObjectLiteral>(
+  { params, action }: KratosFormParams<Partial<T> & { csrf_token: string }>,
+  result: unknown,
+  code = 200,
+): void => {
+  const url = new URL(action);
   nock(authUrl, {
     reqheaders: {
       'Content-Type': 'application/json',

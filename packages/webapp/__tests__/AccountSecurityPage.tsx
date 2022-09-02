@@ -1,6 +1,8 @@
 import React from 'react';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import {
+  loginVerificationMockData,
+  mockKratosPost,
   mockListProviders,
   mockLoginReverifyFlow,
   mockSettingsFlow,
@@ -8,6 +10,7 @@ import {
   mockWhoAmIFlow,
   requireVerificationSettingsMock,
   settingsFlowMockData,
+  verifiedLoginData,
 } from '@dailydotdev/shared/__tests__/fixture/auth';
 import {
   fireEvent,
@@ -15,6 +18,7 @@ import {
   RenderResult,
   screen,
 } from '@testing-library/preact';
+import { act } from 'preact/test-utils';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
@@ -55,6 +59,7 @@ const defaultLoggedUser: LoggedUser = {
 };
 
 const updateUser = jest.fn();
+const refetchBoot = jest.fn();
 
 const renderComponent = (): RenderResult => {
   const client = new QueryClient();
@@ -65,6 +70,7 @@ const renderComponent = (): RenderResult => {
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
+        refetchBoot={refetchBoot}
         user={defaultLoggedUser}
         updateUser={updateUser}
         getRedirectUri={jest.fn()}
@@ -133,9 +139,37 @@ it('should allow changing of email but require verification', async () => {
     'traits.image': getNodeValue('traits.image', nodes),
   };
   mockSettingsValidation(params, requireVerificationSettingsMock, 403);
-  mockLoginReverifyFlow();
   const submitChanges = await screen.findByText('Save changes');
   fireEvent.click(submitChanges);
+  await waitForNock();
   const text = await screen.findByText("Verify it's you (security check)");
   expect(text).toBeInTheDocument();
+  mockLoginReverifyFlow();
+  await waitForNock();
+  fireEvent.input(screen.getByTestId('login_email'), {
+    target: { value: email },
+  });
+  fireEvent.input(screen.getByPlaceholderText('Password'), {
+    target: { value: '#123xAbc' },
+  });
+  const { action, nodes: loginNodes } = loginVerificationMockData.ui;
+  const loginToken = getNodeValue('csrf_token', loginNodes);
+  mockKratosPost(
+    {
+      action,
+      params: {
+        csrf_token: loginToken,
+        identifier: email,
+        password: '#123xAbc',
+        method: 'password',
+      },
+    },
+    verifiedLoginData,
+  );
+  await act(async () => {
+    const submitLogin = await screen.findByText('Login');
+    fireEvent.click(submitLogin);
+    await waitForNock();
+    expect(refetchBoot).toHaveBeenCalled();
+  });
 });
