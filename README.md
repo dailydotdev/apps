@@ -62,6 +62,9 @@ To spin up a full-blown local environment, we use [Garden](https://garden.io/). 
 * Install garden using their [getting started tutorial](https://docs.garden.io/getting-started/1-installation). Make sure to follow step 3 to provision a local kubernetes cluster.
 * Git clone this repo: `git clone git@github.com:dailydotdev/apps.git`.
 * Git clone the [api](https://github.com/dailydotdev/daily-api) and [gateway](https://github.com/dailydotdev/daily-gateway) services for hot reloading support (optional).
+* Ensure that you set the Docker Desktop kubernetes to `docker-desktop` (See image below)
+
+![Kubernetes docker desktop setup](https://drive.google.com/uc?id=1w-apIOwMYi6Py2UtrtZZLFOVkNvkiUOV)
 
 ### Deploy
 
