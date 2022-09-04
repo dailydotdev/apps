@@ -10,6 +10,7 @@ import {
   mockWhoAmIFlow,
   requireVerificationSettingsMock,
   settingsFlowMockData,
+  socialProviderRedirectMock,
   verifiedLoginData,
 } from '@dailydotdev/shared/__tests__/fixture/auth';
 import {
@@ -227,4 +228,33 @@ it('should allow setting new password but require to verify session', async () =
   await waitForNock();
   const input = await screen.findByPlaceholderText('Password');
   expect(input).toHaveValue('');
+});
+
+it('should allow linking social providers', async () => {
+  renderComponent();
+  await waitForNock();
+  const connect = await screen.findByText('Connect with Google');
+  const { nodes } = settingsFlowMockData.ui;
+  const token = getNodeValue('csrf_token', nodes);
+  const params = { link: 'google', csrf_token: token };
+  mockSettingsValidation(params);
+  fireEvent.click(connect);
+  await waitForNock();
+});
+
+it('should allow linking social providers but require to verify session', async () => {
+  renderComponent();
+  await waitForNock();
+  const connect = await screen.findByText('Connect with Google');
+  const { nodes } = settingsFlowMockData.ui;
+  const token = getNodeValue('csrf_token', nodes);
+  const params = { link: 'google', csrf_token: token };
+  mockSettingsValidation(params, requireVerificationSettingsMock, 403);
+  fireEvent.click(connect);
+  await waitForNock();
+  await verifySession();
+  mockSettingsValidation(params, socialProviderRedirectMock, 422);
+  const reConnect = await screen.findByText('Connect with Google');
+  fireEvent.click(reConnect);
+  await waitForNock();
 });
