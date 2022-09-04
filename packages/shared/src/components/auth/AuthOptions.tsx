@@ -163,7 +163,11 @@ function AuthOptions({
           />
         </Tab>
         <Tab label={Display.SignBack}>
-          <AuthSignBack onRegister={() => setActiveDisplay(Display.Default)}>
+          <AuthSignBack
+            onRegister={() => setActiveDisplay(Display.Default)}
+            onProviderClick={onSocialRegistration}
+            onClose={onClose}
+          >
             <LoginForm
               className="mt-3"
               loginHint={loginHint}

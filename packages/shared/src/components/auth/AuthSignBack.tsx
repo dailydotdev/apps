@@ -11,6 +11,7 @@ interface AuthSignBackProps {
   children?: ReactNode;
   onClose?: CloseModalFunc;
   onRegister?: () => void;
+  onProviderClick?: (provider: string) => unknown;
 }
 
 const providers = Object.values(providerMap);
@@ -21,6 +22,7 @@ export const AuthSignBack = ({
   children,
   onClose,
   onRegister,
+  onProviderClick,
 }: AuthSignBackProps): ReactElement => {
   const [signback] = useState<Provider>(() => {
     const method = storage.getItem(SIGNIN_METHOD_KEY);
@@ -50,6 +52,7 @@ export const AuthSignBack = ({
                 key={provider}
                 provider={provider}
                 style={{ ...style, width: '3.875rem' }}
+                onClick={() => onProviderClick?.(provider)}
                 {...props}
               />
             ))}
