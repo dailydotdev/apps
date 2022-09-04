@@ -798,6 +798,19 @@ export const mockWhoAmIFlow = (result: Partial<AuthSession> = {}): void => {
     .reply(200, { ...whoamiMockData, ...result });
 };
 
+export const socialProviderRedirectMock = {
+  error: {
+    id: 'browser_location_change_required',
+    code: 422,
+    status: 'Unprocessable Entity',
+    reason:
+      'In order to complete this flow please redirect the browser to: https://accounts.google.com/o/oauth2/v2/auth?claims=%7B%22id_token%22%3A%7B%22email%22%3A%7B%22essential%22%3Atrue%7D%2C%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%2C%22name%22%3A%7B%22essential%22%3Atrue%7D%2C%22picture%22%3A%7B%22essential%22%3Atrue%7D%7D%7D\u0026client_id=234794427174-3uu0mjstrrrstvnjaabp5vmamftmb7gu.apps.googleusercontent.com\u0026redirect_uri=http%3A%2F%2F127.0.0.1%3A4433%2Fself-service%2Fmethods%2Foidc%2Fcallback%2Fgoogle\u0026response_type=code\u0026scope=email+profile+openid\u0026state=9fb75a8e-6461-45c8-bfa5-922ce7839a04',
+    message: 'browser location change required',
+  },
+  redirect_browser_to:
+    'https://accounts.google.com/o/oauth2/v2/auth?claims=%7B%22id_token%22%3A%7B%22email%22%3A%7B%22essential%22%3Atrue%7D%2C%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%2C%22name%22%3A%7B%22essential%22%3Atrue%7D%2C%22picture%22%3A%7B%22essential%22%3Atrue%7D%7D%7D\u0026client_id=234794427174-3uu0mjstrrrstvnjaabp5vmamftmb7gu.apps.googleusercontent.com\u0026redirect_uri=http%3A%2F%2F127.0.0.1%3A4433%2Fself-service%2Fmethods%2Foidc%2Fcallback%2Fgoogle\u0026response_type=code\u0026scope=email+profile+openid\u0026state=9fb75a8e-6461-45c8-bfa5-922ce7839a04',
+};
+
 export const requireVerificationSettingsMock = {
   error: {
     id: 'session_refresh_required',
@@ -1360,7 +1373,7 @@ export const mockEmailCheck = (email: string, result = false): void => {
 };
 
 export const mockListProviders = (
-  result: string[] = ['google', 'facebook', 'github', 'apple'],
+  result: string[] = ['facebook', 'github', 'apple'],
 ): void => {
   nock(heimdallUrl)
     .post('/api/list_providers')

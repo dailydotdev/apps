@@ -54,10 +54,12 @@ const AccountOthersPage = (): ReactElement => {
           options={timeZoneValues}
           scrollable
           menuClassName="menu-secondary"
+          data-testid="timezone_dropdown"
         />
       </AccountContentSection>
       <AccountContentSection title="Newsletter">
         <Switch
+          data-testid="newsletter_switch"
           inputId="newsletter-switch"
           name="newsletter"
           className="mt-6"
