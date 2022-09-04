@@ -13,6 +13,7 @@ import {
 } from '@dailydotdev/shared/src/lib/kratos';
 import {
   getNodeValue,
+  SettingsParams,
   ValidateChangeEmail,
   ValidateResetPassword,
 } from '@dailydotdev/shared/src/lib/auth';
@@ -21,6 +22,7 @@ import { AccountSecurityDisplay as Display } from '../../components/layouts/Acco
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
   ChangePasswordParams,
+  UpdateProvidersParams,
 } from '../../components/layouts/AccountLayout/Security';
 import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
 
@@ -29,7 +31,10 @@ const AccountSecurityPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
-  const { data: userProviders } = useQuery('providers', getKratosProviders);
+  const { data: userProviders, refetch: refetchProviders } = useQuery(
+    'providers',
+    getKratosProviders,
+  );
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
   );
@@ -119,16 +124,46 @@ const AccountSecurityPage = (): ReactElement => {
     });
   };
 
+  const { mutateAsync: updateSettings } = useMutation(
+    (params: SettingsParams) => submitKratosFlow(params),
+    {
+      onSuccess: ({ redirect, error, code }) => {
+        if (redirect) {
+          if (code === 403) {
+            initializePrivilegedSession(redirect);
+            return;
+          }
+
+          window.open(redirect);
+          return;
+        }
+
+        if (error) {
+          return;
+        }
+
+        refetchProviders();
+      },
+    },
+  );
+
+  const updateSocialProviders = (postData: UpdateProvidersParams) => {
+    const { action, nodes } = settings.ui;
+    const csrfToken = getNodeValue('csrf_token', nodes);
+    const params = { ...postData, csrf_token: csrfToken };
+    updateSettings({ action, params });
+  };
+
   return (
     <>
       <TabContainer showHeader={false} controlledActive={activeDisplay}>
         <Tab label={Display.Default}>
           <AccountSecurityDefault
-            settings={settings}
             isEmailSent={isEmailSent}
             updatePasswordRef={updatePasswordRef}
             onSwitchDisplay={setActiveDisplay}
             onUpdatePassword={onUpdatePassword}
+            onUpdateProviders={updateSocialProviders}
           />
         </Tab>
         <Tab label={Display.ChangeEmail}>
