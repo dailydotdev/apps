@@ -82,6 +82,35 @@ const renderComponent = (): RenderResult => {
   );
 };
 
+const verifySession = async (email = defaultLoggedUser.email) => {
+  mockLoginReverifyFlow();
+  const text = await screen.findByText("Verify it's you (security check)");
+  expect(text).toBeInTheDocument();
+  await waitForNock();
+  fireEvent.input(screen.getByTestId('login_email'), {
+    target: { value: email },
+  });
+  fireEvent.input(screen.getByTestId('login_password'), {
+    target: { value: '#123xAbc' },
+  });
+  const { action, nodes: loginNodes } = loginVerificationMockData.ui;
+  const loginToken = getNodeValue('csrf_token', loginNodes);
+  const params = {
+    csrf_token: loginToken,
+    identifier: email,
+    password: '#123xAbc',
+    method: 'password',
+  };
+  mockKratosPost({ action, params }, verifiedLoginData);
+  await act(async () => {
+    const submitLogin = await screen.findByText('Login');
+    fireEvent.click(submitLogin);
+    await waitForNock();
+    expect(refetchBoot).toHaveBeenCalled();
+  });
+  return true;
+};
+
 it('should show current email', async () => {
   renderComponent();
   const el = await screen.findByTestId('current_email');
@@ -142,34 +171,60 @@ it('should allow changing of email but require verification', async () => {
   const submitChanges = await screen.findByText('Save changes');
   fireEvent.click(submitChanges);
   await waitForNock();
-  const text = await screen.findByText("Verify it's you (security check)");
-  expect(text).toBeInTheDocument();
-  mockLoginReverifyFlow();
+  await verifySession();
+  mockSettingsValidation(params);
+  const reSubmitChanges = await screen.findByText('Save changes');
+  fireEvent.click(reSubmitChanges);
   await waitForNock();
-  fireEvent.input(screen.getByTestId('login_email'), {
-    target: { value: email },
-  });
+  const sent = await screen.findByTestId('email_verification_sent');
+  expect(sent).toBeInTheDocument();
+});
+
+it('should allow setting new password', async () => {
+  renderComponent();
+  await waitForNock();
+  const password = '#123xAbc';
   fireEvent.input(screen.getByPlaceholderText('Password'), {
-    target: { value: '#123xAbc' },
+    target: { value: password },
   });
-  const { action, nodes: loginNodes } = loginVerificationMockData.ui;
-  const loginToken = getNodeValue('csrf_token', loginNodes);
-  mockKratosPost(
-    {
-      action,
-      params: {
-        csrf_token: loginToken,
-        identifier: email,
-        password: '#123xAbc',
-        method: 'password',
-      },
-    },
-    verifiedLoginData,
-  );
-  await act(async () => {
-    const submitLogin = await screen.findByText('Login');
-    fireEvent.click(submitLogin);
-    await waitForNock();
-    expect(refetchBoot).toHaveBeenCalled();
+  const { nodes } = settingsFlowMockData.ui;
+  const token = getNodeValue('csrf_token', nodes);
+  const params = {
+    csrf_token: token,
+    method: 'password',
+    password,
+  };
+  mockSettingsValidation(params);
+  const submitResetPassword = await screen.findByText('Set password');
+  fireEvent.click(submitResetPassword);
+  await waitForNock();
+  const input = await screen.findByPlaceholderText('Password');
+  expect(input).toHaveValue('');
+});
+
+it('should allow setting new password but require to verify session', async () => {
+  renderComponent();
+  await waitForNock();
+  const password = '#123xAbc';
+  fireEvent.input(screen.getByPlaceholderText('Password'), {
+    target: { value: password },
   });
+  const { nodes } = settingsFlowMockData.ui;
+  const token = getNodeValue('csrf_token', nodes);
+  const params = {
+    csrf_token: token,
+    method: 'password',
+    password,
+  };
+  mockSettingsValidation(params, requireVerificationSettingsMock, 403);
+  const submitResetPassword = await screen.findByText('Set password');
+  fireEvent.click(submitResetPassword);
+  await waitForNock();
+  await verifySession();
+  mockSettingsValidation(params);
+  const reSubmitResetPassword = await screen.findByText('Set password');
+  fireEvent.click(reSubmitResetPassword);
+  await waitForNock();
+  const input = await screen.findByPlaceholderText('Password');
+  expect(input).toHaveValue('');
 });
