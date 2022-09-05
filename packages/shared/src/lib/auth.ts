@@ -48,6 +48,7 @@ export interface RegistrationParameters {
   'traits.userId'?: string;
   'traits.name'?: string;
   'traits.username': string;
+  file?: string;
   'traits.image': string;
 }
 

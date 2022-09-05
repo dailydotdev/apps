@@ -128,7 +128,7 @@ export default function MainLayout({
   };
 
   useEffect(() => {
-    if (!user || user?.timezone) {
+    if (!user || user?.timezone || !user.infoConfirmed) {
       return;
     }
 

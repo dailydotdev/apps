@@ -17,25 +17,14 @@ import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
 
-export interface SocialProviderAccount {
+export interface SocialRegistrationFormProps {
   provider: string;
-  email: string;
-  name: string;
-  username?: string;
-  image?: string;
-}
-
-export interface RegistrationFormProps {
-  email: string;
-  socialAccount?: SocialProviderAccount;
   formRef?: MutableRefObject<HTMLFormElement>;
   onClose?: CloseModalFunc;
-  onBack?: CloseModalFunc;
   hints?: RegistrationError;
   onUpdateHints?: (errors: RegistrationError) => void;
   isV2?: boolean;
   onSignup?: (params: RegistrationFormValues) => void;
-  token: string;
 }
 
 export type RegistrationFormValues = Omit<
@@ -43,31 +32,30 @@ export type RegistrationFormValues = Omit<
   'method' | 'provider'
 >;
 
-export const RegistrationForm = ({
-  email,
-  socialAccount,
+export const SocialRegistrationForm = ({
+  provider,
   formRef,
   onClose,
-  onBack,
   onSignup,
   isV2,
-  token,
   hints,
   onUpdateHints,
-}: RegistrationFormProps): ReactElement => {
+}: SocialRegistrationFormProps): ReactElement => {
+  const { user } = useContext(AuthContext);
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
-    onSignup(values);
+    const { file, ...rest } = values;
+    onSignup(rest);
   };
 
-  const isPasswordValid = !hints?.password;
   const isNameValid = !hints?.['traits.name'];
   const isUsernameValid = !hints?.['traits.username'];
-  const emailFieldIcon = (provider: string) => {
-    if (providerMap[provider]) {
-      return React.cloneElement(providerMap[provider].icon, {
+  const emailFieldIcon = (providerI: string) => {
+    if (providerMap[providerI]) {
+      return React.cloneElement(providerMap[providerI].icon, {
         secondary: false,
       });
     }
@@ -75,13 +63,13 @@ export const RegistrationForm = ({
     return <MailIcon />;
   };
 
+  if (!user?.email) {
+    return <></>;
+  }
+
   return (
     <>
-      <AuthModalHeader
-        title="Sign up to daily.dev"
-        onBack={!socialAccount && onBack}
-        onClose={onClose}
-      />
+      <AuthModalHeader title="Sign up to daily.dev" onClose={onClose} />
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full',
@@ -91,83 +79,48 @@ export const RegistrationForm = ({
         onSubmit={onSubmit}
         data-testid="registration_form"
       >
-        <TokenInput token={token} />
-        {socialAccount && (
-          <ImageInput
-            initialValue={socialAccount.image}
-            size="large"
-            viewOnly
-          />
-        )}
+        <ImageInput initialValue={user?.image} size="large" viewOnly />
         <TextField
           saveHintSpace
           className="w-full"
-          leftIcon={emailFieldIcon(socialAccount?.provider)}
-          name="traits.email"
+          leftIcon={emailFieldIcon(provider)}
+          name="email"
           inputId="email"
           label="Email"
           type="email"
-          value={email || socialAccount?.email}
+          value={user?.email}
           readOnly
-          rightIcon={
-            socialAccount ? (
-              <LockIcon />
-            ) : (
-              <VIcon className="text-theme-color-avocado" />
-            )
-          }
+          rightIcon={<LockIcon />}
         />
         <TextField
           saveHintSpace
           className="w-full"
           valid={isNameValid}
           leftIcon={<UserIcon />}
-          name="traits.name"
-          inputId="traits.name"
+          name="name"
+          inputId="name"
           label="Full name"
-          hint={hints?.['traits.name']}
-          onChange={() =>
-            hints?.['traits.name'] &&
-            onUpdateHints({ ...hints, 'traits.name': '' })
-          }
-          value={socialAccount?.name}
+          value={user?.name}
           rightIcon={
             isNameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        {!socialAccount && (
-          <PasswordField
-            className="w-full"
-            leftIcon={<LockIcon />}
-            name="password"
-            inputId="password"
-            label="Create a password"
-          />
-        )}
         <TextField
           saveHintSpace
           className="w-full"
           valid={isUsernameValid}
           leftIcon={<AtIcon secondary />}
-          name="traits.username"
-          inputId="traits.username"
+          name="username"
+          inputId="username"
           label="Enter a username"
-          hint={hints?.['traits.username']}
-          onChange={() =>
-            hints?.['traits.username'] &&
-            onUpdateHints({ ...hints, 'traits.username': '' })
-          }
-          value={socialAccount?.username}
+          value={user?.username}
           minLength={1}
           rightIcon={
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        {isNameValid && (socialAccount || isPasswordValid) && (
+        {isNameValid && user && (
           <div className="flex flex-row gap-4 mt-6 ml-auto">
-            {isPasswordValid && !isUsernameValid && (
-              <Button className="btn-tertiary">Skip</Button>
-            )}
             <Button className="bg-theme-color-cabbage">Signup</Button>
           </div>
         )}
