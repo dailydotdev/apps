@@ -9,6 +9,11 @@ function CallbackPage(): ReactElement {
     const eventKey = params.login
       ? AuthEvent.Login
       : AuthEvent.SocialRegistration;
+    if (!window.opener && params.flow && params.settings) {
+      const search = new URLSearchParams(params);
+      window.location.replace(`/reset-password?${search}`);
+      return;
+    }
     postWindowMessage(eventKey, params);
     window.close();
   }, []);
