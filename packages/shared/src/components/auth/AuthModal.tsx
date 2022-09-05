@@ -49,6 +49,7 @@ export default function AuthModal({
       onRequestClose={onDiscardAttempt}
       className={classNames(styles.authModal, className)}
       contentClassName={classNames('auth', authVersion)}
+      style={{}}
     >
       {isV1 && (
         <>
