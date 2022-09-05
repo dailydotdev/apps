@@ -31,13 +31,13 @@ const defaultToken = getNodeValue(
   'csrf_token',
   registrationFlowMockData.ui.nodes,
 );
-const anonymousId = 'id';
+const trackingId = 'id';
 const defaultParams: Partial<RegistrationParameters> = {
   csrf_token: defaultToken,
   provider: undefined,
   method: 'password',
   'traits.image': undefined,
-  'traits.userId': anonymousId,
+  'traits.userId': trackingId,
 };
 const mockRegistraitonValidationFlow = (
   result: unknown,
@@ -70,7 +70,7 @@ const renderComponent = (
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={{ id: anonymousId }}
+        user={{ id: trackingId }}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}

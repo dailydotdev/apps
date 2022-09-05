@@ -44,7 +44,7 @@ const useRegistration = ({
   onValidRegistration,
   onInvalidRegistration,
 }: UseRegistrationProps): UseRegistration => {
-  const { anonymous } = useContext(AuthContext);
+  const { trackingId } = useContext(AuthContext);
   const { data: registration, isLoading: isQueryLoading } = useQuery(
     key,
     () => initializeKratosFlow(AuthFlow.Registration),
@@ -94,7 +94,7 @@ const useRegistration = ({
       method: values.method || 'password',
       csrf_token: getNodeValue('csrf_token', nodes),
       'traits.image': values['traits.image'],
-      'traits.userId': anonymous.id,
+      'traits.userId': trackingId,
     };
 
     validate({ action, params: postData });
