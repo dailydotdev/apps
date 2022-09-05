@@ -1,5 +1,6 @@
 import React from 'react';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { render, RenderResult, screen } from '@testing-library/preact';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -18,26 +19,13 @@ beforeEach(() => {
 });
 
 const defaultLoggedUser: LoggedUser = {
-  id: 'u1',
-  username: 'lee',
-  name: 'Lee Solevilla',
-  providers: ['github'],
-  email: 'lee@acme.com',
-  image: 'https://daily.dev/lee.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-  bio: 'The best company!',
+  ...loggedUser,
   twitter: 'dailydotdev',
   github: 'dailydotdev',
   hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
-  permalink: '/sample',
-  company: 'dailydev',
-  title: 'Test',
   acceptedMarketing: true,
 };
-
 const updateUser = jest.fn();
 
 const renderComponent = (): RenderResult => {
