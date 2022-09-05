@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { QueryKey, useMutation, useQuery } from 'react-query';
+import AuthContext from '../contexts/AuthContext';
 import {
   errorsToJson,
   RegistrationError,
@@ -43,6 +44,7 @@ const useRegistration = ({
   onValidRegistration,
   onInvalidRegistration,
 }: UseRegistrationProps): UseRegistration => {
+  const { anonymous } = useContext(AuthContext);
   const { data: registration, isLoading: isQueryLoading } = useQuery(
     key,
     () => initializeKratosFlow(AuthFlow.Registration),
@@ -92,6 +94,7 @@ const useRegistration = ({
       method: values.method || 'password',
       csrf_token: getNodeValue('csrf_token', nodes),
       'traits.image': values['traits.image'],
+      'traits.userId': anonymous.id,
     };
 
     validate({ action, params: postData });
