@@ -1,16 +1,14 @@
-import React, { ReactElement, useContext, useState } from 'react';
-import { useQuery } from 'react-query';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
 import { ModalProps, StyledModal } from '../modals/StyledModal';
 import styles from './VerifySessionModal.module.css';
 import { LoginFormParams } from './LoginForm';
-import AuthContext from '../../contexts/AuthContext';
-import { getKratosProviders } from '../../lib/kratos';
-import { disabledRefetch } from '../../lib/func';
+import { KratosProviderData } from '../../lib/kratos';
 
 interface VerifySessionModalProps extends ModalProps {
+  userProviders?: KratosProviderData;
   onSocialLogin?: (provider: string) => void;
   onPasswordLogin?: (params: LoginFormParams) => void;
 }
@@ -19,15 +17,10 @@ function VerifySessionModal({
   onSocialLogin,
   onRequestClose,
   onPasswordLogin,
+  userProviders,
   ...props
 }: VerifySessionModalProps): ReactElement {
-  const { user } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
-  const { data: userProviders } = useQuery(
-    ['providers', user?.id],
-    () => getKratosProviders(),
-    { ...disabledRefetch },
-  );
   const filteredProviders = providers.filter(({ provider }) =>
     userProviders?.result.indexOf(provider.toLocaleLowerCase()),
   );

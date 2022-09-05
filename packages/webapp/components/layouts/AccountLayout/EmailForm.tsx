@@ -18,7 +18,7 @@ export interface EmailFormProps {
 function EmailForm({
   onSubmit,
   className,
-  emailProps,
+  emailProps = {},
   passwordProps,
 }: EmailFormProps): ReactElement {
   return (

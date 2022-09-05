@@ -56,6 +56,7 @@ function LoginForm({
         valid={!!hint}
       />
       <PasswordField
+        data-testid="login_password"
         inputId="password"
         name="password"
         label="Password"

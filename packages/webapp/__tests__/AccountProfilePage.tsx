@@ -1,5 +1,6 @@
 import React from 'react';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { render, RenderResult, screen } from '@testing-library/preact';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -18,26 +19,15 @@ beforeEach(() => {
 });
 
 const defaultLoggedUser: LoggedUser = {
-  id: 'u1',
-  username: 'lee',
-  name: 'Lee Solevilla',
-  providers: ['github'],
-  email: 'lee@acme.com',
-  image: 'https://daily.dev/lee.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-  bio: 'The best company!',
+  ...loggedUser,
+  title: 'Daily Developer',
+  company: 'dailydev',
   twitter: 'dailydotdev',
   github: 'dailydotdev',
   hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
-  permalink: '/sample',
-  company: 'dailydev',
-  title: 'Test',
   acceptedMarketing: true,
 };
-
 const updateUser = jest.fn();
 
 const renderComponent = (): RenderResult => {
@@ -67,47 +57,37 @@ it('should show account information', () => {
   renderComponent();
   const name = screen.getByPlaceholderText('Full Name');
   expect(name).toBeInTheDocument();
-  expect((name as HTMLInputElement).value).toEqual(defaultLoggedUser.name);
+  expect(name).toHaveValue(defaultLoggedUser.name);
   const username = screen.getByPlaceholderText('Username');
   expect(username).toBeInTheDocument();
-  expect((username as HTMLInputElement).value).toEqual(
-    defaultLoggedUser.username,
-  );
+  expect(username).toHaveValue(defaultLoggedUser.username);
 });
 
 it('should show about section', () => {
   renderComponent();
   const bio = screen.getByPlaceholderText('Bio');
   expect(bio).toBeInTheDocument();
-  expect((bio as HTMLInputElement).value).toEqual(defaultLoggedUser.bio);
+  expect(bio).toHaveValue(defaultLoggedUser.bio);
   const company = screen.getByPlaceholderText('Company');
   expect(company).toBeInTheDocument();
-  expect((company as HTMLInputElement).value).toEqual(
-    defaultLoggedUser.company,
-  );
+  expect(company).toHaveValue(defaultLoggedUser.company);
   const title = screen.getByPlaceholderText('Job Title');
   expect(title).toBeInTheDocument();
-  expect((title as HTMLInputElement).value).toEqual(defaultLoggedUser.title);
+  expect(title).toHaveValue(defaultLoggedUser.title);
 });
 
 it('should show profile social links', () => {
   renderComponent();
   const twitter = screen.getByPlaceholderText('Twitter');
   expect(twitter).toBeInTheDocument();
-  expect((twitter as HTMLInputElement).value).toEqual(
-    defaultLoggedUser.twitter,
-  );
+  expect(twitter).toHaveValue(defaultLoggedUser.twitter);
   const github = screen.getByPlaceholderText('GitHub');
   expect(github).toBeInTheDocument();
-  expect((github as HTMLInputElement).value).toEqual(defaultLoggedUser.github);
+  expect(github).toHaveValue(defaultLoggedUser.github);
   const hashnode = screen.getByPlaceholderText('Hashnode');
   expect(hashnode).toBeInTheDocument();
-  expect((hashnode as HTMLInputElement).value).toEqual(
-    defaultLoggedUser.hashnode,
-  );
+  expect(hashnode).toHaveValue(defaultLoggedUser.hashnode);
   const portfolio = screen.getByPlaceholderText('Your Website');
   expect(portfolio).toBeInTheDocument();
-  expect((portfolio as HTMLInputElement).value).toEqual(
-    defaultLoggedUser.portfolio,
-  );
+  expect(portfolio).toHaveValue(defaultLoggedUser.portfolio);
 });
