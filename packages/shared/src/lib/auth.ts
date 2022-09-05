@@ -45,6 +45,7 @@ export interface RegistrationParameters {
   password?: string;
   referral?: string;
   'traits.email': string;
+  'traits.userId'?: string;
   'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;
