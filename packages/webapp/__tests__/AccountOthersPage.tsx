@@ -61,7 +61,7 @@ it('should change user timezone', async () => {
   mockGraphQL({
     request: {
       query: UPDATE_USER_PROFILE_MUTATION,
-      variables: { data: { timezone: 'Pacific/Honolulu' } },
+      variables: { data: { timezone: 'America/Anchorage' } },
     },
     result: () => {
       mutationCalled = true;
@@ -73,7 +73,7 @@ it('should change user timezone', async () => {
   // eslint-disable-next-line testing-library/no-node-access
   const btn = container.firstChild;
   fireEvent.click(btn);
-  const timezone = await screen.findByText('(UTC -10) Hawaii');
+  const timezone = await screen.findByText('(UTC -8) Alaska');
   await timezone.click();
   await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(mutationCalled).toBeTruthy();
