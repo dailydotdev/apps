@@ -1,8 +1,11 @@
 import nock from 'nock';
 import { authUrl, heimdallUrl } from '../../src/lib/constants';
 import {
+  AuthSession,
+  EmptyObjectLiteral,
   Identity,
   InitializationData,
+  KratosFormParams,
   SuccessfulRegistrationData,
 } from '../../src/lib/kratos';
 
@@ -482,14 +485,14 @@ export const emailSentRecoveryMockData = {
 
 export const settingsFlowMockData: InitializationData & { identity: Identity } =
   {
-    id: 'e6927ed7-538f-4f92-83e6-bf993dbfcf75',
+    id: '299542ab-38d9-470c-b9d3-8243a094d08a',
     type: 'browser',
-    expires_at: '2022-08-25T11:50:31.305144345Z',
-    issued_at: '2022-08-25T10:50:31.305144345Z',
+    expires_at: '2022-08-31T12:07:36.046916095Z',
+    issued_at: '2022-08-31T11:07:36.046916095Z',
     request_url: 'http://127.0.0.1:4433/self-service/settings/browser?',
     ui: {
       action:
-        'http://127.0.0.1:4433/self-service/settings?flow=e6927ed7-538f-4f92-83e6-bf993dbfcf75',
+        'http://127.0.0.1:4433/self-service/settings?flow=299542ab-38d9-470c-b9d3-8243a094d08a',
       method: 'POST',
       nodes: [
         {
@@ -499,7 +502,7 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
             name: 'csrf_token',
             type: 'hidden',
             value:
-              'ciEKdSgoZprj0Ati51AMyP0ENvrW19wmrS+l6kAlcZvRzooYNJbnK2kwGjNr1lmT3w17oYPbY4FYqUwqCafVVw==',
+              'Am0kxGZFeJ5cz0RE8lsOgZTkXsOFVxtQnts0b38KqUv61zRr8Aj8OjZQTOu3AJ8tm7lZnuS3GMJyNMGbfYtIVg==',
             required: true,
             disabled: false,
             node_type: 'input',
@@ -717,7 +720,7 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
           via: 'email',
           status: 'sent',
           created_at: '2022-08-24T03:30:19.705492Z',
-          updated_at: '2022-08-25T10:36:11.275861Z',
+          updated_at: '2022-08-31T03:48:02.420377Z',
         },
       ],
       recovery_addresses: [
@@ -726,7 +729,7 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
           value: 'lee@daily.dev',
           via: 'email',
           created_at: '2022-08-24T03:30:19.714243Z',
-          updated_at: '2022-08-25T10:36:11.280364Z',
+          updated_at: '2022-08-31T03:48:02.423298Z',
         },
       ],
       metadata_public: null,
@@ -736,9 +739,621 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
     state: 'show_form',
   };
 
+const whoamiMockData = {
+  id: 'c005cab5-e770-4337-a3b3-7903b79abc61',
+  active: true,
+  expires_at: '2022-09-01T06:19:36.095759Z',
+  authenticated_at: '2022-08-31T06:19:36.095759Z',
+  authenticator_assurance_level: 'aal1',
+  authentication_methods: [
+    {
+      method: 'password',
+      aal: 'aal1',
+      completed_at: '2022-08-31T06:19:36.095757137Z',
+    },
+  ],
+  issued_at: '2022-08-31T06:19:36.095759Z',
+  identity: {
+    id: '4a1fed11-17f6-42e6-87ee-219bb249c6ba',
+    schema_id: 'default',
+    schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+    state: 'active',
+    state_changed_at: '2022-08-24T03:30:19.668093Z',
+    traits: {
+      name: 'Lee Hansel Solevilla',
+      email: 'lee@daily.dev',
+      image:
+        'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
+      username: 'lee',
+    },
+    verifiable_addresses: [
+      {
+        id: '99a84554-56a8-4a1c-b269-869ddd0b4b8d',
+        value: 'lee@daily.dev',
+        verified: false,
+        via: 'email',
+        status: 'sent',
+        created_at: '2022-08-24T03:30:19.705492Z',
+        updated_at: '2022-08-31T03:48:02.420377Z',
+      },
+    ],
+    recovery_addresses: [
+      {
+        id: 'a530e776-6a87-4b19-9523-4eef4a01b0dd',
+        value: 'lee@daily.dev',
+        via: 'email',
+        created_at: '2022-08-24T03:30:19.714243Z',
+        updated_at: '2022-08-31T03:48:02.423298Z',
+      },
+    ],
+    metadata_public: null,
+    created_at: '2022-08-24T03:30:19.690974Z',
+    updated_at: '2022-08-24T03:30:19.690974Z',
+  },
+};
+
+export const mockWhoAmIFlow = (result: Partial<AuthSession> = {}): void => {
+  nock(authUrl)
+    .get('/sessions/whoami')
+    .reply(200, { ...whoamiMockData, ...result });
+};
+
+export const socialProviderRedirectMock = {
+  error: {
+    id: 'browser_location_change_required',
+    code: 422,
+    status: 'Unprocessable Entity',
+    reason:
+      'In order to complete this flow please redirect the browser to: https://accounts.google.com/o/oauth2/v2/auth?claims=%7B%22id_token%22%3A%7B%22email%22%3A%7B%22essential%22%3Atrue%7D%2C%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%2C%22name%22%3A%7B%22essential%22%3Atrue%7D%2C%22picture%22%3A%7B%22essential%22%3Atrue%7D%7D%7D\u0026client_id=234794427174-3uu0mjstrrrstvnjaabp5vmamftmb7gu.apps.googleusercontent.com\u0026redirect_uri=http%3A%2F%2F127.0.0.1%3A4433%2Fself-service%2Fmethods%2Foidc%2Fcallback%2Fgoogle\u0026response_type=code\u0026scope=email+profile+openid\u0026state=9fb75a8e-6461-45c8-bfa5-922ce7839a04',
+    message: 'browser location change required',
+  },
+  redirect_browser_to:
+    'https://accounts.google.com/o/oauth2/v2/auth?claims=%7B%22id_token%22%3A%7B%22email%22%3A%7B%22essential%22%3Atrue%7D%2C%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%2C%22name%22%3A%7B%22essential%22%3Atrue%7D%2C%22picture%22%3A%7B%22essential%22%3Atrue%7D%7D%7D\u0026client_id=234794427174-3uu0mjstrrrstvnjaabp5vmamftmb7gu.apps.googleusercontent.com\u0026redirect_uri=http%3A%2F%2F127.0.0.1%3A4433%2Fself-service%2Fmethods%2Foidc%2Fcallback%2Fgoogle\u0026response_type=code\u0026scope=email+profile+openid\u0026state=9fb75a8e-6461-45c8-bfa5-922ce7839a04',
+};
+
+export const requireVerificationSettingsMock = {
+  error: {
+    id: 'session_refresh_required',
+    code: 403,
+    status: 'Forbidden',
+    reason:
+      'The login session is too old and thus not allowed to update these fields. Please re-authenticate.',
+    message: 'The requested action was forbidden',
+  },
+  redirect_browser_to:
+    'http://127.0.0.1:4433/self-service/login/browser?refresh=true\u0026return_to=http%3A%2F%2F127.0.0.1%3A4433%2Fself-service%2Fsettings%3Fflow%3D4254d8bc-502b-498e-94c5-80891f49beb6',
+};
+
+export const successfulSettingsFlowData = {
+  id: '299542ab-38d9-470c-b9d3-8243a094d08a',
+  type: 'browser',
+  expires_at: '2022-08-31T12:07:36.046916Z',
+  issued_at: '2022-08-31T11:07:36.046916Z',
+  request_url: 'http://127.0.0.1:4433/self-service/settings/browser?',
+  ui: {
+    action:
+      'http://127.0.0.1:4433/self-service/settings?flow=e60c9fca-7113-4966-ad9e-83c21371093b',
+    method: 'POST',
+    nodes: [
+      {
+        type: 'input',
+        group: 'default',
+        attributes: {
+          name: 'csrf_token',
+          type: 'hidden',
+          value:
+            'kv9MpLtMzXy1ymRD/aYv60jNC7oUJxF02R4KBgfIfhJqRVwLLQFJ2N9VbOy4/b5HR5AM53XHEuY18f/yBUmfDw==',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {},
+      },
+      {
+        type: 'input',
+        group: 'profile',
+        attributes: {
+          name: 'traits.email',
+          type: 'email',
+          value: 'lee@daily.dev',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070002, text: 'E-Mail', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'profile',
+        attributes: {
+          name: 'traits.name',
+          type: 'text',
+          value: 'Lee Hansel Solevilla',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070002, text: 'Full name', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'profile',
+        attributes: {
+          name: 'traits.username',
+          type: 'text',
+          value: 'lee',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070002, text: 'Username', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'profile',
+        attributes: {
+          name: 'traits.image',
+          type: 'text',
+          value:
+            'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070002, text: 'Image', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'profile',
+        attributes: {
+          name: 'traits.github',
+          type: 'text',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070002, text: 'Github handle', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'profile',
+        attributes: {
+          name: 'method',
+          type: 'submit',
+          value: 'profile',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070003, text: 'Save', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'password',
+        attributes: {
+          name: 'password',
+          type: 'password',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070001, text: 'Password', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'password',
+        attributes: {
+          name: 'method',
+          type: 'submit',
+          value: 'password',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070003, text: 'Save', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'oidc',
+        attributes: {
+          name: 'link',
+          type: 'submit',
+          value: 'apple',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: {
+            id: 1050002,
+            text: 'Link apple',
+            type: 'info',
+            context: { provider: 'apple' },
+          },
+        },
+      },
+      {
+        type: 'input',
+        group: 'oidc',
+        attributes: {
+          name: 'link',
+          type: 'submit',
+          value: 'facebook',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: {
+            id: 1050002,
+            text: 'Link facebook',
+            type: 'info',
+            context: { provider: 'facebook' },
+          },
+        },
+      },
+      {
+        type: 'input',
+        group: 'oidc',
+        attributes: {
+          name: 'link',
+          type: 'submit',
+          value: 'github',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: {
+            id: 1050002,
+            text: 'Link github',
+            type: 'info',
+            context: { provider: 'github' },
+          },
+        },
+      },
+      {
+        type: 'input',
+        group: 'oidc',
+        attributes: {
+          name: 'unlink',
+          type: 'submit',
+          value: 'google',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: {
+            id: 1050003,
+            text: 'Unlink google',
+            type: 'info',
+            context: { provider: 'google' },
+          },
+        },
+      },
+    ],
+    messages: [
+      { id: 1050001, text: 'Your changes have been saved!', type: 'info' },
+    ],
+  },
+  identity: {
+    id: '4a1fed11-17f6-42e6-87ee-219bb249c6ba',
+    schema_id: 'default',
+    schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+    state: 'active',
+    state_changed_at: '2022-08-24T03:30:19.668093Z',
+    traits: {
+      name: 'Lee Hansel Solevilla',
+      email: 'lee@daily.dev',
+      image:
+        'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
+      username: 'lee',
+    },
+    verifiable_addresses: [
+      {
+        id: '99a84554-56a8-4a1c-b269-869ddd0b4b8d',
+        value: 'lee@daily.dev',
+        verified: false,
+        via: 'email',
+        status: 'sent',
+        created_at: '2022-08-24T03:30:19.705492Z',
+        updated_at: '2022-08-31T11:07:50.829902Z',
+      },
+    ],
+    recovery_addresses: [
+      {
+        id: 'a530e776-6a87-4b19-9523-4eef4a01b0dd',
+        value: 'lee@daily.dev',
+        via: 'email',
+        created_at: '2022-08-24T03:30:19.714243Z',
+        updated_at: '2022-08-31T11:07:50.832295Z',
+      },
+    ],
+    metadata_public: null,
+    created_at: '2022-08-24T03:30:19.690974Z',
+    updated_at: '2022-08-24T03:30:19.690974Z',
+  },
+  state: 'success',
+};
+
+export const loginVerificationMockData = {
+  id: 'e9716552-632f-4b9b-a1ce-c1f844ff5b98',
+  type: 'browser',
+  expires_at: '2022-08-31T11:17:42.324836417Z',
+  issued_at: '2022-08-31T11:07:42.324836417Z',
+  request_url: 'http://127.0.0.1:4433/self-service/login/browser?refresh=true',
+  ui: {
+    action:
+      'http://127.0.0.1:4433/self-service/login?flow=e9716552-632f-4b9b-a1ce-c1f844ff5b98',
+    method: 'POST',
+    nodes: [
+      {
+        type: 'input',
+        group: 'oidc',
+        attributes: {
+          name: 'provider',
+          type: 'submit',
+          value: 'apple',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: {
+            id: 1010002,
+            text: 'Sign in with apple',
+            type: 'info',
+            context: { provider: 'apple' },
+          },
+        },
+      },
+      {
+        type: 'input',
+        group: 'oidc',
+        attributes: {
+          name: 'provider',
+          type: 'submit',
+          value: 'facebook',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: {
+            id: 1010002,
+            text: 'Sign in with facebook',
+            type: 'info',
+            context: { provider: 'facebook' },
+          },
+        },
+      },
+      {
+        type: 'input',
+        group: 'oidc',
+        attributes: {
+          name: 'provider',
+          type: 'submit',
+          value: 'github',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: {
+            id: 1010002,
+            text: 'Sign in with github',
+            type: 'info',
+            context: { provider: 'github' },
+          },
+        },
+      },
+      {
+        type: 'input',
+        group: 'oidc',
+        attributes: {
+          name: 'provider',
+          type: 'submit',
+          value: 'google',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: {
+            id: 1010002,
+            text: 'Sign in with google',
+            type: 'info',
+            context: { provider: 'google' },
+          },
+        },
+      },
+      {
+        type: 'input',
+        group: 'default',
+        attributes: {
+          name: 'csrf_token',
+          type: 'hidden',
+          value:
+            'm2PxoVHHfA08F+6CAN6WbCqjdpkQCLlLMSvIfS4ILUdj2eEOx4r4qVaI5i1FhQfAJf5xxHHoutndxD2JLInMWg==',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {},
+      },
+      {
+        type: 'input',
+        group: 'default',
+        attributes: {
+          name: 'identifier',
+          type: 'hidden',
+          value: 'lee@daily.dev',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {},
+      },
+      {
+        type: 'input',
+        group: 'password',
+        attributes: {
+          name: 'password',
+          type: 'password',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070001, text: 'Password', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'password',
+        attributes: {
+          name: 'method',
+          type: 'submit',
+          value: 'password',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {
+          label: { id: 1010001, text: 'Sign in', type: 'info', context: {} },
+        },
+      },
+    ],
+    messages: [
+      {
+        id: 1010003,
+        text: 'Please confirm this action by verifying that it is you.',
+        type: 'info',
+        context: {},
+      },
+    ],
+  },
+  created_at: '2022-08-31T11:07:42.351884Z',
+  updated_at: '2022-08-31T11:07:42.351884Z',
+  refresh: true,
+  requested_aal: 'aal1',
+};
+
+export const verifiedLoginData = {
+  session: {
+    id: '1ee3591b-db3d-4f5d-ae52-571da88d486c',
+    active: true,
+    expires_at: '2022-09-03T05:20:46.587518802Z',
+    authenticated_at: '2022-09-02T05:20:46.587518802Z',
+    authenticator_assurance_level: 'aal1',
+    authentication_methods: [
+      {
+        method: 'password',
+        aal: 'aal1',
+        completed_at: '2022-09-01T08:03:05.236219507Z',
+      },
+      {
+        method: 'password',
+        aal: 'aal1',
+        completed_at: '2022-09-02T05:20:46.587512719Z',
+      },
+    ],
+    issued_at: '2022-09-02T05:20:46.587518802Z',
+    identity: {
+      id: '318b8590-135a-42d0-8c50-6820784ad869',
+      schema_id: 'default',
+      schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+      state: 'active',
+      state_changed_at: '2022-08-25T03:32:25.542997Z',
+      traits: {
+        name: 'Lee Hansel Solevilla',
+        email: 'sshanzel@yahoo.com',
+        username: 'abc123',
+      },
+      verifiable_addresses: [
+        {
+          id: '0aa85371-7e37-4c00-aa85-24e2ae617715',
+          value: 'sshanzel@yahoo.com',
+          verified: false,
+          via: 'email',
+          status: 'sent',
+          created_at: '2022-08-25T03:32:25.562374Z',
+          updated_at: '2022-08-25T03:35:25.5825Z',
+        },
+      ],
+      recovery_addresses: [
+        {
+          id: 'c29fc594-d6f3-44dc-bf26-3b8425f9d2ac',
+          value: 'sshanzel@yahoo.com',
+          via: 'email',
+          created_at: '2022-08-25T03:32:25.569222Z',
+          updated_at: '2022-08-25T03:35:25.585227Z',
+        },
+      ],
+      metadata_public: null,
+      created_at: '2022-08-25T03:32:25.548644Z',
+      updated_at: '2022-08-25T03:32:25.548644Z',
+    },
+  },
+};
+
+export const mockSettingsValidation = (
+  params: Partial<EmptyObjectLiteral>,
+  result: unknown = successfulSettingsFlowData,
+  code = 200,
+): void => {
+  const url = new URL(settingsFlowMockData.ui.action);
+  nock(authUrl, {
+    reqheaders: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+  })
+    .post(url.pathname + url.search, params)
+    .reply(code, result);
+};
+
+export const mockKratosPost = <T = EmptyObjectLiteral>(
+  { params, action }: KratosFormParams<Partial<T> & { csrf_token: string }>,
+  result: unknown,
+  code = 200,
+): void => {
+  const url = new URL(action);
+  nock(authUrl, {
+    reqheaders: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+  })
+    .post(url.pathname + url.search, params)
+    .reply(code, result);
+};
+
+export const mockSettingsFlow = (result = settingsFlowMockData): void => {
+  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
+    .get('/self-service/settings/browser?')
+    .reply(200, result);
+};
+
 export const mockLoginFlow = (result = passwordLoginFlowMockData): void => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
     .get('/self-service/login/browser?')
+    .reply(200, result);
+};
+
+export const mockLoginReverifyFlow = (
+  result = loginVerificationMockData,
+): void => {
+  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
+    .get('/self-service/login/browser?refresh=true')
     .reply(200, result);
 };
 
@@ -755,4 +1370,12 @@ export const mockEmailCheck = (email: string, result = false): void => {
     ok: true,
     result,
   });
+};
+
+export const mockListProviders = (
+  result: string[] = ['facebook', 'github', 'apple'],
+): void => {
+  nock(heimdallUrl)
+    .post('/api/list_providers')
+    .reply(200, { ok: true, result });
 };

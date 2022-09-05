@@ -21,7 +21,7 @@ function EmailSentSection({
         overlay: 'bg-overlay-quaternary-bun',
       }}
     >
-      <p>
+      <p className="typo-callout" data-testid="email_verification_sent">
         We sent an email to verify your account. Please check your spam folder
         if you {`don't`} see the email.
       </p>

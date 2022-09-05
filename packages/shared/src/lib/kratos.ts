@@ -259,7 +259,7 @@ export interface KratosFormParams<T extends AuthPostParams> {
   method?: string;
 }
 
-interface KratosProviderData {
+export interface KratosProviderData {
   ok: boolean;
   result: string[];
 }

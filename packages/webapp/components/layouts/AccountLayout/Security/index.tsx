@@ -12,18 +12,14 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import { useMutation, useQuery } from 'react-query';
 import {
   AuthEvent,
   AuthFlow,
-  getKratosProviders,
   getKratosSettingsFlow,
-  initializeKratosFlow,
+  KratosProviderData,
   SocialRegistrationFlow,
-  submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
 import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
-import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
 import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
 import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
@@ -49,11 +45,18 @@ export interface ChangePasswordParams {
   password: string;
 }
 
+export interface UpdateProvidersParams {
+  link?: string;
+  unlink?: string;
+}
+
 interface AccountSecurityDefaultProps {
   isEmailSent?: boolean;
+  userProviders?: KratosProviderData;
   updatePasswordRef: MutableRefObject<HTMLFormElement>;
   onSwitchDisplay: (display: Display) => void;
   onUpdatePassword: (form: ChangePasswordParams) => void;
+  onUpdateProviders: (params: UpdateProvidersParams) => void;
 }
 
 export interface ManageSocialProvidersProps {
@@ -63,9 +66,11 @@ export interface ManageSocialProvidersProps {
 
 function AccountSecurityDefault({
   isEmailSent,
+  userProviders,
   updatePasswordRef,
   onSwitchDisplay,
   onUpdatePassword,
+  onUpdateProviders,
 }: AccountSecurityDefaultProps): ReactElement {
   const { user, deleteAccount } = useContext(AuthContext);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
@@ -74,10 +79,6 @@ function AccountSecurityDefault({
   const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [, setEmail] = useState<string>(null);
-  const { data: userProviders } = useQuery('providers', getKratosProviders);
-  const { data: settings } = useQuery('settings', () =>
-    initializeKratosFlow(AuthFlow.Settings),
-  );
 
   useWindowEvents<SocialRegistrationFlow>(
     'message',
@@ -98,30 +99,12 @@ function AccountSecurityDefault({
     },
   );
 
-  const { mutateAsync: updateSettings } = useMutation(
-    (params: SettingsParams) => submitKratosFlow(params),
-    {
-      onSuccess: (data) => {
-        if (data?.redirect) {
-          window.open(data.redirect);
-        }
-        // TODO: We need to adjust the protected flow here
-      },
-    },
-  );
-
   const manageSocialProviders = async ({
     type,
     provider,
   }: ManageSocialProvidersProps) => {
     setLinkProvider(provider);
-    const { nodes, action } = settings.ui;
-    const csrfToken = getNodeByKey('csrf_token', nodes);
-    const postData = {
-      csrf_token: csrfToken.attributes.value,
-      [type]: provider,
-    };
-    await updateSettings({ action, params: postData });
+    onUpdateProviders({ [type]: provider });
   };
 
   const onChangePassword = (e: FormEvent<HTMLFormElement>) => {
@@ -154,6 +137,7 @@ function AccountSecurityDefault({
           onChange={(e) => setEmail(e.currentTarget.value)}
           label="Email"
           inputId="email"
+          data-testid="current_email"
           leftIcon={<MailIcon />}
           rightIcon={<LockIcon className="text-theme-label-secondary" />}
           readOnly
