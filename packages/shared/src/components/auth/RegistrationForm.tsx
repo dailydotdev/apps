@@ -98,6 +98,7 @@ export const RegistrationForm = ({
             initialValue={socialAccount.image}
             size="large"
             viewOnly
+            className="mb-2"
           />
         )}
         <TextField
