@@ -41,6 +41,7 @@ export const AuthSignBack = ({
         <ProviderButton
           provider={signback.provider}
           label="Login with"
+          onClick={() => onProviderClick?.(signback.provider)}
           {...signback}
         />
         <OrDivider />

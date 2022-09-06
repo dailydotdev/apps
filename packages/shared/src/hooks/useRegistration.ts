@@ -105,7 +105,7 @@ const useRegistration = ({
     const postData: RegistrationParameters = {
       csrf_token: csrf,
       method: 'oidc',
-      provider,
+      provider: provider.toLowerCase(),
       'traits.email': '',
       'traits.username': '',
       'traits.name': '',
