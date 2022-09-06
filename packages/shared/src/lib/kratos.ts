@@ -4,7 +4,8 @@ import { authUrl, heimdallUrl } from './constants';
 export type EmptyObjectLiteral = Record<string, never | string>;
 
 export interface SocialRegistrationFlow extends MessageEventData {
-  social_registration: boolean;
+  flow?: string;
+  social_registration?: boolean;
 }
 
 interface InitializationNodeAttribute {
