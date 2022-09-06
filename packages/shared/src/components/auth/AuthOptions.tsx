@@ -8,47 +8,39 @@ import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
-import { CloseModalFunc } from '../modals/common';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
 import { AuthSignBack, SIGNIN_METHOD_KEY } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
-import {
-  RegistrationForm,
-  RegistrationFormValues,
-  SocialProviderAccount,
-} from './RegistrationForm';
+import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
 import { getNodeValue, RegistrationError } from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
-import {
-  AuthEvent,
-  AuthFlow,
-  getKratosFlow,
-  SocialRegistrationFlow,
-} from '../../lib/kratos';
-import { fallbackImages } from '../../lib/config';
+import { AuthEvent, SocialRegistrationFlow } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
 import useLogin from '../../hooks/useLogin';
+import { SocialRegistrationForm } from './SocialRegistrationForm';
+import useProfileForm from '../../hooks/useProfileForm';
+import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
+import { logout } from '../../lib/user';
 
 export enum Display {
   Default = 'default',
   Registration = 'registration',
+  SocialRegistration = 'social_registration',
   SignBack = 'sign_back',
   ForgotPassword = 'forgot_password',
   EmailSent = 'email_sent',
 }
 
 export interface AuthOptionsProps {
-  onClose?: CloseModalFunc;
+  onClose?: CloseAuthModalFunc;
   onSuccessfulLogin?: () => unknown;
-  onSelectedProvider?: (account: SocialProviderAccount) => void;
   formRef: MutableRefObject<HTMLFormElement>;
-  socialAccount?: SocialProviderAccount;
   defaultDisplay?: Display;
   className?: string;
 }
@@ -56,10 +48,8 @@ export interface AuthOptionsProps {
 function AuthOptions({
   onClose,
   onSuccessfulLogin,
-  onSelectedProvider,
   className,
   formRef,
-  socialAccount,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
@@ -73,6 +63,9 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
+  const [chosenProvider, setChosenProvider] = useState<string>(null);
+  const { updateUserProfile } = useProfileForm();
+
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
       key: 'registration_form',
@@ -84,26 +77,20 @@ function AuthOptions({
       onRedirect: (redirect) => window.open(redirect),
     });
 
+  const onProviderClick = (provider: string) => {
+    setChosenProvider(provider);
+    onSocialRegistration(provider);
+  };
+
   useWindowEvents<SocialRegistrationFlow>(
     'message',
     AuthEvent.SocialRegistration,
     async (e) => {
-      if (!e.data?.flow) {
+      if (!e.data?.social_registration) {
         return;
       }
 
-      const flow = await getKratosFlow(AuthFlow.Registration, e.data.flow);
-      const { nodes, action } = flow.ui;
-      onSelectedProvider({
-        action,
-        provider: getNodeValue('provider', nodes),
-        csrf_token: getNodeValue('csrf_token', nodes),
-        email: getNodeValue('traits.email', nodes),
-        name: getNodeValue('traits.name', nodes),
-        username: getNodeValue('traits.username', nodes),
-        image: getNodeValue('traits.image', nodes) || fallbackImages.avatar,
-      });
-      setActiveDisplay(Display.Registration);
+      setActiveDisplay(Display.SocialRegistration);
     },
   );
 
@@ -113,13 +100,23 @@ function AuthOptions({
     setEmail(emailAd);
   };
 
+  const onSocialCompletion = async (params) => {
+    await updateUserProfile({ ...params });
+    refetchBoot();
+    onClose(null, true);
+  };
+
   const onRegister = (params: RegistrationFormValues) => {
     validateRegistration({
       ...params,
       referral,
-      provider: socialAccount?.provider,
-      method: socialAccount ? 'oidc' : 'password',
+      method: 'password',
     });
+  };
+
+  const onSocialRegistrationClose = (e) => {
+    logout();
+    onClose(e, true);
   };
 
   return (
@@ -140,11 +137,20 @@ function AuthOptions({
             providers={providers}
             onClose={onClose}
             onSignup={onEmailRegistration}
-            onProviderClick={onSocialRegistration}
+            onProviderClick={onProviderClick}
             onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
             onPasswordLogin={onPasswordLogin}
             loginHint={loginHint}
             isV2={isV2}
+          />
+        </Tab>
+        <Tab label={Display.SocialRegistration}>
+          <SocialRegistrationForm
+            formRef={formRef}
+            provider={chosenProvider}
+            onClose={onSocialRegistrationClose}
+            isV2={isV2}
+            onSignup={onSocialCompletion}
           />
         </Tab>
         <Tab label={Display.Registration}>
@@ -152,7 +158,6 @@ function AuthOptions({
             onBack={() => setActiveDisplay(defaultDisplay)}
             formRef={formRef}
             email={email}
-            socialAccount={socialAccount}
             onClose={onClose}
             isV2={isV2}
             onSignup={onRegister}

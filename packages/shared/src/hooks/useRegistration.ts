@@ -110,6 +110,7 @@ const useRegistration = ({
       'traits.username': '',
       'traits.name': '',
       'traits.image': '',
+      'traits.userId': trackingId,
     };
 
     onValidateRegistration(postData);

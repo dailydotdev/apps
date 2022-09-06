@@ -1,38 +1,35 @@
-import { MutableRefObject, useMemo, useRef, useState } from 'react';
-import {
-  SocialProviderAccount,
-  RegistrationFormValues,
-} from '../components/auth/RegistrationForm';
-import { CloseModalFunc } from '../components/modals/common';
+import React, { MutableRefObject, useMemo, useRef, useState } from 'react';
+import { RegistrationFormValues } from '../components/auth/RegistrationForm';
 import { formToJson } from '../lib/form';
 
+export type CloseAuthModalFunc = (
+  e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
+  forceClose?: boolean,
+) => void;
+
 interface UseAuthForms {
-  onDiscardCancelled: CloseModalFunc;
-  onDiscardAttempt: CloseModalFunc;
+  onDiscardCancelled: CloseAuthModalFunc;
+  onDiscardAttempt: CloseAuthModalFunc;
   onContainerChange: (el: HTMLDivElement) => void;
-  onSocialProviderChange: (account: SocialProviderAccount) => void;
   container: HTMLDivElement;
   isDiscardOpen: boolean;
-  socialAccount?: SocialProviderAccount;
   formRef?: MutableRefObject<HTMLFormElement>;
 }
 
 interface UseAuthFormsProps {
-  onDiscard?: CloseModalFunc;
+  onDiscard?: CloseAuthModalFunc;
 }
 
 const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   const [container, setContainer] = useState<HTMLDivElement>();
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
-  const [socialAccount, setSocialAccount] = useState<SocialProviderAccount>();
   const formRef = useRef<HTMLFormElement>();
 
-  const onDiscardAttempt: CloseModalFunc = (e) => {
-    if (!formRef?.current) {
+  const onDiscardAttempt: CloseAuthModalFunc = (e, forceClose = false) => {
+    if (forceClose) {
       return onDiscard(e);
     }
-
-    if (socialAccount) {
+    if (!formRef?.current) {
       return onDiscard(e);
     }
 
@@ -46,7 +43,7 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
     return onDiscard(e);
   };
 
-  const onDiscardCancelled: CloseModalFunc = (e) => {
+  const onDiscardCancelled: CloseAuthModalFunc = (e) => {
     e.stopPropagation();
     setIsDiscardOpen(false);
   };
@@ -56,13 +53,11 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
       onDiscardAttempt,
       onDiscardCancelled,
       onContainerChange: setContainer,
-      onSocialProviderChange: setSocialAccount,
       container,
       isDiscardOpen,
-      socialAccount,
       formRef,
     }),
-    [formRef?.current, container, isDiscardOpen, socialAccount],
+    [formRef?.current, container, isDiscardOpen],
   );
 };
 

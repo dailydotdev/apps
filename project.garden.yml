@@ -12,8 +12,8 @@ sources:
     repositoryUrl: git@github.com:dailydotdev/heimdall.git#main
 environments:
   - name: default
-#    variables:
-#      dev: true
+    variables:
+      dev: true
 providers:
   - name: local-kubernetes
 variables:
