@@ -81,7 +81,10 @@ function ImageInput({
         />
       )}
       <img
-        className={!viewOnly && 'mouse:group-hover:opacity-64'}
+        className={classNames(
+          'w-full h-full',
+          !viewOnly && 'mouse:group-hover:opacity-64',
+        )}
         src={image}
         alt="File upload preview"
       />

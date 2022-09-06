@@ -50,7 +50,7 @@ export default function AccountLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} />
-      <main className="flex relative flex-row flex-1 pt-0 mx-auto w-[calc(100vw-17.5rem)]">
+      <main className="flex relative flex-row flex-1 items-stretch pt-0 mx-auto w-full laptop:max-w-[calc(100vw-17.5rem)]">
         <SidebarNav
           className="px-6 pt-6 ml-auto border-l border-theme-divider-tertiary"
           basePath="account"
