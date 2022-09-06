@@ -5,10 +5,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import {
-  RegistrationParameters,
-  SocialRegistrationParameters,
-} from '../../lib/auth';
+import { SocialRegistrationParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
