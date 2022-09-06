@@ -32,9 +32,7 @@ export default function AuthModal({
     onDiscardAttempt,
     onDiscardCancelled,
     onContainerChange,
-    onSocialProviderChange,
     formRef,
-    socialAccount,
     container,
     isDiscardOpen,
   } = useAuthForms({
@@ -81,9 +79,7 @@ export default function AuthModal({
       <AuthOptions
         className={classNames('h-full', containerMargin[authVersion])}
         onClose={onDiscardAttempt}
-        onSelectedProvider={onSocialProviderChange}
         formRef={formRef}
-        socialAccount={socialAccount}
       />
       {isDiscardOpen && (
         <DiscardActionModal

@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 
 function Login(): ReactElement {
-  const { onSocialProviderChange, formRef, socialAccount } = useAuthForms();
+  const { formRef } = useAuthForms();
   const { authVersion } = useContext(FeaturesContext);
   const isV4 = authVersion === AuthVersion.V4;
 
@@ -26,9 +26,7 @@ function Login(): ReactElement {
         <div className="flex flex-row">
           <AuthOptions
             className="h-full max-h-[40rem] min-h-[40rem]"
-            onSelectedProvider={onSocialProviderChange}
             formRef={formRef}
-            socialAccount={socialAccount}
           />
           {!isV4 && (
             <AuthModalHeading className="z-1 ml-32 typo-mega1">

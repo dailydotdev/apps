@@ -20,9 +20,7 @@ import 'focus-visible';
 import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import AuthContext, {
-  REGISTRATION_PATH,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
@@ -76,7 +74,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     loginState,
   } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
-  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
+  const [showCookie, acceptCookies] = useCookieBanner();
 
   useTrackPageView();
 

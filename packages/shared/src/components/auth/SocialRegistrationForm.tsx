@@ -1,17 +1,14 @@
 import classNames from 'classnames';
 import React, { MutableRefObject, ReactElement, useContext } from 'react';
-import { RegistrationError, RegistrationParameters } from '../../lib/auth';
+import { RegistrationParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
-import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
-import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import TokenInput from './TokenField';
 import { AuthForm, providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
@@ -21,8 +18,6 @@ export interface SocialRegistrationFormProps {
   provider: string;
   formRef?: MutableRefObject<HTMLFormElement>;
   onClose?: CloseModalFunc;
-  hints?: RegistrationError;
-  onUpdateHints?: (errors: RegistrationError) => void;
   isV2?: boolean;
   onSignup?: (params: RegistrationFormValues) => void;
 }
@@ -38,8 +33,6 @@ export const SocialRegistrationForm = ({
   onClose,
   onSignup,
   isV2,
-  hints,
-  onUpdateHints,
 }: SocialRegistrationFormProps): ReactElement => {
   const { user } = useContext(AuthContext);
 
@@ -51,8 +44,6 @@ export const SocialRegistrationForm = ({
     onSignup(rest);
   };
 
-  const isNameValid = !hints?.['traits.name'];
-  const isUsernameValid = !hints?.['traits.username'];
   const emailFieldIcon = (providerI: string) => {
     if (providerMap[providerI]) {
       return React.cloneElement(providerMap[providerI].icon, {
@@ -95,35 +86,25 @@ export const SocialRegistrationForm = ({
         <TextField
           saveHintSpace
           className="w-full"
-          valid={isNameValid}
           leftIcon={<UserIcon />}
           name="name"
           inputId="name"
           label="Full name"
           value={user?.name}
-          rightIcon={
-            isNameValid && <VIcon className="text-theme-color-avocado" />
-          }
         />
         <TextField
           saveHintSpace
           className="w-full"
-          valid={isUsernameValid}
           leftIcon={<AtIcon secondary />}
           name="username"
           inputId="username"
           label="Enter a username"
           value={user?.username}
           minLength={1}
-          rightIcon={
-            isUsernameValid && <VIcon className="text-theme-color-avocado" />
-          }
         />
-        {isNameValid && user && (
-          <div className="flex flex-row gap-4 mt-6 ml-auto">
-            <Button className="bg-theme-color-cabbage">Signup</Button>
-          </div>
-        )}
+        <div className="flex flex-row gap-4 mt-6 ml-auto">
+          <Button className="bg-theme-color-cabbage">Signup</Button>
+        </div>
       </AuthForm>
     </>
   );

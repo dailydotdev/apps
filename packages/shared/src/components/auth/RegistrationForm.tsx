@@ -1,9 +1,8 @@
 import classNames from 'classnames';
-import React, { MutableRefObject, ReactElement, useContext } from 'react';
+import React, { MutableRefObject, ReactElement } from 'react';
 import { RegistrationError, RegistrationParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
-import ImageInput from '../fields/ImageInput';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
@@ -12,22 +11,12 @@ import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import TokenInput from './TokenField';
-import { AuthForm, providerMap } from './common';
+import { AuthForm } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
-import AuthContext from '../../contexts/AuthContext';
-
-export interface SocialProviderAccount {
-  provider: string;
-  email: string;
-  name: string;
-  username?: string;
-  image?: string;
-}
 
 export interface RegistrationFormProps {
   email: string;
-  socialAccount?: SocialProviderAccount;
   formRef?: MutableRefObject<HTMLFormElement>;
   onClose?: CloseModalFunc;
   onBack?: CloseModalFunc;
@@ -45,7 +34,6 @@ export type RegistrationFormValues = Omit<
 
 export const RegistrationForm = ({
   email,
-  socialAccount,
   formRef,
   onClose,
   onBack,
@@ -65,21 +53,12 @@ export const RegistrationForm = ({
   const isPasswordValid = !hints?.password;
   const isNameValid = !hints?.['traits.name'];
   const isUsernameValid = !hints?.['traits.username'];
-  const emailFieldIcon = (provider: string) => {
-    if (providerMap[provider]) {
-      return React.cloneElement(providerMap[provider].icon, {
-        secondary: false,
-      });
-    }
-
-    return <MailIcon />;
-  };
 
   return (
     <>
       <AuthModalHeader
         title="Sign up to daily.dev"
-        onBack={!socialAccount && onBack}
+        onBack={onBack}
         onClose={onClose}
       />
       <AuthForm
@@ -92,30 +71,17 @@ export const RegistrationForm = ({
         data-testid="registration_form"
       >
         <TokenInput token={token} />
-        {socialAccount && (
-          <ImageInput
-            initialValue={socialAccount.image}
-            size="large"
-            viewOnly
-          />
-        )}
         <TextField
           saveHintSpace
           className="w-full"
-          leftIcon={emailFieldIcon(socialAccount?.provider)}
+          leftIcon={<MailIcon />}
           name="traits.email"
           inputId="email"
           label="Email"
           type="email"
-          value={email || socialAccount?.email}
+          value={email}
           readOnly
-          rightIcon={
-            socialAccount ? (
-              <LockIcon />
-            ) : (
-              <VIcon className="text-theme-color-avocado" />
-            )
-          }
+          rightIcon={<VIcon className="text-theme-color-avocado" />}
         />
         <TextField
           saveHintSpace
@@ -130,20 +96,17 @@ export const RegistrationForm = ({
             hints?.['traits.name'] &&
             onUpdateHints({ ...hints, 'traits.name': '' })
           }
-          value={socialAccount?.name}
           rightIcon={
             isNameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        {!socialAccount && (
-          <PasswordField
-            className="w-full"
-            leftIcon={<LockIcon />}
-            name="password"
-            inputId="password"
-            label="Create a password"
-          />
-        )}
+        <PasswordField
+          className="w-full"
+          leftIcon={<LockIcon />}
+          name="password"
+          inputId="password"
+          label="Create a password"
+        />
         <TextField
           saveHintSpace
           className="w-full"
@@ -157,13 +120,12 @@ export const RegistrationForm = ({
             hints?.['traits.username'] &&
             onUpdateHints({ ...hints, 'traits.username': '' })
           }
-          value={socialAccount?.username}
           minLength={1}
           rightIcon={
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        {isNameValid && (socialAccount || isPasswordValid) && (
+        {isNameValid && isPasswordValid && (
           <div className="flex flex-row gap-4 mt-6 ml-auto">
             {isPasswordValid && !isUsernameValid && (
               <Button className="btn-tertiary">Skip</Button>

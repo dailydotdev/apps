@@ -2,7 +2,6 @@ import React, {
   MutableRefObject,
   ReactElement,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -15,23 +14,13 @@ import AuthDefault from './AuthDefault';
 import { AuthSignBack, SIGNIN_METHOD_KEY } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
-import {
-  RegistrationForm,
-  RegistrationFormValues,
-  SocialProviderAccount,
-} from './RegistrationForm';
+import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
 import { getNodeValue, RegistrationError } from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
-import {
-  AuthEvent,
-  AuthFlow,
-  getKratosFlow,
-  SocialRegistrationFlow,
-} from '../../lib/kratos';
-import { fallbackImages } from '../../lib/config';
+import { AuthEvent, SocialRegistrationFlow } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
 import useLogin from '../../hooks/useLogin';
@@ -50,9 +39,7 @@ export enum Display {
 export interface AuthOptionsProps {
   onClose?: CloseModalFunc;
   onSuccessfulLogin?: () => unknown;
-  onSelectedProvider?: (account: SocialProviderAccount) => void;
   formRef: MutableRefObject<HTMLFormElement>;
-  socialAccount?: SocialProviderAccount;
   defaultDisplay?: Display;
   className?: string;
 }
@@ -60,10 +47,8 @@ export interface AuthOptionsProps {
 function AuthOptions({
   onClose,
   onSuccessfulLogin,
-  onSelectedProvider,
   className,
   formRef,
-  socialAccount,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
@@ -123,8 +108,7 @@ function AuthOptions({
     validateRegistration({
       ...params,
       referral,
-      provider: socialAccount?.provider,
-      method: socialAccount ? 'oidc' : 'password',
+      method: 'password',
     });
   };
 
@@ -167,7 +151,6 @@ function AuthOptions({
             onBack={() => setActiveDisplay(defaultDisplay)}
             formRef={formRef}
             email={email}
-            socialAccount={socialAccount}
             onClose={onClose}
             isV2={isV2}
             onSignup={onRegister}
