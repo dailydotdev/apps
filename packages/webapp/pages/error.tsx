@@ -2,7 +2,7 @@ import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { ReactElement, useEffect } from 'react';
 
-function CallbackPage(): ReactElement {
+function ErrorPage(): ReactElement {
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
@@ -13,4 +13,4 @@ function CallbackPage(): ReactElement {
   return null;
 }
 
-export default CallbackPage;
+export default ErrorPage;
