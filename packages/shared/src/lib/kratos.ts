@@ -7,6 +7,10 @@ export interface SocialRegistrationFlow extends MessageEventData {
   flow: string;
 }
 
+export interface ErrorEvent extends MessageEventData {
+  id: string;
+}
+
 interface InitializationNodeAttribute {
   name: string;
   type: string;
@@ -182,8 +186,23 @@ export interface SuccessfulRegistrationData {
   identity: Identity;
 }
 
+interface KratosError {
+  code: number;
+  message: string;
+  reason: string;
+  debug: string;
+}
+
+export interface ErrorData {
+  created_at: DateString;
+  updated_at: DateString;
+  id: string;
+  error: KratosError;
+}
+
 export enum AuthEvent {
   Login = 'login',
+  Error = 'error',
   SocialRegistration = 'social_registration',
 }
 
@@ -213,6 +232,14 @@ export const getKratosFlow = async (
   id: string,
 ): Promise<InitializationData> => {
   const res = await fetch(`${authUrl}/self-service${flow}?flow=${id}`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  return res.json();
+};
+
+export const getKratosError = async (id: string): Promise<ErrorData> => {
+  const res = await fetch(`${authUrl}/self-service/errors?id=${id}`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
   });
