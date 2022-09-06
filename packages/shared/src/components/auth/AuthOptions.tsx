@@ -26,6 +26,8 @@ import { providers } from './common';
 import useLogin from '../../hooks/useLogin';
 import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
+import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
+import { logout } from '../../lib/user';
 
 export enum Display {
   Default = 'default',
@@ -37,7 +39,7 @@ export enum Display {
 }
 
 export interface AuthOptionsProps {
-  onClose?: CloseModalFunc;
+  onClose?: CloseAuthModalFunc;
   onSuccessfulLogin?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
   defaultDisplay?: Display;
@@ -99,9 +101,10 @@ function AuthOptions({
     setEmail(emailAd);
   };
 
-  const onSocialCompletion = (params) => {
-    updateUserProfile({ ...params });
-    setActiveDisplay(Display.EmailSent);
+  const onSocialCompletion = async (params) => {
+    await updateUserProfile({ ...params });
+    refetchBoot();
+    onClose(null, true);
   };
 
   const onRegister = (params: RegistrationFormValues) => {
@@ -110,6 +113,11 @@ function AuthOptions({
       referral,
       method: 'password',
     });
+  };
+
+  const onSocialRegistrationClose = (e) => {
+    logout();
+    onClose(e, true);
   };
 
   return (
@@ -141,7 +149,7 @@ function AuthOptions({
           <SocialRegistrationForm
             formRef={formRef}
             provider={chosenProvider}
-            onClose={onClose}
+            onClose={onSocialRegistrationClose}
             isV2={isV2}
             onSignup={onSocialCompletion}
           />

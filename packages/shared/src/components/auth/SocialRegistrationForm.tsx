@@ -1,6 +1,14 @@
 import classNames from 'classnames';
-import React, { MutableRefObject, ReactElement, useContext } from 'react';
-import { RegistrationParameters } from '../../lib/auth';
+import React, {
+  MutableRefObject,
+  ReactElement,
+  useContext,
+  useState,
+} from 'react';
+import {
+  RegistrationParameters,
+  SocialRegistrationParameters,
+} from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
@@ -19,11 +27,11 @@ export interface SocialRegistrationFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
   onClose?: CloseModalFunc;
   isV2?: boolean;
-  onSignup?: (params: RegistrationFormValues) => void;
+  onSignup?: (params: SocialRegistrationParameters) => void;
 }
 
-export type RegistrationFormValues = Omit<
-  RegistrationParameters,
+export type SocialRegistrationFormValues = Omit<
+  SocialRegistrationParameters,
   'method' | 'provider'
 >;
 
@@ -35,11 +43,26 @@ export const SocialRegistrationForm = ({
   isV2,
 }: SocialRegistrationFormProps): ReactElement => {
   const { user } = useContext(AuthContext);
+  const [nameHint, setNameHint] = useState<string>(null);
+  const [usernameHint, setUsernameHint] = useState<string>(null);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
+    const values = formToJson<SocialRegistrationFormValues>(
+      formRef?.current ?? form,
+    );
+
+    if (!values.name) {
+      setNameHint('Please prove your name');
+      return;
+    }
+
+    if (!values.username) {
+      setUsernameHint('Please choose a username');
+      return;
+    }
+
     const { file, ...rest } = values;
     onSignup(rest);
   };
@@ -87,6 +110,9 @@ export const SocialRegistrationForm = ({
           saveHintSpace
           className="w-full"
           leftIcon={<UserIcon />}
+          valid={!nameHint}
+          hint={nameHint}
+          valueChanged={() => setNameHint(null)}
           name="name"
           inputId="name"
           label="Full name"
@@ -100,6 +126,9 @@ export const SocialRegistrationForm = ({
           inputId="username"
           label="Enter a username"
           value={user?.username}
+          valid={!usernameHint}
+          valueChanged={() => setUsernameHint(null)}
+          hint={usernameHint}
           minLength={1}
         />
         <div className="flex flex-row gap-4 mt-6 ml-auto">

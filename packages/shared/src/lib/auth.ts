@@ -38,6 +38,12 @@ export interface ValidateEmailParameters extends AuthPostParams {
 
 export type VerificationParams = KratosFormParams<AccountRecoveryParameters>;
 
+export interface SocialRegistrationParameters {
+  name?: string;
+  username?: string;
+  file?: string;
+}
+
 export interface RegistrationParameters {
   csrf_token: string;
   provider?: string;
@@ -48,7 +54,6 @@ export interface RegistrationParameters {
   'traits.userId'?: string;
   'traits.name'?: string;
   'traits.username': string;
-  file?: string;
   'traits.image': string;
 }
 
