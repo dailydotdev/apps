@@ -25,6 +25,9 @@ import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import LoginButton from './LoginButton';
 import IncompleteRegistrationModal from './auth/IncompleteRegistrationModal';
+import useWindowEvents from '../hooks/useWindowEvents';
+import { AuthEvent, ErrorEvent, getKratosError } from '../lib/kratos';
+import { useToastNotification } from '../hooks/useToastNotification';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -105,6 +108,7 @@ export default function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
+  const { displayToast } = useToastNotification();
   const [isIncompleteRegistration, setIsIncompleteRegistration] =
     useState(false);
   const { user, loadingUser } = useContext(AuthContext);
@@ -136,6 +140,20 @@ export default function MainLayout({
   }, [user]);
 
   const hasBanner = !!bannerData?.banner || !!customBanner;
+
+  useWindowEvents<ErrorEvent>('message', AuthEvent.Error, async (e) => {
+    if (!e.data?.id) {
+      return;
+    }
+
+    const res = await getKratosError(e.data.id);
+
+    if (!res?.error) {
+      return;
+    }
+
+    displayToast(res.error.message);
+  });
 
   return (
     <div {...handlers}>
