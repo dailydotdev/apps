@@ -109,6 +109,7 @@ export const PostCard = forwardRef(function PostCard(
       <CardTextContainer>
         {isV1 && (
           <PostCardHeader
+            openNewTab={openNewTab}
             source={post.source}
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
@@ -136,6 +137,7 @@ export const PostCard = forwardRef(function PostCard(
                 ? 'relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2 tablet:mt-0 tablet:border-0 border-t border-theme-divider-tertiary'
                 : 'absolute right-0 bottom-0 left-0',
             )}
+            openNewTab={openNewTab}
             postLink={post.permalink}
             source={post.source}
             author={post.author}
@@ -170,6 +172,7 @@ export const PostCard = forwardRef(function PostCard(
           </div>
         )}
         <ActionButtons
+          openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
