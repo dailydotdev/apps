@@ -5,18 +5,20 @@ import OpenLinkIcon from '../icons/OpenLink';
 interface ReadArticleButtonProps {
   href: string;
   className?: string;
+  openNewTab?: boolean;
   onClick?: (e: React.MouseEvent) => unknown;
 }
 
-export const ReadArticleButton = (
-  props: ReadArticleButtonProps,
-): ReactElement => (
+export const ReadArticleButton = ({
+  openNewTab,
+  ...props
+}: ReadArticleButtonProps): ReactElement => (
   <Button
     tag="a"
     {...props}
     buttonSize="small"
     rightIcon={<OpenLinkIcon className="ml-2" secondary />}
-    target="_blank"
+    target={openNewTab ? '_blank' : '_self'}
   >
     Read article
   </Button>
