@@ -20,8 +20,10 @@ import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
 
 export interface SocialRegistrationFormProps {
+  className?: string;
   provider: string;
   formRef?: MutableRefObject<HTMLFormElement>;
+  title?: string;
   onClose?: CloseModalFunc;
   isV2?: boolean;
   onSignup?: (params: SocialRegistrationParameters) => void;
@@ -33,8 +35,10 @@ export type SocialRegistrationFormValues = Omit<
 >;
 
 export const SocialRegistrationForm = ({
+  className,
   provider,
   formRef,
+  title = 'Sign up to daily.dev',
   onClose,
   onSignup,
   isV2,
@@ -80,11 +84,12 @@ export const SocialRegistrationForm = ({
 
   return (
     <>
-      <AuthModalHeader title="Sign up to daily.dev" onClose={onClose} />
+      <AuthModalHeader title={title} onClose={onClose} />
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full',
           isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
+          className,
         )}
         ref={formRef}
         onSubmit={onSubmit}
