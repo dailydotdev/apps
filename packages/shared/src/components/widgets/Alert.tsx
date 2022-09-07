@@ -2,6 +2,7 @@ import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import FeedbackIcon from '../icons/Feedback/index';
 import AlertIcon from '../icons/Alert';
+import CheckIcon from '../icons/V';
 import classed from '../../lib/classed';
 
 type AlertPropObject<T> = Record<AlertType, T>;
@@ -9,21 +10,25 @@ type AlertPropObject<T> = Record<AlertType, T>;
 export enum AlertType {
   Info = 'info',
   Error = 'error',
+  Success = 'success',
 }
 
 const fontColor: AlertPropObject<string> = {
   info: 'text-theme-color-bun',
   error: 'text-theme-status-error',
+  success: 'text-theme-status-success',
 };
 
 const borderColor: AlertPropObject<string> = {
   info: 'border-l-theme-color-bun',
   error: 'border-l-theme-status-error',
+  success: 'border-l-theme-status-success',
 };
 
 const iconType: AlertPropObject<typeof FeedbackIcon> = {
   info: FeedbackIcon,
   error: AlertIcon,
+  success: CheckIcon,
 };
 
 interface AlertProps {
