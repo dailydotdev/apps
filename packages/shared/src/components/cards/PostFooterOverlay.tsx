@@ -16,6 +16,7 @@ interface PostFooterOverlayProps extends PostCardTests {
   source: Source;
   postLink: string;
   insaneMode?: boolean;
+  openNewTab?: boolean;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
 }
 
@@ -33,6 +34,7 @@ export const PostFooterOverlay = ({
   onReadArticleClick,
   postModalByDefault,
   postEngagementNonClickable,
+  openNewTab,
 }: PostFooterOverlayProps): ReactElement => {
   return (
     <div className={classNames('flex flex-row p-2', className)}>
@@ -62,6 +64,7 @@ export const PostFooterOverlay = ({
           )}
           href={postLink}
           onClick={onReadArticleClick}
+          openNewTab={openNewTab}
         />
       )}
     </div>

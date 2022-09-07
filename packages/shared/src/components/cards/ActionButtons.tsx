@@ -33,6 +33,7 @@ export interface ActionButtonsProps {
   postCardVersion?: string;
   postModalByDefault?: boolean;
   postEngagementNonClickable?: boolean;
+  openNewTab?: boolean;
 }
 
 const getContainer = (displayWhenHovered = false, className?: string) =>
@@ -46,6 +47,7 @@ const getContainer = (displayWhenHovered = false, className?: string) =>
   );
 
 export default function ActionButtons({
+  openNewTab,
   post,
   onUpvoteClick,
   onCommentClick,
@@ -161,6 +163,7 @@ export default function ActionButtons({
             href={post.permalink}
             className="btn-tertiary"
             onClick={onReadArticleClick}
+            openNewTab={openNewTab}
           />
         )}
         {(!insaneMode || !postModalByDefault || postEngagementNonClickable) &&
