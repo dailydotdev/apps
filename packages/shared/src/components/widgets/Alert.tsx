@@ -57,7 +57,7 @@ function Alert({
         className,
       )}
     >
-      <span className="flex flex-row items-center typo-callout">
+      <span className="flex flex-row items-center">
         <Icon size="medium" className={classNames('mr-2', fontColor[type])} />
         <span
           className={classNames(
