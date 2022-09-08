@@ -6,7 +6,10 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
-import { communityLinksGuidelines } from '../../lib/constants';
+import {
+  communityLinksGuidelines,
+  submissionGuidelineDocsLink,
+} from '../../lib/constants';
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
 import AuthContext from '../../contexts/AuthContext';
@@ -163,8 +166,9 @@ export default function SubmitArticleModal({
           For more details see our{' '}
           <a
             className="hover:underline text-theme-label-link"
-            href="https://docs.daily.dev/docs/how-does-daily-dev-work/community-picks-submission-guidelines"
+            href={submissionGuidelineDocsLink}
             target="_blank"
+            rel="noopener"
           >
             Community Picks submission guidelines
           </a>
