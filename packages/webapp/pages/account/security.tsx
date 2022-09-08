@@ -160,6 +160,7 @@ const AccountSecurityPage = (): ReactElement => {
         <Tab label={Display.Default}>
           <AccountSecurityDefault
             isEmailSent={isEmailSent}
+            userProviders={userProviders}
             updatePasswordRef={updatePasswordRef}
             onSwitchDisplay={setActiveDisplay}
             onUpdatePassword={onUpdatePassword}
