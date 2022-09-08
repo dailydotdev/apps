@@ -42,6 +42,7 @@ const AuthDefault = ({
   title = 'Sign up to daily.dev',
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
+  const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
     checkKratosEmail(emailParam),
   );
@@ -61,6 +62,7 @@ const AuthDefault = ({
     const res = await checkEmail(email);
 
     if (res?.result) {
+      setRegisterEmail(email);
       return setShouldLogin(true);
     }
 
@@ -80,6 +82,7 @@ const AuthDefault = ({
     if (!disablePassword && (shouldLogin || disableRegistration)) {
       return (
         <LoginForm
+          email={registerEmail}
           loginHint={loginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
