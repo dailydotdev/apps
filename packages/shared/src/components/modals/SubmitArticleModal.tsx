@@ -162,6 +162,7 @@ export default function SubmitArticleModal({
         <AlertParagraph>
           For more details see our{' '}
           <a
+            className="hover:underline text-theme-label-link"
             href="https://docs.daily.dev/docs/how-does-daily-dev-work/community-picks-submission-guidelines"
             target="_blank"
           >
