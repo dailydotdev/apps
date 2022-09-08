@@ -109,6 +109,7 @@ export const PostList = forwardRef(function PostList(
           )}
           <ActionButtons
             post={post}
+            openNewTab={openNewTab}
             onUpvoteClick={onUpvoteClick}
             onCommentClick={onCommentClick}
             onBookmarkClick={onBookmarkClick}
