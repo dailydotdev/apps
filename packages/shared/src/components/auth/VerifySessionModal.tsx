@@ -21,8 +21,9 @@ function VerifySessionModal({
   ...props
 }: VerifySessionModalProps): ReactElement {
   const [hint, setHint] = useState('Enter your password to login');
-  const filteredProviders = providers.filter(({ provider }) =>
-    userProviders?.result.indexOf(provider.toLocaleLowerCase()),
+  const filteredProviders = providers.filter(
+    ({ provider }) =>
+      !userProviders?.result.indexOf(provider.toLocaleLowerCase()),
   );
 
   return (
