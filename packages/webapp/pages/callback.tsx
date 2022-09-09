@@ -6,6 +6,8 @@ function CallbackPage(): ReactElement {
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
+    console.log(params);
+
     const eventKey = params.login
       ? AuthEvent.Login
       : AuthEvent.SocialRegistration;
@@ -15,7 +17,7 @@ function CallbackPage(): ReactElement {
       return;
     }
     postWindowMessage(eventKey, params);
-    window.close();
+    // window.close();
   }, []);
 
   return null;

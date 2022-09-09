@@ -99,12 +99,15 @@ const useLogin = ({
   };
 
   useWindowEvents('message', AuthEvent.Login, async () => {
+    console.log('user logged in callback');
     if (!session) {
+      console.log('no session');
       return;
     }
 
     const verified = await getKratosSession();
 
+    console.log('verified', verified);
     if (!verified) {
       return;
     }
@@ -112,8 +115,11 @@ const useLogin = ({
     const hasRenewedSession =
       session.authenticated_at !== verified.authenticated_at;
 
+    console.log('session reneweD? ', hasRenewedSession);
     if (hasRenewedSession) {
       await refetchBoot();
+      onSuccessfulLogin?.();
+    } else {
       onSuccessfulLogin?.();
     }
   });
