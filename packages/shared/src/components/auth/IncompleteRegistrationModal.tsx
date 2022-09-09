@@ -52,7 +52,7 @@ function IncompleteRegistrationModal({
     >
       <header className="flex relative justify-between items-center p-3 w-full border-b border-theme-divider-tertiary">
         <span className="font-bold typo-body">Set your timezone</span>
-        <ModalCloseButton />
+        <ModalCloseButton onClick={onRequestClose} />
       </header>
       <div className="flex flex-col items-center py-8">
         <p className="px-9 typo-body text-theme-label-secondary">
