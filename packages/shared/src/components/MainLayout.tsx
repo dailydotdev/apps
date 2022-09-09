@@ -28,6 +28,12 @@ import IncompleteRegistrationModal from './auth/IncompleteRegistrationModal';
 import useWindowEvents from '../hooks/useWindowEvents';
 import { AuthEvent, ErrorEvent, getKratosError } from '../lib/kratos';
 import { useToastNotification } from '../hooks/useToastNotification';
+import { StyledModal } from './modals/StyledModal';
+import {
+  SocialRegistrationForm,
+  SocialRegistrationFormValues,
+} from './auth/SocialRegistrationForm';
+import useProfileForm from '../hooks/useProfileForm';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -111,18 +117,24 @@ export default function MainLayout({
   const { displayToast } = useToastNotification();
   const [isIncompleteRegistration, setIsIncompleteRegistration] =
     useState(false);
-  const { user, loadingUser } = useContext(AuthContext);
+  const { user, loadingUser, logout, refetchBoot } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
+  const { updateUserProfile } = useProfileForm({
+    onSuccess: () => refetchBoot(),
+  });
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
     setOpenMobileSidebar,
   });
+
+  const onUpdateProfile = ({ name, username }: SocialRegistrationFormValues) =>
+    updateUserProfile({ name, username });
 
   const trackAndToggleMobileSidebar = (state: boolean) => {
     trackEvent({
@@ -234,6 +246,15 @@ export default function MainLayout({
           isOpen={isIncompleteRegistration}
           onRequestClose={() => setIsIncompleteRegistration(false)}
         />
+      )}
+      {user && !user.infoConfirmed && (
+        <StyledModal isOpen onRequestClose={() => logout()}>
+          <SocialRegistrationForm
+            className="mb-6"
+            title="Complete your profile information"
+            onSignup={onUpdateProfile}
+          />
+        </StyledModal>
       )}
     </div>
   );
