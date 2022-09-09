@@ -250,7 +250,6 @@ export default function MainLayout({
       {user && !user.infoConfirmed && (
         <StyledModal isOpen onRequestClose={() => logout()}>
           <SocialRegistrationForm
-            provider=""
             className="mb-6"
             title="Complete your profile information"
             onSignup={onUpdateProfile}

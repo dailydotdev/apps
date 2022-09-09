@@ -21,7 +21,7 @@ import AuthContext from '../../contexts/AuthContext';
 
 export interface SocialRegistrationFormProps {
   className?: string;
-  provider: string;
+  provider?: string;
   formRef?: MutableRefObject<HTMLFormElement>;
   title?: string;
   onClose?: CloseModalFunc;
