@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -12,6 +12,8 @@ import {
   accountSidebarPages,
   AccountSidebarPagesSection,
 } from './common';
+import { useRouter } from 'next/router';
+import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
 
 interface SidebarNavProps {
   className?: string;
@@ -24,12 +26,29 @@ function SidebarNav({
   className,
   basePath = '',
 }: SidebarNavProps): ReactElement {
+  const router = useRouter();
   const client = useQueryClient();
-  const closeSideNav = () => client.setQueryData(['account_nav_open'], false);
+  const closeSideNav = useCallback(
+    () => client.setQueryData(['account_nav_open'], false),
+    [client],
+  );
   const { data: isOpen } = useQuery(['account_nav_open'], () => false, {
     ...disabledRefetch,
   });
   const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!isTouchDevice()) {
+      return;
+    }
+
+    router.events.on('routeChangeStart', closeSideNav);
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      router.events.off('routeChangeStart', closeSideNav);
+    };
+  }, [router]);
 
   if (!user) {
     return null;
