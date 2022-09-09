@@ -244,6 +244,7 @@ export function TextField({
             onInput={onInput}
             maxLength={maxLength}
             readOnly={readOnly}
+            size={1}
             className={classNames(
               'self-stretch',
               getInputFontColor({
