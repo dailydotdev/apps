@@ -52,7 +52,7 @@ export default function AccountLayout({
       <NextSeo {...Seo} />
       <main className="flex relative flex-row flex-1 items-stretch pt-0 mx-auto w-full laptop:max-w-[calc(100vw-17.5rem)]">
         <SidebarNav
-          className="px-6 pt-6 ml-auto border-l border-theme-divider-tertiary"
+          className="absolute tablet:relative z-3 ml-auto w-full h-full border-l tablet:w-[unset] bg-theme-bg-primary border-theme-divider-tertiary"
           basePath="account"
         />
         {children}

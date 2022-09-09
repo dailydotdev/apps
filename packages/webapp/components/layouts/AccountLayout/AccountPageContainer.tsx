@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
+import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
@@ -32,9 +33,18 @@ export const AccountPageContainer = ({
   className = {},
   onBack,
 }: AccountPageContainerProps): ReactElement => {
+  const client = useQueryClient();
+  const openSideNav = () => client.setQueryData(['account_nav_open'], true);
+
   return (
     <AccountPageContent className={classNames('relative', className.container)}>
       <AccountPageHeading className={classNames('sticky', className.heading)}>
+        <Button
+          className="flex tablet:hidden mr-2 btn-tertiary"
+          icon={<ArrowIcon className="-rotate-90" />}
+          buttonSize="xsmall"
+          onClick={openSideNav}
+        />
         {onBack && (
           <Button
             className="mr-2 btn-tertiary"
