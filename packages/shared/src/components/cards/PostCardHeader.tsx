@@ -13,6 +13,7 @@ interface CardHeaderProps extends PostCardTests {
   onMenuClick?: (e: React.MouseEvent) => void;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink: string;
+  openNewTab?: boolean;
 }
 
 const Container = getGroupedHoverContainer('span');
@@ -25,6 +26,7 @@ export const PostCardHeader = ({
   postLink,
   postModalByDefault,
   postEngagementNonClickable,
+  openNewTab,
 }: CardHeaderProps): ReactElement => {
   return (
     <CardHeader>
@@ -36,6 +38,7 @@ export const PostCardHeader = ({
             className="mr-2 btn-primary"
             href={postLink}
             onClick={onReadArticleClick}
+            openNewTab={openNewTab}
           />
         )}
         <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />

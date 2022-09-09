@@ -54,7 +54,7 @@ const logout = async (): Promise<void> => {
   } else if (window.location.pathname === REGISTRATION_PATH) {
     window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
   } else {
-    window.location.replace(window.location.href);
+    window.location.replace('/');
   }
 };
 

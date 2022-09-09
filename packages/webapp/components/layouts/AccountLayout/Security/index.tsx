@@ -21,7 +21,6 @@ import {
 } from '@dailydotdev/shared/src/lib/kratos';
 import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
-import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
@@ -74,7 +73,6 @@ function AccountSecurityDefault({
 }: AccountSecurityDefaultProps): ReactElement {
   const { user, deleteAccount } = useContext(AuthContext);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
-  const [deletedAccount, setDeletedAccount] = useState(false);
   const [alreadyLinkedProvider, setAlreadyLinkedProvider] = useState(false);
   const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
@@ -207,14 +205,8 @@ function AccountSecurityDefault({
         <DeleteAccountModal
           deleteAccount={deleteAccount}
           isOpen={showDeleteAccount}
-          onDelete={() => setDeletedAccount(true)}
+          onDelete={() => window.location.replace('/')}
           onRequestClose={() => setShowDeleteAccount(false)}
-        />
-      )}
-      {deletedAccount && (
-        <DeletedAccountConfirmationModal
-          isOpen={deletedAccount}
-          onRequestClose={() => window.location.reload()}
         />
       )}
       {alreadyLinkedProvider && (

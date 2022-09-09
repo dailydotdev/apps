@@ -12,6 +12,7 @@ import { AuthForm } from './common';
 interface LoginFormProps {
   onForgotPassword?: () => unknown;
   onPasswordLogin?: (params: LoginFormParams) => void;
+  email?: string;
   loginHint: ReturnType<typeof useState>;
   className?: string;
 }
@@ -28,6 +29,7 @@ export interface LoginSocialFormParams {
 function LoginForm({
   onForgotPassword,
   onPasswordLogin,
+  email,
   loginHint: [hint, setHint],
   className,
 }: LoginFormProps): ReactElement {
@@ -49,6 +51,7 @@ function LoginForm({
         name="identifier"
         label="Email"
         type="email"
+        value={email}
         data-testid="login_email"
         saveHintSpace
         hint={hint as string}
