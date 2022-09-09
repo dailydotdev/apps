@@ -101,7 +101,6 @@ export const SocialRegistrationForm = ({
           type="email"
           value={user?.email}
           readOnly
-          size={1}
           rightIcon={<LockIcon />}
         />
         <TextField
