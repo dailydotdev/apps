@@ -19,19 +19,11 @@ export function ReactModalAdapter({
   return (
     <Modal
       portalClassName={className.toString()}
-      overlayClassName={classNames('overlay', overlayClassName)}
-      style={{
-        // stylelint-disable-next-line selector-type-no-unknown
-        overlay: {
-          paddingLeft: '1.25rem',
-          paddingRight: '1.25rem',
-        },
-        content: {
-          maxHeight: '100%',
-          maxWidth: '26.25rem',
-        },
-      }}
-      className={classNames('focus:outline-none modal', contentClassName)}
+      overlayClassName={classNames('styled-overlay overlay', overlayClassName)}
+      className={classNames(
+        'focus:outline-none styled-modal modal',
+        contentClassName,
+      )}
       {...props}
     />
   );
