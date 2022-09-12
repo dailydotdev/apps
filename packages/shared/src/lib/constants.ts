@@ -17,6 +17,8 @@ export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const initialDataKey = 'initial';
+export const submissionGuidelineDocsLink =
+  'https://docs.daily.dev/docs/how-does-daily-dev-work/community-picks-submission-guidelines';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';

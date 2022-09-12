@@ -1,8 +1,6 @@
 import Modal from 'react-modal';
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
-import classed from '../../lib/classed';
-import styles from './StyledModal.module.css';
 
 export interface ModalProps extends Modal.Props {
   padding?: boolean;
@@ -10,7 +8,7 @@ export interface ModalProps extends Modal.Props {
   contentClassName?: string;
 }
 
-export function ReactModalAdapter({
+export function StyledModal({
   className,
   contentClassName,
   overlayClassName,
@@ -18,23 +16,16 @@ export function ReactModalAdapter({
 }: ModalProps): ReactElement {
   return (
     <Modal
-      portalClassName={className.toString()}
-      overlayClassName={classNames('overlay', overlayClassName)}
-      style={{
-        // stylelint-disable-next-line selector-type-no-unknown
-        overlay: {
-          paddingLeft: '1.25rem',
-          paddingRight: '1.25rem',
-        },
-        content: {
-          maxHeight: '100%',
-          maxWidth: '26.25rem',
-        },
-      }}
-      className={classNames('focus:outline-none modal', contentClassName)}
+      portalClassName={className?.toString()}
+      overlayClassName={classNames(
+        'overlay flex fixed flex-col justify-center inset-0 max-h-[100vh] items-center px-5 bg-theme-overlay-quaternary z-[10]',
+        overlayClassName,
+      )}
+      className={classNames(
+        'focus:outline-none modal flex flex-col relative w-full max-w-[26.25rem] max-h-[100%] overflow-y-auto items-center bg-theme-bg-tertiary shadow-2 border border-theme-divider-secondary rounded-16',
+        contentClassName,
+      )}
       {...props}
     />
   );
 }
-
-export const StyledModal = classed(ReactModalAdapter, styles.styledModal);

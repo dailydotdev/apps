@@ -106,7 +106,9 @@ it('should submit a valid URL', async () => {
     },
   });
 
-  expect(await screen.findByText('Request sent')).toBeInTheDocument();
+  const sent =
+    'You will be notified via email about the article request status';
+  expect(await screen.findByText(sent)).toBeInTheDocument();
 });
 
 it('should feedback existing article', async () => {
