@@ -152,7 +152,7 @@ export default function SubmitArticleModal({
     }
 
     return (
-      <Alert className="mt-4" title="Recommendation Guidelines">
+      <Alert className="mt-4" title="Submission guidelines">
         <AlertParagraph>
           We want you to submit articles that are well thought out, high value
           and high quality.
