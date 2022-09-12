@@ -117,7 +117,8 @@ export default function MainLayout({
   const { displayToast } = useToastNotification();
   const [isIncompleteRegistration, setIsIncompleteRegistration] =
     useState(false);
-  const { user, loadingUser, logout, refetchBoot } = useContext(AuthContext);
+  const { user, loadingUser, shouldShowLogin, logout, refetchBoot } =
+    useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
@@ -247,7 +248,7 @@ export default function MainLayout({
           onRequestClose={() => setIsIncompleteRegistration(false)}
         />
       )}
-      {user && !user.infoConfirmed && (
+      {!shouldShowLogin && user && !user.infoConfirmed && (
         <StyledModal isOpen onRequestClose={() => logout()}>
           <SocialRegistrationForm
             className="mb-6"
