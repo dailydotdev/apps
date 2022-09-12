@@ -37,7 +37,7 @@ const useLogin = ({
   queryEnabled = true,
   queryParams = {},
 }: UseLoginProps = {}): UseLogin => {
-  const { refetchBoot } = useContext(AuthContext);
+  const { refetchBoot, closeLogin } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
   const { data: session } = useQuery(['current_session'], getKratosSession);
   const { data: login } = useQuery(
@@ -99,15 +99,14 @@ const useLogin = ({
   };
 
   useWindowEvents('message', AuthEvent.Login, async () => {
-    console.log('user logged in callback');
     if (!session) {
-      console.log('no session');
+      await refetchBoot();
+      onSuccessfulLogin?.();
       return;
     }
 
     const verified = await getKratosSession();
 
-    console.log('verified', verified);
     if (!verified) {
       return;
     }
@@ -115,7 +114,6 @@ const useLogin = ({
     const hasRenewedSession =
       session.authenticated_at !== verified.authenticated_at;
 
-    console.log('session reneweD? ', hasRenewedSession);
     if (hasRenewedSession) {
       await refetchBoot();
       onSuccessfulLogin?.();
