@@ -22,7 +22,7 @@ function SidebarNavItem({
     <Link href={href}>
       <a
         className={classNames(
-          'flex flex-row p-4 rounded-16 w-64',
+          'flex flex-row p-4 rounded-16 w-full tablet:w-64',
           isActive && 'border border-theme-divider-tertiary bg-theme-active',
           isActive && 'p-[0.9375rem]', // to avoid layout shift for when the border (1px) is displayed being active
           className,

@@ -13,6 +13,11 @@ interface AccountLoginSectionProps {
   children?: ReactNode;
 }
 
+const providerLabel = {
+  link: 'Connect with',
+  unlink: 'Remove',
+};
+
 function AccountLoginSection({
   providers,
   title,
@@ -37,7 +42,7 @@ function AccountLoginSection({
                 provider: provider.toLowerCase(),
               })
             }
-            label="Connect with"
+            label={providerLabel[providerActionType]}
             provider={provider}
             {...rest}
           />
