@@ -1,9 +1,9 @@
 .loginModal {
-  & :global(.login-overlay) {
+  & :global(.overlay) {
     z-index: 11;
   }
 
-  & :global(.login-modal) {
+  & :global(.modal) {
     padding: 2rem;
 
     & :global(.logo) {
