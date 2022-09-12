@@ -9,7 +9,6 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../../lib/kratos';
-import { disabledRefetch } from '../../lib/func';
 import {
   AccountRecoveryParameters,
   getNodeByKey,
@@ -32,12 +31,8 @@ function EmailVerificationSent({
   const { timer, setTimer, runTimer } = useTimer(() => null, 12);
   runTimer();
 
-  const { data: verification } = useQuery(
-    ['verification', sentCount],
-    () => initializeKratosFlow(AuthFlow.Verification),
-    {
-      ...disabledRefetch,
-    },
+  const { data: verification } = useQuery(['verification', sentCount], () =>
+    initializeKratosFlow(AuthFlow.Verification),
   );
 
   const { mutateAsync: sendVerification, isLoading } = useMutation(

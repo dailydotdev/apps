@@ -8,7 +8,6 @@ import {
   getNodeValue,
   ValidateRegistrationParams,
 } from '../lib/auth';
-import { disabledRefetch } from '../lib/func';
 import {
   AuthFlow,
   InitializationData,
@@ -16,6 +15,7 @@ import {
   submitKratosFlow,
   SuccessfulRegistrationData,
 } from '../lib/kratos';
+import { useToastNotification } from './useToastNotification';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -44,11 +44,10 @@ const useRegistration = ({
   onValidRegistration,
   onInvalidRegistration,
 }: UseRegistrationProps): UseRegistration => {
+  const { displayToast } = useToastNotification();
   const { trackingId } = useContext(AuthContext);
-  const { data: registration, isLoading: isQueryLoading } = useQuery(
-    key,
-    () => initializeKratosFlow(AuthFlow.Registration),
-    { ...disabledRefetch },
+  const { data: registration, isLoading: isQueryLoading } = useQuery(key, () =>
+    initializeKratosFlow(AuthFlow.Registration),
   );
   const {
     mutateAsync: validate,
@@ -69,7 +68,7 @@ const useRegistration = ({
 
         // probably csrf token issue and definitely not related to forms data
         if (!error.ui) {
-          return null;
+          return displayToast('An error occurred, kindly refresh the page.');
         }
 
         const emailExists = error?.ui?.messages?.find(
