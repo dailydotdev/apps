@@ -32,8 +32,6 @@ export default function LoginModal({
       {...props}
       onRequestClose={onRequestClose}
       className={classNames(styles.loginModal, className)}
-      overlayClassName="overlay"
-      contentClassName="modal"
     >
       <ModalCloseButton onClick={onRequestClose} />
       <DailyDevLogo />
