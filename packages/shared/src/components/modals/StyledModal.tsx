@@ -8,7 +8,7 @@ export interface ModalProps extends Modal.Props {
   contentClassName?: string;
 }
 
-export function ReactModalAdapter({
+export function StyledModal({
   className,
   contentClassName,
   overlayClassName,
@@ -31,5 +31,3 @@ export function ReactModalAdapter({
     />
   );
 }
-
-export const StyledModal = ReactModalAdapter;
