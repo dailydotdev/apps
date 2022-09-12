@@ -126,7 +126,7 @@ export const RegistrationForm = ({
           }
         />
         {isNameValid && isPasswordValid && (
-          <div className="flex flex-row gap-4 mt-6 ml-auto">
+          <div className="flex flex-row gap-4 mt-2 ml-auto">
             {isPasswordValid && !isUsernameValid && (
               <Button className="btn-tertiary">Skip</Button>
             )}
