@@ -73,7 +73,12 @@ export default function MainComment({
           <CommentPublishDate comment={comment} />
         </div>
       </div>
-      <MainCommentBox>
+      <MainCommentBox
+        className={
+          commentHash === getCommentHash(comment.id) &&
+          'border border-theme-color-cabbage'
+        }
+      >
         <Markdown content={comment.contentHtml} />
       </MainCommentBox>
       <CommentActionButtons
