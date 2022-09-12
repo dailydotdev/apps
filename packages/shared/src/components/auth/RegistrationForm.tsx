@@ -50,7 +50,6 @@ export const RegistrationForm = ({
     onSignup(values);
   };
 
-  const isPasswordValid = !hints?.password;
   const isNameValid = !hints?.['traits.name'];
   const isUsernameValid = !hints?.['traits.username'];
 
@@ -125,14 +124,7 @@ export const RegistrationForm = ({
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        {isNameValid && isPasswordValid && (
-          <div className="flex flex-row gap-4 mt-6 ml-auto">
-            {isPasswordValid && !isUsernameValid && (
-              <Button className="btn-tertiary">Skip</Button>
-            )}
-            <Button className="bg-theme-color-cabbage">Signup</Button>
-          </div>
-        )}
+        <Button className="mt-6 ml-auto bg-theme-color-cabbage">Signup</Button>
       </AuthForm>
     </>
   );
