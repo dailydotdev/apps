@@ -22,12 +22,12 @@ export const commentBoxClassNames =
 
 const StyledCommentBox = classed('div', commentBoxClassNames);
 
+export interface CommentBoxProps extends HTMLAttributes<HTMLDivElement> {
+  children?: ReactNode;
+}
 export const CommentBox = ({
   children,
   ...props
-}: {
-  children?: ReactNode;
-  props?: HTMLAttributes<HTMLDivElement>;
-}): ReactElement => {
+}: CommentBoxProps): ReactElement => {
   return <StyledCommentBox {...props}>{children}</StyledCommentBox>;
 };
