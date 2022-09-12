@@ -37,7 +37,7 @@ const useLogin = ({
   queryEnabled = true,
   queryParams = {},
 }: UseLoginProps = {}): UseLogin => {
-  const { refetchBoot, closeLogin } = useContext(AuthContext);
+  const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
   const { data: session } = useQuery(['current_session'], getKratosSession);
   const { data: login } = useQuery(
@@ -116,8 +116,6 @@ const useLogin = ({
 
     if (hasRenewedSession) {
       await refetchBoot();
-      onSuccessfulLogin?.();
-    } else {
       onSuccessfulLogin?.();
     }
   });
