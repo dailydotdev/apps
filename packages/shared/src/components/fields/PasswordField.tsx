@@ -45,7 +45,6 @@ export function PasswordField({
     : passwordStrengthStates[passwordStrengthLevel].label;
   const hint = !hasUserAction ? null : userActionHint;
   const shouldShowStrength = showStrength && hasUserAction;
-  const eyeProps = { className: 'text-theme-label-secondary' };
   const Icon = useType === 'password' ? EyeIcon : EyeCancelIcon;
 
   return (
