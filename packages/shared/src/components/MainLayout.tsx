@@ -125,7 +125,7 @@ export default function MainLayout({
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
-  const { updateUserProfile } = useProfileForm({
+  const { updateUserProfile, hint, onUpdateHint } = useProfileForm({
     onSuccess: () => refetchBoot(),
   });
   const handlers = useSwipeableSidebar({
@@ -254,6 +254,8 @@ export default function MainLayout({
             className="mb-6"
             title="Complete your profile information"
             onSignup={onUpdateProfile}
+            hints={hint}
+            onUpdateHints={onUpdateHint}
           />
         </StyledModal>
       )}
