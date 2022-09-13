@@ -68,7 +68,7 @@ const useRegistration = ({
 
         // probably csrf token issue and definitely not related to forms data
         if (!error.ui) {
-          return displayToast('An error occurred, kindly refresh the page.');
+          return displayToast('An error occurred, please refresh the page.');
         }
 
         const emailExists = error?.ui?.messages?.find(
