@@ -6,7 +6,10 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
-import { communityLinksGuidelines } from '../../lib/constants';
+import {
+  communityLinksGuidelines,
+  submissionGuidelineDocsLink,
+} from '../../lib/constants';
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
 import AuthContext from '../../contexts/AuthContext';
@@ -21,6 +24,7 @@ import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { BetaBadge } from '../BetaBadge';
 import LinkIcon from '../icons/Link';
+import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -132,33 +136,44 @@ export default function SubmitArticleModal({
     }
   };
 
-  const getButton = (): ReactElement => {
-    if (isSubmitted) {
+  const getAlert = () => {
+    if (existingArticle) {
+      return null;
+    }
+
+    if (!isEnabled) {
       return (
-        <>
-          <div className="flex items-center mt-4 mb-6 h-8 font-bold rounded-10 w-fit bg-theme-status-success text-theme-label-invert padding px-[0.9375rem]">
-            Request sent
-          </div>
-          <p className="mb-2 typo-callout text-theme-label-tertiary">
-            You will be notified via email about the article request status.
-          </p>
-        </>
+        <Alert
+          className="mt-4"
+          type={AlertType.Error}
+          title="You do not have enough reputation to use this feature yet."
+        />
       );
     }
 
     return (
-      <Button
-        className="mt-4 btn-primary "
-        buttonSize="small"
-        type="submit"
-        aria-label={submitArticleModalButton}
-        disabled={!enableSubmission || !isEnabled}
-        loading={isValidating}
-      >
-        <span className={isValidating && 'invisible'}>
-          {submitArticleModalButton}
-        </span>
-      </Button>
+      <Alert className="mt-4" title="Submission guidelines">
+        <AlertParagraph>
+          We want you to submit articles that are well thought out, high value
+          and high quality.
+        </AlertParagraph>
+        <AlertParagraph>
+          Please do not add your own posts, promotional content, clickbait etc.
+          Additionally, redirected or shortened URLs will be rejected, please
+          submit the full and final URL.
+        </AlertParagraph>
+        <AlertParagraph>
+          For more details see our{' '}
+          <a
+            className="hover:underline text-theme-label-link"
+            href={submissionGuidelineDocsLink}
+            target="_blank"
+            rel="noopener"
+          >
+            Community Picks submission guidelines
+          </a>
+        </AlertParagraph>
+      </Alert>
     );
   };
 
@@ -171,6 +186,7 @@ export default function SubmitArticleModal({
       {...modalProps}
       onRequestClose={onRequestClose}
       padding={false}
+      style={{ content: { maxWidth: '35rem', width: '100%' } }}
     >
       <header className="flex justify-between items-center px-6 w-full h-14 border-b border-theme-divider-tertiary">
         <div className="flex flex-row items-center">
@@ -222,8 +238,37 @@ export default function SubmitArticleModal({
             valid={!urlHint}
             valueChanged={onUrlChanged}
           />
-          {getButton()}
+          {!isSubmitted && (
+            <Button
+              className="mt-4 btn-primary "
+              buttonSize="small"
+              type="submit"
+              aria-label={submitArticleModalButton}
+              disabled={!enableSubmission || !isEnabled}
+              loading={isValidating}
+            >
+              <span className={isValidating && 'invisible'}>
+                {submitArticleModalButton}
+              </span>
+            </Button>
+          )}
         </form>
+        {isSubmitted ? (
+          <Alert
+            className="mt-4"
+            type={AlertType.Success}
+            title="You will be notified via email about the article request status"
+          />
+        ) : (
+          submissionAvailability?.todaySubmissionsCount === 3 && (
+            <Alert
+              className="mt-4"
+              type={AlertType.Error}
+              title="You have reached the limit of 3 submissions per day"
+            />
+          )
+        )}
+        {getAlert()}
       </section>
       {existingArticle && (
         <div>

@@ -51,7 +51,7 @@ export default function AuthModal({
     >
       {isV1 && (
         <>
-          <div className="flex z-1 flex-col flex-1 gap-5 p-10 h-full">
+          <div className="hidden laptop:flex z-1 flex-col flex-1 gap-5 p-10 h-full">
             <AuthModalHeading className="typo-giga1">
               Unlock the full power of daily.dev
             </AuthModalHeading>

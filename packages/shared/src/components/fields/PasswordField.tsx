@@ -45,6 +45,7 @@ export function PasswordField({
     : passwordStrengthStates[passwordStrengthLevel].label;
   const hint = !hasUserAction ? null : userActionHint;
   const shouldShowStrength = showStrength && hasUserAction;
+  const Icon = useType === 'password' ? EyeIcon : EyeCancelIcon;
 
   return (
     <TextField
@@ -73,7 +74,7 @@ export function PasswordField({
             setUseType((_type) => (_type === 'password' ? 'text' : 'password'));
           }}
         >
-          {useType === 'password' ? <EyeIcon /> : <EyeCancelIcon />}
+          <Icon className="text-theme-label-secondary" />
         </button>
       }
     />

@@ -74,7 +74,12 @@ export default function SubComment({
         </ProfileTooltip>
       </div>
       <div className="flex flex-col flex-1 items-stretch ml-2">
-        <SubCommentBox>
+        <SubCommentBox
+          className={
+            commentHash === getCommentHash(comment.id) &&
+            'border border-theme-color-cabbage'
+          }
+        >
           <div className="flex">
             <CommentAuthor
               postAuthorId={postAuthorId}

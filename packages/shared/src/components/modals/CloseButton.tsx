@@ -4,7 +4,7 @@ import { Button, ButtonProps } from '../buttons/Button';
 import CloseIcon from '../icons/Close';
 
 function CloseButtonComponent(
-  { className, style, ...props }: ButtonProps<'button'>,
+  { className, ...props }: ButtonProps<'button'>,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
   return (

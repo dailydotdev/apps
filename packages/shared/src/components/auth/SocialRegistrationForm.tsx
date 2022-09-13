@@ -133,7 +133,7 @@ export const SocialRegistrationForm = ({
           hint={usernameHint}
           minLength={1}
         />
-        <Button className="mt-6 ml-auto bg-theme-color-cabbage">Signup</Button>
+        <Button className="mt-2 ml-auto bg-theme-color-cabbage">Signup</Button>
       </AuthForm>
     </>
   );

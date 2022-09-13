@@ -79,7 +79,9 @@ export const ColumnContainer: typeof Container = forwardRef(
         ref={ref}
         className={classNames(
           className,
-          authVersion === AuthVersion.V2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
+          authVersion === AuthVersion.V2
+            ? 'max-w-[20rem]'
+            : 'px-6 tablet:px-[3.75rem]',
         )}
       >
         {children}

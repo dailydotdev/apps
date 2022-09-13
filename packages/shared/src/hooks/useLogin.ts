@@ -100,6 +100,8 @@ const useLogin = ({
 
   useWindowEvents('message', AuthEvent.Login, async () => {
     if (!session) {
+      await refetchBoot();
+      onSuccessfulLogin?.();
       return;
     }
 
