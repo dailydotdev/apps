@@ -152,9 +152,7 @@ export const SocialRegistrationForm = ({
             }
           }}
         />
-        <div className="flex flex-row gap-4 mt-6 ml-auto">
-          <Button className="bg-theme-color-cabbage">Signup</Button>
-        </div>
+        <Button className="mt-2 ml-auto bg-theme-color-cabbage">Signup</Button>
       </AuthForm>
     </>
   );

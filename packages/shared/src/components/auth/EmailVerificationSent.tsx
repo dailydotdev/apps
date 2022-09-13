@@ -44,7 +44,7 @@ function EmailVerificationSent({
     (params: VerificationParams) => submitKratosFlow(params),
     {
       onSuccess: () => {
-        setTimer(12);
+        setTimer(60);
         runTimer();
         setSentCount((value) => value + 1);
       },
