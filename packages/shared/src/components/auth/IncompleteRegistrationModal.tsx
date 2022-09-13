@@ -27,7 +27,7 @@ function IncompleteRegistrationModal({
     },
   });
   const [userTimeZone, setUserTimeZone] = useState<string>(
-    getUserInitialTimezone({ userTimezone: 'utc' }),
+    getUserInitialTimezone(),
   );
   const timezoneUpdated = (timeZone: string) => {
     const findTimeZoneRow = timeZoneOptions.find(
