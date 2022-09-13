@@ -52,6 +52,7 @@ export const AuthSignBack = ({
               <ProviderButton
                 key={provider}
                 provider={provider}
+                buttonSize="large"
                 style={{ ...style, width: '3.875rem' }}
                 onClick={() => onProviderClick?.(provider)}
                 {...props}

@@ -133,7 +133,7 @@ export const SocialRegistrationForm = ({
           hint={usernameHint}
           minLength={1}
         />
-        <div className="flex flex-row gap-4 mt-6 ml-auto">
+        <div className="flex flex-row gap-4 mt-2 ml-auto">
           <Button className="bg-theme-color-cabbage">Signup</Button>
         </div>
       </AuthForm>

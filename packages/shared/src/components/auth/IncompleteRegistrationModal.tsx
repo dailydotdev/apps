@@ -71,7 +71,7 @@ function IncompleteRegistrationModal({
         />
         <Background className="mt-7 w-full h-72" />
         <Button
-          className="btn-primary bg-theme-color-cabbage"
+          className="btn-primary bg-theme-color-cabbage text-theme-label-invert"
           onClick={onComplete}
           disabled={submitDisabled}
         >
