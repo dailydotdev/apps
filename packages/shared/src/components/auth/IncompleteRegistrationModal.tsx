@@ -69,7 +69,7 @@ function IncompleteRegistrationModal({
           scrollable
           menuClassName="menu-secondary"
         />
-        <Background className="mt-7 w-full h-72" />
+        <Background className="my-7 w-full h-72" />
         <Button
           className="btn-primary bg-theme-color-cabbage text-theme-label-invert"
           onClick={onComplete}
