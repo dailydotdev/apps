@@ -29,7 +29,7 @@ function EmailVerificationSent({
   email,
 }: EmailVerificationSentProps): ReactElement {
   const [sentCount, setSentCount] = useState(0);
-  const { timer, setTimer, runTimer } = useTimer(() => null, 12);
+  const { timer, setTimer, runTimer } = useTimer(() => null, 60);
   runTimer();
 
   const { data: verification } = useQuery(
