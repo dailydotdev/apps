@@ -27,6 +27,7 @@ interface UseLogin {
 }
 
 interface UseLoginProps {
+  enableSessionVerification?: boolean;
   queryEnabled?: boolean;
   queryParams?: EmptyObjectLiteral;
   onSuccessfulLogin?: (() => Promise<void>) | (() => void);
@@ -36,10 +37,13 @@ const useLogin = ({
   onSuccessfulLogin,
   queryEnabled = true,
   queryParams = {},
+  enableSessionVerification = false,
 }: UseLoginProps = {}): UseLogin => {
   const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
-  const { data: session } = useQuery(['current_session'], getKratosSession);
+  const { data: session } = useQuery(['current_session'], getKratosSession, {
+    enabled: enableSessionVerification,
+  });
   const { data: login } = useQuery(
     [{ type: 'login', params: queryParams }],
     ({ queryKey: [{ params }] }) =>

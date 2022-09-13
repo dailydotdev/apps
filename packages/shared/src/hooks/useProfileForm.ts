@@ -1,18 +1,19 @@
 import { GraphQLError } from 'graphql-request/dist/types';
 import request from 'graphql-request';
-import { FormEvent, useContext, useState } from 'react';
+import { FormEvent, useContext, useMemo, useState } from 'react';
 import { UseMutateAsyncFunction, useMutation } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { apiUrl } from '../lib/config';
 import { LoggedUser } from '../lib/user';
 
-interface ProfileFormHint {
+export interface ProfileFormHint {
   portfolio?: string;
   username?: string;
   twitter?: string;
   github?: string;
   hashnode?: string;
+  name?: string;
 }
 
 interface MutationError {
@@ -30,6 +31,7 @@ type ModalEvent =
 
 interface UseProfileForm {
   hint: ProfileFormHint;
+  onUpdateHint?: (hint: Partial<ProfileFormHint>) => void;
   isLoading?: boolean;
   updateUserProfile: UseMutateAsyncFunction<
     LoggedUser,
@@ -88,7 +90,10 @@ const useProfileForm = ({
     },
   );
 
-  return { hint, isLoading, updateUserProfile };
+  return useMemo(
+    () => ({ hint, isLoading, onUpdateHint: setHint, updateUserProfile }),
+    [user, hint, isLoading],
+  );
 };
 
 export default useProfileForm;

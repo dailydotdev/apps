@@ -539,13 +539,15 @@ export const getUserDefaultTimezone = (): string => {
   return 'Europe/London';
 };
 
+interface InitialTimezoneProps {
+  userTimezone?: string;
+  update?: boolean;
+}
+
 export const getUserInitialTimezone = ({
   userTimezone,
   update = false,
-}: {
-  userTimezone: string;
-  update?: boolean;
-}): string => {
+}: InitialTimezoneProps = {}): string => {
   if (userTimezone) {
     return userTimezone;
   }

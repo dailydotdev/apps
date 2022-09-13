@@ -2,13 +2,11 @@ import React, { ReactElement, ReactNode, useContext } from 'react';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import dynamic from 'next/dynamic';
 import { getLayout as getMainLayout } from '../MainLayout';
 import SidebarNav from './SidebarNav';
-
-const Custom404 = dynamic(() => import('../../../pages/404'));
 
 export interface AccountLayoutProps {
   profile: PublicProfile;
@@ -18,14 +16,15 @@ export interface AccountLayoutProps {
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
-  const { user: profile } = useContext(AuthContext);
+  const router = useRouter();
+  const { user: profile, isFetched } = useContext(AuthContext);
 
-  if (!profile) {
-    return <Custom404 />;
+  if (isFetched && !profile) {
+    router.replace('/');
   }
 
-  if (!Object.keys(profile).length) {
-    return <></>; // should be a loading screen
+  if (!profile || !Object.keys(profile).length) {
+    return null;
   }
 
   const Seo: NextSeoProps = profile

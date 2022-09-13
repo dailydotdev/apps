@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ChangeEvent, ReactElement, useRef, useState } from 'react';
 import { blobToBase64 } from '../../lib/blob';
+import { fallbackImages } from '../../lib/config';
 import EditIcon from '../icons/Edit';
 
 type Size = 'medium' | 'large';
@@ -13,6 +14,7 @@ interface ImageInputProps {
   size?: Size;
   id?: string;
   viewOnly?: boolean;
+  fallbackImage?: string;
 }
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
@@ -30,6 +32,7 @@ function ImageInput({
   onChange,
   size = 'medium',
   viewOnly,
+  fallbackImage = fallbackImages.avatar,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   const [error, setError] = useState('');
@@ -57,6 +60,8 @@ function ImageInput({
     setImage(base64);
     onChange?.(base64);
   };
+
+  const onError = () => setImage(fallbackImage);
 
   return (
     <button
@@ -87,6 +92,7 @@ function ImageInput({
         )}
         src={image}
         alt="File upload preview"
+        onError={onError}
       />
       <EditIcon
         className={classNames(

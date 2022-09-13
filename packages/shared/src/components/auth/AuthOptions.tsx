@@ -55,7 +55,7 @@ function AuthOptions({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, referral } = useContext(AuthContext);
+  const { refetchBoot, referral, closeLogin } = useContext(AuthContext);
   const { loginHint, onPasswordLogin } = useLogin({ onSuccessfulLogin });
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
@@ -64,7 +64,7 @@ function AuthOptions({
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
   const [chosenProvider, setChosenProvider] = useState<string>(null);
-  const { updateUserProfile } = useProfileForm();
+  const { updateUserProfile, hint, onUpdateHint } = useProfileForm();
 
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
@@ -87,6 +87,8 @@ function AuthOptions({
     AuthEvent.SocialRegistration,
     async (e) => {
       if (!e.data?.social_registration) {
+        await refetchBoot();
+        closeLogin();
         return;
       }
 
@@ -151,6 +153,8 @@ function AuthOptions({
             onClose={onSocialRegistrationClose}
             isV2={isV2}
             onSignup={onSocialCompletion}
+            hints={hint}
+            onUpdateHints={onUpdateHint}
           />
         </Tab>
         <Tab label={Display.Registration}>

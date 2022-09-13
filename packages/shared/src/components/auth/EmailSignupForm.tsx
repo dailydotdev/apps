@@ -19,7 +19,7 @@ function EmailSignupForm({
   return (
     <AuthForm className="gap-2" onSubmit={onSubmit} action="#">
       <TextField
-        leftIcon={<MailIcon />}
+        leftIcon={<MailIcon size="medium" />}
         inputId="email"
         label="Email"
         type="email"

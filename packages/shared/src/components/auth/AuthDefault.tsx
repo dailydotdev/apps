@@ -119,6 +119,7 @@ const AuthDefault = ({
               key={provider}
               provider={provider}
               label="Connect with"
+              className="mb-1"
               onClick={() => onSocialClick(provider.toLowerCase())}
               {...props}
             />
