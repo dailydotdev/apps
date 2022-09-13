@@ -29,6 +29,7 @@ const usePrivilegedSession = ({
 
   const { loginFlowData, loginHint, onSocialLogin, onPasswordLogin } = useLogin(
     {
+      enableSessionVerification: true,
       queryEnabled: !!verifySessionId,
       queryParams: { refresh: 'true' },
       onSuccessfulLogin: () => {
