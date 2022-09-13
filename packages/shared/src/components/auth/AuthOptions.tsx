@@ -63,6 +63,7 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
+  const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const { updateUserProfile, hint, onUpdateHint } = useProfileForm();
 
@@ -121,6 +122,11 @@ function AuthOptions({
     onClose(e, true);
   };
 
+  const onForgotPasswordBack = () => {
+    setIsForgotPasswordReturn(true);
+    setActiveDisplay(defaultDisplay);
+  };
+
   return (
     <div
       className={classNames(
@@ -144,6 +150,7 @@ function AuthOptions({
             onPasswordLogin={onPasswordLogin}
             loginHint={loginHint}
             isV2={isV2}
+            isForgotPasswordReturn={isForgotPasswordReturn}
           />
         </Tab>
         <Tab label={Display.SocialRegistration}>
@@ -189,7 +196,7 @@ function AuthOptions({
           <ForgotPasswordForm
             initialEmail={email}
             onClose={onClose}
-            onBack={() => setActiveDisplay(defaultDisplay)}
+            onBack={onForgotPasswordBack}
           />
         </Tab>
         <Tab label={Display.EmailSent}>
