@@ -18,6 +18,7 @@ import { AuthForm, providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
+import { ProfileFormHint } from '../../hooks/useProfileForm';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -25,6 +26,8 @@ export interface SocialRegistrationFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
   title?: string;
   onClose?: CloseModalFunc;
+  hints?: ProfileFormHint;
+  onUpdateHints?: (errors: ProfileFormHint) => void;
   isV2?: boolean;
   onSignup?: (params: SocialRegistrationParameters) => void;
 }
@@ -39,6 +42,8 @@ export const SocialRegistrationForm = ({
   provider,
   formRef,
   title = 'Sign up to daily.dev',
+  hints,
+  onUpdateHints,
   onClose,
   onSignup,
   isV2,
@@ -112,13 +117,20 @@ export const SocialRegistrationForm = ({
           saveHintSpace
           className="w-full"
           leftIcon={<UserIcon />}
-          valid={!nameHint}
-          hint={nameHint}
-          valueChanged={() => setNameHint(null)}
           name="name"
           inputId="name"
           label="Full name"
           value={user?.name}
+          valid={!nameHint && !hints?.name}
+          hint={hints?.name || nameHint}
+          valueChanged={() => {
+            if (hints?.name) {
+              onUpdateHints?.({ ...hints, name: '' });
+            }
+            if (nameHint) {
+              setNameHint('');
+            }
+          }}
         />
         <TextField
           saveHintSpace
@@ -128,10 +140,17 @@ export const SocialRegistrationForm = ({
           inputId="username"
           label="Enter a username"
           value={user?.username}
-          valid={!usernameHint}
-          valueChanged={() => setUsernameHint(null)}
-          hint={usernameHint}
           minLength={1}
+          valid={!usernameHint && !hints?.username}
+          hint={hints?.username || usernameHint}
+          valueChanged={() => {
+            if (hints?.username) {
+              onUpdateHints?.({ ...hints, username: '' });
+            }
+            if (usernameHint) {
+              setUsernameHint('');
+            }
+          }}
         />
         <Button className="mt-2 ml-auto bg-theme-color-cabbage">Signup</Button>
       </AuthForm>
