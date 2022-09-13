@@ -60,7 +60,7 @@ function IncompleteRegistrationModal({
           activities.
         </p>
         <Dropdown
-          className="mt-12 w-80"
+          className="mt-12 w-full max-w-xs"
           selectedIndex={timeZoneOptions.findIndex(
             (timeZone) => timeZone.value === userTimeZone,
           )}
