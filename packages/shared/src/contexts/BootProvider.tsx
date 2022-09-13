@@ -83,6 +83,7 @@ export const BootDataProvider = ({
     data: bootRemoteData,
     refetch,
     dataUpdatedAt,
+    isFetched,
   } = useQuery(BOOT_QUERY_KEY, () => getBootData(app));
 
   useEffect(() => {
@@ -160,6 +161,7 @@ export const BootDataProvider = ({
         loadedUserFromCache={loadedFromCache}
         visit={bootRemoteData?.visit}
         refetchBoot={refetch}
+        isFetched={isFetched}
       >
         <SettingsContextProvider
           settings={settings}

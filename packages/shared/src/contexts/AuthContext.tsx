@@ -20,6 +20,7 @@ export interface AuthContextData {
   logout: () => Promise<void>;
   updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;
+  isFetched?: boolean;
   tokenRefreshed: boolean;
   loadedUserFromCache?: boolean;
   getRedirectUri: () => string;
@@ -60,6 +61,7 @@ const logout = async (): Promise<void> => {
 
 export type AuthContextProviderProps = {
   user: LoggedUser | AnonymousUser | undefined;
+  isFetched?: boolean;
   refetchBoot?: () => Promise<unknown>;
   children?: ReactNode;
 } & Pick<
@@ -76,6 +78,7 @@ export const AuthContextProvider = ({
   children,
   user,
   updateUser,
+  isFetched,
   loadingUser,
   tokenRefreshed,
   loadedUserFromCache,
@@ -105,10 +108,19 @@ export const AuthContextProvider = ({
       getRedirectUri,
       anonymous: user,
       visit,
+      isFetched,
       refetchBoot,
       deleteAccount,
     }),
-    [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
+    [
+      user,
+      loginState,
+      isFetched,
+      loadingUser,
+      tokenRefreshed,
+      loadedUserFromCache,
+      visit,
+    ],
   );
 
   return (
