@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import ArrowIcon from '../icons/Arrow';
@@ -14,6 +14,8 @@ function EmailSignupForm({
   onSubmit,
   isV2,
 }: EmailSignupFormProps): ReactElement {
+  const [email, setEmail] = useState(null);
+
   return (
     <AuthForm className="gap-2" onSubmit={onSubmit} action="#">
       <TextField
@@ -22,14 +24,16 @@ function EmailSignupForm({
         label="Email"
         type="email"
         name="email"
+        onInput={(e) => setEmail(e.currentTarget.value)}
         actionButton={
           !isV2 && (
             <Button
               buttonSize="small"
-              className="btn-tertiary"
+              className="btn-primary"
               icon={<ArrowIcon className="rotate-90" />}
               type="submit"
               data-testid="email_signup_submit"
+              disabled={!email}
             />
           )
         }
