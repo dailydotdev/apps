@@ -137,7 +137,7 @@ export const BootDataProvider = ({
       setCachedBootData(updated);
       await queryClient.invalidateQueries(generateQueryKey('profile', newUser));
     },
-    [queryClient],
+    [queryClient, cachedBootData],
   );
 
   const updateSettings = useCallback(

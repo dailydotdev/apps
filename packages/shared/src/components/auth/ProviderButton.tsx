@@ -1,14 +1,10 @@
 import classNames from 'classnames';
-import React, { CSSProperties, ReactElement } from 'react';
-import { Button, ButtonSize, IconType } from '../buttons/Button';
+import React, { ReactElement } from 'react';
+import { Button, ButtonSize } from '../buttons/Button';
+import { Provider } from './common';
 
-interface ProviderButtonProps {
-  icon: IconType;
-  provider: string;
+interface ProviderButtonProps extends Provider {
   label?: string;
-  onClick?: () => unknown;
-  className?: string;
-  style?: CSSProperties;
   buttonSize?: ButtonSize;
 }
 
