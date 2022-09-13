@@ -64,7 +64,7 @@ function AuthOptions({
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
   const [chosenProvider, setChosenProvider] = useState<string>(null);
-  const { updateUserProfile } = useProfileForm();
+  const { updateUserProfile, hint, onUpdateHint } = useProfileForm();
 
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
@@ -151,6 +151,8 @@ function AuthOptions({
             onClose={onSocialRegistrationClose}
             isV2={isV2}
             onSignup={onSocialCompletion}
+            hints={hint}
+            onUpdateHints={onUpdateHint}
           />
         </Tab>
         <Tab label={Display.Registration}>
