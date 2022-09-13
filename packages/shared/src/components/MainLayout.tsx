@@ -242,7 +242,7 @@ export default function MainLayout({
         )}
         {children}
       </main>
-      {isIncompleteRegistration && user && (
+      {!shouldShowLogin && isIncompleteRegistration && user && (
         <IncompleteRegistrationModal
           isOpen={isIncompleteRegistration}
           onRequestClose={() => setIsIncompleteRegistration(false)}
