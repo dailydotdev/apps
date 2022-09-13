@@ -5,7 +5,6 @@ import ArrowIcon from '../icons/Arrow';
 import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
 import { privacyPolicy, termsOfService } from '../../lib/constants';
-import { ClickableText } from '../buttons/ClickableText';
 
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
