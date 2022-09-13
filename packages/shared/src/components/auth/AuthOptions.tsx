@@ -2,7 +2,6 @@ import React, {
   MutableRefObject,
   ReactElement,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -56,7 +55,7 @@ function AuthOptions({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, referral, user, closeLogin } = useContext(AuthContext);
+  const { refetchBoot, referral, closeLogin } = useContext(AuthContext);
   const { loginHint, onPasswordLogin } = useLogin({ onSuccessfulLogin });
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
@@ -88,6 +87,8 @@ function AuthOptions({
     AuthEvent.SocialRegistration,
     async (e) => {
       if (!e.data?.social_registration) {
+        await refetchBoot();
+        closeLogin();
         return;
       }
 
@@ -119,15 +120,6 @@ function AuthOptions({
     logout();
     onClose(e, true);
   };
-
-  useEffect(() => {
-    const isLoginDisplay =
-      activeDisplay === Display.Default || activeDisplay === Display.SignBack;
-
-    if (user && isLoginDisplay) {
-      closeLogin();
-    }
-  }, [user, activeDisplay]);
 
   return (
     <div
