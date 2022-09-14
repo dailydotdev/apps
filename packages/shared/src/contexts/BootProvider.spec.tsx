@@ -403,7 +403,7 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
         type="button"
         data-test-value={JSON.stringify(loginState)}
       >
-        Login
+        Log in
       </button>
       <button
         onClick={closeLogin}
