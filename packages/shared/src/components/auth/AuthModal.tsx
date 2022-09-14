@@ -9,6 +9,7 @@ import useAuthForms from '../../hooks/useAuthForms';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import DailyCircle from '../DailyCircle';
+import AuthContext from '../../contexts/AuthContext';
 
 export type AuthModalProps = ModalProps;
 
@@ -28,6 +29,7 @@ export default function AuthModal({
   ...props
 }: AuthModalProps): ReactElement {
   const { authVersion } = useContext(FeaturesContext);
+  const { closeLogin } = useContext(AuthContext);
   const {
     onDiscardAttempt,
     onDiscardCancelled,
@@ -80,6 +82,7 @@ export default function AuthModal({
         className={classNames('h-full', containerMargin[authVersion])}
         onClose={onDiscardAttempt}
         formRef={formRef}
+        onSuccessfulLogin={closeLogin}
       />
       {isDiscardOpen && (
         <DiscardActionModal
