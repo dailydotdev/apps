@@ -56,13 +56,13 @@ export default function AuthModal({
               Unlock the full power of daily.dev
             </AuthModalHeading>
             <AuthModalHeading emoji="🧙‍♀️" className="mt-4 typo-title2" tag="h2">
-              400+ Sources, one feed
+              +500 sources, one feed
             </AuthModalHeading>
             <AuthModalHeading emoji="👩‍💻" className="typo-title2" tag="h2">
-              Used by 150k+ Developers
+              Loved by +150K developers
             </AuthModalHeading>
             <AuthModalHeading emoji="🔮" className="typo-title2" tag="h2">
-              Customize your feed!
+              Personalize your feed!
             </AuthModalHeading>
           </div>
           <div className="flex absolute bottom-0 left-1/2 flex-col translate-y-1/2 -translate-x-[40%] w-[26rem] h-[26rem]">
