@@ -33,7 +33,7 @@ function LoginForm({
   onPasswordLogin,
   email,
   loginHint: [hint, setHint],
-  loginButton = 'Login',
+  loginButton = 'Log in',
   className,
   isLoading,
 }: LoginFormProps): ReactElement {
