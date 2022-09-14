@@ -22,6 +22,7 @@ interface AuthDefaultProps {
   onProviderClick?: (provider: string) => unknown;
   onForgotPassword?: () => unknown;
   isV2?: boolean;
+  isForgotPasswordReturn?: boolean;
   title?: string;
   providers: Provider[];
   disableRegistration?: boolean;
@@ -37,13 +38,17 @@ const AuthDefault = ({
   onForgotPassword,
   onPasswordLogin,
   isV2,
+  isForgotPasswordReturn,
   providers,
   disableRegistration,
   disablePassword,
   isLoading,
   title = 'Sign up to daily.dev',
 }: AuthDefaultProps): ReactElement => {
-  const [shouldLogin, setShouldLogin] = useState(isV2);
+  const [shouldLogin, setShouldLogin] = useState(
+    isForgotPasswordReturn || isV2,
+  );
+
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
     checkKratosEmail(emailParam),

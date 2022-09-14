@@ -9,7 +9,6 @@ import {
   ValidateRecoveryParams,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
@@ -40,12 +39,8 @@ function ForgotPasswordForm({
   const [sentCount, setSentCount] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
   const { timer, setTimer, runTimer } = useTimer(() => setEmailSent(false), 0);
-  const { data: recovery } = useQuery(
-    ['recovery', sentCount],
-    () => initializeKratosFlow(AuthFlow.Recovery),
-    {
-      ...disabledRefetch,
-    },
+  const { data: recovery } = useQuery(['recovery', sentCount], () =>
+    initializeKratosFlow(AuthFlow.Recovery),
   );
 
   const { mutateAsync: sendEmail, isLoading } = useMutation(
