@@ -58,7 +58,7 @@ function LoginForm({
         saveHintSpace
         hint={hint as string}
         onChange={() => hint && setHint(null)}
-        valid={!!hint}
+        valid={!hint}
       />
       <PasswordField
         data-testid="login_password"
