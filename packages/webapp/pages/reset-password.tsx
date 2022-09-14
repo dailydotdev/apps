@@ -1,7 +1,6 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
 import DailyCircle from '@dailydotdev/shared/src/components/DailyCircle';
 import Logo from '@dailydotdev/shared/src/components/Logo';
-import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useQuery, useMutation } from 'react-query';
 import {
