@@ -20,6 +20,7 @@ import {
 import useWindowEvents from './useWindowEvents';
 
 interface UseLogin {
+  isPasswordLoginLoading?: boolean;
   loginFlowData: InitializationData;
   loginHint?: ReturnType<typeof useState>;
   onSocialLogin: (provider: string) => void;
@@ -50,7 +51,7 @@ const useLogin = ({
       initializeKratosFlow(AuthFlow.Login, params),
     { enabled: queryEnabled },
   );
-  const { mutateAsync: onPasswordLogin } = useMutation(
+  const { mutateAsync: onPasswordLogin, isLoading } = useMutation(
     (params: ValidateLoginParams) => submitKratosFlow(params),
     {
       onSuccess: async ({ error }) => {
@@ -128,10 +129,11 @@ const useLogin = ({
     () => ({
       loginFlowData: login,
       loginHint: [hint, setHint],
+      isPasswordLoginLoading: isLoading,
       onSocialLogin: onSubmitSocialLogin,
       onPasswordLogin: onSubmitPasswordLogin,
     }),
-    [queryEnabled, queryParams, hint, login],
+    [queryEnabled, queryParams, hint, login, isLoading],
   );
 };
 
