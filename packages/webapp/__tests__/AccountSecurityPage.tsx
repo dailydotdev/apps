@@ -93,7 +93,7 @@ const verifySession = async (email = defaultLoggedUser.email) => {
   };
   mockKratosPost({ action, params }, verifiedLoginData);
   await act(async () => {
-    const submitLogin = await screen.findByText('Log in');
+    const submitLogin = await screen.findByText('Verify');
     fireEvent.click(submitLogin);
     await waitForNock();
     expect(refetchBoot).toHaveBeenCalled();
