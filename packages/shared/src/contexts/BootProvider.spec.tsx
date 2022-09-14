@@ -451,7 +451,7 @@ it('should trigger show login callback', async () => {
     ...defaultBootData,
     user: defaultAnonymousUser,
   });
-  const login = await screen.findByText('Login');
+  const login = await screen.findByText('Log in');
   expect(login).toHaveAttribute('data-test-value', 'null');
   fireEvent.click(login);
   expect(login).toHaveAttribute(
@@ -466,7 +466,7 @@ it('should trigger close login callback', async () => {
     ...defaultBootData,
     user: defaultAnonymousUser,
   });
-  const login = await screen.findByText('Login');
+  const login = await screen.findByText('Log in');
   const closeLogin = await screen.findByText('Close Login');
   expect(closeLogin).toHaveAttribute('data-test-value', 'null');
   fireEvent.click(login);
