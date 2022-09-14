@@ -15,6 +15,7 @@ interface LoginFormProps {
   email?: string;
   loginHint: ReturnType<typeof useState>;
   className?: string;
+  isLoading?: boolean;
 }
 
 export type LoginFormParams = Pick<
@@ -32,6 +33,7 @@ function LoginForm({
   email,
   loginHint: [hint, setHint],
   className,
+  isLoading,
 }: LoginFormProps): ReactElement {
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,8 +78,12 @@ function LoginForm({
           </ClickableText>
         )}
         <Button
-          className="flex-1 btn-primary bg-theme-color-cabbage text-theme-label-primary max-w-[9.375rem]"
+          className={classNames(
+            'flex-1 btn-primary text-theme-label-primary max-w-[9.375rem]',
+            !isLoading && 'bg-theme-color-cabbage',
+          )}
           type="submit"
+          disabled={isLoading}
         >
           Login
         </Button>

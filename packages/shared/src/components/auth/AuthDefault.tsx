@@ -26,6 +26,7 @@ interface AuthDefaultProps {
   providers: Provider[];
   disableRegistration?: boolean;
   disablePassword?: boolean;
+  isLoading?: boolean;
 }
 
 const AuthDefault = ({
@@ -39,6 +40,7 @@ const AuthDefault = ({
   providers,
   disableRegistration,
   disablePassword,
+  isLoading,
   title = 'Sign up to daily.dev',
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
@@ -82,6 +84,7 @@ const AuthDefault = ({
     if (!disablePassword && (shouldLogin || disableRegistration)) {
       return (
         <LoginForm
+          isLoading={isLoading}
           email={registerEmail}
           loginHint={loginHint}
           onPasswordLogin={onPasswordLogin}

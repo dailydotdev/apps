@@ -56,7 +56,9 @@ function AuthOptions({
     {},
   );
   const { refetchBoot, referral, closeLogin } = useContext(AuthContext);
-  const { loginHint, onPasswordLogin } = useLogin({ onSuccessfulLogin });
+  const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
+    onSuccessfulLogin,
+  });
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -144,6 +146,7 @@ function AuthOptions({
             onPasswordLogin={onPasswordLogin}
             loginHint={loginHint}
             isV2={isV2}
+            isLoading={isPasswordLoginLoading}
           />
         </Tab>
         <Tab label={Display.SocialRegistration}>
@@ -182,6 +185,7 @@ function AuthOptions({
               loginHint={loginHint}
               onPasswordLogin={onPasswordLogin}
               onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
+              isLoading={isPasswordLoginLoading}
             />
           </AuthSignBack>
         </Tab>
