@@ -4,6 +4,7 @@ import { TextField } from '../fields/TextField';
 import ArrowIcon from '../icons/Arrow';
 import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
+import { privacyPolicy, termsOfService } from '../../lib/constants';
 
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
@@ -44,7 +45,25 @@ function EmailSignupForm({
         </Button>
       )}
       <p className="text-center text-theme-label-quaternary typo-caption1">
-        By signing in I accept the Terms of Service and the Privacy Policy.
+        By signing up I accept the{' '}
+        <a
+          href={termsOfService}
+          target="_blank"
+          rel="noopener"
+          className="font-bold underline"
+        >
+          Terms of Service
+        </a>{' '}
+        and the{' '}
+        <a
+          href={privacyPolicy}
+          target="_blank"
+          rel="noopener"
+          className="font-bold underline"
+        >
+          Privacy Policy
+        </a>
+        .
       </p>
     </AuthForm>
   );
