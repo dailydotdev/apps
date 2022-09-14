@@ -101,7 +101,6 @@ export const RegistrationForm = ({
         />
         <PasswordField
           className="w-full"
-          leftIcon={<LockIcon />}
           name="password"
           inputId="password"
           label="Create a password"

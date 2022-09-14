@@ -7,14 +7,18 @@ import LogoIcon from '../svg/LogoIcon';
 
 interface LogoProps {
   className?: string;
+  logoClassName?: string;
   showGreeting?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  hideTextMobile?: boolean;
 }
 
 export default function Logo({
   className,
+  logoClassName = 'h-logo',
   showGreeting,
   onLogoClick,
+  hideTextMobile = false,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -28,14 +32,20 @@ export default function Logo({
         className={classNames('flex items-center', className)}
         onClick={onLogoClick}
       >
-        <LogoIcon className="h-logo" />
+        <LogoIcon className={logoClassName} />
         <CSSTransition
           in={!showGreeting}
           timeout={500}
           classNames="fade"
           unmountOnExit
         >
-          <LogoText className="hidden laptop:block ml-1 h-logo" />
+          <LogoText
+            className={classNames(
+              'ml-1',
+              logoClassName,
+              hideTextMobile && 'hidden laptop:block',
+            )}
+          />
         </CSSTransition>
       </a>
     </LinkWithTooltip>
