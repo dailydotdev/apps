@@ -50,7 +50,7 @@ function LoginForm({
       data-testid="login_form"
     >
       <TextField
-        leftIcon={<MailIcon />}
+        leftIcon={<MailIcon size="medium" />}
         inputId="identifier"
         name="identifier"
         label="Email"
