@@ -12,7 +12,6 @@ import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import TokenInput from './TokenField';
 import { AuthForm } from './common';
-import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 
 export interface RegistrationFormProps {
@@ -101,7 +100,6 @@ export const RegistrationForm = ({
         />
         <PasswordField
           className="w-full"
-          leftIcon={<LockIcon />}
           name="password"
           inputId="password"
           label="Create a password"

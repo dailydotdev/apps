@@ -3,6 +3,7 @@ import { passwordStrength } from 'check-password-strength';
 import { TextField, TextFieldProps } from './TextField';
 import EyeIcon from '../icons/Eye';
 import EyeCancelIcon from '../icons/EyeCancel';
+import LockIcon from '../icons/Lock';
 
 const passwordStrengthStates = {
   0: {
@@ -55,6 +56,7 @@ export function PasswordField({
       valueChanged={(value) =>
         setPasswordStrengthLevel(passwordStrength(value).id)
       }
+      leftIcon={<LockIcon />}
       hint={showStrength ? hint : props.hint}
       validityChanged={setIsValid}
       valid={isValid}
