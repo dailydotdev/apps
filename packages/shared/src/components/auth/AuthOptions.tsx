@@ -67,7 +67,12 @@ function AuthOptions({
   );
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
-  const { updateUserProfile, hint, onUpdateHint } = useProfileForm();
+  const {
+    updateUserProfile,
+    hint,
+    onUpdateHint,
+    isLoading: isProfileUpdateLoading,
+  } = useProfileForm();
 
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
@@ -164,6 +169,7 @@ function AuthOptions({
             isV2={isV2}
             onSignup={onSocialCompletion}
             hints={hint}
+            isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
           />
         </Tab>

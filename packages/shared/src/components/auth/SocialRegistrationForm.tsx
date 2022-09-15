@@ -30,6 +30,7 @@ export interface SocialRegistrationFormProps {
   onUpdateHints?: (errors: ProfileFormHint) => void;
   isV2?: boolean;
   onSignup?: (params: SocialRegistrationParameters) => void;
+  isLoading?: boolean;
 }
 
 export type SocialRegistrationFormValues = Omit<
@@ -47,6 +48,7 @@ export const SocialRegistrationForm = ({
   onClose,
   onSignup,
   isV2,
+  isLoading,
 }: SocialRegistrationFormProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
@@ -158,7 +160,15 @@ export const SocialRegistrationForm = ({
             }
           }}
         />
-        <Button className="mt-2 w-full bg-theme-color-cabbage">Sign up</Button>
+        <Button
+          className={classNames(
+            'mt-2 w-full btn-primary',
+            !isLoading && 'bg-theme-color-cabbage',
+          )}
+          disabled={isLoading}
+        >
+          Sign up
+        </Button>
       </AuthForm>
     </>
   );
