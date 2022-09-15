@@ -25,7 +25,7 @@ function AuthModalFooter({
         className="ml-1 text-theme-label-primary"
         onClick={() => onIsLogin(!isLogin)}
       >
-        {isLogin ? 'Register' : 'Login'}
+        {isLogin ? 'Register' : 'Log in'}
       </ClickableText>
     </div>
   );
