@@ -14,6 +14,7 @@ interface LoginFormProps {
   onPasswordLogin?: (params: LoginFormParams) => void;
   email?: string;
   loginHint: ReturnType<typeof useState>;
+  loginButton?: string;
   className?: string;
   isLoading?: boolean;
 }
@@ -32,6 +33,7 @@ function LoginForm({
   onPasswordLogin,
   email,
   loginHint: [hint, setHint],
+  loginButton = 'Log in',
   className,
   isLoading,
 }: LoginFormProps): ReactElement {
@@ -48,7 +50,7 @@ function LoginForm({
       data-testid="login_form"
     >
       <TextField
-        leftIcon={<MailIcon />}
+        leftIcon={<MailIcon size="medium" />}
         inputId="identifier"
         name="identifier"
         label="Email"
@@ -71,7 +73,7 @@ function LoginForm({
         {onForgotPassword && (
           <ClickableText
             type="button"
-            className="flex-1 btn-primary"
+            className="flex-1 underline btn-primary"
             onClick={onForgotPassword}
           >
             Forgot password?
@@ -79,13 +81,13 @@ function LoginForm({
         )}
         <Button
           className={classNames(
-            'flex-1 btn-primary text-theme-label-primary max-w-[9.375rem]',
+            'flex-1 btn-primary text-theme-label-primary',
             !isLoading && 'bg-theme-color-cabbage',
           )}
           type="submit"
           disabled={isLoading}
         >
-          Login
+          {loginButton}
         </Button>
       </span>
     </AuthForm>

@@ -44,6 +44,7 @@ function VerifySessionModal({
         onPasswordLogin={onPasswordLogin}
         onProviderClick={onSocialLogin}
         loginHint={[hint, setHint]}
+        loginButton="Verify"
       />
     </StyledModal>
   );
