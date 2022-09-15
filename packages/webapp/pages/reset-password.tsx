@@ -1,4 +1,5 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
+import classNames from 'classnames';
 import DailyCircle from '@dailydotdev/shared/src/components/DailyCircle';
 import Logo from '@dailydotdev/shared/src/components/Logo';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -22,6 +23,8 @@ import { PasswordField } from '@dailydotdev/shared/src/components/fields/Passwor
 function ResetPassword(): ReactElement {
   const router = useRouter();
   const [hint, setHint] = useState(null);
+  const [disabledWhileRedirecting, setDisabledWhileRedirecting] =
+    useState(false);
   const { data } = useQuery(
     'settings',
     () => getKratosFlow(AuthFlow.Settings, router.query.flow as string),
@@ -31,11 +34,12 @@ function ResetPassword(): ReactElement {
       enabled: !!router.query.flow,
     },
   );
-  const { mutateAsync: reset } = useMutation(
+  const { mutateAsync: reset, isLoading } = useMutation(
     (params: ValidateRegistrationParams) => submitKratosFlow(params),
     {
       onSuccess: ({ error, data: success }) => {
         if (success) {
+          setDisabledWhileRedirecting(true);
           return window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
         }
 
@@ -90,7 +94,14 @@ function ResetPassword(): ReactElement {
           onChange={() => hint && setHint('')}
           hint={hint}
         />
-        <Button className="mt-7 w-full bg-theme-color-cabbage" type="submit">
+        <Button
+          className={classNames(
+            'mt-7 w-full btn-primary',
+            !isLoading && 'bg-theme-color-cabbage',
+          )}
+          type="submit"
+          disabled={isLoading || disabledWhileRedirecting}
+        >
           Change password
         </Button>
       </form>
