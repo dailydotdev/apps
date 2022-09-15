@@ -22,10 +22,10 @@ function AuthModalFooter({
     >
       {isLogin ? 'Not yet a member?' : 'Already a member?'}
       <ClickableText
-        className="ml-1 text-theme-label-primary"
+        className="ml-1 underline text-theme-label-primary"
         onClick={() => onIsLogin(!isLogin)}
       >
-        {isLogin ? 'Register' : 'Log in'}
+        {isLogin ? 'Sign up' : 'Log in'}
       </ClickableText>
     </div>
   );

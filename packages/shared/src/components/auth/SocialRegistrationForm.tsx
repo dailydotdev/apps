@@ -152,7 +152,7 @@ export const SocialRegistrationForm = ({
             }
           }}
         />
-        <Button className="mt-2 ml-auto bg-theme-color-cabbage">Signup</Button>
+        <Button className="mt-2 w-full bg-theme-color-cabbage">Sign up</Button>
       </AuthForm>
     </>
   );
