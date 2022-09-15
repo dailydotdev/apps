@@ -44,7 +44,7 @@ const AuthDefault = ({
   disableRegistration,
   disablePassword,
   isLoading,
-  title = 'Sign up to daily.dev',
+  title = isV2 ? 'Log in to daily.dev' : 'Sign up to daily.dev',
   loginButton,
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(
@@ -138,7 +138,7 @@ const AuthDefault = ({
         {getOrDivider()}
         {getForm()}
         {isV2 && (
-          <div className="flex flex-row gap-5 mt-10">
+          <div className="flex flex-row gap-5 justify-center mt-10">
             {providers.map(({ provider, ...props }) => (
               <ProviderButton
                 key={provider}
