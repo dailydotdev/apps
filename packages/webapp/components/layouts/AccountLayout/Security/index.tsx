@@ -176,7 +176,6 @@ function AccountSecurityDefault({
             inputId="new_password"
             label="Password"
             name="password"
-            showStrength={false}
           />
           <Button type="submit" className="mt-6 w-fit btn-secondary">
             Set password
