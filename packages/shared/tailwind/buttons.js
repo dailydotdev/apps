@@ -25,6 +25,7 @@ const variations = {
         'border-color': 'var(--theme-label-primary)',
       },
       disabled: {
+        color: 'var(--theme-label-tertiary)',
         background: color
           ? `${colors[color]['10']}33`
           : `${colors.salt['90']}33`,
@@ -41,6 +42,7 @@ const variations = {
         background: color ? colors[color]['90'] : colors.pepper['10'],
       },
       disabled: {
+        color: 'var(--theme-label-tertiary)',
         background: color
           ? `${colors[color]['90']}33`
           : `${colors.pepper['10']}33`,
