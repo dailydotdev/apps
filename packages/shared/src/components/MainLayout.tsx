@@ -31,6 +31,7 @@ import useWindowEvents from '../hooks/useWindowEvents';
 import {
   AuthEvent,
   AuthFlow,
+  ErrorData,
   ErrorEvent,
   getKratosError,
   getKratosFlow,
@@ -154,7 +155,8 @@ export default function MainLayout({
       enabled: !!router?.query.recovery && !!router?.query.flow,
       onSuccess: (data) => {
         if ('error' in data) {
-          displayErrorMessage(data.error.message);
+          const errorData = data as unknown as ErrorData;
+          displayErrorMessage(errorData.error.message);
           return;
         }
 
