@@ -100,7 +100,12 @@ export const SocialRegistrationForm = ({
         onSubmit={onSubmit}
         data-testid="registration_form"
       >
-        <ImageInput initialValue={user?.image} size="large" viewOnly />
+        <ImageInput
+          className="mb-4"
+          initialValue={user?.image}
+          size="large"
+          viewOnly
+        />
         <TextField
           saveHintSpace
           className="w-full"
