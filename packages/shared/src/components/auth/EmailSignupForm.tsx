@@ -25,7 +25,7 @@ function EmailSignupForm({
         label="Email"
         type="email"
         name="email"
-        onInput={(e) => setEmail(e.currentTarget.value)}
+        valueChanged={(value) => setEmail(value)}
         actionButton={
           !isV2 && (
             <Button
