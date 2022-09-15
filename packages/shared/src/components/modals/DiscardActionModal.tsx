@@ -9,20 +9,24 @@ import {
 } from './ConfirmationModal';
 
 export interface DiscardActionModalProps extends ModalProps {
-  onDiscard: (event: MouseEvent) => void;
   title?: string;
   description?: string;
   leftButtonText?: string;
+  leftButtonAction?: (event: MouseEvent) => void;
   rightButtonText?: string;
+  rightButtonAction?: (event: MouseEvent) => void;
+  rightButtonClass?: string;
 }
 
 export default function DiscardActionModal({
-  onDiscard,
+  rightButtonAction,
   onRequestClose,
+  leftButtonAction = onRequestClose,
   title = 'Discard comment',
   description = 'Are you sure you want to close and discard your comment?',
   leftButtonText = 'Stay',
   rightButtonText = 'Discard',
+  rightButtonClass = 'btn-primary-ketchup',
   ...props
 }: DiscardActionModalProps): ReactElement {
   return (
@@ -30,10 +34,10 @@ export default function DiscardActionModal({
       <ConfirmationHeading>{title}</ConfirmationHeading>
       <ConfirmationDescription>{description}</ConfirmationDescription>
       <ConfirmationButtons>
-        <Button className="btn-secondary" onClick={onRequestClose}>
+        <Button className="btn-secondary" onClick={leftButtonAction}>
           {leftButtonText}
         </Button>
-        <Button className="btn-primary-ketchup" onClick={onDiscard}>
+        <Button className={rightButtonClass} onClick={rightButtonAction}>
           {rightButtonText}
         </Button>
       </ConfirmationButtons>
