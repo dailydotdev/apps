@@ -30,6 +30,7 @@ export interface SocialRegistrationFormProps {
   onUpdateHints?: (errors: ProfileFormHint) => void;
   isV2?: boolean;
   onSignup?: (params: SocialRegistrationParameters) => void;
+  isLoading?: boolean;
 }
 
 export type SocialRegistrationFormValues = Omit<
@@ -47,6 +48,7 @@ export const SocialRegistrationForm = ({
   onClose,
   onSignup,
   isV2,
+  isLoading,
 }: SocialRegistrationFormProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
@@ -77,10 +79,11 @@ export const SocialRegistrationForm = ({
     if (providerMap[providerI]) {
       return React.cloneElement(providerMap[providerI].icon, {
         secondary: false,
+        size: 'medium',
       });
     }
 
-    return <MailIcon />;
+    return <MailIcon size="medium" />;
   };
 
   if (!user?.email) {
@@ -100,7 +103,12 @@ export const SocialRegistrationForm = ({
         onSubmit={onSubmit}
         data-testid="registration_form"
       >
-        <ImageInput initialValue={user?.image} size="large" viewOnly />
+        <ImageInput
+          className="mb-4"
+          initialValue={user?.image}
+          size="large"
+          viewOnly
+        />
         <TextField
           saveHintSpace
           className="w-full"
@@ -116,7 +124,7 @@ export const SocialRegistrationForm = ({
         <TextField
           saveHintSpace
           className="w-full"
-          leftIcon={<UserIcon />}
+          leftIcon={<UserIcon size="medium" />}
           name="name"
           inputId="name"
           label="Full name"
@@ -135,7 +143,7 @@ export const SocialRegistrationForm = ({
         <TextField
           saveHintSpace
           className="w-full"
-          leftIcon={<AtIcon secondary />}
+          leftIcon={<AtIcon size="medium" secondary />}
           name="username"
           inputId="username"
           label="Enter a username"
@@ -152,7 +160,15 @@ export const SocialRegistrationForm = ({
             }
           }}
         />
-        <Button className="mt-2 w-full bg-theme-color-cabbage">Sign up</Button>
+        <Button
+          className={classNames(
+            'mt-2 w-full btn-primary',
+            !isLoading && 'bg-theme-color-cabbage',
+          )}
+          disabled={isLoading}
+        >
+          Sign up
+        </Button>
       </AuthForm>
     </>
   );
