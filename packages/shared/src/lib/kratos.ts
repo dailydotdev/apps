@@ -191,7 +191,7 @@ interface KratosError {
   code: number;
   message: string;
   reason: string;
-  debug: string;
+  debug?: string;
 }
 
 export interface ErrorData {
@@ -351,4 +351,8 @@ export const getKratosSession = async (): Promise<AuthSession> => {
   }
 
   return res.json();
+};
+
+export const KRATOS_ERROR = {
+  INVALID_TOKEN: 4060004,
 };

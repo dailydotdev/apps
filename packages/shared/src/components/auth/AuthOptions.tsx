@@ -176,6 +176,7 @@ function AuthOptions({
             isV2={isV2}
             onSignup={onRegister}
             hints={registrationHints}
+            onUpdateHints={setRegistrationHints}
             token={
               registration && getNodeValue('csrf_token', registration.ui.nodes)
             }
