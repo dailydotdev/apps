@@ -191,7 +191,7 @@ interface KratosError {
   code: number;
   message: string;
   reason: string;
-  debug: string;
+  debug?: string;
 }
 
 export interface ErrorData {
@@ -231,7 +231,7 @@ export const initializeKratosFlow = async (
 export const getKratosFlow = async (
   flow: AuthFlow,
   id: string,
-): Promise<InitializationData> => {
+): Promise<InitializationData | ErrorData> => {
   const res = await fetch(`${authUrl}/self-service${flow}?flow=${id}`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
@@ -351,4 +351,8 @@ export const getKratosSession = async (): Promise<AuthSession> => {
   }
 
   return res.json();
+};
+
+export const KRATOS_ERROR = {
+  INVALID_TOKEN: 4060004,
 };
