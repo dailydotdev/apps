@@ -51,7 +51,7 @@ function IncompleteRegistrationModal({
       contentClassName="flex flex-col"
       style={{ content: { overflow: 'hidden' } }}
     >
-      <header className="flex relative justify-between items-center p-3 w-full border-b border-theme-divider-tertiary">
+      <header className="flex relative justify-between items-center p-4 w-full border-b border-theme-divider-tertiary">
         <span className="ml-2 font-bold typo-body">Set your timezone</span>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
