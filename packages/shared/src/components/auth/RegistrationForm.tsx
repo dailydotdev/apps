@@ -12,7 +12,6 @@ import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import TokenInput from './TokenField';
 import { AuthForm } from './common';
-import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 
 export interface RegistrationFormProps {
@@ -101,7 +100,6 @@ export const RegistrationForm = ({
         />
         <PasswordField
           className="w-full"
-          leftIcon={<LockIcon />}
           name="password"
           inputId="password"
           label="Create a password"
@@ -124,7 +122,7 @@ export const RegistrationForm = ({
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        <Button className="mt-2 ml-auto bg-theme-color-cabbage">Signup</Button>
+        <Button className="mt-2 w-full bg-theme-color-cabbage">Sign up</Button>
       </AuthForm>
     </>
   );
