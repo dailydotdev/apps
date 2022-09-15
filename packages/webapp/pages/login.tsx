@@ -9,24 +9,24 @@ function Login(): ReactElement {
 
   return (
     <div className="flex relative flex-col py-7 px-10 h-screen">
-      <header>
+      <header className="flex justify-center laptop:justify-start">
         <Logo showGreeting={false} />
       </header>
-      <main className="flex flex-row flex-1 items-center mx-0 tablet:mx-8 laptopL:mx-32 h-full">
-        <div className=" flex flex-row max-w-full">
+      <main className="flex flex-col tablet:flex-row flex-1 justify-center tablet:justify-start items-center laptop:items-center mx-0 tablet:mx-8 laptopL:mx-32 h-full">
+        <div className=" flex flex-col-reverse laptop:flex-row max-w-full">
           <AuthOptions
             className="h-full max-h-[40rem] min-h-[40rem]"
             formRef={formRef}
           />
 
-          <AuthModalHeading className="hidden laptop:block z-1 ml-32 typo-mega1">
+          <AuthModalHeading className="hidden tablet:block z-1 mb-10 laptop:mb-0 laptop:ml-32 typo-title1 laptop:typo-mega1">
             Where developer
             <br />
             grow together.
           </AuthModalHeading>
         </div>
 
-        <picture className="flex object-contain absolute right-0 z-0 items-center h-full max-h-[calc(100vh-1.5rem)] laptopXL:max-h-[52.875rem]">
+        <picture className="flex object-contain absolute right-0 z-0 items-end laptop:items-center h-full max-h-[calc(100vh-1.5rem)] laptopXL:max-h-[52.875rem]">
           <source media="(min-width: 1020px)" srcSet="/login.png" />
           <img
             src="/login_small.png"
