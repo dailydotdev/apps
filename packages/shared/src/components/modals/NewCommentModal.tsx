@@ -198,7 +198,7 @@ export default function NewCommentModal({
       <DiscardActionModal
         isOpen={showDiscardModal}
         onRequestClose={() => setShowDiscardModal(false)}
-        leftButtonAction={onRequestClose}
+        rightButtonAction={onRequestClose}
         shouldCloseOnOverlayClick={false}
         parentSelector={props.parentSelector}
       />
