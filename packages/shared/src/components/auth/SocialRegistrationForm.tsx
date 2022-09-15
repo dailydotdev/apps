@@ -77,10 +77,11 @@ export const SocialRegistrationForm = ({
     if (providerMap[providerI]) {
       return React.cloneElement(providerMap[providerI].icon, {
         secondary: false,
+        size: 'medium',
       });
     }
 
-    return <MailIcon />;
+    return <MailIcon size="medium" />;
   };
 
   if (!user?.email) {
@@ -121,7 +122,7 @@ export const SocialRegistrationForm = ({
         <TextField
           saveHintSpace
           className="w-full"
-          leftIcon={<UserIcon />}
+          leftIcon={<UserIcon size="medium" />}
           name="name"
           inputId="name"
           label="Full name"
@@ -140,7 +141,7 @@ export const SocialRegistrationForm = ({
         <TextField
           saveHintSpace
           className="w-full"
-          leftIcon={<AtIcon secondary />}
+          leftIcon={<AtIcon size="medium" secondary />}
           name="username"
           inputId="username"
           label="Enter a username"
