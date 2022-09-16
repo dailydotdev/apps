@@ -25,7 +25,7 @@ function DailyCircle({
       className={classNames('rounded-full', sizeMap[size], className)}
       style={{
         background: 'linear-gradient(135deg, #E436FE, #1B3C67)',
-        filter: 'drop-shadow(-32px -12px 12px rgba(198, 55, 231, 0.32))',
+        filter: 'drop-shadow(-32px -12px 32px rgba(198, 55, 231, 0.68))',
       }}
     />
   );
