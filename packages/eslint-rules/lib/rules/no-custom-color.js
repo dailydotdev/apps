@@ -9,6 +9,7 @@ const alwaysValidClasses = [
   'text-xl',
   'text-ellipsis',
   'bg-none',
+  'bg-gradient-to-r',
 ];
 const findTargetClassNames = (classNames) => {
   if (!classNames) {
