@@ -88,7 +88,7 @@ export default function AuthModal({
         onClose={onDiscardAttempt}
         formRef={formRef}
         onSuccessfulLogin={closeLogin}
-        onShowOptionsOnly={() => setShowOptionsOnly(true)}
+        onShowOptionsOnly={(value: boolean) => setShowOptionsOnly(value)}
       />
       {isDiscardOpen && (
         <DiscardActionModal
