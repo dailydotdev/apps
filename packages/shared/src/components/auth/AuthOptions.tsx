@@ -92,7 +92,7 @@ function AuthOptions({
       key: 'registration_form',
       onValidRegistration: () => {
         refetchBoot();
-        onShowOptionsOnly(true);
+        onVerificationSent?.(true);
         setActiveDisplay(Display.EmailSent);
       },
       onInvalidRegistration: setRegistrationHints,
