@@ -81,7 +81,7 @@ function AuthOptions({
       key: 'registration_form',
       onValidRegistration: () => {
         refetchBoot();
-        onVerificationSent();
+        onVerificationSent?.();
         setActiveDisplay(Display.EmailSent);
       },
       onInvalidRegistration: setRegistrationHints,
