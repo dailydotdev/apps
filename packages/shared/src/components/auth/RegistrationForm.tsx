@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { MutableRefObject, ReactElement } from 'react';
+import React, { MutableRefObject, ReactElement, useState } from 'react';
 import { RegistrationError, RegistrationParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
@@ -42,15 +42,32 @@ export const RegistrationForm = ({
   hints,
   onUpdateHints,
 }: RegistrationFormProps): ReactElement => {
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitted(true);
     const form = e.target as HTMLFormElement;
     const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
+
+    if (!values['traits.name']?.length || !values['traits.username']?.length) {
+      const setHints = { ...hints };
+
+      if (!values['traits.name']?.length) {
+        setHints['traits.name'] = 'Please provide name.';
+      }
+      if (!values['traits.username']?.length) {
+        setHints['traits.username'] = 'Please provide username.';
+      }
+
+      onUpdateHints(setHints);
+      return;
+    }
+
     onSignup(values);
   };
 
-  const isNameValid = !hints?.['traits.name'];
-  const isUsernameValid = !hints?.['traits.username'];
+  const isNameValid = !hints?.['traits.name'] && isSubmitted;
+  const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
 
   return (
     <>
@@ -90,7 +107,7 @@ export const RegistrationForm = ({
           inputId="traits.name"
           label="Full name"
           hint={hints?.['traits.name']}
-          onChange={() =>
+          valueChanged={() =>
             hints?.['traits.name'] &&
             onUpdateHints({ ...hints, 'traits.name': '' })
           }
@@ -113,11 +130,10 @@ export const RegistrationForm = ({
           inputId="traits.username"
           label="Enter a username"
           hint={hints?.['traits.username']}
-          onChange={() =>
+          valueChanged={() =>
             hints?.['traits.username'] &&
             onUpdateHints({ ...hints, 'traits.username': '' })
           }
-          minLength={1}
           rightIcon={
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
