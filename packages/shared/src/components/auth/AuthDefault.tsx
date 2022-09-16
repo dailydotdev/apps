@@ -51,6 +51,8 @@ const AuthDefault = ({
     isForgotPasswordReturn || isV2,
   );
 
+  const useTitle = shouldLogin ? 'Log in to daily.dev' : title;
+
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
     checkKratosEmail(emailParam),
@@ -114,7 +116,7 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthModalHeader title={title} onClose={onClose} />
+      <AuthModalHeader title={useTitle} onClose={onClose} />
       <ColumnContainer className={disableRegistration && 'mb-6'}>
         {isV2 && (
           <AuthModalHeading
@@ -129,7 +131,7 @@ const AuthDefault = ({
             <ProviderButton
               key={provider}
               provider={provider}
-              label="Connect with"
+              label={shouldLogin ? 'Log in with' : 'Sign up with'}
               className="mb-1"
               onClick={() => onSocialClick(provider.toLowerCase())}
               {...props}
