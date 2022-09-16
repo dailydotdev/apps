@@ -5,7 +5,7 @@ import DiscardActionModal, {
 } from './DiscardActionModal';
 
 const onRequestClose = jest.fn();
-const onDiscard = jest.fn();
+const rightButtonAction = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -18,7 +18,7 @@ const renderComponent = (
     isOpen: true,
     ariaHideApp: false,
     onRequestClose,
-    onDiscard,
+    rightButtonAction,
   };
 
   return render(<DiscardActionModal {...defaultProps} {...props} />);
@@ -28,5 +28,5 @@ it('should confirm comment delete', async () => {
   renderComponent();
   const el = await screen.findByText('Discard');
   el.click();
-  expect(onDiscard).toBeCalledTimes(1);
+  expect(rightButtonAction).toBeCalledTimes(1);
 });

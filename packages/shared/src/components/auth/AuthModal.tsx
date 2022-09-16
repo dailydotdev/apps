@@ -87,13 +87,15 @@ export default function AuthModal({
       {isDiscardOpen && (
         <DiscardActionModal
           isOpen={isDiscardOpen}
-          onDiscard={onRequestClose}
+          rightButtonAction={onDiscardCancelled}
+          leftButtonAction={onRequestClose}
           parentSelector={() => container}
           onRequestClose={onDiscardCancelled}
           title="Discard changes?"
           description="If you leave your changes will not be saved"
-          leftButtonText="Stay"
-          rightButtonText="Leave"
+          leftButtonText="Leave"
+          rightButtonText="Stay"
+          rightButtonClass="btn-primary-cabbage"
         />
       )}
     </StyledModal>
