@@ -36,6 +36,7 @@ function ForgotPasswordForm({
   onClose,
 }: ForgotPasswordFormProps): ReactElement {
   const [hint, setHint] = useState('');
+  const [successHint, setSuccessHint] = useState('');
   const [sentCount, setSentCount] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
   const { timer, setTimer, runTimer } = useTimer(() => setEmailSent(false), 0);
@@ -55,6 +56,7 @@ function ForgotPasswordForm({
           return setHint(message);
         }
 
+        setSuccessHint('We have sent you a password reset link.');
         setTimer(60);
         runTimer();
         setSentCount((value) => value + 1);
@@ -101,7 +103,7 @@ function ForgotPasswordForm({
           inputId="email"
           label="Email"
           defaultValue={initialEmail}
-          hint={hint}
+          hint={hint || successHint}
           valid={!hint}
           onChange={() => hint && setHint('')}
           leftIcon={<MailIcon />}
