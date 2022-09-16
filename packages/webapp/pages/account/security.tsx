@@ -40,7 +40,7 @@ const AccountSecurityPage = (): ReactElement => {
   );
 
   const onSetPassword = () => {
-    displayToast('Password reset successful!');
+    displayToast('Password changed successfully!');
     updatePasswordRef.current.reset();
   };
 

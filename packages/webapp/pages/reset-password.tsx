@@ -19,9 +19,11 @@ import {
   submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 
 function ResetPassword(): ReactElement {
   const router = useRouter();
+  const { displayToast } = useToastNotification();
   const [hint, setHint] = useState(null);
   const [disabledWhileRedirecting, setDisabledWhileRedirecting] =
     useState(false);
@@ -40,6 +42,7 @@ function ResetPassword(): ReactElement {
       onSuccess: ({ error, data: success }) => {
         if (success) {
           setDisabledWhileRedirecting(true);
+          displayToast('Password changed successfully');
           return window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
         }
 
