@@ -34,4 +34,10 @@
       max-width: 35rem;
     }
   }
+
+  & :global(.auth.v4) {
+    @screen laptop {
+      max-width: 25.75rem;
+    }
+  }
 }
