@@ -69,8 +69,7 @@ function ResetPassword(): ReactElement {
   };
 
   return (
-    // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
-    <div className="flex overflow-hidden relative flex-col items-center w-screen max-w-full h-screen bg-gradient-to-bl from-[#EF43FD32] to-[#6451F332]">
+    <div className="flex overflow-hidden relative flex-col items-center w-screen max-w-full h-screen bg-gradient-to-r to-theme-overlay-to from-theme-overlay-from">
       <DailyCircle className="hidden laptop:block absolute left-20" />
       <Logo className="mt-16 h-fit" logoClassName="h-logo-big" />
       <form

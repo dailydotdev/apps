@@ -49,13 +49,14 @@ function IncompleteRegistrationModal({
       {...props}
       onRequestClose={onRequestClose}
       contentClassName="flex flex-col"
+      style={{ content: { overflow: 'hidden' } }}
     >
-      <header className="flex relative justify-between items-center p-3 w-full border-b border-theme-divider-tertiary">
-        <span className="font-bold typo-body">Set your timezone</span>
+      <header className="flex relative justify-between items-center p-4 w-full border-b border-theme-divider-tertiary">
+        <span className="ml-2 font-bold typo-body">Set your timezone</span>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
-      <div className="flex flex-col items-center py-8">
-        <p className="px-9 typo-body text-theme-label-secondary">
+      <div className="flex flex-col items-center py-8 px-4">
+        <p className="px-9 text-center typo-body text-theme-label-secondary">
           Used to calculate your weekly {`goal's`} cycle and other time-based
           activities.
         </p>
@@ -69,9 +70,9 @@ function IncompleteRegistrationModal({
           scrollable
           menuClassName="menu-secondary"
         />
-        <Background className="my-7 w-full h-72" />
+        <Background className="my-7 -ml-20 tablet:ml-0 w-full h-60 laptop:h-72 max-h-" />
         <Button
-          className="btn-primary bg-theme-color-cabbage text-theme-label-invert"
+          className="btn-primary bg-theme-color-cabbage"
           onClick={onComplete}
           disabled={submitDisabled}
         >
