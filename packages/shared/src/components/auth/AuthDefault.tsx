@@ -44,12 +44,14 @@ const AuthDefault = ({
   disableRegistration,
   disablePassword,
   isLoading,
-  title = 'Sign up to daily.dev',
+  title = isV2 ? 'Log in to daily.dev' : 'Sign up to daily.dev',
   loginButton,
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(
     isForgotPasswordReturn || isV2,
   );
+
+  const useTitle = shouldLogin ? 'Log in to daily.dev' : title;
 
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
@@ -114,7 +116,7 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthModalHeader title={title} onClose={onClose} />
+      <AuthModalHeader title={useTitle} onClose={onClose} />
       <ColumnContainer className={disableRegistration && 'mb-6'}>
         {isV2 && (
           <AuthModalHeading
@@ -129,7 +131,7 @@ const AuthDefault = ({
             <ProviderButton
               key={provider}
               provider={provider}
-              label="Connect with"
+              label={shouldLogin ? 'Log in with' : 'Sign up with'}
               className="mb-1"
               onClick={() => onSocialClick(provider.toLowerCase())}
               {...props}
@@ -138,7 +140,7 @@ const AuthDefault = ({
         {getOrDivider()}
         {getForm()}
         {isV2 && (
-          <div className="flex flex-row gap-5 mt-10">
+          <div className="flex flex-row gap-5 justify-center mt-10">
             {providers.map(({ provider, ...props }) => (
               <ProviderButton
                 key={provider}
