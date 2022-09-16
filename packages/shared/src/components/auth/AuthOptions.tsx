@@ -40,7 +40,7 @@ export enum Display {
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   onSuccessfulLogin?: () => unknown;
-  onVerificationSent?: () => unknown;
+  onShowOptionsOnly?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
   defaultDisplay?: Display;
   className?: string;
@@ -51,7 +51,7 @@ function AuthOptions({
   onSuccessfulLogin,
   className,
   formRef,
-  onVerificationSent,
+  onShowOptionsOnly,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
@@ -81,7 +81,7 @@ function AuthOptions({
       key: 'registration_form',
       onValidRegistration: () => {
         refetchBoot();
-        onVerificationSent();
+        onShowOptionsOnly();
         setActiveDisplay(Display.EmailSent);
       },
       onInvalidRegistration: setRegistrationHints,
