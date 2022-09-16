@@ -49,7 +49,11 @@ export default function AuthModal({
       overlayRef={onContainerChange}
       onRequestClose={onDiscardAttempt}
       className={classNames(styles.authModal, className)}
-      contentClassName={classNames('auth', authVersion)}
+      contentClassName={classNames(
+        'auth',
+        authVersion,
+        (authVersion === 'v4' || showOptionsOnly) && 'hiddenHeadings',
+      )}
       style={{}}
     >
       {isV1 && !showOptionsOnly && (
