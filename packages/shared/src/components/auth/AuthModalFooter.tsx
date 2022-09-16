@@ -20,7 +20,7 @@ function AuthModalFooter({
         className,
       )}
     >
-      {isLogin ? 'Not yet a member?' : 'Already a member?'}
+      {isLogin ? 'Don’t have an account?' : 'Already have an account?'}
       <ClickableText
         className="ml-1 underline text-theme-label-primary"
         onClick={() => onIsLogin(!isLogin)}
