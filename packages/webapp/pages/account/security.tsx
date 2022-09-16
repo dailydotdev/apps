@@ -33,7 +33,7 @@ const AccountSecurityPage = (): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const { data: userProviders, refetch: refetchProviders } = useQuery(
     'providers',
-    getKratosProviders,
+    () => getKratosProviders(),
   );
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
