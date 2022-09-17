@@ -114,6 +114,7 @@ function AuthOptions({
           e.data.flow,
         );
         const user = {
+          provider: chosenProvider,
           name: getNodeValue('traits.name', connected.ui.nodes),
           email: getNodeValue('traits.email', connected.ui.nodes),
           image: getNodeValue('traits.image', connected.ui.nodes),

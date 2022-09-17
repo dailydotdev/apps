@@ -8,6 +8,7 @@ export interface ConnectedUser {
   name: string;
   email: string;
   image: string;
+  provider: string;
 }
 
 interface ConnectedUserModalProps {
