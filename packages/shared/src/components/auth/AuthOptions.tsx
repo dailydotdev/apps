@@ -254,7 +254,7 @@ function AuthOptions({
           <AuthModalHeader title="Account already exists" onClose={onClose} />
           {connectedUser && (
             <ConnectedUserModal
-              flowId={email}
+              flowId={registration?.id}
               user={connectedUser}
               onLogin={onShowLogin}
             />
