@@ -57,10 +57,8 @@ const mockRegistraitonValidationFlow = (
     .reply(responseCode, result);
 };
 
-const onSelectedProvider = jest.fn();
 const renderComponent = (
   props: AuthOptionsProps = {
-    onSelectedProvider,
     formRef: null,
   },
 ): RenderResult => {

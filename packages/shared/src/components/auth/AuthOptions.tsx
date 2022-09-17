@@ -118,7 +118,7 @@ function AuthOptions({
           email: getNodeValue('traits.email', connected.ui.nodes),
           image: getNodeValue('traits.image', connected.ui.nodes),
         };
-        onShowOptionsOnly(true);
+        onShowOptionsOnly?.(true);
         setConnectedUser(user);
         return setActiveDisplay(Display.ConnectedUser);
       }
