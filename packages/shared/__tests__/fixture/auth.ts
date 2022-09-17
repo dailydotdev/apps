@@ -1376,6 +1376,6 @@ export const mockListProviders = (
   result: string[] = ['facebook', 'github', 'apple'],
 ): void => {
   nock(heimdallUrl)
-    .post('/api/list_providers')
+    .post('/api/list_providers?')
     .reply(200, { ok: true, result });
 };
