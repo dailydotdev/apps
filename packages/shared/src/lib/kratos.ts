@@ -292,10 +292,13 @@ export interface KratosProviderData {
   result: string[];
 }
 
-export const getKratosProviders = async (): Promise<KratosProviderData> => {
-  const res = await fetch(`${heimdallUrl}/api/list_providers`, {
+export const getKratosProviders = async (
+  flow?: string,
+): Promise<KratosProviderData> => {
+  const search = flow ? new URLSearchParams({ flow }) : '';
+  const res = await fetch(`${heimdallUrl}/api/list_providers?${search}`, {
     credentials: 'include',
-    method: 'POST',
+    method: flow ? 'GET' : 'POST',
   });
   return res.json();
 };

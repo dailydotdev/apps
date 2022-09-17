@@ -28,7 +28,7 @@ export default function AuthModal({
   children,
   ...props
 }: AuthModalProps): ReactElement {
-  const [isVerificationSent, setIsVerificationSent] = useState(false);
+  const [showOptionsOnly, setShowOptionsOnly] = useState(false);
   const { authVersion } = useContext(FeaturesContext);
   const { closeLogin } = useContext(AuthContext);
   const {
@@ -49,10 +49,14 @@ export default function AuthModal({
       overlayRef={onContainerChange}
       onRequestClose={onDiscardAttempt}
       className={classNames(styles.authModal, className)}
-      contentClassName={classNames('auth', authVersion)}
+      contentClassName={classNames(
+        'auth',
+        authVersion,
+        (authVersion === 'v4' || showOptionsOnly) && 'hiddenHeadings',
+      )}
       style={{}}
     >
-      {isV1 && !isVerificationSent && (
+      {isV1 && !showOptionsOnly && (
         <>
           <div className="hidden laptop:flex z-1 flex-col flex-1 gap-5 p-10 h-full">
             <AuthModalHeading className="typo-giga1">
@@ -84,7 +88,7 @@ export default function AuthModal({
         onClose={onDiscardAttempt}
         formRef={formRef}
         onSuccessfulLogin={closeLogin}
-        onVerificationSent={() => setIsVerificationSent(true)}
+        onShowOptionsOnly={(value: boolean) => setShowOptionsOnly(value)}
       />
       {isDiscardOpen && (
         <DiscardActionModal

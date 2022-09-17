@@ -19,7 +19,12 @@ import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthEvent, SocialRegistrationFlow } from '../../lib/kratos';
+import {
+  AuthEvent,
+  AuthFlow,
+  getKratosFlow,
+  SocialRegistrationFlow,
+} from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
 import useLogin from '../../hooks/useLogin';
@@ -27,6 +32,9 @@ import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import { logout } from '../../lib/user';
+import ConnectedUserModal, {
+  ConnectedUser as RegistrationConnectedUser,
+} from '../modals/ConnectedUser';
 
 export enum Display {
   Default = 'default',
@@ -35,12 +43,13 @@ export enum Display {
   SignBack = 'sign_back',
   ForgotPassword = 'forgot_password',
   EmailSent = 'email_sent',
+  ConnectedUser = 'connected_user',
 }
 
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   onSuccessfulLogin?: () => unknown;
-  onVerificationSent?: () => unknown;
+  onShowOptionsOnly?: (value: boolean) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
   defaultDisplay?: Display;
   className?: string;
@@ -51,7 +60,7 @@ function AuthOptions({
   onSuccessfulLogin,
   className,
   formRef,
-  onVerificationSent,
+  onShowOptionsOnly,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
@@ -64,6 +73,8 @@ function AuthOptions({
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
+  const [connectedUser, setConnectedUser] =
+    useState<RegistrationConnectedUser>();
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
@@ -81,7 +92,7 @@ function AuthOptions({
       key: 'registration_form',
       onValidRegistration: () => {
         refetchBoot();
-        onVerificationSent?.();
+        onShowOptionsOnly?.(true);
         setActiveDisplay(Display.EmailSent);
       },
       onInvalidRegistration: setRegistrationHints,
@@ -97,13 +108,27 @@ function AuthOptions({
     'message',
     AuthEvent.SocialRegistration,
     async (e) => {
+      if (e.data?.flow) {
+        const connected = await getKratosFlow(
+          AuthFlow.Registration,
+          e.data.flow,
+        );
+        const user = {
+          provider: chosenProvider,
+          name: getNodeValue('traits.name', connected.ui.nodes),
+          email: getNodeValue('traits.email', connected.ui.nodes),
+          image: getNodeValue('traits.image', connected.ui.nodes),
+        };
+        onShowOptionsOnly?.(true);
+        setConnectedUser(user);
+        return setActiveDisplay(Display.ConnectedUser);
+      }
       if (!e.data?.social_registration) {
         await refetchBoot();
-        onSuccessfulLogin?.();
-        return;
+        return onSuccessfulLogin?.();
       }
 
-      setActiveDisplay(Display.SocialRegistration);
+      return setActiveDisplay(Display.SocialRegistration);
     },
   );
 
@@ -135,6 +160,11 @@ function AuthOptions({
   const onForgotPasswordBack = () => {
     setIsForgotPasswordReturn(true);
     setActiveDisplay(defaultDisplay);
+  };
+
+  const onShowLogin = () => {
+    onShowOptionsOnly(false);
+    setActiveDisplay(Display.Default);
   };
 
   return (
@@ -219,6 +249,16 @@ function AuthOptions({
             onClose={onClose}
           />
           <EmailVerificationSent email={email} />
+        </Tab>
+        <Tab label={Display.ConnectedUser}>
+          <AuthModalHeader title="Account already exists" onClose={onClose} />
+          {connectedUser && (
+            <ConnectedUserModal
+              flowId={registration?.id}
+              user={connectedUser}
+              onLogin={onShowLogin}
+            />
+          )}
         </Tab>
       </TabContainer>
     </div>

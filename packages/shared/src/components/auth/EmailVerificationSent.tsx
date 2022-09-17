@@ -68,8 +68,8 @@ function EmailVerificationSent({
         Click the link in the email to verify your account. Please check your
         spam folder if you {`don't`} see the email.
       </BodyText>
-      <EmailSentIcon className="mt-12 w-full h-48" />
-      <BodyText className="mt-8">Still {`can't`} find the email?</BodyText>
+      <EmailSentIcon className="flex-1 mt-12 w-full h-48" />
+      <BodyText className="my-4">Still {`can't`} find the email?</BodyText>
       <Button
         className="mt-auto btn-primary"
         disabled={timer > 0 || isLoading}
