@@ -295,7 +295,7 @@ export interface KratosProviderData {
 export const getKratosProviders = async (
   flow?: string,
 ): Promise<KratosProviderData> => {
-  const search = new URLSearchParams({ flow });
+  const search = flow ? new URLSearchParams({ flow }) : '';
   const res = await fetch(`${heimdallUrl}/api/list_providers?${search}`, {
     credentials: 'include',
     method: flow ? 'GET' : 'POST',
