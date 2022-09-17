@@ -16,3 +16,6 @@ export const removeLinkTargetElement = (link: string): string => {
 
   return origin + pathname + search;
 };
+
+export const capitalize = (value: string): string =>
+  (value && value[0].toUpperCase() + value.slice(1)) || '';

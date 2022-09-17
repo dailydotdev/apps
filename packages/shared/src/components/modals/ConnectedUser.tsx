@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useQuery } from 'react-query';
 import { getKratosProviders } from '../../lib/kratos';
+import { capitalize } from '../../lib/strings';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 
@@ -36,8 +37,9 @@ function ConnectedUserModal({
           Connected log in methods: {data?.result?.join(', ')}
         </span>
         <p className="mt-12 text-center text-theme-label-secondary typo-body">
-          You previously logged in to daily.dev. If you want to add Facebook as
-          another login option, you will need to login again.
+          You previously logged in to daily.dev. If you want to add{' '}
+          {capitalize(user.provider)} as another login option, you will need to
+          login again.
         </p>
       </div>
       <span className="flex flex-row justify-center p-3 mt-auto w-full border-t border-theme-divider-tertiary">
