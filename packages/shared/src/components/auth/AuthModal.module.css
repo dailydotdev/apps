@@ -35,7 +35,7 @@
     }
   }
 
-  & :global(.auth.v4) {
+  & :global(.auth.hiddenHeadings) {
     @screen laptop {
       max-width: 25.75rem;
     }
