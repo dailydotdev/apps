@@ -79,7 +79,7 @@ export const RegistrationForm = ({
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full',
-          isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
+          isV2 ? 'max-w-[20rem]' : 'px-6 tablet:px-[3.75rem]',
         )}
         ref={formRef}
         onSubmit={onSubmit}
