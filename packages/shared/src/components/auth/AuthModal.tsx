@@ -11,7 +11,7 @@ import { AuthVersion } from '../../lib/featureValues';
 import DailyCircle from '../DailyCircle';
 import AuthContext from '../../contexts/AuthContext';
 
-export type AuthModalProps = ModalProps;
+export type AuthModalProps = { trigger?: string } & ModalProps;
 
 const DiscardActionModal = dynamic(
   () => import('../modals/DiscardActionModal'),
@@ -24,6 +24,7 @@ const containerMargin = {
 
 export default function AuthModal({
   className,
+  trigger,
   onRequestClose,
   children,
   ...props
@@ -41,6 +42,7 @@ export default function AuthModal({
   } = useAuthForms({
     onDiscard: onRequestClose,
   });
+  const isLogoutFlow = trigger === 'legacy_logout';
   const isV1 = authVersion === AuthVersion.V1;
 
   return (
@@ -59,9 +61,22 @@ export default function AuthModal({
       {isV1 && !showOptionsOnly && (
         <>
           <div className="hidden laptop:flex z-1 flex-col flex-1 gap-5 p-10 h-full">
-            <AuthModalHeading className="typo-giga1">
-              Unlock the full power of daily.dev
-            </AuthModalHeading>
+            {isLogoutFlow ? (
+              <>
+                <AuthModalHeading className="typo-giga1">
+                  Welcome back
+                </AuthModalHeading>
+                <AuthModalHeading className="mb-4 typo-title2">
+                  We have upgraded our authentication system so we need you to
+                  log back in.
+                </AuthModalHeading>
+              </>
+            ) : (
+              <AuthModalHeading className="typo-giga1">
+                the full power of daily.dev
+              </AuthModalHeading>
+            )}
+
             <AuthModalHeading emoji="🧙‍♀️" className="mt-4 typo-title2" tag="h2">
               +500 sources, one feed
             </AuthModalHeading>
