@@ -83,7 +83,7 @@ function AccountCompletionModals(): ReactElement {
 
   return (
     <>
-      {!shouldShowLogin && user && user?.timezone && (
+      {!shouldShowLogin && user && !user?.timezone && (
         <IncompleteRegistrationModal isOpen />
       )}
       {!shouldShowLogin && user && !user.infoConfirmed && (
