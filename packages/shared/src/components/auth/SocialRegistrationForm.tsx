@@ -39,11 +39,6 @@ export type SocialRegistrationFormValues = Omit<
   'method' | 'provider'
 >;
 
-export interface SocialRegistrationFormParameters
-  extends SocialRegistrationFormValues {
-  optOutMarketing?: boolean;
-}
-
 export const SocialRegistrationForm = ({
   className,
   provider,
@@ -63,7 +58,7 @@ export const SocialRegistrationForm = ({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const values = formToJson<SocialRegistrationFormParameters>(
+    const values = formToJson<SocialRegistrationFormValues>(
       formRef?.current ?? form,
     );
 

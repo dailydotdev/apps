@@ -32,10 +32,6 @@ export type RegistrationFormValues = Omit<
   'method' | 'provider'
 >;
 
-interface EmailRegistrationForm extends RegistrationFormValues {
-  optOutMarketing: boolean;
-}
-
 export const RegistrationForm = ({
   email,
   formRef,
@@ -52,7 +48,7 @@ export const RegistrationForm = ({
     e.preventDefault();
     setIsSubmitted(true);
     const form = e.target as HTMLFormElement;
-    const values = formToJson<EmailRegistrationForm>(formRef?.current ?? form);
+    const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
 
     if (!values['traits.name']?.length || !values['traits.username']?.length) {
       const setHints = { ...hints };
