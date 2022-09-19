@@ -39,6 +39,7 @@ export type Boot = {
   flags: IFlags;
   settings: RemoteSettings;
   postData?: PostBootData;
+  isLegacyLogout?: boolean;
 };
 
 export type BootCacheData = Pick<

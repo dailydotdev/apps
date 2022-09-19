@@ -8,7 +8,7 @@ export type CloseAuthModalFunc = (
 ) => void;
 
 interface UseAuthForms {
-  onDiscardCancelled: CloseAuthModalFunc;
+  onDiscardCanceled: CloseAuthModalFunc;
   onDiscardAttempt: CloseAuthModalFunc;
   onContainerChange: (el: HTMLDivElement) => void;
   container: HTMLDivElement;
@@ -43,7 +43,7 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
     return onDiscard(e);
   };
 
-  const onDiscardCancelled: CloseAuthModalFunc = (e) => {
+  const onDiscardCanceled: CloseAuthModalFunc = (e) => {
     e.stopPropagation();
     setIsDiscardOpen(false);
   };
@@ -51,7 +51,7 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   return useMemo(
     () => ({
       onDiscardAttempt,
-      onDiscardCancelled,
+      onDiscardCanceled,
       onContainerChange: setContainer,
       container,
       isDiscardOpen,

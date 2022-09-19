@@ -62,6 +62,7 @@ const logout = async (): Promise<void> => {
 export type AuthContextProviderProps = {
   user: LoggedUser | AnonymousUser | undefined;
   isFetched?: boolean;
+  isLegacyLogout?: boolean;
   refetchBoot?: () => Promise<unknown>;
   children?: ReactNode;
 } & Pick<
@@ -85,10 +86,15 @@ export const AuthContextProvider = ({
   getRedirectUri,
   refetchBoot,
   visit,
+  isLegacyLogout,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referrer;
+
+  if (isLegacyLogout && !loginState) {
+    setLoginState({ trigger: 'legacy_logout' });
+  }
 
   const authContext: AuthContextData = useMemo(
     () => ({

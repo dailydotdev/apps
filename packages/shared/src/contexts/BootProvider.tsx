@@ -162,6 +162,7 @@ export const BootDataProvider = ({
         visit={bootRemoteData?.visit}
         refetchBoot={refetch}
         isFetched={isFetched}
+        isLegacyLogout={bootRemoteData?.isLegacyLogout}
       >
         <SettingsContextProvider
           settings={settings}
