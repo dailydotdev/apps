@@ -34,7 +34,7 @@ export default function AuthModal({
   const { closeLogin } = useContext(AuthContext);
   const {
     onDiscardAttempt,
-    onDiscardCancelled,
+    onDiscardCanceled,
     onContainerChange,
     formRef,
     container,
@@ -108,10 +108,10 @@ export default function AuthModal({
       {isDiscardOpen && (
         <DiscardActionModal
           isOpen={isDiscardOpen}
-          rightButtonAction={onDiscardCancelled}
+          rightButtonAction={onDiscardCanceled}
           leftButtonAction={onRequestClose}
           parentSelector={() => container}
-          onRequestClose={onDiscardCancelled}
+          onRequestClose={onDiscardCanceled}
           title="Discard changes?"
           description="If you leave your changes will not be saved"
           leftButtonText="Leave"
