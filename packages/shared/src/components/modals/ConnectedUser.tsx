@@ -33,7 +33,8 @@ function ConnectedUserModal({
         <ImageInput viewOnly initialValue={user.image} size="large" />
         <span className="mt-5 typo-title3">{user.email}</span>
         <span className="mt-1 typo-footnote text-theme-label-tertiary">
-          Connected log in methods: {data?.result?.join(', ')}
+          Connected log in methods:{' '}
+          {data?.result?.map((method) => capitalize(method)).join(', ')}
         </span>
         <p className="mt-12 text-center text-theme-label-secondary typo-body">
           You previously logged in to daily.dev. If you want to add{' '}
