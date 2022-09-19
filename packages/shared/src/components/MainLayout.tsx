@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
@@ -126,8 +125,6 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
   const { displayToast } = useToastNotification();
-  const [isIncompleteRegistration, setIsIncompleteRegistration] =
-    useState(false);
   const { user, loadingUser, shouldShowLogin, logout, refetchBoot } =
     useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -187,14 +184,6 @@ export default function MainLayout({
     });
     setOpenMobileSidebar(state);
   };
-
-  useEffect(() => {
-    if (!user || user?.timezone || !user.infoConfirmed) {
-      return;
-    }
-
-    setIsIncompleteRegistration(true);
-  }, [user]);
 
   const hasBanner = !!bannerData?.banner || !!customBanner;
 
@@ -286,11 +275,8 @@ export default function MainLayout({
         )}
         {children}
       </main>
-      {!shouldShowLogin && isIncompleteRegistration && user && (
-        <IncompleteRegistrationModal
-          isOpen={isIncompleteRegistration}
-          onRequestClose={() => setIsIncompleteRegistration(false)}
-        />
+      {!shouldShowLogin && user && user?.timezone && (
+        <IncompleteRegistrationModal isOpen />
       )}
       {!shouldShowLogin && user && !user.infoConfirmed && (
         <StyledModal isOpen onRequestClose={() => logout()}>
