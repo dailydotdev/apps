@@ -118,6 +118,7 @@ function AuthOptions({
           name: getNodeValue('traits.name', connected.ui.nodes),
           email: getNodeValue('traits.email', connected.ui.nodes),
           image: getNodeValue('traits.image', connected.ui.nodes),
+          flowId: connected.id,
         };
         onShowOptionsOnly?.(true);
         setConnectedUser(user);
@@ -253,11 +254,7 @@ function AuthOptions({
         <Tab label={Display.ConnectedUser}>
           <AuthModalHeader title="Account already exists" onClose={onClose} />
           {connectedUser && (
-            <ConnectedUserModal
-              flowId={registration?.id}
-              user={connectedUser}
-              onLogin={onShowLogin}
-            />
+            <ConnectedUserModal user={connectedUser} onLogin={onShowLogin} />
           )}
         </Tab>
       </TabContainer>
