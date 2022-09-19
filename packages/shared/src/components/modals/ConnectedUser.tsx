@@ -9,23 +9,22 @@ export interface ConnectedUser {
   name: string;
   email: string;
   image: string;
+  flowId: string;
   provider: string;
 }
 
 interface ConnectedUserModalProps {
   user: ConnectedUser;
-  flowId: string;
   onLogin: () => void;
 }
 
 function ConnectedUserModal({
   user,
-  flowId,
   onLogin,
 }: ConnectedUserModalProps): ReactElement {
   const { data } = useQuery(
-    [{ type: 'registration', flowId }],
-    ({ queryKey: [{ flowId: flow }] }) => getKratosProviders(flow),
+    [{ type: 'registration', flowId: user.flowId }],
+    ({ queryKey: [{ flowId }] }) => getKratosProviders(flowId),
   );
 
   return (
@@ -34,7 +33,8 @@ function ConnectedUserModal({
         <ImageInput viewOnly initialValue={user.image} size="large" />
         <span className="mt-5 typo-title3">{user.email}</span>
         <span className="mt-1 typo-footnote text-theme-label-tertiary">
-          Connected log in methods: {data?.result?.join(', ')}
+          Connected log in methods:{' '}
+          {data?.result?.map((method) => capitalize(method)).join(', ')}
         </span>
         <p className="mt-12 text-center text-theme-label-secondary typo-body">
           You previously logged in to daily.dev. If you want to add{' '}
