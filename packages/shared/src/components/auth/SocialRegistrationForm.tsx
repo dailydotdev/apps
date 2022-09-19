@@ -19,6 +19,7 @@ import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileFormHint } from '../../hooks/useProfileForm';
+import { Checkbox } from '../fields/Checkbox';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -37,6 +38,11 @@ export type SocialRegistrationFormValues = Omit<
   SocialRegistrationParameters,
   'method' | 'provider'
 >;
+
+export interface SocialRegistrationFormParameters
+  extends SocialRegistrationFormValues {
+  optOutMarketing?: boolean;
+}
 
 export const SocialRegistrationForm = ({
   className,
@@ -57,7 +63,7 @@ export const SocialRegistrationForm = ({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const values = formToJson<SocialRegistrationFormValues>(
+    const values = formToJson<SocialRegistrationFormParameters>(
       formRef?.current ?? form,
     );
 
@@ -72,7 +78,7 @@ export const SocialRegistrationForm = ({
     }
 
     const { file, ...rest } = values;
-    onSignup(rest);
+    onSignup({ ...rest, acceptedMarketing: !values.optOutMarketing });
   };
 
   const emailFieldIcon = (providerI: string) => {
@@ -160,9 +166,15 @@ export const SocialRegistrationForm = ({
             }
           }}
         />
+        <span className="pb-4 border-b border-theme-divider-tertiary typo-subhead text-theme-label-secondary">
+          Your email will be used to send you product and community updates
+        </span>
+        <Checkbox name="optOutMarketing">
+          I don’t want to receive updates and promotions via email
+        </Checkbox>
         <Button
           className={classNames(
-            'mt-2 w-full btn-primary',
+            'mt-4 w-full btn-primary',
             !isLoading && 'bg-theme-color-cabbage',
           )}
           disabled={isLoading}

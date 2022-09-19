@@ -34,8 +34,8 @@ function AccountCompletionModals(): ReactElement {
   } = useProfileForm({
     onSuccess: () => refetchBoot(),
   });
-  const onUpdateProfile = ({ name, username }: SocialRegistrationFormValues) =>
-    updateUserProfile({ name, username });
+  const onUpdateProfile = ({ file, ...params }: SocialRegistrationFormValues) =>
+    updateUserProfile(params);
 
   const displayErrorMessage = (text: string) => {
     displayToast(text);

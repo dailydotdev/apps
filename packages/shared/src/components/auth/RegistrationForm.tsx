@@ -13,6 +13,7 @@ import AuthModalHeader from './AuthModalHeader';
 import TokenInput from './TokenField';
 import { AuthForm } from './common';
 import AtIcon from '../icons/At';
+import { Checkbox } from '../fields/Checkbox';
 
 export interface RegistrationFormProps {
   email: string;
@@ -31,6 +32,10 @@ export type RegistrationFormValues = Omit<
   'method' | 'provider'
 >;
 
+interface EmailRegistrationForm extends RegistrationFormValues {
+  optOutMarketing: boolean;
+}
+
 export const RegistrationForm = ({
   email,
   formRef,
@@ -47,7 +52,7 @@ export const RegistrationForm = ({
     e.preventDefault();
     setIsSubmitted(true);
     const form = e.target as HTMLFormElement;
-    const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
+    const values = formToJson<EmailRegistrationForm>(formRef?.current ?? form);
 
     if (!values['traits.name']?.length || !values['traits.username']?.length) {
       const setHints = { ...hints };
@@ -63,7 +68,10 @@ export const RegistrationForm = ({
       return;
     }
 
-    onSignup(values);
+    onSignup({
+      ...values,
+      'traits.acceptedMarketing': !values.optOutMarketing,
+    });
   };
 
   const isNameValid = !hints?.['traits.name'] && isSubmitted;
@@ -138,7 +146,13 @@ export const RegistrationForm = ({
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        <Button className="mt-2 w-full bg-theme-color-cabbage">Sign up</Button>
+        <span className="pb-4 border-b border-theme-divider-tertiary typo-subhead text-theme-label-secondary">
+          Your email will be used to send you product and community updates
+        </span>
+        <Checkbox name="optOutMarketing">
+          I don’t want to receive updates and promotions via email
+        </Checkbox>
+        <Button className="mt-4 w-full bg-theme-color-cabbage">Sign up</Button>
       </AuthForm>
     </>
   );
