@@ -77,6 +77,7 @@ function AccountSecurityDefault({
   const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [, setEmail] = useState<string>(null);
+  const hasPassword = userProviders?.result?.includes('password');
 
   useWindowEvents<SocialRegistrationFlow>(
     'message',
@@ -114,13 +115,15 @@ function AccountSecurityDefault({
   const emailAction = isEmailSent ? (
     <EmailSentSection className="max-w-sm" />
   ) : (
-    <Button
-      buttonSize="small"
-      className="mt-6 w-fit btn-secondary"
-      onClick={() => onSwitchDisplay(Display.ChangeEmail)}
-    >
-      Change email
-    </Button>
+    hasPassword && (
+      <Button
+        buttonSize="small"
+        className="mt-6 w-fit btn-secondary"
+        onClick={() => onSwitchDisplay(Display.ChangeEmail)}
+      >
+        Change email
+      </Button>
+    )
   );
 
   return (
