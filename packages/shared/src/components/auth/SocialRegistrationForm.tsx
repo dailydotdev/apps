@@ -72,8 +72,8 @@ export const SocialRegistrationForm = ({
       return;
     }
 
-    const { file, ...rest } = values;
-    onSignup({ ...rest, acceptedMarketing: !values.optOutMarketing });
+    const { file, optOutMarketing, ...rest } = values;
+    onSignup({ ...rest, acceptedMarketing: !optOutMarketing });
   };
 
   const emailFieldIcon = (providerI: string) => {
