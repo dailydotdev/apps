@@ -29,7 +29,14 @@ function SidebarNavItem({
         )}
       >
         {icon}
-        <span className="ml-2 typo-callout">{title}</span>
+        <span
+          className={classNames(
+            'ml-2 typo-callout',
+            !isActive && 'text-theme-label-tertiary',
+          )}
+        >
+          {title}
+        </span>
         <ArrowIcon className="ml-auto rotate-90" />
       </a>
     </Link>
