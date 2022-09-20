@@ -48,7 +48,9 @@ export const RegistrationForm = ({
     e.preventDefault();
     setIsSubmitted(true);
     const form = e.target as HTMLFormElement;
-    const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
+    const { optOutMarketing, ...values } = formToJson<RegistrationFormValues>(
+      formRef?.current ?? form,
+    );
 
     if (!values['traits.name']?.length || !values['traits.username']?.length) {
       const setHints = { ...hints };
@@ -66,7 +68,7 @@ export const RegistrationForm = ({
 
     onSignup({
       ...values,
-      'traits.acceptedMarketing': !values.optOutMarketing,
+      'traits.acceptedMarketing': !optOutMarketing,
     });
   };
 
