@@ -2,6 +2,7 @@ import React, {
   MutableRefObject,
   ReactElement,
   useContext,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -86,6 +87,7 @@ function AuthOptions({
     onUpdateHint,
     isLoading: isProfileUpdateLoading,
   } = useProfileForm();
+  const windowPopup = useRef<Window>(null);
 
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
@@ -96,10 +98,13 @@ function AuthOptions({
         setActiveDisplay(Display.EmailSent);
       },
       onInvalidRegistration: setRegistrationHints,
-      onRedirect: (redirect) => window.open(redirect),
+      onRedirect: (redirect) => {
+        windowPopup.current.location.href = redirect;
+      },
     });
 
   const onProviderClick = (provider: string) => {
+    windowPopup.current = window.open();
     setChosenProvider(provider);
     onSocialRegistration(provider);
   };
@@ -224,7 +229,7 @@ function AuthOptions({
         <Tab label={Display.SignBack}>
           <AuthSignBack
             onRegister={() => setActiveDisplay(Display.Default)}
-            onProviderClick={onSocialRegistration}
+            onProviderClick={onProviderClick}
             onClose={onClose}
           >
             <LoginForm
