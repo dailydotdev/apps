@@ -61,7 +61,7 @@ function Alert({
         <Icon size="medium" className={classNames('mr-2', fontColor[type])} />
         <span
           className={classNames(
-            'typo-callout',
+            'typo-callout flex-1',
             children && 'font-bold',
             children && fontColor[type],
           )}
