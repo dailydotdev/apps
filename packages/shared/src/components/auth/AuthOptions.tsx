@@ -123,6 +123,7 @@ function AuthOptions({
           name: getNodeValue('traits.name', connected.ui.nodes),
           email: getNodeValue('traits.email', connected.ui.nodes),
           image: getNodeValue('traits.image', connected.ui.nodes),
+          flowId: connected.id,
         };
         onShowOptionsOnly?.(true);
         setConnectedUser(user);
