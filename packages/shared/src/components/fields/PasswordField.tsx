@@ -4,6 +4,7 @@ import { TextField, TextFieldProps } from './TextField';
 import EyeIcon from '../icons/Eye';
 import EyeCancelIcon from '../icons/EyeCancel';
 import LockIcon from '../icons/Lock';
+import { isTouchDevice } from '../../lib/tooltip';
 
 const passwordStrengthStates = {
   0: {
@@ -30,13 +31,18 @@ const passwordStrengthStates = {
 
 export interface PasswordFieldProps extends TextFieldProps {
   showStrength?: boolean;
+  indicateStrengthAutomatically?: boolean;
 }
 
 export function PasswordField({
   type = 'password',
   showStrength = true,
+  indicateStrengthAutomatically = true,
   ...props
 }: PasswordFieldProps): ReactElement {
+  const [indicateStrength, setIndicateStrength] = useState(
+    indicateStrengthAutomatically,
+  );
   const [useType, setUseType] = useState(type);
   const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
   const [isValid, setIsValid] = useState<boolean>(null);
@@ -45,8 +51,14 @@ export function PasswordField({
     ? `Password need a minimum length of ${props.minLength}`
     : passwordStrengthStates[passwordStrengthLevel].label;
   const hint = !hasUserAction ? null : userActionHint;
-  const shouldShowStrength = showStrength && hasUserAction;
+  const shouldShowStrength = showStrength && hasUserAction && indicateStrength;
   const Icon = useType === 'password' ? EyeIcon : EyeCancelIcon;
+
+  const onIndicateStrength = () => {
+    if (!indicateStrength) {
+      setIndicateStrength(true);
+    }
+  };
 
   return (
     <TextField
@@ -57,8 +69,10 @@ export function PasswordField({
         setPasswordStrengthLevel(passwordStrength(value).id)
       }
       leftIcon={<LockIcon />}
-      hint={showStrength ? hint : props.hint}
+      hint={showStrength && indicateStrength ? hint : props.hint}
       validityChanged={setIsValid}
+      onKeyPress={onIndicateStrength}
+      onClick={isTouchDevice() ? onIndicateStrength : null}
       valid={isValid}
       hintClassName={passwordStrengthStates[passwordStrengthLevel].className}
       progress={
