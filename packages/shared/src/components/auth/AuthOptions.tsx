@@ -258,11 +258,7 @@ function AuthOptions({
         <Tab label={Display.ConnectedUser}>
           <AuthModalHeader title="Account already exists" onClose={onClose} />
           {connectedUser && (
-            <ConnectedUserModal
-              flowId={registration?.id}
-              user={connectedUser}
-              onLogin={onShowLogin}
-            />
+            <ConnectedUserModal user={connectedUser} onLogin={onShowLogin} />
           )}
         </Tab>
       </TabContainer>

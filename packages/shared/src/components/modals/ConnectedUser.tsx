@@ -9,23 +9,22 @@ export interface ConnectedUser {
   name: string;
   email: string;
   image: string;
+  flowId: string;
   provider: string;
 }
 
 interface ConnectedUserModalProps {
   user: ConnectedUser;
-  flowId: string;
   onLogin: () => void;
 }
 
 function ConnectedUserModal({
   user,
-  flowId,
   onLogin,
 }: ConnectedUserModalProps): ReactElement {
   const { data } = useQuery(
-    [{ type: 'registration', flowId }],
-    ({ queryKey: [{ flowId: flow }] }) => getKratosProviders(flow),
+    [{ type: 'registration', flowId: user.flowId }],
+    ({ queryKey: [{ flowId }] }) => getKratosProviders(flowId),
   );
 
   return (
