@@ -19,12 +19,7 @@ import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
-import {
-  AuthEvent,
-  AuthFlow,
-  getKratosFlow,
-  SocialRegistrationFlow,
-} from '../../lib/kratos';
+import { AuthEvent, SocialRegistrationFlow } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
 import useLogin from '../../hooks/useLogin';
@@ -73,8 +68,7 @@ function AuthOptions({
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
-  const [connectedUser, setConnectedUser] =
-    useState<RegistrationConnectedUser>();
+  const [connectedUser] = useState<RegistrationConnectedUser>();
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
@@ -108,22 +102,22 @@ function AuthOptions({
     'message',
     AuthEvent.SocialRegistration,
     async (e) => {
-      if (e.data?.flow) {
-        const connected = await getKratosFlow(
-          AuthFlow.Registration,
-          e.data.flow,
-        );
-        const user = {
-          provider: chosenProvider,
-          name: getNodeValue('traits.name', connected.ui.nodes),
-          email: getNodeValue('traits.email', connected.ui.nodes),
-          image: getNodeValue('traits.image', connected.ui.nodes),
-          flowId: connected.id,
-        };
-        onShowOptionsOnly?.(true);
-        setConnectedUser(user);
-        return setActiveDisplay(Display.ConnectedUser);
-      }
+      // if (e.data?.flow) {
+      //   const connected = await getKratosFlow(
+      //     AuthFlow.Registration,
+      //     e.data.flow,
+      //   );
+      //   const user = {
+      //     provider: chosenProvider,
+      //     name: getNodeValue('traits.name', connected.ui.nodes),
+      //     email: getNodeValue('traits.email', connected.ui.nodes),
+      //     image: getNodeValue('traits.image', connected.ui.nodes),
+      //     flowId: connected.id,
+      //   };
+      //   onShowOptionsOnly?.(true);
+      //   setConnectedUser(user);
+      //   return setActiveDisplay(Display.ConnectedUser);
+      // }
       if (!e.data?.social_registration) {
         await refetchBoot();
         return onSuccessfulLogin?.();
