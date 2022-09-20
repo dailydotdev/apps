@@ -42,7 +42,7 @@ const defaultParams: Partial<RegistrationParameters> = {
 };
 const mockRegistraitonValidationFlow = (
   result: unknown,
-  params: Partial<RegistrationParameters> = {},
+  { optOutMarketing, ...params }: Partial<RegistrationParameters> = {},
   responseCode = 200,
 ) => {
   const url = new URL(registrationFlowMockData.ui.action);

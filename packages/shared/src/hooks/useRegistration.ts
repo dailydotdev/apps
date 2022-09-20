@@ -46,8 +46,10 @@ const useRegistration = ({
 }: UseRegistrationProps): UseRegistration => {
   const { displayToast } = useToastNotification();
   const { trackingId } = useContext(AuthContext);
-  const { data: registration, isLoading: isQueryLoading } = useQuery(key, () =>
-    initializeKratosFlow(AuthFlow.Registration),
+  const { data: registration, isLoading: isQueryLoading } = useQuery(
+    key,
+    () => initializeKratosFlow(AuthFlow.Registration),
+    { refetchOnWindowFocus: false },
   );
   const {
     mutateAsync: validate,
