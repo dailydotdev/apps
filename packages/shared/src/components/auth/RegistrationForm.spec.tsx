@@ -38,6 +38,7 @@ const defaultParams: Partial<RegistrationParameters> = {
   method: 'password',
   'traits.image': undefined,
   'traits.userId': trackingId,
+  'traits.acceptedMarketing': true,
 };
 const mockRegistraitonValidationFlow = (
   result: unknown,

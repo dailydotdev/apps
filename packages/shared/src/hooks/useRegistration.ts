@@ -92,7 +92,6 @@ const useRegistration = ({
       ...values,
       method: values.method || 'password',
       csrf_token: getNodeValue('csrf_token', nodes),
-      'traits.image': values['traits.image'],
       'traits.userId': trackingId,
     };
 
@@ -110,6 +109,7 @@ const useRegistration = ({
       'traits.name': '',
       'traits.image': '',
       'traits.userId': trackingId,
+      'traits.acceptedMarketing': false,
     };
 
     onValidateRegistration(postData);

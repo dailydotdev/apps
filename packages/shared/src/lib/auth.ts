@@ -42,6 +42,8 @@ export interface SocialRegistrationParameters {
   name?: string;
   username?: string;
   file?: string;
+  acceptedMarketing?: boolean;
+  optOutMarketing?: boolean;
 }
 
 export interface RegistrationParameters {
@@ -55,6 +57,8 @@ export interface RegistrationParameters {
   'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;
+  'traits.acceptedMarketing'?: boolean;
+  optOutMarketing?: boolean;
 }
 
 export type ValidateRecoveryParams =
