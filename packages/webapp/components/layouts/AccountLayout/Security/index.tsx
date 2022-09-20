@@ -115,6 +115,7 @@ function AccountSecurityDefault({
     <EmailSentSection className="max-w-sm" />
   ) : (
     <Button
+      buttonSize="small"
       className="mt-6 w-fit btn-secondary"
       onClick={() => onSwitchDisplay(Display.ChangeEmail)}
     >
@@ -177,7 +178,11 @@ function AccountSecurityDefault({
             label="Password"
             name="password"
           />
-          <Button type="submit" className="mt-6 w-fit btn-secondary">
+          <Button
+            type="submit"
+            buttonSize="small"
+            className="mt-6 w-fit btn-secondary"
+          >
             Set password
           </Button>
         </form>
