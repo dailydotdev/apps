@@ -16,7 +16,9 @@ function EmailSentSection({
   className,
 }: EmailSentSectionProps): ReactElement {
   const { data } = useQuery(['whoami'], getKratosSession);
-  const { sendEmail, resendTimer } = useAccountEmailFlow(AuthFlow.Verification);
+  const { sendEmail, resendTimer, isLoading } = useAccountEmailFlow(
+    AuthFlow.Verification,
+  );
 
   return (
     <AlertContainer
@@ -34,6 +36,7 @@ function EmailSentSection({
           onClick={() => sendEmail(data?.identity?.traits?.email)}
           buttonSize="xsmall"
           className="w-fit btn-primary"
+          disabled={isLoading || resendTimer > 0}
         >
           {resendTimer === 0 ? 'Resend' : `${resendTimer}s`}
         </Button>
