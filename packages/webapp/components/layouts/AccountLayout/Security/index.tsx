@@ -25,6 +25,7 @@ import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import { BaseTooltip } from '@dailydotdev/shared/src/components/tooltips/BaseTooltip';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -133,17 +134,28 @@ function AccountSecurityDefault({
         title="Account email"
         description="The email address associated with your daily.dev account"
       >
-        <AccountTextField
-          fieldType="tertiary"
-          value={user.email}
-          onChange={(e) => setEmail(e.currentTarget.value)}
-          label="Email"
-          inputId="email"
-          data-testid="current_email"
-          leftIcon={<MailIcon />}
-          rightIcon={<LockIcon className="text-theme-label-secondary" />}
-          readOnly
-        />
+        <BaseTooltip
+          placement="bottom"
+          content={
+            <div className="py-2 w-60 typo-subhead">
+              You have created a social login that sets your email address. To
+              change your email address please add a new login method by setting
+              your password first.
+            </div>
+          }
+        >
+          <AccountTextField
+            fieldType="tertiary"
+            value={user.email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+            label="Email"
+            inputId="email"
+            data-testid="current_email"
+            leftIcon={<MailIcon />}
+            rightIcon={<LockIcon className="text-theme-label-secondary" />}
+            readOnly
+          />
+        </BaseTooltip>
         {emailAction}
       </AccountContentSection>
       <AccountLoginSection
