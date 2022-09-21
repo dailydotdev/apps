@@ -26,7 +26,7 @@ import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
-import { BaseTooltip } from '@dailydotdev/shared/src/components/tooltips/BaseTooltip';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -146,7 +146,7 @@ function AccountSecurityDefault({
         title="Account email"
         description="The email address associated with your daily.dev account"
       >
-        <BaseTooltip
+        <SimpleTooltip
           placement="bottom"
           disabled={hasPassword}
           content={
@@ -168,7 +168,7 @@ function AccountSecurityDefault({
             rightIcon={<LockIcon className="text-theme-label-secondary" />}
             readOnly
           />
-        </BaseTooltip>
+        </SimpleTooltip>
         {emailAction}
       </AccountContentSection>
       <AccountLoginSection
