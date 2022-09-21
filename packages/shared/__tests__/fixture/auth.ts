@@ -1373,7 +1373,7 @@ export const mockEmailCheck = (email: string, result = false): void => {
 };
 
 export const mockListProviders = (
-  result: string[] = ['facebook', 'github', 'apple'],
+  result: string[] = ['facebook', 'github', 'apple', 'password'],
 ): void => {
   nock(heimdallUrl)
     .post('/api/list_providers?')
