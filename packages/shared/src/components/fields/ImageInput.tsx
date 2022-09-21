@@ -1,5 +1,11 @@
 import classNames from 'classnames';
-import React, { ChangeEvent, ReactElement, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  ReactElement,
+  ReactNode,
+  useRef,
+  useState,
+} from 'react';
 import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
 import EditIcon from '../icons/Edit';
@@ -15,6 +21,7 @@ interface ImageInputProps {
   id?: string;
   viewOnly?: boolean;
   fallbackImage?: string;
+  hoverIcon?: ReactNode;
 }
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
@@ -32,6 +39,7 @@ function ImageInput({
   onChange,
   size = 'medium',
   viewOnly,
+  hoverIcon,
   fallbackImage = fallbackImages.avatar,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
@@ -94,14 +102,14 @@ function ImageInput({
         alt="File upload preview"
         onError={onError}
       />
-      <EditIcon
+      <span
         className={classNames(
           'hidden',
           !viewOnly && 'mouse:group-hover:block absolute',
         )}
-        size={size}
-        secondary
-      />
+      >
+        {hoverIcon || <EditIcon size={size} secondary />}
+      </span>
       <span
         className={classNames('typo-footnote', error ? 'visible' : 'invisible')}
       >

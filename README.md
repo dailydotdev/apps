@@ -55,7 +55,7 @@ For more information [click here](https://github.com/dailydotdev/apps/tree/maste
 
 ## Local Environment
 
-To spin up a full-blown local environment, we use [Garden](https://garden.io/). It deploys the required services to a local/remote kuberentes cluster.
+To spin up a full-blown local environment, we use [Garden](https://garden.io/). It deploys the required services to a local/remote kubernetes cluster.
 
 ### Prerequisites
 
@@ -86,7 +86,7 @@ Now you can use your favorite SQL client to connect to postgres using `localhost
 
 ### Hot reload
 
-Garden supports hot reload (code synchnronization in garden's terms), which makes local development so better!
+Garden supports hot reload (code synchronization in garden's terms), which makes local development so better!
 Follow these steps to enable hot reload:
 * Clone the api and gateway repos before you proceed as mentioned above.
 * Run: `garden link source api ../daily-api`. Make sure to adjust the api repo path according to your setup.

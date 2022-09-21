@@ -78,7 +78,7 @@ export type ValidateLoginParams = KratosFormParams<
 >;
 export type SettingsParams = KratosFormParams<SettingsParameters>;
 export type ValidateResetPassword = KratosFormParams<ResetPasswordParameters>;
-export type ValidateChangeEmail = KratosFormParams<ValidateEmailParameters>;
+export type ValidateChangeEmail = KratosFormParams<RegistrationParameters>;
 
 export const errorsToJson = <T extends string>(
   data: InitializationData,

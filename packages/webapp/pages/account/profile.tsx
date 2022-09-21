@@ -12,6 +12,7 @@ import React, { ReactElement, useContext, useRef } from 'react';
 import useProfileForm, {
   UpdateProfileParameters,
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
+import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -64,7 +65,12 @@ const AccountProfilePage = (): ReactElement => {
           description="Upload a picture to make your profile stand out and let people recognise
         your comments and contributions easily!"
         >
-          <ImageInput id={id} className="mt-6" initialValue={user.image} />
+          <ImageInput
+            id={id}
+            className="mt-6"
+            initialValue={user.image}
+            hoverIcon={<CameraIcon size="xlarge" />}
+          />
         </AccountContentSection>
         <AccountContentSection title="Account Information">
           <AccountTextField
