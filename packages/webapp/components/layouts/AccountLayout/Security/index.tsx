@@ -151,9 +151,8 @@ function AccountSecurityDefault({
           disabled={hasPassword}
           content={
             <div className="py-2 w-60 typo-subhead">
-              You have created a social login that sets your email address. To
-              change your email address please add a new login method by setting
-              your password first.
+              You must set a password for the account before you can change your
+              email address.
             </div>
           }
         >
