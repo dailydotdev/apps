@@ -107,5 +107,5 @@ export const CommonTextField = classed(TextField, 'max-w-sm');
 export const AccountTextField = classed(CommonTextField, 'mt-6');
 export const AccountSidebarPagesSection = classed(
   'div',
-  'flex flex-col py-1.5 px-6 mt-10 w-full rounded-16 border border-theme-divider-tertiary',
+  'flex flex-col py-4 px-5 gap-3 mt-10 w-full rounded-16 border border-theme-divider-tertiary',
 );
