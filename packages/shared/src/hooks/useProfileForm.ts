@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql-request/dist/types';
 import request from 'graphql-request';
 import { FormEvent, useContext, useMemo, useState } from 'react';
-import { UseMutateAsyncFunction, useMutation } from 'react-query';
+import { useMutation } from 'react-query';
 import { UseMutateFunction } from 'react-query/types/react/types';
 import AuthContext from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
