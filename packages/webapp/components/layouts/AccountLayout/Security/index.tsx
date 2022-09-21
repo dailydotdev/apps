@@ -148,6 +148,7 @@ function AccountSecurityDefault({
       >
         <BaseTooltip
           placement="bottom"
+          disabled={hasPassword}
           content={
             <div className="py-2 w-60 typo-subhead">
               You have created a social login that sets your email address. To
