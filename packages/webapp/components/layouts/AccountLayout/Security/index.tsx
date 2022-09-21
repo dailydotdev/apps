@@ -32,7 +32,7 @@ import { AccountPageContainer } from '../AccountPageContainer';
 import {
   AccountSecurityDisplay as Display,
   AccountTextField,
-  ManageSocialProviderTypes,
+  ManageSocialProvidersProps,
 } from '../common';
 import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
@@ -74,11 +74,6 @@ interface AccountSecurityDefaultProps {
   onSwitchDisplay: (display: Display) => void;
   onUpdatePassword: (form: ChangePasswordParams) => void;
   onUpdateProviders: (params: UpdateProvidersParams) => void;
-}
-
-export interface ManageSocialProvidersProps {
-  type: ManageSocialProviderTypes;
-  provider: string;
 }
 
 function AccountSecurityDefault({
