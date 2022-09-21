@@ -120,6 +120,7 @@ const AccountSecurityPage = (): ReactElement => {
         'traits.name': getNodeValue('traits.name', nodes),
         'traits.username': getNodeValue('traits.username', nodes),
         'traits.image': getNodeValue('traits.image', nodes),
+        'traits.userId': getNodeValue('traits.userId', nodes),
       },
     });
   };
