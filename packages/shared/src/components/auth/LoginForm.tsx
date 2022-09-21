@@ -73,7 +73,7 @@ function LoginForm({
         {onForgotPassword && (
           <ClickableText
             type="button"
-            className="flex-1 underline btn-primary"
+            className="flex-1 underline grow-[2] btn-primary"
             onClick={onForgotPassword}
           >
             Forgot password?
