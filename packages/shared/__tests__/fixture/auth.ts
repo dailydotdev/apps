@@ -1303,6 +1303,63 @@ export const verifiedLoginData = {
   },
 };
 
+export const mockVerificationFlowData = {
+  id: '829ccc7c-2ae6-4157-951b-3809867f09de',
+  type: 'browser',
+  expires_at: '2022-09-22T07:52:14.556050839Z',
+  issued_at: '2022-09-21T07:52:14.556050839Z',
+  request_url: 'http://127.0.0.1:4433/self-service/verification/browser?',
+  ui: {
+    action:
+      'http://127.0.0.1:4433/self-service/verification?flow=829ccc7c-2ae6-4157-951b-3809867f09de',
+    method: 'POST',
+    nodes: [
+      {
+        type: 'input',
+        group: 'default',
+        attributes: {
+          name: 'csrf_token',
+          type: 'hidden',
+          value:
+            'ZAcgYF7UsKhZg4QSzuFTKZmmBJoqDm43cXoEVtkJ6TeCy+YFtxGtF8Vc1hkegjWC0mp2kNHd1/KxylGJ0pjFZw==',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {},
+      },
+      {
+        type: 'input',
+        group: 'link',
+        attributes: {
+          name: 'email',
+          type: 'email',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070007, text: 'Email', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'link',
+        attributes: {
+          name: 'method',
+          type: 'submit',
+          value: 'link',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070005, text: 'Submit', type: 'info' } },
+      },
+    ],
+  },
+  state: 'choose_method',
+};
+
 export const mockSettingsValidation = (
   params: Partial<EmptyObjectLiteral>,
   result: unknown = successfulSettingsFlowData,
@@ -1362,6 +1419,14 @@ export const mockRegistraitonFlow = (
 ): void => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
     .get('/self-service/registration/browser?')
+    .reply(200, result);
+};
+
+export const mockVerificationFlow = (
+  result = registrationFlowMockData,
+): void => {
+  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
+    .get('/self-service/verification/browser?')
     .reply(200, result);
 };
 
