@@ -1,5 +1,7 @@
 import React, {
+  forwardRef,
   InputHTMLAttributes,
+  MutableRefObject,
   ReactElement,
   ReactNode,
   SyntheticEvent,
@@ -70,32 +72,35 @@ export const getInputFontColor = ({
   return 'text-theme-label-tertiary hover:text-theme-label-primary';
 };
 
-export function TextField({
-  className,
-  inputId,
-  name,
-  label,
-  maxLength,
-  value,
-  baseFieldClassName,
-  hintClassName,
-  saveHintSpace = false,
-  absoluteLabel = false,
-  progress,
-  hint,
-  valid,
-  validityChanged,
-  valueChanged,
-  placeholder,
-  style,
-  fieldType = 'primary',
-  readOnly,
-  leftIcon,
-  actionButton,
-  disabled,
-  rightIcon,
-  ...props
-}: TextFieldProps): ReactElement {
+function TextFieldComponent(
+  {
+    className,
+    inputId,
+    name,
+    label,
+    maxLength,
+    value,
+    baseFieldClassName,
+    hintClassName,
+    saveHintSpace = false,
+    absoluteLabel = false,
+    progress,
+    hint,
+    valid,
+    validityChanged,
+    valueChanged,
+    placeholder,
+    style,
+    fieldType = 'primary',
+    readOnly,
+    leftIcon,
+    actionButton,
+    disabled,
+    rightIcon,
+    ...props
+  }: TextFieldProps,
+  ref?: MutableRefObject<HTMLDivElement>,
+): ReactElement {
   const {
     inputRef,
     focused,
@@ -178,6 +183,7 @@ export function TextField({
     <div
       className={classNames(className, 'flex flex-col items-stretch relative')}
       style={style}
+      ref={ref}
     >
       {isSecondaryField && (
         <label
@@ -295,3 +301,5 @@ export function TextField({
     </div>
   );
 }
+
+export const TextField = forwardRef(TextFieldComponent);
