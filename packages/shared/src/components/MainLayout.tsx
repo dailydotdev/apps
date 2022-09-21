@@ -23,7 +23,6 @@ import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import LoginButton from './LoginButton';
-import AccountCompletionModals from './auth/AccountCompletionModals';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -163,7 +162,7 @@ export default function MainLayout({
             {additionalButtons}
             {!showOnlyLogo && !loadingUser && (
               <>
-                {user ? (
+                {user && user?.infoConfirmed ? (
                   <ProfileButton className="hidden laptop:flex" />
                 ) : (
                   <LoginButton className="hidden laptop:block" />
@@ -200,7 +199,6 @@ export default function MainLayout({
         )}
         {children}
       </main>
-      <AccountCompletionModals />
     </div>
   );
 }

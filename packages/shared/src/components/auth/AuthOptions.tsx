@@ -67,10 +67,7 @@ function AuthOptions({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, referral } = useContext(AuthContext);
-  const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
-    onSuccessfulLogin,
-  });
+  const { refetchBoot, user, referral } = useContext(AuthContext);
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -81,6 +78,16 @@ function AuthOptions({
   );
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
+  const onLoginCheck = () => {
+    if (user && user?.infoConfirmed) {
+      onSuccessfulLogin();
+    }
+
+    setActiveDisplay(Display.SocialRegistration);
+  };
+  const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
+    onSuccessfulLogin: onLoginCheck,
+  });
   const {
     updateUserProfile,
     hint,
@@ -118,7 +125,7 @@ function AuthOptions({
           AuthFlow.Registration,
           e.data.flow,
         );
-        const user = {
+        const registerUser = {
           provider: chosenProvider,
           name: getNodeValue('traits.name', connected.ui.nodes),
           email: getNodeValue('traits.email', connected.ui.nodes),
@@ -126,7 +133,7 @@ function AuthOptions({
           flowId: connected.id,
         };
         onShowOptionsOnly?.(true);
-        setConnectedUser(user);
+        setConnectedUser(registerUser);
         return setActiveDisplay(Display.ConnectedUser);
       }
       if (!e.data?.social_registration) {
