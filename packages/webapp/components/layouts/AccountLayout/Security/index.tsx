@@ -5,6 +5,7 @@ import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
 import { AlertBackground } from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import classNames from 'classnames';
 import React, {
   FormEvent,
   MutableRefObject,
@@ -49,6 +50,22 @@ export interface UpdateProvidersParams {
   link?: string;
   unlink?: string;
 }
+
+const removeProvider = getProviderMapClone();
+removeProvider.google.icon.props = {
+  ...removeProvider.google.icon.props,
+  secondary: false,
+};
+const removeProviderList = Object.values(removeProvider).map(
+  ({ style: { backgroundColor, ...style }, className, ...provider }) => ({
+    ...provider,
+    style: { ...style, color: 'var(--theme-label-primary)' },
+    className: classNames(
+      'bg-theme-bg-tertiary hover:bg-theme-color-ketchup text-theme-label-primary',
+      className,
+    ),
+  }),
+);
 
 interface AccountSecurityDefaultProps {
   isEmailSent?: boolean;
@@ -174,7 +191,7 @@ function AccountSecurityDefault({
         description="Remove the connection between daily.dev and authorized login providers."
         providerAction={manageSocialProviders}
         providerActionType="unlink"
-        providers={providers.filter(({ provider }) =>
+        providers={removeProviderList.filter(({ provider }) =>
           userProviders?.result.includes(provider.toLowerCase()),
         )}
       />
