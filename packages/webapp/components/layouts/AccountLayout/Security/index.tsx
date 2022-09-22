@@ -204,7 +204,6 @@ function AccountSecurityDefault({
             inputId="new_password"
             label="Password"
             name="password"
-            indicateStrengthAutomatically={false}
           />
           <Button
             type="submit"
