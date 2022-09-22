@@ -93,9 +93,6 @@ const AccountSecurityPage = (): ReactElement => {
         if (error) {
           if (error?.ui?.messages[0]?.id === 4000007) {
             setHint('This email address is already in use');
-          } else {
-            setHint('generic');
-            console.log('generic');
           }
 
           return null;
