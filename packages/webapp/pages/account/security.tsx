@@ -31,6 +31,7 @@ const AccountSecurityPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
+  const [hint, setHint] = useState<string>(null);
   const { data: userProviders, refetch: refetchProviders } = useQuery(
     'providers',
     () => getKratosProviders(),
@@ -79,7 +80,10 @@ const AccountSecurityPage = (): ReactElement => {
   };
 
   const { mutateAsync: changeEmail } = useMutation(
-    (params: ValidateChangeEmail) => submitKratosFlow(params),
+    (params: ValidateChangeEmail) => {
+      setHint(null);
+      return submitKratosFlow(params);
+    },
     {
       onSuccess: ({ redirect, error, code }) => {
         if (redirect && code === 403) {
@@ -87,6 +91,13 @@ const AccountSecurityPage = (): ReactElement => {
         }
 
         if (error) {
+          if (error?.ui?.messages[0]?.id === 4000007) {
+            setHint('This email address is already in use');
+          } else {
+            setHint('generic');
+            console.log('generic');
+          }
+
           return null;
         }
 
@@ -173,6 +184,8 @@ const AccountSecurityPage = (): ReactElement => {
             title="Change email"
             onSubmit={onChangeEmail}
             onSwitchDisplay={setActiveDisplay}
+            hint={hint}
+            setHint={setHint}
           />
         </Tab>
       </TabContainer>
