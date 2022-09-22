@@ -121,11 +121,7 @@ export const BootDataProvider = ({
 
   useEffect(() => {
     if (bootRemoteData) {
-      if (initialLoad === null) {
-        setInitialLoad(true);
-      } else {
-        setInitialLoad(false);
-      }
+      setInitialLoad(initialLoad === null);
       // We need to remove the settings for annoymous users as they might have changed them already
       if (!bootRemoteData.user || !('providers' in bootRemoteData.user)) {
         delete bootRemoteData.settings;
