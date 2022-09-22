@@ -4,7 +4,6 @@ import { TextField, TextFieldProps } from './TextField';
 import EyeIcon from '../icons/Eye';
 import EyeCancelIcon from '../icons/EyeCancel';
 import LockIcon from '../icons/Lock';
-import { isTouchDevice } from '../../lib/tooltip';
 
 const passwordStrengthStates = {
   0: {
@@ -31,19 +30,14 @@ const passwordStrengthStates = {
 
 export interface PasswordFieldProps extends TextFieldProps {
   showStrength?: boolean;
-  indicateStrengthAutomatically?: boolean;
 }
 
 export function PasswordField({
   type = 'password',
   showStrength = true,
-  indicateStrengthAutomatically = true,
   ...props
 }: PasswordFieldProps): ReactElement {
   const [value, setValue] = useState<string>(null);
-  const [indicateStrength, setIndicateStrength] = useState(
-    indicateStrengthAutomatically,
-  );
   const [useType, setUseType] = useState(type);
   const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
   const [isValid, setIsValid] = useState<boolean>(null);
@@ -52,15 +46,8 @@ export function PasswordField({
     ? `Password need a minimum length of ${props.minLength}`
     : passwordStrengthStates[passwordStrengthLevel].label;
   const hint = !hasUserAction ? null : userActionHint;
-  const shouldShowStrength =
-    !!value && showStrength && hasUserAction && indicateStrength;
+  const shouldShowStrength = !!value && showStrength && hasUserAction;
   const Icon = useType === 'password' ? EyeIcon : EyeCancelIcon;
-
-  const onIndicateStrength = () => {
-    if (!indicateStrength) {
-      setIndicateStrength(true);
-    }
-  };
 
   const onChange = (input: string) => {
     setPasswordStrengthLevel(passwordStrength(input).id);
@@ -74,10 +61,8 @@ export function PasswordField({
       type={useType}
       valueChanged={onChange}
       leftIcon={<LockIcon />}
-      hint={showStrength && indicateStrength ? hint : props.hint}
+      hint={showStrength ? hint : props.hint}
       validityChanged={setIsValid}
-      onKeyPress={onIndicateStrength}
-      onClick={isTouchDevice() ? onIndicateStrength : null}
       valid={isValid}
       hintClassName={passwordStrengthStates[passwordStrengthLevel].className}
       progress={
