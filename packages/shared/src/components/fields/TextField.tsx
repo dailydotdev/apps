@@ -23,6 +23,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   hintClassName?: string;
   saveHintSpace?: boolean;
   absoluteLabel?: boolean;
+  isLocked?: boolean;
   progress?: string;
   hint?: string;
   valid?: boolean;
@@ -36,6 +37,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 
 interface InputFontColorProps {
   readOnly?: boolean;
+  isLocked?: boolean;
   disabled?: boolean;
   focused?: boolean;
   hasInput?: boolean;
@@ -44,6 +46,7 @@ interface InputFontColorProps {
 
 export const getInputFontColor = ({
   readOnly,
+  isLocked,
   disabled,
   focused,
   hasInput,
@@ -53,7 +56,7 @@ export const getInputFontColor = ({
     return 'text-theme-label-primary';
   }
 
-  if (readOnly) {
+  if (readOnly || isLocked) {
     return 'text-theme-label-quaternary';
   }
 
@@ -89,6 +92,7 @@ export function TextField({
   fieldType = 'primary',
   readOnly,
   leftIcon,
+  isLocked,
   actionButton,
   disabled,
   rightIcon,
@@ -165,7 +169,7 @@ export function TextField({
 
   const invalid = validInput === false;
   const getLabelColor = () => {
-    if (readOnly || (hasInput && !focused)) {
+    if (readOnly || isLocked || (hasInput && !focused)) {
       return 'text-theme-label-tertiary';
     }
 
@@ -211,6 +215,7 @@ export function TextField({
                 disabled,
                 hasInput,
                 focused,
+                isLocked,
                 actionIcon: rightIcon,
               }),
             )}
