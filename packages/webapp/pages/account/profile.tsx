@@ -96,6 +96,7 @@ const AccountProfilePage = (): ReactElement => {
             inputId="bio"
             name="bio"
             rows={5}
+            value={user.bio}
             className={{ container: 'max-w-sm mt-6' }}
           />
           <AccountTextField
