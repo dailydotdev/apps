@@ -31,7 +31,11 @@ export default function AuthModal({
 }: AuthModalProps): ReactElement {
   const [showOptionsOnly, setShowOptionsOnly] = useState(false);
   const { authVersion } = useContext(FeaturesContext);
-  const { closeLogin } = useContext(AuthContext);
+  const { closeLogin, logout } = useContext(AuthContext);
+  const closeAndLogout = (e) => {
+    logout();
+    onRequestClose(e);
+  };
   const {
     onDiscardAttempt,
     onDiscardCanceled,
@@ -40,7 +44,7 @@ export default function AuthModal({
     container,
     isDiscardOpen,
   } = useAuthForms({
-    onDiscard: onRequestClose,
+    onDiscard: closeAndLogout,
   });
   const isLogoutFlow = trigger === 'legacy_logout';
   const isV1 = authVersion === AuthVersion.V1;
@@ -109,7 +113,7 @@ export default function AuthModal({
         <DiscardActionModal
           isOpen={isDiscardOpen}
           rightButtonAction={onDiscardCanceled}
-          leftButtonAction={onRequestClose}
+          leftButtonAction={closeAndLogout}
           parentSelector={() => container}
           onRequestClose={onDiscardCanceled}
           title="Discard changes?"
