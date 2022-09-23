@@ -92,7 +92,7 @@ export const AuthContextProvider = ({
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
-  const referral = user?.referrer || 'DEMO_REMOVE';
+  const referral = user?.referrer;
 
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout();
