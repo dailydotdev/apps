@@ -13,6 +13,7 @@ import useProfileForm, {
   UpdateProfileParameters,
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -22,7 +23,9 @@ const id = 'avatar_file';
 
 const AccountProfilePage = (): ReactElement => {
   const formRef = useRef<HTMLFormElement>();
-  const { updateUserProfile, isLoading, hint } = useProfileForm();
+  const { displayToast } = useToastNotification();
+  const onSuccess = () => displayToast('Profile updated');
+  const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
   const { user } = useContext(AuthContext);
 
   const onSubmit = (e: React.MouseEvent) => {
