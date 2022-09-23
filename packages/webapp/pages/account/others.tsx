@@ -45,7 +45,7 @@ const AccountOthersPage = (): ReactElement => {
       >
         <Dropdown
           icon={<Icon />}
-          buttonSize="select"
+          buttonSize="large"
           className="mt-6 w-70"
           selectedIndex={timeZoneOptions.findIndex(
             (timeZone) => timeZone.value === userTimeZone,
