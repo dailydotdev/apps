@@ -22,6 +22,7 @@ import { getNodeValue, RegistrationParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
+import { getUserDefaultTimezone } from '../../lib/timezones';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -39,7 +40,7 @@ const defaultParams: Partial<RegistrationParameters> = {
   'traits.image': undefined,
   'traits.userId': trackingId,
   'traits.acceptedMarketing': true,
-  'traits.timezone': 'Europe/Amsterdam',
+  'traits.timezone': getUserDefaultTimezone(),
 };
 const mockRegistraitonValidationFlow = (
   result: unknown,
