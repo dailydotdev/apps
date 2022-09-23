@@ -73,7 +73,7 @@ export const getInputFontColor = ({
   return 'text-theme-label-tertiary hover:text-theme-label-primary';
 };
 
-export function TextField(
+function TextFieldComponent(
   {
     className,
     inputId,
