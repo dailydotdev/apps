@@ -52,7 +52,7 @@ export const getInputFontColor = ({
   hasInput,
   actionIcon,
 }: InputFontColorProps): string => {
-  if (readOnly && actionIcon) {
+  if ((readOnly && actionIcon) || hasInput) {
     return 'text-theme-label-primary';
   }
 
@@ -65,9 +65,7 @@ export const getInputFontColor = ({
   }
 
   if (focused) {
-    return hasInput
-      ? 'text-theme-label-primary'
-      : 'text-theme-label-quaternary';
+    return 'text-theme-label-quaternary';
   }
 
   return 'text-theme-label-tertiary hover:text-theme-label-primary';
@@ -171,7 +169,7 @@ export function TextField({
 
   const invalid = validInput === false;
   const getLabelColor = () => {
-    if (readOnly || isLocked) {
+    if (readOnly || isLocked || (hasInput && !focused)) {
       return 'text-theme-label-tertiary';
     }
 

@@ -66,7 +66,7 @@ const renderComponent = (
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={null}
+        user={{ id: '123', infoConfirmed: true, providers: [] }}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
