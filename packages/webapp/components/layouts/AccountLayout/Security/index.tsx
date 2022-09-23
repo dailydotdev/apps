@@ -165,7 +165,7 @@ function AccountSecurityDefault({
             data-testid="current_email"
             leftIcon={<MailIcon />}
             rightIcon={<LockIcon className="text-theme-label-secondary" />}
-            readOnly
+            isLocked
           />
         </SimpleTooltip>
         {emailAction}
