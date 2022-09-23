@@ -173,7 +173,6 @@ function AuthOptions({
   const onRegister = (params: RegistrationFormValues) => {
     validateRegistration({
       ...params,
-      referral,
       method: 'password',
     });
   };

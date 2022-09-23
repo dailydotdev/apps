@@ -39,6 +39,7 @@ const defaultParams: Partial<RegistrationParameters> = {
   'traits.image': undefined,
   'traits.userId': trackingId,
   'traits.acceptedMarketing': true,
+  'traits.timezone': 'Europe/Amsterdam',
 };
 const mockRegistraitonValidationFlow = (
   result: unknown,
