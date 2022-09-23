@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   SyntheticEvent,
+  TextareaHTMLAttributes,
   useEffect,
   useState,
 } from 'react';
@@ -16,7 +17,13 @@ import { IconProps } from '../Icon';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
-export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
+type Attributes<T> = T extends HTMLInputElement
+  ? InputHTMLAttributes<HTMLInputElement>
+  : TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+export type TextFieldProps<
+  T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement,
+> = Attributes<T> & {
   inputId: string;
   label: string;
   baseFieldClassName?: string;
@@ -33,7 +40,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   leftIcon?: ReactNode;
   actionButton?: React.ReactElement<ButtonProps<'button'>>;
   rightIcon?: React.ReactElement<IconProps>;
-}
+};
 
 interface InputFontColorProps {
   readOnly?: boolean;
@@ -197,11 +204,7 @@ export function TextField({
           isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
           leftIcon && 'pl-3',
           actionButton && 'pr-3',
-          {
-            readOnly,
-            focused,
-            invalid,
-          },
+          { readOnly, focused, invalid },
           baseFieldClassName,
           styles.field,
         )}
