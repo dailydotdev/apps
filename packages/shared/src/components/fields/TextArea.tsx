@@ -144,7 +144,7 @@ function TextArea({
           'flex flex-col relative',
           isSecondaryField ? 'rounded-10' : 'rounded-14',
           { readOnly, focused, invalid },
-          hasAdditionalSpacing && 'pt-2',
+          hasAdditionalSpacing ? 'pt-2' : 'pt-1',
           className.baseField,
         )}
       >
@@ -170,7 +170,7 @@ function TextArea({
           className={classNames(
             'w-full min-w-0 self-stretch bg-transparent typo-body caret-theme-label-link focus:outline-none resize-none',
             className.input,
-            hasAdditionalSpacing && 'mb-2',
+            hasAdditionalSpacing && 'mb-3',
             getInputFontColor({
               readOnly,
               disabled,
