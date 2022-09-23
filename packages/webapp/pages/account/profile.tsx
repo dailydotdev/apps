@@ -13,6 +13,7 @@ import useProfileForm, {
   UpdateProfileParameters,
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
+import TextArea from '@dailydotdev/shared/src/components/fields/TextArea';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -90,12 +91,12 @@ const AccountProfilePage = (): ReactElement => {
           />
         </AccountContentSection>
         <AccountContentSection title="About">
-          <AccountTextField
-            aria-multiline
+          <TextArea
             label="Bio"
             inputId="bio"
             name="bio"
-            value={user.bio}
+            rows={5}
+            className={{ container: 'max-w-sm mt-6' }}
           />
           <AccountTextField
             label="Company"
