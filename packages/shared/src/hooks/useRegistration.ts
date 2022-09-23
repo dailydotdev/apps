@@ -16,6 +16,7 @@ import {
   SuccessfulRegistrationData,
 } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
+import { getUserDefaultTimezone } from '../lib/timezones';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -45,7 +46,8 @@ const useRegistration = ({
   onInvalidRegistration,
 }: UseRegistrationProps): UseRegistration => {
   const { displayToast } = useToastNotification();
-  const { trackingId } = useContext(AuthContext);
+  const { trackingId, referral } = useContext(AuthContext);
+  const timezone = getUserDefaultTimezone();
   const { data: registration, isLoading: isQueryLoading } = useQuery(
     key,
     () => initializeKratosFlow(AuthFlow.Registration),
@@ -95,6 +97,8 @@ const useRegistration = ({
       method: values.method || 'password',
       csrf_token: getNodeValue('csrf_token', nodes),
       'traits.userId': trackingId,
+      'traits.referral': referral,
+      'traits.timezone': timezone,
     };
 
     validate({ action, params: postData });
@@ -111,6 +115,8 @@ const useRegistration = ({
       'traits.name': '',
       'traits.image': '',
       'traits.userId': trackingId,
+      'traits.referral': referral,
+      'traits.timezone': timezone,
       'traits.acceptedMarketing': false,
     };
 
