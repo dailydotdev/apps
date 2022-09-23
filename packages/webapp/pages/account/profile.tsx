@@ -87,6 +87,7 @@ const AccountProfilePage = (): ReactElement => {
             label="Username"
             inputId="username"
             hint={hint.username}
+            valid={!hint.username}
             name="username"
             leftIcon={<AtIcon />}
             value={user.username}
@@ -123,6 +124,7 @@ const AccountProfilePage = (): ReactElement => {
             label="Twitter"
             inputId="twitter"
             hint={hint.twitter}
+            valid={!hint.twitter}
             name="twitter"
             value={user.twitter}
           />
@@ -131,6 +133,7 @@ const AccountProfilePage = (): ReactElement => {
             label="GitHub"
             inputId="github"
             hint={hint.github}
+            valid={!hint.github}
             name="github"
             value={user.github}
           />
@@ -139,6 +142,7 @@ const AccountProfilePage = (): ReactElement => {
             label="Hashnode"
             inputId="hashnode"
             hint={hint.hashnode}
+            valid={!hint.hashnode}
             name="hashnode"
             value={user.hashnode}
           />
@@ -147,6 +151,7 @@ const AccountProfilePage = (): ReactElement => {
             label="Your Website"
             inputId="portfolio"
             hint={hint.portfolio}
+            valid={!hint.portfolio}
             name="portfolio"
             value={user.portfolio}
           />
