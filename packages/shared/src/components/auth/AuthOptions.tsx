@@ -68,7 +68,7 @@ function AuthOptions({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, user, referral } = useContext(AuthContext);
+  const { refetchBoot, user } = useContext(AuthContext);
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
