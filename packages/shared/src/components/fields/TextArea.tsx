@@ -115,7 +115,7 @@ function TextArea({
 
   const invalid = validInput === false;
   const getLabelColor = () => {
-    if (readOnly || isLocked) {
+    if (readOnly || isLocked || (hasInput && !focused)) {
       return 'text-theme-label-tertiary';
     }
 
