@@ -9,6 +9,7 @@ import {
   AuthFlow,
   getKratosProviders,
   initializeKratosFlow,
+  KRATOS_ERROR,
   submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
 import {
@@ -91,7 +92,7 @@ const AccountSecurityPage = (): ReactElement => {
         }
 
         if (error) {
-          if (error?.ui?.messages[0]?.id === 4000007) {
+          if (error?.ui?.messages[0]?.id === KRATOS_ERROR.EXISTING_USER) {
             setHint('This email address is already in use');
           }
 
