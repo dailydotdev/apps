@@ -14,6 +14,11 @@ import {
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
 
+export interface ManageSocialProvidersProps {
+  type: ManageSocialProviderTypes;
+  provider: string;
+}
+
 interface AccountPageIconProps {
   isActive?: boolean;
   user?: LoggedUser;
