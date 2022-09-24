@@ -5,6 +5,7 @@ import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
 import { AlertBackground } from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import classNames from 'classnames';
 import React, {
   FormEvent,
   MutableRefObject,
@@ -25,12 +26,13 @@ import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
   AccountSecurityDisplay as Display,
   AccountTextField,
-  ManageSocialProviderTypes,
+  ManageSocialProvidersProps,
 } from '../common';
 import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
@@ -49,6 +51,22 @@ export interface UpdateProvidersParams {
   unlink?: string;
 }
 
+const removeProvider = getProviderMapClone();
+removeProvider.google.icon.props = {
+  ...removeProvider.google.icon.props,
+  secondary: false,
+};
+const removeProviderList = Object.values(removeProvider).map(
+  ({ style: { backgroundColor, ...style }, className, ...provider }) => ({
+    ...provider,
+    style: { ...style, color: 'var(--theme-label-primary)' },
+    className: classNames(
+      'bg-theme-bg-tertiary hover:bg-theme-color-ketchup text-theme-label-primary',
+      className,
+    ),
+  }),
+);
+
 interface AccountSecurityDefaultProps {
   isEmailSent?: boolean;
   userProviders?: KratosProviderData;
@@ -56,11 +74,6 @@ interface AccountSecurityDefaultProps {
   onSwitchDisplay: (display: Display) => void;
   onUpdatePassword: (form: ChangePasswordParams) => void;
   onUpdateProviders: (params: UpdateProvidersParams) => void;
-}
-
-export interface ManageSocialProvidersProps {
-  type: ManageSocialProviderTypes;
-  provider: string;
 }
 
 function AccountSecurityDefault({
@@ -77,6 +90,7 @@ function AccountSecurityDefault({
   const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [, setEmail] = useState<string>(null);
+  const hasPassword = userProviders?.result?.includes('password');
 
   useWindowEvents<SocialRegistrationFlow>(
     'message',
@@ -114,12 +128,15 @@ function AccountSecurityDefault({
   const emailAction = isEmailSent ? (
     <EmailSentSection className="max-w-sm" />
   ) : (
-    <Button
-      className="mt-6 w-fit btn-secondary"
-      onClick={() => onSwitchDisplay(Display.ChangeEmail)}
-    >
-      Change email
-    </Button>
+    hasPassword && (
+      <Button
+        buttonSize="small"
+        className="mt-6 w-fit btn-secondary"
+        onClick={() => onSwitchDisplay(Display.ChangeEmail)}
+      >
+        Change email
+      </Button>
+    )
   );
 
   return (
@@ -129,17 +146,28 @@ function AccountSecurityDefault({
         title="Account email"
         description="The email address associated with your daily.dev account"
       >
-        <AccountTextField
-          fieldType="tertiary"
-          value={user.email}
-          onChange={(e) => setEmail(e.currentTarget.value)}
-          label="Email"
-          inputId="email"
-          data-testid="current_email"
-          leftIcon={<MailIcon />}
-          rightIcon={<LockIcon className="text-theme-label-secondary" />}
-          isLocked
-        />
+        <SimpleTooltip
+          placement="bottom"
+          disabled={hasPassword}
+          content={
+            <div className="py-2 w-60 typo-subhead">
+              You must set a password for the account before you can change your
+              email address.
+            </div>
+          }
+        >
+          <AccountTextField
+            fieldType="tertiary"
+            value={user.email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+            label="Email"
+            inputId="email"
+            data-testid="current_email"
+            leftIcon={<MailIcon />}
+            rightIcon={<LockIcon className="text-theme-label-secondary" />}
+            isLocked
+          />
+        </SimpleTooltip>
         {emailAction}
       </AccountContentSection>
       <AccountLoginSection
@@ -158,7 +186,7 @@ function AccountSecurityDefault({
         description="Remove the connection between daily.dev and authorized login providers."
         providerAction={manageSocialProviders}
         providerActionType="unlink"
-        providers={providers.filter(({ provider }) =>
+        providers={removeProviderList.filter(({ provider }) =>
           userProviders?.result.includes(provider.toLowerCase()),
         )}
       />
@@ -177,7 +205,11 @@ function AccountSecurityDefault({
             label="Password"
             name="password"
           />
-          <Button type="submit" className="mt-6 w-fit btn-secondary">
+          <Button
+            type="submit"
+            buttonSize="small"
+            className="mt-6 w-fit btn-secondary"
+          >
             Set password
           </Button>
         </form>

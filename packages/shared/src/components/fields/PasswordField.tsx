@@ -37,6 +37,7 @@ export function PasswordField({
   showStrength = true,
   ...props
 }: PasswordFieldProps): ReactElement {
+  const [value, setValue] = useState<string>(null);
   const [useType, setUseType] = useState(type);
   const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
   const [isValid, setIsValid] = useState<boolean>(null);
@@ -45,19 +46,22 @@ export function PasswordField({
     ? `Password need a minimum length of ${props.minLength}`
     : passwordStrengthStates[passwordStrengthLevel].label;
   const hint = !hasUserAction ? null : userActionHint;
-  const shouldShowStrength = showStrength && hasUserAction;
+  const shouldShowStrength = !!value && showStrength && hasUserAction;
   const Icon = useType === 'password' ? EyeIcon : EyeCancelIcon;
+
+  const onChange = (input: string) => {
+    setPasswordStrengthLevel(passwordStrength(input).id);
+    setValue(input);
+  };
 
   return (
     <TextField
       {...props}
       autoComplete="off"
       type={useType}
-      valueChanged={(value) =>
-        setPasswordStrengthLevel(passwordStrength(value).id)
-      }
+      valueChanged={onChange}
       leftIcon={<LockIcon />}
-      hint={showStrength ? hint : props.hint}
+      hint={!!value && showStrength ? hint : props.hint}
       validityChanged={setIsValid}
       valid={isValid}
       hintClassName={passwordStrengthStates[passwordStrengthLevel].className}
