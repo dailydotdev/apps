@@ -51,9 +51,10 @@ export interface RegistrationParameters {
   provider?: string;
   method: AuthenticationType | KratosMethod;
   password?: string;
-  referral?: string;
   'traits.email': string;
   'traits.userId'?: string;
+  'traits.referral'?: string;
+  'traits.timezone'?: string;
   'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;
