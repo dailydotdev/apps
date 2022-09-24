@@ -61,7 +61,7 @@ export function PasswordField({
       type={useType}
       valueChanged={onChange}
       leftIcon={<LockIcon />}
-      hint={showStrength ? hint : props.hint}
+      hint={!!value && showStrength ? hint : props.hint}
       validityChanged={setIsValid}
       valid={isValid}
       hintClassName={passwordStrengthStates[passwordStrengthLevel].className}
