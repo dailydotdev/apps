@@ -2,6 +2,7 @@ import React, {
   MutableRefObject,
   ReactElement,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -77,14 +78,26 @@ function AuthOptions({
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
+  const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const onLoginCheck = () => {
-    if (user && user?.infoConfirmed) {
-      onSuccessfulLogin();
+    if (!user || handleLoginCheck === false) {
+      return;
     }
 
-    setActiveDisplay(Display.SocialRegistration);
+    setHandleLoginCheck(handleLoginCheck === null);
+
+    if (user.infoConfirmed) {
+      onSuccessfulLogin();
+    } else {
+      setActiveDisplay(Display.SocialRegistration);
+    }
   };
+
+  useEffect(() => {
+    onLoginCheck();
+  }, [user]);
+
   const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
     onSuccessfulLogin: onLoginCheck,
   });

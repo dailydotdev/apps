@@ -5,7 +5,12 @@ import {
 } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { TextFieldProps } from '@dailydotdev/shared/src/components/fields/TextField';
 import classNames from 'classnames';
-import React, { FormEvent, ReactElement } from 'react';
+import React, {
+  Dispatch,
+  FormEvent,
+  ReactElement,
+  SetStateAction,
+} from 'react';
 import { CommonTextField } from './common';
 
 export interface EmailFormProps {
@@ -13,11 +18,15 @@ export interface EmailFormProps {
   className?: string;
   emailProps?: Partial<TextFieldProps>;
   passwordProps?: Partial<PasswordFieldProps>;
+  hint?: string;
+  setHint?: Dispatch<SetStateAction<string>>;
 }
 
 function EmailForm({
   onSubmit,
   className,
+  hint,
+  setHint,
   emailProps = {},
   passwordProps,
 }: EmailFormProps): ReactElement {
@@ -31,7 +40,10 @@ function EmailForm({
         inputId="new_email"
         name="traits.email"
         value={emailProps?.value}
+        hint={hint}
+        valid={!hint}
         label={emailProps?.label || 'Email'}
+        onChange={() => setHint(null)}
       />
       {passwordProps && (
         <PasswordField
