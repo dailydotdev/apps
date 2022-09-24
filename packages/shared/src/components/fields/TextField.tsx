@@ -1,48 +1,17 @@
 import React, {
   forwardRef,
-  InputHTMLAttributes,
   MutableRefObject,
   ReactElement,
-  ReactNode,
   SyntheticEvent,
-  TextareaHTMLAttributes,
   useEffect,
   useState,
 } from 'react';
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
-import { BaseField, FieldInput } from './common';
+import { BaseField, FieldInput, TextFieldProps } from './common';
 import styles from './TextField.module.css';
-import { ButtonProps } from '../buttons/Button';
 import useDebounce from '../../hooks/useDebounce';
 import { IconProps } from '../Icon';
-
-type FieldType = 'primary' | 'secondary' | 'tertiary';
-
-type Attributes<T> = T extends HTMLInputElement
-  ? InputHTMLAttributes<HTMLInputElement>
-  : TextareaHTMLAttributes<HTMLTextAreaElement>;
-
-export type TextFieldProps<
-  T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement,
-> = Attributes<T> & {
-  inputId: string;
-  label: string;
-  baseFieldClassName?: string;
-  hintClassName?: string;
-  saveHintSpace?: boolean;
-  absoluteLabel?: boolean;
-  isLocked?: boolean;
-  progress?: string;
-  hint?: string;
-  valid?: boolean;
-  validityChanged?: (valid: boolean) => void;
-  valueChanged?: (value: string) => void;
-  fieldType?: FieldType;
-  leftIcon?: ReactNode;
-  actionButton?: React.ReactElement<ButtonProps<'button'>>;
-  rightIcon?: React.ReactElement<IconProps>;
-};
 
 interface InputFontColorProps {
   readOnly?: boolean;

@@ -7,8 +7,8 @@ import React, {
 } from 'react';
 import useDebounce from '../../hooks/useDebounce';
 import { useInputField } from '../../hooks/useInputField';
-import { getInputFontColor, TextFieldProps } from './TextField';
-import { BaseField } from './common';
+import { getInputFontColor } from './TextField';
+import { BaseField, TextFieldProps } from './common';
 
 interface ClassName {
   container?: string;
