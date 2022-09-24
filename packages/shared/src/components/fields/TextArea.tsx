@@ -18,13 +18,13 @@ interface ClassName {
   baseField?: string;
 }
 
-interface TextAreaProps
+interface TextareaProps
   extends Omit<TextFieldProps<HTMLTextAreaElement>, 'className'> {
   className?: ClassName;
   absoluteHint?: boolean;
 }
 
-function TextArea({
+function Textarea({
   hint,
   inputId,
   saveHintSpace,
@@ -43,7 +43,7 @@ function TextArea({
   maxLength = 100,
   rows,
   fieldType = 'primary',
-}: TextAreaProps): ReactElement {
+}: TextareaProps): ReactElement {
   const {
     inputRef,
     focused,
@@ -200,4 +200,4 @@ function TextArea({
   );
 }
 
-export default TextArea;
+export default Textarea;
