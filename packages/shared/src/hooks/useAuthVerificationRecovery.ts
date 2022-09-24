@@ -1,5 +1,6 @@
 import { useQuery } from 'react-query';
 import { useRouter } from 'next/router';
+import { useContext } from 'react';
 import {
   getKratosFlow,
   AuthFlow,
@@ -8,9 +9,15 @@ import {
   InitializationData,
 } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
+import { disabledRefetch } from '../lib/func';
+import AuthContext from '../contexts/AuthContext';
+
+export const VERIFICATION_TRIGGER = 'verification';
 
 export function useAuthVerificationRecovery(): void {
   const router = useRouter();
+  const { showLogin } = useContext(AuthContext);
+  const couldBeVerified = !!router?.query.flow && !router?.query.recovery;
   const { displayToast } = useToastNotification();
 
   const displayErrorMessage = (text: string) => {
@@ -19,10 +26,17 @@ export function useAuthVerificationRecovery(): void {
     setTimeout(() => displayToast(text), 100);
   };
 
-  const checkErrorMessage = (data: InitializationData) => {
+  const checkErrorMessage = (data: InitializationData, flow?: AuthFlow) => {
     if ('error' in data) {
       const errorData = data as unknown as ErrorData;
       displayErrorMessage(errorData.error.message);
+      return;
+    }
+
+    const hasVerified =
+      data?.state === 'passed_challenge' && flow === AuthFlow.Verification;
+    if (couldBeVerified && hasVerified) {
+      showLogin(VERIFICATION_TRIGGER);
       return;
     }
 
@@ -50,8 +64,9 @@ export function useAuthVerificationRecovery(): void {
     [{ type: 'verification', flow: router?.query.flow as string }],
     ({ queryKey: [{ flow }] }) => getKratosFlow(AuthFlow.Verification, flow),
     {
-      enabled: !!router?.query.verification && !!router?.query.flow,
-      onSuccess: checkErrorMessage,
+      ...disabledRefetch,
+      enabled: !!router?.query.flow && !router?.query.recovery,
+      onSuccess: (data) => checkErrorMessage(data, AuthFlow.Verification),
     },
   );
 }
