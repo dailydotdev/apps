@@ -37,6 +37,8 @@ import { logout } from '../../lib/user';
 import ConnectedUserModal, {
   ConnectedUser as RegistrationConnectedUser,
 } from '../modals/ConnectedUser';
+import { VERIFICATION_TRIGGER } from '../../hooks/useAuthVerificationRecovery';
+import EmailVerified from './EmailVerified';
 
 export enum Display {
   Default = 'default',
@@ -46,6 +48,7 @@ export enum Display {
   ForgotPassword = 'forgot_password',
   EmailSent = 'email_sent',
   ConnectedUser = 'connected_user',
+  VerifiedEmail = 'VerifiedEmail',
 }
 
 export interface AuthOptionsProps {
@@ -68,7 +71,7 @@ function AuthOptions({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, user } = useContext(AuthContext);
+  const { refetchBoot, user, loginState } = useContext(AuthContext);
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -77,10 +80,17 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
+  const isVerified = loginState.trigger === VERIFICATION_TRIGGER;
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const onLoginCheck = () => {
+    if (isVerified) {
+      onShowOptionsOnly(!!user);
+      setActiveDisplay(Display.VerifiedEmail);
+      return;
+    }
+
     if (!user || handleLoginCheck === false) {
       return;
     }
@@ -242,7 +252,8 @@ function AuthOptions({
             hints={registrationHints}
             onUpdateHints={setRegistrationHints}
             token={
-              registration && getNodeValue('csrf_token', registration.ui.nodes)
+              registration &&
+              getNodeValue('csrf_token', registration?.ui?.nodes)
             }
           />
         </Tab>
@@ -274,6 +285,21 @@ function AuthOptions({
             onClose={onClose}
           />
           <EmailVerificationSent email={email} />
+        </Tab>
+        <Tab label={Display.VerifiedEmail}>
+          <EmailVerified hasUser={!!user} onClose={onClose}>
+            {!user && (
+              <LoginForm
+                className="mx-4 tablet:mx-12 mt-8"
+                loginHint={loginHint}
+                onPasswordLogin={onPasswordLogin}
+                onForgotPassword={() =>
+                  setActiveDisplay(Display.ForgotPassword)
+                }
+                isLoading={isPasswordLoginLoading}
+              />
+            )}
+          </EmailVerified>
         </Tab>
         <Tab label={Display.ConnectedUser}>
           <AuthModalHeader title="Account already exists" onClose={onClose} />
