@@ -14,6 +14,7 @@ import useProfileForm, {
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
 import TextArea from '@dailydotdev/shared/src/components/fields/TextArea';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -23,7 +24,9 @@ const id = 'avatar_file';
 
 const AccountProfilePage = (): ReactElement => {
   const formRef = useRef<HTMLFormElement>();
-  const { updateUserProfile, isLoading, hint } = useProfileForm();
+  const { displayToast } = useToastNotification();
+  const onSuccess = () => displayToast('Profile updated');
+  const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
   const { user } = useContext(AuthContext);
 
   const onSubmit = (e: React.MouseEvent) => {
@@ -85,6 +88,7 @@ const AccountProfilePage = (): ReactElement => {
             label="Username"
             inputId="username"
             hint={hint.username}
+            valid={!hint.username}
             name="username"
             leftIcon={<AtIcon />}
             value={user.username}
@@ -122,6 +126,7 @@ const AccountProfilePage = (): ReactElement => {
             label="Twitter"
             inputId="twitter"
             hint={hint.twitter}
+            valid={!hint.twitter}
             name="twitter"
             value={user.twitter}
           />
@@ -130,6 +135,7 @@ const AccountProfilePage = (): ReactElement => {
             label="GitHub"
             inputId="github"
             hint={hint.github}
+            valid={!hint.github}
             name="github"
             value={user.github}
           />
@@ -138,6 +144,7 @@ const AccountProfilePage = (): ReactElement => {
             label="Hashnode"
             inputId="hashnode"
             hint={hint.hashnode}
+            valid={!hint.hashnode}
             name="hashnode"
             value={user.hashnode}
           />
@@ -146,6 +153,7 @@ const AccountProfilePage = (): ReactElement => {
             label="Your Website"
             inputId="portfolio"
             hint={hint.portfolio}
+            valid={!hint.portfolio}
             name="portfolio"
             value={user.portfolio}
           />

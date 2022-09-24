@@ -8,6 +8,7 @@ import {
   mockLoginReverifyFlow,
   mockSettingsFlow,
   mockSettingsValidation,
+  mockVerificationFlow,
   mockWhoAmIFlow,
   requireVerificationSettingsMock,
   settingsFlowMockData,
@@ -165,6 +166,7 @@ it('should allow changing of email but require verification', async () => {
   mockSettingsValidation(params);
   const reSubmitChanges = await screen.findByText('Save changes');
   fireEvent.click(reSubmitChanges);
+  mockVerificationFlow();
   await waitForNock();
   const sent = await screen.findByTestId('email_verification_sent');
   expect(sent).toBeInTheDocument();
