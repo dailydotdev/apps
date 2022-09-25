@@ -1,10 +1,9 @@
 import React, { ReactElement, useState } from 'react';
 import { passwordStrength } from 'check-password-strength';
-import { TextField } from './TextField';
+import { TextField, TextFieldProps } from './TextField';
 import EyeIcon from '../icons/Eye';
 import EyeCancelIcon from '../icons/EyeCancel';
 import LockIcon from '../icons/Lock';
-import { TextFieldProps } from './common';
 
 const passwordStrengthStates = {
   0: {
@@ -65,13 +64,13 @@ export function PasswordField({
       hint={!!value && showStrength ? hint : props.hint}
       validityChanged={setIsValid}
       valid={isValid}
-      hintClassName={passwordStrengthStates[passwordStrengthLevel].className}
+      className={{
+        hint: passwordStrengthStates[passwordStrengthLevel].className,
+        baseField: shouldShowStrength && `password-${passwordStrengthLevel}`,
+      }}
       progress={
         shouldShowStrength &&
         passwordStrengthStates[passwordStrengthLevel].progress
-      }
-      baseFieldClassName={
-        shouldShowStrength && `password-${passwordStrengthLevel}`
       }
       actionButton={
         <button
