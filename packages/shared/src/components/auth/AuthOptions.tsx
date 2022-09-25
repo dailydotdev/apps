@@ -80,7 +80,7 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
-  const isVerified = loginState.trigger === VERIFICATION_TRIGGER;
+  const isVerified = loginState?.trigger === VERIFICATION_TRIGGER;
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
