@@ -188,6 +188,7 @@ function BaseFieldContainer(
       </BaseField>
       {(hint?.length || saveHintSpace) && (
         <div
+          role={invalid ? 'alert' : undefined}
           className={classNames(
             'px-2 mt-1 typo-caption1',
             saveHintSpace && 'h-4',
