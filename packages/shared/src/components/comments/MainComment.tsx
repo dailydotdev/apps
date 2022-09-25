@@ -79,7 +79,10 @@ export default function MainComment({
           'border border-theme-color-cabbage'
         }
       >
-        <Markdown content={comment.contentHtml} />
+        <Markdown
+          content={comment.contentHtml}
+          appendTooltipTo={appendTooltipTo}
+        />
       </MainCommentBox>
       <CommentActionButtons
         post={post}
