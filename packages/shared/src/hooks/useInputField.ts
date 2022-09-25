@@ -6,9 +6,9 @@ import {
   useState,
 } from 'react';
 
-type ValidElement = HTMLInputElement | HTMLTextAreaElement;
+export type ValidInputElement = HTMLInputElement | HTMLTextAreaElement;
 
-interface ReturnType<T extends ValidElement = HTMLInputElement> {
+export interface UseInputField<T extends ValidInputElement = HTMLInputElement> {
   focused: boolean;
   hasInput: boolean;
   inputRef: MutableRefObject<T>;
@@ -19,10 +19,10 @@ interface ReturnType<T extends ValidElement = HTMLInputElement> {
   setInput: (newValue: string) => void;
 }
 
-export function useInputField<T extends ValidElement = HTMLInputElement>(
+export function useInputField<T extends ValidInputElement = HTMLInputElement>(
   value: string | ReadonlyArray<string> | number,
   valueChanged?: (value: string) => void,
-): ReturnType<T> {
+): UseInputField<T> {
   const inputRef = useRef<T>(null);
   const [focused, setFocused] = useState<boolean>(false);
   const [hasInput, setHasInput] = useState<boolean>(false);
