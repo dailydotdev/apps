@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+import styles from './TextField.module.css';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 import BaseFieldContainer, {
   BaseFieldProps,
@@ -71,8 +72,9 @@ function Textarea({
         ...className,
         baseField: classNames(
           'flex-col',
-          hasAdditionalSpacing ? 'pt-2' : 'pt-1',
+          styles.field,
           className.baseField,
+          hasAdditionalSpacing ? 'pt-2' : 'pt-1',
         ),
       }}
     >
