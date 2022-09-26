@@ -20,7 +20,6 @@ import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 export interface TextFieldProps extends BaseFieldProps<HTMLInputElement> {
   progress?: string;
   leftIcon?: ReactNode;
-  absoluteLabel?: boolean;
   rightIcon?: React.ReactElement<IconProps>;
   actionButton?: React.ReactElement<ButtonProps<'button'>>;
 }
