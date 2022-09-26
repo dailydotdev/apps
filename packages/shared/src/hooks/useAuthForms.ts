@@ -20,7 +20,7 @@ interface UseAuthFormsProps {
   onDiscard?: CloseAuthModalFunc;
 }
 
-const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
+const git useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   const [container, setContainer] = useState<HTMLDivElement>();
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>();

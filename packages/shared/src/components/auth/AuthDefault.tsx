@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
@@ -12,6 +18,8 @@ import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { EventNames } from '../../lib/auth';
 
 interface AuthDefaultProps {
   children?: ReactNode;
@@ -25,6 +33,7 @@ interface AuthDefaultProps {
   isForgotPasswordReturn?: boolean;
   title?: string;
   providers: Provider[];
+  trigger: string;
   disableRegistration?: boolean;
   disablePassword?: boolean;
   isLoading?: boolean;
@@ -44,9 +53,11 @@ const AuthDefault = ({
   disableRegistration,
   disablePassword,
   isLoading,
+  trigger,
   title = isV2 ? 'Log in to daily.dev' : 'Sign up to daily.dev',
   loginButton,
 }: AuthDefaultProps): ReactElement => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(
     isForgotPasswordReturn || isV2,
   );
@@ -57,6 +68,21 @@ const AuthDefault = ({
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
     checkKratosEmail(emailParam),
   );
+
+  useEffect(() => {
+    trackEvent({
+      event_name: shouldLogin ? EventNames.OpenLogin : EventNames.OpenSignup,
+      extra: JSON.stringify({ trigger }),
+    });
+  }, [shouldLogin]);
+
+  const onCloseModal = (e) => {
+    trackEvent({
+      event_name: shouldLogin ? EventNames.CloseLogin : EventNames.CloseSignUp,
+      extra: JSON.stringify({ trigger }),
+    });
+    onClose(e);
+  };
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +142,7 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthModalHeader title={useTitle} onClose={onClose} />
+      <AuthModalHeader title={useTitle} onClose={onCloseModal} />
       <ColumnContainer className={disableRegistration && 'mb-6'}>
         {isV2 && (
           <AuthModalHeading

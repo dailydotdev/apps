@@ -56,6 +56,7 @@ export interface AuthOptionsProps {
   onSuccessfulLogin?: () => unknown;
   onShowOptionsOnly?: (value: boolean) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
+  trigger: string;
   defaultDisplay?: Display;
   className?: string;
 }
@@ -66,11 +67,13 @@ function AuthOptions({
   className,
   formRef,
   onShowOptionsOnly,
+  trigger,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
+  console.log('trigger: ', trigger);
   const { refetchBoot, user, loginState } = useContext(AuthContext);
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
@@ -227,6 +230,7 @@ function AuthOptions({
             isV2={isV2}
             isLoading={isPasswordLoginLoading}
             isForgotPasswordReturn={isForgotPasswordReturn}
+            trigger={trigger}
           />
         </Tab>
         <Tab label={Display.SocialRegistration}>

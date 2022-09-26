@@ -108,6 +108,7 @@ export default function AuthModal({
         formRef={formRef}
         onSuccessfulLogin={closeLogin}
         onShowOptionsOnly={(value: boolean) => setShowOptionsOnly(value)}
+        trigger={trigger}
       />
       {isDiscardOpen && (
         <DiscardActionModal

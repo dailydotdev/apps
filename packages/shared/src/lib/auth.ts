@@ -8,6 +8,13 @@ import {
   KratosMethod,
 } from './kratos';
 
+export enum EventNames {
+  OpenSignup = 'open signup',
+  CloseSignUp = 'close signup',
+  OpenLogin = 'open login',
+  CloseLogin = 'close login',
+}
+
 export interface LoginPasswordParameters extends AuthPostParams {
   password: string;
   identifier: string;
