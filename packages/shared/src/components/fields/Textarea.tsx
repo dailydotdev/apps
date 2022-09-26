@@ -83,6 +83,11 @@ function Textarea({
           inputId={inputId}
           label={label}
           className={className.innerLabel}
+          readOnly={readOnly}
+          isLocked={isLocked}
+          hasInput={hasInput}
+          disabled={disabled}
+          focused={focused}
         />
       )}
       <textarea
