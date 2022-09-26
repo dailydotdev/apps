@@ -3,7 +3,7 @@ import {
   PasswordField,
   PasswordFieldProps,
 } from '@dailydotdev/shared/src/components/fields/PasswordField';
-import { TextFieldProps } from '@dailydotdev/shared/src/components/fields/TextField';
+import { TextFieldProps } from '@dailydotdev/shared/src/components/fields/common';
 import classNames from 'classnames';
 import React, {
   Dispatch,
