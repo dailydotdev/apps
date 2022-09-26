@@ -107,7 +107,7 @@ export const SocialRegistrationForm = ({
         <ImageInput
           className="mb-4"
           initialValue={user?.image}
-          size="large"
+          size="medium"
           viewOnly
         />
         <TextField
@@ -164,7 +164,7 @@ export const SocialRegistrationForm = ({
         <span className="pb-4 border-b border-theme-divider-tertiary typo-subhead text-theme-label-secondary">
           Your email will be used to send you product and community updates
         </span>
-        <Checkbox name="optOutMarketing">
+        <Checkbox name="optOutMarketing" className="font-normal">
           I don’t want to receive updates and promotions via email
         </Checkbox>
         <Button
