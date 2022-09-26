@@ -1,41 +1,17 @@
 import React, {
   forwardRef,
-  InputHTMLAttributes,
   MutableRefObject,
   ReactElement,
-  ReactNode,
   SyntheticEvent,
   useEffect,
   useState,
 } from 'react';
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
-import { BaseField, FieldInput } from './common';
+import { BaseField, FieldInput, TextFieldProps } from './common';
 import styles from './TextField.module.css';
-import { ButtonProps } from '../buttons/Button';
 import useDebounce from '../../hooks/useDebounce';
 import { IconProps } from '../Icon';
-
-type FieldType = 'primary' | 'secondary' | 'tertiary';
-
-export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
-  inputId: string;
-  label: string;
-  baseFieldClassName?: string;
-  hintClassName?: string;
-  saveHintSpace?: boolean;
-  absoluteLabel?: boolean;
-  isLocked?: boolean;
-  progress?: string;
-  hint?: string;
-  valid?: boolean;
-  validityChanged?: (valid: boolean) => void;
-  valueChanged?: (value: string) => void;
-  fieldType?: FieldType;
-  leftIcon?: ReactNode;
-  actionButton?: React.ReactElement<ButtonProps<'button'>>;
-  rightIcon?: React.ReactElement<IconProps>;
-}
 
 interface InputFontColorProps {
   readOnly?: boolean;
@@ -203,11 +179,7 @@ function TextFieldComponent(
           isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
           leftIcon && 'pl-3',
           actionButton && 'pr-3',
-          {
-            readOnly,
-            focused,
-            invalid,
-          },
+          { readOnly, focused, invalid },
           baseFieldClassName,
           styles.field,
         )}

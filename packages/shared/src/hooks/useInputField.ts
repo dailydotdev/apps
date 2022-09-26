@@ -6,22 +6,24 @@ import {
   useState,
 } from 'react';
 
-type ReturnType = {
+type ValidElement = HTMLInputElement | HTMLTextAreaElement;
+
+interface ReturnType<T extends ValidElement = HTMLInputElement> {
   focused: boolean;
   hasInput: boolean;
-  inputRef: MutableRefObject<HTMLInputElement>;
+  inputRef: MutableRefObject<T>;
   onFocus: () => void;
   onBlur: () => void;
-  onInput: (event: SyntheticEvent<HTMLInputElement, InputEvent>) => void;
+  onInput: (event: SyntheticEvent<T, InputEvent>) => void;
   focusInput: () => void;
   setInput: (newValue: string) => void;
-};
+}
 
-export function useInputField(
+export function useInputField<T extends ValidElement = HTMLInputElement>(
   value: string | ReadonlyArray<string> | number,
   valueChanged?: (value: string) => void,
-): ReturnType {
-  const inputRef = useRef<HTMLInputElement>(null);
+): ReturnType<T> {
+  const inputRef = useRef<T>(null);
   const [focused, setFocused] = useState<boolean>(false);
   const [hasInput, setHasInput] = useState<boolean>(false);
 
@@ -37,9 +39,7 @@ export function useInputField(
   const onFocus = () => setFocused(true);
   const onBlur = () => setFocused(false);
 
-  const onInput = (
-    event: SyntheticEvent<HTMLInputElement, InputEvent>,
-  ): void => {
+  const onInput = (event: SyntheticEvent<T, InputEvent>): void => {
     if (valueChanged) {
       valueChanged(event.currentTarget.value);
     }
