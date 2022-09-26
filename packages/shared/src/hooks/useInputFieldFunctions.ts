@@ -80,28 +80,18 @@ function useInputFieldFunctions<
     }
   };
 
-  return useMemo(
-    () => ({
-      inputLength,
-      inputRef,
-      focused,
-      hasInput,
-      validInput,
-      onFocus,
-      onBlur,
-      onInput,
-      focusInput,
-      setInput,
-    }),
-    [
-      inputRef?.current,
-      inputLength,
-      inputLength,
-      validInput,
-      focused,
-      hasInput,
-    ],
-  );
+  return {
+    inputLength,
+    inputRef,
+    focused,
+    hasInput,
+    validInput,
+    onFocus,
+    onBlur,
+    onInput,
+    focusInput,
+    setInput,
+  };
 }
 
 export default useInputFieldFunctions;
