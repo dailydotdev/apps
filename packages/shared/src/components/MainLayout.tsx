@@ -24,7 +24,7 @@ import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import LoginButton from './LoginButton';
 import { useAuthErrors } from '../hooks/useAuthErrors';
-import { useAuthRecovery } from '../hooks/useAuthRecovery';
+import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -113,7 +113,7 @@ export default function MainLayout({
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
   useAuthErrors();
-  useAuthRecovery();
+  useAuthVerificationRecovery();
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
