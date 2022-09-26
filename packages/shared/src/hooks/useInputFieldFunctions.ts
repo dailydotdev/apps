@@ -1,4 +1,4 @@
-import { SyntheticEvent, useEffect, useMemo, useState } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
 import useDebounce from './useDebounce';
 import {
   UseInputField,
