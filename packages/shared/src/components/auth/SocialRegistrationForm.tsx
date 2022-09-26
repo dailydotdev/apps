@@ -112,7 +112,7 @@ export const SocialRegistrationForm = ({
         />
         <TextField
           saveHintSpace
-          className="w-full"
+          className={{ container: 'w-full' }}
           leftIcon={emailFieldIcon(provider)}
           name="email"
           inputId="email"
@@ -124,7 +124,7 @@ export const SocialRegistrationForm = ({
         />
         <TextField
           saveHintSpace
-          className="w-full"
+          className={{ container: 'w-full' }}
           leftIcon={<UserIcon size="medium" />}
           name="name"
           inputId="name"
@@ -143,7 +143,7 @@ export const SocialRegistrationForm = ({
         />
         <TextField
           saveHintSpace
-          className="w-full"
+          className={{ container: 'w-full' }}
           leftIcon={<AtIcon size="medium" secondary />}
           name="username"
           inputId="username"

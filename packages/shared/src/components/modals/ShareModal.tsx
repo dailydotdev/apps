@@ -93,7 +93,7 @@ export default function ShareModal({
       <section className={classNames('px-6', isComment && 'mt-2')}>
         <p className="py-2.5 font-bold typo-callout">Copy link</p>
         <TextField
-          className="mt-2 mb-6"
+          className={{ container: 'mt-2 mb-6' }}
           name="postUrl"
           inputId="postUrl"
           label="Copy URL"

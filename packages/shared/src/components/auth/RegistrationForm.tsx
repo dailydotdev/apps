@@ -94,7 +94,7 @@ export const RegistrationForm = ({
         <TokenInput token={token} />
         <TextField
           saveHintSpace
-          className="w-full"
+          className={{ container: 'w-full' }}
           leftIcon={<MailIcon />}
           name="traits.email"
           inputId="email"
@@ -106,7 +106,7 @@ export const RegistrationForm = ({
         />
         <TextField
           saveHintSpace
-          className="w-full"
+          className={{ container: 'w-full' }}
           valid={isNameValid}
           leftIcon={<UserIcon />}
           name="traits.name"
@@ -122,14 +122,15 @@ export const RegistrationForm = ({
           }
         />
         <PasswordField
-          className="w-full"
+          saveHintSpace
+          className={{ container: 'w-full' }}
           name="password"
           inputId="password"
           label="Create a password"
         />
         <TextField
           saveHintSpace
-          className="w-full"
+          className={{ container: 'w-full' }}
           valid={isUsernameValid}
           leftIcon={<AtIcon secondary />}
           name="traits.username"
