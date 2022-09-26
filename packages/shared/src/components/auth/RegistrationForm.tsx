@@ -122,6 +122,7 @@ export const RegistrationForm = ({
           }
         />
         <PasswordField
+          saveHintSpace
           className={{ container: 'w-full' }}
           name="password"
           inputId="password"
