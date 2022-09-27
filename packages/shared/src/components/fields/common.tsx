@@ -1,7 +1,6 @@
-import { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
+import { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import { InputFieldFunctionsProps } from '../../hooks/useInputFieldFunctions';
 import classed from '../../lib/classed';
-import { ButtonProps } from '../buttons/Button';
-import { IconProps } from '../Icon';
 import styles from './fields.module.css';
 
 export const FieldInput = classed(
@@ -21,23 +20,6 @@ type Attributes<T> = T extends HTMLInputElement
   ? InputHTMLAttributes<HTMLInputElement>
   : TextareaHTMLAttributes<HTMLTextAreaElement>;
 
-export type TextFieldProps<
+export type TextInputProps<
   T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement,
-> = Attributes<T> & {
-  inputId: string;
-  label: string;
-  baseFieldClassName?: string;
-  hintClassName?: string;
-  saveHintSpace?: boolean;
-  absoluteLabel?: boolean;
-  isLocked?: boolean;
-  progress?: string;
-  hint?: string;
-  valid?: boolean;
-  validityChanged?: (valid: boolean) => void;
-  valueChanged?: (value: string) => void;
-  fieldType?: FieldType;
-  leftIcon?: ReactNode;
-  actionButton?: React.ReactElement<ButtonProps<'button'>>;
-  rightIcon?: React.ReactElement<IconProps>;
-};
+> = InputFieldFunctionsProps & Omit<Attributes<T>, 'className'>;

@@ -85,7 +85,7 @@ export default function SharedBookmarksModal({
         {bookmarksSharingData?.bookmarksSharing?.enabled && (
           <div className="relative">
             <TextField
-              className="mt-6"
+              className={{ container: 'mt-6' }}
               name="rssUrl"
               inputId="rssUrl"
               label="Your unique RSS URL"

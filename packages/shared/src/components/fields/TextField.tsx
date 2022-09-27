@@ -2,65 +2,37 @@ import React, {
   forwardRef,
   MutableRefObject,
   ReactElement,
-  SyntheticEvent,
-  useEffect,
-  useState,
+  ReactNode,
 } from 'react';
 import classNames from 'classnames';
-import { useInputField } from '../../hooks/useInputField';
-import { BaseField, FieldInput, TextFieldProps } from './common';
+import { FieldInput } from './common';
 import styles from './TextField.module.css';
-import useDebounce from '../../hooks/useDebounce';
 import { IconProps } from '../Icon';
+import BaseFieldContainer, {
+  BaseFieldProps,
+  getFieldFontColor,
+  getFieldLabelColor,
+  getFieldPlaceholder,
+} from './BaseFieldContainer';
+import { ButtonProps } from '../buttons/Button';
+import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 
-interface InputFontColorProps {
-  readOnly?: boolean;
-  isLocked?: boolean;
-  disabled?: boolean;
-  focused?: boolean;
-  hasInput?: boolean;
-  actionIcon?: React.ReactElement<IconProps>;
+export interface TextFieldProps extends BaseFieldProps<HTMLInputElement> {
+  progress?: string;
+  leftIcon?: ReactNode;
+  rightIcon?: React.ReactElement<IconProps>;
+  actionButton?: React.ReactElement<ButtonProps<'button'>>;
 }
-
-export const getInputFontColor = ({
-  readOnly,
-  isLocked,
-  disabled,
-  focused,
-  hasInput,
-  actionIcon,
-}: InputFontColorProps): string => {
-  if ((readOnly && actionIcon) || hasInput) {
-    return 'text-theme-label-primary';
-  }
-
-  if (readOnly || isLocked) {
-    return 'text-theme-label-quaternary';
-  }
-
-  if (disabled) {
-    return 'text-theme-label-disabled';
-  }
-
-  if (focused) {
-    return 'text-theme-label-quaternary';
-  }
-
-  return 'text-theme-label-tertiary hover:text-theme-label-primary';
-};
 
 function TextFieldComponent(
   {
-    className,
+    className = {},
     inputId,
     name,
     label,
     maxLength,
     value,
-    baseFieldClassName,
-    hintClassName,
     saveHintSpace = false,
-    absoluteLabel = false,
     progress,
     hint,
     valid,
@@ -80,200 +52,144 @@ function TextFieldComponent(
   ref?: MutableRefObject<HTMLDivElement>,
 ): ReactElement {
   const {
-    inputRef,
+    validInput,
     focused,
     hasInput,
-    onFocus,
-    onBlur: baseOnBlur,
-    onInput: baseOnInput,
     focusInput,
-  } = useInputField(value, valueChanged);
+    inputRef,
+    onFocus,
+    onBlur,
+    onInput,
+    inputLength,
+  } = useInputFieldFunctions({
+    value,
+    valueChanged,
+    valid,
+    validityChanged,
+  });
   const isPrimaryField = fieldType === 'primary';
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
-  const [inputLength, setInputLength] = useState<number>(0);
-  const [validInput, setValidInput] = useState<boolean>(undefined);
-  const [idleTimeout, clearIdleTimeout] = useDebounce(() => {
-    setValidInput(inputRef.current.checkValidity());
-  }, 1500);
-
-  useEffect(() => {
-    if (validityChanged && validInput !== undefined) {
-      validityChanged(validInput);
-    }
-  }, [validInput]);
-
-  useEffect(() => {
-    if (validInput !== undefined && valid !== undefined) {
-      setValidInput(valid);
-    }
-  }, [valid]);
-
-  const onBlur = () => {
-    clearIdleTimeout();
-    baseOnBlur();
-    if (inputRef.current) {
-      setValidInput(inputRef.current.checkValidity());
-    }
-  };
-
-  const onInput = (
-    event: SyntheticEvent<HTMLInputElement, InputEvent>,
-  ): void => {
-    clearIdleTimeout();
-    baseOnInput(event);
-    if (valueChanged) {
-      valueChanged(event.currentTarget.value);
-    }
-    const len = event.currentTarget.value.length;
-    setInputLength(len);
-    const inputValidity = inputRef.current.checkValidity();
-
-    if (inputValidity) {
-      setValidInput(true);
-    } else {
-      idleTimeout();
-    }
-  };
-
-  const getPlaceholder = () => {
-    if (isTertiaryField) {
-      return focused ? placeholder : label;
-    }
-
-    if (focused || isSecondaryField) {
-      return placeholder ?? '';
-    }
-
-    return label;
-  };
-
   const invalid = validInput === false;
-  const getLabelColor = () => {
-    if (readOnly || isLocked || (hasInput && !focused)) {
-      return 'text-theme-label-tertiary';
-    }
-
-    return disabled ? 'text-theme-label-disabled' : 'text-theme-label-primary';
-  };
 
   return (
-    <div
-      className={classNames(className, 'flex flex-col items-stretch relative')}
-      style={style}
+    <BaseFieldContainer
       ref={ref}
-    >
-      {isSecondaryField && (
-        <label
-          className="px-2 mb-1 font-bold text-theme-label-primary typo-caption1"
-          htmlFor={inputId}
-        >
-          {label}
-        </label>
-      )}
-      <BaseField
-        data-testid="field"
-        onClick={focusInput}
-        className={classNames(
-          'flex flex-row items-center relative',
-          isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
+      inputId={inputId}
+      invalid={invalid}
+      focusInput={focusInput}
+      saveHintSpace={saveHintSpace}
+      hint={hint}
+      fieldType={fieldType}
+      readOnly={readOnly}
+      isLocked={isLocked}
+      hasInput={hasInput}
+      disabled={disabled}
+      focused={focused}
+      label={label}
+      className={{
+        ...className,
+        container: classNames('items-stretch', className.container),
+        baseField: classNames(
+          'flex-row items-center',
+          styles.field,
+          className.baseField,
           leftIcon && 'pl-3',
           actionButton && 'pr-3',
-          { readOnly, focused, invalid },
-          baseFieldClassName,
-          styles.field,
+          isSecondaryField ? 'h-9' : 'h-12',
+        ),
+      }}
+    >
+      {leftIcon && (
+        <span
+          className={classNames(
+            'mr-2',
+            getFieldFontColor({
+              readOnly,
+              disabled,
+              hasInput,
+              focused,
+              isLocked,
+              hasActionIcon: !!rightIcon,
+            }),
+          )}
+        >
+          {leftIcon}
+        </span>
+      )}
+      <div
+        className={classNames(
+          'flex flex-col flex-1 items-start max-w-full',
+          actionButton && 'mr-2',
         )}
       >
-        {leftIcon && (
-          <span
+        {isPrimaryField && (focused || hasInput) && (
+          <label
             className={classNames(
-              'mr-2',
-              getInputFontColor({
+              'typo-caption1',
+              getFieldLabelColor({
                 readOnly,
-                disabled,
-                hasInput,
-                focused,
                 isLocked,
-                actionIcon: rightIcon,
-              }),
-            )}
-          >
-            {leftIcon}
-          </span>
-        )}
-        <div
-          className={classNames(
-            'flex flex-col flex-1 items-start max-w-full',
-            actionButton && 'mr-2',
-          )}
-        >
-          {isPrimaryField && (focused || hasInput) && (
-            <label
-              className={classNames('typo-caption1', getLabelColor())}
-              htmlFor={inputId}
-            >
-              {label}
-            </label>
-          )}
-          <FieldInput
-            placeholder={getPlaceholder()}
-            name={name}
-            id={inputId}
-            ref={inputRef}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            onInput={onInput}
-            maxLength={maxLength}
-            readOnly={readOnly}
-            size={1}
-            className={classNames(
-              'self-stretch',
-              getInputFontColor({
-                readOnly,
-                disabled,
                 hasInput,
                 focused,
-                actionIcon: rightIcon,
+                disabled,
               }),
             )}
-            disabled={disabled}
-            {...props}
-          />
-          {progress && (
-            <div
-              className={classNames(
-                'absolute bottom-0 h-[3px] rounded-10 transition-all',
-                progress,
-              )}
-            />
-          )}
-        </div>
-        {maxLength && (
-          <div
-            className="ml-2 font-bold typo-callout"
-            style={{ color: 'var(--field-placeholder-color)' }}
+            htmlFor={inputId}
           >
-            {maxLength - inputLength}
-          </div>
+            {label}
+          </label>
         )}
-        {rightIcon}
-        {actionButton}
-      </BaseField>
-      {(hint?.length || saveHintSpace) && (
-        <div
-          role={invalid ? 'alert' : undefined}
+        <FieldInput
+          placeholder={getFieldPlaceholder({
+            label,
+            focused,
+            placeholder,
+            isTertiaryField,
+            isSecondaryField,
+          })}
+          name={name}
+          id={inputId}
+          ref={inputRef}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onInput={onInput}
+          maxLength={maxLength}
+          readOnly={readOnly}
+          size={1}
           className={classNames(
-            ' px-2 typo-caption1',
-            saveHintSpace && 'h-4',
-            invalid ? 'text-theme-status-error' : 'text-theme-label-quaternary',
-            absoluteLabel ? 'absolute -bottom-5' : 'mt-1',
-            hintClassName,
+            'self-stretch',
+            getFieldFontColor({
+              readOnly,
+              disabled,
+              hasInput,
+              focused,
+              hasActionIcon: !!rightIcon,
+            }),
           )}
+          disabled={disabled}
+          {...props}
+        />
+        {progress && (
+          <div
+            className={classNames(
+              'absolute bottom-0 h-[3px] rounded-10 transition-all',
+              progress,
+            )}
+          />
+        )}
+      </div>
+      {maxLength && (
+        <div
+          className="ml-2 font-bold typo-callout"
+          style={{ color: 'var(--field-placeholder-color)' }}
         >
-          {hint}
+          {maxLength - inputLength}
         </div>
       )}
-    </div>
+      {rightIcon}
+      {actionButton}
+    </BaseFieldContainer>
   );
 }
 
