@@ -39,7 +39,7 @@ function ResetPassword(): ReactElement {
       onSuccess: (data) => {
         if ('code' in data && data.code === 401) {
           setHint(
-            `An error occurred. Kindly send us a report and include the follow id: ${router.query.flow}`,
+            `An error occurred. Kindly send us a report and include the following id: ${router.query.flow}`,
           );
         }
       },
