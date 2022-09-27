@@ -8,43 +8,55 @@ import React, {
 import classNames from 'classnames';
 import TabList from './TabList';
 
-export interface TabProps {
+export interface TabProps<T extends string> {
   key?: number;
   children: ReactNode;
-  label: string;
+  label: T;
   className?: string;
   style?: CSSProperties;
+  showHeader?: boolean;
 }
 
-export const Tab = ({ children, className, style }: TabProps): ReactElement => (
-  <div className={classNames('p-3', className)} style={style}>
-    {children}
-  </div>
-);
+export const Tab = <T extends string>({
+  children,
+  className,
+  style,
+}: TabProps<T>): ReactElement =>
+  !className && !style ? (
+    <>{children}</>
+  ) : (
+    <div className={className} style={style}>
+      {children}
+    </div>
+  );
 
-export interface TabContainerProps {
-  children?: ReactElement<TabProps>[];
+export interface TabContainerProps<T extends string> {
+  children?: ReactElement<TabProps<T>>[];
   shouldMountInactive?: boolean;
-  onActiveChange?: (active: string) => unknown;
+  onActiveChange?: (active: T) => unknown;
   className?: string;
   style?: CSSProperties;
+  showHeader?: boolean;
+  controlledActive?: string;
 }
 
-function TabContainer({
+function TabContainer<T extends string = string>({
   children,
   shouldMountInactive = false,
   onActiveChange,
   className,
   style,
-}: TabContainerProps): ReactElement {
+  showHeader = true,
+  controlledActive,
+}: TabContainerProps<T>): ReactElement {
   const [active, setActive] = useState(children[0].props.label);
-  const onClick = (label: string) => {
+  const onClick = (label: T) => {
     setActive(label);
-    onActiveChange(label);
+    onActiveChange?.(label);
   };
 
-  const isTabActive = (child: ReactElement<TabProps>) =>
-    child.props.label === active;
+  const isTabActive = (child: ReactElement<TabProps<T>>) =>
+    child.props.label === (controlledActive ?? active);
 
   const renderSingleComponent = () => {
     if (!shouldMountInactive) {
@@ -56,6 +68,22 @@ function TabContainer({
     return null;
   };
 
+  const render = !shouldMountInactive
+    ? renderSingleComponent()
+    : children.map((child, i) =>
+        createElement<TabProps<T>>(child.type, {
+          ...child.props,
+          key: child.props.key || i,
+          style: isTabActive(child)
+            ? child.props.style
+            : { ...child.props.style, display: 'none' },
+        }),
+      );
+
+  if (!showHeader) {
+    return <>{render}</>;
+  }
+
   return (
     <div className={classNames('flex flex-col', className)} style={style}>
       <header className="flex flex-row border-b border-theme-divider-tertiary">
@@ -65,17 +93,7 @@ function TabContainer({
           active={active}
         />
       </header>
-      {!shouldMountInactive
-        ? renderSingleComponent()
-        : children.map((child, i) =>
-            createElement(child.type, {
-              ...child.props,
-              key: child.props.key || i,
-              style: isTabActive(child)
-                ? child.props.style
-                : { ...child.props.style, display: 'none' },
-            }),
-          )}
+      {render}
     </div>
   );
 }
