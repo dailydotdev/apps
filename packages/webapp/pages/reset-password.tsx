@@ -16,6 +16,8 @@ import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import {
   AuthFlow,
   getKratosFlow,
+  InitializationData,
+  KratosError,
   submitKratosFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
@@ -27,7 +29,7 @@ function ResetPassword(): ReactElement {
   const [hint, setHint] = useState(null);
   const [disabledWhileRedirecting, setDisabledWhileRedirecting] =
     useState(false);
-  const { data: settings } = useQuery(
+  const { data: settings } = useQuery<InitializationData | KratosError>(
     'settings',
     () => getKratosFlow(AuthFlow.Settings, router.query.flow as string),
     {
@@ -65,6 +67,10 @@ function ResetPassword(): ReactElement {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if ('code' in settings) {
+      return;
+    }
+
     const { password } = formToJson<{ password: string }>(e.currentTarget);
     const params: RegistrationParameters = {
       method: 'password',
