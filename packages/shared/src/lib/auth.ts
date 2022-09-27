@@ -10,9 +10,17 @@ import {
 
 export enum EventNames {
   OpenSignup = 'open signup',
-  CloseSignUp = 'close signup',
   OpenLogin = 'open login',
-  CloseLogin = 'close login',
+  CloseSignUp = 'close signup',
+  SignUpProvider = 'signup provider',
+  LoginProvider = 'login provider',
+  StartSignUpForm = 'start signup form',
+  SubmitSignUpForm = 'submit signup form',
+  SubmitSignUpFormError = 'submit signup form error',
+  LoginSuccessfuly = 'login successfuly',
+  LoginError = 'login error',
+  ForgotPassword = 'forgot password',
+  SubmitForgotPassword = 'submit forgot password',
 }
 
 export interface LoginPasswordParameters extends AuthPostParams {

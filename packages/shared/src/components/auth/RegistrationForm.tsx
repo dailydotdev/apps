@@ -1,6 +1,16 @@
 import classNames from 'classnames';
-import React, { MutableRefObject, ReactElement, useState } from 'react';
-import { RegistrationError, RegistrationParameters } from '../../lib/auth';
+import React, {
+  MutableRefObject,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import {
+  EventNames,
+  RegistrationError,
+  RegistrationParameters,
+} from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
@@ -14,6 +24,7 @@ import TokenInput from './TokenField';
 import { AuthForm } from './common';
 import AtIcon from '../icons/At';
 import { Checkbox } from '../fields/Checkbox';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export interface RegistrationFormProps {
   email: string;
@@ -43,9 +54,31 @@ export const RegistrationForm = ({
   hints,
   onUpdateHints,
 }: RegistrationFormProps): ReactElement => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
+  useEffect(() => {
+    trackEvent({
+      event_name: EventNames.StartSignUpForm,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (Object.keys(hints).length) {
+      trackEvent({
+        event_name: EventNames.SubmitSignUpFormError,
+        extra: JSON.stringify({ error: hints }),
+      });
+    }
+  }, [hints]);
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    trackEvent({
+      event_name: EventNames.SubmitSignUpForm,
+    });
+
     setIsSubmitted(true);
     const form = e.target as HTMLFormElement;
     const { optOutMarketing, ...values } = formToJson<RegistrationFormValues>(

@@ -27,7 +27,7 @@ interface AuthDefaultProps {
   onClose?: CloseModalFunc;
   onPasswordLogin?: (params: LoginFormParams) => void;
   onSignup?: (email: string) => unknown;
-  onProviderClick?: (provider: string) => unknown;
+  onProviderClick?: (provider: string, login?: boolean) => unknown;
   onForgotPassword?: () => unknown;
   isV2?: boolean;
   isForgotPasswordReturn?: boolean;
@@ -76,16 +76,16 @@ const AuthDefault = ({
     });
   }, [shouldLogin]);
 
-  const onCloseModal = (e) => {
-    trackEvent({
-      event_name: shouldLogin ? EventNames.CloseLogin : EventNames.CloseSignUp,
-      extra: JSON.stringify({ trigger }),
-    });
-    onClose(e);
-  };
-
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    trackEvent({
+      event_name: 'click',
+      target_type: EventNames.SignUpProvider,
+      target_id: 'email',
+      extra: JSON.stringify({ trigger }),
+    });
+
     const form = e.currentTarget as HTMLFormElement;
     const input = Array.from(form.elements).find(
       (el) => el.getAttribute('name') === 'email',
@@ -108,7 +108,7 @@ const AuthDefault = ({
 
   const onSocialClick = (provider: string) => {
     storage.setItem(SIGNIN_METHOD_KEY, provider);
-    onProviderClick?.(provider);
+    onProviderClick?.(provider, shouldLogin);
   };
 
   const getForm = () => {
@@ -142,7 +142,7 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthModalHeader title={useTitle} onClose={onCloseModal} />
+      <AuthModalHeader title={useTitle} onClose={onClose} />
       <ColumnContainer className={disableRegistration && 'mb-6'}>
         {isV2 && (
           <AuthModalHeading
