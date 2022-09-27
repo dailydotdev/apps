@@ -31,6 +31,7 @@ export const FeaturesContextProvider = ({
   const features = useMemo(
     () => ({
       flags,
+      myFeedVersion: getFeatureValue(Features.MyFeedVersion, flags),
       showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
       shouldShowMyFeed: isFeaturedEnabled(Features.MyFeedOn, flags) ?? true,
       postEngagementNonClickable: isFeaturedEnabled(

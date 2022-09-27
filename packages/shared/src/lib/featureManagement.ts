@@ -128,6 +128,11 @@ export class Features {
     ['control', 'v1', 'v2', 'v3'],
   );
 
+  static readonly MyFeedVersion = new Features('my_feed_version', 'v1', [
+    'v1',
+    'v2',
+  ]);
+
   static readonly AdditionalInteractionButton = new Features(
     'additional_interaction_button',
     AdditionalInteractionButtons.Bookmark,
