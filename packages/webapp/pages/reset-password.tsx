@@ -27,13 +27,20 @@ function ResetPassword(): ReactElement {
   const [hint, setHint] = useState(null);
   const [disabledWhileRedirecting, setDisabledWhileRedirecting] =
     useState(false);
-  const { data } = useQuery(
+  const { data: settings } = useQuery(
     'settings',
     () => getKratosFlow(AuthFlow.Settings, router.query.flow as string),
     {
       ...disabledRefetch,
       retry: false,
       enabled: !!router.query.flow,
+      onSuccess: (data) => {
+        if ('code' in data && data.code === 401) {
+          setHint(
+            `An error occurred. Kindly send us a report and include the follow id: ${router.query.flow}`,
+          );
+        }
+      },
     },
   );
   const { mutateAsync: reset, isLoading } = useMutation(
@@ -61,14 +68,14 @@ function ResetPassword(): ReactElement {
     const { password } = formToJson<{ password: string }>(e.currentTarget);
     const params: RegistrationParameters = {
       method: 'password',
-      csrf_token: getNodeValue('csrf_token', data.ui.nodes),
-      'traits.email': getNodeValue('traits.email', data.ui.nodes),
-      'traits.name': getNodeValue('traits.name', data.ui.nodes),
-      'traits.username': getNodeValue('traits.username', data.ui.nodes),
-      'traits.image': getNodeValue('traits.image', data.ui.nodes),
+      csrf_token: getNodeValue('csrf_token', settings.ui.nodes),
+      'traits.email': getNodeValue('traits.email', settings.ui.nodes),
+      'traits.name': getNodeValue('traits.name', settings.ui.nodes),
+      'traits.username': getNodeValue('traits.username', settings.ui.nodes),
+      'traits.image': getNodeValue('traits.image', settings.ui.nodes),
       password,
     };
-    reset({ params, action: data.ui.action });
+    reset({ params, action: settings.ui.action });
   };
 
   return (
