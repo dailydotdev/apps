@@ -63,6 +63,7 @@ module.exports = {
           success: 'var(--theme-status-success)',
           warning: 'var(--theme-status-warning)',
           cabbage: 'var(--theme-status-cabbage)',
+          invert: { cabbage: 'var(--theme-status-cabbage-invert)' },
         },
         color: {
           burger: 'var(--theme-color-burger)',
