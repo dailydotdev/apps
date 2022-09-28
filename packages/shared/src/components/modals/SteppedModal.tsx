@@ -80,7 +80,7 @@ function SteppedModal({
   return (
     <StyledModal
       {...props}
-      contentClassName="max-h-[40rem] h-full w-full pt-8"
+      contentClassName="relative max-h-[40rem] h-full w-full pt-8 overflow-x-hidden"
       overlayClassName="py-10"
     >
       <TabContainer
@@ -91,7 +91,7 @@ function SteppedModal({
         {getChildren()}
       </TabContainer>
       {step < Children.count(children) && (
-        <footer className="flex relative flex-row justify-between p-3 mt-auto w-full border-t border-theme-divider-tertiary">
+        <footer className="flex sticky bottom-0 z-2 flex-row justify-between p-3 mt-auto w-full border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
           <div
             className="absolute -top-0.5 left-0 h-1 bg-theme-color-cabbage transition-[width]"
             style={{ width: `${getWidth()}%` }}
