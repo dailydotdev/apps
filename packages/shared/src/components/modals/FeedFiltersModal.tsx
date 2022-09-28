@@ -28,17 +28,25 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
   const [isInsaneMode, setIsInsaneMode] = useState(false);
   const [selected, setSelected] = useState({});
   const { tagsCategories } = useFeedSettings();
-  const onNext = () => {};
+  const [step, setStep] = useState(0);
+  const onStepChange = (beforeStep: number, stepNow: number) => {
+    setStep(stepNow);
+  };
 
   return (
-    <SteppedModal {...props} onNext={onNext} isLastStepLogin>
+    <SteppedModal
+      {...props}
+      contentClassName={step === 0 && 'overflow-y-hidden'}
+      onStepChange={onStepChange}
+      isLastStepLogin
+    >
       <FeedFilterStep
         title="Make the feed, your feed."
         description="Devs with a personal feed get 11.5x more relevant articles!"
         className={{ container: 'relative' }}
       >
         <img
-          className="absolute"
+          className="absolute -mt-4 scale-125"
           src="/your_feed.png"
           alt="cards containing tag name being selected"
         />

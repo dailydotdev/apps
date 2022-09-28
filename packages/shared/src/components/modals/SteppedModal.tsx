@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   Children,
   KeyboardEvent,
@@ -11,14 +12,14 @@ import { ModalProps, StyledModal } from './StyledModal';
 
 interface SteppedModalProps extends ModalProps {
   isLastStepLogin?: boolean;
-  onNext?: (stepBefore: number, stepNow: number) => void | Promise<void>;
+  onStepChange?: (stepBefore: number, stepNow: number) => void | Promise<void>;
   onFinish?: () => void | Promise<void>;
 }
 
 function SteppedModal({
   children,
   isLastStepLogin,
-  onNext,
+  onStepChange,
   onFinish,
   onRequestClose,
   ...props
@@ -41,6 +42,7 @@ function SteppedModal({
       return onRequestClose?.(e);
     }
 
+    await onStepChange?.(step, step - 1);
     return setStep(step - 1);
   };
 
@@ -61,7 +63,7 @@ function SteppedModal({
     }
 
     const nextStep = step + 1;
-    await onNext?.(step, nextStep);
+    await onStepChange?.(step, nextStep);
     return setStep(nextStep);
   };
 
@@ -80,7 +82,10 @@ function SteppedModal({
   return (
     <StyledModal
       {...props}
-      contentClassName="relative max-h-[40rem] h-full w-full pt-8 overflow-x-hidden"
+      contentClassName={classNames(
+        'relative max-h-[40rem] h-full w-full pt-8 overflow-x-hidden',
+        props.contentClassName,
+      )}
       overlayClassName="py-10"
     >
       <TabContainer
