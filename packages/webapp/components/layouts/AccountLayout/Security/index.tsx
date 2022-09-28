@@ -200,6 +200,8 @@ function AccountSecurityDefault({
           onSubmit={onChangePassword}
         >
           <PasswordField
+            required
+            minLength={6}
             className={{ container: 'mt-6 max-w-sm' }}
             inputId="new_password"
             label="Password"
