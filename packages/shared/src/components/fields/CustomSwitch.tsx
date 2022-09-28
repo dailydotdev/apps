@@ -1,40 +1,63 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import styles from './IconsSwitch.module.css';
+import styles from './CustomSwitch.module.css';
 import classed from '../../lib/classed';
 
-export interface IconsSwitchProps {
+export interface ContentsSwitchProps {
   className?: string;
   inputId: string;
   name: string;
   checked?: boolean;
   onToggle?: () => unknown;
-  leftIcon: React.FC<{ className?: string }>;
-  rightIcon: React.FC<{ className?: string }>;
+  leftContent: React.FC<{ className?: string }> | string;
+  rightContent: React.FC<{ className?: string }> | string;
 }
 
-const IconContainer = classed(
+const ContentContainer = classed(
   'span',
-  'relative flex flex-1 items-center justify-center z-2',
+  'relative flex items-center justify-center z-2 px-3',
 );
 
-const baseIconClass = 'transform transition-transform text-base';
-const unselectedIconClass = 'text-theme-label-secondary scale-125';
-const selectedIconClass = 'scale-150';
+const baseContentClass = 'transform transition-transform text-base';
+const unselectedContentClass = 'text-theme-label-tertiary scale-125';
+const selectedContentClass = 'scale-150';
 
-export function IconsSwitch({
+export function CustomSwitch({
   className,
   inputId,
   name,
   checked,
   onToggle,
-  leftIcon: LeftIcon,
-  rightIcon: RightIcon,
-}: IconsSwitchProps): ReactElement {
+  leftContent: LeftContent,
+  rightContent: RightContent,
+}: ContentsSwitchProps): ReactElement {
+  const leftRef = useRef<HTMLElement>();
+  const rightRef = useRef<HTMLElement>();
+  const [width, setWidth] = useState('');
+
+  useEffect(() => {
+    if (!leftRef?.current || !rightRef?.current) {
+      return;
+    }
+
+    const element = checked ? rightRef.current : leftRef.current;
+    const { width: elementWidth } = element.getBoundingClientRect();
+    setWidth(`${elementWidth}px`);
+  }, [checked]);
+
+  const leftClasses = classNames(
+    baseContentClass,
+    checked ? unselectedContentClass : selectedContentClass,
+  );
+  const rightClasses = classNames(
+    baseContentClass,
+    checked ? selectedContentClass : unselectedContentClass,
+  );
+
   return (
     <label
       className={classNames(
-        'group relative flex w-28 h-9 cursor-pointer',
+        'group relative flex h-9 w-fit cursor-pointer typo-callout font-bold',
         className,
       )}
       htmlFor={inputId}
@@ -47,29 +70,34 @@ export function IconsSwitch({
         checked={checked}
         onChange={onToggle}
       />
-      <IconContainer>
-        <LeftIcon
-          className={classNames(
-            baseIconClass,
-            checked ? unselectedIconClass : selectedIconClass,
-          )}
-        />
-      </IconContainer>
-      <IconContainer>
-        <RightIcon
-          className={classNames(
-            baseIconClass,
-            checked ? selectedIconClass : unselectedIconClass,
-          )}
-        />
-      </IconContainer>
-      <span className="absolute top-0 bottom-0 left-0 my-auto w-full h-7 bg-cabbage-50 rounded-10 opacity-24 group-hover:opacity-32" />
+      <ContentContainer
+        ref={leftRef}
+        className={checked && 'text-theme-label-tertiary'}
+      >
+        {typeof LeftContent === 'string' ? (
+          LeftContent
+        ) : (
+          <LeftContent className={classNames(leftClasses)} />
+        )}
+      </ContentContainer>
+      <ContentContainer
+        ref={rightRef}
+        className={!checked && 'text-theme-label-tertiary'}
+      >
+        {typeof RightContent === 'string' ? (
+          RightContent
+        ) : (
+          <RightContent className={rightClasses} />
+        )}
+      </ContentContainer>
+      <span className="absolute inset-0 my-auto h-7 bg-cabbage-50 rounded-10 opacity-24 group-hover:opacity-32" />
       <span
         className={classNames(
-          'absolute left-0 top-0 w-1/2 h-full rounded-xl z-1 transition-transform transform',
+          'absolute  top-0 h-full rounded-xl z-1',
           styles.knob,
-          checked && 'translate-x-full',
+          checked && styles.checked,
         )}
+        style={{ width }}
       />
     </label>
   );
