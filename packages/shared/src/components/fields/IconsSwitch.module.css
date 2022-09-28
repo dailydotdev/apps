@@ -1,25 +1,25 @@
 .knob {
-  @apply bg-water-40;
+  @apply bg-cabbage-40;
 }
 
 :global(.group):hover .knob {
-  @apply bg-water-20;
+  @apply bg-cabbage-20;
 }
 
 :global(.light) .knob {
-  @apply bg-water-60;
+  @apply bg-cabbage-60;
 }
 
 :global(.light) :global(.group):hover .knob {
-  @apply bg-water-80;
+  @apply bg-cabbage-80;
 }
 
 @media (prefers-color-scheme: light) {
   :global(.auto) .knob {
-    @apply bg-water-60;
+    @apply bg-cabbage-60;
   }
   
   :global(.auto) :global(.group):hover .knob {
-    @apply bg-water-80;
+    @apply bg-cabbage-80;
   }
 }
