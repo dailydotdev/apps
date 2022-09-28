@@ -98,7 +98,7 @@ function AuthOptions({
     setHandleLoginCheck(handleLoginCheck === null);
 
     if (user.infoConfirmed) {
-      onSuccessfulLogin();
+      onSuccessfulLogin?.();
     } else {
       setActiveDisplay(Display.SocialRegistration);
     }
