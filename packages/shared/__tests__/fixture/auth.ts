@@ -1,7 +1,6 @@
 import nock from 'nock';
 import { authUrl, heimdallUrl } from '../../src/lib/constants';
 import {
-  AuthSession,
   EmptyObjectLiteral,
   Identity,
   InitializationData,
@@ -739,7 +738,7 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
     state: 'show_form',
   };
 
-const whoamiMockData = {
+const getWhoamiMockData = (email = 'lee@daily.dev') => ({
   id: 'c005cab5-e770-4337-a3b3-7903b79abc61',
   active: true,
   expires_at: '2022-09-01T06:19:36.095759Z',
@@ -761,7 +760,7 @@ const whoamiMockData = {
     state_changed_at: '2022-08-24T03:30:19.668093Z',
     traits: {
       name: 'Lee Hansel Solevilla',
-      email: 'lee@daily.dev',
+      email,
       image:
         'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
       username: 'lee',
@@ -769,7 +768,7 @@ const whoamiMockData = {
     verifiable_addresses: [
       {
         id: '99a84554-56a8-4a1c-b269-869ddd0b4b8d',
-        value: 'lee@daily.dev',
+        value: email,
         verified: false,
         via: 'email',
         status: 'sent',
@@ -780,7 +779,7 @@ const whoamiMockData = {
     recovery_addresses: [
       {
         id: 'a530e776-6a87-4b19-9523-4eef4a01b0dd',
-        value: 'lee@daily.dev',
+        value: email,
         via: 'email',
         created_at: '2022-08-24T03:30:19.714243Z',
         updated_at: '2022-08-31T03:48:02.423298Z',
@@ -790,12 +789,10 @@ const whoamiMockData = {
     created_at: '2022-08-24T03:30:19.690974Z',
     updated_at: '2022-08-24T03:30:19.690974Z',
   },
-};
+});
 
-export const mockWhoAmIFlow = (result: Partial<AuthSession> = {}): void => {
-  nock(authUrl)
-    .get('/sessions/whoami')
-    .reply(200, { ...whoamiMockData, ...result });
+export const mockWhoAmIFlow = (email?: string): void => {
+  nock(authUrl).get('/sessions/whoami').reply(200, getWhoamiMockData(email));
 };
 
 export const socialProviderRedirectMock = {
