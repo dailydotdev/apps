@@ -129,6 +129,7 @@ it('should allow changing of email', async () => {
     'traits.username': getNodeValue('traits.username', nodes),
     'traits.image': getNodeValue('traits.image', nodes),
   };
+  mockWhoAmIFlow(email);
   mockSettingsValidation(params);
   const submitChanges = await screen.findByText('Save changes');
   fireEvent.click(submitChanges);
@@ -163,6 +164,7 @@ it('should allow changing of email but require verification', async () => {
   fireEvent.click(submitChanges);
   await waitForNock();
   await verifySession();
+  mockWhoAmIFlow(email);
   mockSettingsValidation(params);
   const reSubmitChanges = await screen.findByText('Save changes');
   fireEvent.click(reSubmitChanges);
