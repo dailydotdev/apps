@@ -138,7 +138,7 @@ const AccountSecurityPage = (): ReactElement => {
   const { mutateAsync: updateSettings } = useMutation(
     (params: SettingsParams) => submitKratosFlow(params),
     {
-      onSuccess: ({ redirect, error, code }) => {
+      onSuccess: ({ redirect, error, code }, { params }) => {
         if (redirect) {
           if (code === 403) {
             initializePrivilegedSession(redirect);
@@ -153,7 +153,9 @@ const AccountSecurityPage = (): ReactElement => {
           return;
         }
 
-        refetchProviders();
+        if ('link' in params || 'unlink' in params) {
+          refetchProviders();
+        }
       },
     },
   );

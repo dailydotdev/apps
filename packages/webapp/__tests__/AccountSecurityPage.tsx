@@ -136,6 +136,7 @@ it('should allow changing of email', async () => {
     'traits.username': getNodeValue('traits.username', nodes),
     'traits.image': getNodeValue('traits.image', nodes),
   };
+  mockVerificationFlow();
   mockWhoAmIFlow(email);
   mockSettingsValidation(params);
   const submitChanges = await screen.findByText('Save changes');
@@ -237,6 +238,7 @@ it('should allow linking social providers', async () => {
   const { nodes } = settingsFlowMockData.ui;
   const token = getNodeValue('csrf_token', nodes);
   const params = { link: 'google', csrf_token: token };
+  mockListProviders();
   mockSettingsValidation(params);
   fireEvent.click(connect);
   await waitForNock();
