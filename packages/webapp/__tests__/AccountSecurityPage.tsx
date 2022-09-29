@@ -56,7 +56,7 @@ const renderComponent = (): RenderResult => {
   const client = new QueryClient();
   mockSettingsFlow();
   mockListProviders();
-  mockWhoAmIFlow();
+  mockWhoAmIFlow(defaultLoggedUser.email);
 
   return render(
     <QueryClientProvider client={client}>
