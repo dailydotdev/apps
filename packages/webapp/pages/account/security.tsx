@@ -30,7 +30,6 @@ import EmailFormPage from '../../components/layouts/AccountLayout/Security/Email
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();
-  const [isEmailSent, setIsEmailSent] = useState(false);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
   const { data: userProviders, refetch: refetchProviders } = useQuery(
@@ -47,11 +46,13 @@ const AccountSecurityPage = (): ReactElement => {
   };
 
   const {
+    session,
     showVerifySession,
     initializePrivilegedSession,
     onPasswordLogin,
     onCloseVerifySession,
     onSocialLogin,
+    refetchSession,
   } = usePrivilegedSession();
 
   const { mutateAsync: resetPassword } = useMutation(
@@ -86,9 +87,10 @@ const AccountSecurityPage = (): ReactElement => {
       return submitKratosFlow(params);
     },
     {
-      onSuccess: ({ redirect, error, code }) => {
+      onSuccess: async ({ redirect, error, code }) => {
         if (redirect && code === 403) {
-          return initializePrivilegedSession(redirect);
+          initializePrivilegedSession(redirect);
+          return;
         }
 
         if (error) {
@@ -96,12 +98,11 @@ const AccountSecurityPage = (): ReactElement => {
             setHint('This email address is already in use');
           }
 
-          return null;
+          return;
         }
 
-        setIsEmailSent(true);
         setActiveDisplay(Display.Default);
-        return null;
+        await refetchSession();
       },
     },
   );
@@ -112,9 +113,9 @@ const AccountSecurityPage = (): ReactElement => {
     const input = Array.from(form.elements).find(
       (el) => el.getAttribute('name') === 'traits.email',
     ) as HTMLInputElement;
-    const email = input?.value?.trim();
+    const changedEmail = input?.value?.trim();
 
-    if (!email) {
+    if (!changedEmail) {
       return;
     }
 
@@ -125,7 +126,7 @@ const AccountSecurityPage = (): ReactElement => {
       params: {
         csrf_token: csrfToken,
         method: 'profile',
-        'traits.email': email,
+        'traits.email': changedEmail,
         'traits.name': getNodeValue('traits.name', nodes),
         'traits.username': getNodeValue('traits.username', nodes),
         'traits.image': getNodeValue('traits.image', nodes),
@@ -137,7 +138,7 @@ const AccountSecurityPage = (): ReactElement => {
   const { mutateAsync: updateSettings } = useMutation(
     (params: SettingsParams) => submitKratosFlow(params),
     {
-      onSuccess: ({ redirect, error, code }) => {
+      onSuccess: ({ redirect, error, code }, { params }) => {
         if (redirect) {
           if (code === 403) {
             initializePrivilegedSession(redirect);
@@ -152,7 +153,9 @@ const AccountSecurityPage = (): ReactElement => {
           return;
         }
 
-        refetchProviders();
+        if ('link' in params || 'unlink' in params) {
+          refetchProviders();
+        }
       },
     },
   );
@@ -169,7 +172,8 @@ const AccountSecurityPage = (): ReactElement => {
       <TabContainer showHeader={false} controlledActive={activeDisplay}>
         <Tab label={Display.Default}>
           <AccountSecurityDefault
-            isEmailSent={isEmailSent}
+            email={session?.identity?.traits?.email}
+            session={session}
             userProviders={userProviders}
             updatePasswordRef={updatePasswordRef}
             onSwitchDisplay={setActiveDisplay}

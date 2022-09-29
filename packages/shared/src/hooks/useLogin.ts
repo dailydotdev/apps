@@ -11,6 +11,7 @@ import {
 import {
   AuthEvent,
   AuthFlow,
+  AuthSession,
   EmptyObjectLiteral,
   getKratosSession,
   InitializationData,
@@ -20,9 +21,11 @@ import {
 import useWindowEvents from './useWindowEvents';
 
 interface UseLogin {
+  session: AuthSession;
   isPasswordLoginLoading?: boolean;
   loginFlowData: InitializationData;
   loginHint?: ReturnType<typeof useState>;
+  refetchSession?: () => Promise<unknown>;
   onSocialLogin: (provider: string) => void;
   onPasswordLogin: (params: LoginFormParams) => void;
 }
@@ -42,9 +45,11 @@ const useLogin = ({
 }: UseLoginProps = {}): UseLogin => {
   const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
-  const { data: session } = useQuery(['current_session'], getKratosSession, {
-    enabled: enableSessionVerification,
-  });
+  const { data: session, refetch: refetchSession } = useQuery(
+    ['current_session'],
+    getKratosSession,
+    { enabled: enableSessionVerification },
+  );
   const { data: login } = useQuery(
     [{ type: 'login', params: queryParams }],
     ({ queryKey: [{ params }] }) =>
@@ -127,13 +132,15 @@ const useLogin = ({
 
   return useMemo(
     () => ({
+      refetchSession,
+      session,
       loginFlowData: login,
       loginHint: [hint, setHint],
       isPasswordLoginLoading: isLoading,
       onSocialLogin: onSubmitSocialLogin,
       onPasswordLogin: onSubmitPasswordLogin,
     }),
-    [queryEnabled, queryParams, hint, login, isLoading],
+    [session, queryEnabled, queryParams, hint, login, isLoading],
   );
 };
 
