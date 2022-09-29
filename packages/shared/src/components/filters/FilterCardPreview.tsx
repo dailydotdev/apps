@@ -28,10 +28,7 @@ function FilterCardPreview({
         </>
       )}
       <CardPreviewPlaceholder
-        className={classNames(
-          '',
-          isInsaneMode ? 'h-3 my-auto' : 'h-12 mt-auto',
-        )}
+        className={isInsaneMode ? 'h-3 my-auto' : 'h-12 mt-auto'}
       />
     </div>
   );
