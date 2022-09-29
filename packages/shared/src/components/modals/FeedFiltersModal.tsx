@@ -1,28 +1,16 @@
 import React, { ReactElement, useState } from 'react';
+import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import SteppedModal from './SteppedModal';
 import FeedTopicCard from '../containers/FeedTopicCard';
 import FeedFilterStep from '../containers/FeedFilterStep';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import classed from '../../lib/classed';
 import { CustomSwitch } from '../fields/CustomSwitch';
+import { getFilterCardPreviews } from '../filters/FilterCardPreview';
 
 interface FeedFitlersModalProps extends ModalProps {
   trigger?: string;
 }
-
-const CardPreviewPlaceholder = classed(
-  'div',
-  'rounded-8 bg-theme-divider-secondary w-full',
-);
-
-const CardPreview = () => (
-  <div className="flex flex-col p-2 w-24 h-28 rounded-8 bg-theme-divider-tertiary">
-    <CardPreviewPlaceholder className="h-2.5" />
-    <CardPreviewPlaceholder className="mt-1 w-3/4 h-2.5" />
-    <CardPreviewPlaceholder className="mt-auto h-12" />
-  </div>
-);
 
 function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
   const [isInsaneMode, setIsInsaneMode] = useState(false);
@@ -70,7 +58,10 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
         description="daily content can be presented in cards or a list, choose what works for you the best"
         className={{
           container: 'items-center',
-          content: 'relative flex flex-col items-center mt-8',
+          content: classNames(
+            'relative flex flex-col items-center w-4/5 mt-8',
+            isInsaneMode && 'px-8',
+          ),
         }}
       >
         <img
@@ -86,7 +77,12 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
           checked={isInsaneMode}
           onToggle={() => setIsInsaneMode(!isInsaneMode)}
         />
-        <div className="grid relative grid-cols-3 gap-3 mt-11 w-fit">
+        <div
+          className={classNames(
+            'grid relative gap-3 mt-11',
+            isInsaneMode ? 'grid-cols-1 w-full' : 'grid-cols-3 w-fit',
+          )}
+        >
           <div
             className="absolute inset-0 rounded-8"
             style={{
@@ -94,12 +90,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
                 'linear-gradient(45deg, rgba(23, 25, 31, 1) 0%, rgba(23, 25, 31, 0) 100%)',
             }}
           />
-          <CardPreview />
-          <CardPreview />
-          <CardPreview />
-          <CardPreview />
-          <CardPreview />
-          <CardPreview />
+          {getFilterCardPreviews(6, isInsaneMode)}
         </div>
       </FeedFilterStep>
       <FeedFilterStep
