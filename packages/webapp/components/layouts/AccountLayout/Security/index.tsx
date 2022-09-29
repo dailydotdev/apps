@@ -77,7 +77,6 @@ interface AccountSecurityDefaultProps {
 }
 
 function AccountSecurityDefault({
-  isEmailSent,
   userProviders,
   updatePasswordRef,
   onSwitchDisplay,
@@ -125,20 +124,6 @@ function AccountSecurityDefault({
     onUpdatePassword(form);
   };
 
-  const emailAction = isEmailSent ? (
-    <EmailSentSection className="max-w-sm" />
-  ) : (
-    hasPassword && (
-      <Button
-        buttonSize="small"
-        className="mt-6 w-fit btn-secondary"
-        onClick={() => onSwitchDisplay(Display.ChangeEmail)}
-      >
-        Change email
-      </Button>
-    )
-  );
-
   return (
     <AccountPageContainer title="Security">
       <AccountContentSection
@@ -168,7 +153,18 @@ function AccountSecurityDefault({
             isLocked
           />
         </SimpleTooltip>
-        {emailAction}
+        {!hasPassword && (
+          <>
+            <EmailSentSection className="max-w-sm" />
+            <Button
+              buttonSize="small"
+              className="mt-6 w-fit btn-secondary"
+              onClick={() => onSwitchDisplay(Display.ChangeEmail)}
+            >
+              Change email
+            </Button>
+          </>
+        )}
       </AccountContentSection>
       <AccountLoginSection
         title="Add login account"

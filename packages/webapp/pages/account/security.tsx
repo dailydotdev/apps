@@ -30,7 +30,6 @@ import EmailFormPage from '../../components/layouts/AccountLayout/Security/Email
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();
-  const [isEmailSent, setIsEmailSent] = useState(false);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
   const { data: userProviders, refetch: refetchProviders } = useQuery(
@@ -99,7 +98,6 @@ const AccountSecurityPage = (): ReactElement => {
           return null;
         }
 
-        setIsEmailSent(true);
         setActiveDisplay(Display.Default);
         return null;
       },
@@ -169,7 +167,6 @@ const AccountSecurityPage = (): ReactElement => {
       <TabContainer showHeader={false} controlledActive={activeDisplay}>
         <Tab label={Display.Default}>
           <AccountSecurityDefault
-            isEmailSent={isEmailSent}
             userProviders={userProviders}
             updatePasswordRef={updatePasswordRef}
             onSwitchDisplay={setActiveDisplay}

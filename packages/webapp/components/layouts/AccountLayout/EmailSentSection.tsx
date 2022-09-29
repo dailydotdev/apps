@@ -19,6 +19,19 @@ function EmailSentSection({
   const { sendEmail, resendTimer, isLoading } = useAccountEmailFlow(
     AuthFlow.Verification,
   );
+  const email = data?.identity?.traits?.email;
+
+  if (!email) {
+    return null;
+  }
+
+  const verifyable = data.identity.verifiable_addresses.find(
+    (address) => address.value === email,
+  );
+
+  if (verifyable?.verified) {
+    return null;
+  }
 
   return (
     <AlertContainer
