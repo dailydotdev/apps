@@ -29,7 +29,6 @@ import EmailFormPage from '../../components/layouts/AccountLayout/Security/Email
 
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
-  const [email, setEmail] = useState<string>(null);
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
@@ -88,7 +87,7 @@ const AccountSecurityPage = (): ReactElement => {
       return submitKratosFlow(params);
     },
     {
-      onSuccess: async ({ redirect, error, code }, { params }) => {
+      onSuccess: async ({ redirect, error, code }) => {
         if (redirect && code === 403) {
           initializePrivilegedSession(redirect);
           return;
@@ -102,7 +101,6 @@ const AccountSecurityPage = (): ReactElement => {
           return;
         }
 
-        setEmail(params['traits.email']);
         setActiveDisplay(Display.Default);
         await refetchSession();
       },
@@ -172,7 +170,7 @@ const AccountSecurityPage = (): ReactElement => {
       <TabContainer showHeader={false} controlledActive={activeDisplay}>
         <Tab label={Display.Default}>
           <AccountSecurityDefault
-            email={email || session?.identity?.traits?.email}
+            email={session?.identity?.traits?.email}
             session={session}
             userProviders={userProviders}
             updatePasswordRef={updatePasswordRef}
