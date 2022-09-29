@@ -56,7 +56,7 @@ export default function CompanionMenu({
   onOpenComments,
 }: CompanionMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { user, showLogin } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
@@ -136,9 +136,12 @@ export default function CompanionMenu({
       } else {
         await removeUpvote({ id: post.id });
       }
+    } else {
+      window.open(
+        `${process.env.NEXT_PUBLIC_WEBAPP_URL}/login?close=true`,
+        '_blank',
+      );
     }
-
-    showLogin('companion');
   };
 
   const toggleBookmark = async () => {
@@ -148,8 +151,12 @@ export default function CompanionMenu({
       } else {
         await removeBookmark({ id: post.id });
       }
+    } else {
+      window.open(
+        `${process.env.NEXT_PUBLIC_WEBAPP_URL}/login?close=true`,
+        '_blank',
+      );
     }
-    showLogin('companion');
   };
 
   const { show: showCompanionOptionsMenu } = useContextMenu({
