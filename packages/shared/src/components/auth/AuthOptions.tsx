@@ -84,7 +84,11 @@ function AuthOptions({
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
+  const [isRegistration, setIsRegistration] = useState(false);
   const onLoginCheck = () => {
+    if (isRegistration) {
+      return;
+    }
     if (isVerified) {
       onShowOptionsOnly(!!user);
       setActiveDisplay(Display.VerifiedEmail);
@@ -123,6 +127,7 @@ function AuthOptions({
     useRegistration({
       key: 'registration_form',
       onValidRegistration: () => {
+        setIsRegistration(true);
         refetchBoot();
         onShowOptionsOnly?.(true);
         setActiveDisplay(Display.EmailSent);
