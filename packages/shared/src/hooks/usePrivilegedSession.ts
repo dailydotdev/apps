@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
+import { AuthSession } from '../lib/kratos';
 import useLogin from './useLogin';
 import { useToastNotification } from './useToastNotification';
 
 interface UsePrivilegedSession {
+  session: AuthSession;
   showVerifySession?: boolean;
   onCloseVerifySession: () => void;
   onPasswordLogin?: (params: LoginFormParams) => void;
@@ -27,8 +29,8 @@ const usePrivilegedSession = ({
   const setVerifySessionId = (value: string) =>
     client.setQueryData(VERIFY_SESSION_KEY, value);
 
-  const { loginFlowData, loginHint, onSocialLogin, onPasswordLogin } = useLogin(
-    {
+  const { session, loginFlowData, loginHint, onSocialLogin, onPasswordLogin } =
+    useLogin({
       enableSessionVerification: true,
       queryEnabled: !!verifySessionId,
       queryParams: { refresh: 'true' },
@@ -40,8 +42,7 @@ const usePrivilegedSession = ({
           displayToast('Session successfully verified!');
         }
       },
-    },
-  );
+    });
 
   const initializePrivilegedSession = (redirect: string) => {
     const url = new URL(redirect);
@@ -60,13 +61,14 @@ const usePrivilegedSession = ({
 
   return useMemo(
     () => ({
+      session,
       showVerifySession: !!verifySessionId,
       initializePrivilegedSession,
       onCloseVerifySession: () => setVerifySessionId(null),
       onPasswordLogin,
       onSocialLogin,
     }),
-    [verifySessionId, loginHint, loginFlowData],
+    [session, verifySessionId, loginHint, loginFlowData],
   );
 };
 

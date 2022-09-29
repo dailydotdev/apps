@@ -46,6 +46,7 @@ const AccountSecurityPage = (): ReactElement => {
   };
 
   const {
+    session,
     showVerifySession,
     initializePrivilegedSession,
     onPasswordLogin,
@@ -167,6 +168,7 @@ const AccountSecurityPage = (): ReactElement => {
       <TabContainer showHeader={false} controlledActive={activeDisplay}>
         <Tab label={Display.Default}>
           <AccountSecurityDefault
+            session={session}
             userProviders={userProviders}
             updatePasswordRef={updatePasswordRef}
             onSwitchDisplay={setActiveDisplay}

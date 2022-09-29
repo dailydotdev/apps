@@ -16,6 +16,7 @@ import React, {
 import {
   AuthEvent,
   AuthFlow,
+  AuthSession,
   getKratosSettingsFlow,
   KratosProviderData,
   SocialRegistrationFlow,
@@ -68,6 +69,7 @@ const removeProviderList = Object.values(removeProvider).map(
 );
 
 interface AccountSecurityDefaultProps {
+  session: AuthSession;
   isEmailSent?: boolean;
   userProviders?: KratosProviderData;
   updatePasswordRef: MutableRefObject<HTMLFormElement>;
@@ -77,6 +79,7 @@ interface AccountSecurityDefaultProps {
 }
 
 function AccountSecurityDefault({
+  session,
   userProviders,
   updatePasswordRef,
   onSwitchDisplay,
@@ -124,6 +127,11 @@ function AccountSecurityDefault({
     onUpdatePassword(form);
   };
 
+  const email = session?.identity?.traits?.email;
+  const verifyable = session?.identity?.verifiable_addresses?.find(
+    (address) => address.value === email,
+  );
+
   return (
     <AccountPageContainer title="Security">
       <AccountContentSection
@@ -153,17 +161,17 @@ function AccountSecurityDefault({
             isLocked
           />
         </SimpleTooltip>
-        {!hasPassword && (
-          <>
-            <EmailSentSection className="max-w-sm" />
-            <Button
-              buttonSize="small"
-              className="mt-6 w-fit btn-secondary"
-              onClick={() => onSwitchDisplay(Display.ChangeEmail)}
-            >
-              Change email
-            </Button>
-          </>
+        {hasPassword && email && verifyable && !verifyable.verified && (
+          <EmailSentSection email={email} className="max-w-sm" />
+        )}
+        {hasPassword && (
+          <Button
+            buttonSize="small"
+            className="mt-6 w-fit btn-secondary"
+            onClick={() => onSwitchDisplay(Display.ChangeEmail)}
+          >
+            Change email
+          </Button>
         )}
       </AccountContentSection>
       <AccountLoginSection
