@@ -760,7 +760,7 @@ const getWhoamiMockData = (email = 'lee@daily.dev') => ({
     state_changed_at: '2022-08-24T03:30:19.668093Z',
     traits: {
       name: 'Lee Hansel Solevilla',
-      email: email,
+      email,
       image:
         'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
       username: 'lee',
