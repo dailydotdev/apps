@@ -88,7 +88,7 @@ function AccountSecurityDefault({
   onUpdatePassword,
   onUpdateProviders,
 }: AccountSecurityDefaultProps): ReactElement {
-  const { user, deleteAccount } = useContext(AuthContext);
+  const { deleteAccount } = useContext(AuthContext);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [alreadyLinkedProvider, setAlreadyLinkedProvider] = useState(false);
   const [linkProvider, setLinkProvider] = useState(null);
@@ -153,7 +153,7 @@ function AccountSecurityDefault({
         >
           <AccountTextField
             fieldType="tertiary"
-            value={user.email}
+            value={email}
             label="Email"
             inputId="email"
             data-testid="current_email"
