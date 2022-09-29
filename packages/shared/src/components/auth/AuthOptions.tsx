@@ -124,12 +124,16 @@ function AuthOptions({
   const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
     onSuccessfulLogin: onLoginCheck,
   });
+  const onProfileSuccess = () => {
+    refetchBoot();
+    onClose(null, true);
+  };
   const {
     updateUserProfile,
     hint,
     onUpdateHint,
     isLoading: isProfileUpdateLoading,
-  } = useProfileForm();
+  } = useProfileForm({ onSuccess: onProfileSuccess });
   const windowPopup = useRef<Window>(null);
 
   const { registration, validateRegistration, onSocialRegistration } =
@@ -190,8 +194,6 @@ function AuthOptions({
 
   const onSocialCompletion = async (params) => {
     await updateUserProfile({ ...params });
-    refetchBoot();
-    onClose(null, true);
   };
 
   const onRegister = (params: RegistrationFormValues) => {
