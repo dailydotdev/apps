@@ -29,6 +29,7 @@ import EmailFormPage from '../../components/layouts/AccountLayout/Security/Email
 
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
+  const [email, setEmail] = useState<string>(null);
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
@@ -52,6 +53,7 @@ const AccountSecurityPage = (): ReactElement => {
     onPasswordLogin,
     onCloseVerifySession,
     onSocialLogin,
+    refetchSession,
   } = usePrivilegedSession();
 
   const { mutateAsync: resetPassword } = useMutation(
@@ -86,9 +88,10 @@ const AccountSecurityPage = (): ReactElement => {
       return submitKratosFlow(params);
     },
     {
-      onSuccess: ({ redirect, error, code }) => {
+      onSuccess: async ({ redirect, error, code }, { params }) => {
         if (redirect && code === 403) {
-          return initializePrivilegedSession(redirect);
+          initializePrivilegedSession(redirect);
+          return;
         }
 
         if (error) {
@@ -96,11 +99,12 @@ const AccountSecurityPage = (): ReactElement => {
             setHint('This email address is already in use');
           }
 
-          return null;
+          return;
         }
 
+        setEmail(params['traits.email']);
         setActiveDisplay(Display.Default);
-        return null;
+        await refetchSession();
       },
     },
   );
@@ -111,9 +115,9 @@ const AccountSecurityPage = (): ReactElement => {
     const input = Array.from(form.elements).find(
       (el) => el.getAttribute('name') === 'traits.email',
     ) as HTMLInputElement;
-    const email = input?.value?.trim();
+    const changedEmail = input?.value?.trim();
 
-    if (!email) {
+    if (!changedEmail) {
       return;
     }
 
@@ -124,7 +128,7 @@ const AccountSecurityPage = (): ReactElement => {
       params: {
         csrf_token: csrfToken,
         method: 'profile',
-        'traits.email': email,
+        'traits.email': changedEmail,
         'traits.name': getNodeValue('traits.name', nodes),
         'traits.username': getNodeValue('traits.username', nodes),
         'traits.image': getNodeValue('traits.image', nodes),
@@ -168,6 +172,7 @@ const AccountSecurityPage = (): ReactElement => {
       <TabContainer showHeader={false} controlledActive={activeDisplay}>
         <Tab label={Display.Default}>
           <AccountSecurityDefault
+            email={email || session?.identity?.traits?.email}
             session={session}
             userProviders={userProviders}
             updatePasswordRef={updatePasswordRef}

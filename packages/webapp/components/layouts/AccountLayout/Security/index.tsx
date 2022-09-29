@@ -69,6 +69,7 @@ const removeProviderList = Object.values(removeProvider).map(
 );
 
 interface AccountSecurityDefaultProps {
+  email?: string;
   session: AuthSession;
   isEmailSent?: boolean;
   userProviders?: KratosProviderData;
@@ -79,6 +80,7 @@ interface AccountSecurityDefaultProps {
 }
 
 function AccountSecurityDefault({
+  email,
   session,
   userProviders,
   updatePasswordRef,
@@ -91,7 +93,6 @@ function AccountSecurityDefault({
   const [alreadyLinkedProvider, setAlreadyLinkedProvider] = useState(false);
   const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
-  const [, setEmail] = useState<string>(null);
   const hasPassword = userProviders?.result?.includes('password');
 
   useWindowEvents<SocialRegistrationFlow>(
@@ -127,10 +128,11 @@ function AccountSecurityDefault({
     onUpdatePassword(form);
   };
 
-  const email = session?.identity?.traits?.email;
-  const verifyable = session?.identity?.verifiable_addresses?.find(
-    (address) => address.value === email,
-  );
+  const verifyable =
+    email &&
+    session?.identity?.verifiable_addresses?.find(
+      (address) => address.value === email,
+    );
 
   return (
     <AccountPageContainer title="Security">
@@ -152,7 +154,6 @@ function AccountSecurityDefault({
           <AccountTextField
             fieldType="tertiary"
             value={user.email}
-            onChange={(e) => setEmail(e.currentTarget.value)}
             label="Email"
             inputId="email"
             data-testid="current_email"

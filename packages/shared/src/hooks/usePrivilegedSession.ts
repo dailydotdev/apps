@@ -9,6 +9,7 @@ interface UsePrivilegedSession {
   session: AuthSession;
   showVerifySession?: boolean;
   onCloseVerifySession: () => void;
+  refetchSession?: () => Promise<unknown>;
   onPasswordLogin?: (params: LoginFormParams) => void;
   onSocialLogin?: (provider: string) => void;
   initializePrivilegedSession?: (redirect: string) => void;
@@ -29,20 +30,26 @@ const usePrivilegedSession = ({
   const setVerifySessionId = (value: string) =>
     client.setQueryData(VERIFY_SESSION_KEY, value);
 
-  const { session, loginFlowData, loginHint, onSocialLogin, onPasswordLogin } =
-    useLogin({
-      enableSessionVerification: true,
-      queryEnabled: !!verifySessionId,
-      queryParams: { refresh: 'true' },
-      onSuccessfulLogin: () => {
-        setVerifySessionId(null);
-        if (onSessionVerified) {
-          onSessionVerified();
-        } else {
-          displayToast('Session successfully verified!');
-        }
-      },
-    });
+  const {
+    session,
+    loginFlowData,
+    loginHint,
+    onSocialLogin,
+    onPasswordLogin,
+    refetchSession,
+  } = useLogin({
+    enableSessionVerification: true,
+    queryEnabled: !!verifySessionId,
+    queryParams: { refresh: 'true' },
+    onSuccessfulLogin: () => {
+      setVerifySessionId(null);
+      if (onSessionVerified) {
+        onSessionVerified();
+      } else {
+        displayToast('Session successfully verified!');
+      }
+    },
+  });
 
   const initializePrivilegedSession = (redirect: string) => {
     const url = new URL(redirect);
@@ -67,6 +74,7 @@ const usePrivilegedSession = ({
       onCloseVerifySession: () => setVerifySessionId(null),
       onPasswordLogin,
       onSocialLogin,
+      refetchSession,
     }),
     [session, verifySessionId, loginHint, loginFlowData],
   );
