@@ -52,10 +52,16 @@ const defaultLoggedUser: LoggedUser = {
 const updateUser = jest.fn();
 const refetchBoot = jest.fn();
 
+const waitAllRenderMocks = async () => {
+  await waitForNock();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+};
+
 const renderComponent = (): RenderResult => {
   const client = new QueryClient();
   mockSettingsFlow();
   mockListProviders();
+  mockVerificationFlow();
   mockWhoAmIFlow(defaultLoggedUser.email);
 
   return render(
@@ -104,13 +110,14 @@ const verifySession = async (email = defaultLoggedUser.email) => {
 
 it('should show current email', async () => {
   renderComponent();
+  await waitAllRenderMocks();
   const el = await screen.findByTestId('current_email');
   expect(el).toHaveValue(defaultLoggedUser.email);
 });
 
 it('should allow changing of email', async () => {
   renderComponent();
-  await waitForNock();
+  await waitAllRenderMocks();
   const el = await screen.findByTestId('current_email');
   expect(el).toHaveValue(defaultLoggedUser.email);
   const displayForm = await screen.findByText('Change email');
@@ -140,7 +147,7 @@ it('should allow changing of email', async () => {
 
 it('should allow changing of email but require verification', async () => {
   renderComponent();
-  await waitForNock();
+  await waitAllRenderMocks();
   const el = await screen.findByTestId('current_email');
   expect(el).toHaveValue(defaultLoggedUser.email);
   const displayForm = await screen.findByText('Change email');
@@ -176,7 +183,7 @@ it('should allow changing of email but require verification', async () => {
 
 it('should allow setting new password', async () => {
   renderComponent();
-  await waitForNock();
+  await waitAllRenderMocks();
   const password = '#123xAbc';
   fireEvent.input(screen.getByPlaceholderText('Password'), {
     target: { value: password },
@@ -198,7 +205,7 @@ it('should allow setting new password', async () => {
 
 it('should allow setting new password but require to verify session', async () => {
   renderComponent();
-  await waitForNock();
+  await waitAllRenderMocks();
   const password = '#123xAbc';
   fireEvent.input(screen.getByPlaceholderText('Password'), {
     target: { value: password },
@@ -225,7 +232,7 @@ it('should allow setting new password but require to verify session', async () =
 
 it('should allow linking social providers', async () => {
   renderComponent();
-  await waitForNock();
+  await waitAllRenderMocks();
   const connect = await screen.findByText('Connect with Google');
   const { nodes } = settingsFlowMockData.ui;
   const token = getNodeValue('csrf_token', nodes);
@@ -237,7 +244,7 @@ it('should allow linking social providers', async () => {
 
 it('should allow linking social providers but require to verify session', async () => {
   renderComponent();
-  await waitForNock();
+  await waitAllRenderMocks();
   const connect = await screen.findByText('Connect with Google');
   const { nodes } = settingsFlowMockData.ui;
   const token = getNodeValue('csrf_token', nodes);

@@ -165,10 +165,6 @@ const AccountSecurityPage = (): ReactElement => {
     updateSettings({ action, params });
   };
 
-  if (!session) {
-    return null;
-  }
-
   return (
     <>
       <TabContainer showHeader={false} controlledActive={activeDisplay}>

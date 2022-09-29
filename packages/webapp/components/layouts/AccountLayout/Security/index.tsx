@@ -154,7 +154,6 @@ function AccountSecurityDefault({
           <AccountTextField
             fieldType="tertiary"
             value={email}
-            defaultValue={email}
             label="Email"
             inputId="email"
             data-testid="current_email"
