@@ -88,6 +88,7 @@ function AuthOptions({
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
+  const [isRegistration, setIsRegistration] = useState(false);
 
   const closeWindowFn = () => {
     if (closeWindow) {
@@ -97,6 +98,9 @@ function AuthOptions({
   };
 
   const onLoginCheck = () => {
+    if (isRegistration) {
+      return;
+    }
     if (isVerified) {
       onShowOptionsOnly(!!user);
       setActiveDisplay(Display.VerifiedEmail);
@@ -124,18 +128,23 @@ function AuthOptions({
   const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
     onSuccessfulLogin: onLoginCheck,
   });
+  const onProfileSuccess = () => {
+    refetchBoot();
+    onClose(null, true);
+  };
   const {
     updateUserProfile,
     hint,
     onUpdateHint,
     isLoading: isProfileUpdateLoading,
-  } = useProfileForm();
+  } = useProfileForm({ onSuccess: onProfileSuccess });
   const windowPopup = useRef<Window>(null);
 
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
       key: 'registration_form',
       onValidRegistration: () => {
+        setIsRegistration(true);
         refetchBoot();
         closeWindowFn();
         onShowOptionsOnly?.(true);
@@ -190,8 +199,6 @@ function AuthOptions({
 
   const onSocialCompletion = async (params) => {
     await updateUserProfile({ ...params });
-    refetchBoot();
-    onClose(null, true);
   };
 
   const onRegister = (params: RegistrationFormValues) => {
