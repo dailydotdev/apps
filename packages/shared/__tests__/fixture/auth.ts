@@ -793,8 +793,8 @@ const whoamiMockData = {
 };
 
 export const mockWhoAmIFlow = (result: Partial<AuthSession> = {}): void => {
-  nock(authUrl)
-    .get('/sessions/whoami')
+  nock(heimdallUrl)
+    .get('/api/whoami')
     .reply(200, { ...whoamiMockData, ...result });
 };
 
