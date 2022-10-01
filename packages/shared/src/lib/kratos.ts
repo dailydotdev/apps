@@ -345,7 +345,7 @@ export const submitKratosFlow = async <
 };
 
 export const getKratosSession = async (): Promise<AuthSession> => {
-  const res = await fetch(`${authUrl}/sessions/whoami`, {
+  const res = await fetch(`${heimdallUrl}/api/whoami`, {
     credentials: 'include',
   });
 
