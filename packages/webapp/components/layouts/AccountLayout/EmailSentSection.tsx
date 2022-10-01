@@ -1,21 +1,21 @@
 import AlertContainer from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement } from 'react';
-import { useQuery } from 'react-query';
 import classNames from 'classnames';
 import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
-import { AuthFlow, getKratosSession } from '@dailydotdev/shared/src/lib/kratos';
+import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 
 interface EmailSentSectionProps {
   onCancel?: (e: React.MouseEvent) => void;
   className?: string;
+  email: string;
 }
 
 function EmailSentSection({
   onCancel,
+  email,
   className,
 }: EmailSentSectionProps): ReactElement {
-  const { data } = useQuery(['whoami'], getKratosSession);
   const { sendEmail, resendTimer, isLoading } = useAccountEmailFlow(
     AuthFlow.Verification,
   );
@@ -33,7 +33,7 @@ function EmailSentSection({
       </p>
       <span className="flex flex-row gap-4 mt-4">
         <Button
-          onClick={() => sendEmail(data?.identity?.traits?.email)}
+          onClick={() => sendEmail(email)}
           buttonSize="xsmall"
           className="w-fit btn-primary"
           disabled={isLoading || resendTimer > 0}
