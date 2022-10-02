@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { Item } from '@dailydotdev/react-contexify';
 import Link from 'next/link';
 import { Tag } from '../../graphql/feedSettings';
+import { getTagPageLink } from '../../lib/links';
 
 const PortalMenu = dynamic(() => import('../fields/PortalMenu'), {
   ssr: false,
@@ -36,11 +37,7 @@ export default function TagOptionsMenu({
     >
       {tag && (
         <Item>
-          <Link
-            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${tag}`}
-            passHref
-            prefetch={false}
-          >
+          <Link href={getTagPageLink(tag.name)} passHref prefetch={false}>
             <a className="w-full">View</a>
           </Link>
         </Item>
