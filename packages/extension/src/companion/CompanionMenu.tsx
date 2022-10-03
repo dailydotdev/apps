@@ -138,7 +138,7 @@ export default function CompanionMenu({
       }
     } else {
       window.open(
-        `${process.env.NEXT_PUBLIC_WEBAPP_URL}/login?close=true`,
+        `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`,
         '_blank',
       );
     }
@@ -153,7 +153,7 @@ export default function CompanionMenu({
       }
     } else {
       window.open(
-        `${process.env.NEXT_PUBLIC_WEBAPP_URL}/login?close=true`,
+        `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`,
         '_blank',
       );
     }
