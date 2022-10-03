@@ -4,7 +4,7 @@ import Logo from '@dailydotdev/shared/src/components/Logo';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import React, { ReactElement } from 'react';
 
-function Login(): ReactElement {
+function Signup(): ReactElement {
   const { formRef } = useAuthForms();
 
   return (
@@ -38,4 +38,4 @@ function Login(): ReactElement {
   );
 }
 
-export default Login;
+export default Signup;
