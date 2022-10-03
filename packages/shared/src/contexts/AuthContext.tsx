@@ -113,7 +113,15 @@ export const AuthContextProvider = ({
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger) => setLoginState({ trigger }),
+      showLogin: (trigger) => {
+        const hasCompanion = !!document.querySelector('daily-companion-app');
+        if (hasCompanion) {
+          const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/signup?close=true`;
+          window.open(signup);
+        } else {
+          setLoginState({ trigger });
+        }
+      },
       closeLogin: () => setLoginState(null),
       loginState,
       updateUser,
