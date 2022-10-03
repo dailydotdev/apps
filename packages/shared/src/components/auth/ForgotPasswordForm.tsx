@@ -43,10 +43,10 @@ function ForgotPasswordForm({
 
   const onSendEmail = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { email } = formToJson(e.currentTarget);
     trackEvent({
       event_name: AuthEventNames.SubmitForgotPassword,
     });
+    const { email } = formToJson<{ email: string }>(e.currentTarget);
     await sendEmail(email);
   };
 
@@ -68,7 +68,7 @@ function ForgotPasswordForm({
           password reset link.
         </AuthModalText>
         <TextField
-          className="mt-6 w-full"
+          className={{ container: 'mt-6 w-full' }}
           name="email"
           type="email"
           inputId="email"

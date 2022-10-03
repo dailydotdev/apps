@@ -108,8 +108,8 @@ export const AccountPageHeading = classed(
   'font-bold typo-title3 py-4 px-6 border-b border-theme-divider-tertiary w-full flex flex-row items-center',
 );
 
-export const CommonTextField = classed(TextField, 'max-w-sm');
-export const AccountTextField = classed(CommonTextField, 'mt-6');
+export const CommonTextField = classed(TextField, { container: 'max-w-sm' });
+export const AccountTextField = classed(CommonTextField, { container: 'mt-6' });
 export const AccountSidebarPagesSection = classed(
   'div',
   'flex flex-col py-4 px-5 gap-3 mt-10 w-full rounded-16 border border-theme-divider-tertiary',

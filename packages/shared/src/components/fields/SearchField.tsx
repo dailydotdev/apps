@@ -12,7 +12,7 @@ import SearchIcon from '../icons/Search';
 import CloseIcon from '../icons/Close';
 import ArrowIcon from '../icons/Arrow';
 import { Button, ButtonProps } from '../buttons/Button';
-import { getInputFontColor } from './TextField';
+import { getFieldFontColor } from './BaseFieldContainer';
 
 export interface SearchFieldProps
   extends Pick<
@@ -146,7 +146,7 @@ export const SearchField = forwardRef(function SearchField(
         autoComplete="off"
         className={classNames(
           'flex-1',
-          getInputFontColor({ readOnly, disabled, hasInput, focused }),
+          getFieldFontColor({ readOnly, disabled, hasInput, focused }),
         )}
         required
       />

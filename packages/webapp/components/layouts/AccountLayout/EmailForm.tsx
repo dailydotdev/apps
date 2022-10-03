@@ -3,7 +3,7 @@ import {
   PasswordField,
   PasswordFieldProps,
 } from '@dailydotdev/shared/src/components/fields/PasswordField';
-import { TextFieldProps } from '@dailydotdev/shared/src/components/fields/common';
+import { TextFieldProps } from '@dailydotdev/shared/src/components/fields/TextField';
 import classNames from 'classnames';
 import React, {
   Dispatch,
@@ -47,7 +47,7 @@ function EmailForm({
       />
       {passwordProps && (
         <PasswordField
-          className="mt-6"
+          className={{ container: 'mt-6' }}
           inputId="password"
           name="password"
           type="password"

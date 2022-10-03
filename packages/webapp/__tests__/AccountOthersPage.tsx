@@ -12,6 +12,7 @@ import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContex
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { getTimeZoneOptions } from '@dailydotdev/shared/src/lib/timezones';
 import { act } from 'preact/test-utils';
 import ProfileOthersPage from '../pages/account/others';
 
@@ -57,24 +58,24 @@ const renderComponent = (): RenderResult => {
 };
 
 it('should change user timezone', async () => {
+  renderComponent();
+  const { firstChild } = await screen.findByTestId('timezone_dropdown');
+  fireEvent.click(firstChild);
+  const [{ textContent }] = await screen.findAllByRole('menuitem');
+  const tz = getTimeZoneOptions().find(({ label }) => label === textContent);
+  const timezone = await screen.findByText(textContent);
   let mutationCalled = false;
   mockGraphQL({
     request: {
       query: UPDATE_USER_PROFILE_MUTATION,
-      variables: { data: { timezone: 'America/Anchorage' } },
+      variables: { data: { timezone: tz.value } },
     },
     result: () => {
       mutationCalled = true;
       return { data: { id: '' } };
     },
   });
-  renderComponent();
-  const container = await screen.findByTestId('timezone_dropdown');
-  // eslint-disable-next-line testing-library/no-node-access
-  const btn = container.firstChild;
-  fireEvent.click(btn);
-  const timezone = await screen.findByText('(UTC -8) Alaska');
-  await timezone.click();
+  fireEvent.click(timezone);
   await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(mutationCalled).toBeTruthy();
 });
