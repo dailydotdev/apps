@@ -9,13 +9,18 @@ function CallbackPage(): ReactElement {
     const eventKey = params.login
       ? AuthEvent.Login
       : AuthEvent.SocialRegistration;
-    if (!window.opener && params.flow && params.settings) {
-      const search = new URLSearchParams(params);
-      window.location.replace(`/reset-password?${search}`);
-      return;
+    const search = new URLSearchParams(params);
+    try {
+      if (!window.opener && params.flow && params.settings) {
+        window.location.replace(`/reset-password?${search}`);
+        return;
+      }
+      postWindowMessage(eventKey, params);
+      window.close();
+    } catch (err) {
+      const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
+      window.location.replace(url);
     }
-    postWindowMessage(eventKey, params);
-    window.close();
   }, []);
 
   return null;
