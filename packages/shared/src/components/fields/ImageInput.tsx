@@ -44,7 +44,7 @@ function ImageInput({
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   const [error, setError] = useState('');
-  const [image, setImage] = useState(initialValue);
+  const [image, setImage] = useState(initialValue || fallbackImage);
   const onClick = () => {
     inputRef.current.click();
   };
