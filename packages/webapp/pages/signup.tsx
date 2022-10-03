@@ -4,7 +4,7 @@ import Logo from '@dailydotdev/shared/src/components/Logo';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import React, { ReactElement } from 'react';
 
-function Login(): ReactElement {
+function Signup(): ReactElement {
   const { formRef } = useAuthForms();
 
   return (
@@ -17,6 +17,7 @@ function Login(): ReactElement {
           <AuthOptions
             className="h-full max-h-[40rem] min-h-[40rem]"
             formRef={formRef}
+            trigger="login page"
           />
 
           <AuthModalHeading className="hidden tablet:block z-1 mb-10 laptop:mb-0 laptop:ml-32 typo-title1 laptop:typo-mega1">
@@ -38,4 +39,4 @@ function Login(): ReactElement {
   );
 }
 
-export default Login;
+export default Signup;

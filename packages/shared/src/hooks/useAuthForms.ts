@@ -57,7 +57,7 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
       isDiscardOpen,
       formRef,
     }),
-    [formRef?.current, container, isDiscardOpen],
+    [formRef?.current, container, isDiscardOpen, onDiscardAttempt],
   );
 };
 

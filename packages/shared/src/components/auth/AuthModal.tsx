@@ -4,12 +4,14 @@ import dynamic from 'next/dynamic';
 import { StyledModal, ModalProps } from '../modals/StyledModal';
 import styles from './AuthModal.module.css';
 import AuthModalHeading from './AuthModalHeading';
-import AuthOptions from './AuthOptions';
+import AuthOptions, { Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import DailyCircle from '../DailyCircle';
 import AuthContext from '../../contexts/AuthContext';
+import { AuthEventNames } from '../../lib/auth';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export type AuthModalProps = { trigger?: string } & ModalProps;
 
@@ -29,11 +31,20 @@ export default function AuthModal({
   children,
   ...props
 }: AuthModalProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [showOptionsOnly, setShowOptionsOnly] = useState(false);
+  const [screenValue, setScreenValue] = useState<Display>(Display.Default);
   const { authVersion } = useContext(FeaturesContext);
-  const { closeLogin, logout } = useContext(AuthContext);
+  const { user, closeLogin, logout } = useContext(AuthContext);
   const closeAndLogout = (e) => {
-    logout();
+    trackEvent({
+      event_name: AuthEventNames.CloseSignUp,
+      extra: JSON.stringify({ trigger, screenValue }),
+    });
+
+    if (user) {
+      logout();
+    }
     onRequestClose(e);
   };
   const {
@@ -108,6 +119,8 @@ export default function AuthModal({
         formRef={formRef}
         onSuccessfulLogin={closeLogin}
         onShowOptionsOnly={(value: boolean) => setShowOptionsOnly(value)}
+        trigger={trigger}
+        onDisplayChange={(display: Display) => setScreenValue(display)}
       />
       {isDiscardOpen && (
         <DiscardActionModal

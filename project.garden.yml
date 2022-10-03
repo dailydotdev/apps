@@ -29,7 +29,7 @@ variables:
   # Gateway variables
   gateway-database: gateway
   # Kratos variables
-  kratos-image: oryd/kratos:v0.10.1
+  kratos-image: vpol/kratos-manual-image:latest
   kratos-hostname: sso.apps.local.app.garden
   kratos-ui-hostname: kratos-ui.apps.local.app.garden
   kratos-database: kratos

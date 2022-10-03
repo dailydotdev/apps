@@ -8,6 +8,21 @@ import {
   KratosMethod,
 } from './kratos';
 
+export enum AuthEventNames {
+  OpenSignup = 'open signup',
+  OpenLogin = 'open login',
+  CloseSignUp = 'close signup',
+  SignUpProvider = 'signup provider',
+  LoginProvider = 'login provider',
+  StartSignUpForm = 'start signup form',
+  SubmitSignUpForm = 'submit signup form',
+  SubmitSignUpFormError = 'submit signup form error',
+  LoginSuccessfully = 'login successfully',
+  LoginError = 'login error',
+  ForgotPassword = 'forgot password',
+  SubmitForgotPassword = 'submit forgot password',
+}
+
 export interface LoginPasswordParameters extends AuthPostParams {
   password: string;
   identifier: string;
