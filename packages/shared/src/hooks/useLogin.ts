@@ -3,7 +3,7 @@ import { useMutation, useQuery } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';
 import {
-  EventNames,
+  AuthEventNames,
   getNodeValue,
   LoginPasswordParameters,
   LoginSocialParameters,
@@ -60,7 +60,7 @@ const useLogin = ({
     (params: ValidateLoginParams) => {
       trackEvent({
         event_name: 'click',
-        target_type: EventNames.LoginProvider,
+        target_type: AuthEventNames.LoginProvider,
         target_id: 'email',
         extra: JSON.stringify({ trigger }),
       });
@@ -70,7 +70,7 @@ const useLogin = ({
       onSuccess: async ({ error }) => {
         if (error) {
           trackEvent({
-            event_name: EventNames.LoginError,
+            event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({ error: 'Invalid username or password' }),
           });
           setHint('Invalid username or password');
@@ -89,7 +89,7 @@ const useLogin = ({
         const { error, redirect } = res;
         if (error) {
           trackEvent({
-            event_name: EventNames.LoginError,
+            event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({ error: 'Invalid username or password' }),
           });
           setHint('Invalid username or password');

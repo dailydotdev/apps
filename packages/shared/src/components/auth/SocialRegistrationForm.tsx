@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { EventNames, SocialRegistrationParameters } from '../../lib/auth';
+import { AuthEventNames, SocialRegistrationParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
@@ -60,13 +60,13 @@ export const SocialRegistrationForm = ({
 
   useEffect(() => {
     trackEvent({
-      event_name: EventNames.StartSignUpForm,
+      event_name: AuthEventNames.StartSignUpForm,
     });
   }, []);
 
   const trackError = (error) => {
     trackEvent({
-      event_name: EventNames.SubmitSignUpFormError,
+      event_name: AuthEventNames.SubmitSignUpFormError,
       extra: JSON.stringify({ error }),
     });
   };
@@ -81,7 +81,7 @@ export const SocialRegistrationForm = ({
     e.preventDefault();
 
     trackEvent({
-      event_name: EventNames.SubmitSignUpForm,
+      event_name: AuthEventNames.SubmitSignUpForm,
     });
 
     const form = e.target as HTMLFormElement;

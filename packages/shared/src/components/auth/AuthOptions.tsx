@@ -16,7 +16,11 @@ import { AuthSignBack, SIGNIN_METHOD_KEY } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
 import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
-import { EventNames, getNodeValue, RegistrationError } from '../../lib/auth';
+import {
+  AuthEventNames,
+  getNodeValue,
+  RegistrationError,
+} from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
@@ -109,7 +113,7 @@ function AuthOptions({
 
     if (user.infoConfirmed) {
       trackEvent({
-        event_name: EventNames.LoginSuccessfuly,
+        event_name: AuthEventNames.LoginSuccessfully,
       });
       onSuccessfulLogin();
     } else {
@@ -151,8 +155,8 @@ function AuthOptions({
     trackEvent({
       event_name: 'click',
       target_type: login
-        ? EventNames?.LoginProvider
-        : EventNames.SignUpProvider,
+        ? AuthEventNames?.LoginProvider
+        : AuthEventNames.SignUpProvider,
       target_id: provider,
       extra: JSON.stringify({ trigger }),
     });
@@ -217,7 +221,7 @@ function AuthOptions({
   const onForgotPassword = () => {
     trackEvent({
       event_name: 'click',
-      target_type: EventNames.ForgotPassword,
+      target_type: AuthEventNames.ForgotPassword,
     });
     onSetActiveDisplay(Display.ForgotPassword);
   };

@@ -11,7 +11,7 @@ import { AuthForm, AuthModalText } from './common';
 import TokenInput from './TokenField';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
-import { EventNames } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 interface ForgotPasswordFormProps {
@@ -45,7 +45,7 @@ function ForgotPasswordForm({
     e.preventDefault();
     const { email } = formToJson(e.currentTarget);
     trackEvent({
-      event_name: EventNames.SubmitForgotPassword,
+      event_name: AuthEventNames.SubmitForgotPassword,
     });
     await sendEmail(email);
   };

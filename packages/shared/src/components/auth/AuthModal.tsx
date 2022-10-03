@@ -10,7 +10,7 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import DailyCircle from '../DailyCircle';
 import AuthContext from '../../contexts/AuthContext';
-import { EventNames } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export type AuthModalProps = { trigger?: string } & ModalProps;
@@ -38,7 +38,7 @@ export default function AuthModal({
   const { user, closeLogin, logout } = useContext(AuthContext);
   const closeAndLogout = (e) => {
     trackEvent({
-      event_name: EventNames.CloseSignUp,
+      event_name: AuthEventNames.CloseSignUp,
       extra: JSON.stringify({ trigger, screenValue }),
     });
 

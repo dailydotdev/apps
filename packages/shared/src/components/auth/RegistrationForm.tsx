@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import {
-  EventNames,
+  AuthEventNames,
   RegistrationError,
   RegistrationParameters,
 } from '../../lib/auth';
@@ -59,14 +59,14 @@ export const RegistrationForm = ({
 
   useEffect(() => {
     trackEvent({
-      event_name: EventNames.StartSignUpForm,
+      event_name: AuthEventNames.StartSignUpForm,
     });
   }, []);
 
   useEffect(() => {
     if (Object.keys(hints).length) {
       trackEvent({
-        event_name: EventNames.SubmitSignUpFormError,
+        event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
       });
     }
@@ -76,7 +76,7 @@ export const RegistrationForm = ({
     e.preventDefault();
 
     trackEvent({
-      event_name: EventNames.SubmitSignUpForm,
+      event_name: AuthEventNames.SubmitSignUpForm,
     });
 
     setIsSubmitted(true);

@@ -19,7 +19,7 @@ import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { EventNames } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
 
 interface AuthDefaultProps {
   children?: ReactNode;
@@ -71,7 +71,9 @@ const AuthDefault = ({
 
   useEffect(() => {
     trackEvent({
-      event_name: shouldLogin ? EventNames.OpenLogin : EventNames.OpenSignup,
+      event_name: shouldLogin
+        ? AuthEventNames.OpenLogin
+        : AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
     });
   }, [shouldLogin]);
@@ -81,7 +83,7 @@ const AuthDefault = ({
 
     trackEvent({
       event_name: 'click',
-      target_type: EventNames.SignUpProvider,
+      target_type: AuthEventNames.SignUpProvider,
       target_id: 'email',
       extra: JSON.stringify({ trigger }),
     });

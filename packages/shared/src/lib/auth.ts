@@ -8,7 +8,7 @@ import {
   KratosMethod,
 } from './kratos';
 
-export enum EventNames {
+export enum AuthEventNames {
   OpenSignup = 'open signup',
   OpenLogin = 'open login',
   CloseSignUp = 'close signup',
@@ -17,7 +17,7 @@ export enum EventNames {
   StartSignUpForm = 'start signup form',
   SubmitSignUpForm = 'submit signup form',
   SubmitSignUpFormError = 'submit signup form error',
-  LoginSuccessfuly = 'login successfuly',
+  LoginSuccessfully = 'login successfully',
   LoginError = 'login error',
   ForgotPassword = 'forgot password',
   SubmitForgotPassword = 'submit forgot password',
