@@ -150,6 +150,9 @@ const AccountSecurityPage = (): ReactElement => {
         }
 
         if (error) {
+          if (error.ui?.messages?.[0].id === 4000001) {
+            displayToast('You cannot unlink this provider');
+          }
           return;
         }
 
