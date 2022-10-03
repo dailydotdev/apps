@@ -146,6 +146,7 @@ export const AuthContextProvider = ({
       deleteAccount,
     }),
     [
+      authVersion,
       user,
       loginState,
       isFetched,
