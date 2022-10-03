@@ -16,6 +16,7 @@ import React, {
 import {
   AuthEvent,
   AuthFlow,
+  AuthSession,
   getKratosSettingsFlow,
   KratosProviderData,
   SocialRegistrationFlow,
@@ -68,6 +69,8 @@ const removeProviderList = Object.values(removeProvider).map(
 );
 
 interface AccountSecurityDefaultProps {
+  email?: string;
+  session: AuthSession;
   isEmailSent?: boolean;
   userProviders?: KratosProviderData;
   updatePasswordRef: MutableRefObject<HTMLFormElement>;
@@ -77,19 +80,19 @@ interface AccountSecurityDefaultProps {
 }
 
 function AccountSecurityDefault({
-  isEmailSent,
+  email,
+  session,
   userProviders,
   updatePasswordRef,
   onSwitchDisplay,
   onUpdatePassword,
   onUpdateProviders,
 }: AccountSecurityDefaultProps): ReactElement {
-  const { user, deleteAccount } = useContext(AuthContext);
+  const { deleteAccount } = useContext(AuthContext);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [alreadyLinkedProvider, setAlreadyLinkedProvider] = useState(false);
   const [linkProvider, setLinkProvider] = useState(null);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
-  const [, setEmail] = useState<string>(null);
   const hasPassword = userProviders?.result?.includes('password');
 
   useWindowEvents<SocialRegistrationFlow>(
@@ -125,19 +128,11 @@ function AccountSecurityDefault({
     onUpdatePassword(form);
   };
 
-  const emailAction = isEmailSent ? (
-    <EmailSentSection className="max-w-sm" />
-  ) : (
-    hasPassword && (
-      <Button
-        buttonSize="small"
-        className="mt-6 w-fit btn-secondary"
-        onClick={() => onSwitchDisplay(Display.ChangeEmail)}
-      >
-        Change email
-      </Button>
-    )
-  );
+  const verifyable =
+    email &&
+    session?.identity?.verifiable_addresses?.find(
+      (address) => address.value === email,
+    );
 
   return (
     <AccountPageContainer title="Security">
@@ -158,8 +153,7 @@ function AccountSecurityDefault({
         >
           <AccountTextField
             fieldType="tertiary"
-            value={user.email}
-            onChange={(e) => setEmail(e.currentTarget.value)}
+            value={email}
             label="Email"
             inputId="email"
             data-testid="current_email"
@@ -168,7 +162,18 @@ function AccountSecurityDefault({
             isLocked
           />
         </SimpleTooltip>
-        {emailAction}
+        {hasPassword && email && verifyable && !verifyable.verified && (
+          <EmailSentSection email={email} className="max-w-sm" />
+        )}
+        {hasPassword && (
+          <Button
+            buttonSize="small"
+            className="mt-6 w-fit btn-secondary"
+            onClick={() => onSwitchDisplay(Display.ChangeEmail)}
+          >
+            Change email
+          </Button>
+        )}
       </AccountContentSection>
       <AccountLoginSection
         title="Add login account"
@@ -200,6 +205,8 @@ function AccountSecurityDefault({
           onSubmit={onChangePassword}
         >
           <PasswordField
+            required
+            minLength={6}
             className={{ container: 'mt-6 max-w-sm' }}
             inputId="new_password"
             label="Password"

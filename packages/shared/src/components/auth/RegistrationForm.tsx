@@ -155,6 +155,8 @@ export const RegistrationForm = ({
           }
         />
         <PasswordField
+          required
+          minLength={6}
           saveHintSpace
           className={{ container: 'w-full' }}
           name="password"

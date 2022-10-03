@@ -30,7 +30,7 @@ export interface AuthContextData {
   deleteAccount?: () => Promise<void>;
   refetchBoot?: () => Promise<unknown>;
 }
-
+const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
 export default AuthContext;
 
@@ -54,6 +54,10 @@ const logout = async (): Promise<void> => {
     window.location.replace(params.redirect_uri);
   } else if (window.location.pathname === REGISTRATION_PATH) {
     window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
+  }
+
+  if (isExtension) {
+    window.location.reload();
   } else {
     window.location.replace('/');
   }

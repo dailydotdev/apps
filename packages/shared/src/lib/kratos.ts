@@ -187,7 +187,7 @@ export interface SuccessfulRegistrationData {
   identity: Identity;
 }
 
-interface KratosError {
+export interface KratosError {
   code: number;
   message: string;
   reason: string;
@@ -228,10 +228,10 @@ export const initializeKratosFlow = async (
   return res.json();
 };
 
-export const getKratosFlow = async (
+export const getKratosFlow = async <T = InitializationData>(
   flow: AuthFlow,
   id: string,
-): Promise<InitializationData> => {
+): Promise<T> => {
   const res = await fetch(`${authUrl}/self-service${flow}?flow=${id}`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
@@ -345,7 +345,7 @@ export const submitKratosFlow = async <
 };
 
 export const getKratosSession = async (): Promise<AuthSession> => {
-  const res = await fetch(`${authUrl}/sessions/whoami`, {
+  const res = await fetch(`${heimdallUrl}/api/whoami`, {
     credentials: 'include',
   });
 

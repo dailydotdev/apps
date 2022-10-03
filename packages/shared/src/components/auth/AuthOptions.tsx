@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
@@ -43,6 +44,7 @@ import ConnectedUserModal, {
 } from '../modals/ConnectedUser';
 import { VERIFICATION_TRIGGER } from '../../hooks/useAuthVerificationRecovery';
 import EmailVerified from './EmailVerified';
+import { postWindowMessage } from '../../lib/func';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export enum Display {
@@ -78,6 +80,7 @@ function AuthOptions({
   onDisplayChange,
 }: AuthOptionsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
+  const router = useRouter();
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
@@ -98,7 +101,19 @@ function AuthOptions({
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
+  const [isRegistration, setIsRegistration] = useState(false);
+
+  const closeWindowFn = () => {
+    if (closeWindow) {
+      postWindowMessage(AuthEvent.Login, { login: 'true' });
+      window.close();
+    }
+  };
+
   const onLoginCheck = () => {
+    if (isRegistration) {
+      return;
+    }
     if (isVerified) {
       onShowOptionsOnly(!!user);
       onSetActiveDisplay(Display.VerifiedEmail);
@@ -116,6 +131,8 @@ function AuthOptions({
         event_name: AuthEventNames.LoginSuccessfully,
       });
       onSuccessfulLogin();
+      closeWindowFn();
+      onSuccessfulLogin?.();
     } else {
       onSetActiveDisplay(Display.SocialRegistration);
     }
@@ -129,19 +146,25 @@ function AuthOptions({
     onSuccessfulLogin: onLoginCheck,
     trigger,
   });
+  const onProfileSuccess = () => {
+    refetchBoot();
+    onClose(null, true);
+  };
   const {
     updateUserProfile,
     hint,
     onUpdateHint,
     isLoading: isProfileUpdateLoading,
-  } = useProfileForm();
+  } = useProfileForm({ onSuccess: onProfileSuccess });
   const windowPopup = useRef<Window>(null);
 
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
       key: 'registration_form',
       onValidRegistration: () => {
+        setIsRegistration(true);
         refetchBoot();
+        closeWindowFn();
         onShowOptionsOnly?.(true);
         onSetActiveDisplay(Display.EmailSent);
       },
@@ -202,8 +225,6 @@ function AuthOptions({
 
   const onSocialCompletion = async (params) => {
     await updateUserProfile({ ...params });
-    refetchBoot();
-    onClose(null, true);
   };
 
   const onRegister = (params: RegistrationFormValues) => {
