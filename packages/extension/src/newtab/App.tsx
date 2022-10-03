@@ -53,14 +53,8 @@ function InternalApp({
 }: {
   pageRef: MutableRefObject<string>;
 }): ReactElement {
-  const {
-    user,
-    tokenRefreshed,
-    closeLogin,
-    loadingUser,
-    shouldShowLogin,
-    loginState,
-  } = useContext(AuthContext);
+  const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
+    useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
     origin: 'on extension load',
   });
@@ -70,16 +64,6 @@ function InternalApp({
     shouldShowConsent ? null : true,
   );
   const routeChangedCallbackRef = useTrackPageView();
-
-  useEffect(() => {
-    if (tokenRefreshed && user && !user.infoConfirmed) {
-      window.location.replace(
-        `${process.env.NEXT_PUBLIC_WEBAPP_URL}register?redirect_uri=${encodeURI(
-          browser.runtime.getURL('index.html'),
-        )}`,
-      );
-    }
-  }, [user, loadingUser, tokenRefreshed]);
 
   useEffect(() => {
     if (routeChangedCallbackRef.current) {
