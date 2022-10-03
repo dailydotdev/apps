@@ -71,8 +71,7 @@ function TextFieldComponent(
   const isPrimaryField = fieldType === 'primary';
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
-  const invalid =
-    validInput === false || (required && inputLength === 0 && !!hint);
+  const invalid = validInput === false || (required && inputLength === 0);
 
   return (
     <BaseFieldContainer
