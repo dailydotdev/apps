@@ -255,7 +255,7 @@ function AuthOptions({
 
   const onShowLogin = () => {
     onShowOptionsOnly(false);
-    onSetActiveDisplay(Display.Default);
+    onSetActiveDisplay(Display.SignBack);
   };
 
   return (
