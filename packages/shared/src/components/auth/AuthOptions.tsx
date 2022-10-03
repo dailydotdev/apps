@@ -93,6 +93,7 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
+  const closeWindow = router.query.close === 'true';
   const onSetActiveDisplay = (display: Display) => {
     onDisplayChange(display);
     setActiveDisplay(display);
