@@ -47,6 +47,7 @@ function TextFieldComponent(
     actionButton,
     disabled,
     rightIcon,
+    required,
     ...props
   }: TextFieldProps,
   ref?: MutableRefObject<HTMLDivElement>,
@@ -70,7 +71,7 @@ function TextFieldComponent(
   const isPrimaryField = fieldType === 'primary';
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
-  const invalid = validInput === false;
+  const invalid = validInput === false || (required && inputLength === 0);
 
   return (
     <BaseFieldContainer
@@ -168,6 +169,7 @@ function TextFieldComponent(
             }),
           )}
           disabled={disabled}
+          required={required}
           {...props}
         />
         {progress && (

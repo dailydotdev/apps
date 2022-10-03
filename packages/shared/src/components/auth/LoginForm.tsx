@@ -61,6 +61,7 @@ function LoginForm({
         hint={hint as string}
         onChange={() => hint && setHint(null)}
         valid={!hint}
+        required
       />
       <PasswordField
         data-testid="login_password"

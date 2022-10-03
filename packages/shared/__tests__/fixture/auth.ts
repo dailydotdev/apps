@@ -792,7 +792,7 @@ const getWhoamiMockData = (email = 'lee@daily.dev') => ({
 });
 
 export const mockWhoAmIFlow = (email?: string): void => {
-  nock(authUrl).get('/sessions/whoami').reply(200, getWhoamiMockData(email));
+  nock(heimdallUrl).get('/api/whoami').reply(200, getWhoamiMockData(email));
 };
 
 export const socialProviderRedirectMock = {

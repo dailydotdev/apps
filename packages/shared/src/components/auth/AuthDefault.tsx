@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
@@ -12,6 +18,8 @@ import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AuthEventNames } from '../../lib/auth';
 
 interface AuthDefaultProps {
   children?: ReactNode;
@@ -19,12 +27,13 @@ interface AuthDefaultProps {
   onClose?: CloseModalFunc;
   onPasswordLogin?: (params: LoginFormParams) => void;
   onSignup?: (email: string) => unknown;
-  onProviderClick?: (provider: string) => unknown;
+  onProviderClick?: (provider: string, login?: boolean) => unknown;
   onForgotPassword?: () => unknown;
   isV2?: boolean;
   isForgotPasswordReturn?: boolean;
   title?: string;
   providers: Provider[];
+  trigger: string;
   disableRegistration?: boolean;
   disablePassword?: boolean;
   isLoading?: boolean;
@@ -44,9 +53,11 @@ const AuthDefault = ({
   disableRegistration,
   disablePassword,
   isLoading,
+  trigger,
   title = isV2 ? 'Log in to daily.dev' : 'Sign up to daily.dev',
   loginButton,
 }: AuthDefaultProps): ReactElement => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(
     isForgotPasswordReturn || isV2,
   );
@@ -58,8 +69,25 @@ const AuthDefault = ({
     checkKratosEmail(emailParam),
   );
 
+  useEffect(() => {
+    trackEvent({
+      event_name: shouldLogin
+        ? AuthEventNames.OpenLogin
+        : AuthEventNames.OpenSignup,
+      extra: JSON.stringify({ trigger }),
+    });
+  }, [shouldLogin]);
+
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    trackEvent({
+      event_name: 'click',
+      target_type: AuthEventNames.SignUpProvider,
+      target_id: 'email',
+      extra: JSON.stringify({ trigger }),
+    });
+
     const form = e.currentTarget as HTMLFormElement;
     const input = Array.from(form.elements).find(
       (el) => el.getAttribute('name') === 'email',
@@ -82,7 +110,7 @@ const AuthDefault = ({
 
   const onSocialClick = (provider: string) => {
     storage.setItem(SIGNIN_METHOD_KEY, provider);
-    onProviderClick?.(provider);
+    onProviderClick?.(provider, shouldLogin);
   };
 
   const getForm = () => {

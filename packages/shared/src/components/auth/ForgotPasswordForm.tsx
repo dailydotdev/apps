@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { FormEvent, ReactElement, useState } from 'react';
+import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
@@ -11,6 +11,8 @@ import { AuthForm, AuthModalText } from './common';
 import TokenInput from './TokenField';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
+import { AuthEventNames } from '../../lib/auth';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 interface ForgotPasswordFormProps {
   initialEmail?: string;
@@ -23,6 +25,7 @@ function ForgotPasswordForm({
   onBack,
   onClose,
 }: ForgotPasswordFormProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [hint, setHint] = useState('');
   const [successHint, setSuccessHint] = useState('');
   const [emailSent, setEmailSent] = useState(false);
@@ -40,6 +43,9 @@ function ForgotPasswordForm({
 
   const onSendEmail = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    trackEvent({
+      event_name: AuthEventNames.SubmitForgotPassword,
+    });
     const { email } = formToJson<{ email: string }>(e.currentTarget);
     await sendEmail(email);
   };
