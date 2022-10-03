@@ -3,6 +3,7 @@ import { useMutation, useQuery } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';
 import {
+  AuthEventNames,
   getNodeValue,
   LoginPasswordParameters,
   LoginSocialParameters,
@@ -19,6 +20,7 @@ import {
   submitKratosFlow,
 } from '../lib/kratos';
 import useWindowEvents from './useWindowEvents';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 interface UseLogin {
   session: AuthSession;
@@ -34,15 +36,18 @@ interface UseLoginProps {
   enableSessionVerification?: boolean;
   queryEnabled?: boolean;
   queryParams?: EmptyObjectLiteral;
+  trigger?: string;
   onSuccessfulLogin?: (() => Promise<void>) | (() => void);
 }
 
 const useLogin = ({
+  trigger,
   onSuccessfulLogin,
   queryEnabled = true,
   queryParams = {},
   enableSessionVerification = false,
 }: UseLoginProps = {}): UseLogin => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
   const { data: session, refetch: refetchSession } = useQuery(
@@ -57,10 +62,22 @@ const useLogin = ({
     { enabled: queryEnabled },
   );
   const { mutateAsync: onPasswordLogin, isLoading } = useMutation(
-    (params: ValidateLoginParams) => submitKratosFlow(params),
+    (params: ValidateLoginParams) => {
+      trackEvent({
+        event_name: 'click',
+        target_type: AuthEventNames.LoginProvider,
+        target_id: 'email',
+        extra: JSON.stringify({ trigger }),
+      });
+      return submitKratosFlow(params);
+    },
     {
       onSuccess: async ({ error }) => {
         if (error) {
+          trackEvent({
+            event_name: AuthEventNames.LoginError,
+            extra: JSON.stringify({ error: 'Invalid username or password' }),
+          });
           setHint('Invalid username or password');
           return;
         }
@@ -76,6 +93,10 @@ const useLogin = ({
       onSuccess: async (res) => {
         const { error, redirect } = res;
         if (error) {
+          trackEvent({
+            event_name: AuthEventNames.LoginError,
+            extra: JSON.stringify({ error: 'Invalid username or password' }),
+          });
           setHint('Invalid username or password');
         }
 

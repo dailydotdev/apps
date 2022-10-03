@@ -3,9 +3,10 @@ import React, {
   MutableRefObject,
   ReactElement,
   useContext,
+  useEffect,
   useState,
 } from 'react';
-import { SocialRegistrationParameters } from '../../lib/auth';
+import { AuthEventNames, SocialRegistrationParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
@@ -20,6 +21,7 @@ import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileFormHint } from '../../hooks/useProfileForm';
 import { Checkbox } from '../fields/Checkbox';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -51,23 +53,50 @@ export const SocialRegistrationForm = ({
   isV2,
   isLoading,
 }: SocialRegistrationFormProps): ReactElement => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
 
+  useEffect(() => {
+    trackEvent({
+      event_name: AuthEventNames.StartSignUpForm,
+    });
+  }, []);
+
+  const trackError = (error) => {
+    trackEvent({
+      event_name: AuthEventNames.SubmitSignUpFormError,
+      extra: JSON.stringify({ error }),
+    });
+  };
+
+  useEffect(() => {
+    if (Object.keys(hints).length) {
+      trackError(hints);
+    }
+  }, [hints]);
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    trackEvent({
+      event_name: AuthEventNames.SubmitSignUpForm,
+    });
+
     const form = e.target as HTMLFormElement;
     const values = formToJson<SocialRegistrationFormValues>(
       formRef?.current ?? form,
     );
 
     if (!values.name) {
+      trackError('Name not provided');
       setNameHint('Please prove your name');
       return;
     }
 
     if (!values.username) {
+      trackError('Username not provided');
       setUsernameHint('Please choose a username');
       return;
     }
