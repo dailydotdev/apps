@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import {
   AnonymousUser,
   LoggedUser,
@@ -6,6 +12,8 @@ import {
   deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
+import FeaturesContext from './FeaturesContext';
+import { AuthVersion } from '../lib/featureValues';
 
 export type LoginState = { trigger: string };
 
@@ -94,6 +102,7 @@ export const AuthContextProvider = ({
   isLegacyLogout,
   firstLoad,
 }: AuthContextProviderProps): ReactElement => {
+  const { authVersion } = useContext(FeaturesContext);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referrer;
@@ -115,7 +124,7 @@ export const AuthContextProvider = ({
       shouldShowLogin: loginState !== null,
       showLogin: (trigger) => {
         const hasCompanion = !!document.querySelector('daily-companion-app');
-        if (hasCompanion) {
+        if (hasCompanion || authVersion === AuthVersion.V3) {
           const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/signup?close=true`;
           window.open(signup);
         } else {
