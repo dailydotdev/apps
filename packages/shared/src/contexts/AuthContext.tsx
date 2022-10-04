@@ -14,6 +14,7 @@ import {
 import { Visit } from '../lib/boot';
 import FeaturesContext from './FeaturesContext';
 import { AuthVersion } from '../lib/featureValues';
+import { isCompanionActivated } from '../lib/element';
 
 export type LoginState = { trigger: string };
 
@@ -123,9 +124,9 @@ export const AuthContextProvider = ({
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
       showLogin: (trigger) => {
-        const hasCompanion = !!document.querySelector('daily-companion-app');
+        const hasCompanion = !!isCompanionActivated();
         if (hasCompanion || authVersion === AuthVersion.V3) {
-          const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/signup?close=true`;
+          const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
           window.open(signup);
         } else {
           setLoginState({ trigger });
