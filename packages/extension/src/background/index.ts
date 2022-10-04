@@ -13,6 +13,7 @@ import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/u
 import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
 
 const excludedCompanionOrigins = [
+  'http://127.0.0.1:5002',
   'http://localhost',
   'http://app.daily.dev',
   'https://twitter.com',
