@@ -12,8 +12,13 @@ import EditIcon from '../icons/Edit';
 
 type Size = 'medium' | 'large';
 
+interface ClassName {
+  container?: string;
+  img?: string;
+}
+
 interface ImageInputProps {
-  className?: string;
+  className?: ClassName;
   initialValue?: string;
   onChange?: (base64: string) => void;
   name?: string;
@@ -35,7 +40,7 @@ function ImageInput({
   initialValue,
   name = 'file',
   id,
-  className,
+  className = {},
   onChange,
   size = 'medium',
   viewOnly,
@@ -78,7 +83,7 @@ function ImageInput({
       className={classNames(
         'relative flex justify-center items-center group overflow-hidden border border-theme-divider-primary',
         componentSize[size],
-        className,
+        className?.container,
       )}
       disabled={viewOnly}
     >
@@ -96,6 +101,7 @@ function ImageInput({
       <img
         className={classNames(
           'w-full h-full',
+          className?.img,
           !viewOnly && 'mouse:group-hover:opacity-64',
         )}
         src={image}
