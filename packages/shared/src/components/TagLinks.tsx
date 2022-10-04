@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { Button } from './buttons/Button';
+import { getTagPageLink } from '../lib/links';
 
 interface TagLinkProps {
   tag: string;
@@ -10,11 +11,7 @@ interface TagLinkProps {
 
 export function TagLink({ tag, className }: TagLinkProps): ReactElement {
   return (
-    <Link
-      href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${tag}`}
-      passHref
-      key={tag}
-    >
+    <Link href={getTagPageLink(tag)} passHref key={tag}>
       <Button
         tag="a"
         className={classNames('btn-tertiaryFloat xsmall', className)}

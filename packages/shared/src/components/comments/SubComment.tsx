@@ -90,7 +90,10 @@ export default function SubComment({
           </div>
           <CommentPublishDate comment={comment} />
           <div className="mt-2">
-            <Markdown content={comment.contentHtml} />
+            <Markdown
+              content={comment.contentHtml}
+              appendTooltipTo={appendTooltipTo}
+            />
           </div>
         </SubCommentBox>
         <CommentActionButtons

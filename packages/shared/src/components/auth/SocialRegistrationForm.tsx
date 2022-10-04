@@ -134,7 +134,7 @@ export const SocialRegistrationForm = ({
         data-testid="registration_form"
       >
         <ImageInput
-          className="mb-4"
+          className={{ container: 'mb-4' }}
           initialValue={user?.image}
           size="medium"
           viewOnly
