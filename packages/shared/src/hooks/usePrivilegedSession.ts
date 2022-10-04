@@ -41,10 +41,10 @@ const usePrivilegedSession = (): UsePrivilegedSession => {
     enableSessionVerification: true,
     queryEnabled: !!verifySessionId,
     queryParams: { refresh: 'true' },
-    onSuccessfulLogin: async () => {
+    onSuccessfulLogin: () => {
       setVerifySessionId(null);
       if (onVerification?.current) {
-        await onVerification.current();
+        onVerification.current();
         onVerification.current = null;
       } else {
         displayToast('Session successfully verified!');
