@@ -151,7 +151,7 @@ const AccountSecurityPage = (): ReactElement => {
 
         if (error) {
           if (error.ui?.messages?.[0].id === KRATOS_ERROR.SINGLE_OIDC) {
-            displayToast('You cannot unlink this provider');
+            displayToast('You must have at least one provider');
           }
           return;
         }
