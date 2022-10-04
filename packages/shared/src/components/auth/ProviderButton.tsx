@@ -17,7 +17,6 @@ function ProviderButton({
 }: ProviderButtonProps): ReactElement {
   return (
     <Button
-      key={provider}
       {...props}
       className={classNames('btn-secondary', className)}
       style={{
