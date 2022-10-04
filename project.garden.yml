@@ -12,8 +12,8 @@ sources:
     repositoryUrl: git@github.com:dailydotdev/heimdall.git#main
 environments:
   - name: default
-#    variables:
-#      dev: true
+    variables:
+      dev: true
 providers:
   - name: local-kubernetes
 variables:
@@ -22,7 +22,6 @@ variables:
     pubsub: true
     redis: true
     mysql: true
-
   hostname: apps.local.app.garden
   # API variables
   api-hostname: api.apps.local.app.garden
@@ -30,7 +29,7 @@ variables:
   # Gateway variables
   gateway-database: gateway
   # Kratos variables
-  kratos-image: oryd/kratos:v0.10.1
+  kratos-image: vpol/kratos-manual-image:latest
   kratos-hostname: sso.apps.local.app.garden
   kratos-ui-hostname: kratos-ui.apps.local.app.garden
   kratos-database: kratos
@@ -47,4 +46,3 @@ variables:
   mysql-databases: gateway
   mysql-username: root
   mysql-password: root
-
