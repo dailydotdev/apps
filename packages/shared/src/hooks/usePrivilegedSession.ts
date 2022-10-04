@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
 import { AuthSession } from '../lib/kratos';
@@ -23,7 +23,7 @@ interface UsePrivilegedSession {
 export const VERIFY_SESSION_KEY = 'verify_session';
 
 const usePrivilegedSession = (): UsePrivilegedSession => {
-  const [onVerification, setOnVerification] = useState<Func>();
+  const onVerification = useRef<Func>();
   const { displayToast } = useToastNotification();
   const { data: verifySessionId } = useQuery(VERIFY_SESSION_KEY);
   const client = useQueryClient();
@@ -43,9 +43,9 @@ const usePrivilegedSession = (): UsePrivilegedSession => {
     queryParams: { refresh: 'true' },
     onSuccessfulLogin: async () => {
       setVerifySessionId(null);
-      if (onVerification) {
-        await onVerification();
-        setOnVerification(null);
+      if (onVerification?.current) {
+        await onVerification.current();
+        onVerification.current = null;
       } else {
         displayToast('Session successfully verified!');
       }
@@ -67,7 +67,7 @@ const usePrivilegedSession = (): UsePrivilegedSession => {
 
     const returnTo = new URL(url.searchParams.get('return_to'));
     const flowId = returnTo.searchParams.get('flow');
-    setOnVerification(onVerified);
+    onVerification.current = onVerified;
     return setVerifySessionId(flowId);
   };
 
