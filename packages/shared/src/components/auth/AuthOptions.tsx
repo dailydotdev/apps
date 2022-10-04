@@ -307,6 +307,7 @@ function AuthOptions({
               onPasswordLogin={onPasswordLogin}
               onForgotPassword={onForgotPassword}
               isLoading={isPasswordLoginLoading}
+              autoFocus={false}
             />
           </AuthSignBack>
         </Tab>
