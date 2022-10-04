@@ -3,9 +3,21 @@ import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import Logo from '@dailydotdev/shared/src/components/Logo';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import React, { ReactElement } from 'react';
+import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { useRouter } from 'next/router';
 
 function Signup(): ReactElement {
   const { formRef } = useAuthForms();
+  const router = useRouter();
+
+  const onClose = () => {
+    const closeWindow = router.query.close === 'true';
+    if (closeWindow) {
+      postWindowMessage(AuthEvent.Login, { login: 'true' });
+      window.close();
+    }
+  };
 
   return (
     <div className="flex relative flex-col py-7 px-10 h-screen">
@@ -18,6 +30,7 @@ function Signup(): ReactElement {
             className="h-full max-h-[40rem] min-h-[40rem]"
             formRef={formRef}
             trigger="login page"
+            onClose={onClose}
           />
 
           <AuthModalHeading className="hidden tablet:block z-1 mb-10 laptop:mb-0 laptop:ml-32 typo-title1 laptop:typo-mega1">

@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
@@ -43,7 +42,6 @@ import ConnectedUserModal, {
 } from '../modals/ConnectedUser';
 import { VERIFICATION_TRIGGER } from '../../hooks/useAuthVerificationRecovery';
 import EmailVerified from './EmailVerified';
-import { postWindowMessage } from '../../lib/func';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export enum Display {
@@ -79,7 +77,6 @@ function AuthOptions({
   onDisplayChange,
 }: AuthOptionsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const router = useRouter();
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
@@ -92,9 +89,8 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
-  const closeWindow = router.query.close === 'true';
   const onSetActiveDisplay = (display: Display) => {
-    onDisplayChange(display);
+    onDisplayChange?.(display);
     setActiveDisplay(display);
   };
   const isVerified = loginState?.trigger === VERIFICATION_TRIGGER;
@@ -102,14 +98,6 @@ function AuthOptions({
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
-
-  const closeWindowFn = () => {
-    if (closeWindow) {
-      postWindowMessage(AuthEvent.Login, { login: 'true' });
-      window.close();
-    }
-  };
-
   const onLoginCheck = () => {
     if (isRegistration) {
       return;
@@ -130,8 +118,6 @@ function AuthOptions({
       trackEvent({
         event_name: AuthEventNames.LoginSuccessfully,
       });
-      onSuccessfulLogin();
-      closeWindowFn();
       onSuccessfulLogin?.();
     } else {
       onSetActiveDisplay(Display.SocialRegistration);
@@ -164,7 +150,6 @@ function AuthOptions({
       onValidRegistration: async () => {
         setIsRegistration(true);
         await refetchBoot();
-        closeWindowFn();
         onShowOptionsOnly?.(true);
         onSetActiveDisplay(Display.EmailSent);
       },
