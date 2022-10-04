@@ -71,7 +71,7 @@ const AccountProfilePage = (): ReactElement => {
         >
           <ImageInput
             id={id}
-            className="mt-6"
+            className={{ container: 'mt-6', img: 'object-cover' }}
             initialValue={user.image}
             hoverIcon={<CameraIcon size="xlarge" />}
           />
