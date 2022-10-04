@@ -46,4 +46,3 @@ variables:
   mysql-databases: gateway
   mysql-username: root
   mysql-password: root
-

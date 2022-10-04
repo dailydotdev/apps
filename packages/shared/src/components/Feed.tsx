@@ -336,8 +336,8 @@ export default function Feed<T>({
               }
               items={items}
               index={index}
-              row={calculateRow(index, numCards)}
-              column={calculateColumn(index, numCards)}
+              row={calculateRow(index, virtualizedNumCards)}
+              column={calculateColumn(index, virtualizedNumCards)}
               columns={virtualizedNumCards}
               key={getFeedItemKey(items, index)}
               useList={useList}
