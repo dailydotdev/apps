@@ -1,6 +1,4 @@
 import React, { MutableRefObject, useMemo, useRef, useState } from 'react';
-import { RegistrationFormValues } from '../components/auth/RegistrationForm';
-import { formToJson } from '../lib/form';
 
 export type CloseAuthModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,

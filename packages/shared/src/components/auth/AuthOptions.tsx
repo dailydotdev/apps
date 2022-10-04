@@ -38,7 +38,6 @@ import useLogin from '../../hooks/useLogin';
 import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import { logout } from '../../lib/user';
 import ConnectedUserModal, {
   ConnectedUser as RegistrationConnectedUser,
 } from '../modals/ConnectedUser';
