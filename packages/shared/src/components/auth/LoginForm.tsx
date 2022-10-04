@@ -17,6 +17,7 @@ interface LoginFormProps {
   loginButton?: string;
   className?: string;
   isLoading?: boolean;
+  autoFocus?: boolean;
 }
 
 export type LoginFormParams = Pick<
@@ -36,6 +37,7 @@ function LoginForm({
   loginButton = 'Log in',
   className,
   isLoading,
+  autoFocus = true,
 }: LoginFormProps): ReactElement {
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,7 +57,9 @@ function LoginForm({
 
         const id = email ? 'password' : 'identifier';
         const element = document.getElementById(id);
-        element.focus();
+        if (autoFocus) {
+          element?.focus();
+        }
       }}
     >
       <TextField
