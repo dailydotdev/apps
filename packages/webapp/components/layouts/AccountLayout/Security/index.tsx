@@ -189,7 +189,7 @@ function AccountSecurityDefault({
       <AccountLoginSection
         title="Connected accounts"
         description="Remove the connection between daily.dev and authorized login providers."
-        providerAction={manageSocialProviders}
+        providerAction={({ provider }) => setUnlinkProvider(provider)}
         providerActionType="unlink"
         providers={removeProviderList.filter(({ provider }) =>
           userProviders?.result.includes(provider.toLowerCase()),
@@ -233,7 +233,7 @@ function AccountSecurityDefault({
         <UnlinkModal
           provider={unlinkProvider}
           onConfirm={() => {
-            manageSocialProviders({ type: 'link', provider: unlinkProvider });
+            manageSocialProviders({ type: 'unlink', provider: unlinkProvider });
           }}
           onRequestClose={() => setUnlinkProvider(null)}
           isOpen={!!unlinkProvider}
