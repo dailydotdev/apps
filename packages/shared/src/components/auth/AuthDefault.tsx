@@ -30,7 +30,7 @@ interface AuthDefaultProps {
   onProviderClick?: (provider: string, login?: boolean) => unknown;
   onForgotPassword?: () => unknown;
   isV2?: boolean;
-  isForgotPasswordReturn?: boolean;
+  isLoginFlow?: boolean;
   title?: string;
   providers: Provider[];
   trigger: string;
@@ -48,7 +48,7 @@ const AuthDefault = ({
   onForgotPassword,
   onPasswordLogin,
   isV2,
-  isForgotPasswordReturn,
+  isLoginFlow,
   providers,
   disableRegistration,
   disablePassword,
@@ -58,9 +58,7 @@ const AuthDefault = ({
   loginButton,
 }: AuthDefaultProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [shouldLogin, setShouldLogin] = useState(
-    isForgotPasswordReturn || isV2,
-  );
+  const [shouldLogin, setShouldLogin] = useState(isLoginFlow || isV2);
 
   const useTitle = shouldLogin ? 'Log in to daily.dev' : title;
 
