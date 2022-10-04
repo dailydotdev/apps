@@ -26,21 +26,10 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   const formRef = useRef<HTMLFormElement>();
 
   const onDiscardAttempt: CloseAuthModalFunc = (e, forceClose = false) => {
-    if (forceClose) {
+    if (forceClose || !formRef?.current) {
       return onDiscard(e);
     }
-    if (!formRef?.current) {
-      return onDiscard(e);
-    }
-
-    const form = formToJson<RegistrationFormValues>(formRef.current);
-    const values = Object.values(form);
-
-    if (values.some((value) => !!value)) {
-      return setIsDiscardOpen(true);
-    }
-
-    return onDiscard(e);
+    return setIsDiscardOpen(true);
   };
 
   const onDiscardCanceled: CloseAuthModalFunc = (e) => {
@@ -57,7 +46,7 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
       isDiscardOpen,
       formRef,
     }),
-    [formRef?.current, container, isDiscardOpen, onDiscardAttempt],
+    [formRef?.current, container, isDiscardOpen, onDiscard],
   );
 };
 
