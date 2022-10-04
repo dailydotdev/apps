@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import {
   AnonymousUser,
   LoggedUser,
@@ -6,6 +12,9 @@ import {
   deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
+import FeaturesContext from './FeaturesContext';
+import { AuthVersion } from '../lib/featureValues';
+import { isCompanionActivated } from '../lib/element';
 
 export type LoginState = { trigger: string };
 
@@ -94,6 +103,7 @@ export const AuthContextProvider = ({
   isLegacyLogout,
   firstLoad,
 }: AuthContextProviderProps): ReactElement => {
+  const { authVersion } = useContext(FeaturesContext);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referrer;
@@ -113,7 +123,15 @@ export const AuthContextProvider = ({
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger) => setLoginState({ trigger }),
+      showLogin: (trigger) => {
+        const hasCompanion = !!isCompanionActivated();
+        if (hasCompanion || authVersion === AuthVersion.V3) {
+          const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
+          window.open(signup);
+        } else {
+          setLoginState({ trigger });
+        }
+      },
       closeLogin: () => setLoginState(null),
       loginState,
       updateUser,
@@ -129,6 +147,7 @@ export const AuthContextProvider = ({
       deleteAccount,
     }),
     [
+      authVersion,
       user,
       loginState,
       isFetched,

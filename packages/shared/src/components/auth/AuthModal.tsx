@@ -36,17 +36,21 @@ export default function AuthModal({
   const [screenValue, setScreenValue] = useState<Display>(Display.Default);
   const { authVersion } = useContext(FeaturesContext);
   const { user, closeLogin, logout } = useContext(AuthContext);
-  const closeAndLogout = (e) => {
+  const onClose = (e) => {
     trackEvent({
       event_name: AuthEventNames.CloseSignUp,
       extra: JSON.stringify({ trigger, screenValue }),
     });
+    onRequestClose(e);
+  };
 
+  const closeAndLogout = (e) => {
     if (user) {
       logout();
     }
-    onRequestClose(e);
+    onClose(e);
   };
+
   const {
     onDiscardAttempt,
     onDiscardCanceled,
@@ -55,7 +59,7 @@ export default function AuthModal({
     container,
     isDiscardOpen,
   } = useAuthForms({
-    onDiscard: closeAndLogout,
+    onDiscard: onClose,
   });
   const isLogoutFlow = trigger === 'legacy_logout';
   const isV1 = authVersion === AuthVersion.V1;
