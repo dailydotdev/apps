@@ -186,7 +186,7 @@ function TextFieldComponent(
           className="ml-2 font-bold typo-callout"
           style={{ color: 'var(--field-placeholder-color)' }}
         >
-          {maxLength - inputLength}
+          {maxLength - (inputLength || 0)}
         </div>
       )}
       {rightIcon}
