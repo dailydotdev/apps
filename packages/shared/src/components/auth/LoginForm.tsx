@@ -48,6 +48,15 @@ function LoginForm({
       className={classNames('gap-2', className)}
       onSubmit={onLogin}
       data-testid="login_form"
+      ref={(form) => {
+        if (!form) {
+          return;
+        }
+
+        const id = email ? 'password' : 'identifier';
+        const element = document.getElementById(id);
+        element.focus();
+      }}
     >
       <TextField
         leftIcon={<MailIcon size="medium" />}

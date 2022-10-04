@@ -186,7 +186,12 @@ const AuthDefault = ({
         <AuthModalFooter
           className="mt-4"
           isLogin={shouldLogin}
-          onIsLogin={setShouldLogin}
+          onIsLogin={(value) => {
+            if (!value) {
+              setRegisterEmail(null);
+            }
+            setShouldLogin(value);
+          }}
         />
       )}
     </>
