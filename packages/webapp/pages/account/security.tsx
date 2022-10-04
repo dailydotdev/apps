@@ -58,9 +58,10 @@ const AccountSecurityPage = (): ReactElement => {
   const { mutateAsync: resetPassword } = useMutation(
     (params: ValidateResetPassword) => submitKratosFlow(params),
     {
-      onSuccess: ({ redirect, error, code }) => {
+      onSuccess: ({ redirect, error, code }, params) => {
         if (redirect && code === 403) {
-          return initializePrivilegedSession(redirect);
+          const onVerified = () => resetPassword(params);
+          return initializePrivilegedSession(redirect, onVerified);
         }
 
         if (error) {
@@ -87,9 +88,10 @@ const AccountSecurityPage = (): ReactElement => {
       return submitKratosFlow(params);
     },
     {
-      onSuccess: async ({ redirect, error, code }) => {
+      onSuccess: async ({ redirect, error, code }, params) => {
         if (redirect && code === 403) {
-          initializePrivilegedSession(redirect);
+          const onVerified = () => changeEmail(params);
+          initializePrivilegedSession(redirect, onVerified);
           return;
         }
 
@@ -138,10 +140,10 @@ const AccountSecurityPage = (): ReactElement => {
   const { mutateAsync: updateSettings } = useMutation(
     (params: SettingsParams) => submitKratosFlow(params),
     {
-      onSuccess: ({ redirect, error, code }, { params }) => {
+      onSuccess: ({ redirect, error, code }, vars) => {
         if (redirect) {
           if (code === 403) {
-            initializePrivilegedSession(redirect);
+            initializePrivilegedSession(redirect, () => updateSettings(vars));
             return;
           }
 
@@ -156,6 +158,7 @@ const AccountSecurityPage = (): ReactElement => {
           return;
         }
 
+        const { params } = vars;
         if ('link' in params || 'unlink' in params) {
           refetchProviders();
         }

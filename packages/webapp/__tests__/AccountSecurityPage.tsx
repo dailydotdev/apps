@@ -80,10 +80,9 @@ const renderComponent = (): RenderResult => {
 };
 
 const verifySession = async (email = defaultLoggedUser.email) => {
-  mockLoginReverifyFlow();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
   const text = await screen.findByText("Verify it's you (security check)");
   expect(text).toBeInTheDocument();
-  await waitForNock();
   fireEvent.input(screen.getByTestId('login_email'), {
     target: { value: email },
   });
@@ -168,16 +167,13 @@ it('should allow changing of email but require verification', async () => {
     'traits.image': getNodeValue('traits.image', nodes),
   };
   mockSettingsValidation(params, requireVerificationSettingsMock, 403);
+  mockLoginReverifyFlow();
   const submitChanges = await screen.findByText('Save changes');
   fireEvent.click(submitChanges);
   await waitForNock();
-  await verifySession();
-  mockWhoAmIFlow(email);
   mockSettingsValidation(params);
-  const reSubmitChanges = await screen.findByText('Save changes');
-  fireEvent.click(reSubmitChanges);
-  mockVerificationFlow();
-  await waitForNock();
+  await verifySession();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
   const sent = await screen.findByTestId('email_verification_sent');
   expect(sent).toBeInTheDocument();
 });
@@ -219,14 +215,12 @@ it('should allow setting new password but require to verify session', async () =
     password,
   };
   mockSettingsValidation(params, requireVerificationSettingsMock, 403);
+  mockLoginReverifyFlow();
   const submitResetPassword = await screen.findByText('Set password');
   fireEvent.click(submitResetPassword);
   await waitForNock();
-  await verifySession();
   mockSettingsValidation(params);
-  const reSubmitResetPassword = await screen.findByText('Set password');
-  fireEvent.click(reSubmitResetPassword);
-  await waitForNock();
+  await verifySession();
   const input = await screen.findByPlaceholderText('Password');
   expect(input).toHaveValue('');
 });
@@ -252,11 +246,10 @@ it('should allow linking social providers but require to verify session', async 
   const token = getNodeValue('csrf_token', nodes);
   const params = { link: 'google', csrf_token: token };
   mockSettingsValidation(params, requireVerificationSettingsMock, 403);
+  mockLoginReverifyFlow();
   fireEvent.click(connect);
   await waitForNock();
-  await verifySession();
   mockSettingsValidation(params, socialProviderRedirectMock, 422);
-  const reConnect = await screen.findByText('Connect with Google');
-  fireEvent.click(reConnect);
+  await verifySession();
   await waitForNock();
 });
