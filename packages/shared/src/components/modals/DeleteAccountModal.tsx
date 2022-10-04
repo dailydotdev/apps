@@ -46,7 +46,7 @@ export default function DeleteAccountModal({
           Cancel
         </Button>
         <Button
-          className="btn-primary-ketchup"
+          className="btn-primary-ketchup text-theme-label-primary"
           loading={deleting}
           onClick={onDeleteAccount}
         >
