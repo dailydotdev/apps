@@ -21,6 +21,10 @@ import {
 } from '../lib/kratos';
 import useWindowEvents from './useWindowEvents';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { useToastNotification } from './useToastNotification';
+
+const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
+  'An error occurred, please refresh the page.';
 
 interface UseLogin {
   session: AuthSession;
@@ -47,6 +51,7 @@ const useLogin = ({
   queryParams = {},
   enableSessionVerification = false,
 }: UseLoginProps = {}): UseLogin => {
+  const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
@@ -108,6 +113,10 @@ const useLogin = ({
   );
 
   const onSubmitSocialLogin = (provider: string) => {
+    if (!login?.ui) {
+      displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
+      return;
+    }
     const { nodes, action } = login.ui;
     const csrfToken = getNodeValue('csrf_token', nodes);
     const params: LoginSocialParameters = {
@@ -119,6 +128,10 @@ const useLogin = ({
   };
 
   const onSubmitPasswordLogin = (form: LoginFormParams) => {
+    if (!login?.ui) {
+      displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
+      return;
+    }
     const { nodes, action } = login.ui;
     const csrfToken = getNodeValue('csrf_token', nodes);
     const params: LoginPasswordParameters = {
