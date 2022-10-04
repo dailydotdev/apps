@@ -63,6 +63,7 @@ export interface AuthOptionsProps {
   trigger: string;
   defaultDisplay?: Display;
   className?: string;
+  isLoginFlow?: boolean;
   onDisplayChange?: (value: string) => void;
 }
 
@@ -75,6 +76,7 @@ function AuthOptions({
   trigger,
   defaultDisplay = Display.Default,
   onDisplayChange,
+  isLoginFlow,
 }: AuthOptionsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
@@ -261,7 +263,7 @@ function AuthOptions({
             loginHint={loginHint}
             isV2={isV2}
             isLoading={isPasswordLoginLoading}
-            isForgotPasswordReturn={isForgotPasswordReturn}
+            isLoginFlow={isForgotPasswordReturn || isLoginFlow}
             trigger={trigger}
           />
         </Tab>

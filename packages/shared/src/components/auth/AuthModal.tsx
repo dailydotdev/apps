@@ -124,6 +124,7 @@ export default function AuthModal({
         onSuccessfulLogin={closeLogin}
         onShowOptionsOnly={(value: boolean) => setShowOptionsOnly(value)}
         trigger={trigger}
+        isLoginFlow={isLogoutFlow}
         onDisplayChange={(display: Display) => setScreenValue(display)}
       />
       {isDiscardOpen && (
