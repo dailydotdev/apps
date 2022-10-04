@@ -23,7 +23,7 @@ enum SocialProvider {
   // Twitter = 'twitter',
   Facebook = 'facebook',
   Google = 'google',
-  GitHub = 'gitHub',
+  GitHub = 'github',
   Apple = 'apple',
 }
 
@@ -45,7 +45,7 @@ export const providerMap: ProviderMap = {
     provider: 'Google',
     style: { backgroundColor: '#FFFFFF', color: '#0E1217' },
   },
-  gitHub: {
+  github: {
     icon: <GitHubIcon />,
     provider: 'GitHub',
     style: { backgroundColor: '#2D313A' },

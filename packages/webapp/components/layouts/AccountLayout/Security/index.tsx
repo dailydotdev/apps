@@ -39,7 +39,7 @@ import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
 
 const socialProvider = getProviderMapClone();
-socialProvider.gitHub.style = { backgroundColor: '#383C47' };
+socialProvider.github.style = { backgroundColor: '#383C47' };
 socialProvider.apple.style = { backgroundColor: '#404551' };
 const providers = Object.values(socialProvider);
 
