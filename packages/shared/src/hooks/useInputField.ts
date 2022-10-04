@@ -33,7 +33,9 @@ export function useInputField<T extends ValidInputElement = HTMLInputElement>(
   };
 
   useEffect(() => {
-    setInput(value?.toString() || '');
+    if (value !== undefined) {
+      setInput(value?.toString() || '');
+    }
   }, [value]);
 
   const onFocus = () => setFocused(true);

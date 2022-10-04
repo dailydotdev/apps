@@ -38,7 +38,6 @@ import useLogin from '../../hooks/useLogin';
 import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import { logout } from '../../lib/user';
 import ConnectedUserModal, {
   ConnectedUser as RegistrationConnectedUser,
 } from '../modals/ConnectedUser';
@@ -147,8 +146,8 @@ function AuthOptions({
     onSuccessfulLogin: onLoginCheck,
     trigger,
   });
-  const onProfileSuccess = () => {
-    refetchBoot();
+  const onProfileSuccess = async () => {
+    await refetchBoot();
     onClose(null, true);
   };
   const {
@@ -162,9 +161,9 @@ function AuthOptions({
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
       key: 'registration_form',
-      onValidRegistration: () => {
+      onValidRegistration: async () => {
         setIsRegistration(true);
-        refetchBoot();
+        await refetchBoot();
         closeWindowFn();
         onShowOptionsOnly?.(true);
         onSetActiveDisplay(Display.EmailSent);
@@ -235,11 +234,6 @@ function AuthOptions({
     });
   };
 
-  const onSocialRegistrationClose = (e) => {
-    logout();
-    onClose(e, true);
-  };
-
   const onForgotPassword = () => {
     trackEvent({
       event_name: 'click',
@@ -290,7 +284,7 @@ function AuthOptions({
           <SocialRegistrationForm
             formRef={formRef}
             provider={chosenProvider}
-            onClose={onSocialRegistrationClose}
+            onClose={onClose}
             isV2={isV2}
             onSignup={onSocialCompletion}
             hints={hint}

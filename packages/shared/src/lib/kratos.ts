@@ -359,4 +359,5 @@ export const getKratosSession = async (): Promise<AuthSession> => {
 export const KRATOS_ERROR = {
   INVALID_TOKEN: 4060004,
   EXISTING_USER: 4000007,
+  SINGLE_OIDC: 4000001,
 };

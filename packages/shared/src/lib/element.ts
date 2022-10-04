@@ -129,3 +129,8 @@ export const parentClassContains = (
 
   return parentClassContains(parent, token);
 };
+
+export const isCompanionActivated = (): boolean =>
+  !!document
+    .querySelector('daily-companion-app')
+    ?.shadowRoot?.querySelector?.('#daily-companion-wrapper')?.firstChild;

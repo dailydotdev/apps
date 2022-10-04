@@ -38,7 +38,7 @@ it('should show password strength on input', async () => {
   const input = getInput();
   input.value = 'a';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = screen.getByText('Risky');
+  const el = await screen.findByText('Risky');
   await waitFor(() => expect(el).toHaveClass('text-theme-status-error'));
 });
 
@@ -53,7 +53,7 @@ it('should show medium password strength on input', async () => {
   const input = getInput();
   input.value = 'asAS12!@';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = screen.getByText(`You're almost there`);
+  const el = await screen.findByText(`You're almost there`);
   await waitFor(() => expect(el).toHaveClass('text-theme-status-warning'));
 });
 
@@ -68,7 +68,7 @@ it('should show strong password strength on input', async () => {
   const input = getInput();
   input.value = 'asAS12!@as';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = screen.getByText('Strong as it gets');
+  const el = await screen.findByText('Strong as it gets');
   await waitFor(() => expect(el).toHaveClass('text-theme-status-success'));
 });
 

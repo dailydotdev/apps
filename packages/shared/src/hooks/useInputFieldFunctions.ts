@@ -15,7 +15,7 @@ export interface InputFieldFunctionsProps {
 
 interface UseInputFieldFunctions<T extends ValidInputElement = HTMLInputElement>
   extends UseInputField<T> {
-  inputLength: number;
+  inputLength: number | undefined;
   validInput?: boolean;
 }
 
@@ -37,7 +37,7 @@ function useInputFieldFunctions<
     focusInput,
     setInput,
   } = useInputField<T>(value, valueChanged);
-  const [inputLength, setInputLength] = useState<number>(0);
+  const [inputLength, setInputLength] = useState<number>(undefined);
   const [validInput, setValidInput] = useState<boolean>(undefined);
   const [idleTimeout, clearIdleTimeout] = useDebounce(() => {
     setValidInput(inputRef.current.checkValidity());
