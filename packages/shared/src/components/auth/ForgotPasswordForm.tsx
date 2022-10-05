@@ -7,12 +7,13 @@ import MailIcon from '../icons/Mail';
 import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthForm, AuthModalText } from './common';
+import { AuthModalText } from './common';
 import TokenInput from './TokenField';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import AuthForm from './AuthForm';
 
 interface ForgotPasswordFormProps {
   initialEmail?: string;

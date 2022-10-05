@@ -2,10 +2,11 @@ import React, { ReactElement, ReactNode, useState } from 'react';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import { ColumnContainer, Provider, providerMap } from './common';
+import { Provider, providerMap } from './common';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
 import AuthModalFooter from './AuthModalFooter';
+import AuthContainer from './AuthContainer';
 
 interface AuthSignBackProps {
   children?: ReactNode;
@@ -34,7 +35,7 @@ export const AuthSignBack = ({
   return (
     <>
       <AuthModalHeader title="Login to daily.dev" onClose={onClose} />
-      <ColumnContainer>
+      <AuthContainer>
         <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
           Sign back in with
         </p>
@@ -60,7 +61,7 @@ export const AuthSignBack = ({
             ))}
         </div>
         {children}
-      </ColumnContainer>
+      </AuthContainer>
       <div className="flex flex-1" />
       <AuthModalFooter className="mt-4" isLogin onIsLogin={onRegister} />
     </>

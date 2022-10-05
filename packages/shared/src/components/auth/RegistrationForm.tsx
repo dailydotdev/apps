@@ -21,7 +21,7 @@ import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import TokenInput from './TokenField';
-import { AuthForm } from './common';
+import AuthForm from './AuthForm';
 import AtIcon from '../icons/At';
 import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';

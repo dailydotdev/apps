@@ -182,3 +182,8 @@ export const getTextEllipsis = <
   type: keyof ReactHTML = 'span',
 ): ClassedHTML<P, T> =>
   classed<P, T>(type, 'overflow-hidden whitespace-nowrap text-ellipsis');
+
+export const SecondaryCenteredBodyText = classed(
+  'p',
+  'typo-body text-theme-label-secondary text-center',
+);
