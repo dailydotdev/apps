@@ -34,10 +34,10 @@ const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();
-const LoginModal = dynamic(
+const AuthModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "loginModal" */ '@dailydotdev/shared/src/components/modals/LoginModal'
+      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
     ),
 );
 
@@ -89,7 +89,7 @@ function InternalApp({
     <DndContextProvider>
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
-        <LoginModal
+        <AuthModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
           contentLabel="Login Modal"
