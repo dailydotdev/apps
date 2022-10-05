@@ -53,8 +53,7 @@ function InternalApp({
 }: {
   pageRef: MutableRefObject<string>;
 }): ReactElement {
-  const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
-    useContext(AuthContext);
+  const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
     origin: 'on extension load',
   });
