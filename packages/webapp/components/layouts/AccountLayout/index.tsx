@@ -2,7 +2,6 @@ import React, { ReactElement, ReactNode, useContext } from 'react';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -16,14 +15,9 @@ export interface AccountLayoutProps {
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
-  const router = useRouter();
   const { user: profile, isFetched } = useContext(AuthContext);
 
-  if (isFetched && !profile) {
-    router.replace('/');
-  }
-
-  if (!profile || !Object.keys(profile).length) {
+  if (!profile || !Object.keys(profile).length || (isFetched && !profile)) {
     return null;
   }
 
