@@ -39,10 +39,10 @@ import useWebappVersion from '../hooks/useWebappVersion';
 //   { ssr: false },
 // );
 
-const LoginModal = dynamic(
+const AuthModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "loginModal" */ '@dailydotdev/shared/src/components/modals/LoginModal'
+      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
     ),
 );
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
@@ -148,7 +148,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       {shouldShowLogin && (
-        <LoginModal
+        <AuthModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
           contentLabel="Login Modal"
