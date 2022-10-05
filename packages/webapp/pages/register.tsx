@@ -41,14 +41,14 @@ export default function Register(): ReactElement {
   }, []);
 
   useEffect(() => {
-    if (!loadedUserFromCache || loadingUser) {
+    if (!loadedUserFromCache || loadingUser || user) {
       return;
     }
 
     if (!user) {
       router?.replace((router.query.redirect_uri as string) || '/');
     }
-  }, [loadedUserFromCache, loadingUser]);
+  }, [user, loadedUserFromCache, loadingUser]);
 
   const onSuccessfulSubmit = async (optionalFields: boolean) => {
     trackEvent({
