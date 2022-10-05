@@ -7,7 +7,7 @@ import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
-import { AuthForm } from './common';
+import AuthForm from './AuthForm';
 
 interface LoginFormProps {
   onForgotPassword?: () => unknown;
