@@ -36,7 +36,7 @@ export default function ProfileMenu(): ReactElement {
       </Item>
       <Item>
         <Link
-          href="https://preview.app.daily.dev/account/profile"
+          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
           passHref
           prefetch={false}
         >

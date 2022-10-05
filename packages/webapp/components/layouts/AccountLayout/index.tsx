@@ -1,9 +1,8 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-// import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { NextSeoProps } from 'next-seo/lib/types';
-// import { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -14,24 +13,14 @@ export interface AccountLayoutProps {
   children?: ReactNode;
 }
 
-// const REFRESH_KEY = 'refresh_profile';
-
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
-  // const router = useRouter();
-  // const [hasRefreshed, setHasRefreshed] = usePersistentContext(REFRESH_KEY);
+  const router = useRouter();
   const { user: profile, isFetched } = useContext(AuthContext);
 
   if (isFetched && !profile) {
-    // if (hasRefreshed) {
-    //   setHasRefreshed(false);
-    //   router.replace('/');
-    // } else {
-    //   setHasRefreshed(true);
-    //   window.location.reload();
-    // }
-    return null;
+    router.replace('/');
   }
 
   if (!profile || !Object.keys(profile).length) {
