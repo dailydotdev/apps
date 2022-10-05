@@ -13,13 +13,14 @@ import AuthModalFooter from './AuthModalFooter';
 import AuthModalHeader from './AuthModalHeader';
 import AuthModalHeading from './AuthModalHeading';
 import { SIGNIN_METHOD_KEY } from './AuthSignBack';
-import { ColumnContainer, Provider } from './common';
+import { Provider } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames } from '../../lib/auth';
+import AuthContainer from './AuthContainer';
 
 interface AuthDefaultProps {
   children?: ReactNode;
@@ -143,7 +144,7 @@ const AuthDefault = ({
   return (
     <>
       <AuthModalHeader title={useTitle} onClose={onClose} />
-      <ColumnContainer className={disableRegistration && 'mb-6'}>
+      <AuthContainer className={disableRegistration && 'mb-6'}>
         {isV2 && (
           <AuthModalHeading
             tag="h2"
@@ -178,7 +179,7 @@ const AuthDefault = ({
             ))}
           </div>
         )}
-      </ColumnContainer>
+      </AuthContainer>
       <div className="flex flex-1" />
       {!disableRegistration && (
         <AuthModalFooter

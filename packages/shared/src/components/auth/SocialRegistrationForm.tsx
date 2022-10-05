@@ -15,13 +15,14 @@ import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthForm, providerMap } from './common';
+import { providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileFormHint } from '../../hooks/useProfileForm';
 import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import AuthForm from './AuthForm';
 
 export interface SocialRegistrationFormProps {
   className?: string;

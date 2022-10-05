@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import classed from '../../lib/classed';
+import { Alert, AlertBackground } from './common';
 
 interface ClassName {
   container?: string;
@@ -10,13 +10,6 @@ interface AlertContainerProps {
   children: ReactNode;
   className?: ClassName;
 }
-
-export const AlertBackground = classed(
-  'div',
-  'absolute inset-0 -z-1 w-full h-full opacity-24',
-);
-
-export const Alert = classed('div', 'relative p-4 border rounded-8');
 
 function AlertContainer({
   children,

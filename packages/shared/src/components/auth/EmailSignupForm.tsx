@@ -3,7 +3,7 @@ import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import ArrowIcon from '../icons/Arrow';
 import MailIcon from '../icons/Mail';
-import { AuthForm } from './common';
+import AuthForm from './AuthForm';
 import { privacyPolicy, termsOfService } from '../../lib/constants';
 
 interface EmailSignupFormProps {
@@ -18,7 +18,7 @@ function EmailSignupForm({
   const [email, setEmail] = useState(null);
 
   return (
-    <AuthForm className="gap-2" onSubmit={onSubmit} action="#">
+    <AuthForm className="gap-2" onSubmit={onSubmit}>
       <TextField
         leftIcon={<MailIcon size="medium" />}
         inputId="email"
