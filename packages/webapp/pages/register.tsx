@@ -45,9 +45,7 @@ export default function Register(): ReactElement {
       return;
     }
 
-    if (!user) {
-      router?.replace((router.query.redirect_uri as string) || '/');
-    }
+    router?.replace((router.query.redirect_uri as string) || '/');
   }, [user, loadedUserFromCache, loadingUser]);
 
   const onSuccessfulSubmit = async (optionalFields: boolean) => {
