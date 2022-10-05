@@ -23,7 +23,8 @@ import {
 import MainLayout from '../components/layouts/MainLayout';
 
 export default function Register(): ReactElement {
-  const { user, logout } = useContext(AuthContext);
+  const { user, loadedUserFromCache, loadingUser, logout } =
+    useContext(AuthContext);
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const { flags } = useContext(FeaturesContext);
@@ -38,6 +39,16 @@ export default function Register(): ReactElement {
       event_name: 'start signup form',
     });
   }, []);
+
+  useEffect(() => {
+    if (!loadedUserFromCache || loadingUser) {
+      return;
+    }
+
+    if (!user) {
+      router?.replace((router.query.redirect_uri as string) || '/');
+    }
+  }, [loadedUserFromCache, loadingUser]);
 
   const onSuccessfulSubmit = async (optionalFields: boolean) => {
     trackEvent({
