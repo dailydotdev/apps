@@ -89,7 +89,7 @@ function InternalApp({
   return (
     <DndContextProvider>
       <MainFeedPage onPageChanged={onPageChanged} />
-      {!user && !loadingUser && shouldShowLogin && (
+      {shouldShowLogin && (
         <LoginModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
