@@ -13,7 +13,7 @@ interface FeedFitlersModalProps extends ModalProps {
 }
 
 function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
-  const [isInsaneMode, setIsInsaneMode] = useState(false);
+  const [isListMode, setIsListMode] = useState(false);
   const [selected, setSelected] = useState({});
   const { tagsCategories } = useFeedSettings();
   const [step, setStep] = useState(0);
@@ -60,7 +60,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
           container: 'items-center',
           content: classNames(
             'relative flex flex-col items-center w-4/5 mt-8',
-            isInsaneMode && 'px-8',
+            isListMode && 'px-8',
           ),
         }}
       >
@@ -74,13 +74,13 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
           name="feed_layout"
           leftContent="Cards"
           rightContent="List"
-          checked={isInsaneMode}
-          onToggle={() => setIsInsaneMode(!isInsaneMode)}
+          checked={isListMode}
+          onToggle={() => setIsListMode(!isListMode)}
         />
         <div
           className={classNames(
             'grid relative gap-3 mt-11',
-            isInsaneMode ? 'grid-cols-1 w-full' : 'grid-cols-3 w-fit',
+            isListMode ? 'grid-cols-1 w-full' : 'grid-cols-3 w-fit',
           )}
         >
           <div
@@ -90,7 +90,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
                 'linear-gradient(45deg, rgba(23, 25, 31, 1) 0%, rgba(23, 25, 31, 0) 100%)',
             }}
           />
-          {getFilterCardPreviews(6, isInsaneMode)}
+          {getFilterCardPreviews(6, isListMode)}
         </div>
       </FeedFilterStep>
       <FeedFilterStep
