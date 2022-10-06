@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React, {
-  Children,
   KeyboardEvent,
   MouseEvent,
   ReactElement,
@@ -26,7 +25,7 @@ function SteppedModal({
 }: SteppedModalProps): ReactElement {
   const [step, setStep] = useState(0);
   const getWidth = () => {
-    const count = Children.count(children);
+    const count = React.Children.count(children);
     return (step / (count - 1)) * 100;
   };
   const getBackwardsLabel = () => {
@@ -51,13 +50,13 @@ function SteppedModal({
       return 'Continue';
     }
 
-    const count = Children.count(children) - 1;
+    const count = React.Children.count(children) - 1;
 
     return count === step ? 'Done' : 'Next';
   };
 
   const onForward = async () => {
-    const max = Children.count(children) - 1;
+    const max = React.Children.count(children) - 1;
     if (!isLastStepLogin && max === step) {
       return onFinish?.();
     }
@@ -68,12 +67,14 @@ function SteppedModal({
   };
 
   const getChildren = () => {
-    const content = Children.map(children, (child, i) => (
+    const content = React.Children.map(children, (child, i) => (
       <Tab label={i.toString()}>{child}</Tab>
     ));
 
     if (isLastStepLogin) {
-      content.push(<Tab label={Children.count(children).toString()}>Auth</Tab>);
+      content.push(
+        <Tab label={React.Children.count(children).toString()}>Auth</Tab>,
+      );
     }
 
     return content;
@@ -95,7 +96,7 @@ function SteppedModal({
       >
         {getChildren()}
       </TabContainer>
-      {step < Children.count(children) && (
+      {step < React.Children.count(children) && (
         <footer className="flex sticky bottom-0 z-2 flex-row justify-between p-3 mt-auto w-full border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
           <div
             className="absolute -top-0.5 left-0 h-1 bg-theme-color-cabbage transition-[width]"
