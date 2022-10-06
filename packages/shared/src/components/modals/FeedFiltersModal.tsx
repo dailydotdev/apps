@@ -95,7 +95,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
       </FeedFilterStep>
       <FeedFilterStep
         title="Your eyes don’t lie"
-        description="Dark mode will less emit ׳blue light' from your screen -  which can keep you awake if you use your device before you go to bed"
+        description="Dark mode will less emit blue light from your screen - which can keep you awake if you use your device before you go to bed"
       >
         Test Sample Aaa
       </FeedFilterStep>
