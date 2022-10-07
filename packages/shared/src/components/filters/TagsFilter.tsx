@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { SearchField } from '../fields/SearchField';
@@ -76,11 +77,12 @@ export default function TagsFilter({
     });
   };
 
-  const Container = version === 'v1' ? React.Fragment : TagsContainer;
+  const isV1 = version === 'v1';
+  const Container = isV1 ? React.Fragment : TagsContainer;
 
   return (
     <div
-      className="flex flex-col"
+      className={classNames('flex flex-col', !isV1 && 'pb-6')}
       aria-busy={isLoading}
       data-testid="tagsFilter"
     >

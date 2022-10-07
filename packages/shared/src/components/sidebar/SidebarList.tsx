@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import SidebarListItem, { SidebarListItemProps } from './SidebarListItem';
 import CloseButton from '../modals/CloseButton';
@@ -24,7 +24,6 @@ function SidebarList({
   onClose,
   onItemClick,
 }: SidebarListProps): ReactElement {
-  const [display, setDisplay] = useState(items?.[0]?.title);
   return (
     <div
       className={classNames(
@@ -42,9 +41,8 @@ function SidebarList({
           <SidebarListItem
             key={props.title}
             {...props}
-            isActive={(active || display) === props.title}
+            isActive={active === props.title}
             onClick={(e) => {
-              setDisplay(props.title);
               onItemClick?.(props.title);
               props.onClick?.(e);
             }}

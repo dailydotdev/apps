@@ -355,11 +355,7 @@ export default function MainFeedLayout({
         {children}
       </FeedPage>
       {isLoaded && (
-        <FeedFilters
-          isOpen={isAnimated}
-          onBack={setHidden}
-          directlyOpenedTab="Manage tags"
-        />
+        <FeedFilters isOpen={isAnimated} onRequestClose={setHidden} />
       )}
       {createMyFeed && (
         <CreateMyFeedModal

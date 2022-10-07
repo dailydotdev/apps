@@ -436,7 +436,9 @@ export default function Sidebar({
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      {isLoaded && <FeedFilters isOpen={isAnimated} onBack={setHidden} />}
+      {isLoaded && (
+        <FeedFilters isOpen={isAnimated} onRequestClose={setHidden} />
+      )}
     </>
   );
 }

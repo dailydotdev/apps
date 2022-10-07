@@ -1,26 +1,37 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
-import classNames from 'classnames';
-import FilterMenu from './FilterMenu';
-import CloseIcon from '../icons/Close';
-import PlusIcon from '../icons/Plus';
-import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import AuthContext from '../../contexts/AuthContext';
 import AlertContext from '../../contexts/AlertContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
-import CreateFeedFilterButton from '../CreateFeedFilterButton';
+import { ModalProps, StyledModal } from '../modals/StyledModal';
+import SidebarList from '../sidebar/SidebarList';
+import HashtagIcon from '../icons/Hashtag';
+import FilterIcon from '../icons/Filter';
+import BlockIcon from '../icons/Block';
+import TagsFilter from './TagsFilter';
+import AdvancedSettingsFilter from './AdvancedSettings';
+import BlockedFilter from './BlockedFilter';
+import CloseButton from '../modals/CloseButton';
 
-interface FeedFiltersProps {
-  directlyOpenedTab?: string;
-  isOpen?: boolean;
-  onBack?: () => void;
-}
+const items = [
+  {
+    title: 'Manage tags',
+    icon: <HashtagIcon />,
+    component: <TagsFilter version="v2" />,
+  },
+  {
+    title: 'Advanced',
+    icon: <FilterIcon />,
+    component: <AdvancedSettingsFilter />,
+  },
+  { title: 'Blocked items', icon: <BlockIcon />, component: <BlockedFilter /> },
+];
 
 export default function FeedFilters({
-  directlyOpenedTab,
   isOpen,
-  onBack,
-}: FeedFiltersProps): ReactElement {
+  ...props
+}: ModalProps): ReactElement {
+  const [display, setDisplay] = useState<string>(items[0].title);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user } = useContext(AuthContext);
   const { hasAnyFilter } = useFeedSettings();
@@ -32,39 +43,33 @@ export default function FeedFilters({
     }
   }, [isOpen, alerts, user, hasAnyFilter]);
 
-  const openedTab =
-    (shouldShowMyFeed && alerts?.filter && 'Manage tags') || directlyOpenedTab;
-
   return (
-    <aside
-      className={classNames(
-        'fixed top-0 laptop:top-14 left-0 z-3 bottom-0 self-stretch bg-theme-bg-primary rounded-r-2xl border-t border-r border-theme-divider-primary overflow-y-auto',
-        'transition-transform duration-200 ease-linear delay-100 w-[22.25rem]',
-        isOpen ? 'translate-x-0' : '-translate-x-96 pointer-events-none',
-      )}
+    <StyledModal
+      {...props}
+      overlayClassName="py-12"
+      contentClassName="w-full h-full flex flex-row"
+      style={{ content: { maxWidth: '63.75rem' } }}
+      isOpen={isOpen}
     >
-      <div
-        className={classNames(
-          menuItemClassNames,
-          'border-b border-theme-divider-tertiary flex-row justify-between',
-        )}
-      >
-        <button onClick={onBack} type="button">
-          <CloseIcon
-            size="medium"
-            className="text-2xl -rotate-90 text-theme-label-tertiary"
-          />
-        </button>
-        {shouldShowMyFeed && !user && (
-          <CreateFeedFilterButton
-            className="btn-primary-avocado"
-            icon={<PlusIcon />}
-            buttonSize="small"
-            feedFilterModalType="v1"
-          />
-        )}
+      <div className="flex flex-col tablet:flex-row">
+        <SidebarList
+          active={display}
+          title="Feed filters"
+          onItemClick={setDisplay}
+          items={items}
+        />
+        <div className="flex flex-col flex-1 border-l border-theme-divider-tertiary">
+          <h2 className="flex relative flex-row items-center py-4 px-6 mb-6 w-full font-bold border-b border-theme-divider-tertiary typo-title3">
+            {display}
+            <CloseButton
+              style={{ position: 'absolute' }}
+              className="right-2"
+              buttonSize="medium"
+            />
+          </h2>
+          {items.find(({ title }) => title === display)?.component}
+        </div>
       </div>
-      <FilterMenu directlyOpenedTab={openedTab} />
-    </aside>
+    </StyledModal>
   );
 }
