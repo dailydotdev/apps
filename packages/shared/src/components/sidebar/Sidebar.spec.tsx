@@ -148,6 +148,8 @@ it('should remove filter alert if the user has filters and opened feed filters',
   });
   renderComponent({ filter: true });
 
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+
   await act(async () => {
     const feedFilters = await screen.findByText('Feed filters');
     feedFilters.click();
