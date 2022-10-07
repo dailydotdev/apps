@@ -31,11 +31,14 @@ const items = [
   { title: 'Blocked items', icon: <BlockIcon />, component: <BlockedFilter /> },
 ];
 
+const HEADER_HEIGHT = 64;
+
 export default function FeedFilters({
   isOpen,
   onRequestClose,
   ...props
 }: ModalProps): ReactElement {
+  const [contentRef, setContentRef] = useState<HTMLDivElement>();
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [display, setDisplay] = useState<string>(items[0].title);
   const { alerts, updateAlerts } = useContext(AlertContext);
@@ -56,6 +59,17 @@ export default function FeedFilters({
     }
   };
 
+  const getHeight = () => {
+    if (contentRef) {
+      return '100%';
+    }
+
+    const { height } = contentRef.getBoundingClientRect();
+    const result = height - HEADER_HEIGHT;
+
+    return result;
+  };
+
   return (
     <StyledModal
       {...props}
@@ -65,10 +79,11 @@ export default function FeedFilters({
         isNavOpen && 'opened-nav',
         styles.feedFilters,
       )}
+      contentRef={setContentRef}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
     >
-      <div className="flex relative flex-col tablet:flex-row flex-1 bg-theme-bg-inherit">
+      <div className="flex overflow-hidden relative flex-col tablet:flex-row flex-1 bg-theme-bg-inherit">
         <SidebarList
           className="z-1"
           active={display}
@@ -79,7 +94,7 @@ export default function FeedFilters({
           onClose={() => setIsNavOpen(false)}
         />
         <div className="flex flex-col flex-1 border-l border-theme-divider-tertiary">
-          <h2 className="flex relative flex-row items-center py-4 px-6 mb-6 w-full font-bold border-b border-theme-divider-tertiary typo-title3">
+          <h2 className="flex relative flex-row items-center py-4 px-6 w-full font-bold border-b border-theme-divider-tertiary typo-title3">
             <Button
               buttonSize="small"
               className="flex tablet:hidden mr-2 -rotate-90"
@@ -94,7 +109,12 @@ export default function FeedFilters({
               onClick={onRequestClose}
             />
           </h2>
-          {items.find(({ title }) => title === display)?.component}
+          <div
+            className="flex overflow-auto flex-col pt-6 h-full"
+            style={{ height: getHeight() }}
+          >
+            {items.find(({ title }) => title === display)?.component}
+          </div>
         </div>
       </div>
     </StyledModal>

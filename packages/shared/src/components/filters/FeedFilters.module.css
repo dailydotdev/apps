@@ -1,14 +1,11 @@
 .feedFilters {
   max-width: 100vw;
   border-radius: 0;
+  overflow: hidden;
 
   @screen tablet {
     max-width: 63.75rem;
     border-radius: 16px;
-  }
-
-  &:global(.opened-nav) {
-    overflow: hidden;
   }
 }
 
