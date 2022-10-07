@@ -29,6 +29,7 @@ const items = [
 
 export default function FeedFilters({
   isOpen,
+  onRequestClose,
   ...props
 }: ModalProps): ReactElement {
   const [display, setDisplay] = useState<string>(items[0].title);
@@ -50,6 +51,7 @@ export default function FeedFilters({
       contentClassName="w-full h-full flex flex-row"
       style={{ content: { maxWidth: '63.75rem' } }}
       isOpen={isOpen}
+      onRequestClose={onRequestClose}
     >
       <div className="flex flex-col tablet:flex-row">
         <SidebarList
@@ -65,6 +67,7 @@ export default function FeedFilters({
               style={{ position: 'absolute' }}
               className="right-2"
               buttonSize="medium"
+              onClick={onRequestClose}
             />
           </h2>
           {items.find(({ title }) => title === display)?.component}
