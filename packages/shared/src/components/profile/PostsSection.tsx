@@ -169,7 +169,7 @@ export default function PostsSection({
           daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
         </EmptyMessage>
         <form
-          className="flex flex-col items-start mt-6"
+          className="flex flex-col items-stretch mt-6 max-w-sm"
           ref={formRef}
           onSubmit={onSubmit}
         >
@@ -182,7 +182,7 @@ export default function PostsSection({
             value={user.twitter}
           />
           <Button
-            className="w-28 btn-primary"
+            className="mt-4 w-28 btn-primary"
             type="submit"
             disabled={isLoading}
           >
