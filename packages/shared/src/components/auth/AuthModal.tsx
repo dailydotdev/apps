@@ -92,15 +92,15 @@ export default function AuthModal({
               </>
             ) : (
               <AuthModalHeading className="typo-giga1">
-                the full power of daily.dev
+                Unlock the full power of daily.dev
               </AuthModalHeading>
             )}
 
             <AuthModalHeading emoji="🧙‍♀️" className="mt-4 typo-title2" tag="h2">
-              +500 sources, one feed
+              600+ sources, one feed
             </AuthModalHeading>
             <AuthModalHeading emoji="👩‍💻" className="typo-title2" tag="h2">
-              Loved by +150K developers
+              Loved by 150K+ developers
             </AuthModalHeading>
             <AuthModalHeading emoji="🔮" className="typo-title2" tag="h2">
               Personalize your feed!
