@@ -126,23 +126,6 @@ const renderComponent = (
   );
 };
 
-// now that we have the my feed to contain filtered feeds, the popular page always request for anonymous feed.
-// it('should request user feed', async () => {
-//   renderComponent([
-//     createFeedMock(defaultFeedPage, FEED_QUERY, {
-//       first: 7,
-//       loggedIn: true,
-//       unreadOnly: false,
-//       version: 1,
-//       ranking: RankingAlgorithm.Popularity,
-//     }),
-//   ]);
-//   await waitFor(async () => {
-//     const elements = await screen.findAllByTestId('postItem');
-//     expect(elements.length).toBeTruthy();
-//   });
-// });
-
 it('should request anonymous feed', async () => {
   renderComponent(
     [

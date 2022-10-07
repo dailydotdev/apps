@@ -67,7 +67,6 @@ const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
   },
   popular: {
     query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: ANONYMOUS_FEED_QUERY,
   },
   search: {
     query: ANONYMOUS_FEED_QUERY,
