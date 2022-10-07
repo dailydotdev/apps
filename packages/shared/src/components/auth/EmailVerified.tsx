@@ -25,9 +25,7 @@ function EmailVerified({
         className={classNames('w-full', children ? 'h-44' : 'h-60 mt-12')}
       />
       <p className="px-8 tablet:px-12 text-center typo-body text-theme-label-secondary">
-        {hasUser
-          ? 'Your email address is now verified. Please log in with your new email address and password.'
-          : 'Your email address is verified and you are now logged in'}
+        Your email address is now verified.
       </p>
       {children}
     </>
