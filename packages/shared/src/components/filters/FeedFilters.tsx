@@ -60,7 +60,7 @@ export default function FeedFilters({
   };
 
   const getHeight = () => {
-    if (contentRef) {
+    if (!contentRef) {
       return '100%';
     }
 
