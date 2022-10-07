@@ -2,7 +2,6 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { act } from '@testing-library/react-hooks';
 import { IFlags } from 'flagsmith';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
@@ -16,19 +15,12 @@ import {
   mockGraphQL,
   MockedGraphQLResponse,
 } from '../../../__tests__/helpers/graphql';
-import {
-  AllTagCategoriesData,
-  FEED_SETTINGS_QUERY,
-} from '../../graphql/feedSettings';
+import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import {
-  getFeedSettingsQueryKey,
-  getHasAnyFilter,
-} from '../../hooks/useFeedSettings';
 
 let features: IFlags;
 let client: QueryClient;
