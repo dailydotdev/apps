@@ -44,5 +44,5 @@ export const TagCategoryDetailsContent = classed(
 );
 
 export const FiltersList = classed('ul', 'flex flex-col p-0');
-
+export const FiltersGrid = classed('ul', 'grid grid-cols-1 gap-4');
 export const FilterItem = classed('li', 'flex items-center p-0');

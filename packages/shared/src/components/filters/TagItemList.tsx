@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
 import { Tag } from '../../graphql/feedSettings';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
-import { FiltersList } from './common';
+import { FiltersList, FiltersGrid } from './common';
 import TagItemRow from './TagItemRow';
 
 type TagItemListProps = {
+  version?: string;
   tags: Tag[] | Array<string>;
   rowIcon: ReactElement;
   tooltip: string;
@@ -18,6 +19,7 @@ type TagItemListProps = {
 };
 
 export default function TagItemList({
+  version,
   tags,
   rowIcon,
   tooltip,
@@ -29,8 +31,10 @@ export default function TagItemList({
   onUnblockTags,
   options,
 }: TagItemListProps): ReactElement {
+  const Container = version === 'v2' ? FiltersGrid : FiltersList;
+
   return (
-    <FiltersList className={!tags?.length ? 'mt-0' : 'mt-3'}>
+    <Container className={!tags?.length ? 'mt-0' : 'mt-3'}>
       {!tags?.length && (
         <p className="mx-6 typo-callout text-theme-label-tertiary">
           {emptyText}
@@ -50,6 +54,6 @@ export default function TagItemList({
           onClick={options}
         />
       ))}
-    </FiltersList>
+    </Container>
   );
 }

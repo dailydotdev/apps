@@ -23,10 +23,18 @@ import { FilterMenuProps } from './common';
 import MenuIcon from '../icons/Menu';
 import AuthContext from '../../contexts/AuthContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
+import classed from '../../lib/classed';
+
+interface TagsFilterProps extends FilterMenuProps {
+  version?: string;
+}
+
+const TagsContainer = classed('div', 'grid grid-cols-1 gap-4 mx-6');
 
 export default function TagsFilter({
   onUnblockItem,
-}: FilterMenuProps): ReactElement {
+  version = 'v1',
+}: TagsFilterProps): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
@@ -67,6 +75,8 @@ export default function TagsFilter({
       action: () => onUnblockTags({ tags: [tag] }),
     });
   };
+
+  const Container = version === 'v1' ? React.Fragment : TagsContainer;
 
   return (
     <div
@@ -117,18 +127,21 @@ export default function TagsFilter({
           />
         </>
       )}
-      {(!query || query.length <= 0) &&
-        tagsCategories?.map((tagCategory) => (
-          <TagCategoryDropdown
-            key={tagCategory.id}
-            tagCategory={tagCategory}
-            followedTags={followedTags}
-            blockedTags={blockedTags}
-            onFollowTags={onFollowTags}
-            onUnfollowTags={onUnfollowTags}
-            onUnblockTags={tagUnblockAction}
-          />
-        ))}
+      <Container>
+        {(!query || query.length <= 0) &&
+          tagsCategories?.map((tagCategory) => (
+            <TagCategoryDropdown
+              version={version}
+              key={tagCategory.id}
+              tagCategory={tagCategory}
+              followedTags={followedTags}
+              blockedTags={blockedTags}
+              onFollowTags={onFollowTags}
+              onUnfollowTags={onUnfollowTags}
+              onUnblockTags={tagUnblockAction}
+            />
+          ))}
+      </Container>
     </div>
   );
 }
