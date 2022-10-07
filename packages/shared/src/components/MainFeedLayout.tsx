@@ -36,7 +36,6 @@ import FeedFilters from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import FeedFitlersModal from './modals/FeedFiltersModal';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -362,7 +361,6 @@ export default function MainFeedLayout({
           directlyOpenedTab="Manage tags"
         />
       )}
-      <FeedFitlersModal isOpen /> {/* temporary for development */}
       {createMyFeed && (
         <CreateMyFeedModal
           version={myFeedOnboardingVersion}
