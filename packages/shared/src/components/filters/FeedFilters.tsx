@@ -31,6 +31,8 @@ const items = [
   { title: 'Blocked items', icon: <BlockIcon />, component: <BlockedFilter /> },
 ];
 
+export const FEED_FILTERS_MODAL_KEY = 'is_feed_filters_modal_open';
+
 export default function FeedFilters({
   isOpen,
   onRequestClose,

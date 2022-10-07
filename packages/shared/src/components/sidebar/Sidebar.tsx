@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useState, useMemo } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -34,8 +35,7 @@ import EyeIcon from '../icons/Eye';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
 import AlertContext from '../../contexts/AlertContext';
-import FeedFilters from '../filters/FeedFilters';
-import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
+import { FEED_FILTERS_MODAL_KEY } from '../filters/FeedFilters';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
@@ -57,6 +57,8 @@ import PlayIcon from '../icons/Play';
 const SubmitArticleModal = dynamic(
   () => import('../modals/SubmitArticleModal'),
 );
+
+const FeedFilters = dynamic(() => import('../filters/FeedFilters'));
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -149,18 +151,17 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  const client = useQueryClient();
   const { shouldShowMyFeed } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const {
-    isLoaded,
-    isAnimated,
-    setLoaded: openFeedFilters,
-    setHidden,
-  } = useDynamicLoadedAnimation();
+  const { data: isFeedFiltersOpen } = useQuery(FEED_FILTERS_MODAL_KEY);
+  const setIsFeedFilters = (value: boolean) =>
+    client.setQueryData(FEED_FILTERS_MODAL_KEY, value);
+  const openFeedFilters = () => setIsFeedFilters(true);
   const {
     sidebarExpanded,
     toggleSidebarExpanded,
@@ -436,8 +437,8 @@ export default function Sidebar({
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      {isLoaded && (
-        <FeedFilters isOpen={isAnimated} onRequestClose={setHidden} />
+      {isFeedFiltersOpen && (
+        <FeedFilters isOpen onRequestClose={() => setIsFeedFilters(false)} />
       )}
     </>
   );

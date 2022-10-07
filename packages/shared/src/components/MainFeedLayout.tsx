@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import { useQueryClient } from 'react-query';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
@@ -31,8 +32,7 @@ import useDefaultFeed from '../hooks/useDefaultFeed';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import CreateMyFeedButton from './CreateMyFeedButton';
-import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
-import FeedFilters from './filters/FeedFilters';
+import { FEED_FILTERS_MODAL_KEY } from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -146,6 +146,7 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
+  const client = useQueryClient();
   const { shouldShowMyFeed } = useMyFeed();
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -154,15 +155,10 @@ export default function MainFeedLayout({
   const { flags } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
-  const {
-    isLoaded,
-    isAnimated,
-    setLoaded: openFeedFilters,
-    setHidden,
-  } = useDynamicLoadedAnimation();
   const [createMyFeed, setCreateMyFeed] = useState(false);
   const [myFeedMode, setMyFeedMode] = useState<MyFeedMode>(MyFeedMode.Manual);
-
+  const setIsFeedFilters = (value: boolean) =>
+    client.setQueryData(FEED_FILTERS_MODAL_KEY, value);
   const feedTitles = {
     'my-feed': 'My feed',
     popular: popularFeedCopy,
@@ -331,7 +327,9 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      emptyScreen: <FeedEmptyScreen openFeedFilters={openFeedFilters} />,
+      emptyScreen: (
+        <FeedEmptyScreen openFeedFilters={() => setIsFeedFilters(true)} />
+      ),
       header: !isSearchOn && header,
     };
   }, [
@@ -354,9 +352,6 @@ export default function MainFeedLayout({
         {feedProps && <Feed {...feedProps} />}
         {children}
       </FeedPage>
-      {isLoaded && (
-        <FeedFilters isOpen={isAnimated} onRequestClose={setHidden} />
-      )}
       {createMyFeed && (
         <CreateMyFeedModal
           version={myFeedOnboardingVersion}
