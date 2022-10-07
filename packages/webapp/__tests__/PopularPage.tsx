@@ -1,7 +1,6 @@
 import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   ANONYMOUS_FEED_QUERY,
-  FEED_QUERY,
   RankingAlgorithm,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
