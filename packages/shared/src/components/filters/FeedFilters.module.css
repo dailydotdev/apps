@@ -1,0 +1,23 @@
+.feedFilters {
+  max-width: 100vw;
+  border-radius: 0;
+
+  @screen tablet {
+    max-width: 63.75rem;
+    border-radius: 16px;
+  }
+
+  &:global(.opened-nav) {
+    overflow: hidden;
+  }
+}
+
+.feedFiltersOverlay {
+  padding: 0;
+
+  @screen tablet {
+    padding: 48px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

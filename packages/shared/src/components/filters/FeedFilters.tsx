@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import AuthContext from '../../contexts/AuthContext';
 import AlertContext from '../../contexts/AlertContext';
@@ -12,6 +13,9 @@ import TagsFilter from './TagsFilter';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
 import CloseButton from '../modals/CloseButton';
+import styles from './FeedFilters.module.css';
+import ArrowIcon from '../icons/Arrow';
+import { Button } from '../buttons/Button';
 
 const items = [
   {
@@ -32,6 +36,7 @@ export default function FeedFilters({
   onRequestClose,
   ...props
 }: ModalProps): ReactElement {
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const [display, setDisplay] = useState<string>(items[0].title);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user } = useContext(AuthContext);
@@ -44,24 +49,43 @@ export default function FeedFilters({
     }
   }, [isOpen, alerts, user, hasAnyFilter]);
 
+  const onNavClick = (active: string) => {
+    setDisplay(active);
+    if (isNavOpen) {
+      setIsNavOpen(false);
+    }
+  };
+
   return (
     <StyledModal
       {...props}
-      overlayClassName="py-12"
-      contentClassName="w-full h-full flex flex-row"
-      style={{ content: { maxWidth: '63.75rem' } }}
+      overlayClassName={classNames('py-12', styles.feedFiltersOverlay)}
+      contentClassName={classNames(
+        'w-full h-full flex flex-row',
+        isNavOpen && 'opened-nav',
+        styles.feedFilters,
+      )}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
     >
-      <div className="flex flex-col tablet:flex-row flex-1">
+      <div className="flex relative flex-col tablet:flex-row flex-1 bg-theme-bg-inherit">
         <SidebarList
+          className="z-1"
           active={display}
           title="Feed filters"
-          onItemClick={setDisplay}
+          onItemClick={onNavClick}
           items={items}
+          isOpen={isNavOpen}
+          onClose={() => setIsNavOpen(false)}
         />
         <div className="flex flex-col flex-1 border-l border-theme-divider-tertiary">
           <h2 className="flex relative flex-row items-center py-4 px-6 mb-6 w-full font-bold border-b border-theme-divider-tertiary typo-title3">
+            <Button
+              buttonSize="small"
+              className="flex tablet:hidden mr-2 -rotate-90"
+              icon={<ArrowIcon />}
+              onClick={() => setIsNavOpen(true)}
+            />
             {display}
             <CloseButton
               style={{ position: 'absolute' }}
