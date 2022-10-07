@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useState, useMemo } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -26,7 +25,6 @@ import HotIcon from '../icons/Hot';
 import UpvoteIcon from '../icons/Upvote';
 import DiscussIcon from '../icons/Discuss';
 import SearchIcon from '../icons/Search';
-import FilterIcon from '../icons/Filter';
 import HomeIcon from '../icons/Home';
 import LinkIcon from '../icons/Link';
 import SettingsIcon from '../icons/Settings';
@@ -35,7 +33,6 @@ import EyeIcon from '../icons/Eye';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
 import AlertContext from '../../contexts/AlertContext';
-import { FEED_FILTERS_MODAL_KEY } from '../filters/FeedFilters';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
@@ -44,7 +41,6 @@ import MyFeedButton from './MyFeedButton';
 import MyFeedAlert from './MyFeedAlert';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
-import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
 import {
   Features,
@@ -57,8 +53,6 @@ import PlayIcon from '../icons/Play';
 const SubmitArticleModal = dynamic(
   () => import('../modals/SubmitArticleModal'),
 );
-
-const FeedFilters = dynamic(() => import('../filters/FeedFilters'));
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -151,17 +145,11 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const client = useQueryClient();
-  const { shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const [defaultFeed] = useDefaultFeed(true);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { data: isFeedFiltersOpen } = useQuery(FEED_FILTERS_MODAL_KEY);
-  const setIsFeedFilters = (value: boolean) =>
-    client.setQueryData(FEED_FILTERS_MODAL_KEY, value);
-  const openFeedFilters = () => setIsFeedFilters(true);
   const {
     sidebarExpanded,
     toggleSidebarExpanded,
@@ -244,19 +232,6 @@ export default function Sidebar({
       hideOnMobile: true,
     },
   ];
-  if (!shouldShowMyFeed) {
-    discoverMenuItems.unshift({
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <FilterIcon secondary={active} />} />
-      ),
-      alert: alerts.filter && (
-        <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
-      ),
-      title: 'Feed filters',
-      action: openFeedFilters,
-      hideOnMobile: true,
-    });
-  }
 
   const myFeedMenuItem: SidebarMenuItem = {
     icon: (active: boolean) => (
@@ -343,8 +318,7 @@ export default function Sidebar({
     return <></>;
   }
 
-  const shouldHideMyFeedAlert =
-    !shouldShowMyFeed || alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
+  const shouldHideMyFeedAlert = alerts?.filter || !alerts?.myFeed;
 
   return (
     <>
@@ -370,12 +344,11 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {shouldShowMyFeed && !alerts?.filter && (
+            {!alerts?.filter && (
               <MyFeedButton
                 sidebarRendered={sidebarRendered}
                 sidebarExpanded={sidebarExpanded}
                 item={myFeedMenuItem}
-                action={openFeedFilters}
                 isActive={activePage === myFeedMenuItem.path}
                 useNavButtonsNotLinks={useNavButtonsNotLinks}
               />
@@ -436,9 +409,6 @@ export default function Sidebar({
           isOpen={showSettings}
           onRequestClose={() => setShowSettings(false)}
         />
-      )}
-      {isFeedFiltersOpen && (
-        <FeedFilters isOpen onRequestClose={() => setIsFeedFilters(false)} />
       )}
     </>
   );

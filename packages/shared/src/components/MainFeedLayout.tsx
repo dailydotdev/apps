@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from 'react-query';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
@@ -27,15 +26,16 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
-import { useMyFeed } from '../hooks/useMyFeed';
 import useDefaultFeed from '../hooks/useDefaultFeed';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import CreateMyFeedButton from './CreateMyFeedButton';
-import { FEED_FILTERS_MODAL_KEY } from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import { Button } from './buttons/Button';
+import FilterIcon from './icons/Filter';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -44,39 +44,41 @@ const FeedEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "feedEmpty" */ './FeedEmptyScreen'),
 );
 
+const FeedFilters = dynamic(() => import('./filters/FeedFilters'));
+
 type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
   variables?: Record<string, unknown>;
 };
 
-interface FeedOptionalParams {
-  shouldShowMyFeed?: boolean;
+enum MainFeedPage {
+  MyFeed = 'my-feed',
+  popular = 'popular',
+  search = 'search',
+  upvoted = 'upvoted',
+  discussed = 'discussed',
 }
 
-const getPropsByFeed = ({
-  shouldShowMyFeed = false,
-}: FeedOptionalParams = {}): Record<string, FeedQueryProps> => {
-  return {
-    'my-feed': {
-      query: ANONYMOUS_FEED_QUERY,
-      queryIfLogged: FEED_QUERY,
-    },
-    popular: {
-      query: ANONYMOUS_FEED_QUERY,
-      queryIfLogged: shouldShowMyFeed ? ANONYMOUS_FEED_QUERY : FEED_QUERY,
-    },
-    search: {
-      query: ANONYMOUS_FEED_QUERY,
-      queryIfLogged: FEED_QUERY,
-    },
-    upvoted: {
-      query: MOST_UPVOTED_FEED_QUERY,
-    },
-    discussed: {
-      query: MOST_DISCUSSED_FEED_QUERY,
-    },
-  };
+const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
+  'my-feed': {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: FEED_QUERY,
+  },
+  popular: {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: ANONYMOUS_FEED_QUERY,
+  },
+  search: {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: FEED_QUERY,
+  },
+  upvoted: {
+    query: MOST_UPVOTED_FEED_QUERY,
+  },
+  discussed: {
+    query: MOST_DISCUSSED_FEED_QUERY,
+  },
 };
 
 const LayoutHeader = classed(
@@ -146,9 +148,7 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const client = useQueryClient();
-  const { shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const [defaultFeed, updateDefaultFeed] = useDefaultFeed(true);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -157,8 +157,7 @@ export default function MainFeedLayout({
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const [createMyFeed, setCreateMyFeed] = useState(false);
   const [myFeedMode, setMyFeedMode] = useState<MyFeedMode>(MyFeedMode.Manual);
-  const setIsFeedFilters = (value: boolean) =>
-    client.setQueryData(FEED_FILTERS_MODAL_KEY, value);
+  const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedTitles = {
     'my-feed': 'My feed',
     popular: popularFeedCopy,
@@ -175,7 +174,6 @@ export default function MainFeedLayout({
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isMyFeed = feedName === 'my-feed';
-  const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
 
   const [isFirstSession, setIsFirstSession, isSessionLoaded] =
     usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
@@ -205,7 +203,7 @@ export default function MainFeedLayout({
     ) {
       updateDefaultFeed(feedName);
     }
-  }, [defaultFeed, feedName, shouldShowMyFeed]);
+  }, [defaultFeed, feedName]);
 
   const closeCreateMyFeedModal = () => {
     if (myFeedMode === MyFeedMode.Auto) {
@@ -253,16 +251,30 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
+  const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
+
   const header = (
     <LayoutHeader className="flex-col">
-      {shouldShowMyFeed && alerts?.filter && (
+      {alerts?.filter && (
         <CreateMyFeedButton
           action={() => setCreateMyFeed(true)}
           flags={flags}
         />
       )}
       <div className="flex flex-row flex-wrap gap-4 items-center mr-px w-full h-[3.125rem]">
-        <h3 className="flex flex-1 typo-headline">{feedTitles[feedName]}</h3>
+        <h3 className="flex flex-row flex-1 items-center typo-headline">
+          {feedTitles[feedName]}
+          {hasFiltered && (
+            <SimpleTooltip placement="right" content="Feed filters">
+              <Button
+                iconOnly
+                className="mx-3 btn-tertiary"
+                icon={<FilterIcon />}
+                onClick={() => setIsFeedFiltersOpen(true)}
+              />
+            </SimpleTooltip>
+          )}
+        </h3>
         {navChildren}
         {isUpvoted && (
           <Dropdown
@@ -328,7 +340,7 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: (
-        <FeedEmptyScreen openFeedFilters={() => setIsFeedFilters(true)} />
+        <FeedEmptyScreen openFeedFilters={() => setIsFeedFiltersOpen(true)} />
       ),
       header: !isSearchOn && header,
     };
@@ -352,6 +364,12 @@ export default function MainFeedLayout({
         {feedProps && <Feed {...feedProps} />}
         {children}
       </FeedPage>
+      {isFeedFiltersOpen && (
+        <FeedFilters
+          isOpen
+          onRequestClose={() => setIsFeedFiltersOpen(false)}
+        />
+      )}
       {createMyFeed && (
         <CreateMyFeedModal
           version={myFeedOnboardingVersion}
