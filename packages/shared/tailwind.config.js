@@ -18,6 +18,7 @@ module.exports = {
         hover: 'var(--theme-hover)',
         rank: 'var(--rank-color)',
         bg: {
+          inherit: 'inherit',
           whatsapp: '#30B944',
           twitter: '#1D9BF0',
           facebook: '#4363B6',
