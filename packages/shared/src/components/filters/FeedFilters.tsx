@@ -53,7 +53,7 @@ export default function FeedFilters({
       isOpen={isOpen}
       onRequestClose={onRequestClose}
     >
-      <div className="flex flex-col tablet:flex-row">
+      <div className="flex flex-col tablet:flex-row flex-1">
         <SidebarList
           active={display}
           title="Feed filters"
