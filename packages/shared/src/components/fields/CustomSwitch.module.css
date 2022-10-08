@@ -1,0 +1,35 @@
+.knob {
+  @apply bg-cabbage-40;
+  transform: translateX(0);
+  transition-property: transform, width, left;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  left: 0;
+}
+
+.checked {
+  left: 100%;
+  transform: translateX(-100%);
+}
+
+:global(.group):hover .knob {
+  @apply bg-cabbage-20;
+}
+
+:global(.light) .knob {
+  @apply bg-cabbage-60;
+}
+
+:global(.light) :global(.group):hover .knob {
+  @apply bg-cabbage-80;
+}
+
+@media (prefers-color-scheme: light) {
+  :global(.auto) .knob {
+    @apply bg-cabbage-60;
+  }
+  
+  :global(.auto) :global(.group):hover .knob {
+    @apply bg-cabbage-80;
+  }
+}

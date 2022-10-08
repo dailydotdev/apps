@@ -13,7 +13,7 @@ import { Switch } from './fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';
 import CardIcon from './icons/Card';
 import LineIcon from './icons/Line';
-import { IconsSwitch } from './fields/IconsSwitch';
+import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import FeaturesContext from '../contexts/FeaturesContext';
@@ -116,11 +116,11 @@ export default function Settings({
     <div className={classNames('flex', 'flex-col p-6', className)} {...props}>
       <Section className="mt-0">
         <SectionTitle>Layout</SectionTitle>
-        <IconsSwitch
+        <CustomSwitch
           inputId="layout-switch"
           name="insaneMode"
-          leftIcon={CardIcon}
-          rightIcon={LineIcon}
+          leftContent={CardIcon}
+          rightContent={LineIcon}
           checked={insaneMode}
           className="mx-1.5"
           onToggle={toggleInsaneMode}

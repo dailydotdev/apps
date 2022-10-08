@@ -8,6 +8,8 @@ import {
 
 export interface FeaturesData {
   flags: IFlags;
+  feedFilterVersion?: string;
+  feedFilterCardVersion?: string;
   showCommentPopover?: boolean;
   shouldShowMyFeed?: boolean;
   postEngagementNonClickable?: boolean;
@@ -31,7 +33,8 @@ export const FeaturesContextProvider = ({
   const features = useMemo(
     () => ({
       flags,
-      myFeedVersion: getFeatureValue(Features.MyFeedVersion, flags),
+      feedFilterVersion: getFeatureValue(Features.FeedFilterVersion, flags),
+      feedFilterCardVersion: getFeatureValue(Features.FeedFilterVersion, flags),
       showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
       shouldShowMyFeed: isFeaturedEnabled(Features.MyFeedOn, flags) ?? true,
       postEngagementNonClickable: isFeaturedEnabled(
