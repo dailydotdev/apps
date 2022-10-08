@@ -7,6 +7,7 @@ import FeedFilterStep from '../containers/FeedFilterStep';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { CustomSwitch } from '../fields/CustomSwitch';
 import { getFilterCardPreviews } from '../filters/FilterCardPreview';
+import { cloudinary } from '../../lib/image';
 
 interface FeedFitlersModalProps extends ModalProps {
   trigger?: string;
@@ -35,7 +36,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
       >
         <img
           className="absolute -mt-4 scale-125"
-          src="/your_feed.png"
+          src={cloudinary.feedFilters.yourFeed}
           alt="cards containing tag name being selected"
         />
       </FeedFilterStep>
@@ -66,7 +67,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
       >
         <img
           className="absolute -top-4 -left-2"
-          src="/recommended.png"
+          src={cloudinary.feedFilters.recommended}
           alt="Pointing at the recommended layout"
         />
         <CustomSwitch
