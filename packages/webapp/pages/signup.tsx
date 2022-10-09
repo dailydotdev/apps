@@ -31,6 +31,7 @@ function Signup(): ReactElement {
             formRef={formRef}
             trigger="login page"
             onClose={onClose}
+            onSuccessfulLogin={onClose}
           />
 
           <AuthModalHeading className="hidden tablet:block z-1 mb-10 laptop:mb-0 laptop:ml-32 typo-title1 laptop:typo-mega1">
