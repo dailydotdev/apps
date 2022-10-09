@@ -252,11 +252,13 @@ export default function MainFeedLayout({
 
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
 
-  const myFeedAction = user ? setIsFeedFiltersOpen : setCreateMyFeed;
   const header = (
     <LayoutHeader className="flex-col">
       {alerts?.filter && (
-        <CreateMyFeedButton action={() => myFeedAction(true)} flags={flags} />
+        <CreateMyFeedButton
+          action={() => setCreateMyFeed(true)}
+          flags={flags}
+        />
       )}
       <div className="flex flex-row flex-wrap gap-4 items-center mr-px w-full h-[3.125rem]">
         <h3 className="flex flex-row flex-1 items-center typo-headline">
