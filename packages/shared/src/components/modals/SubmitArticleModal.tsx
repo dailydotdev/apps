@@ -93,12 +93,6 @@ export default function SubmitArticleModal({
     event.preventDefault();
     const data = formToJson<{ articleUrl: string }>(event.currentTarget);
 
-    trackEvent({
-      event_name: 'submit article',
-      feed_item_title: submitArticleModalButton,
-      extra: JSON.stringify({ url: data?.articleUrl }),
-    });
-
     setIsValidating(true);
 
     if (!data.articleUrl) {
@@ -106,6 +100,12 @@ export default function SubmitArticleModal({
       setIsValidating(false);
       return;
     }
+
+    trackEvent({
+      event_name: 'submit article',
+      feed_item_title: submitArticleModalButton,
+      extra: JSON.stringify({ url: data?.articleUrl }),
+    });
 
     try {
       const res = await submitArticle(data.articleUrl);

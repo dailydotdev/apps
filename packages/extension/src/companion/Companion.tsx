@@ -1,7 +1,6 @@
 import React, {
   ReactElement,
   ReactNode,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -14,13 +13,10 @@ import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import LoginModal from '@dailydotdev/shared/src/components/modals/LoginModal';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
-import { getCompanionWrapper } from './common';
 import { companionRequest } from './companionRequest';
 import { companionFetch } from './companionFetch';
 
@@ -74,8 +70,6 @@ export default function Companion({
   const [post, setPost] = useState<PostBootData>(postData);
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
-  const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
-    useContext(AuthContext);
   useQuery(REQUEST_PROTOCOL_KEY, () => ({
     requestMethod: companionRequest,
     fetchMethod: companionFetch,
@@ -113,16 +107,6 @@ export default function Companion({
       companionExpanded={companionState}
       shouldLoad={assetsLoaded}
     >
-      {!user && !loadingUser && shouldShowLogin && (
-        <LoginModal
-          parentSelector={getCompanionWrapper}
-          isOpen
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-          {...loginState}
-        />
-      )}
-
       <CompanionMenu
         post={post}
         companionHelper={companionHelper}

@@ -25,6 +25,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -117,9 +118,11 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <SettingsContext.Provider value={settingsContext}>
-          <TagPage tag="react" />
-        </SettingsContext.Provider>
+        <AlertContextProvider alerts={{}} updateAlerts={jest.fn()} loadedAlerts>
+          <SettingsContext.Provider value={settingsContext}>
+            <TagPage tag="react" />
+          </SettingsContext.Provider>
+        </AlertContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

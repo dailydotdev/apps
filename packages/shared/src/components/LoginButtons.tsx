@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import GitHubIcon from './icons/GitHub';
-import GoogleIcon from '../../icons/google_color.svg';
 import { privacyPolicy, termsOfService } from '../lib/constants';
 import { LegalNotice } from './utilities';
 import { Button } from './buttons/Button';
@@ -11,6 +10,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { useMyFeed } from '../hooks/useMyFeed';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
+import GoogleIcon from './icons/Google';
 
 export default function LoginButtons(): ReactElement {
   const router = useRouter();
@@ -58,7 +58,7 @@ export default function LoginButtons(): ReactElement {
         <Button
           className="my-2 btn-primary"
           onClick={() => login('google')}
-          icon={<GoogleIcon />}
+          icon={<GoogleIcon secondary />}
         >
           {buttonCopyPrefix} Google
         </Button>

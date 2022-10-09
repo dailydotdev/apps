@@ -25,7 +25,7 @@ export default function SidebarUserButton({
     <>
       {!loadingUser && sidebarRendered === false && (
         <li className="flex flex-col p-6 pt-2">
-          {user ? (
+          {user && user?.infoConfirmed ? (
             <>
               <div className="flex justify-between items-center mb-4">
                 <ProfileLink

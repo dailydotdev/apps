@@ -34,10 +34,10 @@ const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();
-const LoginModal = dynamic(
+const AuthModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "loginModal" */ '@dailydotdev/shared/src/components/modals/LoginModal'
+      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
     ),
 );
 
@@ -53,14 +53,7 @@ function InternalApp({
 }: {
   pageRef: MutableRefObject<string>;
 }): ReactElement {
-  const {
-    user,
-    tokenRefreshed,
-    closeLogin,
-    loadingUser,
-    shouldShowLogin,
-    loginState,
-  } = useContext(AuthContext);
+  const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
     origin: 'on extension load',
   });
@@ -70,16 +63,6 @@ function InternalApp({
     shouldShowConsent ? null : true,
   );
   const routeChangedCallbackRef = useTrackPageView();
-
-  useEffect(() => {
-    if (tokenRefreshed && user && !user.infoConfirmed) {
-      window.location.replace(
-        `${process.env.NEXT_PUBLIC_WEBAPP_URL}register?redirect_uri=${encodeURI(
-          browser.runtime.getURL('index.html'),
-        )}`,
-      );
-    }
-  }, [user, loadingUser, tokenRefreshed]);
 
   useEffect(() => {
     if (routeChangedCallbackRef.current) {
@@ -105,8 +88,8 @@ function InternalApp({
   return (
     <DndContextProvider>
       <MainFeedPage onPageChanged={onPageChanged} />
-      {!user && !loadingUser && shouldShowLogin && (
-        <LoginModal
+      {shouldShowLogin && (
+        <AuthModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
           contentLabel="Login Modal"

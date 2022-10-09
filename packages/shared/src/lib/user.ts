@@ -174,16 +174,3 @@ export async function getProfileSSR(id: string): Promise<PublicProfile> {
 export async function getProfile(id: string): Promise<PublicProfile> {
   return await getProfileRequest(fetch, id);
 }
-
-export async function getLoggedUser(
-  app: string,
-): Promise<AnonymousUser | LoggedUser> {
-  const res = await fetch(`${apiUrl}/v1/users/me`, {
-    credentials: 'include',
-    headers: { app },
-  });
-  return res.json();
-}
-
-export const getUserPermalink = (username: string): string =>
-  `${process.env.NEXT_PUBLIC_WEBAPP_URL}${username}`;

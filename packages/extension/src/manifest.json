@@ -16,7 +16,7 @@
     "https://dailynow.co/",
     "https://*.dailynow.co/"
   ],
-  "__dev__permissions": ["storage", "http://localhost/"],
+  "__dev__permissions": ["storage", "http://localhost/", "http://*.app.garden/"],
   "optional_permissions": ["topSites", "*://*/*"],
   "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
   "__firefox__content_security_policy": "object-src 'self'",

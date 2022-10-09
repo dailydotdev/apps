@@ -5,7 +5,7 @@ import { Alerts, UPDATE_ALERTS } from '../graphql/alerts';
 import { apiUrl } from '../lib/config';
 
 export const ALERT_DEFAULTS: Alerts = {
-  filter: false,
+  filter: true,
   rankLastSeen: null,
   myFeed: null,
 };
