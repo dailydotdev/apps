@@ -118,7 +118,6 @@ export function Dropdown({
           {options[selectedIndex]}
         </span>
         <ArrowIcon
-          size="large"
           className={classNames(
             'text-xl ml-auto transition-transform group-hover:text-theme-label-tertiary',
             isVisible ? 'rotate-0' : 'rotate-180',

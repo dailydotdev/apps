@@ -12,11 +12,11 @@
     --field-placeholder-color: var(--theme-label-quaternary);
   }
 
-  & input::placeholder {
+  & input::placeholder, & textarea::placeholder {
     color: var(--field-placeholder-color);
   }
 
-  & input:focus::placeholder {
+  & input:focus::placeholder, & textarea:focus::placeholder {
     color: var(--theme-label-quaternary);
   }
 }

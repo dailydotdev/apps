@@ -1,283 +1,198 @@
 import React, {
-  InputHTMLAttributes,
+  forwardRef,
+  MutableRefObject,
   ReactElement,
   ReactNode,
-  SyntheticEvent,
-  useEffect,
-  useState,
 } from 'react';
 import classNames from 'classnames';
-import { useInputField } from '../../hooks/useInputField';
-import { BaseField, FieldInput } from './common';
+import { FieldInput } from './common';
 import styles from './TextField.module.css';
-import { Button } from '../buttons/Button';
 import { IconProps } from '../Icon';
-import useDebounce from '../../hooks/useDebounce';
+import BaseFieldContainer, {
+  BaseFieldProps,
+  getFieldFontColor,
+  getFieldLabelColor,
+  getFieldPlaceholder,
+} from './BaseFieldContainer';
+import { ButtonProps } from '../buttons/Button';
+import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 
-type FieldType = 'primary' | 'secondary' | 'tertiary';
-
-export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
-  inputId: string;
-  label: string;
-  saveHintSpace?: boolean;
-  hint?: string;
-  valid?: boolean;
-  validityChanged?: (valid: boolean) => void;
-  valueChanged?: (value: string) => void;
-  fieldType?: FieldType;
+export interface TextFieldProps extends BaseFieldProps<HTMLInputElement> {
+  progress?: string;
   leftIcon?: ReactNode;
-  actionIcon?: React.ReactElement<IconProps>;
-  onActionIconClick?: () => unknown;
+  rightIcon?: React.ReactElement<IconProps>;
+  actionButton?: React.ReactElement<ButtonProps<'button'>>;
 }
 
-interface InputFontColorProps {
-  readOnly?: boolean;
-  disabled?: boolean;
-  focused?: boolean;
-  hasInput?: boolean;
-  actionIcon?: React.ReactElement<IconProps>;
-}
-
-export const getInputFontColor = ({
-  readOnly,
-  disabled,
-  focused,
-  hasInput,
-  actionIcon,
-}: InputFontColorProps): string => {
-  if (readOnly && actionIcon) {
-    return 'text-theme-label-primary';
-  }
-
-  if (readOnly) {
-    return 'text-theme-label-quaternary';
-  }
-
-  if (disabled) {
-    return 'text-theme-label-disabled';
-  }
-
-  if (focused) {
-    return hasInput
-      ? 'text-theme-label-primary'
-      : 'text-theme-label-quaternary';
-  }
-
-  return 'text-theme-label-tertiary hover:text-theme-label-primary';
-};
-
-export function TextField({
-  className,
-  inputId,
-  name,
-  label,
-  maxLength,
-  value,
-  saveHintSpace = false,
-  hint,
-  valid,
-  validityChanged,
-  valueChanged,
-  placeholder,
-  style,
-  fieldType = 'primary',
-  readOnly,
-  leftIcon,
-  actionIcon,
-  onActionIconClick,
-  disabled,
-  ...props
-}: TextFieldProps): ReactElement {
+function TextFieldComponent(
+  {
+    className = {},
+    inputId,
+    name,
+    label,
+    maxLength,
+    value,
+    saveHintSpace = false,
+    progress,
+    hint,
+    valid,
+    validityChanged,
+    valueChanged,
+    placeholder,
+    style,
+    fieldType = 'primary',
+    isLocked,
+    readOnly = isLocked,
+    leftIcon,
+    actionButton,
+    disabled,
+    rightIcon,
+    required,
+    ...props
+  }: TextFieldProps,
+  ref?: MutableRefObject<HTMLDivElement>,
+): ReactElement {
   const {
-    inputRef,
+    validInput,
     focused,
     hasInput,
-    onFocus,
-    onBlur: baseOnBlur,
-    onInput: baseOnInput,
     focusInput,
-  } = useInputField(value, valueChanged);
+    inputRef,
+    onFocus,
+    onBlur,
+    onInput,
+    inputLength,
+  } = useInputFieldFunctions({
+    value,
+    valueChanged,
+    valid,
+    validityChanged,
+  });
   const isPrimaryField = fieldType === 'primary';
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
-  const [inputLength, setInputLength] = useState<number>(0);
-  const [validInput, setValidInput] = useState<boolean>(undefined);
-  const [idleTimeout, clearIdleTimeout] = useDebounce(() => {
-    setValidInput(inputRef.current.checkValidity());
-  }, 1500);
-
-  useEffect(() => {
-    if (validityChanged && validInput !== undefined) {
-      validityChanged(validInput);
-    }
-  }, [validInput]);
-
-  useEffect(() => {
-    if (validInput !== undefined && valid !== undefined) {
-      setValidInput(valid);
-    }
-  }, [valid]);
-
-  const onBlur = () => {
-    clearIdleTimeout();
-    baseOnBlur();
-    if (inputRef.current) {
-      setValidInput(inputRef.current.checkValidity());
-    }
-  };
-
-  const onInput = (
-    event: SyntheticEvent<HTMLInputElement, InputEvent>,
-  ): void => {
-    clearIdleTimeout();
-    baseOnInput(event);
-    if (valueChanged) {
-      valueChanged(event.currentTarget.value);
-    }
-    const len = event.currentTarget.value.length;
-    setInputLength(len);
-    const inputValidity = inputRef.current.checkValidity();
-    if (inputValidity) {
-      setValidInput(true);
-    } else {
-      idleTimeout();
-    }
-  };
-
-  const getPlaceholder = () => {
-    if (isTertiaryField) {
-      return focused ? placeholder : label;
-    }
-
-    if (focused || isSecondaryField) {
-      return placeholder ?? '';
-    }
-
-    return label;
-  };
-
-  const invalid = validInput === false;
-  const getLabelColor = () => {
-    if (readOnly) {
-      return 'text-theme-label-tertiary';
-    }
-
-    return disabled ? 'text-theme-label-disabled' : 'text-theme-label-primary';
-  };
+  const invalid = validInput === false || (required && inputLength === 0);
 
   return (
-    <div
-      className={classNames(className, 'flex flex-col items-stretch')}
-      style={style}
-    >
-      {isSecondaryField && (
-        <label
-          className="px-2 mb-1 font-bold text-theme-label-primary typo-caption1"
-          htmlFor={inputId}
-        >
-          {label}
-        </label>
-      )}
-      <BaseField
-        data-testid="field"
-        onClick={focusInput}
-        className={classNames(
-          'flex flex-row items-center',
-          isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
-          leftIcon && 'pl-3',
-          actionIcon && 'pr-3',
-          {
-            readOnly,
-            focused,
-            invalid,
-          },
+    <BaseFieldContainer
+      ref={ref}
+      inputId={inputId}
+      invalid={invalid}
+      focusInput={focusInput}
+      saveHintSpace={saveHintSpace}
+      hint={hint}
+      fieldType={fieldType}
+      readOnly={readOnly}
+      isLocked={isLocked}
+      hasInput={hasInput}
+      disabled={disabled}
+      focused={focused}
+      label={label}
+      className={{
+        ...className,
+        container: classNames('items-stretch', className.container),
+        baseField: classNames(
+          'flex-row items-center',
           styles.field,
+          className.baseField,
+          leftIcon && 'pl-3',
+          actionButton && 'pr-3',
+          isSecondaryField ? 'h-9' : 'h-12',
+        ),
+      }}
+    >
+      {leftIcon && (
+        <span
+          className={classNames(
+            'mr-2',
+            getFieldFontColor({
+              readOnly,
+              disabled,
+              hasInput,
+              focused,
+              isLocked,
+              hasActionIcon: !!rightIcon,
+            }),
+          )}
+        >
+          {leftIcon}
+        </span>
+      )}
+      <div
+        className={classNames(
+          'flex flex-col flex-1 items-start max-w-full',
+          actionButton && 'mr-2',
         )}
       >
-        {leftIcon && (
-          <span
+        {isPrimaryField && (focused || hasInput) && (
+          <label
             className={classNames(
-              'mr-2',
-              getInputFontColor({
+              'typo-caption1',
+              getFieldLabelColor({
                 readOnly,
-                disabled,
+                isLocked,
                 hasInput,
                 focused,
-                actionIcon,
+                disabled,
               }),
             )}
+            htmlFor={inputId}
           >
-            {leftIcon}
-          </span>
+            {label}
+          </label>
         )}
-        <div
+        <FieldInput
+          placeholder={getFieldPlaceholder({
+            label,
+            focused,
+            placeholder,
+            isTertiaryField,
+            isSecondaryField,
+          })}
+          name={name}
+          id={inputId}
+          ref={inputRef}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onInput={onInput}
+          maxLength={maxLength}
+          readOnly={readOnly}
+          size={1}
           className={classNames(
-            'flex flex-col flex-1 items-start max-w-full',
-            actionIcon && 'mr-2',
+            'self-stretch',
+            getFieldFontColor({
+              readOnly,
+              disabled,
+              hasInput,
+              focused,
+              hasActionIcon: !!rightIcon,
+            }),
           )}
-        >
-          {isPrimaryField && (focused || hasInput) && (
-            <label
-              className={classNames('typo-caption1', getLabelColor())}
-              htmlFor={inputId}
-            >
-              {label}
-            </label>
-          )}
-          <FieldInput
-            placeholder={getPlaceholder()}
-            name={name}
-            id={inputId}
-            ref={inputRef}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            onInput={onInput}
-            maxLength={maxLength}
-            readOnly={readOnly}
-            className={classNames(
-              'self-stretch',
-              getInputFontColor({
-                readOnly,
-                disabled,
-                hasInput,
-                focused,
-                actionIcon,
-              }),
-            )}
-            disabled={disabled}
-            {...props}
-          />
-        </div>
-        {maxLength && (
+          disabled={disabled}
+          required={required}
+          {...props}
+        />
+        {progress && (
           <div
-            className="ml-2 font-bold typo-callout"
-            style={{ color: 'var(--field-placeholder-color)' }}
-          >
-            {maxLength - inputLength}
-          </div>
-        )}
-        {actionIcon && (
-          <Button
-            data-testid="textfield-action-icon"
-            buttonSize="small"
-            className="btn-tertiary"
-            onClick={onActionIconClick}
-            icon={actionIcon}
+            className={classNames(
+              'absolute bottom-0 h-[3px] rounded-10 transition-all',
+              progress,
+            )}
           />
         )}
-      </BaseField>
-      {(hint?.length || saveHintSpace) && (
+      </div>
+      {maxLength && (
         <div
-          role={invalid ? 'alert' : undefined}
-          className={classNames(
-            'mt-1 px-2 typo-caption1',
-            saveHintSpace && 'h-4',
-            invalid ? 'text-theme-status-error' : 'text-theme-label-quaternary',
-          )}
+          className="ml-2 font-bold typo-callout"
+          style={{ color: 'var(--field-placeholder-color)' }}
         >
-          {hint}
+          {maxLength - (inputLength || 0)}
         </div>
       )}
-    </div>
+      {rightIcon}
+      {actionButton}
+    </BaseFieldContainer>
   );
 }
+
+export const TextField = forwardRef(TextFieldComponent);

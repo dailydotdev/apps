@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
-import styles from './AccountDetailsModal.module.css';
+import styles from './customModal.module.css';
 import TagsFilter from '../filters/TagsFilter';
 import CreateFeedFilterButton from '../CreateFeedFilterButton';
 import XIcon from '../icons/Close';
@@ -84,7 +84,7 @@ export default function CreateMyFeedModal({
 
   return (
     <ResponsiveModal
-      className={classNames(className, styles.myFeedModal)}
+      className={classNames(className, styles.customModal)}
       {...modalProps}
       style={{
         content: {

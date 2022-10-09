@@ -12,6 +12,7 @@ const WextManifestWebpackPlugin = require('wext-manifest-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+const { version } = require('./package.json');
 
 const viewsPath = path.join(__dirname, 'views');
 const sourcePath = path.join(__dirname, 'src');
@@ -68,6 +69,7 @@ module.exports = {
   },
 
   output: {
+    publicPath: '',
     path: path.join(destPath, targetBrowser),
     filename: 'js/[name].bundle.js',
   },
@@ -159,6 +161,9 @@ module.exports = {
     new Dotenv({
       path:
         process.env.NODE_ENV === 'production' ? './.env.production' : './.env',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.CURRENT_VERSION': `'${version}'`,
     }),
     // delete previous build files
     new CleanWebpackPlugin({

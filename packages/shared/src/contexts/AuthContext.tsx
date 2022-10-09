@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import {
   AnonymousUser,
   LoggedUser,
@@ -6,11 +12,15 @@ import {
   deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
+import FeaturesContext from './FeaturesContext';
+import { AuthVersion } from '../lib/featureValues';
+import { isCompanionActivated } from '../lib/element';
 
 export type LoginState = { trigger: string };
 
 export interface AuthContextData {
   user?: LoggedUser;
+  referral?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
   showLogin: (trigger: string) => void;
@@ -19,6 +29,7 @@ export interface AuthContextData {
   logout: () => Promise<void>;
   updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;
+  isFetched?: boolean;
   tokenRefreshed: boolean;
   loadedUserFromCache?: boolean;
   getRedirectUri: () => string;
@@ -26,12 +37,17 @@ export interface AuthContextData {
   visit?: Visit;
   isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
+  refetchBoot?: () => Promise<unknown>;
 }
-
+const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
 export default AuthContext;
 
-const getQueryParams = () => {
+export const getQueryParams = (): Record<string, string> => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
 
@@ -47,13 +63,21 @@ const logout = async (): Promise<void> => {
     window.location.replace(params.redirect_uri);
   } else if (window.location.pathname === REGISTRATION_PATH) {
     window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
-  } else {
+  }
+
+  if (isExtension) {
     window.location.reload();
+  } else {
+    window.location.replace('/');
   }
 };
 
 export type AuthContextProviderProps = {
   user: LoggedUser | AnonymousUser | undefined;
+  isFetched?: boolean;
+  isLegacyLogout?: boolean;
+  firstLoad?: boolean;
+  refetchBoot?: () => Promise<unknown>;
   children?: ReactNode;
 } & Pick<
   AuthContextData,
@@ -69,21 +93,45 @@ export const AuthContextProvider = ({
   children,
   user,
   updateUser,
+  isFetched,
   loadingUser,
   tokenRefreshed,
   loadedUserFromCache,
   getRedirectUri,
+  refetchBoot,
   visit,
+  isLegacyLogout,
+  firstLoad,
 }: AuthContextProviderProps): ReactElement => {
+  const { authVersion } = useContext(FeaturesContext);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
+  const endUser = user && 'providers' in user ? user : null;
+  const referral = user?.referrer;
+
+  if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
+    logout();
+  }
+
+  if (isLegacyLogout && !loginState) {
+    setLoginState({ trigger: 'legacy_logout' });
+  }
 
   const authContext: AuthContextData = useMemo(
     () => ({
-      user: user && 'providers' in user ? user : null,
+      user: endUser,
+      referral,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger) => setLoginState({ trigger }),
+      showLogin: (trigger) => {
+        const hasCompanion = !!isCompanionActivated();
+        if (hasCompanion || authVersion === AuthVersion.V3) {
+          const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
+          window.open(signup);
+        } else {
+          setLoginState({ trigger });
+        }
+      },
       closeLogin: () => setLoginState(null),
       loginState,
       updateUser,
@@ -94,9 +142,20 @@ export const AuthContextProvider = ({
       getRedirectUri,
       anonymous: user,
       visit,
+      isFetched,
+      refetchBoot,
       deleteAccount,
     }),
-    [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
+    [
+      authVersion,
+      user,
+      loginState,
+      isFetched,
+      loadingUser,
+      tokenRefreshed,
+      loadedUserFromCache,
+      visit,
+    ],
   );
 
   return (

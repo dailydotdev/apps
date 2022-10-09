@@ -9,8 +9,9 @@ import { useRefreshToken } from '@dailydotdev/shared/src/hooks/useRefreshToken';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
+import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -54,15 +55,19 @@ export default function App({
   }
 
   const memoizedFlags = useMemo(() => flags, [flags]);
-  const refetchData = () =>
-    companionFetch(`${apiUrl}/boot`, {
-      headers: { requestKey: refreshTokenKey },
-    });
+  const refetchData = async () =>
+    browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
 
   useRefreshToken(token, refetchData);
   useBackgroundRequest(refreshTokenKey, {
     queryClient,
     callback: ({ res }) => setToken(res.accessToken),
+  });
+
+  useWindowEvents('message', AuthEvent.Login, async (e) => {
+    if (e.data?.eventKey === AuthEvent.Login) {
+      await refetchData();
+    }
   });
 
   return (

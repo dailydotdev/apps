@@ -6,7 +6,7 @@ import CopyIcon from '../icons/Copy';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
-import styles from './AccountDetailsModal.module.css';
+import styles from './customModal.module.css';
 import { Switch } from '../fields/Switch';
 import {
   BookmarksSharingData,
@@ -59,7 +59,7 @@ export default function SharedBookmarksModal({
 
   return (
     <ResponsiveModal
-      className={classNames(className, styles.accountDetailsModal)}
+      className={classNames(className, styles.customModal)}
       {...props}
     >
       <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
@@ -85,14 +85,20 @@ export default function SharedBookmarksModal({
         {bookmarksSharingData?.bookmarksSharing?.enabled && (
           <div className="relative">
             <TextField
-              className="mt-6"
+              className={{ container: 'mt-6' }}
               name="rssUrl"
               inputId="rssUrl"
               label="Your unique RSS URL"
               type="url"
               fieldType="tertiary"
-              actionIcon={<CopyIcon />}
-              onActionIconClick={copyRssUrl}
+              actionButton={
+                <Button
+                  buttonSize="small"
+                  className="btn-tertiary"
+                  icon={<CopyIcon />}
+                  onClick={() => copyRssUrl()}
+                />
+              }
               value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
               readOnly
             />
