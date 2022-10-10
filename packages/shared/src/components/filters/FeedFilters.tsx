@@ -1,9 +1,5 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import AuthContext from '../../contexts/AuthContext';
-import AlertContext from '../../contexts/AlertContext';
-import { useMyFeed } from '../../hooks/useMyFeed';
 import { ModalProps, StyledModal } from '../modals/StyledModal';
 import SidebarList from '../sidebar/SidebarList';
 import HashtagIcon from '../icons/Hashtag';
@@ -41,16 +37,6 @@ export default function FeedFilters({
   const [contentRef, setContentRef] = useState<HTMLDivElement>();
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [display, setDisplay] = useState<string>(items[0].title);
-  const { alerts, updateAlerts } = useContext(AlertContext);
-  const { user } = useContext(AuthContext);
-  const { hasAnyFilter } = useFeedSettings();
-  const { shouldShowMyFeed } = useMyFeed();
-
-  useEffect(() => {
-    if (isOpen && alerts?.filter && hasAnyFilter && user && !shouldShowMyFeed) {
-      updateAlerts({ filter: false });
-    }
-  }, [isOpen, alerts, user, hasAnyFilter]);
 
   const onNavClick = (active: string) => {
     setDisplay(active);
