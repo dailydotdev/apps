@@ -179,7 +179,6 @@ export default function MainFeedLayout({
 
   useEffect(() => {
     if (user) {
-      setCreateMyFeed(false);
       setIsFirstSession(false);
       setMyFeedMode(MyFeedMode.Manual);
     } else if (
@@ -373,6 +372,7 @@ export default function MainFeedLayout({
         <CreateMyFeedModal
           version={myFeedOnboardingVersion}
           mode={myFeedMode}
+          hasUser={!!user}
           isOpen={createMyFeed}
           onRequestClose={closeCreateMyFeedModal}
         />
