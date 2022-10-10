@@ -6,22 +6,24 @@ import {
   useState,
 } from 'react';
 
-type ReturnType = {
+export type ValidInputElement = HTMLInputElement | HTMLTextAreaElement;
+
+export interface UseInputField<T extends ValidInputElement = HTMLInputElement> {
   focused: boolean;
   hasInput: boolean;
-  inputRef: MutableRefObject<HTMLInputElement>;
+  inputRef: MutableRefObject<T>;
   onFocus: () => void;
   onBlur: () => void;
-  onInput: (event: SyntheticEvent<HTMLInputElement, InputEvent>) => void;
+  onInput: (event: SyntheticEvent<T, InputEvent>) => void;
   focusInput: () => void;
   setInput: (newValue: string) => void;
-};
+}
 
-export function useInputField(
+export function useInputField<T extends ValidInputElement = HTMLInputElement>(
   value: string | ReadonlyArray<string> | number,
   valueChanged?: (value: string) => void,
-): ReturnType {
-  const inputRef = useRef<HTMLInputElement>(null);
+): UseInputField<T> {
+  const inputRef = useRef<T>(null);
   const [focused, setFocused] = useState<boolean>(false);
   const [hasInput, setHasInput] = useState<boolean>(false);
 
@@ -31,15 +33,15 @@ export function useInputField(
   };
 
   useEffect(() => {
-    setInput(value?.toString() || '');
+    if (value !== undefined) {
+      setInput(value?.toString() || '');
+    }
   }, [value]);
 
   const onFocus = () => setFocused(true);
   const onBlur = () => setFocused(false);
 
-  const onInput = (
-    event: SyntheticEvent<HTMLInputElement, InputEvent>,
-  ): void => {
+  const onInput = (event: SyntheticEvent<T, InputEvent>): void => {
     if (valueChanged) {
       valueChanged(event.currentTarget.value);
     }

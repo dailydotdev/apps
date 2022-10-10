@@ -1,0 +1,21 @@
+.customModal {
+  & :global(.modal) {
+    padding: 3rem 0 0;
+
+    @screen responsiveModalBreakpoint {
+      max-height: 40rem;
+      padding-top: 0;
+    }
+  }
+}
+.myFeedModal {
+  & :global(.modal) {
+    padding: 4.0625rem 0 4.0625rem 0;
+
+    @screen responsiveModalBreakpoint {
+      max-height: 40rem;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+}

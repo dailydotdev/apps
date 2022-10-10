@@ -78,6 +78,8 @@ body {
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
   --theme-overlay-water: theme('colors.overlay.quaternary.water');
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
+  --theme-overlay-from: theme('colors.onion.40')30;
+  --theme-overlay-to: theme('colors.cabbage.40')30;
 
   --theme-rank-highlight: theme('colors.salt.10');
 
@@ -180,6 +182,8 @@ body {
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
   --theme-overlay-water: theme('colors.overlay.quaternary.water');
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
+  --theme-overlay-from: theme('colors.onion.40')30;
+  --theme-overlay-to: theme('colors.cabbage.40')30;
 
   --theme-rank-highlight: theme('colors.salt.10');
 

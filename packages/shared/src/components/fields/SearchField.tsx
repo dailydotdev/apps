@@ -12,7 +12,7 @@ import SearchIcon from '../icons/Search';
 import CloseIcon from '../icons/Close';
 import ArrowIcon from '../icons/Arrow';
 import { Button, ButtonProps } from '../buttons/Button';
-import { getInputFontColor } from './TextField';
+import { getFieldFontColor } from './BaseFieldContainer';
 
 export interface SearchFieldProps
   extends Pick<
@@ -93,6 +93,7 @@ export const SearchField = forwardRef(function SearchField(
     <BaseField
       {...props}
       className={classNames(
+        'items-center',
         fieldSize === 'medium' ? 'h-10 rounded-12' : 'h-12 rounded-14',
         className,
         { focused },
@@ -145,7 +146,7 @@ export const SearchField = forwardRef(function SearchField(
         autoComplete="off"
         className={classNames(
           'flex-1',
-          getInputFontColor({ readOnly, disabled, hasInput, focused }),
+          getFieldFontColor({ readOnly, disabled, hasInput, focused }),
         )}
         required
       />

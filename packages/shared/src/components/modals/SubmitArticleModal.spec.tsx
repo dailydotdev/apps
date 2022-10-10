@@ -62,16 +62,6 @@ const renderComponent = (
   );
 };
 
-it('should show a message no URL was set', async () => {
-  renderComponent();
-  const btn = await screen.findByLabelText('Submit article');
-  await waitFor(() => expect(btn).toBeEnabled());
-  btn.click();
-  expect(
-    await screen.findByText('Please submit a valid URL'),
-  ).toBeInTheDocument();
-});
-
 it('should disable the button on invalid URL', async () => {
   renderComponent();
   const input = await screen.findByRole('textbox');

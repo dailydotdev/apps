@@ -77,11 +77,13 @@ export const BootDataProvider = ({
     useState<Partial<BootCacheData>>(localBootData);
   const [lastAppliedChange, setLastAppliedChange] =
     useState<Partial<BootCacheData>>();
+  const [initialLoad, setInitialLoad] = useState<boolean>(null);
   const loadedFromCache = cachedBootData !== undefined;
   const { user, settings, flags = {}, alerts } = cachedBootData || {};
   const {
     data: bootRemoteData,
     refetch,
+    isFetched,
     dataUpdatedAt,
   } = useQuery(BOOT_QUERY_KEY, () => getBootData(app));
 
@@ -119,6 +121,7 @@ export const BootDataProvider = ({
 
   useEffect(() => {
     if (bootRemoteData) {
+      setInitialLoad(initialLoad === null);
       // We need to remove the settings for annoymous users as they might have changed them already
       if (!bootRemoteData.user || !('providers' in bootRemoteData.user)) {
         delete bootRemoteData.settings;
@@ -136,7 +139,7 @@ export const BootDataProvider = ({
       setCachedBootData(updated);
       await queryClient.invalidateQueries(generateQueryKey('profile', newUser));
     },
-    [queryClient],
+    [queryClient, cachedBootData],
   );
 
   const updateSettings = useCallback(
@@ -159,6 +162,10 @@ export const BootDataProvider = ({
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}
         visit={bootRemoteData?.visit}
+        refetchBoot={refetch}
+        isFetched={isFetched}
+        isLegacyLogout={bootRemoteData?.isLegacyLogout}
+        firstLoad={initialLoad}
       >
         <SettingsContextProvider
           settings={settings}

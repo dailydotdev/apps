@@ -1,4 +1,7 @@
 import { utcToZonedTime } from 'date-fns-tz';
+import { SVGAttributes } from 'react';
+import DaytimeIcon from '../../icons/timezone_daytime.svg';
+import NighttimeIcon from '../../icons/timezone_nighttime.svg';
 
 const TIME_ZONES = [
   {
@@ -536,13 +539,15 @@ export const getUserDefaultTimezone = (): string => {
   return 'Europe/London';
 };
 
+interface InitialTimezoneProps {
+  userTimezone?: string;
+  update?: boolean;
+}
+
 export const getUserInitialTimezone = ({
   userTimezone,
   update = false,
-}: {
-  userTimezone: string;
-  update: boolean;
-}): string => {
+}: InitialTimezoneProps = {}): string => {
   if (userTimezone) {
     return userTimezone;
   }
@@ -552,4 +557,26 @@ export const getUserInitialTimezone = ({
   }
 
   return getUserDefaultTimezone();
+};
+
+export const getHourTimezone = (timeZone: string): number => {
+  const now = new Date();
+
+  return parseInt(
+    now.toLocaleString('en-US', {
+      hour: '2-digit',
+      hour12: false,
+      timeZone,
+    }),
+    10,
+  );
+};
+
+export const getTimeZoneIcon = (
+  timezone: string,
+): React.ComponentType<SVGAttributes<SVGElement>> => {
+  const hour = getHourTimezone(timezone);
+  const Background = hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
+
+  return Background;
 };

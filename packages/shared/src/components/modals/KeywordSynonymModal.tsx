@@ -69,7 +69,7 @@ export default function KeywordSynonymModal({
         autoFocus
         valueChanged={onQueryChanged}
         autoComplete="off"
-        className="self-stretch mb-3"
+        className={{ container: 'self-stretch mb-3' }}
       />
       {!emptyResults && (
         <ul className="flex flex-col gap-2 p-0 m-0 list-none">

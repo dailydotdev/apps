@@ -1,3 +1,4 @@
+import React from 'react';
 import classed from '../../lib/classed';
 
 export const ModalHeader = classed(
@@ -8,3 +9,7 @@ export const ModalHeader = classed(
 export const ModalSubTitle = classed('strong', 'typo-headline mb-2');
 export const ModalText = classed('p', 'typo-callout text-theme-label-tertiary');
 export const ModalSection = classed('section', 'flex flex-col p-6');
+
+export type CloseModalFunc = (
+  e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
+) => void;

@@ -21,8 +21,10 @@ import { LoggedUser } from '../lib/user';
 import usePromotionalBanner from '../hooks/usePromotionalBanner';
 import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
-import LoginButton from './LoginButton';
 import Toast from './notifications/Toast';
+import LoginButton from './LoginButton';
+import { useAuthErrors } from '../hooks/useAuthErrors';
+import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -110,6 +112,8 @@ export default function MainLayout({
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
+  useAuthErrors();
+  useAuthVerificationRecovery();
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
@@ -162,7 +166,7 @@ export default function MainLayout({
             {additionalButtons}
             {!showOnlyLogo && !loadingUser && (
               <>
-                {user ? (
+                {user && user?.infoConfirmed ? (
                   <ProfileButton className="hidden laptop:flex" />
                 ) : (
                   <LoginButton className="hidden laptop:block" />
