@@ -23,11 +23,9 @@ import {
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import Popular from '../pages/popular';
 
-let client: QueryClient;
 const showLogin = jest.fn();
 
 beforeEach(() => {
-  client = null;
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(
@@ -65,7 +63,7 @@ const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
-  client = new QueryClient();
+  const client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
