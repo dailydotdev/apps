@@ -64,7 +64,7 @@ const useLogin = ({
     [{ type: 'login', params: queryParams }],
     ({ queryKey: [{ params }] }) =>
       initializeKratosFlow(AuthFlow.Login, params),
-    { enabled: queryEnabled },
+    { enabled: queryEnabled, refetchOnWindowFocus: false },
   );
   const { mutateAsync: onPasswordLogin, isLoading } = useMutation(
     (params: ValidateLoginParams) => {
