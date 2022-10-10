@@ -21,17 +21,6 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { Alerts, UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
-import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
-import { act } from 'preact/test-utils';
-import {
-  getFeedSettingsQueryKey,
-  getHasAnyFilter,
-} from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import {
-  AllTagCategoriesData,
-  FEED_SETTINGS_QUERY,
-} from '@dailydotdev/shared/src/graphql/feedSettings';
 import Popular from '../pages/popular';
 
 let client: QueryClient;
@@ -72,13 +61,9 @@ const createFeedMock = (
   },
 });
 
-const defaultAlerts: Alerts = { filter: true };
-const updateAlerts = jest.fn();
-
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
-  alerts = defaultAlerts,
 ): RenderResult => {
   client = new QueryClient();
 
@@ -112,15 +97,9 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <AlertContextProvider
-          alerts={alerts}
-          updateAlerts={updateAlerts}
-          loadedAlerts
-        >
-          <SettingsContext.Provider value={settingsContext}>
-            {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
-          </SettingsContext.Provider>
-        </AlertContextProvider>
+        <SettingsContext.Provider value={settingsContext}>
+          {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -143,42 +122,4 @@ it('should request anonymous feed', async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
   });
-});
-
-const createMockFeedSettings = () => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
-  result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
-});
-
-it('should remove filter alert if the user has filters and opened feed filters', async () => {
-  let mutationCalled = false;
-  mockGraphQL({
-    request: {
-      query: UPDATE_ALERTS,
-      variables: { data: { filter: false } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { _: true } };
-    },
-  });
-  renderComponent([createFeedMock(), createMockFeedSettings()], defaultUser, {
-    filter: true,
-  });
-
-  await act(async () => {
-    const feedFilters = await screen.findByTestId('create_myfeed');
-    feedFilters.click();
-  });
-
-  await waitFor(() => {
-    const key = getFeedSettingsQueryKey(defaultUser);
-    const data = client.getQueryData<AllTagCategoriesData>(key);
-    expect(getHasAnyFilter(data.feedSettings)).toBeTruthy();
-  });
-
-  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
-
-  expect(updateAlerts).toBeCalledWith({ filter: false });
-  expect(mutationCalled).toBeTruthy();
 });
