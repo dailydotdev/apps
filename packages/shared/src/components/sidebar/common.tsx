@@ -101,7 +101,7 @@ export const AlertContainer = classed(
   'div',
   'p-3 border border-theme-status-success rounded-10 flex flex-row',
 );
-export const AlertCopy = classed('p', 'typo-subhead max-w-[calc(100%-1.5rem)]');
+export const AlertCopy = classed('p', 'typo-subhead');
 const RawNavItem = classed(
   'li',
   'flex items-center typo-callout hover:bg-theme-active',
