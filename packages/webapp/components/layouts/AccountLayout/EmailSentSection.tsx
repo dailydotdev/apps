@@ -1,4 +1,4 @@
-import AlertContainer from '@dailydotdev/shared/src/components/alert/AlertContainer';
+import AlertBanner from '@dailydotdev/shared/src/components/alert/AlertBanner';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
@@ -21,7 +21,7 @@ function EmailSentSection({
   );
 
   return (
-    <AlertContainer
+    <AlertBanner
       className={{
         container: classNames('mt-6 border-theme-status-warning', className),
         overlay: 'bg-overlay-quaternary-bun',
@@ -50,7 +50,7 @@ function EmailSentSection({
           </Button>
         )}
       </span>
-    </AlertContainer>
+    </AlertBanner>
   );
 }
 
