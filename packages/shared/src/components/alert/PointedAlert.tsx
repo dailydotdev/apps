@@ -2,7 +2,11 @@ import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
 import classNames from 'classnames';
 import XIcon from '../icons/Close';
 import { Button } from '../buttons/Button';
-import { PointedAlertContainer, PointedAlertWrapper } from './common';
+import {
+  PointedAlertContainer,
+  PointedAlertCopy,
+  PointedAlertWrapper,
+} from './common';
 import Pointer, { PointerColor } from './Pointer';
 
 interface ClassName {
@@ -74,7 +78,13 @@ export default function PointedAlert({
         )}
         style={getStyle(rect?.height)[placement]}
       >
-        {message}
+        {typeof message === 'string' ? (
+          <PointedAlertCopy className={className.label}>
+            {message}
+          </PointedAlertCopy>
+        ) : (
+          message
+        )}
         <Button
           data-testid="alert-close"
           onClick={onClose}
