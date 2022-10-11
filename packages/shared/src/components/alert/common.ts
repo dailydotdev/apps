@@ -13,6 +13,10 @@ export const PointedAlertWrapper = classed(
 );
 export const PointedAlertContainer = classed(
   'div',
+  'flex absolute justify-center items-center w-max',
+);
+export const PointedAlertMessage = classed(
+  'div',
   'p-3 border border-theme-status-success rounded-10 flex flex-row',
 );
 export const PointedAlertCopy = classed('p', 'typo-subhead');
