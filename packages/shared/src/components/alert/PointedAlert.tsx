@@ -27,6 +27,11 @@ export enum AlertPlacement {
   Left = 'left',
 }
 
+const messageBorder: Record<PointerColor, string> = {
+  [PointerColor.Cabbage]: 'border-theme-status-cabbage',
+  [PointerColor.Success]: 'border-theme-status-success',
+};
+
 const pointerClasses = {
   [AlertPlacement.Top]: 'rotate-180',
   [AlertPlacement.Right]: '-rotate-90',
@@ -55,6 +60,8 @@ export interface PointedAlertProps {
   message: ReactNode;
   placement?: AlertPlacement;
   offset?: OffsetXY;
+  color?: PointerColor;
+  isAlertDisabled?: boolean;
   onClose?: () => unknown;
 }
 
@@ -70,14 +77,20 @@ const getMessageStyle = (
 
 export default function PointedAlert({
   placement = AlertPlacement.Right,
+  color = PointerColor.Cabbage,
   className = {},
   children,
   message,
   offset,
+  isAlertDisabled,
   onClose,
 }: PointedAlertProps): ReactElement {
   const pointerRef = useRef<HTMLDivElement>();
   const rect = pointerRef?.current?.getBoundingClientRect?.();
+
+  if (isAlertDisabled) {
+    return <>{children}</>;
+  }
 
   return (
     <PointedAlertWrapper>
@@ -91,11 +104,11 @@ export default function PointedAlert({
       >
         <Pointer
           ref={pointerRef}
-          color={PointerColor.Success}
+          color={color}
           className={classNames(pointerClasses[placement], className.pointer)}
         />
         <PointedAlertMessage
-          className={classNames('font-normal relative', className.message)}
+          className={classNames(messageBorder[color], className.message)}
           style={getMessageStyle(rect?.height)[placement]}
         >
           {typeof message === 'string' ? (

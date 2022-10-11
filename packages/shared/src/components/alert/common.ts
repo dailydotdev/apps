@@ -17,6 +17,6 @@ export const PointedAlertContainer = classed(
 );
 export const PointedAlertMessage = classed(
   'div',
-  'p-3 border border-theme-status-success rounded-10 flex flex-row',
+  'p-3 border rounded-10 flex flex-row font-normal relative',
 );
 export const PointedAlertCopy = classed('p', 'typo-subhead');
