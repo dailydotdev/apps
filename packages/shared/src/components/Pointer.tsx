@@ -1,4 +1,9 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import React, {
+  CSSProperties,
+  forwardRef,
+  MutableRefObject,
+  ReactElement,
+} from 'react';
 import classed from '../lib/classed';
 
 const PointerContainer = classed(
@@ -19,15 +24,16 @@ interface PointerProps {
   style?: CSSProperties;
 }
 
-export function Pointer({
-  color,
-  className,
-  ...props
-}: PointerProps): ReactElement {
+function Pointer(
+  { color, ...props }: PointerProps,
+  ref?: MutableRefObject<HTMLDivElement>,
+): ReactElement {
   return (
-    <PointerContainer className={className} {...props}>
+    <PointerContainer {...props} ref={ref}>
       <PointerPoint className={color} />
       <PointerLine className={color} />
     </PointerContainer>
   );
 }
+
+export default forwardRef(Pointer);
