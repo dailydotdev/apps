@@ -34,7 +34,11 @@ import CreateMyFeedButton from './CreateMyFeedButton';
 import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
+import useSidebarRendered from '../hooks/useSidebarRendered';
+import PointedAlert, { AlertPlacement } from './alert/PointedAlert';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import { Button } from './buttons/Button';
+import FilterIcon from './icons/Filter';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -149,6 +153,7 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
+  const { sidebarRendered } = useSidebarRendered();
   const { updateAlerts } = useContext(AlertContext);
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed(true);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -265,17 +270,31 @@ export default function MainFeedLayout({
       <div
         className={classNames(
           'flex flex-row flex-wrap gap-4 items-center mr-px w-full',
-          alerts.filter ? 'h-14' : 'h-16',
+          alerts.filter ? 'h-14' : 'h-32 laptop:h-16',
+          !sidebarRendered && 'content-start',
         )}
       >
         <h3 className="flex flex-row flex-1 items-center typo-headline">
           {feedTitles[feedName]}
           {hasFiltered && (
-            <FeedFilterMenuButton
+            <PointedAlert
+              offset={[12, 8]}
               isAlertDisabled={!alerts.myFeed}
               onClose={() => updateAlerts({ myFeed: null })}
-              onFilterSettingsClick={() => setIsFeedFiltersOpen(true)}
-            />
+              className={{ label: 'w-44', message: 'ml-4' }}
+              message="Edit your personal feed preferences here"
+              placement={
+                sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom
+              }
+            >
+              <SimpleTooltip content="Feed filters">
+                <Button
+                  className={classNames('mx-3 btn-tertiary')}
+                  onClick={() => setIsFeedFiltersOpen(true)}
+                  icon={<FilterIcon />}
+                />
+              </SimpleTooltip>
+            </PointedAlert>
           )}
         </h3>
         {navChildren}
