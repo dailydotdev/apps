@@ -4,7 +4,7 @@ import React, {
   MutableRefObject,
   ReactElement,
 } from 'react';
-import classed from '../lib/classed';
+import classed from '../../lib/classed';
 
 const PointerContainer = classed(
   'div',
