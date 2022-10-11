@@ -272,9 +272,9 @@ export default function MainFeedLayout({
           {feedTitles[feedName]}
           {hasFiltered && (
             <FeedFilterMenuButton
-              filterAlert={alerts.filter}
-              onHideAlert={() => updateAlerts({ myFeed: null })}
-              onClick={() => setIsFeedFiltersOpen(true)}
+              isAlertDisabled={!alerts.myFeed}
+              onClose={() => updateAlerts({ myFeed: null })}
+              onFilterSettingsClick={() => setIsFeedFiltersOpen(true)}
             />
           )}
         </h3>
