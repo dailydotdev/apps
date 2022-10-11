@@ -2,7 +2,11 @@ import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
 import classNames from 'classnames';
 import XIcon from '../icons/Close';
 import { Button } from '../buttons/Button';
-import { AlertContainer, AlertCopy, AlertWrapper } from './common';
+import {
+  PointedAlertContainer,
+  PointedAlertCopy,
+  PointedAlertWrapper,
+} from './common';
 import Pointer, { PointerColor } from '../Pointer';
 
 interface ClassName {
@@ -33,74 +37,58 @@ const messageContainerClasses: Record<AlertPlacement, string> = {
 
 const HORIZONTAL_OFFSET = 6;
 
-interface MyFeedAlertProps {
+interface PointedAlertProps {
   className?: ClassName;
-  hideAlert: () => unknown;
+  onClose: () => unknown;
   children: ReactNode;
   placement?: AlertPlacement;
 }
 
-const getStyle = (
-  placement: AlertPlacement,
-  { height = 0 }: Partial<DOMRect> = {},
-): CSSProperties => {
-  if (placement === AlertPlacement.Left) {
-    return { left: HORIZONTAL_OFFSET * -1 };
-  }
+const getStyle = (height = 0): Record<AlertPlacement, CSSProperties> => ({
+  left: { left: HORIZONTAL_OFFSET * -1 },
+  right: { right: HORIZONTAL_OFFSET * -1 },
+  bottom: { bottom: height * -1 },
+  top: { top: height * -1 },
+});
 
-  if (placement === AlertPlacement.Right) {
-    return { right: HORIZONTAL_OFFSET * -1 };
-  }
-
-  if (placement === AlertPlacement.Bottom) {
-    return { bottom: height * -1 };
-  }
-
-  if (placement === AlertPlacement.Top) {
-    return { top: height * -1 };
-  }
-
-  return {};
-};
-
-export default function MyFeedAlert({
+export default function PointedAlert({
   placement = AlertPlacement.Right,
   className = {},
   children,
-  hideAlert,
-}: MyFeedAlertProps): ReactElement {
+  onClose,
+}: PointedAlertProps): ReactElement {
   const pointerRef = useRef<HTMLDivElement>();
   const rect = pointerRef?.current?.getBoundingClientRect?.();
 
   return (
-    <AlertWrapper>
+    <PointedAlertWrapper>
       {children}
       <Pointer
         ref={pointerRef}
         className={pointerClasses[placement]}
         color={PointerColor.Success}
       />
-      <AlertContainer
+      <PointedAlertContainer
         className={classNames(
           'absolute font-normal',
           messageContainerClasses[placement],
           className.container,
         )}
-        style={getStyle(placement, rect)}
+        style={getStyle(rect?.height)[placement]}
       >
-        <AlertCopy className={className.label}>
+        <PointedAlertCopy className={className.label}>
           Edit your personal feed preferences here
-        </AlertCopy>
+        </PointedAlertCopy>
         <Button
           data-testid="alert-close"
-          onClick={hideAlert}
+          onClick={onClose}
           icon={<XIcon />}
           buttonSize="xsmall"
           iconOnly
           style={{ position: 'absolute' }}
           className="top-2 right-2 btn-tertiary"
         />
-      </AlertContainer>
-    </AlertWrapper>
+      </PointedAlertContainer>
+    </PointedAlertWrapper>
   );
 }

@@ -93,15 +93,7 @@ export const NavHeader = classed(
   'li',
   'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
 );
-export const AlertWrapper = classed(
-  'div',
-  'flex relative flex-row justify-center items-center',
-);
-export const AlertContainer = classed(
-  'div',
-  'p-3 border border-theme-status-success rounded-10 flex flex-row',
-);
-export const AlertCopy = classed('p', 'typo-subhead');
+
 const RawNavItem = classed(
   'li',
   'flex items-center typo-callout hover:bg-theme-active',
