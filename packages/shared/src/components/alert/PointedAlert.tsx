@@ -7,7 +7,7 @@ import {
   PointedAlertCopy,
   PointedAlertWrapper,
 } from './common';
-import Pointer, { PointerColor } from '../Pointer';
+import Pointer, { PointerColor } from './Pointer';
 
 interface ClassName {
   container?: string;
@@ -41,6 +41,7 @@ interface PointedAlertProps {
   className?: ClassName;
   onClose: () => unknown;
   children: ReactNode;
+  message: ReactNode;
   placement?: AlertPlacement;
 }
 
@@ -55,6 +56,7 @@ export default function PointedAlert({
   placement = AlertPlacement.Right,
   className = {},
   children,
+  message,
   onClose,
 }: PointedAlertProps): ReactElement {
   const pointerRef = useRef<HTMLDivElement>();
@@ -77,7 +79,7 @@ export default function PointedAlert({
         style={getStyle(rect?.height)[placement]}
       >
         <PointedAlertCopy className={className.label}>
-          Edit your personal feed preferences here
+          {message}
         </PointedAlertCopy>
         <Button
           data-testid="alert-close"
