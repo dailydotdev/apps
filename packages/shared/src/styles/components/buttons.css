@@ -49,6 +49,9 @@
         margin-right: -0.5rem;
       }
     }
+    & .socialIcon {
+      margin-right: 0.75rem;
+    }
   }
 
   &.iconOnly {
