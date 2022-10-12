@@ -39,6 +39,7 @@ import PointedAlert, { AlertPlacement } from './alert/PointedAlert';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { Button } from './buttons/Button';
 import FilterIcon from './icons/Filter';
+import { filterAlertMessage } from './filters/FeedFilters';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -49,7 +50,7 @@ const FeedEmptyScreen = dynamic(
 
 const FeedFilters = dynamic(
   () =>
-    import(/* webpackChunkName: "feedFiltersMenu" */ './filters/FeedFilters'),
+    import(/* webpackChunkName: "feedFiltersModal" */ './filters/FeedFilters'),
 );
 
 type FeedQueryProps = {
@@ -282,7 +283,7 @@ export default function MainFeedLayout({
               isAlertDisabled={!alerts.myFeed}
               onClose={() => updateAlerts({ myFeed: null })}
               className={{ label: 'w-44', message: 'ml-4' }}
-              message="Edit your personal feed preferences here"
+              message={filterAlertMessage}
               placement={
                 sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom
               }

@@ -27,6 +27,8 @@ const items = [
   { title: 'Blocked items', icon: <BlockIcon />, component: <BlockedFilter /> },
 ];
 
+export const filterAlertMessage = 'Edit your personal feed preferences here';
+
 const HEADER_HEIGHT = 64;
 
 export default function FeedFilters({

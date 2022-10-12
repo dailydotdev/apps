@@ -121,30 +121,6 @@ it('should not render create my feed button if user has alerts.filter as false',
   expect(createMyFeed).not.toBeInTheDocument();
 });
 
-it('should remove the my feed alert if the user clicks the cross', async () => {
-  features = defaultFeatures;
-  let mutationCalled = false;
-  mockGraphQL({
-    request: {
-      query: UPDATE_ALERTS,
-      variables: { data: { myFeed: null } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { _: true } };
-    },
-  });
-  renderComponent({ filter: false, myFeed: 'created' });
-
-  const closeButton = await screen.findByTestId('alert-close');
-  closeButton.click();
-
-  await waitFor(() => {
-    expect(updateAlerts).toBeCalledWith({ filter: false, myFeed: null });
-    expect(mutationCalled).toBeTruthy();
-  });
-});
-
 it('should render the sidebar as open by default', async () => {
   renderComponent();
   const section = await screen.findByText('Discover');
@@ -191,43 +167,6 @@ it('should show the my feed items if the user has filters', async () => {
   renderComponent({ filter: false });
   const section = await screen.findByText('My feed');
   expect(section).toBeInTheDocument();
-});
-
-it('should show the migrated message if the user has existing filters', async () => {
-  features = defaultFeatures;
-  renderComponent({ filter: false, myFeed: 'migrated' });
-  const section = await screen.findByText(
-    `Psst, your feed has a new name! We've already applied your content filters to it.`,
-  );
-  expect(section).toBeInTheDocument();
-});
-
-it('should show the created message if the user added filters', async () => {
-  features = defaultFeatures;
-  renderComponent({ filter: false, myFeed: 'created' });
-  const section = await screen.findByText(
-    `🎉 Your feed is ready! Click here to manage your feed's settings`,
-  );
-  expect(section).toBeInTheDocument();
-});
-
-it('should not show the my feed alert if the user removed it', async () => {
-  features = defaultFeatures;
-  renderComponent({ filter: false, myFeed: null });
-  await waitFor(() =>
-    expect(
-      screen.queryByText(
-        `🎉 Your feed is ready! Click here to manage your feed's settings`,
-      ),
-    ).not.toBeInTheDocument(),
-  );
-  await waitFor(() =>
-    expect(
-      screen.queryByText(
-        `Psst, your feed has a new name! We've already applied your content filters to it.`,
-      ),
-    ).not.toBeInTheDocument(),
-  );
 });
 
 const sidebarItems = [
