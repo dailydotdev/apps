@@ -138,6 +138,7 @@ export class Features {
     'feed_filter_card_version',
     'v1',
     ['v1', 'v2'],
+  );
 
   static readonly AuthenticationVersion = new Features(
     'auth_version',
