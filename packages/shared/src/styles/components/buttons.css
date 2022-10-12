@@ -31,6 +31,10 @@
     border-radius: 0.875rem;
   }
 
+  &.bg-theme-color-cabbage {
+    color: var(--theme-label-primary);
+  }
+
   &:not(.iconOnly) {
     & .icon {
       margin-left: -0.5rem;
@@ -44,6 +48,9 @@
       &:only-child {
         margin-right: -0.5rem;
       }
+    }
+    & .socialIcon {
+      margin-right: 0.75rem;
     }
   }
 

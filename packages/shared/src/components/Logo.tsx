@@ -1,17 +1,24 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
 
 interface LogoProps {
-  showGreeting: boolean;
-  onLogoClick: (e: React.MouseEvent) => unknown;
+  className?: string;
+  logoClassName?: string;
+  showGreeting?: boolean;
+  onLogoClick?: (e: React.MouseEvent) => unknown;
+  hideTextMobile?: boolean;
 }
 
 export default function Logo({
+  className,
+  logoClassName = 'h-logo',
   showGreeting,
   onLogoClick,
+  hideTextMobile = false,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -21,15 +28,24 @@ export default function Logo({
       tooltip={{ placement: 'right', content: 'Home' }}
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-      <a className="flex items-center" onClick={onLogoClick}>
-        <LogoIcon className="h-logo" />
+      <a
+        className={classNames('flex items-center', className)}
+        onClick={onLogoClick}
+      >
+        <LogoIcon className={logoClassName} />
         <CSSTransition
           in={!showGreeting}
           timeout={500}
           classNames="fade"
           unmountOnExit
         >
-          <LogoText className="hidden laptop:block ml-1 h-logo" />
+          <LogoText
+            className={classNames(
+              'ml-1',
+              logoClassName,
+              hideTextMobile && 'hidden laptop:block',
+            )}
+          />
         </CSSTransition>
       </a>
     </LinkWithTooltip>

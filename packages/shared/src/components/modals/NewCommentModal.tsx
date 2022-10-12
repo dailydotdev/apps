@@ -17,7 +17,7 @@ import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button } from '../buttons/Button';
 import { Post } from '../../graphql/posts';
 import { ModalCloseButton } from './ModalCloseButton';
-import DiscardCommentModal from './DiscardCommentModal';
+import DiscardActionModal from './DiscardActionModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 interface CommentVariables {
@@ -162,7 +162,7 @@ export default function NewCommentModal({
         shouldMountInactive
         className="tablet:max-h-[40rem] grow tablet:grow-0"
       >
-        <Tab label="Write" className="flex flex-col flex-1">
+        <Tab label="Write" className="flex flex-col flex-1 p-3">
           <CommentBox
             {...props}
             onInput={setInput}
@@ -173,7 +173,10 @@ export default function NewCommentModal({
             sendComment={sendComment}
           />
         </Tab>
-        <Tab label="Preview" className="flex overflow-y-auto flex-col flex-1">
+        <Tab
+          label="Preview"
+          className="flex overflow-y-auto flex-col flex-1 p-3"
+        >
           {isPreview && previewContent?.preview && (
             <Markdown
               content={previewContent.preview}
@@ -192,10 +195,10 @@ export default function NewCommentModal({
           )}
         </Tab>
       </TabContainer>
-      <DiscardCommentModal
+      <DiscardActionModal
         isOpen={showDiscardModal}
         onRequestClose={() => setShowDiscardModal(false)}
-        onDeleteComment={onRequestClose}
+        rightButtonAction={onRequestClose}
         shouldCloseOnOverlayClick={false}
         parentSelector={props.parentSelector}
       />

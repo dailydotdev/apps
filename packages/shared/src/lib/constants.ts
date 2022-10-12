@@ -1,9 +1,8 @@
 declare const navigator: Navigator & { brave?: { isBrave: unknown } };
-export const faq = 'https://github.com/dailydotdev/daily/blob/master/FAQs.md';
+export const faq = 'https://docs.daily.dev/faqs';
 export const requestFeature =
-  'https://github.com/dailydotdev/daily/issues/new?assignees=&labels=Type%3A+Feature&template=---feature-request.md&title=%F0%9F%A7%A9+FEATURE+REQUEST%3A+';
-export const reportIssue =
-  'https://github.com/dailydotdev/daily/issues/new?assignees=&labels=Type%3A+Bug&template=---bug-report.md&title=%F0%9F%90%9B+BUG%3A+';
+  'https://github.com/dailydotdev/daily/discussions/new?category=feature-request';
+export const reportIssue = 'https://it057218.typeform.com/to/zN8B5Vog';
 export const termsOfService = 'https://daily.dev/tos';
 export const privacyPolicy = 'https://daily.dev/privacy/applications-policy';
 export const cookiePolicy = 'https://daily.dev/privacy/applications-cookies';
@@ -31,3 +30,9 @@ export const isBrave = (): boolean => {
   }
   return typeof navigator.brave?.isBrave === 'function';
 };
+
+export const authUrl =
+  process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
+export const heimdallUrl = isDevelopment
+  ? process.env.NEXT_PUBLIC_HEIMDALL_URL || 'http://127.0.0.1:3000'
+  : authUrl;

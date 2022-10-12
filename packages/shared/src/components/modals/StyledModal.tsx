@@ -18,7 +18,7 @@ export function StyledModal({
     <Modal
       portalClassName={className?.toString()}
       overlayClassName={classNames(
-        'overlay flex fixed flex-col justify-center inset-0 max-h-[100vh] items-center px-5 bg-theme-overlay-quaternary z-[10]',
+        'overlay flex fixed flex-col justify-center inset-0 max-h-[100vh] items-center px-5 bg-gradient-to-r to-theme-overlay-to from-theme-overlay-from z-[10]',
         overlayClassName,
       )}
       className={classNames(
