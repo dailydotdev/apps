@@ -33,22 +33,22 @@ export const providerMap: ProviderMap = {
   //   style: { backgroundColor: '#1D9BF0' },
   // },
   facebook: {
-    icon: <FacebookIcon />,
+    icon: <FacebookIcon className="socialIcon" />,
     provider: 'Facebook',
     style: { backgroundColor: '#4363B6' },
   },
   google: {
-    icon: <GoogleIcon secondary />,
+    icon: <GoogleIcon className="socialIcon" secondary />,
     provider: 'Google',
     style: { backgroundColor: '#FFFFFF', color: '#0E1217' },
   },
   github: {
-    icon: <GitHubIcon />,
+    icon: <GitHubIcon className="socialIcon" />,
     provider: 'GitHub',
     style: { backgroundColor: '#2D313A' },
   },
   apple: {
-    icon: <AppleIcon />,
+    icon: <AppleIcon className="socialIcon" />,
     provider: 'Apple',
     style: { backgroundColor: '#0E1217' },
   },

@@ -23,7 +23,10 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 
+let user = null;
+
 beforeEach(() => {
+  nock.cleanAll();
   jest.clearAllMocks();
 });
 
@@ -58,15 +61,15 @@ const renderComponent = (
   props: AuthOptionsProps = {
     onSuccessfulLogin,
     formRef: null,
+    trigger: 'test',
   },
 ): RenderResult => {
   const client = new QueryClient();
-  mockLoginFlow();
   mockRegistraitonFlow();
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={{ id: '123', infoConfirmed: true, providers: [] }}
+        user={user}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
@@ -82,7 +85,6 @@ const renderComponent = (
 
 const renderLogin = async (email: string) => {
   renderComponent();
-  await waitForNock();
   mockEmailCheck(email, true);
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
@@ -103,6 +105,7 @@ const renderLogin = async (email: string) => {
 
 it('should post login including token', async () => {
   const email = 'sshanzel@yahoo.com';
+  user = { id: '123', infoConfirmed: true, providers: [] };
   await renderLogin(email);
   fireEvent.input(screen.getByLabelText('Password'), {
     target: { value: '#123xAbc' },
@@ -118,6 +121,8 @@ it('should post login including token', async () => {
 
 it('should display error messages', async () => {
   const email = 'sshanzel@yahoo.com';
+  user = null;
+  await mockLoginFlow();
   await renderLogin(email);
 
   fireEvent.input(screen.getByLabelText('Password'), {
