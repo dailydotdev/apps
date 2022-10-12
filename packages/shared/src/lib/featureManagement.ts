@@ -19,8 +19,6 @@ export class Features {
     'Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.',
   );
 
-  static readonly MyFeedOn = new Features('my_feed_on');
-
   static readonly MyFeedButtonCopy = new Features(
     'my_feed_button_copy',
     'Choose tags',

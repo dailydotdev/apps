@@ -44,8 +44,8 @@ export default function MainFeedPage({
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
   const { placement } = useCompanionSettings('main feed page');
-  const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const { registerLocalFilters } = useMyFeed();
+  const [defaultFeed] = useDefaultFeed();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     setIsSearchOn(true);

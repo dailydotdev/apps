@@ -5,7 +5,6 @@ import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 import { BooleanPromise } from '../components/filters/common';
-import { useMyFeed } from './useMyFeed';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -36,21 +35,11 @@ export default function useTagAndSource({
   origin,
   postId,
 }: UseTagAndSourceProps): UseTagAndSource {
-  const { shouldShowMyFeed } = useMyFeed();
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const shouldShowLogin = (requireLogin?: boolean) => {
-    if (user) {
-      return false;
-    }
-
-    if (!shouldShowMyFeed) {
-      return true;
-    }
-
-    return requireLogin;
-  };
+  const shouldShowLogin = (requireLogin?: boolean) =>
+    user ? false : requireLogin;
 
   const {
     followTags,

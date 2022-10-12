@@ -9,7 +9,6 @@ import {
 export interface FeaturesData {
   flags: IFlags;
   showCommentPopover?: boolean;
-  shouldShowMyFeed?: boolean;
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
@@ -33,7 +32,6 @@ export const FeaturesContextProvider = ({
     () => ({
       flags,
       showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
-      shouldShowMyFeed: isFeaturedEnabled(Features.MyFeedOn, flags) ?? true,
       postEngagementNonClickable: isFeaturedEnabled(
         Features.PostEngagementNonClickable,
         flags,
