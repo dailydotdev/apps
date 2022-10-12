@@ -12,7 +12,7 @@ import { SearchField } from '../fields/SearchField';
 import { apiUrl } from '../../lib/config';
 import { getSearchTagsQueryKey } from '../../hooks/useMutateFilters';
 import { SearchTagsData, SEARCH_TAGS_QUERY } from '../../graphql/feedSettings';
-import TagCategoryDropdown from './TagCategoryDropdown';
+import TagCategoryDropdown, { TagCategoryLayout } from './TagCategoryDropdown';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
@@ -25,16 +25,22 @@ import MenuIcon from '../icons/Menu';
 import AuthContext from '../../contexts/AuthContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import classed from '../../lib/classed';
-
-interface TagsFilterProps extends FilterMenuProps {
-  version?: string;
-}
+import { HTMLElementComponent } from '../utilities';
 
 const TagsContainer = classed('div', 'grid grid-cols-1 gap-4 mx-6');
 
+interface TagsFilterProps extends FilterMenuProps {
+  tagCategoryLayout?: TagCategoryLayout;
+}
+
+const Container: Record<TagCategoryLayout, HTMLElementComponent> = {
+  settings: TagsContainer,
+  default: React.Fragment,
+};
+
 export default function TagsFilter({
   onUnblockItem,
-  version = 'v1',
+  tagCategoryLayout = TagCategoryLayout.Default,
 }: TagsFilterProps): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
@@ -77,12 +83,12 @@ export default function TagsFilter({
     });
   };
 
-  const isV1 = version === 'v1';
-  const Container = isV1 ? React.Fragment : TagsContainer;
+  const isSettings = tagCategoryLayout === TagCategoryLayout.Default;
+  const Component = Container[tagCategoryLayout];
 
   return (
     <div
-      className={classNames('flex flex-col', !isV1 && 'pb-6')}
+      className={classNames('flex flex-col', isSettings && 'pb-6')}
       aria-busy={isLoading}
       data-testid="tagsFilter"
     >
@@ -129,11 +135,11 @@ export default function TagsFilter({
           />
         </>
       )}
-      <Container>
+      <Component>
         {(!query || query.length <= 0) &&
           tagsCategories?.map((tagCategory) => (
             <TagCategoryDropdown
-              version={version}
+              layout={tagCategoryLayout}
               key={tagCategory.id}
               tagCategory={tagCategory}
               followedTags={followedTags}
@@ -143,7 +149,7 @@ export default function TagsFilter({
               onUnblockTags={tagUnblockAction}
             />
           ))}
-      </Container>
+      </Component>
     </div>
   );
 }

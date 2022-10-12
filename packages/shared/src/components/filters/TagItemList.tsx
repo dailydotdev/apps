@@ -1,11 +1,13 @@
 import React, { ReactElement } from 'react';
 import { Tag } from '../../graphql/feedSettings';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
+import { HTMLElementComponent } from '../utilities';
 import { FiltersList, FiltersGrid } from './common';
+import { TagCategoryLayout } from './TagCategoryDropdown';
 import TagItemRow from './TagItemRow';
 
 type TagItemListProps = {
-  version?: string;
+  tagCategoryLayout?: TagCategoryLayout;
   tags: Tag[] | Array<string>;
   rowIcon: ReactElement;
   tooltip: string;
@@ -18,8 +20,13 @@ type TagItemListProps = {
   options?: (event: React.MouseEvent, tag: string) => void;
 };
 
+const Container: Record<TagCategoryLayout, HTMLElementComponent> = {
+  settings: FiltersGrid,
+  default: FiltersList,
+};
+
 export default function TagItemList({
-  version,
+  tagCategoryLayout = TagCategoryLayout.Default,
   tags,
   rowIcon,
   tooltip,
@@ -31,10 +38,10 @@ export default function TagItemList({
   onUnblockTags,
   options,
 }: TagItemListProps): ReactElement {
-  const Container = version === 'v2' ? FiltersGrid : FiltersList;
+  const Component = Container[tagCategoryLayout];
 
   return (
-    <Container className={!tags?.length ? 'mt-0' : 'mt-3'}>
+    <Component className={!tags?.length ? 'mt-0' : 'mt-3'}>
       {!tags?.length && (
         <p className="mx-6 typo-callout text-theme-label-tertiary">
           {emptyText}
@@ -54,6 +61,6 @@ export default function TagItemList({
           onClick={options}
         />
       ))}
-    </Container>
+    </Component>
   );
 }

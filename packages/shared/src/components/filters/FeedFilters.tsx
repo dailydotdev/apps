@@ -6,6 +6,7 @@ import HashtagIcon from '../icons/Hashtag';
 import FilterIcon from '../icons/Filter';
 import BlockIcon from '../icons/Block';
 import TagsFilter from './TagsFilter';
+import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
 import CloseButton from '../modals/CloseButton';
@@ -17,7 +18,7 @@ const items = [
   {
     title: 'Manage tags',
     icon: <HashtagIcon />,
-    component: <TagsFilter version="v2" />,
+    component: <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />,
   },
   {
     title: 'Advanced',

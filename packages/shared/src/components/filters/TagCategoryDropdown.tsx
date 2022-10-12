@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { TagCategory } from '../../graphql/feedSettings';
 import ArrowIcon from '../icons/Arrow';
@@ -12,15 +12,17 @@ import {
   TagCategorySummary,
 } from './common';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
+import { HTMLElementComponent } from '../utilities';
 
 export enum TagCategoryLayout {
   Default = 'default',
   Settings = 'settings',
 }
 
-type Component<T = HTMLElement> = React.FC<HTMLAttributes<T>>;
-
-const ComponentsByLayout: Record<TagCategoryLayout, [Component, Component]> = {
+const ComponentsByLayout: Record<
+  TagCategoryLayout,
+  [HTMLElementComponent, HTMLElementComponent]
+> = {
   settings: [BaseTagCategorySummary, BaseTagCategoryDetails],
   default: [TagCategoryDetails, TagCategorySummary],
 };
