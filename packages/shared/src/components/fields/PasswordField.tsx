@@ -64,10 +64,12 @@ export function PasswordField({
       leftIcon={<LockIcon />}
       hint={!!value && showStrength ? hint : props.hint}
       validityChanged={setIsValid}
-      valid={isValid}
+      valid={isValid || !props.hint}
       className={{
         ...className,
-        hint: passwordStrengthStates[passwordStrengthLevel].className,
+        hint: shouldShowStrength
+          ? passwordStrengthStates[passwordStrengthLevel].className
+          : 'text-theme-status-error',
         baseField: shouldShowStrength && `password-${passwordStrengthLevel}`,
       }}
       progress={
