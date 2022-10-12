@@ -8,12 +8,20 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import { CustomSwitch } from '../fields/CustomSwitch';
 import { getFilterCardPreviews } from '../filters/FilterCardPreview';
 import { cloudinary } from '../../lib/image';
+import ThemeWidget from '../widgets/ThemeWidget';
 
 interface FeedFitlersModalProps extends ModalProps {
   trigger?: string;
 }
 
+const themes = [
+  { label: 'Dark', value: 'dark' },
+  { label: 'Light', value: 'light' },
+  { label: 'Auto', value: 'auto' },
+];
+
 function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
+  const [selectedTheme, setSelectedTheme] = useState('');
   const [isListMode, setIsListMode] = useState(false);
   const [selected, setSelected] = useState({});
   const { tagsCategories } = useFeedSettings();
@@ -104,8 +112,16 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
       <FeedFilterStep
         title="Your eyes don’t lie"
         description="Dark mode will less emit blue light from your screen - which can keep you awake if you use your device before you go to bed"
+        className={{ content: 'grid grid-cols-1 gap-6 mt-11 px-11' }}
       >
-        Test Sample Aaa
+        {themes.map((theme) => (
+          <ThemeWidget
+            key={theme.label}
+            option={theme}
+            onChange={(value) => setSelectedTheme(value)}
+            value={selectedTheme}
+          />
+        ))}
       </FeedFilterStep>
     </SteppedModal>
   );
