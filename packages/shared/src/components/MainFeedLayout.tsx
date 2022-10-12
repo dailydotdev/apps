@@ -35,11 +35,7 @@ import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import PointedAlert, { AlertPlacement } from './alert/PointedAlert';
-import { SimpleTooltip } from './tooltips/SimpleTooltip';
-import { Button } from './buttons/Button';
-import FilterIcon from './icons/Filter';
-import { filterAlertMessage } from './filters/FeedFilters';
+import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -278,24 +274,12 @@ export default function MainFeedLayout({
         <h3 className="flex flex-row flex-1 items-center typo-headline">
           {feedTitles[feedName]}
           {hasFiltered && (
-            <PointedAlert
-              offset={[12, 8]}
+            <FeedFilterMenuButton
               isAlertDisabled={!alerts.myFeed}
-              onClose={() => updateAlerts({ myFeed: null })}
-              className={{ label: 'w-44', message: 'ml-4' }}
-              message={filterAlertMessage}
-              placement={
-                sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom
-              }
-            >
-              <SimpleTooltip content="Feed filters">
-                <Button
-                  className={classNames('mx-3 btn-tertiary')}
-                  onClick={() => setIsFeedFiltersOpen(true)}
-                  icon={<FilterIcon />}
-                />
-              </SimpleTooltip>
-            </PointedAlert>
+              sidebarRendered={sidebarRendered}
+              onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
+              onUpdateAlerts={() => updateAlerts({ myFeed: null })}
+            />
           )}
         </h3>
         {navChildren}
