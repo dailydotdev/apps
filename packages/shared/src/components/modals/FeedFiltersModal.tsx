@@ -26,6 +26,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
     <SteppedModal
       {...props}
       contentClassName={step === 0 && 'overflow-y-hidden'}
+      style={{ content: { maxHeight: '40rem' } }}
       onStepChange={onStepChange}
       isLastStepLogin
     >
@@ -41,8 +42,14 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
         />
       </FeedFilterStep>
       <FeedFilterStep
-        title="Choose topics to follow"
-        description="Pick a few subjects that interest you. You can always change these later."
+        topIcon={
+          <img
+            className="mx-auto mb-6 w-16"
+            src={cloudinary.feedFilters.supercharge}
+            alt="test"
+          />
+        }
+        title="Let’s super-charge your feed with the content you actually read!"
         className={{ content: 'p-5 mt-1 grid grid-cols-3 gap-6' }}
       >
         {tagsCategories?.map((category, i) => (
