@@ -19,7 +19,7 @@ import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
+import { Alerts } from '../../graphql/alerts';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 
 let features: IFlags;
