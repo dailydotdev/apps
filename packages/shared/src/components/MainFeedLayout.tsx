@@ -54,10 +54,10 @@ type FeedQueryProps = {
 
 enum MainFeedPage {
   MyFeed = 'my-feed',
-  popular = 'popular',
-  search = 'search',
-  upvoted = 'upvoted',
-  discussed = 'discussed',
+  Popular = 'popular',
+  Search = 'search',
+  Upvoted = 'upvoted',
+  Discussed = 'discussed',
 }
 
 const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
@@ -158,10 +158,10 @@ export default function MainFeedLayout({
   const [myFeedMode, setMyFeedMode] = useState<MyFeedMode>(MyFeedMode.Manual);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedTitles = {
-    'my-feed': 'My feed',
-    popular: popularFeedCopy,
-    upvoted: 'Most upvoted',
-    discussed: 'Best discussions',
+    [MainFeedPage.MyFeed]: 'My feed',
+    [MainFeedPage.Popular]: popularFeedCopy,
+    [MainFeedPage.Upvoted]: 'Most upvoted',
+    [MainFeedPage.Discussed]: 'Best discussions',
   };
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
