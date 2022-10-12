@@ -22,12 +22,9 @@ import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
-import PointedAlert, {
-  AlertPlacement,
-} from '@dailydotdev/shared/src/components/alert/PointedAlert';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { companionAlertMessage, getCompanionWrapper } from './common';
+import { getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
 import { useCompanionPostComment } from './useCompanionPostComment';
 import CompanionToggle from './CompanionToggle';
@@ -186,19 +183,12 @@ export default function CompanionMenu({
 
   return (
     <div className="group flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-divider-quaternary bg-theme-bg-primary">
-      <PointedAlert
-        offset={[-4]}
-        className={{ message: 'bg-theme-bg-primary' }}
+      <CompanionToggle
+        companionState={companionState}
         isAlertDisabled={!showCompanionHelper}
-        placement={AlertPlacement.Left}
-        message={companionAlertMessage}
-      >
-        <CompanionToggle
-          companionState={companionState}
-          onToggleCompanion={toggleCompanion}
-          tooltipContainerProps={tooltipContainerProps}
-        />
-      </PointedAlert>
+        tooltipContainerProps={tooltipContainerProps}
+        onToggleCompanion={toggleCompanion}
+      />
       <SimpleTooltip
         placement="left"
         content={post?.upvoted ? 'Remove upvote' : 'Upvote'}
