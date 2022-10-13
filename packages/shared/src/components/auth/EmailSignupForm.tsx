@@ -40,8 +40,8 @@ function EmailSignupForm({
         }
       />
       {isV2 && (
-        <Button className="mt-4 bg-theme-color-avocado btn-primary">
-          Register
+        <Button className="mt-4 btn-primary text-theme-label-primary bg-theme-color-cabbage">
+          Sign up
         </Button>
       )}
       <p className="text-center text-theme-label-quaternary typo-caption1">
