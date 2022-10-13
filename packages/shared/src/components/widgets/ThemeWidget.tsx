@@ -17,7 +17,7 @@ const bg: Record<ThemeMode, ReactNode> = {
   dark: DarkNodeLayout,
   light: LightNodeLayout,
   auto: (
-    <ThemeWidgetBackground className="grid grid-cols-2 gap-4 pt-6 ml-auto w-32 rounded-14">
+    <ThemeWidgetBackground className="grid grid-cols-2 gap-4 pt-6 ml-auto w-36 rounded-14">
       {LightNode}
       {DarkNode}
     </ThemeWidgetBackground>

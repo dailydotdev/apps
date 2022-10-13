@@ -29,10 +29,10 @@ function ThemeWidgetBackground({
   );
 }
 
-const commonClasses = 'absolute right-0 bottom-0 pt-6 pl-7 rounded-14 w-32';
+const commonClasses = 'absolute right-0 bottom-0 pt-6 pl-7 rounded-14 w-36';
 const NodeContainer = classed(
   'span',
-  'flex flex-1 p-2 w-full h-full rounded-tl-14',
+  'flex flex-1 p-2 pl-4 w-full h-full rounded-tl-14',
 );
 
 export const DarkNode = (
