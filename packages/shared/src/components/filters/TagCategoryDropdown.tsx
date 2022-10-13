@@ -23,7 +23,7 @@ const ComponentsByLayout: Record<
   TagCategoryLayout,
   [HTMLElementComponent, HTMLElementComponent]
 > = {
-  settings: [BaseTagCategorySummary, BaseTagCategoryDetails],
+  settings: [BaseTagCategoryDetails, BaseTagCategorySummary],
   default: [TagCategoryDetails, TagCategorySummary],
 };
 
