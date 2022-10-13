@@ -55,13 +55,15 @@ const AuthDefault = ({
   disablePassword,
   isLoading,
   trigger,
-  title = isV2 ? 'Log in to daily.dev' : 'Sign up to daily.dev',
+  title,
   loginButton,
 }: AuthDefaultProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow || isV2);
 
-  const useTitle = shouldLogin ? 'Log in to daily.dev' : title;
+  const useTitle = shouldLogin
+    ? 'Log in to daily.dev'
+    : title || 'Sign up to daily.dev';
 
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
