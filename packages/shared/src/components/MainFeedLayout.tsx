@@ -107,6 +107,7 @@ export type MainFeedLayoutProps = {
   children?: ReactNode;
   searchChildren: ReactNode;
   navChildren?: ReactNode;
+  onFeedPageChanged: (page: MainFeedPage) => void;
 };
 
 const getQueryBasedOnLogin = (
@@ -146,6 +147,7 @@ export default function MainFeedLayout({
   children,
   searchChildren,
   navChildren,
+  onFeedPageChanged,
 }: MainFeedLayoutProps): ReactElement {
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -211,6 +213,9 @@ export default function MainFeedLayout({
     }
     setIsFirstSession(false);
     setCreateMyFeed(false);
+    if (user && !alerts.filter) {
+      onFeedPageChanged(MainFeedPage.MyFeed);
+    }
   };
 
   const isUpvoted = !isSearchOn && feedName === 'upvoted';

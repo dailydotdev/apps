@@ -118,6 +118,7 @@ export default function MainFeedPage({
           feedName={feedName}
           isSearchOn={isSearchOn}
           searchQuery={searchQuery}
+          onFeedPageChanged={onNavTabClick}
           searchChildren={
             <PostsSearch
               onSubmitQuery={async (query) => setSearchQuery(query)}
