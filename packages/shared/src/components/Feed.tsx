@@ -117,6 +117,7 @@ export default function Feed<T>({
 }: FeedProps<T>): ReactElement {
   const {
     postCardVersion,
+    postCardShareVersion,
     postModalByDefault,
     postEngagementNonClickable,
     showCommentPopover,
@@ -359,6 +360,7 @@ export default function Feed<T>({
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
+              postCardShareVersion={postCardShareVersion}
               postCardVersion={postCardVersion}
               postModalByDefault={postModalByDefault}
               postEngagementNonClickable={postEngagementNonClickable}

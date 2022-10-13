@@ -14,7 +14,7 @@ import OptionsButton from '../buttons/OptionsButton';
 import classed from '../../lib/classed';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
-import { AdditionalInteractionButtons } from '../../lib/featureValues';
+import { AdditionalInteractionButtons, ShareVersion } from '../../lib/featureValues';
 
 const ShareIcon = dynamic(() => import('../icons/Share'));
 
@@ -30,6 +30,7 @@ export interface ActionButtonsProps {
   children?: ReactNode;
   additionalInteractionButtonFeature?: string;
   insaneMode?: boolean;
+  postCardShareVersion?: ShareVersion;
   postCardVersion?: string;
   postModalByDefault?: boolean;
   postEngagementNonClickable?: boolean;
@@ -59,6 +60,7 @@ export default function ActionButtons({
   children,
   insaneMode,
   postCardVersion,
+  postCardShareVersion,
   postModalByDefault,
   postEngagementNonClickable,
   additionalInteractionButtonFeature,
@@ -79,7 +81,7 @@ export default function ActionButtons({
     ),
   };
 
-  const bookmarkOrShareButton =
+  let bookmarkOrShareButton =
     additionalInteractionButtonFeature ===
     AdditionalInteractionButtons.Bookmark ? (
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
@@ -101,6 +103,18 @@ export default function ActionButtons({
         />
       </SimpleTooltip>
     );
+  if (postCardShareVersion !== ShareVersion.Control) {
+      bookmarkOrShareButton = (
+        <SimpleTooltip content="Share post">
+        <Button
+          icon={<ShareIcon />}
+          buttonSize="small"
+          onClick={() => onShare?.(post)}
+          className="btn-tertiary-cabbage"
+          />
+      </SimpleTooltip>
+    );
+  }
 
   return (
     <div
@@ -168,7 +182,6 @@ export default function ActionButtons({
         )}
         {(!insaneMode || !postModalByDefault || postEngagementNonClickable) &&
           bookmarkOrShareButton}
-
         {(isV2 || insaneMode) && (
           <OptionsButton
             className={classNames(

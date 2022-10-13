@@ -28,6 +28,7 @@ import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
 import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
+import { ShareVersion } from '../../lib/featureValues';
 
 type Callback = (post: Post) => unknown;
 
@@ -68,6 +69,7 @@ export const PostCard = forwardRef(function PostCard(
     additionalInteractionButtonFeature,
     insaneMode,
     onReadArticleClick,
+    postCardShareVersion = ShareVersion.Control,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
@@ -180,6 +182,7 @@ export const PostCard = forwardRef(function PostCard(
           onShare={onShare}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
+          postCardShareVersion={postCardShareVersion}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
