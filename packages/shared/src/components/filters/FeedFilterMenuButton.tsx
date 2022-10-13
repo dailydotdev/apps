@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import FilterIcon from '../icons/Filter';
 import { Button } from '../buttons/Button';
-import PointedAlert, { AlertPlacement } from '../alert/PointedAlert';
+import AlertPointer, { AlertPlacement } from '../alert/AlertPointer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
@@ -21,7 +21,7 @@ function FeedFilterMenuButton({
   onOpenFeedFilters,
 }: FeedFilterMenuButtonProps): ReactElement {
   return (
-    <PointedAlert
+    <AlertPointer
       offset={[12, 8]}
       isAlertDisabled={isAlertDisabled}
       onClose={() => onUpdateAlerts({ myFeed: null })}
@@ -36,7 +36,7 @@ function FeedFilterMenuButton({
           icon={<FilterIcon />}
         />
       </SimpleTooltip>
-    </PointedAlert>
+    </AlertPointer>
   );
 }
 

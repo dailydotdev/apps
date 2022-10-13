@@ -5,9 +5,9 @@ import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/Simpl
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import classNames from 'classnames';
 import { BaseTooltipContainerProps } from '@dailydotdev/shared/src/components/tooltips/BaseTooltipContainer';
-import PointedAlert, {
+import AlertPointer, {
   AlertPlacement,
-} from '@dailydotdev/shared/src/components/alert/PointedAlert';
+} from '@dailydotdev/shared/src/components/alert/AlertPointer';
 import { companionAlertMessage } from './common';
 
 interface CompanionToggleProps {
@@ -27,7 +27,7 @@ function CompanionToggle({
   onToggleCompanion,
 }: CompanionToggleProps): ReactElement {
   return (
-    <PointedAlert
+    <AlertPointer
       offset={[-4]}
       className={{ message: 'bg-theme-bg-primary' }}
       isAlertDisabled={isAlertDisabled}
@@ -68,7 +68,7 @@ function CompanionToggle({
           onClick={onToggleCompanion}
         />
       </SimpleTooltip>
-    </PointedAlert>
+    </AlertPointer>
   );
 }
 

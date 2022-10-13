@@ -1,5 +1,5 @@
 import React from 'react';
-import { PointedAlertCopy } from '@dailydotdev/shared/src/components/alert/common';
+import { AlertPointerCopy } from '@dailydotdev/shared/src/components/alert/common';
 
 export const getCompanionWrapper = (): HTMLElement =>
   document
@@ -7,9 +7,9 @@ export const getCompanionWrapper = (): HTMLElement =>
     .shadowRoot.querySelector('#daily-companion-wrapper');
 
 export const companionAlertMessage = (
-  <PointedAlertCopy>
+  <AlertPointerCopy>
     Meet your new superpower! 🦸
     <br />
     We prepared a <strong>TLDR</strong> for you inside
-  </PointedAlertCopy>
+  </AlertPointerCopy>
 );

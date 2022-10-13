@@ -7,16 +7,16 @@ export const AlertBackground = classed(
 
 export const Alert = classed('div', 'relative p-4 border rounded-8');
 
-export const PointedAlertWrapper = classed(
+export const AlertPointerWrapper = classed(
   'div',
   'flex relative flex-row justify-center items-center',
 );
-export const PointedAlertContainer = classed(
+export const AlertPointerContainer = classed(
   'div',
   'flex absolute justify-center items-center w-max',
 );
-export const PointedAlertMessage = classed(
+export const AlertPointerMessage = classed(
   'div',
   'p-3 border rounded-10 flex flex-row font-normal relative',
 );
-export const PointedAlertCopy = classed('p', 'typo-subhead');
+export const AlertPointerCopy = classed('p', 'typo-subhead');

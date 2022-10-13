@@ -3,10 +3,10 @@ import classNames from 'classnames';
 import XIcon from '../icons/Close';
 import { Button } from '../buttons/Button';
 import {
-  PointedAlertMessage,
-  PointedAlertCopy,
-  PointedAlertWrapper,
-  PointedAlertContainer,
+  AlertPointerMessage,
+  AlertPointerCopy,
+  AlertPointerWrapper,
+  AlertPointerContainer,
 } from './common';
 import Pointer, { PointerColor } from './Pointer';
 
@@ -55,7 +55,7 @@ const getContainerStyle = (
   top: { top: yOffset },
 });
 
-export interface PointedAlertProps {
+export interface AlertPointerProps {
   className?: ClassName;
   children: ReactNode;
   message: ReactNode;
@@ -76,7 +76,7 @@ const getMessageStyle = (
   top: { marginTop: -length },
 });
 
-export default function PointedAlert({
+export default function AlertPointer({
   placement = AlertPlacement.Right,
   color = PointerColor.Cabbage,
   className = {},
@@ -85,7 +85,7 @@ export default function PointedAlert({
   offset,
   isAlertDisabled,
   onClose,
-}: PointedAlertProps): ReactElement {
+}: AlertPointerProps): ReactElement {
   const pointerRef = useRef<HTMLDivElement>();
   const rect = pointerRef?.current?.getBoundingClientRect?.();
 
@@ -94,9 +94,9 @@ export default function PointedAlert({
   }
 
   return (
-    <PointedAlertWrapper>
+    <AlertPointerWrapper>
       {children}
-      <PointedAlertContainer
+      <AlertPointerContainer
         style={getContainerStyle(offset)[placement]}
         className={classNames(
           alertContainerClasses[placement],
@@ -108,14 +108,14 @@ export default function PointedAlert({
           color={color}
           className={classNames(pointerClasses[placement], className.pointer)}
         />
-        <PointedAlertMessage
+        <AlertPointerMessage
           className={classNames(messageBorder[color], className.message)}
           style={getMessageStyle(rect?.height)[placement]}
         >
           {typeof message === 'string' ? (
-            <PointedAlertCopy className={className.label}>
+            <AlertPointerCopy className={className.label}>
               {message}
-            </PointedAlertCopy>
+            </AlertPointerCopy>
           ) : (
             message
           )}
@@ -128,8 +128,8 @@ export default function PointedAlert({
             style={{ position: 'absolute' }}
             className="top-2 right-2 btn-tertiary"
           />
-        </PointedAlertMessage>
-      </PointedAlertContainer>
-    </PointedAlertWrapper>
+        </AlertPointerMessage>
+      </AlertPointerContainer>
+    </AlertPointerWrapper>
   );
 }
