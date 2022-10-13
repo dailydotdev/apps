@@ -9,6 +9,7 @@ import { CustomSwitch } from '../fields/CustomSwitch';
 import { getFilterCardPreviews } from '../filters/FilterCardPreview';
 import { cloudinary } from '../../lib/image';
 import ThemeWidget from '../widgets/ThemeWidget';
+import { ThemeMode } from '../../contexts/SettingsContext';
 
 interface FeedFitlersModalProps extends ModalProps {
   trigger?: string;
@@ -21,7 +22,7 @@ const themes = [
 ];
 
 function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
-  const [selectedTheme, setSelectedTheme] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState(ThemeMode.Auto);
   const [isListMode, setIsListMode] = useState(false);
   const [selected, setSelected] = useState({});
   const { tagsCategories } = useFeedSettings();
@@ -118,8 +119,8 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
           <ThemeWidget
             key={theme.label}
             option={theme}
-            onChange={(value) => setSelectedTheme(value)}
             value={selectedTheme}
+            onChange={setSelectedTheme}
           />
         ))}
       </FeedFilterStep>

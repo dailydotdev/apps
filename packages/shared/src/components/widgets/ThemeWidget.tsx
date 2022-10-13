@@ -7,6 +7,7 @@ import { HTMLElementComponent } from '../utilities';
 
 interface ThemeWidgetProps extends Omit<RadioProps, 'options' | 'name'> {
   option: RadioOption;
+  onChange: (value: ThemeMode) => void;
 }
 
 const Background: HTMLElementComponent = ({ className }) => (
