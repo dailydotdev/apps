@@ -30,14 +30,11 @@ const items = [
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
-const HEADER_HEIGHT = 64;
-
 export default function FeedFilters({
   isOpen,
   onRequestClose,
   ...props
 }: ModalProps): ReactElement {
-  const [contentRef, setContentRef] = useState<HTMLDivElement>();
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [display, setDisplay] = useState<string>(items[0].title);
 
@@ -46,17 +43,6 @@ export default function FeedFilters({
     if (isNavOpen) {
       setIsNavOpen(false);
     }
-  };
-
-  const getHeight = () => {
-    if (!contentRef) {
-      return '100%';
-    }
-
-    const { height } = contentRef.getBoundingClientRect();
-    const result = height - HEADER_HEIGHT;
-
-    return result;
   };
 
   return (
@@ -68,7 +54,6 @@ export default function FeedFilters({
         isNavOpen && 'opened-nav',
         styles.feedFilters,
       )}
-      contentRef={setContentRef}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
     >
@@ -83,7 +68,7 @@ export default function FeedFilters({
           onClose={() => setIsNavOpen(false)}
         />
         <div className="flex flex-col flex-1 border-l border-theme-divider-tertiary">
-          <h2 className="flex relative flex-row items-center py-4 px-6 w-full font-bold border-b border-theme-divider-tertiary typo-title3">
+          <h2 className="flex sticky flex-row items-center py-4 px-6 w-full font-bold border-b border-theme-divider-tertiary typo-title3">
             <Button
               buttonSize="small"
               className="flex tablet:hidden mr-2 -rotate-90"
@@ -98,10 +83,7 @@ export default function FeedFilters({
               onClick={onRequestClose}
             />
           </h2>
-          <div
-            className="flex overflow-auto flex-col pt-6 h-full"
-            style={{ height: getHeight() }}
-          >
+          <div className="flex overflow-auto flex-col pt-6 h-full">
             {items.find(({ title }) => title === display)?.component}
           </div>
         </div>

@@ -177,7 +177,7 @@ export default function MainFeedLayout({
     flags,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
-  const isMyFeed = feedName === 'my-feed';
+  const isMyFeed = feedName === MainFeedPage.MyFeed;
 
   const [isFirstSession, setIsFirstSession, isSessionLoaded] =
     usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
