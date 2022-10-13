@@ -81,6 +81,7 @@ services:
       - GCLOUD_PROJECT=daily-staging
       - PORT=4000
       - API_URL=http://daily-api:5000
+      - PUBLIC_API_URL=http://daily-api:5000
       - API_SECRET=topsecret
       - SCRAPER_SECRET=topsecret
       - REDIS_HOST=daily-redis
