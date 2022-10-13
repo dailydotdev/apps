@@ -103,12 +103,15 @@ function ResetPassword(): ReactElement {
           you if your password is strong enough.
         </p>
         <PasswordField
+          required
+          minLength={6}
+          hint={hint}
+          showStrength={!hint}
+          onChange={() => hint && setHint('')}
           label="Create new password"
           inputId="password"
           type="password"
           name="password"
-          onChange={() => hint && setHint('')}
-          hint={hint}
         />
         <Button
           className={classNames(

@@ -144,7 +144,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const [defaultFeed] = useDefaultFeed(true);
+  const [defaultFeed] = useDefaultFeed();
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
   const { alerts } = useContext(AlertContext);

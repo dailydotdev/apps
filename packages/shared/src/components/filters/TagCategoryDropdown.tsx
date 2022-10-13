@@ -12,9 +12,23 @@ import {
   TagCategorySummary,
 } from './common';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
+import { HTMLElementComponent } from '../utilities';
+
+export enum TagCategoryLayout {
+  Default = 'default',
+  Settings = 'settings',
+}
+
+const ComponentsByLayout: Record<
+  TagCategoryLayout,
+  [HTMLElementComponent, HTMLElementComponent]
+> = {
+  settings: [BaseTagCategorySummary, BaseTagCategoryDetails],
+  default: [TagCategoryDetails, TagCategorySummary],
+};
 
 interface TagCategoryDropdownProps {
-  version?: string;
+  layout?: TagCategoryLayout;
   tagCategory: TagCategory;
   followedTags?: Array<string>;
   blockedTags?: Array<string>;
@@ -24,7 +38,7 @@ interface TagCategoryDropdownProps {
 }
 
 export default function TagCategoryDropdown({
-  version,
+  layout = TagCategoryLayout.Default,
   tagCategory,
   followedTags,
   blockedTags,
@@ -32,9 +46,8 @@ export default function TagCategoryDropdown({
   onUnfollowTags,
   onUnblockTags,
 }: TagCategoryDropdownProps): ReactElement {
-  const isV2 = version === 'v2';
-  const Container = isV2 ? BaseTagCategoryDetails : TagCategoryDetails;
-  const Summary = isV2 ? BaseTagCategorySummary : TagCategorySummary;
+  const isSettings = layout === TagCategoryLayout.Settings;
+  const [Container, Summary] = ComponentsByLayout[layout];
   const categoryFollowed = tagCategory.tags.some((tag) =>
     followedTags.includes(tag),
   );
@@ -43,8 +56,10 @@ export default function TagCategoryDropdown({
     <Container>
       <Summary
         className={classNames(
-          isV2 && 'py-5 px-4 rounded-14 bg-theme-divider-tertiary',
-          isV2 && categoryFollowed && 'border-l-4 border-theme-status-cabbage',
+          isSettings && 'py-5 px-4 rounded-14 bg-theme-divider-tertiary',
+          isSettings &&
+            categoryFollowed &&
+            'border-l-4 border-theme-status-cabbage',
         )}
       >
         <div className="flex items-center">
