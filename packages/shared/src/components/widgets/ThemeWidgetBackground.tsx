@@ -16,12 +16,13 @@ function ThemeWidgetBackground({
 }: ThemeWidgetBackgroundProps): ReactElement {
   return (
     <div
-      className={classNames('h-full', className)}
+      className={classNames(
+        'h-full bg-gradient-to-l from-[#C73EF407] to-[#3C44FF]',
+        className,
+      )}
       style={{
         ...style,
         paddingLeft: '28px',
-        background:
-          'linear-gradient(270deg, rgba(199, 62, 244, 0.07), rgba(60, 68, 255, 1)',
       }}
     >
       {children}
@@ -37,48 +38,30 @@ const NodeContainer = classed(
 
 export const DarkNode = (
   <NodeContainer
-    style={{
-      boxShadow: '-8px -8px 22px #00000040',
-      background:
-        'linear-gradient(270deg, rgba(0, 0, 0, 0.44), rgba(0, 0, 0, 1)',
-    }}
+    className="bg-gradient-to-l from-[#00000044] to-[#000000]"
+    style={{ boxShadow: '-8px -8px 22px #00000040' }}
   >
     <DailyIcon className="w-6 h-3" style={{ fill: '#FFFFFF' }} />
   </NodeContainer>
 );
 
 export const DarkNodeLayout = (
-  <ThemeWidgetBackground
-    className={commonClasses}
-    style={{
-      background:
-        'linear-gradient(270deg, rgba(0, 0, 0, 0.44), rgba(0, 0, 0, 1)',
-    }}
-  >
+  <ThemeWidgetBackground className={commonClasses}>
     {DarkNode}
   </ThemeWidgetBackground>
 );
 
 export const LightNode = (
   <NodeContainer
-    style={{
-      boxShadow: '-8px -8px 22px #FFFFFF40',
-      background:
-        'linear-gradient(270deg, rgba(255, 255, 255, 255.44), rgba(255, 255, 255, 1)',
-    }}
+    className="bg-gradient-to-l from-[#FFFFFF44] to-[#FFFFFF]"
+    style={{ boxShadow: '-8px -8px 22px #FFFFFF40' }}
   >
     <DailyIcon className="w-6 h-3" style={{ fill: '#000000' }} />
   </NodeContainer>
 );
 
 export const LightNodeLayout = (
-  <ThemeWidgetBackground
-    className={commonClasses}
-    style={{
-      background:
-        'linear-gradient(270deg, rgba(0, 0, 0, 0.44), rgba(0, 0, 0, 1)',
-    }}
-  >
+  <ThemeWidgetBackground className={commonClasses}>
     {LightNode}
   </ThemeWidgetBackground>
 );
