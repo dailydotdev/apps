@@ -8,6 +8,7 @@ import {
 } from '../hooks/useFeedSettings';
 import { AllTagCategoriesData } from '../graphql/feedSettings';
 import { Button, ButtonProps } from './buttons/Button';
+import { LoginTrigger } from '../lib/analytics';
 
 type TypeProps = {
   feedFilterModalType: string;
@@ -26,13 +27,13 @@ export default function CreateFeedFilterButton({
   const onCreate = () => {
     trackEvent({
       event_name: 'click',
-      target_type: 'create feed filters',
+      target_type: LoginTrigger.CreateFeedFilters,
       target_id: `feed-filters-${feedFilterModalType}`,
     });
     const key = getFeedSettingsQueryKey(user);
     const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
     updateLocalFeedSettings(feedSettings);
-    showLogin('create feed filters');
+    showLogin(LoginTrigger.CreateFeedFilters);
   };
   return (
     <Button {...props} type="submit" onClick={onCreate}>
