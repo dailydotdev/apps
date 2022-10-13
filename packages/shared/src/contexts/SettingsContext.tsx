@@ -19,8 +19,8 @@ import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 
 export enum ThemeMode {
-  Light = 'light',
   Dark = 'dark',
+  Light = 'light',
   Auto = 'auto',
 }
 

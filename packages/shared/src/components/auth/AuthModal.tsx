@@ -12,6 +12,7 @@ import DailyCircle from '../DailyCircle';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { LoginTrigger } from '../../lib/analytics';
 
 export type AuthModalProps = { trigger?: string } & ModalProps;
 
@@ -32,7 +33,9 @@ export default function AuthModal({
   ...props
 }: AuthModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [showOptionsOnly, setShowOptionsOnly] = useState(false);
+  const [showOptionsOnly, setShowOptionsOnly] = useState(
+    trigger === LoginTrigger.CreateFeedFilters,
+  );
   const [screenValue, setScreenValue] = useState<Display>(Display.Default);
   const { authVersion } = useContext(FeaturesContext);
   const { user, closeLogin, logout } = useContext(AuthContext);

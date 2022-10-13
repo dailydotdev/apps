@@ -1,39 +1,26 @@
-import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
 import { ThemeMode } from '../../contexts/SettingsContext';
-import classed from '../../lib/classed';
 import { Radio, RadioOption, RadioProps } from '../fields/Radio';
-import { HTMLElementComponent } from '../utilities';
+import ThemeWidgetBackground, {
+  DarkNode,
+  DarkNodeLayout,
+  LightNode,
+  LightNodeLayout,
+} from './ThemeWidgetBackground';
 
 interface ThemeWidgetProps extends Omit<RadioProps, 'options' | 'name'> {
   option: RadioOption;
   onChange: (value: ThemeMode) => void;
 }
 
-const Background: HTMLElementComponent = ({ className }) => (
-  <div
-    className={classNames(
-      'absolute right-0 bottom-0 rounded-tl-14 p-3 h-4/5 w-32 typo-footnote',
-      className,
-    )}
-  >
-    daily.dev
-  </div>
-);
-
-const DarkNode = classed(Background, 'bg-theme-label-invert');
-const LightNode = classed(
-  Background,
-  'bg-theme-label-primary text-theme-label-invert',
-);
 const bg: Record<ThemeMode, ReactNode> = {
-  dark: <DarkNode />,
-  light: <LightNode />,
+  dark: DarkNodeLayout,
+  light: LightNodeLayout,
   auto: (
-    <>
-      <DarkNode />
-      <LightNode className="translate-x-1/2" />
-    </>
+    <ThemeWidgetBackground className="grid grid-cols-2 gap-4 pt-6 ml-auto w-32 rounded-14">
+      {LightNode}
+      {DarkNode}
+    </ThemeWidgetBackground>
   ),
 };
 
