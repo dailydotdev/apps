@@ -9,17 +9,11 @@ import { CustomSwitch } from '../fields/CustomSwitch';
 import { getFilterCardPreviews } from '../filters/FilterCardPreview';
 import { cloudinary } from '../../lib/image';
 import ThemeWidget from '../widgets/ThemeWidget';
-import { ThemeMode } from '../../contexts/SettingsContext';
+import { ThemeMode, themes } from '../../contexts/SettingsContext';
 
 interface FeedFitlersModalProps extends ModalProps {
   trigger?: string;
 }
-
-const themes = [
-  { label: 'Dark', value: 'dark' },
-  { label: 'Light', value: 'light' },
-  { label: 'Auto', value: 'auto' },
-];
 
 function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
   const [selectedTheme, setSelectedTheme] = useState(ThemeMode.Auto);
