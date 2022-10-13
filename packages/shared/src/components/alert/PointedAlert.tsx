@@ -32,10 +32,11 @@ const messageBorder: Record<PointerColor, string> = {
   [PointerColor.Success]: 'border-theme-status-success',
 };
 
-const pointerClasses = {
-  [AlertPlacement.Top]: 'rotate-180',
-  [AlertPlacement.Right]: '-rotate-90',
-  [AlertPlacement.Left]: 'rotate-90',
+const pointerClasses: Record<AlertPlacement, string> = {
+  top: 'rotate-180',
+  right: '-rotate-90',
+  left: 'rotate-90',
+  bottom: '',
 };
 
 const alertContainerClasses: Record<AlertPlacement, string> = {
