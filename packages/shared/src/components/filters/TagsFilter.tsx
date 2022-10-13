@@ -23,7 +23,6 @@ import useTagAndSource, {
 import { FilterMenuProps } from './common';
 import MenuIcon from '../icons/Menu';
 import AuthContext from '../../contexts/AuthContext';
-import { useMyFeed } from '../../hooks/useMyFeed';
 import classed from '../../lib/classed';
 import { HTMLElementComponent } from '../utilities';
 
@@ -47,7 +46,6 @@ export default function TagsFilter({
   const searchKey = getSearchTagsQueryKey(query);
   const { user } = useContext(AuthContext);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
-  const { shouldShowMyFeed } = useMyFeed();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
@@ -73,7 +71,7 @@ export default function TagsFilter({
   }, [feedSettings]);
 
   const tagUnblockAction = ({ tags: [tag] }: TagActionArguments) => {
-    if (shouldShowMyFeed && !user) {
+    if (!user) {
       return onUnblockTags({ tags: [tag] });
     }
 

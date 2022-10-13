@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
@@ -15,7 +15,6 @@ import {
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
-import FeaturesContext from '../contexts/FeaturesContext';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
@@ -139,8 +138,7 @@ const onMutateSourcesSettings = async (
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
-  const { shouldShowMyFeed } = useContext(FeaturesContext);
-  const shouldFilterLocally = shouldShowMyFeed && !user;
+  const shouldFilterLocally = !user;
 
   const updateFeedFilters = ({ advancedSettings, ...filters }: FeedSettings) =>
     request(`${apiUrl}/graphql`, FEED_FILTERS_FROM_REGISTRATION, {

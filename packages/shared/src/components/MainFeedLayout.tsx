@@ -147,7 +147,7 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const [defaultFeed, updateDefaultFeed] = useDefaultFeed(true);
+  const [defaultFeed, updateDefaultFeed] = useDefaultFeed();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
