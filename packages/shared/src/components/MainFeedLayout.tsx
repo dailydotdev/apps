@@ -302,7 +302,7 @@ export default function MainFeedLayout({
         {sortingEnabled && isSortableFeed && (
           <Dropdown
             className={{
-              container: 'w-11 tablet:w-44',
+              container: 'w-12 tablet:w-44',
               chevron: 'hidden tablet:flex',
               label: 'hidden tablet:flex',
               menu: 'w-44',
