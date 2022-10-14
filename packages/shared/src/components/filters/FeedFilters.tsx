@@ -13,20 +13,14 @@ import CloseButton from '../modals/CloseButton';
 import styles from './FeedFilters.module.css';
 import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
+import { UnblockItem } from './FilterMenu';
+import UnblockModal from '../modals/UnblockModal';
 
-const items = [
-  {
-    title: 'Manage tags',
-    icon: <HashtagIcon />,
-    component: <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />,
-  },
-  {
-    title: 'Advanced',
-    icon: <FilterIcon />,
-    component: <AdvancedSettingsFilter />,
-  },
-  { title: 'Blocked items', icon: <BlockIcon />, component: <BlockedFilter /> },
-];
+enum FilterMenuTitle {
+  Tags = 'Manage tags',
+  Advanced = 'Advanced',
+  Blocked = 'Blocked items',
+}
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -36,8 +30,25 @@ export default function FeedFilters({
   ...props
 }: ModalProps): ReactElement {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [display, setDisplay] = useState<string>(items[0].title);
-
+  const [display, setDisplay] = useState<string>(FilterMenuTitle.Tags);
+  const [unblockItem, setUnblockItem] = useState<UnblockItem>();
+  const items = [
+    {
+      title: FilterMenuTitle.Tags,
+      icon: <HashtagIcon />,
+      component: <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />,
+    },
+    {
+      title: FilterMenuTitle.Advanced,
+      icon: <FilterIcon />,
+      component: <AdvancedSettingsFilter />,
+    },
+    {
+      title: FilterMenuTitle.Blocked,
+      icon: <BlockIcon />,
+      component: <BlockedFilter onUnblockItem={setUnblockItem} />,
+    },
+  ];
   const onNavClick = (active: string) => {
     setDisplay(active);
     if (isNavOpen) {
@@ -88,6 +99,14 @@ export default function FeedFilters({
           </div>
         </div>
       </div>
+      {unblockItem && (
+        <UnblockModal
+          item={unblockItem}
+          isOpen={!!unblockItem}
+          onConfirm={unblockItem.action}
+          onRequestClose={() => setUnblockItem(null)}
+        />
+      )}
     </StyledModal>
   );
 }
