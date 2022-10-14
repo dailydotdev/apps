@@ -57,7 +57,7 @@ export default function FeedFilters({
       isOpen={isOpen}
       onRequestClose={onRequestClose}
     >
-      <div className="flex overflow-hidden relative flex-col tablet:flex-row flex-1 bg-theme-bg-inherit">
+      <div className="flex overflow-hidden relative flex-col tablet:flex-row flex-1 max-h-[calc(100vh-4rem)] bg-theme-bg-inherit">
         <SidebarList
           className="z-1"
           active={display}
