@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
@@ -26,16 +27,16 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
-import { useMyFeed } from '../hooks/useMyFeed';
 import useDefaultFeed from '../hooks/useDefaultFeed';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import CreateMyFeedButton from './CreateMyFeedButton';
-import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
-import FeedFilters from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import useSidebarRendered from '../hooks/useSidebarRendered';
+import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
+import SortIcon from './icons/Sort';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -44,39 +45,43 @@ const FeedEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "feedEmpty" */ './FeedEmptyScreen'),
 );
 
+const FeedFilters = dynamic(
+  () =>
+    import(/* webpackChunkName: "feedFiltersModal" */ './filters/FeedFilters'),
+);
+
 type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
   variables?: Record<string, unknown>;
 };
 
-interface FeedOptionalParams {
-  shouldShowMyFeed?: boolean;
+enum MainFeedPage {
+  MyFeed = 'my-feed',
+  Popular = 'popular',
+  Search = 'search',
+  Upvoted = 'upvoted',
+  Discussed = 'discussed',
 }
 
-const getPropsByFeed = ({
-  shouldShowMyFeed = false,
-}: FeedOptionalParams = {}): Record<string, FeedQueryProps> => {
-  return {
-    'my-feed': {
-      query: ANONYMOUS_FEED_QUERY,
-      queryIfLogged: FEED_QUERY,
-    },
-    popular: {
-      query: ANONYMOUS_FEED_QUERY,
-      queryIfLogged: shouldShowMyFeed ? ANONYMOUS_FEED_QUERY : FEED_QUERY,
-    },
-    search: {
-      query: ANONYMOUS_FEED_QUERY,
-      queryIfLogged: FEED_QUERY,
-    },
-    upvoted: {
-      query: MOST_UPVOTED_FEED_QUERY,
-    },
-    discussed: {
-      query: MOST_DISCUSSED_FEED_QUERY,
-    },
-  };
+const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
+  'my-feed': {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: FEED_QUERY,
+  },
+  popular: {
+    query: ANONYMOUS_FEED_QUERY,
+  },
+  search: {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: FEED_QUERY,
+  },
+  upvoted: {
+    query: MOST_UPVOTED_FEED_QUERY,
+  },
+  discussed: {
+    query: MOST_DISCUSSED_FEED_QUERY,
+  },
 };
 
 const LayoutHeader = classed(
@@ -106,6 +111,7 @@ export type MainFeedLayoutProps = {
   children?: ReactNode;
   searchChildren: ReactNode;
   navChildren?: ReactNode;
+  onFeedPageChanged: (page: MainFeedPage) => void;
 };
 
 const getQueryBasedOnLogin = (
@@ -145,29 +151,25 @@ export default function MainFeedLayout({
   children,
   searchChildren,
   navChildren,
+  onFeedPageChanged,
 }: MainFeedLayoutProps): ReactElement {
-  const { shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const { sidebarRendered } = useSidebarRendered();
+  const { updateAlerts } = useContext(AlertContext);
+  const [defaultFeed, updateDefaultFeed] = useDefaultFeed();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { flags } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
-  const {
-    isLoaded,
-    isAnimated,
-    setLoaded: openFeedFilters,
-    setHidden,
-  } = useDynamicLoadedAnimation();
   const [createMyFeed, setCreateMyFeed] = useState(false);
   const [myFeedMode, setMyFeedMode] = useState<MyFeedMode>(MyFeedMode.Manual);
-
+  const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedTitles = {
-    'my-feed': 'My feed',
-    popular: popularFeedCopy,
-    upvoted: 'Most upvoted',
-    discussed: 'Best discussions',
+    [MainFeedPage.MyFeed]: 'My feed',
+    [MainFeedPage.Popular]: popularFeedCopy,
+    [MainFeedPage.Upvoted]: 'Most upvoted',
+    [MainFeedPage.Discussed]: 'Best discussions',
   };
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
@@ -178,15 +180,13 @@ export default function MainFeedLayout({
     flags,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
-  const isMyFeed = feedName === 'my-feed';
-  const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
+  const isMyFeed = feedName === MainFeedPage.MyFeed;
 
   const [isFirstSession, setIsFirstSession, isSessionLoaded] =
     usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
 
   useEffect(() => {
     if (user) {
-      setCreateMyFeed(false);
       setIsFirstSession(false);
       setMyFeedMode(MyFeedMode.Manual);
     } else if (
@@ -209,7 +209,7 @@ export default function MainFeedLayout({
     ) {
       updateDefaultFeed(feedName);
     }
-  }, [defaultFeed, feedName, shouldShowMyFeed]);
+  }, [defaultFeed, feedName]);
 
   const closeCreateMyFeedModal = () => {
     if (myFeedMode === MyFeedMode.Auto) {
@@ -219,6 +219,9 @@ export default function MainFeedLayout({
     }
     setIsFirstSession(false);
     setCreateMyFeed(false);
+    if (user && !alerts.filter) {
+      onFeedPageChanged(MainFeedPage.MyFeed);
+    }
   };
 
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
@@ -257,20 +260,38 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
+  const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
+
   const header = (
     <LayoutHeader className="flex-col">
-      {shouldShowMyFeed && alerts?.filter && (
+      {alerts?.filter && (
         <CreateMyFeedButton
           action={() => setCreateMyFeed(true)}
           flags={flags}
         />
       )}
-      <div className="flex flex-row flex-wrap gap-4 items-center mr-px w-full h-[3.125rem]">
-        <h3 className="flex flex-1 typo-headline">{feedTitles[feedName]}</h3>
+      <div
+        className={classNames(
+          'flex flex-row flex-wrap gap-4 items-center mr-px w-full',
+          alerts.filter || !alerts.myFeed ? 'h-14' : 'h-32 laptop:h-16',
+          !sidebarRendered && alerts.myFeed && 'content-start',
+        )}
+      >
+        <h3 className="flex flex-row flex-1 items-center typo-headline">
+          {feedTitles[feedName]}
+          {hasFiltered && (
+            <FeedFilterMenuButton
+              isAlertDisabled={!alerts.myFeed}
+              sidebarRendered={sidebarRendered}
+              onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
+              onUpdateAlerts={() => updateAlerts({ myFeed: null })}
+            />
+          )}
+        </h3>
         {navChildren}
         {isUpvoted && (
           <Dropdown
-            className="w-44"
+            className={{ container: 'w-44' }}
             buttonSize="large"
             icon={<CalendarIcon className="mr-2" />}
             selectedIndex={selectedPeriod}
@@ -280,10 +301,19 @@ export default function MainFeedLayout({
         )}
         {sortingEnabled && isSortableFeed && (
           <Dropdown
-            className="w-44"
+            className={{
+              container: 'w-12 tablet:w-44',
+              indicator: 'flex tablet:hidden',
+              chevron: 'hidden tablet:flex',
+              label: 'hidden tablet:flex',
+              menu: 'w-44',
+            }}
+            dynamicMenuWidth
+            shouldIndicateSelected
             buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
+            icon={<SortIcon size="medium" className="flex tablet:hidden" />}
             onChange={(_, index) => setSelectedAlgo(index)}
           />
         )}
@@ -331,7 +361,9 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      emptyScreen: <FeedEmptyScreen openFeedFilters={openFeedFilters} />,
+      emptyScreen: (
+        <FeedEmptyScreen openFeedFilters={() => setIsFeedFiltersOpen(true)} />
+      ),
       header: !isSearchOn && header,
     };
   }, [
@@ -354,17 +386,17 @@ export default function MainFeedLayout({
         {feedProps && <Feed {...feedProps} />}
         {children}
       </FeedPage>
-      {isLoaded && (
+      {isFeedFiltersOpen && (
         <FeedFilters
-          isOpen={isAnimated}
-          onBack={setHidden}
-          directlyOpenedTab="Manage tags"
+          isOpen
+          onRequestClose={() => setIsFeedFiltersOpen(false)}
         />
       )}
       {createMyFeed && (
         <CreateMyFeedModal
           version={myFeedOnboardingVersion}
           mode={myFeedMode}
+          hasUser={!!user}
           isOpen={createMyFeed}
           onRequestClose={closeCreateMyFeedModal}
         />

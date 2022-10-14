@@ -15,17 +15,27 @@ import {
 } from '@dailydotdev/react-contexify';
 import ArrowIcon from '../icons/Arrow';
 import styles from './Dropdown.module.css';
+import VIcon from '../icons/V';
+
+interface ClassName {
+  container?: string;
+  menu?: string;
+  label?: string;
+  chevron?: string;
+  indicator?: string;
+}
 
 export interface DropdownProps {
   icon?: ReactNode;
-  className?: string;
+  shouldIndicateSelected?: boolean;
+  dynamicMenuWidth?: boolean;
+  className?: ClassName;
   style?: CSSProperties;
   selectedIndex: number;
   options: string[];
   onChange: (value: string, index: number) => unknown;
   buttonSize?: 'small' | 'medium' | 'large' | 'select';
   scrollable?: boolean;
-  menuClassName?: string;
 }
 
 const getButtonSizeClass = (buttonSize: string): string => {
@@ -43,13 +53,14 @@ const getButtonSizeClass = (buttonSize: string): string => {
 
 export function Dropdown({
   icon,
-  className,
+  className = {},
   selectedIndex,
   options,
   onChange,
+  dynamicMenuWidth,
+  shouldIndicateSelected,
   buttonSize = 'large',
   scrollable = false,
-  menuClassName = 'menu-primary',
   ...props
 }: DropdownProps): ReactElement {
   const [id] = useState(`dropdown-${Math.random().toString(36).substring(7)}`);
@@ -99,7 +110,10 @@ export function Dropdown({
   };
 
   return (
-    <div className={classNames(styles.dropdown, className)} {...props}>
+    <div
+      className={classNames(styles.dropdown, className.container)}
+      {...props}
+    >
       <button
         type="button"
         ref={triggerRef}
@@ -114,7 +128,9 @@ export function Dropdown({
         aria-expanded={isVisible}
       >
         {icon}
-        <span className="flex flex-1 mr-1 truncate">
+        <span
+          className={classNames('flex flex-1 mr-1 truncate', className.label)}
+        >
           {options[selectedIndex]}
         </span>
         <ArrowIcon
@@ -122,16 +138,17 @@ export function Dropdown({
             'text-xl ml-auto transition-transform group-hover:text-theme-label-tertiary',
             isVisible ? 'rotate-0' : 'rotate-180',
             styles.chevron,
+            className.chevron,
           )}
         />
       </button>
       <Menu
         disableBoundariesCheck
         id={id}
-        className={`${scrollable && 'scrollable'} ${menuClassName}`}
+        className={classNames(className.menu || 'menu-primary', { scrollable })}
         animation="fade"
         onHidden={() => setVisibility(false)}
-        style={{ width: menuWidth }}
+        style={{ width: !dynamicMenuWidth && menuWidth }}
       >
         {options.map((option, index) => (
           <Item
@@ -140,6 +157,12 @@ export function Dropdown({
             data={{ value: option, index }}
           >
             {option}
+            {shouldIndicateSelected && selectedIndex === index && (
+              <VIcon
+                className={classNames('ml-auto', className.indicator)}
+                secondary
+              />
+            )}
           </Item>
         ))}
       </Menu>

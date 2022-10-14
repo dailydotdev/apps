@@ -6,15 +6,15 @@ interface ClassName {
   overlay?: string;
 }
 
-interface AlertContainerProps {
+interface AlertBannerProps {
   children: ReactNode;
   className?: ClassName;
 }
 
-function AlertContainer({
+function AlertBanner({
   children,
   className = {},
-}: AlertContainerProps): ReactElement {
+}: AlertBannerProps): ReactElement {
   return (
     <Alert className={className?.container}>
       <AlertBackground />
@@ -23,4 +23,4 @@ function AlertContainer({
   );
 }
 
-export default AlertContainer;
+export default AlertBanner;

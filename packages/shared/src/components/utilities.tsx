@@ -199,3 +199,5 @@ export const SecondaryCenteredBodyText = classed(
   'p',
   'typo-body text-theme-label-secondary text-center',
 );
+
+export type HTMLElementComponent<T = HTMLElement> = React.FC<HTMLAttributes<T>>;

@@ -21,15 +21,22 @@ export interface UnblockModalType {
   action?: () => unknown;
 }
 
-export const TagCategoryDetails = classed(
+export const BaseTagCategoryDetails = classed(
   'details',
-  'border-t border-b border-theme-divider-tertiary right-icon cursor-pointer',
+  'right-icon cursor-pointer',
 );
 
-export const TagCategorySummary = classed(
-  'summary',
-  'flex justify-between items-center p-6 pl-4 outline-none',
+export const TagCategoryDetails = classed(
+  BaseTagCategoryDetails,
+  'border-t border-b border-theme-divider-tertiary',
 );
+
+export const BaseTagCategorySummary = classed(
+  'summary',
+  'flex justify-between items-center outline-none',
+);
+
+export const TagCategorySummary = classed(BaseTagCategorySummary, 'p-6 pl-4');
 
 export const TagCategoryDetailsContent = classed(
   'div',
@@ -37,5 +44,5 @@ export const TagCategoryDetailsContent = classed(
 );
 
 export const FiltersList = classed('ul', 'flex flex-col p-0');
-
+export const FiltersGrid = classed('ul', 'grid grid-cols-1 gap-4');
 export const FilterItem = classed('li', 'flex items-center p-0');

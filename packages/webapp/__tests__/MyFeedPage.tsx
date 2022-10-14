@@ -19,15 +19,21 @@ import { NextRouter, useRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import { Alerts, UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
+import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
+import { filterAlertMessage } from '@dailydotdev/shared/src/components/filters/FeedFilters';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import MyFeed from '../pages/my-feed';
 
+let defaultAlerts: Alerts = { filter: true };
+const updateAlerts = jest.fn();
 const showLogin = jest.fn();
 
 beforeEach(() => {
+  defaultAlerts = { filter: true };
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(
@@ -89,21 +95,27 @@ const renderComponent = (
       <FeaturesContext.Provider
         value={{ flags: { my_feed_on: { enabled: true } } }}
       >
-        <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: false,
-            showLogin,
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            getRedirectUri: jest.fn(),
-          }}
+        <AlertContextProvider
+          alerts={defaultAlerts}
+          updateAlerts={updateAlerts}
+          loadedAlerts
         >
-          <SettingsContext.Provider value={settingsContext}>
-            {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
-          </SettingsContext.Provider>
-        </AuthContext.Provider>
+          <AuthContext.Provider
+            value={{
+              user,
+              shouldShowLogin: false,
+              showLogin,
+              logout: jest.fn(),
+              updateUser: jest.fn(),
+              tokenRefreshed: true,
+              getRedirectUri: jest.fn(),
+            }}
+          >
+            <SettingsContext.Provider value={settingsContext}>
+              {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+            </SettingsContext.Provider>
+          </AuthContext.Provider>
+        </AlertContextProvider>
       </FeaturesContext.Provider>
     </QueryClientProvider>,
   );
@@ -141,5 +153,44 @@ it('should request anonymous feed', async () => {
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
+  });
+});
+
+it('should show the created message if the user added filters', async () => {
+  defaultAlerts = { filter: false, myFeed: 'created' };
+  renderComponent();
+  const section = await screen.findByText(filterAlertMessage);
+  expect(section).toBeInTheDocument();
+});
+
+it('should not show the my feed alert if the user removed it', async () => {
+  defaultAlerts = { filter: false, myFeed: null };
+  renderComponent();
+  await waitFor(() =>
+    expect(screen.queryByText(filterAlertMessage)).not.toBeInTheDocument(),
+  );
+});
+
+it('should remove the my feed alert if the user clicks the cross', async () => {
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_ALERTS,
+      variables: { data: { myFeed: null } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
+  defaultAlerts = { filter: false, myFeed: 'created' };
+  renderComponent();
+
+  const closeButton = await screen.findByTestId('alert-close');
+  closeButton.click();
+
+  await waitFor(() => {
+    expect(updateAlerts).toBeCalledWith({ filter: false, myFeed: null });
+    expect(mutationCalled).toBeTruthy();
   });
 });

@@ -46,14 +46,13 @@ const AccountOthersPage = (): ReactElement => {
         <Dropdown
           icon={<Icon />}
           buttonSize="large"
-          className="mt-6 w-70"
+          className={{ container: 'mt-6 w-70', menu: 'menu-secondary' }}
           selectedIndex={timeZoneOptions.findIndex(
             (timeZone) => timeZone.value === userTimeZone,
           )}
           onChange={timezoneUpdated}
           options={timeZoneValues}
           scrollable
-          menuClassName="menu-secondary"
           data-testid="timezone_dropdown"
         />
       </AccountContentSection>
