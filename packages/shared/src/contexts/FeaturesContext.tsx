@@ -5,9 +5,11 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../lib/featureManagement';
+import { OnboardingStep } from '../components/onboarding/common';
 
 export interface FeaturesData {
   flags: IFlags;
+  onboardingSteps?: OnboardingStep[];
   feedFilterVersion?: string;
   feedFilterCardVersion?: string;
   showCommentPopover?: boolean;
@@ -30,9 +32,12 @@ export const FeaturesContextProvider = ({
   children,
   flags,
 }: FeaturesContextProviderProps): ReactElement => {
+  const steps = getFeatureValue(Features.OnboardingSteps, flags)?.split?.('/');
+  const onboardingSteps = (steps as OnboardingStep[]) || [];
   const features = useMemo(
     () => ({
       flags,
+      onboardingSteps,
       feedFilterVersion: getFeatureValue(Features.FeedFilterVersion, flags),
       feedFilterCardVersion: getFeatureValue(Features.FeedFilterVersion, flags),
       showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),

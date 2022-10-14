@@ -126,6 +126,11 @@ export class Features {
     ['control', 'v1', 'v2', 'v3'],
   );
 
+  static readonly OnboardingSteps = new Features(
+    'onboarding_steps',
+    'topics/layout/theme',
+  );
+
   static readonly FeedFilterVersion = new Features(
     'feed_filter_version',
     'v1',
