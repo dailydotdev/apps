@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import SteppedModal from './SteppedModal';
 import FeedTopicCard from '../containers/FeedTopicCard';
-import FeedFilterStep from '../containers/FeedFilterStep';
+import OnboardingStep from '../onboarding/OnboardingStep';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { CustomSwitch } from '../fields/CustomSwitch';
 import { getFilterCardPreviews } from '../filters/FilterCardPreview';
@@ -11,11 +11,11 @@ import { cloudinary } from '../../lib/image';
 import ThemeWidget from '../widgets/ThemeWidget';
 import { ThemeMode, themes } from '../../contexts/SettingsContext';
 
-interface FeedFitlersModalProps extends ModalProps {
+interface OnboardingModalProps extends ModalProps {
   trigger?: string;
 }
 
-function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
+function OnboardingModal(props: OnboardingModalProps): ReactElement {
   const [selectedTheme, setSelectedTheme] = useState(ThemeMode.Auto);
   const [isListMode, setIsListMode] = useState(false);
   const [selected, setSelected] = useState({});
@@ -33,7 +33,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
       onStepChange={onStepChange}
       isLastStepLogin
     >
-      <FeedFilterStep
+      <OnboardingStep
         title="Make the feed, your feed."
         description="Devs with a personal feed get 11.5x more relevant articles!"
         className={{ container: 'relative' }}
@@ -43,8 +43,8 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
           src={cloudinary.feedFilters.yourFeed}
           alt="cards containing tag name being selected"
         />
-      </FeedFilterStep>
-      <FeedFilterStep
+      </OnboardingStep>
+      <OnboardingStep
         topIcon={
           <img
             className="mx-auto mb-6 w-16"
@@ -63,8 +63,8 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
             onClick={() => setSelected({ ...selected, [i]: !selected[i] })}
           />
         ))}
-      </FeedFilterStep>
-      <FeedFilterStep
+      </OnboardingStep>
+      <OnboardingStep
         title="Cards or list?"
         description="daily content can be presented in cards or a list, choose what works for you the best"
         className={{
@@ -103,8 +103,8 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
           />
           {getFilterCardPreviews(6, isListMode)}
         </div>
-      </FeedFilterStep>
-      <FeedFilterStep
+      </OnboardingStep>
+      <OnboardingStep
         title="Your eyes don’t lie"
         description="Dark mode will emit less blue light from your screen - which can keep you awake if you use your device before you go to bed"
         className={{ content: 'grid grid-cols-1 gap-6 mt-11 px-11' }}
@@ -117,9 +117,9 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
             onChange={setSelectedTheme}
           />
         ))}
-      </FeedFilterStep>
+      </OnboardingStep>
     </SteppedModal>
   );
 }
 
-export default FeedFitlersModal;
+export default OnboardingModal;

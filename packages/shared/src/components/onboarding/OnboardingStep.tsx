@@ -7,7 +7,7 @@ interface ClassName {
   content?: string;
 }
 
-interface FeedFilterStepProps {
+interface OnboardingStepProps {
   topIcon?: ReactNode;
   title: string | ReactNode;
   description?: string;
@@ -15,25 +15,22 @@ interface FeedFilterStepProps {
   className?: ClassName;
 }
 
-const FeedFilterHeading = classed(
-  'h3',
-  'text-center typo-title2 font-bold px-4',
-);
+const OnboardingTitle = classed('h3', 'text-center typo-title2 font-bold px-4');
 
-function FeedFilterStep({
+function OnboardingStep({
   topIcon,
   title,
   description,
   children,
   className = {},
-}: FeedFilterStepProps): ReactElement {
+}: OnboardingStepProps): ReactElement {
   return (
     <div className={classNames('flex flex-col', className.container)}>
       {topIcon}
       {typeof title !== 'string' ? (
         title
       ) : (
-        <FeedFilterHeading>{title}</FeedFilterHeading>
+        <OnboardingTitle>{title}</OnboardingTitle>
       )}
       {description && (
         <p className="px-6 mt-3 text-center text-theme-label-secondary typo-body">
@@ -45,4 +42,4 @@ function FeedFilterStep({
   );
 }
 
-export default FeedFilterStep;
+export default OnboardingStep;
