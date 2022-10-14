@@ -36,6 +36,7 @@ import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
+import SortIcon from './icons/Sort';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -290,7 +291,7 @@ export default function MainFeedLayout({
         {navChildren}
         {isUpvoted && (
           <Dropdown
-            className="w-44"
+            className={{ container: 'w-44' }}
             buttonSize="large"
             icon={<CalendarIcon className="mr-2" />}
             selectedIndex={selectedPeriod}
@@ -300,10 +301,17 @@ export default function MainFeedLayout({
         )}
         {sortingEnabled && isSortableFeed && (
           <Dropdown
-            className="w-44"
+            className={{
+              container: 'w-11 tablet:w-44',
+              chevron: 'hidden tablet:flex',
+              label: 'hidden tablet:flex',
+              menu: 'w-44',
+            }}
+            dynamicMenuWidth
             buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
+            icon={<SortIcon size="medium" />}
             onChange={(_, index) => setSelectedAlgo(index)}
           />
         )}
