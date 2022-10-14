@@ -3,12 +3,28 @@ import classNames from 'classnames';
 import XIcon from './icons/Close';
 import { Button } from './buttons/Button';
 import { isTesting } from '../lib/constants';
-import { BannerData } from '../graphql/banner';
+import { BannerCustomTheme, BannerData, BannerTheme } from '../graphql/banner';
+import { Theme } from './utilities';
 
 interface PromotionalBannerProps {
   bannerData: BannerData;
   setLastSeen: (value: Date) => Promise<void>;
 }
+
+const classNamesByTheme: Record<BannerTheme, string[]> = {
+  [BannerCustomTheme.cabbageOnion]: ['bg-theme-color-cabbage bg-gradient-to-b', 'text-white', 'bg-white'],
+  [BannerCustomTheme.whitePepper]: ['bg-white', 'text-pepper-90', 'bg-theme-color-cabbage'],
+  [Theme.avocado]: ['bg-theme-color-avocado', 'text-pepper-90', 'bg-white'],
+  [Theme.bacon]: ['bg-theme-color-bacon', 'text-white', 'bg-white'],
+  [Theme.blueCheese]: ['bg-theme-color-blueCheese', 'text-pepper-90', 'bg-white'],
+  [Theme.bun]: ['bg-theme-color-bun', 'text-white', 'bg-white'],
+  [Theme.burger]: ['bg-theme-color-burger', 'text-pepper-90', 'bg-white'],
+  [Theme.cabbage]: ['bg-theme-color-cabbage', 'text-white', 'bg-white'],
+  [Theme.cheese]: ['bg-theme-color-cheese', 'text-pepper-90', 'bg-white'],
+  [Theme.ketchup]: ['bg-theme-color-ketchup', 'text-white', 'bg-white'],
+  [Theme.lettuce]: ['bg-theme-color-lettuce', 'text-pepper-90', 'bg-white'],
+}
+
 export default function PromotionalBanner({
   bannerData,
   setLastSeen,
@@ -23,14 +39,12 @@ export default function PromotionalBanner({
   }
 
   const { banner } = bannerData;
+  const [container, text, button] = classNamesByTheme[banner.theme] ?? classNamesByTheme[BannerCustomTheme.cabbageOnion];
   return (
     <div
       className={classNames(
         'relative z-3 laptop:fixed flex flex-col items-start py-3 pl-3 pr-12 typo-footnote laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0 w-full',
-        banner.theme === 'title-bacon' && 'text-theme-label-bun',
-        banner.theme === 'gradient-bacon-onion'
-          ? 'bg-theme-bg-bun'
-          : 'bg-theme-bg-primary',
+        container, text
       )}
     >
       <div>
@@ -43,9 +57,7 @@ export default function PromotionalBanner({
         buttonSize="xsmall"
         className={classNames(
           'mt-2 laptop:ml-4 laptop:mt-0',
-          banner.theme === 'cta-bacon-onion'
-            ? 'btn-primary-bacon'
-            : 'btn-primary',
+          button
         )}
       >
         {banner.cta}

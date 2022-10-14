@@ -1,10 +1,18 @@
 import { gql } from 'graphql-request';
+import { Theme } from '../components/utilities';
+
+export enum BannerCustomTheme {
+  cabbageOnion = 'cabbage-onion',
+  whitePepper = 'whitePepper',
+}
+
+export type BannerTheme = Theme | BannerCustomTheme;
 
 export type Banner = {
   timestamp: string;
   cta: string;
   subtitle: string;
-  theme: 'title-bacon' | 'gradient-bacon-onion' | 'cta-bacon-onion';
+  theme: BannerTheme;
   title: string;
   url: string;
 };
