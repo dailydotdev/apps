@@ -14,7 +14,7 @@ import { Source } from '../../graphql/sources';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
-interface UnblockItem {
+export interface UnblockItem {
   tag?: string;
   source?: Source;
   action?: () => unknown;
