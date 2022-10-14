@@ -303,15 +303,17 @@ export default function MainFeedLayout({
           <Dropdown
             className={{
               container: 'w-12 tablet:w-44',
+              indicator: 'flex tablet:hidden',
               chevron: 'hidden tablet:flex',
               label: 'hidden tablet:flex',
               menu: 'w-44',
             }}
             dynamicMenuWidth
+            shouldIndicateSelected
             buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
-            icon={<SortIcon size="medium" />}
+            icon={<SortIcon size="medium" className="flex tablet:hidden" />}
             onChange={(_, index) => setSelectedAlgo(index)}
           />
         )}

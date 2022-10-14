@@ -15,16 +15,19 @@ import {
 } from '@dailydotdev/react-contexify';
 import ArrowIcon from '../icons/Arrow';
 import styles from './Dropdown.module.css';
+import VIcon from '../icons/V';
 
 interface ClassName {
   container?: string;
   menu?: string;
   label?: string;
   chevron?: string;
+  indicator?: string;
 }
 
 export interface DropdownProps {
   icon?: ReactNode;
+  shouldIndicateSelected?: boolean;
   dynamicMenuWidth?: boolean;
   className?: ClassName;
   style?: CSSProperties;
@@ -55,6 +58,7 @@ export function Dropdown({
   options,
   onChange,
   dynamicMenuWidth,
+  shouldIndicateSelected,
   buttonSize = 'large',
   scrollable = false,
   ...props
@@ -153,6 +157,12 @@ export function Dropdown({
             data={{ value: option, index }}
           >
             {option}
+            {shouldIndicateSelected && selectedIndex === index && (
+              <VIcon
+                className={classNames('ml-auto', className.indicator)}
+                secondary
+              />
+            )}
           </Item>
         ))}
       </Menu>
