@@ -1,67 +1,32 @@
 import React, { ReactElement } from 'react';
-import FilterIcon from '../icons/Filter';
-import { Button } from '../buttons/Button';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-interface MyFeedButtonSharedProps {
+interface MyFeedButtonProps {
+  item: SidebarMenuItem;
   sidebarRendered?: boolean;
   sidebarExpanded: boolean;
-  action: () => unknown;
   isActive?: boolean;
   useNavButtonsNotLinks?: boolean;
 }
-type MyFeedButtonProps = MyFeedButtonSharedProps & {
-  item: SidebarMenuItem;
-};
-type FilteredMyFeedButtonProps = MyFeedButtonSharedProps & {
-  item: SidebarMenuItem;
-};
 
-const FilteredMyFeedButton = ({
+function MyFeedButton({
   item,
   sidebarExpanded,
-  action,
+  sidebarRendered,
   isActive,
   useNavButtonsNotLinks,
-}: FilteredMyFeedButtonProps) => {
+}: MyFeedButtonProps): ReactElement {
   return (
     <NavItem className="mt-6" active={isActive}>
       <ButtonOrLink item={item} useNavButtonsNotLinks={useNavButtonsNotLinks}>
         <ItemInner
           item={item}
-          sidebarExpanded={sidebarExpanded}
+          sidebarExpanded={sidebarExpanded || sidebarRendered === false}
           active={isActive}
         />
       </ButtonOrLink>
-      <SimpleTooltip placement="right" content="Feed filters">
-        <Button
-          iconOnly
-          className="mr-3 btn-tertiary"
-          buttonSize="xsmall"
-          icon={<FilterIcon />}
-          onClick={action}
-        />
-      </SimpleTooltip>
     </NavItem>
   );
-};
-
-export default function MyFeedButton({
-  item,
-  sidebarRendered,
-  sidebarExpanded,
-  action,
-  isActive,
-  useNavButtonsNotLinks,
-}: MyFeedButtonProps): ReactElement {
-  return (
-    <FilteredMyFeedButton
-      action={action}
-      sidebarExpanded={sidebarExpanded || sidebarRendered === false}
-      item={item}
-      isActive={isActive}
-      useNavButtonsNotLinks={useNavButtonsNotLinks}
-    />
-  );
 }
+
+export default MyFeedButton;

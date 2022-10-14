@@ -11,7 +11,6 @@ export interface FeaturesData {
   feedFilterVersion?: string;
   feedFilterCardVersion?: string;
   showCommentPopover?: boolean;
-  shouldShowMyFeed?: boolean;
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
@@ -37,7 +36,6 @@ export const FeaturesContextProvider = ({
       feedFilterVersion: getFeatureValue(Features.FeedFilterVersion, flags),
       feedFilterCardVersion: getFeatureValue(Features.FeedFilterVersion, flags),
       showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
-      shouldShowMyFeed: isFeaturedEnabled(Features.MyFeedOn, flags) ?? true,
       postEngagementNonClickable: isFeaturedEnabled(
         Features.PostEngagementNonClickable,
         flags,

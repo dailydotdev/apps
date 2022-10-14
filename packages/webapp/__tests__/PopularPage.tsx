@@ -1,7 +1,6 @@
 import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   ANONYMOUS_FEED_QUERY,
-  FEED_QUERY,
   RankingAlgorithm,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
@@ -103,22 +102,6 @@ const renderComponent = (
     </QueryClientProvider>,
   );
 };
-
-it('should request user feed', async () => {
-  renderComponent([
-    createFeedMock(defaultFeedPage, FEED_QUERY, {
-      first: 7,
-      loggedIn: true,
-      unreadOnly: false,
-      version: 1,
-      ranking: RankingAlgorithm.Popularity,
-    }),
-  ]);
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
-  });
-});
 
 it('should request anonymous feed', async () => {
   renderComponent(
