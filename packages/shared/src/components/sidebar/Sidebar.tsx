@@ -38,7 +38,6 @@ import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import MyFeedButton from './MyFeedButton';
-import MyFeedAlert from './MyFeedAlert';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
@@ -148,7 +147,7 @@ export default function Sidebar({
   const [defaultFeed] = useDefaultFeed();
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
-  const { alerts, updateAlerts } = useContext(AlertContext);
+  const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const {
     sidebarExpanded,
@@ -176,10 +175,6 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
-
-  const hideMyFeedAlert = () => {
-    updateAlerts({ myFeed: null });
-  };
 
   const trackAndToggleSidebarExpanded = () => {
     trackEvent({
@@ -318,8 +313,6 @@ export default function Sidebar({
     return <></>;
   }
 
-  const shouldHideMyFeedAlert = alerts?.filter || !alerts?.myFeed;
-
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -352,9 +345,6 @@ export default function Sidebar({
                 isActive={activePage === myFeedMenuItem.path}
                 useNavButtonsNotLinks={useNavButtonsNotLinks}
               />
-            )}
-            {sidebarExpanded && !shouldHideMyFeedAlert && (
-              <MyFeedAlert alerts={alerts} hideAlert={hideMyFeedAlert} />
             )}
             <RenderSection
               {...defaultRenderSectionProps}

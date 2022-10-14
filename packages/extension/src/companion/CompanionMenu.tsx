@@ -4,10 +4,7 @@ import UpvoteIcon from '@dailydotdev/shared/src/components/icons/Upvote';
 import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
-import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
@@ -25,12 +22,12 @@ import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
-
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { CompanionHelper, getCompanionWrapper } from './common';
+import { getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
 import { useCompanionPostComment } from './useCompanionPostComment';
+import CompanionToggle from './CompanionToggle';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -186,41 +183,12 @@ export default function CompanionMenu({
 
   return (
     <div className="group flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-divider-quaternary bg-theme-bg-primary">
-      {showCompanionHelper && <CompanionHelper />}
-      <SimpleTooltip
-        placement="left"
-        content={companionState ? 'Close summary' : 'Open summary'}
-        appendTo="parent"
-        container={tooltipContainerProps}
-      >
-        <Button
-          buttonSize="medium"
-          className={classNames(
-            companionState
-              ? 'btn-secondary'
-              : 'btn-tertiary group-hover:btn-secondary',
-          )}
-          icon={
-            <>
-              <LogoIcon
-                className={classNames(
-                  'w-6',
-                  companionState ? 'hidden' : 'group-hover:hidden',
-                )}
-              />
-              <ArrowIcon
-                className={classNames(
-                  'icon ',
-                  companionState
-                    ? 'block rotate-90'
-                    : 'hidden group-hover:block -rotate-90',
-                )}
-              />
-            </>
-          }
-          onClick={toggleCompanion}
-        />
-      </SimpleTooltip>
+      <CompanionToggle
+        companionState={companionState}
+        isAlertDisabled={!showCompanionHelper}
+        tooltipContainerProps={tooltipContainerProps}
+        onToggleCompanion={toggleCompanion}
+      />
       <SimpleTooltip
         placement="left"
         content={post?.upvoted ? 'Remove upvote' : 'Upvote'}

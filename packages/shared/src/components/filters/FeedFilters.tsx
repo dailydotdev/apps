@@ -28,6 +28,8 @@ const items = [
   { title: 'Blocked items', icon: <BlockIcon />, component: <BlockedFilter /> },
 ];
 
+export const filterAlertMessage = 'Edit your personal feed preferences here';
+
 export default function FeedFilters({
   isOpen,
   onRequestClose,

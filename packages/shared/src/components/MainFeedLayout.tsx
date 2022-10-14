@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
@@ -33,9 +34,8 @@ import CreateMyFeedButton from './CreateMyFeedButton';
 import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { SimpleTooltip } from './tooltips/SimpleTooltip';
-import { Button } from './buttons/Button';
-import FilterIcon from './icons/Filter';
+import useSidebarRendered from '../hooks/useSidebarRendered';
+import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -44,7 +44,10 @@ const FeedEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "feedEmpty" */ './FeedEmptyScreen'),
 );
 
-const FeedFilters = dynamic(() => import('./filters/FeedFilters'));
+const FeedFilters = dynamic(
+  () =>
+    import(/* webpackChunkName: "feedFiltersModal" */ './filters/FeedFilters'),
+);
 
 type FeedQueryProps = {
   query: string;
@@ -149,6 +152,8 @@ export default function MainFeedLayout({
   navChildren,
   onFeedPageChanged,
 }: MainFeedLayoutProps): ReactElement {
+  const { sidebarRendered } = useSidebarRendered();
+  const { updateAlerts } = useContext(AlertContext);
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
@@ -264,18 +269,22 @@ export default function MainFeedLayout({
           flags={flags}
         />
       )}
-      <div className="flex flex-row flex-wrap gap-4 items-center mr-px w-full h-[3.125rem]">
+      <div
+        className={classNames(
+          'flex flex-row flex-wrap gap-4 items-center mr-px w-full',
+          alerts.filter ? 'h-14' : 'h-32 laptop:h-16',
+          !sidebarRendered && 'content-start',
+        )}
+      >
         <h3 className="flex flex-row flex-1 items-center typo-headline">
           {feedTitles[feedName]}
           {hasFiltered && (
-            <SimpleTooltip placement="right" content="Feed filters">
-              <Button
-                iconOnly
-                className="mx-3 btn-tertiary"
-                icon={<FilterIcon />}
-                onClick={() => setIsFeedFiltersOpen(true)}
-              />
-            </SimpleTooltip>
+            <FeedFilterMenuButton
+              isAlertDisabled={!alerts.myFeed}
+              sidebarRendered={sidebarRendered}
+              onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
+              onUpdateAlerts={() => updateAlerts({ myFeed: null })}
+            />
           )}
         </h3>
         {navChildren}
