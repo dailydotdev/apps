@@ -57,7 +57,7 @@ export default function FeedFilters({
       isOpen={isOpen}
       onRequestClose={onRequestClose}
     >
-      <div className="flex overflow-hidden relative flex-col tablet:flex-row flex-1 max-h-[calc(100vh-4rem)] bg-theme-bg-inherit">
+      <div className="flex overflow-hidden relative flex-col tablet:flex-row flex-1 bg-theme-bg-inherit">
         <SidebarList
           className="z-1"
           active={display}
@@ -83,7 +83,7 @@ export default function FeedFilters({
               onClick={onRequestClose}
             />
           </h2>
-          <div className="flex overflow-auto flex-col pt-6 h-full">
+          <div className="flex overflow-auto flex-col py-6 h-full max-h-[calc(100vh-4rem)] tablet:max-h-[100%]">
             {items.find(({ title }) => title === display)?.component}
           </div>
         </div>
