@@ -83,7 +83,7 @@ export default function FeedFilters({
               onClick={onRequestClose}
             />
           </h2>
-          <div className="flex overflow-auto flex-col py-6 h-full max-h-[calc(100vh-4.125rem)] tablet:max-h-[100%]">
+          <div className="flex overflow-auto flex-col py-6 h-full max-h-[calc(100vh-4.125rem)] tablet:max-h-[calc(100%-3.875rem)]">
             {items.find(({ title }) => title === display)?.component}
           </div>
         </div>
