@@ -272,8 +272,8 @@ export default function MainFeedLayout({
       <div
         className={classNames(
           'flex flex-row flex-wrap gap-4 items-center mr-px w-full',
-          alerts.filter ? 'h-14' : 'h-32 laptop:h-16',
-          !sidebarRendered && 'content-start',
+          alerts.filter || !alerts.myFeed ? 'h-14' : 'h-32 laptop:h-16',
+          !sidebarRendered && alerts.myFeed && 'content-start',
         )}
       >
         <h3 className="flex flex-row flex-1 items-center typo-headline">
