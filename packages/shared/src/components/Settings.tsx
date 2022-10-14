@@ -10,7 +10,9 @@ import classNames from 'classnames';
 import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
 import { Switch } from './fields/Switch';
-import SettingsContext from '../contexts/SettingsContext';
+import SettingsContext, {
+  themes as layoutThemes,
+} from '../contexts/SettingsContext';
 import CardIcon from './icons/Card';
 import LineIcon from './icons/Line';
 import { CustomSwitch } from './fields/CustomSwitch';
@@ -87,11 +89,7 @@ export default function Settings({
     autoDismissNotifications,
     toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
-  const [themes, setThemes] = useState([
-    { label: 'Dark', value: 'dark' },
-    { label: 'Light', value: 'light' },
-    { label: 'Auto', value: 'auto' },
-  ]);
+  const [themes, setThemes] = useState(layoutThemes);
 
   const onToggleForLoggedInUsers = (
     onToggleFunc: () => Promise<void> | void,

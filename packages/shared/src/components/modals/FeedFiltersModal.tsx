@@ -8,12 +8,15 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import { CustomSwitch } from '../fields/CustomSwitch';
 import { getFilterCardPreviews } from '../filters/FilterCardPreview';
 import { cloudinary } from '../../lib/image';
+import ThemeWidget from '../widgets/ThemeWidget';
+import { ThemeMode, themes } from '../../contexts/SettingsContext';
 
 interface FeedFitlersModalProps extends ModalProps {
   trigger?: string;
 }
 
 function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
+  const [selectedTheme, setSelectedTheme] = useState(ThemeMode.Auto);
   const [isListMode, setIsListMode] = useState(false);
   const [selected, setSelected] = useState({});
   const { tagsCategories } = useFeedSettings();
@@ -26,6 +29,7 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
     <SteppedModal
       {...props}
       contentClassName={step === 0 && 'overflow-y-hidden'}
+      style={{ content: { maxHeight: '40rem' } }}
       onStepChange={onStepChange}
       isLastStepLogin
     >
@@ -41,8 +45,14 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
         />
       </FeedFilterStep>
       <FeedFilterStep
-        title="Choose topics to follow"
-        description="Pick a few subjects that interest you. You can always change these later."
+        topIcon={
+          <img
+            className="mx-auto mb-6 w-16"
+            src={cloudinary.feedFilters.supercharge}
+            alt="test"
+          />
+        }
+        title="Let’s super-charge your feed with the content you actually read!"
         className={{ content: 'p-5 mt-1 grid grid-cols-3 gap-6' }}
       >
         {tagsCategories?.map((category, i) => (
@@ -96,9 +106,17 @@ function FeedFitlersModal(props: FeedFitlersModalProps): ReactElement {
       </FeedFilterStep>
       <FeedFilterStep
         title="Your eyes don’t lie"
-        description="Dark mode will less emit blue light from your screen - which can keep you awake if you use your device before you go to bed"
+        description="Dark mode will emit less blue light from your screen - which can keep you awake if you use your device before you go to bed"
+        className={{ content: 'grid grid-cols-1 gap-6 mt-11 px-11' }}
       >
-        Test Sample Aaa
+        {themes.map((theme) => (
+          <ThemeWidget
+            key={theme.label}
+            option={theme}
+            value={selectedTheme}
+            onChange={setSelectedTheme}
+          />
+        ))}
       </FeedFilterStep>
     </SteppedModal>
   );

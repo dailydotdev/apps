@@ -7,3 +7,7 @@ export enum Origin {
   Feed = 'feed',
   PostContextMenu = 'post context menu',
 }
+
+export enum LoginTrigger {
+  CreateFeedFilters = 'create feed filters',
+}

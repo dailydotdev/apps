@@ -7,5 +7,7 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/recommended.png',
     yourFeed:
       'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/your_feed.png',
+    supercharge:
+      'https://daily-now-res.cloudinary.com/image/upload/v1665563545/public/supercharge.png',
   },
 };

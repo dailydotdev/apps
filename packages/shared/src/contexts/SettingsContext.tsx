@@ -15,13 +15,24 @@ import {
 } from '../graphql/settings';
 import AuthContext from './AuthContext';
 import { apiUrl } from '../lib/config';
+import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 
 export enum ThemeMode {
-  Light = 'light',
   Dark = 'dark',
+  Light = 'light',
   Auto = 'auto',
 }
+
+interface ThemeOption {
+  label: string;
+  value: ThemeMode;
+}
+
+export const themes: ThemeOption[] = Object.values(ThemeMode).map((theme) => ({
+  label: capitalize(theme),
+  value: theme,
+}));
 
 export type BookmarksSharing = {
   enabled: boolean;

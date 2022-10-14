@@ -2,9 +2,14 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { RadioItem } from './RadioItem';
 
+export interface RadioOption {
+  label: string;
+  value: string;
+}
+
 export type RadioProps = {
   name: string;
-  options: { label: string; value: string }[];
+  options: RadioOption[];
   value?: string;
   onChange: (value: string) => unknown;
   className?: string;
