@@ -83,7 +83,7 @@ export default function DndModal({
               valueChanged={(number) => setCustomNumber(parseInt(number, 10))}
             />
             <Dropdown
-              className="w-40"
+              className={{ container: 'w-40' }}
               options={customTimeOptions}
               selectedIndex={customTimeIndex}
               onChange={(_, index) => setCustomTimeIndex(index)}

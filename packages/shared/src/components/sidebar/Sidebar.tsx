@@ -25,7 +25,6 @@ import HotIcon from '../icons/Hot';
 import UpvoteIcon from '../icons/Upvote';
 import DiscussIcon from '../icons/Discuss';
 import SearchIcon from '../icons/Search';
-import FilterIcon from '../icons/Filter';
 import HomeIcon from '../icons/Home';
 import LinkIcon from '../icons/Link';
 import SettingsIcon from '../icons/Settings';
@@ -34,17 +33,13 @@ import EyeIcon from '../icons/Eye';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
 import AlertContext from '../../contexts/AlertContext';
-import FeedFilters from '../filters/FeedFilters';
-import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import MyFeedButton from './MyFeedButton';
-import MyFeedAlert from './MyFeedAlert';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
-import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
 import {
   Features,
@@ -149,18 +144,11 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const [defaultFeed] = useDefaultFeed();
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
-  const { alerts, updateAlerts } = useContext(AlertContext);
+  const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const {
-    isLoaded,
-    isAnimated,
-    setLoaded: openFeedFilters,
-    setHidden,
-  } = useDynamicLoadedAnimation();
   const {
     sidebarExpanded,
     toggleSidebarExpanded,
@@ -187,10 +175,6 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
-
-  const hideMyFeedAlert = () => {
-    updateAlerts({ myFeed: null });
-  };
 
   const trackAndToggleSidebarExpanded = () => {
     trackEvent({
@@ -243,19 +227,6 @@ export default function Sidebar({
       hideOnMobile: true,
     },
   ];
-  if (!shouldShowMyFeed) {
-    discoverMenuItems.unshift({
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <FilterIcon secondary={active} />} />
-      ),
-      alert: alerts.filter && (
-        <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
-      ),
-      title: 'Feed filters',
-      action: openFeedFilters,
-      hideOnMobile: true,
-    });
-  }
 
   const myFeedMenuItem: SidebarMenuItem = {
     icon: (active: boolean) => (
@@ -342,9 +313,6 @@ export default function Sidebar({
     return <></>;
   }
 
-  const shouldHideMyFeedAlert =
-    !shouldShowMyFeed || alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
-
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -369,18 +337,14 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {shouldShowMyFeed && !alerts?.filter && (
+            {!alerts?.filter && (
               <MyFeedButton
                 sidebarRendered={sidebarRendered}
                 sidebarExpanded={sidebarExpanded}
                 item={myFeedMenuItem}
-                action={openFeedFilters}
                 isActive={activePage === myFeedMenuItem.path}
                 useNavButtonsNotLinks={useNavButtonsNotLinks}
               />
-            )}
-            {sidebarExpanded && !shouldHideMyFeedAlert && (
-              <MyFeedAlert alerts={alerts} hideAlert={hideMyFeedAlert} />
             )}
             <RenderSection
               {...defaultRenderSectionProps}
@@ -436,7 +400,6 @@ export default function Sidebar({
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      {isLoaded && <FeedFilters isOpen={isAnimated} onBack={setHidden} />}
     </>
   );
 }

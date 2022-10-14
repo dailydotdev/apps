@@ -1,70 +1,93 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import FilterMenu from './FilterMenu';
-import CloseIcon from '../icons/Close';
-import PlusIcon from '../icons/Plus';
-import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import AuthContext from '../../contexts/AuthContext';
-import AlertContext from '../../contexts/AlertContext';
-import { useMyFeed } from '../../hooks/useMyFeed';
-import CreateFeedFilterButton from '../CreateFeedFilterButton';
+import { ModalProps, StyledModal } from '../modals/StyledModal';
+import SidebarList from '../sidebar/SidebarList';
+import HashtagIcon from '../icons/Hashtag';
+import FilterIcon from '../icons/Filter';
+import BlockIcon from '../icons/Block';
+import TagsFilter from './TagsFilter';
+import { TagCategoryLayout } from './TagCategoryDropdown';
+import AdvancedSettingsFilter from './AdvancedSettings';
+import BlockedFilter from './BlockedFilter';
+import CloseButton from '../modals/CloseButton';
+import styles from './FeedFilters.module.css';
+import ArrowIcon from '../icons/Arrow';
+import { Button } from '../buttons/Button';
 
-interface FeedFiltersProps {
-  directlyOpenedTab?: string;
-  isOpen?: boolean;
-  onBack?: () => void;
-}
+const items = [
+  {
+    title: 'Manage tags',
+    icon: <HashtagIcon />,
+    component: <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />,
+  },
+  {
+    title: 'Advanced',
+    icon: <FilterIcon />,
+    component: <AdvancedSettingsFilter />,
+  },
+  { title: 'Blocked items', icon: <BlockIcon />, component: <BlockedFilter /> },
+];
+
+export const filterAlertMessage = 'Edit your personal feed preferences here';
 
 export default function FeedFilters({
-  directlyOpenedTab,
   isOpen,
-  onBack,
-}: FeedFiltersProps): ReactElement {
-  const { alerts, updateAlerts } = useContext(AlertContext);
-  const { user } = useContext(AuthContext);
-  const { hasAnyFilter } = useFeedSettings();
-  const { shouldShowMyFeed } = useMyFeed();
+  onRequestClose,
+  ...props
+}: ModalProps): ReactElement {
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [display, setDisplay] = useState<string>(items[0].title);
 
-  useEffect(() => {
-    if (isOpen && alerts?.filter && hasAnyFilter && user && !shouldShowMyFeed) {
-      updateAlerts({ filter: false });
+  const onNavClick = (active: string) => {
+    setDisplay(active);
+    if (isNavOpen) {
+      setIsNavOpen(false);
     }
-  }, [isOpen, alerts, user, hasAnyFilter]);
-
-  const openedTab =
-    (shouldShowMyFeed && alerts?.filter && 'Manage tags') || directlyOpenedTab;
+  };
 
   return (
-    <aside
-      className={classNames(
-        'fixed top-0 laptop:top-14 left-0 z-3 bottom-0 self-stretch bg-theme-bg-primary rounded-r-2xl border-t border-r border-theme-divider-primary overflow-y-auto',
-        'transition-transform duration-200 ease-linear delay-100 w-[22.25rem]',
-        isOpen ? 'translate-x-0' : '-translate-x-96 pointer-events-none',
+    <StyledModal
+      {...props}
+      overlayClassName={classNames('py-12', styles.feedFiltersOverlay)}
+      contentClassName={classNames(
+        'w-full h-full flex flex-row',
+        isNavOpen && 'opened-nav',
+        styles.feedFilters,
       )}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
     >
-      <div
-        className={classNames(
-          menuItemClassNames,
-          'border-b border-theme-divider-tertiary flex-row justify-between',
-        )}
-      >
-        <button onClick={onBack} type="button">
-          <CloseIcon
-            size="medium"
-            className="text-2xl -rotate-90 text-theme-label-tertiary"
-          />
-        </button>
-        {shouldShowMyFeed && !user && (
-          <CreateFeedFilterButton
-            className="btn-primary-avocado"
-            icon={<PlusIcon />}
-            buttonSize="small"
-            feedFilterModalType="v1"
-          />
-        )}
+      <div className="flex overflow-hidden relative flex-col tablet:flex-row flex-1 bg-theme-bg-inherit">
+        <SidebarList
+          className="z-1"
+          active={display}
+          title="Feed filters"
+          onItemClick={onNavClick}
+          items={items}
+          isOpen={isNavOpen}
+          onClose={() => setIsNavOpen(false)}
+        />
+        <div className="flex flex-col flex-1 border-l border-theme-divider-tertiary">
+          <h2 className="flex sticky flex-row items-center py-4 px-6 w-full font-bold border-b border-theme-divider-tertiary typo-title3">
+            <Button
+              buttonSize="small"
+              className="flex tablet:hidden mr-2 -rotate-90"
+              icon={<ArrowIcon />}
+              onClick={() => setIsNavOpen(true)}
+            />
+            {display}
+            <CloseButton
+              style={{ position: 'absolute' }}
+              className="right-2"
+              buttonSize="medium"
+              onClick={onRequestClose}
+            />
+          </h2>
+          <div className="flex overflow-auto flex-col py-6 h-full max-h-[calc(100vh-4.125rem)] tablet:max-h-[calc(100%-3.875rem)]">
+            {items.find(({ title }) => title === display)?.component}
+          </div>
+        </div>
       </div>
-      <FilterMenu directlyOpenedTab={openedTab} />
-    </aside>
+    </StyledModal>
   );
 }

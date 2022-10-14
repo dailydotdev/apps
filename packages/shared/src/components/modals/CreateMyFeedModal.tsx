@@ -12,6 +12,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { MyFeedMode } from '../../graphql/feed';
 
 interface GetFooterButtonProps {
+  hasUser: boolean;
   showIntro: boolean;
   version: string;
   onSkip?: React.MouseEventHandler;
@@ -20,11 +21,16 @@ interface GetFooterButtonProps {
 const getFooterButton = ({
   showIntro,
   version,
+  hasUser,
   onSkip,
   onContinue,
 }: GetFooterButtonProps): ReactElement => {
   if (!showIntro) {
-    return (
+    return hasUser ? (
+      <Button className="btn-primary-cabbage" onClick={onSkip}>
+        Done
+      </Button>
+    ) : (
       <CreateFeedFilterButton
         className="w-40 btn-primary-cabbage"
         feedFilterModalType="v4"
@@ -58,10 +64,12 @@ const closableVariants = ['control', 'v3'];
 interface CreateMyFeedModalProps extends ModalProps {
   version?: string;
   mode?: string;
+  hasUser: boolean;
 }
 export default function CreateMyFeedModal({
   mode = MyFeedMode.Manual,
   version = 'control',
+  hasUser,
   className,
   onRequestClose,
   ...modalProps
@@ -125,6 +133,7 @@ export default function CreateMyFeedModal({
         {getFooterButton({
           showIntro,
           version,
+          hasUser,
           onSkip: onRequestClose,
           onContinue: () => setShowIntro(false),
         })}
