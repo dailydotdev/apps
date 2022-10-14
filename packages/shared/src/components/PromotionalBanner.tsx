@@ -12,7 +12,8 @@ interface PromotionalBannerProps {
 }
 
 const classNamesByTheme: Record<BannerTheme, string[]> = {
-  [BannerCustomTheme.cabbageOnion]: ['bg-theme-color-cabbage bg-gradient-to-b', 'text-white', 'bg-white text-pepper-90'],
+  [BannerCustomTheme.cabbageOnion]: [
+    'from-theme-color-cabbage to-theme-color-onion bg-gradient-to-r', 'text-white', 'bg-white text-pepper-90'],
   [BannerCustomTheme.whitePepper]: ['bg-white', 'text-pepper-90', 'bg-theme-color-cabbage'],
   [Theme.avocado]: ['bg-theme-color-avocado', 'text-pepper-90', 'bg-white text-pepper-90'],
   [Theme.bacon]: ['bg-theme-color-bacon', 'text-white', 'bg-white text-pepper-90'],
