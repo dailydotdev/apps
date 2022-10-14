@@ -12,18 +12,18 @@ interface PromotionalBannerProps {
 }
 
 const classNamesByTheme: Record<BannerTheme, string[]> = {
-  [BannerCustomTheme.cabbageOnion]: [
+  [BannerCustomTheme.CabbageOnion]: [
     'from-theme-color-cabbage to-theme-color-onion bg-gradient-to-r', 'text-white', 'bg-white text-pepper-90'],
-  [BannerCustomTheme.whitePepper]: ['bg-white', 'text-pepper-90', 'bg-theme-color-cabbage'],
-  [Theme.avocado]: ['bg-theme-color-avocado', 'text-pepper-90', 'bg-white text-pepper-90'],
-  [Theme.bacon]: ['bg-theme-color-bacon', 'text-white', 'bg-white text-pepper-90'],
-  [Theme.blueCheese]: ['bg-theme-color-blueCheese', 'text-pepper-90', 'bg-white text-pepper-90'],
-  [Theme.bun]: ['bg-theme-color-bun', 'text-white', 'bg-white text-pepper-90'],
-  [Theme.burger]: ['bg-theme-color-burger', 'text-white', 'bg-white text-pepper-90'],
-  [Theme.cabbage]: ['bg-theme-color-cabbage', 'text-white', 'bg-white text-pepper-90'],
-  [Theme.cheese]: ['bg-theme-color-cheese', 'text-pepper-90', 'bg-white text-pepper-90'],
-  [Theme.ketchup]: ['bg-theme-color-ketchup', 'text-white', 'bg-white text-pepper-90'],
-  [Theme.lettuce]: ['bg-theme-color-lettuce', 'text-pepper-90', 'bg-white text-pepper-90'],
+  [BannerCustomTheme.WhitePepper]: ['bg-white', 'text-pepper-90', 'bg-theme-color-cabbage'],
+  [Theme.Avocado]: ['bg-theme-color-avocado', 'text-pepper-90', 'bg-white text-pepper-90'],
+  [Theme.Bacon]: ['bg-theme-color-bacon', 'text-white', 'bg-white text-pepper-90'],
+  [Theme.BlueCheese]: ['bg-theme-color-blueCheese', 'text-pepper-90', 'bg-white text-pepper-90'],
+  [Theme.Bun]: ['bg-theme-color-bun', 'text-white', 'bg-white text-pepper-90'],
+  [Theme.Burger]: ['bg-theme-color-burger', 'text-white', 'bg-white text-pepper-90'],
+  [Theme.Cabbage]: ['bg-theme-color-cabbage', 'text-white', 'bg-white text-pepper-90'],
+  [Theme.Cheese]: ['bg-theme-color-cheese', 'text-pepper-90', 'bg-white text-pepper-90'],
+  [Theme.Ketchup]: ['bg-theme-color-ketchup', 'text-white', 'bg-white text-pepper-90'],
+  [Theme.Lettuce]: ['bg-theme-color-lettuce', 'text-pepper-90', 'bg-white text-pepper-90'],
 }
 
 export default function PromotionalBanner({
@@ -40,7 +40,7 @@ export default function PromotionalBanner({
   }
 
   const { banner } = bannerData;
-  const [container, text, button] = classNamesByTheme[banner.theme] ?? classNamesByTheme[BannerCustomTheme.cabbageOnion];
+  const [container, text, button] = classNamesByTheme[banner.theme] ?? classNamesByTheme[BannerCustomTheme.CabbageOnion];
   return (
     <div
       className={classNames(

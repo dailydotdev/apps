@@ -5,15 +5,15 @@ import ArrowIcon from './icons/Arrow';
 import { PostBootData } from '../lib/boot';
 
 export enum Theme {
-  avocado = 'avocado',
-  bacon = 'bacon',
-  blueCheese = 'blue-cheese',
-  bun = 'bun',
-  burger = 'burger',
-  cabbage = 'cabbage',
-  cheese = 'cheese',
-  ketchup = 'ketchup',
-  lettuce = 'lettuce',
+  Avocado = 'avocado',
+  Bacon = 'bacon',
+  BlueCheese = 'blue-cheese',
+  Bun = 'bun',
+  Burger = 'burger',
+  Cabbage = 'cabbage',
+  Cheese = 'cheese',
+  Ketchup = 'ketchup',
+  Lettuce = 'lettuce',
 }
 
 export interface ThemeColor {

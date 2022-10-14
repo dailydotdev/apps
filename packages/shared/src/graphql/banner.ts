@@ -2,8 +2,8 @@ import { gql } from 'graphql-request';
 import { Theme } from '../components/utilities';
 
 export enum BannerCustomTheme {
-  cabbageOnion = 'cabbage-onion',
-  whitePepper = 'whitePepper',
+  CabbageOnion = 'cabbage-onion',
+  WhitePepper = 'white-pepper',
 }
 
 export type BannerTheme = Theme | BannerCustomTheme;
