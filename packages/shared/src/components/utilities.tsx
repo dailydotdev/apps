@@ -4,6 +4,18 @@ import styles from './utilities.module.css';
 import ArrowIcon from './icons/Arrow';
 import { PostBootData } from '../lib/boot';
 
+export enum Theme {
+  Avocado = 'avocado',
+  Bacon = 'bacon',
+  BlueCheese = 'blue-cheese',
+  Bun = 'bun',
+  Burger = 'burger',
+  Cabbage = 'cabbage',
+  Cheese = 'cheese',
+  Ketchup = 'ketchup',
+  Lettuce = 'lettuce',
+}
+
 export interface ThemeColor {
   border: string;
   shadow: string;
