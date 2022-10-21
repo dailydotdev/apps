@@ -70,7 +70,7 @@ To spin up a full-blown local environment, we use [Garden](https://garden.io/). 
 
 It's time to spin up the environment using garden. Run the following in the apps repo using your favorite terminal:
 * `garden deploy`. Deploys all services, runs migrations, and everything needed.
-* `garden exec api "node bin/import.js"`. Seeds the database with sample data.
+* `garden exec api "npm run db:seed:import"`. Seeds the database with sample data.
 
 You should see your ingress URL in the terminal if everything is done correctly.
 <img width="446" alt="image" src="https://user-images.githubusercontent.com/1993245/185791096-bf90cae0-b0e4-4a32-bb60-1fb5ce7ca360.png">
