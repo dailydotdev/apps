@@ -25,7 +25,7 @@ function OnboardingStep({
   className = {},
 }: OnboardingStepProps): ReactElement {
   return (
-    <div className={classNames('flex flex-col', className.container)}>
+    <div className={classNames('flex flex-col pt-8', className.container)}>
       {topIcon}
       {typeof title !== 'string' ? (
         title
