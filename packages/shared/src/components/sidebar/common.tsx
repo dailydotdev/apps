@@ -2,19 +2,15 @@ import React, {
   ReactNode,
   ReactElement,
   HTMLAttributeAnchorTarget,
-  HTMLAttributes,
 } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
-import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import ArrowIcon from '../icons/Arrow';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 
 export interface SidebarProps {
   promotionalBannerActive?: boolean;
-  useNavButtonsNotLinks?: boolean;
+  isNavButtons?: boolean;
   sidebarRendered?: boolean;
   openMobileSidebar?: boolean;
   activePage?: string;
@@ -43,14 +39,6 @@ export interface SidebarMenuItem {
   tooltip?: TooltipProps;
 }
 
-interface ButtonOrLinkProps
-  extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
-  item: SidebarMenuItem;
-  useNavButtonsNotLinks?: boolean;
-  children?: ReactNode;
-  showLogin?: () => unknown;
-}
-
 interface ListIconProps {
   Icon: React.ComponentType<{ className }>;
 }
@@ -60,12 +48,6 @@ interface ItemInnerProps {
   sidebarExpanded: boolean;
   active?: boolean;
 }
-
-interface MenuIconProps {
-  sidebarExpanded: boolean;
-  toggleSidebarExpanded: () => void;
-}
-
 interface NavItemProps {
   color?: string;
   active?: boolean;
@@ -73,7 +55,7 @@ interface NavItemProps {
   className?: string;
 }
 
-export const btnClass =
+export const navBtnClass =
   'flex flex-1 items-center pl-2 laptop:pl-0 pr-5 laptop:pr-3 h-10 laptop:h-7';
 export const SidebarBackdrop = classed(
   'div',
@@ -154,64 +136,6 @@ export const ItemInner = ({
   );
 };
 
-export const ButtonOrLink = ({
-  item,
-  useNavButtonsNotLinks,
-  showLogin,
-  children,
-  ...props
-}: ButtonOrLinkProps): ReactElement => {
-  if (showLogin) {
-    return (
-      <button {...props} type="button" className={btnClass} onClick={showLogin}>
-        {children}
-      </button>
-    );
-  }
-  return (!useNavButtonsNotLinks && !item.action) ||
-    (item.path && !useNavButtonsNotLinks) ? (
-    <Link href={item.path} passHref prefetch={false}>
-      <a
-        {...props}
-        target={item?.target}
-        className={btnClass}
-        rel="noopener noreferrer"
-      >
-        {children}
-      </a>
-    </Link>
-  ) : (
-    <button {...props} type="button" className={btnClass} onClick={item.action}>
-      {children}
-    </button>
-  );
-};
-
-export const MenuIcon = ({
-  sidebarExpanded,
-  toggleSidebarExpanded,
-}: MenuIconProps): ReactElement => (
-  <SimpleTooltip
-    placement="right"
-    content={`${sidebarExpanded ? 'Close' : 'Open'} sidebar`}
-  >
-    <Button
-      onClick={toggleSidebarExpanded}
-      position="absolute"
-      className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
-        sidebarExpanded &&
-        'transition-opacity invisible group-hover:visible opacity-0 group-hover:opacity-100'
-      }`}
-      buttonSize="xsmall"
-    >
-      <ArrowIcon
-        className={`typo-title3 ${
-          sidebarExpanded ? '-rotate-90' : 'rotate-90'
-        }`}
-      />
-    </Button>
-  </SimpleTooltip>
-);
 export const NavItem = ({
   className,
   color,
@@ -234,3 +158,9 @@ export const NavItem = ({
     </RawNavItem>
   );
 };
+
+export interface SectionProps {
+  sidebarExpanded: boolean;
+  sidebarRendered: boolean;
+  activePage: string;
+}

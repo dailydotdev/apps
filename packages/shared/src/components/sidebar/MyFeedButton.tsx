@@ -1,30 +1,49 @@
 import React, { ReactElement } from 'react';
-import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
+import { Alerts } from '../../graphql/alerts';
+import { AlertColor, AlertDot } from '../AlertDot';
+import HomeIcon from '../icons/Home';
+import { ClickableNavItem } from './ClickableNavItem';
+import { ItemInner, ListIcon, NavItem, SidebarMenuItem } from './common';
 
 interface MyFeedButtonProps {
-  item: SidebarMenuItem;
   sidebarRendered?: boolean;
   sidebarExpanded: boolean;
-  isActive?: boolean;
-  useNavButtonsNotLinks?: boolean;
+  activePage?: string;
+  isButton?: boolean;
+  alerts: Alerts;
+  onNavTabClick?: (page: string) => void;
 }
 
 function MyFeedButton({
-  item,
   sidebarExpanded,
   sidebarRendered,
-  isActive,
-  useNavButtonsNotLinks,
+  activePage,
+  isButton,
+  alerts,
+  onNavTabClick,
 }: MyFeedButtonProps): ReactElement {
+  const myFeedMenuItem: SidebarMenuItem = {
+    icon: (active: boolean) => (
+      <ListIcon Icon={() => <HomeIcon secondary={active} />} />
+    ),
+    title: 'My feed',
+    path: '/my-feed',
+    alert: (alerts.filter || alerts.myFeed) && !sidebarExpanded && (
+      <AlertDot className="top-0 right-2.5" color={AlertColor.Success} />
+    ),
+    action: () => onNavTabClick?.('my-feed'),
+  };
+  const isActive = activePage === myFeedMenuItem.path;
+
   return (
     <NavItem className="mt-6" active={isActive}>
-      <ButtonOrLink item={item} useNavButtonsNotLinks={useNavButtonsNotLinks}>
+      <ClickableNavItem item={myFeedMenuItem} isButton={isButton}>
         <ItemInner
-          item={item}
+          item={myFeedMenuItem}
           sidebarExpanded={sidebarExpanded || sidebarRendered === false}
           active={isActive}
         />
-      </ButtonOrLink>
+      </ClickableNavItem>
     </NavItem>
   );
 }
