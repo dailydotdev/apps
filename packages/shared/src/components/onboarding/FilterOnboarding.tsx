@@ -6,12 +6,12 @@ import { TagCategory } from '../../graphql/feedSettings';
 
 interface FilterOnboardingProps {
   tagsCategories: TagCategory[];
-  selected: Record<string | number, boolean>;
-  onSelectedChange: (key: string | number) => void;
+  selectedId: Record<string, boolean>;
+  onSelectedChange: (id: string) => void;
 }
 
 function FilterOnboarding({
-  selected,
+  selectedId,
   tagsCategories,
   onSelectedChange,
 }: FilterOnboardingProps): ReactElement {
@@ -27,12 +27,12 @@ function FilterOnboarding({
       title="Let’s super-charge your feed with the content you actually read!"
       className={{ content: 'p-5 mt-1 grid grid-cols-3 gap-6' }}
     >
-      {tagsCategories?.map((category, index) => (
+      {tagsCategories?.map((category) => (
         <FeedTopicCard
           key={category.title}
           topic={category}
-          isActive={selected[index]}
-          onClick={() => onSelectedChange(index)}
+          isActive={selectedId[category.id]}
+          onClick={() => onSelectedChange(category.id)}
         />
       ))}
     </OnboardingStep>
