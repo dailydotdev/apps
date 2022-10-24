@@ -67,6 +67,7 @@ export default function CreateMyFeedButton({
           buttonSize="small"
           icon={<PlusIcon />}
           onClick={onClick}
+          data-testid="create_myfeed"
         >
           {buttonCopy}
         </Button>

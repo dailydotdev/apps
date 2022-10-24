@@ -206,7 +206,9 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               link="https://docs.daily.dev/docs/your-profile/weekly-goal"
             >
               <Dropdown
-                className="hidden laptop:block ml-auto w-32 min-w-fit"
+                className={{
+                  container: 'hidden laptop:block ml-auto w-32 min-w-fit',
+                }}
                 selectedIndex={selectedHistoryYear}
                 options={dropdownOptions}
                 onChange={(val, index) => setSelectedHistoryYear(index)}

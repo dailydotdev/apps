@@ -2,7 +2,6 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { act } from '@testing-library/react-hooks';
 import { IFlags } from 'flagsmith';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
@@ -16,19 +15,12 @@ import {
   mockGraphQL,
   MockedGraphQLResponse,
 } from '../../../__tests__/helpers/graphql';
-import {
-  AllTagCategoriesData,
-  FEED_SETTINGS_QUERY,
-} from '../../graphql/feedSettings';
+import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
+import { Alerts } from '../../graphql/alerts';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import {
-  getFeedSettingsQueryKey,
-  getHasAnyFilter,
-} from '../../hooks/useFeedSettings';
 
 let features: IFlags;
 let client: QueryClient;
@@ -129,64 +121,6 @@ it('should not render create my feed button if user has alerts.filter as false',
   expect(createMyFeed).not.toBeInTheDocument();
 });
 
-it('should remove filter alert if the user has filters and opened feed filters', async () => {
-  features = {
-    my_feed_on: {
-      enabled: false,
-    },
-  };
-  let mutationCalled = false;
-  mockGraphQL({
-    request: {
-      query: UPDATE_ALERTS,
-      variables: { data: { filter: false } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { _: true } };
-    },
-  });
-  renderComponent({ filter: true });
-
-  await act(async () => {
-    const feedFilters = await screen.findByText('Feed filters');
-    feedFilters.click();
-  });
-
-  await waitFor(() => {
-    const key = getFeedSettingsQueryKey(defaultUser);
-    const data = client.getQueryData(key) as AllTagCategoriesData;
-    expect(getHasAnyFilter(data.feedSettings)).toBeTruthy();
-  });
-
-  expect(updateAlerts).toBeCalledWith({ filter: false });
-  expect(mutationCalled).toBeTruthy();
-});
-
-it('should remove the my feed alert if the user clicks the cross', async () => {
-  features = defaultFeatures;
-  let mutationCalled = false;
-  mockGraphQL({
-    request: {
-      query: UPDATE_ALERTS,
-      variables: { data: { myFeed: null } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { _: true } };
-    },
-  });
-  renderComponent({ filter: false, myFeed: 'created' });
-
-  const closeButton = await screen.findByTestId('alert-close');
-  closeButton.click();
-
-  await waitFor(() => {
-    expect(updateAlerts).toBeCalledWith({ filter: false, myFeed: null });
-    expect(mutationCalled).toBeTruthy();
-  });
-});
-
 it('should render the sidebar as open by default', async () => {
   renderComponent();
   const section = await screen.findByText('Discover');
@@ -233,43 +167,6 @@ it('should show the my feed items if the user has filters', async () => {
   renderComponent({ filter: false });
   const section = await screen.findByText('My feed');
   expect(section).toBeInTheDocument();
-});
-
-it('should show the migrated message if the user has existing filters', async () => {
-  features = defaultFeatures;
-  renderComponent({ filter: false, myFeed: 'migrated' });
-  const section = await screen.findByText(
-    `Psst, your feed has a new name! We've already applied your content filters to it.`,
-  );
-  expect(section).toBeInTheDocument();
-});
-
-it('should show the created message if the user added filters', async () => {
-  features = defaultFeatures;
-  renderComponent({ filter: false, myFeed: 'created' });
-  const section = await screen.findByText(
-    `🎉 Your feed is ready! Click here to manage your feed's settings`,
-  );
-  expect(section).toBeInTheDocument();
-});
-
-it('should not show the my feed alert if the user removed it', async () => {
-  features = defaultFeatures;
-  renderComponent({ filter: false, myFeed: null });
-  await waitFor(() =>
-    expect(
-      screen.queryByText(
-        `🎉 Your feed is ready! Click here to manage your feed's settings`,
-      ),
-    ).not.toBeInTheDocument(),
-  );
-  await waitFor(() =>
-    expect(
-      screen.queryByText(
-        `Psst, your feed has a new name! We've already applied your content filters to it.`,
-      ),
-    ).not.toBeInTheDocument(),
-  );
 });
 
 const sidebarItems = [
