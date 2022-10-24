@@ -32,7 +32,7 @@ interface AuthDefaultProps {
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string, login?: boolean) => unknown;
   onForgotPassword?: () => unknown;
-  version?: AuthVersion;
+  targetId?: string;
   isV2?: boolean;
   isLoginFlow?: boolean;
   title?: string;
@@ -51,7 +51,7 @@ const AuthDefault = ({
   onProviderClick,
   onForgotPassword,
   onPasswordLogin,
-  version,
+  targetId,
   isV2,
   isLoginFlow,
   providers,
@@ -80,7 +80,7 @@ const AuthDefault = ({
         ? AuthEventNames.OpenLogin
         : AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
-      target_id: authVersion || version,
+      target_id: targetId || authVersion,
     });
   }, [shouldLogin]);
 
