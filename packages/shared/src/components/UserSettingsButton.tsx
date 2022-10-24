@@ -4,14 +4,14 @@ import LayoutIcon from './icons/Layout';
 import { HeaderButton } from './buttons/common';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
-const FeedSettingsModal = dynamic(
+const UserSettingsModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "feedSettingsModal" */ './modals/FeedSettingsModal'
+      /* webpackChunkName: "UserSettingsModal" */ './modals/UserSettingsModal'
     ),
 );
 
-export default function FeedSettingsButton(): ReactElement {
+export default function UserSettingsButton(): ReactElement {
   const [showSettings, setShowSettings] = useState(false);
 
   return (
@@ -25,7 +25,7 @@ export default function FeedSettingsButton(): ReactElement {
         />
       </SimpleTooltip>
       {showSettings && (
-        <FeedSettingsModal
+        <UserSettingsModal
           isOpen={showSettings}
           onRequestClose={() => setShowSettings(false)}
         />
