@@ -65,7 +65,7 @@ export interface AuthOptionsProps {
   className?: string;
   isLoginFlow?: boolean;
   version: string;
-  onDisplayChange: (value: string) => void;
+  onDisplayChange?: (value: string) => void;
 }
 
 function AuthOptions({
