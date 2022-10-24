@@ -271,7 +271,7 @@ export default function Sidebar({
     },
   ];
 
-  const contirbuteMenuItems: SidebarMenuItem[] = [];
+  const contributeMenuItems: SidebarMenuItem[] = [];
   if (submitArticleOn) {
     const submitArticleMenuItem = {
       icon: (active: boolean) => (
@@ -281,10 +281,10 @@ export default function Sidebar({
       action: () => trackAndShowSubmitArticle(),
       active: showSubmitArticle,
     };
-    contirbuteMenuItems.push(submitArticleMenuItem);
+    contributeMenuItems.push(submitArticleMenuItem);
   }
 
-  contirbuteMenuItems.push({
+  contributeMenuItems.push({
     icon: () => <ListIcon Icon={() => <EmbedIcon />} />,
     title: 'Suggest new source',
     action: () => setShowNewSourceModal(true),
@@ -362,10 +362,10 @@ export default function Sidebar({
               items={discoverMenuItems}
               useNavButtonsNotLinks={useNavButtonsNotLinks}
             />
-            {!!contirbuteMenuItems.length && (
+            {!!contributeMenuItems.length && (
               <RenderSection
                 title="Contribute"
-                items={contirbuteMenuItems}
+                items={contributeMenuItems}
                 {...defaultRenderSectionProps}
                 useNavButtonsNotLinks={false}
               />
