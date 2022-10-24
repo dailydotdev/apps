@@ -3,6 +3,7 @@ import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import AuthContext from '../contexts/AuthContext';
 import { BOOT_QUERY_KEY } from '../contexts/BootProvider';
+import { FeedSettings } from '../graphql/feedSettings';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import {
   getLocalFeedSettings,
@@ -10,8 +11,14 @@ import {
 } from './useFeedSettings';
 import useMutateFilters from './useMutateFilters';
 
+interface RegisterLocalFilters {
+  hasFilters: boolean;
+}
+
 interface UseMyFeed {
-  registerLocalFilters: () => Promise<{ hasFilters: boolean }>;
+  registerLocalFilters: (
+    settings?: FeedSettings,
+  ) => Promise<RegisterLocalFilters>;
   checkHasLocalFilters: () => boolean;
 }
 
@@ -21,8 +28,8 @@ export function useMyFeed(): UseMyFeed {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
 
-  const registerLocalFilters = async () => {
-    const feedSettings = getLocalFeedSettings(true);
+  const registerLocalFilters = async (settings?: FeedSettings) => {
+    const feedSettings = settings || getLocalFeedSettings(true);
 
     if (!feedSettings) {
       return { hasFilters: false };
