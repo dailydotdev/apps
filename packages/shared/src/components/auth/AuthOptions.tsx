@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
@@ -44,7 +43,7 @@ import { VERIFICATION_TRIGGER } from '../../hooks/useAuthVerificationRecovery';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
-export enum Display {
+export enum AuthDisplay {
   Default = 'default',
   Registration = 'registration',
   SocialRegistration = 'social_registration',
@@ -58,40 +57,43 @@ export enum Display {
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   onSuccessfulLogin?: () => unknown;
+  onSuccessfulRegistration?: () => unknown;
   onShowOptionsOnly?: (value: boolean) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
   trigger: string;
-  defaultDisplay?: Display;
+  defaultDisplay?: AuthDisplay;
   className?: string;
   isLoginFlow?: boolean;
-  onDisplayChange?: (value: string) => void;
+  version: string;
+  onDisplayChange: (value: string) => void;
 }
 
 function AuthOptions({
   onClose,
   onSuccessfulLogin,
+  onSuccessfulRegistration,
   className,
   formRef,
   onShowOptionsOnly,
   trigger,
-  defaultDisplay = Display.Default,
+  defaultDisplay = AuthDisplay.Default,
   onDisplayChange,
   isLoginFlow,
+  version,
 }: AuthOptionsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
   const { refetchBoot, user, loginState } = useContext(AuthContext);
-  const { authVersion } = useContext(FeaturesContext);
-  const isV2 = authVersion === AuthVersion.V2;
+  const isV2 = version === AuthVersion.V2;
   const [email, setEmail] = useState('');
   const [connectedUser, setConnectedUser] =
     useState<RegistrationConnectedUser>();
   const [activeDisplay, setActiveDisplay] = useState(() =>
-    storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
+    storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
   );
-  const onSetActiveDisplay = (display: Display) => {
+  const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
     setActiveDisplay(display);
   };
@@ -105,8 +107,8 @@ function AuthOptions({
       return;
     }
     if (isVerified) {
-      onShowOptionsOnly(!!user);
-      onSetActiveDisplay(Display.VerifiedEmail);
+      onShowOptionsOnly?.(!!user);
+      onSetActiveDisplay(AuthDisplay.VerifiedEmail);
       return;
     }
 
@@ -122,7 +124,7 @@ function AuthOptions({
       });
       onSuccessfulLogin?.();
     } else {
-      onSetActiveDisplay(Display.SocialRegistration);
+      onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
   };
 
@@ -154,7 +156,8 @@ function AuthOptions({
         setIsRegistration(true);
         await refetchBoot();
         onShowOptionsOnly?.(true);
-        onSetActiveDisplay(Display.EmailSent);
+        onSetActiveDisplay(AuthDisplay.EmailSent);
+        onSuccessfulRegistration?.();
       },
       onInvalidRegistration: setRegistrationHints,
       onRedirect: (redirect) => {
@@ -194,20 +197,20 @@ function AuthOptions({
         };
         onShowOptionsOnly?.(true);
         setConnectedUser(registerUser);
-        return onSetActiveDisplay(Display.ConnectedUser);
+        return onSetActiveDisplay(AuthDisplay.ConnectedUser);
       }
       if (!e.data?.social_registration) {
         await refetchBoot();
         return onSuccessfulLogin?.();
       }
 
-      return onSetActiveDisplay(Display.SocialRegistration);
+      return onSetActiveDisplay(AuthDisplay.SocialRegistration);
     },
   );
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exists
-    onSetActiveDisplay(Display.Registration);
+    onSetActiveDisplay(AuthDisplay.Registration);
     setEmail(emailAd);
   };
 
@@ -227,7 +230,7 @@ function AuthOptions({
       event_name: 'click',
       target_type: AuthEventNames.ForgotPassword,
     });
-    onSetActiveDisplay(Display.ForgotPassword);
+    onSetActiveDisplay(AuthDisplay.ForgotPassword);
   };
 
   const onForgotPasswordBack = () => {
@@ -236,8 +239,8 @@ function AuthOptions({
   };
 
   const onShowLogin = () => {
-    onShowOptionsOnly(false);
-    onSetActiveDisplay(Display.SignBack);
+    onShowOptionsOnly?.(false);
+    onSetActiveDisplay(AuthDisplay.SignBack);
   };
 
   return (
@@ -248,12 +251,12 @@ function AuthOptions({
         className,
       )}
     >
-      <TabContainer<Display>
+      <TabContainer<AuthDisplay>
         onActiveChange={(active) => onSetActiveDisplay(active)}
         controlledActive={activeDisplay}
         showHeader={false}
       >
-        <Tab label={Display.Default}>
+        <Tab label={AuthDisplay.Default}>
           <AuthDefault
             providers={providers}
             onClose={onClose}
@@ -268,7 +271,7 @@ function AuthOptions({
             trigger={trigger}
           />
         </Tab>
-        <Tab label={Display.SocialRegistration}>
+        <Tab label={AuthDisplay.SocialRegistration}>
           <SocialRegistrationForm
             formRef={formRef}
             provider={chosenProvider}
@@ -280,7 +283,7 @@ function AuthOptions({
             onUpdateHints={onUpdateHint}
           />
         </Tab>
-        <Tab label={Display.Registration}>
+        <Tab label={AuthDisplay.Registration}>
           <RegistrationForm
             onBack={() => onSetActiveDisplay(defaultDisplay)}
             formRef={formRef}
@@ -296,9 +299,9 @@ function AuthOptions({
             }
           />
         </Tab>
-        <Tab label={Display.SignBack}>
+        <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
-            onRegister={() => onSetActiveDisplay(Display.Default)}
+            onRegister={() => onSetActiveDisplay(AuthDisplay.Default)}
             onProviderClick={onProviderClick}
             onClose={onClose}
           >
@@ -312,21 +315,21 @@ function AuthOptions({
             />
           </AuthSignBack>
         </Tab>
-        <Tab label={Display.ForgotPassword}>
+        <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
             initialEmail={email}
             onClose={onClose}
             onBack={onForgotPasswordBack}
           />
         </Tab>
-        <Tab label={Display.EmailSent}>
+        <Tab label={AuthDisplay.EmailSent}>
           <AuthModalHeader
             title="Verify your email address"
             onClose={onClose}
           />
           <EmailVerificationSent email={email} />
         </Tab>
-        <Tab label={Display.VerifiedEmail}>
+        <Tab label={AuthDisplay.VerifiedEmail}>
           <EmailVerified hasUser={!!user} onClose={onClose}>
             {!user && (
               <LoginForm
@@ -334,14 +337,14 @@ function AuthOptions({
                 loginHint={loginHint}
                 onPasswordLogin={onPasswordLogin}
                 onForgotPassword={() =>
-                  onSetActiveDisplay(Display.ForgotPassword)
+                  onSetActiveDisplay(AuthDisplay.ForgotPassword)
                 }
                 isLoading={isPasswordLoginLoading}
               />
             )}
           </EmailVerified>
         </Tab>
-        <Tab label={Display.ConnectedUser}>
+        <Tab label={AuthDisplay.ConnectedUser}>
           <AuthModalHeader title="Account already exists" onClose={onClose} />
           {connectedUser && (
             <ConnectedUserModal user={connectedUser} onLogin={onShowLogin} />
