@@ -21,7 +21,6 @@ import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
-import { AuthVersion } from '../../lib/featureValues';
 import FeaturesContext from '../../contexts/FeaturesContext';
 
 interface AuthDefaultProps {
