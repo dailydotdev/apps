@@ -48,6 +48,8 @@ import {
 } from '../../lib/featureManagement';
 import PauseIcon from '../icons/Pause';
 import PlayIcon from '../icons/Play';
+import EmbedIcon from '../icons/Embed';
+import NewSourceModal from '../modals/NewSourceModal';
 
 const SubmitArticleModal = dynamic(
   () => import('../modals/SubmitArticleModal'),
@@ -144,6 +146,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const [defaultFeed] = useDefaultFeed();
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
@@ -281,6 +284,13 @@ export default function Sidebar({
     contirbuteMenuItems.push(submitArticleMenuItem);
   }
 
+  contirbuteMenuItems.push({
+    icon: () => <ListIcon Icon={() => <EmbedIcon />} />,
+    title: 'Suggest new source',
+    action: () => setShowNewSourceModal(true),
+    active: showNewSourceModal,
+  });
+
   if (shouldShowDnD) {
     const dndMenuItem = {
       icon: (active: boolean) => (
@@ -398,6 +408,12 @@ export default function Sidebar({
         <FeedSettingsModal
           isOpen={showSettings}
           onRequestClose={() => setShowSettings(false)}
+        />
+      )}
+      {showNewSourceModal && (
+        <NewSourceModal
+          isOpen={showNewSourceModal}
+          onRequestClose={() => setShowNewSourceModal(false)}
         />
       )}
     </>
