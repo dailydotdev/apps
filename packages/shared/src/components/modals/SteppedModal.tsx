@@ -3,27 +3,63 @@ import React, {
   KeyboardEvent,
   MouseEvent,
   ReactElement,
+  useContext,
   useState,
 } from 'react';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import useAuthForms from '../../hooks/useAuthForms';
+import { AuthEventNames } from '../../lib/auth';
+import { logout } from '../../lib/user';
+import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
+import { DiscardAuthModal } from '../auth/common';
 import { Button } from '../buttons/Button';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import { ModalProps, StyledModal } from './StyledModal';
 
 interface SteppedModalProps extends ModalProps {
+  trigger: string;
   isLastStepLogin?: boolean;
   onStepChange?: (stepBefore: number, stepNow: number) => void | Promise<void>;
   onFinish?: () => void | Promise<void>;
+  onAuthSuccess?: (isLogin?: boolean) => void | Promise<void>;
 }
 
 function SteppedModal({
+  trigger,
   children,
   isLastStepLogin,
   onStepChange,
   onFinish,
   onRequestClose,
+  onAuthSuccess,
   ...props
 }: SteppedModalProps): ReactElement {
   const [step, setStep] = useState(0);
+  const { trackEvent } = useContext(AnalyticsContext);
+  const [screenValue, setScreenValue] = useState<AuthDisplay>(
+    AuthDisplay.Default,
+  );
+  const {
+    onDiscardAttempt,
+    onDiscardCanceled,
+    onContainerChange,
+    formRef,
+    container,
+    isDiscardOpen,
+  } = useAuthForms({
+    onDiscard: onRequestClose,
+  });
+
+  const onCancelAuth = async () => {
+    await logout();
+    await onStepChange?.(step, step - 1);
+    setStep(step - 1);
+    trackEvent({
+      event_name: AuthEventNames.CloseSignUp,
+      extra: JSON.stringify({ trigger, screenValue }),
+    });
+  };
+
   const getWidth = () => {
     const count = React.Children.count(children);
     return (step / (count - 1)) * 100;
@@ -73,7 +109,24 @@ function SteppedModal({
 
     if (isLastStepLogin) {
       content.push(
-        <Tab label={React.Children.count(children).toString()}>Auth</Tab>,
+        <Tab label={React.Children.count(children).toString()}>
+          <AuthOptions
+            version="v1"
+            className="h-full"
+            onClose={onDiscardAttempt}
+            formRef={formRef}
+            onSuccessfulLogin={() => onAuthSuccess(true)}
+            onSuccessfulRegistration={onAuthSuccess}
+            trigger={trigger}
+            onDisplayChange={(display: AuthDisplay) => setScreenValue(display)}
+          />
+          <DiscardAuthModal
+            isOpen={isDiscardOpen}
+            onContinue={onDiscardCanceled}
+            onExit={onCancelAuth}
+            container={container}
+          />
+        </Tab>,
       );
     }
 
@@ -83,8 +136,9 @@ function SteppedModal({
   return (
     <StyledModal
       {...props}
+      overlayRef={onContainerChange}
       contentClassName={classNames(
-        'relative max-h-[40rem] h-full w-full pt-8 overflow-x-hidden',
+        'relative max-h-[40rem] h-full w-full overflow-x-hidden',
         props.contentClassName,
       )}
       overlayClassName="py-10"
