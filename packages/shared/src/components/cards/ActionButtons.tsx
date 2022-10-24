@@ -25,6 +25,7 @@ export interface ActionButtonsProps {
   onCommentClick?: (post: Post) => unknown;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
+  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className?: string;
   children?: ReactNode;
@@ -56,6 +57,7 @@ export default function ActionButtons({
   onMenuClick,
   onReadArticleClick,
   onShare,
+  onShareClick,
   className,
   children,
   insaneMode,
@@ -109,7 +111,7 @@ export default function ActionButtons({
         <Button
           icon={<ShareIcon />}
           buttonSize="small"
-          onClick={() => onShare?.(post)}
+          onClick={event => onShareClick?.(event, post)}
           className="btn-tertiary-cabbage"
           />
       </SimpleTooltip>

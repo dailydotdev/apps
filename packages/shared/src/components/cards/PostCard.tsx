@@ -41,6 +41,7 @@ export type PostCardProps = {
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   onShare?: Callback;
+  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   openNewTab?: boolean;
   enableMenu?: boolean;
   menuOpened?: boolean;
@@ -59,6 +60,7 @@ export const PostCard = forwardRef(function PostCard(
     onBookmarkClick,
     onMenuClick,
     onShare,
+    onShareClick,
     openNewTab,
     enableMenu,
     menuOpened,
@@ -69,7 +71,7 @@ export const PostCard = forwardRef(function PostCard(
     additionalInteractionButtonFeature,
     insaneMode,
     onReadArticleClick,
-    postCardShareVersion = ShareVersion.Control,
+    postCardShareVersion = ShareVersion.V2,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
@@ -180,6 +182,7 @@ export const PostCard = forwardRef(function PostCard(
           onCommentClick={onCommentClick}
           onBookmarkClick={onBookmarkClick}
           onShare={onShare}
+          onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
           postCardShareVersion={postCardShareVersion}

@@ -41,6 +41,7 @@ import {
 } from '../hooks/useToastNotification';
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
+import ShareOptionsMenu from './ShareOptionsMenu';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -228,7 +229,7 @@ export default function Feed<T>({
     onPostModalOpen(index);
   };
 
-  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
+  const { onMenuClick, onShareMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
     useFeedContextMenu();
 
   const onRemovePost = async (removePostIndex) => {
@@ -357,6 +358,7 @@ export default function Feed<T>({
               onPostClick={onPostCardClick}
               onShare={onShareClick}
               onMenuClick={onMenuClick}
+              onShareClick={onShareMenuClick}
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
@@ -394,6 +396,30 @@ export default function Feed<T>({
           post={(items[postMenuIndex] as PostItem)?.post}
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
+        />
+        <ShareOptionsMenu
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
+          onShare={() =>
+            openSharePost(
+              (items[postMenuIndex] as PostItem)?.post,
+              virtualizedNumCards,
+              postMenuLocation.row,
+              postMenuLocation.column,
+            )
+          }
+          onBookmark={() =>
+            onBookmark(
+              (items[postMenuIndex] as PostItem)?.post,
+              postMenuIndex,
+              postMenuLocation.row,
+              postMenuLocation.column,
+              !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
+            )
+          }
+          post={(items[postMenuIndex] as PostItem)?.post}
+          onHidden={() => setPostMenuIndex(null)}
         />
         {sharePost && (
           <SharePostModal
