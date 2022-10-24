@@ -8,6 +8,11 @@ import {
 
 export interface FeaturesData {
   flags: IFlags;
+  popularFeedCopy?: string;
+  submitArticleOn?: boolean;
+  canSubmitArticle?: boolean;
+  submitArticleSidebarButton?: string;
+  submitArticleModalButton?: string;
   showCommentPopover?: boolean;
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
@@ -31,9 +36,20 @@ export const FeaturesContextProvider = ({
   const features = useMemo(
     () => ({
       flags,
+      popularFeedCopy: getFeatureValue(Features.PopularFeedCopy, flags),
       showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
       postEngagementNonClickable: isFeaturedEnabled(
         Features.PostEngagementNonClickable,
+        flags,
+      ),
+      submitArticleOn: isFeaturedEnabled(Features.SubmitArticleOn, flags),
+      canSubmitArticle: isFeaturedEnabled(Features.SubmitArticle, flags),
+      submitArticleSidebarButton: getFeatureValue(
+        Features.SubmitArticleSidebarButton,
+        flags,
+      ),
+      submitArticleModalButton: getFeatureValue(
+        Features.SubmitArticleModalButton,
         flags,
       ),
       postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
