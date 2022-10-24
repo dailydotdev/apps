@@ -21,6 +21,8 @@ import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
+import { AuthVersion } from '../../lib/featureValues';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 interface AuthDefaultProps {
   children?: ReactNode;
@@ -30,6 +32,7 @@ interface AuthDefaultProps {
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string, login?: boolean) => unknown;
   onForgotPassword?: () => unknown;
+  version?: AuthVersion;
   isV2?: boolean;
   isLoginFlow?: boolean;
   title?: string;
@@ -48,6 +51,7 @@ const AuthDefault = ({
   onProviderClick,
   onForgotPassword,
   onPasswordLogin,
+  version,
   isV2,
   isLoginFlow,
   providers,
@@ -60,7 +64,7 @@ const AuthDefault = ({
 }: AuthDefaultProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow || isV2);
-
+  const { authVersion } = useContext(FeaturesContext);
   const useTitle = shouldLogin
     ? 'Log in to daily.dev'
     : title || 'Sign up to daily.dev';
@@ -76,6 +80,7 @@ const AuthDefault = ({
         ? AuthEventNames.OpenLogin
         : AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
+      target_id: authVersion || version,
     });
   }, [shouldLogin]);
 
