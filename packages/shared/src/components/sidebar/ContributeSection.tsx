@@ -10,7 +10,7 @@ import { Section, SectionCommonProps } from './Section';
 const SubmitArticleModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "SubmitArticleModal" */ '../modals/SubmitArticleModal'
+      /* webpackChunkName: "submitArticleModal" */ '../modals/SubmitArticleModal'
     ),
 );
 
