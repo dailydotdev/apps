@@ -19,6 +19,7 @@ import { DiscoverSection } from './DiscoverSection';
 import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
 import { MobileMenuIcon } from './MobileMenuIcon';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -40,6 +41,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [defaultFeed] = useDefaultFeed();
   const { alerts } = useContext(AlertContext);
   const { sidebarExpanded, loadedSettings, optOutWeeklyGoal } =
@@ -101,7 +103,10 @@ export default function Sidebar({
               enableSearch={enableSearch}
               isItemsButton={isNavButtons}
             />
-            <ContributeSection {...defaultRenderSectionProps} />
+            <ContributeSection
+              {...defaultRenderSectionProps}
+              onTrackEvent={trackEvent}
+            />
             <ManageSection
               {...defaultRenderSectionProps}
               isDndActive={dndActive}

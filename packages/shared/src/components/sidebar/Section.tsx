@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext } from 'react';
 import AuthContext from '../../contexts/AuthContext';
+import { AnalyticsEvent } from '../../hooks/analytics/useAnalyticsQueue';
 import { ClickableNavItem } from './ClickableNavItem';
 import {
   ItemInner,
@@ -14,6 +15,7 @@ export interface SectionCommonProps {
   sidebarExpanded: boolean;
   sidebarRendered: boolean;
   activePage: string;
+  onTrackEvent?: (event: AnalyticsEvent) => void;
 }
 
 interface SectionProps extends SectionCommonProps {

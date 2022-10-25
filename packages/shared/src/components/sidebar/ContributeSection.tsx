@@ -1,6 +1,5 @@
 import dynamic from 'next/dynamic';
 import React, { ReactElement, useContext, useState } from 'react';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import EmbedIcon from '../icons/Embed';
 import LinkIcon from '../icons/Link';
@@ -19,14 +18,16 @@ const NewSourceModal = dynamic(
     import(/* webpackChunkName: "newSourceModal" */ '../modals/NewSourceModal'),
 );
 
-export function ContributeSection(props: SectionCommonProps): ReactElement {
+export function ContributeSection({
+  onTrackEvent,
+  ...props
+}: SectionCommonProps): ReactElement {
   const {
     canSubmitArticle,
     submitArticleOn,
     submitArticleSidebarButton,
     submitArticleModalButton,
   } = useContext(FeaturesContext);
-  const { trackEvent } = useContext(AnalyticsContext);
   const [showSubmitArticle, setShowSubmitArticle] = useState(false);
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const contributeMenuItems: SidebarMenuItem[] = [
@@ -39,7 +40,7 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
   ];
 
   const trackAndShowSubmitArticle = () => {
-    trackEvent({
+    onTrackEvent({
       event_name: 'start submit article',
       feed_item_title: submitArticleSidebarButton,
       extra: JSON.stringify({ has_access: canSubmitArticle }),
