@@ -4,6 +4,7 @@ import {
   AuthVersion,
   OnboardingVersion,
   MyFeedOnboardingVersion as MyFeedOnboardingVersionEnum,
+  OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
 } from './featureValues';
 
 export class Features<T extends FeatureValue = string> {
@@ -147,10 +148,10 @@ export class Features<T extends FeatureValue = string> {
     [OnboardingVersion.V1, OnboardingVersion.V2],
   );
 
-  static readonly FeedFilterCardVersion = new Features(
-    'feed_filter_card_version',
-    'v1',
-    ['v1', 'v2'],
+  static readonly OnboardingFiltersLayout = new Features(
+    'onboarding_filters_layout',
+    OnboardingFiltersLayoutEnum.Grid,
+    [OnboardingFiltersLayoutEnum.Grid, OnboardingFiltersLayoutEnum.List],
   );
 
   static readonly AuthenticationVersion = new Features(

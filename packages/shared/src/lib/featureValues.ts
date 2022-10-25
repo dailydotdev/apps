@@ -15,6 +15,11 @@ export enum OnboardingVersion {
   V2 = 'v2',
 }
 
+export enum OnboardingFiltersLayout {
+  Grid = 'grid',
+  List = 'list',
+}
+
 export enum MyFeedOnboardingVersion {
   Control = 'control',
   V1 = 'v1',

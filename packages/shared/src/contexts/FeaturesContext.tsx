@@ -7,6 +7,7 @@ import {
 } from '../lib/featureManagement';
 import {
   MyFeedOnboardingVersion,
+  OnboardingFiltersLayout,
   OnboardingVersion,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
@@ -15,8 +16,8 @@ export interface FeaturesData {
   flags: IFlags;
   onboardingSteps?: OnboardingStep[];
   onboardingVersion?: OnboardingVersion;
+  onboardingFiltersLayout?: OnboardingFiltersLayout;
   myFeedOnboardingVersion?: MyFeedOnboardingVersion;
-  feedFilterCardVersion?: string;
   showCommentPopover?: boolean;
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
@@ -44,8 +45,8 @@ export const FeaturesContextProvider = ({
       flags,
       onboardingSteps,
       onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
-      feedFilterCardVersion: getFeatureValue(
-        Features.UserOnboardingVersion,
+      onboardingFiltersLayout: getFeatureValue(
+        Features.OnboardingFiltersLayout,
         flags,
       ),
       myFeedOnboardingVersion: getFeatureValue(
