@@ -1,17 +1,26 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { cloudinary } from '../../lib/image';
 import OnboardingStep from './OnboardingStep';
 import FeedTopicCard from '../containers/FeedTopicCard';
 import { TagCategory } from '../../graphql/feedSettings';
+import { OnboardingFiltersLayout } from '../../lib/featureValues';
 
 interface FilterOnboardingProps {
   tagsCategories: TagCategory[];
   selectedId: Record<string, boolean>;
+  topicLayout?: OnboardingFiltersLayout;
   onSelectedChange: (id: string) => void;
 }
 
+const classes: Record<OnboardingFiltersLayout, string> = {
+  grid: 'grid-cols-3 gap-6',
+  list: 'grid-cols-1 gap-4',
+};
+
 function FilterOnboarding({
   selectedId,
+  topicLayout,
   tagsCategories,
   onSelectedChange,
 }: FilterOnboardingProps): ReactElement {
@@ -25,12 +34,15 @@ function FilterOnboarding({
         />
       }
       title="Let’s super-charge your feed with the content you actually read!"
-      className={{ content: 'p-5 mt-1 grid grid-cols-3 gap-6' }}
+      className={{
+        content: classNames('p-5 mt-1 grid', classes[topicLayout]),
+      }}
     >
       {tagsCategories?.map((category) => (
         <FeedTopicCard
           key={category.title}
           topic={category}
+          topicLayout={topicLayout}
           isActive={selectedId[category.id]}
           onClick={() => onSelectedChange(category.id)}
         />

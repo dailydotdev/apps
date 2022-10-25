@@ -1,14 +1,22 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
-import FeaturesContext from '../../contexts/FeaturesContext';
+import React, { ReactElement, ReactNode } from 'react';
 import { TagCategory } from '../../graphql/feedSettings';
 import classed from '../../lib/classed';
+import { OnboardingFiltersLayout } from '../../lib/featureValues';
+import PlusIcon from '../icons/Plus';
 import VIcon from '../icons/V';
 
 interface FeedTopicCardProps {
   topic: TagCategory;
   isActive?: boolean;
+  topicLayout?: OnboardingFiltersLayout;
   onClick?: () => void;
+}
+
+interface ClassName {
+  container?: string;
+  check?: string;
+  text?: string;
 }
 
 const BackgroundLayer = classed(
@@ -16,38 +24,70 @@ const BackgroundLayer = classed(
   'group-hover:z-0 absolute inset-0 w-full h-full rounded-14 bg-theme-status-cabbage transition-transform',
 );
 
+const background: Record<OnboardingFiltersLayout, ReactNode> = {
+  grid: (
+    <>
+      <BackgroundLayer className="-z-1 opacity-64 group-hover:-rotate-12" />
+      <BackgroundLayer className="opacity-24 -z-2 group-hover:-rotate-[24deg]" />
+    </>
+  ),
+  list: <BackgroundLayer className="hidden group-hover:flex opacity-64" />,
+};
+
+const classes: Record<OnboardingFiltersLayout, ClassName> = {
+  grid: {
+    container: 'justify-center w-28 h-28 hover:bg-theme-color-cabbage',
+    check: 'top-1 right-1',
+    text: 'typo-callout',
+  },
+  list: {
+    container: 'pl-4 w-full h-[3.75rem]',
+    check: 'right-4',
+    text: 'typo-body',
+  },
+};
+
 function FeedFilterCard({
   topic,
   isActive,
+  topicLayout = OnboardingFiltersLayout.Grid,
   onClick,
 }: FeedTopicCardProps): ReactElement {
-  const { feedFilterCardVersion } = useContext(FeaturesContext);
-  const isV1 = feedFilterCardVersion === 'v1';
-  const isV2 = feedFilterCardVersion === 'v2';
+  const backgroundLayers = background[topicLayout];
+
+  const getIcon = () => {
+    const iconClasses = classNames(
+      'absolute rounded-full',
+      classes[topicLayout].check,
+      isActive && 'bg-theme-status-invert-cabbage',
+    );
+
+    if (isActive) {
+      return <VIcon className={iconClasses} />;
+    }
+
+    if (topicLayout === OnboardingFiltersLayout.List) {
+      return <PlusIcon className={iconClasses} />;
+    }
+
+    return null;
+  };
 
   return (
     <button
       type="button"
       onClick={onClick}
       className={classNames(
-        'relative flex justify-center items-center w-28 h-28 rounded-14 typo-callout group transition-[background] hover:shadow-2-black',
+        'relative flex items-center rounded-14 typo-callout group transition-[background] hover:shadow-2-black',
         isActive ? 'bg-theme-color-cabbage' : 'bg-theme-divider-tertiary',
-        isV1 && 'hover:bg-theme-color-cabbage',
+        classes[topicLayout].container,
       )}
     >
-      {isV1 && (
-        <>
-          <BackgroundLayer className="-z-1 opacity-64 group-hover:-rotate-12" />
-          <BackgroundLayer className="opacity-24 -z-2 group-hover:-rotate-[24deg]" />
-        </>
-      )}
-      {isV2 && (
-        <BackgroundLayer className="opacity-64 group-hover:-rotate-[24deg]" />
-      )}
-      {isActive && (
-        <VIcon className="absolute top-1 right-1 rounded-full bg-theme-status-invert-cabbage" />
-      )}
-      <span className="z-1 font-bold">{topic?.title}</span>
+      {backgroundLayers}
+      {getIcon()}
+      <span className={classNames('z-1', classes[topicLayout].text)}>
+        {topic?.title}
+      </span>
     </button>
   );
 }

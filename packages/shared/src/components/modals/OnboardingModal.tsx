@@ -34,7 +34,7 @@ function OnboardingModal({
   const { refetchBoot } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
-  const { onboardingSteps, myFeedOnboardingVersion } =
+  const { onboardingSteps, onboardingFiltersLayout, myFeedOnboardingVersion } =
     useContext(FeaturesContext);
   const { insaneMode, themeMode, setTheme, toggleInsaneMode } =
     useContext(SettingsContext);
@@ -65,6 +65,7 @@ function OnboardingModal({
     topics: (
       <FilterOnboarding
         key={OnboardingStep.Topics}
+        topicLayout={onboardingFiltersLayout}
         selectedId={selectedTopics}
         tagsCategories={tagsCategories}
         onSelectedChange={onChangeSelectedTopic}
