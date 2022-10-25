@@ -9,3 +9,8 @@ export enum AuthVersion {
   V3 = 'v3',
   V4 = 'v4',
 }
+
+export enum OnboardingVersion {
+  V1 = 'v1',
+  V2 = 'v2',
+}

@@ -5,12 +5,13 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../lib/featureManagement';
+import { OnboardingVersion } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 
 export interface FeaturesData {
   flags: IFlags;
   onboardingSteps?: OnboardingStep[];
-  feedFilterVersion?: string;
+  onboardingVersion?: OnboardingVersion;
   feedFilterCardVersion?: string;
   showCommentPopover?: boolean;
   postEngagementNonClickable?: boolean;
@@ -38,8 +39,11 @@ export const FeaturesContextProvider = ({
     () => ({
       flags,
       onboardingSteps,
-      feedFilterVersion: getFeatureValue(Features.FeedFilterVersion, flags),
-      feedFilterCardVersion: getFeatureValue(Features.FeedFilterVersion, flags),
+      onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
+      feedFilterCardVersion: getFeatureValue(
+        Features.UserOnboardingVersion,
+        flags,
+      ),
       showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
       postEngagementNonClickable: isFeaturedEnabled(
         Features.PostEngagementNonClickable,

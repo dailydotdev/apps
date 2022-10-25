@@ -1,7 +1,11 @@
 import { IFlags } from 'flagsmith';
-import { AdditionalInteractionButtons, AuthVersion } from './featureValues';
+import {
+  AdditionalInteractionButtons,
+  AuthVersion,
+  OnboardingVersion,
+} from './featureValues';
 
-export class Features {
+export class Features<T extends FeatureValue = string> {
   static readonly SignupButtonCopy = new Features(
     'signup_button_copy',
     'Access all features',
@@ -131,10 +135,10 @@ export class Features {
     'topics/layout/theme',
   );
 
-  static readonly FeedFilterVersion = new Features(
-    'feed_filter_version',
-    'v1',
-    ['v1', 'v2'],
+  static readonly UserOnboardingVersion = new Features(
+    'onboarding_version',
+    OnboardingVersion.V1,
+    [OnboardingVersion.V1, OnboardingVersion.V2],
   );
 
   static readonly FeedFilterCardVersion = new Features(
@@ -159,20 +163,28 @@ export class Features {
 
   private constructor(
     public readonly id: string,
-    public readonly defaultValue?: string,
-    public readonly validTypes?: string[],
+    public readonly defaultValue?: T,
+    public readonly validTypes?: T[],
   ) {}
 }
 
-export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
+type FeatureValue = string | number | boolean;
+
+export const isFeaturedEnabled = <T extends FeatureValue = string>(
+  key: Features<T>,
+  flags: IFlags,
+): boolean =>
   key?.validTypes === undefined ||
-  key?.validTypes?.includes(<string>flags?.[key?.id]?.value)
+  key?.validTypes?.includes(<T>flags?.[key?.id]?.value)
     ? flags?.[key?.id]?.enabled
     : false;
 
-export const getFeatureValue = (key: Features, flags: IFlags): string => {
+export const getFeatureValue = <T extends FeatureValue = string>(
+  key: Features<T>,
+  flags: IFlags,
+): T => {
   if (isFeaturedEnabled(key, flags)) {
-    return <string>flags[key?.id].value;
+    return <T>flags[key?.id].value;
   }
 
   return key?.defaultValue ?? undefined;
