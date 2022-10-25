@@ -14,7 +14,7 @@ import SidebarUserButton from './SidebarUserButton';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import MyFeedButton from './MyFeedButton';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
-import { UnlabeledBottomSection } from './UnlabeledBottomSection';
+import { SidebarBottomSectionSection } from './SidebarBottomSection';
 import { DiscoverSection } from './DiscoverSection';
 import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
@@ -112,7 +112,7 @@ export default function Sidebar({
             />
           </Nav>
           <div className="flex-1" />
-          <UnlabeledBottomSection
+          <SidebarBottomSectionSection
             {...defaultRenderSectionProps}
             optOutWeeklyGoal={optOutWeeklyGoal}
             showSettings={showSettings}

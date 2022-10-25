@@ -7,18 +7,18 @@ import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 
-interface UnlabeledBottomSectionProps extends SectionCommonProps {
+interface SidebarBottomSectionProps extends SectionCommonProps {
   optOutWeeklyGoal: boolean;
   showSettings: boolean;
 }
 
-export function UnlabeledBottomSection({
+export function SidebarBottomSectionSection({
   sidebarExpanded,
   sidebarRendered,
   optOutWeeklyGoal,
   showSettings,
   activePage,
-}: UnlabeledBottomSectionProps): ReactElement {
+}: SidebarBottomSectionProps): ReactElement {
   const bottomMenuItems: SidebarMenuItem[] = [
     {
       icon: () => <ListIcon Icon={() => <DocsIcon />} />,
