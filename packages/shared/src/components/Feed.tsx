@@ -42,6 +42,7 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
+import { ShareVersion } from '../lib/featureValues';
 
 export type FeedProps<T> = {
   feedName: string;

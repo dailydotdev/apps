@@ -5,7 +5,7 @@ import { Post } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
-import { MenuIcon } from './MenuIcon';
+import { MenuIcon, MenuIconWithBg } from './MenuIcon';
 import { OnShareOrBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
@@ -32,6 +32,7 @@ interface ShareOptionsMenuProps extends OnShareOrBookmarkProps {
 }
 
 type ShareOption = {
+  href?: string;
   icon: ReactElement;
   text: string;
   action: () => unknown;
@@ -65,43 +66,56 @@ export default function ShareOptionsMenu({
   const ShareOptions: ShareOption[] = [];
   const socials = [
     {
+      icon: BookmarkIcon,
+      secondary: post?.bookmarked,
+      className: 'bg-theme-color-bun',
+      label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+      action: onBookmark,
+    },
+    {
+      icon: LinkIcon,
+      className: 'bg-theme-color-pepper',
+      label: 'Copy link to article',
+      action: trackAndCopyLink,
+    },
+    {
       href: getTwitterShareLink(link, post?.title),
-      icon: <TwitterIcon />,
+      icon: TwitterIcon,
       className: "bg-theme-bg-twitter",
       onClick: () => trackClick(ShareProvider.Twitter),
       label: "Twitter"
     },
     {
       href: getWhatsappShareLink(link),
-      icon: <WhatsappIcon />,
+      icon: WhatsappIcon,
       onClick: () => trackClick(ShareProvider.WhatsApp),
       className: "bg-theme-bg-whatsapp",
       label: "WhatsApp"
     },
     {
       href: getFacebookShareLink(link),
-      icon: <FacebookIcon />,
+      icon: FacebookIcon,
       className: "bg-theme-bg-facebook",
       onClick: () => trackClick(ShareProvider.Facebook),
       label: "Facebook"
     },
     {
       href: getRedditShareLink(link, post?.title),
-      icon: <RedditIcon />,
+      icon: RedditIcon,
       className: "bg-theme-bg-reddit",
       onClick: () => trackClick(ShareProvider.Reddit),
       label: "Reddit"
     },
     {
       href: getLinkedInShareLink(link),
-      icon: <LinkedInIcon />,
+      icon: LinkedInIcon,
       className: "bg-theme-bg-linkedin",
       onClick: () => trackClick(ShareProvider.LinkedIn),
       label: "LinkedIn"
     },
     {
       href: getTelegramShareLink(link, post?.title),
-      icon: <TelegramIcon />,
+      icon: TelegramIcon,
       className: "bg-theme-bg-telegram",
       onClick: () => trackClick(ShareProvider.Telegram),
       label: "Telegram"
@@ -129,24 +143,23 @@ export default function ShareOptionsMenu({
   }
   if (postCardShareVersion === ShareVersion.V3) {
     ShareOptions.push(...[
-      {
-        icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
-        text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-        action: onBookmark,
-      },
-      {
-        icon: <MenuIcon Icon={LinkIcon} />,
-        text: 'Copy link to article',
-        action: trackAndCopyLink,
-      }]);
-      ShareOptions.push(...socials.map(social => ({
-        icon: social.icon,
+      ...socials.map(social => ({
+        href: social.href,
+        icon: <MenuIconWithBg secondary={social.secondary} className={social.className} Icon={social.icon} />,
         text: social.label,
         action: social.onClick
-      })))
+      })),
+    ]);
   }
   if (postCardShareVersion === ShareVersion.V4) {
-    ShareOptions.push(...[]);
+    ShareOptions.push(...[
+      ...socials.map(social => ({
+        href: social.href,
+        icon: <MenuIcon secondary={social.secondary} Icon={social.icon} />,
+        text: social.label,
+        action: social.onClick
+      }))
+    ]);
   }
 
   return (
@@ -158,11 +171,23 @@ export default function ShareOptionsMenu({
         animation="fade"
         onHidden={onHidden}
       >
-        {ShareOptions.map(({ icon, text, action }) => (
+        {ShareOptions.map(({ href, icon, text, action }) => (
           <Item key={text} className="typo-callout" onClick={action}>
-            <span className="flex items-center w-full typo-callout">
-              {icon} {text}
-            </span>
+            {href ? (
+              <a
+                className="flex items-center w-full typo-callout"
+                data-testid={`social-share-${text}`}
+                href={href}
+                rel="noopener"
+                target="_blank"
+              >
+                {icon} {text}
+              </a>
+            ) : (
+              <span className="flex items-center w-full typo-callout">
+                {icon} {text}
+              </span>
+            )}
           </Item>
         ))}
       </PortalMenu>

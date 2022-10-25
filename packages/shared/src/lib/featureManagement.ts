@@ -115,7 +115,7 @@ export class Features {
   ]);
 
   static readonly PostCardShareVersion = new Features('post_card_share_version',
-    ShareVersion.V3, [ShareVersion.Control, ShareVersion.V2, ShareVersion.V3, ShareVersion.V4
+    ShareVersion.Control, [ShareVersion.Control, ShareVersion.V2, ShareVersion.V3, ShareVersion.V4
   ]);
 
   static readonly PostModalByDefault = new Features('post_modal_by_default');
