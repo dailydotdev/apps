@@ -127,7 +127,7 @@ export default function ShareOptionsMenu({
       },
     ]);
   }
-  if (postCardShareVersion !== ShareVersion.V3) {
+  if (postCardShareVersion === ShareVersion.V3) {
     ShareOptions.push(...[
       {
         icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,

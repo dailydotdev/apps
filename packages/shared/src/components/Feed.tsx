@@ -292,7 +292,6 @@ export default function Feed<T>({
       document.body.classList.remove('hidden-scrollbar');
     }
   }, [selectedPost]);
-  console.log({postCardShareVersion, postCardVersion});
   return (
     <div
       className={classNames(
