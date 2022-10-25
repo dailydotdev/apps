@@ -71,7 +71,7 @@ export const PostCard = forwardRef(function PostCard(
     additionalInteractionButtonFeature,
     insaneMode,
     onReadArticleClick,
-    postCardShareVersion = ShareVersion.V2,
+    postCardShareVersion = ShareVersion.V3,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,

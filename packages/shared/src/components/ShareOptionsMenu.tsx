@@ -9,9 +9,16 @@ import { MenuIcon } from './MenuIcon';
 import { OnShareOrBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
-import { ShareProvider } from '../lib/share';
+import { getFacebookShareLink, getLinkedInShareLink, getRedditShareLink, getTelegramShareLink, getTwitterShareLink, getWhatsappShareLink, ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import LinkIcon from './icons/Link';
+import { ShareVersion } from '../lib/featureValues';
+import TwitterIcon from './icons/Twitter';
+import WhatsappIcon from './icons/Whatsapp';
+import FacebookIcon from './icons/Facebook';
+import RedditIcon from './icons/Reddit';
+import LinkedInIcon from './icons/LinkedIn';
+import TelegramIcon from './icons/Telegram';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -19,6 +26,7 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 
 interface ShareOptionsMenuProps extends OnShareOrBookmarkProps {
   post: Post;
+  postCardShareVersion: ShareVersion;
   onHidden?: () => unknown;
   contextId?: string;
 }
@@ -33,11 +41,12 @@ export default function ShareOptionsMenu({
   onShare,
   onBookmark,
   post,
+  postCardShareVersion,
   onHidden,
   contextId = 'share-context',
 }: ShareOptionsMenuProps): ReactElement {
-  const href = post && post?.permalink;
-  const [, copyLink] = useCopyPostLink(href);
+  const link = post && post?.permalink;
+  const [, copyLink] = useCopyPostLink(link);
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onClick = (provider: ShareProvider) =>
@@ -46,28 +55,99 @@ export default function ShareOptionsMenu({
         extra: { provider, origin: Origin.ShareBar },
       }),
     );
-
+  const trackClick = (type) => {
+    onClick(type);
+  }
   const trackAndCopyLink = () => {
     copyLink();
     onClick(ShareProvider.CopyLink);
   };
-  const ShareOptions: ShareOption[] = [
+  const ShareOptions: ShareOption[] = [];
+  const socials = [
     {
-      icon: <MenuIcon Icon={ShareIcon} />,
-      text: 'Share article via...',
-      action: onShare,
+      href: getTwitterShareLink(link, post?.title),
+      icon: <TwitterIcon />,
+      className: "bg-theme-bg-twitter",
+      onClick: () => trackClick(ShareProvider.Twitter),
+      label: "Twitter"
     },
     {
-      icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
-      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onBookmark,
+      href: getWhatsappShareLink(link),
+      icon: <WhatsappIcon />,
+      onClick: () => trackClick(ShareProvider.WhatsApp),
+      className: "bg-theme-bg-whatsapp",
+      label: "WhatsApp"
     },
     {
-      icon: <MenuIcon Icon={LinkIcon} />,
-      text: 'Copy link to article',
-      action: trackAndCopyLink,
+      href: getFacebookShareLink(link),
+      icon: <FacebookIcon />,
+      className: "bg-theme-bg-facebook",
+      onClick: () => trackClick(ShareProvider.Facebook),
+      label: "Facebook"
     },
-  ];
+    {
+      href: getRedditShareLink(link, post?.title),
+      icon: <RedditIcon />,
+      className: "bg-theme-bg-reddit",
+      onClick: () => trackClick(ShareProvider.Reddit),
+      label: "Reddit"
+    },
+    {
+      href: getLinkedInShareLink(link),
+      icon: <LinkedInIcon />,
+      className: "bg-theme-bg-linkedin",
+      onClick: () => trackClick(ShareProvider.LinkedIn),
+      label: "LinkedIn"
+    },
+    {
+      href: getTelegramShareLink(link, post?.title),
+      icon: <TelegramIcon />,
+      className: "bg-theme-bg-telegram",
+      onClick: () => trackClick(ShareProvider.Telegram),
+      label: "Telegram"
+    },
+  ]
+  if (postCardShareVersion === ShareVersion.V2)
+  {
+    ShareOptions.push(...[
+      {
+        icon: <MenuIcon Icon={ShareIcon} />,
+        text: 'Share article via...',
+        action: onShare,
+      },
+      {
+        icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
+        text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+        action: onBookmark,
+      },
+      {
+        icon: <MenuIcon Icon={LinkIcon} />,
+        text: 'Copy link to article',
+        action: trackAndCopyLink,
+      },
+    ]);
+  }
+  if (postCardShareVersion === ShareVersion.V3) {
+    ShareOptions.push(...[
+      {
+        icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
+        text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+        action: onBookmark,
+      },
+      {
+        icon: <MenuIcon Icon={LinkIcon} />,
+        text: 'Copy link to article',
+        action: trackAndCopyLink,
+      }]);
+      ShareOptions.push(...socials.map(social => ({
+        icon: social.icon,
+        text: social.label,
+        action: social.onClick
+      })))
+  }
+  if (postCardShareVersion === ShareVersion.V4) {
+    ShareOptions.push(...[]);
+  }
 
   return (
     <>

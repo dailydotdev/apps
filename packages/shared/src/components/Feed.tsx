@@ -419,6 +419,7 @@ export default function Feed<T>({
             )
           }
           post={(items[postMenuIndex] as PostItem)?.post}
+          postCardShareVersion={postCardShareVersion}
           onHidden={() => setPostMenuIndex(null)}
         />
         {sharePost && (
