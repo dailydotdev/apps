@@ -40,6 +40,7 @@ export const FeaturesContextProvider = ({
       ),
       postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
       postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
+      postCardShareVersion: getFeatureValue(Features.PostCardShareVersion, flags),
       authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
       additionalInteractionButtonFeature: getFeatureValue(
         Features.AdditionalInteractionButton,
@@ -50,7 +51,7 @@ export const FeaturesContextProvider = ({
   );
 
   return (
-    <FeaturesContext.Provider value={features}>
+    <FeaturesContext.Provider value={features as any}>
       {children}
     </FeaturesContext.Provider>
   );
