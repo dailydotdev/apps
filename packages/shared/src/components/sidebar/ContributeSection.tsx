@@ -29,7 +29,14 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [showSubmitArticle, setShowSubmitArticle] = useState(false);
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
-  const contributeMenuItems: SidebarMenuItem[] = [];
+  const contributeMenuItems: SidebarMenuItem[] = [
+    {
+      icon: () => <ListIcon Icon={() => <EmbedIcon />} />,
+      title: 'Suggest new source',
+      action: () => setShowNewSourceModal(true),
+      active: showNewSourceModal,
+    },
+  ];
 
   const trackAndShowSubmitArticle = () => {
     trackEvent({
@@ -49,15 +56,8 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
       action: trackAndShowSubmitArticle,
       active: showSubmitArticle,
     };
-    contributeMenuItems.push(submitArticleMenuItem);
+    contributeMenuItems.unshift(submitArticleMenuItem);
   }
-
-  contributeMenuItems.push({
-    icon: () => <ListIcon Icon={() => <EmbedIcon />} />,
-    title: 'Suggest new source',
-    action: () => setShowNewSourceModal(true),
-    active: showNewSourceModal,
-  });
 
   return (
     <>
