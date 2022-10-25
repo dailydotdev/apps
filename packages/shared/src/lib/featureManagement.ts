@@ -154,6 +154,18 @@ export class Features<T extends FeatureValue = string> {
     [OnboardingFiltersLayoutEnum.Grid, OnboardingFiltersLayoutEnum.List],
   );
 
+  static readonly FeedFilterVersion = new Features(
+    'feed_filter_version',
+    'v1',
+    ['v1', 'v2'],
+  );
+
+  static readonly FeedFilterCardVersion = new Features(
+    'feed_filter_card_version',
+    'v1',
+    ['v1', 'v2'],
+  );
+
   static readonly AuthenticationVersion = new Features(
     'auth_version',
     AuthVersion.V1,
