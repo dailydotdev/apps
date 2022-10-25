@@ -18,7 +18,9 @@ import { ModalProps, StyledModal } from './StyledModal';
 
 interface SteppedModalProps extends ModalProps {
   trigger: string;
+  skippable?: boolean;
   isLastStepLogin?: boolean;
+  isFirstStepIntroduction?: boolean;
   onStepChange?: (stepBefore: number, stepNow: number) => void | Promise<void>;
   onFinish?: () => void | Promise<void>;
   onAuthSuccess?: (isLogin?: boolean) => void | Promise<void>;
@@ -27,7 +29,9 @@ interface SteppedModalProps extends ModalProps {
 function SteppedModal({
   trigger,
   children,
+  skippable = true,
   isLastStepLogin,
+  isFirstStepIntroduction,
   onStepChange,
   onFinish,
   onRequestClose,
@@ -66,10 +70,10 @@ function SteppedModal({
   };
   const getBackwardsLabel = () => {
     if (step === 0) {
-      return 'Skip';
+      return isFirstStepIntroduction ? 'Skip' : 'Close';
     }
 
-    return step === 1 ? 'Close' : 'Back';
+    return step === 1 && isFirstStepIntroduction ? 'Close' : 'Back';
   };
 
   const onBack = async (e: MouseEvent | KeyboardEvent) => {
@@ -82,7 +86,7 @@ function SteppedModal({
   };
 
   const getForwardLabel = () => {
-    if (step === 0) {
+    if (step === 0 && isFirstStepIntroduction) {
       return 'Continue';
     }
 
@@ -133,6 +137,18 @@ function SteppedModal({
     return content;
   };
 
+  const isLeftButtonShown = (() => {
+    if (skippable) {
+      return true;
+    }
+
+    if (isFirstStepIntroduction) {
+      return step > 1;
+    }
+
+    return step > 0;
+  })();
+
   return (
     <StyledModal
       {...props}
@@ -151,14 +167,21 @@ function SteppedModal({
         {getChildren()}
       </TabContainer>
       {step < React.Children.count(children) && (
-        <footer className="flex sticky bottom-0 z-2 flex-row justify-between p-3 mt-auto w-full border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
+        <footer
+          className={classNames(
+            'flex sticky bottom-0 z-2 flex-row p-3 mt-auto w-full border-t border-theme-divider-tertiary bg-theme-bg-tertiary',
+            isLeftButtonShown ? 'justify-between' : 'justify-center',
+          )}
+        >
           <div
             className="absolute -top-0.5 left-0 h-1 bg-theme-color-cabbage transition-[width]"
             style={{ width: `${getWidth()}%` }}
           />
-          <Button className="btn-tertiary" onClick={onBack}>
-            {getBackwardsLabel()}
-          </Button>
+          {isLeftButtonShown && (
+            <Button className="btn-tertiary" onClick={onBack}>
+              {getBackwardsLabel()}
+            </Button>
+          )}
           <Button className="bg-theme-color-cabbage" onClick={onForward}>
             {getForwardLabel()}
           </Button>
