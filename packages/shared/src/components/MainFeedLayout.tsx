@@ -37,6 +37,8 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
 import SortIcon from './icons/Sort';
+import { OnboardingVersion } from '../lib/featureValues';
+import OnboardingModal from './modals/OnboardingModal';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -129,6 +131,8 @@ const getQueryBasedOnLogin = (
   return null;
 };
 
+type ModalCommand = Record<OnboardingVersion, (value: boolean) => unknown>;
+
 const algorithms = [
   { value: RankingAlgorithm.Popularity, text: 'Recommended' },
   { value: RankingAlgorithm.Time, text: 'By date' },
@@ -159,7 +163,9 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { flags } = useContext(FeaturesContext);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const { flags, onboardingVersion, myFeedOnboardingVersion } =
+    useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const [createMyFeed, setCreateMyFeed] = useState(false);
@@ -174,10 +180,6 @@ export default function MainFeedLayout({
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
-  );
-  const myFeedOnboardingVersion = getFeatureValue(
-    Features.MyFeedOnboardingVersion,
-    flags,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isMyFeed = feedName === MainFeedPage.MyFeed;
@@ -211,14 +213,19 @@ export default function MainFeedLayout({
     }
   }, [defaultFeed, feedName]);
 
-  const closeCreateMyFeedModal = () => {
+  const modalCommand: ModalCommand = {
+    v1: setCreateMyFeed,
+    v2: setIsOnboardingOpen,
+  };
+
+  const onCloseOnboardingModal = () => {
     if (myFeedMode === MyFeedMode.Auto) {
       trackEvent({
         event_name: 'my feed onboarding skip',
       });
     }
     setIsFirstSession(false);
-    setCreateMyFeed(false);
+    modalCommand[onboardingVersion]?.(false);
     if (user && !alerts.filter) {
       onFeedPageChanged(MainFeedPage.MyFeed);
     }
@@ -260,15 +267,13 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
+  const onInitializeOnboarding = () => modalCommand[onboardingVersion]?.(true);
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
 
   const header = (
     <LayoutHeader className="flex-col">
       {alerts?.filter && (
-        <CreateMyFeedButton
-          action={() => setCreateMyFeed(true)}
-          flags={flags}
-        />
+        <CreateMyFeedButton action={onInitializeOnboarding} flags={flags} />
       )}
       <div
         className={classNames(
@@ -398,7 +403,13 @@ export default function MainFeedLayout({
           mode={myFeedMode}
           hasUser={!!user}
           isOpen={createMyFeed}
-          onRequestClose={closeCreateMyFeedModal}
+          onRequestClose={onCloseOnboardingModal}
+        />
+      )}
+      {isOnboardingOpen && (
+        <OnboardingModal
+          isOpen={isOnboardingOpen}
+          onRequestClose={onCloseOnboardingModal}
         />
       )}
     </>
