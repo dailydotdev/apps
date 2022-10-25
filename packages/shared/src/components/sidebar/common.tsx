@@ -158,9 +158,3 @@ export const NavItem = ({
     </RawNavItem>
   );
 };
-
-export interface SectionProps {
-  sidebarExpanded: boolean;
-  sidebarRendered: boolean;
-  activePage: string;
-}

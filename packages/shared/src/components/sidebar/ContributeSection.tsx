@@ -4,8 +4,8 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import EmbedIcon from '../icons/Embed';
 import LinkIcon from '../icons/Link';
-import { ListIcon, SectionProps, SidebarMenuItem } from './common';
-import { Section } from './Section';
+import { ListIcon, SidebarMenuItem } from './common';
+import { Section, SectionCommonProps } from './Section';
 
 const SubmitArticleModal = dynamic(
   () =>
@@ -19,7 +19,7 @@ const NewSourceModal = dynamic(
     import(/* webpackChunkName: "NewSourceModal" */ '../modals/NewSourceModal'),
 );
 
-export function ContributeSection(props: SectionProps): ReactElement {
+export function ContributeSection(props: SectionCommonProps): ReactElement {
   const {
     canSubmitArticle,
     submitArticleOn,

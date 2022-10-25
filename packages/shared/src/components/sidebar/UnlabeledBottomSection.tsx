@@ -3,11 +3,11 @@ import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
 import TerminalIcon from '../icons/Terminal';
 import SidebarRankProgress from '../SidebarRankProgress';
-import { ListIcon, Nav, SectionProps, SidebarMenuItem } from './common';
+import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
-import { Section } from './Section';
+import { Section, SectionCommonProps } from './Section';
 
-interface UnlabeledBottomSectionProps extends SectionProps {
+interface UnlabeledBottomSectionProps extends SectionCommonProps {
   optOutWeeklyGoal: boolean;
   showSettings: boolean;
 }

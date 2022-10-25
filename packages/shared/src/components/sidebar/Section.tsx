@@ -10,12 +10,15 @@ import {
   SidebarMenuItem,
 } from './common';
 
-interface SectionProps {
-  title?: string;
-  items: SidebarMenuItem[];
+export interface SectionCommonProps {
   sidebarExpanded: boolean;
   sidebarRendered: boolean;
   activePage: string;
+}
+
+interface SectionProps extends SectionCommonProps {
+  title?: string;
+  items: SidebarMenuItem[];
   isItemsButton: boolean;
 }
 

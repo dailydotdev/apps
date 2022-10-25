@@ -4,10 +4,10 @@ import EyeIcon from '../icons/Eye';
 import PauseIcon from '../icons/Pause';
 import PlayIcon from '../icons/Play';
 import SettingsIcon from '../icons/Settings';
-import { ListIcon, SectionProps, SidebarMenuItem } from './common';
-import { Section } from './Section';
+import { ListIcon, SidebarMenuItem } from './common';
+import { Section, SectionCommonProps } from './Section';
 
-interface ManageSectionProps extends SectionProps {
+interface ManageSectionProps extends SectionCommonProps {
   isDndActive?: boolean;
   showDnd?: boolean;
   onShowDndClick?: () => void;

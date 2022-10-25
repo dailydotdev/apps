@@ -4,10 +4,10 @@ import DiscussIcon from '../icons/Discuss';
 import HotIcon from '../icons/Hot';
 import SearchIcon from '../icons/Search';
 import UpvoteIcon from '../icons/Upvote';
-import { ListIcon, SectionProps, SidebarMenuItem } from './common';
-import { Section } from './Section';
+import { ListIcon, SidebarMenuItem } from './common';
+import { Section, SectionCommonProps } from './Section';
 
-interface DiscoverSectionProps extends SectionProps {
+interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
   enableSearch?: () => unknown;
   onNavTabClick?: (page: string) => unknown;
