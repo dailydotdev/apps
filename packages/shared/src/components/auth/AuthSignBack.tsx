@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
@@ -25,15 +25,15 @@ export const AuthSignBack = ({
   onRegister,
   onProviderClick,
 }: AuthSignBackProps): ReactElement => {
-  const [signback] = useState<Provider>(() => {
+  const signback = useMemo<Provider>(() => {
     const method = storage.getItem(SIGNIN_METHOD_KEY);
     storage.removeItem(SIGNIN_METHOD_KEY);
     const provider = providerMap[method];
     return provider || providerMap.google;
-  });
+  }, []);
 
   return (
-    <>
+    <span className="flex flex-col flex-1">
       <AuthModalHeader title="Login to daily.dev" onClose={onClose} />
       <AuthContainer>
         <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
@@ -64,6 +64,6 @@ export const AuthSignBack = ({
       </AuthContainer>
       <div className="flex flex-1" />
       <AuthModalFooter className="mt-4" isLogin onIsLogin={onRegister} />
-    </>
+    </span>
   );
 };

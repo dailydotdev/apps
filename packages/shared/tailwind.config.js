@@ -27,6 +27,7 @@ module.exports = {
           telegram: '#24A2E0',
           email: 'var(--theme-color-email)',
           primary: 'var(--theme-background-primary)',
+          reverse: 'var(--theme-background-reverse)',
           secondary: 'var(--theme-background-secondary)',
           tertiary: 'var(--theme-background-tertiary)',
           bun: 'var(--theme-background-bun)',
