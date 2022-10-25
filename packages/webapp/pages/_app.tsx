@@ -74,11 +74,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     loginState,
   } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
-  const [showCookie, acceptCookies] = useCookieBanner();
+  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
   useTrackPageView();
 
   useEffect(() => {
+    updateCookieBanner(user);
+
     if (!tokenRefreshed || !user) {
       return;
     }
