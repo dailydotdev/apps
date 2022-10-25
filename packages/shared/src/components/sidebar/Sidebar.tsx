@@ -48,6 +48,8 @@ import {
 } from '../../lib/featureManagement';
 import PauseIcon from '../icons/Pause';
 import PlayIcon from '../icons/Play';
+import EmbedIcon from '../icons/Embed';
+import NewSourceModal from '../modals/NewSourceModal';
 
 const SubmitArticleModal = dynamic(
   () => import('../modals/SubmitArticleModal'),
@@ -144,6 +146,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const [defaultFeed] = useDefaultFeed();
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
@@ -268,7 +271,7 @@ export default function Sidebar({
     },
   ];
 
-  const contirbuteMenuItems: SidebarMenuItem[] = [];
+  const contributeMenuItems: SidebarMenuItem[] = [];
   if (submitArticleOn) {
     const submitArticleMenuItem = {
       icon: (active: boolean) => (
@@ -278,8 +281,15 @@ export default function Sidebar({
       action: () => trackAndShowSubmitArticle(),
       active: showSubmitArticle,
     };
-    contirbuteMenuItems.push(submitArticleMenuItem);
+    contributeMenuItems.push(submitArticleMenuItem);
   }
+
+  contributeMenuItems.push({
+    icon: () => <ListIcon Icon={() => <EmbedIcon />} />,
+    title: 'Suggest new source',
+    action: () => setShowNewSourceModal(true),
+    active: showNewSourceModal,
+  });
 
   if (shouldShowDnD) {
     const dndMenuItem = {
@@ -352,10 +362,10 @@ export default function Sidebar({
               items={discoverMenuItems}
               useNavButtonsNotLinks={useNavButtonsNotLinks}
             />
-            {!!contirbuteMenuItems.length && (
+            {!!contributeMenuItems.length && (
               <RenderSection
                 title="Contribute"
-                items={contirbuteMenuItems}
+                items={contributeMenuItems}
                 {...defaultRenderSectionProps}
                 useNavButtonsNotLinks={false}
               />
@@ -398,6 +408,12 @@ export default function Sidebar({
         <FeedSettingsModal
           isOpen={showSettings}
           onRequestClose={() => setShowSettings(false)}
+        />
+      )}
+      {showNewSourceModal && (
+        <NewSourceModal
+          isOpen={showNewSourceModal}
+          onRequestClose={() => setShowNewSourceModal(false)}
         />
       )}
     </>
