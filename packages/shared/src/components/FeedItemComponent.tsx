@@ -162,7 +162,9 @@ export default function FeedItemComponent({
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
-          onShareClick={(event, post) => onShareClick(event, post, index, row, column)}
+          onShareClick={(event, post) =>
+            onShareClick(event, post, index, row, column)
+          }
           menuOpened={postMenuIndex === index}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}

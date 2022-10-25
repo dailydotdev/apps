@@ -17,5 +17,11 @@ export const MenuIconWithBg = ({
   Icon,
   secondary = false,
 }: MenuIconProps): ReactElement => {
-  return <Icon size="medium" secondary={secondary} className={classNames("mr-2 text-white p-1 rounded-md", className)} />;
+  return (
+    <Icon
+      size="medium"
+      secondary={secondary}
+      className={classNames('mr-2 text-white p-1 rounded-md', className)}
+    />
+  );
 };

@@ -42,7 +42,6 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ShareVersion } from '../lib/featureValues';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -230,8 +229,13 @@ export default function Feed<T>({
     onPostModalOpen(index);
   };
 
-  const { onMenuClick, onShareMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
-    useFeedContextMenu();
+  const {
+    onMenuClick,
+    onShareMenuClick,
+    postMenuIndex,
+    postMenuLocation,
+    setPostMenuIndex,
+  } = useFeedContextMenu();
 
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;

@@ -28,7 +28,6 @@ import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
 import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
-import { ShareVersion } from '../../lib/featureValues';
 
 type Callback = (post: Post) => unknown;
 

@@ -5,7 +5,6 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../lib/featureManagement';
-import { ShareVersion } from '../lib/featureValues';
 
 export interface FeaturesData {
   flags: IFlags;
@@ -13,7 +12,7 @@ export interface FeaturesData {
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
-  postCardShareVersion?: ShareVersion;
+  postCardShareVersion?: string;
   authVersion?: string;
   additionalInteractionButtonFeature?: string;
 }
@@ -40,7 +39,10 @@ export const FeaturesContextProvider = ({
       ),
       postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
       postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-      postCardShareVersion: getFeatureValue(Features.PostCardShareVersion, flags),
+      postCardShareVersion: getFeatureValue(
+        Features.PostCardShareVersion,
+        flags,
+      ),
       authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
       additionalInteractionButtonFeature: getFeatureValue(
         Features.AdditionalInteractionButton,
@@ -51,7 +53,7 @@ export const FeaturesContextProvider = ({
   );
 
   return (
-    <FeaturesContext.Provider value={features as any}>
+    <FeaturesContext.Provider value={features}>
       {children}
     </FeaturesContext.Provider>
   );

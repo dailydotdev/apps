@@ -25,9 +25,7 @@ type FeedContextMenu = {
   ) => void;
   postMenuIndex: number;
   postMenuLocation: PostMenuLocation;
-  setPostMenuIndex: (
-    value: PostMenuLocation | undefined,
-  ) => void;
+  setPostMenuIndex: (value: PostMenuLocation | undefined) => void;
 };
 
 export default function useFeedContextMenu(): FeedContextMenu {

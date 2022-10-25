@@ -14,7 +14,10 @@ import OptionsButton from '../buttons/OptionsButton';
 import classed from '../../lib/classed';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
-import { AdditionalInteractionButtons, ShareVersion } from '../../lib/featureValues';
+import {
+  AdditionalInteractionButtons,
+  ShareVersion,
+} from '../../lib/featureValues';
 
 const ShareIcon = dynamic(() => import('../icons/Share'));
 
@@ -106,14 +109,14 @@ export default function ActionButtons({
       </SimpleTooltip>
     );
   if (postCardShareVersion !== ShareVersion.Control) {
-      bookmarkOrShareButton = (
-        <SimpleTooltip content="Share post">
+    bookmarkOrShareButton = (
+      <SimpleTooltip content="Share post">
         <Button
           icon={<ShareIcon />}
           buttonSize="small"
-          onClick={event => onShareClick?.(event, post)}
+          onClick={(event) => onShareClick?.(event, post)}
           className="btn-tertiary-cabbage"
-          />
+        />
       </SimpleTooltip>
     );
   }

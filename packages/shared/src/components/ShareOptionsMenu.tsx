@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { Post } from '../graphql/posts';
@@ -9,7 +9,15 @@ import { MenuIcon, MenuIconWithBg } from './MenuIcon';
 import { OnShareOrBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
-import { getFacebookShareLink, getLinkedInShareLink, getRedditShareLink, getTelegramShareLink, getTwitterShareLink, getWhatsappShareLink, ShareProvider } from '../lib/share';
+import {
+  getFacebookShareLink,
+  getLinkedInShareLink,
+  getRedditShareLink,
+  getTelegramShareLink,
+  getTwitterShareLink,
+  getWhatsappShareLink,
+  ShareProvider,
+} from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import LinkIcon from './icons/Link';
 import { ShareVersion } from '../lib/featureValues';
@@ -58,7 +66,7 @@ export default function ShareOptionsMenu({
     );
   const trackClick = (type) => {
     onClick(type);
-  }
+  };
   const trackAndCopyLink = () => {
     copyLink();
     onClick(ShareProvider.CopyLink);
@@ -81,85 +89,96 @@ export default function ShareOptionsMenu({
     {
       href: getTwitterShareLink(link, post?.title),
       icon: TwitterIcon,
-      className: "bg-theme-bg-twitter",
+      className: 'bg-theme-bg-twitter',
       onClick: () => trackClick(ShareProvider.Twitter),
-      label: "Twitter"
+      label: 'Twitter',
     },
     {
       href: getWhatsappShareLink(link),
       icon: WhatsappIcon,
       onClick: () => trackClick(ShareProvider.WhatsApp),
-      className: "bg-theme-bg-whatsapp",
-      label: "WhatsApp"
+      className: 'bg-theme-bg-whatsapp',
+      label: 'WhatsApp',
     },
     {
       href: getFacebookShareLink(link),
       icon: FacebookIcon,
-      className: "bg-theme-bg-facebook",
+      className: 'bg-theme-bg-facebook',
       onClick: () => trackClick(ShareProvider.Facebook),
-      label: "Facebook"
+      label: 'Facebook',
     },
     {
       href: getRedditShareLink(link, post?.title),
       icon: RedditIcon,
-      className: "bg-theme-bg-reddit",
+      className: 'bg-theme-bg-reddit',
       onClick: () => trackClick(ShareProvider.Reddit),
-      label: "Reddit"
+      label: 'Reddit',
     },
     {
       href: getLinkedInShareLink(link),
       icon: LinkedInIcon,
-      className: "bg-theme-bg-linkedin",
+      className: 'bg-theme-bg-linkedin',
       onClick: () => trackClick(ShareProvider.LinkedIn),
-      label: "LinkedIn"
+      label: 'LinkedIn',
     },
     {
       href: getTelegramShareLink(link, post?.title),
       icon: TelegramIcon,
-      className: "bg-theme-bg-telegram",
+      className: 'bg-theme-bg-telegram',
       onClick: () => trackClick(ShareProvider.Telegram),
-      label: "Telegram"
+      label: 'Telegram',
     },
-  ]
-  if (postCardShareVersion === ShareVersion.V2)
-  {
-    ShareOptions.push(...[
-      {
-        icon: <MenuIcon Icon={ShareIcon} />,
-        text: 'Share article via...',
-        action: onShare,
-      },
-      {
-        icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
-        text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-        action: onBookmark,
-      },
-      {
-        icon: <MenuIcon Icon={LinkIcon} />,
-        text: 'Copy link to article',
-        action: trackAndCopyLink,
-      },
-    ]);
+  ];
+  if (postCardShareVersion === ShareVersion.V2) {
+    ShareOptions.push(
+      ...[
+        {
+          icon: <MenuIcon Icon={ShareIcon} />,
+          text: 'Share article via...',
+          action: onShare,
+        },
+        {
+          icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
+          text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+          action: onBookmark,
+        },
+        {
+          icon: <MenuIcon Icon={LinkIcon} />,
+          text: 'Copy link to article',
+          action: trackAndCopyLink,
+        },
+      ],
+    );
   }
   if (postCardShareVersion === ShareVersion.V3) {
-    ShareOptions.push(...[
-      ...socials.map(social => ({
-        href: social.href,
-        icon: <MenuIconWithBg secondary={social.secondary} className={social.className} Icon={social.icon} />,
-        text: social.label,
-        action: social.onClick
-      })),
-    ]);
+    ShareOptions.push(
+      ...[
+        ...socials.map((social) => ({
+          href: social.href,
+          icon: (
+            <MenuIconWithBg
+              secondary={social.secondary}
+              className={social.className}
+              Icon={social.icon}
+            />
+          ),
+          text: social.label,
+          action: social.onClick,
+        })),
+      ],
+    );
   }
   if (postCardShareVersion === ShareVersion.V4) {
-    ShareOptions.push(...[
-      ...socials.map(social => ({
-        href: social.href,
-        icon: <MenuIcon secondary={social.secondary} Icon={social.icon} />,
-        text: social.label,
-        action: social.onClick
-      }))
-    ]);
+    ShareOptions.push(
+      ...[
+        ...socials.map((social) => ({
+          href: social.href,
+          icon: <MenuIcon secondary={social.secondary} Icon={social.icon} />,
+          text: social.label,
+          action: social.onClick,
+        })),
+      ],
+    );
   }
 
   return (
