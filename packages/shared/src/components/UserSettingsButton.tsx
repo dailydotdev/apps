@@ -7,7 +7,7 @@ import { SimpleTooltip } from './tooltips/SimpleTooltip';
 const UserSettingsModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "UserSettingsModal" */ './modals/UserSettingsModal'
+      /* webpackChunkName: "userSettingsModal" */ './modals/UserSettingsModal'
     ),
 );
 
