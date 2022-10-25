@@ -3,6 +3,7 @@ import {
   AdditionalInteractionButtons,
   AuthVersion,
   OnboardingVersion,
+  MyFeedOnboardingVersion as MyFeedOnboardingVersionEnum,
 } from './featureValues';
 
 export class Features<T extends FeatureValue = string> {
@@ -126,8 +127,13 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly MyFeedOnboardingVersion = new Features(
     'my_feed_onboarding_version',
-    'control',
-    ['control', 'v1', 'v2', 'v3'],
+    MyFeedOnboardingVersionEnum.Control,
+    [
+      MyFeedOnboardingVersionEnum.Control,
+      MyFeedOnboardingVersionEnum.V1,
+      MyFeedOnboardingVersionEnum.V2,
+      MyFeedOnboardingVersionEnum.V3,
+    ],
   );
 
   static readonly OnboardingSteps = new Features(
