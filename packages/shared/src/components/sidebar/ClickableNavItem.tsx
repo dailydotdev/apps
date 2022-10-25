@@ -30,7 +30,7 @@ export function ClickableNavItem({
     );
   }
 
-  if ((!isButton && !item.action) || (item.path && !isButton)) {
+  if (!isButton && (!item.action || item.path)) {
     return (
       <Link href={item.path} passHref prefetch={false}>
         <a
