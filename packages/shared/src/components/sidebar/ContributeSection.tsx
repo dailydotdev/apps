@@ -16,7 +16,7 @@ const SubmitArticleModal = dynamic(
 
 const NewSourceModal = dynamic(
   () =>
-    import(/* webpackChunkName: "NewSourceModal" */ '../modals/NewSourceModal'),
+    import(/* webpackChunkName: "newSourceModal" */ '../modals/NewSourceModal'),
 );
 
 export function ContributeSection(props: SectionCommonProps): ReactElement {
