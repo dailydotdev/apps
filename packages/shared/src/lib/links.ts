@@ -3,7 +3,7 @@ export const getTagPageLink = (tag: string): string =>
 
 const previewDeployments = [
   'https://preview.app.daily.dev',
-  'https://preview.app.daily.dev',
+  'https://preview2.app.daily.dev',
 ];
 
 export const checkIsPreviewDeployment = (): boolean => {
