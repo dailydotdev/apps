@@ -68,8 +68,7 @@ function LastActionButton(props: LastActionButtonProps) {
     post,
     postCardShareVersion,
   } = props;
-
-  if (postCardShareVersion !== ShareVersion.Control) {
+  if (postCardShareVersion !== ShareVersion.V1) {
     return (
       <SimpleTooltip content="Share post">
         <Button

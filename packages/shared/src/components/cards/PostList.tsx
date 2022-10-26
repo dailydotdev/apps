@@ -36,6 +36,7 @@ export const PostList = forwardRef(function PostList(
     additionalInteractionButtonFeature,
     className,
     children,
+    postCardShareVersion,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
@@ -119,6 +120,7 @@ export const PostList = forwardRef(function PostList(
             onMenuClick={(event) => onMenuClick?.(event, post)}
             insaneMode
             postCardVersion={postCardVersion}
+            postCardShareVersion={postCardShareVersion}
             postModalByDefault={postModalByDefault}
             postEngagementNonClickable={postEngagementNonClickable}
             additionalInteractionButtonFeature={

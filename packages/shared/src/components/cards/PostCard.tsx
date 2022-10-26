@@ -90,7 +90,6 @@ export const PostCard = forwardRef(function PostCard(
       ),
     [postCardVersion],
   );
-
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (

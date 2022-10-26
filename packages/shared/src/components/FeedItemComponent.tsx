@@ -13,6 +13,7 @@ import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { PostCardTests } from './post/common';
+import { AdditionalInteractionButtons } from '../lib/featureValues';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -76,7 +77,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
-  additionalInteractionButtonFeature: string;
+  additionalInteractionButtonFeature: AdditionalInteractionButtons;
 } & PostCardTests;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -118,6 +119,7 @@ export default function FeedItemComponent({
   onAdClick,
   additionalInteractionButtonFeature,
   onReadArticleClick,
+  postCardShareVersion,
   postCardVersion,
   postModalByDefault,
   postEngagementNonClickable,
@@ -169,6 +171,7 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
           insaneMode={insaneMode}
+          postCardShareVersion={postCardShareVersion}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
