@@ -39,7 +39,9 @@ export function ContributeSection({
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const contributeMenuItems: SidebarMenuItem[] = [
     {
-      icon: () => <ListIcon Icon={() => <EmbedIcon />} />,
+      icon: (active) => (
+        <ListIcon Icon={() => <EmbedIcon secondary={active} />} />
+      ),
       title: 'Suggest new source',
       action: () => setShowNewSourceModal(true),
       active: showNewSourceModal,
