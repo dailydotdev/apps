@@ -1,7 +1,8 @@
+import { useContextMenu } from '@dailydotdev/react-contexify';
 import React, { useState } from 'react';
 import { Post } from '../../graphql/posts';
+import { ContextMenu } from '../constants';
 import useReportPostMenu from '../useReportPostMenu';
-import useShareMenu from '../useShareMenu';
 
 type PostMenuLocation = {
   index: number;
@@ -32,7 +33,7 @@ export default function useFeedContextMenu(): FeedContextMenu {
   const [postMenuLocation, setPostMenuLocation] = useState<PostMenuLocation>();
   const postMenuIndex = postMenuLocation?.index;
   const { showReportMenu } = useReportPostMenu();
-  const { showShareMenu } = useShareMenu();
+  const { show: showShareMenu } = useContextMenu({ id: ContextMenu.ShareContext });
 
   const onMenuClick = (
     e: React.MouseEvent,
