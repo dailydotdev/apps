@@ -84,9 +84,10 @@ export const FeaturesContextProvider = ({
     const { flags: tmp, ...rest } = features;
     const cookie = getCookieObject();
     const keys = Object.keys(rest);
-    const result: Experiments = getObjectFeaturesFlags(keys, cookie);
+    const result: Experiments = getObjectFeaturesFlags(keys, cookie, features);
+    const value = { ...features, ...result };
 
-    return { ...features, ...result };
+    return value;
   }, [flags]);
 
   return (
