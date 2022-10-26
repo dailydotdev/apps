@@ -1,3 +1,3 @@
 export enum ContextMenu {
-    ShareContext = "share-context",
+  ShareContext = 'share-context',
 }

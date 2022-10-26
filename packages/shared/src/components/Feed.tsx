@@ -236,7 +236,30 @@ export default function Feed<T>({
     postMenuLocation,
     setPostMenuIndex,
   } = useFeedContextMenu();
-
+  let lastShareMenuCloseTrackEvent = () => {};
+  const onShareMenuClickTracked = (
+    e: React.MouseEvent,
+    post: Post,
+    index: number,
+    row: number,
+    column: number,
+  ) => {
+    onShareMenuClick(e, post, index, row, column);
+    const trackEventOptions = {
+      columns: virtualizedNumCards,
+      column,
+      row,
+      ...feedAnalyticsExtra(feedName, ranking),
+    };
+    trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
+    lastShareMenuCloseTrackEvent = () => {
+      trackEvent(postAnalyticsEvent('close share', post, trackEventOptions));
+    };
+  };
+  const onShareOptionsHidden = () => {
+    setPostMenuIndex(null);
+    lastShareMenuCloseTrackEvent();
+  };
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
     removePost(item.page, item.index);
@@ -315,7 +338,6 @@ export default function Feed<T>({
         !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
       ),
     post: (items[postMenuIndex] as PostItem)?.post,
-    onHidden: () => setPostMenuIndex(null),
   };
   return (
     <div
@@ -382,7 +404,7 @@ export default function Feed<T>({
               onPostClick={onPostCardClick}
               onShare={onShareClick}
               onMenuClick={onMenuClick}
-              onShareClick={onShareMenuClick}
+              onShareClick={onShareMenuClickTracked}
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
@@ -398,10 +420,12 @@ export default function Feed<T>({
           {...commonMenuItems}
           feedName={feedName}
           postIndex={postMenuIndex}
+          onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
         />
         <ShareOptionsMenu
           {...commonMenuItems}
+          onHidden={onShareOptionsHidden}
           postCardShareVersion={postCardShareVersion}
         />
         {sharePost && (

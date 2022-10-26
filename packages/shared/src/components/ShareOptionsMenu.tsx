@@ -80,13 +80,13 @@ export default function ShareOptionsMenu({
       secondary: post?.bookmarked,
       className: 'bg-theme-color-bun',
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onBookmark,
+      onClick: onBookmark,
     },
     {
       icon: LinkIcon,
       className: 'bg-theme-bg-pepper',
       label: 'Copy link to article',
-      action: trackAndCopyLink,
+      onClick: trackAndCopyLink,
     },
     {
       href: getTwitterShareLink(link, post?.title),

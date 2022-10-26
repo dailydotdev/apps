@@ -33,7 +33,9 @@ export default function useFeedContextMenu(): FeedContextMenu {
   const [postMenuLocation, setPostMenuLocation] = useState<PostMenuLocation>();
   const postMenuIndex = postMenuLocation?.index;
   const { showReportMenu } = useReportPostMenu();
-  const { show: showShareMenu } = useContextMenu({ id: ContextMenu.ShareContext });
+  const { show: showShareMenu } = useContextMenu({
+    id: ContextMenu.ShareContext,
+  });
 
   const onMenuClick = (
     e: React.MouseEvent,
