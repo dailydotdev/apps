@@ -37,7 +37,10 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
 import SortIcon from './icons/Sort';
-import { OnboardingVersion } from '../lib/featureValues';
+import {
+  MyFeedOnboardingVersion,
+  OnboardingVersion,
+} from '../lib/featureValues';
 import OnboardingModal from './modals/OnboardingModal';
 
 const SearchEmptyScreen = dynamic(
@@ -140,6 +143,7 @@ const algorithms = [
 const algorithmsList = algorithms.map((algo) => algo.text);
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 const FIRST_TIME_SESSION = 'firstTimeSession';
+const LOGGED_USER_ONBOARDING = 'loggedUserOnboarding';
 
 const periods = [
   { value: 7, text: 'Last week' },
@@ -186,32 +190,8 @@ export default function MainFeedLayout({
 
   const [isFirstSession, setIsFirstSession, isSessionLoaded] =
     usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
-
-  useEffect(() => {
-    if (user) {
-      setIsFirstSession(false);
-      setMyFeedMode(MyFeedMode.Manual);
-    } else if (
-      isFirstSession &&
-      isSessionLoaded &&
-      myFeedOnboardingVersion !== 'control'
-    ) {
-      setIsFirstSession(true);
-      setMyFeedMode(MyFeedMode.Auto);
-      setCreateMyFeed(true);
-    }
-  }, [isSessionLoaded, user]);
-
-  useEffect(() => {
-    if (
-      defaultFeed !== null &&
-      feedName !== null &&
-      feedName !== defaultFeed &&
-      !getShouldRedirect(isMyFeed, !!user)
-    ) {
-      updateDefaultFeed(feedName);
-    }
-  }, [defaultFeed, feedName]);
+  const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
+    usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, false);
 
   const modalCommand: ModalCommand = {
     v1: setCreateMyFeed,
@@ -225,6 +205,7 @@ export default function MainFeedLayout({
       });
     }
     setIsFirstSession(false);
+    setHasTriedOnboarding(true);
     modalCommand[onboardingVersion]?.(false);
     if (user && !alerts.filter) {
       onFeedPageChanged(MainFeedPage.MyFeed);
@@ -383,6 +364,45 @@ export default function MainFeedLayout({
       setSelectedAlgo(0);
     }
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
+
+  useEffect(() => {
+    if (!isSessionLoaded || !hasOnboardingLoaded) {
+      return;
+    }
+
+    if (!user) {
+      if (
+        isFirstSession &&
+        myFeedOnboardingVersion !== MyFeedOnboardingVersion.Control
+      ) {
+        setIsFirstSession(true);
+        setMyFeedMode(MyFeedMode.Auto);
+        modalCommand[onboardingVersion]?.(true);
+      }
+      return;
+    }
+
+    if (hasTriedOnboarding) {
+      return;
+    }
+
+    if (alerts.filter) {
+      setHasTriedOnboarding(false);
+      setMyFeedMode(MyFeedMode.Auto);
+      modalCommand[onboardingVersion]?.(true);
+    }
+  }, [isSessionLoaded, hasOnboardingLoaded, user]);
+
+  useEffect(() => {
+    if (
+      defaultFeed !== null &&
+      feedName !== null &&
+      feedName !== defaultFeed &&
+      !getShouldRedirect(isMyFeed, !!user)
+    ) {
+      updateDefaultFeed(feedName);
+    }
+  }, [defaultFeed, feedName]);
 
   return (
     <>
