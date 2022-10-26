@@ -32,7 +32,7 @@ export interface ActionButtonsProps {
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className?: string;
   children?: ReactNode;
-  additionalInteractionButtonFeature?: string;
+  additionalInteractionButtonFeature?: AdditionalInteractionButtons;
   insaneMode?: boolean;
   postCardShareVersion?: ShareVersion;
   postCardVersion?: string;
@@ -50,6 +50,65 @@ const getContainer = (displayWhenHovered = false, className?: string) =>
       className,
     ),
   );
+
+type LastActionButtonProps = {
+  postCardShareVersion: ShareVersion;
+  additionalInteractionButtonFeature: AdditionalInteractionButtons;
+  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
+  onShare?: (post: Post) => unknown;
+  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
+  post: Post;
+};
+function LastActionButton(props: LastActionButtonProps) {
+  const {
+    additionalInteractionButtonFeature,
+    onBookmarkClick,
+    onShare,
+    onShareClick,
+    post,
+    postCardShareVersion,
+  } = props;
+
+  if (postCardShareVersion !== ShareVersion.Control) {
+    return (
+      <SimpleTooltip content="Share post">
+        <Button
+          icon={<ShareIcon />}
+          buttonSize="small"
+          onClick={(event) => onShareClick?.(event, post)}
+          className="btn-tertiary-cabbage"
+        />
+      </SimpleTooltip>
+    );
+  }
+
+  if (
+    additionalInteractionButtonFeature === AdditionalInteractionButtons.Bookmark
+  ) {
+    return (
+      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+        <Button
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
+          buttonSize="small"
+          pressed={post.bookmarked}
+          onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+          className="btn-tertiary-bun"
+        />
+      </SimpleTooltip>
+    );
+  }
+
+  return (
+    <SimpleTooltip content="Share post">
+      <Button
+        icon={<ShareIcon />}
+        buttonSize="small"
+        onClick={() => onShare?.(post)}
+        className="btn-tertiary-cabbage"
+      />
+    </SimpleTooltip>
+  );
+}
 
 export default function ActionButtons({
   openNewTab,
@@ -86,40 +145,14 @@ export default function ActionButtons({
     ),
   };
 
-  let bookmarkOrShareButton =
-    additionalInteractionButtonFeature ===
-    AdditionalInteractionButtons.Bookmark ? (
-      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-        <Button
-          icon={<BookmarkIcon secondary={post.bookmarked} />}
-          buttonSize="small"
-          pressed={post.bookmarked}
-          onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
-          className="btn-tertiary-bun"
-        />
-      </SimpleTooltip>
-    ) : (
-      <SimpleTooltip content="Share post">
-        <Button
-          icon={<ShareIcon />}
-          buttonSize="small"
-          onClick={() => onShare?.(post)}
-          className="btn-tertiary-cabbage"
-        />
-      </SimpleTooltip>
-    );
-  if (postCardShareVersion !== ShareVersion.Control) {
-    bookmarkOrShareButton = (
-      <SimpleTooltip content="Share post">
-        <Button
-          icon={<ShareIcon />}
-          buttonSize="small"
-          onClick={(event) => onShareClick?.(event, post)}
-          className="btn-tertiary-cabbage"
-        />
-      </SimpleTooltip>
-    );
-  }
+  const lastActionButton = LastActionButton({
+    additionalInteractionButtonFeature,
+    post,
+    postCardShareVersion,
+    onBookmarkClick,
+    onShare,
+    onShareClick,
+  });
 
   return (
     <div
@@ -174,7 +207,7 @@ export default function ActionButtons({
         {insaneMode &&
           postModalByDefault &&
           !postEngagementNonClickable &&
-          bookmarkOrShareButton}
+          lastActionButton}
       </LeftContainer>
       <RightContainer>
         {insaneMode && postModalByDefault && (
@@ -186,7 +219,7 @@ export default function ActionButtons({
           />
         )}
         {(!insaneMode || !postModalByDefault || postEngagementNonClickable) &&
-          bookmarkOrShareButton}
+          lastActionButton}
         {(isV2 || insaneMode) && (
           <OptionsButton
             className={classNames(

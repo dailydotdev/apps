@@ -297,6 +297,26 @@ export default function Feed<T>({
       document.body.classList.remove('hidden-scrollbar');
     }
   }, [selectedPost]);
+  const commonMenuItems = {
+    additionalInteractionButtonFeature,
+    onShare: () =>
+      openSharePost(
+        (items[postMenuIndex] as PostItem)?.post,
+        virtualizedNumCards,
+        postMenuLocation.row,
+        postMenuLocation.column,
+      ),
+    onBookmark: () =>
+      onBookmark(
+        (items[postMenuIndex] as PostItem)?.post,
+        postMenuIndex,
+        postMenuLocation.row,
+        postMenuLocation.column,
+        !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
+      ),
+    post: (items[postMenuIndex] as PostItem)?.post,
+    onHidden: () => setPostMenuIndex(null),
+  };
   return (
     <div
       className={classNames(
@@ -375,56 +395,14 @@ export default function Feed<T>({
         </div>
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         <PostOptionsMenu
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
-          onShare={() =>
-            openSharePost(
-              (items[postMenuIndex] as PostItem)?.post,
-              virtualizedNumCards,
-              postMenuLocation.row,
-              postMenuLocation.column,
-            )
-          }
-          onBookmark={() =>
-            onBookmark(
-              (items[postMenuIndex] as PostItem)?.post,
-              postMenuIndex,
-              postMenuLocation.row,
-              postMenuLocation.column,
-              !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
-            )
-          }
+          {...commonMenuItems}
           feedName={feedName}
           postIndex={postMenuIndex}
-          post={(items[postMenuIndex] as PostItem)?.post}
-          onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
         />
         <ShareOptionsMenu
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
-          onShare={() =>
-            openSharePost(
-              (items[postMenuIndex] as PostItem)?.post,
-              virtualizedNumCards,
-              postMenuLocation.row,
-              postMenuLocation.column,
-            )
-          }
-          onBookmark={() =>
-            onBookmark(
-              (items[postMenuIndex] as PostItem)?.post,
-              postMenuIndex,
-              postMenuLocation.row,
-              postMenuLocation.column,
-              !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
-            )
-          }
-          post={(items[postMenuIndex] as PostItem)?.post}
+          {...commonMenuItems}
           postCardShareVersion={postCardShareVersion}
-          onHidden={() => setPostMenuIndex(null)}
         />
         {sharePost && (
           <SharePostModal

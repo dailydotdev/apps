@@ -28,6 +28,7 @@ import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
 import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
+import { AdditionalInteractionButtons } from '../../lib/featureValues';
 
 type Callback = (post: Post) => unknown;
 
@@ -45,7 +46,7 @@ export type PostCardProps = {
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
-  additionalInteractionButtonFeature?: string;
+  additionalInteractionButtonFeature?: AdditionalInteractionButtons;
   insaneMode?: boolean;
 } & HTMLAttributes<HTMLDivElement> &
   PostCardTests;
