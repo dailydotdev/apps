@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement, useContext, useState } from 'react';
-import FeaturesContext from '../../contexts/FeaturesContext';
+import React, { ReactElement, useState } from 'react';
+import { FeaturesData } from '../../contexts/FeaturesContext';
 import EmbedIcon from '../icons/Embed';
 import LinkIcon from '../icons/Link';
 import { ListIcon, SidebarMenuItem } from './common';
@@ -18,16 +18,22 @@ const NewSourceModal = dynamic(
     import(/* webpackChunkName: "newSourceModal" */ '../modals/NewSourceModal'),
 );
 
+type SubmitFlags = Pick<
+  FeaturesData,
+  | 'canSubmitArticle'
+  | 'submitArticleOn'
+  | 'submitArticleSidebarButton'
+  | 'submitArticleModalButton'
+>;
+
 export function ContributeSection({
   onTrackEvent,
+  canSubmitArticle,
+  submitArticleOn,
+  submitArticleSidebarButton,
+  submitArticleModalButton,
   ...props
-}: SectionCommonProps): ReactElement {
-  const {
-    canSubmitArticle,
-    submitArticleOn,
-    submitArticleSidebarButton,
-    submitArticleModalButton,
-  } = useContext(FeaturesContext);
+}: SectionCommonProps & SubmitFlags): ReactElement {
   const [showSubmitArticle, setShowSubmitArticle] = useState(false);
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const contributeMenuItems: SidebarMenuItem[] = [

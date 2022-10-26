@@ -20,6 +20,7 @@ import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
 import { MobileMenuIcon } from './MobileMenuIcon';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -47,6 +48,13 @@ export default function Sidebar({
   const { sidebarExpanded, loadedSettings, optOutWeeklyGoal } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const {
+    canSubmitArticle,
+    submitArticleOn,
+    submitArticleSidebarButton,
+    submitArticleModalButton,
+    popularFeedCopy,
+  } = useContext(FeaturesContext);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
 
@@ -99,12 +107,17 @@ export default function Sidebar({
             )}
             <DiscoverSection
               {...defaultRenderSectionProps}
+              popularFeedCopy={popularFeedCopy}
               onNavTabClick={onNavTabClick}
               enableSearch={enableSearch}
               isItemsButton={isNavButtons}
             />
             <ContributeSection
               {...defaultRenderSectionProps}
+              canSubmitArticle={canSubmitArticle}
+              submitArticleOn={submitArticleOn}
+              submitArticleSidebarButton={submitArticleSidebarButton}
+              submitArticleModalButton={submitArticleModalButton}
               onTrackEvent={trackEvent}
             />
             <ManageSection
