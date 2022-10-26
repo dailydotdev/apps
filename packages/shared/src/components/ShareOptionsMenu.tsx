@@ -84,7 +84,7 @@ export default function ShareOptionsMenu({
     },
     {
       icon: LinkIcon,
-      className: 'bg-theme-color-pepper',
+      className: 'bg-theme-bg-pepper',
       label: 'Copy link to article',
       action: trackAndCopyLink,
     },
@@ -187,7 +187,7 @@ export default function ShareOptionsMenu({
       onHidden={onHidden}
     >
       {shareOptions.map(({ href, icon, text, action }) => (
-        <Item key={text} className="typo-callout" onClick={action}>
+        <Item key={text} className="py-1 w-64 typo-callout" onClick={action}>
           {href ? (
             <a
               className="flex items-center w-full typo-callout"
