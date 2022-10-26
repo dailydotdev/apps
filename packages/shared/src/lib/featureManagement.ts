@@ -120,7 +120,7 @@ export class Features {
 
   static readonly PostCardShareVersion = new Features(
     'post_card_share_version',
-    ShareVersion.V3,
+    ShareVersion.V1,
     [ShareVersion.V1, ShareVersion.V2, ShareVersion.V3, ShareVersion.V4],
   );
 
