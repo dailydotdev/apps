@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeaturesData } from '../../contexts/FeaturesContext';
 import EmbedIcon from '../icons/Embed';
 import LinkIcon from '../icons/Link';
@@ -27,13 +28,13 @@ type SubmitFlags = Pick<
 >;
 
 export function ContributeSection({
-  onTrackEvent,
   canSubmitArticle,
   submitArticleOn,
   submitArticleSidebarButton,
   submitArticleModalButton,
   ...props
 }: SectionCommonProps & SubmitFlags): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [showSubmitArticle, setShowSubmitArticle] = useState(false);
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const contributeMenuItems: SidebarMenuItem[] = [
@@ -46,7 +47,7 @@ export function ContributeSection({
   ];
 
   const trackAndShowSubmitArticle = () => {
-    onTrackEvent({
+    trackEvent({
       event_name: 'start submit article',
       feed_item_title: submitArticleSidebarButton,
       extra: JSON.stringify({ has_access: canSubmitArticle }),

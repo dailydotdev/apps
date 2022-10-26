@@ -19,7 +19,6 @@ import { DiscoverSection } from './DiscoverSection';
 import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
 import { MobileMenuIcon } from './MobileMenuIcon';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 
 const UserSettingsModal = dynamic(
@@ -42,11 +41,14 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
   const [defaultFeed] = useDefaultFeed();
   const { alerts } = useContext(AlertContext);
-  const { sidebarExpanded, loadedSettings, optOutWeeklyGoal } =
-    useContext(SettingsContext);
+  const {
+    toggleSidebarExpanded,
+    sidebarExpanded,
+    loadedSettings,
+    optOutWeeklyGoal,
+  } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const {
     canSubmitArticle,
@@ -91,7 +93,12 @@ export default function Sidebar({
             : 'laptop:top-14 laptop:h-[calc(100vh-theme(space.14))]',
         )}
       >
-        {sidebarRendered && <MobileMenuIcon />}
+        {sidebarRendered && (
+          <MobileMenuIcon
+            sidebarExpanded={sidebarExpanded}
+            toggleSidebarExpanded={toggleSidebarExpanded}
+          />
+        )}
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
@@ -118,7 +125,6 @@ export default function Sidebar({
               submitArticleOn={submitArticleOn}
               submitArticleSidebarButton={submitArticleSidebarButton}
               submitArticleModalButton={submitArticleModalButton}
-              onTrackEvent={trackEvent}
             />
             <ManageSection
               {...defaultRenderSectionProps}

@@ -1,14 +1,19 @@
 import React, { ReactElement, useContext } from 'react';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import SettingsContext from '../../contexts/SettingsContext';
 import { Button } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-export function MobileMenuIcon(): ReactElement {
+interface MobileMenuIconProps {
+  sidebarExpanded: boolean;
+  toggleSidebarExpanded: () => void;
+}
+
+export function MobileMenuIcon({
+  sidebarExpanded,
+  toggleSidebarExpanded,
+}: MobileMenuIconProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { sidebarExpanded, toggleSidebarExpanded } =
-    useContext(SettingsContext);
   const trackAndToggleSidebarExpanded = () => {
     trackEvent({
       event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
