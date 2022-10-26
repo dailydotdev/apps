@@ -6,5 +6,10 @@ const previewDeployments = [
   'https://preview.app.daily.dev',
 ];
 
-export const checkIsPreviewDeployment = (): boolean =>
-  previewDeployments.includes(window.location.origin);
+export const checkIsPreviewDeployment = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return previewDeployments.includes(window.location.origin);
+};

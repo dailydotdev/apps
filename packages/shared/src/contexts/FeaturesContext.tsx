@@ -49,7 +49,7 @@ export const FeaturesContextProvider = ({
     () => ({
       flags,
       onboardingSteps,
-      onboardingVersion: OnboardingVersion.V2,
+      onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
       onboardingFiltersLayout: getFeatureValue(
         Features.OnboardingFiltersLayout,
         flags,
