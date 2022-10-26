@@ -11,9 +11,10 @@ import {
   OnboardingVersion,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
+import { checkIsPreviewDeployment } from '../lib/links';
+import { getCookieObject, getObjectFeaturesFlags } from '../lib/object';
 
-export interface FeaturesData {
-  flags: IFlags;
+interface Experiments {
   onboardingSteps?: OnboardingStep[];
   onboardingVersion?: OnboardingVersion;
   onboardingFiltersLayout?: OnboardingFiltersLayout;
@@ -24,6 +25,10 @@ export interface FeaturesData {
   postCardVersion?: string;
   authVersion?: string;
   additionalInteractionButtonFeature?: string;
+}
+
+export interface FeaturesData extends Experiments {
+  flags: IFlags;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
@@ -44,7 +49,7 @@ export const FeaturesContextProvider = ({
     () => ({
       flags,
       onboardingSteps,
-      onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
+      onboardingVersion: OnboardingVersion.V2,
       onboardingFiltersLayout: getFeatureValue(
         Features.OnboardingFiltersLayout,
         flags,
@@ -69,8 +74,23 @@ export const FeaturesContextProvider = ({
     [flags],
   );
 
+  const featuresFlags: FeaturesData = useMemo(() => {
+    const isPreviewDeployment = checkIsPreviewDeployment();
+
+    if (!isPreviewDeployment) {
+      return features;
+    }
+
+    const { flags: tmp, ...rest } = features;
+    const cookie = getCookieObject();
+    const keys = Object.keys(rest);
+    const result: Experiments = getObjectFeaturesFlags(keys, cookie);
+
+    return { ...features, ...result };
+  }, [flags]);
+
   return (
-    <FeaturesContext.Provider value={features}>
+    <FeaturesContext.Provider value={featuresFlags}>
       {children}
     </FeaturesContext.Provider>
   );
