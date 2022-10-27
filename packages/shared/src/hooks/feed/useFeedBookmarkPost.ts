@@ -62,8 +62,8 @@ export default function useFeedBookmarkPost(
     }
     const { displayToast } = useToastNotification();
     const toastMessage = bookmarked
-      ? 'Post added to your bookmarks'
-      : 'Post removed from your bookmarks';
+      ? 'Post was added to your bookmarks'
+      : 'Post was removed from your bookmarks';
     displayToast(toastMessage);
   };
 }
