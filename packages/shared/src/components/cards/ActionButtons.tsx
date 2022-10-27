@@ -84,7 +84,7 @@ function LastActionButton(props: LastActionButtonProps) {
     );
   }
   const onClickShare =
-    postCardShareVersion === ShareVersion.V1
+    !postCardShareVersion || postCardShareVersion === ShareVersion.V1
       ? () => onShare?.(post)
       : (event) => onShareClick?.(event, post);
   return (
