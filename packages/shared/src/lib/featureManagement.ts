@@ -125,6 +125,11 @@ export class Features<T extends FeatureValue = string> {
     'post_engagement_non_clickable',
   );
 
+  static readonly OnboardingMinimumTopics = new Features<number>(
+    'onboarding_minimum_topics',
+    0,
+  );
+
   static readonly OnboardingSteps = new Features(
     'onboarding_steps',
     'topics/layout/theme',

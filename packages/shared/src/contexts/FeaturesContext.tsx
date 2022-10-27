@@ -14,6 +14,7 @@ import { checkIsPreviewDeployment } from '../lib/links';
 import { getCookieObject, getObjectFeaturesFlags } from '../lib/object';
 
 interface Experiments {
+  onboardingMinimumTopics?: number;
   onboardingSteps?: OnboardingStep[];
   onboardingVersion?: OnboardingVersion;
   onboardingFiltersLayout?: OnboardingFiltersLayout;
@@ -54,6 +55,8 @@ export const FeaturesContextProvider = ({
     () => ({
       flags,
       onboardingSteps,
+      onboardingMinimumTopics:
+        getFeatureValue(Features.OnboardingMinimumTopics, flags) ?? 0,
       onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
       onboardingFiltersLayout: getFeatureValue(
         Features.OnboardingFiltersLayout,
