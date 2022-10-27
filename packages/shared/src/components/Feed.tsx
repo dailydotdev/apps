@@ -154,7 +154,6 @@ export default function Feed<T>({
     selectedPost,
     isFetchingNextPage,
   } = usePostModalNavigation(items, fetchPage);
-  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -326,7 +325,6 @@ export default function Feed<T>({
     }
   }, [selectedPost]);
   const commonMenuItems = {
-    additionalInteractionButtonFeature,
     onShare: () =>
       openSharePost(
         (items[postMenuIndex] as PostItem)?.post,
@@ -386,9 +384,6 @@ export default function Feed<T>({
         >
           {items.map((item, index) => (
             <FeedItemComponent
-              additionalInteractionButtonFeature={
-                additionalInteractionButtonFeature
-              }
               items={items}
               index={index}
               row={calculateRow(index, virtualizedNumCards)}

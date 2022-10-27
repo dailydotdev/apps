@@ -5,10 +5,7 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../lib/featureManagement';
-import {
-  AdditionalInteractionButtons,
-  ShareVersion,
-} from '../lib/featureValues';
+import { ShareVersion } from '../lib/featureValues';
 
 export interface FeaturesData {
   flags: IFlags;
@@ -23,7 +20,6 @@ export interface FeaturesData {
   postCardVersion?: string;
   postCardShareVersion?: ShareVersion;
   authVersion?: string;
-  additionalInteractionButtonFeature?: AdditionalInteractionButtons;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
@@ -64,10 +60,6 @@ export const FeaturesContextProvider = ({
         flags,
       ) as ShareVersion,
       authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
-      additionalInteractionButtonFeature: getFeatureValue(
-        Features.AdditionalInteractionButton,
-        flags,
-      ) as AdditionalInteractionButtons,
     }),
     [flags],
   );
