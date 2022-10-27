@@ -126,7 +126,7 @@ export default function Feed<T>({
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const { displayToast, subject } = useToastNotification();
+  const { subject } = useToastNotification();
   const {
     openNewTab,
     showOnlyUnreadPosts,
@@ -336,10 +336,6 @@ export default function Feed<T>({
       ),
     onBookmark: () => {
       const bookmarked = !!(items[postMenuIndex] as PostItem)?.post?.bookmarked;
-      const toastMessage = bookmarked
-        ? 'Post successfully removed from your bookmarks'
-        : 'Post successfully added to your bookmarks';
-      displayToast(toastMessage);
       onBookmark(
         (items[postMenuIndex] as PostItem)?.post,
         postMenuIndex,
