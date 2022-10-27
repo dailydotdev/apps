@@ -6,6 +6,8 @@ import {
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
 } from './featureValues';
 
+type FeatureValue = string | number | boolean;
+
 export class Features<T extends FeatureValue = string> {
   static readonly SignupButtonCopy = new Features(
     'signup_button_copy',
@@ -179,8 +181,6 @@ export class Features<T extends FeatureValue = string> {
     public readonly validTypes?: T[],
   ) {}
 }
-
-type FeatureValue = string | number | boolean;
 
 export const isFeaturedEnabled = <T extends FeatureValue = string>(
   key: Features<T>,

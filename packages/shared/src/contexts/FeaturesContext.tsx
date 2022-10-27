@@ -10,8 +10,7 @@ import {
   OnboardingVersion,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
-import { checkIsPreviewDeployment } from '../lib/links';
-import { getCookieObject, getObjectFeaturesFlags } from '../lib/object';
+import { getCookieFeatureFlags, isPreviewDeployment } from '../lib/cookie';
 
 interface Experiments {
   onboardingMinimumTopics?: number;
@@ -92,17 +91,12 @@ export const FeaturesContextProvider = ({
   );
 
   const featuresFlags: FeaturesData = useMemo(() => {
-    const isPreviewDeployment = checkIsPreviewDeployment();
-
     if (!isPreviewDeployment) {
       return features;
     }
 
-    const { flags: tmp, ...rest } = features;
-    const cookie = getCookieObject();
-    const keys = Object.keys(rest);
-    const result: Experiments = getObjectFeaturesFlags(keys, cookie, features);
-    const value = { ...features, ...result };
+    const featuresCookie: Experiments = getCookieFeatureFlags();
+    const value = { ...features, ...featuresCookie };
 
     return value;
   }, [flags]);

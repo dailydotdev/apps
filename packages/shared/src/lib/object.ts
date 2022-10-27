@@ -1,19 +1,5 @@
 import { isNullOrUndefined } from './func';
 
-export const getCookieObject = (): Record<string, unknown> => {
-  if (typeof document === 'undefined') {
-    return {};
-  }
-
-  const cookie = {};
-  document.cookie.split(';').forEach((el) => {
-    const [key, value] = el.split('=');
-    cookie[key.trim()] = decodeURIComponent(value);
-  });
-
-  return cookie;
-};
-
 type UnknownObject = Record<string | number, unknown>;
 
 export const getObjectFeaturesFlags = (
