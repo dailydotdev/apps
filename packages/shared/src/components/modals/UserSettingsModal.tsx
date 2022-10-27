@@ -5,7 +5,7 @@ import { ModalCloseButton } from './ModalCloseButton';
 import Settings from '../Settings';
 import { useTrackModal } from '../../hooks/useTrackModal';
 
-export function FeedSettingsModal({
+export function UserSettingsModal({
   onRequestClose,
   ...modalProps
 }: ModalProps): ReactElement {
@@ -28,4 +28,4 @@ export function FeedSettingsModal({
   );
 }
 
-export default FeedSettingsModal;
+export default UserSettingsModal;

@@ -118,6 +118,7 @@ export default function DndModal({
   return (
     <StyledModal
       {...modalProps}
+      onRequestClose={onRequestClose}
       style={{
         content: {
           paddingTop: '2rem',
