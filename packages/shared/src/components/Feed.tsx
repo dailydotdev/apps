@@ -126,7 +126,7 @@ export default function Feed<T>({
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const { subject } = useToastNotification();
+  const { displayToast, subject } = useToastNotification();
   const {
     openNewTab,
     showOnlyUnreadPosts,
@@ -249,7 +249,13 @@ export default function Feed<T>({
       columns: virtualizedNumCards,
       column,
       row,
-      ...feedAnalyticsExtra(feedName, ranking, undefined, undefined, postCardShareVersion),
+      ...feedAnalyticsExtra(
+        feedName,
+        ranking,
+        undefined,
+        undefined,
+        postCardShareVersion,
+      ),
     };
     trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
     lastShareMenuCloseTrackEvent = () => {
@@ -303,7 +309,6 @@ export default function Feed<T>({
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
   }
-
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
     useSharePost(Origin.Feed);
   const onShareClick = (post: Post, row?: number, column?: number) =>
@@ -329,14 +334,20 @@ export default function Feed<T>({
         postMenuLocation.row,
         postMenuLocation.column,
       ),
-    onBookmark: () =>
+    onBookmark: () => {
+      const bookmarked = !!(items[postMenuIndex] as PostItem)?.post?.bookmarked;
+      const toastMessage = bookmarked
+        ? 'Post successfully removed from your bookmarks'
+        : 'Post successfully added to your bookmarks';
+      displayToast(toastMessage);
       onBookmark(
         (items[postMenuIndex] as PostItem)?.post,
         postMenuIndex,
         postMenuLocation.row,
         postMenuLocation.column,
-        !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
-      ),
+        bookmarked,
+      );
+    },
     post: (items[postMenuIndex] as PostItem)?.post,
   };
   return (
@@ -435,6 +446,7 @@ export default function Feed<T>({
             origin={Origin.Feed}
             {...sharePostFeedLocation}
             onRequestClose={closeSharePost}
+            postCardShareVersion={postCardShareVersion}
           />
         )}
       </div>

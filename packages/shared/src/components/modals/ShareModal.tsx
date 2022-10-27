@@ -15,9 +15,11 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { ShareProvider } from '../../lib/share';
 import { Comment, getCommentHash } from '../../graphql/comments';
+import { ShareVersion } from '../../lib/featureValues';
 
 type ShareModalProps = {
   post: Post;
+  postCardShareVersion?: ShareVersion;
   comment?: Comment;
   origin: Origin;
 } & FeedItemPosition &
@@ -25,6 +27,7 @@ type ShareModalProps = {
 
 export default function ShareModal({
   post,
+  postCardShareVersion,
   comment,
   origin,
   columns,
@@ -48,6 +51,7 @@ export default function ShareModal({
         extra: {
           ...extra,
           origin,
+          variant: postCardShareVersion,
           ...(comment && { commentId: comment.id }),
         },
       }),

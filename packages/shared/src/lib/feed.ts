@@ -64,7 +64,7 @@ export function feedAnalyticsExtra(
     scroll_y?: number;
   },
   origin?: Origin,
-  variant?: string
+  variant?: string,
 ): FeedAnalyticsExtra {
   return {
     extra: {
