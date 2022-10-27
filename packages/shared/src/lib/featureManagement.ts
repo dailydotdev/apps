@@ -144,7 +144,7 @@ export class Features {
 
   static readonly AdditionalInteractionButton = new Features(
     'additional_interaction_button',
-    AdditionalInteractionButtons.Share,
+    AdditionalInteractionButtons.Bookmark,
     [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
   );
 
