@@ -25,6 +25,7 @@ export default function useFeedBookmarkPost(
   column: number,
   bookmarked: boolean,
 ) => Promise<void> {
+  const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -60,7 +61,6 @@ export default function useFeedBookmarkPost(
     } else {
       await removeBookmark({ id: post.id, index });
     }
-    const { displayToast } = useToastNotification();
     const toastMessage = bookmarked
       ? 'Post was added to your bookmarks'
       : 'Post was removed from your bookmarks';
