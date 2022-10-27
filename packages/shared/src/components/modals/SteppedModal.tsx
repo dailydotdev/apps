@@ -14,14 +14,20 @@ import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { DiscardAuthModal } from '../auth/common';
 import { Button } from '../buttons/Button';
 import TabContainer, { Tab } from '../tabs/TabContainer';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { ModalProps, StyledModal } from './StyledModal';
+
+type ValidateFunction = () => boolean | Promise<boolean>;
 
 interface SteppedModalProps extends ModalProps {
   trigger: string;
   skippable?: boolean;
+  invalidMessage?: string;
   isLastStepLogin?: boolean;
   isFirstStepIntroduction?: boolean;
+  onValidateNext?: ValidateFunction[];
   onStepChange?: (stepBefore: number, stepNow: number) => void | Promise<void>;
+  onInvalid?: (step: number) => void | Promise<void>;
   onFinish?: () => void | Promise<void>;
   onAuthSuccess?: (isLogin?: boolean) => void | Promise<void>;
 }
@@ -30,8 +36,11 @@ function SteppedModal({
   trigger,
   children,
   skippable = true,
+  invalidMessage,
   isLastStepLogin,
   isFirstStepIntroduction,
+  onValidateNext = [],
+  onInvalid,
   onStepChange,
   onFinish,
   onRequestClose,
@@ -96,6 +105,13 @@ function SteppedModal({
   };
 
   const onForward = async () => {
+    const onValidate = onValidateNext[step];
+    const isValid = !onValidate || (await onValidate());
+
+    if (!isValid) {
+      return onInvalid?.(step);
+    }
+
     const max = React.Children.count(children) - 1;
     if (!isLastStepLogin && max === step) {
       return onFinish?.();
@@ -182,9 +198,11 @@ function SteppedModal({
               {getBackwardsLabel()}
             </Button>
           )}
-          <Button className="bg-theme-color-cabbage" onClick={onForward}>
-            {getForwardLabel()}
-          </Button>
+          <SimpleTooltip content={invalidMessage} visible={!!invalidMessage}>
+            <Button className="bg-theme-color-cabbage" onClick={onForward}>
+              {getForwardLabel()}
+            </Button>
+          </SimpleTooltip>
         </footer>
       )}
     </StyledModal>
