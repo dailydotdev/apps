@@ -6,7 +6,7 @@ import {
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
 } from './featureValues';
 
-type FeatureValue = string | number | boolean;
+export type FeatureValue = string | number | boolean;
 
 export class Features<T extends FeatureValue = string> {
   static readonly SignupButtonCopy = new Features(
