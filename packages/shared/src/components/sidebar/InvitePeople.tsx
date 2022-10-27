@@ -1,14 +1,9 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import {
-  ButtonOrLink,
-  ItemInner,
-  ListIcon,
-  NavItem,
-  SidebarMenuItem,
-} from './common';
+import { ItemInner, ListIcon, NavItem, SidebarMenuItem } from './common';
 import UserShareIcon from '../icons/UserShare';
 import AuthContext from '../../contexts/AuthContext';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
+import { ClickableNavItem } from './ClickableNavItem';
 
 const DEFAULT_INVITE_LINK = 'https://daily.dev/';
 const INVITE_TEXT = `I'm using daily.dev to stay updated on developer news. I think you will find it helpful:`;
@@ -40,13 +35,13 @@ export default function InvitePeople({
   };
   return (
     <NavItem color={copyingLink && 'text-theme-status-success'}>
-      <ButtonOrLink
+      <ClickableNavItem
         item={item}
         onMouseEnter={() => !sidebarExpanded && !visible && setVisible(true)}
         onMouseOut={() => !sidebarExpanded && visible && setVisible(false)}
       >
         <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
-      </ButtonOrLink>
+      </ClickableNavItem>
     </NavItem>
   );
 }

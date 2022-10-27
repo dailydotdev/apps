@@ -371,10 +371,7 @@ export default function MainFeedLayout({
     }
 
     if (!user) {
-      if (
-        isFirstSession &&
-        myFeedOnboardingVersion !== MyFeedOnboardingVersion.Control
-      ) {
+      if (isFirstSession) {
         setIsFirstSession(true);
         setMyFeedMode(MyFeedMode.Auto);
         modalCommand[onboardingVersion]?.(true);
@@ -419,7 +416,6 @@ export default function MainFeedLayout({
       )}
       {createMyFeed && (
         <CreateMyFeedModal
-          version={myFeedOnboardingVersion}
           mode={myFeedMode}
           hasUser={!!user}
           isOpen={createMyFeed}

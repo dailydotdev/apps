@@ -3,7 +3,6 @@ import {
   AdditionalInteractionButtons,
   AuthVersion,
   OnboardingVersion,
-  MyFeedOnboardingVersion as MyFeedOnboardingVersionEnum,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
 } from './featureValues';
 
@@ -124,17 +123,6 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly PostEngagementNonClickable = new Features(
     'post_engagement_non_clickable',
-  );
-
-  static readonly MyFeedOnboardingVersion = new Features(
-    'my_feed_onboarding_version',
-    MyFeedOnboardingVersionEnum.Control,
-    [
-      MyFeedOnboardingVersionEnum.Control,
-      MyFeedOnboardingVersionEnum.V1,
-      MyFeedOnboardingVersionEnum.V2,
-      MyFeedOnboardingVersionEnum.V3,
-    ],
   );
 
   static readonly OnboardingSteps = new Features(

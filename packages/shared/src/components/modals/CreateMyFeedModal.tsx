@@ -11,79 +11,68 @@ import { MyFeedIntro } from '../MyFeedIntro';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { MyFeedMode } from '../../graphql/feed';
 
+const MY_FEED_VERSION_WINNER = 'v3';
+
 interface GetFooterButtonProps {
   hasUser: boolean;
   showIntro: boolean;
-  version: string;
   onSkip?: React.MouseEventHandler;
   onContinue: () => void;
 }
 const getFooterButton = ({
   showIntro,
-  version,
   hasUser,
   onSkip,
   onContinue,
 }: GetFooterButtonProps): ReactElement => {
-  if (!showIntro) {
-    return hasUser ? (
-      <Button className="btn-primary-cabbage" onClick={onSkip}>
-        Done
-      </Button>
-    ) : (
-      <CreateFeedFilterButton
-        className="w-40 btn-primary-cabbage"
-        feedFilterModalType="v4"
-      />
+  if (showIntro) {
+    return (
+      <>
+        <Button className="btn-tertiary" onClick={onSkip}>
+          Skip
+        </Button>
+        <Button className="btn-primary-cabbage" onClick={onContinue}>
+          Continue
+        </Button>
+      </>
     );
   }
 
-  if (version === 'v2') {
+  if (hasUser) {
     return (
-      <Button className="btn-primary-cabbage" onClick={onContinue}>
-        Create my feed
+      <Button className="btn-primary-cabbage" onClick={onSkip}>
+        Done
       </Button>
     );
   }
 
   return (
-    <>
-      <Button className="btn-tertiary" onClick={onSkip}>
-        Skip
-      </Button>
-      <Button className="btn-primary-cabbage" onClick={onContinue}>
-        Continue
-      </Button>
-    </>
+    <CreateFeedFilterButton
+      className="w-40 btn-primary-cabbage"
+      feedFilterModalType="v4"
+    />
   );
 };
 
-const introVariants = ['v2', 'v3'];
-const closableVariants = ['control', 'v3'];
-
 interface CreateMyFeedModalProps extends ModalProps {
-  version?: string;
   mode?: string;
   hasUser: boolean;
 }
 export default function CreateMyFeedModal({
   mode = MyFeedMode.Manual,
-  version = 'control',
   hasUser,
   className,
   onRequestClose,
   ...modalProps
 }: CreateMyFeedModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [showIntro, setShowIntro] = useState<boolean>(
-    introVariants.includes(version),
-  );
+  const [showIntro, setShowIntro] = useState<boolean>(true);
 
   useEffect(() => {
     trackEvent({
       event_name: 'impression',
       target_type: 'my feed modal',
-      target_id: version,
+      target_id: MY_FEED_VERSION_WINNER,
       extra: JSON.stringify({
         origin: mode,
       }),
@@ -99,20 +88,18 @@ export default function CreateMyFeedModal({
           height: '100%',
         },
       }}
-      onRequestClose={closableVariants.includes(version) && onRequestClose}
+      onRequestClose={onRequestClose}
     >
       {!showIntro && (
         <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 flex-row justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-tertiary">
           <h3 className="font-bold typo-title3">Feed filters</h3>
-          {closableVariants.includes(version) && (
-            <Button
-              className="btn-tertiary"
-              buttonSize="small"
-              title="Close"
-              icon={<XIcon />}
-              onClick={onRequestClose}
-            />
-          )}
+          <Button
+            className="btn-tertiary"
+            buttonSize="small"
+            title="Close"
+            icon={<XIcon />}
+            onClick={onRequestClose}
+          />
         </header>
       )}
       <section
@@ -124,15 +111,9 @@ export default function CreateMyFeedModal({
       >
         {showIntro ? <MyFeedIntro /> : <TagsFilter />}
       </section>
-      <footer
-        className={classNames(
-          'flex w-full fixed responsiveModalBreakpoint:sticky bottom-0 left-0 items-center border-t border-theme-divider-tertiary bg-theme-bg-tertiary py-3',
-          version === 'v3' ? 'justify-between px-4' : 'justify-center',
-        )}
-      >
+      <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 left-0 justify-between items-center py-3 px-4 w-full border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
         {getFooterButton({
           showIntro,
-          version,
           hasUser,
           onSkip: onRequestClose,
           onContinue: () => setShowIntro(false),
