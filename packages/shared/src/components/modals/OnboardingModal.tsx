@@ -19,6 +19,8 @@ import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import AuthContext from '../../contexts/AuthContext';
 import { LoginTrigger } from '../../lib/analytics';
 
+const STEPS_COUNT = 4;
+
 interface OnboardingModalProps extends ModalProps {
   trigger?: string;
   onRegistrationSuccess?: () => void;
@@ -33,7 +35,8 @@ function OnboardingModal({
   const { refetchBoot } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
-  const { onboardingSteps, onboardingFiltersLayout } =
+  const [invalidMessage, setInvalidMessage] = useState<string>(null);
+  const { onboardingSteps, onboardingFiltersLayout, onboardingMinimumTopics } =
     useContext(FeaturesContext);
   const { insaneMode, themeMode, setTheme, toggleInsaneMode } =
     useContext(SettingsContext);
@@ -44,8 +47,9 @@ function OnboardingModal({
   const [step, setStep] = useState(0);
   const onStepChange = (beforeStep: number, stepNow: number) => {
     setStep(stepNow);
+    const filterStep = onboardingSteps.indexOf(OnboardingStep.Topics);
 
-    if (beforeStep === 1) {
+    if (beforeStep - 1 === filterStep) {
       const key = getFeedSettingsQueryKey();
       const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
       updateLocalFeedSettings(feedSettings);
@@ -58,6 +62,9 @@ function OnboardingModal({
     const { tags, title } = tagsCategories.find(({ id }) => id === value);
     tagCommand({ tags, category: title });
     setSelectedTopics({ ...selectedTopics, [value]: isFollowed });
+    if (invalidMessage) {
+      setInvalidMessage(null);
+    }
   };
 
   const components: Record<OnboardingStep, ReactNode> = {
@@ -86,6 +93,25 @@ function OnboardingModal({
     ),
   };
 
+  const onValidateFilter = () => {
+    const selected = Object.values(selectedTopics).filter((value) => !!value);
+    const isValid = selected.length >= onboardingMinimumTopics;
+    setInvalidMessage(isValid ? null : 'Choose at least 3 topics to follow');
+
+    return isValid;
+  };
+
+  const nextButtonValidations = (() => {
+    const validations = Array(STEPS_COUNT).fill(null);
+    const filterStep = onboardingSteps.indexOf(OnboardingStep.Topics);
+
+    if (filterStep !== -1) {
+      validations[filterStep + 1] = onValidateFilter;
+    }
+
+    return validations;
+  })();
+
   const onFinishOnboarding = async (isLogin: boolean) => {
     const key = getFeedSettingsQueryKey();
     const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
@@ -109,6 +135,8 @@ function OnboardingModal({
       style={{ content: { maxHeight: '40rem' } }}
       onAuthSuccess={onFinishOnboarding}
       onStepChange={onStepChange}
+      onValidateNext={nextButtonValidations}
+      invalidMessage={invalidMessage}
       isFirstStepIntroduction
       isLastStepLogin
     >
