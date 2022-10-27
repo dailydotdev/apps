@@ -68,19 +68,6 @@ function LastActionButton(props: LastActionButtonProps) {
     post,
     postCardShareVersion,
   } = props;
-  if (postCardShareVersion !== ShareVersion.V1) {
-    return (
-      <SimpleTooltip content="Share post">
-        <Button
-          icon={<ShareIcon />}
-          buttonSize="small"
-          onClick={(event) => onShareClick?.(event, post)}
-          className="btn-tertiary-cabbage"
-        />
-      </SimpleTooltip>
-    );
-  }
-
   if (
     additionalInteractionButtonFeature === AdditionalInteractionButtons.Bookmark
   ) {
@@ -96,13 +83,16 @@ function LastActionButton(props: LastActionButtonProps) {
       </SimpleTooltip>
     );
   }
-
+  const onClickShare =
+    postCardShareVersion === ShareVersion.V1
+      ? () => onShare?.(post)
+      : (event) => onShareClick?.(event, post);
   return (
     <SimpleTooltip content="Share post">
       <Button
         icon={<ShareIcon />}
         buttonSize="small"
-        onClick={() => onShare?.(post)}
+        onClick={onClickShare}
         className="btn-tertiary-cabbage"
       />
     </SimpleTooltip>
