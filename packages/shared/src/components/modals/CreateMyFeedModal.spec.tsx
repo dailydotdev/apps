@@ -1,6 +1,12 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import CreateMyFeedModal from './CreateMyFeedModal';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -64,6 +70,7 @@ const renderComponent = (
       >
         <CreateMyFeedModal
           isOpen
+          hasUser={false}
           onRequestClose={onRequestClose}
           ariaHideApp={false}
         />
@@ -74,12 +81,16 @@ const renderComponent = (
 
 it('should show create feed button', async () => {
   renderComponent();
+  const next = await screen.findByText('Continue');
+  fireEvent.click(next);
   const el = await screen.findByText('Create');
   expect(el).toBeVisible();
 });
 
 it('should show tag categories', async () => {
   const { baseElement } = renderComponent();
+  const next = await screen.findByText('Continue');
+  fireEvent.click(next);
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
 
   const {
