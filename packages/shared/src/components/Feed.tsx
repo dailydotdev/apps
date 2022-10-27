@@ -41,6 +41,7 @@ import {
 } from '../hooks/useToastNotification';
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
+import ShareOptionsMenu from './ShareOptionsMenu';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -117,6 +118,7 @@ export default function Feed<T>({
 }: FeedProps<T>): ReactElement {
   const {
     postCardVersion,
+    postCardShareVersion,
     postModalByDefault,
     postEngagementNonClickable,
     showCommentPopover,
@@ -227,9 +229,43 @@ export default function Feed<T>({
     onPostModalOpen(index);
   };
 
-  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
-    useFeedContextMenu();
-
+  const {
+    onMenuClick,
+    onShareMenuClick,
+    postMenuIndex,
+    postMenuLocation,
+    setPostMenuIndex,
+  } = useFeedContextMenu();
+  let lastShareMenuCloseTrackEvent = () => {};
+  const onShareMenuClickTracked = (
+    e: React.MouseEvent,
+    post: Post,
+    index: number,
+    row: number,
+    column: number,
+  ) => {
+    onShareMenuClick(e, post, index, row, column);
+    const trackEventOptions = {
+      columns: virtualizedNumCards,
+      column,
+      row,
+      ...feedAnalyticsExtra(
+        feedName,
+        ranking,
+        undefined,
+        undefined,
+        postCardShareVersion,
+      ),
+    };
+    trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
+    lastShareMenuCloseTrackEvent = () => {
+      trackEvent(postAnalyticsEvent('close share', post, trackEventOptions));
+    };
+  };
+  const onShareOptionsHidden = () => {
+    setPostMenuIndex(null);
+    lastShareMenuCloseTrackEvent();
+  };
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
     removePost(item.page, item.index);
@@ -273,7 +309,6 @@ export default function Feed<T>({
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
   }
-
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
     useSharePost(Origin.Feed);
   const onShareClick = (post: Post, row?: number, column?: number) =>
@@ -290,7 +325,27 @@ export default function Feed<T>({
       document.body.classList.remove('hidden-scrollbar');
     }
   }, [selectedPost]);
-
+  const commonMenuItems = {
+    additionalInteractionButtonFeature,
+    onShare: () =>
+      openSharePost(
+        (items[postMenuIndex] as PostItem)?.post,
+        virtualizedNumCards,
+        postMenuLocation.row,
+        postMenuLocation.column,
+      ),
+    onBookmark: () => {
+      const bookmarked = !!(items[postMenuIndex] as PostItem)?.post?.bookmarked;
+      onBookmark(
+        (items[postMenuIndex] as PostItem)?.post,
+        postMenuIndex,
+        postMenuLocation.row,
+        postMenuLocation.column,
+        bookmarked,
+      );
+    },
+    post: (items[postMenuIndex] as PostItem)?.post,
+  };
   return (
     <div
       className={classNames(
@@ -356,9 +411,11 @@ export default function Feed<T>({
               onPostClick={onPostCardClick}
               onShare={onShareClick}
               onMenuClick={onMenuClick}
+              onShareClick={onShareMenuClickTracked}
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
+              postCardShareVersion={postCardShareVersion}
               postCardVersion={postCardVersion}
               postModalByDefault={postModalByDefault}
               postEngagementNonClickable={postEngagementNonClickable}
@@ -367,31 +424,16 @@ export default function Feed<T>({
         </div>
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         <PostOptionsMenu
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
-          onShare={() =>
-            openSharePost(
-              (items[postMenuIndex] as PostItem)?.post,
-              virtualizedNumCards,
-              postMenuLocation.row,
-              postMenuLocation.column,
-            )
-          }
-          onBookmark={() =>
-            onBookmark(
-              (items[postMenuIndex] as PostItem)?.post,
-              postMenuIndex,
-              postMenuLocation.row,
-              postMenuLocation.column,
-              !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
-            )
-          }
+          {...commonMenuItems}
           feedName={feedName}
           postIndex={postMenuIndex}
-          post={(items[postMenuIndex] as PostItem)?.post}
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
+        />
+        <ShareOptionsMenu
+          {...commonMenuItems}
+          onHidden={onShareOptionsHidden}
+          postCardShareVersion={postCardShareVersion}
         />
         {sharePost && (
           <SharePostModal
@@ -400,6 +442,7 @@ export default function Feed<T>({
             origin={Origin.Feed}
             {...sharePostFeedLocation}
             onRequestClose={closeSharePost}
+            postCardShareVersion={postCardShareVersion}
           />
         )}
       </div>

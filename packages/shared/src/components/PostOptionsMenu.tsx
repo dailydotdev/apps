@@ -243,7 +243,6 @@ export default function PostOptionsMenu({
       action: setShowBanPost,
     });
   }
-
   return (
     <>
       <PortalMenu

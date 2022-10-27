@@ -30,12 +30,14 @@ export const PostList = forwardRef(function PostList(
     onReadArticleClick,
     onMenuClick,
     onShare,
+    onShareClick,
     openNewTab,
     enableMenu,
     menuOpened,
     additionalInteractionButtonFeature,
     className,
     children,
+    postCardShareVersion,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
@@ -115,10 +117,12 @@ export const PostList = forwardRef(function PostList(
             onBookmarkClick={onBookmarkClick}
             onReadArticleClick={onReadArticleClick}
             onShare={onShare}
+            onShareClick={onShareClick}
             className="relative self-stretch mt-1"
             onMenuClick={(event) => onMenuClick?.(event, post)}
             insaneMode
             postCardVersion={postCardVersion}
+            postCardShareVersion={postCardShareVersion}
             postModalByDefault={postModalByDefault}
             postEngagementNonClickable={postEngagementNonClickable}
             additionalInteractionButtonFeature={

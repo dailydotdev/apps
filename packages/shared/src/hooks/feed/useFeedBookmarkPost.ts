@@ -10,6 +10,7 @@ import { Post } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postEventName } from '../../components/utilities';
+import { useToastNotification } from '../useToastNotification';
 
 export default function useFeedBookmarkPost(
   items: FeedItem[],
@@ -24,6 +25,7 @@ export default function useFeedBookmarkPost(
   column: number,
   bookmarked: boolean,
 ) => Promise<void> {
+  const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -59,5 +61,9 @@ export default function useFeedBookmarkPost(
     } else {
       await removeBookmark({ id: post.id, index });
     }
+    const toastMessage = bookmarked
+      ? 'Post was added to your bookmarks'
+      : 'Post was removed from your bookmarks';
+    displayToast(toastMessage);
   };
 }

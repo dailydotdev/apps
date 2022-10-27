@@ -28,6 +28,7 @@ import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
 import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
+import { AdditionalInteractionButtons } from '../../lib/featureValues';
 
 type Callback = (post: Post) => unknown;
 
@@ -40,11 +41,12 @@ export type PostCardProps = {
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   onShare?: Callback;
+  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   openNewTab?: boolean;
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
-  additionalInteractionButtonFeature?: string;
+  additionalInteractionButtonFeature?: AdditionalInteractionButtons;
   insaneMode?: boolean;
 } & HTMLAttributes<HTMLDivElement> &
   PostCardTests;
@@ -58,6 +60,7 @@ export const PostCard = forwardRef(function PostCard(
     onBookmarkClick,
     onMenuClick,
     onShare,
+    onShareClick,
     openNewTab,
     enableMenu,
     menuOpened,
@@ -68,6 +71,7 @@ export const PostCard = forwardRef(function PostCard(
     additionalInteractionButtonFeature,
     insaneMode,
     onReadArticleClick,
+    postCardShareVersion,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
@@ -86,7 +90,6 @@ export const PostCard = forwardRef(function PostCard(
       ),
     [postCardVersion],
   );
-
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -178,8 +181,10 @@ export const PostCard = forwardRef(function PostCard(
           onCommentClick={onCommentClick}
           onBookmarkClick={onBookmarkClick}
           onShare={onShare}
+          onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
+          postCardShareVersion={postCardShareVersion}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
