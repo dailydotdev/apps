@@ -30,7 +30,7 @@ function FilterOnboarding({
         <img
           className="mx-auto mb-6 w-16"
           src={cloudinary.feedFilters.supercharge}
-          alt="test"
+          alt="A lightning icon to resemble supercharge"
         />
       }
       title="Let’s super-charge your feed with the content you actually read!"
