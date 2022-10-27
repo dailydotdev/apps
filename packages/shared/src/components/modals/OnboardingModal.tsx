@@ -18,7 +18,6 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import AuthContext from '../../contexts/AuthContext';
 import { LoginTrigger } from '../../lib/analytics';
-import { MyFeedOnboardingVersion } from '../../lib/featureValues';
 
 interface OnboardingModalProps extends ModalProps {
   trigger?: string;
@@ -34,7 +33,7 @@ function OnboardingModal({
   const { refetchBoot } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
-  const { onboardingSteps, onboardingFiltersLayout, myFeedOnboardingVersion } =
+  const { onboardingSteps, onboardingFiltersLayout } =
     useContext(FeaturesContext);
   const { insaneMode, themeMode, setTheme, toggleInsaneMode } =
     useContext(SettingsContext);
@@ -112,7 +111,6 @@ function OnboardingModal({
       onStepChange={onStepChange}
       isFirstStepIntroduction
       isLastStepLogin
-      skippable={myFeedOnboardingVersion === MyFeedOnboardingVersion.V3}
     >
       <IntroductionOnboarding />
       {onboardingSteps?.map((onboarding) => components[onboarding])}
