@@ -32,7 +32,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   additionalButtons?: ReactNode;
   activePage?: string;
-  useNavButtonsNotLinks?: boolean;
+  isNavItemsButton?: boolean;
   mobileTitle?: string;
   showDnd?: boolean;
   dndActive?: boolean;
@@ -93,7 +93,7 @@ export default function MainLayout({
   showOnlyLogo,
   greeting,
   activePage,
-  useNavButtonsNotLinks,
+  isNavItemsButton,
   mobileTitle,
   showDnd,
   dndActive,
@@ -196,7 +196,7 @@ export default function MainLayout({
             activePage={activePage}
             showDnd={showDnd}
             dndActive={dndActive}
-            useNavButtonsNotLinks={useNavButtonsNotLinks}
+            isNavButtons={isNavItemsButton}
             onShowDndClick={onShowDndClick}
             setOpenMobileSidebar={() => trackAndToggleMobileSidebar(false)}
           />
