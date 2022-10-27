@@ -53,6 +53,7 @@ interface FeedAnalyticsExtra {
     origin: string;
     feed: string;
     ranking?: string;
+    variant?: string;
   };
 }
 
@@ -63,11 +64,13 @@ export function feedAnalyticsExtra(
     scroll_y?: number;
   },
   origin?: Origin,
+  variant?: string
 ): FeedAnalyticsExtra {
   return {
     extra: {
       origin: origin ?? Origin.Feed,
       feed: feedName,
+      variant,
       ...(ranking && { ranking }),
       ...(extra && extra),
     },

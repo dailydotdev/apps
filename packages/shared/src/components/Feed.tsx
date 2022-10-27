@@ -249,8 +249,7 @@ export default function Feed<T>({
       columns: virtualizedNumCards,
       column,
       row,
-      variant: postCardShareVersion,
-      ...feedAnalyticsExtra(feedName, ranking),
+      ...feedAnalyticsExtra(feedName, ranking, undefined, undefined, postCardShareVersion),
     };
     trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
     lastShareMenuCloseTrackEvent = () => {
