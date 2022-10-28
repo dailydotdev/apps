@@ -17,7 +17,6 @@ export interface PostNavigationProps
   shouldDisplayTitle?: boolean;
   isModal?: boolean;
   className?: string;
-  additionalInteractionButtonFeature: string;
 }
 
 export function PostNavigation({
@@ -31,7 +30,6 @@ export function PostNavigation({
   onClose,
   onShare,
   onBookmark,
-  additionalInteractionButtonFeature,
 }: PostNavigationProps): ReactElement {
   const published = `Published on ${post?.source.name}`;
   const subtitle = !post?.author
@@ -89,7 +87,6 @@ export function PostNavigation({
         onShare={onShare}
         onBookmark={onBookmark}
         onReadArticle={onReadArticle}
-        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         post={post}
         onClose={onClose}
         inlineActions={shouldDisplayTitle || isModal}

@@ -2,7 +2,6 @@ import React, { ReactElement, useContext } from 'react';
 import { QueryKey } from 'react-query';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
-import BookmarkIcon from '../icons/Bookmark';
 import { Post } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import useUpvotePost from '../../hooks/useUpvotePost';
@@ -13,11 +12,9 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { postEventName } from '../utilities';
 import ShareIcon from '../icons/Share';
 import useUpdatePost from '../../hooks/useUpdatePost';
-import { AdditionalInteractionButtons } from '../../lib/featureValues';
 import { Origin } from '../../lib/analytics';
 
 export type OnShareOrBookmarkProps = {
-  additionalInteractionButtonFeature: string;
   onShare: () => void;
   onBookmark: () => void;
 };
@@ -31,9 +28,7 @@ interface PostActionsProps extends OnShareOrBookmarkProps {
 }
 
 export function PostActions({
-  additionalInteractionButtonFeature,
   onShare,
-  onBookmark,
   post,
   actionsClassName = 'hidden mobileL:flex',
   onComment,
@@ -101,29 +96,15 @@ export function PostActions({
       >
         Comment
       </QuaternaryButton>
-      {additionalInteractionButtonFeature ===
-      AdditionalInteractionButtons.Bookmark ? (
-        <QuaternaryButton
-          id="bookmark-post-btn"
-          pressed={post.bookmarked}
-          onClick={onBookmark}
-          icon={<BookmarkIcon secondary={post.bookmarked} />}
-          responsiveLabelClass={actionsClassName}
-          className="btn-tertiary-bun"
-        >
-          Bookmark
-        </QuaternaryButton>
-      ) : (
-        <QuaternaryButton
-          id="share-post-btn"
-          onClick={onShare}
-          icon={<ShareIcon />}
-          responsiveLabelClass={actionsClassName}
-          className="btn-tertiary-cabbage"
-        >
-          Share
-        </QuaternaryButton>
-      )}
+      <QuaternaryButton
+        id="share-post-btn"
+        onClick={onShare}
+        icon={<ShareIcon />}
+        responsiveLabelClass={actionsClassName}
+        className="btn-tertiary-cabbage"
+      >
+        Share
+      </QuaternaryButton>
     </div>
   );
 }

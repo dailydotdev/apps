@@ -7,17 +7,13 @@ import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
-import BookmarkIcon from '../icons/Bookmark';
 import { Button, ButtonProps } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import OptionsButton from '../buttons/OptionsButton';
 import classed from '../../lib/classed';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
-import {
-  AdditionalInteractionButtons,
-  ShareVersion,
-} from '../../lib/featureValues';
+import { ShareVersion } from '../../lib/featureValues';
 
 const ShareIcon = dynamic(() => import('../icons/Share'));
 
@@ -32,7 +28,6 @@ export interface ActionButtonsProps {
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className?: string;
   children?: ReactNode;
-  additionalInteractionButtonFeature?: AdditionalInteractionButtons;
   insaneMode?: boolean;
   postCardShareVersion?: ShareVersion;
   postCardVersion?: string;
@@ -53,36 +48,13 @@ const getContainer = (displayWhenHovered = false, className?: string) =>
 
 type LastActionButtonProps = {
   postCardShareVersion: ShareVersion;
-  additionalInteractionButtonFeature: AdditionalInteractionButtons;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   post: Post;
 };
 function LastActionButton(props: LastActionButtonProps) {
-  const {
-    additionalInteractionButtonFeature,
-    onBookmarkClick,
-    onShare,
-    onShareClick,
-    post,
-    postCardShareVersion,
-  } = props;
-  if (
-    additionalInteractionButtonFeature === AdditionalInteractionButtons.Bookmark
-  ) {
-    return (
-      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-        <Button
-          icon={<BookmarkIcon secondary={post.bookmarked} />}
-          buttonSize="small"
-          pressed={post.bookmarked}
-          onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
-          className="btn-tertiary-bun"
-        />
-      </SimpleTooltip>
-    );
-  }
+  const { onShare, onShareClick, post, postCardShareVersion } = props;
   const onClickShare =
     !postCardShareVersion || postCardShareVersion === ShareVersion.V1
       ? () => onShare?.(post)
@@ -116,7 +88,6 @@ export default function ActionButtons({
   postCardShareVersion,
   postModalByDefault,
   postEngagementNonClickable,
-  additionalInteractionButtonFeature,
 }: ActionButtonsProps): ReactElement {
   const isV2 = postCardVersion === 'v2';
   const separatedActions =
@@ -135,7 +106,6 @@ export default function ActionButtons({
   };
 
   const lastActionButton = LastActionButton({
-    additionalInteractionButtonFeature,
     post,
     postCardShareVersion,
     onBookmarkClick,
