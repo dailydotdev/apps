@@ -1,3 +1,4 @@
+import { isDevelopment } from './constants';
 import { FeatureValue } from './featureManagement';
 import { checkIsPreviewDeployment } from './links';
 
@@ -34,7 +35,7 @@ export const getCookieFeatureFlags = (): Record<string, unknown> => {
   }
 };
 
-export const isPreviewDeployment = checkIsPreviewDeployment();
+export const isPreviewDeployment = checkIsPreviewDeployment() || isDevelopment;
 
 if (isPreviewDeployment) {
   const setFeature = (key: string, value: FeatureValue) => {
@@ -43,5 +44,21 @@ if (isPreviewDeployment) {
     document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify(features)}`;
   };
 
+  const getFeatures = getCookieFeatureFlags;
+
+  const getFeature = (key: string) => {
+    const features = getCookieFeatureFlags();
+    return features[key];
+  };
+
+  const removeFeature = (key: string) => {
+    const features = getCookieFeatureFlags();
+    delete features[key];
+    document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify(features)}`;
+  };
+
   globalThis.setFeature = setFeature;
+  globalThis.getFeature = getFeature;
+  globalThis.getFeatures = getFeatures;
+  globalThis.removeFeature = removeFeature;
 }

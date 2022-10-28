@@ -17,8 +17,6 @@ interface Experiments {
   onboardingSteps?: OnboardingStep[];
   onboardingVersion?: OnboardingVersion;
   onboardingFiltersLayout?: OnboardingFiltersLayout;
-  feedFilterVersion?: string;
-  feedFilterCardVersion?: string;
   popularFeedCopy?: string;
   submitArticleOn?: boolean;
   canSubmitArticle?: boolean;
@@ -61,8 +59,6 @@ export const FeaturesContextProvider = ({
         Features.OnboardingFiltersLayout,
         flags,
       ),
-      feedFilterVersion: getFeatureValue(Features.FeedFilterVersion, flags),
-      feedFilterCardVersion: getFeatureValue(Features.FeedFilterVersion, flags),
       popularFeedCopy: getFeatureValue(Features.PopularFeedCopy, flags),
       showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
       postEngagementNonClickable: isFeaturedEnabled(
@@ -97,6 +93,8 @@ export const FeaturesContextProvider = ({
 
     const featuresCookie: Experiments = getCookieFeatureFlags();
     const value = { ...features, ...featuresCookie };
+
+    globalThis.getFeatureKeys = () => Object.keys(features);
 
     return value;
   }, [flags]);
