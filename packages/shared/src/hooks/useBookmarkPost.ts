@@ -8,6 +8,7 @@ import {
 } from '../graphql/posts';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { MutateFunc } from '../lib/query';
+import { useToastNotification } from './useToastNotification';
 
 type UseBookmarkPostParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
@@ -17,6 +18,7 @@ type UseBookmarkPostParams<T> = {
 };
 type UseBookmarkPostRet<T> = {
   bookmark: (variables: T) => Promise<void>;
+  bookmarkToast: (targetState: boolean) => void;
   removeBookmark: (variables: T) => Promise<void>;
 };
 
@@ -29,7 +31,7 @@ export default function useBookmarkPost<
   onRemoveBookmarkTrackObject,
 }: UseBookmarkPostParams<T>): UseBookmarkPostRet<T> {
   const { trackEvent } = useContext(AnalyticsContext);
-
+  const { displayToast } = useToastNotification();
   const { mutateAsync: bookmark } = useMutation<
     void,
     unknown,
@@ -66,9 +68,14 @@ export default function useBookmarkPost<
         trackEvent(onRemoveBookmarkTrackObject()),
     },
   );
+  const bookmarkToast = (targetBookmarState) =>
+    targetBookmarState
+      ? displayToast('Post was added to your bookmarks')
+      : displayToast('Post was removed from your bookmarks');
 
   return {
     bookmark,
+    bookmarkToast,
     removeBookmark,
   };
 }
