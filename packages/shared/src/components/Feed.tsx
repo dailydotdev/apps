@@ -335,13 +335,14 @@ export default function Feed<T>({
         postMenuLocation.column,
       ),
     onBookmark: () => {
-      const bookmarked = !!(items[postMenuIndex] as PostItem)?.post?.bookmarked;
+      const targetBookmarkState = !(items[postMenuIndex] as PostItem)?.post
+        ?.bookmarked;
       onBookmark(
         (items[postMenuIndex] as PostItem)?.post,
         postMenuIndex,
         postMenuLocation.row,
         postMenuLocation.column,
-        bookmarked,
+        targetBookmarkState,
       );
     },
     post: (items[postMenuIndex] as PostItem)?.post,
