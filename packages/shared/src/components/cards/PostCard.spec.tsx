@@ -8,7 +8,6 @@ import post from '../../../__tests__/fixture/post';
 const defaultProps: PostCardProps = {
   post,
   additionalInteractionButtonFeature: AdditionalInteractionButtons.Bookmark,
-  onLinkClick: jest.fn(),
   onPostClick: jest.fn(),
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),

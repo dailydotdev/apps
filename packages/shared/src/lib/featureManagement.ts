@@ -1,5 +1,9 @@
 import { IFlags } from 'flagsmith';
-import { AdditionalInteractionButtons, AuthVersion } from './featureValues';
+import {
+  AdditionalInteractionButtons,
+  AuthVersion,
+  ShareVersion,
+} from './featureValues';
 
 export class Features {
   static readonly SignupButtonCopy = new Features(
@@ -114,16 +118,16 @@ export class Features {
     'v2',
   ]);
 
+  static readonly PostCardShareVersion = new Features(
+    'post_card_share_version',
+    ShareVersion.V1,
+    [ShareVersion.V1, ShareVersion.V2, ShareVersion.V3, ShareVersion.V4],
+  );
+
   static readonly PostModalByDefault = new Features('post_modal_by_default');
 
   static readonly PostEngagementNonClickable = new Features(
     'post_engagement_non_clickable',
-  );
-
-  static readonly MyFeedOnboardingVersion = new Features(
-    'my_feed_onboarding_version',
-    'control',
-    ['control', 'v1', 'v2', 'v3'],
   );
 
   static readonly AuthenticationVersion = new Features(

@@ -175,10 +175,6 @@ export default function MainFeedLayout({
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
-  const myFeedOnboardingVersion = getFeatureValue(
-    Features.MyFeedOnboardingVersion,
-    flags,
-  );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isMyFeed = feedName === MainFeedPage.MyFeed;
 
@@ -189,11 +185,7 @@ export default function MainFeedLayout({
     if (user) {
       setIsFirstSession(false);
       setMyFeedMode(MyFeedMode.Manual);
-    } else if (
-      isFirstSession &&
-      isSessionLoaded &&
-      myFeedOnboardingVersion !== 'control'
-    ) {
+    } else if (isFirstSession && isSessionLoaded) {
       setIsFirstSession(true);
       setMyFeedMode(MyFeedMode.Auto);
       setCreateMyFeed(true);
@@ -394,7 +386,6 @@ export default function MainFeedLayout({
       )}
       {createMyFeed && (
         <CreateMyFeedModal
-          version={myFeedOnboardingVersion}
           mode={myFeedMode}
           hasUser={!!user}
           isOpen={createMyFeed}
