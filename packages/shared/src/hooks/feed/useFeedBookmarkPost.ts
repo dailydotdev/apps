@@ -61,7 +61,7 @@ export default function useFeedBookmarkPost(
     } else {
       await removeBookmark({ id: post.id, index });
     }
-    const toastMessage = bookmarked
+    const toastMessage = !bookmarked
       ? 'Post was added to your bookmarks'
       : 'Post was removed from your bookmarks';
     displayToast(toastMessage);
