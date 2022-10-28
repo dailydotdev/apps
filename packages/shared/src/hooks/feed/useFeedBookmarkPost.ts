@@ -10,7 +10,6 @@ import { Post } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postEventName } from '../../components/utilities';
-import { useToastNotification } from '../useToastNotification';
 
 export default function useFeedBookmarkPost(
   items: FeedItem[],
@@ -23,13 +22,12 @@ export default function useFeedBookmarkPost(
   index: number,
   row: number,
   column: number,
-  bookmarked: boolean,
+  targetBookmarkState: boolean,
 ) => Promise<void> {
-  const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const { bookmark, removeBookmark } = useBookmarkPost<{
+  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost<{
     id: string;
     index: number;
   }>({
@@ -43,27 +41,34 @@ export default function useFeedBookmarkPost(
     ),
   });
 
-  return async (post, index, row, column, bookmarked): Promise<void> => {
+  return async (
+    post,
+    index,
+    row,
+    column,
+    targetBookmarkState,
+  ): Promise<void> => {
     if (!user) {
       showLogin('bookmark');
       return;
     }
     trackEvent(
-      postAnalyticsEvent(postEventName({ bookmarked }), post, {
-        columns,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking),
-      }),
+      postAnalyticsEvent(
+        postEventName({ bookmarked: targetBookmarkState }),
+        post,
+        {
+          columns,
+          column,
+          row,
+          ...feedAnalyticsExtra(feedName, ranking),
+        },
+      ),
     );
-    if (bookmarked) {
+    if (targetBookmarkState) {
       await bookmark({ id: post.id, index });
     } else {
       await removeBookmark({ id: post.id, index });
     }
-    const toastMessage = !bookmarked
-      ? 'Post was added to your bookmarks'
-      : 'Post was removed from your bookmarks';
-    displayToast(toastMessage);
+    bookmarkToast(targetBookmarkState);
   };
 }

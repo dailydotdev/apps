@@ -146,7 +146,7 @@ export function PostContent({
     useShareComment(analyticsOrigin);
   const { updatePost } = useUpdatePost();
   const onPostClick = useOnPostClick({ origin: analyticsOrigin });
-  const { bookmark, removeBookmark } = useBookmarkPost({
+  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
     onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
   });
@@ -222,18 +222,20 @@ export function PostContent({
       showLogin('bookmark');
       return;
     }
+    const targetBookmarkState = !postById?.post.bookmarked;
     trackEvent(
       postAnalyticsEvent(
-        postEventName({ bookmarked: !postById?.post.bookmarked }),
+        postEventName({ bookmarked: targetBookmarkState }),
         postById?.post,
         { extra: { origin } },
       ),
     );
-    if (!postById?.post.bookmarked) {
+    if (targetBookmarkState) {
       await bookmark({ id: postById?.post.id });
     } else {
       await removeBookmark({ id: postById?.post.id });
     }
+    bookmarkToast(targetBookmarkState);
   };
 
   return (
