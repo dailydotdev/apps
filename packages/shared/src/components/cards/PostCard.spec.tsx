@@ -55,15 +55,6 @@ it('should call on comment click on comment button click', async () => {
   await waitFor(() => expect(defaultProps.onCommentClick).toBeCalledWith(post));
 });
 
-it('should call on bookmark click on bookmark button click', async () => {
-  renderComponent();
-  const el = await screen.findByLabelText('Bookmark');
-  el.click();
-  await waitFor(() =>
-    expect(defaultProps.onBookmarkClick).toBeCalledWith(post, true),
-  );
-});
-
 it('should call on share click on share button click', async () => {
   renderComponent({});
   const el = await screen.findByLabelText('Share post');
