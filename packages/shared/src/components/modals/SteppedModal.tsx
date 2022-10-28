@@ -198,7 +198,14 @@ function SteppedModal({
               {getBackwardsLabel()}
             </Button>
           )}
-          <SimpleTooltip content={invalidMessage} visible={!!invalidMessage}>
+          <SimpleTooltip
+            content={invalidMessage}
+            visible={!!invalidMessage}
+            container={{
+              className: 'w-36 text-center',
+              paddingClassName: 'py-4 px-3',
+            }}
+          >
             <Button className="bg-theme-color-cabbage" onClick={onForward}>
               {getForwardLabel()}
             </Button>
