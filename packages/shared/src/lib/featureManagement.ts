@@ -1,4 +1,5 @@
 import { IFlags } from 'flagsmith';
+import { OnboardingStep } from '../components/onboarding/common';
 import {
   AdditionalInteractionButtons,
   AuthVersion,
@@ -134,7 +135,7 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly OnboardingSteps = new Features(
     'onboarding_steps',
-    'topics/layout/theme',
+    `${OnboardingStep.Topics}/${OnboardingStep.Layout}/${OnboardingStep.Theme}`,
   );
 
   static readonly UserOnboardingVersion = new Features(
@@ -147,18 +148,6 @@ export class Features<T extends FeatureValue = string> {
     'onboarding_filters_layout',
     OnboardingFiltersLayoutEnum.Grid,
     [OnboardingFiltersLayoutEnum.Grid, OnboardingFiltersLayoutEnum.List],
-  );
-
-  static readonly FeedFilterVersion = new Features(
-    'feed_filter_version',
-    'v1',
-    ['v1', 'v2'],
-  );
-
-  static readonly FeedFilterCardVersion = new Features(
-    'feed_filter_card_version',
-    'v1',
-    ['v1', 'v2'],
   );
 
   static readonly AuthenticationVersion = new Features(
