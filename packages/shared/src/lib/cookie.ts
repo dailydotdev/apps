@@ -57,8 +57,13 @@ if (isPreviewDeployment) {
     document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify(features)}`;
   };
 
+  const clearFeatures = () => {
+    document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify({})}`;
+  };
+
   globalThis.setFeature = setFeature;
   globalThis.getFeature = getFeature;
   globalThis.getFeatures = getFeatures;
   globalThis.removeFeature = removeFeature;
+  globalThis.clearFeatures = clearFeatures;
 }
