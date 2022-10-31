@@ -13,7 +13,6 @@ import { RankConfetti } from '../../svg/RankConfetti';
 import { rankToColor, RANKS, getRank } from '../../lib/rank';
 import { LoggedUser } from '../../lib/user';
 import { Checkbox } from '../fields/Checkbox';
-import LoginButtons from '../LoginButtons';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
 import { Button } from '../buttons/Button';
@@ -23,6 +22,7 @@ import { ResponsiveModal } from './ResponsiveModal';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
 import useDebounce from '../../hooks/useDebounce';
+import LoginButton from '../LoginButton';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
@@ -192,7 +192,7 @@ export default function NewRankModal({
           </Button>
         </div>
       ) : (
-        <LoginButtons />
+        <LoginButton className="mx-auto" />
       )}
       <Checkbox
         ref={inputRef}
