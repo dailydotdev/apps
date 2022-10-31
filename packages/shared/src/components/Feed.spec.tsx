@@ -180,7 +180,6 @@ const renderComponent = (
           </SettingsContext.Provider>
         </AuthContext.Provider>
       </QueryClientProvider>
-      ,
     </FeaturesContextProvider>,
   );
 };
