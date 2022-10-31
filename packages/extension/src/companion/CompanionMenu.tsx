@@ -2,7 +2,6 @@ import React, { ReactElement, useContext, useEffect } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UpvoteIcon from '@dailydotdev/shared/src/components/icons/Upvote';
 import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
-import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -18,8 +17,6 @@ import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import CompanionContextMenu from './CompanionContextMenu';
@@ -54,7 +51,6 @@ export default function CompanionMenu({
 }: CompanionMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
-  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
     companionHelper,
@@ -216,37 +212,19 @@ export default function CompanionMenu({
           onClick={() => openNewComment('comment button')}
         />
       </SimpleTooltip>
-      {additionalInteractionButtonFeature ===
-      AdditionalInteractionButtons.Bookmark ? (
-        <SimpleTooltip
-          placement="left"
-          content={post?.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-          appendTo="parent"
-          container={tooltipContainerProps}
-        >
-          <Button
-            buttonSize="medium"
-            pressed={post?.bookmarked}
-            className="btn-tertiary-bun"
-            onClick={toggleBookmark}
-            icon={<BookmarkIcon secondary={post?.bookmarked} />}
-          />
-        </SimpleTooltip>
-      ) : (
-        <SimpleTooltip
-          placement="left"
-          content="Share post"
-          appendTo="parent"
-          container={tooltipContainerProps}
-        >
-          <Button
-            buttonSize="medium"
-            className="btn-tertiary-cabbage"
-            onClick={onShare}
-            icon={<ShareIcon />}
-          />
-        </SimpleTooltip>
-      )}
+      <SimpleTooltip
+        placement="left"
+        content="Share post"
+        appendTo="parent"
+        container={tooltipContainerProps}
+      >
+        <Button
+          buttonSize="medium"
+          className="btn-tertiary-cabbage"
+          onClick={onShare}
+          icon={<ShareIcon />}
+        />
+      </SimpleTooltip>
       <SimpleTooltip
         placement="left"
         content="More options"
@@ -261,7 +239,6 @@ export default function CompanionMenu({
         />
       </SimpleTooltip>
       <CompanionContextMenu
-        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         onBookmark={toggleBookmark}
         onShare={onShare}
         postData={post}

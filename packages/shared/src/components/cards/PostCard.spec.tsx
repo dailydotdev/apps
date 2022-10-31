@@ -1,13 +1,11 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { PostCard, PostCardProps } from './PostCard';
-import { AdditionalInteractionButtons } from '../../lib/featureValues';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import post from '../../../__tests__/fixture/post';
 
 const defaultProps: PostCardProps = {
   post,
-  additionalInteractionButtonFeature: AdditionalInteractionButtons.Bookmark,
   onPostClick: jest.fn(),
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),
@@ -57,19 +55,8 @@ it('should call on comment click on comment button click', async () => {
   await waitFor(() => expect(defaultProps.onCommentClick).toBeCalledWith(post));
 });
 
-it('should call on bookmark click on bookmark button click', async () => {
-  renderComponent();
-  const el = await screen.findByLabelText('Bookmark');
-  el.click();
-  await waitFor(() =>
-    expect(defaultProps.onBookmarkClick).toBeCalledWith(post, true),
-  );
-});
-
 it('should call on share click on share button click', async () => {
-  renderComponent({
-    additionalInteractionButtonFeature: AdditionalInteractionButtons.Share,
-  });
+  renderComponent({});
   const el = await screen.findByLabelText('Share post');
   el.click();
   await waitFor(() => expect(defaultProps.onShare).toBeCalledWith(post));

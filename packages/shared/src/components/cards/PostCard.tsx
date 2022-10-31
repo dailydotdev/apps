@@ -28,7 +28,6 @@ import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
 import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
-import { AdditionalInteractionButtons } from '../../lib/featureValues';
 
 type Callback = (post: Post) => unknown;
 
@@ -46,7 +45,6 @@ export type PostCardProps = {
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
-  additionalInteractionButtonFeature?: AdditionalInteractionButtons;
   insaneMode?: boolean;
 } & HTMLAttributes<HTMLDivElement> &
   PostCardTests;
@@ -68,7 +66,6 @@ export const PostCard = forwardRef(function PostCard(
     children,
     showImage = true,
     style,
-    additionalInteractionButtonFeature,
     insaneMode,
     onReadArticleClick,
     postCardShareVersion,
@@ -188,9 +185,6 @@ export const PostCard = forwardRef(function PostCard(
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
           className={classNames(
             'mx-4',
             !postEngagementNonClickable && 'justify-between',

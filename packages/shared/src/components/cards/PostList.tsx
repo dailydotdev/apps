@@ -34,7 +34,6 @@ export const PostList = forwardRef(function PostList(
     openNewTab,
     enableMenu,
     menuOpened,
-    additionalInteractionButtonFeature,
     className,
     children,
     postCardShareVersion,
@@ -125,9 +124,6 @@ export const PostList = forwardRef(function PostList(
             postCardShareVersion={postCardShareVersion}
             postModalByDefault={postModalByDefault}
             postEngagementNonClickable={postEngagementNonClickable}
-            additionalInteractionButtonFeature={
-              additionalInteractionButtonFeature
-            }
           />
         </ActionsContainer>
       </ListCardMain>
