@@ -18,6 +18,7 @@ import LoginForm from './LoginForm';
 import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
 import {
   AuthEventNames,
+  AuthTriggers,
   getNodeValue,
   RegistrationError,
 } from '../../lib/auth';
@@ -40,7 +41,6 @@ import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import ConnectedUserModal, {
   ConnectedUser as RegistrationConnectedUser,
 } from '../modals/ConnectedUser';
-import { VERIFICATION_TRIGGER } from '../../hooks/useAuthVerificationRecovery';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
@@ -60,7 +60,7 @@ export interface AuthOptionsProps {
   onSuccessfulLogin?: () => unknown;
   onShowOptionsOnly?: (value: boolean) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
-  trigger: string;
+  trigger: AuthTriggers;
   defaultDisplay?: Display;
   className?: string;
   isLoginFlow?: boolean;
@@ -74,7 +74,7 @@ function AuthOptions({
   formRef,
   onShowOptionsOnly,
   trigger,
-  defaultDisplay = Display.Default,
+  defaultDisplay = Display.SocialRegistration,
   onDisplayChange,
   isLoginFlow,
 }: AuthOptionsProps): ReactElement {
@@ -95,7 +95,7 @@ function AuthOptions({
     onDisplayChange?.(display);
     setActiveDisplay(display);
   };
-  const isVerified = loginState?.trigger === VERIFICATION_TRIGGER;
+  const isVerified = loginState?.trigger === AuthTriggers.Verification;
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
@@ -278,6 +278,7 @@ function AuthOptions({
             hints={hint}
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
+            trigger={trigger}
           />
         </Tab>
         <Tab label={Display.Registration}>
@@ -290,6 +291,7 @@ function AuthOptions({
             onSignup={onRegister}
             hints={registrationHints}
             onUpdateHints={setRegistrationHints}
+            trigger={trigger}
             token={
               registration &&
               getNodeValue('csrf_token', registration?.ui?.nodes)

@@ -7,23 +7,24 @@ import React, {
 } from 'react';
 import {
   AnonymousUser,
+  deleteAccount,
   LoggedUser,
   logout as dispatchLogout,
-  deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
 import FeaturesContext from './FeaturesContext';
 import { AuthVersion } from '../lib/featureValues';
 import { isCompanionActivated } from '../lib/element';
+import { AuthTriggers } from '../lib/auth';
 
-export type LoginState = { trigger: string };
+export type LoginState = { trigger: AuthTriggers };
 
 export interface AuthContextData {
   user?: LoggedUser;
   referral?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
-  showLogin: (trigger: string) => void;
+  showLogin: (trigger: AuthTriggers) => void;
   closeLogin: () => void;
   loginState?: LoginState;
   logout: () => Promise<void>;
@@ -113,7 +114,7 @@ export const AuthContextProvider = ({
   }
 
   if (isLegacyLogout && !loginState) {
-    setLoginState({ trigger: 'legacy_logout' });
+    setLoginState({ trigger: AuthTriggers.LegacyLogout });
   }
 
   const authContext: AuthContextData = useMemo(

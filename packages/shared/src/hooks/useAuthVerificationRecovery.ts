@@ -2,17 +2,16 @@ import { useQuery } from 'react-query';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import {
-  getKratosFlow,
   AuthFlow,
   ErrorData,
-  KRATOS_ERROR,
+  getKratosFlow,
   InitializationData,
+  KRATOS_ERROR,
 } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
 import { disabledRefetch } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
-
-export const VERIFICATION_TRIGGER = 'verification';
+import { AuthTriggers } from '../lib/auth';
 
 export function useAuthVerificationRecovery(): void {
   const router = useRouter();
@@ -36,7 +35,7 @@ export function useAuthVerificationRecovery(): void {
     const hasVerified =
       data?.state === 'passed_challenge' && flow === AuthFlow.Verification;
     if (couldBeVerified && hasVerified) {
-      showLogin(VERIFICATION_TRIGGER);
+      showLogin(AuthTriggers.Verification);
       return;
     }
 

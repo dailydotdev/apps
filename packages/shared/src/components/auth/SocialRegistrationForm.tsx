@@ -6,7 +6,11 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { AuthEventNames, SocialRegistrationParameters } from '../../lib/auth';
+import {
+  AuthEventNames,
+  AuthTriggers,
+  SocialRegistrationParameters,
+} from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
@@ -15,7 +19,7 @@ import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import { providerMap } from './common';
+import { AuthModalFooterWrapper, providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
@@ -23,12 +27,14 @@ import { ProfileFormHint } from '../../hooks/useProfileForm';
 import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
+import TwitterIcon from '../icons/Twitter';
 
 export interface SocialRegistrationFormProps {
   className?: string;
   provider?: string;
   formRef?: MutableRefObject<HTMLFormElement>;
   title?: string;
+  trigger: AuthTriggers;
   onClose?: CloseModalFunc;
   hints?: ProfileFormHint;
   onUpdateHints?: (errors: ProfileFormHint) => void;
@@ -48,6 +54,7 @@ export const SocialRegistrationForm = ({
   formRef,
   title = 'Sign up to daily.dev',
   hints,
+  trigger,
   onUpdateHints,
   onClose,
   onSignup,
@@ -58,6 +65,8 @@ export const SocialRegistrationForm = ({
   const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
+  const [twitterHint, setTwitterHint] = useState<string>(null);
+  const isAuthorOnboarding = trigger === AuthTriggers.Author || true;
 
   useEffect(() => {
     trackEvent({
@@ -102,6 +111,11 @@ export const SocialRegistrationForm = ({
       return;
     }
 
+    if (isAuthorOnboarding && !values.twitter) {
+      trackError('Twitter not provider');
+      setTwitterHint('Please add your twitter handle');
+    }
+
     const { file, optOutMarketing, ...rest } = values;
     onSignup({ ...rest, acceptedMarketing: !optOutMarketing });
   };
@@ -117,16 +131,16 @@ export const SocialRegistrationForm = ({
     return <MailIcon size="medium" />;
   };
 
-  if (!user?.email) {
-    return <></>;
-  }
+  // if (!user?.email) {
+  //   return <></>;
+  // }
 
   return (
     <>
       <AuthModalHeader title={title} onClose={onClose} />
       <AuthForm
         className={classNames(
-          'gap-2 self-center place-items-center mt-6 w-full',
+          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6',
           isV2 ? 'max-w-[20rem]' : 'px-6 tablet:px-[3.75rem]',
           className,
         )}
@@ -191,22 +205,42 @@ export const SocialRegistrationForm = ({
             }
           }}
         />
+        {isAuthorOnboarding && (
+          <TextField
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            leftIcon={<TwitterIcon />}
+            name="twitter"
+            inputId="twitter"
+            label="Twitter"
+            type="text"
+            valid={!twitterHint}
+            hint={twitterHint}
+            valueChanged={() => {
+              if (twitterHint) {
+                setTwitterHint('');
+              }
+            }}
+          />
+        )}
         <span className="pb-4 border-b border-theme-divider-tertiary typo-subhead text-theme-label-secondary">
           Your email will be used to send you product and community updates
         </span>
         <Checkbox name="optOutMarketing" className="font-normal">
           I don’t want to receive updates and promotions via email
         </Checkbox>
+      </AuthForm>
+      <AuthModalFooterWrapper className="py-3 px-6 tablet:px-[3.75rem]">
         <Button
           className={classNames(
-            'mt-4 w-full btn-primary',
+            'w-full btn-primary',
             !isLoading && 'bg-theme-color-cabbage',
           )}
           disabled={isLoading}
         >
           Sign up
         </Button>
-      </AuthForm>
+      </AuthModalFooterWrapper>
     </>
   );
 };

@@ -23,6 +23,13 @@ export enum AuthEventNames {
   SubmitForgotPassword = 'submit forgot password',
 }
 
+export enum AuthTriggers {
+  Author = 'author',
+  LegacyLogout = 'legacy_logout',
+  Verification = 'verification',
+  VerifySession = 'verify session',
+}
+
 export interface LoginPasswordParameters extends AuthPostParams {
   password: string;
   identifier: string;
@@ -56,6 +63,7 @@ export type VerificationParams = KratosFormParams<AccountRecoveryParameters>;
 export interface SocialRegistrationParameters {
   name?: string;
   username?: string;
+  twitter?: string;
   file?: string;
   acceptedMarketing?: boolean;
   optOutMarketing?: boolean;

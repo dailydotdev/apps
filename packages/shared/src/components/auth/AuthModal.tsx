@@ -10,10 +10,10 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import DailyCircle from '../DailyCircle';
 import AuthContext from '../../contexts/AuthContext';
-import { AuthEventNames } from '../../lib/auth';
+import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
-export type AuthModalProps = { trigger?: string } & ModalProps;
+export type AuthModalProps = { trigger?: AuthTriggers } & ModalProps;
 
 const DiscardActionModal = dynamic(
   () => import('../modals/DiscardActionModal'),
