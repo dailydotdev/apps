@@ -1,9 +1,7 @@
-import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import FilterIcon from '../icons/Filter';
 import { Button } from '../buttons/Button';
 import AlertPointer, { AlertPlacement } from '../alert/AlertPointer';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
 
@@ -22,20 +20,20 @@ function FeedFilterMenuButton({
 }: FeedFilterMenuButtonProps): ReactElement {
   return (
     <AlertPointer
-      offset={[12, 8]}
+      offset={[4, 8]}
       isAlertDisabled={isAlertDisabled}
       onClose={() => onUpdateAlerts({ myFeed: null })}
       className={{ label: 'w-44', message: 'ml-4' }}
       message={filterAlertMessage}
       placement={sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom}
     >
-      <SimpleTooltip content="Feed filters">
-        <Button
-          className={classNames('mx-3 btn-tertiary')}
-          onClick={onOpenFeedFilters}
-          icon={<FilterIcon />}
-        />
-      </SimpleTooltip>
+      <Button
+        className="btn-tertiary headline"
+        onClick={onOpenFeedFilters}
+        rightIcon={<FilterIcon />}
+      >
+        My feed
+      </Button>
     </AlertPointer>
   );
 }
