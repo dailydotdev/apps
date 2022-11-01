@@ -131,9 +131,9 @@ export const SocialRegistrationForm = ({
     return <MailIcon size="medium" />;
   };
 
-  // if (!user?.email) {
-  //   return <></>;
-  // }
+  if (!user?.email) {
+    return <></>;
+  }
 
   return (
     <>

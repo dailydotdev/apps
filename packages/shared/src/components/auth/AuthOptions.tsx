@@ -74,7 +74,7 @@ function AuthOptions({
   formRef,
   onShowOptionsOnly,
   trigger,
-  defaultDisplay = Display.SocialRegistration,
+  defaultDisplay = Display.Default,
   onDisplayChange,
   isLoginFlow,
 }: AuthOptionsProps): ReactElement {
