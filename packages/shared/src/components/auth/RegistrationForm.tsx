@@ -27,9 +27,7 @@ import AuthForm from './AuthForm';
 import AtIcon from '../icons/At';
 import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import LockIcon from '../icons/Lock';
 import TwitterIcon from '../icons/Twitter';
-import AuthModalFooter from './AuthModalFooter';
 import { AuthModalFooterWrapper } from './common';
 
 export interface RegistrationFormProps {

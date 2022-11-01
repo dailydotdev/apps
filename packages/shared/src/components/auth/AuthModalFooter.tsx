@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { ClickableText } from '../buttons/ClickableText';
 import { AuthModalFooterWrapper } from './common';

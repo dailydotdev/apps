@@ -19,11 +19,7 @@ import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import {
-  AuthEventNames,
-  AuthTriggers,
-  AuthTriggersOrString,
-} from '../../lib/auth';
+import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import FeaturesContext from '../../contexts/FeaturesContext';
 

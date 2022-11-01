@@ -10,11 +10,7 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import DailyCircle from '../DailyCircle';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  AuthEventNames,
-  AuthTriggers,
-  AuthTriggersOrString,
-} from '../../lib/auth';
+import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export type AuthModalProps = { trigger?: AuthTriggersOrString } & ModalProps;

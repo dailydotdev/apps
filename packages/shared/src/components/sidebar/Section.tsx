@@ -9,7 +9,6 @@ import {
   NavSection,
   SidebarMenuItem,
 } from './common';
-import { AuthTriggers } from '../../lib/auth';
 
 export interface SectionCommonProps {
   sidebarExpanded: boolean;
