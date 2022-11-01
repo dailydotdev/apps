@@ -497,8 +497,15 @@ it('should send bookmark mutation', async () => {
       },
     },
   ]);
-  const el = await screen.findByText('Bookmark');
+
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+
+  const el = await screen.findByText('Save to bookmarks');
   el.click();
+
   await waitFor(() => mutationCalled);
 });
 
@@ -518,8 +525,14 @@ it('should send cancel upvote mutation', async () => {
       },
     },
   ]);
-  const el = await screen.findByText('Bookmark');
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+
+  const el = await screen.findByText('Remove from bookmarks');
   el.click();
+
   await waitFor(() => mutationCalled);
 });
 

@@ -40,11 +40,11 @@ export type PostCardProps = {
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   onShare?: Callback;
+  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   openNewTab?: boolean;
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
-  additionalInteractionButtonFeature?: string;
   insaneMode?: boolean;
 } & HTMLAttributes<HTMLDivElement> &
   PostCardTests;
@@ -58,6 +58,7 @@ export const PostCard = forwardRef(function PostCard(
     onBookmarkClick,
     onMenuClick,
     onShare,
+    onShareClick,
     openNewTab,
     enableMenu,
     menuOpened,
@@ -65,9 +66,9 @@ export const PostCard = forwardRef(function PostCard(
     children,
     showImage = true,
     style,
-    additionalInteractionButtonFeature,
     insaneMode,
     onReadArticleClick,
+    postCardShareVersion,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
@@ -86,7 +87,6 @@ export const PostCard = forwardRef(function PostCard(
       ),
     [postCardVersion],
   );
-
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -178,14 +178,13 @@ export const PostCard = forwardRef(function PostCard(
           onCommentClick={onCommentClick}
           onBookmarkClick={onBookmarkClick}
           onShare={onShare}
+          onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
+          postCardShareVersion={postCardShareVersion}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
           className={classNames(
             'mx-4',
             !postEngagementNonClickable && 'justify-between',

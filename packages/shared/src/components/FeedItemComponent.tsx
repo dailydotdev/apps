@@ -62,6 +62,13 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => void;
+  onShareClick: (
+    e: React.MouseEvent,
+    post: Post,
+    index: number,
+    row: number,
+    column: number,
+  ) => void;
   onCommentClick: (
     post: Post,
     index: number,
@@ -69,7 +76,6 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
-  additionalInteractionButtonFeature: string;
 } & PostCardTests;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -105,11 +111,12 @@ export default function FeedItemComponent({
   onBookmark,
   onPostClick,
   onShare,
+  onShareClick,
   onMenuClick,
   onCommentClick,
   onAdClick,
-  additionalInteractionButtonFeature,
   onReadArticleClick,
+  postCardShareVersion,
   postCardVersion,
   postModalByDefault,
   postEngagementNonClickable,
@@ -132,9 +139,6 @@ export default function FeedItemComponent({
     case 'post':
       return (
         <PostTag
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
           ref={inViewRef}
           post={{
             ...item.post,
@@ -154,10 +158,14 @@ export default function FeedItemComponent({
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
+          onShareClick={(event, post) =>
+            onShareClick(event, post, index, row, column)
+          }
           menuOpened={postMenuIndex === index}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
           insaneMode={insaneMode}
+          postCardShareVersion={postCardShareVersion}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}

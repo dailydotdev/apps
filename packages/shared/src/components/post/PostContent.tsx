@@ -46,7 +46,6 @@ import { postEventName } from '../utilities';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { useSharePost } from '../../hooks/useSharePost';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { Origin } from '../../lib/analytics';
 import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
@@ -62,11 +61,7 @@ const Custom404 = dynamic(() => import('../Custom404'));
 export interface PostContentProps
   extends Omit<
       PostModalActionsProps,
-      | 'post'
-      | 'onShare'
-      | 'onBookmark'
-      | 'contextMenuId'
-      | 'additionalInteractionButtonFeature'
+      'post' | 'onShare' | 'onBookmark' | 'contextMenuId'
     >,
     Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>>,
     UsePostCommentOptionalProps {
@@ -133,7 +128,6 @@ export function PostContent({
     onShowUpvotedComment,
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
-  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
@@ -146,7 +140,7 @@ export function PostContent({
     useShareComment(analyticsOrigin);
   const { updatePost } = useUpdatePost();
   const onPostClick = useOnPostClick({ origin: analyticsOrigin });
-  const { bookmark, removeBookmark } = useBookmarkPost({
+  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
     onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
   });
@@ -222,18 +216,20 @@ export function PostContent({
       showLogin('bookmark');
       return;
     }
+    const targetBookmarkState = !postById?.post.bookmarked;
     trackEvent(
       postAnalyticsEvent(
-        postEventName({ bookmarked: !postById?.post.bookmarked }),
+        postEventName({ bookmarked: targetBookmarkState }),
         postById?.post,
         { extra: { origin } },
       ),
     );
-    if (!postById?.post.bookmarked) {
+    if (targetBookmarkState) {
       await bookmark({ id: postById?.post.id });
     } else {
       await removeBookmark({ id: postById?.post.id });
     }
+    bookmarkToast(targetBookmarkState);
   };
 
   return (
@@ -265,9 +261,6 @@ export function PostContent({
           onReadArticle={onReadArticle}
           onClose={onClose}
           isModal={isModal}
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
           onBookmark={toggleBookmark}
           onShare={onShare}
         />
@@ -317,9 +310,6 @@ export function PostContent({
           }
         />
         <PostActions
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
           onBookmark={toggleBookmark}
           onShare={onShare}
           post={postById.post}
@@ -344,7 +334,6 @@ export function PostContent({
         />
       </PostContainer>
       <PostWidgets
-        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         onBookmark={toggleBookmark}
         onShare={onShare}
         onReadArticle={onReadArticle}
