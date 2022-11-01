@@ -147,6 +147,7 @@ export const SocialRegistrationForm = ({
         )}
         ref={formRef}
         onSubmit={onSubmit}
+        id="auth-form"
         data-testid="registration_form"
       >
         <ImageInput
@@ -233,6 +234,8 @@ export const SocialRegistrationForm = ({
       </AuthForm>
       <AuthModalFooterWrapper className="py-3 px-6 tablet:px-[3.75rem]">
         <Button
+          form="auth-form"
+          type="submit"
           className={classNames(
             'w-full btn-primary',
             !isLoading && 'bg-theme-color-cabbage',

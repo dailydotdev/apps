@@ -131,6 +131,7 @@ export const RegistrationForm = ({
         )}
         ref={formRef}
         onSubmit={onSubmit}
+        id="auth-form"
         data-testid="registration_form"
       >
         <TokenInput token={token} />
@@ -209,7 +210,13 @@ export const RegistrationForm = ({
         </Checkbox>
       </AuthForm>
       <AuthModalFooterWrapper className="py-3 px-6 tablet:px-[3.75rem]">
-        <Button className="w-full bg-theme-color-cabbage">Sign up</Button>
+        <Button
+          form="auth-form"
+          type="submit"
+          className="w-full bg-theme-color-cabbage"
+        >
+          Sign up
+        </Button>
       </AuthModalFooterWrapper>
     </>
   );
