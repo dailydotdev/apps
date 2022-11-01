@@ -250,7 +250,7 @@ export default function MainFeedLayout({
 
   /* eslint-disable react/no-children-prop */
   const feedHeading = {
-    [MainFeedPage.Popular]: !hasFiltered ? (
+    [MainFeedPage.MyFeed]: !hasFiltered ? (
       <FeedHeading children="My feed" />
     ) : (
       <FeedFilterMenuButton
@@ -260,7 +260,7 @@ export default function MainFeedLayout({
         onUpdateAlerts={() => updateAlerts({ myFeed: null })}
       />
     ),
-    [MainFeedPage.MyFeed]: <FeedHeading children={popularFeedCopy} />,
+    [MainFeedPage.Popular]: <FeedHeading children={popularFeedCopy} />,
     [MainFeedPage.Upvoted]: <FeedHeading children="Most upvoted" />,
     [MainFeedPage.Discussed]: <FeedHeading children="Best discussions" />,
   };
