@@ -5,6 +5,7 @@
   "license": "AGPL-3.0",
   "scripts": {
     "lint:css": "stylelint '**/*.{ts,tsx,css}'",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix --max-warnings 0",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint && npm run lint:css",
     "test": "node --expose-gc ./node_modules/.bin/jest --logHeapUsage",

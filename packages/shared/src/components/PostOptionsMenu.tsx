@@ -10,7 +10,6 @@ import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import ShareIcon from './icons/Share';
 import RepostPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -24,7 +23,6 @@ import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { OnShareOrBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
-import { AdditionalInteractionButtons } from '../lib/featureValues';
 import { Origin } from '../lib/analytics';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
@@ -51,8 +49,6 @@ type ReportPostAsync = (
 ) => Promise<unknown>;
 
 export default function PostOptionsMenu({
-  additionalInteractionButtonFeature,
-  onShare,
   onBookmark,
   postIndex,
   post,
@@ -192,27 +188,16 @@ export default function PostOptionsMenu({
       action: onHidePost,
     },
     {
+      icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
+      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+      action: onBookmark,
+    },
+    {
       icon: <MenuIcon Icon={BlockIcon} />,
       text: `Don't show articles from ${post?.source?.name}`,
       action: onBlockSource,
     },
   ];
-
-  if (
-    additionalInteractionButtonFeature === AdditionalInteractionButtons.Bookmark
-  ) {
-    postOptions.splice(1, 0, {
-      icon: <MenuIcon Icon={ShareIcon} />,
-      text: 'Share article via...',
-      action: onShare,
-    });
-  } else {
-    postOptions.splice(1, 0, {
-      icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
-      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onBookmark,
-    });
-  }
 
   post?.tags?.forEach((tag) => {
     if (tag.length) {
@@ -243,7 +228,6 @@ export default function PostOptionsMenu({
       action: setShowBanPost,
     });
   }
-
   return (
     <>
       <PortalMenu

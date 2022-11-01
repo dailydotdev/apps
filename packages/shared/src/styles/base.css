@@ -47,6 +47,7 @@ body {
   --theme-background-tertiary: theme('colors.pepper.80');
   --theme-background-bun: theme('colors.bun.80');
   --theme-background-onion: theme('colors.onion.80');
+  --theme-background-pepper: theme('colors.pepper.20');
 
   --theme-label-primary: #ffffff;
   --theme-label-secondary: theme('colors.salt.50');
@@ -153,6 +154,7 @@ body {
   --theme-background-bacon: theme('colors.bacon.20');
   --theme-background-bun: theme('colors.bun.20');
   --theme-background-onion: theme('colors.onion.20');
+  --theme-background-pepper: theme('colors.pepper.20');
 
   --theme-label-primary: theme('colors.pepper.90');
   --theme-label-secondary: theme('colors.pepper.50');
