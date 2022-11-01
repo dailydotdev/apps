@@ -38,7 +38,7 @@ export default function TagOptionsMenu({
       {tag && (
         <Item>
           <Link
-            href={getTagPageLink(tag.name ? tag.name : (tag as string))}
+            href={getTagPageLink(tag.name ?? (tag as string))}
             passHref
             prefetch={false}
           >
