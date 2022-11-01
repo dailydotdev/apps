@@ -56,14 +56,6 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-enum MainFeedPage {
-  MyFeed = 'my-feed',
-  Popular = 'popular',
-  Search = 'search',
-  Upvoted = 'upvoted',
-  Discussed = 'discussed',
-}
-
 const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
