@@ -258,7 +258,7 @@ export default function MainFeedLayout({
 
   /* eslint-disable react/no-children-prop */
   const feedHeading = {
-    [MainFeedPage.Popular]: hasFiltered ? (
+    [MainFeedPage.Popular]: !hasFiltered ? (
       <FeedHeading children="My feed" />
     ) : (
       <FeedFilterMenuButton
