@@ -78,6 +78,7 @@ export interface RegistrationParameters {
   'traits.userId'?: string;
   'traits.referral'?: string;
   'traits.timezone'?: string;
+  'traits.twitter'?: string;
   'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;

@@ -193,8 +193,8 @@ export const RegistrationForm = ({
             saveHintSpace
             className={{ container: 'w-full' }}
             leftIcon={<TwitterIcon />}
-            name="twitter"
-            inputId="twitter"
+            name="traits.twitter"
+            inputId="traits.twitter"
             label="Twitter"
             type="text"
             required
