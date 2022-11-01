@@ -24,6 +24,7 @@ import {
 } from '../../graphql/newSource';
 import { Source } from '../../graphql/sources';
 import AuthContext from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 
 interface RSS {
   url: string;
@@ -62,7 +63,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();
   const { user, loginState, showLogin } = useContext(AuthContext);
-  const loginTrigger = 'submit new source';
+  const loginTrigger = AuthTriggers.SubmitNewSource;
   const { onRequestClose } = props;
 
   const failedToScrape = () => {

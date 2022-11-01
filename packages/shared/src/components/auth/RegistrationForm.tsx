@@ -9,6 +9,7 @@ import React, {
 import {
   AuthEventNames,
   AuthTriggers,
+  AuthTriggersOrString,
   RegistrationError,
   RegistrationParameters,
 } from '../../lib/auth';
@@ -41,7 +42,7 @@ export interface RegistrationFormProps {
   isV2?: boolean;
   onSignup?: (params: RegistrationFormValues) => void;
   token: string;
-  trigger: AuthTriggers;
+  trigger: AuthTriggersOrString;
 }
 
 export type RegistrationFormValues = Omit<

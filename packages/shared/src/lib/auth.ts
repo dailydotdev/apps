@@ -25,10 +25,26 @@ export enum AuthEventNames {
 
 export enum AuthTriggers {
   Author = 'author',
+  Bookmark = 'bookmark',
+  Comment = 'comment',
+  CommentUpvote = 'comment upvote',
+  DevCard = 'devcard',
+  Filter = 'filter',
+  Upvote = 'upvote',
+  Settings = 'settings',
   LegacyLogout = 'legacy_logout',
   Verification = 'verification',
   VerifySession = 'verify session',
+  CreateFeedFilters = 'create feed filters',
+  ReportPost = 'report post',
+  HidePost = 'hide post',
+  MainButton = 'main button',
+  RanksModal = 'ranks modal',
+  SubmitNewSource = 'submit new source',
 }
+
+// Needed for the AB flagged Sidebar items
+export type AuthTriggersOrString = AuthTriggers | string;
 
 export interface LoginPasswordParameters extends AuthPostParams {
   password: string;

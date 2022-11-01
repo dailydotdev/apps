@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
 import AuthContext from '../contexts/AuthContext';
@@ -8,6 +8,7 @@ import { Edge } from '../graphql/common';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import useDebounce from './useDebounce';
+import { AuthTriggers } from '../lib/auth';
 
 export interface UsePostCommentOptionalProps {
   enableShowShareNewComment?: boolean;
@@ -89,7 +90,7 @@ export const usePostComment = (
         post,
       });
     } else {
-      showLogin('comment');
+      showLogin(AuthTriggers.Comment);
     }
   };
 

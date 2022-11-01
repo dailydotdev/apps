@@ -19,6 +19,7 @@ import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
 import {
   AuthEventNames,
   AuthTriggers,
+  AuthTriggersOrString,
   getNodeValue,
   RegistrationError,
 } from '../../lib/auth';
@@ -60,7 +61,7 @@ export interface AuthOptionsProps {
   onSuccessfulLogin?: () => unknown;
   onShowOptionsOnly?: (value: boolean) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
-  trigger: AuthTriggers;
+  trigger: AuthTriggersOrString;
   defaultDisplay?: Display;
   className?: string;
   isLoginFlow?: boolean;

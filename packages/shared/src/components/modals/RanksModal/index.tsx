@@ -12,6 +12,7 @@ import AuthContext from '../../../contexts/AuthContext';
 import { ModalHeader } from '../common';
 import { Button } from '../../buttons/Button';
 import { RANKS } from '../../../lib/rank';
+import { AuthTriggers } from '../../../lib/auth';
 
 export default function RanksModal({
   rank,
@@ -56,7 +57,7 @@ export default function RanksModal({
               'mt-3 w-40 btn-primary',
               rank && RANKS[rank].background,
             )}
-            onClick={() => showLogin('ranks modal')}
+            onClick={() => showLogin(AuthTriggers.RanksModal)}
           >
             Sign up
           </Button>

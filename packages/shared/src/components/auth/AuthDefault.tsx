@@ -19,7 +19,11 @@ import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AuthEventNames, AuthTriggers } from '../../lib/auth';
+import {
+  AuthEventNames,
+  AuthTriggers,
+  AuthTriggersOrString,
+} from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import FeaturesContext from '../../contexts/FeaturesContext';
 
@@ -36,7 +40,7 @@ interface AuthDefaultProps {
   isLoginFlow?: boolean;
   title?: string;
   providers: Provider[];
-  trigger: AuthTriggers;
+  trigger: AuthTriggersOrString;
   disableRegistration?: boolean;
   disablePassword?: boolean;
   isLoading?: boolean;

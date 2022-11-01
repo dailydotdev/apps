@@ -27,6 +27,7 @@ import {
 } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
 import { getBootData, Boot, BootCacheData } from '../lib/boot';
+import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),
@@ -366,7 +367,7 @@ it('should trigger update alerts callback', async () => {
 
 interface AuthMockProps {
   updatedUser?: LoggedUser;
-  loginTrigger?: string;
+  loginTrigger?: AuthTriggersOrString;
 }
 
 const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
@@ -446,7 +447,7 @@ const defaultAnonymousUser: AnonymousUser = {
 };
 
 it('should trigger show login callback', async () => {
-  const expected = 'mock';
+  const expected = AuthTriggers.Comment;
   renderComponent(<AuthMock loginTrigger={expected} />, {
     ...defaultBootData,
     user: defaultAnonymousUser,
@@ -461,7 +462,7 @@ it('should trigger show login callback', async () => {
 });
 
 it('should trigger close login callback', async () => {
-  const expected = 'mock';
+  const expected = AuthTriggers.Comment;
   renderComponent(<AuthMock loginTrigger={expected} />, {
     ...defaultBootData,
     user: defaultAnonymousUser,

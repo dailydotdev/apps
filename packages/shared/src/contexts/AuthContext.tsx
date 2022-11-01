@@ -15,16 +15,16 @@ import { Visit } from '../lib/boot';
 import FeaturesContext from './FeaturesContext';
 import { AuthVersion } from '../lib/featureValues';
 import { isCompanionActivated } from '../lib/element';
-import { AuthTriggers } from '../lib/auth';
+import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 
-export type LoginState = { trigger: AuthTriggers };
+export type LoginState = { trigger: AuthTriggersOrString };
 
 export interface AuthContextData {
   user?: LoggedUser;
   referral?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
-  showLogin: (trigger: AuthTriggers) => void;
+  showLogin: (trigger: AuthTriggersOrString) => void;
   closeLogin: () => void;
   loginState?: LoginState;
   logout: () => Promise<void>;
