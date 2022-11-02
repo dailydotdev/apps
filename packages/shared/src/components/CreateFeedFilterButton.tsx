@@ -8,6 +8,7 @@ import {
 } from '../hooks/useFeedSettings';
 import { AllTagCategoriesData } from '../graphql/feedSettings';
 import { Button, ButtonProps } from './buttons/Button';
+import { AuthTriggers } from '../lib/auth';
 
 type TypeProps = {
   feedFilterModalType: string;
@@ -32,7 +33,7 @@ export default function CreateFeedFilterButton({
     const key = getFeedSettingsQueryKey(user);
     const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
     updateLocalFeedSettings(feedSettings);
-    showLogin('create feed filters');
+    showLogin(AuthTriggers.CreateFeedFilters);
   };
   return (
     <Button {...props} type="submit" onClick={onCreate}>

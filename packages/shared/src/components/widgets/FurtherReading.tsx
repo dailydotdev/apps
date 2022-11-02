@@ -16,6 +16,7 @@ import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
 import { postEventName } from '../utilities';
+import { AuthTriggers } from '../../lib/auth';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -110,7 +111,7 @@ export default function FurtherReading({
 
   const onBookmark = async (post: Post): Promise<void> => {
     if (!user) {
-      showLogin('bookmark');
+      showLogin(AuthTriggers.Bookmark);
       return;
     }
     const bookmarked = !post.bookmarked;

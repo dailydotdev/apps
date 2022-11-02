@@ -2,14 +2,15 @@ import { useContext } from 'react';
 import useBookmarkPost from '../useBookmarkPost';
 import { FeedItem } from '../useFeed';
 import {
-  postAnalyticsEvent,
-  optimisticPostUpdateInFeed,
   feedAnalyticsExtra,
+  optimisticPostUpdateInFeed,
+  postAnalyticsEvent,
 } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postEventName } from '../../components/utilities';
+import { AuthTriggers } from '../../lib/auth';
 
 export default function useFeedBookmarkPost(
   items: FeedItem[],
@@ -49,7 +50,7 @@ export default function useFeedBookmarkPost(
     targetBookmarkState,
   ): Promise<void> => {
     if (!user) {
-      showLogin('bookmark');
+      showLogin(AuthTriggers.Bookmark);
       return;
     }
     trackEvent(

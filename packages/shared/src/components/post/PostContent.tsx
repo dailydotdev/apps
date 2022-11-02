@@ -49,6 +49,7 @@ import { useSharePost } from '../../hooks/useSharePost';
 import { Origin } from '../../lib/analytics';
 import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
+import { AuthTriggers } from '../../lib/auth';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -213,7 +214,7 @@ export function PostContent({
   const onShare = () => openSharePost(postById.post);
   const toggleBookmark = async (): Promise<void> => {
     if (!user) {
-      showLogin('bookmark');
+      showLogin(AuthTriggers.Bookmark);
       return;
     }
     const targetBookmarkState = !postById?.post.bookmarked;
@@ -326,7 +327,9 @@ export function PostContent({
           onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
-          <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
+          <AuthorOnboarding
+            onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
+          />
         )}
         <NewComment
           user={user}

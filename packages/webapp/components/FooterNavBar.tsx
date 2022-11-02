@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, ReactElement, useContext } from 'react';
-import { Flipper, Flipped } from 'react-flip-toolkit';
+import { Flipped, Flipper } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/src/components/icons/Home';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import SearchIcon from '@dailydotdev/shared/src/components/icons/Search';
@@ -14,6 +14,7 @@ import {
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -93,7 +94,7 @@ export default function FooterNavBar(): ReactElement {
               <Button
                 {...buttonProps}
                 icon={tab.icon(index === selectedTab)}
-                onClick={() => showLogin('bookmark')}
+                onClick={() => showLogin(AuthTriggers.Bookmark)}
               />
             </SimpleTooltip>
           )}
