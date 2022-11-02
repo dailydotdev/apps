@@ -10,8 +10,8 @@ import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getLayout } from './FeedLayout';
 import { getShouldRedirect } from '@dailydotdev/shared/src/hooks/useDefaultFeed';
+import { getLayout } from './FeedLayout';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../RouterPostsSearch'),
