@@ -10,7 +10,6 @@ import { ModalProps } from './StyledModal';
 import SteppedModal from './SteppedModal';
 import useFeedSettings, {
   getFeedSettingsQueryKey,
-  updateLocalFeedSettings,
 } from '../../hooks/useFeedSettings';
 import SettingsContext from '../../contexts/SettingsContext';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
@@ -22,7 +21,6 @@ import { OnboardingStep } from '../onboarding/common';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
-import AuthContext from '../../contexts/AuthContext';
 import { LoginTrigger } from '../../lib/analytics';
 
 const INTRODUCTION_ADDITIONAL_STEP = 1;
@@ -38,7 +36,6 @@ function OnboardingModal({
   ...props
 }: OnboardingModalProps): ReactElement {
   const client = useQueryClient();
-  const { refetchBoot } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
@@ -51,16 +48,7 @@ function OnboardingModal({
     origin: 'filter onboarding',
   });
   const [step, setStep] = useState(0);
-  const onStepChange = (beforeStep: number, stepNow: number) => {
-    setStep(stepNow);
-    const filterStep = onboardingSteps.indexOf(OnboardingStep.Topics);
-
-    if (beforeStep - 1 === filterStep) {
-      const key = getFeedSettingsQueryKey();
-      const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
-      updateLocalFeedSettings(feedSettings);
-    }
-  };
+  const onStepChange = (_: number, stepNow: number) => setStep(stepNow);
 
   const onChangeSelectedTopic = (value: string) => {
     const isFollowed = !selectedTopics[value];
@@ -126,7 +114,6 @@ function OnboardingModal({
   }, [onboardingSteps]);
 
   const onFinishOnboarding = async () => {
-    await refetchBoot();
     const key = getFeedSettingsQueryKey();
     const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
     await registerLocalFilters(feedSettings);

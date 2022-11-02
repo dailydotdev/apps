@@ -9,7 +9,6 @@ import {
   TagCategory,
   getEmptyFeedSettings,
 } from '../graphql/feedSettings';
-import { storageWrapper as storage } from '../lib/storageWrapper';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import { generateQueryKey } from '../lib/query';
@@ -36,27 +35,6 @@ export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
   feedSettings?.blockedTags?.length > 0 ||
   feedSettings?.excludeSources?.length > 0 ||
   feedSettings?.advancedSettings?.length > 0;
-
-export const LOCAL_FEED_SETTINGS_KEY = 'feedSettings:local';
-
-export const updateLocalFeedSettings = (feedSettings: FeedSettings): void => {
-  storage.setItem(LOCAL_FEED_SETTINGS_KEY, JSON.stringify(feedSettings));
-};
-
-export const getLocalFeedSettings = (
-  nullIfUndefined?: boolean,
-): FeedSettings => {
-  const value = storage.getItem(LOCAL_FEED_SETTINGS_KEY);
-  if (!value) {
-    return nullIfUndefined ? null : getEmptyFeedSettings();
-  }
-
-  try {
-    return JSON.parse(value) as FeedSettings;
-  } catch (ex) {
-    return getEmptyFeedSettings();
-  }
-};
 
 const isObjectEmpty = (obj: unknown) => {
   if (typeof obj === 'undefined' || obj === null) {

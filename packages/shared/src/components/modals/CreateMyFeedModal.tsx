@@ -10,6 +10,7 @@ import { Button } from '../buttons/Button';
 import { MyFeedIntro } from '../MyFeedIntro';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { MyFeedMode } from '../../graphql/feed';
+import { useMyFeed } from '../../hooks/useMyFeed';
 
 const MY_FEED_VERSION_WINNER = 'v3';
 
@@ -18,12 +19,14 @@ interface GetFooterButtonProps {
   showIntro: boolean;
   onSkip?: React.MouseEventHandler;
   onContinue: () => void;
+  onCreate: () => void;
 }
 const getFooterButton = ({
   showIntro,
   hasUser,
   onSkip,
   onContinue,
+  onCreate,
 }: GetFooterButtonProps): ReactElement => {
   if (showIntro) {
     return (
@@ -50,6 +53,7 @@ const getFooterButton = ({
     <CreateFeedFilterButton
       className="w-40 btn-primary-cabbage"
       feedFilterModalType="v4"
+      onClick={onCreate}
     />
   );
 };
@@ -65,8 +69,10 @@ export default function CreateMyFeedModal({
   onRequestClose,
   ...modalProps
 }: CreateMyFeedModalProps): ReactElement {
+  const { registerLocalFilters } = useMyFeed();
   const { trackEvent } = useContext(AnalyticsContext);
   const [showIntro, setShowIntro] = useState<boolean>(true);
+  const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
 
   useEffect(() => {
     trackEvent({
@@ -78,6 +84,16 @@ export default function CreateMyFeedModal({
       }),
     });
   }, []);
+
+  useEffect(() => {
+    if (!hasUser || !shouldUpdateFilters) {
+      return;
+    }
+
+    registerLocalFilters().then(() => {
+      setShouldUpdateFilters(false);
+    });
+  }, [hasUser]);
 
   return (
     <ResponsiveModal
@@ -117,6 +133,7 @@ export default function CreateMyFeedModal({
           hasUser,
           onSkip: onRequestClose,
           onContinue: () => setShowIntro(false),
+          onCreate: () => setShouldUpdateFilters(true),
         })}
       </footer>
     </ResponsiveModal>

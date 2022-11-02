@@ -29,9 +29,7 @@ import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
-import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
-import { getLocalFeedSettings } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -66,34 +64,15 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
-  const {
-    user,
-    tokenRefreshed,
-    closeLogin,
-    loadingUser,
-    shouldShowLogin,
-    loginState,
-  } = useContext(AuthContext);
-  const { registerLocalFilters } = useMyFeed();
+  const { user, closeLogin, shouldShowLogin, loginState } =
+    useContext(AuthContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
   useTrackPageView();
 
   useEffect(() => {
     updateCookieBanner(user);
-
-    if (!tokenRefreshed || !user) {
-      return;
-    }
-
-    if (getLocalFeedSettings(true)) {
-      registerLocalFilters().then(({ hasFilters }) => {
-        if (hasFilters) {
-          router.replace('/my-feed');
-        }
-      });
-    }
-  }, [user, loadingUser, tokenRefreshed, router.query]);
+  }, [user]);
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
