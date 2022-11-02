@@ -67,7 +67,7 @@ export const SocialRegistrationForm = ({
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
-  const isAuthorOnboarding = trigger === AuthTriggers.Author || true;
+  const isAuthorOnboarding = trigger === AuthTriggers.Author;
 
   useEffect(() => {
     trackEvent({
