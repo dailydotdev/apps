@@ -3,6 +3,7 @@ import { OnboardingStep } from '../components/onboarding/common';
 import {
   AdditionalInteractionButtons,
   AuthVersion,
+  ShareVersion,
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
 } from './featureValues';
@@ -122,6 +123,12 @@ export class Features<T extends FeatureValue = string> {
     'v2',
   ]);
 
+  static readonly PostCardShareVersion = new Features(
+    'post_card_share_version',
+    ShareVersion.V1,
+    [ShareVersion.V1, ShareVersion.V2, ShareVersion.V3, ShareVersion.V4],
+  );
+
   static readonly PostModalByDefault = new Features('post_modal_by_default');
 
   static readonly PostEngagementNonClickable = new Features(
@@ -154,12 +161,6 @@ export class Features<T extends FeatureValue = string> {
     'auth_version',
     AuthVersion.V1,
     [AuthVersion.V1, AuthVersion.V2, AuthVersion.V3, AuthVersion.V4],
-  );
-
-  static readonly AdditionalInteractionButton = new Features(
-    'additional_interaction_button',
-    AdditionalInteractionButtons.Bookmark,
-    [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
   );
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');

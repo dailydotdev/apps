@@ -135,15 +135,19 @@ describe('companion app', () => {
   it('should show bookmark icon selected', async () => {
     renderComponent({}, {});
     await screen.findByTestId('companion');
-    const button = await screen.findByLabelText('Remove bookmark');
-    expect(button).toHaveAttribute('aria-pressed', 'true');
+    const [menuBtn] = await screen.findAllByLabelText('More options');
+    menuBtn.click();
+    const el = await screen.findByText('Remove from bookmarks');
+    expect(el).toBeInTheDocument();
   });
 
   it('should show bookmark icon unselected', async () => {
     renderComponent({ bookmarked: false }, {});
     await screen.findByTestId('companion');
-    const button = await screen.findByLabelText('Bookmark');
-    expect(button).toHaveAttribute('aria-pressed', 'false');
+    const [menuBtn] = await screen.findAllByLabelText('More options');
+    menuBtn.click();
+    const el = await screen.findByText('Save to bookmarks');
+    expect(el).toBeInTheDocument();
   });
 
   it('should show report menu', async () => {

@@ -8,6 +8,7 @@ import {
 import {
   OnboardingFiltersLayout,
   OnboardingVersion,
+  ShareVersion,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, isPreviewDeployment } from '../lib/cookie';
@@ -26,8 +27,8 @@ interface Experiments {
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
+  postCardShareVersion?: ShareVersion;
   authVersion?: string;
-  additionalInteractionButtonFeature?: string;
 }
 
 export interface FeaturesData extends Experiments {
@@ -77,11 +78,11 @@ export const FeaturesContextProvider = ({
       ),
       postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
       postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-      authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
-      additionalInteractionButtonFeature: getFeatureValue(
-        Features.AdditionalInteractionButton,
+      postCardShareVersion: getFeatureValue(
+        Features.PostCardShareVersion,
         flags,
-      ),
+      ) as ShareVersion,
+      authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
     }),
     [flags],
   );
