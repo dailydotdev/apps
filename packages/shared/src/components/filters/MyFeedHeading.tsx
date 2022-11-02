@@ -30,12 +30,12 @@ function MyFeedHeading({
       offset={[4, 8]}
       isAlertDisabled={isAlertDisabled}
       onClose={() => onUpdateAlerts({ myFeed: null })}
-      className={{ label: 'w-44', message: 'ml-4' }}
+      className={{ label: 'w-44', message: 'ml-4', wrapper: 'mr-auto' }}
       message={filterAlertMessage}
       placement={sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom}
     >
       <Button
-        className="btn-tertiary headline"
+        className="mr-auto btn-tertiary headline"
         onClick={onOpenFeedFilters}
         rightIcon={<FilterIcon />}
       >
