@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import ReactModal from 'react-modal';
 import classNames from 'classnames';
 import { ModalHeader } from './ModalHeader';
 import { ModalBody } from './ModalBody';
@@ -6,7 +7,8 @@ import { ModalFooter } from './ModalFooter';
 import { ModalSidebar } from './ModalSidebar';
 import { ModalKind, ModalSize } from './types';
 
-export type ModalProps = {
+export type ModalProps = ReactModal.Props & {
+  children: React.ReactNode;
   kind?: ModalKind;
   size?: ModalSize;
 };
@@ -18,7 +20,9 @@ export function Modal({
   return <div className={classNames(kind, size)}>MODAL</div>;
 }
 
-Modal.prototype.Header = ModalHeader;
-Modal.prototype.Body = ModalBody;
-Modal.prototype.Footer = ModalFooter;
-Modal.prototype.Sidebar = ModalSidebar;
+Modal.Size = ModalSize;
+Modal.Kind = ModalKind;
+Modal.Header = ModalHeader;
+Modal.Body = ModalBody;
+Modal.Footer = ModalFooter;
+Modal.Sidebar = ModalSidebar;

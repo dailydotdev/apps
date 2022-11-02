@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { ResponsiveModal } from './ResponsiveModal';
+import { Modal } from './common/Modal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import Settings from '../Settings';
@@ -10,22 +11,34 @@ export function UserSettingsModal({
   ...modalProps
 }: ModalProps): ReactElement {
   useTrackModal({ isOpen: modalProps.isOpen, title: 'feed settings' });
-
   return (
-    <ResponsiveModal
-      {...modalProps}
+    <Modal
+      kind={Modal.Kind.FixedCenter}
+      size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
-      padding={false}
+      {...modalProps}
     >
-      <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
-        <h3 className="font-bold typo-title3">Customize</h3>
-        <ModalCloseButton onClick={onRequestClose} />
-      </header>
-      <section className="overflow-auto relative w-full h-full shrink max-h-full">
+      <Modal.Header title="Customize"/>
+      <Modal.Body>
         <Settings />
-      </section>
-    </ResponsiveModal>
+      </Modal.Body>
+    </Modal>
   );
+  // return (
+  //   <ResponsiveModal
+  //     {...modalProps}
+  //     onRequestClose={onRequestClose}
+  //     padding={false}
+  //   >
+  //     <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
+  //       <h3 className="font-bold typo-title3">Customize</h3>
+  //       <ModalCloseButton onClick={onRequestClose} />
+  //     </header>
+  //     <section className="overflow-auto relative w-full h-full shrink max-h-full">
+  //       <Settings />
+  //     </section>
+  //   </ResponsiveModal>
+  // );
 }
 
 export default UserSettingsModal;
