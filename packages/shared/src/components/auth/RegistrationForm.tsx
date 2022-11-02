@@ -8,6 +8,8 @@ import React, {
 } from 'react';
 import {
   AuthEventNames,
+  AuthTriggers,
+  AuthTriggersOrString,
   RegistrationError,
   RegistrationParameters,
 } from '../../lib/auth';
@@ -25,6 +27,8 @@ import AuthForm from './AuthForm';
 import AtIcon from '../icons/At';
 import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import TwitterIcon from '../icons/Twitter';
+import { AuthModalFooterWrapper } from './common';
 
 export interface RegistrationFormProps {
   email: string;
@@ -36,6 +40,7 @@ export interface RegistrationFormProps {
   isV2?: boolean;
   onSignup?: (params: RegistrationFormValues) => void;
   token: string;
+  trigger: AuthTriggersOrString;
 }
 
 export type RegistrationFormValues = Omit<
@@ -52,10 +57,12 @@ export const RegistrationForm = ({
   isV2,
   token,
   hints,
+  trigger,
   onUpdateHints,
 }: RegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const isAuthorOnboarding = trigger === AuthTriggers.Author;
 
   useEffect(() => {
     trackEvent({
@@ -117,11 +124,12 @@ export const RegistrationForm = ({
       />
       <AuthForm
         className={classNames(
-          'gap-2 self-center place-items-center mt-6 w-full',
+          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6',
           isV2 ? 'max-w-[20rem]' : 'px-6 tablet:px-[3.75rem]',
         )}
         ref={formRef}
         onSubmit={onSubmit}
+        id="auth-form"
         data-testid="registration_form"
       >
         <TokenInput token={token} />
@@ -180,14 +188,34 @@ export const RegistrationForm = ({
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
+        {isAuthorOnboarding && (
+          <TextField
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            leftIcon={<TwitterIcon />}
+            name="traits.twitter"
+            inputId="traits.twitter"
+            label="Twitter"
+            type="text"
+            required
+          />
+        )}
         <span className="pb-4 border-b border-theme-divider-tertiary typo-subhead text-theme-label-secondary">
           Your email will be used to send you product and community updates
         </span>
         <Checkbox name="optOutMarketing">
           I don’t want to receive updates and promotions via email
         </Checkbox>
-        <Button className="mt-4 w-full bg-theme-color-cabbage">Sign up</Button>
       </AuthForm>
+      <AuthModalFooterWrapper className="py-3 px-6 tablet:px-[3.75rem]">
+        <Button
+          form="auth-form"
+          type="submit"
+          className="w-full bg-theme-color-cabbage"
+        >
+          Sign up
+        </Button>
+      </AuthModalFooterWrapper>
     </>
   );
 };

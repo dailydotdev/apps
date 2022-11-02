@@ -22,6 +22,7 @@ import { upvoteCommentEventName } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
+import { AuthTriggers } from '../../lib/auth';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -119,7 +120,7 @@ export default function CommentActionButtons({
       );
       return upvoteComment();
     }
-    showLogin('comment upvote');
+    showLogin(AuthTriggers.CommentUpvote);
     return undefined;
   };
 

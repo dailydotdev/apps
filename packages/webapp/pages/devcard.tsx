@@ -23,6 +23,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -78,7 +79,7 @@ const Step1 = ({
             <Button
               className="btn-secondary"
               buttonSize="large"
-              onClick={() => showLogin('devcard')}
+              onClick={() => showLogin(AuthTriggers.DevCard)}
             >
               Login to generate
             </Button>

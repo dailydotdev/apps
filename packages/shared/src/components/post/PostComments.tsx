@@ -20,6 +20,7 @@ import DeleteCommentModal from '../modals/DeleteCommentModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/analytics';
+import { AuthTriggers } from '../../lib/auth';
 
 export interface ParentComment {
   authorName: string;
@@ -143,7 +144,7 @@ export function PostComments({
 
       onClick(parent);
     } else {
-      showLogin('comment');
+      showLogin(AuthTriggers.Comment);
     }
   };
 

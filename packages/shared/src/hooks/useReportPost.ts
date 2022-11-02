@@ -3,13 +3,14 @@ import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import {
   HIDE_POST_MUTATION,
-  UNHIDE_POST_MUTATION,
   REPORT_POST_MUTATION,
   ReportReason,
+  UNHIDE_POST_MUTATION,
 } from '../graphql/posts';
 import { apiUrl } from '../lib/config';
 import AuthContext from '../contexts/AuthContext';
 import { BooleanPromise } from '../components/filters/common';
+import { AuthTriggers } from '../lib/auth';
 
 type UseReportPostRet = {
   reportPost: (variables: {
@@ -47,7 +48,7 @@ export default function useReportPost(): UseReportPostRet {
 
   const reportPost = async (params: ReportPostProps) => {
     if (!user) {
-      showLogin('report post');
+      showLogin(AuthTriggers.ReportPost);
       return { successful: false };
     }
 
@@ -58,7 +59,7 @@ export default function useReportPost(): UseReportPostRet {
 
   const hidePost = async (id: string) => {
     if (!user) {
-      showLogin('hide post');
+      showLogin(AuthTriggers.HidePost);
       return { successful: false };
     }
 
@@ -69,7 +70,7 @@ export default function useReportPost(): UseReportPostRet {
 
   const unhidePost = async (id: string) => {
     if (!user) {
-      showLogin('hide post');
+      showLogin(AuthTriggers.HidePost);
       return { successful: false };
     }
 
