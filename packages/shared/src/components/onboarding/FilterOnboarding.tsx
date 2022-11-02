@@ -1,16 +1,16 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState, useContext } from 'react';
 import classNames from 'classnames';
 import { cloudinary } from '../../lib/image';
 import OnboardingStep from './OnboardingStep';
 import FeedTopicCard from '../containers/FeedTopicCard';
-import { TagCategory } from '../../graphql/feedSettings';
 import { OnboardingFiltersLayout } from '../../lib/featureValues';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import useTagAndSource from '../../hooks/useTagAndSource';
+import useFeedSettings from '../../hooks/useFeedSettings';
+import { Origin } from '../../lib/analytics';
 
 interface FilterOnboardingProps {
-  tagsCategories: TagCategory[];
-  selectedId: Record<string, boolean>;
-  topicLayout?: OnboardingFiltersLayout;
-  onSelectedChange: (id: string) => void;
+  onSelectedChange: (result: Record<string, boolean>) => void;
 }
 
 const classes: Record<OnboardingFiltersLayout, string> = {
@@ -19,11 +19,24 @@ const classes: Record<OnboardingFiltersLayout, string> = {
 };
 
 function FilterOnboarding({
-  selectedId,
-  topicLayout,
-  tagsCategories,
   onSelectedChange,
 }: FilterOnboardingProps): ReactElement {
+  const [selectedTopics, setSelectedTopics] = useState({});
+  const { onboardingFiltersLayout } = useContext(FeaturesContext);
+  const { tagsCategories } = useFeedSettings();
+  const { onFollowTags, onUnfollowTags } = useTagAndSource({
+    origin: Origin.TagsFilter,
+  });
+  const onChangeSelectedTopic = (value: string) => {
+    const isFollowed = !selectedTopics[value];
+    const tagCommand = isFollowed ? onFollowTags : onUnfollowTags;
+    const { tags, title } = tagsCategories.find(({ id }) => id === value);
+    tagCommand({ tags, category: title });
+    const result = { ...selectedTopics, [value]: isFollowed };
+    setSelectedTopics(result);
+    onSelectedChange(result);
+  };
+
   return (
     <OnboardingStep
       topIcon={
@@ -35,16 +48,16 @@ function FilterOnboarding({
       }
       title="Pick topics you are interested in. You can always change these later."
       className={{
-        content: classNames('p-5 mt-1 grid', classes[topicLayout]),
+        content: classNames('p-5 mt-1 grid', classes[onboardingFiltersLayout]),
       }}
     >
       {tagsCategories?.map((category) => (
         <FeedTopicCard
           key={category.title}
           topic={category}
-          topicLayout={topicLayout}
-          isActive={selectedId[category.id]}
-          onClick={() => onSelectedChange(category.id)}
+          isActive={selectedTopics[category.id]}
+          topicLayout={onboardingFiltersLayout}
+          onClick={() => onChangeSelectedTopic(category.id)}
         />
       ))}
     </OnboardingStep>

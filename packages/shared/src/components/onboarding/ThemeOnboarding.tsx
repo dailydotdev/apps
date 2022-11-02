@@ -1,17 +1,11 @@
-import React, { ReactElement } from 'react';
-import { ThemeMode, themes } from '../../contexts/SettingsContext';
+import React, { ReactElement, useContext } from 'react';
+import SettingsContext, { themes } from '../../contexts/SettingsContext';
 import ThemeWidget from '../widgets/ThemeWidget';
 import OnboardingStep from './OnboardingStep';
 
-interface ThemeOnboardingProps {
-  selectedTheme: string;
-  onThemeChange: (theme: ThemeMode) => void;
-}
+function ThemeOnboarding(): ReactElement {
+  const { themeMode, setTheme } = useContext(SettingsContext);
 
-function ThemeOnboarding({
-  selectedTheme,
-  onThemeChange,
-}: ThemeOnboardingProps): ReactElement {
   return (
     <OnboardingStep
       title="Your eyes don’t lie"
@@ -22,8 +16,8 @@ function ThemeOnboarding({
         <ThemeWidget
           key={theme.label}
           option={theme}
-          value={selectedTheme}
-          onChange={onThemeChange}
+          value={themeMode}
+          onChange={setTheme}
         />
       ))}
     </OnboardingStep>

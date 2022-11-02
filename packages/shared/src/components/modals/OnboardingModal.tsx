@@ -8,17 +8,13 @@ import React, {
 import { useQueryClient } from 'react-query';
 import { ModalProps } from './StyledModal';
 import SteppedModal from './SteppedModal';
-import useFeedSettings, {
-  getFeedSettingsQueryKey,
-} from '../../hooks/useFeedSettings';
-import SettingsContext from '../../contexts/SettingsContext';
+import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import FilterOnboarding from '../onboarding/FilterOnboarding';
 import LayoutOnboarding from '../onboarding/LayoutOnboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
-import useTagAndSource from '../../hooks/useTagAndSource';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import { LoginTrigger } from '../../lib/analytics';
@@ -39,52 +35,26 @@ function OnboardingModal({
   const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
-  const { onboardingSteps, onboardingFiltersLayout, onboardingMinimumTopics } =
+  const { onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
-  const { insaneMode, themeMode, setTheme, toggleInsaneMode } =
-    useContext(SettingsContext);
-  const { tagsCategories } = useFeedSettings();
-  const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: 'filter onboarding',
-  });
   const [step, setStep] = useState(0);
   const onStepChange = (_: number, stepNow: number) => setStep(stepNow);
 
-  const onChangeSelectedTopic = (value: string) => {
-    const isFollowed = !selectedTopics[value];
-    const tagCommand = isFollowed ? onFollowTags : onUnfollowTags;
-    const { tags, title } = tagsCategories.find(({ id }) => id === value);
-    tagCommand({ tags, category: title });
-    setSelectedTopics({ ...selectedTopics, [value]: isFollowed });
+  const onSelectedTopicsChange = (result: Record<string, boolean>) => {
+    setSelectedTopics(result);
     if (invalidMessage) {
       setInvalidMessage(null);
     }
   };
-
   const components: Record<OnboardingStep, ReactNode> = {
     topics: (
       <FilterOnboarding
         key={OnboardingStep.Topics}
-        topicLayout={onboardingFiltersLayout}
-        selectedId={selectedTopics}
-        tagsCategories={tagsCategories}
-        onSelectedChange={onChangeSelectedTopic}
+        onSelectedChange={onSelectedTopicsChange}
       />
     ),
-    layout: (
-      <LayoutOnboarding
-        key={OnboardingStep.Layout}
-        isListMode={insaneMode}
-        onListModeChange={toggleInsaneMode}
-      />
-    ),
-    theme: (
-      <ThemeOnboarding
-        key={OnboardingStep.Theme}
-        selectedTheme={themeMode}
-        onThemeChange={setTheme}
-      />
-    ),
+    layout: <LayoutOnboarding key={OnboardingStep.Layout} />,
+    theme: <ThemeOnboarding key={OnboardingStep.Theme} />,
   };
 
   const onValidateFilter = () => {

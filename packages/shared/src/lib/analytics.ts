@@ -6,6 +6,8 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   PostContextMenu = 'post context menu',
+  TagsFilter = 'tags filter',
+  TagsSearch = 'tags search',
 }
 
 export enum LoginTrigger {
