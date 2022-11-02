@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { useQueryClient } from 'react-query';
 import { ModalProps } from './StyledModal';
 import SteppedModal from './SteppedModal';
@@ -19,7 +25,7 @@ import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import AuthContext from '../../contexts/AuthContext';
 import { LoginTrigger } from '../../lib/analytics';
 
-const STEPS_COUNT = 4;
+const INTRODUCTION_ADDITIONAL_STEP = 1;
 
 interface OnboardingModalProps extends ModalProps {
   trigger?: string;
@@ -102,16 +108,22 @@ function OnboardingModal({
     return isValid;
   };
 
-  const nextButtonValidations = (() => {
-    const validations = Array(STEPS_COUNT).fill(null);
+  // each step can have their own validation before moving forward with the steps.
+  // an array index represents which step it actually is.
+  // the modal will check if the current step has its relevant validation.
+  // the filter index was required to do a plus 1 since there is an introduction step.
+  const nextButtonValidations = useMemo(() => {
+    const length = OnboardingStep.Topics.length + INTRODUCTION_ADDITIONAL_STEP;
+    const validations = Array(length).fill(null);
     const filterStep = onboardingSteps.indexOf(OnboardingStep.Topics);
 
     if (filterStep !== -1) {
-      validations[filterStep + 1] = onValidateFilter;
+      const index = filterStep + INTRODUCTION_ADDITIONAL_STEP;
+      validations[index] = onValidateFilter;
     }
 
     return validations;
-  })();
+  }, [onboardingSteps]);
 
   const onFinishOnboarding = async () => {
     await refetchBoot();
