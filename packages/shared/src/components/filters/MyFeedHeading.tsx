@@ -4,20 +4,27 @@ import { Button } from '../buttons/Button';
 import AlertPointer, { AlertPlacement } from '../alert/AlertPointer';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
+import { FeedHeading } from '../utilities';
 
-interface FeedFilterMenuButtonProps {
+interface MyFeedHeadingProps {
+  hasFiltered: boolean;
   isAlertDisabled: boolean;
   sidebarRendered: boolean;
   onOpenFeedFilters: () => void;
   onUpdateAlerts: (alerts: Alerts) => void;
 }
 
-function FeedFilterMenuButton({
+function MyFeedHeading({
+  hasFiltered,
   isAlertDisabled,
   sidebarRendered,
   onUpdateAlerts,
   onOpenFeedFilters,
-}: FeedFilterMenuButtonProps): ReactElement {
+}: MyFeedHeadingProps): ReactElement {
+  if (!hasFiltered) {
+    return <FeedHeading>My feed</FeedHeading>;
+  }
+
   return (
     <AlertPointer
       offset={[4, 8]}
@@ -38,4 +45,4 @@ function FeedFilterMenuButton({
   );
 }
 
-export default FeedFilterMenuButton;
+export default MyFeedHeading;

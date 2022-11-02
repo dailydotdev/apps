@@ -35,7 +35,7 @@ import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
+import MyFeedHeading from './filters/MyFeedHeading';
 import SortIcon from './icons/Sort';
 
 const SearchEmptyScreen = dynamic(
@@ -242,10 +242,9 @@ export default function MainFeedLayout({
 
   /* eslint-disable react/no-children-prop */
   const feedHeading = {
-    [MainFeedPage.MyFeed]: !hasFiltered ? (
-      <FeedHeading children="My feed" />
-    ) : (
-      <FeedFilterMenuButton
+    [MainFeedPage.MyFeed]: (
+      <MyFeedHeading
+        hasFiltered={hasFiltered}
         isAlertDisabled={!alerts.myFeed}
         sidebarRendered={sidebarRendered}
         onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
