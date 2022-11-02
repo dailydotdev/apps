@@ -24,6 +24,7 @@ import {
 import { Post } from '../../graphql/posts';
 import AtIcon from '../icons/At';
 import { cleanupEmptySpaces } from '../../lib/strings';
+import { markdownGuide } from '../../lib/constants';
 
 export interface CommentBoxProps {
   authorName: string;
@@ -197,7 +198,7 @@ function CommentBox({
         <div className="ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
         <ClickableText
           tag="a"
-          href="https://www.markdownguide.org/cheat-sheet/"
+          href={markdownGuide}
           className="ml-4 typo-caption1"
           defaultTypo={false}
           target="_blank"
