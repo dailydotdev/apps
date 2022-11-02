@@ -146,10 +146,15 @@ export default function MainFeedLayout({
   const { updateAlerts } = useContext(AlertContext);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
-  const feedName = useDefaultFeed(!!user, feedNameProp);
+  const { alerts } = useContext(AlertContext);
+  const defaultFeed = useDefaultFeed({
+    hasFiltered: !alerts?.filter,
+    feed: feedNameProp,
+    hasUser: !!user,
+  });
+  const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const { flags, popularFeedCopy, onboardingVersion } =
     useContext(FeaturesContext);
-  const { alerts } = useContext(AlertContext);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedTitles = {
     [MainFeedPage.MyFeed]: 'My feed',
