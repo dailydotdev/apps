@@ -91,7 +91,7 @@ export default function CreateMyFeedModal({
     }
 
     registerLocalFilters().then(() => {
-      setShouldUpdateFilters(false);
+      onRequestClose(null);
     });
   }, [hasUser]);
 
