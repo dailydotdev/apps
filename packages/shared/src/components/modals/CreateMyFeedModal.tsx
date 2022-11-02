@@ -55,7 +55,7 @@ const getFooterButton = ({
 };
 
 interface CreateMyFeedModalProps extends ModalProps {
-  mode?: string;
+  mode?: MyFeedMode;
   hasUser: boolean;
 }
 export default function CreateMyFeedModal({

@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import useAuthForms from '../../hooks/useAuthForms';
+import { LoginTrigger } from '../../lib/analytics';
 import { AuthEventNames } from '../../lib/auth';
 import { logout } from '../../lib/user';
 import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
@@ -20,7 +21,8 @@ import { ModalProps, StyledModal } from './StyledModal';
 type ValidateFunction = () => boolean | Promise<boolean>;
 
 interface SteppedModalProps extends ModalProps {
-  trigger: string;
+  targetId?: string;
+  trigger: LoginTrigger;
   skippable?: boolean;
   invalidMessage?: string;
   isLastStepLogin?: boolean;
@@ -33,6 +35,7 @@ interface SteppedModalProps extends ModalProps {
 }
 
 function SteppedModal({
+  targetId,
   trigger,
   children,
   skippable = true,
@@ -116,6 +119,12 @@ function SteppedModal({
     if (!isLastStepLogin && max === step) {
       return onFinish?.();
     }
+
+    trackEvent({
+      event_name: 'click',
+      target_type: trigger,
+      target_id: targetId,
+    });
 
     const nextStep = step + 1;
     await onStepChange?.(step, nextStep);

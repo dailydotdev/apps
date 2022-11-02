@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useQueryClient } from 'react-query';
 import { ModalProps } from './StyledModal';
 import SteppedModal from './SteppedModal';
@@ -18,10 +24,13 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import AuthContext from '../../contexts/AuthContext';
 import { LoginTrigger } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { MyFeedMode } from '../../graphql/feed';
 
 const STEPS_COUNT = 4;
 
 interface OnboardingModalProps extends ModalProps {
+  mode?: MyFeedMode;
   trigger?: string;
   onRegistrationSuccess?: () => void;
 }
@@ -29,9 +38,11 @@ interface OnboardingModalProps extends ModalProps {
 function OnboardingModal({
   onRegistrationSuccess,
   onRequestClose,
+  mode = MyFeedMode.Manual,
   ...props
 }: OnboardingModalProps): ReactElement {
   const client = useQueryClient();
+  const { trackEvent } = useContext(AnalyticsContext);
   const { refetchBoot } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
@@ -127,6 +138,15 @@ function OnboardingModal({
     }
   };
 
+  useEffect(() => {
+    trackEvent({
+      event_name: 'impression',
+      target_type: 'onboarding modal',
+      target_id: 'v2',
+      extra: JSON.stringify({ origin: mode }),
+    });
+  }, []);
+
   return (
     <SteppedModal
       {...props}
@@ -140,6 +160,7 @@ function OnboardingModal({
       invalidMessage={invalidMessage}
       isFirstStepIntroduction
       isLastStepLogin
+      targetId="onboarding-v2"
     >
       <IntroductionOnboarding />
       {onboardingSteps?.map((onboarding) => components[onboarding])}
