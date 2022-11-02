@@ -33,7 +33,7 @@ function FilterOnboarding({
           alt="A lightning icon to resemble supercharge"
         />
       }
-      title="Let’s super-charge your feed with the content you actually read!"
+      title="Pick topics you are interested in. You can always change these later."
       className={{
         content: classNames('p-5 mt-1 grid', classes[topicLayout]),
       }}

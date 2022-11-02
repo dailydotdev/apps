@@ -15,7 +15,7 @@ function ThemeOnboarding({
   return (
     <OnboardingStep
       title="Your eyes don’t lie"
-      description="Dark mode will emit less blue light from your screen - which can keep you awake if you use your device before you go to bed"
+      description="daily.dev looks good in dark mode or in light mode, the choice is yours!"
       className={{ content: 'grid grid-cols-1 gap-6 mt-11 px-11' }}
     >
       {themes.map((theme) => (

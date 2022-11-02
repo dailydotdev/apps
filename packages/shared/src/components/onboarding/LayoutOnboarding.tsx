@@ -17,7 +17,7 @@ function LayoutOnboarding({
   return (
     <OnboardingStep
       title="Cards or list?"
-      description="daily content can be presented in cards or a list, choose what works for you the best"
+      description="Customize the look of your feed by choosing whether to view articles as cards or as a list."
       className={{
         container: 'items-center',
         content: classNames(
