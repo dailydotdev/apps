@@ -2,5 +2,8 @@ import { ActionButtonsProps } from '../cards/ActionButtons';
 
 export type PostCardTests = Pick<
   ActionButtonsProps,
-  'postCardVersion' | 'postModalByDefault' | 'postEngagementNonClickable'
+  | 'postCardVersion'
+  | 'postCardShareVersion'
+  | 'postModalByDefault'
+  | 'postEngagementNonClickable'
 >;

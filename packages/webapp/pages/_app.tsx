@@ -31,6 +31,7 @@ import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPa
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
+import { getLocalFeedSettings } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -85,7 +86,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       return;
     }
 
-    if (router.query.create_filters === 'true') {
+    if (getLocalFeedSettings(true)) {
       registerLocalFilters().then(({ hasFilters }) => {
         if (hasFilters) {
           router.replace('/my-feed');

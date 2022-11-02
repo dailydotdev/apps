@@ -20,7 +20,6 @@ interface PostWidgetsProps
 }
 
 export function PostWidgets({
-  additionalInteractionButtonFeature,
   onShare,
   onBookmark,
   onReadArticle,
@@ -59,9 +58,6 @@ export function PostWidgets({
     >
       {!isNavigationFixed && (
         <PostModalActions
-          additionalInteractionButtonFeature={
-            additionalInteractionButtonFeature
-          }
           onBookmark={onBookmark}
           onShare={onShare}
           onReadArticle={onReadArticle}

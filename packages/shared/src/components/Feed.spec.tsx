@@ -180,7 +180,6 @@ const renderComponent = (
           </SettingsContext.Provider>
         </AuthContext.Provider>
       </QueryClientProvider>
-      ,
     </FeaturesContextProvider>,
   );
 };
@@ -330,7 +329,9 @@ it('should send add bookmark mutation', async () => {
       },
     },
   ]);
-  const [el] = await screen.findAllByLabelText('Bookmark');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const el = await screen.findByText('Save to bookmarks');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -358,7 +359,9 @@ it('should send remove bookmark mutation', async () => {
       },
     },
   ]);
-  const [el] = await screen.findAllByLabelText('Remove bookmark');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const el = await screen.findByText('Remove from bookmarks');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -381,7 +384,9 @@ it('should open login modal on anonymous bookmark', async () => {
     ],
     null,
   );
-  const [el] = await screen.findAllByLabelText('Bookmark');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const el = await screen.findByText('Save to bookmarks');
   el.click();
   await waitFor(() => expect(showLogin).toBeCalledWith('bookmark'));
 });

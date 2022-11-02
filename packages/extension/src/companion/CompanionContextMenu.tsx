@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
-import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 import FlagIcon from '@dailydotdev/shared/src/components/icons/Flag';
 import FeedbackIcon from '@dailydotdev/shared/src/components/icons/Feedback';
 import EyeIcon from '@dailydotdev/shared/src/components/icons/Eye';
@@ -12,13 +11,11 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
-import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
 interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
   postData: PostBootData;
-  additionalInteractionButtonFeature: string;
   onReport: (T) => void;
   onBlockSource: (T) => void;
   onDisableCompanion: () => void;
@@ -26,12 +23,10 @@ interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
 
 export default function CompanionContextMenu({
   postData,
-  additionalInteractionButtonFeature,
   onReport,
   onBlockSource,
   onDisableCompanion,
   onBookmark,
-  onShare,
 }: CompanionContextMenuProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -75,21 +70,14 @@ export default function CompanionContextMenu({
             <CommentIcon size="medium" className="mr-2" /> View discussion
           </a>
         </Item>
-        {additionalInteractionButtonFeature ===
-        AdditionalInteractionButtons.Bookmark ? (
-          <Item onClick={onShare}>
-            <ShareIcon size="medium" className="mr-2" /> Share article via...
-          </Item>
-        ) : (
-          <Item onClick={onBookmark}>
-            <BookmarkIcon
-              size="medium"
-              className="mr-2"
-              secondary={postData?.bookmarked}
-            />
-            {postData?.bookmarked ? 'Remove from' : 'Save to'} bookmarks
-          </Item>
-        )}
+        <Item onClick={onBookmark}>
+          <BookmarkIcon
+            size="medium"
+            className="mr-2"
+            secondary={postData?.bookmarked}
+          />
+          {postData?.bookmarked ? 'Remove from' : 'Save to'} bookmarks
+        </Item>
         <Item onClick={() => setReportModal(true)}>
           <FlagIcon size="medium" className="mr-2" /> Report
         </Item>
