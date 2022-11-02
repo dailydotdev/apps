@@ -9,7 +9,7 @@ import XIcon from '../icons/Close';
 import { Button } from '../buttons/Button';
 import { MyFeedIntro } from '../MyFeedIntro';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { MyFeedMode } from '../../graphql/feed';
+import { OnboardingMode } from '../../graphql/feed';
 import { useMyFeed } from '../../hooks/useMyFeed';
 
 const MY_FEED_VERSION_WINNER = 'v3';
@@ -64,7 +64,7 @@ interface LegacyOnboardingModalProps extends ModalProps {
 }
 
 export default function LegacyOnboardingModal({
-  mode = MyFeedMode.Manual,
+  mode = OnboardingMode.Manual,
   hasUser,
   className,
   onRequestClose,
