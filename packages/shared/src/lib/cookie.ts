@@ -1,6 +1,5 @@
-import { isDevelopment } from './constants';
 import { FeatureValue } from './featureManagement';
-import { checkIsPreviewDeployment } from './links';
+import { isPreviewDeployment } from './links';
 
 export const COOKIE_FEATURES_KEY = 'preview:featuresFlags';
 
@@ -34,8 +33,6 @@ export const getCookieFeatureFlags = (): Record<string, unknown> => {
     return {};
   }
 };
-
-export const isPreviewDeployment = checkIsPreviewDeployment() || isDevelopment;
 
 if (isPreviewDeployment) {
   const setFeature = (key: string, value: FeatureValue) => {
