@@ -10,7 +10,7 @@ import usePersistentContext from './usePersistentContext';
 interface UseOnboardingModal {
   myFeedMode: MyFeedMode;
   isOnboardingOpen: boolean;
-  isCreateMyFeedOpen: boolean;
+  isLegacyOnboardingOpen: boolean;
   onCloseOnboardingModal: () => void;
   onInitializeOnboarding: () => void;
 }
@@ -41,11 +41,11 @@ export const useOnboardingModal = ({
     usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
   const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
     usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, false);
-  const [isCreateMyFeedOpen, setIsCreateMyFeedOpen] = useState(false);
+  const [isLegacyOnboardingOpen, setIsLegacyOnboardingOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
   const modalStateCommand: ModalCommand = {
-    v1: setIsCreateMyFeedOpen,
+    v1: setIsLegacyOnboardingOpen,
     v2: setIsOnboardingOpen,
   };
 
@@ -90,7 +90,7 @@ export const useOnboardingModal = ({
   return useMemo(
     () => ({
       myFeedMode,
-      isCreateMyFeedOpen,
+      isLegacyOnboardingOpen,
       isOnboardingOpen,
       onCloseOnboardingModal,
       onInitializeOnboarding: () => modalStateCommand[onboardingVersion](true),
@@ -101,7 +101,7 @@ export const useOnboardingModal = ({
       isFirstVisit,
       onboardingVersion,
       myFeedMode,
-      isCreateMyFeedOpen,
+      isLegacyOnboardingOpen,
       isOnboardingOpen,
     ],
   );

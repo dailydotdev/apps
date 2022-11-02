@@ -58,17 +58,18 @@ const getFooterButton = ({
   );
 };
 
-interface CreateMyFeedModalProps extends ModalProps {
+interface LegacyOnboardingModalProps extends ModalProps {
   mode?: string;
   hasUser: boolean;
 }
-export default function CreateMyFeedModal({
+
+export default function LegacyOnboardingModal({
   mode = MyFeedMode.Manual,
   hasUser,
   className,
   onRequestClose,
   ...modalProps
-}: CreateMyFeedModalProps): ReactElement {
+}: LegacyOnboardingModalProps): ReactElement {
   const { registerLocalFilters } = useMyFeed();
   const { trackEvent } = useContext(AnalyticsContext);
   const [showIntro, setShowIntro] = useState<boolean>(true);

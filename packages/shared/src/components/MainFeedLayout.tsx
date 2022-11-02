@@ -56,10 +56,10 @@ const OnboardingModal = dynamic(
     ),
 );
 
-const CreateMyFeedModal = dynamic(
+const LegacyOnboardingModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "createMyFeedModal" */ './modals/CreateMyFeedModal'
+      /* webpackChunkName: "legacyOnboardingModal" */ './modals/LegacyOnboardingModal'
     ),
 );
 
@@ -217,7 +217,7 @@ export default function MainFeedLayout({
   const {
     myFeedMode,
     isOnboardingOpen,
-    isCreateMyFeedOpen,
+    isLegacyOnboardingOpen,
     onInitializeOnboarding,
     onCloseOnboardingModal,
   } = useOnboardingModal({
@@ -368,11 +368,11 @@ export default function MainFeedLayout({
           onRequestClose={() => setIsFeedFiltersOpen(false)}
         />
       )}
-      {isCreateMyFeedOpen && (
-        <CreateMyFeedModal
+      {isLegacyOnboardingOpen && (
+        <LegacyOnboardingModal
           mode={myFeedMode}
           hasUser={!!user}
-          isOpen={isCreateMyFeedOpen}
+          isOpen={isLegacyOnboardingOpen}
           onRequestClose={onCloseOnboardingModal}
         />
       )}
