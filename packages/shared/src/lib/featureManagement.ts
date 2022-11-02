@@ -1,7 +1,6 @@
 import { IFlags } from 'flagsmith';
 import { OnboardingStep } from '../components/onboarding/common';
 import {
-  AdditionalInteractionButtons,
   AuthVersion,
   ShareVersion,
   OnboardingVersion,
