@@ -94,21 +94,6 @@ const LayoutHeader = classed(
   'flex justify-between items-center overflow-x-auto relative justify-between mb-6 min-h-14 w-full no-scrollbar',
 );
 
-export const getShouldRedirect = (
-  isOnMyFeed: boolean,
-  isLoggedIn: boolean,
-): boolean => {
-  if (!isOnMyFeed) {
-    return false;
-  }
-
-  if (!isLoggedIn) {
-    return true;
-  }
-
-  return false;
-};
-
 export type MainFeedLayoutProps = {
   feedName: string;
   isSearchOn: boolean;
@@ -159,9 +144,9 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const { updateAlerts } = useContext(AlertContext);
-  const [defaultFeed, updateDefaultFeed] = useDefaultFeed();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
+  const feedName = useDefaultFeed(!!user, feedNameProp);
   const { flags, popularFeedCopy, onboardingVersion } =
     useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
@@ -176,8 +161,6 @@ export default function MainFeedLayout({
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
-  const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
-  const isMyFeed = feedName === MainFeedPage.MyFeed;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
   const isSortableFeed =
     !isSearchOn && (feedName === 'popular' || feedName === 'my-feed');
@@ -343,17 +326,6 @@ export default function MainFeedLayout({
       setSelectedAlgo(0);
     }
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
-
-  useEffect(() => {
-    if (
-      defaultFeed !== null &&
-      feedName !== null &&
-      feedName !== defaultFeed &&
-      !getShouldRedirect(isMyFeed, !!user)
-    ) {
-      updateDefaultFeed(feedName);
-    }
-  }, [defaultFeed, feedName]);
 
   return (
     <>
