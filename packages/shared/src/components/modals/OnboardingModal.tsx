@@ -113,18 +113,12 @@ function OnboardingModal({
     return validations;
   })();
 
-  const onFinishOnboarding = async (isLogin: boolean) => {
+  const onFinishOnboarding = async () => {
+    await refetchBoot();
     const key = getFeedSettingsQueryKey();
     const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
-    const { hasFilters } = await registerLocalFilters(feedSettings);
-    if (!hasFilters) {
-      return;
-    }
-
-    await refetchBoot();
-    if (isLogin) {
-      onRequestClose?.(null);
-    }
+    await registerLocalFilters(feedSettings);
+    onRequestClose?.(null);
   };
 
   return (
