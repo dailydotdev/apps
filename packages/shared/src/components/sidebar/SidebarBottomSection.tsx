@@ -6,6 +6,7 @@ import SidebarRankProgress from '../SidebarRankProgress';
 import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
+import { docs, feedback } from '../../lib/constants';
 
 interface SidebarBottomSectionProps extends SectionCommonProps {
   optOutWeeklyGoal: boolean;
@@ -23,7 +24,7 @@ export function SidebarBottomSectionSection({
     {
       icon: () => <ListIcon Icon={() => <DocsIcon />} />,
       title: 'Docs',
-      path: 'https://docs.daily.dev/',
+      path: docs,
       target: '_blank',
     },
     {
@@ -34,7 +35,7 @@ export function SidebarBottomSectionSection({
     {
       icon: () => <ListIcon Icon={() => <FeedbackIcon />} />,
       title: 'Feedback',
-      path: 'https://daily.dev/feedback',
+      path: feedback,
       target: '_blank',
     },
   ];

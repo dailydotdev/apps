@@ -11,6 +11,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
+import { feedback } from '@dailydotdev/shared/src/lib/constants';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
@@ -84,7 +85,7 @@ export default function CompanionContextMenu({
         <Item>
           <a
             className="flex items-center w-full"
-            href="https://daily.dev/feedback"
+            href={feedback}
             target="_blank"
           >
             <FeedbackIcon size="medium" className="mr-2" /> Give us feedback
