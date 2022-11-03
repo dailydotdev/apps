@@ -7,18 +7,14 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useQueryClient } from 'react-query';
 import { ModalProps } from './StyledModal';
 import SteppedModal from './SteppedModal';
-import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import FilterOnboarding from '../onboarding/FilterOnboarding';
 import LayoutOnboarding from '../onboarding/LayoutOnboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
-import { useMyFeed } from '../../hooks/useMyFeed';
-import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import { LoginTrigger } from '../../lib/analytics';
 
 const INTRODUCTION_ADDITIONAL_STEP = 1;
@@ -36,8 +32,6 @@ function OnboardingModal({
   onRequestClose,
   ...props
 }: OnboardingModalProps): ReactElement {
-  const client = useQueryClient();
-  const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const { onboardingSteps, onboardingMinimumTopics } =
@@ -107,10 +101,7 @@ function OnboardingModal({
   }, [onboardingSteps]);
 
   const onFinishOnboarding = async () => {
-    const key = getFeedSettingsQueryKey();
-    const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
-    await registerLocalFilters(feedSettings);
-    onRegistrationSuccess();
+    onRegistrationSuccess?.();
     onRequestClose?.(null);
   };
 

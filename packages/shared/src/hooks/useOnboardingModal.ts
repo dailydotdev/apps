@@ -100,6 +100,7 @@ export const useOnboardingModal = ({
       onboardingVersion,
       onboardingMode,
       isLegacyOnboardingOpen,
+      shouldUpdateFilters,
       isOnboardingOpen,
     ],
   );
