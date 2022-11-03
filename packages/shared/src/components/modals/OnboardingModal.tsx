@@ -101,8 +101,8 @@ function OnboardingModal({
   }, [onboardingSteps]);
 
   const onFinishOnboarding = async () => {
+    console.log('calling registration success: ', onRegistrationSuccess);
     onRegistrationSuccess?.();
-    onRequestClose?.(null);
   };
 
   return (
