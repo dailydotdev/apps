@@ -56,7 +56,7 @@ export default function ShareOptionsMenu({
   onHidden,
   contextId = 'share-context',
 }: ShareOptionsMenuProps): ReactElement {
-  const link = post && post?.permalink;
+  const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
   const { trackEvent } = useContext(AnalyticsContext);
 
