@@ -25,8 +25,7 @@ interface UseOnboardingModalProps {
 
 type ModalCommand = Record<OnboardingVersion, (value: boolean) => unknown>;
 
-const FIRST_TIME_SESSION = 'firstTimeSession';
-const LOGGED_USER_ONBOARDING = 'loggedUserOnboarding';
+const LOGGED_USER_ONBOARDING = 'hasTriedOnboarding';
 
 export const useOnboardingModal = ({
   user,
@@ -37,10 +36,8 @@ export const useOnboardingModal = ({
 }: UseOnboardingModalProps): UseOnboardingModal => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);
-  const [isFirstSession, setIsFirstSession, isSessionLoaded] =
-    usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
   const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
-    usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, false);
+    usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, !alerts.filter);
   const [isLegacyOnboardingOpen, setIsLegacyOnboardingOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
@@ -55,7 +52,6 @@ export const useOnboardingModal = ({
         event_name: 'my feed onboarding skip',
       });
     }
-    setIsFirstSession(false);
     setHasTriedOnboarding(true);
     modalStateCommand[onboardingVersion]?.(false);
     if (user && !alerts.filter) {
@@ -63,29 +59,14 @@ export const useOnboardingModal = ({
     }
   };
   useEffect(() => {
-    if (!isSessionLoaded || !hasOnboardingLoaded) {
+    if (!hasOnboardingLoaded || hasTriedOnboarding || !alerts.filter) {
       return;
     }
 
-    if (!user) {
-      if (isFirstSession) {
-        setIsFirstSession(true);
-        setOnboardingMode(OnboardingMode.Auto);
-        modalStateCommand[onboardingVersion]?.(true);
-      }
-      return;
-    }
-
-    if (hasTriedOnboarding) {
-      return;
-    }
-
-    if (alerts.filter) {
-      setHasTriedOnboarding(false);
-      setOnboardingMode(OnboardingMode.Auto);
-      modalStateCommand[onboardingVersion]?.(true);
-    }
-  }, [isSessionLoaded, hasOnboardingLoaded, user]);
+    setHasTriedOnboarding(false);
+    setOnboardingMode(OnboardingMode.Auto);
+    modalStateCommand[onboardingVersion]?.(true);
+  }, [hasOnboardingLoaded, user]);
 
   return useMemo(
     () => ({
