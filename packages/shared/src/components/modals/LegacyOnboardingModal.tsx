@@ -11,6 +11,8 @@ import { MyFeedIntro } from '../MyFeedIntro';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { OnboardingMode } from '../../graphql/feed';
 import { useMyFeed } from '../../hooks/useMyFeed';
+import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import { OnboardingVersion } from '../../lib/featureValues';
 
 const MY_FEED_VERSION_WINNER = 'v3';
 
@@ -92,6 +94,12 @@ export default function LegacyOnboardingModal({
     }
 
     registerLocalFilters().then(() => {
+      trackEvent({
+        event_name: AnalyticsEvent.CompleteOnboarding,
+        target_type: TargetType.MyFeedModal,
+        target_id: OnboardingVersion.V1,
+        extra: JSON.stringify({ origin: mode }),
+      });
       onRequestClose(null);
     });
   }, [hasUser]);
