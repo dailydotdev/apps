@@ -42,6 +42,7 @@ export default function useDefaultFeed({
       feed !== null &&
       feed !== defaultFeed &&
       feed !== 'default' &&
+      feed !== '/' &&
       !getShouldRedirect(isMyFeed, !!hasUser)
     ) {
       updateDefaultFeed(feed);
