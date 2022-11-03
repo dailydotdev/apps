@@ -1,4 +1,6 @@
 import React, {
+  KeyboardEvent,
+  MouseEvent,
   ReactElement,
   ReactNode,
   useContext,
@@ -30,6 +32,9 @@ interface OnboardingModalProps extends ModalProps {
   onRegistrationSuccess?: () => void;
 }
 
+const backCopy = ['Skip', 'Close', 'Back', 'Back'];
+const nextCopy = ['Continue'];
+
 function OnboardingModal({
   onRegistrationSuccess,
   onRequestClose,
@@ -44,7 +49,25 @@ function OnboardingModal({
   const { onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
   const [step, setStep] = useState(0);
-  const onStepChange = (_: number, stepNow: number) => setStep(stepNow);
+  const onClose = (e: MouseEvent | KeyboardEvent, stepAtClose: number) => {
+    onRequestClose(e);
+    setStep(stepAtClose);
+  };
+
+  const onBackStep = (
+    beforeStep: number,
+    stepNow: number,
+    e: MouseEvent | KeyboardEvent,
+  ) => {
+    if (beforeStep === 0 || stepNow === 0) {
+      return onClose(e, Math.max(beforeStep, stepNow));
+    }
+    return setStep(stepNow);
+  };
+
+  const onNextStep = (beforeStep: number, stepNow: number) => {
+    setStep(stepNow);
+  };
 
   const onSelectedTopicsChange = (result: Record<string, boolean>) => {
     setSelectedTopics(result);
@@ -113,10 +136,12 @@ function OnboardingModal({
       contentClassName={step === 0 && 'overflow-y-hidden'}
       style={{ content: { maxHeight: '40rem' } }}
       onAuthSuccess={onFinishOnboarding}
-      onStepChange={onStepChange}
+      onBackStep={onBackStep}
+      onNextStep={onNextStep}
       onValidateNext={nextButtonValidations}
       invalidMessage={invalidMessage}
-      isFirstStepIntroduction
+      backCopy={backCopy}
+      nextCopy={nextCopy}
       isLastStepLogin
       targetId="onboarding-v2"
     >
