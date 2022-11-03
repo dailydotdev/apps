@@ -48,10 +48,11 @@ export const FeaturesContextProvider = ({
   children,
   flags,
 }: FeaturesContextProviderProps): ReactElement => {
-  const steps = getFeatureValue(Features.OnboardingSteps, flags)?.split?.('/');
-  const onboardingSteps = (steps as OnboardingStep[]) || [];
-  const features = useMemo(
-    () => ({
+  const features = useMemo(() => {
+    const steps = getFeatureValue(Features.OnboardingSteps, flags);
+    const onboardingSteps = (steps?.split?.('/') || []) as OnboardingStep[];
+
+    return {
       flags,
       onboardingSteps,
       onboardingMinimumTopics:
@@ -84,17 +85,20 @@ export const FeaturesContextProvider = ({
         flags,
       ) as ShareVersion,
       authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
-    }),
-    [flags],
-  );
+    };
+  }, [flags]);
 
   const featuresFlags: FeaturesData = useMemo(() => {
     if (!isPreviewDeployment) {
       return features;
     }
 
-    const featuresCookie: Experiments = getCookieFeatureFlags();
-    const value = { ...features, ...featuresCookie };
+    const { onboardingSteps, ...featuresCookie }: Experiments =
+      getCookieFeatureFlags();
+    const steps =
+      (onboardingSteps?.toString()?.split?.('/') as OnboardingStep[]) ||
+      features.onboardingSteps;
+    const value = { ...features, ...featuresCookie, onboardingSteps: steps };
 
     globalThis.getFeatureKeys = () => Object.keys(features);
 
