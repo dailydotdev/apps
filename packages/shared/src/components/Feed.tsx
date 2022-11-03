@@ -124,7 +124,7 @@ export default function Feed<T>({
     postEngagementNonClickable,
     showCommentPopover,
   } = useContext(FeaturesContext);
-  const postCardShareVersion = navigator.share ? ShareVersion.V2 : shareVersion;
+  const postCardShareVersion = navigator?.share ? ShareVersion.V2 : shareVersion;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
