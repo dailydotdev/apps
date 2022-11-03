@@ -10,7 +10,10 @@ import React, {
 } from 'react';
 import { useQueryClient } from 'react-query';
 import { ModalProps } from './StyledModal';
-import SteppedModal from './SteppedModal';
+import SteppedModal, {
+  getBackwardsLabel,
+  getForwardLabel,
+} from './SteppedModal';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import FilterOnboarding from '../onboarding/FilterOnboarding';
@@ -20,9 +23,15 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
-import { LoginTrigger } from '../../lib/analytics';
+import {
+  AnalyticsEvent,
+  LoginTrigger,
+  ScreenValue,
+  TargetType,
+} from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { OnboardingMode } from '../../graphql/feed';
+import { OnboardingVersion } from '../../lib/featureValues';
 
 const INTRODUCTION_ADDITIONAL_STEP = 1;
 
@@ -31,6 +40,16 @@ interface OnboardingModalProps extends ModalProps {
   trigger?: string;
   onRegistrationSuccess?: () => void;
 }
+
+const getScreen = (onboardingSteps: OnboardingStep[], stepAtNext: number) => {
+  if (stepAtNext === 0) {
+    return ScreenValue.Intro;
+  }
+
+  const index = stepAtNext - INTRODUCTION_ADDITIONAL_STEP;
+  const screen = onboardingSteps[index];
+  return screen;
+};
 
 const backCopy = ['Skip', 'Close', 'Back', 'Back'];
 const nextCopy = ['Continue'];
@@ -49,7 +68,17 @@ function OnboardingModal({
   const { onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
   const [step, setStep] = useState(0);
-  const onClose = (e: MouseEvent | KeyboardEvent, stepAtClose: number) => {
+
+  const onClose = (e: MouseEvent | KeyboardEvent, stepAtClose = step) => {
+    const screen = getScreen(onboardingSteps, stepAtClose);
+    const label =
+      backCopy[stepAtClose] || getBackwardsLabel({ step: stepAtClose });
+    trackEvent({
+      event_name: AnalyticsEvent.OnboardingSkip,
+      target_type: label,
+      target_id: OnboardingVersion.V2,
+      extra: JSON.stringify({ screen_value: screen }),
+    });
     onRequestClose(e);
     setStep(stepAtClose);
   };
@@ -62,10 +91,32 @@ function OnboardingModal({
     if (beforeStep === 0 || stepNow === 0) {
       return onClose(e, Math.max(beforeStep, stepNow));
     }
+
+    const label =
+      backCopy[beforeStep] || getBackwardsLabel({ step: beforeStep });
+    trackEvent({
+      event_name: AnalyticsEvent.ClickOnboardingBack,
+      target_type: label,
+      target_id: OnboardingVersion.V2,
+      extra: JSON.stringify({ screen_value: onboardingSteps[beforeStep] }),
+    });
     return setStep(stepNow);
   };
 
   const onNextStep = (beforeStep: number, stepNow: number) => {
+    const label =
+      nextCopy[beforeStep] ||
+      getForwardLabel({
+        step: beforeStep,
+        length: onboardingSteps.length,
+      });
+    const screen = getScreen(onboardingSteps, beforeStep);
+    trackEvent({
+      event_name: AnalyticsEvent.ClickOnboardingNext,
+      target_type: label,
+      target_id: OnboardingVersion.V2,
+      extra: JSON.stringify({ screen_value: screen }),
+    });
     setStep(stepNow);
   };
 
@@ -113,6 +164,16 @@ function OnboardingModal({
   }, [onboardingSteps]);
 
   const onFinishOnboarding = async () => {
+    trackEvent({
+      event_name: AnalyticsEvent.CompleteOnboarding,
+      target_type: TargetType.MyFeedModal,
+      target_id: OnboardingVersion.V2,
+      extra: JSON.stringify({
+        origin: mode,
+        steps: onboardingSteps,
+        mandating_categories: onboardingMinimumTopics,
+      }),
+    });
     const key = getFeedSettingsQueryKey();
     const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
     await registerLocalFilters(feedSettings);
@@ -121,10 +182,14 @@ function OnboardingModal({
 
   useEffect(() => {
     trackEvent({
-      event_name: 'impression',
-      target_type: 'onboarding modal',
-      target_id: 'v2',
-      extra: JSON.stringify({ origin: mode }),
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.MyFeedModal,
+      target_id: OnboardingVersion.V2,
+      extra: JSON.stringify({
+        origin: mode,
+        steps: onboardingSteps,
+        mandating_categories: onboardingMinimumTopics,
+      }),
     });
   }, []);
 
@@ -132,7 +197,7 @@ function OnboardingModal({
     <SteppedModal
       {...props}
       trigger={LoginTrigger.CreateFeedFilters}
-      onRequestClose={onRequestClose}
+      onRequestClose={onClose}
       contentClassName={step === 0 && 'overflow-y-hidden'}
       style={{ content: { maxHeight: '40rem' } }}
       onAuthSuccess={onFinishOnboarding}
@@ -143,7 +208,7 @@ function OnboardingModal({
       backCopy={backCopy}
       nextCopy={nextCopy}
       isLastStepLogin
-      targetId="onboarding-v2"
+      targetId={TargetType.OnboardingV2}
     >
       <IntroductionOnboarding />
       {onboardingSteps?.map((onboarding) => components[onboarding])}

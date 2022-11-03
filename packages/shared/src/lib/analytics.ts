@@ -13,3 +13,20 @@ export enum Origin {
 export enum LoginTrigger {
   CreateFeedFilters = 'create feed filters',
 }
+
+export enum AnalyticsEvent {
+  Impression = 'impression',
+  ClickOnboardingBack = 'click onboarding back',
+  ClickOnboardingNext = 'click onboarding next',
+  OnboardingSkip = 'my feed onboarding skip',
+  CompleteOnboarding = 'complete onboarding',
+}
+
+export enum TargetType {
+  MyFeedModal = 'my feed modal',
+  OnboardingV2 = 'onboarding v2',
+}
+
+export enum ScreenValue {
+  Intro = 'intro',
+}
