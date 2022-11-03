@@ -1,5 +1,13 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
-export function ModalFooter(): ReactElement {
-  return <span />;
+export type ModalFooterProps = {
+  children?: ReactNode;
+};
+
+export function ModalFooter({ children }: ModalFooterProps): ReactElement {
+  return (
+      <footer>
+        {children}
+      </footer>
+  );
 }
