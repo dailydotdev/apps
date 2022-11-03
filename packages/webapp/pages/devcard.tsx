@@ -268,7 +268,7 @@ const Step2 = ({
             <Button
               className="mt-4 btn-secondary"
               buttonSize="small"
-              onClick={() => copyEmbed}
+              onClick={() => copyEmbed()}
             >
               {!copyingEmbed ? 'Copy code' : 'Copied!'}
             </Button>
