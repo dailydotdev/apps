@@ -139,6 +139,7 @@ function AuthOptions({
   });
   const onProfileSuccess = async () => {
     await refetchBoot();
+    onSuccessfulRegistration?.();
     onClose(null, true);
   };
   const {
