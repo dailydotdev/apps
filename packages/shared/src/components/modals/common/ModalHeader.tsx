@@ -11,9 +11,7 @@ export function ModalHeader({ title }: ModalHeaderProps): ReactElement {
     <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
       {!!title && <h3 className="font-bold typo-title3">{title}</h3>}
       <ModalContext.Consumer>
-        {onRequestClose =>
-          <ModalClose onClick={onRequestClose} />
-        }
+        {(onRequestClose) => <ModalClose onClick={onRequestClose} />}
       </ModalContext.Consumer>
     </header>
   );

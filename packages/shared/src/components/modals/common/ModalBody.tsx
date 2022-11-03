@@ -6,8 +6,8 @@ export type ModalBodyProps = {
 
 export function ModalBody({ children }: ModalBodyProps): ReactElement {
   return (
-      <section className="overflow-auto relative w-full h-full shrink max-h-full">
-        {children}
-      </section>
+    <section className="overflow-auto relative w-full h-full shrink max-h-full">
+      {children}
+    </section>
   );
 }

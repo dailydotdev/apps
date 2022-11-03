@@ -1,4 +1,4 @@
-import { KeyboardEvent, MouseEvent, createContext } from "react";
+import { KeyboardEvent, MouseEvent, createContext } from 'react';
 
 export enum ModalKind {
   FlexibleCenter = 'flexible-center',
@@ -13,5 +13,6 @@ export enum ModalSize {
   Large = 'large',
 }
 
-
-export const ModalContext = createContext<null | ((event: MouseEvent | KeyboardEvent) => any)>(null)
+export const ModalContext = createContext<
+  null | ((event: MouseEvent | KeyboardEvent) => any)
+>(null);

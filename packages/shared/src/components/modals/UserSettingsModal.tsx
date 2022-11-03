@@ -18,7 +18,7 @@ export function UserSettingsModal({
       onRequestClose={onRequestClose}
       {...modalProps}
     >
-      <Modal.Header title="Customize"/>
+      <Modal.Header title="Customize" />
       <Modal.Body>
         <Settings />
       </Modal.Body>

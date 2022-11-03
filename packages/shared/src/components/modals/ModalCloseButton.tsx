@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import { ButtonProps } from '../buttons/Button';
-import CloseButton from '.././CloseButton';
+import CloseButton from '../CloseButton';
 
 function ModalCloseButtonComponent(
   { className, style, ...props }: ButtonProps<'button'>,

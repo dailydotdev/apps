@@ -5,9 +5,5 @@ export type ModalFooterProps = {
 };
 
 export function ModalFooter({ children }: ModalFooterProps): ReactElement {
-  return (
-      <footer>
-        {children}
-      </footer>
-  );
+  return <footer>{children}</footer>;
 }
