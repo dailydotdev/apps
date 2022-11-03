@@ -1,39 +1,28 @@
 import React, { ReactElement, useContext } from 'react';
-import { useQueryClient } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import {
-  getFeedSettingsQueryKey,
-  updateLocalFeedSettings,
-} from '../hooks/useFeedSettings';
-import { AllTagCategoriesData } from '../graphql/feedSettings';
 import { Button, ButtonProps } from './buttons/Button';
 import { LoginTrigger } from '../lib/analytics';
 
-type TypeProps = {
+interface CreateFeedFilterButtonProps extends ButtonProps<'button'> {
   feedFilterModalType: string;
-};
-
-type CreateFeedFilterButtonProps = TypeProps & ButtonProps<'button'>;
+}
 
 export default function CreateFeedFilterButton({
   feedFilterModalType,
   ...props
 }: CreateFeedFilterButtonProps): ReactElement {
-  const { user, showLogin } = useContext(AuthContext);
+  const { showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const client = useQueryClient();
 
-  const onCreate = () => {
+  const onCreate = (e: React.MouseEvent<HTMLButtonElement>) => {
     trackEvent({
       event_name: 'click',
       target_type: LoginTrigger.CreateFeedFilters,
       target_id: `feed-filters-${feedFilterModalType}`,
     });
-    const key = getFeedSettingsQueryKey(user);
-    const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
-    updateLocalFeedSettings(feedSettings);
     showLogin(LoginTrigger.CreateFeedFilters);
+    props.onClick(e);
   };
   return (
     <Button {...props} type="submit" onClick={onCreate}>

@@ -47,6 +47,29 @@ const classes: Record<OnboardingFiltersLayout, ClassName> = {
   },
 };
 
+interface IconProps {
+  layout: OnboardingFiltersLayout;
+  isActive: boolean;
+}
+
+const Icon = ({ layout, isActive }: IconProps) => {
+  const iconClasses = classNames(
+    'absolute rounded-full',
+    classes[layout].check,
+    isActive && 'bg-theme-status-invert-cabbage',
+  );
+
+  if (isActive) {
+    return <VIcon className={iconClasses} />;
+  }
+
+  if (layout === OnboardingFiltersLayout.List) {
+    return <PlusIcon className={iconClasses} />;
+  }
+
+  return null;
+};
+
 function FeedFilterCard({
   topic,
   isActive,
@@ -54,24 +77,6 @@ function FeedFilterCard({
   onClick,
 }: FeedTopicCardProps): ReactElement {
   const backgroundLayers = background[topicLayout];
-
-  const getIcon = () => {
-    const iconClasses = classNames(
-      'absolute rounded-full',
-      classes[topicLayout].check,
-      isActive && 'bg-theme-status-invert-cabbage',
-    );
-
-    if (isActive) {
-      return <VIcon className={iconClasses} />;
-    }
-
-    if (topicLayout === OnboardingFiltersLayout.List) {
-      return <PlusIcon className={iconClasses} />;
-    }
-
-    return null;
-  };
 
   return (
     <button
@@ -84,7 +89,7 @@ function FeedFilterCard({
       )}
     >
       {backgroundLayers}
-      {getIcon()}
+      <Icon layout={topicLayout} isActive={isActive} />
       <span className={classNames('z-1', classes[topicLayout].text)}>
         {topic?.title}
       </span>

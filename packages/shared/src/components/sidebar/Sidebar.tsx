@@ -41,7 +41,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const [defaultFeed] = useDefaultFeed();
+  const defaultFeed = useDefaultFeed();
   const { alerts } = useContext(AlertContext);
   const {
     toggleSidebarExpanded,

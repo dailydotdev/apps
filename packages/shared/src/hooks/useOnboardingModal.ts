@@ -2,15 +2,15 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { MainFeedPage } from '../components/utilities';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Alerts } from '../graphql/alerts';
-import { MyFeedMode } from '../graphql/feed';
+import { OnboardingMode } from '../graphql/feed';
 import { OnboardingVersion } from '../lib/featureValues';
 import { LoggedUser } from '../lib/user';
 import usePersistentContext from './usePersistentContext';
 
 interface UseOnboardingModal {
-  myFeedMode: MyFeedMode;
+  myFeedMode: OnboardingMode;
   isOnboardingOpen: boolean;
-  isCreateMyFeedOpen: boolean;
+  isLegacyOnboardingOpen: boolean;
   onCloseOnboardingModal: () => void;
   onInitializeOnboarding: () => void;
 }
@@ -36,21 +36,21 @@ export const useOnboardingModal = ({
   onFeedPageChanged,
 }: UseOnboardingModalProps): UseOnboardingModal => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [myFeedMode, setMyFeedMode] = useState(MyFeedMode.Manual);
+  const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);
   const [isFirstSession, setIsFirstSession, isSessionLoaded] =
     usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
   const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
     usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, false);
-  const [isCreateMyFeedOpen, setIsCreateMyFeedOpen] = useState(false);
+  const [isLegacyOnboardingOpen, setIsLegacyOnboardingOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
   const modalStateCommand: ModalCommand = {
-    v1: setIsCreateMyFeedOpen,
+    v1: setIsLegacyOnboardingOpen,
     v2: setIsOnboardingOpen,
   };
 
   const onCloseOnboardingModal = () => {
-    if (myFeedMode === MyFeedMode.Auto) {
+    if (onboardingMode === OnboardingMode.Auto) {
       trackEvent({
         event_name: 'my feed onboarding skip',
       });
@@ -70,7 +70,7 @@ export const useOnboardingModal = ({
     if (!user) {
       if (isFirstSession) {
         setIsFirstSession(true);
-        setMyFeedMode(MyFeedMode.Auto);
+        setOnboardingMode(OnboardingMode.Auto);
         modalStateCommand[onboardingVersion]?.(true);
       }
       return;
@@ -82,15 +82,15 @@ export const useOnboardingModal = ({
 
     if (alerts.filter) {
       setHasTriedOnboarding(false);
-      setMyFeedMode(MyFeedMode.Auto);
+      setOnboardingMode(OnboardingMode.Auto);
       modalStateCommand[onboardingVersion]?.(true);
     }
   }, [isSessionLoaded, hasOnboardingLoaded, user]);
 
   return useMemo(
     () => ({
-      myFeedMode,
-      isCreateMyFeedOpen,
+      myFeedMode: onboardingMode,
+      isLegacyOnboardingOpen,
       isOnboardingOpen,
       onCloseOnboardingModal,
       onInitializeOnboarding: () => modalStateCommand[onboardingVersion](true),
@@ -100,8 +100,8 @@ export const useOnboardingModal = ({
       alerts,
       isFirstVisit,
       onboardingVersion,
-      myFeedMode,
-      isCreateMyFeedOpen,
+      onboardingMode,
+      isLegacyOnboardingOpen,
       isOnboardingOpen,
     ],
   );

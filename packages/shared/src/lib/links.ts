@@ -1,15 +1,20 @@
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
 
-const previewDeployments = [
-  'https://preview.app.daily.dev',
-  'https://preview2.app.daily.dev',
-];
+export const isPreviewDeployment = (() => {
+  const value = process.env.NEXT_PUBLIC_PREVIEW_DEPLOYMENT;
 
-export const checkIsPreviewDeployment = (): boolean => {
-  if (typeof window === 'undefined') {
+  if (!value) {
     return false;
   }
 
-  return previewDeployments.includes(window.location.origin);
-};
+  if (value === 'true') {
+    return true;
+  }
+
+  if (value === 'false') {
+    return false;
+  }
+
+  return !!value;
+})();

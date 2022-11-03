@@ -3,34 +3,29 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { useQueryClient } from 'react-query';
 import { ModalProps } from './StyledModal';
 import SteppedModal from './SteppedModal';
-import useFeedSettings, {
-  getFeedSettingsQueryKey,
-  updateLocalFeedSettings,
-} from '../../hooks/useFeedSettings';
-import SettingsContext from '../../contexts/SettingsContext';
+import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import FilterOnboarding from '../onboarding/FilterOnboarding';
 import LayoutOnboarding from '../onboarding/LayoutOnboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
-import useTagAndSource from '../../hooks/useTagAndSource';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
-import AuthContext from '../../contexts/AuthContext';
 import { LoginTrigger } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { MyFeedMode } from '../../graphql/feed';
+import { OnboardingMode } from '../../graphql/feed';
 
-const STEPS_COUNT = 4;
+const INTRODUCTION_ADDITIONAL_STEP = 1;
 
 interface OnboardingModalProps extends ModalProps {
-  mode?: MyFeedMode;
+  mode?: OnboardingMode;
   trigger?: string;
   onRegistrationSuccess?: () => void;
 }
@@ -38,70 +33,34 @@ interface OnboardingModalProps extends ModalProps {
 function OnboardingModal({
   onRegistrationSuccess,
   onRequestClose,
-  mode = MyFeedMode.Manual,
+  mode = OnboardingMode.Manual,
   ...props
 }: OnboardingModalProps): ReactElement {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { refetchBoot } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
-  const { onboardingSteps, onboardingFiltersLayout, onboardingMinimumTopics } =
+  const { onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
-  const { insaneMode, themeMode, setTheme, toggleInsaneMode } =
-    useContext(SettingsContext);
-  const { tagsCategories } = useFeedSettings();
-  const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: 'filter onboarding',
-  });
   const [step, setStep] = useState(0);
-  const onStepChange = (beforeStep: number, stepNow: number) => {
-    setStep(stepNow);
-    const filterStep = onboardingSteps.indexOf(OnboardingStep.Topics);
+  const onStepChange = (_: number, stepNow: number) => setStep(stepNow);
 
-    if (beforeStep - 1 === filterStep) {
-      const key = getFeedSettingsQueryKey();
-      const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
-      updateLocalFeedSettings(feedSettings);
-    }
-  };
-
-  const onChangeSelectedTopic = (value: string) => {
-    const isFollowed = !selectedTopics[value];
-    const tagCommand = isFollowed ? onFollowTags : onUnfollowTags;
-    const { tags, title } = tagsCategories.find(({ id }) => id === value);
-    tagCommand({ tags, category: title });
-    setSelectedTopics({ ...selectedTopics, [value]: isFollowed });
+  const onSelectedTopicsChange = (result: Record<string, boolean>) => {
+    setSelectedTopics(result);
     if (invalidMessage) {
       setInvalidMessage(null);
     }
   };
-
   const components: Record<OnboardingStep, ReactNode> = {
     topics: (
       <FilterOnboarding
         key={OnboardingStep.Topics}
-        topicLayout={onboardingFiltersLayout}
-        selectedId={selectedTopics}
-        tagsCategories={tagsCategories}
-        onSelectedChange={onChangeSelectedTopic}
+        onSelectedChange={onSelectedTopicsChange}
       />
     ),
-    layout: (
-      <LayoutOnboarding
-        key={OnboardingStep.Layout}
-        isListMode={insaneMode}
-        onListModeChange={toggleInsaneMode}
-      />
-    ),
-    theme: (
-      <ThemeOnboarding
-        key={OnboardingStep.Theme}
-        selectedTheme={themeMode}
-        onThemeChange={setTheme}
-      />
-    ),
+    layout: <LayoutOnboarding key={OnboardingStep.Layout} />,
+    theme: <ThemeOnboarding key={OnboardingStep.Theme} />,
   };
 
   const onValidateFilter = () => {
@@ -113,29 +72,28 @@ function OnboardingModal({
     return isValid;
   };
 
-  const nextButtonValidations = (() => {
-    const validations = Array(STEPS_COUNT).fill(null);
+  // each step can have their own validation before moving forward with the steps.
+  // an array index represents which step it actually is.
+  // the modal will check if the current step has its relevant validation.
+  // the filter index was required to do a plus 1 since there is an introduction step.
+  const nextButtonValidations = useMemo(() => {
+    const length = OnboardingStep.Topics.length + INTRODUCTION_ADDITIONAL_STEP;
+    const validations = Array(length).fill(null);
     const filterStep = onboardingSteps.indexOf(OnboardingStep.Topics);
 
     if (filterStep !== -1) {
-      validations[filterStep + 1] = onValidateFilter;
+      const index = filterStep + INTRODUCTION_ADDITIONAL_STEP;
+      validations[index] = onValidateFilter;
     }
 
     return validations;
-  })();
+  }, [onboardingSteps]);
 
-  const onFinishOnboarding = async (isLogin: boolean) => {
+  const onFinishOnboarding = async () => {
     const key = getFeedSettingsQueryKey();
     const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
-    const { hasFilters } = await registerLocalFilters(feedSettings);
-    if (!hasFilters) {
-      return;
-    }
-
-    await refetchBoot();
-    if (isLogin) {
-      onRequestClose?.(null);
-    }
+    await registerLocalFilters(feedSettings);
+    onRequestClose?.(null);
   };
 
   useEffect(() => {

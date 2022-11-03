@@ -25,6 +25,7 @@ import MenuIcon from '../icons/Menu';
 import AuthContext from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { HTMLElementComponent } from '../utilities';
+import { Origin } from '../../lib/analytics';
 
 const TagsContainer = classed('div', 'grid grid-cols-1 gap-4 mx-6');
 
@@ -50,7 +51,7 @@ export default function TagsFilter({
     useTagContext();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({
-      origin: `tags ${query?.length > 0 ? 'search' : 'filter'}`,
+      origin: query?.length ? Origin.TagsSearch : Origin.TagsFilter,
     });
   const isTagBlocked = feedSettings?.blockedTags?.some(
     (tag) => tag === contextSelectedTag,

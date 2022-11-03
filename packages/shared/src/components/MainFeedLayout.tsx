@@ -56,10 +56,10 @@ const OnboardingModal = dynamic(
     ),
 );
 
-const CreateMyFeedModal = dynamic(
+const LegacyOnboardingModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "createMyFeedModal" */ './modals/CreateMyFeedModal'
+      /* webpackChunkName: "legacyOnboardingModal" */ './modals/LegacyOnboardingModal'
     ),
 );
 
@@ -93,21 +93,6 @@ const LayoutHeader = classed(
   'header',
   'flex justify-between items-center overflow-x-auto relative justify-between mb-6 min-h-14 w-full no-scrollbar',
 );
-
-export const getShouldRedirect = (
-  isOnMyFeed: boolean,
-  isLoggedIn: boolean,
-): boolean => {
-  if (!isOnMyFeed) {
-    return false;
-  }
-
-  if (!isLoggedIn) {
-    return true;
-  }
-
-  return false;
-};
 
 export type MainFeedLayoutProps = {
   feedName: string;
@@ -159,12 +144,17 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const { updateAlerts } = useContext(AlertContext);
-  const [defaultFeed, updateDefaultFeed] = useDefaultFeed();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
+  const { alerts } = useContext(AlertContext);
+  const defaultFeed = useDefaultFeed({
+    hasFiltered: !alerts?.filter,
+    feed: feedNameProp,
+    hasUser: !!user,
+  });
+  const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const { flags, popularFeedCopy, onboardingVersion } =
     useContext(FeaturesContext);
-  const { alerts } = useContext(AlertContext);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedTitles = {
     [MainFeedPage.MyFeed]: 'My feed',
@@ -176,8 +166,6 @@ export default function MainFeedLayout({
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
-  const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
-  const isMyFeed = feedName === MainFeedPage.MyFeed;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
   const isSortableFeed =
     !isSearchOn && (feedName === 'popular' || feedName === 'my-feed');
@@ -217,7 +205,7 @@ export default function MainFeedLayout({
   const {
     myFeedMode,
     isOnboardingOpen,
-    isCreateMyFeedOpen,
+    isLegacyOnboardingOpen,
     onInitializeOnboarding,
     onCloseOnboardingModal,
   } = useOnboardingModal({
@@ -344,17 +332,6 @@ export default function MainFeedLayout({
     }
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  useEffect(() => {
-    if (
-      defaultFeed !== null &&
-      feedName !== null &&
-      feedName !== defaultFeed &&
-      !getShouldRedirect(isMyFeed, !!user)
-    ) {
-      updateDefaultFeed(feedName);
-    }
-  }, [defaultFeed, feedName]);
-
   return (
     <>
       <FeedPage>
@@ -368,11 +345,11 @@ export default function MainFeedLayout({
           onRequestClose={() => setIsFeedFiltersOpen(false)}
         />
       )}
-      {isCreateMyFeedOpen && (
-        <CreateMyFeedModal
+      {isLegacyOnboardingOpen && (
+        <LegacyOnboardingModal
           mode={myFeedMode}
           hasUser={!!user}
-          isOpen={isCreateMyFeedOpen}
+          isOpen={isLegacyOnboardingOpen}
           onRequestClose={onCloseOnboardingModal}
         />
       )}

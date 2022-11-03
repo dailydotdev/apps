@@ -11,7 +11,8 @@ import {
   ShareVersion,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
-import { getCookieFeatureFlags, isPreviewDeployment } from '../lib/cookie';
+import { getCookieFeatureFlags } from '../lib/cookie';
+import { isPreviewDeployment } from '../lib/links';
 
 interface Experiments {
   onboardingMinimumTopics?: number;
