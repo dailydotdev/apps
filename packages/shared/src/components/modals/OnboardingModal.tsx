@@ -100,11 +100,6 @@ function OnboardingModal({
     return validations;
   }, [onboardingSteps]);
 
-  const onFinishOnboarding = async () => {
-    console.log('calling registration success: ', onRegistrationSuccess);
-    onRegistrationSuccess?.();
-  };
-
   return (
     <SteppedModal
       {...props}
@@ -112,7 +107,7 @@ function OnboardingModal({
       onRequestClose={onRequestClose}
       contentClassName={step === 0 && 'overflow-y-hidden'}
       style={{ content: { maxHeight: '40rem' } }}
-      onAuthSuccess={onFinishOnboarding}
+      onAuthSuccess={onRegistrationSuccess}
       onBackStep={onBackStep}
       onNextStep={onNextStep}
       onValidateNext={nextButtonValidations}

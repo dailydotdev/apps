@@ -63,8 +63,6 @@ export const useOnboardingModal = ({
     }
   };
 
-  console.log(user, shouldUpdateFilters);
-
   useEffect(() => {
     if (!user || !shouldUpdateFilters) {
       return;
