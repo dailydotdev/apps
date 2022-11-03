@@ -324,26 +324,26 @@ export default function Feed<T>({
       document.body.classList.remove('hidden-scrollbar');
     }
   }, [selectedPost]);
+  const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
       openSharePost(
-        (items[postMenuIndex] as PostItem)?.post,
+        post,
         virtualizedNumCards,
         postMenuLocation.row,
         postMenuLocation.column,
       ),
     onBookmark: () => {
-      const targetBookmarkState = !(items[postMenuIndex] as PostItem)?.post
-        ?.bookmarked;
+      const targetBookmarkState = !post?.bookmarked;
       onBookmark(
-        (items[postMenuIndex] as PostItem)?.post,
+        post,
         postMenuIndex,
         postMenuLocation.row,
         postMenuLocation.column,
         targetBookmarkState,
       );
     },
-    post: (items[postMenuIndex] as PostItem)?.post,
+    post,
   };
   return (
     <div
