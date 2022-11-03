@@ -123,12 +123,6 @@ function SteppedModal({
       return onFinish?.();
     }
 
-    trackEvent({
-      event_name: 'click',
-      target_type: trigger,
-      target_id: targetId,
-    });
-
     const nextStep = step + 1;
     await onNextStep?.(step, nextStep, e);
     return setStep(nextStep);
