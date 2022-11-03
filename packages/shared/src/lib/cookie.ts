@@ -39,15 +39,13 @@ export const updateFeatureFlags = (
   flags: IFlags,
   obj: Record<string, FeatureValue>,
 ): IFlags =>
-  Object.keys(flags).reduce((features, key) => {
+  Object.keys(obj).reduce((features, key) => {
     const value = obj[key];
     if (!value) {
       return features;
     }
 
-    const result: IFlags = { ...features, [key]: { enabled: true, value } };
-
-    return result;
+    return { ...features, [key]: { enabled: true, value } };
   }, flags);
 
 if (isPreviewDeployment) {
