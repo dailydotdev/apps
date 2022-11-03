@@ -20,6 +20,7 @@ import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
 import { MobileMenuIcon } from './MobileMenuIcon';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import AuthContext from '../../contexts/AuthContext';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -41,8 +42,13 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const defaultFeed = useDefaultFeed();
   const { alerts } = useContext(AlertContext);
+  const { user } = useContext(AuthContext);
+  const defaultFeed = useDefaultFeed({
+    feed: activePageProp,
+    hasUser: !!user,
+    hasFiltered: !alerts?.filter,
+  });
   const {
     toggleSidebarExpanded,
     sidebarExpanded,
