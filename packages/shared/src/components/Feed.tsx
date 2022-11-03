@@ -42,6 +42,7 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
+import { ShareVersion } from '../lib/featureValues';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -118,11 +119,12 @@ export default function Feed<T>({
 }: FeedProps<T>): ReactElement {
   const {
     postCardVersion,
-    postCardShareVersion,
+    postCardShareVersion: shareVersion,
     postModalByDefault,
     postEngagementNonClickable,
     showCommentPopover,
   } = useContext(FeaturesContext);
+  const postCardShareVersion = navigator.share ? ShareVersion.V2 : shareVersion;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
