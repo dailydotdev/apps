@@ -1,3 +1,4 @@
+import { IFlags } from 'flagsmith';
 import { FeatureValue } from './featureManagement';
 import { isPreviewDeployment } from './links';
 
@@ -17,7 +18,7 @@ export const getCookieObject = (): Record<string, unknown> => {
   return cookie;
 };
 
-export const getCookieFeatureFlags = (): Record<string, unknown> => {
+export const getCookieFeatureFlags = (): Record<string, FeatureValue> => {
   const cookie = getCookieObject();
   const value = cookie[COOKIE_FEATURES_KEY] as string;
 
@@ -33,6 +34,19 @@ export const getCookieFeatureFlags = (): Record<string, unknown> => {
     return {};
   }
 };
+
+export const updateFeatureFlags = (
+  flags: IFlags,
+  obj: Record<string, FeatureValue>,
+): IFlags =>
+  Object.keys(obj).reduce((features, key) => {
+    const value = obj[key];
+    if (!value) {
+      return features;
+    }
+
+    return { ...features, [key]: { enabled: true, value } };
+  }, flags);
 
 if (isPreviewDeployment) {
   const setFeature = (key: string, value: FeatureValue) => {

@@ -11,7 +11,7 @@ import {
   ShareVersion,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
-import { getCookieFeatureFlags } from '../lib/cookie';
+import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
 import { isPreviewDeployment } from '../lib/links';
 
 interface Experiments {
@@ -44,61 +44,64 @@ export type FeaturesContextProviderProps = {
   flags: IFlags | undefined;
 };
 
+const getFeatures = (flags: IFlags): FeaturesData => {
+  const steps = getFeatureValue(Features.OnboardingSteps, flags);
+  const onboardingSteps = (steps?.split?.('/') || []) as OnboardingStep[];
+
+  return {
+    flags,
+    onboardingSteps,
+    onboardingMinimumTopics:
+      getFeatureValue(Features.OnboardingMinimumTopics, flags) ?? 0,
+    onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
+    onboardingFiltersLayout: getFeatureValue(
+      Features.OnboardingFiltersLayout,
+      flags,
+    ),
+    popularFeedCopy: getFeatureValue(Features.PopularFeedCopy, flags),
+    showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
+    postEngagementNonClickable: isFeaturedEnabled(
+      Features.PostEngagementNonClickable,
+      flags,
+    ),
+    submitArticleOn: isFeaturedEnabled(Features.SubmitArticleOn, flags),
+    canSubmitArticle: isFeaturedEnabled(Features.SubmitArticle, flags),
+    submitArticleSidebarButton: getFeatureValue(
+      Features.SubmitArticleSidebarButton,
+      flags,
+    ),
+    submitArticleModalButton: getFeatureValue(
+      Features.SubmitArticleModalButton,
+      flags,
+    ),
+    postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
+    postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
+    postCardShareVersion: getFeatureValue(
+      Features.PostCardShareVersion,
+      flags,
+    ) as ShareVersion,
+    authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
+  };
+};
+
 export const FeaturesContextProvider = ({
   children,
   flags,
 }: FeaturesContextProviderProps): ReactElement => {
-  const steps = getFeatureValue(Features.OnboardingSteps, flags)?.split?.('/');
-  const onboardingSteps = (steps as OnboardingStep[]) || [];
-  const features = useMemo(
-    () => ({
-      flags,
-      onboardingSteps,
-      onboardingMinimumTopics:
-        getFeatureValue(Features.OnboardingMinimumTopics, flags) ?? 0,
-      onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
-      onboardingFiltersLayout: getFeatureValue(
-        Features.OnboardingFiltersLayout,
-        flags,
-      ),
-      popularFeedCopy: getFeatureValue(Features.PopularFeedCopy, flags),
-      showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
-      postEngagementNonClickable: isFeaturedEnabled(
-        Features.PostEngagementNonClickable,
-        flags,
-      ),
-      submitArticleOn: isFeaturedEnabled(Features.SubmitArticleOn, flags),
-      canSubmitArticle: isFeaturedEnabled(Features.SubmitArticle, flags),
-      submitArticleSidebarButton: getFeatureValue(
-        Features.SubmitArticleSidebarButton,
-        flags,
-      ),
-      submitArticleModalButton: getFeatureValue(
-        Features.SubmitArticleModalButton,
-        flags,
-      ),
-      postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
-      postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-      postCardShareVersion: getFeatureValue(
-        Features.PostCardShareVersion,
-        flags,
-      ) as ShareVersion,
-      authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
-    }),
-    [flags],
-  );
+  const features = useMemo(() => getFeatures(flags), [flags]);
 
   const featuresFlags: FeaturesData = useMemo(() => {
     if (!isPreviewDeployment) {
       return features;
     }
 
-    const featuresCookie: Experiments = getCookieFeatureFlags();
-    const value = { ...features, ...featuresCookie };
+    const featuresCookie = getCookieFeatureFlags();
+    const updated = updateFeatureFlags(flags, featuresCookie);
+    const result = getFeatures(updated);
 
     globalThis.getFeatureKeys = () => Object.keys(features);
 
-    return value;
+    return result;
   }, [flags]);
 
   return (
