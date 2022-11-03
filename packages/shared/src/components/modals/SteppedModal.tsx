@@ -18,30 +18,54 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { ModalProps, StyledModal } from './StyledModal';
 
 type ValidateFunction = () => boolean | Promise<boolean>;
+type StepChange = (
+  stepBefore: number,
+  stepNow: number,
+  e?: MouseEvent | KeyboardEvent,
+) => void | Promise<void>;
 
 interface SteppedModalProps extends ModalProps {
   trigger: string;
   skippable?: boolean;
   invalidMessage?: string;
   isLastStepLogin?: boolean;
-  isFirstStepIntroduction?: boolean;
   onValidateNext?: ValidateFunction[];
-  onStepChange?: (stepBefore: number, stepNow: number) => void | Promise<void>;
+  backCopy?: string[];
+  nextCopy?: string[];
+  onBackStep?: StepChange;
+  onNextStep?: StepChange;
   onInvalid?: (step: number) => void | Promise<void>;
   onFinish?: () => void | Promise<void>;
   onAuthSuccess?: (isLogin?: boolean) => void | Promise<void>;
 }
 
+interface LabelProps {
+  step: number;
+  length?: number;
+}
+
+export const getForwardLabel = ({ step, length }: LabelProps): string => {
+  if (step === 0) {
+    return 'Continue';
+  }
+
+  return length === step ? 'Done' : 'Next';
+};
+
+export const getBackwardsLabel = ({ step }: LabelProps): string =>
+  step ? 'Close' : 'Back';
+
 function SteppedModal({
   trigger,
   children,
-  skippable = true,
   invalidMessage,
   isLastStepLogin,
-  isFirstStepIntroduction,
   onValidateNext = [],
+  backCopy = [],
+  nextCopy = [],
   onInvalid,
-  onStepChange,
+  onBackStep,
+  onNextStep,
   onFinish,
   onRequestClose,
   onAuthSuccess,
@@ -63,9 +87,9 @@ function SteppedModal({
     onDiscard: onRequestClose,
   });
 
-  const onCancelAuth = async () => {
+  const onCancelAuth = async (e: MouseEvent | KeyboardEvent) => {
     await logout();
-    await onStepChange?.(step, step - 1);
+    await onBackStep?.(step, step - 1, e);
     setStep(step - 1);
     trackEvent({
       event_name: AuthEventNames.CloseSignUp,
@@ -77,34 +101,13 @@ function SteppedModal({
     const count = React.Children.count(children);
     return (step / (count - 1)) * 100;
   };
-  const getBackwardsLabel = () => {
-    if (step === 0) {
-      return isFirstStepIntroduction ? 'Skip' : 'Close';
-    }
-
-    return step === 1 && isFirstStepIntroduction ? 'Close' : 'Back';
-  };
 
   const onBack = async (e: MouseEvent | KeyboardEvent) => {
-    if (step === 0 || step === 1) {
-      return onRequestClose?.(e);
-    }
-
-    await onStepChange?.(step, step - 1);
+    await onBackStep?.(step, step - 1, e);
     return setStep(step - 1);
   };
 
-  const getForwardLabel = () => {
-    if (step === 0 && isFirstStepIntroduction) {
-      return 'Continue';
-    }
-
-    const count = React.Children.count(children) - 1;
-
-    return count === step ? 'Done' : 'Next';
-  };
-
-  const onForward = async () => {
+  const onForward = async (e: MouseEvent | KeyboardEvent) => {
     const onValidate = onValidateNext[step];
     const isValid = !onValidate || (await onValidate());
 
@@ -118,7 +121,7 @@ function SteppedModal({
     }
 
     const nextStep = step + 1;
-    await onStepChange?.(step, nextStep);
+    await onNextStep?.(step, nextStep, e);
     return setStep(nextStep);
   };
 
@@ -153,18 +156,6 @@ function SteppedModal({
     return content;
   };
 
-  const isLeftButtonShown = (() => {
-    if (skippable) {
-      return true;
-    }
-
-    if (isFirstStepIntroduction) {
-      return step > 1;
-    }
-
-    return step > 0;
-  })();
-
   return (
     <StyledModal
       {...props}
@@ -183,21 +174,14 @@ function SteppedModal({
         {getChildren()}
       </TabContainer>
       {step < React.Children.count(children) && (
-        <footer
-          className={classNames(
-            'flex sticky bottom-0 z-2 flex-row p-3 mt-auto w-full border-t border-theme-divider-tertiary bg-theme-bg-tertiary',
-            isLeftButtonShown ? 'justify-between' : 'justify-center',
-          )}
-        >
+        <footer className="flex sticky bottom-0 z-2 flex-row justify-between p-3 mt-auto w-full border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
           <div
             className="absolute -top-0.5 left-0 h-1 bg-theme-color-cabbage transition-[width]"
             style={{ width: `${getWidth()}%` }}
           />
-          {isLeftButtonShown && (
-            <Button className="btn-tertiary" onClick={onBack}>
-              {getBackwardsLabel()}
-            </Button>
-          )}
+          <Button className="btn-tertiary" onClick={onBack}>
+            {backCopy[step] || getBackwardsLabel({ step })}
+          </Button>
           <SimpleTooltip
             content={invalidMessage}
             visible={!!invalidMessage}
@@ -207,7 +191,11 @@ function SteppedModal({
             }}
           >
             <Button className="bg-theme-color-cabbage" onClick={onForward}>
-              {getForwardLabel()}
+              {nextCopy[step] ||
+                getForwardLabel({
+                  step,
+                  length: React.Children.count(children) - 1,
+                })}
             </Button>
           </SimpleTooltip>
         </footer>
