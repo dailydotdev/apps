@@ -28,7 +28,6 @@ type StepChange = (
 interface SteppedModalProps extends ModalProps {
   targetId?: string;
   trigger: LoginTrigger;
-  skippable?: boolean;
   invalidMessage?: string;
   isLastStepLogin?: boolean;
   onValidateNext?: ValidateFunction[];
