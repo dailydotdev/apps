@@ -5,6 +5,7 @@ import { Alerts } from '../graphql/alerts';
 import { OnboardingMode } from '../graphql/feed';
 import { OnboardingVersion } from '../lib/featureValues';
 import { LoggedUser } from '../lib/user';
+import { useMyFeed } from './useMyFeed';
 import usePersistentContext from './usePersistentContext';
 
 interface UseOnboardingModal {
@@ -13,6 +14,7 @@ interface UseOnboardingModal {
   isLegacyOnboardingOpen: boolean;
   onCloseOnboardingModal: () => void;
   onInitializeOnboarding: () => void;
+  onShouldUpdateFilters: (value: boolean) => void;
 }
 
 interface UseOnboardingModalProps {
@@ -35,6 +37,8 @@ export const useOnboardingModal = ({
   onFeedPageChanged,
 }: UseOnboardingModalProps): UseOnboardingModal => {
   const { trackEvent } = useContext(AnalyticsContext);
+  const { registerLocalFilters } = useMyFeed();
+  const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
   const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);
   const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
     usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, !alerts.filter);
@@ -58,6 +62,18 @@ export const useOnboardingModal = ({
       onFeedPageChanged(MainFeedPage.MyFeed);
     }
   };
+
+  useEffect(() => {
+    if (!user || !shouldUpdateFilters) {
+      return;
+    }
+
+    registerLocalFilters().then(() => {
+      setShouldUpdateFilters(false);
+      modalStateCommand[onboardingVersion]?.(false);
+    });
+  }, [user, shouldUpdateFilters]);
+
   useEffect(() => {
     if (!hasOnboardingLoaded || hasTriedOnboarding || !alerts.filter) {
       return;
@@ -74,6 +90,7 @@ export const useOnboardingModal = ({
       isLegacyOnboardingOpen,
       isOnboardingOpen,
       onCloseOnboardingModal,
+      onShouldUpdateFilters: setShouldUpdateFilters,
       onInitializeOnboarding: () => modalStateCommand[onboardingVersion](true),
     }),
     [

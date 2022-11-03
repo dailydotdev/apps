@@ -110,6 +110,7 @@ function OnboardingModal({
     const key = getFeedSettingsQueryKey();
     const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
     await registerLocalFilters(feedSettings);
+    onRegistrationSuccess();
     onRequestClose?.(null);
   };
 

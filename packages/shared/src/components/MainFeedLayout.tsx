@@ -208,6 +208,7 @@ export default function MainFeedLayout({
     isLegacyOnboardingOpen,
     onInitializeOnboarding,
     onCloseOnboardingModal,
+    onShouldUpdateFilters,
   } = useOnboardingModal({
     user,
     alerts,
@@ -351,12 +352,14 @@ export default function MainFeedLayout({
           hasUser={!!user}
           isOpen={isLegacyOnboardingOpen}
           onRequestClose={onCloseOnboardingModal}
+          onCreate={() => onShouldUpdateFilters(true)}
         />
       )}
       {isOnboardingOpen && (
         <OnboardingModal
           isOpen={isOnboardingOpen}
           onRequestClose={onCloseOnboardingModal}
+          onRegistrationSuccess={() => onShouldUpdateFilters(true)}
         />
       )}
     </>
