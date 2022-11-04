@@ -3,7 +3,7 @@ import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { BOOT_QUERY_KEY } from '../contexts/BootProvider';
 import { AllTagCategoriesData, FeedSettings } from '../graphql/feedSettings';
-import { getFeedSettingsQueryKey } from './useFeedSettings';
+import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';
 import useMutateFilters from './useMutateFilters';
 
 interface RegisterLocalFilters {
@@ -26,7 +26,7 @@ export function useMyFeed(): UseMyFeed {
     const feedSettings =
       settings || client.getQueryData<AllTagCategoriesData>(key).feedSettings;
 
-    if (!feedSettings) {
+    if (!feedSettings || !getHasAnyFilter(feedSettings)) {
       return { hasFilters: false };
     }
 

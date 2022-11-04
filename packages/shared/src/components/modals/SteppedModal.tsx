@@ -37,7 +37,6 @@ interface SteppedModalProps extends ModalProps {
   onNextStep?: StepChange;
   onInvalid?: (step: number) => void | Promise<void>;
   onFinish?: () => void | Promise<void>;
-  onAuthSuccess?: () => void | Promise<void>;
 }
 
 interface LabelProps {
@@ -69,7 +68,6 @@ function SteppedModal({
   onNextStep,
   onFinish,
   onRequestClose,
-  onAuthSuccess,
   ...props
 }: SteppedModalProps): ReactElement {
   const [step, setStep] = useState(0);
@@ -140,8 +138,8 @@ function SteppedModal({
             className="h-full"
             onClose={onDiscardAttempt}
             formRef={formRef}
-            onSuccessfulLogin={onAuthSuccess}
-            onSuccessfulRegistration={onAuthSuccess}
+            onSuccessfulLogin={onFinish}
+            onSuccessfulRegistration={onFinish}
             trigger={trigger}
             onDisplayChange={(display: AuthDisplay) => setScreenValue(display)}
           />
