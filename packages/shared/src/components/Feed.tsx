@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -124,9 +125,13 @@ export default function Feed<T>({
     postEngagementNonClickable,
     showCommentPopover,
   } = useContext(FeaturesContext);
-  const postCardShareVersion = navigator?.share
-    ? ShareVersion.V2
-    : shareVersion;
+  const [postCardShareVersion, setPostCardShareVersion] =
+    useState<ShareVersion>(shareVersion);
+  useEffect(() => {
+    if (navigator?.share) {
+      setPostCardShareVersion(ShareVersion.V2);
+    }
+  }, []);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
