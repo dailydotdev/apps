@@ -13,8 +13,8 @@ export function UserSettingsModal({
   useTrackModal({ isOpen: modalProps.isOpen, title: 'feed settings' });
   return (
     <Modal
-      kind={Modal.Kind.FixedCenter}
-      size={Modal.Size.Medium}
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Small}
       onRequestClose={onRequestClose}
       {...modalProps}
     >
@@ -35,7 +35,7 @@ export function UserSettingsModal({
   //       <ModalCloseButton onClick={onRequestClose} />
   //     </header>
   //     <section className="overflow-auto relative w-full h-full shrink max-h-full">
-  //       <Settings />
+  //       <Settings className="p-6"/>
   //     </section>
   //   </ResponsiveModal>
   // );

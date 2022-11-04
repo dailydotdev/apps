@@ -13,6 +13,14 @@ export enum ModalSize {
   Large = 'large',
 }
 
-export const ModalContext = createContext<
-  null | ((event: MouseEvent | KeyboardEvent) => any)
->(null);
+export type ModalContextProps = {
+  onRequestClose: null | ((event: MouseEvent | KeyboardEvent) => void);
+  kind: ModalKind;
+  size: ModalSize;
+};
+
+export const ModalPropsContext = createContext<ModalContextProps>({
+  onRequestClose: null,
+  kind: ModalKind.FlexibleCenter,
+  size: ModalSize.Medium,
+});
