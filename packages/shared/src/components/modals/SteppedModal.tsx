@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import AuthContext from '../../contexts/AuthContext';
 import useAuthForms from '../../hooks/useAuthForms';
 import { AuthEventNames } from '../../lib/auth';
 import { logout } from '../../lib/user';
@@ -72,6 +73,7 @@ function SteppedModal({
   ...props
 }: SteppedModalProps): ReactElement {
   const [step, setStep] = useState(0);
+  const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [screenValue, setScreenValue] = useState<AuthDisplay>(
     AuthDisplay.Default,
@@ -116,7 +118,7 @@ function SteppedModal({
     }
 
     const max = React.Children.count(children) - 1;
-    if (!isLastStepLogin && max === step) {
+    if (max === step && (!isLastStepLogin || user)) {
       return onFinish?.();
     }
 
