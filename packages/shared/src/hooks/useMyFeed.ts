@@ -24,7 +24,7 @@ export function useMyFeed(): UseMyFeed {
   const registerLocalFilters = async (settings?: FeedSettings) => {
     const key = getFeedSettingsQueryKey();
     const feedSettings =
-      settings || client.getQueryData<AllTagCategoriesData>(key).feedSettings;
+      settings || client.getQueryData<AllTagCategoriesData>(key)?.feedSettings;
 
     if (!feedSettings || !getHasAnyFilter(feedSettings)) {
       return { hasFilters: false };
