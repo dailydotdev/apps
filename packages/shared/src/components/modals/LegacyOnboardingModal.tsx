@@ -10,9 +10,6 @@ import { Button } from '../buttons/Button';
 import { MyFeedIntro } from '../MyFeedIntro';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { OnboardingMode } from '../../graphql/feed';
-import { useMyFeed } from '../../hooks/useMyFeed';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
-import { OnboardingVersion } from '../../lib/featureValues';
 
 const MY_FEED_VERSION_WINNER = 'v3';
 
@@ -63,19 +60,19 @@ const getFooterButton = ({
 interface LegacyOnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;
   hasUser: boolean;
+  onCreate: () => void;
 }
 
 export default function LegacyOnboardingModal({
   mode = OnboardingMode.Manual,
   hasUser,
   className,
+  onCreate,
   onRequestClose,
   ...modalProps
 }: LegacyOnboardingModalProps): ReactElement {
-  const { registerLocalFilters } = useMyFeed();
   const { trackEvent } = useContext(AnalyticsContext);
   const [showIntro, setShowIntro] = useState<boolean>(true);
-  const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
 
   useEffect(() => {
     trackEvent({
@@ -87,22 +84,6 @@ export default function LegacyOnboardingModal({
       }),
     });
   }, []);
-
-  useEffect(() => {
-    if (!hasUser || !shouldUpdateFilters) {
-      return;
-    }
-
-    registerLocalFilters().then(() => {
-      trackEvent({
-        event_name: AnalyticsEvent.CompleteOnboarding,
-        target_type: TargetType.MyFeedModal,
-        target_id: OnboardingVersion.V1,
-        extra: JSON.stringify({ origin: mode }),
-      });
-      onRequestClose(null);
-    });
-  }, [hasUser]);
 
   return (
     <ResponsiveModal
@@ -140,9 +121,9 @@ export default function LegacyOnboardingModal({
         {getFooterButton({
           showIntro,
           hasUser,
+          onCreate,
           onSkip: onRequestClose,
           onContinue: () => setShowIntro(false),
-          onCreate: () => setShouldUpdateFilters(true),
         })}
       </footer>
     </ResponsiveModal>

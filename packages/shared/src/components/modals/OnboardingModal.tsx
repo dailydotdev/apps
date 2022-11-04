@@ -8,21 +8,17 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useQueryClient } from 'react-query';
 import { ModalProps } from './StyledModal';
 import SteppedModal, {
   getBackwardsLabel,
   getForwardLabel,
 } from './SteppedModal';
-import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import FilterOnboarding from '../onboarding/FilterOnboarding';
 import LayoutOnboarding from '../onboarding/LayoutOnboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
-import { useMyFeed } from '../../hooks/useMyFeed';
-import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import {
   AnalyticsEvent,
   LoginTrigger,
@@ -60,9 +56,7 @@ function OnboardingModal({
   mode = OnboardingMode.Manual,
   ...props
 }: OnboardingModalProps): ReactElement {
-  const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { registerLocalFilters } = useMyFeed();
   const [selectedTopics, setSelectedTopics] = useState({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const { onboardingSteps, onboardingMinimumTopics } =
@@ -163,23 +157,6 @@ function OnboardingModal({
     return validations;
   }, [onboardingSteps]);
 
-  const onFinishOnboarding = async () => {
-    trackEvent({
-      event_name: AnalyticsEvent.CompleteOnboarding,
-      target_type: TargetType.MyFeedModal,
-      target_id: OnboardingVersion.V2,
-      extra: JSON.stringify({
-        origin: mode,
-        steps: onboardingSteps,
-        mandating_categories: onboardingMinimumTopics,
-      }),
-    });
-    const key = getFeedSettingsQueryKey();
-    const { feedSettings } = client.getQueryData<AllTagCategoriesData>(key);
-    await registerLocalFilters(feedSettings);
-    onRequestClose?.(null);
-  };
-
   useEffect(() => {
     trackEvent({
       event_name: AnalyticsEvent.Impression,
@@ -200,7 +177,7 @@ function OnboardingModal({
       onRequestClose={onClose}
       contentClassName={step === 0 && 'overflow-y-hidden'}
       style={{ content: { maxHeight: '40rem' } }}
-      onAuthSuccess={onFinishOnboarding}
+      onAuthSuccess={onRegistrationSuccess}
       onBackStep={onBackStep}
       onNextStep={onNextStep}
       onValidateNext={nextButtonValidations}

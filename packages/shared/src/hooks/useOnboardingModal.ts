@@ -3,8 +3,10 @@ import { MainFeedPage } from '../components/utilities';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Alerts } from '../graphql/alerts';
 import { OnboardingMode } from '../graphql/feed';
+import { AnalyticsEvent, TargetType } from '../lib/analytics';
 import { OnboardingVersion } from '../lib/featureValues';
 import { LoggedUser } from '../lib/user';
+import { useMyFeed } from './useMyFeed';
 import usePersistentContext from './usePersistentContext';
 
 interface UseOnboardingModal {
@@ -13,6 +15,7 @@ interface UseOnboardingModal {
   isLegacyOnboardingOpen: boolean;
   onCloseOnboardingModal: () => void;
   onInitializeOnboarding: () => void;
+  onShouldUpdateFilters: (value: boolean) => void;
 }
 
 interface UseOnboardingModalProps {
@@ -25,8 +28,7 @@ interface UseOnboardingModalProps {
 
 type ModalCommand = Record<OnboardingVersion, (value: boolean) => unknown>;
 
-const FIRST_TIME_SESSION = 'firstTimeSession';
-const LOGGED_USER_ONBOARDING = 'loggedUserOnboarding';
+const LOGGED_USER_ONBOARDING = 'hasTriedOnboarding';
 
 export const useOnboardingModal = ({
   user,
@@ -36,11 +38,11 @@ export const useOnboardingModal = ({
   onFeedPageChanged,
 }: UseOnboardingModalProps): UseOnboardingModal => {
   const { trackEvent } = useContext(AnalyticsContext);
+  const { registerLocalFilters } = useMyFeed();
+  const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
   const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);
-  const [isFirstSession, setIsFirstSession, isSessionLoaded] =
-    usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
   const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
-    usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, false);
+    usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, !alerts.filter);
   const [isLegacyOnboardingOpen, setIsLegacyOnboardingOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
@@ -55,37 +57,39 @@ export const useOnboardingModal = ({
         event_name: 'my feed onboarding skip',
       });
     }
-    setIsFirstSession(false);
     setHasTriedOnboarding(true);
     modalStateCommand[onboardingVersion]?.(false);
     if (user && !alerts.filter) {
       onFeedPageChanged(MainFeedPage.MyFeed);
     }
   };
+
   useEffect(() => {
-    if (!isSessionLoaded || !hasOnboardingLoaded) {
+    if (!user || !shouldUpdateFilters) {
       return;
     }
 
-    if (!user) {
-      if (isFirstSession) {
-        setIsFirstSession(true);
-        setOnboardingMode(OnboardingMode.Auto);
-        modalStateCommand[onboardingVersion]?.(true);
-      }
+    registerLocalFilters().then(() => {
+      trackEvent({
+        event_name: AnalyticsEvent.CompleteOnboarding,
+        target_type: TargetType.MyFeedModal,
+        target_id: OnboardingVersion.V1,
+        extra: JSON.stringify({ origin: onboardingMode }),
+      });
+      setShouldUpdateFilters(false);
+      modalStateCommand[onboardingVersion]?.(false);
+    });
+  }, [user, shouldUpdateFilters]);
+
+  useEffect(() => {
+    if (!hasOnboardingLoaded || hasTriedOnboarding || !alerts.filter) {
       return;
     }
 
-    if (hasTriedOnboarding) {
-      return;
-    }
-
-    if (alerts.filter) {
-      setHasTriedOnboarding(false);
-      setOnboardingMode(OnboardingMode.Auto);
-      modalStateCommand[onboardingVersion]?.(true);
-    }
-  }, [isSessionLoaded, hasOnboardingLoaded, user]);
+    setHasTriedOnboarding(false);
+    setOnboardingMode(OnboardingMode.Auto);
+    modalStateCommand[onboardingVersion]?.(true);
+  }, [hasOnboardingLoaded, user]);
 
   return useMemo(
     () => ({
@@ -93,6 +97,7 @@ export const useOnboardingModal = ({
       isLegacyOnboardingOpen,
       isOnboardingOpen,
       onCloseOnboardingModal,
+      onShouldUpdateFilters: setShouldUpdateFilters,
       onInitializeOnboarding: () => modalStateCommand[onboardingVersion](true),
     }),
     [
@@ -102,6 +107,7 @@ export const useOnboardingModal = ({
       onboardingVersion,
       onboardingMode,
       isLegacyOnboardingOpen,
+      shouldUpdateFilters,
       isOnboardingOpen,
     ],
   );

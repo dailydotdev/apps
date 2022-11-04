@@ -39,7 +39,7 @@ interface SteppedModalProps extends ModalProps {
   onNextStep?: StepChange;
   onInvalid?: (step: number) => void | Promise<void>;
   onFinish?: () => void | Promise<void>;
-  onAuthSuccess?: (isLogin?: boolean) => void | Promise<void>;
+  onAuthSuccess?: () => void | Promise<void>;
 }
 
 interface LabelProps {
@@ -143,7 +143,7 @@ function SteppedModal({
             className="h-full"
             onClose={onDiscardAttempt}
             formRef={formRef}
-            onSuccessfulLogin={() => onAuthSuccess(true)}
+            onSuccessfulLogin={onAuthSuccess}
             onSuccessfulRegistration={onAuthSuccess}
             trigger={trigger}
             onDisplayChange={(display: AuthDisplay) => setScreenValue(display)}
