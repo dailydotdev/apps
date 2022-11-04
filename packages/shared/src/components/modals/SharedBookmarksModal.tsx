@@ -21,6 +21,7 @@ import DiscordIcon from '../icons/Discord';
 import GithubIcon from '../icons/GitHub';
 import { ModalCloseButton } from './ModalCloseButton';
 import { useCopyLink } from '../../hooks/useCopyLink';
+import { sharingBookmarks } from '../../lib/constants';
 
 export default function SharedBookmarksModal({
   className,
@@ -115,7 +116,7 @@ export default function SharedBookmarksModal({
             rel="noopener noreferrer"
             className="btn-secondary"
             buttonSize="small"
-            href="https://docs.daily.dev/docs/integrations/sharing-bookmarks"
+            href={sharingBookmarks}
             tag="a"
             target="_blank"
           >

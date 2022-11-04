@@ -6,6 +6,7 @@ import { ModalProps, StyledModal } from '../modals/StyledModal';
 import styles from './VerifySessionModal.module.css';
 import { LoginFormParams } from './LoginForm';
 import { KratosProviderData } from '../../lib/kratos';
+import { AuthTriggers } from '../../lib/auth';
 
 interface VerifySessionModalProps extends ModalProps {
   userProviders?: KratosProviderData;
@@ -45,7 +46,7 @@ function VerifySessionModal({
         onProviderClick={onSocialLogin}
         loginHint={[hint, setHint]}
         loginButton="Verify"
-        trigger="verify session"
+        trigger={AuthTriggers.VerifySession}
       />
     </StyledModal>
   );

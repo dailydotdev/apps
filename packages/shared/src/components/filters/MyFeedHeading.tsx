@@ -1,43 +1,48 @@
-import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import FilterIcon from '../icons/Filter';
 import { Button } from '../buttons/Button';
 import AlertPointer, { AlertPlacement } from '../alert/AlertPointer';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
+import { FeedHeading } from '../utilities';
 
-interface FeedFilterMenuButtonProps {
+interface MyFeedHeadingProps {
+  hasFiltered: boolean;
   isAlertDisabled: boolean;
   sidebarRendered: boolean;
   onOpenFeedFilters: () => void;
   onUpdateAlerts: (alerts: Alerts) => void;
 }
 
-function FeedFilterMenuButton({
+function MyFeedHeading({
+  hasFiltered,
   isAlertDisabled,
   sidebarRendered,
   onUpdateAlerts,
   onOpenFeedFilters,
-}: FeedFilterMenuButtonProps): ReactElement {
+}: MyFeedHeadingProps): ReactElement {
+  if (!hasFiltered) {
+    return <FeedHeading>My feed</FeedHeading>;
+  }
+
   return (
     <AlertPointer
-      offset={[12, 8]}
+      offset={[4, 8]}
       isAlertDisabled={isAlertDisabled}
       onClose={() => onUpdateAlerts({ myFeed: null })}
-      className={{ label: 'w-44', message: 'ml-4' }}
+      className={{ label: 'w-44', message: 'ml-4', wrapper: 'mr-auto' }}
       message={filterAlertMessage}
       placement={sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom}
     >
-      <SimpleTooltip content="Feed filters">
-        <Button
-          className={classNames('mx-3 btn-tertiary')}
-          onClick={onOpenFeedFilters}
-          icon={<FilterIcon />}
-        />
-      </SimpleTooltip>
+      <Button
+        className="mr-auto btn-tertiary headline"
+        onClick={onOpenFeedFilters}
+        rightIcon={<FilterIcon />}
+      >
+        My feed
+      </Button>
     </AlertPointer>
   );
 }
 
-export default FeedFilterMenuButton;
+export default MyFeedHeading;

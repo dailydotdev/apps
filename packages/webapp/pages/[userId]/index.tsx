@@ -40,6 +40,7 @@ import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats'
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
+import { weeklyGoal } from '@dailydotdev/shared/src/lib/constants';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
 import {
   getLayout as getProfileLayout,
@@ -203,7 +204,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               title="Weekly goal"
               subtitle="Learn how we count"
               clickableTitle="weekly goals"
-              link="https://docs.daily.dev/docs/your-profile/weekly-goal"
+              link={weeklyGoal}
             >
               <Dropdown
                 className={{
@@ -235,7 +236,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               title="Top tags by reading days"
               subtitle="Learn how we count"
               clickableTitle="top tags"
-              link="https://docs.daily.dev/docs/your-profile/weekly-goal"
+              link={weeklyGoal}
             />
             <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-x-10 tablet:max-w-full max-w-[17rem]">
               {readingHistory.userMostReadTags?.map((tag) => (

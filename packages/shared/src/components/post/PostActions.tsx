@@ -13,6 +13,7 @@ import { postEventName } from '../utilities';
 import ShareIcon from '../icons/Share';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { Origin } from '../../lib/analytics';
+import { AuthTriggers } from '../../lib/auth';
 
 export type OnShareOrBookmarkProps = {
   onShare: () => void;
@@ -67,7 +68,7 @@ export function PostActions({
         return upvotePost({ id: post.id });
       }
     } else {
-      showLogin('upvote');
+      showLogin(AuthTriggers.Upvote);
     }
     return undefined;
   };

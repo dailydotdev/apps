@@ -201,3 +201,16 @@ export const SecondaryCenteredBodyText = classed(
 );
 
 export type HTMLElementComponent<T = HTMLElement> = React.FC<HTMLAttributes<T>>;
+
+export enum MainFeedPage {
+  MyFeed = 'my-feed',
+  Popular = 'popular',
+  Search = 'search',
+  Upvoted = 'upvoted',
+  Discussed = 'discussed',
+}
+
+export const FeedHeading = classed(
+  'h3',
+  'flex flex-row flex-1 items-center typo-headline',
+);

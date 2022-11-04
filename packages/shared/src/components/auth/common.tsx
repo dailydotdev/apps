@@ -64,3 +64,8 @@ export const AuthModalText = classed(
   'p',
   'typo-body text-theme-label-secondary',
 );
+
+export const AuthModalFooterWrapper = classed(
+  'div',
+  'flex justify-center py-3 border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary',
+);
