@@ -18,7 +18,9 @@ const modalKindToOverlayClassName: Record<ModalKind, string> = {
   [ModalKind.FlexibleCenter]: 'justify-center',
   [ModalKind.FlexibleTop]: 'm-0',
 };
-const modalKindAndSizeToOverlayClassName = {
+const modalKindAndSizeToOverlayClassName: Partial<
+  Record<ModalKind, Partial<Record<ModalSize, string>>>
+> = {
   [ModalKind.FlexibleTop]: {
     [ModalSize.Medium]: 'mobileL:pt-10',
   },
@@ -31,7 +33,9 @@ const modalKindToClassName: Record<ModalKind, string> = {
   [ModalKind.FlexibleTop]:
     'm-0 mobileL:mt-10 mobileL:h-auto mobileL:max-h-[calc(100vh-2.5rem)]',
 };
-const modalKindAndSizeToClassName = {
+const modalKindAndSizeToClassName: Partial<
+  Record<ModalKind, Partial<Record<ModalSize, string>>>
+> = {
   [ModalKind.FlexibleTop]: {
     [ModalSize.Medium]:
       'mt-10 mobileL:max-h-[calc(100vh-7.5rem)] max-h-[calc(100vh-2.5rem)] h-auto',
@@ -39,7 +43,7 @@ const modalKindAndSizeToClassName = {
       'mobileL:mt-7 mobileL:max-h-[calc(100vh-10rem)] max-h-[100vh]',
   },
 };
-const modalSizeToClassName = {
+const modalSizeToClassName: Record<ModalSize, string> = {
   [ModalSize.XSmall]: 'w-[21.25rem]',
   [ModalSize.Small]: 'w-[26.25rem]',
   [ModalSize.Medium]: 'w-[35rem]',
