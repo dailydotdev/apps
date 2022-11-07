@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import { ModalKind, ModalPropsContext, ModalSize } from './types';
 
 export type ModalBodyProps = {
@@ -7,20 +7,18 @@ export type ModalBodyProps = {
 };
 
 export function ModalBody({ children }: ModalBodyProps): ReactElement {
+  const { kind, size } = useContext(ModalPropsContext);
+  const className = classNames(
+    kind === ModalKind.FlexibleTop && size === ModalSize.Large && 'mobileL:p-8',
+  );
   return (
-    <ModalPropsContext.Consumer>
-      {({ kind, size }) => (
-        <section
-          className={classNames(
-            'overflow-auto relative w-full h-full shrink max-h-full',
-            kind === ModalKind.FlexibleTop && size === ModalSize.Large
-              ? 'p-8'
-              : 'p-6',
-          )}
-        >
-          {children}
-        </section>
+    <section
+      className={classNames(
+        'overflow-auto relative w-full h-full shrink max-h-full p-6',
+        className,
       )}
-    </ModalPropsContext.Consumer>
+    >
+      {children}
+    </section>
   );
 }
