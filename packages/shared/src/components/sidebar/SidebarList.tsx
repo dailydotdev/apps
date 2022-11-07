@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import SidebarListItem, { SidebarListItemProps } from './SidebarListItem';
-import CloseButton from '../modals/CloseButton';
+import CloseButton from '../CloseButton';
 
 interface SidebarListProps {
   title: string;

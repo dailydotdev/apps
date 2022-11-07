@@ -114,7 +114,7 @@ export default function Settings({
   }, []);
 
   return (
-    <div className={classNames('flex', 'flex-col p-6', className)} {...props}>
+    <div className={classNames('flex', 'flex-col', className)} {...props}>
       <Section className="mt-0">
         <SectionTitle>Layout</SectionTitle>
         <IconsSwitch
