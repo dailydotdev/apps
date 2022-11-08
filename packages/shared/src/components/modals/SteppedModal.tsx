@@ -16,6 +16,7 @@ import { DiscardAuthModal } from '../auth/common';
 import { Button } from '../buttons/Button';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import CloseButton from './CloseButton';
 import { ModalProps, StyledModal } from './StyledModal';
 
 type ValidateFunction = () => boolean | Promise<boolean>;
@@ -166,6 +167,11 @@ function SteppedModal({
       )}
       overlayClassName="py-10"
     >
+      <CloseButton
+        className="top-2 right-2 z-1"
+        style={{ position: 'absolute' }}
+        onClick={onRequestClose}
+      />
       <TabContainer
         controlledActive={step.toString()}
         shouldMountInactive={false}
