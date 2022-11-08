@@ -16,6 +16,7 @@ import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
 import { LoginTrigger } from '../../lib/analytics';
+import DiscardActionModal from './DiscardActionModal';
 
 const INTRODUCTION_ADDITIONAL_STEP = 1;
 
@@ -32,23 +33,26 @@ function OnboardingModal({
   onRequestClose,
   ...props
 }: OnboardingModalProps): ReactElement {
+  const [isClosing, setIsClosing] = useState(false);
   const [selectedTopics, setSelectedTopics] = useState({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const { onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
   const [step, setStep] = useState(0);
-  const onClose = (e: MouseEvent | KeyboardEvent, stepAtClose: number) => {
+
+  const onCloseConfirm = (
+    e: MouseEvent | KeyboardEvent,
+    stepAtClose?: number,
+  ) => {
     onRequestClose(e);
-    setStep(stepAtClose);
+    setStep(stepAtClose || step);
   };
 
-  const onBackStep = (
-    beforeStep: number,
-    stepNow: number,
-    e: MouseEvent | KeyboardEvent,
-  ) => {
+  const onClose = () => setIsClosing(true);
+
+  const onBackStep = (beforeStep: number, stepNow: number) => {
     if (beforeStep === 0 || stepNow === 0) {
-      return onClose(e, Math.max(beforeStep, stepNow));
+      return onClose();
     }
     return setStep(stepNow);
   };
@@ -101,24 +105,33 @@ function OnboardingModal({
   }, [onboardingSteps]);
 
   return (
-    <SteppedModal
-      {...props}
-      trigger={LoginTrigger.CreateFeedFilters}
-      onRequestClose={onRequestClose}
-      contentClassName={step === 0 && 'overflow-y-hidden'}
-      style={{ content: { maxHeight: '40rem' } }}
-      onFinish={onRegistrationSuccess}
-      onBackStep={onBackStep}
-      onNextStep={onNextStep}
-      onValidateNext={nextButtonValidations}
-      invalidMessage={invalidMessage}
-      backCopy={backCopy}
-      nextCopy={nextCopy}
-      isLastStepLogin
-    >
-      <IntroductionOnboarding />
-      {onboardingSteps?.map((onboarding) => components[onboarding])}
-    </SteppedModal>
+    <>
+      <SteppedModal
+        {...props}
+        trigger={LoginTrigger.CreateFeedFilters}
+        onRequestClose={onClose}
+        contentClassName={step === 0 && 'overflow-y-hidden'}
+        style={{ content: { maxHeight: '40rem' } }}
+        onFinish={onRegistrationSuccess}
+        onBackStep={onBackStep}
+        onNextStep={onNextStep}
+        onValidateNext={nextButtonValidations}
+        invalidMessage={invalidMessage}
+        backCopy={backCopy}
+        nextCopy={nextCopy}
+        isLastStepLogin
+      >
+        <IntroductionOnboarding />
+        {onboardingSteps?.map((onboarding) => components[onboarding])}
+      </SteppedModal>
+      <DiscardActionModal
+        isOpen={isClosing}
+        onRequestClose={() => setIsClosing(false)}
+        rightButtonAction={onCloseConfirm}
+        title="Skip onboarding"
+        description="Are you sure you want to close and skip your onboarding?"
+      />
+    </>
   );
 }
 
