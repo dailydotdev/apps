@@ -1,15 +1,16 @@
 .knob {
   @apply bg-cabbage-40;
-  transform: translateX(0);
   transition-property: transform, width, left;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   left: 0;
+  transform: translateX(0);
+  animation: slide;
 }
 
 .checked {
-  left: 100%;
-  transform: translateX(-100%);
+  left: 1rem;
+  transform: translateX(100%);
 }
 
 :global(.group):hover .knob {
