@@ -83,7 +83,8 @@ function OnboardingModal({
   const onValidateFilter = () => {
     const selected = Object.values(topics.current).filter((value) => !!value);
     const isValid = selected.length >= onboardingMinimumTopics;
-    const errorMessage = `Choose at least ${onboardingMinimumTopics} topics to follow`;
+    const topic = `topic${onboardingMinimumTopics > 1 ? 's' : ''}`;
+    const errorMessage = `Choose at least ${onboardingMinimumTopics} ${topic} to follow`;
     setInvalidMessage(isValid ? null : errorMessage);
 
     return isValid;
