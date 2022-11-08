@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
-import classed from '../../lib/classed';
+import { OnboardingTitle } from './common';
 
 interface ClassName {
   container?: string;
@@ -14,8 +14,6 @@ interface OnboardingStepProps {
   children: ReactNode;
   className?: ClassName;
 }
-
-const OnboardingTitle = classed('h3', 'text-center typo-title2 font-bold px-4');
 
 function OnboardingStep({
   topIcon,
