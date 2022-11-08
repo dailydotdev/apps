@@ -37,12 +37,10 @@ export default function useDefaultFeed({
   );
 
   useEffect(() => {
+    const feedConditions = [null, defaultFeed, 'default', '/'];
     if (
       defaultFeed !== null &&
-      feed !== null &&
-      feed !== defaultFeed &&
-      feed !== 'default' &&
-      feed !== '/' &&
+      feedConditions.every((condition) => condition !== feed) &&
       !getShouldRedirect(isMyFeed, !!hasUser)
     ) {
       updateDefaultFeed(feed);

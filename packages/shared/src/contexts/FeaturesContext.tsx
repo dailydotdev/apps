@@ -88,9 +88,9 @@ export const FeaturesContextProvider = ({
   children,
   flags,
 }: FeaturesContextProviderProps): ReactElement => {
-  const features = useMemo(() => getFeatures(flags), [flags]);
-
   const featuresFlags: FeaturesData = useMemo(() => {
+    const features = getFeatures(flags);
+
     if (!isPreviewDeployment) {
       return features;
     }

@@ -177,7 +177,7 @@ function OnboardingModal({
       onRequestClose={onClose}
       contentClassName={step === 0 && 'overflow-y-hidden'}
       style={{ content: { maxHeight: '40rem' } }}
-      onAuthSuccess={onRegistrationSuccess}
+      onFinish={onRegistrationSuccess}
       onBackStep={onBackStep}
       onNextStep={onNextStep}
       onValidateNext={nextButtonValidations}
