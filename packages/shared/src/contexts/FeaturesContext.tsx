@@ -3,6 +3,7 @@ import { IFlags } from 'flagsmith';
 import {
   Features,
   getFeatureValue,
+  getNumberValue,
   isFeaturedEnabled,
 } from '../lib/featureManagement';
 import {
@@ -47,12 +48,15 @@ export type FeaturesContextProviderProps = {
 const getFeatures = (flags: IFlags): FeaturesData => {
   const steps = getFeatureValue(Features.OnboardingSteps, flags);
   const onboardingSteps = (steps?.split?.('/') || []) as OnboardingStep[];
+  const minimumTopics = getFeatureValue(
+    Features.OnboardingMinimumTopics,
+    flags,
+  );
 
   return {
     flags,
     onboardingSteps,
-    onboardingMinimumTopics:
-      getFeatureValue(Features.OnboardingMinimumTopics, flags) ?? 0,
+    onboardingMinimumTopics: getNumberValue(minimumTopics, 0),
     onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
     onboardingFiltersLayout: getFeatureValue(
       Features.OnboardingFiltersLayout,
