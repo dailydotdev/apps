@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   useContext,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { ModalProps } from './StyledModal';
@@ -34,7 +35,7 @@ function OnboardingModal({
   ...props
 }: OnboardingModalProps): ReactElement {
   const [isClosing, setIsClosing] = useState(false);
-  const [selectedTopics, setSelectedTopics] = useState({});
+  const topics = useRef({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const { onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
@@ -62,7 +63,7 @@ function OnboardingModal({
   };
 
   const onSelectedTopicsChange = (result: Record<string, boolean>) => {
-    setSelectedTopics(result);
+    topics.current = result;
     if (invalidMessage) {
       setInvalidMessage(null);
     }
@@ -71,6 +72,7 @@ function OnboardingModal({
     topics: (
       <FilterOnboarding
         key={OnboardingStep.Topics}
+        preselected={topics?.current}
         onSelectedChange={onSelectedTopicsChange}
       />
     ),
@@ -79,7 +81,7 @@ function OnboardingModal({
   };
 
   const onValidateFilter = () => {
-    const selected = Object.values(selectedTopics).filter((value) => !!value);
+    const selected = Object.values(topics.current).filter((value) => !!value);
     const isValid = selected.length >= onboardingMinimumTopics;
     const errorMessage = `Choose at least ${onboardingMinimumTopics} topics to follow`;
     setInvalidMessage(isValid ? null : errorMessage);

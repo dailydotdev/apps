@@ -9,6 +9,7 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import { Origin } from '../../lib/analytics';
 
 interface FilterOnboardingProps {
+  preselected?: Record<string, boolean>;
   onSelectedChange: (result: Record<string, boolean>) => void;
 }
 
@@ -18,9 +19,10 @@ const classes: Record<OnboardingFiltersLayout, string> = {
 };
 
 function FilterOnboarding({
+  preselected = {},
   onSelectedChange,
 }: FilterOnboardingProps): ReactElement {
-  const [selectedTopics, setSelectedTopics] = useState({});
+  const [selectedTopics, setSelectedTopics] = useState(preselected);
   const { onboardingFiltersLayout } = useContext(FeaturesContext);
   const { tagsCategories } = useFeedSettings();
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
