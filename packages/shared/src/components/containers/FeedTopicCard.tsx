@@ -36,7 +36,8 @@ const background: Record<OnboardingFiltersLayout, ReactNode> = {
 
 const classes: Record<OnboardingFiltersLayout, ClassName> = {
   grid: {
-    container: 'justify-center w-28 h-28 hover:bg-theme-color-cabbage',
+    container:
+      'justify-center w-full max-w-[7rem] aspect-square hover:bg-theme-color-cabbage',
     check: 'top-1 right-1',
     text: 'typo-callout',
   },
@@ -90,7 +91,12 @@ function FeedFilterCard({
     >
       {backgroundLayers}
       <Icon layout={topicLayout} isActive={isActive} />
-      <span className={classNames('z-1', classes[topicLayout].text)}>
+      <span
+        className={classNames(
+          'z-1 p-1 w-full break-words',
+          classes[topicLayout].text,
+        )}
+      >
         {topic?.title}
       </span>
     </button>
