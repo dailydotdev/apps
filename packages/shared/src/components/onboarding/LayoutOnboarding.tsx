@@ -1,15 +1,19 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
-import SettingsContext from '../../contexts/SettingsContext';
+import React, { ReactElement } from 'react';
 import { cloudinary } from '../../lib/image';
 import { CustomSwitch } from '../fields/CustomSwitch';
 import { getFilterCardPreviews } from '../filters/FilterCardPreview';
 import OnboardingStep from './OnboardingStep';
 
-function LayoutOnboarding(): ReactElement {
-  const { insaneMode: isListMode, toggleInsaneMode } =
-    useContext(SettingsContext);
+interface LayoutOnboardingProps {
+  isListMode: boolean;
+  isListModeChange: (value: boolean) => void;
+}
 
+function LayoutOnboarding({
+  isListMode,
+  isListModeChange,
+}: LayoutOnboardingProps): ReactElement {
   return (
     <OnboardingStep
       title="Cards or list?"
@@ -33,7 +37,7 @@ function LayoutOnboarding(): ReactElement {
         leftContent="Cards"
         rightContent="List"
         checked={isListMode}
-        onToggle={toggleInsaneMode}
+        onToggle={() => isListModeChange(!isListMode)}
       />
       <div
         className={classNames(

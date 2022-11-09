@@ -18,6 +18,7 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
 import { LoginTrigger } from '../../lib/analytics';
 import DiscardActionModal from './DiscardActionModal';
+import SettingsContext from '../../contexts/SettingsContext';
 
 const INTRODUCTION_ADDITIONAL_STEP = 1;
 
@@ -39,6 +40,8 @@ function OnboardingModal({
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const { onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
+  const { insaneMode, toggleInsaneMode } = useContext(SettingsContext);
+  const [isListMode, setIsListMode] = useState(insaneMode);
   const [step, setStep] = useState(0);
 
   const onCloseConfirm = (
@@ -59,6 +62,13 @@ function OnboardingModal({
   };
 
   const onNextStep = (beforeStep: number, stepNow: number) => {
+    const before = beforeStep - INTRODUCTION_ADDITIONAL_STEP;
+    const layoutStep = onboardingSteps.indexOf(OnboardingStep.Layout);
+
+    if (layoutStep === before && isListMode !== insaneMode) {
+      toggleInsaneMode();
+    }
+
     setStep(stepNow);
   };
 
@@ -76,7 +86,13 @@ function OnboardingModal({
         onSelectedChange={onSelectedTopicsChange}
       />
     ),
-    layout: <LayoutOnboarding key={OnboardingStep.Layout} />,
+    layout: (
+      <LayoutOnboarding
+        key={OnboardingStep.Layout}
+        isListMode={isListMode}
+        isListModeChange={setIsListMode}
+      />
+    ),
     theme: <ThemeOnboarding key={OnboardingStep.Theme} />,
   };
 
