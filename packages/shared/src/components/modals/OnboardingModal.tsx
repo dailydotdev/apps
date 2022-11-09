@@ -49,11 +49,21 @@ function OnboardingModal({
     setStep(stepAtClose || step);
   };
 
-  const onClose = () => setIsClosing(true);
+  const onClose = (e: MouseEvent | KeyboardEvent, forceClose?: boolean) => {
+    if (forceClose) {
+      return onRequestClose(e);
+    }
 
-  const onBackStep = (beforeStep: number, stepNow: number) => {
+    return setIsClosing(true);
+  };
+
+  const onBackStep = (
+    beforeStep: number,
+    stepNow: number,
+    e: MouseEvent | KeyboardEvent,
+  ) => {
     if (beforeStep === 0 || stepNow === 0) {
-      return onClose();
+      return onClose(e);
     }
     return setStep(stepNow);
   };
