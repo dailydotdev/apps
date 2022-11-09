@@ -32,7 +32,7 @@
   }
 
   &.bg-theme-color-cabbage {
-    color: var(--theme-label-primary);
+    color: #FFFFFF;
   }
 
   &:not(.iconOnly) {
