@@ -1,14 +1,8 @@
 .knob {
   @apply bg-cabbage-40;
-  transition-property: transform, width, left;
+  transition-property: transform, width;
   transition-duration: 150ms;
   left: 0;
-  transform: translateX(0);
-}
-
-.checked {
-  left: 1rem;
-  transform: translateX(100%);
 }
 
 :global(.group):hover .knob {
