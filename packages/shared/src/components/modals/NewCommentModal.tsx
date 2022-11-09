@@ -19,6 +19,7 @@ import { Post } from '../../graphql/posts';
 import { ModalCloseButton } from './ModalCloseButton';
 import DiscardActionModal from './DiscardActionModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+// import { Modal } from './common/Modal';
 
 interface CommentVariables {
   id: string;
@@ -147,6 +148,55 @@ export default function NewCommentModal({
   useEffect(() => {
     onInputChange?.(input);
   }, [input]);
+
+  // return (
+  //   <Modal
+  //     contentRef={modalRef}
+  //     onRequestClose={confirmClose}
+  //     kind={Modal.Kind.FlexibleCenter}
+  //     size={Modal.Size.Small}
+  //     tabs={['Write', 'Preview']}
+  //     {...props}
+  //   >
+  //     <Modal.Header />
+  //     <Modal.Body tab="Write">
+  //       <CommentBox
+  //         {...props}
+  //         onInput={setInput}
+  //         input={input}
+  //         editId={editId}
+  //         errorMessage={errorMessage}
+  //         sendingComment={sendingComment}
+  //         sendComment={sendComment}
+  //       />
+  //     </Modal.Body>
+  //     <Modal.Body tab="Preview">
+  //       {isPreview && previewContent?.preview && (
+  //         <Markdown
+  //           content={previewContent.preview}
+  //           appendTooltipTo={props.parentSelector}
+  //         />
+  //       )}
+  //     </Modal.Body>
+  //     <Modal.Footer>
+  //       <Button
+  //         disabled={!input?.trim().length || input === props.editContent}
+  //         loading={sendingComment}
+  //         onClick={sendComment}
+  //         className="mt-auto ml-auto btn-primary-avocado"
+  //       >
+  //         {editId ? 'Update' : 'Comment'}
+  //       </Button>
+  //     </Modal.Footer>
+  //     <DiscardActionModal
+  //       isOpen={showDiscardModal}
+  //       onRequestClose={() => setShowDiscardModal(false)}
+  //       rightButtonAction={onRequestClose}
+  //       shouldCloseOnOverlayClick={false}
+  //       parentSelector={props.parentSelector}
+  //     />
+  //   </Modal>
+  // );
 
   return (
     <ResponsiveModal
