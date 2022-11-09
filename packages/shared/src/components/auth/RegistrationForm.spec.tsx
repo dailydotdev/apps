@@ -84,7 +84,7 @@ const renderComponent = (
       >
         <SettingsContext.Provider value={{}}>
           <AuthOptions {...props} />
-        </SettingsCOntext.Provider>
+        </SettingsContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
