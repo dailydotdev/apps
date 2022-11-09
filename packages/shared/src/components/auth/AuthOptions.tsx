@@ -42,6 +42,7 @@ import ConnectedUserModal, {
 import { VERIFICATION_TRIGGER } from '../../hooks/useAuthVerificationRecovery';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import SettingsContext from '../../contexts/SettingsContext';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -81,6 +82,7 @@ function AuthOptions({
   isLoginFlow,
   version,
 }: AuthOptionsProps): ReactElement {
+  const { syncSettings } = useContext(SettingsContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
@@ -156,6 +158,7 @@ function AuthOptions({
       onValidRegistration: async () => {
         setIsRegistration(true);
         await refetchBoot();
+        await syncSettings();
         onShowOptionsOnly?.(true);
         onSetActiveDisplay(AuthDisplay.EmailSent);
         onSuccessfulRegistration?.();
@@ -217,6 +220,7 @@ function AuthOptions({
 
   const onSocialCompletion = async (params) => {
     await updateUserProfile({ ...params });
+    await syncSettings();
   };
 
   const onRegister = (params: RegistrationFormValues) => {
