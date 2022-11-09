@@ -1,11 +1,9 @@
 .knob {
   @apply bg-cabbage-40;
   transition-property: transform, width, left;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   left: 0;
   transform: translateX(0);
-  animation: slide;
 }
 
 .checked {
