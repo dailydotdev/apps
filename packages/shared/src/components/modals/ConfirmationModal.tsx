@@ -4,7 +4,7 @@ import styles from './ConfirmationModal.module.css';
 // import { Modal, ModalProps } from './common/Modal';
 // import React from 'react';
 
-export const ConfirmationModals = classed(StyledModal, styles.confirmationModal);
+export const ConfirmationModal = classed(StyledModal, styles.confirmationModal);
 // export function ConfirmationModal({children, ...props}: ModalProps)
 // {
 //   return (
