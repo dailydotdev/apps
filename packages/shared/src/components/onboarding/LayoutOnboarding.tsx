@@ -1,19 +1,27 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import SettingsContext from '../../contexts/SettingsContext';
 import { cloudinary } from '../../lib/image';
 import { CustomSwitch } from '../fields/CustomSwitch';
 import { getFilterCardPreviews } from '../filters/FilterCardPreview';
 import OnboardingStep from './OnboardingStep';
 
-interface LayoutOnboardingProps {
-  isListMode: boolean;
-  isListModeChange: (value: boolean) => void;
-}
+const TOGGLE_ANIMATION_MS = 300;
 
-function LayoutOnboarding({
-  isListMode,
-  isListModeChange,
-}: LayoutOnboardingProps): ReactElement {
+function LayoutOnboarding(): ReactElement {
+  const { insaneMode, toggleInsaneMode } = useContext(SettingsContext);
+  const [isListMode, setIsListMode] = useState(insaneMode);
+
+  useEffect(() => {
+    if (insaneMode === isListMode) {
+      return;
+    }
+
+    setTimeout(() => {
+      toggleInsaneMode();
+    }, TOGGLE_ANIMATION_MS);
+  }, [isListMode, insaneMode]);
+
   return (
     <OnboardingStep
       title="Cards or list?"
@@ -22,7 +30,7 @@ function LayoutOnboarding({
         container: 'items-center',
         content: classNames(
           'relative flex flex-col items-center w-4/5 mt-8',
-          isListMode && 'px-8',
+          insaneMode && 'px-8',
         ),
       }}
     >
@@ -37,12 +45,12 @@ function LayoutOnboarding({
         leftContent="Cards"
         rightContent="List"
         checked={isListMode}
-        onToggle={() => isListModeChange(!isListMode)}
+        onToggle={() => setIsListMode(!isListMode)}
       />
       <div
         className={classNames(
           'grid relative gap-3 mt-11',
-          isListMode ? 'grid-cols-1 w-full' : 'grid-cols-3 w-fit',
+          insaneMode ? 'grid-cols-1 w-full' : 'grid-cols-3 w-fit',
         )}
       >
         <div
@@ -52,7 +60,7 @@ function LayoutOnboarding({
               'linear-gradient(45deg, rgba(23, 25, 31, 1) 0%, rgba(23, 25, 31, 0) 100%)',
           }}
         />
-        {getFilterCardPreviews(6, isListMode)}
+        {getFilterCardPreviews(6, insaneMode)}
       </div>
     </OnboardingStep>
   );
