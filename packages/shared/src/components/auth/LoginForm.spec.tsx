@@ -22,6 +22,7 @@ import { getNodeByKey, LoginPasswordParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
+import SettingsContext from '../../contexts/SettingsContext';
 
 let user = null;
 
@@ -77,7 +78,9 @@ const renderComponent = (
         loadedUserFromCache
         refetchBoot={jest.fn()}
       >
-        <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
+        <SettingsContext.Provider value={{}}>
+          <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
+        </SettingsContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
