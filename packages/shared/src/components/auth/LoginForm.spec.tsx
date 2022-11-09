@@ -78,7 +78,7 @@ const renderComponent = (
         loadedUserFromCache
         refetchBoot={jest.fn()}
       >
-        <SettingsContext.Provider value={{}}>
+        <SettingsContext.Provider value={{ syncSettings: async () => {} }}>
           <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
         </SettingsContext.Provider>
       </AuthContextProvider>
