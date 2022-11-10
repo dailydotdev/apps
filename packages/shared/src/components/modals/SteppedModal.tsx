@@ -16,7 +16,7 @@ import { DiscardAuthModal } from '../auth/common';
 import { Button } from '../buttons/Button';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import CloseButton from './CloseButton';
+import CloseButton from '../CloseButton';
 import { ModalProps, StyledModal } from './StyledModal';
 
 type ValidateFunction = () => boolean | Promise<boolean>;
