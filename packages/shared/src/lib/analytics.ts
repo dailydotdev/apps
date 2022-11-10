@@ -25,10 +25,12 @@ export enum AnalyticsEvent {
 export enum TargetType {
   MyFeedModal = 'my feed modal',
   ManageTag = 'manage tag',
+  SearchTag = 'search tag',
 }
 
 export enum TargetId {
   MyFeedHeading = 'my feed heading',
+  TagsFilter = 'tags filter',
 }
 
 export enum ScreenValue {
