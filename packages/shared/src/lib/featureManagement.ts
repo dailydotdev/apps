@@ -1,7 +1,15 @@
 import { IFlags } from 'flagsmith';
-import { AuthVersion, ShareVersion } from './featureValues';
+import { OnboardingStep } from '../components/onboarding/common';
+import {
+  AuthVersion,
+  ShareVersion,
+  OnboardingVersion,
+  OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
+} from './featureValues';
 
-export class Features {
+export type FeatureValue = string | number | boolean;
+
+export class Features<T extends FeatureValue = string> {
   static readonly SignupButtonCopy = new Features(
     'signup_button_copy',
     'Access all features',
@@ -126,16 +134,26 @@ export class Features {
     'post_engagement_non_clickable',
   );
 
-  static readonly FeedFilterVersion = new Features(
-    'feed_filter_version',
-    'v1',
-    ['v1', 'v2'],
+  static readonly OnboardingMinimumTopics = new Features<number>(
+    'onboarding_minimum_topics',
+    0,
   );
 
-  static readonly FeedFilterCardVersion = new Features(
-    'feed_filter_card_version',
-    'v1',
-    ['v1', 'v2'],
+  static readonly OnboardingSteps = new Features(
+    'onboarding_steps',
+    `${OnboardingStep.Topics}/${OnboardingStep.Layout}/${OnboardingStep.Theme}`,
+  );
+
+  static readonly UserOnboardingVersion = new Features(
+    'onboarding_version',
+    OnboardingVersion.V1,
+    [OnboardingVersion.V1, OnboardingVersion.V2],
+  );
+
+  static readonly OnboardingFiltersLayout = new Features(
+    'onboarding_filters_layout',
+    OnboardingFiltersLayoutEnum.Grid,
+    [OnboardingFiltersLayoutEnum.Grid, OnboardingFiltersLayoutEnum.List],
   );
 
   static readonly AuthenticationVersion = new Features(
@@ -148,21 +166,43 @@ export class Features {
 
   private constructor(
     public readonly id: string,
-    public readonly defaultValue?: string,
-    public readonly validTypes?: string[],
+    public readonly defaultValue?: T,
+    public readonly validTypes?: T[],
   ) {}
 }
 
-export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
+export const isFeaturedEnabled = <T extends FeatureValue = string>(
+  key: Features<T>,
+  flags: IFlags,
+): boolean =>
   key?.validTypes === undefined ||
-  key?.validTypes?.includes(<string>flags?.[key?.id]?.value)
+  key?.validTypes?.includes(<T>flags?.[key?.id]?.value)
     ? flags?.[key?.id]?.enabled
     : false;
 
-export const getFeatureValue = (key: Features, flags: IFlags): string => {
+export const getFeatureValue = <T extends FeatureValue = string>(
+  key: Features<T>,
+  flags: IFlags,
+): T => {
   if (isFeaturedEnabled(key, flags)) {
-    return <string>flags[key?.id].value;
+    return <T>flags[key?.id].value;
   }
 
   return key?.defaultValue ?? undefined;
+};
+
+export const getNumberValue = (
+  value: string | number,
+  defaultValue?: number,
+): number => {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  try {
+    const result = parseInt(value, 10);
+    return result;
+  } catch (err) {
+    return defaultValue;
+  }
 };

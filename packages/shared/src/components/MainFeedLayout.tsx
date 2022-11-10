@@ -19,7 +19,6 @@ import {
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
-  MyFeedMode,
   RankingAlgorithm,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
@@ -32,15 +31,15 @@ import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import CreateMyFeedButton from './CreateMyFeedButton';
 import AlertContext from '../contexts/AlertContext';
-import CreateMyFeedModal from './modals/CreateMyFeedModal';
-import AnalyticsContext from '../contexts/AnalyticsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import MyFeedHeading from './filters/MyFeedHeading';
 import SortIcon from './icons/Sort';
+import { useOnboardingModal } from '../hooks/useOnboardingModal';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
 );
+
 const FeedEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "feedEmpty" */ './FeedEmptyScreen'),
 );
@@ -48,6 +47,20 @@ const FeedEmptyScreen = dynamic(
 const FeedFilters = dynamic(
   () =>
     import(/* webpackChunkName: "feedFiltersModal" */ './filters/FeedFilters'),
+);
+
+const OnboardingModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingModal" */ './modals/OnboardingModal'
+    ),
+);
+
+const LegacyOnboardingModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "legacyOnboardingModal" */ './modals/LegacyOnboardingModal'
+    ),
 );
 
 type FeedQueryProps = {
@@ -81,21 +94,6 @@ const LayoutHeader = classed(
   'flex justify-between items-center overflow-x-auto relative justify-between mb-6 min-h-14 w-full no-scrollbar',
 );
 
-export const getShouldRedirect = (
-  isOnMyFeed: boolean,
-  isLoggedIn: boolean,
-): boolean => {
-  if (!isOnMyFeed) {
-    return false;
-  }
-
-  if (!isLoggedIn) {
-    return true;
-  }
-
-  return false;
-};
-
 export type MainFeedLayoutProps = {
   feedName: string;
   isSearchOn: boolean;
@@ -127,7 +125,6 @@ const algorithms = [
 ];
 const algorithmsList = algorithms.map((algo) => algo.text);
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
-const FIRST_TIME_SESSION = 'firstTimeSession';
 
 const periods = [
   { value: 7, text: 'Last week' },
@@ -147,61 +144,22 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const { updateAlerts } = useContext(AlertContext);
-  const [defaultFeed, updateDefaultFeed] = useDefaultFeed();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
-  const { flags } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
-  const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
-  const [createMyFeed, setCreateMyFeed] = useState(false);
-  const [myFeedMode, setMyFeedMode] = useState<MyFeedMode>(MyFeedMode.Manual);
+  const defaultFeed = useDefaultFeed({
+    hasFiltered: !alerts?.filter,
+    feed: feedNameProp,
+    hasUser: !!user,
+  });
+  const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
+  const { flags, popularFeedCopy, onboardingVersion } =
+    useContext(FeaturesContext);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
-  const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
-  const isMyFeed = feedName === MainFeedPage.MyFeed;
-
-  const [isFirstSession, setIsFirstSession, isSessionLoaded] =
-    usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
-
-  useEffect(() => {
-    if (user) {
-      setIsFirstSession(false);
-      setMyFeedMode(MyFeedMode.Manual);
-    } else if (isFirstSession && isSessionLoaded) {
-      setIsFirstSession(true);
-      setMyFeedMode(MyFeedMode.Auto);
-      setCreateMyFeed(true);
-    }
-  }, [isSessionLoaded, user]);
-
-  useEffect(() => {
-    if (
-      defaultFeed !== null &&
-      feedName !== null &&
-      feedName !== defaultFeed &&
-      !getShouldRedirect(isMyFeed, !!user)
-    ) {
-      updateDefaultFeed(feedName);
-    }
-  }, [defaultFeed, feedName]);
-
-  const closeCreateMyFeedModal = () => {
-    if (myFeedMode === MyFeedMode.Auto) {
-      trackEvent({
-        event_name: 'my feed onboarding skip',
-      });
-    }
-    setIsFirstSession(false);
-    setCreateMyFeed(false);
-    if (user && !alerts.filter) {
-      onFeedPageChanged(MainFeedPage.MyFeed);
-    }
-  };
-
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
   const isSortableFeed =
     !isSearchOn && (feedName === 'popular' || feedName === 'my-feed');
@@ -238,6 +196,21 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
+  const {
+    myFeedMode,
+    isOnboardingOpen,
+    isLegacyOnboardingOpen,
+    onInitializeOnboarding,
+    onCloseOnboardingModal,
+    onShouldUpdateFilters,
+  } = useOnboardingModal({
+    user,
+    alerts,
+    isFirstVisit,
+    onboardingVersion,
+    onFeedPageChanged,
+  });
+
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
 
   /* eslint-disable react/no-children-prop */
@@ -259,10 +232,7 @@ export default function MainFeedLayout({
   const header = (
     <LayoutHeader className="flex-col">
       {alerts?.filter && (
-        <CreateMyFeedButton
-          action={() => setCreateMyFeed(true)}
-          flags={flags}
-        />
+        <CreateMyFeedButton action={onInitializeOnboarding} flags={flags} />
       )}
       <div
         className={classNames(
@@ -376,12 +346,20 @@ export default function MainFeedLayout({
           onRequestClose={() => setIsFeedFiltersOpen(false)}
         />
       )}
-      {createMyFeed && (
-        <CreateMyFeedModal
+      {isLegacyOnboardingOpen && (
+        <LegacyOnboardingModal
           mode={myFeedMode}
           hasUser={!!user}
-          isOpen={createMyFeed}
-          onRequestClose={closeCreateMyFeedModal}
+          isOpen={isLegacyOnboardingOpen}
+          onRequestClose={onCloseOnboardingModal}
+          onCreate={() => onShouldUpdateFilters(true)}
+        />
+      )}
+      {isOnboardingOpen && (
+        <OnboardingModal
+          isOpen={isOnboardingOpen}
+          onRequestClose={onCloseOnboardingModal}
+          onRegistrationSuccess={() => onShouldUpdateFilters(true)}
         />
       )}
     </>

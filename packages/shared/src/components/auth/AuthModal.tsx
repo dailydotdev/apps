@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { StyledModal, ModalProps } from '../modals/StyledModal';
 import styles from './AuthModal.module.css';
 import AuthModalHeading from './AuthModalHeading';
-import AuthOptions, { Display } from './AuthOptions';
+import AuthOptions, { AuthDisplay as Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
@@ -121,6 +121,7 @@ export default function AuthModal({
         </>
       )}
       <AuthOptions
+        version={authVersion}
         className={classNames('h-full', containerMargin[authVersion])}
         onClose={onDiscardAttempt}
         formRef={formRef}
