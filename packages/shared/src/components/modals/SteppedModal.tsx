@@ -17,7 +17,7 @@ import { DiscardAuthModal } from '../auth/common';
 import { Button } from '../buttons/Button';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import CloseButton from './CloseButton';
+import CloseButton from '../CloseButton';
 import { ModalProps, StyledModal } from './StyledModal';
 
 type ValidateFunction = () => boolean | Promise<boolean>;
@@ -25,7 +25,7 @@ type StepChange = (
   stepBefore: number,
   stepNow: number,
   e?: MouseEvent | KeyboardEvent,
-) => void | Promise<void>;
+) => boolean | void | Promise<boolean | void>;
 
 interface SteppedModalProps extends ModalProps {
   targetId?: string;
@@ -106,7 +106,12 @@ function SteppedModal({
   };
 
   const onBack = async (e: MouseEvent | KeyboardEvent) => {
-    await onBackStep?.(step, step - 1, e);
+    const holdStep = await onBackStep?.(step, step - 1, e);
+
+    if (holdStep) {
+      return null;
+    }
+
     return setStep(step - 1);
   };
 

@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { ResponsiveModal } from './ResponsiveModal';
+// import { Modal } from './common/Modal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import Settings from '../Settings';
@@ -10,7 +11,19 @@ export function UserSettingsModal({
   ...modalProps
 }: ModalProps): ReactElement {
   useTrackModal({ isOpen: modalProps.isOpen, title: 'feed settings' });
-
+  // return (
+  //   <Modal
+  //     kind={Modal.Kind.FlexibleCenter}
+  //     size={Modal.Size.Small}
+  //     onRequestClose={onRequestClose}
+  //     {...modalProps}
+  //   >
+  //     <Modal.Header title="Customize" />
+  //     <Modal.Body>
+  //       <Settings />
+  //     </Modal.Body>
+  //   </Modal>
+  // );
   return (
     <ResponsiveModal
       {...modalProps}
@@ -22,7 +35,7 @@ export function UserSettingsModal({
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section className="overflow-auto relative w-full h-full shrink max-h-full">
-        <Settings />
+        <Settings className="p-6" />
       </section>
     </ResponsiveModal>
   );

@@ -33,17 +33,19 @@ export function CustomSwitch({
 }: ContentsSwitchProps): ReactElement {
   const leftRef = useRef<HTMLElement>();
   const rightRef = useRef<HTMLElement>();
-  const [width, setWidth] = useState('');
+  const [leftWidth, setLeftWidth] = useState(0);
+  const [rightWidth, setRightWidth] = useState(0);
 
   useEffect(() => {
     if (!leftRef?.current || !rightRef?.current) {
       return;
     }
 
-    const element = checked ? rightRef.current : leftRef.current;
-    const { width: elementWidth } = element.getBoundingClientRect();
-    setWidth(`${elementWidth}px`);
-  }, [checked]);
+    const { width: left } = leftRef.current.getBoundingClientRect();
+    setLeftWidth(left);
+    const { width: right } = rightRef.current.getBoundingClientRect();
+    setRightWidth(right);
+  }, [leftRef?.current, rightRef?.current]);
 
   const leftClasses = classNames(
     baseContentClass,
@@ -53,6 +55,9 @@ export function CustomSwitch({
     baseContentClass,
     checked ? selectedContentClass : unselectedContentClass,
   );
+
+  const width = checked ? rightWidth : leftWidth;
+  const difference = Math.abs(rightWidth - leftWidth);
 
   return (
     <label
@@ -95,9 +100,13 @@ export function CustomSwitch({
         className={classNames(
           'absolute  top-0 h-full rounded-xl z-1',
           styles.knob,
-          checked && styles.checked,
         )}
-        style={{ width }}
+        style={{
+          width: `${width}px`,
+          transform: checked
+            ? `translateX(calc(100% + ${difference}px))`
+            : 'translateX(0)',
+        }}
       />
     </label>
   );

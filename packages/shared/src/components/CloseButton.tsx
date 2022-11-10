@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import { Button, StyledButtonProps, ButtonProps } from '../buttons/Button';
-import CloseIcon from '../icons/Close';
+import { Button, StyledButtonProps, ButtonProps } from './buttons/Button';
+import CloseIcon from './icons/Close';
 
 function CloseButtonComponent(
   { className, ...props }: StyledButtonProps & ButtonProps<'button'>,

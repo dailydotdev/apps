@@ -1,12 +1,18 @@
 import React, { ReactElement } from 'react';
 import { cloudinary } from '../../lib/image';
+import { OnboardingTitle } from './common';
 import OnboardingStep from './OnboardingStep';
 
 function IntroductionOnboarding(): ReactElement {
   return (
     <OnboardingStep
-      title="Make the feed, your feed."
-      description="Devs with a personal feed get 11.5x more relevant articles!"
+      title={
+        <OnboardingTitle>
+          Make the feed,{' '}
+          <span className="text-theme-color-cabbage">your feed.</span>
+        </OnboardingTitle>
+      }
+      description="Supercharge your feed with content you'll love reading!"
       className={{ container: 'relative' }}
     >
       <img

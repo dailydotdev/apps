@@ -19,6 +19,7 @@ import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import FeaturesContext from '../contexts/FeaturesContext';
+import { AuthTriggers } from '../lib/auth';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -95,7 +96,7 @@ export default function Settings({
     onToggleFunc: () => Promise<void> | void,
   ): Promise<void> | void => {
     if (!user) {
-      showLogin('settings');
+      showLogin(AuthTriggers.Settings);
       return undefined;
     }
 
@@ -111,7 +112,7 @@ export default function Settings({
   }, []);
 
   return (
-    <div className={classNames('flex', 'flex-col p-6', className)} {...props}>
+    <div className={classNames('flex', 'flex-col', className)} {...props}>
       <Section className="mt-0">
         <SectionTitle>Layout</SectionTitle>
         <CustomSwitch

@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -42,6 +43,7 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
+import { ShareVersion } from '../lib/featureValues';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -118,11 +120,18 @@ export default function Feed<T>({
 }: FeedProps<T>): ReactElement {
   const {
     postCardVersion,
-    postCardShareVersion,
+    postCardShareVersion: shareVersion,
     postModalByDefault,
     postEngagementNonClickable,
     showCommentPopover,
   } = useContext(FeaturesContext);
+  const [postCardShareVersion, setPostCardShareVersion] =
+    useState<ShareVersion>(shareVersion);
+  useEffect(() => {
+    if (navigator?.share) {
+      setPostCardShareVersion(ShareVersion.V2);
+    }
+  }, []);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -324,26 +333,26 @@ export default function Feed<T>({
       document.body.classList.remove('hidden-scrollbar');
     }
   }, [selectedPost]);
+  const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
       openSharePost(
-        (items[postMenuIndex] as PostItem)?.post,
+        post,
         virtualizedNumCards,
         postMenuLocation.row,
         postMenuLocation.column,
       ),
     onBookmark: () => {
-      const targetBookmarkState = !(items[postMenuIndex] as PostItem)?.post
-        ?.bookmarked;
+      const targetBookmarkState = !post?.bookmarked;
       onBookmark(
-        (items[postMenuIndex] as PostItem)?.post,
+        post,
         postMenuIndex,
         postMenuLocation.row,
         postMenuLocation.column,
         targetBookmarkState,
       );
     },
-    post: (items[postMenuIndex] as PostItem)?.post,
+    post,
   };
   return (
     <div

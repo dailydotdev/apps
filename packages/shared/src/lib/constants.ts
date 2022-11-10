@@ -1,23 +1,29 @@
 declare const navigator: Navigator & { brave?: { isBrave: unknown } };
-export const faq = 'https://docs.daily.dev/faqs';
-export const requestFeature =
-  'https://github.com/dailydotdev/daily/discussions/new?category=feature-request';
-export const reportIssue = 'https://it057218.typeform.com/to/zN8B5Vog';
-export const termsOfService = 'https://daily.dev/tos';
-export const privacyPolicy = 'https://daily.dev/privacy/applications-policy';
-export const cookiePolicy = 'https://daily.dev/privacy/applications-cookies';
-export const reputationGuide =
-  'https://daily.dev/posts/what-is-reputation-how-do-i-earn-it';
-export const ownershipGuide =
-  'https://daily.dev/posts/claiming-ownership-on-an-article-you-wrote';
-export const contentGuidelines = 'https://daily.dev/support/content-guidelines';
+
+// All links are loaded via Rebrandly
+export const faq = 'https://r.daily.dev/faqs';
+export const feedback = 'https://r.daily.dev/feedback';
+export const requestFeature = 'https://r.daily.dev/request-feature';
+export const reportIssue = 'https://r.daily.dev/report-issue';
+export const termsOfService = 'https://r.daily.dev/tos';
+export const privacyPolicy = 'https://r.daily.dev/privacy-policy';
+export const cookiePolicy = 'https://r.daily.dev/cookie-policy';
+export const reputationGuide = 'https://r.daily.dev/reputation-guide';
+export const ownershipGuide = 'https://r.daily.dev/claim';
+export const contentGuidelines = 'https://r.daily.dev/content-guidelines';
 export const communityLinksGuidelines = 'https://r.daily.dev/community-links';
 export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const initialDataKey = 'initial';
 export const submissionGuidelineDocsLink =
-  'https://docs.daily.dev/docs/how-does-daily-dev-work/community-picks-submission-guidelines';
+  'https://r.daily.dev/submission-guidelines';
+export const uninstall = 'https://r.daily.dev/uninstall';
+export const weeklyGoal = 'https://r.daily.dev/weekly-goal';
+export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
+export const devCard = 'https://r.daily.dev/devcard-github';
+export const docs = 'https://r.daily.dev/docs';
+export const markdownGuide = 'https://r.daily.dev/markdown-guide';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';

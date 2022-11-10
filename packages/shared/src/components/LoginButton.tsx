@@ -7,6 +7,7 @@ import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { IconProps } from './Icon';
+import { AuthTriggers } from '../lib/auth';
 
 const getAnalyticsEvent = (
   eventName: string,
@@ -37,7 +38,7 @@ export default function LoginButton({
 
   const onClick = () => {
     trackEvent(getAnalyticsEvent('click', buttonCopy));
-    showLogin('main button');
+    showLogin(AuthTriggers.MainButton);
   };
 
   return (

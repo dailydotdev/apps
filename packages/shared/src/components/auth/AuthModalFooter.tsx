@@ -1,6 +1,6 @@
-import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { ClickableText } from '../buttons/ClickableText';
+import { AuthModalFooterWrapper } from './common';
 
 interface AuthModalFooterProps {
   className?: string;
@@ -14,12 +14,7 @@ function AuthModalFooter({
   onIsLogin,
 }: AuthModalFooterProps): ReactElement {
   return (
-    <div
-      className={classNames(
-        'flex justify-center py-3 border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary',
-        className,
-      )}
-    >
+    <AuthModalFooterWrapper className={className}>
       {isLogin ? 'Don’t have an account?' : 'Already have an account?'}
       <ClickableText
         className="ml-1 underline text-theme-label-primary"
@@ -27,7 +22,7 @@ function AuthModalFooter({
       >
         {isLogin ? 'Sign up' : 'Log in'}
       </ClickableText>
-    </div>
+    </AuthModalFooterWrapper>
   );
 }
 

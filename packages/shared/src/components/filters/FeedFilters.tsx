@@ -9,7 +9,7 @@ import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
-import CloseButton from '../modals/CloseButton';
+import CloseButton from '../CloseButton';
 import styles from './FeedFilters.module.css';
 import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';

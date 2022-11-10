@@ -6,13 +6,11 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { ModalProps } from './StyledModal';
-import SteppedModal, {
-  getBackwardsLabel,
-  getForwardLabel,
-} from './SteppedModal';
+import SteppedModal, { getForwardLabel } from './SteppedModal';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import FilterOnboarding from '../onboarding/FilterOnboarding';
 import LayoutOnboarding from '../onboarding/LayoutOnboarding';
@@ -28,6 +26,7 @@ import {
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { OnboardingMode } from '../../graphql/feed';
 import { OnboardingVersion } from '../../lib/featureValues';
+import DiscardActionModal from './DiscardActionModal';
 
 const INTRODUCTION_ADDITIONAL_STEP = 1;
 
@@ -57,24 +56,32 @@ function OnboardingModal({
   ...props
 }: OnboardingModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [selectedTopics, setSelectedTopics] = useState({});
+  const [isClosing, setIsClosing] = useState(false);
+  const topics = useRef({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const { onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
   const [step, setStep] = useState(0);
 
-  const onClose = (e: MouseEvent | KeyboardEvent, stepAtClose = step) => {
-    const screen = getScreen(onboardingSteps, stepAtClose);
-    const label =
-      backCopy[stepAtClose] || getBackwardsLabel({ step: stepAtClose });
+  const onCloseConfirm = (e: MouseEvent | KeyboardEvent) => {
+    const screen = getScreen(onboardingSteps, step);
     trackEvent({
       event_name: AnalyticsEvent.OnboardingSkip,
-      target_type: label,
+      target_type: backCopy[step],
       target_id: OnboardingVersion.V2,
       extra: JSON.stringify({ screen_value: screen }),
     });
+
     onRequestClose(e);
-    setStep(stepAtClose);
+    setStep(step);
+  };
+
+  const onClose = (e: MouseEvent | KeyboardEvent, forceClose?: boolean) => {
+    if (forceClose) {
+      return onRequestClose(e);
+    }
+
+    return setIsClosing(true);
   };
 
   const onBackStep = (
@@ -83,14 +90,13 @@ function OnboardingModal({
     e: MouseEvent | KeyboardEvent,
   ) => {
     if (beforeStep === 0 || stepNow === 0) {
-      return onClose(e, Math.max(beforeStep, stepNow));
+      onClose(e);
+      return true;
     }
 
-    const label =
-      backCopy[beforeStep] || getBackwardsLabel({ step: beforeStep });
     trackEvent({
       event_name: AnalyticsEvent.ClickOnboardingBack,
-      target_type: label,
+      target_type: backCopy[beforeStep],
       target_id: OnboardingVersion.V2,
       extra: JSON.stringify({ screen_value: onboardingSteps[beforeStep] }),
     });
@@ -115,7 +121,7 @@ function OnboardingModal({
   };
 
   const onSelectedTopicsChange = (result: Record<string, boolean>) => {
-    setSelectedTopics(result);
+    topics.current = result;
     if (invalidMessage) {
       setInvalidMessage(null);
     }
@@ -124,6 +130,7 @@ function OnboardingModal({
     topics: (
       <FilterOnboarding
         key={OnboardingStep.Topics}
+        preselected={topics?.current}
         onSelectedChange={onSelectedTopicsChange}
       />
     ),
@@ -132,9 +139,10 @@ function OnboardingModal({
   };
 
   const onValidateFilter = () => {
-    const selected = Object.values(selectedTopics).filter((value) => !!value);
+    const selected = Object.values(topics.current).filter((value) => !!value);
     const isValid = selected.length >= onboardingMinimumTopics;
-    const errorMessage = `Choose at least ${onboardingMinimumTopics} topics to follow`;
+    const topic = `topic${onboardingMinimumTopics > 1 ? 's' : ''}`;
+    const errorMessage = `Choose at least ${onboardingMinimumTopics} ${topic} to follow`;
     setInvalidMessage(isValid ? null : errorMessage);
 
     return isValid;
@@ -171,25 +179,34 @@ function OnboardingModal({
   }, []);
 
   return (
-    <SteppedModal
-      {...props}
-      trigger={LoginTrigger.CreateFeedFilters}
-      onRequestClose={onClose}
-      contentClassName={step === 0 && 'overflow-y-hidden'}
-      style={{ content: { maxHeight: '40rem' } }}
-      onFinish={onRegistrationSuccess}
-      onBackStep={onBackStep}
-      onNextStep={onNextStep}
-      onValidateNext={nextButtonValidations}
-      invalidMessage={invalidMessage}
-      backCopy={backCopy}
-      nextCopy={nextCopy}
-      isLastStepLogin
-      targetId={TargetType.OnboardingV2}
-    >
-      <IntroductionOnboarding />
-      {onboardingSteps?.map((onboarding) => components[onboarding])}
-    </SteppedModal>
+    <>
+      <SteppedModal
+        {...props}
+        trigger={LoginTrigger.CreateFeedFilters}
+        onRequestClose={onClose}
+        contentClassName="overflow-y-hidden"
+        style={{ content: { maxHeight: '40rem' } }}
+        onFinish={onRegistrationSuccess}
+        onBackStep={onBackStep}
+        onNextStep={onNextStep}
+        onValidateNext={nextButtonValidations}
+        invalidMessage={invalidMessage}
+        backCopy={backCopy}
+        nextCopy={nextCopy}
+        isLastStepLogin
+        targetId={TargetType.OnboardingV2}
+      >
+        <IntroductionOnboarding />
+        {onboardingSteps?.map((onboarding) => components[onboarding])}
+      </SteppedModal>
+      <DiscardActionModal
+        isOpen={isClosing}
+        onRequestClose={() => setIsClosing(false)}
+        rightButtonAction={onCloseConfirm}
+        title="Skip onboarding"
+        description="Are you sure you want to close and skip your onboarding?"
+      />
+    </>
   );
 }
 

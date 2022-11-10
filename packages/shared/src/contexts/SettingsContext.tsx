@@ -66,6 +66,7 @@ export type SettingsContextData = {
   loadedSettings: boolean;
   customLinks?: string[];
   updateCustomLinks: (links: string[]) => Promise<unknown>;
+  syncSettings: () => Promise<unknown>;
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
@@ -187,9 +188,14 @@ export const SettingsContextProvider = ({
     await updateRemoteSettingsFn(newSettings);
   };
 
+  const syncSettings = async () => {
+    await updateRemoteSettingsFn(settings);
+  };
+
   const contextData = useMemo<SettingsContextData>(
     () => ({
       ...settings,
+      syncSettings,
       themeMode: themeModes[settings.theme],
       setTheme: (theme: ThemeMode) =>
         setSettings({ ...settings, theme: remoteThemes[theme] }),

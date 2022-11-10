@@ -190,3 +190,19 @@ export const getFeatureValue = <T extends FeatureValue = string>(
 
   return key?.defaultValue ?? undefined;
 };
+
+export const getNumberValue = (
+  value: string | number,
+  defaultValue?: number,
+): number => {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  try {
+    const result = parseInt(value, 10);
+    return result;
+  } catch (err) {
+    return defaultValue;
+  }
+};

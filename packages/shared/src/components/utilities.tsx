@@ -209,3 +209,8 @@ export enum MainFeedPage {
   Upvoted = 'upvoted',
   Discussed = 'discussed',
 }
+
+export const FeedHeading = classed(
+  'h3',
+  'flex flex-row flex-1 items-center typo-headline',
+);

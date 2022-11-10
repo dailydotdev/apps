@@ -1,6 +1,5 @@
 import React, { ReactElement, useState, useContext } from 'react';
 import classNames from 'classnames';
-import { cloudinary } from '../../lib/image';
 import OnboardingStep from './OnboardingStep';
 import FeedTopicCard from '../containers/FeedTopicCard';
 import { OnboardingFiltersLayout } from '../../lib/featureValues';
@@ -10,18 +9,20 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import { Origin } from '../../lib/analytics';
 
 interface FilterOnboardingProps {
+  preselected?: Record<string, boolean>;
   onSelectedChange: (result: Record<string, boolean>) => void;
 }
 
 const classes: Record<OnboardingFiltersLayout, string> = {
-  grid: 'grid-cols-3 gap-6',
-  list: 'grid-cols-1 gap-4',
+  grid: 'grid-cols-3',
+  list: 'grid-cols-1',
 };
 
 function FilterOnboarding({
+  preselected = {},
   onSelectedChange,
 }: FilterOnboardingProps): ReactElement {
-  const [selectedTopics, setSelectedTopics] = useState({});
+  const [selectedTopics, setSelectedTopics] = useState(preselected);
   const { onboardingFiltersLayout } = useContext(FeaturesContext);
   const { tagsCategories } = useFeedSettings();
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
@@ -39,16 +40,13 @@ function FilterOnboarding({
 
   return (
     <OnboardingStep
-      topIcon={
-        <img
-          className="mx-auto mb-6 w-16"
-          src={cloudinary.feedFilters.supercharge}
-          alt="A lightning icon to resemble supercharge"
-        />
-      }
-      title="Pick topics you are interested in. You can always change these later."
+      title="Choose topics to follow"
+      description="Pick topics you are interested in. You can always change these later."
       className={{
-        content: classNames('p-5 mt-1 grid', classes[onboardingFiltersLayout]),
+        content: classNames(
+          'p-5 mt-1 grid gap-4',
+          classes[onboardingFiltersLayout],
+        ),
       }}
     >
       {tagsCategories?.map((category) => (
