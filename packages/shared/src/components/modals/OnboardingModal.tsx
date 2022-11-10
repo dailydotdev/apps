@@ -193,7 +193,6 @@ function OnboardingModal({
         backCopy={backCopy}
         nextCopy={nextCopy}
         isLastStepLogin
-        targetId={TargetType.OnboardingV2}
       >
         <IntroductionOnboarding />
         {onboardingSteps?.map((onboarding) => components[onboarding])}

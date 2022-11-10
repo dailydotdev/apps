@@ -28,7 +28,6 @@ type StepChange = (
 ) => boolean | void | Promise<boolean | void>;
 
 interface SteppedModalProps extends ModalProps {
-  targetId?: string;
   trigger: LoginTrigger;
   invalidMessage?: string;
   isLastStepLogin?: boolean;
@@ -58,7 +57,6 @@ export const getBackwardsLabel = ({ step }: LabelProps): string =>
   step ? 'Close' : 'Back';
 
 function SteppedModal({
-  targetId,
   trigger,
   children,
   invalidMessage,
