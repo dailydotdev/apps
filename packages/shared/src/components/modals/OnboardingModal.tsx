@@ -32,7 +32,6 @@ const INTRODUCTION_ADDITIONAL_STEP = 1;
 
 interface OnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;
-  trigger?: string;
   onRegistrationSuccess?: () => void;
 }
 
