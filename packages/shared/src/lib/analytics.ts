@@ -24,7 +24,6 @@ export enum AnalyticsEvent {
 
 export enum TargetType {
   MyFeedModal = 'my feed modal',
-  OnboardingV2 = 'onboarding v2',
 }
 
 export enum ScreenValue {
