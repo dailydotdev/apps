@@ -12,7 +12,7 @@ import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
 import { Dropdown } from './fields/Dropdown';
-import { FeedPage } from './utilities';
+import { FeedHeading, FeedPage, MainFeedPage } from './utilities';
 import CalendarIcon from './icons/Calendar';
 import {
   ANONYMOUS_FEED_QUERY,
@@ -35,7 +35,7 @@ import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import FeedFilterMenuButton from './filters/FeedFilterMenuButton';
+import MyFeedHeading from './filters/MyFeedHeading';
 import SortIcon from './icons/Sort';
 
 const SearchEmptyScreen = dynamic(
@@ -55,14 +55,6 @@ type FeedQueryProps = {
   queryIfLogged?: string;
   variables?: Record<string, unknown>;
 };
-
-enum MainFeedPage {
-  MyFeed = 'my-feed',
-  Popular = 'popular',
-  Search = 'search',
-  Upvoted = 'upvoted',
-  Discussed = 'discussed',
-}
 
 const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
   'my-feed': {
@@ -165,12 +157,6 @@ export default function MainFeedLayout({
   const [createMyFeed, setCreateMyFeed] = useState(false);
   const [myFeedMode, setMyFeedMode] = useState<MyFeedMode>(MyFeedMode.Manual);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
-  const feedTitles = {
-    [MainFeedPage.MyFeed]: 'My feed',
-    [MainFeedPage.Popular]: popularFeedCopy,
-    [MainFeedPage.Upvoted]: 'Most upvoted',
-    [MainFeedPage.Discussed]: 'Best discussions',
-  };
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
@@ -254,6 +240,22 @@ export default function MainFeedLayout({
 
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
 
+  /* eslint-disable react/no-children-prop */
+  const feedHeading = {
+    [MainFeedPage.MyFeed]: (
+      <MyFeedHeading
+        hasFiltered={hasFiltered}
+        isAlertDisabled={!alerts.myFeed}
+        sidebarRendered={sidebarRendered}
+        onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
+        onUpdateAlerts={() => updateAlerts({ myFeed: null })}
+      />
+    ),
+    [MainFeedPage.Popular]: <FeedHeading children={popularFeedCopy} />,
+    [MainFeedPage.Upvoted]: <FeedHeading children="Most upvoted" />,
+    [MainFeedPage.Discussed]: <FeedHeading children="Best discussions" />,
+  };
+
   const header = (
     <LayoutHeader className="flex-col">
       {alerts?.filter && (
@@ -269,17 +271,7 @@ export default function MainFeedLayout({
           !sidebarRendered && alerts.myFeed && 'content-start',
         )}
       >
-        <h3 className="flex flex-row flex-1 items-center typo-headline">
-          {feedTitles[feedName]}
-          {hasFiltered && (
-            <FeedFilterMenuButton
-              isAlertDisabled={!alerts.myFeed}
-              sidebarRendered={sidebarRendered}
-              onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
-              onUpdateAlerts={() => updateAlerts({ myFeed: null })}
-            />
-          )}
-        </h3>
+        {feedHeading[feedName]}
         {navChildren}
         {isUpvoted && (
           <Dropdown

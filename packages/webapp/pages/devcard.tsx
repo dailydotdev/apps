@@ -23,6 +23,8 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -78,7 +80,7 @@ const Step1 = ({
             <Button
               className="btn-secondary"
               buttonSize="large"
-              onClick={() => showLogin('devcard')}
+              onClick={() => showLogin(AuthTriggers.DevCard)}
             >
               Login to generate
             </Button>
@@ -266,13 +268,13 @@ const Step2 = ({
             <Button
               className="mt-4 btn-secondary"
               buttonSize="small"
-              onClick={() => copyEmbed}
+              onClick={() => copyEmbed()}
             >
               {!copyingEmbed ? 'Copy code' : 'Copied!'}
             </Button>
             <ClickableText
               tag="a"
-              href="https://daily.dev/blog/adding-the-daily-devcard-to-your-github-profile?utm_source=webapp&utm_medium=devcard&utm_campaign=devcardguide&utm_id=inapp"
+              href={`${devCard}?utm_source=webapp&utm_medium=devcard&utm_campaign=devcardguide&utm_id=inapp`}
               className="mt-6 typo-body"
               defaultTypo={false}
               target="_blank"

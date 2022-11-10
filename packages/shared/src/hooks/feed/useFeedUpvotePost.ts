@@ -5,12 +5,13 @@ import { FeedItem } from '../useFeed';
 import { Post } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import {
-  postAnalyticsEvent,
-  optimisticPostUpdateInFeed,
   feedAnalyticsExtra,
+  optimisticPostUpdateInFeed,
+  postAnalyticsEvent,
 } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postEventName } from '../../components/utilities';
+import { AuthTriggers } from '../../lib/auth';
 
 export default function useFeedUpvotePost(
   items: FeedItem[],
@@ -47,7 +48,7 @@ export default function useFeedUpvotePost(
 
   return async (post, index, row, column, upvoted): Promise<void> => {
     if (!user) {
-      showLogin('upvote');
+      showLogin(AuthTriggers.Upvote);
       return;
     }
     trackEvent(

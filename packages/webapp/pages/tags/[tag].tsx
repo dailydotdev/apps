@@ -27,6 +27,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -84,7 +85,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
           await onFollowTags({ tags: [tag] });
         }
       } else {
-        showLogin('filter');
+        showLogin(AuthTriggers.Filter);
       }
     },
   };
@@ -100,7 +101,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
           await onBlockTags({ tags: [tag] });
         }
       } else {
-        showLogin('filter');
+        showLogin(AuthTriggers.Filter);
       }
     },
   };

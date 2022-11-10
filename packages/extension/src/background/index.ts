@@ -10,6 +10,7 @@ import {
   getLocalBootData,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
+import { uninstall } from '@dailydotdev/shared/src/lib/constants';
 import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
 
 const excludedCompanionOrigins = [
@@ -143,9 +144,7 @@ browser.browserAction.onClicked.addListener(() => {
 });
 
 browser.runtime.onInstalled.addListener(async (details) => {
-  await Promise.all([
-    browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
-  ]);
+  await Promise.all([browser.runtime.setUninstallURL(uninstall)]);
 
   if (details.reason === 'update') {
     await getContentScriptPermissionAndRegister();

@@ -1,13 +1,13 @@
 kind: Project
 name: apps
-dotIgnoreFiles: [ .gitignore ]
+dotIgnoreFiles: [.gitignore]
 sources:
   - name: db-services
     repositoryUrl: git@github.com:dailydotdev/garden-dependencies.git#main
   - name: api
-    repositoryUrl: git@github.com:dailydotdev/daily-api.git#master
+    repositoryUrl: git@github.com:dailydotdev/daily-api.git#main
   - name: gateway
-    repositoryUrl: git@github.com:dailydotdev/daily-gateway.git#master
+    repositoryUrl: git@github.com:dailydotdev/daily-gateway.git#main
   - name: heimdall
     repositoryUrl: git@github.com:dailydotdev/heimdall.git#main
 environments:

@@ -94,7 +94,7 @@ export default function AlertPointer({
   }
 
   return (
-    <AlertPointerWrapper>
+    <AlertPointerWrapper className={className.wrapper}>
       {children}
       <AlertPointerContainer
         style={getContainerStyle(offset)[placement]}
