@@ -63,7 +63,8 @@ function OnboardingModal({
     e: MouseEvent | KeyboardEvent,
   ) => {
     if (beforeStep === 0 || stepNow === 0) {
-      return onClose(e);
+      onClose(e);
+      return true;
     }
     return setStep(stepNow);
   };

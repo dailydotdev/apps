@@ -24,7 +24,7 @@ type StepChange = (
   stepBefore: number,
   stepNow: number,
   e?: MouseEvent | KeyboardEvent,
-) => void | Promise<void>;
+) => boolean | void | Promise<boolean | void>;
 
 interface SteppedModalProps extends ModalProps {
   trigger: string;
@@ -104,7 +104,12 @@ function SteppedModal({
   };
 
   const onBack = async (e: MouseEvent | KeyboardEvent) => {
-    await onBackStep?.(step, step - 1, e);
+    const holdStep = await onBackStep?.(step, step - 1, e);
+
+    if (holdStep) {
+      return null;
+    }
+
     return setStep(step - 1);
   };
 
