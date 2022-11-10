@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import ReactModal from 'react-modal';
 import classNames from 'classnames';
 import { ModalHeader } from './ModalHeader';
@@ -11,6 +11,8 @@ export type ModalProps = ReactModal.Props & {
   children: React.ReactNode;
   kind?: ModalKind;
   size?: ModalSize;
+  tabs?: string[];
+  defaultTab?: string;
 };
 
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
@@ -51,13 +53,18 @@ const modalSizeToClassName: Record<ModalSize, string> = {
 };
 
 export function Modal({
+  defaultTab,
   className,
   overlayClassName,
   children,
   kind = ModalKind.FlexibleCenter,
   size = ModalSize.Medium,
   onRequestClose,
+  tabs,
 }: ModalProps): ReactElement {
+  const [activeTab, onTabChange] = useState<string | undefined>(
+    tabs ? defaultTab ?? tabs[0] : undefined,
+  );
   const modalOverlayClassName = classNames(
     'overlay flex fixed flex-col inset-0 items-center bg-gradient-to-r to-theme-overlay-to from-theme-overlay-from z-[10]',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
@@ -78,7 +85,9 @@ export function Modal({
       overlayClassName={modalOverlayClassName}
       className={modalClassName}
     >
-      <ModalPropsContext.Provider value={{ size, kind, onRequestClose }}>
+      <ModalPropsContext.Provider
+        value={{ activeTab, size, kind, onRequestClose, onTabChange, tabs }}
+      >
         {children}
       </ModalPropsContext.Provider>
     </ReactModal>
