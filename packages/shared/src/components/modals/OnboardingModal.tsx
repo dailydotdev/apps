@@ -124,7 +124,7 @@ function OnboardingModal({
         {...props}
         trigger={LoginTrigger.CreateFeedFilters}
         onRequestClose={onClose}
-        contentClassName={step === 0 && 'overflow-y-hidden'}
+        contentClassName="overflow-y-hidden"
         style={{ content: { maxHeight: '40rem' } }}
         onFinish={onRegistrationSuccess}
         onBackStep={onBackStep}
