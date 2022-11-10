@@ -29,13 +29,13 @@ function LayoutOnboarding(): ReactElement {
       className={{
         container: 'items-center',
         content: classNames(
-          'relative flex flex-col items-center w-4/5 mt-8',
+          'relative flex flex-col items-center w-4/5 pt-8',
           insaneMode && 'px-8',
         ),
       }}
     >
       <img
-        className="absolute -top-4 -left-2"
+        className="absolute top-2 left-2"
         src={cloudinary.feedFilters.recommended}
         alt="Pointing at the recommended layout"
       />
