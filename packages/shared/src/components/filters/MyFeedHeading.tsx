@@ -1,10 +1,12 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import FilterIcon from '../icons/Filter';
 import { Button } from '../buttons/Button';
 import AlertPointer, { AlertPlacement } from '../alert/AlertPointer';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
 import { FeedHeading } from '../utilities';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { TargetId, TargetType } from '../../lib/analytics';
 
 interface MyFeedHeadingProps {
   hasFiltered: boolean;
@@ -25,6 +27,16 @@ function MyFeedHeading({
     return <FeedHeading>My feed</FeedHeading>;
   }
 
+  const { trackEvent } = useContext(AnalyticsContext);
+
+  const onClick = () => {
+    trackEvent({
+      target_type: TargetType.ManageTag,
+      target_id: TargetId.MyFeedHeading,
+    });
+    onOpenFeedFilters();
+  };
+
   return (
     <AlertPointer
       offset={[4, 8]}
@@ -36,7 +48,7 @@ function MyFeedHeading({
     >
       <Button
         className="mr-auto btn-tertiary headline"
-        onClick={onOpenFeedFilters}
+        onClick={onClick}
         rightIcon={<FilterIcon />}
       >
         My feed
