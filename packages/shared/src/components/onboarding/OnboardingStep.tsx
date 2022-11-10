@@ -23,7 +23,12 @@ function OnboardingStep({
   className = {},
 }: OnboardingStepProps): ReactElement {
   return (
-    <div className={classNames('flex flex-col pt-8', className.container)}>
+    <div
+      className={classNames(
+        'flex flex-col pt-8 max-h-[calc(100%-4rem)]',
+        className.container,
+      )}
+    >
       {topIcon}
       {typeof title !== 'string' ? (
         title
@@ -35,7 +40,9 @@ function OnboardingStep({
           {description}
         </p>
       )}
-      <div className={className.content}>{children}</div>
+      <div className={classNames('overflow-y-auto flex-1', className.content)}>
+        {children}
+      </div>
     </div>
   );
 }
