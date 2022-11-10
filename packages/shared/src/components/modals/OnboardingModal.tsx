@@ -58,18 +58,23 @@ function OnboardingModal({
   const [isClosing, setIsClosing] = useState(false);
   const topics = useRef({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
-  const { onboardingSteps, onboardingMinimumTopics } =
+  const { onboardingVersion, onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
   const [step, setStep] = useState(0);
 
   const onCloseConfirm = (e: MouseEvent | KeyboardEvent) => {
-    const screen = getScreen(onboardingSteps, step);
-    trackEvent({
-      event_name: AnalyticsEvent.OnboardingSkip,
-      target_type: backCopy[step],
-      target_id: OnboardingVersion.V2,
-      extra: JSON.stringify({ screen_value: screen }),
-    });
+    if (
+      mode === OnboardingMode.Auto &&
+      onboardingVersion === OnboardingVersion.V2
+    ) {
+      const screen = getScreen(onboardingSteps, step);
+      trackEvent({
+        event_name: AnalyticsEvent.OnboardingSkip,
+        target_type: backCopy[step],
+        target_id: OnboardingVersion.V2,
+        extra: JSON.stringify({ screen_value: screen }),
+      });
+    }
 
     onRequestClose(e);
   };

@@ -52,10 +52,11 @@ export const useOnboardingModal = ({
   };
 
   const onCloseOnboardingModal = () => {
-    if (onboardingMode === OnboardingMode.Auto) {
-      trackEvent({
-        event_name: 'my feed onboarding skip',
-      });
+    if (
+      onboardingMode === OnboardingMode.Auto &&
+      onboardingVersion === OnboardingVersion.V1
+    ) {
+      trackEvent({ event_name: AnalyticsEvent.OnboardingSkip });
     }
     setHasTriedOnboarding(true);
     modalStateCommand[onboardingVersion]?.(false);
