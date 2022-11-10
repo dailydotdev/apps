@@ -74,7 +74,7 @@ export const useOnboardingModal = ({
       trackEvent({
         event_name: AnalyticsEvent.CompleteOnboarding,
         target_type: TargetType.MyFeedModal,
-        target_id: OnboardingVersion.V1,
+        target_id: `onboarding-${onboardingVersion}`,
         extra: JSON.stringify({ origin: onboardingMode }),
       });
       setShouldUpdateFilters(false);
