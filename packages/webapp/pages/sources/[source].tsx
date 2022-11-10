@@ -30,6 +30,7 @@ import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
 import BlockIcon from '@dailydotdev/shared/src/components/icons/Block';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -88,7 +89,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           await onUnfollowSource({ source });
         }
       } else {
-        showLogin('filter');
+        showLogin(AuthTriggers.Filter);
       }
     },
   };

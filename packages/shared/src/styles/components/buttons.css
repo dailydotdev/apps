@@ -31,6 +31,14 @@
     border-radius: 0.875rem;
   }
 
+  &.headline {
+    height: 3rem;
+    padding: 0 1.5rem;
+    font-size: 1.0625rem;
+    border-radius: 0.875rem;
+    color: var(--theme-label-primary);
+  }
+
   &.bg-theme-color-cabbage {
     color: #FFFFFF;
   }

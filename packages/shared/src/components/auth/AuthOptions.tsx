@@ -17,6 +17,8 @@ import LoginForm from './LoginForm';
 import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
 import {
   AuthEventNames,
+  AuthTriggers,
+  AuthTriggersOrString,
   getNodeValue,
   RegistrationError,
 } from '../../lib/auth';
@@ -39,7 +41,6 @@ import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import ConnectedUserModal, {
   ConnectedUser as RegistrationConnectedUser,
 } from '../modals/ConnectedUser';
-import { VERIFICATION_TRIGGER } from '../../hooks/useAuthVerificationRecovery';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -61,7 +62,7 @@ export interface AuthOptionsProps {
   onSuccessfulRegistration?: () => unknown;
   onShowOptionsOnly?: (value: boolean) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
-  trigger: string;
+  trigger: AuthTriggersOrString;
   defaultDisplay?: AuthDisplay;
   className?: string;
   isLoginFlow?: boolean;
@@ -99,7 +100,7 @@ function AuthOptions({
     onDisplayChange?.(display);
     setActiveDisplay(display);
   };
-  const isVerified = loginState?.trigger === VERIFICATION_TRIGGER;
+  const isVerified = loginState?.trigger === AuthTriggers.Verification;
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
@@ -286,6 +287,7 @@ function AuthOptions({
             hints={hint}
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
+            trigger={trigger}
           />
         </Tab>
         <Tab label={AuthDisplay.Registration}>
@@ -298,6 +300,7 @@ function AuthOptions({
             onSignup={onRegister}
             hints={registrationHints}
             onUpdateHints={setRegistrationHints}
+            trigger={trigger}
             token={
               registration &&
               getNodeValue('csrf_token', registration?.ui?.nodes)

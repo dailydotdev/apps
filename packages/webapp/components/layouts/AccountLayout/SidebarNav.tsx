@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import CloseButton from '@dailydotdev/shared/src/components/modals/CloseButton';
+import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
