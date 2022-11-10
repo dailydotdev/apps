@@ -1,6 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { ThemeMode } from '../../contexts/SettingsContext';
-import { Radio, RadioOption, RadioProps } from '../fields/Radio';
+import { RadioOption } from '../fields/Radio';
+import { RadioItem, RadioItemProps } from '../fields/RadioItem';
 import ThemeWidgetBackground, {
   DarkNode,
   DarkNodeLayout,
@@ -8,8 +9,8 @@ import ThemeWidgetBackground, {
   LightNodeLayout,
 } from './ThemeWidgetBackground';
 
-interface ThemeWidgetProps extends Omit<RadioProps, 'options' | 'name'> {
-  option: RadioOption;
+interface ThemeWidgetProps extends Omit<RadioItemProps, 'onChange'> {
+  option: RadioOption<ThemeMode>;
   onChange: (value: ThemeMode) => void;
 }
 
@@ -24,12 +25,28 @@ const bg: Record<ThemeMode, ReactNode> = {
   ),
 };
 
-function ThemeWidget({ option, ...props }: ThemeWidgetProps): ReactElement {
+function ThemeWidget({
+  option,
+  onChange,
+  ...props
+}: ThemeWidgetProps): ReactElement {
   return (
-    <div className="flex overflow-hidden relative flex-row items-center pl-4 w-full h-24 rounded-14 bg-theme-divider-tertiary">
-      <Radio {...props} options={[option]} name="theme" />
+    <label
+      htmlFor={option.value}
+      className="flex overflow-hidden relative flex-row items-center pl-4 w-full h-24 rounded-14 hover:cursor-pointer bg-theme-divider-tertiary"
+    >
+      <RadioItem
+        {...props}
+        name="theme"
+        id={option.value}
+        value={option.value}
+        onChange={() => onChange(option.value)}
+        className="my-0.5 truncate"
+      >
+        {option.label}
+      </RadioItem>
       {bg[option.value]}
-    </div>
+    </label>
   );
 }
 
