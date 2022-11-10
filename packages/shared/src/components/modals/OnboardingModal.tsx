@@ -72,7 +72,6 @@ function OnboardingModal({
     });
 
     onRequestClose(e);
-    setStep(step);
   };
 
   const onClose = (e: MouseEvent | KeyboardEvent, forceClose?: boolean) => {
