@@ -49,7 +49,7 @@ export default function TagsFilter({
   const searchKey = getSearchTagsQueryKey(query);
   const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const [onSearch] = useDebounce<string>((value) => setQuery(value), 200);
+  const [onSearch] = useDebounce(setQuery, 200);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
