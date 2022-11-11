@@ -1,11 +1,14 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import AuthContext from '../../contexts/AuthContext';
+import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
+import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
 import ProfileButton from '../profile/ProfileButton';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import HeaderLogo from './HeaderLogo';
 
 interface ShouldShowLogoProps {
@@ -42,9 +45,10 @@ function MainLayoutHeader({
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
   const { user, loadingUser } = useContext(AuthContext);
+  const hideButton = showOnlyLogo || loadingUser;
 
   const headerButton = (() => {
-    if (showOnlyLogo || loadingUser) {
+    if (hideButton) {
       return null;
     }
 
@@ -84,6 +88,18 @@ function MainLayoutHeader({
               />
             )}
           </div>
+          {!hideButton && (
+            <LinkWithTooltip
+              tooltip={{ placement: 'left', content: 'Notifications' }}
+              href={`${webappUrl}notifications`}
+            >
+              <Button
+                className="mr-4 btn-tertiary"
+                buttonSize="small"
+                icon={<BellIcon />}
+              />
+            </LinkWithTooltip>
+          )}
           {additionalButtons}
           {headerButton}
           {!sidebarRendered && !optOutWeeklyGoal && (
