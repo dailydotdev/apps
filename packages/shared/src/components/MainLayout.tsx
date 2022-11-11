@@ -21,7 +21,7 @@ import MainLayoutHeader, {
 } from './layout/MainLayoutHeader';
 
 export interface MainLayoutProps
-  extends MainLayoutHeaderProps,
+  extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
     HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   activePage?: string;
