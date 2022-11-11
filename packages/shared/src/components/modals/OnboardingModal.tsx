@@ -142,8 +142,10 @@ function OnboardingModal({
         isOpen={isClosing}
         onRequestClose={() => setIsClosing(false)}
         rightButtonAction={onCloseConfirm}
-        title="Skip onboarding"
-        description="Are you sure you want to close and skip your onboarding?"
+        title="Quit personalization?"
+        description="You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?"
+        leftButtonText="Continue"
+        rightButtonText="Quit"
       />
     </>
   );
