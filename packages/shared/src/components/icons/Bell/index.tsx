@@ -3,8 +3,8 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const NotificationIcon = (props: IconProps): ReactElement => (
+const BellIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
 
-export default NotificationIcon;
+export default BellIcon;
