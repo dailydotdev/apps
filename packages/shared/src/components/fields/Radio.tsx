@@ -2,9 +2,10 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { RadioItem } from './RadioItem';
 
-export interface RadioOption {
+export interface RadioOption<T = string> {
   label: string;
-  value: string;
+  value: T;
+  id?: string;
 }
 
 export type RadioProps = {
@@ -28,6 +29,7 @@ export function Radio({
         <RadioItem
           key={option.value}
           name={name}
+          id={option.id || option.value}
           value={option.value}
           checked={value === option.value}
           onChange={() => onChange(option.value)}

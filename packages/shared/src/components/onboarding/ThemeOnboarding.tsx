@@ -18,6 +18,7 @@ function ThemeOnboarding(): ReactElement {
           option={theme}
           value={themeMode}
           onChange={setTheme}
+          checked={theme.value === themeMode}
         />
       ))}
     </OnboardingStep>
