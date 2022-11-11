@@ -134,7 +134,7 @@ export class Features {
 
   static readonly SquadVersion = new Features(
     'squad_version',
-    SquadVersion.V1,
+    SquadVersion.Off,
     [
       SquadVersion.Off,
       SquadVersion.V1,
