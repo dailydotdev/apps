@@ -88,7 +88,7 @@ function MainLayoutHeader({
               />
             )}
           </div>
-          {!hideButton && (
+          {!hideButton && user && (
             <LinkWithTooltip
               tooltip={{ placement: 'left', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
