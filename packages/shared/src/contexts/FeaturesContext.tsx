@@ -63,7 +63,10 @@ export const FeaturesContextProvider = ({
         flags,
       ) as ShareVersion,
       authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
-      squadVersion: getFeatureValue(Features.SquadVersion, flags),
+      squadVersion: getFeatureValue(
+        Features.SquadVersion,
+        flags,
+      ) as SquadVersion,
       squadForm: getFeatureValue(Features.SquadForm, flags),
       squadButton: getFeatureValue(Features.SquadButton, flags),
     }),
