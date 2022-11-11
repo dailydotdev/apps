@@ -17,6 +17,9 @@ export type ModalContextProps = {
   onRequestClose: null | ((event: MouseEvent | KeyboardEvent) => void);
   kind: ModalKind;
   size: ModalSize;
+  onTabChange?: (tab: string) => void;
+  activeTab?: string;
+  tabs?: string[];
 };
 
 export const ModalPropsContext = createContext<ModalContextProps>({
