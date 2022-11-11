@@ -5,10 +5,10 @@ import { RadioItem } from './RadioItem';
 export interface RadioOption<T = string> {
   label: string;
   value: T;
+  id?: string;
 }
 
 export type RadioProps = {
-  id: string;
   name: string;
   options: RadioOption[];
   value?: string;
@@ -17,7 +17,6 @@ export type RadioProps = {
 };
 
 export function Radio({
-  id,
   name,
   options,
   value,
@@ -30,7 +29,7 @@ export function Radio({
         <RadioItem
           key={option.value}
           name={name}
-          id={id}
+          id={option.id || option.value}
           value={option.value}
           checked={value === option.value}
           onChange={() => onChange(option.value)}
