@@ -35,6 +35,7 @@ export interface BaseButtonProps {
   rightIcon?: IconType;
   children?: ReactNode;
   displayClass?: string;
+  textPosition?: string;
   position?: string;
 }
 
@@ -71,6 +72,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     className,
     displayClass,
     position = 'relative',
+    textPosition = 'justify-center',
     readOnly,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
@@ -89,7 +91,8 @@ function ButtonComponent<TagName extends AllowedTags>(
       className={classNames(
         { iconOnly, readOnly },
         buttonSize,
-        'btn flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
+        'btn flex-row items-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
+        textPosition,
         displayClass || 'flex',
         position,
         className,

@@ -37,6 +37,9 @@ export interface SidebarMenuItem {
   hideOnMobile?: boolean;
   requiresLogin?: boolean;
   tooltip?: TooltipProps;
+  className?: {
+    text?: string;
+  };
 }
 
 interface ListIconProps {
@@ -128,6 +131,7 @@ export const ItemInner = ({
         className={classNames(
           'flex-1 text-left transition-opacity',
           sidebarExpanded ? 'opacity-100 delay-150' : 'opacity-0',
+          item?.className?.text,
         )}
       >
         {item.title}

@@ -5,7 +5,7 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../lib/featureManagement';
-import { ShareVersion } from '../lib/featureValues';
+import { ShareVersion, SquadVersion } from '../lib/featureValues';
 
 export interface FeaturesData {
   flags: IFlags;
@@ -20,6 +20,9 @@ export interface FeaturesData {
   postCardVersion?: string;
   postCardShareVersion?: ShareVersion;
   authVersion?: string;
+  squadVersion?: SquadVersion;
+  squadForm?: string;
+  squadButton?: string;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
@@ -60,6 +63,9 @@ export const FeaturesContextProvider = ({
         flags,
       ) as ShareVersion,
       authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
+      squadVersion: getFeatureValue(Features.SquadVersion, flags),
+      squadForm: getFeatureValue(Features.SquadForm, flags),
+      squadButton: getFeatureValue(Features.SquadButton, flags),
     }),
     [flags],
   );

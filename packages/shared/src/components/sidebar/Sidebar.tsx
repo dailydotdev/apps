@@ -20,6 +20,9 @@ import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
 import { MobileMenuIcon } from './MobileMenuIcon';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import { SquadVersion } from '../../lib/featureValues';
+import { SquadSection } from './SquadSection';
+import SquadButton from './SquadButton';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -56,6 +59,9 @@ export default function Sidebar({
     submitArticleSidebarButton,
     submitArticleModalButton,
     popularFeedCopy,
+    squadVersion,
+    squadForm,
+    squadButton,
   } = useContext(FeaturesContext);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
@@ -64,6 +70,15 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
+
+  const defaultSquadButtonProps = useMemo(
+    () => ({
+      squadForm,
+      squadButton,
+      squadVersion,
+    }),
+    [squadForm, squadButton, squadVersion],
+  );
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -102,6 +117,12 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
+            {squadVersion === SquadVersion.V4 && sidebarRendered && (
+              <SquadButton
+                {...defaultRenderSectionProps}
+                {...defaultSquadButtonProps}
+              />
+            )}
             {!alerts?.filter && (
               <MyFeedButton
                 sidebarRendered={sidebarRendered}
@@ -110,6 +131,20 @@ export default function Sidebar({
                 isButton={isNavButtons}
                 alerts={alerts}
                 onNavTabClick={onNavTabClick}
+              />
+            )}
+            {[SquadVersion.V1, SquadVersion.V2].includes(squadVersion) &&
+              sidebarRendered && (
+                <SquadButton
+                  {...defaultRenderSectionProps}
+                  {...defaultSquadButtonProps}
+                />
+              )}
+            {squadVersion === SquadVersion.V3 && sidebarRendered && (
+              <SquadSection
+                {...defaultRenderSectionProps}
+                squadButton={squadButton}
+                squadForm={squadForm}
               />
             )}
             <DiscoverSection
