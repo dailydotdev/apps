@@ -34,7 +34,7 @@ export function SquadSection({
   return (
     <Section
       {...defaultRenderSectionProps}
-      title="Squad"
+      title="Squads"
       items={squadMenuItems}
       isItemsButton={isItemsButton}
     />
