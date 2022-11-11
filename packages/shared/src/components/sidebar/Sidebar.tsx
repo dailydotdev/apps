@@ -1,12 +1,18 @@
-import React, { ReactElement, useContext, useState, useMemo } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
   SidebarAside,
-  SidebarProps,
   SidebarBackdrop,
+  SidebarProps,
   SidebarScrollWrapper,
 } from './common';
 import AlertContext from '../../contexts/AlertContext';
@@ -23,6 +29,7 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { SquadVersion } from '../../lib/featureValues';
 import { SquadSection } from './SquadSection';
 import SquadButton from './SquadButton';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -45,6 +52,7 @@ export default function Sidebar({
   onShowDndClick,
 }: SidebarProps): ReactElement {
   const [defaultFeed] = useDefaultFeed();
+  const { trackEvent } = useContext(AnalyticsContext);
   const { alerts } = useContext(AlertContext);
   const {
     toggleSidebarExpanded,
@@ -71,11 +79,18 @@ export default function Sidebar({
     action: setOpenMobileSidebar,
   });
 
+  const trackSquadClicks = () => {
+    trackEvent({
+      event_name: 'click create squads',
+    });
+  };
+
   const defaultSquadButtonProps = useMemo(
     () => ({
       squadForm,
       squadButton,
       squadVersion,
+      onSquadClick: trackSquadClicks,
     }),
     [squadForm, squadButton, squadVersion],
   );
@@ -88,6 +103,15 @@ export default function Sidebar({
     }),
     [sidebarExpanded, sidebarRendered, activePage],
   );
+
+  useEffect(() => {
+    if (squadVersion !== SquadVersion.Off) {
+      trackEvent({
+        event_name: 'impression',
+        target_type: 'squads',
+      });
+    }
+  }, [squadVersion]);
 
   if (!loadedSettings) {
     return <></>;
@@ -143,6 +167,7 @@ export default function Sidebar({
             {squadVersion === SquadVersion.V3 && sidebarRendered && (
               <SquadSection
                 {...defaultRenderSectionProps}
+                onSquadClick={trackSquadClicks}
                 squadButton={squadButton}
                 squadForm={squadForm}
               />

@@ -10,6 +10,7 @@ interface SquadSectionProps
   squadButton: string;
   squadForm: string;
   isItemsButton?: boolean;
+  onSquadClick: () => void;
 }
 
 export function SquadSection({
@@ -17,6 +18,7 @@ export function SquadSection({
   popularFeedCopy,
   squadButton,
   squadForm,
+  onSquadClick,
   ...defaultRenderSectionProps
 }: SquadSectionProps): ReactElement {
   const squadMenuItems: SidebarMenuItem[] = [
@@ -25,6 +27,7 @@ export function SquadSection({
       title: squadButton,
       path: squadForm,
       className: { text: 'text-theme-status-cabbage' },
+      action: onSquadClick,
     },
   ];
 

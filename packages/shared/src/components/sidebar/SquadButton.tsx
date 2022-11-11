@@ -15,6 +15,7 @@ interface SquadButtonProps {
   squadVersion: SquadVersion;
   squadButton: string;
   squadForm: string;
+  onSquadClick: () => void;
 }
 
 function SquadButton({
@@ -23,6 +24,7 @@ function SquadButton({
   squadVersion,
   squadButton,
   squadForm,
+  onSquadClick,
 }: SquadButtonProps): ReactElement {
   if (squadVersion === SquadVersion.V4) {
     return (
@@ -37,6 +39,7 @@ function SquadButton({
             sidebarExpanded ? 'mx-3' : 'mx-1.5',
           )}
           textPosition={sidebarExpanded ? 'justify-start' : 'justify-center'}
+          onClick={onSquadClick}
         >
           {sidebarExpanded && squadButton}
         </Button>
@@ -54,6 +57,7 @@ function SquadButton({
     ),
     title: squadButton,
     path: squadForm,
+    action: onSquadClick,
   };
 
   return (
