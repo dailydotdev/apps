@@ -72,7 +72,7 @@ export const SidebarScrollWrapper = classed(
   'div',
   'flex overflow-x-hidden overflow-y-auto flex-col h-full no-scrollbar',
 );
-export const Nav = classed('nav', 'my-4');
+export const Nav = classed('nav', 'my-4 mt-10');
 export const NavSection = classed('ul', 'mt-0 laptop:mt-2');
 export const NavHeader = classed(
   'li',

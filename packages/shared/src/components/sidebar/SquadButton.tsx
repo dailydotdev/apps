@@ -33,6 +33,8 @@ function SquadButton({
           tag="a"
           buttonSize="small"
           icon={<PlusIcon />}
+          target="_blank"
+          rel="noopener"
           iconOnly={!sidebarExpanded}
           className={classNames(
             'my-4 btn-primary-cabbage',
@@ -57,6 +59,7 @@ function SquadButton({
     ),
     title: squadButton,
     path: squadForm,
+    target: '_blank',
     action: onSquadClick,
   };
 

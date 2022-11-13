@@ -30,6 +30,7 @@ import { SquadVersion } from '../../lib/featureValues';
 import { SquadSection } from './SquadSection';
 import SquadButton from './SquadButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import AuthContext from '../../contexts/AuthContext';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -52,6 +53,7 @@ export default function Sidebar({
   onShowDndClick,
 }: SidebarProps): ReactElement {
   const [defaultFeed] = useDefaultFeed();
+  const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { alerts } = useContext(AlertContext);
   const {
@@ -81,18 +83,19 @@ export default function Sidebar({
 
   const trackSquadClicks = () => {
     trackEvent({
-      event_name: 'click create squads',
+      event_name: 'click create squad',
+      target_id: squadVersion,
     });
   };
 
   const defaultSquadButtonProps = useMemo(
     () => ({
-      squadForm,
+      squadForm: `${squadForm}#user_id=${user?.id}`,
       squadButton,
       squadVersion,
       onSquadClick: trackSquadClicks,
     }),
-    [squadForm, squadButton, squadVersion],
+    [squadForm, squadButton, squadVersion, user],
   );
 
   const defaultRenderSectionProps = useMemo(
@@ -108,7 +111,8 @@ export default function Sidebar({
     if (squadVersion !== SquadVersion.Off) {
       trackEvent({
         event_name: 'impression',
-        target_type: 'squads',
+        target_type: 'create squad',
+        target_id: squadVersion,
       });
     }
   }, [squadVersion]);
@@ -141,7 +145,7 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {squadVersion === SquadVersion.V4 && sidebarRendered && (
+            {squadVersion === SquadVersion.V4 && sidebarRendered && user && (
               <SquadButton
                 {...defaultRenderSectionProps}
                 {...defaultSquadButtonProps}
@@ -158,13 +162,14 @@ export default function Sidebar({
               />
             )}
             {[SquadVersion.V1, SquadVersion.V2].includes(squadVersion) &&
-              sidebarRendered && (
+              sidebarRendered &&
+              user && (
                 <SquadButton
                   {...defaultRenderSectionProps}
                   {...defaultSquadButtonProps}
                 />
               )}
-            {squadVersion === SquadVersion.V3 && sidebarRendered && (
+            {squadVersion === SquadVersion.V3 && sidebarRendered && user && (
               <SquadSection
                 {...defaultRenderSectionProps}
                 onSquadClick={trackSquadClicks}
