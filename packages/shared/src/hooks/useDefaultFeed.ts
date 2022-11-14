@@ -28,7 +28,8 @@ export default function useDefaultFeed({
   hasUser,
   feed,
 }: UseDefaultFeedProps = {}): string {
-  const isMyFeed = feed === MainFeedPage.MyFeed;
+  const feedName = feed?.replaceAll?.('/', '');
+  const isMyFeed = feedName === MainFeedPage.MyFeed;
   const [defaultFeed, updateDefaultFeed] = usePersistentContext(
     'defaultFeed',
     !hasUser || !hasFiltered ? 'popular' : 'my-feed',
@@ -37,13 +38,13 @@ export default function useDefaultFeed({
   );
 
   useEffect(() => {
-    const feedConditions = [null, defaultFeed, 'default', '/'];
+    const feedConditions = [null, defaultFeed, 'default', '/', ''];
     if (
       defaultFeed !== null &&
-      feedConditions.every((condition) => condition !== feed) &&
+      feedConditions.every((condition) => condition !== feedName) &&
       !getShouldRedirect(isMyFeed, !!hasUser)
     ) {
-      updateDefaultFeed(feed);
+      updateDefaultFeed(feedName);
     }
   }, [defaultFeed, feed]);
 
