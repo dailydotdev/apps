@@ -89,13 +89,13 @@ function SteppedModal({
   });
 
   const onCancelAuth = async (e: MouseEvent | KeyboardEvent) => {
-    await logout();
-    await onBackStep?.(step, step - 1, e);
-    setStep(step - 1);
     trackEvent({
       event_name: AuthEventNames.CloseSignUp,
       extra: JSON.stringify({ trigger, screenValue }),
     });
+    await logout();
+    await onBackStep?.(step, step - 1, e);
+    setStep(step - 1);
   };
 
   const getWidth = () => {
