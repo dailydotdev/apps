@@ -16,7 +16,7 @@ interface CreateMyFeedButtonProps {
 const getAnalyticsEvent = (
   eventName: string,
   copy: string,
-): Partial<AnalyticsEvent> => ({
+): AnalyticsEvent => ({
   event_name: eventName,
   target_type: 'my feed button',
   target_id: 'feed_top',
