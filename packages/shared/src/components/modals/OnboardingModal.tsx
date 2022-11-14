@@ -95,9 +95,10 @@ function OnboardingModal({
       return true;
     }
 
+    const screen = getScreen(onboardingSteps, step);
     trackEvent({
       event_name: AnalyticsEvent.ClickOnboardingBack,
-      extra: JSON.stringify({ screen_value: onboardingSteps[beforeStep] }),
+      extra: JSON.stringify({ screen_value: screen }),
     });
     return setStep(stepNow);
   };
