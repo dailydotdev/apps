@@ -73,6 +73,7 @@ export default function Sidebar({
     squadForm,
     squadButton,
   } = useContext(FeaturesContext);
+  const squadVisible = sidebarRendered && user;
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
 
@@ -85,6 +86,8 @@ export default function Sidebar({
     trackEvent({
       event_name: 'click create squad',
       target_id: squadVersion,
+      feed_item_title: squadButton,
+      feed_item_target_url: squadForm,
     });
   };
 
@@ -108,14 +111,16 @@ export default function Sidebar({
   );
 
   useEffect(() => {
-    if (squadVersion !== SquadVersion.Off) {
+    if (squadVersion !== SquadVersion.Off && squadVisible) {
       trackEvent({
         event_name: 'impression',
         target_type: 'create squad',
         target_id: squadVersion,
+        feed_item_title: squadButton,
+        feed_item_target_url: squadForm,
       });
     }
-  }, [squadVersion]);
+  }, [squadVersion, squadButton, squadForm, squadVisible]);
 
   if (!loadedSettings) {
     return <></>;
@@ -145,7 +150,7 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {squadVersion === SquadVersion.V4 && sidebarRendered && user && (
+            {squadVersion === SquadVersion.V4 && squadVisible && (
               <SquadButton
                 {...defaultRenderSectionProps}
                 {...defaultSquadButtonProps}
@@ -162,14 +167,13 @@ export default function Sidebar({
               />
             )}
             {[SquadVersion.V1, SquadVersion.V2].includes(squadVersion) &&
-              sidebarRendered &&
-              user && (
+              squadVisible && (
                 <SquadButton
                   {...defaultRenderSectionProps}
                   {...defaultSquadButtonProps}
                 />
               )}
-            {squadVersion === SquadVersion.V3 && sidebarRendered && user && (
+            {squadVersion === SquadVersion.V3 && squadVisible && (
               <SquadSection
                 {...defaultRenderSectionProps}
                 onSquadClick={trackSquadClicks}
