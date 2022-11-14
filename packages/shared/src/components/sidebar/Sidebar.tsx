@@ -77,7 +77,7 @@ export default function Sidebar({
     squadForm,
     squadButton,
   } = useContext(FeaturesContext);
-  const squadVisible = sidebarRendered && !user;
+  const squadVisible = sidebarRendered && user;
   const [trackedSquadImpression, setTrackedSquadImpression] = useState(false);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
