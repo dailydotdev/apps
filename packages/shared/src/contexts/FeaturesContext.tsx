@@ -10,6 +10,7 @@ import {
   OnboardingFiltersLayout,
   OnboardingVersion,
   ShareVersion,
+  SquadVersion,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
@@ -31,6 +32,9 @@ interface Experiments {
   postCardVersion?: string;
   postCardShareVersion?: ShareVersion;
   authVersion?: string;
+  squadVersion?: SquadVersion;
+  squadForm?: string;
+  squadButton?: string;
 }
 
 export interface FeaturesData extends Experiments {
@@ -80,11 +84,11 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     ),
     postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
     postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-    postCardShareVersion: getFeatureValue(
-      Features.PostCardShareVersion,
-      flags,
-    ) as ShareVersion,
+    postCardShareVersion: getFeatureValue(Features.PostCardShareVersion, flags),
     authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
+    squadVersion: getFeatureValue(Features.SquadVersion, flags),
+    squadForm: getFeatureValue(Features.SquadForm, flags),
+    squadButton: getFeatureValue(Features.SquadButton, flags),
   };
 };
 
