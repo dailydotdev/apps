@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { MainFeedPage } from '../components/utilities';
 import usePersistentContext from './usePersistentContext';
 
@@ -48,5 +48,5 @@ export default function useDefaultFeed({
     }
   }, [defaultFeed, feed]);
 
-  return defaultFeed;
+  return useMemo(() => defaultFeed, [defaultFeed, hasFiltered, hasUser, feed]);
 }
