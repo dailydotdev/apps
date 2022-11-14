@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -44,6 +43,7 @@ import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { ShareVersion } from '../lib/featureValues';
+import { getNavigator } from '../lib/navigator';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -125,13 +125,9 @@ export default function Feed<T>({
     postEngagementNonClickable,
     showCommentPopover,
   } = useContext(FeaturesContext);
-  const [postCardShareVersion, setPostCardShareVersion] =
-    useState<ShareVersion>(shareVersion);
-  useEffect(() => {
-    if (navigator?.share) {
-      setPostCardShareVersion(ShareVersion.V2);
-    }
-  }, []);
+  const postCardShareVersion = getNavigator()?.share
+    ? ShareVersion.V2
+    : shareVersion;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);

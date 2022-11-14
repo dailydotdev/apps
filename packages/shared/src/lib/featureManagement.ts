@@ -1,5 +1,5 @@
 import { IFlags } from 'flagsmith';
-import { AuthVersion, ShareVersion } from './featureValues';
+import { AuthVersion, ShareVersion, SquadVersion } from './featureValues';
 
 export class Features {
   static readonly SignupButtonCopy = new Features(
@@ -131,6 +131,22 @@ export class Features {
     AuthVersion.V1,
     [AuthVersion.V1, AuthVersion.V2, AuthVersion.V3, AuthVersion.V4],
   );
+
+  static readonly SquadVersion = new Features(
+    'squad_version',
+    SquadVersion.Off,
+    [
+      SquadVersion.Off,
+      SquadVersion.V1,
+      SquadVersion.V2,
+      SquadVersion.V3,
+      SquadVersion.V4,
+    ],
+  );
+
+  static readonly SquadForm = new Features('squad_form');
+
+  static readonly SquadButton = new Features('squad_button', 'New squad');
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');
 

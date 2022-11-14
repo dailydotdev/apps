@@ -37,6 +37,9 @@ export interface SidebarMenuItem {
   hideOnMobile?: boolean;
   requiresLogin?: boolean;
   tooltip?: TooltipProps;
+  className?: {
+    text?: string;
+  };
 }
 
 interface ListIconProps {
@@ -69,7 +72,7 @@ export const SidebarScrollWrapper = classed(
   'div',
   'flex overflow-x-hidden overflow-y-auto flex-col h-full no-scrollbar',
 );
-export const Nav = classed('nav', 'my-4');
+export const Nav = classed('nav', 'my-4 mt-10');
 export const NavSection = classed('ul', 'mt-0 laptop:mt-2');
 export const NavHeader = classed(
   'li',
@@ -128,6 +131,7 @@ export const ItemInner = ({
         className={classNames(
           'flex-1 text-left transition-opacity',
           sidebarExpanded ? 'opacity-100 delay-150' : 'opacity-0',
+          item?.className?.text,
         )}
       >
         {item.title}
