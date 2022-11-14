@@ -6,11 +6,15 @@ import { OnboardingFiltersLayout } from '../../lib/featureValues';
 import PlusIcon from '../icons/Plus';
 import VIcon from '../icons/V';
 
+export type ButtonEvent =
+  | React.MouseEvent<HTMLButtonElement>
+  | React.KeyboardEvent<HTMLButtonElement>;
+
 interface FeedTopicCardProps {
   topic: TagCategory;
   isActive?: boolean;
   topicLayout?: OnboardingFiltersLayout;
-  onClick?: () => void;
+  onClick?: (e: ButtonEvent) => void;
 }
 
 interface ClassName {

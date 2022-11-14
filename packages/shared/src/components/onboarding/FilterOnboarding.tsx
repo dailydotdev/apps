@@ -1,7 +1,7 @@
 import React, { ReactElement, useState, useContext } from 'react';
 import classNames from 'classnames';
 import OnboardingStep from './OnboardingStep';
-import FeedTopicCard from '../containers/FeedTopicCard';
+import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
 import { OnboardingFiltersLayout } from '../../lib/featureValues';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import useTagAndSource from '../../hooks/useTagAndSource';
@@ -28,7 +28,7 @@ function FilterOnboarding({
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.TagsFilter,
   });
-  const onChangeSelectedTopic = (value: string) => {
+  const onChangeSelectedTopic = (e: ButtonEvent, value: string) => {
     const isFollowed = !selectedTopics[value];
     const tagCommand = isFollowed ? onFollowTags : onUnfollowTags;
     const { tags, title } = tagsCategories.find(({ id }) => id === value);
@@ -36,6 +36,7 @@ function FilterOnboarding({
     const result = { ...selectedTopics, [value]: isFollowed };
     setSelectedTopics(result);
     onSelectedChange(result);
+    e.currentTarget.blur();
   };
 
   return (
@@ -58,7 +59,7 @@ function FilterOnboarding({
             topic={category}
             isActive={selectedTopics[category.id]}
             topicLayout={onboardingFiltersLayout}
-            onClick={() => onChangeSelectedTopic(category.id)}
+            onClick={(e) => onChangeSelectedTopic(e, category.id)}
           />
         ))}
       </div>
