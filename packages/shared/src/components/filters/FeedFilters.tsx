@@ -57,7 +57,6 @@ export default function FeedFilters({
     }
   };
 
-  // if (setIsNavOpen) {
   //   const tabs = [
   //     {
   //       title: FilterMenuTitle.Tags,
@@ -111,7 +110,6 @@ export default function FeedFilters({
   //       </Modal.Sidebar>
   //     </Modal>
   //   );
-  // }
 
   return (
     <StyledModal
