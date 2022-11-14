@@ -26,7 +26,6 @@ export enum AnalyticsEvent {
 
 export enum TargetType {
   MyFeedModal = 'my feed modal',
-  ManageTag = 'manage tag',
 }
 
 export enum TargetId {

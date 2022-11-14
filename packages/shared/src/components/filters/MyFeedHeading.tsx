@@ -6,7 +6,7 @@ import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
 import { FeedHeading } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 interface MyFeedHeadingProps {
   hasFiltered: boolean;
@@ -30,11 +30,7 @@ function MyFeedHeading({
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onClick = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ManageTags,
-      target_type: TargetType.ManageTag,
-      target_id: TargetId.MyFeedHeading,
-    });
+    trackEvent({ event_name: AnalyticsEvent.ManageTags });
     onOpenFeedFilters();
   };
 
