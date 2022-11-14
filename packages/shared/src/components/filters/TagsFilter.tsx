@@ -25,12 +25,7 @@ import MenuIcon from '../icons/Menu';
 import AuthContext from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { HTMLElementComponent } from '../utilities';
-import {
-  AnalyticsEvent,
-  Origin,
-  TargetId,
-  TargetType,
-} from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import useDebounce from '../../hooks/useDebounce';
 
@@ -80,8 +75,6 @@ export default function TagsFilter({
 
       trackEvent({
         event_name: AnalyticsEvent.SearchTags,
-        target_type: TargetType.SearchTag,
-        target_id: TargetId.TagsFilter,
         extra: JSON.stringify({
           tag_search_term: query,
           tag_return_value: data.searchTags.tags.length,
