@@ -13,13 +13,18 @@ export enum ModalSize {
   Large = 'large',
 }
 
+export type ModalTabItem = {
+  title: string;
+  options: Record<string, unknown>;
+};
+
 export type ModalContextProps = {
   onRequestClose: null | ((event: MouseEvent | KeyboardEvent) => void);
   kind: ModalKind;
   size: ModalSize;
-  onTabChange?: (tab: string) => void;
   activeTab?: string;
-  tabs?: string[];
+  setActiveTab?: (tab: string) => void;
+  tabs?: string[] | ModalTabItem[];
 };
 
 export const ModalPropsContext = createContext<ModalContextProps>({
@@ -27,3 +32,7 @@ export const ModalPropsContext = createContext<ModalContextProps>({
   kind: ModalKind.FlexibleCenter,
   size: ModalSize.Medium,
 });
+
+export function modalTabTitle(tab: string | ModalTabItem): string {
+  return typeof tab === 'string' ? tab : tab.title;
+}
