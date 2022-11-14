@@ -42,7 +42,7 @@ function FilterOnboarding({
     <OnboardingStep
       title="Choose topics to follow"
       description="Pick topics you are interested in. You can always change these later."
-      className={{ content: 'p-5 mt-1 flex flex-row justify-center' }}
+      className={{ content: 'p-4 mt-1 flex flex-row justify-center' }}
     >
       <div
         className={classNames(

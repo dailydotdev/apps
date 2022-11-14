@@ -84,7 +84,7 @@ function FeedFilterCard({
       type="button"
       onClick={onClick}
       className={classNames(
-        'relative flex max-w-[7rem] items-center rounded-14 typo-callout group transition-[background] hover:shadow-2-black',
+        'relative flex max-w-[8rem] items-center rounded-14 typo-callout group transition-[background] hover:shadow-2-black',
         isActive ? 'bg-theme-color-cabbage' : 'bg-theme-divider-tertiary',
         classes[topicLayout].container,
       )}
