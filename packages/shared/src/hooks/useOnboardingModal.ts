@@ -39,7 +39,7 @@ export const useOnboardingModal = ({
   onboardingVersion,
   onFeedPageChanged,
 }: UseOnboardingModalProps): UseOnboardingModal => {
-  useAssetPreload(AssetType.image, cloudinary.feedFilters.yourFeed);
+  useAssetPreload(AssetType.Image, cloudinary.feedFilters.yourFeed);
   const { trackEvent } = useContext(AnalyticsContext);
   const { registerLocalFilters } = useMyFeed();
   const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);

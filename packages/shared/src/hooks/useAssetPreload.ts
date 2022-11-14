@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 export enum AssetType {
-  image = 'image',
+  Image = 'image',
 }
 
 export const useAssetPreload = (type: AssetType, asset: string): void => {
