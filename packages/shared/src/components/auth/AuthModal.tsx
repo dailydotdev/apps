@@ -16,7 +16,10 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 export type AuthModalProps = { trigger?: AuthTriggersOrString } & ModalProps;
 
 const DiscardActionModal = dynamic(
-  () => import('../modals/DiscardActionModal'),
+  () =>
+    import(
+      /* webpackChunkName: "discardActionModal" */ '../modals/DiscardActionModal'
+    ),
 );
 
 const containerMargin = {

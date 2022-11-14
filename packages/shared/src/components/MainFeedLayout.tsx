@@ -39,15 +39,15 @@ import MyFeedHeading from './filters/MyFeedHeading';
 import SortIcon from './icons/Sort';
 
 const SearchEmptyScreen = dynamic(
-  () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
+  () =>
+    import(/* webpackChunkName: "searchEmptyScreen" */ './SearchEmptyScreen'),
 );
 const FeedEmptyScreen = dynamic(
-  () => import(/* webpackChunkName: "feedEmpty" */ './FeedEmptyScreen'),
+  () => import(/* webpackChunkName: "feedEmptyScreen" */ './FeedEmptyScreen'),
 );
 
 const FeedFilters = dynamic(
-  () =>
-    import(/* webpackChunkName: "feedFiltersModal" */ './filters/FeedFilters'),
+  () => import(/* webpackChunkName: "feedFilters" */ './filters/FeedFilters'),
 );
 
 type FeedQueryProps = {

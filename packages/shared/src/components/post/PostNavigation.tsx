@@ -5,7 +5,10 @@ import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 
-const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
+const SimpleTooltip = dynamic(
+  () =>
+    import(/* webpackChunkName: "simpleTooltip" */ '../tooltips/SimpleTooltip'),
+);
 
 export interface PostNavigationProps
   extends Pick<

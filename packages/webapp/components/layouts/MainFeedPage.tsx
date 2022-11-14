@@ -15,7 +15,8 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from './FeedLayout';
 
 const PostsSearch = dynamic(
-  () => import(/* webpackChunkName: "search" */ '../RouterPostsSearch'),
+  () =>
+    import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
   { ssr: false },
 );
 
