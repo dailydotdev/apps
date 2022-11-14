@@ -143,7 +143,6 @@ function OnboardingModal({
   // each step can have their own validation before moving forward with the steps.
   // an array index represents which step it actually is.
   // the modal will check if the current step has its relevant validation.
-  // the filter index was required to do a plus 1 since there is an introduction step.
   const nextButtonValidations = useMemo(() => {
     const length = OnboardingStep.Topics.length + INTRODUCTION_ADDITIONAL_STEP;
     const validations = Array(length).fill(null);
