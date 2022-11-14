@@ -136,8 +136,8 @@ function AuthOptions({
   }, [user]);
 
   const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
-    queryEnabled: !user,
     onSuccessfulLogin: onLoginCheck,
+    queryEnabled: !user,
     trigger,
   });
   const onProfileSuccess = async () => {

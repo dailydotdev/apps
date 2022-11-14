@@ -25,7 +25,9 @@ import MenuIcon from '../icons/Menu';
 import AuthContext from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { HTMLElementComponent } from '../utilities';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import useDebounce from '../../hooks/useDebounce';
 
 const TagsContainer = classed('div', 'grid grid-cols-1 gap-4 mx-6');
 
@@ -46,6 +48,8 @@ export default function TagsFilter({
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
   const { user } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
+  const [onSearch] = useDebounce(setQuery, 200);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
@@ -58,10 +62,28 @@ export default function TagsFilter({
   );
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
-    () => request(`${apiUrl}/graphql`, SEARCH_TAGS_QUERY, { query }),
-    {
-      enabled: query?.length > 0,
+    async () => {
+      const data = await request<SearchTagsData>(
+        `${apiUrl}/graphql`,
+        SEARCH_TAGS_QUERY,
+        { query },
+      );
+
+      if (!query) {
+        return data;
+      }
+
+      trackEvent({
+        event_name: AnalyticsEvent.SearchTags,
+        extra: JSON.stringify({
+          tag_search_term: query,
+          tag_return_value: data.searchTags.tags.length,
+        }),
+      });
+
+      return data;
     },
+    { enabled: query?.length > 0 },
   );
 
   const { followedTags, blockedTags } = useMemo(() => {
@@ -97,7 +119,7 @@ export default function TagsFilter({
           placeholder="Search"
           className="mb-6"
           ref={searchRef}
-          valueChanged={setQuery}
+          valueChanged={onSearch}
         />
         <h3 className="mb-3 typo-headline">Choose tags to follow</h3>
         <p className="mb-2 typo-callout text-theme-label-tertiary">

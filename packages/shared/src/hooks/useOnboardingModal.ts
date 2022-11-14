@@ -3,6 +3,7 @@ import { MainFeedPage } from '../components/utilities';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Alerts } from '../graphql/alerts';
 import { OnboardingMode } from '../graphql/feed';
+import { AnalyticsEvent } from '../lib/analytics';
 import { OnboardingVersion } from '../lib/featureValues';
 import { LoggedUser } from '../lib/user';
 import { useMyFeed } from './useMyFeed';
@@ -51,10 +52,11 @@ export const useOnboardingModal = ({
   };
 
   const onCloseOnboardingModal = () => {
-    if (onboardingMode === OnboardingMode.Auto) {
-      trackEvent({
-        event_name: 'my feed onboarding skip',
-      });
+    if (
+      onboardingMode === OnboardingMode.Auto &&
+      onboardingVersion === OnboardingVersion.V1
+    ) {
+      trackEvent({ event_name: AnalyticsEvent.OnboardingSkip });
     }
     setHasTriedOnboarding(true);
     modalStateCommand[onboardingVersion]?.(false);
@@ -69,6 +71,7 @@ export const useOnboardingModal = ({
     }
 
     registerLocalFilters().then(() => {
+      trackEvent({ event_name: AnalyticsEvent.CompleteOnboarding });
       setShouldUpdateFilters(false);
       modalStateCommand[onboardingVersion]?.(false);
     });

@@ -10,8 +10,7 @@ import { Button } from '../buttons/Button';
 import { MyFeedIntro } from '../MyFeedIntro';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { OnboardingMode } from '../../graphql/feed';
-
-const MY_FEED_VERSION_WINNER = 'v3';
+import { TargetId } from '../../lib/analytics';
 
 interface GetFooterButtonProps {
   hasUser: boolean;
@@ -58,7 +57,7 @@ const getFooterButton = ({
 };
 
 interface LegacyOnboardingModalProps extends ModalProps {
-  mode?: string;
+  mode?: OnboardingMode;
   hasUser: boolean;
   onCreate: () => void;
 }
@@ -78,7 +77,7 @@ export default function LegacyOnboardingModal({
     trackEvent({
       event_name: 'impression',
       target_type: 'my feed modal',
-      target_id: MY_FEED_VERSION_WINNER,
+      target_id: TargetId.Legacy,
       extra: JSON.stringify({
         origin: mode,
       }),

@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -16,15 +17,33 @@ import LayoutOnboarding from '../onboarding/LayoutOnboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
-import { LoginTrigger } from '../../lib/analytics';
+import {
+  AnalyticsEvent,
+  LoginTrigger,
+  ScreenValue,
+  TargetType,
+} from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { OnboardingMode } from '../../graphql/feed';
+import { OnboardingVersion } from '../../lib/featureValues';
 import DiscardActionModal from './DiscardActionModal';
 
 const INTRODUCTION_ADDITIONAL_STEP = 1;
 
 interface OnboardingModalProps extends ModalProps {
-  trigger?: string;
+  mode?: OnboardingMode;
   onRegistrationSuccess?: () => void;
 }
+
+const getScreen = (onboardingSteps: OnboardingStep[], stepAtNext: number) => {
+  if (stepAtNext === 0) {
+    return ScreenValue.Intro;
+  }
+
+  const index = stepAtNext - INTRODUCTION_ADDITIONAL_STEP;
+  const screen = onboardingSteps[index];
+  return screen;
+};
 
 const backCopy = ['Skip', 'Close', 'Back', 'Back'];
 const nextCopy = ['Continue'];
@@ -32,21 +51,30 @@ const nextCopy = ['Continue'];
 function OnboardingModal({
   onRegistrationSuccess,
   onRequestClose,
+  mode = OnboardingMode.Manual,
   ...props
 }: OnboardingModalProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [isClosing, setIsClosing] = useState(false);
   const topics = useRef({});
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
-  const { onboardingSteps, onboardingMinimumTopics } =
+  const { onboardingVersion, onboardingSteps, onboardingMinimumTopics } =
     useContext(FeaturesContext);
   const [step, setStep] = useState(0);
 
-  const onCloseConfirm = (
-    e: MouseEvent | KeyboardEvent,
-    stepAtClose?: number,
-  ) => {
+  const onCloseConfirm = (e: MouseEvent | KeyboardEvent) => {
+    if (
+      mode === OnboardingMode.Auto &&
+      onboardingVersion === OnboardingVersion.V2
+    ) {
+      const screen = getScreen(onboardingSteps, step);
+      trackEvent({
+        event_name: AnalyticsEvent.OnboardingSkip,
+        extra: JSON.stringify({ screen_value: screen }),
+      });
+    }
+
     onRequestClose(e);
-    setStep(stepAtClose || step);
   };
 
   const onClose = (e: MouseEvent | KeyboardEvent, forceClose?: boolean) => {
@@ -66,10 +94,21 @@ function OnboardingModal({
       onClose(e);
       return true;
     }
+
+    const screen = getScreen(onboardingSteps, step);
+    trackEvent({
+      event_name: AnalyticsEvent.ClickOnboardingBack,
+      extra: JSON.stringify({ screen_value: screen }),
+    });
     return setStep(stepNow);
   };
 
   const onNextStep = (beforeStep: number, stepNow: number) => {
+    const screen = getScreen(onboardingSteps, beforeStep);
+    trackEvent({
+      event_name: AnalyticsEvent.ClickOnboardingNext,
+      extra: JSON.stringify({ screen_value: screen }),
+    });
     setStep(stepNow);
   };
 
@@ -104,7 +143,6 @@ function OnboardingModal({
   // each step can have their own validation before moving forward with the steps.
   // an array index represents which step it actually is.
   // the modal will check if the current step has its relevant validation.
-  // the filter index was required to do a plus 1 since there is an introduction step.
   const nextButtonValidations = useMemo(() => {
     const length = OnboardingStep.Topics.length + INTRODUCTION_ADDITIONAL_STEP;
     const validations = Array(length).fill(null);
@@ -117,6 +155,19 @@ function OnboardingModal({
 
     return validations;
   }, [onboardingSteps]);
+
+  useEffect(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.MyFeedModal,
+      target_id: OnboardingVersion.V2,
+      extra: JSON.stringify({
+        origin: mode,
+        steps: onboardingSteps,
+        mandating_categories: onboardingMinimumTopics,
+      }),
+    });
+  }, []);
 
   return (
     <>

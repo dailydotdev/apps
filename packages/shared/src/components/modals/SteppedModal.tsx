@@ -9,6 +9,7 @@ import React, {
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import useAuthForms from '../../hooks/useAuthForms';
+import { LoginTrigger } from '../../lib/analytics';
 import { AuthEventNames } from '../../lib/auth';
 import { logout } from '../../lib/user';
 import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
@@ -27,8 +28,7 @@ type StepChange = (
 ) => boolean | void | Promise<boolean | void>;
 
 interface SteppedModalProps extends ModalProps {
-  trigger: string;
-  skippable?: boolean;
+  trigger: LoginTrigger;
   invalidMessage?: string;
   isLastStepLogin?: boolean;
   onValidateNext?: ValidateFunction[];
