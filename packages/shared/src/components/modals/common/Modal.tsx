@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { ModalHeader } from './ModalHeader';
 import { ModalBody } from './ModalBody';
 import { ModalFooter } from './ModalFooter';
-import { ModalSidebar, ModalSidebarList } from './ModalSidebar';
+import { ModalSidebar } from './ModalSidebar';
 import {
   ModalKind,
   ModalPropsContext,
