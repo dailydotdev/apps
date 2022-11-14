@@ -14,7 +14,7 @@ interface FilterOnboardingProps {
 }
 
 const classes: Record<OnboardingFiltersLayout, string> = {
-  grid: 'grid-cols-3',
+  grid: 'tablet:grid-cols-3 grid-cols-2',
   list: 'grid-cols-1',
 };
 
@@ -42,22 +42,24 @@ function FilterOnboarding({
     <OnboardingStep
       title="Choose topics to follow"
       description="Pick topics you are interested in. You can always change these later."
-      className={{
-        content: classNames(
-          'p-5 mt-1 grid gap-4',
-          classes[onboardingFiltersLayout],
-        ),
-      }}
+      className={{ content: 'p-5 mt-1 flex flex-row justify-center' }}
     >
-      {tagsCategories?.map((category) => (
-        <FeedTopicCard
-          key={category.title}
-          topic={category}
-          isActive={selectedTopics[category.id]}
-          topicLayout={onboardingFiltersLayout}
-          onClick={() => onChangeSelectedTopic(category.id)}
-        />
-      ))}
+      <div
+        className={classNames(
+          'grid gap-4 w-fit',
+          classes[onboardingFiltersLayout],
+        )}
+      >
+        {tagsCategories?.map((category) => (
+          <FeedTopicCard
+            key={category.title}
+            topic={category}
+            isActive={selectedTopics[category.id]}
+            topicLayout={onboardingFiltersLayout}
+            onClick={() => onChangeSelectedTopic(category.id)}
+          />
+        ))}
+      </div>
     </OnboardingStep>
   );
 }
