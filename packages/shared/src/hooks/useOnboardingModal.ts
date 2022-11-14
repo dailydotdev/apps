@@ -5,6 +5,7 @@ import { Alerts } from '../graphql/alerts';
 import { OnboardingMode } from '../graphql/feed';
 import { AnalyticsEvent } from '../lib/analytics';
 import { OnboardingVersion } from '../lib/featureValues';
+import { cloudinary } from '../lib/image';
 import { LoggedUser } from '../lib/user';
 import { useMyFeed } from './useMyFeed';
 import usePersistentContext from './usePersistentContext';
@@ -86,6 +87,18 @@ export const useOnboardingModal = ({
     setOnboardingMode(OnboardingMode.Auto);
     modalStateCommand[onboardingVersion]?.(true);
   }, [hasOnboardingLoaded, user]);
+
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.setAttribute('rel', 'preload');
+    link.setAttribute('href', cloudinary.feedFilters.yourFeed);
+    link.setAttribute('as', 'image');
+    document.head.append(link);
+
+    return () => {
+      link.remove();
+    };
+  }, []);
 
   return useMemo(
     () => ({
