@@ -34,6 +34,7 @@ export function ClickableNavItem({
     return (
       <Link href={item.path} passHref prefetch={false}>
         <a
+          {...(item.action && { onClick: item.action })}
           {...props}
           target={item?.target}
           className={navBtnClass}

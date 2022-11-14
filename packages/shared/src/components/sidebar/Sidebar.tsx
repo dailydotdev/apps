@@ -73,7 +73,8 @@ export default function Sidebar({
     squadForm,
     squadButton,
   } = useContext(FeaturesContext);
-  const squadVisible = sidebarRendered && user;
+  const squadVisible = sidebarRendered && !user;
+  const [trackedSquadImpression, setTrackedSquadImpression] = useState(false);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
 
@@ -111,6 +112,9 @@ export default function Sidebar({
   );
 
   useEffect(() => {
+    if (trackedSquadImpression) {
+      return;
+    }
     if (squadVersion !== SquadVersion.Off && squadVisible) {
       trackEvent({
         event_name: 'impression',
@@ -119,8 +123,15 @@ export default function Sidebar({
         feed_item_title: squadButton,
         feed_item_target_url: squadForm,
       });
+      setTrackedSquadImpression(true);
     }
-  }, [squadVersion, squadButton, squadForm, squadVisible]);
+  }, [
+    squadVersion,
+    squadButton,
+    squadForm,
+    squadVisible,
+    trackedSquadImpression,
+  ]);
 
   if (!loadedSettings) {
     return <></>;
