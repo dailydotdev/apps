@@ -3,7 +3,7 @@ import { MainFeedPage } from '../components/utilities';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Alerts } from '../graphql/alerts';
 import { OnboardingMode } from '../graphql/feed';
-import { AnalyticsEvent, TargetType } from '../lib/analytics';
+import { AnalyticsEvent } from '../lib/analytics';
 import { OnboardingVersion } from '../lib/featureValues';
 import { LoggedUser } from '../lib/user';
 import { useMyFeed } from './useMyFeed';
@@ -71,12 +71,7 @@ export const useOnboardingModal = ({
     }
 
     registerLocalFilters().then(() => {
-      trackEvent({
-        event_name: AnalyticsEvent.CompleteOnboarding,
-        target_type: TargetType.MyFeedModal,
-        target_id: `onboarding-${onboardingVersion}`,
-        extra: JSON.stringify({ origin: onboardingMode }),
-      });
+      trackEvent({ event_name: AnalyticsEvent.CompleteOnboarding });
       setShouldUpdateFilters(false);
       modalStateCommand[onboardingVersion]?.(false);
     });

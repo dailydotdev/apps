@@ -10,7 +10,7 @@ import React, {
   useState,
 } from 'react';
 import { ModalProps } from './StyledModal';
-import SteppedModal, { getForwardLabel } from './SteppedModal';
+import SteppedModal from './SteppedModal';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import FilterOnboarding from '../onboarding/FilterOnboarding';
 import LayoutOnboarding from '../onboarding/LayoutOnboarding';
@@ -70,8 +70,6 @@ function OnboardingModal({
       const screen = getScreen(onboardingSteps, step);
       trackEvent({
         event_name: AnalyticsEvent.OnboardingSkip,
-        target_type: backCopy[step],
-        target_id: OnboardingVersion.V2,
         extra: JSON.stringify({ screen_value: screen }),
       });
     }
@@ -99,25 +97,15 @@ function OnboardingModal({
 
     trackEvent({
       event_name: AnalyticsEvent.ClickOnboardingBack,
-      target_type: backCopy[beforeStep],
-      target_id: OnboardingVersion.V2,
       extra: JSON.stringify({ screen_value: onboardingSteps[beforeStep] }),
     });
     return setStep(stepNow);
   };
 
   const onNextStep = (beforeStep: number, stepNow: number) => {
-    const label =
-      nextCopy[beforeStep] ||
-      getForwardLabel({
-        step: beforeStep,
-        length: onboardingSteps.length,
-      });
     const screen = getScreen(onboardingSteps, beforeStep);
     trackEvent({
       event_name: AnalyticsEvent.ClickOnboardingNext,
-      target_type: label,
-      target_id: OnboardingVersion.V2,
       extra: JSON.stringify({ screen_value: screen }),
     });
     setStep(stepNow);
