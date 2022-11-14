@@ -33,7 +33,7 @@ export function ModalSidebarList({
         title={title}
         onItemClick={(tab) => {
           setActiveTab(tab);
-          onTabChange && onTabChange(tab);
+          onTabChange?.(tab);
         }}
         items={tabs.map((tab: string | ModalTabItem) =>
           typeof tab === 'string'
