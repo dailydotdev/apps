@@ -30,6 +30,7 @@ export enum TargetType {
 
 export enum TargetId {
   MyFeedHeading = 'my feed heading',
+  Legacy = 'legacy',
 }
 
 export enum ScreenValue {
