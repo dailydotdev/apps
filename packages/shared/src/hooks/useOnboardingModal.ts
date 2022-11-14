@@ -5,7 +5,9 @@ import { Alerts } from '../graphql/alerts';
 import { OnboardingMode } from '../graphql/feed';
 import { AnalyticsEvent } from '../lib/analytics';
 import { OnboardingVersion } from '../lib/featureValues';
+import { cloudinary } from '../lib/image';
 import { LoggedUser } from '../lib/user';
+import { AssetType, useAssetPreload } from './useAssetPreload';
 import { useMyFeed } from './useMyFeed';
 import usePersistentContext from './usePersistentContext';
 
@@ -37,6 +39,7 @@ export const useOnboardingModal = ({
   onboardingVersion,
   onFeedPageChanged,
 }: UseOnboardingModalProps): UseOnboardingModal => {
+  useAssetPreload(AssetType.Image, cloudinary.feedFilters.yourFeed);
   const { trackEvent } = useContext(AnalyticsContext);
   const { registerLocalFilters } = useMyFeed();
   const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
