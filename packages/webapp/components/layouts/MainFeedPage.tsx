@@ -10,7 +10,7 @@ import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getShouldRedirect } from '@dailydotdev/shared/src/hooks/useDefaultFeed';
+import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import { getLayout } from './FeedLayout';
 
 const PostsSearch = dynamic(
