@@ -19,7 +19,6 @@ import AlertContext from '../../contexts/AlertContext';
 import SidebarUserButton from './SidebarUserButton';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import MyFeedButton from './MyFeedButton';
-import useDefaultFeed from '../../hooks/useDefaultFeed';
 import { SidebarBottomSectionSection } from './SidebarBottomSection';
 import { DiscoverSection } from './DiscoverSection';
 import { ContributeSection } from './ContributeSection';
@@ -31,6 +30,7 @@ import { SquadSection } from './SquadSection';
 import SquadButton from './SquadButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
+import { getFeedName } from '../MainFeedLayout';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -55,11 +55,6 @@ export default function Sidebar({
   const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { alerts } = useContext(AlertContext);
-  const defaultFeed = useDefaultFeed({
-    feed: activePageProp,
-    hasUser: !!user,
-    hasFiltered: !alerts?.filter,
-  });
   const {
     toggleSidebarExpanded,
     sidebarExpanded,
@@ -79,8 +74,11 @@ export default function Sidebar({
   } = useContext(FeaturesContext);
   const squadVisible = sidebarRendered && user;
   const [trackedSquadImpression, setTrackedSquadImpression] = useState(false);
-  const activePage =
-    activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
+  const feedName = getFeedName(activePageProp, {
+    hasUser: !!user,
+    hasFiltered: !alerts?.filter,
+  });
+  const activePage = `/${feedName}`;
 
   useHideMobileSidebar({
     state: openMobileSidebar,
