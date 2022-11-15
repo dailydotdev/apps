@@ -26,7 +26,6 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
-import useDefaultFeed from '../hooks/useDefaultFeed';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import CreateMyFeedButton from './CreateMyFeedButton';
@@ -133,6 +132,39 @@ const periods = [
 ];
 const periodTexts = periods.map((period) => period.text);
 
+interface GetDefaultFeedProps {
+  hasFiltered?: boolean;
+  hasUser?: boolean;
+}
+
+const getDefaultFeed = ({
+  hasFiltered,
+  hasUser,
+}: GetDefaultFeedProps): string => {
+  if (!hasUser || !hasFiltered) {
+    return MainFeedPage.Popular;
+  }
+
+  return MainFeedPage.MyFeed;
+};
+
+const defaultFeedConditions = [null, 'default', '/', ''];
+
+export const getFeedName = (
+  path: string,
+  options: GetDefaultFeedProps = {},
+): string => {
+  const feed = path?.replaceAll?.('/', '') || '';
+
+  if (defaultFeedConditions.some((condition) => condition === feed)) {
+    return getDefaultFeed(options);
+  }
+
+  const [page] = feed.split('?');
+
+  return page.replace(/^\/+/, '');
+};
+
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
@@ -147,12 +179,10 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
-  const defaultFeed = useDefaultFeed({
+  const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
-    feed: feedNameProp,
     hasUser: !!user,
   });
-  const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const { flags, popularFeedCopy, onboardingVersion } =
     useContext(FeaturesContext);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
