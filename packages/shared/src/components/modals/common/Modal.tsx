@@ -5,13 +5,19 @@ import { ModalHeader } from './ModalHeader';
 import { ModalBody } from './ModalBody';
 import { ModalFooter } from './ModalFooter';
 import { ModalSidebar } from './ModalSidebar';
-import { ModalKind, ModalPropsContext, ModalSize } from './types';
+import {
+  ModalKind,
+  ModalPropsContext,
+  ModalSize,
+  ModalTabItem,
+  modalTabTitle,
+} from './types';
 
 export type ModalProps = ReactModal.Props & {
   children: React.ReactNode;
   kind?: ModalKind;
   size?: ModalSize;
-  tabs?: string[];
+  tabs?: string[] | ModalTabItem[];
   defaultTab?: string;
 };
 
@@ -32,8 +38,7 @@ const modalKindToClassName: Record<ModalKind, string> = {
     'h-full max-h-[calc(100vh-2.5rem)] mobileL:h-[40rem] mobileL:max-h-[calc(100vh-5rem)] mt-10 mobileL:mt-0',
   [ModalKind.FlexibleCenter]:
     'mx-4 max-w-[calc(100vw-2rem)] max-h-[min(calc(100vh),40rem)] mobileL:max-h-[min(calc(100vh-5rem),40rem)]',
-  [ModalKind.FlexibleTop]:
-    'm-0 mobileL:mt-10 mobileL:h-auto mobileL:max-h-[calc(100vh-2.5rem)]',
+  [ModalKind.FlexibleTop]: 'm-0 mobileL:mt-10 mobileL:h-auto',
 };
 const modalKindAndSizeToClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
@@ -42,7 +47,7 @@ const modalKindAndSizeToClassName: Partial<
     [ModalSize.Medium]:
       'mt-10 mobileL:max-h-[calc(100vh-7.5rem)] max-h-[calc(100vh-2.5rem)] h-auto',
     [ModalSize.Large]:
-      'mobileL:mt-7 mobileL:max-h-[calc(100vh-10rem)] max-h-[100vh]',
+      'mobileL:mt-14 mobileL:max-h-[calc(100vh-5rem)] max-h-[100vh]',
   },
 };
 const modalSizeToClassName: Record<ModalSize, string> = {
@@ -62,8 +67,8 @@ export function Modal({
   onRequestClose,
   tabs,
 }: ModalProps): ReactElement {
-  const [activeTab, onTabChange] = useState<string | undefined>(
-    tabs ? defaultTab ?? tabs[0] : undefined,
+  const [activeTab, setActiveTab] = useState<string | undefined>(
+    tabs ? defaultTab ?? modalTabTitle(tabs[0]) : undefined,
   );
   const modalOverlayClassName = classNames(
     'overlay flex fixed flex-col inset-0 items-center bg-gradient-to-r to-theme-overlay-to from-theme-overlay-from z-[10]',
@@ -86,7 +91,7 @@ export function Modal({
       className={modalClassName}
     >
       <ModalPropsContext.Provider
-        value={{ activeTab, size, kind, onRequestClose, onTabChange, tabs }}
+        value={{ activeTab, size, kind, onRequestClose, setActiveTab, tabs }}
       >
         {children}
       </ModalPropsContext.Provider>
