@@ -25,6 +25,7 @@ interface UseOnboardingModalProps {
   alerts: Alerts;
   isFirstVisit: boolean;
   onboardingVersion: OnboardingVersion;
+  isFeaturesLoaded: boolean;
   onFeedPageChanged: (page: MainFeedPage) => unknown;
 }
 
@@ -36,6 +37,7 @@ export const useOnboardingModal = ({
   user,
   alerts,
   isFirstVisit,
+  isFeaturesLoaded,
   onboardingVersion,
   onFeedPageChanged,
 }: UseOnboardingModalProps): UseOnboardingModal => {
@@ -81,14 +83,21 @@ export const useOnboardingModal = ({
   }, [user, shouldUpdateFilters]);
 
   useEffect(() => {
-    if (!hasOnboardingLoaded || hasTriedOnboarding || !alerts.filter) {
+    const conditions = [
+      !hasOnboardingLoaded,
+      hasTriedOnboarding,
+      !alerts.filter,
+      !isFeaturesLoaded,
+    ];
+
+    if (conditions.some((condition) => !!condition)) {
       return;
     }
 
     setHasTriedOnboarding(false);
     setOnboardingMode(OnboardingMode.Auto);
     modalStateCommand[onboardingVersion]?.(true);
-  }, [hasOnboardingLoaded, user]);
+  }, [hasOnboardingLoaded, isFeaturesLoaded, user]);
 
   return useMemo(
     () => ({
