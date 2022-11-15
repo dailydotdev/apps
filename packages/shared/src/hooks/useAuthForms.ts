@@ -25,7 +25,7 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
 
   const onDiscardAttempt: CloseAuthModalFunc = (e, forceClose = false) => {
     if (forceClose || !formRef?.current) {
-      return onDiscard(e);
+      return onDiscard(e, forceClose);
     }
     return setIsDiscardOpen(true);
   };

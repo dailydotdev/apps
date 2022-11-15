@@ -10,10 +10,12 @@ import classNames from 'classnames';
 import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
 import { Switch } from './fields/Switch';
-import SettingsContext from '../contexts/SettingsContext';
+import SettingsContext, {
+  themes as layoutThemes,
+} from '../contexts/SettingsContext';
 import CardIcon from './icons/Card';
 import LineIcon from './icons/Line';
-import { IconsSwitch } from './fields/IconsSwitch';
+import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import FeaturesContext from '../contexts/FeaturesContext';
@@ -88,11 +90,7 @@ export default function Settings({
     autoDismissNotifications,
     toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
-  const [themes, setThemes] = useState([
-    { label: 'Dark', value: 'dark' },
-    { label: 'Light', value: 'light' },
-    { label: 'Auto', value: 'auto' },
-  ]);
+  const [themes, setThemes] = useState(layoutThemes);
 
   const onToggleForLoggedInUsers = (
     onToggleFunc: () => Promise<void> | void,
@@ -117,11 +115,11 @@ export default function Settings({
     <div className={classNames('flex', 'flex-col', className)} {...props}>
       <Section className="mt-0">
         <SectionTitle>Layout</SectionTitle>
-        <IconsSwitch
+        <CustomSwitch
           inputId="layout-switch"
           name="insaneMode"
-          leftIcon={CardIcon}
-          rightIcon={LineIcon}
+          leftContent={CardIcon}
+          rightContent={LineIcon}
           checked={insaneMode}
           className="mx-1.5"
           onToggle={toggleInsaneMode}

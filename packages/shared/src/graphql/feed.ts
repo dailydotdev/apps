@@ -5,7 +5,7 @@ export enum RankingAlgorithm {
   Time = 'TIME',
 }
 
-export enum MyFeedMode {
+export enum OnboardingMode {
   Manual = 'manual',
   Auto = 'auto',
 }

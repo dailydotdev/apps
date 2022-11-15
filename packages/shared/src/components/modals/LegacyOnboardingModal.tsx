@@ -9,21 +9,22 @@ import XIcon from '../icons/Close';
 import { Button } from '../buttons/Button';
 import { MyFeedIntro } from '../MyFeedIntro';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { MyFeedMode } from '../../graphql/feed';
-
-const MY_FEED_VERSION_WINNER = 'v3';
+import { OnboardingMode } from '../../graphql/feed';
+import { TargetId } from '../../lib/analytics';
 
 interface GetFooterButtonProps {
   hasUser: boolean;
   showIntro: boolean;
   onSkip?: React.MouseEventHandler;
   onContinue: () => void;
+  onCreate: () => void;
 }
 const getFooterButton = ({
   showIntro,
   hasUser,
   onSkip,
   onContinue,
+  onCreate,
 }: GetFooterButtonProps): ReactElement => {
   if (showIntro) {
     return (
@@ -50,21 +51,25 @@ const getFooterButton = ({
     <CreateFeedFilterButton
       className="w-40 btn-primary-cabbage"
       feedFilterModalType="v4"
+      onClick={onCreate}
     />
   );
 };
 
-interface CreateMyFeedModalProps extends ModalProps {
-  mode?: string;
+interface LegacyOnboardingModalProps extends ModalProps {
+  mode?: OnboardingMode;
   hasUser: boolean;
+  onCreate: () => void;
 }
-export default function CreateMyFeedModal({
-  mode = MyFeedMode.Manual,
+
+export default function LegacyOnboardingModal({
+  mode = OnboardingMode.Manual,
   hasUser,
   className,
+  onCreate,
   onRequestClose,
   ...modalProps
-}: CreateMyFeedModalProps): ReactElement {
+}: LegacyOnboardingModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [showIntro, setShowIntro] = useState<boolean>(true);
 
@@ -72,7 +77,7 @@ export default function CreateMyFeedModal({
     trackEvent({
       event_name: 'impression',
       target_type: 'my feed modal',
-      target_id: MY_FEED_VERSION_WINNER,
+      target_id: TargetId.Legacy,
       extra: JSON.stringify({
         origin: mode,
       }),
@@ -115,6 +120,7 @@ export default function CreateMyFeedModal({
         {getFooterButton({
           showIntro,
           hasUser,
+          onCreate,
           onSkip: onRequestClose,
           onContinue: () => setShowIntro(false),
         })}
