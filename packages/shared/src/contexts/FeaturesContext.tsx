@@ -35,11 +35,11 @@ interface Experiments {
   squadVersion?: SquadVersion;
   squadForm?: string;
   squadButton?: string;
-  isFeaturesLoaded?: boolean;
 }
 
 export interface FeaturesData extends Experiments {
   flags: IFlags;
+  isFeaturesLoaded?: boolean;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
@@ -50,10 +50,7 @@ export interface FeaturesContextProviderProps
   children?: ReactNode;
 }
 
-const getFeatures = (
-  flags: IFlags,
-  isFeaturesLoaded: boolean,
-): FeaturesData => {
+const getFeatures = (flags: IFlags): FeaturesData => {
   const steps = getFeatureValue(Features.OnboardingSteps, flags);
   const onboardingSteps = (steps?.split?.('/') || []) as OnboardingStep[];
   const minimumTopics = getFeatureValue(
@@ -63,7 +60,6 @@ const getFeatures = (
 
   return {
     flags,
-    isFeaturesLoaded,
     onboardingSteps,
     onboardingMinimumTopics: getNumberValue(minimumTopics, 0),
     onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
@@ -103,20 +99,20 @@ export const FeaturesContextProvider = ({
   flags,
 }: FeaturesContextProviderProps): ReactElement => {
   const featuresFlags: FeaturesData = useMemo(() => {
-    const features = getFeatures(flags, isFeaturesLoaded);
+    const features = getFeatures(flags);
 
     if (!isPreviewDeployment) {
-      return features;
+      return { ...features, isFeaturesLoaded };
     }
 
     const featuresCookie = getCookieFeatureFlags();
     const updated = updateFeatureFlags(flags, featuresCookie);
-    const result = getFeatures(updated, isFeaturesLoaded);
+    const result = getFeatures(updated);
 
     globalThis.getFeatureKeys = () => Object.keys(features);
 
-    return result;
-  }, [flags]);
+    return { ...result, isFeaturesLoaded };
+  }, [flags, isFeaturesLoaded]);
 
   return (
     <FeaturesContext.Provider value={featuresFlags}>
