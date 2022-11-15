@@ -25,7 +25,6 @@ export function ModalHeader({
   return (
     <ModalHeaderOuter
       className={classNames(
-        (!children || !modalTitle) && 'justify-between',
         (modalTitle || children) && 'border-b border-theme-divider-tertiary',
       )}
     >

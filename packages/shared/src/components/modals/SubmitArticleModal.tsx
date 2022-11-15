@@ -2,7 +2,6 @@ import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
-import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
@@ -10,7 +9,6 @@ import {
   communityLinksGuidelines,
   submissionGuidelineDocsLink,
 } from '../../lib/constants';
-import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -25,6 +23,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { BetaBadge } from '../BetaBadge';
 import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
+import { Modal } from './common/Modal';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -182,66 +181,78 @@ export default function SubmitArticleModal({
   }
 
   return (
-    <ResponsiveModal
-      {...modalProps}
-      onRequestClose={onRequestClose}
-      padding={false}
-      style={{ content: { maxWidth: '35rem', width: '100%' } }}
-    >
-      <header className="flex justify-between items-center px-6 w-full h-14 border-b border-theme-divider-tertiary">
-        <div className="flex flex-row items-center">
-          <h3 className="font-bold typo-title3">{headerCopy}</h3>
+    <form ref={submitFormRef} aria-busy={isValidating} onSubmit={onSubmit}>
+      <Modal
+        {...modalProps}
+        kind={Modal.Kind.FlexibleCenter}
+        size={Modal.Size.Medium}
+        onRequestClose={onRequestClose}
+      >
+        <Modal.Header>
+          <Modal.Header.Title>{headerCopy}</Modal.Header.Title>
           <BetaBadge />
-        </div>
-        <ModalCloseButton onClick={onRequestClose} />
-      </header>
-      <section className="overflow-auto relative px-10 pt-6 pb-10 w-full h-full shrink max-h-full">
-        <p className="mb-2 typo-callout text-theme-label-tertiary">
-          Found an interesting article? Do you want to share it with the
-          community? Enter the article&apos;s URL / link below to add it to the
-          feed.
-        </p>
-        {!isEnabled && (
-          <p className="mt-6 mb-2 typo-callout text-theme-label-tertiary">
-            You need more reputation to enable this feature
-          </p>
-        )}
-        <a
-          className="font-bold underline typo-callout text-theme-label-link"
-          target="_blank"
-          rel="noopener"
-          href={communityLinksGuidelines}
-        >
-          Learn more
-        </a>
-        <p className="mt-6 mb-4 typo-callout">
-          Daily suggestions used{' '}
-          {submissionAvailability?.todaySubmissionsCount ?? 0}/
-          {submissionAvailability?.limit ?? 3}
-        </p>
-        <form
-          className="w-full"
-          ref={submitFormRef}
-          aria-busy={isValidating}
-          onSubmit={onSubmit}
-        >
-          <TextField
-            autoFocus
-            type="url"
-            leftIcon={<LinkIcon />}
-            fieldType="tertiary"
-            name="articleUrl"
-            inputId="article_url"
-            label="Paste article url"
-            disabled={!isEnabled}
-            hint={urlHint}
-            valid={!urlHint}
-            valueChanged={onUrlChanged}
-          />
-          {!isSubmitted && (
+        </Modal.Header>
+        <Modal.Body>
+          <div>
+            <p className="mb-2 typo-callout text-theme-label-tertiary">
+              Found an interesting article? Do you want to share it with the
+              community? Enter the article&apos;s URL / link below to add it to
+              the feed.
+            </p>
+            {!isEnabled && (
+              <p className="mt-6 mb-2 typo-callout text-theme-label-tertiary">
+                You need more reputation to enable this feature
+              </p>
+            )}
+            <a
+              className="font-bold underline typo-callout text-theme-label-link"
+              target="_blank"
+              rel="noopener"
+              href={communityLinksGuidelines}
+            >
+              Learn more
+            </a>
+            <p className="mt-6 mb-4 typo-callout">
+              Daily suggestions used&nbsp;
+              {submissionAvailability?.todaySubmissionsCount ?? 0}/
+              {submissionAvailability?.limit ?? 3}
+            </p>
+            <TextField
+              autoFocus
+              type="url"
+              leftIcon={<LinkIcon />}
+              fieldType="tertiary"
+              name="articleUrl"
+              inputId="article_url"
+              label="Paste article url"
+              disabled={!isEnabled}
+              hint={urlHint}
+              valid={!urlHint}
+              valueChanged={onUrlChanged}
+            />
+            {isSubmitted ? (
+              <Alert
+                className="mt-4"
+                type={AlertType.Success}
+                title="You will be notified via email about the article request status"
+              />
+            ) : (
+              submissionAvailability?.todaySubmissionsCount === 3 && (
+                <Alert
+                  className="mt-4"
+                  type={AlertType.Error}
+                  title="You have reached the limit of 3 submissions per day"
+                />
+              )
+            )}
+            {getAlert()}
+          </div>
+        </Modal.Body>
+
+        {!isSubmitted && (
+          <Modal.Footer>
             <Button
-              className="mt-4 btn-primary "
-              buttonSize="small"
+              className="btn-primary"
               type="submit"
               aria-label={submitArticleModalButton}
               disabled={!enableSubmission || !isEnabled}
@@ -251,33 +262,17 @@ export default function SubmitArticleModal({
                 {submitArticleModalButton}
               </span>
             </Button>
-          )}
-        </form>
-        {isSubmitted ? (
-          <Alert
-            className="mt-4"
-            type={AlertType.Success}
-            title="You will be notified via email about the article request status"
-          />
-        ) : (
-          submissionAvailability?.todaySubmissionsCount === 3 && (
-            <Alert
-              className="mt-4"
-              type={AlertType.Error}
-              title="You have reached the limit of 3 submissions per day"
-            />
-          )
+          </Modal.Footer>
         )}
-        {getAlert()}
-      </section>
-      {existingArticle && (
-        <div>
-          <h4 className="px-10 pb-3.5 font-bold border-b border-theme-divider-tertiary typo-callout">
-            Article exists
-          </h4>
-          <PostItemCard postItem={existingArticle} showButtons={false} />
-        </div>
-      )}
-    </ResponsiveModal>
+        {existingArticle && (
+          <div>
+            <h4 className="px-10 pb-3.5 font-bold border-b border-theme-divider-tertiary typo-callout">
+              Article exists
+            </h4>
+            <PostItemCard postItem={existingArticle} showButtons={false} />
+          </div>
+        )}
+      </Modal>
+    </form>
   );
 }
