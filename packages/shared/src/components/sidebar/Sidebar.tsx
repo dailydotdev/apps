@@ -191,9 +191,7 @@ export default function Sidebar({
             {squadVersion === SquadVersion.V3 && squadVisible && (
               <SquadSection
                 {...defaultRenderSectionProps}
-                onSquadClick={trackSquadClicks}
-                squadButton={squadButton}
-                squadForm={squadForm}
+                {...defaultSquadButtonProps}
               />
             )}
             <DiscoverSection

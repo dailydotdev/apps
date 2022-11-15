@@ -26,6 +26,7 @@ export function SquadSection({
       icon: () => <ListIcon Icon={() => <SquadIcon secondary />} />,
       title: squadButton,
       path: squadForm,
+      target: '_blank',
       className: { text: 'text-theme-status-cabbage' },
       action: onSquadClick,
     },
