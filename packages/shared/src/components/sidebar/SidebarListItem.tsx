@@ -6,7 +6,7 @@ import ArrowIcon from '../icons/Arrow';
 export interface SidebarListItemProps
   extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
   title: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   href?: string;
   isActive?: boolean;
   className?: string;
