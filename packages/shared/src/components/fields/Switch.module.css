@@ -14,7 +14,7 @@
   }
 
   &:hover input:checked ~ * .knob {
-    background: theme('colors.water.20');
+    background: theme('colors.cabbage.20');
   }
 
   &:active {
@@ -23,12 +23,13 @@
 
   & input:checked {
       & ~ * .track {
-        background: theme('colors.water.50');
+        background: theme('colors.cabbage.50');
+        opacity: 0.24;
       }
 
       & ~ * .knob {
         transform: translateX(100%);
-        background: theme('colors.water.40');
+        background: theme('colors.cabbage.40');
       }
 
       & ~ .children {
@@ -39,22 +40,22 @@
 
 :global(.light) .switch {
    & input:checked ~ * .knob {
-    background: theme('colors.water.80');
+    background: theme('colors.cabbage.80');
   }
 
   &:hover input:checked ~ * .knob {
-    background: theme('colors.water.60');
+    background: theme('colors.cabbage.60');
   }
 }
 
 @media (prefers-color-scheme: light) {
   :global(.auto) .switch {
     & input:checked ~ * .knob {
-     background: theme('colors.water.80');
+     background: theme('colors.cabbage.80');
    }
  
    &:hover input:checked ~ * .knob {
-     background: theme('colors.water.60');
+     background: theme('colors.cabbage.60');
    }
  }
 }

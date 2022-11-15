@@ -52,10 +52,14 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const [defaultFeed] = useDefaultFeed();
   const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { alerts } = useContext(AlertContext);
+  const defaultFeed = useDefaultFeed({
+    feed: activePageProp,
+    hasUser: !!user,
+    hasFiltered: !alerts?.filter,
+  });
   const {
     toggleSidebarExpanded,
     sidebarExpanded,

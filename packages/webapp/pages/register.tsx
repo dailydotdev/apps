@@ -12,8 +12,6 @@ import {
   ProfileHeading,
 } from '@dailydotdev/shared/src/components/utilities';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
-import { LOCAL_FEED_SETTINGS_KEY } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import {
   Features,
@@ -56,12 +54,6 @@ export default function Register(): ReactElement {
     await router?.replace((router.query.redirect_uri as string) || '/');
   };
 
-  const onCancel = () => {
-    storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
-
-    logout();
-  };
-
   return (
     <MainLayout showOnlyLogo>
       <NextSeo title="Registration" nofollow noindex />
@@ -95,7 +87,7 @@ export default function Register(): ReactElement {
               <Button
                 className="ml-4 btn-tertiary"
                 type="button"
-                onClick={onCancel}
+                onClick={logout}
               >
                 {getSignupModalFeatureValue(Features.SignupLogoutButtonCopy)}
               </Button>
