@@ -30,7 +30,7 @@ function LayoutOnboarding(): ReactElement {
         container: 'items-center',
         content: classNames(
           'relative flex flex-col items-center w-4/5 pt-8 overflow-y-hidden',
-          insaneMode && 'px-8',
+          insaneMode && 'p-8',
         ),
       }}
     >
