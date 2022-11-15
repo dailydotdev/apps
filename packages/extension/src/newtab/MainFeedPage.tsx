@@ -60,6 +60,10 @@ export default function MainFeedPage({
   };
 
   const activePage = useMemo(() => {
+    if (isSearchOn) {
+      return '/search';
+    }
+
     const feed = getFeedName(feedName, {
       hasUser: !!user,
       hasFiltered: !alerts?.filter,
