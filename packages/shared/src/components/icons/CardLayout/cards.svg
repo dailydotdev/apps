@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="306px" height="254px" viewBox="0 0 306 254" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>card-illustration</title>
+    <defs>
+        <linearGradient x1="100%" y1="15.5495749%" x2="8.70699985%" y2="84.4504251%" id="linearGradient-1">
+            <stop stop-color="#383C47" offset="0%"></stop>
+            <stop stop-color="#383C47" offset="0%"></stop>
+            <stop stop-color="#17191F" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Feed-filters" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Flexible-Height---Center---Small" transform="translate(-57.000000, -266.000000)">
+            <g id="Group-4" transform="translate(0.000000, 166.000000)">
+                <g id="card-illustration" transform="translate(57.000000, 100.000000)">
+                    <path d="M8,0 L85,0 C89.418278,-8.11624501e-16 93,3.581722 93,8 L93,111 C93,115.418278 89.418278,119 85,119 L8,119 C3.581722,119 4.09379668e-15,115.418278 0,111 L0,8 C-5.41083001e-16,3.581722 3.581722,-7.65539184e-17 8,0 Z M8,135 L85,135 C89.418278,135 93,138.581722 93,143 L93,246 C93,250.418278 89.418278,254 85,254 L8,254 C3.581722,254 4.09379668e-15,250.418278 0,246 L0,143 C-5.41083001e-16,138.581722 3.581722,135 8,135 Z M115,135 L192,135 C196.418278,135 200,138.581722 200,143 L200,246 C200,250.418278 196.418278,254 192,254 L115,254 C110.581722,254 107,250.418278 107,246 L107,143 C107,138.581722 110.581722,135 115,135 Z M221,135 L298,135 C302.418278,135 306,138.581722 306,143 L306,246 C306,250.418278 302.418278,254 298,254 L221,254 C216.581722,254 213,250.418278 213,246 L213,143 C213,138.581722 216.581722,135 221,135 Z M115,0 L192,0 C196.418278,-8.11624501e-16 200,3.581722 200,8 L200,111 C200,115.418278 196.418278,119 192,119 L115,119 C110.581722,119 107,115.418278 107,111 L107,8 C107,3.581722 110.581722,-7.65539184e-17 115,0 Z M221,0 L298,0 C302.418278,-8.11624501e-16 306,3.581722 306,8 L306,111 C306,115.418278 302.418278,119 298,119 L221,119 C216.581722,119 213,115.418278 213,111 L213,8 C213,3.581722 216.581722,-7.65539184e-17 221,0 Z" id="Combined-Shape" fill="url(#linearGradient-1)"></path>
+                    <rect id="Rectangle" fill="#5F6571" x="9" y="58" width="75" height="50" rx="8"></rect>
+                    <rect id="Rectangle" fill="#5F6571" x="9" y="11" width="75" height="10" rx="5"></rect>
+                    <rect id="Rectangle" fill="#5F6571" x="9" y="26" width="55" height="10" rx="5"></rect>
+                    <g id="Group-12" opacity="0.800000012" transform="translate(116.000000, 11.000000)" fill="#5F6571">
+                        <rect id="Rectangle" x="0" y="47" width="75" height="50" rx="8"></rect>
+                        <rect id="Rectangle" x="0" y="0" width="75" height="10" rx="5"></rect>
+                        <rect id="Rectangle" x="0" y="15" width="55" height="10" rx="5"></rect>
+                    </g>
+                    <g id="Group-11" opacity="0.699999988" transform="translate(222.000000, 11.000000)" fill="#5F6571">
+                        <rect id="Rectangle" x="0" y="47" width="75" height="50" rx="8"></rect>
+                        <rect id="Rectangle" x="0" y="0" width="75" height="10" rx="5"></rect>
+                        <rect id="Rectangle" x="0" y="15" width="55" height="10" rx="5"></rect>
+                    </g>
+                    <g id="Group-10" opacity="0.600000024" transform="translate(222.000000, 146.000000)" fill="#5F6571">
+                        <rect id="Rectangle" x="0" y="47" width="75" height="50" rx="8"></rect>
+                        <rect id="Rectangle" x="0" y="0" width="75" height="10" rx="5"></rect>
+                        <rect id="Rectangle" x="0" y="15" width="55" height="10" rx="5"></rect>
+                    </g>
+                    <g id="Group-8" opacity="0.5" transform="translate(116.000000, 146.000000)" fill="#5F6571">
+                        <rect id="Rectangle" x="0" y="47" width="75" height="50" rx="8"></rect>
+                        <rect id="Rectangle" x="0" y="0" width="75" height="10" rx="5"></rect>
+                        <rect id="Rectangle" x="0" y="15" width="55" height="10" rx="5"></rect>
+                    </g>
+                    <g id="Group-7" opacity="0.300000012" transform="translate(9.000000, 146.000000)" fill="#5F6571">
+                        <rect id="Rectangle" x="0" y="47" width="75" height="50" rx="8"></rect>
+                        <rect id="Rectangle" x="0" y="0" width="75" height="10" rx="5"></rect>
+                        <rect id="Rectangle" x="0" y="15" width="55" height="10" rx="5"></rect>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
