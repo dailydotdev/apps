@@ -249,26 +249,25 @@ export default function SubmitArticleModal({
             {getAlert()}
           </div>
         </form>
-        {existingArticle && (
-          <div>
-            <h4 className="px-10 pt-4 pb-2 mt-6 font-bold border-t border-theme-divider-tertiary typo-callout">
-              Article exists
-            </h4>
-            <PostItemCard
-              className="rounded-10"
-              postItem={existingArticle}
-              showButtons={false}
-            />
-          </div>
-        )}
       </Modal.Body>
-      {!isSubmitted && !existingArticle && (
+      {existingArticle && (
+        <div>
+          <h4 className="font-bold typo-callout mb-2 pl-6">
+            Article exists
+          </h4>
+          <PostItemCard
+            postItem={existingArticle}
+            showButtons={false}
+          />
+        </div>
+      )}
+      {(!isSubmitted || !!existingArticle) && (
         <Modal.Footer>
           <Button
             className="btn-primary"
             type="submit"
             aria-label={submitArticleModalButton}
-            disabled={!enableSubmission || !isEnabled}
+            disabled={!enableSubmission || !isEnabled || !!existingArticle}
             loading={isValidating}
             form="submit-article"
           >
