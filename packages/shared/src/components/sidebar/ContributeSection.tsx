@@ -57,7 +57,7 @@ export function ContributeSection({
     setShowSubmitArticle(true);
   };
 
-  if (submitArticleOn) {
+  if (!submitArticleOn) {
     const submitArticleMenuItem = {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <LinkIcon secondary={active} />} />
