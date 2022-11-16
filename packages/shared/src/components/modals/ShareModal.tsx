@@ -69,17 +69,16 @@ export default function ShareModal({
   return (
     <Modal size={Modal.Size.Small} kind={Modal.Kind.FlexibleCenter} {...props}>
       <Modal.Header title={isComment ? 'Share comment' : 'Share article'} />
+      {!isComment && (
+        <PostItemCard
+          className="mt-2"
+          postItem={{ post }}
+          showButtons={false}
+          clickable={false}
+        />
+      )}
       <Modal.Body>
-        {!isComment && (
-          <PostItemCard
-            className="mb-2"
-            postItem={{ post }}
-            showButtons={false}
-            clickable={false}
-          />
-        )}
-
-        <p className="py-2.5 font-bold typo-callout">Copy link</p>
+        <p className="pb-2.5 font-bold typo-callout">Copy link</p>
         <TextField
           className={{ container: 'mt-2 mb-6' }}
           name="postUrl"
