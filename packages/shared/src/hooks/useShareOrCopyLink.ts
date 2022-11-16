@@ -2,11 +2,12 @@ import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
 import { ShareProvider } from '../lib/share';
+import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 
 interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
-  trackObject?: (provider: ShareProvider) => Record<string, unknown>;
+  trackObject?: (provider: ShareProvider) => AnalyticsEvent;
 }
 export function useShareOrCopyLink({
   link,

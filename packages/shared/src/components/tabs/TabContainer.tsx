@@ -52,7 +52,7 @@ function TabContainer<T extends string = string>({
   const [active, setActive] = useState(children[0].props.label);
   const onClick = (label: T) => {
     setActive(label);
-    onActiveChange(label);
+    onActiveChange?.(label);
   };
 
   const isTabActive = (child: ReactElement<TabProps<T>>) =>

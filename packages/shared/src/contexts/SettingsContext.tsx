@@ -15,13 +15,24 @@ import {
 } from '../graphql/settings';
 import AuthContext from './AuthContext';
 import { apiUrl } from '../lib/config';
+import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 
 export enum ThemeMode {
-  Light = 'light',
   Dark = 'dark',
+  Light = 'light',
   Auto = 'auto',
 }
+
+interface ThemeOption {
+  label: string;
+  value: ThemeMode;
+}
+
+export const themes: ThemeOption[] = Object.values(ThemeMode).map((theme) => ({
+  label: capitalize(theme),
+  value: theme,
+}));
 
 export type BookmarksSharing = {
   enabled: boolean;
@@ -55,6 +66,7 @@ export type SettingsContextData = {
   loadedSettings: boolean;
   customLinks?: string[];
   updateCustomLinks: (links: string[]) => Promise<unknown>;
+  syncSettings: () => Promise<unknown>;
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
@@ -176,9 +188,14 @@ export const SettingsContextProvider = ({
     await updateRemoteSettingsFn(newSettings);
   };
 
+  const syncSettings = async () => {
+    await updateRemoteSettingsFn(settings);
+  };
+
   const contextData = useMemo<SettingsContextData>(
     () => ({
       ...settings,
+      syncSettings,
       themeMode: themeModes[settings.theme],
       setTheme: (theme: ThemeMode) =>
         setSettings({ ...settings, theme: remoteThemes[theme] }),

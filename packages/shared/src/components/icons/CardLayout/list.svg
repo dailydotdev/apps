@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="288px" height="262px" viewBox="0 0 288 262" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>list-illustration</title>
+    <defs>
+        <linearGradient x1="100%" y1="8.62027392%" x2="8.70699985%" y2="91.3797261%" id="linearGradient-1">
+            <stop stop-color="#383C47" offset="0%"></stop>
+            <stop stop-color="#383C47" offset="0%"></stop>
+            <stop stop-color="#17191F" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Feed-filters" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="3.-Layout" transform="translate(-1054.000000, -488.000000)">
+            <g id="Flexible-Height---Center---Small" transform="translate(988.000000, 222.000000)">
+                <g id="list-illustration" transform="translate(66.000000, 266.000000)">
+                    <path d="M8,0 L280,0 C284.418278,-8.11624501e-16 288,3.581722 288,8 L288,38 C288,42.418278 284.418278,46 280,46 L8,46 C3.581722,46 4.09379668e-15,42.418278 0,38 L0,8 C-5.41083001e-16,3.581722 3.581722,8.11624501e-16 8,0 Z M8,54 L280,54 C284.418278,54 288,57.581722 288,62 L288,92 C288,96.418278 284.418278,100 280,100 L8,100 C3.581722,100 4.09379668e-15,96.418278 0,92 L0,62 C-5.41083001e-16,57.581722 3.581722,54 8,54 Z M8,108 L280,108 C284.418278,108 288,111.581722 288,116 L288,146 C288,150.418278 284.418278,154 280,154 L8,154 C3.581722,154 4.09379668e-15,150.418278 0,146 L0,116 C-5.41083001e-16,111.581722 3.581722,108 8,108 Z M8,162 L280,162 C284.418278,162 288,165.581722 288,170 L288,200 C288,204.418278 284.418278,208 280,208 L8,208 C3.581722,208 4.09379668e-15,204.418278 0,200 L0,170 C-5.41083001e-16,165.581722 3.581722,162 8,162 Z M8,216 L280,216 C284.418278,216 288,219.581722 288,224 L288,254 C288,258.418278 284.418278,262 280,262 L8,262 C3.581722,262 4.09379668e-15,258.418278 0,254 L0,224 C-5.41083001e-16,219.581722 3.581722,216 8,216 Z" id="Combined-Shape" fill="url(#linearGradient-1)"></path>
+                    <rect id="Rectangle" fill="#5F6571" x="11" y="18" width="187" height="10" rx="5"></rect>
+                    <rect id="Rectangle" fill="#5F6571" opacity="0.400000006" x="11" y="180" width="195" height="10" rx="5"></rect>
+                    <rect id="Rectangle" fill="#5F6571" x="11" y="72" width="158" height="10" rx="5"></rect>
+                    <rect id="Rectangle" fill="#5F6571" opacity="0.300000012" x="11" y="234" width="177" height="10" rx="5"></rect>
+                    <rect id="Rectangle" fill="#5F6571" opacity="0.699999988" x="11" y="126" width="167" height="10" rx="5"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

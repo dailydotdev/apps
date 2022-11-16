@@ -10,6 +10,7 @@ const alwaysValidClasses = [
   'text-ellipsis',
   'bg-none',
   'bg-gradient-to-r',
+  'bg-gradient-to-l',
   'bg-theme-bg-inherit',
 ];
 const findTargetClassNames = (classNames) => {

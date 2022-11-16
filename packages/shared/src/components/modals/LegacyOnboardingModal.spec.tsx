@@ -7,7 +7,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import CreateMyFeedModal from './CreateMyFeedModal';
+import LegacyOnboardingModal from './LegacyOnboardingModal';
 import AuthContext from '../../contexts/AuthContext';
 import {
   AllTagCategoriesData,
@@ -68,7 +68,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <CreateMyFeedModal
+        <LegacyOnboardingModal
           isOpen
           hasUser={false}
           onRequestClose={onRequestClose}

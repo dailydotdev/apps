@@ -23,6 +23,7 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 import { getUserDefaultTimezone } from '../../lib/timezones';
+import SettingsContext from '../../contexts/SettingsContext';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -81,7 +82,9 @@ const renderComponent = (
         loadedUserFromCache
         refetchBoot={jest.fn()}
       >
-        <AuthOptions {...props} />
+        <SettingsContext.Provider value={{ syncSettings: async () => {} }}>
+          <AuthOptions {...props} />
+        </SettingsContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
