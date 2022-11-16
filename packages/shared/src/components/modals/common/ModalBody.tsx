@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import { ModalKind, ModalPropsContext, ModalSize } from './types';
 
-export type ModalBodyProps = {
+export type ModalBodyProps = JSX.IntrinsicElements['section'] & {
   children?: ReactNode;
   tab?: string;
 };
