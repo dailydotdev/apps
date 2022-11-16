@@ -46,7 +46,7 @@ export default function RepostPostModal({
     >
       <Modal.Header title="Report article" />
       <Modal.Body>
-        <p className="mt-2 mb-6 text-theme-label-secondary typo-callout">
+        <p className="mb-6 text-theme-label-tertiary typo-callout">
           &quot;{post?.title}&quot;
         </p>
         <Radio
