@@ -56,6 +56,7 @@ export function ContributeSection({
     });
     setShowSubmitArticle(true);
   };
+  setShowSubmitArticle(true);
 
   if (submitArticleOn) {
     const submitArticleMenuItem = {

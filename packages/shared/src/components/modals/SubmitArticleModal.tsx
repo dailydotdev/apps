@@ -20,7 +20,6 @@ import {
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { BetaBadge } from '../BetaBadge';
 import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal } from './common/Modal';
@@ -181,18 +180,20 @@ export default function SubmitArticleModal({
   }
 
   return (
-    <form ref={submitFormRef} aria-busy={isValidating} onSubmit={onSubmit}>
-      <Modal
-        {...modalProps}
-        kind={Modal.Kind.FlexibleCenter}
-        size={Modal.Size.Medium}
-        onRequestClose={onRequestClose}
-      >
-        <Modal.Header>
-          <Modal.Header.Title>{headerCopy}</Modal.Header.Title>
-          <BetaBadge />
-        </Modal.Header>
-        <Modal.Body>
+    <Modal
+      {...modalProps}
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Medium}
+      onRequestClose={onRequestClose}
+    >
+      <Modal.Header title={headerCopy} />
+      <Modal.Body>
+        <form
+          ref={submitFormRef}
+          id="submit-article"
+          aria-busy={isValidating}
+          onSubmit={onSubmit}
+        >
           <div>
             <p className="mb-2 typo-callout text-theme-label-tertiary">
               Found an interesting article? Do you want to share it with the
@@ -247,32 +248,36 @@ export default function SubmitArticleModal({
             )}
             {getAlert()}
           </div>
-        </Modal.Body>
-
-        {!isSubmitted && (
-          <Modal.Footer>
-            <Button
-              className="btn-primary"
-              type="submit"
-              aria-label={submitArticleModalButton}
-              disabled={!enableSubmission || !isEnabled}
-              loading={isValidating}
-            >
-              <span className={isValidating && 'invisible'}>
-                {submitArticleModalButton}
-              </span>
-            </Button>
-          </Modal.Footer>
-        )}
+        </form>
         {existingArticle && (
           <div>
-            <h4 className="px-10 pb-3.5 font-bold border-b border-theme-divider-tertiary typo-callout">
+            <h4 className="px-10 pt-4 pb-2 mt-6 font-bold border-t border-theme-divider-tertiary typo-callout">
               Article exists
             </h4>
-            <PostItemCard postItem={existingArticle} showButtons={false} />
+            <PostItemCard
+              className="rounded-10"
+              postItem={existingArticle}
+              showButtons={false}
+            />
           </div>
         )}
-      </Modal>
-    </form>
+      </Modal.Body>
+      {!isSubmitted && !existingArticle && (
+        <Modal.Footer>
+          <Button
+            className="btn-primary"
+            type="submit"
+            aria-label={submitArticleModalButton}
+            disabled={!enableSubmission || !isEnabled}
+            loading={isValidating}
+            form="submit-article"
+          >
+            <span className={isValidating && 'invisible'}>
+              {submitArticleModalButton}
+            </span>
+          </Button>
+        </Modal.Footer>
+      )}
+    </Modal>
   );
 }
