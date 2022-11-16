@@ -50,7 +50,7 @@ export function UpvotedPopupModal({
       {...modalProps}
       contentRef={(e) => setModalRef(e)}
       onRequestClose={onRequestClose}
-      kind={Modal.Kind.FlexibleCenter}
+      kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Medium}
     >
       <Modal.Header title="Upvoted by" />
