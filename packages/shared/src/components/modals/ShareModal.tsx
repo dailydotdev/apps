@@ -67,7 +67,7 @@ export default function ShareModal({
   }, []);
 
   return (
-    <Modal size={Modal.Size.Medium} kind={Modal.Kind.FlexibleCenter} {...props}>
+    <Modal size={Modal.Size.Small} kind={Modal.Kind.FlexibleCenter} {...props}>
       <Modal.Header title={isComment ? 'Share comment' : 'Share article'} />
       <Modal.Body>
         {!isComment && (
