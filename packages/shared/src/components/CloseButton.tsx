@@ -1,25 +1,15 @@
 import classNames from 'classnames';
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import {
-  Button,
-  StyledButtonProps,
-  ButtonProps,
-  ButtonSize,
-} from './buttons/Button';
+import { Button, StyledButtonProps, ButtonProps } from './buttons/Button';
 import CloseIcon from './icons/Close';
 
-type CloseButtonProps = StyledButtonProps &
-  ButtonProps<'button'> & {
-    size?: ButtonSize;
-  };
-
 function CloseButtonComponent(
-  { className, size = 'small', ...props }: CloseButtonProps,
+  { className, ...props }: StyledButtonProps & ButtonProps<'button'>,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
   return (
     <Button
-      buttonSize={size}
+      buttonSize="small"
       {...props}
       ref={ref}
       className={classNames('btn-tertiary', className)}
