@@ -52,7 +52,7 @@ export const SocialShare = ({
     );
 
   return (
-    <section className="flex flex-wrap py-2 mb-2">
+    <section className="flex flex-wrap gap-4 pt-2">
       <SocialShareIcon
         href={getTwitterShareLink(link, post?.title)}
         icon={<TwitterIcon />}
