@@ -64,7 +64,8 @@ export const useOnboardingModal = ({
       trackEvent({ event_name: AnalyticsEvent.OnboardingSkip });
     }
     await setHasTriedOnboarding(true);
-    modalStateCommand[onboardingVersion]?.(false);
+    const commands = Object.values(modalStateCommand);
+    commands.forEach((onShowModal) => onShowModal?.(false));
     if (user && !alerts.filter) {
       onFeedPageChanged(MainFeedPage.MyFeed);
     }
