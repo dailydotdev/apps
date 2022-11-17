@@ -251,7 +251,7 @@ export default function SubmitArticleModal({
         </form>
       </Modal.Body>
       {existingArticle && (
-        <div>
+        <div className='w-full'>
           <h4 className="pl-6 mb-2 font-bold typo-callout">Article exists</h4>
           <PostItemCard postItem={existingArticle} showButtons={false} />
         </div>
