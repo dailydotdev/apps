@@ -90,6 +90,7 @@ export function Modal({
       overlayClassName={modalOverlayClassName}
       onRequestClose={onRequestClose}
       className={modalClassName}
+      onRequestClose={onRequestClose}
     >
       <ModalPropsContext.Provider
         value={{ activeTab, size, kind, onRequestClose, setActiveTab, tabs }}
