@@ -35,7 +35,7 @@ export function RecommendedMention({
           key={user.username}
           user={user}
           className={classNames(
-            'p-3 cursor-pointer',
+            'px-3 cursor-pointer',
             index === selected && 'bg-theme-active',
           )}
           imageSize="large"

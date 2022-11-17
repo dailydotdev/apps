@@ -13,8 +13,7 @@ function ModalCloseComponent(
       {...props}
       onClick={onClick}
       ref={ref}
-      size="medium"
-      className={classNames('right-2 z-1', className)}
+      className={classNames('right-4 z-1', className)}
       style={{ position: 'absolute', ...style }}
     />
   );
