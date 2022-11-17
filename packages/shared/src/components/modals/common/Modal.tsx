@@ -66,6 +66,7 @@ export function Modal({
   size = ModalSize.Medium,
   onRequestClose,
   tabs,
+  ...props
 }: ModalProps): ReactElement {
   const [activeTab, setActiveTab] = useState<string | undefined>(
     tabs ? defaultTab ?? modalTabTitle(tabs[0]) : undefined,
@@ -77,7 +78,7 @@ export function Modal({
     overlayClassName,
   );
   const modalClassName = classNames(
-    'modal flex flex-col relative focus:outline-none max-w-full overflow-y-auto items-center bg-theme-bg-tertiary shadow-2 border border-theme-divider-secondary rounded-16',
+    'modal flex flex-col relative focus:outline-none max-w-full items-center bg-theme-bg-tertiary shadow-2 border border-theme-divider-secondary rounded-16',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],
@@ -90,6 +91,7 @@ export function Modal({
       overlayClassName={modalOverlayClassName}
       onRequestClose={onRequestClose}
       className={modalClassName}
+      {...props}
     >
       <ModalPropsContext.Provider
         value={{ activeTab, size, kind, onRequestClose, setActiveTab, tabs }}

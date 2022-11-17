@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { forwardRef, ReactElement, ReactNode, useContext } from 'react';
 import { ModalKind, ModalPropsContext, ModalSize } from './types';
 
 export type ModalBodyProps = JSX.IntrinsicElements['section'] & {
@@ -8,7 +8,7 @@ export type ModalBodyProps = JSX.IntrinsicElements['section'] & {
   tab?: string;
 };
 
-export function ModalBody({
+function ModalBodyComponent({
   children,
   className,
   tab,
@@ -27,3 +27,5 @@ export function ModalBody({
     </section>
   );
 }
+
+export const ModalBody = forwardRef(ModalBodyComponent);

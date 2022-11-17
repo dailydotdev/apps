@@ -47,15 +47,15 @@ export function UpvotedPopupModal({
 
   return (
     <Modal
-      {...modalProps}
       contentRef={(e) => setModalRef(e)}
       onRequestClose={onRequestClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
+      {...modalProps}
     >
       <Modal.Header title="Upvoted by" />
       <Modal.Body
-        className="p-0"
+        className="py-2 px-0"
         data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
         ref={container}
       >
