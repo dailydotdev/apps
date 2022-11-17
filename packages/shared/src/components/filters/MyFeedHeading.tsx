@@ -39,7 +39,12 @@ function MyFeedHeading({
       offset={[4, 8]}
       isAlertDisabled={isAlertDisabled}
       onClose={() => onUpdateAlerts({ myFeed: null })}
-      className={{ label: 'w-44', message: 'ml-4', wrapper: 'mr-auto' }}
+      className={{
+        label: 'w-44',
+        message: !sidebarRendered ? 'ml-4' : null,
+        wrapper: 'mr-auto',
+        container: !sidebarRendered ? 'left-0' : null,
+      }}
       message={filterAlertMessage}
       placement={sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom}
     >
