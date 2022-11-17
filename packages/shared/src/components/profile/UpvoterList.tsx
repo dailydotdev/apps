@@ -28,7 +28,7 @@ export function UpvoterList({
   });
 
   return (
-    <div className="flex relative flex-col">
+    <div className="flex relative flex-col gap-3">
       {queryResult.data.pages.map(
         (page) =>
           page &&
