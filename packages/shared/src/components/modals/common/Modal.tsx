@@ -88,6 +88,7 @@ export function Modal({
     <ReactModal
       isOpen
       overlayClassName={modalOverlayClassName}
+      onRequestClose={onRequestClose}
       className={modalClassName}
     >
       <ModalPropsContext.Provider
