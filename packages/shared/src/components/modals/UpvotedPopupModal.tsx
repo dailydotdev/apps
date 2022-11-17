@@ -55,7 +55,7 @@ export function UpvotedPopupModal({
     >
       <Modal.Header title="Upvoted by" />
       <Modal.Body
-        className='p-0'
+        className="p-0"
         data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
         ref={container}
       >

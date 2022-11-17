@@ -18,7 +18,7 @@ export function ModalBody({
   const sectionClassName = classNames(
     'overflow-auto relative w-full h-full shrink max-h-full p-6',
     kind === ModalKind.FlexibleTop && size === ModalSize.Large && 'mobileL:p-8',
-    className
+    className,
   );
   if (tab && tab !== activeTab) return null;
   return (

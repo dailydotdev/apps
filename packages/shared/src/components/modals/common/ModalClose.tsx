@@ -11,9 +11,9 @@ function ModalCloseComponent(
   return (
     <CloseButton
       {...props}
+      buttonSize="medium"
       onClick={onClick}
       ref={ref}
-      size="medium"
       className={classNames('right-2 z-1', className)}
       style={{ position: 'absolute', ...style }}
     />
