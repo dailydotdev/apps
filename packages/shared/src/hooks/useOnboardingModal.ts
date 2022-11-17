@@ -63,9 +63,10 @@ export const useOnboardingModal = ({
     ) {
       trackEvent({ event_name: AnalyticsEvent.OnboardingSkip });
     }
-    await setHasTriedOnboarding(true);
-    const commands = Object.values(modalStateCommand);
-    commands.forEach((onShowModal) => onShowModal?.(false));
+    if (!hasTriedOnboarding) {
+      await setHasTriedOnboarding(true);
+    }
+    modalStateCommand[onboardingVersion]?.(false);
     if (user && !alerts.filter) {
       onFeedPageChanged(MainFeedPage.MyFeed);
     }
@@ -98,7 +99,7 @@ export const useOnboardingModal = ({
     setHasTriedOnboarding(false);
     setOnboardingMode(OnboardingMode.Auto);
     modalStateCommand[onboardingVersion]?.(true);
-  }, [hasOnboardingLoaded, isFeaturesLoaded, user]);
+  }, [hasOnboardingLoaded, hasTriedOnboarding, isFeaturesLoaded, user]);
 
   return useMemo(
     () => ({
