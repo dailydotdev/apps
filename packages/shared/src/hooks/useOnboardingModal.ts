@@ -102,7 +102,7 @@ export const useOnboardingModal = ({
     setHasTriedOnboarding(false);
     setOnboardingMode(OnboardingMode.Auto);
     modalStateCommand[onboardingVersion]?.(true);
-  }, [hasOnboardingLoaded, hasTriedOnboarding, isFeaturesLoaded, user]);
+  }, [hasOnboardingLoaded, isFeaturesLoaded, user]);
 
   return useMemo(
     () => ({
