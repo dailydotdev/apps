@@ -1,8 +1,6 @@
 import React, { ReactElement, useRef, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
-import { ModalCloseButton } from './ModalCloseButton';
 import { UpvoterList } from '../profile/UpvoterList';
 import {
   UpvoterListPlaceholder,
@@ -11,6 +9,7 @@ import {
 import { apiUrl } from '../../lib/config';
 import { RequestQuery, UpvotesData } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { Modal } from './common/Modal';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   listPlaceholderProps: UpvoterListPlaceholderProps;
@@ -47,24 +46,15 @@ export function UpvotedPopupModal({
   const [modalRef, setModalRef] = useState<HTMLElement>();
 
   return (
-    <ResponsiveModal
+    <Modal
       {...modalProps}
       contentRef={(e) => setModalRef(e)}
       onRequestClose={onRequestClose}
-      padding={false}
-      style={{
-        content: {
-          maxHeight: '40rem',
-          overflow: 'initial',
-        },
-      }}
+      kind={Modal.Kind.FixedCenter}
+      size={Modal.Size.Medium}
     >
-      <header className="flex items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
-        <h3 className="font-bold typo-title3">Upvoted by</h3>
-        <ModalCloseButton onClick={onRequestClose} />
-      </header>
-      <section
-        className="overflow-auto relative w-full h-full shrink max-h-full"
+      <Modal.Header title="Upvoted by" />
+      <Modal.Body
         data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
         ref={container}
       >
@@ -77,8 +67,8 @@ export function UpvotedPopupModal({
         ) : (
           <UpvoterListPlaceholder {...listPlaceholderProps} />
         )}
-      </section>
-    </ResponsiveModal>
+      </Modal.Body>
+    </Modal>
   );
 }
 

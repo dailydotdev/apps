@@ -51,7 +51,7 @@ export function UserShortInfo<Tag extends AnyTag>({
     <Element
       {...props}
       className={classNames(
-        'flex flex-row py-3 px-6 hover:bg-theme-hover',
+        'flex flex-row rounded-12 hover:bg-theme-hover',
         className,
       )}
     >
