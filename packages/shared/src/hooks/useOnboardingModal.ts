@@ -56,14 +56,14 @@ export const useOnboardingModal = ({
     v2: setIsOnboardingOpen,
   };
 
-  const onCloseOnboardingModal = () => {
+  const onCloseOnboardingModal = async () => {
     if (
       onboardingMode === OnboardingMode.Auto &&
       onboardingVersion === OnboardingVersion.V1
     ) {
       trackEvent({ event_name: AnalyticsEvent.OnboardingSkip });
     }
-    setHasTriedOnboarding(true);
+    await setHasTriedOnboarding(true);
     modalStateCommand[onboardingVersion]?.(false);
     if (user && !alerts.filter) {
       onFeedPageChanged(MainFeedPage.MyFeed);
