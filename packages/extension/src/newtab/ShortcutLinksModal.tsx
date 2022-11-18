@@ -3,9 +3,9 @@ import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModa
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UserIcon from '@dailydotdev/shared/src/components/icons/User';
 import SitesIcon from '@dailydotdev/shared/src/components/icons/Sites';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
-import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 
 interface CustomLinksModalProps extends ModalProps {
   onSubmit: FormEventHandler<HTMLFormElement>;
@@ -42,7 +42,7 @@ export default function CustomLinksModal({
       onRequestClose={onRequestClose}
       {...props}
     >
-      <Modal.Header title='Shortcuts' />
+      <Modal.Header title="Shortcuts" />
       <Modal.Body>
         <form ref={formRef} id="shortcuts-modal" onSubmit={onSubmit}>
           <nav className="grid grid-cols-2 gap-6 mb-8">
