@@ -66,6 +66,7 @@ export function Modal({
   size = ModalSize.Medium,
   onRequestClose,
   tabs,
+  ...props
 }: ModalProps): ReactElement {
   const [activeTab, setActiveTab] = useState<string | undefined>(
     tabs ? defaultTab ?? modalTabTitle(tabs[0]) : undefined,
@@ -88,8 +89,9 @@ export function Modal({
     <ReactModal
       isOpen
       overlayClassName={modalOverlayClassName}
-      className={modalClassName}
       onRequestClose={onRequestClose}
+      className={modalClassName}
+      {...props}
     >
       <ModalPropsContext.Provider
         value={{ activeTab, size, kind, onRequestClose, setActiveTab, tabs }}
