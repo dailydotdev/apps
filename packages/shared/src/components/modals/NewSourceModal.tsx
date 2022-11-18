@@ -237,19 +237,18 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             </form>
           </>
         )}
-        {!existingSource && !feeds?.length && (
+        {!existingSource && scrapeError && !feeds?.length && (
           <>
             <div
               id="new-source-field-desc"
               className={classNames(
                 'typo-callout text-theme-status-error self-start',
                 !showContact && 'mb-6',
-                !scrapeError && 'invisible',
               )}
             >
-              {scrapeError || 'placeholder'}
+              {scrapeError}
             </div>
-            {showContact && scrapeError && (
+            {showContact && (
               <Button
                 tag="a"
                 className="self-start mt-3 mb-6 btn-secondary small"
