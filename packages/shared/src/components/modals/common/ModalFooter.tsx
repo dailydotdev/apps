@@ -20,7 +20,7 @@ export function ModalFooter({
   return (
     <footer
       className={classNames(
-        'flex gap-3 items-center py-4 px-2 w-full h-14 border-t border-theme-divider-tertiary',
+        'flex gap-3 items-center p-3 w-full h-16 border-t border-theme-divider-tertiary',
         `justify-${justify}`,
         className,
       )}
