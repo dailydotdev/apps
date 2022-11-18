@@ -183,7 +183,7 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  const { flags, popularFeedCopy, onboardingVersion, isFeaturesLoaded } =
+  const { flags, popularFeedCopy, onboardingVersion, isFlagsFetched } =
     useContext(FeaturesContext);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedVersion = parseInt(
@@ -237,7 +237,7 @@ export default function MainFeedLayout({
     user,
     alerts,
     isFirstVisit,
-    isFeaturesLoaded,
+    isFeaturesLoaded: isFlagsFetched,
     onboardingVersion,
     onFeedPageChanged,
   });
