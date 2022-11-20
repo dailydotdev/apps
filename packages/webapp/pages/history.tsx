@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect, useMemo } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
@@ -14,6 +14,7 @@ import {
   READING_HISTORY_QUERY,
   SEARCH_READING_HISTORY_QUERY,
 } from '../../shared/src/graphql/users';
+import ProtectedPage from '../components/ProtectedPage';
 
 const PostsSearch = dynamic(
   () =>
@@ -28,7 +29,7 @@ const PostsSearch = dynamic(
 const History = (): ReactElement => {
   const seo = <NextSeo title="Reading History" nofollow noindex />;
   const router = useRouter();
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const searchQuery = router.query?.q?.toString();
   const key = ['readHistory', user?.id];
 
@@ -50,24 +51,12 @@ const History = (): ReactElement => {
   const { data, isInitialLoading, isLoading, hasData, infiniteScrollRef } =
     useInfiniteReadingHistory({ ...queryProps });
 
-  useEffect(() => {
-    if (tokenRefreshed && !user) {
-      router.replace('/');
-    }
-  }, [tokenRefreshed, user]);
-
-  if (!hasData && !isLoading) {
-    return (
-      <>
-        {seo}
-        <ReadingHistoryEmptyScreen />
-      </>
-    );
-  }
-
   return (
-    <>
-      {seo}
+    <ProtectedPage
+      seo={seo}
+      fallback={<ReadingHistoryEmptyScreen />}
+      shouldFallback={!hasData && !isLoading}
+    >
       <ResponsivePageContainer
         className={isInitialLoading && 'h-screen overflow-hidden'}
         style={{ paddingLeft: 0, paddingRight: 0 }}
@@ -91,7 +80,7 @@ const History = (): ReactElement => {
           <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
         )}
       </ResponsivePageContainer>
-    </>
+    </ProtectedPage>
   );
 };
 
