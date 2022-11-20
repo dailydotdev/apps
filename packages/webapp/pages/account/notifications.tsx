@@ -33,6 +33,7 @@ const AccountNotificationsPage = (): ReactElement => {
         />
         <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
         <Switch
+          data-testId="push_notification-switch"
           inputId="push_notification-switch"
           name="push_notification"
           className="w-20"
@@ -57,6 +58,7 @@ const AccountNotificationsPage = (): ReactElement => {
         />
         <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
         <Switch
+          data-testId="email_notification-switch"
           inputId="email_notification-switch"
           name="email_notification"
           className="w-20"
