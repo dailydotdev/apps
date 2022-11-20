@@ -1,8 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { InputHTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import styles from './Switch.module.css';
 
-export interface SwitchProps {
+export interface SwitchProps extends InputHTMLAttributes<HTMLInputElement> {
   children?: ReactNode;
   className?: string;
   labelClassName?: string;
@@ -24,6 +24,7 @@ export function Switch({
   onToggle,
   compact = true,
   defaultTypo = true,
+  ...props
 }: SwitchProps): ReactElement {
   return (
     <label
@@ -35,6 +36,7 @@ export function Switch({
       htmlFor={inputId}
     >
       <input
+        {...props}
         id={inputId}
         name={name}
         type="checkbox"
