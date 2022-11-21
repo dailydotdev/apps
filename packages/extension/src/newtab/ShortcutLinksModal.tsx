@@ -4,6 +4,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UserIcon from '@dailydotdev/shared/src/components/icons/User';
 import SitesIcon from '@dailydotdev/shared/src/components/icons/Sites';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { Justify } from '@dailydotdev/shared/src/components/utilities';
 import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
 
@@ -69,7 +70,7 @@ export default function CustomLinksModal({
           <LinksForm links={links} isFormReadonly={isManual === false} />
         </form>
       </Modal.Body>
-      <Modal.Footer justify={displayRevoke ? 'between' : 'end'}>
+      <Modal.Footer justify={displayRevoke ? Justify.Between : Justify.End}>
         {displayRevoke && (
           <Button
             onClick={onRevokePermission}
