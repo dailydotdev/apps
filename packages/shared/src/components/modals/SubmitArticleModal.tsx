@@ -182,7 +182,7 @@ export default function SubmitArticleModal({
   return (
     <Modal
       {...modalProps}
-      kind={Modal.Kind.FlexibleCenter}
+      kind={Modal.Kind.FlexibleTop}
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
     >

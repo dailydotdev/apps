@@ -1,17 +1,10 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
 import { Loader } from '../Loader';
-import { ModalCloseButton } from './ModalCloseButton';
-import { StyledModal, ModalProps } from './StyledModal';
+import { ModalProps } from './StyledModal';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
@@ -25,6 +18,7 @@ import {
 import { Source } from '../../graphql/sources';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
+import { Modal } from './common/Modal';
 
 interface RSS {
   url: string;
@@ -163,126 +157,131 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     }
   };
 
-  let children: ReactNode;
-  if (existingSource) {
-    children = (
-      <div className="flex items-center self-start px-12 mb-6 w-full typo-callout">
-        <img
-          src={existingSource.image}
-          alt={existingSource.name}
-          className="w-8 h-8 rounded-lg"
-        />
-        <div className="ml-3 truncate">{existingSource.name}</div>
-        <div className="ml-auto text-theme-label-tertiary">Already exists</div>
-      </div>
-    );
-  } else if (feeds?.length > 0) {
-    children = (
-      <>
-        <div className="self-start mx-10 mb-6 typo-callout text-theme-label-tertiary">
-          {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
-        </div>
-        <form
-          className="flex flex-col items-center w-full"
-          onSubmit={onSubmitFeed}
-        >
-          <Radio
-            name="rss"
-            options={feeds}
-            onChange={setSelectedFeed}
-            value={selectedFeed}
-            className="self-start mx-10"
-          />
-          <div className="my-4 w-full h-px bg-theme-divider-secondary" />
-          <Button
-            className="mb-5 btn-primary"
-            type="submit"
-            disabled={!selectedFeed}
-            loading={checkingIfExists || requestingSource}
-          >
-            Send for review
-          </Button>
-        </form>
-      </>
-    );
-  } else {
-    children = (
-      <>
-        <div
-          id="new-source-field-desc"
-          className={classNames(
-            'typo-callout text-theme-status-error mx-10 self-start',
-            !showContact && 'mb-6',
-            !scrapeError && 'invisible',
-          )}
-        >
-          {scrapeError || 'placeholder'}
-        </div>
-        {showContact && scrapeError && (
-          <Button
-            tag="a"
-            className="self-start mx-10 mt-3 mb-6 btn-secondary small"
-            href="mailto:hi@daily.dev?subject=Failed to add new source"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Contact
-          </Button>
-        )}
-      </>
-    );
-  }
-
   return (
-    <StyledModal
+    <Modal
+      kind={Modal.Kind.FlexibleTop}
+      size={Modal.Size.Medium}
+      onRequestClose={onRequestClose}
       {...props}
-      style={{ content: { paddingTop: '1.5rem', maxWidth: '27.5rem' } }}
     >
-      <ModalCloseButton onClick={onRequestClose} />
-      <h2 className="text-2xl font-bold">Suggest new source</h2>
-      <p
-        className="pt-1.5 pb-2 text-center typo-callout text-theme-label-secondary"
-        style={{ maxWidth: '18.75rem' }}
-      >
-        Have an idea for a new source? Insert its link below to add it to the
-        feed.
-      </p>
-      <a
-        className="mb-2 font-bold underline typo-callout text-theme-label-link"
-        target="_blank"
-        rel="noopener"
-        href={contentGuidelines}
-      >
-        Content guidelines
-      </a>
-      <form
-        className="flex flex-col px-10 w-full"
-        ref={scrapeFormRef}
-        onSubmit={onScrapeSubmit}
-        aria-busy={isScraping}
-        data-testid={`login state: ${loginState?.trigger}`}
-      >
-        <SearchField
-          className="my-4"
-          inputId="new-source-field"
-          name="url"
-          placeholder="Paste blog / RSS URL"
-          showIcon={false}
-          type="url"
-          autoFocus
-          aria-describedby={scrapeError && 'new-source-field-desc'}
-          valueChanged={onUrlChanged}
-          fieldType="secondary"
-          rightButtonProps={{
-            disabled: !enableSubmission,
-            type: 'submit',
-            'aria-label': 'Search feeds',
-            buttonSize: 'small',
-          }}
-        />
-      </form>
-      {children}
-      {isScraping && <Loader className="absolute inset-x-0 bottom-5 mx-auto" />}
-    </StyledModal>
+      <Modal.Header title="Suggest new source" />
+      <Modal.Body>
+        <p className="typo-callout text-theme-label-secondary">
+          Have an idea for a new source? Insert its link below to add it to the
+          feed.
+        </p>
+        <a
+          className="mb-2 font-bold underline typo-callout text-theme-label-link"
+          target="_blank"
+          rel="noopener"
+          href={contentGuidelines}
+        >
+          Content guidelines
+        </a>
+        <form
+          className="flex flex-col w-full"
+          ref={scrapeFormRef}
+          onSubmit={onScrapeSubmit}
+          aria-busy={isScraping}
+          data-testid={`login state: ${loginState?.trigger}`}
+        >
+          <SearchField
+            className="my-4"
+            inputId="new-source-field"
+            name="url"
+            placeholder="Paste blog / RSS URL"
+            showIcon={false}
+            type="url"
+            autoFocus
+            aria-describedby={scrapeError && 'new-source-field-desc'}
+            valueChanged={onUrlChanged}
+            fieldType="secondary"
+            rightButtonProps={{
+              disabled: !enableSubmission,
+              type: 'submit',
+              'aria-label': 'Search feeds',
+              buttonSize: 'small',
+            }}
+          />
+        </form>
+        {!!existingSource && (
+          <div className="flex items-center self-start px-12 mb-6 w-full typo-callout">
+            <img
+              src={existingSource.image}
+              alt={existingSource.name}
+              className="w-8 h-8 rounded-lg"
+            />
+            <div className="ml-3 truncate">{existingSource.name}</div>
+            <div className="ml-auto text-theme-label-tertiary">
+              Already exists
+            </div>
+          </div>
+        )}
+        {!!feeds?.length && (
+          <>
+            <div className="self-start mb-6 typo-callout text-theme-label-tertiary">
+              {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
+            </div>
+            <form
+              className="flex flex-col items-center w-full"
+              id="select-feed"
+              onSubmit={onSubmitFeed}
+            >
+              <Radio
+                name="rss"
+                options={feeds}
+                onChange={setSelectedFeed}
+                value={selectedFeed}
+                className="self-start"
+              />
+            </form>
+          </>
+        )}
+        {!existingSource && scrapeError && !feeds?.length && (
+          <>
+            <div
+              id="new-source-field-desc"
+              className={classNames(
+                'typo-callout text-theme-status-error self-start',
+                !showContact && 'mb-6',
+              )}
+            >
+              {scrapeError}
+            </div>
+            {showContact && (
+              <Button
+                tag="a"
+                className="self-start mt-3 mb-6 btn-secondary small"
+                href="mailto:hi@daily.dev?subject=Failed to add new source"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Contact
+              </Button>
+            )}
+          </>
+        )}
+      </Modal.Body>
+      {(!!feeds?.length || isScraping) && (
+        <Modal.Footer>
+          {isScraping && (
+            <div className="flex justify-center w-full">
+              <Loader invertColor />
+            </div>
+          )}
+          {!!feeds?.length && (
+            <Button
+              form="select-feed"
+              className="btn-primary"
+              type="submit"
+              disabled={!selectedFeed}
+              loading={checkingIfExists || requestingSource}
+            >
+              Send for review
+            </Button>
+          )}
+        </Modal.Footer>
+      )}
+    </Modal>
   );
 }
