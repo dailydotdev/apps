@@ -36,7 +36,7 @@ function MyFeedButton({
   const isActive = activePage === myFeedMenuItem.path;
 
   return (
-    <NavItem className="mt-6" active={isActive}>
+    <NavItem className="mt-0 laptop:mt-2" active={isActive}>
       <ClickableNavItem item={myFeedMenuItem} isButton={isButton}>
         <ItemInner
           item={myFeedMenuItem}

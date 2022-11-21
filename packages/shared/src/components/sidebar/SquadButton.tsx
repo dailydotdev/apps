@@ -37,7 +37,7 @@ function SquadButton({
           rel="noopener"
           iconOnly={!sidebarExpanded}
           className={classNames(
-            'my-4 btn-primary-cabbage',
+            'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage',
             sidebarExpanded ? 'mx-3' : 'mx-1.5',
           )}
           textPosition={sidebarExpanded ? 'justify-start' : 'justify-center'}
