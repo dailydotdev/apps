@@ -15,6 +15,7 @@ import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
 import { UnblockItem } from './FilterMenu';
 import UnblockModal from '../modals/UnblockModal';
+// import { Modal } from '../modals/common/Modal';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
@@ -55,6 +56,60 @@ export default function FeedFilters({
       setIsNavOpen(false);
     }
   };
+
+  //   const tabs = [
+  //     {
+  //       title: FilterMenuTitle.Tags,
+  //       options: { icon: <HashtagIcon /> },
+  //     },
+  //     {
+  //       title: FilterMenuTitle.Advanced,
+  //       options: { icon: <FilterIcon /> },
+  //     },
+  //     {
+  //       title: FilterMenuTitle.Blocked,
+  //       options: { icon: <BlockIcon /> },
+  //     },
+  //   ];
+  //   return (
+  //     <Modal
+  //       className="h-full mb-8 flex-1"
+  //       isOpen
+  //       kind={Modal.Kind.FlexibleTop}
+  //       size={Modal.Size.Large}
+  //       onRequestClose={onRequestClose}
+  //       tabs={tabs}
+  //     >
+  //       <Modal.Sidebar>
+  //         <Modal.Sidebar.List
+  //           className='w-74'
+  //           title="Feed filters"
+  //           isNavOpen={isNavOpen}
+  //           onTabChange={onNavClick}
+  //           setIsNavOpen={setIsNavOpen}
+  //         />
+  //         <Modal.Sidebar.Inner>
+  //           <Modal.Header>
+  //             <Button
+  //               buttonSize="small"
+  //               className="flex tablet:hidden mr-2 -rotate-90"
+  //               icon={<ArrowIcon />}
+  //               onClick={() => setIsNavOpen(true)}
+  //             />
+  //           </Modal.Header>
+  //           <Modal.Body tab={FilterMenuTitle.Tags}>
+  //             <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />
+  //           </Modal.Body>
+  //           <Modal.Body tab={FilterMenuTitle.Advanced}>
+  //             <AdvancedSettingsFilter />
+  //           </Modal.Body>
+  //           <Modal.Body tab={FilterMenuTitle.Blocked}>
+  //             <BlockedFilter onUnblockItem={setUnblockItem} />
+  //           </Modal.Body>
+  //         </Modal.Sidebar.Inner>
+  //       </Modal.Sidebar>
+  //     </Modal>
+  //   );
 
   return (
     <StyledModal

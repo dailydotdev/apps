@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { StyledModal, ModalProps } from '../modals/StyledModal';
 import styles from './AuthModal.module.css';
 import AuthModalHeading from './AuthModalHeading';
-import AuthOptions, { Display } from './AuthOptions';
+import AuthOptions, { AuthDisplay as Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
@@ -12,6 +12,7 @@ import DailyCircle from '../DailyCircle';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { LoginTrigger } from '../../lib/analytics';
 
 export type AuthModalProps = { trigger?: AuthTriggersOrString } & ModalProps;
 
@@ -32,7 +33,9 @@ export default function AuthModal({
   ...props
 }: AuthModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [showOptionsOnly, setShowOptionsOnly] = useState(false);
+  const [showOptionsOnly, setShowOptionsOnly] = useState(
+    trigger === LoginTrigger.CreateFeedFilters,
+  );
   const [screenValue, setScreenValue] = useState<Display>(Display.Default);
   const { authVersion } = useContext(FeaturesContext);
   const { user, closeLogin, logout } = useContext(AuthContext);
@@ -118,6 +121,7 @@ export default function AuthModal({
         </>
       )}
       <AuthOptions
+        version={authVersion}
         className={classNames('h-full', containerMargin[authVersion])}
         onClose={onDiscardAttempt}
         formRef={formRef}

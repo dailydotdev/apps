@@ -12,7 +12,7 @@ import { AuthTriggers } from '../lib/auth';
 const getAnalyticsEvent = (
   eventName: string,
   copy: string,
-): Partial<AnalyticsEvent> => ({
+): AnalyticsEvent => ({
   event_name: eventName,
   target_type: 'signup button',
   target_id: 'header',

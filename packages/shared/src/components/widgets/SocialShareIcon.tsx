@@ -16,7 +16,7 @@ export const SocialShareIcon = ({
   label,
 }: SocialShareIconProps): ReactElement => {
   return (
-    <div className="flex flex-col items-center mr-4 mb-4">
+    <div className="flex flex-col items-center">
       <Button
         tag="a"
         data-testid={`social-share-${label}`}

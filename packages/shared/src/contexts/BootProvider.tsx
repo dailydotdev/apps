@@ -153,7 +153,11 @@ export const BootDataProvider = ({
   );
 
   return (
-    <FeaturesContextProvider flags={flags}>
+    <FeaturesContextProvider
+      flags={flags}
+      isFlagsFetched={initialLoad}
+      isFeaturesLoaded={loadedFromCache}
+    >
       <AuthContextProvider
         user={user}
         updateUser={updateUser}

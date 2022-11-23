@@ -1,20 +1,13 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout, {
-  getShouldRedirect,
+  getFeedName,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
+import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
-import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
-import { getLocalFeedSettings } from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -39,14 +32,13 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
+  const { alerts } = useContext(AlertContext);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
   const { placement } = useCompanionSettings('main feed page');
-  const { registerLocalFilters } = useMyFeed();
-  const [defaultFeed] = useDefaultFeed();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     setIsSearchOn(true);
@@ -71,8 +63,14 @@ export default function MainFeedPage({
     if (isSearchOn) {
       return '/search';
     }
-    return `/${feedName === 'default' ? defaultFeed : feedName}`;
-  }, [isSearchOn, feedName, defaultFeed]);
+
+    const feed = getFeedName(feedName, {
+      hasUser: !!user,
+      hasFiltered: !alerts?.filter,
+    });
+
+    return `/${feed}`;
+  }, [isSearchOn, feedName]);
 
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
@@ -81,20 +79,6 @@ export default function MainFeedPage({
     setIsSearchOn(false);
     setSearchQuery(undefined);
   };
-
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    if (getLocalFeedSettings(true)) {
-      registerLocalFilters().then(({ hasFilters }) => {
-        if (hasFilters) {
-          setFeedName('my-feed');
-        }
-      });
-    }
-  }, [user]);
 
   return (
     <MainLayout
