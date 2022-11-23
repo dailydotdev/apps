@@ -165,6 +165,10 @@ function AuthOptions({
         onSuccessfulRegistration?.();
       },
       onInvalidRegistration: setRegistrationHints,
+      onRedirectFail: () => {
+        windowPopup.current.close();
+        windowPopup.current = null;
+      },
       onRedirect: (redirect) => {
         windowPopup.current.location.href = redirect;
       },
