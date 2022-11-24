@@ -85,6 +85,7 @@ export default function DndModal({
       kind={Modal.Kind.FlexibleTop}
       size={Modal.Size.Medium}
       {...modalProps}
+      onRequestClose={onRequestClose}
     >
       <Modal.Header title="Pause new tab" />
       <Modal.Body>
