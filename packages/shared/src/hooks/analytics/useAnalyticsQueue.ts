@@ -3,14 +3,14 @@ import { MutableRefObject, useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounce from '../useDebounce';
 
-export type AnalyticsEvent = Record<string, unknown> & {
+export interface AnalyticsEvent extends Record<string, unknown> {
   visit_id?: string;
   event_timestamp?: Date;
   event_duration?: number;
-  event_name?: string;
+  event_name: string;
   extra?: string;
   device_id?: string;
-};
+}
 
 export type PushToQueueFunc = (events: AnalyticsEvent[]) => void;
 

@@ -9,12 +9,13 @@ import {
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { MutateFunc } from '../lib/query';
 import { useToastNotification } from './useToastNotification';
+import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 
 type UseBookmarkPostParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
   onRemoveBookmarkMutate: MutateFunc<T>;
-  onBookmarkTrackObject?: () => Record<string, unknown>;
-  onRemoveBookmarkTrackObject?: () => Record<string, unknown>;
+  onBookmarkTrackObject?: () => AnalyticsEvent;
+  onRemoveBookmarkTrackObject?: () => AnalyticsEvent;
 };
 type UseBookmarkPostRet<T> = {
   bookmark: (variables: T) => Promise<void>;

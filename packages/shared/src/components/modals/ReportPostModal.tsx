@@ -1,17 +1,11 @@
 import React, { ReactElement, MouseEvent, useState, useRef } from 'react';
 import { Radio } from '../fields/Radio';
 import { Post } from '../../graphql/posts';
-import { ModalCloseButton } from './ModalCloseButton';
 import { Checkbox } from '../fields/Checkbox';
 import { ModalProps } from './StyledModal';
 import { Button } from '../buttons/Button';
-import {
-  ReportModal,
-  ReportHeading,
-  ReportDescription,
-  ReportButtonsCenter,
-} from './ReportModal';
 import { PostBootData } from '../../lib/boot';
+import { Modal } from './common/Modal';
 
 export interface Props extends ModalProps {
   postIndex: number;
@@ -43,19 +37,25 @@ export default function RepostPostModal({
   };
 
   return (
-    <ReportModal {...props}>
-      <ModalCloseButton onClick={props.onRequestClose} />
-      <ReportHeading>Report article</ReportHeading>
-      <ReportDescription>&quot;{post?.title}&quot;</ReportDescription>
-      <div className="w-full">
+    <Modal
+      isOpen
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Small}
+      onRequestClose={props.onRequestClose}
+      {...props}
+    >
+      <Modal.Header title="Report article" />
+      <Modal.Body>
+        <p className="mb-6 text-theme-label-tertiary typo-callout">
+          &quot;{post?.title}&quot;
+        </p>
         <Radio
-          className="px-2 mt-2 mb-4"
+          className="mt-2 mb-4"
           name="report_reason"
           options={reportReasons}
           value={reason}
           onChange={setReason}
         />
-        <div className="-mx-8 h-px bg-theme-divider-secondary" />
         <p className="px-2 mt-6 mb-1 font-bold typo-caption1">
           Anything else you&apos;d like to add?
         </p>
@@ -66,20 +66,20 @@ export default function RepostPostModal({
         <Checkbox
           ref={inputRef}
           name="blockSource"
-          className="self-center mx-2 mb-6 font-normal"
+          className="self-center font-normal"
         >
-          {`Don't show articles from ${post?.source?.name}`}
+          Don&apos;t show articles from {post?.source?.name}
         </Checkbox>
-      </div>
-      <ReportButtonsCenter>
+      </Modal.Body>
+      <Modal.Footer>
         <Button
-          className="flex-1 btn-primary"
+          className="btn-primary"
           disabled={!reason || (reason === 'OTHER' && !comment)}
           onClick={onReportPost}
         >
           Submit report
         </Button>
-      </ReportButtonsCenter>
-    </ReportModal>
+      </Modal.Footer>
+    </Modal>
   );
 }

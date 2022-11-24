@@ -7,6 +7,7 @@ import {
   RegistrationParameters,
   getNodeValue,
   ValidateRegistrationParams,
+  AuthEventNames,
 } from '../lib/auth';
 import {
   AuthFlow,
@@ -17,12 +18,14 @@ import {
 } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 type ParamKeys = keyof RegistrationParameters;
 
 interface UseRegistrationProps {
   key: QueryKey;
   onRedirect?: (redirect: string) => void;
+  onRedirectFail?: () => void;
   onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
 }
@@ -42,9 +45,11 @@ const EMAIL_EXISTS_ERROR_ID = 4000007;
 const useRegistration = ({
   key,
   onRedirect,
+  onRedirectFail,
   onValidRegistration,
   onInvalidRegistration,
 }: UseRegistrationProps): UseRegistration => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { trackingId, referral } = useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
@@ -72,6 +77,10 @@ const useRegistration = ({
 
         // probably csrf token issue and definitely not related to forms data
         if (!error.ui) {
+          trackEvent({
+            event_name: AuthEventNames.RegistrationError,
+            extra: JSON.stringify(error),
+          });
           return displayToast('An error occurred, please refresh the page.');
         }
 
@@ -105,6 +114,16 @@ const useRegistration = ({
   };
 
   const onSocialRegistration = (provider: string) => {
+    if (!registration?.ui) {
+      trackEvent({
+        event_name: AuthEventNames.RegistrationError,
+        extra: JSON.stringify(registration),
+      });
+      displayToast('An error occurred, please refresh the page.');
+      onRedirectFail();
+      return;
+    }
+
     const csrf = getNodeValue('csrf_token', registration.ui.nodes);
     const postData: RegistrationParameters = {
       csrf_token: csrf,

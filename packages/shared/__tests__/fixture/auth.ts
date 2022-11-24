@@ -13,10 +13,9 @@ export const registrationFlowMockData: InitializationData = {
   type: 'browser',
   expires_at: '2022-07-31T11:29:43.777669965Z',
   issued_at: '2022-07-31T11:19:43.777669965Z',
-  request_url: 'http://127.0.0.1:4433/self-service/login/browser',
+  request_url: `${authUrl}/self-service/login/browser`,
   ui: {
-    action:
-      'http://127.0.0.1:4433/self-service/login?flow=1d225d8c-829b-4016-ae04-69b96126efdd',
+    action: `${authUrl}/self-service/login?flow=1d225d8c-829b-4016-ae04-69b96126efdd`,
     method: 'POST',
     nodes: [
       {
@@ -89,10 +88,9 @@ export const errorRegistrationMockData: Partial<InitializationData> = {
   type: 'browser',
   expires_at: '2022-07-31T15:20:02.759254Z',
   issued_at: '2022-07-31T15:10:02.759254Z',
-  request_url: 'http://127.0.0.1:4433/self-service/registration/browser',
+  request_url: `${authUrl}/self-service/registration/browser`,
   ui: {
-    action:
-      'http://127.0.0.1:4433/self-service/registration?flow=36c396aa-0e1e-4d04-b009-1bb1b6480aa4',
+    action: `${authUrl}/self-service/registration?flow=36c396aa-0e1e-4d04-b009-1bb1b6480aa4`,
     method: 'POST',
     nodes: [
       {
@@ -210,7 +208,7 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
     identity: {
       id: '44cf5b24-48c6-4f85-86ca-35bd4a06b5a9',
       schema_id: 'default',
-      schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+      schema_url: `${authUrl}/schemas/ZGVmYXVsdA`,
       state: 'active',
       state_changed_at: '2022-07-31T11:55:35.07680546Z',
       traits: {
@@ -247,7 +245,7 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
   identity: {
     id: '44cf5b24-48c6-4f85-86ca-35bd4a06b5a9',
     schema_id: 'default',
-    schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+    schema_url: `${authUrl}/schemas/ZGVmYXVsdA`,
     state: 'active',
     state_changed_at: '2022-07-31T11:55:35.07680546Z',
     traits: {
@@ -287,10 +285,9 @@ export const passwordLoginFlowMockData: InitializationData = {
   type: 'browser',
   expires_at: '2022-07-31T16:04:48.357133794Z',
   issued_at: '2022-07-31T15:54:48.357133794Z',
-  request_url: 'http://127.0.0.1:4433/self-service/login/browser',
+  request_url: `${authUrl}/self-service/login/browser`,
   ui: {
-    action:
-      'http://127.0.0.1:4433/self-service/login?flow=5ce81e66-2c88-42a8-8a88-8371b33d4ce1',
+    action: `${authUrl}/self-service/login?flow=5ce81e66-2c88-42a8-8a88-8371b33d4ce1`,
     method: 'POST',
     nodes: [
       {
@@ -363,10 +360,9 @@ export const passwordRecoveryFlowMockData = {
   type: 'browser',
   expires_at: '2022-08-01T06:49:16.558677293Z',
   issued_at: '2022-08-01T05:49:16.558677293Z',
-  request_url: 'http://127.0.0.1:4433/self-service/recovery/browser',
+  request_url: `${authUrl}/self-service/recovery/browser`,
   ui: {
-    action:
-      'http://127.0.0.1:4433/self-service/recovery?flow=2d8868b9-c720-4379-92ee-b74fcd11a471',
+    action: `${authUrl}/self-service/recovery?flow=2d8868b9-c720-4379-92ee-b74fcd11a471`,
     method: 'POST',
     nodes: [
       {
@@ -420,11 +416,10 @@ export const emailSentRecoveryMockData = {
   type: 'browser',
   expires_at: '2022-08-01T06:49:16.558677Z',
   issued_at: '2022-08-01T05:49:16.558677Z',
-  request_url: 'http://127.0.0.1:4433/self-service/recovery/browser',
+  request_url: `${authUrl}/self-service/recovery/browser`,
   active: 'link',
   ui: {
-    action:
-      'http://127.0.0.1:4433/self-service/recovery?flow=2d8868b9-c720-4379-92ee-b74fcd11a471',
+    action: `${authUrl}/self-service/recovery?flow=2d8868b9-c720-4379-92ee-b74fcd11a471`,
     method: 'POST',
     nodes: [
       {
@@ -488,10 +483,9 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
     type: 'browser',
     expires_at: '2022-08-31T12:07:36.046916095Z',
     issued_at: '2022-08-31T11:07:36.046916095Z',
-    request_url: 'http://127.0.0.1:4433/self-service/settings/browser?',
+    request_url: `${authUrl}/self-service/settings/browser?`,
     ui: {
-      action:
-        'http://127.0.0.1:4433/self-service/settings?flow=299542ab-38d9-470c-b9d3-8243a094d08a',
+      action: `${authUrl}/self-service/settings?flow=299542ab-38d9-470c-b9d3-8243a094d08a`,
       method: 'POST',
       nodes: [
         {
@@ -701,7 +695,7 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
     identity: {
       id: '4a1fed11-17f6-42e6-87ee-219bb249c6ba',
       schema_id: 'default',
-      schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+      schema_url: `${authUrl}/schemas/ZGVmYXVsdA`,
       state: 'active',
       state_changed_at: '2022-08-24T03:30:19.668093Z',
       traits: {
@@ -755,7 +749,7 @@ const getWhoamiMockData = (email = 'lee@daily.dev') => ({
   identity: {
     id: '4a1fed11-17f6-42e6-87ee-219bb249c6ba',
     schema_id: 'default',
-    schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+    schema_url: `${authUrl}/schemas/ZGVmYXVsdA`,
     state: 'active',
     state_changed_at: '2022-08-24T03:30:19.668093Z',
     traits: {
@@ -817,8 +811,7 @@ export const requireVerificationSettingsMock = {
       'The login session is too old and thus not allowed to update these fields. Please re-authenticate.',
     message: 'The requested action was forbidden',
   },
-  redirect_browser_to:
-    'http://127.0.0.1:4433/self-service/login/browser?refresh=true\u0026return_to=http%3A%2F%2F127.0.0.1%3A4433%2Fself-service%2Fsettings%3Fflow%3D4254d8bc-502b-498e-94c5-80891f49beb6',
+  redirect_browser_to: `${authUrl}/self-service/login/browser?refresh=true\u0026return_to=http%3A%2F%2F127.0.0.1%3A4433%2Fself-service%2Fsettings%3Fflow%3D4254d8bc-502b-498e-94c5-80891f49beb6`,
 };
 
 export const successfulSettingsFlowData = {
@@ -826,10 +819,9 @@ export const successfulSettingsFlowData = {
   type: 'browser',
   expires_at: '2022-08-31T12:07:36.046916Z',
   issued_at: '2022-08-31T11:07:36.046916Z',
-  request_url: 'http://127.0.0.1:4433/self-service/settings/browser?',
+  request_url: `${authUrl}/self-service/settings/browser?`,
   ui: {
-    action:
-      'http://127.0.0.1:4433/self-service/settings?flow=e60c9fca-7113-4966-ad9e-83c21371093b',
+    action: `${authUrl}/self-service/settings?flow=e60c9fca-7113-4966-ad9e-83c21371093b`,
     method: 'POST',
     nodes: [
       {
@@ -1042,7 +1034,7 @@ export const successfulSettingsFlowData = {
   identity: {
     id: '4a1fed11-17f6-42e6-87ee-219bb249c6ba',
     schema_id: 'default',
-    schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+    schema_url: `${authUrl}/schemas/ZGVmYXVsdA`,
     state: 'active',
     state_changed_at: '2022-08-24T03:30:19.668093Z',
     traits: {
@@ -1084,10 +1076,9 @@ export const loginVerificationMockData = {
   type: 'browser',
   expires_at: '2022-08-31T11:17:42.324836417Z',
   issued_at: '2022-08-31T11:07:42.324836417Z',
-  request_url: 'http://127.0.0.1:4433/self-service/login/browser?refresh=true',
+  request_url: `${authUrl}/self-service/login/browser?refresh=true`,
   ui: {
-    action:
-      'http://127.0.0.1:4433/self-service/login?flow=e9716552-632f-4b9b-a1ce-c1f844ff5b98',
+    action: `${authUrl}/self-service/login?flow=e9716552-632f-4b9b-a1ce-c1f844ff5b98`,
     method: 'POST',
     nodes: [
       {
@@ -1265,7 +1256,7 @@ export const verifiedLoginData = {
     identity: {
       id: '318b8590-135a-42d0-8c50-6820784ad869',
       schema_id: 'default',
-      schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
+      schema_url: `${authUrl}/schemas/ZGVmYXVsdA`,
       state: 'active',
       state_changed_at: '2022-08-25T03:32:25.542997Z',
       traits: {
@@ -1305,10 +1296,9 @@ export const mockVerificationFlowData = {
   type: 'browser',
   expires_at: '2022-09-22T07:52:14.556050839Z',
   issued_at: '2022-09-21T07:52:14.556050839Z',
-  request_url: 'http://127.0.0.1:4433/self-service/verification/browser?',
+  request_url: `${authUrl}/self-service/verification/browser?`,
   ui: {
-    action:
-      'http://127.0.0.1:4433/self-service/verification?flow=829ccc7c-2ae6-4157-951b-3809867f09de',
+    action: `${authUrl}/self-service/verification?flow=829ccc7c-2ae6-4157-951b-3809867f09de`,
     method: 'POST',
     nodes: [
       {

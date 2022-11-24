@@ -51,7 +51,7 @@ const getContainerStyle = (
 ): Record<AlertPlacement, CSSProperties> => ({
   left: { left: xOffset },
   right: { right: xOffset },
-  bottom: { bottom: yOffset },
+  bottom: { bottom: yOffset, left: xOffset },
   top: { top: yOffset },
 });
 

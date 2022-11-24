@@ -3,7 +3,7 @@
     @apply text-theme-label-primary;
 
     & .innerRing {
-      @apply border-4 border-water-40 bg-water-80;
+      @apply border-4 border-cabbage-40 bg-cabbage-80;
     }
   }
 }
@@ -18,23 +18,23 @@
 
 .item.checked:hover .checkmark, .checked input:focus-visible ~ .checkmark {
   /* stylelint-disable-next-line unit-no-unknown */
-  background: theme('colors.water.50')3D;
+  background: theme('colors.cabbage.50')3D;
 
   & .innerRing {
-    @apply border-water-20;
+    @apply border-cabbage-20;
   }
 }
 
 :global(.light) {
   & .item.checked {
     & .innerRing {
-      @apply border-water-60 bg-water-20;
+      @apply border-cabbage-60 bg-cabbage-20;
     }
   }
 
   & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
     & .innerRing {
-      @apply border-water-80;
+      @apply border-cabbage-80;
     }
   }
 }
@@ -43,13 +43,13 @@
   :global(.auto) {
     & .item.checked {
       & .innerRing {
-        @apply border-water-60 bg-water-20;
+        @apply border-cabbage-60 bg-cabbage-20;
       }
     }
   
     & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
       & .innerRing {
-        @apply border-water-80;
+        @apply border-cabbage-80;
       }
     }
   }
