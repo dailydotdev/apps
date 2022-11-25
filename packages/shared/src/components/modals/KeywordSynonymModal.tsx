@@ -1,9 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import request from 'graphql-request';
-import classNames from 'classnames';
 import { TextField } from '../fields/TextField';
-import XIcon from '../icons/Close';
 import {
   SEARCH_KEYWORDS_QUERY,
   SearchKeywordData,
@@ -12,8 +10,8 @@ import {
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ModalProps } from './StyledModal';
-import { ResponsiveModal } from './ResponsiveModal';
-import styles from './KeywordSynonymModal.module.css';
+import { Modal } from './common/Modal';
+import { Justify } from '../utilities';
 
 export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
 
@@ -48,49 +46,39 @@ export default function KeywordSynonymModal({
   };
 
   return (
-    <ResponsiveModal
-      className={classNames(className, styles.keywordSynonymModal)}
-      {...props}
-    >
-      <Button
-        onClick={props.onRequestClose}
-        buttonSize="small"
-        title="Close"
-        className="self-end btn-tertiary"
-      >
-        <XIcon />
-      </Button>
-      <h1 className="typo-callout">{`Find synonym for "${selectedKeyword}"`}</h1>
-      <TextField
-        inputId="search"
-        name="search"
-        label="Search for a keyword"
-        value={selectedKeyword}
-        autoFocus
-        valueChanged={onQueryChanged}
-        autoComplete="off"
-        className={{ container: 'self-stretch mb-3' }}
-      />
-      {!emptyResults && (
-        <ul className="flex flex-col gap-2 p-0 m-0 list-none">
-          {searchResults?.searchKeywords.hits.slice(0, 5).map((keyword) => (
-            <li className="p-0 m-0" key={keyword.value}>
-              <Button
-                onClick={() => setSynonym(keyword.value)}
-                className="btn-tertiary"
-              >
-                {keyword.value}
-              </Button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <Button
-        className="self-start mt-2 btn-primary"
-        onClick={() => setSynonym(query)}
-      >
-        Create
-      </Button>
-    </ResponsiveModal>
+    <Modal kind={Modal.Kind.FlexibleTop} size={Modal.Size.Medium} {...props}>
+      <Modal.Header title={`Find synonym for "${selectedKeyword}"`} />
+      <Modal.Body>
+        <TextField
+          inputId="search"
+          name="search"
+          label="Search for a keyword"
+          value={selectedKeyword}
+          autoFocus
+          valueChanged={onQueryChanged}
+          autoComplete="off"
+          className={{ container: 'self-stretch mb-3' }}
+        />
+        {!emptyResults && (
+          <ul className="flex flex-col gap-2 p-0 m-0 list-none">
+            {searchResults?.searchKeywords.hits.slice(0, 5).map((keyword) => (
+              <li className="p-0 m-0" key={keyword.value}>
+                <Button
+                  onClick={() => setSynonym(keyword.value)}
+                  className="btn-tertiary"
+                >
+                  {keyword.value}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal.Body>
+      <Modal.Footer justify={Justify.End}>
+        <Button className=" btn-primary" onClick={() => setSynonym(query)}>
+          Create
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }
