@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import classed from '../../lib/classed';
 import { Modal, ModalProps } from './common/Modal';
 
-export function ConfirmationModal({ children, ...props }: ModalProps) {
+export function ConfirmationModal({
+  children,
+  ...props
+}: ModalProps): ReactElement {
   return (
     <Modal
       isOpen
