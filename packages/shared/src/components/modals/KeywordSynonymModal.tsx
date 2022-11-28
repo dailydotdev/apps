@@ -11,7 +11,6 @@ import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ModalProps } from './StyledModal';
 import { Modal } from './common/Modal';
-import { Justify } from '../utilities';
 
 export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
 
@@ -57,10 +56,10 @@ export default function KeywordSynonymModal({
           autoFocus
           valueChanged={onQueryChanged}
           autoComplete="off"
-          className={{ container: 'self-stretch mb-3' }}
+          className={{ container: 'self-stretch' }}
         />
         {!emptyResults && (
-          <ul className="flex flex-col gap-2 p-0 m-0 list-none">
+          <ul className="flex flex-col gap-2 p-0 m-0 mt-3 list-none">
             {searchResults?.searchKeywords.hits.slice(0, 5).map((keyword) => (
               <li className="p-0 m-0" key={keyword.value}>
                 <Button
@@ -74,7 +73,7 @@ export default function KeywordSynonymModal({
           </ul>
         )}
       </Modal.Body>
-      <Modal.Footer justify={Justify.End}>
+      <Modal.Footer>
         <Button className=" btn-primary" onClick={() => setSynonym(query)}>
           Create
         </Button>
