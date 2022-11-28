@@ -16,6 +16,12 @@ export enum Theme {
   Lettuce = 'lettuce',
 }
 
+export enum Justify {
+  End = 'justify-end',
+  Center = 'justify-center',
+  Between = 'justify-between',
+}
+
 export interface ThemeColor {
   border: string;
   shadow: string;
@@ -214,3 +220,18 @@ export const FeedHeading = classed(
   'h3',
   'flex flex-row flex-1 items-center typo-headline',
 );
+
+export const getShouldRedirect = (
+  isOnMyFeed: boolean,
+  isLoggedIn: boolean,
+): boolean => {
+  if (!isOnMyFeed) {
+    return false;
+  }
+
+  if (!isLoggedIn) {
+    return true;
+  }
+
+  return false;
+};

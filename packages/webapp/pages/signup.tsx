@@ -2,12 +2,14 @@ import AuthModalHeading from '@dailydotdev/shared/src/components/auth/AuthModalH
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import Logo from '@dailydotdev/shared/src/components/Logo';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useRouter } from 'next/router';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 
 function Signup(): ReactElement {
+  const { authVersion } = useContext(FeaturesContext);
   const { formRef } = useAuthForms();
   const router = useRouter();
 
@@ -32,6 +34,7 @@ function Signup(): ReactElement {
             trigger="login page"
             onClose={onClose}
             onSuccessfulLogin={onClose}
+            version={authVersion}
           />
 
           <AuthModalHeading className="hidden tablet:block z-1 mb-10 laptop:mb-0 laptop:ml-32 typo-title1 laptop:typo-mega1">

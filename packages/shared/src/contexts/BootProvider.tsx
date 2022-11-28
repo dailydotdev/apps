@@ -153,7 +153,11 @@ export const BootDataProvider = ({
   );
 
   return (
-    <FeaturesContextProvider flags={flags}>
+    <FeaturesContextProvider
+      flags={flags}
+      isFlagsFetched={initialLoad}
+      isFeaturesLoaded={loadedFromCache}
+    >
       <AuthContextProvider
         user={user}
         updateUser={updateUser}
@@ -166,6 +170,7 @@ export const BootDataProvider = ({
         isFetched={isFetched}
         isLegacyLogout={bootRemoteData?.isLegacyLogout}
         firstLoad={initialLoad}
+        accessToken={bootRemoteData?.accessToken}
       >
         <SettingsContextProvider
           settings={settings}

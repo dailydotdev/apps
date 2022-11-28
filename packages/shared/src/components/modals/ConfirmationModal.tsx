@@ -1,30 +1,26 @@
-import { StyledModal } from './StyledModal';
+import React, { ReactElement } from 'react';
 import classed from '../../lib/classed';
-import styles from './ConfirmationModal.module.css';
-// import { Modal, ModalProps } from './common/Modal';
-// import React from 'react';
+import { Modal, ModalProps } from './common/Modal';
 
-export const ConfirmationModal = classed(StyledModal, styles.confirmationModal);
-// export function ConfirmationModal({children, ...props}: ModalProps)
-// {
-//   return (
-//     <Modal isOpen kind={Modal.Kind.FlexibleCenter} size={Modal.Size.XSmall} {...props}>
-//       <Modal.Body>
-//         {children}
-//       </Modal.Body>
-//     </Modal>
-//   );
-// }
+export function ConfirmationModal({
+  children,
+  ...props
+}: ModalProps): ReactElement {
+  return (
+    <Modal
+      isOpen
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.XSmall}
+      {...props}
+    >
+      <Modal.Body>{children}</Modal.Body>
+    </Modal>
+  );
+}
 
 export const ConfirmationButtons = classed(
   'div',
-  'flex items-center justify-between self-stretch',
-  styles.buttons,
-);
-export const ConfirmationButtonsCenter = classed(
-  'div',
-  'flex items-center justify-between self-center',
-  styles.buttons,
+  'flex items-center justify-around self-stretch',
 );
 export const ConfirmationHeading = classed(
   'h1',
@@ -32,5 +28,5 @@ export const ConfirmationHeading = classed(
 );
 export const ConfirmationDescription = classed(
   'div',
-  'mt-2 mb-6 text-theme-label-secondary text-center typo-callout',
+  'mt-4 mb-6 text-theme-label-secondary text-center typo-callout',
 );

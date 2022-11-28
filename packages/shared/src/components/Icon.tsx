@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
 
 export type Size =
@@ -28,7 +28,7 @@ export interface IconProps {
   secondary?: boolean;
   size?: Size;
   className?: string;
-  style?: Record<string, unknown>;
+  style?: CSSProperties;
 }
 
 type Props = IconProps & {

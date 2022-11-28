@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
+import classNames from 'classnames';
 import classed from '../../../lib/classed';
 import { ModalTabs } from './ModalTabs';
 import { ModalClose } from './ModalClose';
@@ -10,20 +11,37 @@ export type ModalHeaderProps = {
 };
 
 const ModalHeaderTitle = classed('h3', 'font-bold typo-title3');
+const ModalHeaderOuter = classed(
+  'header',
+  'flex items-center py-4 px-6 w-full h-14',
+);
 
 export function ModalHeader({
   children,
   title,
 }: ModalHeaderProps): ReactElement {
-  const { onRequestClose, tabs } = useContext(ModalPropsContext);
+  const { activeTab, onRequestClose } = useContext(ModalPropsContext);
+  const modalTitle = title ?? activeTab;
   return (
-    <header className="flex justify-between items-center py-4 px-6 w-full h-14 border-b border-theme-divider-tertiary">
-      {!!title && <ModalHeaderTitle>{title}</ModalHeaderTitle>}
-      {tabs && <ModalTabs />}
+    <ModalHeaderOuter
+      className={classNames(
+        (modalTitle || children) && 'border-b border-theme-divider-tertiary',
+      )}
+    >
       {children}
+      {!!modalTitle && <ModalHeaderTitle>{modalTitle}</ModalHeaderTitle>}
       {onRequestClose && <ModalClose onClick={onRequestClose} />}
-    </header>
+    </ModalHeaderOuter>
+  );
+}
+
+export function ModalHeaderTabs(): ReactElement {
+  return (
+    <ModalHeaderOuter className="border-b border-theme-divider-tertiary">
+      <ModalTabs />
+    </ModalHeaderOuter>
   );
 }
 
 ModalHeader.Title = ModalHeaderTitle;
+ModalHeader.Tabs = ModalHeaderTabs;
