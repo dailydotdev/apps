@@ -36,40 +36,6 @@ export default function DndModal({
     onRequestClose(e);
   };
 
-  const turnedOffContent = (
-    <div className="mt-6">
-      <TextField
-        inputId="defaultURL"
-        label="Default URL (optional)"
-        valueChanged={(text) => setLink(text)}
-      />
-      <Radio
-        className="mt-8"
-        name="timeOff"
-        value={dndTime}
-        options={timeFormatOptions}
-        onChange={(value: TimeFormat) => setDndTime(value)}
-      />
-      {dndTime !== 'CUSTOM' ? null : (
-        <div className="flex flex-row gap-4 mt-4">
-          <TextField
-            className={{ container: 'w-40' }}
-            inputId="defaultURL"
-            label="Number"
-            type="number"
-            valueChanged={(number) => setCustomNumber(parseInt(number, 10))}
-          />
-          <Dropdown
-            className={{ container: 'w-40' }}
-            options={customTimeOptions}
-            selectedIndex={customTimeIndex}
-            onChange={(_, index) => setCustomTimeIndex(index)}
-          />
-        </div>
-      )}
-    </div>
-  );
-
   const getDescription = () => {
     if (!isActive)
       return 'Choose the URL to temporarily show instead of daily.dev and the pause duration.';
@@ -89,10 +55,44 @@ export default function DndModal({
     >
       <Modal.Header title="Pause new tab" />
       <Modal.Body>
-        <p className="mt-1 typo-callout text-theme-label-secondary">
+        <p className="typo-callout text-theme-label-secondary">
           {getDescription()}
         </p>
-        {!isActive ? turnedOffContent : null}
+        {!isActive ? (
+          <div className="mt-6">
+            <TextField
+              inputId="defaultURL"
+              label="Default URL (optional)"
+              valueChanged={(text) => setLink(text)}
+            />
+            <Radio
+              className="mt-8"
+              name="timeOff"
+              value={dndTime}
+              options={timeFormatOptions}
+              onChange={(value: TimeFormat) => setDndTime(value)}
+            />
+            {dndTime !== 'CUSTOM' ? null : (
+              <div className="flex flex-row gap-4 mt-4">
+                <TextField
+                  className={{ container: 'w-40' }}
+                  inputId="defaultURL"
+                  label="Number"
+                  type="number"
+                  valueChanged={(number) =>
+                    setCustomNumber(parseInt(number, 10))
+                  }
+                />
+                <Dropdown
+                  className={{ container: 'w-40' }}
+                  options={customTimeOptions}
+                  selectedIndex={customTimeIndex}
+                  onChange={(_, index) => setCustomTimeIndex(index)}
+                />
+              </div>
+            )}
+          </div>
+        ) : null}
       </Modal.Body>
       <Modal.Footer justify={!isActive ? Justify.End : Justify.Between}>
         {isActive ? (
