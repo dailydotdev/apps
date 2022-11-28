@@ -11,7 +11,7 @@ import {
   LoggedUser,
   logout as dispatchLogout,
 } from '../lib/user';
-import { Visit } from '../lib/boot';
+import { AccessToken, Visit } from '../lib/boot';
 import FeaturesContext from './FeaturesContext';
 import { AuthVersion } from '../lib/featureValues';
 import { isCompanionActivated } from '../lib/element';
@@ -39,6 +39,7 @@ export interface AuthContextData {
   isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
   refetchBoot?: () => Promise<unknown>;
+  accessToken?: AccessToken;
 }
 const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -88,6 +89,7 @@ export type AuthContextProviderProps = {
   | 'tokenRefreshed'
   | 'loadedUserFromCache'
   | 'visit'
+  | 'accessToken'
 >;
 
 export const AuthContextProvider = ({
@@ -103,6 +105,7 @@ export const AuthContextProvider = ({
   visit,
   isLegacyLogout,
   firstLoad,
+  accessToken,
 }: AuthContextProviderProps): ReactElement => {
   const { authVersion } = useContext(FeaturesContext);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
@@ -146,6 +149,7 @@ export const AuthContextProvider = ({
       isFetched,
       refetchBoot,
       deleteAccount,
+      accessToken,
     }),
     [
       authVersion,
@@ -156,6 +160,7 @@ export const AuthContextProvider = ({
       tokenRefreshed,
       loadedUserFromCache,
       visit,
+      accessToken,
     ],
   );
 
