@@ -58,7 +58,7 @@ export default function DndModal({
         <p className="typo-callout text-theme-label-secondary">
           {getDescription()}
         </p>
-        {!isActive ? (
+        {!isActive && (
           <div className="mt-6">
             <TextField
               inputId="defaultURL"
@@ -92,7 +92,7 @@ export default function DndModal({
               </div>
             )}
           </div>
-        ) : null}
+        )}
       </Modal.Body>
       <Modal.Footer justify={!isActive ? Justify.End : Justify.Between}>
         {isActive ? (
