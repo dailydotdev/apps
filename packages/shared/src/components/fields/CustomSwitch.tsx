@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import styles from './CustomSwitch.module.css';
 import classed from '../../lib/classed';
@@ -9,8 +15,8 @@ export interface ContentsSwitchProps {
   name: string;
   checked?: boolean;
   onToggle?: () => unknown;
-  leftContent: React.FC<{ className?: string; secondary?: boolean }> | string;
-  rightContent: React.FC<{ className?: string; secondary?: boolean }> | string;
+  leftContent: ReactNode | string;
+  rightContent: ReactNode | string;
 }
 
 const ContentContainer = classed(
@@ -28,8 +34,8 @@ export function CustomSwitch({
   name,
   checked,
   onToggle,
-  leftContent: LeftContent,
-  rightContent: RightContent,
+  leftContent,
+  rightContent,
 }: ContentsSwitchProps): ReactElement {
   const leftRef = useRef<HTMLElement>();
   const rightRef = useRef<HTMLElement>();
@@ -79,24 +85,21 @@ export function CustomSwitch({
         ref={leftRef}
         className={checked && 'text-theme-label-tertiary'}
       >
-        {typeof LeftContent === 'string' ? (
-          LeftContent
-        ) : (
-          <LeftContent
-            secondary={!checked}
-            className={classNames(leftClasses)}
-          />
-        )}
+        {typeof leftContent === 'string'
+          ? leftContent
+          : React.cloneElement(leftContent as ReactElement, {
+              className: leftClasses,
+            })}
       </ContentContainer>
       <ContentContainer
         ref={rightRef}
         className={!checked && 'text-theme-label-tertiary'}
       >
-        {typeof RightContent === 'string' ? (
-          RightContent
-        ) : (
-          <RightContent secondary={checked} className={rightClasses} />
-        )}
+        {typeof rightContent === 'string'
+          ? rightContent
+          : React.cloneElement(rightContent as ReactElement, {
+              className: rightClasses,
+            })}
       </ContentContainer>
       <span className="absolute inset-0 my-auto h-7 bg-cabbage-50 rounded-10 opacity-24 group-hover:opacity-32" />
       <span
