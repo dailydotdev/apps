@@ -81,7 +81,7 @@ export default function BookmarkFeedLayout({
         {searchChildren}
         {shareBookmarksButton(
           'hidden laptop:flex ml-4 btn-secondary',
-          ' Share bookmarks',
+          'Share bookmarks',
         )}
         {shareBookmarksButton('flex laptop:hidden ml-4 btn-secondary')}
       </CustomFeedHeader>
