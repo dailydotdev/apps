@@ -9,8 +9,8 @@ export interface ContentsSwitchProps {
   name: string;
   checked?: boolean;
   onToggle?: () => unknown;
-  leftContent: React.FC<{ className?: string }> | string;
-  rightContent: React.FC<{ className?: string }> | string;
+  leftContent: React.FC<{ className?: string; secondary?: boolean }> | string;
+  rightContent: React.FC<{ className?: string; secondary?: boolean }> | string;
 }
 
 const ContentContainer = classed(
@@ -82,7 +82,10 @@ export function CustomSwitch({
         {typeof LeftContent === 'string' ? (
           LeftContent
         ) : (
-          <LeftContent className={classNames(leftClasses)} />
+          <LeftContent
+            secondary={!checked}
+            className={classNames(leftClasses)}
+          />
         )}
       </ContentContainer>
       <ContentContainer
@@ -92,7 +95,7 @@ export function CustomSwitch({
         {typeof RightContent === 'string' ? (
           RightContent
         ) : (
-          <RightContent className={rightClasses} />
+          <RightContent secondary={checked} className={rightClasses} />
         )}
       </ContentContainer>
       <span className="absolute inset-0 my-auto h-7 bg-cabbage-50 rounded-10 opacity-24 group-hover:opacity-32" />

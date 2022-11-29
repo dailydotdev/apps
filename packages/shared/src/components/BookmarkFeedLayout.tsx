@@ -14,6 +14,7 @@ import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
 import SourceIcon from './icons/Source';
+import ShareIcon from './icons/Share';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -63,7 +64,7 @@ export default function BookmarkFeedLayout({
   const shareBookmarksButton = (style: string, text?: string) => (
     <Button
       className={style}
-      icon={<SourceIcon />}
+      icon={<ShareIcon secondary={showSharedBookmarks} />}
       onClick={() => setShowSharedBookmarks(true)}
     >
       {text}
@@ -80,7 +81,7 @@ export default function BookmarkFeedLayout({
         {searchChildren}
         {shareBookmarksButton(
           'hidden laptop:flex ml-4 btn-secondary',
-          'Share bookmarks',
+          ' Share bookmarks',
         )}
         {shareBookmarksButton('flex laptop:hidden ml-4 btn-secondary')}
       </CustomFeedHeader>

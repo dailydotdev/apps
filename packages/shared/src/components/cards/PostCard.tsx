@@ -168,7 +168,10 @@ export const PostCard = forwardRef(function PostCard(
           >
             <ProfilePicture size="small" user={post.author} />
             <span className="flex-1 mx-3 truncate">{post.author.name}</span>
-            <FeatherIcon className="text-2xl text-theme-status-help" />
+            <FeatherIcon
+              secondary
+              className="text-2xl text-theme-status-help"
+            />
           </div>
         )}
         <ActionButtons
