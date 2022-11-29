@@ -213,7 +213,7 @@ export function useUserMention({
   };
 
   const onInitializeMentionButtonClick = () => {
-    if (typeof query !== 'undefined') {
+    if (typeof query !== 'undefined' || !commentRef.current) {
       return;
     }
 

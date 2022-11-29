@@ -9,17 +9,19 @@ import {
   PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
-import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import Markdown from '../Markdown';
-import TabContainer, { Tab } from '../tabs/TabContainer';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button } from '../buttons/Button';
 import { Post } from '../../graphql/posts';
-import { ModalCloseButton } from './ModalCloseButton';
 import DiscardActionModal from './DiscardActionModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-// import { Modal } from './common/Modal';
+import { Modal } from './common/Modal';
+import AtIcon from '../icons/At';
+import { ClickableText } from '../buttons/ClickableText';
+import { useUserMention } from '../../hooks/useUserMention';
+import { markdownGuide } from '../../lib/constants';
+import { Justify } from '../utilities';
 
 interface CommentVariables {
   id: string;
@@ -46,6 +48,11 @@ export interface NewCommentModalProps extends ModalProps, CommentProps {
   onInputChange?: (value: string) => void;
 }
 
+enum CommentTabs {
+  Write = 'Write',
+  Preview = 'Preview',
+}
+
 export default function NewCommentModal({
   onRequestClose,
   editId,
@@ -55,10 +62,8 @@ export default function NewCommentModal({
 }: NewCommentModalProps): ReactElement {
   const [input, setInput] = useState<string>(props.editContent || '');
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState('Write');
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>(null);
-  const isPreview = activeTab === 'Preview';
   const { requestMethod } = useRequestProtocol();
   const previewQueryKey = ['comment_preview', input];
   const { data: previewContent } = useQuery<{ preview: string }>(
@@ -70,7 +75,7 @@ export default function NewCommentModal({
         { content: input },
         { requestKey: JSON.stringify(previewQueryKey) },
       ),
-    { enabled: isPreview && input?.length > 0 },
+    { enabled: input?.length > 0 },
   );
 
   const confirmClose = (event: MouseEvent): void => {
@@ -144,107 +149,72 @@ export default function NewCommentModal({
       setSendingComment(false);
     }
   };
+  const { onInitializeMention } = useUserMention({
+    postId: props.post.id,
+    onInput: setInput,
+  });
 
   useEffect(() => {
     onInputChange?.(input);
   }, [input]);
-
-  // return (
-  //   <Modal
-  //     contentRef={modalRef}
-  //     onRequestClose={confirmClose}
-  //     kind={Modal.Kind.FlexibleCenter}
-  //     size={Modal.Size.Small}
-  //     tabs={['Write', 'Preview']}
-  //     {...props}
-  //   >
-  //     <Modal.Header />
-  //     <Modal.Body tab="Write">
-  //       <CommentBox
-  //         {...props}
-  //         onInput={setInput}
-  //         input={input}
-  //         editId={editId}
-  //         errorMessage={errorMessage}
-  //         sendingComment={sendingComment}
-  //         sendComment={sendComment}
-  //       />
-  //     </Modal.Body>
-  //     <Modal.Body tab="Preview">
-  //       {isPreview && previewContent?.preview && (
-  //         <Markdown
-  //           content={previewContent.preview}
-  //           appendTooltipTo={props.parentSelector}
-  //         />
-  //       )}
-  //     </Modal.Body>
-  //     <Modal.Footer>
-  //       <Button
-  //         disabled={!input?.trim().length || input === props.editContent}
-  //         loading={sendingComment}
-  //         onClick={sendComment}
-  //         className="mt-auto ml-auto btn-primary-avocado"
-  //       >
-  //         {editId ? 'Update' : 'Comment'}
-  //       </Button>
-  //     </Modal.Footer>
-  //     <DiscardActionModal
-  //       isOpen={showDiscardModal}
-  //       onRequestClose={() => setShowDiscardModal(false)}
-  //       rightButtonAction={onRequestClose}
-  //       shouldCloseOnOverlayClick={false}
-  //       parentSelector={props.parentSelector}
-  //     />
-  //   </Modal>
-  // );
-
+  const disabled = !input?.trim().length || input === props.editContent;
+  const updateButton = (
+    <Button
+      disabled={disabled}
+      loading={sendingComment}
+      onClick={sendComment}
+      className="ml-auto btn-primary-avocado"
+    >
+      {editId ? 'Update' : 'Comment'}
+    </Button>
+  );
   return (
-    <ResponsiveModal
+    <Modal
       contentRef={modalRef}
       onRequestClose={confirmClose}
-      overlayClassName="fixed-position"
-      padding={false}
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Small}
+      tabs={Object.values(CommentTabs)}
       {...props}
     >
-      <ModalCloseButton onClick={confirmClose} className="top-2" />
-      <TabContainer
-        onActiveChange={(active: string) => setActiveTab(active)}
-        shouldMountInactive
-        className="tablet:max-h-[40rem] grow tablet:grow-0"
-      >
-        <Tab label="Write" className="flex flex-col flex-1 p-3">
-          <CommentBox
-            {...props}
-            onInput={setInput}
-            input={input}
-            editId={editId}
-            errorMessage={errorMessage}
-            sendingComment={sendingComment}
-            sendComment={sendComment}
-          />
-        </Tab>
-        <Tab
-          label="Preview"
-          className="flex overflow-y-auto flex-col flex-1 p-3"
+      <Modal.Header.Tabs
+        disabledTab={(tab) => tab === CommentTabs.Preview && disabled}
+      />
+      <Modal.Body tab={CommentTabs.Write}>
+        <CommentBox
+          {...props}
+          onInput={setInput}
+          input={input}
+          errorMessage={errorMessage}
+          sendComment={sendComment}
+        />
+      </Modal.Body>
+      <Modal.Body tab={CommentTabs.Preview}>
+        <Markdown
+          content={previewContent?.preview}
+          appendTooltipTo={props.parentSelector}
+        />
+      </Modal.Body>
+      <Modal.Footer justify={Justify.Between} tab={CommentTabs.Write}>
+        <Button
+          className="btn-tertiary"
+          buttonSize="small"
+          icon={<AtIcon />}
+          onClick={onInitializeMention}
+        />
+        <div className="-ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
+        <ClickableText
+          tag="a"
+          href={markdownGuide}
+          className="typo-caption1"
+          defaultTypo={false}
+          target="_blank"
         >
-          {isPreview && previewContent?.preview && (
-            <Markdown
-              content={previewContent.preview}
-              appendTooltipTo={props.parentSelector}
-            />
-          )}
-          {isPreview && (
-            <Button
-              disabled={!input?.trim().length || input === props.editContent}
-              loading={sendingComment}
-              onClick={sendComment}
-              className="mt-auto ml-auto btn-primary-avocado"
-            >
-              {editId ? 'Update' : 'Comment'}
-            </Button>
-          )}
-        </Tab>
-      </TabContainer>
+          Markdown supported
+        </ClickableText>
+        {updateButton}
+      </Modal.Footer>
+      <Modal.Footer tab={CommentTabs.Preview}>{updateButton}</Modal.Footer>
       <DiscardActionModal
         isOpen={showDiscardModal}
         onRequestClose={() => setShowDiscardModal(false)}
@@ -252,6 +222,6 @@ export default function NewCommentModal({
         shouldCloseOnOverlayClick={false}
         parentSelector={props.parentSelector}
       />
-    </ResponsiveModal>
+    </Modal>
   );
 }
