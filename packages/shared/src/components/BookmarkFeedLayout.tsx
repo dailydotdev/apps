@@ -13,7 +13,6 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
-import SourceIcon from './icons/Source';
 import ShareIcon from './icons/Share';
 
 export type BookmarkFeedLayoutProps = {
