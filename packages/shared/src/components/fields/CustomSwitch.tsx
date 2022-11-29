@@ -88,7 +88,10 @@ export function CustomSwitch({
         {typeof leftContent === 'string'
           ? leftContent
           : React.cloneElement(leftContent as ReactElement, {
-              className: leftClasses,
+              className: classNames(
+                (leftContent as ReactElement).props.className,
+                leftClasses,
+              ),
             })}
       </ContentContainer>
       <ContentContainer
@@ -98,7 +101,10 @@ export function CustomSwitch({
         {typeof rightContent === 'string'
           ? rightContent
           : React.cloneElement(rightContent as ReactElement, {
-              className: rightClasses,
+              className: classNames(
+                (rightContent as ReactElement).props.className,
+                rightClasses,
+              ),
             })}
       </ContentContainer>
       <span className="absolute inset-0 my-auto h-7 bg-cabbage-50 rounded-10 opacity-24 group-hover:opacity-32" />
