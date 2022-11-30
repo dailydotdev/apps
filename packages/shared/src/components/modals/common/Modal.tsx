@@ -105,7 +105,6 @@ export function Modal({
 
 export const ModalSubtitle = classed('strong', 'typo-headline mb-2');
 export const ModalText = classed('p', 'typo-callout text-theme-label-tertiary');
-// export const ModalSection = classed('section', 'flex flex-col p-6');
 
 Modal.Size = ModalSize;
 Modal.Kind = ModalKind;
