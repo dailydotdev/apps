@@ -37,7 +37,7 @@ type CommentProps = Omit<
   | 'sendComment'
   | 'onInput'
   | 'onKeyDown'
-  | keyof UseUserMention
+  | 'useUserMentionOptions'
 >;
 
 export interface NewCommentModalProps extends ModalProps, CommentProps {
@@ -150,7 +150,7 @@ export default function NewCommentModal({
       setSendingComment(false);
     }
   };
-  const userMentionProps = useUserMention({
+  const useUserMentionOptions = useUserMention({
     postId: props.post.id,
     onInput: setInput,
   });
@@ -184,7 +184,7 @@ export default function NewCommentModal({
       <Modal.Body tab={CommentTabs.Write}>
         <CommentBox
           {...props}
-          {...userMentionProps}
+          useUserMentionOptions={useUserMentionOptions}
           onInput={setInput}
           input={input}
           errorMessage={errorMessage}
@@ -202,7 +202,7 @@ export default function NewCommentModal({
           className="btn-tertiary"
           buttonSize="small"
           icon={<AtIcon />}
-          onClick={userMentionProps.onInitializeMention}
+          onClick={useUserMentionOptions.onInitializeMention}
         />
         <div className="-ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
         <ClickableText

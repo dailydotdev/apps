@@ -22,7 +22,7 @@ import {
 import { Post } from '../../graphql/posts';
 import { cleanupEmptySpaces } from '../../lib/strings';
 
-export interface CommentBoxProps extends UseUserMention {
+export interface CommentBoxProps {
   authorName: string;
   authorImage: string;
   publishDate: Date | string;
@@ -34,6 +34,7 @@ export interface CommentBoxProps extends UseUserMention {
   parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
+  useUserMentionOptions: UseUserMention;
   post: Post;
 }
 
@@ -48,17 +49,19 @@ function CommentBox({
   onInput,
   sendComment,
   parentSelector,
-  onMentionClick,
-  onMentionKeypress,
-  offset,
-  mentions,
-  mentionQuery,
-  selected,
-  commentRef,
-  onInputClick,
+  useUserMentionOptions
 }: CommentBoxProps): ReactElement {
   const { user } = useContext(AuthContext);
-
+  const {
+    onMentionClick,
+    onMentionKeypress,
+    offset,
+    mentions,
+    mentionQuery,
+    selected,
+    commentRef,
+    onInputClick,
+  } = useUserMentionOptions;
   useEffect(() => {
     commentRef.current?.focus();
     if (commentRef.current) {
