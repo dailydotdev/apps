@@ -118,8 +118,8 @@ export default function Settings({
         <CustomSwitch
           inputId="layout-switch"
           name="insaneMode"
-          leftContent={CardIcon}
-          rightContent={LineIcon}
+          leftContent={<CardIcon secondary={!insaneMode} />}
+          rightContent={<LineIcon secondary={!insaneMode} />}
           checked={insaneMode}
           className="mx-1.5"
           onToggle={toggleInsaneMode}
