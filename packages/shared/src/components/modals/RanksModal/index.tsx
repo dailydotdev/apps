@@ -10,6 +10,7 @@ import { Button } from '../../buttons/Button';
 import { RANKS } from '../../../lib/rank';
 import { AuthTriggers } from '../../../lib/auth';
 import { Modal } from '../common/Modal';
+import IntroSection from './IntroSection';
 
 export default function RanksModal({
   rank,
