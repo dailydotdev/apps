@@ -31,7 +31,7 @@ import {
 import { nextTick } from '../lib/func';
 import { useRequestProtocol } from './useRequestProtocol';
 
-interface UseUserMention {
+export interface UseUserMention {
   mentionQuery?: string;
   onMentionKeypress: (event: ReactKeyboardEvent) => unknown;
   selected: number;

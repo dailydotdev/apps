@@ -149,7 +149,7 @@ export default function NewCommentModal({
       setSendingComment(false);
     }
   };
-  const { onInitializeMention } = useUserMention({
+  const userMentionProps = useUserMention({
     postId: props.post.id,
     onInput: setInput,
   });
@@ -183,6 +183,7 @@ export default function NewCommentModal({
       <Modal.Body tab={CommentTabs.Write}>
         <CommentBox
           {...props}
+          {...userMentionProps}
           onInput={setInput}
           input={input}
           errorMessage={errorMessage}
@@ -200,7 +201,7 @@ export default function NewCommentModal({
           className="btn-tertiary"
           buttonSize="small"
           icon={<AtIcon />}
-          onClick={onInitializeMention}
+          onClick={userMentionProps.onInitializeMention}
         />
         <div className="-ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
         <ClickableText

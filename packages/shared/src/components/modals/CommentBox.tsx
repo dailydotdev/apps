@@ -17,12 +17,12 @@ import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip
 import {
   fixHeight,
   UPDOWN_ARROW_KEYS,
-  useUserMention,
+  UseUserMention,
 } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import { cleanupEmptySpaces } from '../../lib/strings';
 
-export interface CommentBoxProps {
+export interface CommentBoxProps extends UseUserMention {
   authorName: string;
   authorImage: string;
   publishDate: Date | string;
@@ -30,6 +30,7 @@ export interface CommentBoxProps {
   editContent?: string;
   input?: string;
   errorMessage?: string;
+  sendingComment?: boolean;
   parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
@@ -47,27 +48,22 @@ function CommentBox({
   onInput,
   sendComment,
   parentSelector,
-  post,
+  onMentionClick,
+  onMentionKeypress,
+  offset,
+  mentions,
+  mentionQuery,
+  selected,
+  commentRef,
+  onInputClick,
 }: CommentBoxProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const {
-    onMentionClick,
-    onMentionKeypress,
-    offset,
-    mentions,
-    mentionQuery,
-    selected,
-    commentRef,
-    onInputClick,
-  } = useUserMention({
-    postId: post.id,
-    onInput,
-  });
 
   useEffect(() => {
     commentRef.current?.focus();
     if (commentRef.current) {
       if (editContent) {
+        // eslint-disable-next-line no-param-reassign
         commentRef.current.value = editContent;
       }
       commentRef.current.setAttribute(
