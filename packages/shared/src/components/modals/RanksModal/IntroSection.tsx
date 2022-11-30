@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 import { ClickableText } from '../../buttons/ClickableText';
-import { ModalSection, ModalSubTitle, ModalText } from '../common';
 import { weeklyGoal } from '../../../lib/constants';
+import { Modal } from '../common/Modal';
 
 const IntroSection = (): ReactElement => {
   return (
-    <ModalSection className="mb-4">
-      <ModalSubTitle>Reading status</ModalSubTitle>
-      <ModalText>
+    <div className="mb-4">
+      <Modal.Subtitle>Reading status</Modal.Subtitle>
+      <Modal.Text>
         Read content you love to stay updated.{' '}
         <ClickableText
           tag="a"
@@ -18,8 +18,8 @@ const IntroSection = (): ReactElement => {
         >
           Learn more.
         </ClickableText>
-      </ModalText>
-    </ModalSection>
+      </Modal.Text>
+    </div>
   );
 };
 export default IntroSection;
