@@ -36,7 +36,7 @@ export default function BookmarkFeedLayout({
 }: BookmarkFeedLayoutProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
-  const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
+  const [showSharedBookmarks, setShowSharedBookmarks] = useState(true);
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
