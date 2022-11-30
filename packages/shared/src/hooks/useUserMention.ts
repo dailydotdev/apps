@@ -246,10 +246,10 @@ export function useUserMention({
     };
 
     const dom = commentRef.current?.getRootNode();
-    dom.addEventListener('mousedown', userClicked);
+    dom?.addEventListener('mousedown', userClicked);
 
     return () => {
-      dom.removeEventListener('mousedown', userClicked);
+      dom?.removeEventListener('mousedown', userClicked);
     };
   }, [query]);
 
