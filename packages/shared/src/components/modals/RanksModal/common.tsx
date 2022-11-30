@@ -42,7 +42,7 @@ export type DevCardTextProps = Pick<DevCardFooterProps, 'user' | 'isLocked'>;
 
 /** Rank badge */
 export const RanksBadgesList = classed('ul', 'flex flex-nowrap');
-export const RanksBadgesSection = classed('section', 'overflow-hidden');
+export const RanksBadgesSection = classed('section', 'overflow-hidden -mx-6');
 export const RankBadge = classed(
   'li',
   'flex relative flex-col justify-center items-center w-1/4',
@@ -59,8 +59,8 @@ export const RankBadgeName = classed('strong', 'mt-2');
 
 /** Rank tag */
 export const RanksTagsSection = classed(
-  'section',
-  'p-4 m-4 mb-4 rounded-16 border bg-theme-bg-secondary border-theme-divider-tertiary',
+  'div',
+  'p-4 mb-4 rounded-16 border bg-theme-bg-secondary border-theme-divider-tertiary',
 );
 export const RanksTagsList = classed(
   'ul',
