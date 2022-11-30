@@ -31,7 +31,7 @@ import {
 import { nextTick } from '../lib/func';
 import { useRequestProtocol } from './useRequestProtocol';
 
-export interface UseUserMention {
+export interface UseUserMentionOptions {
   mentionQuery?: string;
   onMentionKeypress: (event: ReactKeyboardEvent) => unknown;
   selected: number;
@@ -62,7 +62,7 @@ export const fixHeight = (el: HTMLElement): void => {
 export function useUserMention({
   postId,
   onInput,
-}: UseUserMentionProps): UseUserMention {
+}: UseUserMentionProps): UseUserMentionOptions {
   const key = ['user-mention', postId];
   const commentRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useContext(AuthContext);

@@ -17,7 +17,7 @@ import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip
 import {
   fixHeight,
   UPDOWN_ARROW_KEYS,
-  UseUserMention,
+  UseUserMentionOptions,
 } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import { cleanupEmptySpaces } from '../../lib/strings';
@@ -34,7 +34,7 @@ export interface CommentBoxProps {
   parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
-  useUserMentionOptions: UseUserMention;
+  useUserMentionOptions: UseUserMentionOptions;
   post: Post;
 }
 
@@ -49,7 +49,7 @@ function CommentBox({
   onInput,
   sendComment,
   parentSelector,
-  useUserMentionOptions
+  useUserMentionOptions,
 }: CommentBoxProps): ReactElement {
   const { user } = useContext(AuthContext);
   const {

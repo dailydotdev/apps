@@ -19,7 +19,7 @@ import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { Modal } from './common/Modal';
 import AtIcon from '../icons/At';
 import { ClickableText } from '../buttons/ClickableText';
-import { UseUserMention, useUserMention } from '../../hooks/useUserMention';
+import { useUserMention } from '../../hooks/useUserMention';
 import { markdownGuide } from '../../lib/constants';
 import { Justify } from '../utilities';
 
