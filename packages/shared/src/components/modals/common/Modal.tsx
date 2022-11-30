@@ -12,6 +12,7 @@ import {
   ModalTabItem,
   modalTabTitle,
 } from './types';
+import classed from '../../../lib/classed';
 
 export type ModalProps = ReactModal.Props & {
   children: React.ReactNode;
@@ -102,9 +103,15 @@ export function Modal({
   );
 }
 
+export const ModalSubtitle = classed('strong', 'typo-headline mb-2');
+export const ModalText = classed('p', 'typo-callout text-theme-label-tertiary');
+// export const ModalSection = classed('section', 'flex flex-col p-6');
+
 Modal.Size = ModalSize;
 Modal.Kind = ModalKind;
 Modal.Header = ModalHeader;
 Modal.Body = ModalBody;
 Modal.Footer = ModalFooter;
 Modal.Sidebar = ModalSidebar;
+Modal.Subtitle = ModalSubtitle;
+Modal.Text = ModalText;
