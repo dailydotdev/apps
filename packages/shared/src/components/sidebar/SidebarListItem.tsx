@@ -28,7 +28,7 @@ function SidebarListItem({
   );
   const content = (
     <>
-      {icon}
+      {React.cloneElement(icon as ReactElement, { secondary: isActive })}
       <span
         className={classNames(
           'ml-2 typo-callout',
