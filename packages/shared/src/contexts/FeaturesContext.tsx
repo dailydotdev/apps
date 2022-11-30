@@ -39,15 +39,17 @@ interface Experiments {
 
 export interface FeaturesData extends Experiments {
   flags: IFlags;
+  isFlagsFetched?: boolean;
+  isFeaturesLoaded?: boolean;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
 export default FeaturesContext;
 
-export type FeaturesContextProviderProps = {
+export interface FeaturesContextProviderProps
+  extends Pick<FeaturesData, 'flags' | 'isFlagsFetched' | 'isFeaturesLoaded'> {
   children?: ReactNode;
-  flags: IFlags | undefined;
-};
+}
 
 const getFeatures = (flags: IFlags): FeaturesData => {
   const steps = getFeatureValue(Features.OnboardingSteps, flags);
@@ -93,14 +95,17 @@ const getFeatures = (flags: IFlags): FeaturesData => {
 };
 
 export const FeaturesContextProvider = ({
+  isFeaturesLoaded,
+  isFlagsFetched,
   children,
   flags,
 }: FeaturesContextProviderProps): ReactElement => {
   const featuresFlags: FeaturesData = useMemo(() => {
     const features = getFeatures(flags);
+    const props = { isFeaturesLoaded, isFlagsFetched };
 
     if (!isPreviewDeployment) {
-      return features;
+      return { ...features, ...props };
     }
 
     const featuresCookie = getCookieFeatureFlags();
@@ -109,8 +114,8 @@ export const FeaturesContextProvider = ({
 
     globalThis.getFeatureKeys = () => Object.keys(features);
 
-    return result;
-  }, [flags]);
+    return { ...result, ...props };
+  }, [flags, isFeaturesLoaded, isFlagsFetched]);
 
   return (
     <FeaturesContext.Provider value={featuresFlags}>

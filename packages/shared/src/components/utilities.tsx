@@ -16,6 +16,12 @@ export enum Theme {
   Lettuce = 'lettuce',
 }
 
+export enum Justify {
+  End = 'justify-end',
+  Center = 'justify-center',
+  Between = 'justify-between',
+}
+
 export interface ThemeColor {
   border: string;
   shadow: string;

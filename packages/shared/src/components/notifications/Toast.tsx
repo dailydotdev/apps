@@ -38,8 +38,9 @@ const Toast = ({
     });
   const { data: toast } = useQuery<ToastNotification>(
     TOAST_NOTIF_KEY,
-    () => null,
+    () => client.getQueryData(TOAST_NOTIF_KEY),
     {
+      enabled: false,
       onSuccess: async (data) => {
         if (!data) {
           return;
