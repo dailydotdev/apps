@@ -127,7 +127,8 @@ export function Dropdown({
         aria-haspopup="true"
         aria-expanded={isVisible}
       >
-        {React.cloneElement(icon as ReactElement, { secondary: isVisible })}
+        {icon &&
+          React.cloneElement(icon as ReactElement, { secondary: isVisible })}
         <span
           className={classNames('flex flex-1 mr-1 truncate', className.label)}
         >
