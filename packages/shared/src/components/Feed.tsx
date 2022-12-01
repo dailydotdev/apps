@@ -310,9 +310,9 @@ export default function Feed<T>({
   } as React.CSSProperties;
   const cardContainerStye = { ...getStyle(useList, spaciness) };
 
-  // if (emptyScreen && emptyFeed) {
-  //   return <>{emptyScreen}</>;
-  // }
+  if (emptyScreen && emptyFeed) {
+    return <>{emptyScreen}</>;
+  }
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
     useSharePost(Origin.Feed);
   const onShareClick = (post: Post, row?: number, column?: number) =>
