@@ -44,6 +44,7 @@ import ConnectedUserModal, {
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -83,6 +84,7 @@ function AuthOptions({
   isLoginFlow,
   version,
 }: AuthOptionsProps): ReactElement {
+  const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
@@ -197,16 +199,32 @@ function AuthOptions({
           AuthFlow.Registration,
           e.data.flow,
         );
-        const registerUser = {
-          provider: chosenProvider,
-          name: getNodeValue('traits.name', connected.ui.nodes),
-          email: getNodeValue('traits.email', connected.ui.nodes),
-          image: getNodeValue('traits.image', connected.ui.nodes),
-          flowId: connected.id,
-        };
-        onShowOptionsOnly?.(true);
-        setConnectedUser(registerUser);
-        return onSetActiveDisplay(AuthDisplay.ConnectedUser);
+
+        trackEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: {
+              flowId: connected?.id,
+              messages: connected?.ui?.messages,
+            },
+            origin: 'window registration flow error',
+          }),
+        });
+
+        if ([4010002, 4010003].includes(connected?.ui?.messages?.[0]?.id)) {
+          const registerUser = {
+            provider: chosenProvider,
+            name: getNodeValue('traits.name', connected.ui.nodes),
+            email: getNodeValue('traits.email', connected.ui.nodes),
+            image: getNodeValue('traits.image', connected.ui.nodes),
+            flowId: connected.id,
+          };
+          onShowOptionsOnly?.(true);
+          setConnectedUser(registerUser);
+          return onSetActiveDisplay(AuthDisplay.ConnectedUser);
+        }
+
+        return displayToast('An error occurred, please refresh the page.');
       }
       if (!e.data?.social_registration) {
         await refetchBoot();
