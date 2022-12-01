@@ -12,6 +12,7 @@ import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -45,6 +46,7 @@ export default function App({
   visit,
   accessToken,
 }: CompanionData): ReactElement {
+  useError();
   const [token, setToken] = useState(accessToken);
   const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(
     settings?.optOutCompanion,
