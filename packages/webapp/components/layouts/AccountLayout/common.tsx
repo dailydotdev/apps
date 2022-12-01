@@ -90,7 +90,12 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
   security: {
     title: 'Security',
     href: '/security',
-    getIcon: ({ isActive }) => <LockIcon secondary={isActive} />,
+    getIcon: ({ isActive }) => (
+      <LockIcon
+        secondary={isActive}
+        className={!isActive && 'text-theme-label-secondary'}
+      />
+    ),
   },
   notifications: {
     title: 'Notifications',
@@ -100,7 +105,12 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
   others: {
     title: 'Other Settings',
     href: '/others',
-    getIcon: ({ isActive }) => <SettingsIcon secondary={isActive} />,
+    getIcon: ({ isActive }) => (
+      <SettingsIcon
+        secondary={isActive}
+        className={!isActive && 'text-theme-label-secondary'}
+      />
+    ),
   },
 };
 
