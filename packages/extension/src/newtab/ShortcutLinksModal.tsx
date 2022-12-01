@@ -1,11 +1,10 @@
 import React, { FormEventHandler, MutableRefObject, ReactElement } from 'react';
-import { ModalHeader } from '@dailydotdev/shared/src/components/modals/common';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
-import { ResponsiveModal } from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import XIcon from '@dailydotdev/shared/src/components/icons/Close';
 import UserIcon from '@dailydotdev/shared/src/components/icons/User';
 import SitesIcon from '@dailydotdev/shared/src/components/icons/Sites';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { Justify } from '@dailydotdev/shared/src/components/utilities';
 import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
 
@@ -36,40 +35,29 @@ export default function CustomLinksModal({
   onSubmit,
   ...props
 }: CustomLinksModalProps): ReactElement {
+  const displayRevoke = !isManual && hasTopSites !== null;
   return (
-    <ResponsiveModal
+    <Modal
+      kind={Modal.Kind.FixedCenter}
+      size={Modal.Size.Medium}
+      onRequestClose={onRequestClose}
       {...props}
-      padding={false}
-      contentClassName="max-h-[40rem]"
-      style={{ ...style, content: { maxHeight: '40rem' } }}
     >
-      <form ref={formRef} onSubmit={onSubmit}>
-        <ModalHeader>
-          <h3 className="font-bold typo-title3">Shortcuts</h3>
-          <div className="flex-1" />
-          <Button className="mr-3 btn-primary" buttonSize="small" type="submit">
-            Save changes
-          </Button>
-          <Button
-            className="btn-tertiary"
-            buttonSize="small"
-            icon={<XIcon />}
-            onClick={onRequestClose}
-          />
-        </ModalHeader>
-        <main className="flex flex-col p-10 pt-9 w-full">
+      <Modal.Header title="Shortcuts" />
+      <Modal.Body>
+        <form ref={formRef} id="shortcuts-modal" onSubmit={onSubmit}>
           <nav className="grid grid-cols-2 gap-6 mb-8">
             <CardSelection
               title="My shortcuts"
               description="Curate your own shortcuts manually"
-              icon={<UserIcon size="xlarge" />}
+              icon={<UserIcon size="xlarge" secondary={isManual} />}
               isActive={isManual}
               onClick={onShowCustomLinks}
             />
             <CardSelection
               title="Most visited sites"
               description="Shortcuts are imported from your browser"
-              icon={<SitesIcon className="xlarge" />}
+              icon={<SitesIcon size="xlarge" secondary={isManual === false} />}
               isActive={isManual === false}
               onClick={onShowTopSitesClick}
             />
@@ -80,18 +68,23 @@ export default function CustomLinksModal({
             </p>
           )}
           <LinksForm links={links} isFormReadonly={isManual === false} />
-          {!isManual && hasTopSites !== null && (
-            <Button
-              onClick={onRevokePermission}
-              buttonSize="small"
-              className="self-start mt-6 btn-primary-ketchup text-theme-label-primary"
-              type="button"
-            >
-              Revoke access
-            </Button>
-          )}
-        </main>
-      </form>
-    </ResponsiveModal>
+        </form>
+      </Modal.Body>
+      <Modal.Footer justify={displayRevoke ? Justify.Between : Justify.End}>
+        {displayRevoke && (
+          <Button
+            onClick={onRevokePermission}
+            form="shortcuts-modal"
+            className="btn-primary-ketchup text-theme-label-primary"
+            type="button"
+          >
+            Revoke access
+          </Button>
+        )}
+        <Button className="btn-primary" form="shortcuts-modal" type="submit">
+          Save changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }

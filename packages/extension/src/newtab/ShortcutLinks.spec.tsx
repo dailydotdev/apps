@@ -179,7 +179,7 @@ describe('shortcut links component', () => {
       expect(input).toHaveAttribute('readonly');
     });
 
-    const next = await screen.findByText('Next');
+    const next = await screen.findByText('Add the shortcuts');
     fireEvent.click(next);
 
     const saveChanges = await screen.findByText('Save changes');

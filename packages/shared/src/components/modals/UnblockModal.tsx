@@ -10,7 +10,7 @@ import {
 import { Source } from '../../graphql/sources';
 import { Tag } from '../../graphql/feedSettings';
 
-export interface Props extends ModalProps {
+export interface UnblockModalProps extends ModalProps {
   item: { tag?: Tag | string; source?: Source };
   onConfirm: () => unknown;
 }
@@ -41,7 +41,7 @@ export default function UnblockModal({
   item,
   onConfirm,
   ...props
-}: Props): ReactElement {
+}: UnblockModalProps): ReactElement {
   const onUnblockClick = async (event: MouseEvent): Promise<void> => {
     onConfirm();
     props.onRequestClose(event);

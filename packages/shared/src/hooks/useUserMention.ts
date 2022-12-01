@@ -31,7 +31,7 @@ import {
 import { nextTick } from '../lib/func';
 import { useRequestProtocol } from './useRequestProtocol';
 
-interface UseUserMention {
+export interface UseUserMentionOptions {
   mentionQuery?: string;
   onMentionKeypress: (event: ReactKeyboardEvent) => unknown;
   selected: number;
@@ -62,7 +62,7 @@ export const fixHeight = (el: HTMLElement): void => {
 export function useUserMention({
   postId,
   onInput,
-}: UseUserMentionProps): UseUserMention {
+}: UseUserMentionProps): UseUserMentionOptions {
   const key = ['user-mention', postId];
   const commentRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useContext(AuthContext);
@@ -213,7 +213,7 @@ export function useUserMention({
   };
 
   const onInitializeMentionButtonClick = () => {
-    if (typeof query !== 'undefined') {
+    if (typeof query !== 'undefined' || !commentRef.current) {
       return;
     }
 
@@ -246,10 +246,10 @@ export function useUserMention({
     };
 
     const dom = commentRef.current?.getRootNode();
-    dom.addEventListener('mousedown', userClicked);
+    dom?.addEventListener('mousedown', userClicked);
 
     return () => {
-      dom.removeEventListener('mousedown', userClicked);
+      dom?.removeEventListener('mousedown', userClicked);
     };
   }, [query]);
 

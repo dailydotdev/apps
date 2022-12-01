@@ -1,7 +1,0 @@
-.keywordSynonymModal {
-  & :global(.modal) {
-    @screen responsiveModalBreakpoint {
-      max-height: 40rem;
-    }
-  }
-}

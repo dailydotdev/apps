@@ -170,6 +170,7 @@ export const BootDataProvider = ({
         isFetched={isFetched}
         isLegacyLogout={bootRemoteData?.isLegacyLogout}
         firstLoad={initialLoad}
+        accessToken={bootRemoteData?.accessToken}
       >
         <SettingsContextProvider
           settings={settings}
