@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { ModalSubTitle } from '../common';
+import { Modal } from '../common/Modal';
 import { RanksTagsProps, RanksTagsSection, RanksTagsList } from './common';
 import RankTagItem from './RankTagItem';
 
@@ -10,7 +10,7 @@ const RanksTags = ({
 }: RanksTagsProps): ReactElement => {
   return (
     <RanksTagsSection>
-      <ModalSubTitle>Reading status per tag</ModalSubTitle>
+      <Modal.Subtitle>Reading status per tag</Modal.Subtitle>
       <RanksTagsList>
         {Array(limit)
           .fill(0)
