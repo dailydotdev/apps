@@ -8,9 +8,12 @@ import UserIcon from './icons/User';
 import DevCardIcon from './icons/DevCard';
 import SettingsIcon from './icons/Settings';
 
-const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
-  ssr: false,
-});
+const PortalMenu = dynamic(
+  () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
+  {
+    ssr: false,
+  },
+);
 
 export default function ProfileMenu(): ReactElement {
   const { user, logout } = useContext(AuthContext);
