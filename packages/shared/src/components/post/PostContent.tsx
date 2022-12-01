@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { useQueryClient } from 'react-query';
+import Link from 'next/link';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -50,6 +51,9 @@ import { Origin } from '../../lib/analytics';
 import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
+import ConditionalWrapper from '../ConditionalWrapper';
+import HotIcon from '../icons/Hot';
+import { Button } from '../buttons/Button';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -77,7 +81,7 @@ export interface PostContentProps
 
 const BodyContainer = classed(
   'div',
-  'flex flex-col tablet:flex-row max-w-[100vw] pb-6 tablet:pb-0',
+  'flex flex-col max-w-[100vw] pb-6 tablet:pb-0',
 );
 
 const PageBodyContainer = classed(
@@ -233,119 +237,145 @@ export function PostContent({
     bookmarkToast(targetBookmarkState);
   };
 
+  const feedFiltersPostHeader = true;
+
   return (
     <Wrapper
-      className={className}
+      className={classNames(
+        className,
+        !feedFiltersPostHeader && ' tablet:flex-row',
+      )}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
     >
-      <PostContainer
-        className={classNames(
-          'relative',
-          isFixed && 'pt-16',
-          isFixed && !hasNavigation && 'tablet:pt-0',
+      {feedFiltersPostHeader && (
+        <div className="flex flex-row items-center px-4 w-full h-12 bg-gradient-to-r rounded-br-16 from-theme-overlay-cabbage40 to-theme-overlay-onion40">
+          <HotIcon size="medium" secondary className="mr-4" />
+          <p className="font-bold typo-body">
+            Let&apos;s super-charge your feed with the content you actually
+            read!
+          </p>
+          <Button className="ml-4 btn-secondary" buttonSize="xsmall">
+            Start now
+          </Button>
+        </div>
+      )}
+      <ConditionalWrapper
+        condition={feedFiltersPostHeader}
+        wrapper={(children) => (
+          <section className=" flex flex-col tablet:flex-row">
+            {children}
+          </section>
         )}
       >
-        <PostNavigation
-          onPreviousPost={onPreviousPost}
-          onNextPost={onNextPost}
+        <PostContainer
           className={classNames(
-            !hasNavigation && !isFixed && 'tablet:pt-0',
-            !hasNavigation ? 'flex laptop:hidden' : 'flex',
-            padding,
-            position,
-            isFixed &&
-              'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6 top-0 -ml-8',
-            isFixed && styles.fixedPostsNavigation,
+            'relative',
+            isFixed && 'pt-16',
+            isFixed && !hasNavigation && 'tablet:pt-0',
           )}
-          shouldDisplayTitle={isFixed}
-          post={postById.post}
-          onReadArticle={onReadArticle}
-          onClose={onClose}
-          isModal={isModal}
-          onBookmark={toggleBookmark}
-          onShare={onShare}
-        />
-        <h1
-          className="my-6 font-bold break-words typo-large-title"
-          data-testid="post-modal-title"
         >
-          {postById.post.title}
-        </h1>
-        {postById.post.summary && (
-          <PostSummary summary={postById.post.summary} />
-        )}
-        <TagLinks tags={postById.post.tags || []} />
-        <PostMetadata
-          createdAt={postById.post.createdAt}
-          readTime={postById.post.readTime}
-          className="mt-4 mb-8"
-          typoClassName="typo-callout"
-        />
-        <a
-          {...postLinkProps}
-          className={classNames(
-            'block overflow-hidden mb-10 rounded-2xl cursor-pointer',
-            styles.clickableImg,
-          )}
-          style={{ maxWidth: '25.625rem' }}
-        >
-          <LazyImage
-            imgSrc={postById.post.image}
-            imgAlt="Post cover image"
-            ratio="49%"
-            eager
-            fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-          />
-        </a>
-        {postById.post?.toc?.length > 0 && (
-          <PostToc
+          <PostNavigation
+            onPreviousPost={onPreviousPost}
+            onNextPost={onNextPost}
+            className={classNames(
+              !hasNavigation && !isFixed && 'tablet:pt-0',
+              !hasNavigation ? 'flex laptop:hidden' : 'flex',
+              padding,
+              position,
+              isFixed &&
+                'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6 top-0 -ml-8',
+              isFixed && styles.fixedPostsNavigation,
+            )}
+            shouldDisplayTitle={isFixed}
             post={postById.post}
-            collapsible
-            className="flex laptop:hidden mt-2 mb-4"
+            onReadArticle={onReadArticle}
+            onClose={onClose}
+            isModal={isModal}
+            onBookmark={toggleBookmark}
+            onShare={onShare}
           />
-        )}
-        <PostUpvotesCommentsCount
-          post={postById.post}
-          onUpvotesClick={(upvotes) =>
-            onShowUpvotedPost(postById.post.id, upvotes)
-          }
-        />
-        <PostActions
+          <h1
+            className="my-6 font-bold break-words typo-large-title"
+            data-testid="post-modal-title"
+          >
+            {postById.post.title}
+          </h1>
+          {postById.post.summary && (
+            <PostSummary summary={postById.post.summary} />
+          )}
+          <TagLinks tags={postById.post.tags || []} />
+          <PostMetadata
+            createdAt={postById.post.createdAt}
+            readTime={postById.post.readTime}
+            className="mt-4 mb-8"
+            typoClassName="typo-callout"
+          />
+          <a
+            {...postLinkProps}
+            className={classNames(
+              'block overflow-hidden mb-10 rounded-2xl cursor-pointer',
+              styles.clickableImg,
+            )}
+            style={{ maxWidth: '25.625rem' }}
+          >
+            <LazyImage
+              imgSrc={postById.post.image}
+              imgAlt="Post cover image"
+              ratio="49%"
+              eager
+              fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+            />
+          </a>
+          {postById.post?.toc?.length > 0 && (
+            <PostToc
+              post={postById.post}
+              collapsible
+              className="flex laptop:hidden mt-2 mb-4"
+            />
+          )}
+          <PostUpvotesCommentsCount
+            post={postById.post}
+            onUpvotesClick={(upvotes) =>
+              onShowUpvotedPost(postById.post.id, upvotes)
+            }
+          />
+          <PostActions
+            onBookmark={toggleBookmark}
+            onShare={onShare}
+            post={postById.post}
+            postQueryKey={postQueryKey}
+            onComment={() => openNewComment('comment button')}
+            actionsClassName="hidden laptop:flex"
+            origin={analyticsOrigin}
+          />
+          <PostComments
+            post={postById.post}
+            origin={analyticsOrigin}
+            onClick={onCommentClick}
+            onShare={(comment) => openShareComment(comment, postById.post)}
+            onClickUpvote={onShowUpvotedComment}
+          />
+          {authorOnboarding && (
+            <AuthorOnboarding
+              onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
+            />
+          )}
+          <NewComment
+            user={user}
+            onNewComment={() => openNewComment('start discussion button')}
+          />
+        </PostContainer>
+        <PostWidgets
           onBookmark={toggleBookmark}
           onShare={onShare}
+          onReadArticle={onReadArticle}
           post={postById.post}
-          postQueryKey={postQueryKey}
-          onComment={() => openNewComment('comment button')}
-          actionsClassName="hidden laptop:flex"
+          isNavigationFixed={hasNavigation && isFixed}
+          className="pb-20"
+          onClose={onClose}
           origin={analyticsOrigin}
         />
-        <PostComments
-          post={postById.post}
-          origin={analyticsOrigin}
-          onClick={onCommentClick}
-          onShare={(comment) => openShareComment(comment, postById.post)}
-          onClickUpvote={onShowUpvotedComment}
-        />
-        {authorOnboarding && (
-          <AuthorOnboarding
-            onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
-          />
-        )}
-        <NewComment
-          user={user}
-          onNewComment={() => openNewComment('start discussion button')}
-        />
-      </PostContainer>
-      <PostWidgets
-        onBookmark={toggleBookmark}
-        onShare={onShare}
-        onReadArticle={onReadArticle}
-        post={postById.post}
-        isNavigationFixed={hasNavigation && isFixed}
-        className="pb-20"
-        onClose={onClose}
-        origin={analyticsOrigin}
-      />
+      </ConditionalWrapper>
       {upvotedPopup.modal && (
         <UpvotedPopupModal
           requestQuery={upvotedPopup.requestQuery}
