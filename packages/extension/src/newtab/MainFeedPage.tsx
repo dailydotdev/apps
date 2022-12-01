@@ -17,12 +17,12 @@ import { useCompanionSettings } from '../companion/useCompanionSettings';
 const PostsSearch = dynamic(
   () =>
     import(
-      /* webpackChunkName: "search" */ '@dailydotdev/shared/src/components/PostsSearch'
+      /* webpackChunkName: "postsSearch" */ '@dailydotdev/shared/src/components/PostsSearch'
     ),
 );
 
 const DndModal = dynamic(
-  () => import(/* webpackChunkName: "dnd" */ './DndModal'),
+  () => import(/* webpackChunkName: "dndModal" */ './DndModal'),
 );
 
 export type MainFeedPageProps = {

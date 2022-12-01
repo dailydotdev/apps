@@ -15,7 +15,9 @@ import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
 import { ShareVersion } from '../../lib/featureValues';
 
-const ShareIcon = dynamic(() => import('../icons/Share'));
+const ShareIcon = dynamic(
+  () => import(/* webpackChunkName: "share" */ '../icons/Share'),
+);
 
 export interface ActionButtonsProps {
   post: Post;
