@@ -30,7 +30,12 @@ import {
   useExtensionPermission,
 } from '../companion/useExtensionPermission';
 
-const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
+const AnalyticsConsentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "analyticsConsentModal" */ './AnalyticsConsentModal'
+    ),
+);
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();

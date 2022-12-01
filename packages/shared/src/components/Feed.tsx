@@ -60,8 +60,12 @@ interface RankVariables {
   ranking?: string;
 }
 
-const SharePostModal = dynamic(() => import('./modals/ShareModal'));
-const PostModal = dynamic(() => import('./modals/PostModal'));
+const SharePostModal = dynamic(
+  () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
+);
+const PostModal = dynamic(
+  () => import(/* webpackChunkName: "postModal" */ './modals/PostModal'),
+);
 
 const listGaps = {
   cozy: 'gap-5',
