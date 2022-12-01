@@ -119,7 +119,7 @@ export default function Settings({
           inputId="layout-switch"
           name="insaneMode"
           leftContent={<CardIcon secondary={!insaneMode} />}
-          rightContent={<LineIcon secondary={!insaneMode} />}
+          rightContent={<LineIcon secondary={insaneMode} />}
           checked={insaneMode}
           className="mx-1.5"
           onToggle={toggleInsaneMode}

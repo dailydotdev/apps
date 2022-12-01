@@ -34,9 +34,16 @@ export interface PostModalActionsProps extends OnShareOrBookmarkProps {
 
 const Container = classed('div', 'flex flex-row items-center');
 
-const BanPostModal = dynamic(() => import('../modals/BanPostModal'));
+const BanPostModal = dynamic(
+  () => import(/* webpackChunkName: "banPostModal" */ '../modals/BanPostModal'),
+);
 
-const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
+const DeletePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "deletePostModal" */ '../modals/DeletePostModal'
+    ),
+);
 
 export function PostModalActions({
   onReadArticle,

@@ -45,7 +45,10 @@ const AuthModal = dynamic(
       /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
     ),
 );
-const CookieBanner = dynamic(() => import('../components/CookieBanner'));
+const CookieBanner = dynamic(
+  () =>
+    import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
+);
 
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
