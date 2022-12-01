@@ -47,7 +47,9 @@ import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
 
-const Custom404 = dynamic(() => import('../../../pages/404'));
+const Custom404 = dynamic(
+  () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
+);
 
 export interface ProfileLayoutProps {
   profile: PublicProfile;

@@ -12,7 +12,10 @@ import AdvancedSettingsFilter from './AdvancedSettings';
 import UnblockModal from '../modals/UnblockModal';
 import { Source } from '../../graphql/sources';
 
-const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
+const NewSourceModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "newSourceModal" */ '../modals/NewSourceModal'),
+);
 
 export interface UnblockItem {
   tag?: string;

@@ -51,13 +51,33 @@ import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
 
-const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
-const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
-const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
-  ssr: false,
-});
-const SharePostModal = dynamic(() => import('../modals/ShareModal'));
-const Custom404 = dynamic(() => import('../Custom404'));
+const UpvotedPopupModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "upvotedPopupModal" */ '../modals/UpvotedPopupModal'
+    ),
+);
+const NewCommentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "newCommentModal" */ '../modals/NewCommentModal'
+    ),
+);
+const ShareNewCommentPopup = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "shareNewCommentPopup" */ '../ShareNewCommentPopup'
+    ),
+  {
+    ssr: false,
+  },
+);
+const SharePostModal = dynamic(
+  () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
+);
+const Custom404 = dynamic(
+  () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
+);
 
 export interface PostContentProps
   extends Omit<

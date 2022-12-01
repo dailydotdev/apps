@@ -32,7 +32,7 @@ import {
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
-const Custom404 = dynamic(() => import('../404'));
+const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
 
 export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {
