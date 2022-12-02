@@ -197,7 +197,7 @@ const AccountSecurityPage = (): ReactElement => {
           />
         </Tab>
       </TabContainer>
-      {!showVerifySession && (
+      {showVerifySession && (
         <VerifySessionModal
           isOpen={showVerifySession}
           userProviders={userProviders}
