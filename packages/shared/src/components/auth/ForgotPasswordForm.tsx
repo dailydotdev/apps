@@ -51,10 +51,7 @@ function ForgotPasswordForm({
 
   return (
     <>
-      <AuthModalHeader
-        title="Forgot password"
-        onBack={onBack}
-      />
+      <AuthModalHeader title="Forgot password" onBack={onBack} />
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onSendEmail}
