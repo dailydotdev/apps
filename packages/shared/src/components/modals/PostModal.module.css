@@ -32,7 +32,6 @@
     padding-bottom: 4rem;
 
     @screen tablet {
-      flex-direction: row;
       min-height: calc(100vh - 4rem);
       padding-bottom: 0;
   }

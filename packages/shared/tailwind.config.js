@@ -60,6 +60,7 @@ module.exports = {
           cabbage: 'var(--theme-overlay-cabbage)',
           from: 'var(--theme-overlay-from)',
           to: 'var(--theme-overlay-to)',
+          cabbage10: 'var(--theme-overlay-cabbage-10)',
           cabbage40: 'var(--theme-overlay-cabbage-40)',
           onion40: 'var(--theme-overlay-onion-40)',
         },

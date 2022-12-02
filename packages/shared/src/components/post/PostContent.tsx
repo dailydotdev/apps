@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react';
 import { useQueryClient } from 'react-query';
-import Link from 'next/link';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -29,7 +28,7 @@ import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
-import { PostNavigation, PostNavigationProps } from './PostNavigation';
+import { PostNavigation } from './PostNavigation';
 import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
@@ -52,8 +51,10 @@ import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
 import ConditionalWrapper from '../ConditionalWrapper';
-import HotIcon from '../icons/Hot';
-import { Button } from '../buttons/Button';
+import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
+import { PostFeedFiltersOnboardingVersion } from '../../lib/featureValues';
+import { PostPreviousNext } from './PostPreviousNext';
+import { PostNavigationProps } from './common';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -237,32 +238,38 @@ export function PostContent({
     bookmarkToast(targetBookmarkState);
   };
 
-  const feedFiltersPostHeader = true;
+  /**
+   * TODO: This should come from the context
+   * It should also add wether the user doesn't have my feed yet
+   */
+  const postFeedFitlersOnboardingVersion = PostFeedFiltersOnboardingVersion.V3;
+  const isPostFeedFiltersOnboardingV1 =
+    postFeedFitlersOnboardingVersion === PostFeedFiltersOnboardingVersion.V1;
+
+  const postPreviousNext = (
+    <PostPreviousNext onNextPost={onNextPost} onPreviousPost={onPreviousPost} />
+  );
+  const postFeedFiltersOnboarding = (
+    <PostFeedFiltersOnboarding
+      hasNavigation={hasNavigation}
+      version={postFeedFitlersOnboardingVersion}
+      postPreviousNext={postPreviousNext}
+    />
+  );
 
   return (
     <Wrapper
       className={classNames(
         className,
-        !feedFiltersPostHeader && ' tablet:flex-row',
+        !isPostFeedFiltersOnboardingV1 && ' tablet:flex-row',
       )}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
     >
-      {feedFiltersPostHeader && (
-        <div className="flex flex-row items-center px-4 w-full h-12 bg-gradient-to-r rounded-br-16 from-theme-overlay-cabbage40 to-theme-overlay-onion40">
-          <HotIcon size="medium" secondary className="mr-4" />
-          <p className="font-bold typo-body">
-            Let&apos;s super-charge your feed with the content you actually
-            read!
-          </p>
-          <Button className="ml-4 btn-secondary" buttonSize="xsmall">
-            Start now
-          </Button>
-        </div>
-      )}
+      {isPostFeedFiltersOnboardingV1 && postFeedFiltersOnboarding}
       <ConditionalWrapper
-        condition={feedFiltersPostHeader}
+        condition={isPostFeedFiltersOnboardingV1}
         wrapper={(children) => (
-          <section className=" flex flex-col tablet:flex-row">
+          <section className="flex flex-col tablet:flex-row flex-1">
             {children}
           </section>
         )}
@@ -293,6 +300,10 @@ export function PostContent({
             isModal={isModal}
             onBookmark={toggleBookmark}
             onShare={onShare}
+            postFeedFiltersOnboarding={
+              !isPostFeedFiltersOnboardingV1 && postFeedFiltersOnboarding
+            }
+            postPreviousNext={postPreviousNext}
           />
           <h1
             className="my-6 font-bold break-words typo-large-title"
