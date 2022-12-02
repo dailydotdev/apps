@@ -287,7 +287,6 @@ function AuthOptions({
         <Tab label={AuthDisplay.Default}>
           <AuthDefault
             providers={providers}
-            onClose={onClose}
             onSignup={onEmailRegistration}
             onProviderClick={onProviderClick}
             onForgotPassword={onForgotPassword}
@@ -303,7 +302,6 @@ function AuthOptions({
           <SocialRegistrationForm
             formRef={formRef}
             provider={chosenProvider}
-            onClose={onClose}
             isV2={isV2}
             onSignup={onSocialCompletion}
             hints={hint}
@@ -317,7 +315,6 @@ function AuthOptions({
             onBack={() => onSetActiveDisplay(defaultDisplay)}
             formRef={formRef}
             email={email}
-            onClose={onClose}
             isV2={isV2}
             onSignup={onRegister}
             hints={registrationHints}
@@ -353,10 +350,7 @@ function AuthOptions({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailSent}>
-          <AuthModalHeader
-            title="Verify your email address"
-            onClose={onClose}
-          />
+          <AuthModalHeader title="Verify your email address" />
           <EmailVerificationSent email={email} />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
@@ -375,7 +369,7 @@ function AuthOptions({
           </EmailVerified>
         </Tab>
         <Tab label={AuthDisplay.ConnectedUser}>
-          <AuthModalHeader title="Account already exists" onClose={onClose} />
+          <AuthModalHeader title="Account already exists" />
           {connectedUser && (
             <ConnectedUserModal user={connectedUser} onLogin={onShowLogin} />
           )}

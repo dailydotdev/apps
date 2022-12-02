@@ -37,11 +37,10 @@ function VerifySessionModal({
       )}
     >
       <AuthDefault
-        title="Verify it's you (security check)"
+        signUpTitle="Verify it's you (security check)"
         providers={filteredProviders}
         disableRegistration
         disablePassword={!onPasswordLogin}
-        onClose={onRequestClose}
         onPasswordLogin={onPasswordLogin}
         onProviderClick={onSocialLogin}
         loginHint={[hint, setHint]}
