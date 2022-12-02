@@ -18,13 +18,11 @@ import AuthForm from './AuthForm';
 interface ForgotPasswordFormProps {
   initialEmail?: string;
   onBack?: CloseModalFunc;
-  onClose?: CloseModalFunc;
 }
 
 function ForgotPasswordForm({
   initialEmail,
   onBack,
-  onClose,
 }: ForgotPasswordFormProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [hint, setHint] = useState('');
@@ -56,7 +54,6 @@ function ForgotPasswordForm({
       <AuthModalHeader
         title="Forgot password"
         onBack={onBack}
-        onClose={onClose}
       />
       <AuthForm
         className="flex flex-col items-end py-8 px-14"

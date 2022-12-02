@@ -330,7 +330,6 @@ function AuthOptions({
           <AuthSignBack
             onRegister={() => onSetActiveDisplay(AuthDisplay.Default)}
             onProviderClick={onProviderClick}
-            onClose={onClose}
           >
             <LoginForm
               className="mt-3"
@@ -345,7 +344,6 @@ function AuthOptions({
         <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
             initialEmail={email}
-            onClose={onClose}
             onBack={onForgotPasswordBack}
           />
         </Tab>
@@ -354,7 +352,7 @@ function AuthOptions({
           <EmailVerificationSent email={email} />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
-          <EmailVerified hasUser={!!user} onClose={onClose}>
+          <EmailVerified hasUser={!!user}>
             {!user && (
               <LoginForm
                 className="mx-4 tablet:mx-12 mt-8"
