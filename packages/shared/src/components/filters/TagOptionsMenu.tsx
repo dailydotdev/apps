@@ -5,9 +5,12 @@ import Link from 'next/link';
 import { Tag } from '../../graphql/feedSettings';
 import { getTagPageLink } from '../../lib/links';
 
-const PortalMenu = dynamic(() => import('../fields/PortalMenu'), {
-  ssr: false,
-});
+const PortalMenu = dynamic(
+  () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
+  {
+    ssr: false,
+  },
+);
 
 export type TagOptionsMenuProps = {
   onHidden?: () => unknown;

@@ -14,7 +14,9 @@ import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { PostCardTests } from './post/common';
 
-const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
+const CommentPopup = dynamic(
+  () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
+);
 
 export type FeedItemComponentProps = {
   items: FeedItem[];
