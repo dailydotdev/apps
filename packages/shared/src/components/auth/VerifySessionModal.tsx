@@ -1,5 +1,4 @@
 import React, { ReactElement, useState } from 'react';
-import classNames from 'classnames';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
 import { ModalProps } from '../modals/StyledModal';
