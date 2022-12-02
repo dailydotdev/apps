@@ -4,7 +4,10 @@ import { Button } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { PostNavigationProps } from './common';
 
-const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
+const SimpleTooltip = dynamic(
+  () =>
+    import(/* webpackChunkName: "simpleTooltip" */ '../tooltips/SimpleTooltip'),
+);
 
 type PostPreviousNextProps = Pick<
   PostNavigationProps,
