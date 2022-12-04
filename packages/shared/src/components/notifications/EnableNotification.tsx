@@ -1,14 +1,14 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import useNotification from '../../hooks/useNotification';
 import { getFadedBackground } from '../../lib/styling';
 import { Button } from '../buttons/Button';
+import NotificationsContext from '../../contexts/NotificationsContext';
 
 const DISMISS_BROWSER_PERMISSION = 'dismissBrowserPermission';
 
 function EnableNotification(): ReactElement {
-  const { hasPermission, requestPermission } = useNotification();
+  const { hasPermission, requestPermission } = useContext(NotificationsContext);
   const [dismissed, setDismissed, isLoaded] = usePersistentContext(
     DISMISS_BROWSER_PERMISSION,
     false,
