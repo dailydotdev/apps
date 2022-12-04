@@ -1,14 +1,10 @@
 import React, { ReactElement } from 'react';
-
-export interface NotificationItemAttachmentProps {
-  image: string;
-  title: string;
-}
+import { NotificationAttachment } from '../../graphql/notifications';
 
 function NotificationItemAttachment({
   image,
   title,
-}: NotificationItemAttachmentProps): ReactElement {
+}: NotificationAttachment): ReactElement {
   return (
     <div className="flex flex-row items-center p-4 mt-2 rounded-16 border border-theme-divider-tertiary">
       <img

@@ -1,26 +1,17 @@
 import React, { ReactElement } from 'react';
+import {
+  NotificationAvatar,
+  NotificationAvatarType,
+} from '../../graphql/notifications';
 import SourceButton from '../cards/SourceButton';
 import { ProfilePicture } from '../ProfilePicture';
-
-export enum NotificationAvatarType {
-  User = 'user',
-  Source = 'source',
-}
-
-export interface NotificationItemAvatarProps {
-  type: NotificationAvatarType;
-  image: string;
-  name: string;
-  targetUrl: string;
-  referenceId: string;
-}
 
 function NotificationItemAvatar({
   type,
   image,
   name,
   referenceId,
-}: NotificationItemAvatarProps): ReactElement {
+}: NotificationAvatar): ReactElement {
   if (type === NotificationAvatarType.Source) {
     return <SourceButton source={{ id: referenceId, name, image }} />;
   }
