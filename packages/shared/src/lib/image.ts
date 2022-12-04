@@ -10,4 +10,7 @@ export const cloudinary = {
     supercharge:
       'https://daily-now-res.cloudinary.com/image/upload/v1665563545/public/supercharge.png',
   },
+  notifications: {
+    browser: '', // TODO: add the image once uploaded in Cloudinary
+  },
 };
