@@ -27,7 +27,7 @@ export const NotificationsContextProvider = ({
 }: NotificationsContextProviderProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const [hasPermission, setHasPermission] = useState(
-    globalThis.window?.Notification.permission === 'granted',
+    globalThis.window?.Notification?.permission === 'granted',
   );
 
   const requestPermission = async (): Promise<NotificationPermission> => {
