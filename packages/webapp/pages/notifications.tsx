@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import { useInfiniteQuery, useMutation } from 'react-query';
+import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
 import {
   NotificationsData,
   NotificationType,
@@ -21,6 +21,11 @@ import { getLayout } from '../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import ProtectedPage from '../components/ProtectedPage';
 
+const checkHasUnread = (data: InfiniteData<NotificationsData>) =>
+  data.pages.some((page) =>
+    page.notifications.edges.some(({ node }) => !node.readAt),
+  );
+
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
   const { mutateAsync: readNotifications } = useMutation(() =>
@@ -38,7 +43,7 @@ const Notifications = (): ReactElement => {
         lastPage?.notifications?.pageInfo?.hasNextPage &&
         lastPage?.notifications?.pageInfo?.endCursor,
       onSuccess: (data) => {
-        if (data.pages.length === 1) {
+        if (checkHasUnread(data)) {
           readNotifications();
         }
       },
