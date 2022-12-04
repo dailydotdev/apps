@@ -1,6 +1,13 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
+import {
+  pageContainerClassnames,
+  pageBorders,
+} from '@dailydotdev/shared/src/components/utilities';
+import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
+import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
+import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { getLayout } from '../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -10,7 +17,23 @@ const Notifications = (): ReactElement => {
 
   return (
     <ProtectedPage seo={seo}>
-      <ResponsivePageContainer>Notifs</ResponsivePageContainer>
+      <main
+        className={classNames(
+          pageBorders,
+          pageContainerClassnames,
+          'laptop:min-h-screen',
+        )}
+      >
+        <EnableNotification />
+        <h2 className="p-6 font-bold typo-headline">Notifications</h2>
+        <NotificationItem
+          isUnread
+          icon={<BellIcon secondary />}
+          title="Welcome to your new notification center!"
+          description="The notification system notifies you of important events such as
+              replies, mentions, updates etc."
+        />
+      </main>
     </ProtectedPage>
   );
 };
