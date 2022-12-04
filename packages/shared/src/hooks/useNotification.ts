@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useState } from 'react';
 
 interface UseNotification {
   hasPermission: boolean;
@@ -6,15 +6,20 @@ interface UseNotification {
 }
 
 const useNotification = (): UseNotification => {
-  const hasPermission = useRef(
+  const [hasPermission, setHasPermission] = useState(
     globalThis.window?.Notification.permission === 'granted',
   );
 
   return useMemo(
     () => ({
-      hasPermission: hasPermission?.current,
-      requestPermission: async () =>
-        globalThis.window?.Notification.requestPermission(),
+      hasPermission,
+      requestPermission: async () => {
+        const result =
+          await globalThis.window?.Notification.requestPermission();
+        setHasPermission(result === 'granted');
+
+        return result;
+      },
     }),
     [],
   );
