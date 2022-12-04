@@ -26,7 +26,7 @@ function NotificationItem({
   const DOMPurify = useRef<DOMPurify.DOMPurifyI>();
 
   useEffect(() => {
-    DOMPurify.current = createDOMPurify(window);
+    DOMPurify.current = createDOMPurify(globalThis.window);
   }, []);
 
   return (
