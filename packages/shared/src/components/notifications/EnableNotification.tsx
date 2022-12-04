@@ -4,6 +4,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { getFadedBackground } from '../../lib/styling';
 import { Button } from '../buttons/Button';
 import NotificationsContext from '../../contexts/NotificationsContext';
+import { cloudinary } from '../../lib/image';
 
 const DISMISS_BROWSER_PERMISSION = 'dismissBrowserPermission';
 
@@ -48,7 +49,7 @@ function EnableNotification(): ReactElement {
       </span>
       <img
         className="absolute top-2 right-0"
-        src="/browser_notification.png"
+        src={cloudinary.notifications.browser}
         alt="A sample browser notification"
       />
     </div>

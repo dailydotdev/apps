@@ -12,5 +12,6 @@ export const cloudinary = {
   },
   notifications: {
     bell: '', // TODO: update when image is uploaded to cloudinary
+    browser: '', // TODO: add the image once uploaded in Cloudinary
   },
 };
