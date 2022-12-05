@@ -8,9 +8,7 @@ import React, {
 import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
-import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
-import AuthModalHeader from './AuthModalHeader';
 import AuthModalHeading from './AuthModalHeading';
 import { SIGNIN_METHOD_KEY } from './AuthSignBack';
 import { Provider } from './common';
@@ -22,11 +20,11 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import AuthModalHeader from './AuthModalHeader';
 
 interface AuthDefaultProps {
   children?: ReactNode;
   loginHint?: ReturnType<typeof useState>;
-  onClose?: CloseModalFunc;
   onPasswordLogin?: (params: LoginFormParams) => void;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string, login?: boolean) => unknown;
@@ -34,7 +32,8 @@ interface AuthDefaultProps {
   targetId?: string;
   isV2?: boolean;
   isLoginFlow?: boolean;
-  title?: string;
+  logInTitle?: string;
+  signUpTitle?: string;
   providers: Provider[];
   trigger: AuthTriggersOrString;
   disableRegistration?: boolean;
@@ -45,7 +44,6 @@ interface AuthDefaultProps {
 
 const AuthDefault = ({
   loginHint,
-  onClose,
   onSignup,
   onProviderClick,
   onForgotPassword,
@@ -58,15 +56,14 @@ const AuthDefault = ({
   disablePassword,
   isLoading,
   trigger,
-  title,
+  signUpTitle = 'Sign up to daily.dev',
+  logInTitle = 'Log in to daily.dev',
   loginButton,
 }: AuthDefaultProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow || isV2);
   const { authVersion } = useContext(FeaturesContext);
-  const useTitle = shouldLogin
-    ? 'Log in to daily.dev'
-    : title || 'Sign up to daily.dev';
+  const title = shouldLogin ? logInTitle : signUpTitle;
 
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
@@ -149,7 +146,7 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthModalHeader title={useTitle} onClose={onClose} />
+      <AuthModalHeader title={title} />
       <AuthContainer className={disableRegistration && 'mb-6'}>
         {isV2 && (
           <AuthModalHeading

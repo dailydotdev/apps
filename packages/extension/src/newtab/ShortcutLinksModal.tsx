@@ -50,14 +50,14 @@ export default function CustomLinksModal({
             <CardSelection
               title="My shortcuts"
               description="Curate your own shortcuts manually"
-              icon={<UserIcon size="xlarge" />}
+              icon={<UserIcon size="xlarge" secondary={isManual} />}
               isActive={isManual}
               onClick={onShowCustomLinks}
             />
             <CardSelection
               title="Most visited sites"
               description="Shortcuts are imported from your browser"
-              icon={<SitesIcon className="xlarge" />}
+              icon={<SitesIcon size="xlarge" secondary={isManual === false} />}
               isActive={isManual === false}
               onClick={onShowTopSitesClick}
             />

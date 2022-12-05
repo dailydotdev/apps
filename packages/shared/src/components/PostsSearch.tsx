@@ -10,9 +10,15 @@ import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
 import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
 
-const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
-  ssr: false,
-});
+const AutoCompleteMenu = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "autoCompleteMenu" */ './fields/AutoCompleteMenu'
+    ),
+  {
+    ssr: false,
+  },
+);
 
 export type PostsSearchProps = {
   initialQuery?: string;

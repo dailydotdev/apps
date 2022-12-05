@@ -30,6 +30,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
+import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -44,7 +45,10 @@ const AuthModal = dynamic(
       /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
     ),
 );
-const CookieBanner = dynamic(() => import('../components/CookieBanner'));
+const CookieBanner = dynamic(
+  () =>
+    import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
+);
 
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
@@ -146,6 +150,7 @@ export default function App(props: AppProps): ReactElement {
   const [queryClient] = useState(() => new QueryClient());
   const version = useWebappVersion();
   const deviceId = useDeviceId();
+  useError();
 
   return (
     <ProgressiveEnhancementContextProvider>

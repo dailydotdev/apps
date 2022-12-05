@@ -28,12 +28,11 @@ import AtIcon from '../icons/At';
 import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import TwitterIcon from '../icons/Twitter';
-import { AuthModalFooterWrapper } from './common';
+import { Modal } from '../modals/common/Modal';
 
 export interface RegistrationFormProps {
   email: string;
   formRef?: MutableRefObject<HTMLFormElement>;
-  onClose?: CloseModalFunc;
   onBack?: CloseModalFunc;
   hints?: RegistrationError;
   onUpdateHints?: (errors: RegistrationError) => void;
@@ -51,7 +50,6 @@ export type RegistrationFormValues = Omit<
 export const RegistrationForm = ({
   email,
   formRef,
-  onClose,
   onBack,
   onSignup,
   isV2,
@@ -117,11 +115,7 @@ export const RegistrationForm = ({
 
   return (
     <>
-      <AuthModalHeader
-        title="Sign up to daily.dev"
-        onBack={onBack}
-        onClose={onClose}
-      />
+      <AuthModalHeader title="Sign up to daily.dev" onBack={onBack} />
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6',
@@ -207,7 +201,7 @@ export const RegistrationForm = ({
           I don’t want to receive updates and promotions via email
         </Checkbox>
       </AuthForm>
-      <AuthModalFooterWrapper className="py-3 px-6 tablet:px-[3.75rem]">
+      <Modal.Footer>
         <Button
           form="auth-form"
           type="submit"
@@ -215,7 +209,7 @@ export const RegistrationForm = ({
         >
           Sign up
         </Button>
-      </AuthModalFooterWrapper>
+      </Modal.Footer>
     </>
   );
 };

@@ -27,7 +27,9 @@ const getDateGroup = (date: Date) => {
   );
 };
 
-const SharePostModal = dynamic(() => import('../modals/ShareModal'));
+const SharePostModal = dynamic(
+  () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
+);
 
 export interface ReadHistoryListProps {
   data: ReadHistoryInfiniteData;
