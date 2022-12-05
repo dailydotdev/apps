@@ -40,7 +40,11 @@ function NotificationItem({
           isUnread && getFadedBackground('before:bg-theme-divider-tertiary'),
         )}
       >
-        <img src={icon} alt={`${type}'s icon`} />
+        <img
+          className="object-contain w-6 h-6"
+          src={icon}
+          alt={`${type}'s icon`}
+        />
       </span>
       <div className="flex flex-col flex-1 ml-4 w-full typo-callout">
         {avatars && (
