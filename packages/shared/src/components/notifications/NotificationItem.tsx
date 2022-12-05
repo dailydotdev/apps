@@ -6,12 +6,13 @@ import { getFadedBackground } from '../../lib/styling';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 
-interface NotificationItemProps
+export interface NotificationItemProps
   extends Pick<
     Notification,
     'type' | 'icon' | 'title' | 'description' | 'avatars' | 'attachments'
   > {
   isUnread?: boolean;
+  targetUrl?: string;
 }
 
 function NotificationItem({
