@@ -26,7 +26,11 @@ export function AuthorOnboarding({
         )}
         style={{ gridTemplateColumns: 'repeat(2, max-content)' }}
       >
-        <FeatherIcon size="xxlarge" className="text-theme-status-help icon" />
+        <FeatherIcon
+          secondary
+          size="xxlarge"
+          className="text-theme-status-help icon"
+        />
         <h3>Author</h3>
         <h2>Is this article yours?</h2>
       </div>

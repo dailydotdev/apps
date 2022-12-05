@@ -1,12 +1,13 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import classNames from 'classnames';
 import classed from '../../../lib/classed';
-import { ModalTabs } from './ModalTabs';
+import { ModalTabs, ModalTabsProps } from './ModalTabs';
 import { ModalClose } from './ModalClose';
 import { ModalPropsContext } from './types';
 
 export type ModalHeaderProps = {
   children?: ReactNode;
+  className?: string;
   title?: string;
 };
 
@@ -18,6 +19,7 @@ const ModalHeaderOuter = classed(
 
 export function ModalHeader({
   children,
+  className,
   title,
 }: ModalHeaderProps): ReactElement {
   const { activeTab, onRequestClose } = useContext(ModalPropsContext);
@@ -26,6 +28,7 @@ export function ModalHeader({
     <ModalHeaderOuter
       className={classNames(
         (modalTitle || children) && 'border-b border-theme-divider-tertiary',
+        className,
       )}
     >
       {children}
@@ -35,10 +38,12 @@ export function ModalHeader({
   );
 }
 
-export function ModalHeaderTabs(): ReactElement {
+export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
+  const { onRequestClose } = useContext(ModalPropsContext);
   return (
     <ModalHeaderOuter className="border-b border-theme-divider-tertiary">
-      <ModalTabs />
+      <ModalTabs {...props} />
+      {onRequestClose && <ModalClose onClick={onRequestClose} />}
     </ModalHeaderOuter>
   );
 }

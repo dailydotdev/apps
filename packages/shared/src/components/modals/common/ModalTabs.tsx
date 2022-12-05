@@ -2,17 +2,24 @@ import classNames from 'classnames';
 import React, { ReactElement, useContext } from 'react';
 import { ModalPropsContext, ModalTabItem, modalTabTitle } from './types';
 
-export function ModalTabs(): ReactElement {
+export type ModalTabsProps = {
+  disabledTab?: (tab: string) => boolean;
+};
+
+export function ModalTabs({ disabledTab }: ModalTabsProps): ReactElement {
   const { activeTab, setActiveTab, tabs } = useContext(ModalPropsContext);
   return (
     <ul className="flex flex-row gap-4">
       {tabs.map((tab: string | ModalTabItem) => {
         const tabTitle = modalTabTitle(tab);
+        const disabled = !!disabledTab?.(tabTitle);
         return (
           <button
+            disabled={disabled}
             key={tabTitle}
             className={classNames(
-              'relative py-1.5 px-3 text-center typo-callout rounded-6',
+              'btn relative py-1.5 h-8 px-3 text-center typo-callout rounded-10',
+              disabled && 'opacity-64',
               tab === activeTab
                 ? 'bg-theme-bg-pepper font-bold'
                 : 'text-theme-label-tertiary',

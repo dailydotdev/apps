@@ -22,6 +22,7 @@ export enum AnalyticsEvent {
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
   CompleteOnboarding = 'complete onboarding',
+  GlobalError = 'global error',
 }
 
 export enum TargetType {

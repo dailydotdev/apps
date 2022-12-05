@@ -20,6 +20,7 @@ import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -30,7 +31,12 @@ import {
   useExtensionPermission,
 } from '../companion/useExtensionPermission';
 
-const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
+const AnalyticsConsentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "analyticsConsentModal" */ './AnalyticsConsentModal'
+    ),
+);
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();
@@ -53,6 +59,7 @@ function InternalApp({
 }: {
   pageRef: MutableRefObject<string>;
 }): ReactElement {
+  useError();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
     origin: 'on extension load',

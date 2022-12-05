@@ -8,7 +8,7 @@ export const getFadedBackground = (className: string): string => {
 
   if (!isBefore) {
     throw new Error(
-      'You must need apply the background with a `before:` class',
+      "You must need apply the background with a 'before:' class",
     );
   }
 

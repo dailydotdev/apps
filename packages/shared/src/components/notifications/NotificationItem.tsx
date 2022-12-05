@@ -25,6 +25,12 @@ function NotificationItem({
 }: NotificationItemProps): ReactElement {
   const purify = useDomPurify();
 
+  const avatarComponents =
+    avatars?.map?.((avatar) => (
+      <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
+    )) ?? [];
+  const hasAvatar = avatarComponents.some((component) => !!component);
+
   return (
     <div
       className={classNames(
@@ -45,12 +51,8 @@ function NotificationItem({
         />
       </span>
       <div className="flex flex-col flex-1 ml-4 w-full typo-callout">
-        {avatars && (
-          <span className="flex flex-row gap-2 mb-4">
-            {avatars.map((avatar) => (
-              <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
-            ))}
-          </span>
+        {hasAvatar && (
+          <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
         )}
         <span
           className="font-bold break-words"

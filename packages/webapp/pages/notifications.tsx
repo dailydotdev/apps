@@ -9,7 +9,7 @@ import {
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
-  pageContainerClassnames,
+  pageContainerClassNames,
   pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
 import request from 'graphql-request';
@@ -57,7 +57,7 @@ const Notifications = (): ReactElement => {
       <main
         className={classNames(
           pageBorders,
-          pageContainerClassnames,
+          pageContainerClassNames,
           'laptop:min-h-screen',
         )}
       >

@@ -13,7 +13,7 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
-import SourceIcon from './icons/Source';
+import ShareIcon from './icons/Share';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -25,7 +25,7 @@ export type BookmarkFeedLayoutProps = {
 const SharedBookmarksModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "SharedBookmarksModal" */ './modals/SharedBookmarksModal'
+      /* webpackChunkName: "sharedBookmarksModal" */ './modals/SharedBookmarksModal'
     ),
 );
 
@@ -63,7 +63,7 @@ export default function BookmarkFeedLayout({
   const shareBookmarksButton = (style: string, text?: string) => (
     <Button
       className={style}
-      icon={<SourceIcon />}
+      icon={<ShareIcon secondary={showSharedBookmarks} />}
       onClick={() => setShowSharedBookmarks(true)}
     >
       {text}

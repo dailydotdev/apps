@@ -28,7 +28,10 @@ function SidebarListItem({
   );
   const content = (
     <>
-      {icon}
+      {React.cloneElement(icon as ReactElement, {
+        secondary: isActive,
+        className: !isActive && 'text-theme-label-secondary',
+      })}
       <span
         className={classNames(
           'ml-2 typo-callout',
@@ -37,7 +40,12 @@ function SidebarListItem({
       >
         {title}
       </span>
-      <ArrowIcon className="ml-auto rotate-90" />
+      <ArrowIcon
+        className={classNames(
+          'ml-auto rotate-90',
+          !isActive && 'text-theme-label-secondary',
+        )}
+      />
     </>
   );
 
