@@ -119,14 +119,14 @@ export const pageBorders =
   'laptop:border-r laptop:border-l border-theme-divider-tertiary';
 const pagePaddings = 'px-4 tablet:px-8';
 
-export const pageContainerClassnames = classNames(
+export const pageContainerClassNames = classNames(
   styles.pageContainer,
   'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
 );
 export const PageContainer = classed(
   'main',
   pagePaddings,
-  pageContainerClassnames,
+  pageContainerClassNames,
 );
 
 export const PageWidgets = classed(

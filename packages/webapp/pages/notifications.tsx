@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import {
-  pageContainerClassnames,
+  pageContainerClassNames,
   pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
 import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
@@ -20,7 +20,7 @@ const Notifications = (): ReactElement => {
       <main
         className={classNames(
           pageBorders,
-          pageContainerClassnames,
+          pageContainerClassNames,
           'laptop:min-h-screen',
         )}
       >
