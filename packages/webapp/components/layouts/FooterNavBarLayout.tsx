@@ -4,7 +4,7 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 
 const FooterNavBar = dynamic(
-  () => import(/* webpackChunkName: "Sidebar" */ '../FooterNavBar'),
+  () => import(/* webpackChunkName: "footerNavBar" */ '../FooterNavBar'),
 );
 
 type FooterNavBarLayoutProps = { children?: ReactNode };

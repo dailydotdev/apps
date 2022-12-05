@@ -14,9 +14,12 @@ import { QueryIndexes } from '../hooks/useReadingHistory';
 import { postAnalyticsEvent } from '../lib/feed';
 import { postEventName } from './utilities';
 
-const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
-  ssr: false,
-});
+const PortalMenu = dynamic(
+  () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
+  {
+    ssr: false,
+  },
+);
 
 export type PostOptionsReadingHistoryMenuProps = {
   post: ReadHistoryPost;
@@ -59,7 +62,9 @@ const updateReadingHistoryPost =
 const getBookmarkIconAndMenuText = (bookmarked: boolean) => (
   <>
     <MenuIcon
-      Icon={(props) => <BookmarkIcon secondary={bookmarked} {...props} />}
+      Icon={({ secondary, ...props }) => (
+        <BookmarkIcon secondary={bookmarked} {...props} />
+      )}
     />
     {bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks'}
   </>

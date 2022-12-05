@@ -23,7 +23,7 @@ export default function PostAuthor({
         className,
       )}
     >
-      <FeatherIcon className="mr-1 text-xl" />
+      <FeatherIcon secondary className="mr-1 text-xl" />
       <span className="truncate">{post.author.name}</span>
     </div>
   );

@@ -6,13 +6,13 @@ import {
   RANKS,
   RANK_OFFSET,
 } from '../../../lib/rank';
+import { Modal } from '../common/Modal';
 import {
   RanksBadgesList,
   RanksBadgesProps,
   RanksBadgesSection,
 } from './common';
 import RankBadgeItem from './RankBadgeItem';
-import { ModalText } from '../common';
 
 const RanksBadges = ({
   rank,
@@ -44,7 +44,7 @@ const RanksBadges = ({
           />
         ))}
       </RanksBadgesList>
-      <ModalText className="mt-1 mb-3 text-center">
+      <Modal.Text className="mt-1 mb-3 text-center">
         {getNextRankText({
           rankLastWeek: previousRank,
           rank,
@@ -53,7 +53,7 @@ const RanksBadges = ({
           progress,
           showNextLevel: false,
         })}
-      </ModalText>
+      </Modal.Text>
     </RanksBadgesSection>
   );
 };

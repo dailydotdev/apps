@@ -25,9 +25,12 @@ import { OnShareOrBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
 
-const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
-  ssr: false,
-});
+const PortalMenu = dynamic(
+  () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
+  {
+    ssr: false,
+  },
+);
 
 interface PostOptionsMenuProps extends OnShareOrBookmarkProps {
   postIndex?: number;

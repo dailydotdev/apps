@@ -38,7 +38,7 @@ export interface SearchFieldProps
   fieldSize?: 'large' | 'medium';
   showIcon?: boolean;
   fieldType?: 'primary' | 'secondary';
-  rightButtonProps?: ButtonProps<'button'>;
+  rightButtonProps?: ButtonProps<'button'> | false;
 }
 
 const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
@@ -66,6 +66,7 @@ export const SearchField = forwardRef(function SearchField(
     'aria-describedby': describedBy,
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
+    showIcon = true,
     ...props
   }: SearchFieldProps,
   ref: ForwardedRef<HTMLDivElement>,
@@ -102,31 +103,33 @@ export const SearchField = forwardRef(function SearchField(
       data-testid="searchField"
       ref={ref}
     >
-      {isSecondary && hasInput ? (
-        <Button
-          type="button"
-          className="mr-2 btn-tertiary"
-          buttonSize="xsmall"
-          title="Clear query"
-          onClick={onClearClick}
-          icon={
-            <CloseIcon className="text-lg icon group-hover:text-theme-label-primary" />
-          }
-          disabled={!hasInput}
-        />
-      ) : (
-        <SearchIcon
-          secondary={focused}
-          className="mr-2 text-2xl icon"
-          style={{
-            color:
-              focused || hasInput
-                ? 'var(--theme-label-primary)'
-                : 'var(--field-placeholder-color)',
-          }}
-        />
-      )}
+      {!!showIcon &&
+        (isSecondary && hasInput ? (
+          <Button
+            type="button"
+            className="mr-2 btn-tertiary"
+            buttonSize="xsmall"
+            title="Clear query"
+            onClick={onClearClick}
+            icon={
+              <CloseIcon className="text-lg icon group-hover:text-theme-label-primary" />
+            }
+            disabled={!hasInput}
+          />
+        ) : (
+          <SearchIcon
+            secondary={focused}
+            className="mr-2 text-2xl icon"
+            style={{
+              color:
+                focused || hasInput
+                  ? 'var(--theme-label-primary)'
+                  : 'var(--field-placeholder-color)',
+            }}
+          />
+        ))}
       <FieldInput
+        disabled={disabled}
         placeholder={placeholder}
         name={name}
         id={inputId}
@@ -150,7 +153,7 @@ export const SearchField = forwardRef(function SearchField(
         )}
         required
       />
-      {((hasInput && isPrimary) || isSecondary) && (
+      {((hasInput && isPrimary) || isSecondary) && !!rightButtonProps && (
         <Button
           {...rightButtonProps}
           className={isSecondary ? 'btn-primary' : 'btn-tertiary'}
