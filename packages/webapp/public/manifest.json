@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/web-manifest",
   "name": "daily.dev",
   "short_name": "daily.dev",
   "icons": [
