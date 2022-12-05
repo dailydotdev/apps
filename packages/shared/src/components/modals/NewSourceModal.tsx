@@ -3,7 +3,6 @@ import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
-import { Loader } from '../Loader';
 import { ModalProps } from './StyledModal';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
@@ -166,10 +165,10 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     >
       <Modal.Header title="Suggest new source" />
       <Modal.Body>
-        <p className="typo-callout text-theme-label-secondary">
+        <Modal.Text>
           Have an idea for a new source? Insert its link below to add it to the
           feed.
-        </p>
+        </Modal.Text>
         <a
           className="mb-2 font-bold underline typo-callout text-theme-label-link"
           target="_blank"
@@ -184,8 +183,10 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           onSubmit={onScrapeSubmit}
           aria-busy={isScraping}
           data-testid={`login state: ${loginState?.trigger}`}
+          id="submit-source"
         >
           <SearchField
+            disabled={!!feeds?.length}
             className="my-4"
             inputId="new-source-field"
             name="url"
@@ -195,13 +196,8 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             autoFocus
             aria-describedby={scrapeError && 'new-source-field-desc'}
             valueChanged={onUrlChanged}
-            fieldType="secondary"
-            rightButtonProps={{
-              disabled: !enableSubmission,
-              type: 'submit',
-              'aria-label': 'Search feeds',
-              buttonSize: 'small',
-            }}
+            fieldType="primary"
+            rightButtonProps={false}
           />
         </form>
         {!!existingSource && (
@@ -262,14 +258,29 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           </>
         )}
       </Modal.Body>
-      {(!!feeds?.length || isScraping) && (
-        <Modal.Footer>
-          {isScraping && (
-            <div className="flex justify-center w-full">
-              <Loader invertColor />
-            </div>
-          )}
-          {!!feeds?.length && (
+      <Modal.Footer>
+        {!feeds?.length && (
+          <Button
+            form="submit-source"
+            className="btn-primary"
+            type="submit"
+            disabled={isScraping || !enableSubmission}
+            loading={isScraping}
+          >
+            Check link
+          </Button>
+        )}
+        {!!feeds?.length && (
+          <>
+            <Button
+              className="mr-auto"
+              disabled={checkingIfExists || requestingSource}
+              onClick={() => {
+                setFeeds([]);
+              }}
+            >
+              Back
+            </Button>
             <Button
               form="select-feed"
               className="btn-primary"
@@ -277,11 +288,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
               disabled={!selectedFeed}
               loading={checkingIfExists || requestingSource}
             >
-              Send for review
+              Submit for review
             </Button>
-          )}
-        </Modal.Footer>
-      )}
+          </>
+        )}
+      </Modal.Footer>
     </Modal>
   );
 }
