@@ -26,7 +26,9 @@ function NotificationItemAvatar({
   }
 
   if (type === NotificationAvatarType.User) {
-    return <ProfilePicture user={{ image, id: referenceId }} />;
+    return (
+      <ProfilePicture user={{ image, id: referenceId }} nativeLazyLoading />
+    );
   }
 
   return null;

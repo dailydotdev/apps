@@ -93,7 +93,7 @@ function ProfilePictureComponent(
       {...props}
       ref={ref}
       imgSrc={user.image}
-      imgAlt={`${user.username}'s profile`}
+      imgAlt={`${user.username || user.id}'s profile`}
       className={classNames(
         sizeClasses[size],
         roundClasses[rounded ?? size],
