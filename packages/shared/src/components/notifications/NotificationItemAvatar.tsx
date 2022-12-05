@@ -25,7 +25,11 @@ function NotificationItemAvatar({
     return <SourceButton source={{ id: referenceId, name, image }} />;
   }
 
-  return <ProfilePicture user={{ image, id: referenceId }} />;
+  if (type === NotificationAvatarType.User) {
+    return <ProfilePicture user={{ image, id: referenceId }} />;
+  }
+
+  return null;
 }
 
 export default NotificationItemAvatar;
