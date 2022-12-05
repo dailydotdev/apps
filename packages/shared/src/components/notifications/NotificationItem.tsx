@@ -1,36 +1,30 @@
 import classNames from 'classnames';
-import createDOMPurify from 'dompurify';
-import React, { ReactElement, ReactNode, useEffect, useRef } from 'react';
+import React, { ReactElement } from 'react';
+import { Notification } from '../../graphql/notifications';
+import { useDomPurify } from '../../hooks/useDomPurify';
 import { getFadedBackground } from '../../lib/styling';
-import NotificationItemAttachment, {
-  NotificationItemAttachmentProps,
-} from './NotificationItemAttachment';
-import NotificationItemAvatar, {
-  NotificationItemAvatarProps,
-} from './NotificationItemAvatar';
+import NotificationItemAttachment from './NotificationItemAttachment';
+import NotificationItemAvatar from './NotificationItemAvatar';
 
-interface NotificationItemProps {
-  icon: ReactNode;
-  title: string;
+export interface NotificationItemProps
+  extends Pick<
+    Notification,
+    'type' | 'icon' | 'title' | 'description' | 'avatars' | 'attachments'
+  > {
   isUnread?: boolean;
-  description?: string;
-  avatars?: NotificationItemAvatarProps[];
-  attachments?: NotificationItemAttachmentProps[];
+  targetUrl?: string;
 }
 
 function NotificationItem({
   icon,
+  type,
   title,
   isUnread,
   description,
   avatars,
   attachments,
 }: NotificationItemProps): ReactElement {
-  const DOMPurify = useRef<DOMPurify.DOMPurifyI>();
-
-  useEffect(() => {
-    DOMPurify.current = createDOMPurify(window);
-  }, []);
+  const purify = useDomPurify();
 
   const avatarComponents =
     avatars?.map?.((avatar) => (
@@ -51,7 +45,11 @@ function NotificationItem({
           isUnread && getFadedBackground('before:bg-theme-divider-tertiary'),
         )}
       >
-        {icon}
+        <img
+          className="object-contain w-6 h-6"
+          src={icon}
+          alt={`${type}'s icon`}
+        />
       </span>
       <div className="flex flex-col flex-1 ml-4 w-full typo-callout">
         {hasAvatar && (
@@ -60,14 +58,14 @@ function NotificationItem({
         <span
           className="font-bold break-words"
           dangerouslySetInnerHTML={{
-            __html: DOMPurify?.current?.sanitize(title),
+            __html: purify?.sanitize?.(title),
           }}
         />
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-theme-label-quaternary"
             dangerouslySetInnerHTML={{
-              __html: DOMPurify?.current?.sanitize(description),
+              __html: purify?.sanitize?.(description),
             }}
           />
         )}
