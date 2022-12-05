@@ -63,11 +63,13 @@ const createFeedMock = (
   },
 });
 
+let client: QueryClient;
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
-  const client = new QueryClient();
+  client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);

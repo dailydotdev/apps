@@ -18,12 +18,26 @@ import { render, screen } from '@testing-library/preact';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import { mocked } from 'ts-jest/utils';
+import { NextRouter, useRouter } from 'next/router';
 import NotificationsPage from '../pages/notifications';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        isFallback: false,
+        query: {},
+      } as unknown as NextRouter),
+  );
 });
+
 const sampleNotification: Notification = {
   id: 'notification',
   userId: 'lee',
@@ -43,6 +57,7 @@ const sampleNotificationData = {
     edges: [{ node: sampleNotification }],
   },
 };
+
 const fetchNotificationsMock = (
   data: NotificationsData = sampleNotificationData,
   variables = { first: 100, after: undefined },
@@ -51,10 +66,12 @@ const fetchNotificationsMock = (
   result: { data },
 });
 
+let client: QueryClient;
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [fetchNotificationsMock()],
 ) => {
-  const client = new QueryClient();
+  client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
 
