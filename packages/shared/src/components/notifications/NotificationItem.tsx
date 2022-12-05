@@ -53,14 +53,14 @@ function NotificationItem({
         <span
           className="font-bold break-words"
           dangerouslySetInnerHTML={{
-            __html: purify?.sanitize(title),
+            __html: purify?.sanitize?.(title),
           }}
         />
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-theme-label-quaternary"
             dangerouslySetInnerHTML={{
-              __html: purify?.sanitize(description),
+              __html: purify?.sanitize?.(description),
             }}
           />
         )}
