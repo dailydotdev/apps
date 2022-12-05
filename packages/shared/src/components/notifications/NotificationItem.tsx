@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import createDOMPurify from 'dompurify';
-import React, { ReactElement, useEffect, useRef } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { Notification } from '../../graphql/notifications';
 import { getFadedBackground } from '../../lib/styling';
 import NotificationItemAttachment from './NotificationItemAttachment';
@@ -23,11 +23,9 @@ function NotificationItem({
   avatars,
   attachments,
 }: NotificationItemProps): ReactElement {
-  const DOMPurify = useRef<DOMPurify.DOMPurifyI>();
-
-  useEffect(() => {
-    DOMPurify.current = createDOMPurify(globalThis.window);
-  }, []);
+  const [purify] = useState<DOMPurify.DOMPurifyI>(
+    createDOMPurify(globalThis.window),
+  );
 
   return (
     <div
@@ -55,14 +53,14 @@ function NotificationItem({
         <span
           className="font-bold break-words"
           dangerouslySetInnerHTML={{
-            __html: DOMPurify?.current?.sanitize(title),
+            __html: purify?.sanitize(title),
           }}
         />
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-theme-label-quaternary"
             dangerouslySetInnerHTML={{
-              __html: DOMPurify?.current?.sanitize(description),
+              __html: purify?.sanitize(description),
             }}
           />
         )}
