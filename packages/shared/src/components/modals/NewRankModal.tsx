@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RankConfetti } from '../../svg/RankConfetti';
 import { rankToColor, RANKS, getRank } from '../../lib/rank';
@@ -16,13 +15,12 @@ import { Checkbox } from '../fields/Checkbox';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
 import { Button } from '../buttons/Button';
-import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
-import { ResponsiveModal } from './ResponsiveModal';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
 import useDebounce from '../../hooks/useDebounce';
 import LoginButton from '../LoginButton';
+import { Modal } from './common/Modal';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
@@ -37,7 +35,6 @@ export default function NewRankModal({
   user,
   onRequestClose,
   className,
-  style,
   ...props
 }: NewRankModalProps): ReactElement {
   const [shownRank, setShownRank] = useState(getRank(rank));
@@ -107,100 +104,97 @@ export default function NewRankModal({
   );
 
   return (
-    <ResponsiveModal
+    <Modal
       onRequestClose={closeModal}
-      className={classNames(styles.newRankModal, className)}
+      className={className}
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Small}
       style={{
         content: {
-          ...style?.content,
           '--rank-color': rankToColor(rank),
         } as CSSProperties,
-        // stylelint-disable-next-line property-no-unknown
-        overlay: style?.overlay,
       }}
       {...props}
     >
-      <ModalCloseButton onClick={closeModal} />
-      <div
-        className={`${styles.rankProgressContainer} relative flex items-center justify-center mt-6 z-0`}
-      >
-        {!user || !rankAnimationEnded ? (
-          <RankProgress
-            rank={shownRank}
-            progress={shownProgress}
-            fillByDefault
-            showRankAnimation={animatingRank}
-            className={styles.rankProgress}
-            onRankAnimationFinish={onRankAnimationFinish}
-          />
-        ) : (
-          <>
-            <RadialProgress
-              progress={RANKS[getRank(rank)].steps}
-              steps={RANKS[getRank(rank)].steps}
-              className={styles.radialProgress}
-            />
-            <img
-              className={`${styles.profileImage} absolute inset-0 object-cover m-auto rounded-full`}
-              src={user.image}
-              alt="Your profile"
-            />
-            <Rank
-              className={`${styles.newRankBadge} absolute inset-x-0 bottom-4 mx-auto rounded-full bg-theme-bg-tertiary`}
-              rank={rank}
-              colorByRank
-            />
-          </>
-        )}
-        <CSSTransition
-          in={rankAnimationEnded}
-          timeout={300}
-          classNames="confetti-transition"
-          mountOnEnter
-          unmountOnExit
+      <Modal.Header />
+      <Modal.Body className="flex flex-col" style={{ overflow: 'visible' }}>
+        <div
+          className={`${styles.rankProgressContainer} relative flex items-center justify-center -mt-4 z-0`}
         >
-          <RankConfetti
-            className={`${styles.rankConfetti} absolute inset-x-0 top-0 h-full mx-auto`}
-            style={
-              {
-                '--fill-color': rank <= RANKS.length && 'var(--rank-color)',
-              } as CSSProperties
-            }
-          />
-        </CSSTransition>
-      </div>
-      <h1 className="mt-2 font-bold text-center typo-callout">{title}</h1>
-      <p className="mt-1 mb-8 text-center text-theme-label-secondary typo-callout">
-        You earned the {RANKS[getRank(rank)].name?.toLowerCase()} rank
-        {!user && (
-          <>
-            <br />
-            <br />
-            Add your new rank to your profile by signing up
-          </>
-        )}
-      </p>
-      {user ? (
-        <div className="flex gap-4 self-center">
-          <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
-          <Button
-            className="btn-primary"
-            buttonSize="small"
-            onClick={closeModal}
+          {!user || !rankAnimationEnded ? (
+            <RankProgress
+              rank={shownRank}
+              progress={shownProgress}
+              fillByDefault
+              showRankAnimation={animatingRank}
+              className={styles.rankProgress}
+              onRankAnimationFinish={onRankAnimationFinish}
+            />
+          ) : (
+            <>
+              <RadialProgress
+                progress={RANKS[getRank(rank)].steps}
+                steps={RANKS[getRank(rank)].steps}
+                className={styles.radialProgress}
+              />
+              <img
+                className={`${styles.profileImage} absolute inset-0 object-cover m-auto rounded-full`}
+                src={user.image}
+                alt="Your profile"
+              />
+              <Rank
+                className={`${styles.newRankBadge} absolute inset-x-0 bottom-4 mx-auto rounded-full bg-theme-bg-tertiary`}
+                rank={rank}
+                colorByRank
+              />
+            </>
+          )}
+          <CSSTransition
+            in={rankAnimationEnded}
+            timeout={300}
+            classNames="confetti-transition"
+            mountOnEnter
+            unmountOnExit
           >
-            Awesome!
-          </Button>
+            <RankConfetti
+              className={`${styles.rankConfetti} absolute top-0 h-full mx-auto`}
+              style={
+                {
+                  '--fill-color': rank <= RANKS.length && 'var(--rank-color)',
+                } as CSSProperties
+              }
+            />
+          </CSSTransition>
         </div>
-      ) : (
-        <LoginButton className="mx-auto" />
-      )}
-      <Checkbox
-        ref={inputRef}
-        name="neverShow"
-        className="self-center mt-4 mb-7"
-      >
-        Never show this popup again
-      </Checkbox>
-    </ResponsiveModal>
+        <h1 className="mt-2 font-bold text-center typo-callout">{title}</h1>
+        <p className="mt-1 mb-8 text-center text-theme-label-secondary typo-callout">
+          You earned the {RANKS[getRank(rank)].name?.toLowerCase()} rank
+          {!user && (
+            <>
+              <br />
+              <br />
+              Add your new rank to your profile by signing up
+            </>
+          )}
+        </p>
+        {user ? (
+          <div className="flex gap-4 self-center">
+            <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
+            <Button
+              className="btn-primary"
+              buttonSize="small"
+              onClick={closeModal}
+            >
+              Awesome!
+            </Button>
+          </div>
+        ) : (
+          <LoginButton className="mx-auto" />
+        )}
+        <Checkbox ref={inputRef} name="neverShow" className="self-center mt-4">
+          Never show this popup again
+        </Checkbox>
+      </Modal.Body>
+    </Modal>
   );
 }
