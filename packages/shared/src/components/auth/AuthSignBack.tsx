@@ -1,6 +1,5 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
-import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { Provider, providerMap } from './common';
 import OrDivider from './OrDivider';
@@ -10,7 +9,6 @@ import AuthContainer from './AuthContainer';
 
 interface AuthSignBackProps {
   children?: ReactNode;
-  onClose?: CloseModalFunc;
   onRegister?: () => void;
   onProviderClick?: (provider: string) => unknown;
 }
@@ -21,7 +19,6 @@ export const SIGNIN_METHOD_KEY = 'signin_method';
 
 export const AuthSignBack = ({
   children,
-  onClose,
   onRegister,
   onProviderClick,
 }: AuthSignBackProps): ReactElement => {
@@ -34,7 +31,7 @@ export const AuthSignBack = ({
 
   return (
     <span className="flex flex-col flex-1">
-      <AuthModalHeader title="Login to daily.dev" onClose={onClose} />
+      <AuthModalHeader title="Login to daily.dev" />
       <AuthContainer>
         <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
           Sign back in with
