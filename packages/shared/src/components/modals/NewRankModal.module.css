@@ -4,18 +4,6 @@ $badgeSize: 3rem;
 $largeBadgeSize: 4rem;
 $badgeOffset: 1.875rem;
 
-.newRankModal {
-  & :global(.modal) {
-    max-width: 26.25rem;
-    overflow: hidden;
-
-    @screen responsiveModalBreakpoint {
-      box-sizing: content-box;
-      border: 0.25rem solid var(--rank-color);
-    }
-  }
-}
-
 .rankProgressContainer {
   height: 8.75rem;
 
