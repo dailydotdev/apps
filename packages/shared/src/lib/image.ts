@@ -11,6 +11,7 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/v1665563545/public/supercharge.png',
   },
   notifications: {
-    browser: '', // TODO: add the image once uploaded in Cloudinary
+    browser:
+      'https://daily-now-res.cloudinary.com/image/upload/v1670221485/public/notification.png',
   },
 };
