@@ -20,10 +20,12 @@ export default NotificationsContext;
 
 export interface NotificationsContextProviderProps {
   children: ReactNode;
+  unreadCount?: number;
 }
 
 export const NotificationsContextProvider = ({
   children,
+  unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const [hasPermission, setHasPermission] = useState(
@@ -40,7 +42,7 @@ export const NotificationsContextProvider = ({
 
   const data = useMemo(() => {
     return {
-      unreadCount: 0,
+      unreadCount,
       hasPermission,
       requestPermission,
     };
