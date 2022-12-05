@@ -1,7 +1,7 @@
 import classNames from 'classnames';
-import createDOMPurify from 'dompurify';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { Notification } from '../../graphql/notifications';
+import { useDomPurify } from '../../hooks/useDomPurify';
 import { getFadedBackground } from '../../lib/styling';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
@@ -23,9 +23,7 @@ function NotificationItem({
   avatars,
   attachments,
 }: NotificationItemProps): ReactElement {
-  const [purify] = useState<DOMPurify.DOMPurifyI>(
-    createDOMPurify(globalThis.window),
-  );
+  const purify = useDomPurify();
 
   return (
     <div
