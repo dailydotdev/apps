@@ -18,11 +18,11 @@ function ProtectedPage({
   const router = useRouter();
   const { tokenRefreshed, user } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (tokenRefreshed && !user) {
-      router.replace('/');
-    }
-  }, [tokenRefreshed, user]);
+  // useEffect(() => {
+  //   if (tokenRefreshed && !user) {
+  //     router.replace('/');
+  //   }
+  // }, [tokenRefreshed, user]);
 
   return (
     <>
