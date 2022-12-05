@@ -275,7 +275,7 @@ function AuthOptions({
     <div
       className={classNames(
         'flex overflow-y-auto z-1 flex-col w-full rounded-16 bg-theme-bg-tertiary',
-        !isV2 && 'max-w-[25.75rem]',
+        !isV2 && 'max-w-[26.25rem]',
         className,
       )}
     >
