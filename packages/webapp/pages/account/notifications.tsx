@@ -3,12 +3,24 @@ import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import React, { ReactElement, useContext, useState } from 'react';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
+import Pointer, {
+  PointerColor,
+} from '@dailydotdev/shared/src/components/alert/Pointer';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 
+const ALERT_PUSH_KEY = 'alert_push_key';
+
 const AccountNotificationsPage = (): ReactElement => {
   const { user } = useContext(AuthContext);
+  const [isAlertShown, setIsAlertShown] = usePersistentContext(
+    ALERT_PUSH_KEY,
+    true,
+  );
   const { updateUserProfile } = useProfileForm();
   const { pushNotification, acceptedMarketing, newActivityEmail } = user ?? {};
   const [emailNotification, setEmailNotification] = useState(
@@ -46,8 +58,31 @@ const AccountNotificationsPage = (): ReactElement => {
           {pushNotification ? 'On' : 'Off'}
         </Switch>
       </div>
-      <div className="my-6">Pointer</div>
-      <div className="flex flex-row">
+      {isAlertShown && (
+        <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
+          <Pointer
+            className="absolute -top-5 right-8"
+            color={PointerColor.Cabbage}
+          />
+          <div className="flex overflow-hidden relative flex-row p-4">
+            <p className="flex-1 break-words typo-subhead">
+              Switch on push notifications so you never miss exciting
+              discussions, upvotes, replies or mentions on daily.dev!
+            </p>
+            <img
+              className="absolute top-0 right-10"
+              src={cloudinary.notifications.browser}
+              alt="Preview"
+            />
+            <CloseButton
+              buttonSize="xsmall"
+              className="ml-32"
+              onClick={() => setIsAlertShown(false)}
+            />
+          </div>
+        </div>
+      )}
+      <div className="flex flex-row mt-6">
         <AccountContentSection
           className={{
             heading: 'mt-0',
