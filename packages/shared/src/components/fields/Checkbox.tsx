@@ -22,7 +22,16 @@ export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Checkbox = forwardRef(function Checkbox(
-  { name, checked, children, className, onToggle, id, ...props }: CheckboxProps,
+  {
+    name,
+    checked,
+    children,
+    className,
+    onToggle,
+    id,
+    disabled,
+    ...props
+  }: CheckboxProps,
   ref: LegacyRef<HTMLInputElement>,
 ): ReactElement {
   const [actualChecked, setActualChecked] = useState(checked);
@@ -42,13 +51,14 @@ export const Checkbox = forwardRef(function Checkbox(
         'relative inline-flex items-center text-theme-label-tertiary z-1 cursor-pointer select-none font-bold typo-footnote p-1 pr-3',
         styles.label,
         className,
-        { checked: actualChecked },
+        { checked: actualChecked, disabled },
       )}
       style={{ transition: 'color 0.1s linear' }}
       htmlFor={id}
     >
       <input
         {...props}
+        disabled={disabled}
         id={id}
         type="checkbox"
         className="absolute w-0 h-0 opacity-0"
