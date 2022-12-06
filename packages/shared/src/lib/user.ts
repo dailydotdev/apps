@@ -42,8 +42,6 @@ export interface UserProfile {
   bio?: string;
   acceptedMarketing?: boolean;
   timezone?: string;
-  newActivityEmail?: boolean;
-  pushNotification?: boolean;
 }
 
 export interface UserShortProfile
