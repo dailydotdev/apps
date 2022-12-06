@@ -33,7 +33,7 @@ const AccountNotificationsPage = (): ReactElement => {
   };
 
   return (
-    <AccountPageContainer title="Other Settings">
+    <AccountPageContainer title="Notifications">
       <div className="flex flex-row">
         <AccountContentSection
           className={{
