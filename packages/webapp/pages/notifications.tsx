@@ -23,7 +23,7 @@ import {
 } from '../components/layouts/FooterNavBarLayout';
 import ProtectedPage from '../components/ProtectedPage';
 
-const checkHasUnread = (data: InfiniteData<NotificationsData>) =>
+const hasUnread = (data: InfiniteData<NotificationsData>) =>
   data.pages.some((page) =>
     page.notifications.edges.some(({ node }) => !node.readAt),
   );
