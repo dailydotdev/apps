@@ -5,12 +5,13 @@ import {
   pageContainerClassNames,
   pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
-import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { getLayout } from '../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import ProtectedPage from '../components/ProtectedPage';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { NotificationType } from '@dailydotdev/shared/src/graphql/notifications';
 
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
@@ -28,7 +29,8 @@ const Notifications = (): ReactElement => {
         <h2 className="p-6 font-bold typo-headline">Notifications</h2>
         <NotificationItem
           isUnread
-          icon={<BellIcon secondary />}
+          type={NotificationType.System}
+          icon={cloudinary.notifications.bell}
           title="Welcome to your new notification center!"
           description="The notification system notifies you of important events such as
               replies, mentions, updates etc."
