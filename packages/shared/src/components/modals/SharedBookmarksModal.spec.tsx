@@ -89,5 +89,5 @@ it('should enable public mode on toggle click', async () => {
   const input = screen.getByDisplayValue(
     'http://localhost:4000/rss/b/619f6044-c02b-486b-8234-9a46ad1bb604',
   );
-  await waitFor(() => expect(input).toBeInTheDocument());
+  await waitFor(() => expect(input).toBeInTheDocument(), { timeout: 500 });
 });

@@ -17,9 +17,10 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import { getLayout } from '../components/layouts/MainLayout';
-import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
-import { getLayout } from '../components/layouts/MainLayout';
+import {
+  getLayout,
+  getLayout as getFooterNavBarLayout,
+} from '../components/layouts/FooterNavBarLayout';
 import ProtectedPage from '../components/ProtectedPage';
 
 const checkHasUnread = (data: InfiniteData<NotificationsData>) =>
