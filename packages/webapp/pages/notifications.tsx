@@ -7,11 +7,11 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
-import { getLayout } from '../components/layouts/MainLayout';
-import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
-import ProtectedPage from '../components/ProtectedPage';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { NotificationType } from '@dailydotdev/shared/src/graphql/notifications';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../components/layouts/MainLayout';
+import ProtectedPage from '../components/ProtectedPage';
 
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
