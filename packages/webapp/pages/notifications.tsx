@@ -45,7 +45,7 @@ const Notifications = (): ReactElement => {
         lastPage?.notifications?.pageInfo?.hasNextPage &&
         lastPage?.notifications?.pageInfo?.endCursor,
       onSuccess: (data) => {
-        if (checkHasUnread(data)) {
+        if (hasUnread(data)) {
           readNotifications();
         }
       },
