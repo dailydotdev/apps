@@ -19,6 +19,7 @@ import EnableNotification from '@dailydotdev/shared/src/components/notifications
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { getLayout } from '../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
 
 const checkHasUnread = (data: InfiniteData<NotificationsData>) =>
@@ -77,8 +78,7 @@ const Notifications = (): ReactElement => {
             type={NotificationType.System}
             icon={cloudinary.notifications.bell}
             title="Welcome to your new notification center!"
-            description="The notification system notifies you of important events such as
-              replies, mentions, updates etc."
+            description="The notification system notifies you of important events such as replies, mentions, updates etc."
           />
         )}
       </main>
