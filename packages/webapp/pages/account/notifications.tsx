@@ -1,10 +1,22 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import React, { ReactElement, useContext, useState } from 'react';
+import { useQuery, useMutation } from 'react-query';
+import request from 'graphql-request';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import {
+  DeviceNotificationPreference,
+  DevicePreferenceData,
+  DEVICE_PREFERENCE_QUERY,
+  GeneralNotificationPreference,
+  GeneralPreferenceData,
+  GENERAL_PREFERENCE_QUERY,
+  UPDATE_DEVICE_PREFERENCE_MUTATION,
+  UPDATE_GENERAL_PREFERENCE_MUTATION,
+} from '@dailydotdev/shared/src/graphql/notifications';
 import Pointer, {
   PointerColor,
 } from '@dailydotdev/shared/src/components/alert/Pointer';
@@ -16,19 +28,58 @@ import AccountContentSection from '../../components/layouts/AccountLayout/Accoun
 const ALERT_PUSH_KEY = 'alert_push_key';
 
 const AccountNotificationsPage = (): ReactElement => {
-  const { user } = useContext(AuthContext);
+  const { user, visit } = useContext(AuthContext);
   const [isAlertShown, setIsAlertShown] = usePersistentContext(
     ALERT_PUSH_KEY,
     true,
   );
-  const { updateUserProfile } = useProfileForm();
-  const { pushNotification, acceptedMarketing, newActivityEmail } = user ?? {};
+  const { data: generalData, refetch: refetchGeneralData } = useQuery(
+    ['general_preferences', user.id],
+    () =>
+      request<GeneralPreferenceData>(
+        `${apiUrl}/graphql`,
+        GENERAL_PREFERENCE_QUERY,
+      ),
+  );
+  const { mutateAsync: updateGeneralPreference } = useMutation(
+    (data: GeneralNotificationPreference) =>
+      request(`${apiUrl}/graphql`, UPDATE_GENERAL_PREFERENCE_MUTATION, {
+        data,
+      }),
+    { onSuccess: refetchGeneralData },
+  );
+
+  const { data: deviceData, refetch: refetchDeviceData } = useQuery(
+    ['device_preferences', visit.sessionId],
+    () =>
+      request<DevicePreferenceData>(
+        `${apiUrl}/graphql`,
+        DEVICE_PREFERENCE_QUERY,
+        { deviceId: visit.sessionId },
+      ),
+  );
+  const { mutateAsync: updateDevicePreference } = useMutation(
+    (data: Omit<DeviceNotificationPreference, 'deviceId' | 'description'>) =>
+      request(`${apiUrl}/graphql`, UPDATE_DEVICE_PREFERENCE_MUTATION, {
+        data,
+        deviceId: visit.sessionId,
+      }),
+    { onSuccess: refetchDeviceData },
+  );
+
+  const { preference: generalPreference } = generalData ?? {};
+  const { marketingEmail, notificationEmail } = generalPreference ?? {};
+  const { preference: devicePreference } = deviceData ?? {};
+  const { pushNotification } = devicePreference ?? {};
   const [emailNotification, setEmailNotification] = useState(
-    acceptedMarketing || newActivityEmail,
+    marketingEmail || notificationEmail,
   );
   const onToggleEmailNotification = () => {
     const value = !emailNotification;
-    updateUserProfile({ acceptedMarketing: value, newActivityEmail: value });
+    updateGeneralPreference({
+      marketingEmail: value,
+      notificationEmail: value,
+    });
     setEmailNotification(value);
   };
 
@@ -46,13 +97,14 @@ const AccountNotificationsPage = (): ReactElement => {
         <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
         <Switch
           data-testId="push_notification-switch"
+          data-testValue={pushNotification}
           inputId="push_notification-switch"
           name="push_notification"
           className="w-20"
           compact={false}
           checked={pushNotification}
           onToggle={() =>
-            updateUserProfile({ pushNotification: !pushNotification })
+            updateDevicePreference({ pushNotification: !pushNotification })
           }
         >
           {pushNotification ? 'On' : 'Off'}
@@ -99,6 +151,7 @@ const AccountNotificationsPage = (): ReactElement => {
           className="w-20"
           compact={false}
           checked={emailNotification}
+          data-testValue={emailNotification}
           onToggle={onToggleEmailNotification}
         >
           {emailNotification ? 'On' : 'Off'}
@@ -108,18 +161,22 @@ const AccountNotificationsPage = (): ReactElement => {
       <div className="grid grid-cols-1 gap-2 mt-6">
         <Checkbox
           name="new_activity"
-          checked={newActivityEmail}
+          data-testId="new_activity-switch"
+          checked={notificationEmail}
+          data-testValue={notificationEmail}
           onToggle={() =>
-            updateUserProfile({ newActivityEmail: !newActivityEmail })
+            updateGeneralPreference({ notificationEmail: !notificationEmail })
           }
         >
           New activity notifications (mentions, replies, etc.)
         </Checkbox>
         <Checkbox
           name="marketing"
-          checked={acceptedMarketing}
+          data-testId="marketing-switch"
+          checked={marketingEmail}
+          data-testValue={marketingEmail}
           onToggle={() =>
-            updateUserProfile({ acceptedMarketing: !acceptedMarketing })
+            updateGeneralPreference({ marketingEmail: !marketingEmail })
           }
         >
           Marketing updates
