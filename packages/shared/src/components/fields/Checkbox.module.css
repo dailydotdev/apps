@@ -18,6 +18,10 @@
 }
 
 .label {
+  &:global(.disabled) {
+    pointer-events: none;
+  }
+
   &:global(.disabled), &:global(.checked.disabled) {
     color: var(--theme-label-disabled);
   }
