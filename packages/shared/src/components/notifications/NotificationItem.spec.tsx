@@ -68,6 +68,16 @@ describe('notification avatars', () => {
     const img = await screen.findByAltText(`${user.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', user.image);
   });
+
+  it('should not display anything if the type is unknown', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const notif = { ...sampleNotification } as any;
+    notif.avatars[1].type = 'Test';
+    const [, user] = sampleNotification.avatars;
+    render(<NotificationItem {...sampleNotification} />);
+    const img = screen.queryByAltText(`${user.referenceId}'s profile`);
+    expect(img).not.toBeInTheDocument();
+  });
 });
 
 describe('notification item', () => {
