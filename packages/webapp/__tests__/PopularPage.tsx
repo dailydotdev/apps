@@ -26,6 +26,7 @@ import Popular from '../pages/popular';
 const showLogin = jest.fn();
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(

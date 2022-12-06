@@ -38,6 +38,7 @@ const showLogin = jest.fn();
 
 beforeEach(() => {
   defaultAlerts = { filter: true };
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(

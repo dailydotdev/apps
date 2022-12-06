@@ -35,6 +35,8 @@ let loggedUser: LoggedUser;
 
 beforeEach(() => {
   loggedUser = undefined;
+  jest.restoreAllMocks();
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
 });

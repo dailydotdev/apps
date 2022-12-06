@@ -16,6 +16,7 @@ let queryClient: QueryClient;
 const getPage = jest.fn();
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   queryClient = new QueryClient();

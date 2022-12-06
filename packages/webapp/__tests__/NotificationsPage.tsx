@@ -13,8 +13,11 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { act } from 'preact/test-utils';
-import { render, screen } from '@testing-library/preact';
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from '@testing-library/preact';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
@@ -27,8 +30,9 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
-  nock.cleanAll();
+  jest.restoreAllMocks();
   jest.clearAllMocks();
+  nock.cleanAll();
   mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -110,30 +114,34 @@ it('should not show the welcome notification if we are not at the last page', as
   data.notifications.pageInfo.endCursor = 'end';
   renderComponent([fetchNotificationsMock(data)]);
   await waitForNock();
-  await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
-  const notif = screen.queryByText('Welcome to your new notification center!');
-  expect(notif).not.toBeInTheDocument();
+  await waitForElementToBeRemoved(
+    () => screen.queryByText('Welcome to your new notification center!'),
+    { timeout: 10 },
+  );
 });
 
 it('should get all notifications', async () => {
   renderComponent();
+  await waitForNock();
   await screen.findByText(sampleNotification.title);
 });
 
 it('should get all notifications and send a mutation to read all unread notifications', async () => {
-  let mutationCalled = true;
-  const data: NotificationsData = { ...sampleNotificationData };
-  data.notifications.edges[0].node.readAt = null;
+  let mutationCalled = false;
+  const testData: NotificationsData = { ...sampleNotificationData };
+  testData.notifications.edges[0].node.readAt = null;
   renderComponent([
-    fetchNotificationsMock(data),
+    fetchNotificationsMock(testData),
     {
       request: { query: READ_NOTIFICATIONS_MUTATION },
       result: () => {
         mutationCalled = true;
-        return null;
+        return { data: { _: true } };
       },
     },
   ]);
+  await waitForNock();
+
   await screen.findByText(sampleNotification.title);
   expect(mutationCalled).toBeTruthy();
 });
