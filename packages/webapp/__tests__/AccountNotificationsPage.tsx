@@ -21,6 +21,7 @@ import {
   UPDATE_GENERAL_PREFERENCE_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import { Visit } from '@dailydotdev/shared/src/lib/boot';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import ProfileNotificationsPage from '../pages/account/notifications';
 
 jest.mock('next/router', () => ({
@@ -83,6 +84,15 @@ const createGeneralPreferenceMock = (
   result: { data: { preference: data } },
 });
 
+globalThis.Notification = {
+  requestPermission: jest.fn(),
+  permission: 'granted',
+} as unknown as jest.Mocked<typeof Notification>;
+
+jest
+  .spyOn(window.Notification, 'requestPermission')
+  .mockResolvedValueOnce('granted');
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [
     createDevicePreferenceMock(),
@@ -100,7 +110,9 @@ const renderComponent = (
         visit={defaultVisit}
         tokenRefreshed
       >
-        <ProfileNotificationsPage />
+        <NotificationsContextProvider>
+          <ProfileNotificationsPage />
+        </NotificationsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
