@@ -319,118 +319,120 @@ export function PostContent({
           </section>
         )}
       >
-        <PostContainer
-          className={classNames(
-            'relative',
-            isFixed && 'pt-16',
-            isFixed && !hasNavigation && 'tablet:pt-0',
-          )}
-        >
-          <PostNavigation
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
+        <>
+          <PostContainer
             className={classNames(
-              !hasNavigation && !isFixed && 'tablet:pt-0',
-              !hasNavigation ? 'flex laptop:hidden' : 'flex',
-              padding,
-              position,
-              isFixed &&
-                'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6 top-0 -ml-8',
-              isFixed && styles.fixedPostsNavigation,
+              'relative',
+              isFixed && 'pt-16',
+              isFixed && !hasNavigation && 'tablet:pt-0',
             )}
-            shouldDisplayTitle={isFixed}
-            post={postById.post}
-            onReadArticle={onReadArticle}
-            onClose={onClose}
-            isModal={isModal}
-            onBookmark={toggleBookmark}
-            onShare={onShare}
-            postFeedFiltersOnboarding={
-              !isPostFeedFiltersOnboardingV1 && postFeedFiltersOnboarding
-            }
-            postPreviousNext={isModal && postPreviousNext}
-          />
-          <h1
-            className="my-6 font-bold break-words typo-large-title"
-            data-testid="post-modal-title"
           >
-            {postById.post.title}
-          </h1>
-          {postById.post.summary && (
-            <PostSummary summary={postById.post.summary} />
-          )}
-          <TagLinks tags={postById.post.tags || []} />
-          <PostMetadata
-            createdAt={postById.post.createdAt}
-            readTime={postById.post.readTime}
-            className="mt-4 mb-8"
-            typoClassName="typo-callout"
-          />
-          <a
-            {...postLinkProps}
-            className={classNames(
-              'block overflow-hidden mb-10 rounded-2xl cursor-pointer',
-              styles.clickableImg,
-            )}
-            style={{ maxWidth: '25.625rem' }}
-          >
-            <LazyImage
-              imgSrc={postById.post.image}
-              imgAlt="Post cover image"
-              ratio="49%"
-              eager
-              fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-            />
-          </a>
-          {postById.post?.toc?.length > 0 && (
-            <PostToc
+            <PostNavigation
+              onPreviousPost={onPreviousPost}
+              onNextPost={onNextPost}
+              className={classNames(
+                !hasNavigation && !isFixed && 'tablet:pt-0',
+                !hasNavigation ? 'flex laptop:hidden' : 'flex',
+                padding,
+                position,
+                isFixed &&
+                  'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6 top-0 -ml-8',
+                isFixed && styles.fixedPostsNavigation,
+              )}
+              shouldDisplayTitle={isFixed}
               post={postById.post}
-              collapsible
-              className="flex laptop:hidden mt-2 mb-4"
+              onReadArticle={onReadArticle}
+              onClose={onClose}
+              isModal={isModal}
+              onBookmark={toggleBookmark}
+              onShare={onShare}
+              postFeedFiltersOnboarding={
+                !isPostFeedFiltersOnboardingV1 && postFeedFiltersOnboarding
+              }
+              postPreviousNext={isModal && postPreviousNext}
             />
-          )}
-          <PostUpvotesCommentsCount
-            post={postById.post}
-            onUpvotesClick={(upvotes) =>
-              onShowUpvotedPost(postById.post.id, upvotes)
-            }
-          />
-          <PostActions
+            <h1
+              className="my-6 font-bold break-words typo-large-title"
+              data-testid="post-modal-title"
+            >
+              {postById.post.title}
+            </h1>
+            {postById.post.summary && (
+              <PostSummary summary={postById.post.summary} />
+            )}
+            <TagLinks tags={postById.post.tags || []} />
+            <PostMetadata
+              createdAt={postById.post.createdAt}
+              readTime={postById.post.readTime}
+              className="mt-4 mb-8"
+              typoClassName="typo-callout"
+            />
+            <a
+              {...postLinkProps}
+              className={classNames(
+                'block overflow-hidden mb-10 rounded-2xl cursor-pointer',
+                styles.clickableImg,
+              )}
+              style={{ maxWidth: '25.625rem' }}
+            >
+              <LazyImage
+                imgSrc={postById.post.image}
+                imgAlt="Post cover image"
+                ratio="49%"
+                eager
+                fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+              />
+            </a>
+            {postById.post?.toc?.length > 0 && (
+              <PostToc
+                post={postById.post}
+                collapsible
+                className="flex laptop:hidden mt-2 mb-4"
+              />
+            )}
+            <PostUpvotesCommentsCount
+              post={postById.post}
+              onUpvotesClick={(upvotes) =>
+                onShowUpvotedPost(postById.post.id, upvotes)
+              }
+            />
+            <PostActions
+              onBookmark={toggleBookmark}
+              onShare={onShare}
+              post={postById.post}
+              postQueryKey={postQueryKey}
+              onComment={() => openNewComment('comment button')}
+              actionsClassName="hidden laptop:flex"
+              origin={analyticsOrigin}
+            />
+            <PostComments
+              post={postById.post}
+              origin={analyticsOrigin}
+              onClick={onCommentClick}
+              onShare={(comment) => openShareComment(comment, postById.post)}
+              onClickUpvote={onShowUpvotedComment}
+            />
+            {authorOnboarding && (
+              <AuthorOnboarding
+                onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
+              />
+            )}
+            <NewComment
+              user={user}
+              onNewComment={() => openNewComment('start discussion button')}
+            />
+          </PostContainer>
+          <PostWidgets
             onBookmark={toggleBookmark}
             onShare={onShare}
+            onReadArticle={onReadArticle}
             post={postById.post}
-            postQueryKey={postQueryKey}
-            onComment={() => openNewComment('comment button')}
-            actionsClassName="hidden laptop:flex"
+            isNavigationFixed={hasNavigation && isFixed}
+            className="pb-20"
+            onClose={onClose}
             origin={analyticsOrigin}
           />
-          <PostComments
-            post={postById.post}
-            origin={analyticsOrigin}
-            onClick={onCommentClick}
-            onShare={(comment) => openShareComment(comment, postById.post)}
-            onClickUpvote={onShowUpvotedComment}
-          />
-          {authorOnboarding && (
-            <AuthorOnboarding
-              onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
-            />
-          )}
-          <NewComment
-            user={user}
-            onNewComment={() => openNewComment('start discussion button')}
-          />
-        </PostContainer>
-        <PostWidgets
-          onBookmark={toggleBookmark}
-          onShare={onShare}
-          onReadArticle={onReadArticle}
-          post={postById.post}
-          isNavigationFixed={hasNavigation && isFixed}
-          className="pb-20"
-          onClose={onClose}
-          origin={analyticsOrigin}
-        />
+        </>
       </ConditionalWrapper>
       {upvotedPopup.modal && (
         <UpvotedPopupModal

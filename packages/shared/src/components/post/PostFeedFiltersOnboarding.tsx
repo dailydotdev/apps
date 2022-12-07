@@ -97,22 +97,24 @@ export function PostFeedFiltersOnboarding({
             </div>
           )}
         >
-          {version === MyFeedArticleAnonymousVersion.V2 && (
-            <div className={hasNavigation && 'flex gap-2 mb-6'}>
-              {postPreviousNext}
-            </div>
-          )}
-          <p className="font-bold typo-callout">
-            Let&apos;s super-charge your feed with the content you actually
-            read!
-          </p>
-          <Button
-            className={versionToButtonClassName[version]}
-            buttonSize={versionToButtonSize[version]}
-            onClick={onInitializeOnboarding}
-          >
-            {versionToButtonText[version]}
-          </Button>
+          <>
+            {version === MyFeedArticleAnonymousVersion.V2 && (
+              <div className={hasNavigation && 'flex gap-2 mb-6'}>
+                {postPreviousNext}
+              </div>
+            )}
+            <p className="font-bold typo-callout">
+              Let&apos;s super-charge your feed with the content you actually
+              read!
+            </p>
+            <Button
+              className={versionToButtonClassName[version]}
+              buttonSize={versionToButtonSize[version]}
+              onClick={onInitializeOnboarding}
+            >
+              {versionToButtonText[version]}
+            </Button>
+          </>
         </ConditionalWrapper>
         {version === MyFeedArticleAnonymousVersion.V2 && (
           <img
