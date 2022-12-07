@@ -80,7 +80,7 @@ const AccountNotificationsPage = (): ReactElement => {
             <img
               className="absolute top-0 right-10"
               src={cloudinary.notifications.browser}
-              alt="Preview"
+              alt="A sample browser notification"
             />
             <CloseButton
               buttonSize="xsmall"
