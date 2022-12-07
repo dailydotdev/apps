@@ -106,16 +106,6 @@ const renderComponent = (
   );
 };
 
-it('should accurately show device preference', async () => {
-  renderComponent([
-    createDevicePreferenceMock({ pushNotification: true }),
-    createGeneralPreferenceMock(),
-  ]);
-  await waitForNock();
-  const subscription = await screen.findByTestId('push_notification-switch');
-  expect(subscription).toBeChecked();
-});
-
 it('should change user push notification', async () => {
   renderComponent();
   await waitForNock();
