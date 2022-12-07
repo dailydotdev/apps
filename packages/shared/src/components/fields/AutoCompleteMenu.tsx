@@ -1,8 +1,8 @@
-import React, { ReactElement, useEffect, useMemo, useRef } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
-import createDOMPurify from 'dompurify';
 import MagnifyingIcon from '../icons/Search';
+import { useDomPurify } from '../../hooks/useDomPurify';
 
 const preventDefault = (e: React.MouseEvent) => e.preventDefault();
 
@@ -21,19 +21,15 @@ export default function AutoCompleteMenu({
   onItemClick,
   isOpen,
 }: AutoCompleteMenuProps): ReactElement {
-  const DOMPurify = useRef<DOMPurify.DOMPurifyI>();
+  const purify = useDomPurify();
   const sanitizedItems = useMemo(
     () =>
       items.map((item, index) => ({
-        __html: DOMPurify.current.sanitize(item),
+        __html: purify?.sanitize?.(item),
         index,
       })),
     [items],
   );
-
-  useEffect(() => {
-    DOMPurify.current = createDOMPurify(window);
-  }, []);
 
   return createPortal(
     <div

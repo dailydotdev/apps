@@ -20,6 +20,8 @@ const showLogin = jest.fn();
 const setUnblockItem = jest.fn();
 
 beforeEach(() => {
+  jest.restoreAllMocks();
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
 });

@@ -26,6 +26,7 @@ import post from '../../../__tests__/fixture/post';
 const showLogin = jest.fn();
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
 });

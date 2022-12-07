@@ -23,6 +23,7 @@ import Upvoted from '../pages/upvoted';
 const showLogin = jest.fn();
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(

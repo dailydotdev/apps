@@ -18,16 +18,20 @@ import {
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,
 } from '../../graphql/bookmarksSharing';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const onRequestClose = jest.fn();
 
-beforeEach(async () => {
-  nock.cleanAll();
+beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
+  nock.cleanAll();
 });
 
+let client: QueryClient;
+
 const renderComponent = (mocks: MockedGraphQLResponse[] = []): RenderResult => {
-  const client = new QueryClient();
+  client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   return render(
@@ -85,9 +89,9 @@ it('should enable public mode on toggle click', async () => {
     queryByText(el.parentElement, 'Public mode'),
   ) as HTMLInputElement;
   fireEvent.click(checkbox);
+  await waitForNock();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  const input = screen.getByDisplayValue(
+  await screen.findByDisplayValue(
     'http://localhost:4000/rss/b/619f6044-c02b-486b-8234-9a46ad1bb604',
   );
-  await waitFor(() => expect(input).toBeInTheDocument());
 });

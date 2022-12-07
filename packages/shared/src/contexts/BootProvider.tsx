@@ -19,6 +19,7 @@ import {
 } from './SettingsContext';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
+import { NotificationsContextProvider } from './NotificationsContext';
 
 export const BOOT_LOCAL_KEY = 'boot:local';
 export const BOOT_QUERY_KEY = 'boot';
@@ -182,7 +183,9 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            {children}
+            <NotificationsContextProvider>
+              {children}
+            </NotificationsContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>
