@@ -46,15 +46,19 @@ import { postEventName } from '../utilities';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { useSharePost } from '../../hooks/useSharePost';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
-import { PostFeedFiltersOnboardingVersion } from '../../lib/featureValues';
+import { MyFeedArticleAnonymousVersion } from '../../lib/featureValues';
 import { PostPreviousNext } from './PostPreviousNext';
 import { PostNavigationProps } from './common';
+import { useOnboardingModal } from '../../hooks/useOnboardingModal';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import AlertContext from '../../contexts/AlertContext';
 
 const UpvotedPopupModal = dynamic(
   () =>
@@ -155,6 +159,10 @@ export function PostContent({
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { myFeedArticleAnonymousVersion } = useContext(FeaturesContext);
+  const { alerts } = useContext(AlertContext);
+
+  const { sidebarRendered } = useSidebarRendered();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
@@ -209,6 +217,10 @@ export function PostContent({
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
+  const { onInitializeOnboarding } = useOnboardingModal({
+    onFeedPageChanged: () => {},
+  });
+
   if (isLoading) {
     return (
       <Wrapper className={className}>
@@ -258,22 +270,35 @@ export function PostContent({
     bookmarkToast(targetBookmarkState);
   };
 
-  /**
-   * TODO: This should come from the context
-   * It should also add wether the user doesn't have my feed yet
-   */
-  const postFeedFitlersOnboardingVersion = PostFeedFiltersOnboardingVersion.V3;
+  const showMyFeedArticleAnonymous =
+    sidebarRendered &&
+    alerts?.filter &&
+    !isFixed &&
+    Object.values(MyFeedArticleAnonymousVersion).includes(
+      myFeedArticleAnonymousVersion,
+    );
   const isPostFeedFiltersOnboardingV1 =
-    postFeedFitlersOnboardingVersion === PostFeedFiltersOnboardingVersion.V1;
+    showMyFeedArticleAnonymous &&
+    myFeedArticleAnonymousVersion === MyFeedArticleAnonymousVersion.V1;
+
+  const onInitializeOnboardingClick = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickArticleAnonymousCTA,
+      target_id: myFeedArticleAnonymousVersion,
+      extra: JSON.stringify({ origin: analyticsOrigin }),
+    });
+    onInitializeOnboarding();
+  };
 
   const postPreviousNext = (
     <PostPreviousNext onNextPost={onNextPost} onPreviousPost={onPreviousPost} />
   );
-  const postFeedFiltersOnboarding = (
+  const postFeedFiltersOnboarding = showMyFeedArticleAnonymous && (
     <PostFeedFiltersOnboarding
       hasNavigation={hasNavigation}
-      version={postFeedFitlersOnboardingVersion}
+      version={myFeedArticleAnonymousVersion}
       postPreviousNext={postPreviousNext}
+      onInitializeOnboarding={onInitializeOnboardingClick}
     />
   );
 
@@ -323,7 +348,7 @@ export function PostContent({
             postFeedFiltersOnboarding={
               !isPostFeedFiltersOnboardingV1 && postFeedFiltersOnboarding
             }
-            postPreviousNext={postPreviousNext}
+            postPreviousNext={isModal && postPreviousNext}
           />
           <h1
             className="my-6 font-bold break-words typo-large-title"

@@ -1,7 +1,7 @@
 html, #daily-companion-wrapper {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
-  height: -webkit-fill-available;
+  height: stretch;
 }
 :root {
   --balloon-border-radius: 0.625rem;
@@ -13,7 +13,7 @@ body {
   overflow-y: scroll;
   min-height: 100vh;
   /* mobile viewport bug fix */
-  min-height: -webkit-fill-available;
+  min-height: stretch;
 
   &.ReactModal__Body--open .ReactModal__Content,
   &.ReactModal__Body--open .ReactModal__Content > * {
@@ -83,9 +83,11 @@ body {
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
   --theme-overlay-from: theme('colors.onion.40')30;
   --theme-overlay-to: theme('colors.cabbage.40')30;
-  --theme-overlay-cabbage-40: theme('colors.cabbage.10')66;
-  --theme-overlay-onion-40: theme('colors.onion.10')66;
-  --theme-overlay-cabbage-10: theme('colors.cabbage.40')14;
+
+  --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
+
+  --theme-gradient-cabbage: theme('colors.cabbage.10')66;
+  --theme-gradient-onion: theme('colors.onion.10')66;
 
   --theme-rank-highlight: theme('colors.salt.10');
 
@@ -193,6 +195,11 @@ body {
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
   --theme-overlay-from: theme('colors.onion.40')30;
   --theme-overlay-to: theme('colors.cabbage.40')30;
+
+  --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
+
+  --theme-gradient-cabbage: theme('colors.cabbage.10')66;
+  --theme-gradient-onion: theme('colors.onion.10')66;
 
   --theme-rank-highlight: theme('colors.salt.10');
 

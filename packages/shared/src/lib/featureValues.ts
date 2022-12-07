@@ -30,7 +30,7 @@ export enum SquadVersion {
   V4 = 'v4',
 }
 
-export enum PostFeedFiltersOnboardingVersion {
+export enum MyFeedArticleAnonymousVersion {
   V1 = 'v1',
   V2 = 'v2',
   V3 = 'v3',

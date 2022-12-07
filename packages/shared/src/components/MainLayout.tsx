@@ -25,6 +25,7 @@ import Toast from './notifications/Toast';
 import LoginButton from './LoginButton';
 import { useAuthErrors } from '../hooks/useAuthErrors';
 import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
+import { useOnboardingModal } from '../hooks/useOnboardingModal';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -46,6 +47,13 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
+);
+
+const OnboardingModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingModal" */ './modals/OnboardingModal'
+    ),
 );
 
 interface ShouldShowLogoProps {
@@ -129,6 +137,11 @@ export default function MainLayout({
 
   const hasBanner = !!bannerData?.banner || !!customBanner;
 
+  const { isOnboardingOpen, onCloseOnboardingModal, onShouldUpdateFilters } =
+    useOnboardingModal({
+      onFeedPageChanged: () => {},
+    });
+
   return (
     <div {...handlers}>
       {customBanner || (
@@ -203,6 +216,13 @@ export default function MainLayout({
         )}
         {children}
       </main>
+      {isOnboardingOpen && (
+        <OnboardingModal
+          isOpen={isOnboardingOpen}
+          onRequestClose={onCloseOnboardingModal}
+          onRegistrationSuccess={() => onShouldUpdateFilters(true)}
+        />
+      )}
     </div>
   );
 }

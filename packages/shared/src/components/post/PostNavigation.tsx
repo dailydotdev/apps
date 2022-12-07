@@ -53,17 +53,25 @@ export function PostNavigation({
           </div>
         )}
       >
-        {postFeedFiltersOnboarding || postPreviousNext}
-        {shouldDisplayTitle && (
-          <div className="overflow-hidden flex-col flex-1 ml-2">
-            <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
-              {content.subtitle}
-            </span>
-            <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
-              {content.title}
-            </h3>
-          </div>
-        )}
+        <>
+          {postFeedFiltersOnboarding ||
+            (postPreviousNext && (
+              <div className="flex relative flex-row gap-2 items-center pt-6">
+                {postPreviousNext}
+              </div>
+            ))}
+          {}
+          {shouldDisplayTitle && (
+            <div className="overflow-hidden flex-col flex-1 ml-2">
+              <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
+                {content.subtitle}
+              </span>
+              <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
+                {content.title}
+              </h3>
+            </div>
+          )}
+        </>
       </ConditionalWrapper>
       <PostModalActions
         onShare={onShare}

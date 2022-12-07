@@ -23,10 +23,12 @@ export enum AnalyticsEvent {
   OnboardingSkip = 'my feed onboarding skip',
   CompleteOnboarding = 'complete onboarding',
   GlobalError = 'global error',
+  ClickArticleAnonymousCTA = 'click article anonymous cta',
 }
 
 export enum TargetType {
   MyFeedModal = 'my feed modal',
+  ArticleAnonymousCTA = 'article anonymous cta',
 }
 
 export enum TargetId {

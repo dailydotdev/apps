@@ -48,20 +48,6 @@ const FeedFilters = dynamic(
   () => import(/* webpackChunkName: "feedFilters" */ './filters/FeedFilters'),
 );
 
-const OnboardingModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "onboardingModal" */ './modals/OnboardingModal'
-    ),
-);
-
-const LegacyOnboardingModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "legacyOnboardingModal" */ './modals/LegacyOnboardingModal'
-    ),
-);
-
 type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
@@ -177,14 +163,13 @@ export default function MainFeedLayout({
   const { sidebarRendered } = useSidebarRendered();
   const { updateAlerts } = useContext(AlertContext);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
-  const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
+  const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  const { flags, popularFeedCopy, onboardingVersion, isFlagsFetched } =
-    useContext(FeaturesContext);
+  const { flags, popularFeedCopy } = useContext(FeaturesContext);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
@@ -226,19 +211,7 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
-  const {
-    myFeedMode,
-    isOnboardingOpen,
-    isLegacyOnboardingOpen,
-    onInitializeOnboarding,
-    onCloseOnboardingModal,
-    onShouldUpdateFilters,
-  } = useOnboardingModal({
-    user,
-    alerts,
-    isFirstVisit,
-    isFeaturesLoaded: isFlagsFetched,
-    onboardingVersion,
+  const { onInitializeOnboarding } = useOnboardingModal({
     onFeedPageChanged,
   });
 
@@ -375,22 +348,6 @@ export default function MainFeedLayout({
         <FeedFilters
           isOpen
           onRequestClose={() => setIsFeedFiltersOpen(false)}
-        />
-      )}
-      {isLegacyOnboardingOpen && (
-        <LegacyOnboardingModal
-          mode={myFeedMode}
-          hasUser={!!user}
-          isOpen={isLegacyOnboardingOpen}
-          onRequestClose={onCloseOnboardingModal}
-          onCreate={() => onShouldUpdateFilters(true)}
-        />
-      )}
-      {isOnboardingOpen && (
-        <OnboardingModal
-          isOpen={isOnboardingOpen}
-          onRequestClose={onCloseOnboardingModal}
-          onRegistrationSuccess={() => onShouldUpdateFilters(true)}
         />
       )}
     </>
