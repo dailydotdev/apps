@@ -35,7 +35,7 @@ export const NotificationsContextProvider = ({
   const requestPermission = async (): Promise<NotificationPermission> => {
     if (!user) return 'default';
 
-    const result = await globalThis.window.Notification.requestPermission();
+    const result = await globalThis.window?.Notification?.requestPermission();
     setHasPermission(result === 'granted');
     return result;
   };

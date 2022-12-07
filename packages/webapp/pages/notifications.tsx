@@ -65,7 +65,7 @@ const Notifications = (): ReactElement => {
       >
         <EnableNotification />
         <h2 className="p-6 font-bold typo-headline">Notifications</h2>
-        {length &&
+        {length > 0 &&
           queryResult.data.pages.map((page) =>
             page.notifications.edges.map(
               ({ node: { id, readAt, ...props } }) => (

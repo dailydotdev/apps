@@ -13,6 +13,7 @@ import {
   requestFeature,
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
+import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
 
 export interface ManageSocialProvidersProps {
   type: ManageSocialProviderTypes;
@@ -35,6 +36,7 @@ export type ManageSocialProviderTypes = 'link' | 'unlink';
 export enum AccountPage {
   Profile = 'profile',
   Security = 'security',
+  Notifications = 'notifications',
   OtherSettings = 'others',
 }
 
@@ -95,6 +97,11 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
       />
     ),
   },
+  notifications: {
+    title: 'Notifications',
+    href: '/notifications',
+    getIcon: ({ isActive }) => <BellIcon secondary={isActive} />,
+  },
   others: {
     title: 'Other Settings',
     href: '/others',
@@ -112,7 +119,10 @@ export const AccountPageContent = classed(
   pageBorders,
   'flex flex-col w-full laptop:max-w-[calc(100vw-19.75rem)] laptop:max-w-[calc(100vw-36rem)] laptopL:max-w-[40rem] tablet:border-l mr-auto',
 );
-export const AccountPageSection = classed('section', 'flex flex-col p-6');
+export const AccountPageSection = classed(
+  'section',
+  'flex flex-col p-6 w-full overflow-x-hidden',
+);
 export const AccountPageHeading = classed(
   'h1',
   'font-bold typo-title3 py-4 px-6 border-b border-theme-divider-tertiary w-full flex flex-row items-center',

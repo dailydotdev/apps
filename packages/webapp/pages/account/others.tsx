@@ -38,7 +38,7 @@ const AccountOthersPage = (): ReactElement => {
   return (
     <AccountPageContainer title="Other Settings">
       <AccountContentSection
-        headingClassName="mt-0"
+        className={{ heading: 'mt-0' }}
         title="Timezone"
         description="Used to calculate your weekly goal cycle and other time-based
         activities."
