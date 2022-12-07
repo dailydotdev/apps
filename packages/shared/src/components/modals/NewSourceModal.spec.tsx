@@ -54,7 +54,7 @@ it('should show a message that no rss found', async () => {
     .reply(200, { type: 'website', rss: [] });
   const input = await screen.findByRole('textbox');
   userEvent.type(input, 'https://daily.dev');
-  const btn = await screen.findByLabelText('Search feeds');
+  const btn = await screen.findByText('Check link');
   btn.click();
   expect(
     await screen.findByText('Could not find RSS feed'),
@@ -69,7 +69,7 @@ it('should show a contact button on an unexpected error', async () => {
     .reply(200, { type: 'unavailable' });
   const input = await screen.findByRole('textbox');
   userEvent.type(input, 'https://daily.dev');
-  const btn = await screen.findByLabelText('Search feeds');
+  const btn = await screen.findByText('Check link');
   btn.click();
   expect(await screen.findByText('Contact')).toBeInTheDocument();
 });
@@ -78,7 +78,7 @@ it('should show login modal for anonymous users', async () => {
   renderComponent(defaultAnonymousUser);
   const input = await screen.findByRole('textbox');
   userEvent.type(input, 'https://daily.dev');
-  const btn = await screen.findByLabelText('Search feeds');
+  const btn = await screen.findByText('Check link');
   btn.click();
   expect(
     await screen.findByTestId('login state: submit new source'),
@@ -99,7 +99,7 @@ it('should show if the source already exists in the system', async () => {
     });
   const input = await screen.findByRole('textbox');
   userEvent.type(input, 'https://daily.dev');
-  userEvent.click(await screen.findByLabelText('Search feeds'));
+  userEvent.click(await screen.findByText('Check link'));
   expect(await screen.findByText('RSS')).toBeInTheDocument();
   expect(await screen.findByText('Ido RSS')).toBeInTheDocument();
   userEvent.click(await screen.findByText('RSS'));
@@ -120,7 +120,7 @@ it('should show if the source already exists in the system', async () => {
     },
   });
 
-  userEvent.click(await screen.findByText('Send for review'));
+  userEvent.click(await screen.findByText('Submit for review'));
   expect(await screen.findByText('Already exists')).toBeInTheDocument();
 });
 
@@ -138,7 +138,7 @@ it('should send source request', async () => {
     });
   const input = await screen.findByRole('textbox');
   userEvent.type(input, 'https://daily.dev');
-  userEvent.click(await screen.findByLabelText('Search feeds'));
+  userEvent.click(await screen.findByText('Check link'));
   expect(await screen.findByText('RSS')).toBeInTheDocument();
   expect(await screen.findByText('Ido RSS')).toBeInTheDocument();
   userEvent.click(await screen.findByText('RSS'));
@@ -169,6 +169,6 @@ it('should send source request', async () => {
     },
   });
 
-  userEvent.click(await screen.findByText('Send for review'));
+  userEvent.click(await screen.findByText('Submit for review'));
   await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
 });

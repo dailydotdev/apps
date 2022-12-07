@@ -1,12 +1,11 @@
 import React, { ReactElement, useState } from 'react';
-import classNames from 'classnames';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
-import { ModalProps, StyledModal } from '../modals/StyledModal';
-import styles from './VerifySessionModal.module.css';
+import { ModalProps } from '../modals/StyledModal';
 import { LoginFormParams } from './LoginForm';
 import { KratosProviderData } from '../../lib/kratos';
 import { AuthTriggers } from '../../lib/auth';
+import { Modal } from '../modals/common/Modal';
 
 interface VerifySessionModalProps extends ModalProps {
   userProviders?: KratosProviderData;
@@ -28,27 +27,24 @@ function VerifySessionModal({
   );
 
   return (
-    <StyledModal
+    <Modal
       {...props}
+      kind={Modal.Kind.FixedCenter}
+      size={Modal.Size.Small}
       onRequestClose={onRequestClose}
-      className={classNames(styles.verifyAuthModal)}
-      contentClassName={classNames(
-        'verifyAuth flex w-full rounded-16 bg-theme-bg-tertiary',
-      )}
     >
       <AuthDefault
-        title="Verify it's you (security check)"
+        signUpTitle="Verify it's you (security check)"
         providers={filteredProviders}
         disableRegistration
         disablePassword={!onPasswordLogin}
-        onClose={onRequestClose}
         onPasswordLogin={onPasswordLogin}
         onProviderClick={onSocialLogin}
         loginHint={[hint, setHint]}
         loginButton="Verify"
         trigger={AuthTriggers.VerifySession}
       />
-    </StyledModal>
+    </Modal>
   );
 }
 

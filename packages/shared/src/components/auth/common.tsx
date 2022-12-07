@@ -93,8 +93,3 @@ export const DiscardAuthModal = ({
     rightButtonClass="btn-primary-cabbage"
   />
 );
-
-export const AuthModalFooterWrapper = classed(
-  'div',
-  'flex justify-center py-3 border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary',
-);
