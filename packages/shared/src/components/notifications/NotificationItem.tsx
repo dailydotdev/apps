@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Notification } from '../../graphql/notifications';
 import { useDomPurify } from '../../hooks/useDomPurify';
-import { getFadedBackground } from '../../lib/styling';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 
@@ -33,25 +32,21 @@ function NotificationItem({
   const hasAvatar = avatarComponents.some((component) => !!component);
 
   return (
-    <div
+    <button
+      type="button"
       className={classNames(
-        'flex flex-row py-4 pl-6 pr-4',
-        isUnread && getFadedBackground('before:bg-theme-active'),
+        'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
+        isUnread && 'bg-theme-float',
       )}
     >
-      <span
-        className={classNames(
-          'p-1 rounded-8 typo-callout h-fit overflow-hidden',
-          isUnread && getFadedBackground('before:bg-theme-divider-tertiary'),
-        )}
-      >
+      <span className="overflow-hidden p-1 bg-theme-float rounded-8 typo-callout h-fit">
         <img
           className="object-contain w-6 h-6"
           src={icon}
           alt={`${type}'s icon`}
         />
       </span>
-      <div className="flex flex-col flex-1 ml-4 w-full typo-callout">
+      <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
         {hasAvatar && (
           <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
         )}
@@ -77,7 +72,7 @@ function NotificationItem({
           />
         ))}
       </div>
-    </div>
+    </button>
   );
 }
 
