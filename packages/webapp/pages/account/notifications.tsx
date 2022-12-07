@@ -1,6 +1,6 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { useNotificationPreferences } from '@dailydotdev/shared/src/hooks/useNotificationPreferences';
@@ -8,6 +8,7 @@ import Pointer, {
   PointerColor,
 } from '@dailydotdev/shared/src/components/alert/Pointer';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -15,6 +16,7 @@ import AccountContentSection from '../../components/layouts/AccountLayout/Accoun
 const ALERT_PUSH_KEY = 'alert_push_key';
 
 const AccountNotificationsPage = (): ReactElement => {
+  const { requestPermission } = useContext(NotificationsContext);
   const [isAlertShown, setIsAlertShown] = usePersistentContext(
     ALERT_PUSH_KEY,
     true,
@@ -39,6 +41,16 @@ const AccountNotificationsPage = (): ReactElement => {
     setEmailNotification(value);
   };
 
+  const onEnablePush = async () => {
+    const permission = await requestPermission();
+
+    if (permission !== 'granted') {
+      return;
+    }
+
+    updateDevicePreference({ pushNotification: !pushNotification });
+  };
+
   return (
     <AccountPageContainer title="Notifications">
       <div className="flex flex-row">
@@ -58,9 +70,7 @@ const AccountNotificationsPage = (): ReactElement => {
           className="w-20"
           compact={false}
           checked={pushNotification}
-          onToggle={() =>
-            updateDevicePreference({ pushNotification: !pushNotification })
-          }
+          onToggle={onEnablePush}
         >
           {pushNotification ? 'On' : 'Off'}
         </Switch>
