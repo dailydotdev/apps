@@ -14,10 +14,10 @@ import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
 import { PostContent, SCROLL_OFFSET } from '../post/PostContent';
 import styles from './PostModal.module.css';
-import { PostNavigationProps } from '../post/PostNavigation';
 import { PostData, POST_BY_ID_QUERY } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
+import { PostNavigationProps } from '../post/common';
 
 interface PostModalProps
   extends ModalProps,
