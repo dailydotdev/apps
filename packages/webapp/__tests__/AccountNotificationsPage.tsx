@@ -189,7 +189,6 @@ it('should change user all email subscription', async () => {
   expect(mutationCalled).toBeTruthy();
 });
 
-// when you comment all tests this work
 it('should change user email marketing subscription', async () => {
   renderComponent();
   await waitForNock();
