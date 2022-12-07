@@ -73,6 +73,6 @@ export const useNotificationPreferences = (): UseNotificationPreferences => {
       updateGeneralPreference,
       updateDevicePreference,
     }),
-    [generalData, deviceData],
+    [generalData, deviceData, user, visit],
   );
 };
