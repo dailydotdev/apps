@@ -41,7 +41,7 @@ function EnableNotification(): ReactElement {
           can be done anytime through your account details
         </p>
       ) : (
-        <p className="mt-2 w-3/5 text-theme-label-tertiary">
+        <p className="mt-2 w-full tablet:w-3/5 text-theme-label-tertiary">
           Stay in the loop whenever you get a mention, reply and other important
           updates.
         </p>
@@ -63,7 +63,7 @@ function EnableNotification(): ReactElement {
         </Button>
       </span>
       <img
-        className="absolute top-2 right-0"
+        className="hidden tablet:flex absolute top-2 right-0"
         src={cloudinary.notifications.browser}
         alt="A sample browser notification"
       />
