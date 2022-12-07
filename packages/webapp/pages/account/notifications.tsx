@@ -53,7 +53,6 @@ const AccountNotificationsPage = (): ReactElement => {
         <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
         <Switch
           data-testId="push_notification-switch"
-          data-testValue={pushNotification}
           inputId="push_notification-switch"
           name="push_notification"
           className="w-20"
@@ -107,7 +106,6 @@ const AccountNotificationsPage = (): ReactElement => {
           className="w-20"
           compact={false}
           checked={emailNotification}
-          data-testValue={emailNotification}
           onToggle={onToggleEmailNotification}
         >
           {emailNotification ? 'On' : 'Off'}
@@ -119,7 +117,6 @@ const AccountNotificationsPage = (): ReactElement => {
           name="new_activity"
           data-testId="new_activity-switch"
           checked={notificationEmail}
-          data-testValue={notificationEmail}
           onToggle={() =>
             updateGeneralPreference({ notificationEmail: !notificationEmail })
           }
@@ -130,7 +127,6 @@ const AccountNotificationsPage = (): ReactElement => {
           name="marketing"
           data-testId="marketing-switch"
           checked={marketingEmail}
-          data-testValue={marketingEmail}
           onToggle={() =>
             updateGeneralPreference({ marketingEmail: !marketingEmail })
           }

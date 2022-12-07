@@ -113,7 +113,7 @@ it('should accurately show device preference', async () => {
   ]);
   await waitForNock();
   const subscription = await screen.findByTestId('push_notification-switch');
-  expect(subscription).toHaveAttribute('data-testValue', 'true');
+  expect(subscription).toBeChecked();
 });
 
 it('should change user push notification', async () => {
@@ -136,11 +136,11 @@ it('should change user push notification', async () => {
   });
   mockGraphQL(createDevicePreferenceMock({ pushNotification: true }));
   const subscription = await screen.findByTestId('push_notification-switch');
-  expect(subscription).not.toHaveAttribute('data-testValue');
+  expect(subscription).not.toBeChecked();
   await subscription.click();
   await waitForNock();
   const newSubscription = await screen.findByTestId('push_notification-switch');
-  expect(newSubscription).toHaveAttribute('data-testValue', 'true');
+  expect(newSubscription).toBeChecked();
   expect(mutationCalled).toBeTruthy();
 });
 
@@ -175,17 +175,17 @@ it('should change user all email subscription', async () => {
     }),
   );
   const subscription = await screen.findByTestId('email_notification-switch');
-  expect(subscription).not.toHaveAttribute('data-testValue');
+  expect(subscription).not.toBeChecked();
   await subscription.click();
   await waitForNock();
   const newSubscription = await screen.findByTestId(
     'email_notification-switch',
   );
-  expect(newSubscription).toHaveAttribute('data-testValue', 'true');
+  expect(newSubscription).toBeChecked();
   const marketingSubscription = await screen.findByTestId('marketing-switch');
-  expect(marketingSubscription).toHaveAttribute('data-testValue', 'true');
+  expect(marketingSubscription).toBeChecked();
   const notificationEmail = await screen.findByTestId('new_activity-switch');
-  expect(notificationEmail).toHaveAttribute('data-testValue', 'true');
+  expect(notificationEmail).toBeChecked();
   expect(mutationCalled).toBeTruthy();
 });
 
@@ -211,11 +211,11 @@ it('should change user email marketing subscription', async () => {
     }),
   );
   const subscription = await screen.findByTestId('marketing-switch');
-  expect(subscription).not.toHaveAttribute('data-testValue');
+  expect(subscription).not.toBeChecked();
   await subscription.click();
   await waitForNock();
   const newSubscription = await screen.findByTestId('marketing-switch');
-  expect(newSubscription).toHaveAttribute('data-testValue', 'true');
+  expect(newSubscription).toBeChecked();
   expect(mutationCalled).toBeTruthy();
 });
 
@@ -241,10 +241,10 @@ it('should change user notification email subscription', async () => {
     }),
   );
   const subscription = await screen.findByTestId('new_activity-switch');
-  expect(subscription).not.toHaveAttribute('data-testValue');
+  expect(subscription).not.toBeChecked();
   await subscription.click();
   await waitForNock();
   const newSubscription = await screen.findByTestId('new_activity-switch');
-  expect(newSubscription).toHaveAttribute('data-testValue', 'true');
+  expect(newSubscription).toBeChecked();
   expect(mutationCalled).toBeTruthy();
 });
