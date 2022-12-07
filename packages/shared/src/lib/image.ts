@@ -13,6 +13,12 @@ export const cloudinary = {
   notifications: {
     browser:
       'https://daily-now-res.cloudinary.com/image/upload/v1670221485/public/notification.png',
-    bell: '',
+    upvote:
+      'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/upvote.svg',
+    daily:
+      'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/daily.svg',
+    discuss:
+      'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/discuss.svg',
+    bell: 'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/bell.svg',
   },
 };

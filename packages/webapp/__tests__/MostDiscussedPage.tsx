@@ -23,6 +23,7 @@ import Discussed from '../pages/discussed';
 const showLogin = jest.fn();
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(

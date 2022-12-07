@@ -14,10 +14,12 @@ export type ProfileImageSize =
   | 'xxxlarge';
 
 type ProfileImageRoundSize = ProfileImageSize | 'full';
+type UserImageProps = Pick<PublicProfile, 'image'> &
+  Partial<Pick<PublicProfile, 'id' | 'username'>>;
 
 export interface ProfilePictureProps
   extends Omit<LazyImageProps, 'imgSrc' | 'imgAlt'> {
-  user: Pick<PublicProfile, 'image' | 'username'>;
+  user: UserImageProps;
   size?: ProfileImageSize;
   rounded?: ProfileImageRoundSize;
   className?: string;
@@ -73,7 +75,7 @@ function ProfilePictureComponent(
         {...props}
         ref={ref}
         src={user.image}
-        alt={`${user.username}'s profile`}
+        alt={`${user.username || user.id}'s profile`}
         onError={onError}
         className={classNames(
           'object-cover',
@@ -91,7 +93,7 @@ function ProfilePictureComponent(
       {...props}
       ref={ref}
       imgSrc={user.image}
-      imgAlt={`${user.username}'s profile`}
+      imgAlt={`${user.username || user.id}'s profile`}
       className={classNames(
         sizeClasses[size],
         roundClasses[rounded ?? size],
