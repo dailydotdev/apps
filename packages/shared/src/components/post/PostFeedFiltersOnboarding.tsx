@@ -99,7 +99,10 @@ export function PostFeedFiltersOnboarding({
         >
           <>
             {version === MyFeedArticleAnonymousVersion.V2 && (
-              <div className={hasNavigation && 'flex gap-2 mb-6'}>
+              <div
+                role="navigation"
+                className={hasNavigation && 'flex gap-2 mb-6'}
+              >
                 {postPreviousNext}
               </div>
             )}
@@ -132,7 +135,10 @@ export function PostFeedFiltersOnboarding({
         )}
       </div>
       {version === MyFeedArticleAnonymousVersion.V3 && hasNavigation && (
-        <div className="flex relative flex-row gap-2 items-center pt-6">
+        <div
+          role="navigation"
+          className="flex relative flex-row gap-2 items-center pt-6"
+        >
           {postPreviousNext}
         </div>
       )}

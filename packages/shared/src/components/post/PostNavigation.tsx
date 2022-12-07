@@ -56,7 +56,10 @@ export function PostNavigation({
         <>
           {postFeedFiltersOnboarding ||
             (postPreviousNext && (
-              <div className="flex relative flex-row gap-2 items-center pt-6">
+              <div
+                role="navigation"
+                className="flex relative flex-row gap-2 items-center pt-6"
+              >
                 {postPreviousNext}
               </div>
             ))}
