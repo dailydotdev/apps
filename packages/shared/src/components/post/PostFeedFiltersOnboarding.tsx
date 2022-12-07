@@ -55,7 +55,7 @@ interface PostFeedFiltersOnboardingProps
   extends Pick<PostNavigationProps, 'postPreviousNext'> {
   hasNavigation: boolean;
   version: MyFeedArticleAnonymousVersion;
-  onInitializeOnboarding;
+  onInitializeOnboarding: () => void;
 }
 
 export function PostFeedFiltersOnboarding({
