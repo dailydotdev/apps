@@ -37,6 +37,8 @@ const updateAlerts = jest.fn();
 let loggedUser = defaultUser;
 
 beforeEach(() => {
+  jest.restoreAllMocks();
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   loggedUser = defaultUser;

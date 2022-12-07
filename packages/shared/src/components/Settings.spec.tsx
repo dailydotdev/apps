@@ -24,6 +24,7 @@ import { apiUrl } from '../lib/config';
 import { BootCacheData } from '../lib/boot';
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
 });
