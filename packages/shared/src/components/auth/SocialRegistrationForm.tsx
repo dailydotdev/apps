@@ -18,9 +18,8 @@ import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
-import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthModalFooterWrapper, providerMap } from './common';
+import { providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
@@ -29,6 +28,7 @@ import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
 import TwitterIcon from '../icons/Twitter';
+import { Modal } from '../modals/common/Modal';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -36,7 +36,6 @@ export interface SocialRegistrationFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
   title?: string;
   trigger: AuthTriggersOrString;
-  onClose?: CloseModalFunc;
   hints?: ProfileFormHint;
   onUpdateHints?: (errors: ProfileFormHint) => void;
   isV2?: boolean;
@@ -57,7 +56,6 @@ export const SocialRegistrationForm = ({
   hints,
   trigger,
   onUpdateHints,
-  onClose,
   onSignup,
   isV2,
   isLoading,
@@ -138,7 +136,7 @@ export const SocialRegistrationForm = ({
 
   return (
     <>
-      <AuthModalHeader title={title} onClose={onClose} />
+      <AuthModalHeader title={title} />
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6',
@@ -232,7 +230,7 @@ export const SocialRegistrationForm = ({
           I don’t want to receive updates and promotions via email
         </Checkbox>
       </AuthForm>
-      <AuthModalFooterWrapper className="py-3 px-6 tablet:px-[3.75rem]">
+      <Modal.Footer>
         <Button
           form="auth-form"
           type="submit"
@@ -244,7 +242,7 @@ export const SocialRegistrationForm = ({
         >
           Sign up
         </Button>
-      </AuthModalFooterWrapper>
+      </Modal.Footer>
     </>
   );
 };
