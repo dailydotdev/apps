@@ -9,7 +9,6 @@
     padding: 0;
     overflow-y: scroll;
     z-index: 10;
-    background: var(--theme-overlay-quaternary);
   }
 
   & :global(.post-modal) {
