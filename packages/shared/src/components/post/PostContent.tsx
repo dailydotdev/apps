@@ -151,7 +151,8 @@ export function PostContent({
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const [permissionNotificationCommentId, setPermissionNotificationCommentId] = useState<string>();
+  const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
+    useState<string>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
@@ -256,8 +257,7 @@ export function PostContent({
   };
 
   const onComment = (comment: Comment, isNew?: boolean) => {
-    const displayNotificationBanner = isNew && !!parentComment.commentId;
-    if (displayNotificationBanner) {
+    if (isNew) {
       setPermissionNotificationCommentId(comment.id);
     }
     updatePostComments(comment, isNew);

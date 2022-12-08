@@ -1,4 +1,4 @@
-import React, { Fragment, ReactElement } from 'react';
+import React, { Fragment, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
@@ -17,6 +17,7 @@ import { Post } from '../../graphql/posts';
 import EnableNotification, {
   NotificationPromptSource,
 } from '../notifications/EnableNotification';
+import AuthContext from '../../contexts/AuthContext';
 
 export interface Props extends CommentActionProps {
   post: Post;
@@ -50,6 +51,7 @@ export default function MainComment({
   postScoutId,
   permissionNotificationCommentId,
 }: Props): ReactElement {
+  const { user } = useContext(AuthContext);
   return (
     <article
       className={classNames(
@@ -122,13 +124,22 @@ export default function MainComment({
             appendTooltipTo={appendTooltipTo}
           />
           {permissionNotificationCommentId === e.node.id && (
-            <EnableNotification
-              parentCommentAuthorName={e.node.author?.name}
-              source={NotificationPromptSource.NewComment}
-            />
+            <div className="relative left-[2.6rem] w-[34rem]">
+              <EnableNotification
+                parentCommentAuthorName={
+                  e.node.author?.id !== user?.id
+                    ? e.node.author?.name
+                    : undefined
+                }
+                source={NotificationPromptSource.NewComment}
+              />
+            </div>
           )}
         </Fragment>
       ))}
+      {permissionNotificationCommentId === comment.id && (
+        <EnableNotification source={NotificationPromptSource.NewComment} />
+      )}
     </article>
   );
 }

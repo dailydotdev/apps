@@ -79,10 +79,10 @@ function EnableNotification({
     );
   }
   return (
-    <div className="overflow-hidden relative py-4 px-4 mt-3 rounded-16 border typo-callout border-theme-color-cabbage left-[2.6rem] w-[34rem]">
+    <div className="overflow-hidden relative py-4 px-4 mt-3 rounded-16 border typo-callout border-theme-color-cabbage">
       <p className="w-3/5 text-theme-label-tertiary">
-        Want to get notified when {parentCommentAuthorName} responds so you can
-        continue the conversation?
+        Want to get notified when {parentCommentAuthorName ?? 'someone'}{' '}
+        responds so you can continue the conversation?
       </p>
       <span className="flex flex-row gap-4 mt-4">
         <Button
