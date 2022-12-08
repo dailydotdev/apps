@@ -43,7 +43,7 @@ function EnableNotification({
   const dismissed = !!dismissedCache?.[source];
   const setDismissed = (value: boolean) =>
     setDismissedCache({ ...dismissedCache, [source]: value });
-  if (!isLoaded || dismissed || hasPermission) {
+  if (!isLoaded || dismissed || !hasPermission) {
     return null;
   }
   if (source === NotificationPromptSource.NotificationList) {

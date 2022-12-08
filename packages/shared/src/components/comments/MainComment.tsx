@@ -1,4 +1,4 @@
-import React, { Fragment, ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
@@ -17,7 +17,6 @@ import { Post } from '../../graphql/posts';
 import EnableNotification, {
   NotificationPromptSource,
 } from '../notifications/EnableNotification';
-import AuthContext from '../../contexts/AuthContext';
 
 export interface Props extends CommentActionProps {
   post: Post;
@@ -51,7 +50,6 @@ export default function MainComment({
   postScoutId,
   permissionNotificationCommentId,
 }: Props): ReactElement {
-  const { user } = useContext(AuthContext);
   return (
     <article
       className={classNames(
@@ -103,39 +101,26 @@ export default function MainComment({
         onShowUpvotes={onShowUpvotes}
       />
       {comment.children?.edges.map((e, i) => (
-        <Fragment key={e.node.id}>
-          <SubComment
-            post={post}
-            origin={origin}
-            commentHash={commentHash}
-            commentRef={commentRef}
-            comment={e.node}
-            key={e.node.id}
-            firstComment={i === 0}
-            lastComment={i === comment.children.edges.length - 1}
-            parentId={comment.id}
-            onComment={onComment}
-            onShare={onShare}
-            onDelete={onDelete}
-            onEdit={(childComment) => onEdit(childComment, comment)}
-            onShowUpvotes={onShowUpvotes}
-            postAuthorId={postAuthorId}
-            postScoutId={postScoutId}
-            appendTooltipTo={appendTooltipTo}
-          />
-          {permissionNotificationCommentId === e.node.id && (
-            <div className="relative left-[2.6rem] w-[34rem]">
-              <EnableNotification
-                parentCommentAuthorName={
-                  e.node.author?.id !== user?.id
-                    ? e.node.author?.name
-                    : undefined
-                }
-                source={NotificationPromptSource.NewComment}
-              />
-            </div>
-          )}
-        </Fragment>
+        <SubComment
+          post={post}
+          origin={origin}
+          commentHash={commentHash}
+          commentRef={commentRef}
+          comment={e.node}
+          parentComment={comment}
+          key={e.node.id}
+          firstComment={i === 0}
+          lastComment={i === comment.children.edges.length - 1}
+          onComment={onComment}
+          onShare={onShare}
+          onDelete={onDelete}
+          onEdit={(childComment) => onEdit(childComment, comment)}
+          onShowUpvotes={onShowUpvotes}
+          postAuthorId={postAuthorId}
+          postScoutId={postScoutId}
+          appendTooltipTo={appendTooltipTo}
+          permissionNotificationCommentId={permissionNotificationCommentId}
+        />
       ))}
       {permissionNotificationCommentId === comment.id && (
         <EnableNotification source={NotificationPromptSource.NewComment} />
