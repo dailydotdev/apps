@@ -73,7 +73,7 @@ export function Modal({
     tabs ? defaultTab ?? modalTabTitle(tabs[0]) : undefined,
   );
   const modalOverlayClassName = classNames(
-    'overlay flex fixed flex-col inset-0 items-center bg-gradient-to-r to-theme-overlay-to from-theme-overlay-from z-[10]',
+    'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-[10]',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
     overlayClassName,

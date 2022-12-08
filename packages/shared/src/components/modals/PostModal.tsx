@@ -102,7 +102,7 @@ export default function PostModal({
       {...props}
       portalClassName={styles.postModal}
       className={classNames(className, 'post-modal focus:outline-none')}
-      overlayClassName="post-modal-overlay"
+      overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       id="post-modal"
       onRequestClose={onRequestClose}
     >
