@@ -58,7 +58,10 @@ export function PostNavigation({
             (postPreviousNext && (
               <div
                 role="navigation"
-                className="flex relative flex-row gap-2 items-center pt-6"
+                className={classNames(
+                  'flex relative flex-row gap-2 items-center',
+                  !shouldDisplayTitle && 'pt-6',
+                )}
               >
                 {postPreviousNext}
               </div>
@@ -74,19 +77,19 @@ export function PostNavigation({
               </h3>
             </div>
           )}
+          <PostModalActions
+            onShare={onShare}
+            onBookmark={onBookmark}
+            onReadArticle={onReadArticle}
+            post={post}
+            onClose={onClose}
+            inlineActions={shouldDisplayTitle || isModal}
+            className={getClasses()}
+            notificactionClassName="ml-4"
+            contextMenuId="post-navigation-context"
+          />
         </>
       </ConditionalWrapper>
-      <PostModalActions
-        onShare={onShare}
-        onBookmark={onBookmark}
-        onReadArticle={onReadArticle}
-        post={post}
-        onClose={onClose}
-        inlineActions={shouldDisplayTitle || isModal}
-        className={getClasses()}
-        notificactionClassName="ml-4"
-        contextMenuId="post-navigation-context"
-      />
     </>
   );
 }
