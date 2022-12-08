@@ -152,7 +152,7 @@ export function PostContent({
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
-    useState<string>('R3c_0TsjO');
+    useState<string>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
