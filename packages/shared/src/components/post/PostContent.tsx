@@ -50,6 +50,7 @@ import { Origin } from '../../lib/analytics';
 import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
+import { Comment } from '../../graphql/comments';
 
 const UpvotedPopupModal = dynamic(
   () =>
@@ -150,6 +151,7 @@ export function PostContent({
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const [permissionNotificationCommentId, setPermissionNotificationCommentId] = useState<string>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
@@ -253,6 +255,14 @@ export function PostContent({
     bookmarkToast(targetBookmarkState);
   };
 
+  const onComment = (comment: Comment, isNew?: boolean) => {
+    const displayNotificationBanner = isNew && !!parentComment.commentId;
+    if (displayNotificationBanner) {
+      setPermissionNotificationCommentId(comment.id);
+    }
+    updatePostComments(comment, isNew);
+  };
+
   return (
     <Wrapper
       className={className}
@@ -345,6 +355,7 @@ export function PostContent({
           onClick={onCommentClick}
           onShare={(comment) => openShareComment(comment, postById.post)}
           onClickUpvote={onShowUpvotedComment}
+          permissionNotificationCommentId={permissionNotificationCommentId}
         />
         {authorOnboarding && (
           <AuthorOnboarding
@@ -379,7 +390,7 @@ export function PostContent({
           isOpen={!!parentComment}
           onRequestClose={closeNewComment}
           {...parentComment}
-          onComment={updatePostComments}
+          onComment={onComment}
         />
       )}
       {postById && showShareNewComment && (

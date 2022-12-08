@@ -38,6 +38,7 @@ interface PostCommentsProps {
   post: Post;
   origin: Origin;
   applyBottomMargin?: boolean;
+  permissionNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
   onShare?: (comment: Comment) => void;
@@ -91,6 +92,7 @@ export function PostComments({
   onShare,
   onClickUpvote,
   modalParentSelector,
+  permissionNotificationCommentId,
   applyBottomMargin = true,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
@@ -152,7 +154,6 @@ export function PostComments({
     const shared = { editContent: comment.content, editId: comment.id };
     onClick(getParentComment(post, localParentComment, shared));
   };
-
   return (
     <>
       {comments.postComments.edges.map((e, i) => (
@@ -174,6 +175,7 @@ export function PostComments({
           postAuthorId={post.author?.id}
           postScoutId={post.scout?.id}
           appendTooltipTo={modalParentSelector}
+          permissionNotificationCommentId={permissionNotificationCommentId}
         />
       ))}
       {pendingComment && (

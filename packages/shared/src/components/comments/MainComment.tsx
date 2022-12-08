@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { Fragment, ReactElement } from 'react';
 import classNames from 'classnames';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
@@ -14,6 +14,9 @@ import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ScoutBadge from './ScoutBadge';
 import { Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
+import EnableNotification, {
+  NotificationPromptSource,
+} from '../notifications/EnableNotification';
 
 export interface Props extends CommentActionProps {
   post: Post;
@@ -24,6 +27,7 @@ export interface Props extends CommentActionProps {
   commentHash?: string;
   commentRef?: React.MutableRefObject<HTMLElement>;
   className?: string;
+  permissionNotificationCommentId?: string;
   appendTooltipTo?: () => HTMLElement;
 }
 
@@ -44,6 +48,7 @@ export default function MainComment({
   className,
   postAuthorId,
   postScoutId,
+  permissionNotificationCommentId,
 }: Props): ReactElement {
   return (
     <article
@@ -96,25 +101,33 @@ export default function MainComment({
         onShowUpvotes={onShowUpvotes}
       />
       {comment.children?.edges.map((e, i) => (
-        <SubComment
-          post={post}
-          origin={origin}
-          commentHash={commentHash}
-          commentRef={commentRef}
-          comment={e.node}
-          key={e.node.id}
-          firstComment={i === 0}
-          lastComment={i === comment.children.edges.length - 1}
-          parentId={comment.id}
-          onComment={onComment}
-          onShare={onShare}
-          onDelete={onDelete}
-          onEdit={(childComment) => onEdit(childComment, comment)}
-          onShowUpvotes={onShowUpvotes}
-          postAuthorId={postAuthorId}
-          postScoutId={postScoutId}
-          appendTooltipTo={appendTooltipTo}
-        />
+        <Fragment key={e.node.id}>
+          <SubComment
+            post={post}
+            origin={origin}
+            commentHash={commentHash}
+            commentRef={commentRef}
+            comment={e.node}
+            key={e.node.id}
+            firstComment={i === 0}
+            lastComment={i === comment.children.edges.length - 1}
+            parentId={comment.id}
+            onComment={onComment}
+            onShare={onShare}
+            onDelete={onDelete}
+            onEdit={(childComment) => onEdit(childComment, comment)}
+            onShowUpvotes={onShowUpvotes}
+            postAuthorId={postAuthorId}
+            postScoutId={postScoutId}
+            appendTooltipTo={appendTooltipTo}
+          />
+          {permissionNotificationCommentId === e.node.id && (
+            <EnableNotification
+              parentCommentAuthorName={e.node.author?.name}
+              source={NotificationPromptSource.NewComment}
+            />
+          )}
+        </Fragment>
       ))}
     </article>
   );
