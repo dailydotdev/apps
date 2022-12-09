@@ -12,7 +12,7 @@ export const cloudinary = {
   },
   notifications: {
     browser:
-      'https://daily-now-res.cloudinary.com/image/upload/v1670221485/public/notification.png',
+      'https://daily-now-res.cloudinary.com/image/upload/v1670512489/public/notification_animated.gif',
     upvote:
       'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/upvote.svg',
     daily:
