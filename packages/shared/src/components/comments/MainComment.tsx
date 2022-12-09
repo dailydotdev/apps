@@ -14,6 +14,9 @@ import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ScoutBadge from './ScoutBadge';
 import { Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
+import EnableNotification, {
+  NotificationPromptSource,
+} from '../notifications/EnableNotification';
 
 export interface Props extends CommentActionProps {
   post: Post;
@@ -24,6 +27,7 @@ export interface Props extends CommentActionProps {
   commentHash?: string;
   commentRef?: React.MutableRefObject<HTMLElement>;
   className?: string;
+  permissionNotificationCommentId?: string;
   appendTooltipTo?: () => HTMLElement;
 }
 
@@ -44,6 +48,7 @@ export default function MainComment({
   className,
   postAuthorId,
   postScoutId,
+  permissionNotificationCommentId,
 }: Props): ReactElement {
   return (
     <article
@@ -102,10 +107,10 @@ export default function MainComment({
           commentHash={commentHash}
           commentRef={commentRef}
           comment={e.node}
+          parentComment={comment}
           key={e.node.id}
           firstComment={i === 0}
           lastComment={i === comment.children.edges.length - 1}
-          parentId={comment.id}
           onComment={onComment}
           onShare={onShare}
           onDelete={onDelete}
@@ -114,8 +119,12 @@ export default function MainComment({
           postAuthorId={postAuthorId}
           postScoutId={postScoutId}
           appendTooltipTo={appendTooltipTo}
+          permissionNotificationCommentId={permissionNotificationCommentId}
         />
       ))}
+      {permissionNotificationCommentId === comment.id && (
+        <EnableNotification source={NotificationPromptSource.NewComment} />
+      )}
     </article>
   );
 }

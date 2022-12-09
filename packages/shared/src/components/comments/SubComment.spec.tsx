@@ -6,6 +6,7 @@ import { LoggedUser } from '../../lib/user';
 import SubComment, { Props } from './SubComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
+import { Origin } from '../../lib/analytics';
 
 const onComment = jest.fn();
 const onDelete = jest.fn();
@@ -23,12 +24,16 @@ const renderLayout = (
     comment,
     firstComment: false,
     lastComment: false,
-    parentId: 'c1',
+    parentComment: { ...comment, id: 'c1' },
     onComment,
     onDelete,
     onEdit,
     postAuthorId: null,
     postScoutId: null,
+    post: undefined,
+    origin: Origin.ArticleModal,
+    onShare: jest.fn(),
+    onShowUpvotes: jest.fn(),
   };
 
   const client = new QueryClient();
@@ -42,6 +47,8 @@ const renderLayout = (
           showLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
           tokenRefreshed: true,
         }}
       >
