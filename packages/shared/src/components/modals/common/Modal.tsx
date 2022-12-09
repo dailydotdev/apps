@@ -23,30 +23,31 @@ export type ModalProps = ReactModal.Props & {
 };
 
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
-  [ModalKind.FixedCenter]: 'mobileL:justify-center',
+  [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',
   [ModalKind.FlexibleCenter]: 'justify-center',
-  [ModalKind.FlexibleTop]: 'm-0',
+  [ModalKind.FlexibleTop]: 'pt-10',
 };
 const modalKindAndSizeToOverlayClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
-    [ModalSize.Medium]: 'mobileL:pt-10',
+    [ModalSize.Small]: 'mobileL:pt-20',
+    [ModalSize.Medium]: 'mobileL:pt-14',
   },
 };
 const modalKindToClassName: Record<ModalKind, string> = {
   [ModalKind.FixedCenter]:
-    'h-full max-h-[calc(100vh-2.5rem)] mobileL:h-[40rem] mobileL:max-h-[calc(100vh-5rem)] mt-10 mobileL:mt-0',
+    'h-full max-h-[calc(100vh-2.5rem)] mobileL:h-[40rem] mobileL:max-h-[calc(100vh-5rem)]',
   [ModalKind.FlexibleCenter]:
     'mx-4 max-w-[calc(100vw-2rem)] max-h-[min(calc(100vh),40rem)] mobileL:max-h-[min(calc(100vh-5rem),40rem)]',
-  [ModalKind.FlexibleTop]: 'm-0 mobileL:mt-10 mobileL:h-auto',
+  [ModalKind.FlexibleTop]: 'max-h-full h-full mobileL:h-auto',
 };
 const modalKindAndSizeToClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
     [ModalSize.Medium]:
-      'mt-10 mobileL:max-h-[calc(100vh-7.5rem)] max-h-[calc(100vh-2.5rem)] h-auto',
+      'mobileL:max-h-[calc(100vh-7.5rem)] max-h-[calc(100vh-2.5rem)] h-auto',
     [ModalSize.Large]:
       'mobileL:mt-14 mobileL:max-h-[calc(100vh-5rem)] max-h-[100vh]',
   },
