@@ -46,14 +46,21 @@ function EnableNotification({
   if (!isLoaded || dismissed || hasPermission) {
     return null;
   }
+  const sourceToMessage: Record<NotificationPromptSource, string> = {
+    [NotificationPromptSource.NewComment]: `Want to get notified when ${
+      parentCommentAuthorName ?? 'someone'
+    } responds so you can continue the conversation?`,
+    [NotificationPromptSource.NewSource]:
+      'Would you like to get notified on the status of your article submissions in real time?',
+    [NotificationPromptSource.NotificationList]:
+      'Stay in the loop whenever you get a mention, reply and other important updates.',
+  };
+  const message = sourceToMessage[source];
   if (source === NotificationPromptSource.NotificationList) {
     return (
       <div className="relative py-4 px-6 w-full bg-theme-float border-l typo-callout border-theme-color-cabbage">
         <span className="mb-2 font-bold">Push notifications</span>
-        <p className="w-3/5 text-theme-label-tertiary">
-          Stay in the loop whenever you get a mention, reply and other important
-          updates.
-        </p>
+        <p className="w-3/5 text-theme-label-tertiary">{message}</p>
         <span className="flex flex-row gap-4 mt-4">
           <Button
             buttonSize="small"
@@ -78,12 +85,6 @@ function EnableNotification({
       </div>
     );
   }
-  const message =
-    source === NotificationPromptSource.NewSource
-      ? 'Would you like to get notified on the status of your article submissions in real time?'
-      : `Want to get notified when ${
-          parentCommentAuthorName ?? 'someone'
-        } responds so you can continue the conversation?`;
   return (
     <div className="overflow-hidden relative py-4 px-4 mt-3 rounded-16 border typo-callout border-theme-color-cabbage">
       <p className="w-3/5 text-theme-label-tertiary">{message}</p>
