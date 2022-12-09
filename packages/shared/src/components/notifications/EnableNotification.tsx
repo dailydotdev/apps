@@ -78,12 +78,15 @@ function EnableNotification({
       </div>
     );
   }
+  const message =
+    source === NotificationPromptSource.NewSource
+      ? 'Would you like to get notified on the status of your article submissions in real time?'
+      : `Want to get notified when ${
+          parentCommentAuthorName ?? 'someone'
+        } responds so you can continue the conversation?`;
   return (
     <div className="overflow-hidden relative py-4 px-4 mt-3 rounded-16 border typo-callout border-theme-color-cabbage">
-      <p className="w-3/5 text-theme-label-tertiary">
-        Want to get notified when {parentCommentAuthorName ?? 'someone'}{' '}
-        responds so you can continue the conversation?
-      </p>
+      <p className="w-3/5 text-theme-label-tertiary">{message}</p>
       <span className="flex flex-row gap-4 mt-4">
         <Button
           buttonSize="small"
