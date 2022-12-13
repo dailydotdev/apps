@@ -217,9 +217,7 @@ export function PostContent({
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
-  const { onInitializeOnboarding } = useOnboardingModal({
-    onFeedPageChanged: () => {},
-  });
+  const { onInitializeOnboarding } = useOnboardingModal({});
 
   if (isLoading) {
     return (

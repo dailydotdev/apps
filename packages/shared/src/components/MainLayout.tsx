@@ -138,9 +138,7 @@ export default function MainLayout({
   const hasBanner = !!bannerData?.banner || !!customBanner;
 
   const { isOnboardingOpen, onCloseOnboardingModal, onShouldUpdateFilters } =
-    useOnboardingModal({
-      onFeedPageChanged: () => {},
-    });
+    useOnboardingModal({});
 
   return (
     <div {...handlers}>

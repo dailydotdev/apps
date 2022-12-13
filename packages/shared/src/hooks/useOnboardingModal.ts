@@ -20,7 +20,7 @@ interface UseOnboardingModal {
 }
 
 interface UseOnboardingModalProps {
-  onFeedPageChanged: (page: MainFeedPage) => unknown;
+  onFeedPageChanged?: (page: MainFeedPage) => unknown;
 }
 
 const LOGGED_USER_ONBOARDING = 'hasTriedOnboarding';
@@ -35,6 +35,7 @@ export const useOnboardingModal = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const { registerLocalFilters } = useMyFeed();
   const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
     usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, !alerts.filter);
 
@@ -75,16 +76,18 @@ export const useOnboardingModal = ({
   };
 
   useEffect(() => {
-    if (!user || !shouldUpdateFilters) {
+    if (!user || !shouldUpdateFilters || isRegistering) {
       return;
     }
+
+    setIsRegistering(true);
 
     registerLocalFilters().then(() => {
       trackEvent({ event_name: AnalyticsEvent.CompleteOnboarding });
       setShouldUpdateFilters(false);
       setIsOnboardingOpen(false);
     });
-  }, [user, shouldUpdateFilters]);
+  }, [user, shouldUpdateFilters, isRegistering]);
 
   useEffect(() => {
     const conditions = [
