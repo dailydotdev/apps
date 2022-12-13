@@ -14,7 +14,8 @@ import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities'
 import { getLayout } from './FeedLayout';
 
 const PostsSearch = dynamic(
-  () => import(/* webpackChunkName: "search" */ '../RouterPostsSearch'),
+  () =>
+    import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
   { ssr: false },
 );
 

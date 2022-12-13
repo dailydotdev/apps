@@ -21,7 +21,7 @@ export function ModalTabs({ disabledTab }: ModalTabsProps): ReactElement {
               'btn relative py-1.5 h-8 px-3 text-center typo-callout rounded-10',
               disabled && 'opacity-64',
               tab === activeTab
-                ? 'bg-theme-bg-pepper font-bold'
+                ? 'bg-theme-active font-bold'
                 : 'text-theme-label-tertiary',
             )}
             onClick={() => setActiveTab(tabTitle)}

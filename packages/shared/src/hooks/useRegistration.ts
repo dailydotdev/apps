@@ -79,7 +79,13 @@ const useRegistration = ({
         if (!error.ui) {
           trackEvent({
             event_name: AuthEventNames.RegistrationError,
-            extra: JSON.stringify(error),
+            extra: JSON.stringify({
+              error: {
+                flowId: error?.id,
+                messages: error?.ui?.messages,
+              },
+              origin: 'validate registration flow',
+            }),
           });
           return displayToast('An error occurred, please refresh the page.');
         }
@@ -117,7 +123,13 @@ const useRegistration = ({
     if (!registration?.ui) {
       trackEvent({
         event_name: AuthEventNames.RegistrationError,
-        extra: JSON.stringify(registration),
+        extra: JSON.stringify({
+          error: {
+            flowId: registration?.id,
+            messages: registration?.ui?.messages,
+          },
+          origin: 'registration ui not found',
+        }),
       });
       displayToast('An error occurred, please refresh the page.');
       onRedirectFail();

@@ -173,7 +173,7 @@ function SteppedModal({
       overlayClassName="py-10"
     >
       <CloseButton
-        className="top-2 right-2 z-1"
+        className="top-2 right-2 z-2"
         style={{ position: 'absolute' }}
         onClick={onRequestClose}
       />
@@ -194,6 +194,7 @@ function SteppedModal({
             {backCopy[step] || getBackwardsLabel({ step })}
           </Button>
           <SimpleTooltip
+            forceLoad
             content={invalidMessage}
             visible={!!invalidMessage}
             container={{
