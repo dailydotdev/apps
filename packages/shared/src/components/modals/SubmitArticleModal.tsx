@@ -23,6 +23,9 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal } from './common/Modal';
+import EnableNotification, {
+  NotificationPromptSource,
+} from '../notifications/EnableNotification';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -246,6 +249,7 @@ export default function SubmitArticleModal({
                 />
               )
             )}
+            <EnableNotification source={NotificationPromptSource.NewSource} />
             {getAlert()}
           </div>
         </form>

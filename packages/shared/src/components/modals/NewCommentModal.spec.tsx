@@ -20,6 +20,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { RecommendedMention } from '../RecommendedMention';
 import comment from '../../../__tests__/fixture/comment';
 import user from '../../../__tests__/fixture/loggedUser';
+import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 
 const onRequestClose = jest.fn();
 const onComment = jest.fn();
@@ -69,7 +70,9 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <NewCommentModal {...defaultProps} {...props} />
+        <NotificationsContextProvider>
+          <NewCommentModal {...defaultProps} {...props} />
+        </NotificationsContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

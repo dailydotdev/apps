@@ -16,6 +16,7 @@ import {
 } from '../../graphql/submitArticle';
 import SubmitArticleModal from './SubmitArticleModal';
 import user from '../../../__tests__/fixture/loggedUser';
+import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 
 const onRequestClose = jest.fn();
 
@@ -51,12 +52,14 @@ const renderComponent = (
         loadingUser={false}
         loadedUserFromCache
       >
-        <SubmitArticleModal
-          headerCopy="Submit article"
-          submitArticleModalButton="Submit article"
-          isOpen
-          onRequestClose={onRequestClose}
-        />
+        <NotificationsContextProvider>
+          <SubmitArticleModal
+            headerCopy="Submit article"
+            submitArticleModalButton="Submit article"
+            isOpen
+            onRequestClose={onRequestClose}
+          />
+        </NotificationsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
