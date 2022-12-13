@@ -30,12 +30,12 @@ export interface TooltipProps
     | 'onHide'
     | 'duration'
     | 'visible'
-    | 'appendTo'
     | 'offset'
     | 'trigger'
     | 'disabled'
   > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
+  forceLoad?: boolean;
 }
 
 export interface BaseTooltipProps extends TippyProps {

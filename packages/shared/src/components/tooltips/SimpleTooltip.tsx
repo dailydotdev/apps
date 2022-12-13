@@ -15,6 +15,7 @@ export function SimpleTooltip({
   content,
   onTrigger,
   onShow,
+  forceLoad,
   ...props
 }: TooltipProps): ReactElement {
   /**
@@ -62,7 +63,7 @@ export function SimpleTooltip({
   return (
     <TippyTooltip
       {...props}
-      shouldLoad={getShouldLoadTooltip()}
+      shouldLoad={forceLoad || getShouldLoadTooltip()}
       content={content}
       onTrigger={onTooltipTrigger}
       onUntrigger={onUntrigger}
