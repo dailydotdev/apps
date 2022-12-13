@@ -104,7 +104,7 @@ function EnableNotification({
       <span className="flex flex-row gap-4 mt-4">
         <Button
           buttonSize="small"
-          className="min-w-[7rem] btn-primary-cabbage"
+          className="text-white min-w-[7rem] btn-primary-cabbage"
           onClick={onEnable}
         >
           Enable Notifications
