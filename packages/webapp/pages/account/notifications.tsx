@@ -87,7 +87,7 @@ const AccountNotificationsPage = (): ReactElement => {
               discussions, upvotes, replies or mentions on daily.dev!
             </p>
             <img
-              className="absolute top-0 right-10"
+              className="absolute top-4 right-14"
               src={cloudinary.notifications.browser}
               alt="A sample browser notification"
             />
