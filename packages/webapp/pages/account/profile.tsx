@@ -81,6 +81,8 @@ const AccountProfilePage = (): ReactElement => {
             label="Full Name"
             inputId="name"
             name="name"
+            hint={hint.name}
+            valid={!hint.name}
             leftIcon={<UserIcon />}
             value={user.name}
           />
