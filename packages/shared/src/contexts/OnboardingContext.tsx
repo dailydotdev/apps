@@ -18,6 +18,7 @@ import AuthContext from './AuthContext';
 import AlertContext from './AlertContext';
 import { MainFeedPage } from '../components/utilities';
 import AnalyticsContext from './AnalyticsContext';
+import { isTesting } from '../lib/constants';
 
 const OnboardingModal = dynamic(
   () =>
@@ -121,7 +122,7 @@ export const OnboardingContextProvider = ({
   return (
     <OnboardingContext.Provider value={onboardingContextData}>
       {children}
-      {onboardingContextData.isOnboardingOpen && (
+      {onboardingContextData.isOnboardingOpen && !isTesting && (
         <OnboardingModal
           mode={onboardingContextData.myFeedMode}
           isOpen={onboardingContextData.isOnboardingOpen}
