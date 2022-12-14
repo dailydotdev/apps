@@ -6,6 +6,8 @@ import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import MainLayout from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
@@ -48,7 +50,17 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <MainLayout />
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <MainLayout />
+          </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
       ,
