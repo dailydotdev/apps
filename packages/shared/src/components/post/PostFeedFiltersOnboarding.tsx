@@ -87,7 +87,7 @@ export function PostFeedFiltersOnboarding({
           wrapper={(children) => (
             <div
               className={classNames(
-                'w-1/2',
+                'w-3/5',
                 versionToConditionalWrapperClassName[version],
               )}
             >
@@ -99,7 +99,7 @@ export function PostFeedFiltersOnboarding({
             {version === ArticleOnboardingVersion.V2 && (
               <div
                 role="navigation"
-                className={hasNavigation && 'flex gap-2 mb-6'}
+                className={hasNavigation && 'flex gap-2 mb-6 pt-2'}
               >
                 {postPreviousNext}
               </div>

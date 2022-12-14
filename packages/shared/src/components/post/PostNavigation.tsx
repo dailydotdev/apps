@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { PostModalActions } from './PostModalActions';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostNavigationProps } from './common';
+import { ArticleOnboardingVersion } from '../../lib/featureValues';
 
 export function PostNavigation({
   onPreviousPost,
@@ -11,6 +12,7 @@ export function PostNavigation({
   className,
   isModal,
   post,
+  articleOnboardingVersion,
   postFeedFiltersOnboarding,
   postPreviousNext,
   onReadArticle,
@@ -38,7 +40,18 @@ export function PostNavigation({
   };
 
   return (
-    <>
+    <div
+      className={classNames(
+        'flex flex-row tablet:flex-col',
+        !shouldDisplayTitle &&
+          articleOnboardingVersion !== ArticleOnboardingVersion.V2 &&
+          !isModal &&
+          'pt-6 tablet:pt-0',
+        isModal &&
+          articleOnboardingVersion !== ArticleOnboardingVersion.V2 &&
+          'pt-6 tablet:pt-6',
+      )}
+    >
       <ConditionalWrapper
         condition={shouldDisplayTitle}
         wrapper={(children) => (
@@ -60,7 +73,6 @@ export function PostNavigation({
                 role="navigation"
                 className={classNames(
                   'flex relative flex-row gap-2 items-center',
-                  !shouldDisplayTitle && 'pt-6',
                 )}
               >
                 {postPreviousNext}
@@ -90,6 +102,6 @@ export function PostNavigation({
           />
         </>
       </ConditionalWrapper>
-    </>
+    </div>
   );
 }

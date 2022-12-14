@@ -344,6 +344,9 @@ export function PostContent({
                 !isPostFeedFiltersOnboardingV1 && postFeedFiltersOnboarding
               }
               postPreviousNext={isModal && postPreviousNext}
+              articleOnboardingVersion={
+                showMyFeedArticleAnonymous && articleOnboardingVersion
+              }
             />
             <h1
               className="my-6 font-bold break-words typo-large-title"
