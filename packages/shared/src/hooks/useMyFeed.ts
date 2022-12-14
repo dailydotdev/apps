@@ -1,10 +1,10 @@
 import { useContext, useMemo } from 'react';
 import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { BOOT_QUERY_KEY } from '../contexts/BootProvider';
 import { AllTagCategoriesData, FeedSettings } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';
 import useMutateFilters from './useMutateFilters';
+import { BOOT_QUERY_KEY } from '../contexts/common';
 
 interface RegisterLocalFilters {
   hasFilters: boolean;

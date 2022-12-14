@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
+import OnboardingContext from '../contexts/OnboardingContext';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from './Logo';
 import ProfileButton from './profile/ProfileButton';
@@ -25,7 +26,6 @@ import Toast from './notifications/Toast';
 import LoginButton from './LoginButton';
 import { useAuthErrors } from '../hooks/useAuthErrors';
 import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
-import { useOnboardingModal } from '../hooks/useOnboardingModal';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -115,6 +115,12 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { user, loadingUser } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const {
+    isOnboardingOpen,
+    onCloseOnboardingModal,
+    onShouldUpdateFilters,
+    myFeedMode,
+  } = useContext(OnboardingContext);
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
@@ -136,9 +142,6 @@ export default function MainLayout({
   };
 
   const hasBanner = !!bannerData?.banner || !!customBanner;
-
-  const { isOnboardingOpen, onCloseOnboardingModal, onShouldUpdateFilters } =
-    useOnboardingModal({});
 
   return (
     <div {...handlers}>
@@ -216,6 +219,7 @@ export default function MainLayout({
       </main>
       {isOnboardingOpen && (
         <OnboardingModal
+          mode={myFeedMode}
           isOpen={isOnboardingOpen}
           onRequestClose={onCloseOnboardingModal}
           onRegistrationSuccess={() => onShouldUpdateFilters(true)}

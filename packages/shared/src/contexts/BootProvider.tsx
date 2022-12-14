@@ -19,9 +19,8 @@ import {
 } from './SettingsContext';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
-
-export const BOOT_LOCAL_KEY = 'boot:local';
-export const BOOT_QUERY_KEY = 'boot';
+import { OnboardingContextProvider } from './OnboardingContext';
+import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -182,7 +181,7 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            {children}
+            <OnboardingContextProvider>{children}</OnboardingContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>

@@ -33,7 +33,7 @@ import AlertContext from '../contexts/AlertContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import MyFeedHeading from './filters/MyFeedHeading';
 import SortIcon from './icons/Sort';
-import { useOnboardingModal } from '../hooks/useOnboardingModal';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -165,6 +165,7 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const { onInitializeOnboarding } = useContext(OnboardingContext);
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
@@ -211,10 +212,6 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
-  const { onInitializeOnboarding } = useOnboardingModal({
-    onFeedPageChanged,
-  });
-
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
 
   /* eslint-disable react/no-children-prop */
@@ -236,7 +233,10 @@ export default function MainFeedLayout({
   const header = (
     <LayoutHeader className="flex-col">
       {alerts?.filter && (
-        <CreateMyFeedButton action={onInitializeOnboarding} flags={flags} />
+        <CreateMyFeedButton
+          action={() => onInitializeOnboarding(onFeedPageChanged)}
+          flags={flags}
+        />
       )}
       <div
         className={classNames(

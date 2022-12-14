@@ -184,7 +184,7 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly MyFeedArticleAnonymousVersion = new Features(
     'my_feed_article_anonymous_version',
-    null,
+    MyFeedArticleAnonymousVersion.V2,
     [
       MyFeedArticleAnonymousVersion.V1,
       MyFeedArticleAnonymousVersion.V2,

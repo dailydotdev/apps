@@ -55,10 +55,10 @@ import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
 import { MyFeedArticleAnonymousVersion } from '../../lib/featureValues';
 import { PostPreviousNext } from './PostPreviousNext';
 import { PostNavigationProps } from './common';
-import { useOnboardingModal } from '../../hooks/useOnboardingModal';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import AlertContext from '../../contexts/AlertContext';
+import OnboardingContext from '../../contexts/OnboardingContext';
 
 const UpvotedPopupModal = dynamic(
   () =>
@@ -161,7 +161,7 @@ export function PostContent({
   const { trackEvent } = useContext(AnalyticsContext);
   const { myFeedArticleAnonymousVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
-
+  const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { sidebarRendered } = useSidebarRendered();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
@@ -216,8 +216,6 @@ export function PostContent({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
-
-  const { onInitializeOnboarding } = useOnboardingModal({});
 
   if (isLoading) {
     return (
