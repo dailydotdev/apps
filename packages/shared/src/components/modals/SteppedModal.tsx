@@ -194,6 +194,7 @@ function SteppedModal({
             {backCopy[step] || getBackwardsLabel({ step })}
           </Button>
           <SimpleTooltip
+            forceLoad
             content={invalidMessage}
             visible={!!invalidMessage}
             container={{
