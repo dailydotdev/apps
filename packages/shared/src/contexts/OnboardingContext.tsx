@@ -9,6 +9,7 @@ import React, {
   SetStateAction,
   Dispatch,
 } from 'react';
+import dynamic from 'next/dynamic';
 import { AnalyticsEvent } from '../lib/analytics';
 import { OnboardingMode } from '../graphql/feed';
 import { useMyFeed } from '../hooks/useMyFeed';
@@ -17,6 +18,13 @@ import AuthContext from './AuthContext';
 import AlertContext from './AlertContext';
 import { MainFeedPage } from '../components/utilities';
 import AnalyticsContext from './AnalyticsContext';
+
+const OnboardingModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingModal" */ '../components/modals/OnboardingModal'
+    ),
+);
 
 const LOGGED_USER_ONBOARDING = 'hasTriedOnboarding';
 
@@ -107,12 +115,22 @@ export const OnboardingContextProvider = ({
         setIsOnboarding(true);
       },
     }),
-    [isOnboarding],
+    [isOnboarding, user, alerts, onboardingMode, shouldUpdateFilters],
   );
 
   return (
     <OnboardingContext.Provider value={onboardingContextData}>
       {children}
+      {onboardingContextData.isOnboardingOpen && (
+        <OnboardingModal
+          mode={onboardingContextData.myFeedMode}
+          isOpen={onboardingContextData.isOnboardingOpen}
+          onRequestClose={onboardingContextData.onCloseOnboardingModal}
+          onRegistrationSuccess={() =>
+            onboardingContextData.onShouldUpdateFilters(true)
+          }
+        />
+      )}
     </OnboardingContext.Provider>
   );
 };

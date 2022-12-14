@@ -49,13 +49,6 @@ const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
 
-const OnboardingModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "onboardingModal" */ './modals/OnboardingModal'
-    ),
-);
-
 interface ShouldShowLogoProps {
   mobileTitle?: string;
   sidebarRendered?: boolean;
@@ -217,14 +210,6 @@ export default function MainLayout({
         )}
         {children}
       </main>
-      {isOnboardingOpen && (
-        <OnboardingModal
-          mode={myFeedMode}
-          isOpen={isOnboardingOpen}
-          onRequestClose={onCloseOnboardingModal}
-          onRegistrationSuccess={() => onShouldUpdateFilters(true)}
-        />
-      )}
     </div>
   );
 }

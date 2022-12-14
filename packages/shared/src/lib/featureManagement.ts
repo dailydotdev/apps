@@ -184,7 +184,7 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly ArticleOnboardingVersion = new Features(
     'article_onboarding_version',
-    ArticleOnboardingVersion.V2,
+    null,
     [
       ArticleOnboardingVersion.V1,
       ArticleOnboardingVersion.V2,
