@@ -9,7 +9,6 @@ import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
-import OnboardingContext from '../contexts/OnboardingContext';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from './Logo';
 import ProfileButton from './profile/ProfileButton';
@@ -108,12 +107,6 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { user, loadingUser } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const {
-    isOnboardingOpen,
-    onCloseOnboardingModal,
-    onShouldUpdateFilters,
-    myFeedMode,
-  } = useContext(OnboardingContext);
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
