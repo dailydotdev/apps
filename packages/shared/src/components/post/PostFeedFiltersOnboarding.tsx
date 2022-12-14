@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize } from '../buttons/Button';
 import IntegrationIcon from '../icons/Integration';
-import { MyFeedArticleAnonymousVersion } from '../../lib/featureValues';
+import { ArticleOnboardingVersion } from '../../lib/featureValues';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostNavigationProps } from './common';
 import { cloudinary } from '../../lib/image';
@@ -11,50 +11,48 @@ import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 
 const versionToWrapperClassName = (
   hasNavigation,
-): Record<MyFeedArticleAnonymousVersion, string> => {
+): Record<ArticleOnboardingVersion, string> => {
   return {
-    [MyFeedArticleAnonymousVersion.V1]: classNames(
+    [ArticleOnboardingVersion.V1]: classNames(
       ' flex-row items-center px-4 w-full h-12 bg-gradient-to-r  from-theme-gradient-cabbage to-theme-gradient-onion',
       hasNavigation ? 'rounded-t-16' : 'rounded-br-16',
     ),
-    [MyFeedArticleAnonymousVersion.V2]:
+    [ArticleOnboardingVersion.V2]:
       'bg-theme-overlay-float-cabbage -mx-8 h-[12.5rem] items-center',
-    [MyFeedArticleAnonymousVersion.V3]:
+    [ArticleOnboardingVersion.V3]:
       'border-theme-color-cabbage rounded-16 border  mt-8 relative',
   };
 };
 
-const versionToButtonClassName: Record<MyFeedArticleAnonymousVersion, string> =
-  {
-    [MyFeedArticleAnonymousVersion.V1]: 'ml-4 btn-secondary',
-    [MyFeedArticleAnonymousVersion.V2]:
-      'btn-primary-cabbage text-white mt-4 mb-2',
-    [MyFeedArticleAnonymousVersion.V3]: 'btn-primary-cabbage text-white mt-4',
-  };
-const versionToButtonSize: Record<MyFeedArticleAnonymousVersion, ButtonSize> = {
-  [MyFeedArticleAnonymousVersion.V1]: 'xsmall',
-  [MyFeedArticleAnonymousVersion.V2]: 'small',
-  [MyFeedArticleAnonymousVersion.V3]: 'small',
+const versionToButtonClassName: Record<ArticleOnboardingVersion, string> = {
+  [ArticleOnboardingVersion.V1]: 'ml-4 btn-secondary',
+  [ArticleOnboardingVersion.V2]: 'btn-primary-cabbage text-white mt-4 mb-2',
+  [ArticleOnboardingVersion.V3]: 'btn-primary-cabbage text-white mt-4',
 };
-const versionToButtonText: Record<MyFeedArticleAnonymousVersion, string> = {
-  [MyFeedArticleAnonymousVersion.V1]: 'Start now',
-  [MyFeedArticleAnonymousVersion.V2]: 'Customize',
-  [MyFeedArticleAnonymousVersion.V3]: 'Customize',
+const versionToButtonSize: Record<ArticleOnboardingVersion, ButtonSize> = {
+  [ArticleOnboardingVersion.V1]: 'xsmall',
+  [ArticleOnboardingVersion.V2]: 'small',
+  [ArticleOnboardingVersion.V3]: 'small',
+};
+const versionToButtonText: Record<ArticleOnboardingVersion, string> = {
+  [ArticleOnboardingVersion.V1]: 'Start now',
+  [ArticleOnboardingVersion.V2]: 'Customize',
+  [ArticleOnboardingVersion.V3]: 'Customize',
 };
 const versionToConditionalWrapperClassName: Record<
-  MyFeedArticleAnonymousVersion,
+  ArticleOnboardingVersion,
   string
 > = {
-  [MyFeedArticleAnonymousVersion.V1]: '',
-  [MyFeedArticleAnonymousVersion.V2]: 'py-4 px-8',
-  [MyFeedArticleAnonymousVersion.V3]: 'py-3 px-4',
+  [ArticleOnboardingVersion.V1]: '',
+  [ArticleOnboardingVersion.V2]: 'py-4 px-8',
+  [ArticleOnboardingVersion.V3]: 'py-3 px-4',
 };
 const imageClassNames = 'absolute right-0';
 
 interface PostFeedFiltersOnboardingProps
   extends Pick<PostNavigationProps, 'postPreviousNext'> {
   hasNavigation: boolean;
-  version: MyFeedArticleAnonymousVersion;
+  version: ArticleOnboardingVersion;
   onInitializeOnboarding: () => void;
 }
 
@@ -81,11 +79,11 @@ export function PostFeedFiltersOnboarding({
           versionToWrapperClassName(hasNavigation)[version],
         )}
       >
-        {version === MyFeedArticleAnonymousVersion.V1 && (
+        {version === ArticleOnboardingVersion.V1 && (
           <IntegrationIcon size="medium" secondary className="mr-2" />
         )}
         <ConditionalWrapper
-          condition={version !== MyFeedArticleAnonymousVersion.V1}
+          condition={version !== ArticleOnboardingVersion.V1}
           wrapper={(children) => (
             <div
               className={classNames(
@@ -98,7 +96,7 @@ export function PostFeedFiltersOnboarding({
           )}
         >
           <>
-            {version === MyFeedArticleAnonymousVersion.V2 && (
+            {version === ArticleOnboardingVersion.V2 && (
               <div
                 role="navigation"
                 className={hasNavigation && 'flex gap-2 mb-6'}
@@ -119,14 +117,14 @@ export function PostFeedFiltersOnboarding({
             </Button>
           </>
         </ConditionalWrapper>
-        {version === MyFeedArticleAnonymousVersion.V2 && (
+        {version === ArticleOnboardingVersion.V2 && (
           <img
             src={cloudinary.feedFilters.topicsV2}
             alt="example topics for your feed"
             className={imageClassNames}
           />
         )}
-        {version === MyFeedArticleAnonymousVersion.V3 && (
+        {version === ArticleOnboardingVersion.V3 && (
           <img
             src={cloudinary.feedFilters.topicsV3}
             alt="example topics for your feed"
@@ -134,7 +132,7 @@ export function PostFeedFiltersOnboarding({
           />
         )}
       </div>
-      {version === MyFeedArticleAnonymousVersion.V3 && hasNavigation && (
+      {version === ArticleOnboardingVersion.V3 && hasNavigation && (
         <div
           role="navigation"
           className="flex relative flex-row gap-2 items-center pt-6"

@@ -52,7 +52,7 @@ import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
-import { MyFeedArticleAnonymousVersion } from '../../lib/featureValues';
+import { ArticleOnboardingVersion } from '../../lib/featureValues';
 import { PostPreviousNext } from './PostPreviousNext';
 import { PostNavigationProps } from './common';
 import FeaturesContext from '../../contexts/FeaturesContext';
@@ -159,7 +159,7 @@ export function PostContent({
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { myFeedArticleAnonymousVersion } = useContext(FeaturesContext);
+  const { articleOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { sidebarRendered } = useSidebarRendered();
@@ -270,17 +270,15 @@ export function PostContent({
     sidebarRendered &&
     alerts?.filter &&
     !isFixed &&
-    Object.values(MyFeedArticleAnonymousVersion).includes(
-      myFeedArticleAnonymousVersion,
-    );
+    Object.values(ArticleOnboardingVersion).includes(articleOnboardingVersion);
   const isPostFeedFiltersOnboardingV1 =
     showMyFeedArticleAnonymous &&
-    myFeedArticleAnonymousVersion === MyFeedArticleAnonymousVersion.V1;
+    articleOnboardingVersion === ArticleOnboardingVersion.V1;
 
   const onInitializeOnboardingClick = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickArticleAnonymousCTA,
-      target_id: myFeedArticleAnonymousVersion,
+      target_id: articleOnboardingVersion,
       extra: JSON.stringify({ origin: analyticsOrigin }),
     });
     onInitializeOnboarding();
@@ -292,7 +290,7 @@ export function PostContent({
   const postFeedFiltersOnboarding = showMyFeedArticleAnonymous && (
     <PostFeedFiltersOnboarding
       hasNavigation={hasNavigation}
-      version={myFeedArticleAnonymousVersion}
+      version={articleOnboardingVersion}
       postPreviousNext={postPreviousNext}
       onInitializeOnboarding={onInitializeOnboardingClick}
     />

@@ -7,7 +7,7 @@ import {
   isFeaturedEnabled,
 } from '../lib/featureManagement';
 import {
-  MyFeedArticleAnonymousVersion,
+  ArticleOnboardingVersion,
   OnboardingFiltersLayout,
   OnboardingVersion,
   ShareVersion,
@@ -36,7 +36,7 @@ interface Experiments {
   squadVersion?: SquadVersion;
   squadForm?: string;
   squadButton?: string;
-  myFeedArticleAnonymousVersion?: MyFeedArticleAnonymousVersion;
+  articleOnboardingVersion?: ArticleOnboardingVersion;
 }
 
 export interface FeaturesData extends Experiments {
@@ -93,8 +93,8 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     squadVersion: getFeatureValue(Features.SquadVersion, flags),
     squadForm: getFeatureValue(Features.SquadForm, flags),
     squadButton: getFeatureValue(Features.SquadButton, flags),
-    myFeedArticleAnonymousVersion: getFeatureValue(
-      Features.MyFeedArticleAnonymousVersion,
+    articleOnboardingVersion: getFeatureValue(
+      Features.ArticleOnboardingVersion,
       flags,
     ),
   };

@@ -6,7 +6,7 @@ import {
   SquadVersion,
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
-  MyFeedArticleAnonymousVersion,
+  ArticleOnboardingVersion,
 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
@@ -182,13 +182,13 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');
 
-  static readonly MyFeedArticleAnonymousVersion = new Features(
-    'my_feed_article_anonymous_version',
-    MyFeedArticleAnonymousVersion.V2,
+  static readonly ArticleOnboardingVersion = new Features(
+    'article_onboarding_version',
+    ArticleOnboardingVersion.V2,
     [
-      MyFeedArticleAnonymousVersion.V1,
-      MyFeedArticleAnonymousVersion.V2,
-      MyFeedArticleAnonymousVersion.V3,
+      ArticleOnboardingVersion.V1,
+      ArticleOnboardingVersion.V2,
+      ArticleOnboardingVersion.V3,
     ],
   );
 
