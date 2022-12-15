@@ -10,6 +10,8 @@ import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { getUserDefaultTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import Page from '../pages/register';
 
 jest.mock('next/router', () => ({
@@ -69,7 +71,17 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <Page />
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <Page />
+          </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

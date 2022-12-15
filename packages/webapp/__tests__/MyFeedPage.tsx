@@ -2,6 +2,7 @@ import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
+  OnboardingMode,
   RankingAlgorithm,
 } from '@dailydotdev/shared/src/graphql/feed';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
@@ -26,6 +27,7 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import MyFeed from '../pages/my-feed';
 
 let defaultAlerts: Alerts = { filter: true };
@@ -112,7 +114,17 @@ const renderComponent = (
             }}
           >
             <SettingsContext.Provider value={settingsContext}>
-              {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+              <OnboardingContext.Provider
+                value={{
+                  myFeedMode: OnboardingMode.Manual,
+                  isOnboardingOpen: false,
+                  onCloseOnboardingModal: jest.fn(),
+                  onInitializeOnboarding: jest.fn(),
+                  onShouldUpdateFilters: jest.fn(),
+                }}
+              >
+                {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+              </OnboardingContext.Provider>
             </SettingsContext.Provider>
           </AuthContext.Provider>
         </AlertContextProvider>

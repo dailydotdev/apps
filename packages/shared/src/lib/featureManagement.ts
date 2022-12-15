@@ -6,6 +6,7 @@ import {
   SquadVersion,
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
+  ArticleOnboardingVersion,
 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
@@ -180,6 +181,16 @@ export class Features<T extends FeatureValue = string> {
   static readonly SquadButton = new Features('squad_button', 'New squad');
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');
+
+  static readonly ArticleOnboardingVersion = new Features(
+    'article_onboarding_version',
+    null,
+    [
+      ArticleOnboardingVersion.V1,
+      ArticleOnboardingVersion.V2,
+      ArticleOnboardingVersion.V3,
+    ],
+  );
 
   private constructor(
     public readonly id: string,

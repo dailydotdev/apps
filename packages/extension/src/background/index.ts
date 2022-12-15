@@ -5,12 +5,10 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import request from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
-import {
-  BOOT_LOCAL_KEY,
-  getLocalBootData,
-} from '@dailydotdev/shared/src/contexts/BootProvider';
+import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { uninstall } from '@dailydotdev/shared/src/lib/constants';
+import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
 
 const excludedCompanionOrigins = [

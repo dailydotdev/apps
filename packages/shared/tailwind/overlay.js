@@ -21,6 +21,7 @@ const overlay = {
   secondary: '66',
   tertiary: '52',
   quaternary: '3D',
+  float: '14',
 };
 
 const overlayColors = Object.keys(overlay).reduce(

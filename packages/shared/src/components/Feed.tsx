@@ -374,16 +374,6 @@ export default function Feed<T>({
         aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
         data-testid="posts-feed"
       >
-        {selectedPost && (
-          <PostModal
-            isOpen
-            id={selectedPost.id}
-            onRequestClose={() => onCloseModal(false)}
-            onPreviousPost={onPrevious}
-            onNextPost={onNext}
-            isFetchingNextPage={isFetchingNextPage}
-          />
-        )}
         <ScrollToTopButton />
         <div
           className={classNames(
@@ -440,6 +430,16 @@ export default function Feed<T>({
           onHidden={onShareOptionsHidden}
           postCardShareVersion={postCardShareVersion}
         />
+        {selectedPost && (
+          <PostModal
+            isOpen={!!selectedPost}
+            id={selectedPost.id}
+            onRequestClose={() => onCloseModal(false)}
+            onPreviousPost={onPrevious}
+            onNextPost={onNext}
+            isFetchingNextPage={isFetchingNextPage}
+          />
+        )}
         {sharePost && (
           <SharePostModal
             isOpen={!!sharePost}

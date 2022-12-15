@@ -19,9 +19,10 @@ import {
 import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
-import { BootDataProvider, BOOT_LOCAL_KEY } from '../contexts/BootProvider';
+import { BootDataProvider } from '../contexts/BootProvider';
 import { apiUrl } from '../lib/config';
 import { BootCacheData } from '../lib/boot';
+import { BOOT_LOCAL_KEY } from '../contexts/common';
 
 beforeEach(() => {
   jest.clearAllMocks();
