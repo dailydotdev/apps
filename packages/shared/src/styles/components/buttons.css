@@ -39,7 +39,7 @@
     color: var(--theme-label-primary);
   }
 
-  &.bg-theme-color-cabbage {
+  &.bg-theme-color-cabbage, &.btn-primary-cabbage {
     color: #FFFFFF;
   }
 
