@@ -49,13 +49,14 @@ export const useNotificationPreferences = (): UseNotificationPreferences => {
   );
 
   const { data: deviceData, refetch: refetchDeviceData } = useQuery(
-    ['device_preferences', visit.sessionId],
+    ['device_preferences', visit?.sessionId],
     () =>
       request<DevicePreferenceData>(
         `${apiUrl}/graphql`,
         DEVICE_PREFERENCE_QUERY,
-        { deviceId: visit.sessionId },
+        { deviceId: visit?.sessionId },
       ),
+    { enabled: !!visit },
   );
   const { mutateAsync: updateDevicePreference } = useMutation(
     (data: Omit<DeviceNotificationPreference, 'deviceId' | 'description'>) =>
