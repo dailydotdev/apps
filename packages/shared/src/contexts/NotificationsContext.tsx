@@ -10,6 +10,7 @@ import AuthContext from './AuthContext';
 interface NotificationsContextData {
   unreadCount: number;
   hasPermission: boolean;
+  notificationsAvailable: () => boolean;
   requestPermission: () => Promise<NotificationPermission>;
 }
 
@@ -32,6 +33,10 @@ export const NotificationsContextProvider = ({
     globalThis.window?.Notification?.permission === 'granted',
   );
 
+  const notificationsAvailable = () => {
+    return !!globalThis.window?.Notification;
+  };
+
   const requestPermission = async (): Promise<NotificationPermission> => {
     if (!user) return 'default';
 
@@ -44,6 +49,7 @@ export const NotificationsContextProvider = ({
     return {
       unreadCount,
       hasPermission,
+      notificationsAvailable,
       requestPermission,
     };
   }, [hasPermission, user]);

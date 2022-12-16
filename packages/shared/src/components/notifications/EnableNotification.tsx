@@ -40,7 +40,8 @@ function EnableNotification({
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
   const [isEnabled, setIsEnabled] = useState(false);
-  const { hasPermission, requestPermission } = useContext(NotificationsContext);
+  const { hasPermission, notificationsAvailable, requestPermission } =
+    useContext(NotificationsContext);
   const [dismissedCache, setDismissedCache, isLoaded] =
     usePersistentContext<DismissBrowserPermissions>(
       DISMISS_BROWSER_PERMISSION,
@@ -56,7 +57,12 @@ function EnableNotification({
     setIsEnabled(permission === 'granted');
   };
 
-  if (!isLoaded || dismissed || (hasPermission && !isEnabled)) {
+  if (
+    !isLoaded ||
+    dismissed ||
+    !notificationsAvailable() ||
+    (hasPermission && !isEnabled)
+  ) {
     return null;
   }
 
