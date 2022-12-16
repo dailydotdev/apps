@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -40,10 +41,13 @@ import {
   useToastNotification,
 } from '../hooks/useToastNotification';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ShareVersion } from '../lib/featureValues';
+import { ScrollOnboardingVersion, ShareVersion } from '../lib/featureValues';
 import { getNavigator } from '../lib/navigator';
+import useSidebarRendered from '../hooks/useSidebarRendered';
+import AlertContext from '../contexts/AlertContext';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -65,6 +69,12 @@ const SharePostModal = dynamic(
 );
 const PostModal = dynamic(
   () => import(/* webpackChunkName: "postModal" */ './modals/PostModal'),
+);
+const ScrollFeedFiltersOnboarding = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "scrollFeedFiltersOnboarding" */ './ScrollFeedFiltersOnboarding'
+    ),
 );
 
 const listGaps = {
@@ -129,12 +139,16 @@ export default function Feed<T>({
     postEngagementNonClickable,
     showCommentPopover,
   } = useContext(FeaturesContext);
+  const { scrollOnboardingVersion } = useContext(FeaturesContext);
+  const { alerts } = useContext(AlertContext);
+  const { onInitializeOnboarding } = useContext(OnboardingContext);
   const postCardShareVersion = getNavigator()?.share
     ? ShareVersion.V2
     : shareVersion;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
+  const { sidebarRendered } = useSidebarRendered();
   const { subject } = useToastNotification();
   const {
     openNewTab,
@@ -143,6 +157,7 @@ export default function Feed<T>({
     insaneMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const [showFeedFilters, setShowFeedFilters] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
@@ -170,7 +185,26 @@ export default function Feed<T>({
     }
   }, [emptyFeed]);
 
-  const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
+  const showScrollOnboardingVersion =
+    sidebarRendered &&
+    alerts?.filter &&
+    Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
+  const fetchPageFn = showScrollOnboardingVersion
+    ? () => setShowFeedFilters(true)
+    : fetchPage;
+
+  const infiniteScrollRef = useFeedInfiniteScroll({
+    fetchPage: fetchPageFn,
+    canFetchMore,
+  });
+
+  const onInitializeOnboardingClick = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickScrollBlock,
+      target_id: scrollOnboardingVersion,
+    });
+    onInitializeOnboarding();
+  };
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -416,6 +450,12 @@ export default function Feed<T>({
               postEngagementNonClickable={postEngagementNonClickable}
             />
           ))}
+          {showScrollOnboardingVersion && showFeedFilters && (
+            <ScrollFeedFiltersOnboarding
+              version={scrollOnboardingVersion}
+              onInitializeOnboarding={onInitializeOnboardingClick}
+            />
+          )}
         </div>
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         <PostOptionsMenu

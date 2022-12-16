@@ -7,6 +7,7 @@ import {
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   ArticleOnboardingVersion,
+  ScrollOnboardingVersion,
 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
@@ -190,6 +191,12 @@ export class Features<T extends FeatureValue = string> {
       ArticleOnboardingVersion.V2,
       ArticleOnboardingVersion.V3,
     ],
+  );
+
+  static readonly ScrollOnboardingVersion = new Features(
+    'scroll_onboarding_version',
+    null,
+    [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2],
   );
 
   private constructor(

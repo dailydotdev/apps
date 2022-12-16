@@ -24,11 +24,13 @@ export enum AnalyticsEvent {
   CompleteOnboarding = 'complete onboarding',
   GlobalError = 'global error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
+  ClickScrollBlock = 'click scroll block',
 }
 
 export enum TargetType {
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
+  ScrollBlock = 'scroll block',
 }
 
 export enum TargetId {
