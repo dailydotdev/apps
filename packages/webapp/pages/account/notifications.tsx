@@ -3,12 +3,13 @@ import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import React, { ReactElement, useContext, useState } from 'react';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
-import { useNotificationPreferences } from '@dailydotdev/shared/src/hooks/useNotificationPreferences';
 import Pointer, {
   PointerColor,
 } from '@dailydotdev/shared/src/components/alert/Pointer';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -16,39 +17,24 @@ import AccountContentSection from '../../components/layouts/AccountLayout/Accoun
 const ALERT_PUSH_KEY = 'alert_push_key';
 
 const AccountNotificationsPage = (): ReactElement => {
-  const { requestPermission } = useContext(NotificationsContext);
+  const { requestPermission, hasPermission } = useContext(NotificationsContext);
   const [isAlertShown, setIsAlertShown] = usePersistentContext(
     ALERT_PUSH_KEY,
     true,
   );
-  const {
-    generalPreference,
-    devicePreference,
-    updateGeneralPreference,
-    updateDevicePreference,
-  } = useNotificationPreferences();
-  const { marketingEmail, notificationEmail } = generalPreference;
-  const { pushNotification } = devicePreference;
+  const { updateUserProfile } = useProfileForm();
+  const { user } = useContext(AuthContext);
+  const { acceptedMarketing, notificationEmail } = user ?? {};
   const [emailNotification, setEmailNotification] = useState(
-    marketingEmail || notificationEmail,
+    acceptedMarketing || notificationEmail,
   );
   const onToggleEmailNotification = () => {
     const value = !emailNotification;
-    updateGeneralPreference({
-      marketingEmail: value,
+    updateUserProfile({
+      acceptedMarketing: value,
       notificationEmail: value,
     });
     setEmailNotification(value);
-  };
-
-  const onEnablePush = async () => {
-    const permission = await requestPermission();
-
-    if (permission !== 'granted') {
-      return;
-    }
-
-    updateDevicePreference({ pushNotification: !pushNotification });
   };
 
   return (
@@ -69,10 +55,10 @@ const AccountNotificationsPage = (): ReactElement => {
           name="push_notification"
           className="w-20"
           compact={false}
-          checked={pushNotification}
-          onToggle={onEnablePush}
+          checked={hasPermission}
+          onToggle={requestPermission}
         >
-          {pushNotification ? 'On' : 'Off'}
+          {hasPermission ? 'On' : 'Off'}
         </Switch>
       </div>
       {isAlertShown && (
@@ -128,7 +114,7 @@ const AccountNotificationsPage = (): ReactElement => {
           data-testId="new_activity-switch"
           checked={notificationEmail}
           onToggle={() =>
-            updateGeneralPreference({ notificationEmail: !notificationEmail })
+            updateUserProfile({ notificationEmail: !notificationEmail })
           }
         >
           New activity notifications (mentions, replies, etc.)
@@ -136,9 +122,9 @@ const AccountNotificationsPage = (): ReactElement => {
         <Checkbox
           name="marketing"
           data-testId="marketing-switch"
-          checked={marketingEmail}
+          checked={acceptedMarketing}
           onToggle={() =>
-            updateGeneralPreference({ marketingEmail: !marketingEmail })
+            updateUserProfile({ acceptedMarketing: !acceptedMarketing })
           }
         >
           Marketing updates

@@ -41,6 +41,7 @@ export interface UserProfile {
   portfolio?: string;
   bio?: string;
   acceptedMarketing?: boolean;
+  notificationEmail?: boolean;
   timezone?: string;
 }
 
