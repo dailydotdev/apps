@@ -1,11 +1,9 @@
 import React, { ReactElement } from 'react';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
-import classed from '@dailydotdev/shared/src/lib/classed';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
-
 
 interface MostVisitedSitesModalProps extends ModalProps {
   onApprove: () => unknown;
@@ -21,7 +19,7 @@ export default function MostVisitedSitesModal({
       <Modal.Header />
       <Modal.Body>
         <Modal.Title>Show most visited sites</Modal.Title>
-        <Modal.Text className='text-center'>
+        <Modal.Text className="text-center">
           To show your most visited sites, your browser will now ask for more
           permissions. Once approved, it will be kept locally.
         </Modal.Text>
@@ -36,7 +34,7 @@ export default function MostVisitedSitesModal({
           ratio="45.8%"
           eager
         />
-        <Modal.Text className='text-center'>
+        <Modal.Text className="text-center">
           We will never collect your browsing history. We promise.
         </Modal.Text>
       </Modal.Body>
