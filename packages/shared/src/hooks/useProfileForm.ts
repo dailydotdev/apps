@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql-request/dist/types';
 import request from 'graphql-request';
-import { FormEvent, useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { UseMutateFunction } from 'react-query/types/react/types';
 import AuthContext from '../contexts/AuthContext';
@@ -26,6 +26,10 @@ interface ResponseError {
   response: MutationError;
 }
 
+export interface UpdateProfileParameters extends Partial<UserProfile> {
+  image?: File;
+}
+
 interface UseProfileForm {
   hint: ProfileFormHint;
   onUpdateHint?: (hint: Partial<ProfileFormHint>) => void;
@@ -33,12 +37,8 @@ interface UseProfileForm {
   updateUserProfile: UseMutateFunction<
     LoggedUser,
     ResponseError,
-    Partial<UpdateProfileParameters & { event: FormEvent }>
+    UpdateProfileParameters
   >;
-}
-
-export interface UpdateProfileParameters extends UserProfile {
-  image?: File;
 }
 
 interface UseProfileFormProps {
@@ -53,7 +53,7 @@ const useProfileForm = ({
   const { isLoading, mutate: updateUserProfile } = useMutation<
     LoggedUser,
     ResponseError,
-    Partial<UpdateProfileParameters>
+    UpdateProfileParameters
   >(
     ({ image, ...data }) =>
       request(`${apiUrl}/graphql`, UPDATE_USER_PROFILE_MUTATION, {
