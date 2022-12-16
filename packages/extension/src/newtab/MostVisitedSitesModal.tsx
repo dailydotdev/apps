@@ -6,11 +6,6 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
 
-const Heading = classed('h1', 'typo-title1 font-bold text-center mb-4');
-const Paragraph = classed(
-  'p',
-  'text-theme-label-secondary text-center typo-callout',
-);
 
 interface MostVisitedSitesModalProps extends ModalProps {
   onApprove: () => unknown;
@@ -25,11 +20,11 @@ export default function MostVisitedSitesModal({
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
       <Modal.Header />
       <Modal.Body>
-        <Heading>Show most visited sites</Heading>
-        <Paragraph>
+        <Modal.Title>Show most visited sites</Modal.Title>
+        <Modal.Text className='text-center'>
           To show your most visited sites, your browser will now ask for more
           permissions. Once approved, it will be kept locally.
-        </Paragraph>
+        </Modal.Text>
         <LazyImage
           imgSrc={
             process.env.TARGET_BROWSER === 'firefox'
@@ -41,9 +36,9 @@ export default function MostVisitedSitesModal({
           ratio="45.8%"
           eager
         />
-        <Paragraph>
+        <Modal.Text className='text-center'>
           We will never collect your browsing history. We promise.
-        </Paragraph>
+        </Modal.Text>
       </Modal.Body>
       <Modal.Footer justify={Justify.Center}>
         <Button onClick={onApprove} className="btn-primary">
