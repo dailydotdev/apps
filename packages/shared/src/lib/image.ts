@@ -14,6 +14,6 @@ export const cloudinary = {
     topicsV3:
       'https://daily-now-res.cloudinary.com/image/upload/v1670321759/public/feed_filters_v3.svg',
     scroll:
-      'https://daily-now-res.cloudinary.com/image/upload/v1671184101/public/scroll_feed_filters.svg',
+      'https://daily-now-res.cloudinary.com/image/upload/v1671199935/public/scroll_feed_filters.svg',
   },
 };
