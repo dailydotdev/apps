@@ -87,7 +87,7 @@ export default function scrollFeedFiltersOnboarding({
         <img
           src={cloudinary.feedFilters.scroll}
           alt="example topics for your feed"
-          className="ml-2 laptop:w-2/5 laptopL:w-[40rem]"
+          className="laptop:hidden laptopL:block ml-2"
         />
       )}
     </div>
