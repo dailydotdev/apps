@@ -50,7 +50,7 @@ export default function scrollFeedFiltersOnboarding({
       )}
       style={{
         background:
-          'linear-gradient(90deg, rgba(4, 19, 30, 1) 0%, rgba(4, 19, 30, 0.605797) 100%)',
+          'linear-gradient(180deg, #04131e00 0%, #04131eb3 20%, #0e1217 100%)',
       }}
     >
       <div className="flex flex-col items-center">
