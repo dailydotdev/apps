@@ -11,6 +11,7 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/v1665563545/public/supercharge.png',
   },
   notifications: {
+    big: 'https://daily-now-res.cloudinary.com/image/upload/v1671199897/public/notification_big.svg',
     browser:
       'https://daily-now-res.cloudinary.com/image/upload/v1670512489/public/notification_animated.gif',
     upvote:
