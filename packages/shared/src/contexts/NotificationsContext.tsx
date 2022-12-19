@@ -38,7 +38,6 @@ export const NotificationsContextProvider = ({
   const [hasPermission, setHasPermission] = useState(false);
 
   const onTogglePermission = async (): Promise<NotificationPermission> => {
-
     if (!user) return 'default';
 
     if (hasPermission) {
