@@ -40,7 +40,8 @@ function EnableNotification({
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
   const [isEnabled, setIsEnabled] = useState(false);
-  const { hasPermission, requestPermission } = useContext(NotificationsContext);
+  const { hasPermission, onTogglePermission } =
+    useContext(NotificationsContext);
   const [dismissedCache, setDismissedCache, isLoaded] =
     usePersistentContext<DismissBrowserPermissions>(
       DISMISS_BROWSER_PERMISSION,
@@ -51,9 +52,10 @@ function EnableNotification({
     setDismissedCache({ ...dismissedCache, [source]: value });
 
   const onEnable = async () => {
-    const permission = await requestPermission();
+    const permission = await onTogglePermission();
+    const isGranted = permission === 'granted';
 
-    setIsEnabled(permission === 'granted');
+    setIsEnabled(isGranted);
   };
 
   if (!isLoaded || dismissed || (hasPermission && !isEnabled)) {
