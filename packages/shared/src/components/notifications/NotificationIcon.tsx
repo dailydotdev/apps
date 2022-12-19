@@ -18,16 +18,27 @@ function NotificationItemIcon({
   icon,
 }: NotificationItemIconProps): ReactElement {
   const Icon = notificationIcon[icon] ?? notificationIcon.DailyDev;
+  const testId = `notification-${icon}`;
 
   if (!notificationIcon[icon] || noBackgroundIcons.includes(icon)) {
-    return <Icon secondary size="xlarge" />;
+    const testValue = !notificationIcon[icon]
+      ? NotificationIcon.DailyDev
+      : icon;
+    return (
+      <Icon
+        secondary
+        size="xlarge"
+        data-testid={testId}
+        data-testvalue={testValue}
+      />
+    );
   }
 
   const iconTheme = notificationDefaultTheme[icon];
 
   return (
     <span className="overflow-hidden p-1 bg-theme-float rounded-8 typo-callout h-fit">
-      <Icon secondary className={iconTheme} />
+      <Icon secondary className={iconTheme} data-testid={testId} />
     </span>
   );
 }
