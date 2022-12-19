@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, { ReactElement, useMemo } from 'react';
 import { Notification } from '../../graphql/notifications';
 import { useDomPurify } from '../../hooks/useDomPurify';
@@ -22,8 +23,10 @@ function NotificationItem({
   description,
   avatars,
   attachments,
+  targetUrl,
 }: NotificationItemProps): ReactElement {
   const purify = useDomPurify();
+  const router = useRouter();
   const { title: memoizedTitle, description: memoizedDescription } =
     useMemo(() => {
       if (!purify?.sanitize) {
@@ -46,9 +49,14 @@ function NotificationItem({
     )) ?? [];
   const hasAvatar = avatarComponents.some((component) => !!component);
 
+  const onClick = () => {
+    router.push(targetUrl);
+  };
+
   return (
     <button
       type="button"
+      onClick={onClick}
       className={classNames(
         'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
         isUnread && 'bg-theme-float',
