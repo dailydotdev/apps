@@ -34,7 +34,7 @@ function NotificationItem({
         title: purify.sanitize(title),
         description: purify.sanitize(description),
       };
-    }, [purify]);
+    }, [purify, title, description]);
 
   if (!purify) {
     return null;
