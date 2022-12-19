@@ -19,7 +19,7 @@ function NotificationItemIcon({
 }: NotificationItemIconProps): ReactElement {
   const Icon = notificationIcon[icon] ?? notificationIcon.DailyDev;
 
-  if (!notificationIcon[icon] || noBackgroundIcons.indexOf(icon) !== -1) {
+  if (!notificationIcon[icon] || noBackgroundIcons.includes(icon)) {
     return <Icon secondary size="xlarge" />;
   }
 
