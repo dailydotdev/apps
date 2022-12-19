@@ -1,4 +1,10 @@
 import { gql } from 'graphql-request';
+import { ComponentType } from 'react';
+import { IconProps } from '../components/Icon';
+import BellIcon from '../components/icons/Bell';
+import DailyIcon from '../components/icons/DailyIcon';
+import DiscussIcon from '../components/icons/Discuss';
+import UpvoteIcon from '../components/icons/Upvote';
 import { Connection } from './common';
 
 export enum NotificationAvatarType {
@@ -28,7 +34,7 @@ export interface Notification {
   userId: string;
   createdAt: Date;
   readAt?: Date;
-  icon: string;
+  icon: NotificationIcon;
   title: string;
   type: NotificationType;
   description?: string;
@@ -41,6 +47,33 @@ export interface NotificationsData {
   notifications: Connection<Notification>;
 }
 
+export enum NotificationIcon {
+  DailyDev = 'DailyDev',
+  CommunityPicks = 'CommunityPicks',
+  Comment = 'Comment',
+  Upvote = 'Upvote',
+  Bell = 'Bell',
+}
+
+export const notificationIcon: Record<
+  NotificationIcon,
+  ComponentType<IconProps>
+> = {
+  [NotificationIcon.DailyDev]: DailyIcon,
+  [NotificationIcon.CommunityPicks]: DailyIcon,
+  [NotificationIcon.Comment]: DiscussIcon,
+  [NotificationIcon.Upvote]: UpvoteIcon,
+  [NotificationIcon.Bell]: BellIcon,
+};
+
+export const notificationDefaultTheme: Record<NotificationIcon, string> = {
+  [NotificationIcon.DailyDev]: '',
+  [NotificationIcon.CommunityPicks]: '',
+  [NotificationIcon.Comment]: 'text-theme-color-blueCheese',
+  [NotificationIcon.Upvote]: 'text-theme-color-blueCheese',
+  [NotificationIcon.Bell]: '',
+};
+
 export const NOTIFICATIONS_QUERY = gql`
   query Notifications($after: String, $first: Int) {
     notifications(after: $after, first: $first) {
@@ -51,16 +84,23 @@ export const NOTIFICATIONS_QUERY = gql`
       edges {
         node {
           id
-          userId
           createdAt
           readAt
           icon
           title
           type
           description
-          grantedReputation
-          avatars
-          attachments
+          avatars {
+            type
+            image
+            name
+            targetUrl
+          }
+          attachments {
+            type
+            image
+            title
+          }
           targetUrl
         }
       }
