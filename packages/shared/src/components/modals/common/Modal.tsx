@@ -104,6 +104,10 @@ export function Modal({
   );
 }
 
+export const ModalTitle = classed(
+  'h1',
+  'typo-title1 font-bold text-center mb-4',
+);
 export const ModalSubtitle = classed('strong', 'typo-headline mb-2');
 export const ModalText = classed('p', 'typo-callout text-theme-label-tertiary');
 
@@ -115,3 +119,4 @@ Modal.Footer = ModalFooter;
 Modal.Sidebar = ModalSidebar;
 Modal.Subtitle = ModalSubtitle;
 Modal.Text = ModalText;
+Modal.Title = ModalTitle;

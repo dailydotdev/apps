@@ -12,6 +12,7 @@ import {
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
 import user from '../../../__tests__/fixture/loggedUser';
+import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 
 const onRequestClose = jest.fn();
 
@@ -40,7 +41,9 @@ const renderComponent = (
         loadingUser={false}
         loadedUserFromCache
       >
-        <NewSourceModal isOpen onRequestClose={onRequestClose} />
+        <NotificationsContextProvider>
+          <NewSourceModal isOpen onRequestClose={onRequestClose} />
+        </NotificationsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );

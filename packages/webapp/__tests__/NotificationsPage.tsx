@@ -108,6 +108,11 @@ it('should show the welcome notification', async () => {
 });
 
 it('should not show the welcome notification if we are not at the last page', async () => {
+  const temp = globalThis.window.Notification;
+  globalThis.window.Notification = {
+    permission: 'default',
+    requestPermission: jest.fn(),
+  } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
   const data: NotificationsData = { ...sampleNotificationData };
   data.notifications.pageInfo.hasNextPage = true;
   data.notifications.pageInfo.startCursor = 'start';
@@ -118,6 +123,7 @@ it('should not show the welcome notification if we are not at the last page', as
     () => screen.queryByText('Welcome to your new notification center!'),
     { timeout: 10 },
   );
+  globalThis.window.Notification = temp;
 });
 
 it('should get all notifications', async () => {

@@ -249,7 +249,9 @@ export default function SubmitArticleModal({
                 />
               )
             )}
-            <EnableNotification source={NotificationPromptSource.NewSource} />
+            {isEnabled && (
+              <EnableNotification source={NotificationPromptSource.NewSource} />
+            )}
             {getAlert()}
           </div>
         </form>

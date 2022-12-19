@@ -14,6 +14,7 @@ interface NotificationsContextData {
   unreadCount: number;
   isInitialized: boolean;
   hasPermission: boolean;
+  isNotificationAvailable: boolean;
   onTogglePermission: () => Promise<NotificationPermission>;
 }
 
@@ -37,6 +38,7 @@ export const NotificationsContextProvider = ({
   const [hasPermission, setHasPermission] = useState(false);
 
   const onTogglePermission = async (): Promise<NotificationPermission> => {
+
     if (!user) return 'default';
 
     if (hasPermission) {
@@ -76,8 +78,11 @@ export const NotificationsContextProvider = ({
       unreadCount,
       hasPermission,
       onTogglePermission,
+      get isNotificationAvailable() {
+        return !!globalThis.window?.Notification;
+      },
     }),
-    [hasPermission, isInitialized, user],
+    [hasPermission, unreadCount, isInitialized, user],
   );
 
   return (

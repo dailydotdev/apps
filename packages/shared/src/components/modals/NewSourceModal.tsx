@@ -2,8 +2,9 @@ import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
+import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
+import { ModalProps as StyledModalProps } from './StyledModal';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
@@ -17,7 +18,9 @@ import {
 import { Source } from '../../graphql/sources';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
+import NotificationsContext from '../../contexts/NotificationsContext';
+import { Justify } from '../utilities';
 
 interface RSS {
   url: string;
@@ -47,17 +50,27 @@ type ScrapeSourceResponse =
   | ScrapeSourceRSS
   | ScrapeSourceUnavailable;
 
-export default function NewSourceModal(props: ModalProps): ReactElement {
+export default function NewSourceModal(props: StyledModalProps): ReactElement {
   const scrapeFormRef = useRef<HTMLFormElement>();
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [scrapeError, setScrapeError] = useState<string>();
   const [showContact, setShowContact] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const { hasPermission, notificationsAvailable, requestPermission } =
+    useContext(NotificationsContext);
   const [feeds, setFeeds] = useState<{ label: string; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();
   const { user, loginState, showLogin } = useContext(AuthContext);
   const loginTrigger = AuthTriggers.SubmitNewSource;
   const { onRequestClose } = props;
+
+  const enableNotifications = async () => {
+    const permission = await requestPermission();
+    if (permission === 'granted') {
+      onRequestClose?.(null);
+    }
+  };
 
   const failedToScrape = () => {
     setShowContact(true);
@@ -119,7 +132,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         }),
       {
         onSuccess: () => {
-          onRequestClose?.(null);
+          if (hasPermission || !notificationsAvailable()) {
+            onRequestClose?.(null);
+            return;
+          }
+          setShowNotification(true);
         },
       },
     );
@@ -142,7 +159,6 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     const data = formToJson<{ url: string }>(e.currentTarget);
     await scrapeSource(data.url);
   };
-
   const onSubmitFeed = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
@@ -155,14 +171,39 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
       await requestSource(data.rss);
     }
   };
+  const modalProps: Omit<ModalProps, 'children'> = {
+    kind: Modal.Kind.FlexibleTop,
+    size: Modal.Size.Medium,
+    onRequestClose,
+    ...props,
+  };
+
+  if (showNotification) {
+    return (
+      <Modal {...modalProps}>
+        <Modal.Header />
+        <Modal.Body>
+          <Modal.Title>Push notifications</Modal.Title>
+          <Modal.Text className="text-center">
+            Get notified on the status of your source submissions in real time
+          </Modal.Text>
+          <img
+            className="my-14 mx-auto"
+            src={cloudinary.notifications.big}
+            alt="A sample browser notification"
+          />
+        </Modal.Body>
+        <Modal.Footer justify={Justify.Center}>
+          <Button className="btn-primary" onClick={enableNotifications}>
+            Enable notifications
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
 
   return (
-    <Modal
-      kind={Modal.Kind.FlexibleTop}
-      size={Modal.Size.Medium}
-      onRequestClose={onRequestClose}
-      {...props}
-    >
+    <Modal {...modalProps}>
       <Modal.Header title="Suggest new source" />
       <Modal.Body>
         <Modal.Text>
