@@ -7,7 +7,6 @@ import {
   NotificationType,
   NOTIFICATIONS_QUERY,
   READ_NOTIFICATIONS_MUTATION,
-  NotificationIcon,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
   pageContainerClassNames,
@@ -17,6 +16,7 @@ import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
+import { NotificationIcon } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
 

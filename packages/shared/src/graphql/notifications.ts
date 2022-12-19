@@ -1,11 +1,4 @@
 import { gql } from 'graphql-request';
-import { ComponentType } from 'react';
-import { IconProps } from '../components/Icon';
-import BellIcon from '../components/icons/Bell';
-import CommunityPicksIcon from '../components/icons/CommunityPicksIcon';
-import DailyIcon from '../components/icons/DailyIcon';
-import DiscussIcon from '../components/icons/Discuss';
-import UpvoteIcon from '../components/icons/Upvote';
 import { Connection } from './common';
 
 export enum NotificationAvatarType {
@@ -35,7 +28,7 @@ export interface Notification {
   userId: string;
   createdAt: Date;
   readAt?: Date;
-  icon: NotificationIcon;
+  icon: string;
   title: string;
   type: NotificationType;
   description?: string;
@@ -47,33 +40,6 @@ export interface Notification {
 export interface NotificationsData {
   notifications: Connection<Notification>;
 }
-
-export enum NotificationIcon {
-  DailyDev = 'DailyDev',
-  CommunityPicks = 'CommunityPicks',
-  Comment = 'Comment',
-  Upvote = 'Upvote',
-  Bell = 'Bell',
-}
-
-export const notificationIcon: Record<
-  NotificationIcon,
-  ComponentType<IconProps>
-> = {
-  [NotificationIcon.DailyDev]: DailyIcon,
-  [NotificationIcon.CommunityPicks]: CommunityPicksIcon,
-  [NotificationIcon.Comment]: DiscussIcon,
-  [NotificationIcon.Upvote]: UpvoteIcon,
-  [NotificationIcon.Bell]: BellIcon,
-};
-
-export const notificationDefaultTheme: Record<NotificationIcon, string> = {
-  [NotificationIcon.DailyDev]: '',
-  [NotificationIcon.CommunityPicks]: '',
-  [NotificationIcon.Comment]: 'text-theme-color-blueCheese',
-  [NotificationIcon.Upvote]: 'text-theme-color-blueCheese',
-  [NotificationIcon.Bell]: '',
-};
 
 export const NOTIFICATIONS_QUERY = gql`
   query Notifications($after: String, $first: Int) {

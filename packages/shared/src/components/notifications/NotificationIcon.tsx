@@ -3,7 +3,7 @@ import {
   notificationDefaultTheme,
   notificationIcon,
   NotificationIcon,
-} from '../../graphql/notifications';
+} from './utils';
 
 const noBackgroundIcons = [
   NotificationIcon.DailyDev,
