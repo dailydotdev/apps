@@ -61,7 +61,7 @@ function EnableNotification({
   if (
     !isLoaded ||
     dismissed ||
-    !notificationsAvailable() ||
+    !isNotificationAvailable ||
     (hasPermission && !isEnabled)
   ) {
     return null;
