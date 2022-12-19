@@ -17,6 +17,7 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { NotificationIcon } from '@dailydotdev/shared/src/components/notifications/utils';
+import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { getLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
 
@@ -64,23 +65,25 @@ const Notifications = (): ReactElement => {
       >
         <EnableNotification />
         <h2 className="p-6 font-bold typo-headline">Notifications</h2>
-        {length > 0 &&
-          queryResult.data.pages.map((page) =>
-            page.notifications.edges.map(
-              ({ node: { id, readAt, ...props } }) => (
-                <NotificationItem key={id} isUnread={!readAt} {...props} />
+        <InfiniteScrolling queryResult={queryResult}>
+          {length > 0 &&
+            queryResult.data.pages.map((page) =>
+              page.notifications.edges.map(
+                ({ node: { id, readAt, ...props } }) => (
+                  <NotificationItem key={id} isUnread={!readAt} {...props} />
+                ),
               ),
-            ),
+            )}
+          {(!length || !queryResult.hasNextPage) && (
+            <NotificationItem
+              isUnread
+              type={NotificationType.System}
+              icon={NotificationIcon.Bell}
+              title="Welcome to your new notification center!"
+              description="The notification system notifies you of important events such as replies, mentions, updates etc."
+            />
           )}
-        {(!length || !queryResult.hasNextPage) && (
-          <NotificationItem
-            isUnread
-            type={NotificationType.System}
-            icon={NotificationIcon.Bell}
-            title="Welcome to your new notification center!"
-            description="The notification system notifies you of important events such as replies, mentions, updates etc."
-          />
-        )}
+        </InfiniteScrolling>
       </main>
     </ProtectedPage>
   );
