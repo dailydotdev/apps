@@ -91,7 +91,7 @@ function MainLayoutHeader({
           {!hideButton && user && (
             <LinkWithTooltip
               tooltip={{ placement: 'left', content: 'Notifications' }}
-              href={`${webappUrl}notifications`}
+              href={`${webappUrl}/notifications`}
             >
               <Button
                 className="mr-4 btn-tertiary"
