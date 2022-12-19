@@ -2,15 +2,19 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
+import OneSignalReact from 'react-onesignal';
+import { isDevelopment } from '../lib/constants';
 import AuthContext from './AuthContext';
 
 interface NotificationsContextData {
   unreadCount: number;
+  isInitialized: boolean;
   hasPermission: boolean;
-  requestPermission: () => Promise<NotificationPermission>;
+  onTogglePermission: () => Promise<NotificationPermission>;
 }
 
 const NotificationsContext =
@@ -27,26 +31,54 @@ export const NotificationsContextProvider = ({
   children,
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
+  const isExtension = !!process.env.TARGET_BROWSER;
   const { user } = useContext(AuthContext);
-  const [hasPermission, setHasPermission] = useState(
-    globalThis.window?.Notification?.permission === 'granted',
-  );
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [hasPermission, setHasPermission] = useState(false);
 
-  const requestPermission = async (): Promise<NotificationPermission> => {
+  const onTogglePermission = async (): Promise<NotificationPermission> => {
     if (!user) return 'default';
 
+    if (hasPermission) {
+      await OneSignalReact.setSubscription(false);
+      setHasPermission(false);
+      return 'denied';
+    }
+
     const result = await globalThis.window?.Notification?.requestPermission();
-    setHasPermission(result === 'granted');
+    const isGranted = result === 'granted';
+    setHasPermission(isGranted);
+    OneSignalReact.setSubscription(isGranted);
+
     return result;
   };
 
-  const data = useMemo(() => {
-    return {
+  useEffect(() => {
+    if (isInitialized || !user || isExtension) {
+      return;
+    }
+
+    OneSignalReact.init({
+      appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+      allowLocalhostAsSecureOrigin: isDevelopment,
+      serviceWorkerParam: { scope: '/push/onesignal/' },
+    }).then(async () => {
+      setIsInitialized(true);
+      await OneSignalReact.setExternalUserId(user.id);
+      const isGranted = await OneSignalReact.getSubscription();
+      setHasPermission(isGranted);
+    });
+  }, [isInitialized, user]);
+
+  const data: NotificationsContextData = useMemo(
+    () => ({
+      isInitialized,
       unreadCount,
       hasPermission,
-      requestPermission,
-    };
-  }, [hasPermission, user]);
+      onTogglePermission,
+    }),
+    [hasPermission, isInitialized, user],
+  );
 
   return (
     <NotificationsContext.Provider value={data}>
