@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Notification } from '../../graphql/notifications';
 import { useDomPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
@@ -24,6 +24,17 @@ function NotificationItem({
   attachments,
 }: NotificationItemProps): ReactElement {
   const purify = useDomPurify();
+  const { title: memoizedTitle, description: memoizedDescription } =
+    useMemo(() => {
+      if (!purify?.sanitize) {
+        return { title: '', description: '' };
+      }
+
+      return {
+        title: purify.sanitize(title),
+        description: purify.sanitize(description),
+      };
+    }, [purify]);
 
   if (!purify) {
     return null;
@@ -51,14 +62,14 @@ function NotificationItem({
         <span
           className="font-bold break-words"
           dangerouslySetInnerHTML={{
-            __html: purify?.sanitize?.(title),
+            __html: memoizedTitle,
           }}
         />
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-theme-label-quaternary"
             dangerouslySetInnerHTML={{
-              __html: purify?.sanitize?.(description),
+              __html: memoizedDescription,
             }}
           />
         )}
