@@ -10,6 +10,7 @@ import {
   ArticleOnboardingVersion,
   OnboardingFiltersLayout,
   OnboardingVersion,
+  ScrollOnboardingVersion,
   ShareVersion,
   SquadVersion,
 } from '../lib/featureValues';
@@ -37,6 +38,7 @@ interface Experiments {
   squadForm?: string;
   squadButton?: string;
   articleOnboardingVersion?: ArticleOnboardingVersion;
+  scrollOnboardingVersion?: ScrollOnboardingVersion;
 }
 
 export interface FeaturesData extends Experiments {
@@ -95,6 +97,10 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     squadButton: getFeatureValue(Features.SquadButton, flags),
     articleOnboardingVersion: getFeatureValue(
       Features.ArticleOnboardingVersion,
+      flags,
+    ),
+    scrollOnboardingVersion: getFeatureValue(
+      Features.ScrollOnboardingVersion,
       flags,
     ),
   };
