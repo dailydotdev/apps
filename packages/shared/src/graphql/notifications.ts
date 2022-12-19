@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { ComponentType } from 'react';
 import { IconProps } from '../components/Icon';
 import BellIcon from '../components/icons/Bell';
+import CommunityPicksIcon from '../components/icons/CommunityPicksIcon';
 import DailyIcon from '../components/icons/DailyIcon';
 import DiscussIcon from '../components/icons/Discuss';
 import UpvoteIcon from '../components/icons/Upvote';
@@ -60,7 +61,7 @@ export const notificationIcon: Record<
   ComponentType<IconProps>
 > = {
   [NotificationIcon.DailyDev]: DailyIcon,
-  [NotificationIcon.CommunityPicks]: DailyIcon,
+  [NotificationIcon.CommunityPicks]: CommunityPicksIcon,
   [NotificationIcon.Comment]: DiscussIcon,
   [NotificationIcon.Upvote]: UpvoteIcon,
   [NotificationIcon.Bell]: BellIcon,
