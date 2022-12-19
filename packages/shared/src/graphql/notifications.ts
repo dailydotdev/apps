@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { NotificationIcon } from '../components/notifications/utils';
 import { Connection } from './common';
 
 export enum NotificationAvatarType {
@@ -28,7 +29,7 @@ export interface Notification {
   userId: string;
   createdAt: Date;
   readAt?: Date;
-  icon: string;
+  icon: NotificationIcon;
   title: string;
   type: NotificationType;
   description?: string;
@@ -51,16 +52,23 @@ export const NOTIFICATIONS_QUERY = gql`
       edges {
         node {
           id
-          userId
           createdAt
           readAt
           icon
           title
           type
           description
-          grantedReputation
-          avatars
-          attachments
+          avatars {
+            type
+            image
+            name
+            targetUrl
+          }
+          attachments {
+            type
+            image
+            title
+          }
           targetUrl
         }
       }

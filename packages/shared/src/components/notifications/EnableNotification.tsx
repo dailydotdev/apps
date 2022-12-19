@@ -31,8 +31,8 @@ type EnableNotificationProps = {
 
 const containerClassName: Record<NotificationPromptSource, string> = {
   notificationList: 'px-6 w-full border-l',
-  newComment: 'border px-4 mt-3',
-  newSource: 'border px-4 mt-3',
+  newComment: 'rounded-16 border px-4 mt-3',
+  newSource: 'rounded-16 border px-4 mt-3',
 };
 
 function EnableNotification({
@@ -81,7 +81,7 @@ function EnableNotification({
   return (
     <div
       className={classNames(
-        'overflow-hidden relative py-4 rounded-16 typo-callout border-theme-color-cabbage',
+        'overflow-hidden relative py-4 typo-callout border-theme-color-cabbage',
         classes,
       )}
     >

@@ -16,11 +16,10 @@ import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import {
-  getLayout,
-  getLayout as getFooterNavBarLayout,
-} from '../components/layouts/FooterNavBarLayout';
+import { NotificationIcon } from '@dailydotdev/shared/src/components/notifications/utils';
+import { getLayout } from '../components/layouts/FooterNavBarLayout';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
+
 import ProtectedPage from '../components/ProtectedPage';
 
 const hasUnread = (data: InfiniteData<NotificationsData>) =>
@@ -77,7 +76,7 @@ const Notifications = (): ReactElement => {
           <NotificationItem
             isUnread
             type={NotificationType.System}
-            icon={cloudinary.notifications.bell}
+            icon={NotificationIcon.Bell}
             title="Welcome to your new notification center!"
             description="The notification system notifies you of important events such as replies, mentions, updates etc."
           />

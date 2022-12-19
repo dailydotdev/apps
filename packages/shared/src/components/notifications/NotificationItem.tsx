@@ -1,7 +1,8 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Notification } from '../../graphql/notifications';
 import { useDomPurify } from '../../hooks/useDomPurify';
+import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 
@@ -16,7 +17,6 @@ export interface NotificationItemProps
 
 function NotificationItem({
   icon,
-  type,
   title,
   isUnread,
   description,
@@ -24,6 +24,21 @@ function NotificationItem({
   attachments,
 }: NotificationItemProps): ReactElement {
   const purify = useDomPurify();
+  const { title: memoizedTitle, description: memoizedDescription } =
+    useMemo(() => {
+      if (!purify?.sanitize) {
+        return { title: '', description: '' };
+      }
+
+      return {
+        title: purify.sanitize(title),
+        description: purify.sanitize(description),
+      };
+    }, [purify, title, description]);
+
+  if (!purify) {
+    return null;
+  }
 
   const avatarComponents =
     avatars?.map?.((avatar) => (
@@ -39,13 +54,7 @@ function NotificationItem({
         isUnread && 'bg-theme-float',
       )}
     >
-      <span className="overflow-hidden p-1 bg-theme-float rounded-8 typo-callout h-fit">
-        <img
-          className="object-contain w-6 h-6"
-          src={icon}
-          alt={`${type}'s icon`}
-        />
-      </span>
+      <NotificationItemIcon icon={icon} />
       <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
         {hasAvatar && (
           <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
@@ -53,14 +62,14 @@ function NotificationItem({
         <span
           className="font-bold break-words"
           dangerouslySetInnerHTML={{
-            __html: purify?.sanitize?.(title),
+            __html: memoizedTitle,
           }}
         />
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-theme-label-quaternary"
             dangerouslySetInnerHTML={{
-              __html: purify?.sanitize?.(description),
+              __html: memoizedDescription,
             }}
           />
         )}
