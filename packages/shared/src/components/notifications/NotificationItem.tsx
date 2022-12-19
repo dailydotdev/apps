@@ -68,7 +68,7 @@ function NotificationItem({
           <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
         )}
         <span
-          className="font-bold break-words"
+          className="break-words"
           dangerouslySetInnerHTML={{
             __html: memoizedTitle,
           }}
