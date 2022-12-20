@@ -1,6 +1,7 @@
 import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   ANONYMOUS_FEED_QUERY,
+  OnboardingMode,
   RankingAlgorithm,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
@@ -22,6 +23,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import Popular from '../pages/popular';
 
 const showLogin = jest.fn();
@@ -98,9 +100,19 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <NotificationsContextProvider>
-            {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
-          </NotificationsContextProvider>
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <NotificationsContextProvider>
+              {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
+            </NotificationsContextProvider>
+          </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

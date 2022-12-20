@@ -37,6 +37,8 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
@@ -156,7 +158,17 @@ const renderPost = (
             getRedirectUri: jest.fn(),
           }}
         >
-          <PostPage {...defaultProps} {...props} />
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <PostPage {...defaultProps} {...props} />
+          </OnboardingContext.Provider>
         </AuthContext.Provider>
       </FeaturesContextProvider>
     </QueryClientProvider>,

@@ -1,5 +1,8 @@
 import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
-import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  BOOKMARKS_FEED_QUERY,
+  OnboardingMode,
+} from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -21,7 +24,7 @@ import {
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import BookmarksPage from '../pages/bookmarks';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();
@@ -116,13 +119,23 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <NotificationsContextProvider>
-            {BookmarksPage.getLayout(
-              <BookmarksPage />,
-              {},
-              BookmarksPage.layoutProps,
-            )}
-          </NotificationsContextProvider>
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <NotificationsContextProvider>
+              {BookmarksPage.getLayout(
+                <BookmarksPage />,
+                {},
+                BookmarksPage.layoutProps,
+              )}
+            </NotificationsContextProvider>
+          </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

@@ -1,26 +1,9 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
-import ArrowIcon from '../icons/Arrow';
-import { Button } from '../buttons/Button';
-import { PostModalActions, PostModalActionsProps } from './PostModalActions';
-
-const SimpleTooltip = dynamic(
-  () =>
-    import(/* webpackChunkName: "simpleTooltip" */ '../tooltips/SimpleTooltip'),
-);
-
-export interface PostNavigationProps
-  extends Pick<
-    PostModalActionsProps,
-    'post' | 'onClose' | 'onShare' | 'onBookmark' | 'onReadArticle'
-  > {
-  onPreviousPost: () => unknown;
-  onNextPost: () => unknown;
-  shouldDisplayTitle?: boolean;
-  isModal?: boolean;
-  className?: string;
-}
+import { PostModalActions } from './PostModalActions';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { PostNavigationProps } from './common';
+import { ArticleOnboardingVersion } from '../../lib/featureValues';
 
 export function PostNavigation({
   onPreviousPost,
@@ -29,6 +12,9 @@ export function PostNavigation({
   className,
   isModal,
   post,
+  articleOnboardingVersion,
+  postFeedFiltersOnboarding,
+  postPreviousNext,
   onReadArticle,
   onClose,
   onShare,
@@ -55,48 +41,67 @@ export function PostNavigation({
 
   return (
     <div
-      className={classNames('flex flex-row gap-2 items-center', className)}
-      role="navigation"
+      className={classNames(
+        'flex flex-row tablet:flex-col',
+        !shouldDisplayTitle &&
+          articleOnboardingVersion !== ArticleOnboardingVersion.V2 &&
+          !isModal &&
+          'pt-6 tablet:pt-0',
+        isModal &&
+          articleOnboardingVersion !== ArticleOnboardingVersion.V2 &&
+          'pt-6 tablet:pt-6',
+      )}
     >
-      {onPreviousPost && (
-        <SimpleTooltip content="Previous">
-          <Button
-            className="-rotate-90 btn-secondary"
-            icon={<ArrowIcon />}
-            onClick={onPreviousPost}
+      <ConditionalWrapper
+        condition={shouldDisplayTitle}
+        wrapper={(children) => (
+          <div
+            className={classNames(
+              'flex flex-row gap-2 items-center',
+              className,
+            )}
+            role="navigation"
+          >
+            {children}
+          </div>
+        )}
+      >
+        <>
+          {postFeedFiltersOnboarding ||
+            (postPreviousNext && (
+              <div
+                role="navigation"
+                className={classNames(
+                  'flex relative flex-row gap-2 items-center',
+                )}
+              >
+                {postPreviousNext}
+              </div>
+            ))}
+          {}
+          {shouldDisplayTitle && (
+            <div className="overflow-hidden flex-col flex-1 ml-2">
+              <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
+                {content.subtitle}
+              </span>
+              <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
+                {content.title}
+              </h3>
+            </div>
+          )}
+          <PostModalActions
+            onShare={onShare}
+            onBookmark={onBookmark}
+            onReadArticle={onReadArticle}
+            post={post}
+            onClose={onClose}
+            inlineActions={shouldDisplayTitle || isModal}
+            className={getClasses()}
+            notificactionClassName="ml-4"
+            contextMenuId="post-navigation-context"
           />
-        </SimpleTooltip>
-      )}
-      {onNextPost && (
-        <SimpleTooltip content="Next">
-          <Button
-            className="rotate-90 btn-secondary"
-            icon={<ArrowIcon />}
-            onClick={onNextPost}
-          />
-        </SimpleTooltip>
-      )}
-      {shouldDisplayTitle && (
-        <div className="overflow-hidden flex-col flex-1 ml-2">
-          <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
-            {content.subtitle}
-          </span>
-          <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
-            {content.title}
-          </h3>
-        </div>
-      )}
-      <PostModalActions
-        onShare={onShare}
-        onBookmark={onBookmark}
-        onReadArticle={onReadArticle}
-        post={post}
-        onClose={onClose}
-        inlineActions={shouldDisplayTitle || isModal}
-        className={getClasses()}
-        notificactionClassName="ml-4"
-        contextMenuId="post-navigation-context"
-      />
+        </>
+      </ConditionalWrapper>
     </div>
   );
 }
