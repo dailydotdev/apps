@@ -3,7 +3,9 @@ import {
   NotificationAvatar,
   NotificationAvatarType,
 } from '../../graphql/notifications';
+import { webappUrl } from '../../lib/constants';
 import SourceButton from '../cards/SourceButton';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfilePicture } from '../ProfilePicture';
 
 function NotificationItemAvatar({
@@ -18,7 +20,12 @@ function NotificationItemAvatar({
 
   if (type === NotificationAvatarType.User) {
     return (
-      <ProfilePicture user={{ image, id: referenceId }} nativeLazyLoading />
+      <ProfileTooltip
+        link={{ href: `${webappUrl}/${referenceId}` }}
+        user={{ id: referenceId }}
+      >
+        <ProfilePicture user={{ image, id: referenceId }} nativeLazyLoading />
+      </ProfileTooltip>
     );
   }
 

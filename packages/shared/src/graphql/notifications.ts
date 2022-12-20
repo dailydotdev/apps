@@ -59,6 +59,7 @@ export const NOTIFICATIONS_QUERY = gql`
           type
           description
           avatars {
+            referenceId
             type
             image
             name
