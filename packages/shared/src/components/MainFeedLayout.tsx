@@ -33,7 +33,7 @@ import AlertContext from '../contexts/AlertContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import MyFeedHeading from './filters/MyFeedHeading';
 import SortIcon from './icons/Sort';
-import { useOnboardingModal } from '../hooks/useOnboardingModal';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -46,20 +46,6 @@ const FeedEmptyScreen = dynamic(
 
 const FeedFilters = dynamic(
   () => import(/* webpackChunkName: "feedFilters" */ './filters/FeedFilters'),
-);
-
-const OnboardingModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "onboardingModal" */ './modals/OnboardingModal'
-    ),
-);
-
-const LegacyOnboardingModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "legacyOnboardingModal" */ './modals/LegacyOnboardingModal'
-    ),
 );
 
 type FeedQueryProps = {
@@ -177,14 +163,14 @@ export default function MainFeedLayout({
   const { sidebarRendered } = useSidebarRendered();
   const { updateAlerts } = useContext(AlertContext);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
-  const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
+  const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const { onInitializeOnboarding } = useContext(OnboardingContext);
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  const { flags, popularFeedCopy, onboardingVersion, isFlagsFetched } =
-    useContext(FeaturesContext);
+  const { flags, popularFeedCopy } = useContext(FeaturesContext);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
@@ -226,22 +212,6 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
-  const {
-    myFeedMode,
-    isOnboardingOpen,
-    isLegacyOnboardingOpen,
-    onInitializeOnboarding,
-    onCloseOnboardingModal,
-    onShouldUpdateFilters,
-  } = useOnboardingModal({
-    user,
-    alerts,
-    isFirstVisit,
-    isFeaturesLoaded: isFlagsFetched,
-    onboardingVersion,
-    onFeedPageChanged,
-  });
-
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
 
   /* eslint-disable react/no-children-prop */
@@ -263,7 +233,10 @@ export default function MainFeedLayout({
   const header = (
     <LayoutHeader className="flex-col">
       {alerts?.filter && (
-        <CreateMyFeedButton action={onInitializeOnboarding} flags={flags} />
+        <CreateMyFeedButton
+          action={() => onInitializeOnboarding(onFeedPageChanged)}
+          flags={flags}
+        />
       )}
       <div
         className={classNames(
@@ -375,22 +348,6 @@ export default function MainFeedLayout({
         <FeedFilters
           isOpen
           onRequestClose={() => setIsFeedFiltersOpen(false)}
-        />
-      )}
-      {isLegacyOnboardingOpen && (
-        <LegacyOnboardingModal
-          mode={myFeedMode}
-          hasUser={!!user}
-          isOpen={isLegacyOnboardingOpen}
-          onRequestClose={onCloseOnboardingModal}
-          onCreate={() => onShouldUpdateFilters(true)}
-        />
-      )}
-      {isOnboardingOpen && (
-        <OnboardingModal
-          isOpen={isOnboardingOpen}
-          onRequestClose={onCloseOnboardingModal}
-          onRegistrationSuccess={() => onShouldUpdateFilters(true)}
         />
       )}
     </>

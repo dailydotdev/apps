@@ -16,12 +16,15 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
+import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
   path: string;
   title: string;
-  icon: (active: boolean) => ReactElement;
+  icon: (active: boolean, unread?: number) => ReactElement;
   requiresLogin?: boolean;
 };
 
@@ -47,7 +50,14 @@ export const tabs: Tab[] = [
   {
     path: '/notifications',
     title: 'Notifications',
-    icon: (active: boolean) => <BellIcon secondary={active} size="xxlarge" />,
+    icon: (active: boolean, unreadCount) => (
+      <span className="relative">
+        <Bubble className="top-0 px-1 left-[calc(100%-0.75rem)]">
+          {getUnreadText(unreadCount)}
+        </Bubble>
+        <BellIcon secondary={active} size="xxlarge" />
+      </span>
+    ),
   },
   {
     path: '/filters',
@@ -58,6 +68,7 @@ export const tabs: Tab[] = [
 
 export default function FooterNavBar(): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
+  const { unreadCount } = useNotificationContext();
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
@@ -91,7 +102,7 @@ export default function FooterNavBar(): ReactElement {
               <Button
                 {...buttonProps}
                 tag="a"
-                icon={tab.icon(index === selectedTab)}
+                icon={tab.icon(index === selectedTab, unreadCount)}
                 pressed={index === selectedTab}
               />
             </LinkWithTooltip>
@@ -99,7 +110,7 @@ export default function FooterNavBar(): ReactElement {
             <SimpleTooltip content={tab.title}>
               <Button
                 {...buttonProps}
-                icon={tab.icon(index === selectedTab)}
+                icon={tab.icon(index === selectedTab, unreadCount)}
                 onClick={() => showLogin(AuthTriggers.Bookmark)}
               />
             </SimpleTooltip>

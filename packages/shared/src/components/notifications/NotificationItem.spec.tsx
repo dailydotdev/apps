@@ -43,7 +43,7 @@ describe('notification attachment', () => {
     const [attachment] = sampleNotification.attachments;
     render(<NotificationItem {...sampleNotification} />);
     const img = await screen.findByAltText(
-      `Preview cover of the article: ${attachment.title}`,
+      `Cover preview of: ${attachment.title}`,
     );
     expect(img).toHaveAttribute('src', attachment.image);
   });

@@ -10,6 +10,7 @@ import { Button } from '../buttons/Button';
 import PostMetadata from '../cards/PostMetadata';
 import { ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 interface PostItemCardProps {
   className?: string;
@@ -24,9 +25,6 @@ const SourceShadow = classed(
   'div',
   'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
 );
-
-const LinkWrapper = ({ condition, wrapper, children }) =>
-  condition ? wrapper(children) : children;
 
 export default function PostItemCard({
   postItem,
@@ -43,7 +41,7 @@ export default function PostItemCard({
   };
 
   return (
-    <LinkWrapper
+    <ConditionalWrapper
       condition={clickable}
       wrapper={(children) => (
         <Link href={post.commentsPermalink}>{children}</Link>
@@ -103,6 +101,6 @@ export default function PostItemCard({
           />
         )}
       </article>
-    </LinkWrapper>
+    </ConditionalWrapper>
   );
 }

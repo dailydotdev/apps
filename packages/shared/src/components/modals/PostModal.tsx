@@ -5,19 +5,19 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import Modal from 'react-modal';
 import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
+import { Modal } from './common/Modal';
 import { ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
 import { PostContent, SCROLL_OFFSET } from '../post/PostContent';
 import styles from './PostModal.module.css';
-import { PostNavigationProps } from '../post/PostNavigation';
 import { PostData, POST_BY_ID_QUERY } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
+import { PostNavigationProps } from '../post/common';
 
 interface PostModalProps
   extends ModalProps,
@@ -99,12 +99,14 @@ export default function PostModal({
 
   return (
     <Modal
+      size={Modal.Size.Large}
+      kind={Modal.Kind.FlexibleTop}
       {...props}
       portalClassName={styles.postModal}
       className={classNames(className, 'post-modal focus:outline-none')}
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
-      id="post-modal"
       onRequestClose={onRequestClose}
+      id="post-modal"
     >
       <PostContent
         position={position}

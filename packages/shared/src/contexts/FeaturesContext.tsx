@@ -7,8 +7,10 @@ import {
   isFeaturedEnabled,
 } from '../lib/featureManagement';
 import {
+  ArticleOnboardingVersion,
   OnboardingFiltersLayout,
   OnboardingVersion,
+  ScrollOnboardingVersion,
   ShareVersion,
   SquadVersion,
   ToastPosition,
@@ -37,6 +39,8 @@ interface Experiments {
   squadForm?: string;
   squadButton?: string;
   toastPosition?: ToastPosition;
+  articleOnboardingVersion?: ArticleOnboardingVersion;
+  scrollOnboardingVersion?: ScrollOnboardingVersion;
 }
 
 export interface FeaturesData extends Experiments {
@@ -94,6 +98,14 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     squadForm: getFeatureValue(Features.SquadForm, flags),
     squadButton: getFeatureValue(Features.SquadButton, flags),
     toastPosition: getFeatureValue(Features.ToastPosition, flags),
+    articleOnboardingVersion: getFeatureValue(
+      Features.ArticleOnboardingVersion,
+      flags,
+    ),
+    scrollOnboardingVersion: getFeatureValue(
+      Features.ScrollOnboardingVersion,
+      flags,
+    ),
   };
 };
 

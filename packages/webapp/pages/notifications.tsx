@@ -4,7 +4,6 @@ import { NextSeo } from 'next-seo';
 import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
 import {
   NotificationsData,
-  NotificationType,
   NOTIFICATIONS_QUERY,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
@@ -15,8 +14,9 @@ import {
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
+import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
-import { NotificationIcon } from '@dailydotdev/shared/src/components/notifications/utils';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { getLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
@@ -30,8 +30,10 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
 
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
-  const { mutateAsync: readNotifications } = useMutation(() =>
-    request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),
+  const { clearUnreadCount } = useNotificationContext();
+  const { mutateAsync: readNotifications } = useMutation(
+    () => request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),
+    { onSuccess: clearUnreadCount },
   );
   const queryResult = useInfiniteQuery<NotificationsData>(
     ['notifications'],
@@ -64,7 +66,12 @@ const Notifications = (): ReactElement => {
         )}
       >
         <EnableNotification />
-        <h2 className="p-6 font-bold typo-headline">Notifications</h2>
+        <h2
+          className="p-6 font-bold typo-headline"
+          data-testid="notification_page-title"
+        >
+          Notifications
+        </h2>
         <InfiniteScrolling queryResult={queryResult}>
           {length > 0 &&
             queryResult.data.pages.map((page) =>
@@ -74,15 +81,7 @@ const Notifications = (): ReactElement => {
                 ),
               ),
             )}
-          {(!length || !queryResult.hasNextPage) && (
-            <NotificationItem
-              isUnread
-              type={NotificationType.System}
-              icon={NotificationIcon.Bell}
-              title="Welcome to your new notification center!"
-              description="The notification system notifies you of important events such as replies, mentions, updates etc."
-            />
-          )}
+          {(!length || !queryResult.hasNextPage) && <FirstNotification />}
         </InfiniteScrolling>
       </main>
     </ProtectedPage>

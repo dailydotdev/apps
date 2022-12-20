@@ -50,3 +50,13 @@ export const notificationDefaultTheme: Record<NotificationIcon, string> = {
   [NotificationIcon.Upvote]: 'text-theme-color-blueCheese',
   [NotificationIcon.Bell]: '',
 };
+
+const notificationsUrl = `/notifications`;
+
+export const checkAtNotificationsPage = (): boolean =>
+  notificationsUrl === globalThis.window?.location.pathname;
+
+const MAX_UNREAD_DISPLAY = 99;
+
+export const getUnreadText = (unread: number): string =>
+  unread > MAX_UNREAD_DISPLAY ? '99+' : unread.toString();

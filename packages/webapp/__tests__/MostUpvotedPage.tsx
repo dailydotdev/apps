@@ -1,5 +1,8 @@
 import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
-import { MOST_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  MOST_UPVOTED_FEED_QUERY,
+  OnboardingMode,
+} from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -18,6 +21,8 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import Upvoted from '../pages/upvoted';
 
 const showLogin = jest.fn();
@@ -94,7 +99,19 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <NotificationsContextProvider>
+              {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
+            </NotificationsContextProvider>
+          </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
