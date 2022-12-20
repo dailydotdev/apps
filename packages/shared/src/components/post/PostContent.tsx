@@ -418,6 +418,7 @@ export function PostContent({
               onClick={onCommentClick}
               onShare={(comment) => openShareComment(comment, postById.post)}
               onClickUpvote={onShowUpvotedComment}
+              permissionNotificationCommentId={permissionNotificationCommentId}
             />
             {authorOnboarding && (
               <AuthorOnboarding
