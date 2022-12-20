@@ -10,6 +10,7 @@ import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { getUserDefaultTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import Page from '../pages/register';
 
 jest.mock('next/router', () => ({
@@ -69,7 +70,9 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <Page />
+          <NotificationsContextProvider>
+            <Page />
+          </NotificationsContextProvider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

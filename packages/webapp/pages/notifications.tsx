@@ -66,7 +66,12 @@ const Notifications = (): ReactElement => {
         )}
       >
         <EnableNotification />
-        <h2 className="p-6 font-bold typo-headline">Notifications</h2>
+        <h2
+          className="p-6 font-bold typo-headline"
+          data-testid="notification_page-title"
+        >
+          Notifications
+        </h2>
         <InfiniteScrolling queryResult={queryResult}>
           {length > 0 &&
             queryResult.data.pages.map((page) =>

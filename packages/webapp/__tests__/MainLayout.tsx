@@ -6,6 +6,7 @@ import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import MainLayout from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
@@ -48,10 +49,11 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <MainLayout />
+          <NotificationsContextProvider>
+            <MainLayout />
+          </NotificationsContextProvider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
-      ,
     </QueryClientProvider>,
   );
 };

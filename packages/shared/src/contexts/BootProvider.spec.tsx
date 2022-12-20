@@ -60,6 +60,7 @@ const defaultSettings: RemoteSettings = {
   sortingEnabled: false,
   optOutWeeklyGoal: true,
   autoDismissNotifications: true,
+  optOutCompanion: false,
 };
 
 const defaultBootData: BootCacheData = {

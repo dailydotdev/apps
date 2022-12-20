@@ -23,6 +23,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import SearchPage from '../pages/search';
 
 const showLogin = jest.fn();
@@ -106,7 +107,9 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}
+          <NotificationsContextProvider>
+            {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}
+          </NotificationsContextProvider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

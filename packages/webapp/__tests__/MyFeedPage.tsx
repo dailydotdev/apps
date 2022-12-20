@@ -26,6 +26,7 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import MyFeed from '../pages/my-feed';
 
 jest.mock('next/router', () => ({
@@ -118,7 +119,9 @@ const renderComponent = (
             }}
           >
             <SettingsContext.Provider value={settingsContext}>
-              {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+              <NotificationsContextProvider>
+                {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+              </NotificationsContextProvider>
             </SettingsContext.Provider>
           </AuthContext.Provider>
         </AlertContextProvider>

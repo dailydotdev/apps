@@ -32,7 +32,7 @@ export const NotificationsContextProvider = ({
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const [currentUnreadCount, setCurrentUnreadCount] = useState(0);
+  const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
   const [hasPermission, setHasPermission] = useState(
     globalThis.window?.Notification?.permission === 'granted',
   );
@@ -55,15 +55,15 @@ export const NotificationsContextProvider = ({
 
   const data = useMemo(() => {
     return {
-      unreadCount,
       hasPermission,
+      unreadCount: currentUnreadCount,
       clearUnreadCount: () => setCurrentUnreadCount(0),
       incrementUnreadCount: (value = 1) =>
         setCurrentUnreadCount((current) => current + value),
       notificationsAvailable,
       requestPermission,
     };
-  }, [hasPermission, currentUnreadCount, user]);
+  }, [hasPermission, currentUnreadCount, unreadCount, user]);
 
   return (
     <NotificationsContext.Provider value={data}>

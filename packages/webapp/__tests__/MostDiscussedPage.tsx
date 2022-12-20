@@ -18,6 +18,7 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import Discussed from '../pages/discussed';
 
 const showLogin = jest.fn();
@@ -94,7 +95,9 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          {Discussed.getLayout(<Discussed />, {}, Discussed.layoutProps)}
+          <NotificationsContextProvider>
+            {Discussed.getLayout(<Discussed />, {}, Discussed.layoutProps)}
+          </NotificationsContextProvider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
