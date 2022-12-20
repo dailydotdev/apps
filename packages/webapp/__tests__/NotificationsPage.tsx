@@ -13,11 +13,7 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from '@testing-library/preact';
+import { render, screen } from '@testing-library/preact';
 import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
