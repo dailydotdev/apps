@@ -40,7 +40,7 @@ function EnableNotification({
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
   const [isEnabled, setIsEnabled] = useState(false);
-  const { hasPermission, isNotificationAvailable, onTogglePermission } =
+  const { hasPermission, isNotificationSupported, onTogglePermission } =
     useContext(NotificationsContext);
   const [dismissedCache, setDismissedCache, isLoaded] =
     usePersistentContext<DismissBrowserPermissions>(
@@ -61,7 +61,7 @@ function EnableNotification({
   if (
     !isLoaded ||
     dismissed ||
-    !isNotificationAvailable ||
+    !isNotificationSupported ||
     (hasPermission && !isEnabled)
   ) {
     return null;

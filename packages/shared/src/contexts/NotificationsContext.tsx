@@ -13,7 +13,7 @@ interface NotificationsContextData {
   unreadCount: number;
   isInitialized: boolean;
   hasPermission: boolean;
-  isNotificationAvailable: boolean;
+  isNotificationSupported: boolean;
   onTogglePermission: () => Promise<NotificationPermission>;
 }
 
