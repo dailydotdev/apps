@@ -1,6 +1,5 @@
 import { ComponentType } from 'react';
 import classed from '../../lib/classed';
-import { webappUrl } from '../../lib/constants';
 import { IconProps } from '../Icon';
 import BellIcon from '../icons/Bell';
 import CommunityPicksIcon from '../icons/CommunityPicksIcon';
@@ -52,7 +51,7 @@ export const notificationDefaultTheme: Record<NotificationIcon, string> = {
   [NotificationIcon.Bell]: '',
 };
 
-const notificationsUrl = `${webappUrl}/notifications`;
+const notificationsUrl = `/notifications`;
 
 export const checkAtNotificationsPage = (): boolean =>
-  notificationsUrl === globalThis.window?.location.href;
+  notificationsUrl === globalThis.window?.location.pathname;
