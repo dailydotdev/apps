@@ -17,6 +17,7 @@ import {
 import classNames from 'classnames';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
+import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import styles from './FooterNavBar.module.css';
 
@@ -52,7 +53,7 @@ export const tabs: Tab[] = [
     icon: (active: boolean, unreadCount) => (
       <span className="relative">
         <Bubble className="top-0 px-1 left-[calc(100%-0.75rem)]">
-          {unreadCount}
+          {getUnreadText(unreadCount)}
         </Bubble>
         <BellIcon secondary={active} size="xxlarge" />
       </span>

@@ -8,7 +8,10 @@ import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
-import { checkAtNotificationsPage } from '../notifications/utils';
+import {
+  checkAtNotificationsPage,
+  getUnreadText,
+} from '../notifications/utils';
 import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
@@ -115,7 +118,9 @@ function MainLayoutHeader({
                 }
               >
                 {hasNotification && (
-                  <Bubble className="-top-2 -right-3">{unreadCount}</Bubble>
+                  <Bubble className="-top-2 px-1 left-[calc(100%-0.5rem)]">
+                    {getUnreadText(unreadCount)}
+                  </Bubble>
                 )}
               </Button>
             </LinkWithTooltip>
