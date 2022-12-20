@@ -66,6 +66,7 @@ const defaultBootData: BootCacheData = {
   alerts: defaultAlerts,
   user: defaultUser,
   settings: defaultSettings,
+  notifications: { unreadNotificationsCount: 0 },
   flags: {},
 };
 
