@@ -50,7 +50,7 @@ export const NotificationsContextProvider = ({
   };
 
   useEffect(() => {
-    setCurrentUnreadCount(0);
+    setCurrentUnreadCount(unreadCount);
   }, [unreadCount]);
 
   const data = useMemo(() => {
