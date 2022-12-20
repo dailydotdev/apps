@@ -46,7 +46,7 @@ function NotificationItem({
   const avatarComponents =
     avatars?.map?.((avatar) => (
       <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
-    )) ?? [];
+    )).filter((avatar) => avatar) ?? [];
   const hasAvatar = avatarComponents.some((component) => !!component);
 
   const onClick = () => {
