@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import OneSignalReact from 'react-onesignal';
 import { isDevelopment } from '../lib/constants';
 import AuthContext from './AuthContext';
 
@@ -33,6 +32,7 @@ export const NotificationsContextProvider = ({
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
   const isExtension = !!process.env.TARGET_BROWSER;
+  const [OneSignal, setOneSignal] = useState(null);
   const { user } = useContext(AuthContext);
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
@@ -41,7 +41,7 @@ export const NotificationsContextProvider = ({
     if (!user) return 'default';
 
     if (hasPermission) {
-      await OneSignalReact.setSubscription(false);
+      await OneSignal?.setSubscription(false);
       setHasPermission(false);
       return 'denied';
     }
@@ -49,7 +49,7 @@ export const NotificationsContextProvider = ({
     const result = await globalThis.window?.Notification?.requestPermission();
     const isGranted = result === 'granted';
     setHasPermission(isGranted);
-    OneSignalReact.setSubscription(isGranted);
+    OneSignal?.setSubscription(isGranted);
 
     return result;
   };
@@ -59,11 +59,14 @@ export const NotificationsContextProvider = ({
       return;
     }
 
-    OneSignalReact.init({
-      appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-      allowLocalhostAsSecureOrigin: isDevelopment,
-      serviceWorkerParam: { scope: '/push/onesignal/' },
-    }).then(async () => {
+    import('react-onesignal').then(async (mod) => {
+      const OneSignalReact = mod.default;
+      await OneSignalReact.init({
+        appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+        allowLocalhostAsSecureOrigin: isDevelopment,
+        serviceWorkerParam: { scope: '/push/onesignal/' },
+      });
+      setOneSignal(OneSignalReact);
       setIsInitialized(true);
       await OneSignalReact.setExternalUserId(user.id);
       const isGranted = await OneSignalReact.getSubscription();
