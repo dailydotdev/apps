@@ -60,7 +60,7 @@ function NotificationItem({
       type="button"
       onClick={onClick}
       className={classNames(
-        'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
+        'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
         isUnread && 'bg-theme-float',
       )}
     >
