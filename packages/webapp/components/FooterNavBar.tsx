@@ -16,6 +16,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -47,7 +48,12 @@ export const tabs: Tab[] = [
   {
     path: '/notifications',
     title: 'Notifications',
-    icon: (active: boolean) => <BellIcon secondary={active} size="xxlarge" />,
+    icon: (active: boolean) => (
+      <span className="relative">
+        <Bubble className="top-0 -right-1">1</Bubble>
+        <BellIcon secondary={active} size="xxlarge" />
+      </span>
+    ),
   },
   {
     path: '/filters',

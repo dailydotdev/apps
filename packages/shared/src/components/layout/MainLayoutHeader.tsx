@@ -101,7 +101,7 @@ function MainLayoutHeader({
               href={`${webappUrl}/notifications`}
             >
               <Button
-                className="mr-4 btn-tertiary"
+                className="hidden laptop:flex mr-4 btn-tertiary"
                 buttonSize="small"
                 iconOnly
                 icon={
