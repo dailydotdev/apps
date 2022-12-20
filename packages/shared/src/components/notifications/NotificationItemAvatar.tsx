@@ -24,7 +24,11 @@ function NotificationItemAvatar({
         link={{ href: `${webappUrl}/${referenceId}` }}
         user={{ id: referenceId }}
       >
-        <ProfilePicture user={{ image, id: referenceId }} nativeLazyLoading />
+        <ProfilePicture
+          user={{ image, id: referenceId }}
+          nativeLazyLoading
+          size="medium"
+        />
       </ProfileTooltip>
     );
   }
