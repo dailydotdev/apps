@@ -66,8 +66,8 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
   const { onRequestClose } = props;
 
   const enableNotifications = async () => {
-    const permission = await onTogglePermission();
-    if (permission === 'granted') {
+    const isGranted = await onTogglePermission();
+    if (isGranted) {
       onRequestClose?.(null);
     }
   };
