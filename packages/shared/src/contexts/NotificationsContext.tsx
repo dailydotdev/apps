@@ -77,7 +77,7 @@ export const NotificationsContextProvider = ({
       unreadCount,
       hasPermission,
       onTogglePermission,
-      get isNotificationAvailable() {
+      get isNotificationSupported() {
         return !!globalThis.window?.Notification;
       },
     }),
