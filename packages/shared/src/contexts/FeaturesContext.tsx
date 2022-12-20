@@ -11,6 +11,7 @@ import {
   OnboardingVersion,
   ShareVersion,
   SquadVersion,
+  ToastPosition,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
@@ -35,6 +36,7 @@ interface Experiments {
   squadVersion?: SquadVersion;
   squadForm?: string;
   squadButton?: string;
+  toastPosition?: ToastPosition;
 }
 
 export interface FeaturesData extends Experiments {
@@ -91,6 +93,7 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     squadVersion: getFeatureValue(Features.SquadVersion, flags),
     squadForm: getFeatureValue(Features.SquadForm, flags),
     squadButton: getFeatureValue(Features.SquadButton, flags),
+    toastPosition: getFeatureValue(Features.ToastPosition, flags),
   };
 };
 

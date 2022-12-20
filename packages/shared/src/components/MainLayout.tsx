@@ -19,6 +19,7 @@ import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecover
 import MainLayoutHeader, {
   MainLayoutHeaderProps,
 } from './layout/MainLayoutHeader';
+import { InAppNotification } from './notifications/InAppNotification';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -83,6 +84,7 @@ export default function MainLayout({
       {customBanner || (
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
+      <InAppNotification />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
         greeting={greeting}

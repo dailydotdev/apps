@@ -6,6 +6,7 @@ import {
   SquadVersion,
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
+  ToastPosition as ToastPositionEnum,
 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
@@ -173,6 +174,12 @@ export class Features<T extends FeatureValue = string> {
       SquadVersion.V3,
       SquadVersion.V4,
     ],
+  );
+
+  static readonly ToastPosition = new Features(
+    'toast_position',
+    ToastPositionEnum.Bottom,
+    [ToastPositionEnum.Bottom, ToastPositionEnum.Top],
   );
 
   static readonly SquadForm = new Features('squad_form');

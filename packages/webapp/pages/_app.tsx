@@ -27,6 +27,7 @@ import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/Su
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
+import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
@@ -53,7 +54,7 @@ const CookieBanner = dynamic(
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
-interface CompnentGetLayout {
+interface ComponentGetLayout {
   getLayout?: (
     page: ReactNode,
     pageProps: Record<string, unknown>,
@@ -73,14 +74,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
   useTrackPageView();
-
+  useInAppNotification();
   useEffect(() => {
     updateCookieBanner(user);
   }, [user]);
 
   const getLayout =
-    (Component as CompnentGetLayout).getLayout || ((page) => page);
-  const { layoutProps } = Component as CompnentGetLayout;
+    (Component as ComponentGetLayout).getLayout || ((page) => page);
+  const { layoutProps } = Component as ComponentGetLayout;
 
   return (
     <>
