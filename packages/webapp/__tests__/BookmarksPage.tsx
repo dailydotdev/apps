@@ -25,6 +25,7 @@ import {
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import BookmarksPage from '../pages/bookmarks';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();
