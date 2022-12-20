@@ -22,6 +22,7 @@ const getShadowPalette = (key, shadow) =>
 const baseShadows = {
   2: (color) => `0 0.375rem 0.375rem -0.125rem ${color}66`,
   3: (color) => `0 0.875rem 0.875rem -0.375rem ${color}A3`,
+  bubble: (color) => `0 0 1.25rem 0 ${color}B3`,
 };
 
 const boxShadows = Object.keys(baseShadows).reduce(
