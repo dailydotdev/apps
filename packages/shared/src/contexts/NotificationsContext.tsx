@@ -2,6 +2,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -10,6 +11,8 @@ import AuthContext from './AuthContext';
 interface NotificationsContextData {
   unreadCount: number;
   hasPermission: boolean;
+  clearUnreadCount: () => void;
+  incrementUnreadCount: () => void;
   notificationsAvailable: () => boolean;
   requestPermission: () => Promise<NotificationPermission>;
 }
@@ -29,6 +32,7 @@ export const NotificationsContextProvider = ({
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
   const { user } = useContext(AuthContext);
+  const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
   const [hasPermission, setHasPermission] = useState(
     globalThis.window?.Notification?.permission === 'granted',
   );
@@ -45,14 +49,21 @@ export const NotificationsContextProvider = ({
     return result;
   };
 
+  useEffect(() => {
+    setCurrentUnreadCount(unreadCount);
+  }, [unreadCount]);
+
   const data = useMemo(() => {
     return {
-      unreadCount,
       hasPermission,
+      unreadCount: currentUnreadCount,
+      clearUnreadCount: () => setCurrentUnreadCount(0),
+      incrementUnreadCount: (value = 1) =>
+        setCurrentUnreadCount((current) => current + value),
       notificationsAvailable,
       requestPermission,
     };
-  }, [hasPermission, user]);
+  }, [hasPermission, currentUnreadCount, unreadCount, user]);
 
   return (
     <NotificationsContext.Provider value={data}>
@@ -60,3 +71,6 @@ export const NotificationsContextProvider = ({
     </NotificationsContext.Provider>
   );
 };
+
+export const useNotificationContext = (): NotificationsContextData =>
+  useContext(NotificationsContext);

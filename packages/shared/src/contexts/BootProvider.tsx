@@ -58,6 +58,7 @@ const updateLocalBootData = (
     'alerts',
     'flags',
     'settings',
+    'notifications',
     'user',
     'lastModifier',
   ]);
@@ -80,7 +81,13 @@ export const BootDataProvider = ({
     useState<Partial<BootCacheData>>();
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
   const loadedFromCache = cachedBootData !== undefined;
-  const { user, settings, flags = {}, alerts } = cachedBootData || {};
+  const {
+    user,
+    settings,
+    flags = {},
+    alerts,
+    notifications,
+  } = cachedBootData || {};
   const {
     data: bootRemoteData,
     refetch,
@@ -183,7 +190,9 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            <NotificationsContextProvider>
+            <NotificationsContextProvider
+              unreadCount={notifications?.unreadNotificationsCount}
+            >
               {children}
             </NotificationsContextProvider>
           </AlertContextProvider>

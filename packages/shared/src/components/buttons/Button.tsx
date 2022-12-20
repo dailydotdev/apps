@@ -74,11 +74,12 @@ function ButtonComponent<TagName extends AllowedTags>(
     position = 'relative',
     textPosition = 'justify-center',
     readOnly,
+    iconOnly: showIconOnly,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
-  const iconOnly = icon && !children && !rightIcon;
+  const iconOnly = (icon && !children && !rightIcon) || showIconOnly;
 
   const getIconWithSize = useGetIconWithSize(buttonSize, iconOnly);
 

@@ -13,12 +13,8 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from '@testing-library/preact';
-import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { render, screen } from '@testing-library/preact';
+import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { mocked } from 'ts-jest/utils';
@@ -72,8 +68,10 @@ const fetchNotificationsMock = (
 
 let client: QueryClient;
 
+const clearUnread = jest.fn();
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [fetchNotificationsMock()],
+  unreadCount = 0,
 ) => {
   client = new QueryClient();
 
@@ -93,9 +91,18 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <NotificationsContextProvider>
+        <NotificationsContext.Provider
+          value={{
+            unreadCount,
+            clearUnreadCount: clearUnread,
+            incrementUnreadCount: jest.fn(),
+            notificationsAvailable: jest.fn(),
+            requestPermission: jest.fn(),
+            hasPermission: true,
+          }}
+        >
           <NotificationsPage />
-        </NotificationsContextProvider>
+        </NotificationsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -119,10 +126,10 @@ it('should not show the welcome notification if we are not at the last page', as
   data.notifications.pageInfo.endCursor = 'end';
   renderComponent([fetchNotificationsMock(data)]);
   await waitForNock();
-  await waitForElementToBeRemoved(
-    () => screen.queryByText('Welcome to your new notification center!'),
-    { timeout: 10 },
+  const welcome = screen.queryByText(
+    'Welcome to your new notification center!',
   );
+  expect(welcome).not.toBeInTheDocument();
   globalThis.window.Notification = temp;
 });
 
@@ -134,20 +141,25 @@ it('should get all notifications', async () => {
 
 it('should get all notifications and send a mutation to read all unread notifications', async () => {
   let mutationCalled = false;
+  const unreadCount = 2;
   const testData: NotificationsData = { ...sampleNotificationData };
   testData.notifications.edges[0].node.readAt = null;
-  renderComponent([
-    fetchNotificationsMock(testData),
-    {
-      request: { query: READ_NOTIFICATIONS_MUTATION },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
+  renderComponent(
+    [
+      fetchNotificationsMock(testData),
+      {
+        request: { query: READ_NOTIFICATIONS_MUTATION },
+        result: () => {
+          mutationCalled = true;
+          return { data: { _: true } };
+        },
       },
-    },
-  ]);
-  await waitForNock();
+    ],
+    unreadCount,
+  );
 
+  await waitForNock();
   await screen.findByText(sampleNotification.title);
   expect(mutationCalled).toBeTruthy();
+  expect(clearUnread).toHaveBeenCalled();
 });
