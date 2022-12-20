@@ -130,10 +130,10 @@ it('should not show the welcome notification if we are not at the last page', as
   data.notifications.pageInfo.endCursor = 'end';
   renderComponent([fetchNotificationsMock(data)]);
   await waitForNock();
-  await waitForElementToBeRemoved(
-    () => screen.queryByText('Welcome to your new notification center!'),
-    { timeout: 10 },
+  const welcome = screen.queryByText(
+    'Welcome to your new notification center!',
   );
+  expect(welcome).not.toBeInTheDocument();
   globalThis.window.Notification = temp;
 });
 
