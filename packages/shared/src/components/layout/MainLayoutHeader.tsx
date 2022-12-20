@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import AuthContext from '../../contexts/AuthContext';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import BellIcon from '../icons/Bell';
@@ -9,6 +10,7 @@ import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
 import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
+import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 
 interface ShouldShowLogoProps {
@@ -33,6 +35,11 @@ const shouldShowLogo = ({
   return !mobileTitle ? true : mobileTitle && sidebarRendered;
 };
 
+const notificationsUrl = `${webappUrl}/notifications`;
+
+const checkAtNotificationsPage = () =>
+  notificationsUrl === globalThis.window?.location.href;
+
 function MainLayoutHeader({
   greeting,
   hasBanner,
@@ -44,6 +51,7 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
+  const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const hideButton = showOnlyLogo || loadingUser;
 
@@ -58,6 +66,9 @@ function MainLayoutHeader({
 
     return <LoginButton className="hidden laptop:block" />;
   })();
+
+  const hasNotification = !!unreadCount;
+  const atNotificationsPage = checkAtNotificationsPage();
 
   return (
     <header
@@ -96,8 +107,20 @@ function MainLayoutHeader({
               <Button
                 className="mr-4 btn-tertiary"
                 buttonSize="small"
-                icon={<BellIcon />}
-              />
+                iconOnly
+                icon={
+                  <BellIcon
+                    className={
+                      atNotificationsPage && 'text-theme-label-primary'
+                    }
+                    secondary={hasNotification}
+                  />
+                }
+              >
+                {hasNotification && (
+                  <Bubble className="-top-2 -right-3">{unreadCount}</Bubble>
+                )}
+              </Button>
             </LinkWithTooltip>
           )}
           {additionalButtons}

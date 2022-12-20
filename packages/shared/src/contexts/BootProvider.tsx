@@ -183,7 +183,11 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            <NotificationsContextProvider>
+            <NotificationsContextProvider
+              unreadCount={
+                cachedBootData?.notifications?.unreadNotificationsCount
+              }
+            >
               {children}
             </NotificationsContextProvider>
           </AlertContextProvider>
