@@ -1,0 +1,12 @@
+.inAppNotificationAvatar {
+    img {
+        border-radius: 6px;
+        height: 2rem;
+        width: 2rem;
+    }
+
+    svg {
+        height: 1.5rem;
+        width: 1.5rem;
+    }
+}

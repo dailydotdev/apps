@@ -1,11 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { NotificationIcon } from '../components/notifications/utils';
-import {
-  Notification,
-  NotificationAvatarType,
-  NotificationType,
-} from '../graphql/notifications';
+import { Notification } from '../graphql/notifications';
 
 interface UseInAppNotification {
   displayNotification: (
@@ -28,36 +23,8 @@ export interface NotifyOptionalProps {
 
 export const useInAppNotification = (): UseInAppNotification => {
   const client = useQueryClient();
-  const sampleNotificationTitle = 'Welcome to your new notification center!';
-  const sampleNotificationDescription =
-    'The notification system notifies you of important events such as replies, mentions, updates etc.';
-
-  const sampleNotification: Notification = {
-    createdAt: new Date(),
-    id: 'sadasd',
-    userId: 'asdasdas',
-    icon: NotificationIcon.Comment,
-    title: `<p>${sampleNotificationTitle}</p>`,
-    description: `<p>${sampleNotificationDescription}</p>`,
-    type: NotificationType.System,
-    targetUrl: 'post url',
-    avatars: [
-      {
-        name: 'user',
-        image: 'user avatar',
-        referenceId: 'user',
-        targetUrl: 'webapp/user',
-        type: NotificationAvatarType.User,
-      },
-    ],
-  };
-  const initialData: IInAppNotification = {
-    notification: sampleNotification,
-    timer: 1000000,
-  };
   const { data: notification } = useQuery<IInAppNotification>(
     IN_APP_NOTIFICATION_KEY,
-    { initialData },
   );
   const setInAppNotification = (data: IInAppNotification) =>
     client.setQueryData(IN_APP_NOTIFICATION_KEY, data);
