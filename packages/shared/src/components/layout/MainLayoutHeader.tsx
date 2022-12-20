@@ -8,6 +8,7 @@ import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
+import { checkAtNotificationsPage } from '../notifications/utils';
 import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
@@ -34,11 +35,6 @@ const shouldShowLogo = ({
 }: ShouldShowLogoProps) => {
   return !mobileTitle ? true : mobileTitle && sidebarRendered;
 };
-
-const notificationsUrl = `${webappUrl}/notifications`;
-
-const checkAtNotificationsPage = () =>
-  notificationsUrl === globalThis.window?.location.href;
 
 function MainLayoutHeader({
   greeting,
