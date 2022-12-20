@@ -17,12 +17,13 @@ import {
 import classNames from 'classnames';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
   path: string;
   title: string;
-  icon: (active: boolean) => ReactElement;
+  icon: (active: boolean, unread?: number) => ReactElement;
   requiresLogin?: boolean;
 };
 
@@ -48,9 +49,9 @@ export const tabs: Tab[] = [
   {
     path: '/notifications',
     title: 'Notifications',
-    icon: (active: boolean) => (
+    icon: (active: boolean, unreadCount) => (
       <span className="relative">
-        <Bubble className="top-0 -right-1">1</Bubble>
+        <Bubble className="top-0 -right-1 px-1">{unreadCount}</Bubble>
         <BellIcon secondary={active} size="xxlarge" />
       </span>
     ),
@@ -64,6 +65,7 @@ export const tabs: Tab[] = [
 
 export default function FooterNavBar(): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
+  const { unreadCount } = useNotificationContext();
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
@@ -97,7 +99,7 @@ export default function FooterNavBar(): ReactElement {
               <Button
                 {...buttonProps}
                 tag="a"
-                icon={tab.icon(index === selectedTab)}
+                icon={tab.icon(index === selectedTab, unreadCount)}
                 pressed={index === selectedTab}
               />
             </LinkWithTooltip>
@@ -105,7 +107,7 @@ export default function FooterNavBar(): ReactElement {
             <SimpleTooltip content={tab.title}>
               <Button
                 {...buttonProps}
-                icon={tab.icon(index === selectedTab)}
+                icon={tab.icon(index === selectedTab, unreadCount)}
                 onClick={() => showLogin(AuthTriggers.Bookmark)}
               />
             </SimpleTooltip>
