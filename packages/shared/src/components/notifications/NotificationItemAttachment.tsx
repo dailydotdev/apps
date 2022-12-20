@@ -10,7 +10,7 @@ function NotificationItemAttachment({
       <img
         className="object-cover w-24 h-16 rounded-16"
         src={image}
-        alt={`Cover image of: ${title}`}
+        alt={`Cover preview of: ${title}`}
       />
       <span className="flex-1 ml-4 break-words typo-callout">{title}</span>
     </div>
