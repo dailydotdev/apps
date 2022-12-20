@@ -17,6 +17,7 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { NotificationIcon } from '@dailydotdev/shared/src/components/notifications/utils';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { getLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
@@ -30,8 +31,10 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
 
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
-  const { mutateAsync: readNotifications } = useMutation(() =>
-    request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),
+  const { clearUnreadCount } = useNotificationContext();
+  const { mutateAsync: readNotifications } = useMutation(
+    () => request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),
+    { onSuccess: clearUnreadCount },
   );
   const queryResult = useInfiniteQuery<NotificationsData>(
     ['notifications'],
