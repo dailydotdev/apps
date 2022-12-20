@@ -47,7 +47,7 @@ function NotificationItem({
     avatars?.map?.((avatar) => (
       <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
     )).filter((avatar) => avatar) ?? [];
-  const hasAvatar = avatarComponents.some((component) => !!component);
+  const hasAvatar = avatarComponents.length > 0;
 
   const onClick = () => {
     router.push(targetUrl);
