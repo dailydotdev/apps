@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import {
-  IInAppNotification,
+  InAppNotification,
   IN_APP_NOTIFICATION_KEY,
 } from '../../hooks/useInAppNotification';
 import classed from '../../lib/classed';
@@ -23,7 +23,7 @@ const Container = classed(
 
 let timeoutId: number | NodeJS.Timeout = 0;
 
-export function InAppNotification(): ReactElement {
+export function InAppNotificationElement(): ReactElement {
   const router = useRouter();
   const client = useQueryClient();
   const [isExit, setExit] = useState(false);
@@ -39,7 +39,7 @@ export function InAppNotification(): ReactElement {
     stopTimer();
     timeoutId = setTimeout(closeNotification, timer);
   };
-  const { data: payload } = useQuery<IInAppNotification>(
+  const { data: payload } = useQuery<InAppNotification>(
     IN_APP_NOTIFICATION_KEY,
     () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
     {

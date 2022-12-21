@@ -15,7 +15,7 @@ interface UseInAppNotification {
   dismissNotification: () => void;
 }
 
-export interface IInAppNotification {
+export interface InAppNotification {
   notification: NewNotification;
   timer: number;
 }
@@ -28,10 +28,10 @@ export interface NotifyOptionalProps {
 
 export const useInAppNotification = (): UseInAppNotification => {
   const client = useQueryClient();
-  const { data: notification } = useQuery<IInAppNotification>(
+  const { data: notification } = useQuery<InAppNotification>(
     IN_APP_NOTIFICATION_KEY,
   );
-  const setInAppNotification = (data: IInAppNotification) =>
+  const setInAppNotification = (data: InAppNotification) =>
     client.setQueryData(IN_APP_NOTIFICATION_KEY, data);
 
   const { incrementUnreadCount } = useNotificationContext();
