@@ -46,8 +46,8 @@ export const useInAppNotification = (): UseInAppNotification => {
       query: NEW_NOTIFICATIONS_SUBSCRIPTION,
     }),
     {
-      next: (data: { newNotifications: NewNotification }) => {
-        displayNotification(data.newNotifications);
+      next: (data: { newNotification: NewNotification }) => {
+        displayNotification(data.newNotification);
         incrementUnreadCount();
       },
     },
