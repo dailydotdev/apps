@@ -36,6 +36,7 @@ export function InAppNotification(): ReactElement {
   };
   const stopTimer = () => clearTimeout(timeoutId);
   const startTimer = (timer: number) => {
+    stopTimer();
     timeoutId = setTimeout(closeNotification, timer);
   };
   const { data: payload } = useQuery<IInAppNotification>(

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
+import { useNotificationContext } from '../contexts/NotificationsContext';
 import {
   NewNotification,
   NEW_NOTIFICATIONS_SUBSCRIPTION,
@@ -33,6 +34,8 @@ export const useInAppNotification = (): UseInAppNotification => {
   const setInAppNotification = (data: IInAppNotification) =>
     client.setQueryData(IN_APP_NOTIFICATION_KEY, data);
 
+  const { incrementUnreadCount } = useNotificationContext();
+
   const displayNotification = (
     payload: NewNotification,
     { timer = 5000, ...props }: NotifyOptionalProps = {},
@@ -45,6 +48,7 @@ export const useInAppNotification = (): UseInAppNotification => {
     {
       next: (data: { newNotifications: NewNotification }) => {
         displayNotification(data.newNotifications);
+        incrementUnreadCount();
       },
     },
   );
