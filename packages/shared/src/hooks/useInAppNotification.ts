@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { Notification } from '../graphql/notifications';
+import { NEW_NOTIFICATIONS_SUBSCRIPTION, Notification } from '../graphql/notifications';
+import useSubscription from './useSubscription';
 
 interface UseInAppNotification {
   displayNotification: (
@@ -33,6 +34,17 @@ export const useInAppNotification = (): UseInAppNotification => {
     payload: Notification,
     { timer = 5000, ...props }: NotifyOptionalProps = {},
   ) => setInAppNotification({ notification: payload, timer, ...props });
+
+  useSubscription(
+    () => ({
+      query: NEW_NOTIFICATIONS_SUBSCRIPTION,
+    }),
+    {
+      next: (data: Notification) => {
+        displayNotification(data);
+      },
+    },
+  );
 
   return useMemo(
     () => ({

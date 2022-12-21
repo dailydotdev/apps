@@ -83,3 +83,11 @@ export const READ_NOTIFICATIONS_MUTATION = gql`
     }
   }
 `;
+
+export const NEW_NOTIFICATIONS_SUBSCRIPTION = gql`
+  subscription NewNotification {
+    newNotifications {
+      -
+    }
+  }
+`;
