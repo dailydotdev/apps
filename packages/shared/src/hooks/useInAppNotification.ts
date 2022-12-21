@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { NEW_NOTIFICATIONS_SUBSCRIPTION, Notification } from '../graphql/notifications';
+import {
+  NEW_NOTIFICATIONS_SUBSCRIPTION,
+  Notification,
+} from '../graphql/notifications';
 import useSubscription from './useSubscription';
 
 interface UseInAppNotification {
