@@ -91,7 +91,7 @@ export type NewNotification = Pick<
 
 export const NEW_NOTIFICATIONS_SUBSCRIPTION = gql`
   subscription NewNotification {
-    newNotifications {
+    newNotification {
       createdAt
       icon
       id
