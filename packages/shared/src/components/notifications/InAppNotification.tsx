@@ -18,13 +18,21 @@ const Container = classed(
 export function InAppNotification(): ReactElement {
   const router = useRouter();
   const client = useQueryClient();
-  const closeNotification = () =>
-    client.setQueryData(IN_APP_NOTIFICATION_KEY, null);
+  let timeoutId;
+  let startTimer;
   const { data: payload } = useQuery<IInAppNotification>(
     IN_APP_NOTIFICATION_KEY,
     () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
-    {},
+    {
+      onSuccess: startTimer,
+    },
   );
+  const closeNotification = () =>
+    client.setQueryData(IN_APP_NOTIFICATION_KEY, null);
+  const stopTimer = () => clearTimeout(timeoutId);
+  startTimer = () => {
+    timeoutId = setTimeout(closeNotification, payload.timer);
+  };
 
   const dismissNotification = () => {
     if (!payload) {
@@ -54,7 +62,12 @@ export function InAppNotification(): ReactElement {
   }
 
   return (
-    <Container className="slide-in" role="alert">
+    <Container
+      className="slide-in"
+      role="alert"
+      onMouseEnter={stopTimer}
+      onMouseLeave={startTimer}
+    >
       <CloseButton
         buttonSize="xxsmall"
         className="top-3 right-3"

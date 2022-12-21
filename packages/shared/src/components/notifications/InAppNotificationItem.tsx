@@ -3,9 +3,9 @@ import classNames from 'classnames';
 import { useDomPurify } from '../../hooks/useDomPurify';
 import classed from '../../lib/classed';
 import NotificationItemIcon from './NotificationIcon';
-import { NotificationItemProps } from './NotificationItem';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import styles from './InAppNotification.module.css';
+import { NewNotification } from '../../graphql/notifications';
 
 const NotificationLink = classed(
   'a',
@@ -25,13 +25,12 @@ export function InAppNotificationItem({
   title,
   avatars,
   targetUrl,
-}: NotificationItemProps): ReactElement {
+}: NewNotification): ReactElement {
   const purify = useDomPurify();
   const { title: memoizedTitle } = useMemo(() => {
     if (!purify?.sanitize) {
       return { title: '', description: '' };
     }
-
     return {
       title: purify.sanitize(title),
     };
@@ -41,16 +40,12 @@ export function InAppNotificationItem({
     return null;
   }
 
-  const avatarComponents =
-    avatars?.map?.((avatar) => (
-      <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
-    )) ?? [];
-
+  const [avatar] = avatars ?? [];
   return (
     <NotificationLink href={targetUrl}>
       <NotificationAvatar>
         <NotificationItemIcon icon={icon} />
-        {avatarComponents}
+        {!!avatar && <NotificationItemAvatar {...avatar} />}
       </NotificationAvatar>
       <NotificationText
         dangerouslySetInnerHTML={{

@@ -84,10 +84,26 @@ export const READ_NOTIFICATIONS_MUTATION = gql`
   }
 `;
 
+export type NewNotification = Pick<
+  Notification,
+  'createdAt' | 'icon' | 'id' | 'targetUrl' | 'title' | 'type' | 'avatars'
+>;
+
 export const NEW_NOTIFICATIONS_SUBSCRIPTION = gql`
   subscription NewNotification {
     newNotifications {
-      -
+      createdAt
+      icon
+      id
+      targetUrl
+      title
+      type
+      avatars {
+        type
+        image
+        name
+        targetUrl
+      }
     }
   }
 `;
