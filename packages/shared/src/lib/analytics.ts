@@ -8,8 +8,8 @@ export enum Origin {
   PostContextMenu = 'post context menu',
   TagsFilter = 'tags filter',
   TagsSearch = 'tags search',
-  InAppNotification = 'in-app notification',
-  NotificationsPage = 'notifications page',
+  RealTime = 'realtime',
+  NonRealTime = 'nonrealtime',
 }
 
 export enum LoginTrigger {

@@ -64,7 +64,7 @@ const Notifications = (): ReactElement => {
   const onNotificationClick = (type: NotificationType) => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotification,
-      extra: JSON.stringify({ origin: Origin.NotificationsPage, type }),
+      extra: JSON.stringify({ origin: Origin.NonRealTime, type }),
     });
   };
 

@@ -82,7 +82,7 @@ export function InAppNotificationElement(): ReactElement {
   const onNotificationClick = (type: NotificationType) => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotification,
-      extra: JSON.stringify({ origin: Origin.InAppNotification, type }),
+      extra: JSON.stringify({ origin: Origin.RealTime, type }),
     });
   };
 
