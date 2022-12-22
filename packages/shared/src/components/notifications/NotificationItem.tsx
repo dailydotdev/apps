@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import React, { ReactElement, useMemo } from 'react';
 import { Notification } from '../../graphql/notifications';
 import { useDomPurify } from '../../hooks/useDomPurify';
@@ -14,6 +13,7 @@ export interface NotificationItemProps
   > {
   isUnread?: boolean;
   targetUrl?: string;
+  onClick?: () => void;
 }
 
 function NotificationItem({
@@ -23,10 +23,9 @@ function NotificationItem({
   description,
   avatars,
   attachments,
-  targetUrl,
+  onClick,
 }: NotificationItemProps): ReactElement {
   const purify = useDomPurify();
-  const router = useRouter();
   const { title: memoizedTitle, description: memoizedDescription } =
     useMemo(() => {
       if (!purify?.sanitize) {
@@ -50,10 +49,6 @@ function NotificationItem({
       ))
       .filter((avatar) => avatar) ?? [];
   const hasAvatar = avatarComponents.length > 0;
-
-  const onClick = () => {
-    router.push(targetUrl);
-  };
 
   return (
     <button

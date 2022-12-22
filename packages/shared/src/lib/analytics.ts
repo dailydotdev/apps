@@ -8,6 +8,8 @@ export enum Origin {
   PostContextMenu = 'post context menu',
   TagsFilter = 'tags filter',
   TagsSearch = 'tags search',
+  InAppNotification = 'in-app notification',
+  NotificationsPage = 'notifications page',
 }
 
 export enum LoginTrigger {
@@ -32,6 +34,7 @@ export enum AnalyticsEvent {
   ClickEnableNotification = 'click enable notification',
   ClickNotificationDismiss = 'click notification dismiss',
   DisableNotification = 'disable notification',
+  // notifications - end
 }
 
 export enum TargetType {
