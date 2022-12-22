@@ -10,6 +10,7 @@ export enum Origin {
   TagsSearch = 'tags search',
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
+  NewSourceModal = 'new source modal',
 }
 
 export enum LoginTrigger {

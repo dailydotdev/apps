@@ -11,9 +11,9 @@ import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
 
 export enum NotificationPromptSource {
-  NotificationList = 'notificationList',
-  NewComment = 'newComment',
-  NewSource = 'newSource',
+  NotificationsPage = 'notifications page',
+  NewComment = 'new comment',
+  CommunityPicks = 'community picks modal',
 }
 
 const DISMISS_BROWSER_PERMISSION = 'dismissBrowserPermission';
@@ -21,9 +21,9 @@ const DISMISS_BROWSER_PERMISSION = 'dismissBrowserPermission';
 type DismissBrowserPermissions = Record<NotificationPromptSource, boolean>;
 
 const DEFAULT_CACHE_VALUE: DismissBrowserPermissions = {
-  newComment: false,
-  newSource: false,
-  notificationList: false,
+  [NotificationPromptSource.NewComment]: false,
+  [NotificationPromptSource.CommunityPicks]: false,
+  [NotificationPromptSource.NotificationsPage]: false,
 };
 
 type EnableNotificationProps = {
@@ -32,13 +32,13 @@ type EnableNotificationProps = {
 };
 
 const containerClassName: Record<NotificationPromptSource, string> = {
-  notificationList: 'px-6 w-full border-l',
-  newComment: 'rounded-16 border px-4 mt-3',
-  newSource: 'rounded-16 border px-4 mt-3',
+  [NotificationPromptSource.NotificationsPage]: 'px-6 w-full border-l',
+  [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mt-3',
+  [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
 };
 
 function EnableNotification({
-  source = NotificationPromptSource.NotificationList,
+  source = NotificationPromptSource.NotificationsPage,
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
   const [isEnabled, setIsEnabled] = useState(false);
@@ -62,6 +62,11 @@ function EnableNotification({
   const onEnable = async () => {
     const permission = await requestPermission();
 
+    trackEvent({
+      event_name: AnalyticsEvent.ClickEnableNotification,
+      extra: JSON.stringify({ origin: source, permission }),
+    });
+
     setIsEnabled(permission === 'granted');
   };
 
@@ -78,9 +83,9 @@ function EnableNotification({
     [NotificationPromptSource.NewComment]: `Want to get notified when ${
       parentCommentAuthorName ?? 'someone'
     } responds so you can continue the conversation?`,
-    [NotificationPromptSource.NewSource]:
+    [NotificationPromptSource.CommunityPicks]:
       'Would you like to get notified on the status of your article submissions in real time?',
-    [NotificationPromptSource.NotificationList]:
+    [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
   };
   const message = sourceToMessage[source];
@@ -93,7 +98,7 @@ function EnableNotification({
         classes,
       )}
     >
-      {source === NotificationPromptSource.NotificationList && (
+      {source === NotificationPromptSource.NotificationsPage && (
         <span className="flex flex-row font-bold">
           {isEnabled && <VIcon className="mr-2" />}
           {`Push notifications${isEnabled ? ' successfully enabled' : ''}`}
