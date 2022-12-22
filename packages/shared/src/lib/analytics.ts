@@ -42,6 +42,7 @@ export enum TargetType {
   ArticleAnonymousCTA = 'article anonymous cta',
   ScrollBlock = 'scroll block',
   NotificationSidebarButton = 'notification sidebar button',
+  Bell = 'bell',
 }
 
 export enum TargetId {

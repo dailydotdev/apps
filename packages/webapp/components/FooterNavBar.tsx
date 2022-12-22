@@ -20,7 +20,10 @@ import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import {
+  AnalyticsEvent,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -88,6 +91,7 @@ export default function FooterNavBar(): ReactElement {
   const onNavigateNotifications = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotificationIcon,
+      target_type: TargetType.Bell,
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
