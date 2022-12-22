@@ -30,6 +30,7 @@ module.exports = {
           reverse: 'var(--theme-background-reverse)',
           secondary: 'var(--theme-background-secondary)',
           tertiary: 'var(--theme-background-tertiary)',
+          notification: 'var(--theme-background-notification)',
           bun: 'var(--theme-background-bun)',
           onion: 'var(--theme-background-onion)',
           pepper: 'var(--theme-background-pepper)',
