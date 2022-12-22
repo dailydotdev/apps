@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { isDevelopment } from '../lib/constants';
+import { isDevelopment, isTesting } from '../lib/constants';
 import AuthContext from './AuthContext';
 
 interface NotificationsContextData {
@@ -63,6 +63,12 @@ export const NotificationsContextProvider = ({
 
   useEffect(() => {
     if (isInitialized || !user || isExtension) {
+      return;
+    }
+
+    if (isTesting) {
+      setIsInitialized(true);
+      setHasPermission(false);
       return;
     }
 
