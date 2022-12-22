@@ -157,7 +157,7 @@ body {
   --theme-background-reverse: theme(colors.pepper.90);
   --theme-background-secondary: theme('colors.salt.10');
   --theme-background-tertiary: theme('colors.salt.20');
-  --theme-background-tertiary: theme('colors.salt.50');
+  --theme-background-notification: theme('colors.salt.50');
   --theme-background-bacon: theme('colors.bacon.20');
   --theme-background-bun: theme('colors.bun.20');
   --theme-background-onion: theme('colors.onion.20');
