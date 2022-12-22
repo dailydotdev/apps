@@ -7,6 +7,8 @@ import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 export enum NotificationPromptSource {
   NotificationList = 'notificationList',
@@ -42,14 +44,20 @@ function EnableNotification({
   const [isEnabled, setIsEnabled] = useState(false);
   const { hasPermission, notificationsAvailable, requestPermission } =
     useContext(NotificationsContext);
+  const { trackEvent } = useAnalyticsContext();
   const [dismissedCache, setDismissedCache, isLoaded] =
     usePersistentContext<DismissBrowserPermissions>(
       DISMISS_BROWSER_PERMISSION,
       DEFAULT_CACHE_VALUE,
     );
   const dismissed = !!dismissedCache?.[source];
-  const setDismissed = (value: boolean) =>
+  const setDismissed = (value: boolean) => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickNotificationDismiss,
+      extra: JSON.stringify({ origin: source }),
+    });
     setDismissedCache({ ...dismissedCache, [source]: value });
+  };
 
   const onEnable = async () => {
     const permission = await requestPermission();
