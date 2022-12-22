@@ -1,5 +1,6 @@
-import classNames from 'classnames';
 import React, { ReactElement, useMemo } from 'react';
+import classNames from 'classnames';
+import Link from 'next/link';
 import { Notification } from '../../graphql/notifications';
 import { useDomPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
@@ -13,7 +14,7 @@ export interface NotificationItemProps
   > {
   isUnread?: boolean;
   targetUrl?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 function NotificationItem({
@@ -23,6 +24,7 @@ function NotificationItem({
   description,
   avatars,
   attachments,
+  targetUrl,
   onClick,
 }: NotificationItemProps): ReactElement {
   const purify = useDomPurify();
@@ -51,42 +53,44 @@ function NotificationItem({
   const hasAvatar = avatarComponents.length > 0;
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={classNames(
-        'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
-        isUnread && 'bg-theme-float',
-      )}
-    >
-      <NotificationItemIcon icon={icon} />
-      <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
-        {hasAvatar && (
-          <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
+    <Link href={targetUrl} passHref>
+      <a
+        href="#"
+        onClick={onClick}
+        className={classNames(
+          'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
+          isUnread && 'bg-theme-float',
         )}
-        <span
-          className="break-words"
-          dangerouslySetInnerHTML={{
-            __html: memoizedTitle,
-          }}
-        />
-        {description && (
-          <p
-            className="mt-2 w-4/5 break-words text-theme-label-quaternary"
+      >
+        <NotificationItemIcon icon={icon} />
+        <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
+          {hasAvatar && (
+            <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
+          )}
+          <span
+            className="break-words"
             dangerouslySetInnerHTML={{
-              __html: memoizedDescription,
+              __html: memoizedTitle,
             }}
           />
-        )}
-        {attachments?.map(({ image, title: attachment }) => (
-          <NotificationItemAttachment
-            key={attachment}
-            image={image}
-            title={attachment}
-          />
-        ))}
-      </div>
-    </button>
+          {description && (
+            <p
+              className="mt-2 w-4/5 break-words text-theme-label-quaternary"
+              dangerouslySetInnerHTML={{
+                __html: memoizedDescription,
+              }}
+            />
+          )}
+          {attachments?.map(({ image, title: attachment }) => (
+            <NotificationItemAttachment
+              key={attachment}
+              image={image}
+              title={attachment}
+            />
+          ))}
+        </div>
+      </a>
+    </Link>
   );
 }
 

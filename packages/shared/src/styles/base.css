@@ -45,6 +45,7 @@ body {
   --theme-background-reverse: #ffffff;
   --theme-background-secondary: theme('colors.pepper.70');
   --theme-background-tertiary: theme('colors.pepper.80');
+  --theme-background-notification: theme('colors.pepper.50');
   --theme-background-bun: theme('colors.bun.80');
   --theme-background-onion: theme('colors.onion.80');
   --theme-background-pepper: theme('colors.pepper.20');
@@ -156,6 +157,7 @@ body {
   --theme-background-reverse: theme(colors.pepper.90);
   --theme-background-secondary: theme('colors.salt.10');
   --theme-background-tertiary: theme('colors.salt.20');
+  --theme-background-notification: theme('colors.salt.50');
   --theme-background-bacon: theme('colors.bacon.20');
   --theme-background-bun: theme('colors.bun.20');
   --theme-background-onion: theme('colors.onion.20');
