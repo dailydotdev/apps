@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
@@ -18,6 +18,8 @@ import FirstNotification from '@dailydotdev/shared/src/components/notifications/
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { getLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
 
@@ -30,6 +32,8 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
 
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
+  const { trackEvent } = useAnalyticsContext();
+  const { unreadCount } = useNotificationContext();
   const { clearUnreadCount } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
     () => request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),
@@ -55,6 +59,13 @@ const Notifications = (): ReactElement => {
   );
 
   const length = queryResult?.data?.pages?.length ?? 0;
+
+  useEffect(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      extra: JSON.stringify({ notifications_number: unreadCount }),
+    });
+  }, []);
 
   return (
     <ProtectedPage seo={seo}>
