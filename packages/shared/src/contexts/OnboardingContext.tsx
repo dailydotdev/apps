@@ -10,6 +10,7 @@ import React, {
   Dispatch,
 } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { AnalyticsEvent } from '../lib/analytics';
 import { OnboardingMode } from '../graphql/feed';
 import { useMyFeed } from '../hooks/useMyFeed';
@@ -48,6 +49,7 @@ interface OnboardingContextProviderProps {
 export const OnboardingContextProvider = ({
   children,
 }: OnboardingContextProviderProps): ReactElement => {
+  const { pathname } = useRouter();
   const { user } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -72,10 +74,12 @@ export const OnboardingContextProvider = ({
   }, [user, shouldUpdateFilters]);
 
   useEffect(() => {
+    const isHome = pathname === '/';
     const conditions = [
       !hasOnboardingLoaded,
       hasTriedOnboarding,
       !alerts.filter,
+      !isHome,
     ];
 
     if (conditions.some((condition) => !!condition)) {
