@@ -12,18 +12,22 @@
 }
 
 @keyframes inAppNotificationAnimationEntry {
-  from {
+  0% {
+    transform: translateX(150%);
+    opacity: 0;
+  }
+  50% {
     transform: translateX(150%);
     opacity: 0.8;
   }
-  to {
+  100% {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
 .inAppNotificationContainer {
-  animation: inAppNotificationAnimationEntry 0.14s ease-in-out;
+  animation: inAppNotificationAnimationEntry 0.80s ease-in-out;
   transition: opacity 0.14s ease-in-out;
 
   &:global(.exit) {
