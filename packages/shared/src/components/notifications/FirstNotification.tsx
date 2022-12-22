@@ -20,6 +20,7 @@ function FirstNotification(): ReactElement {
       isUnread={isUnread}
       type={NotificationType.System}
       icon={NotificationIcon.Bell}
+      targetUrl="#"
       title="Welcome to your new notification center!"
       description="The notification system notifies you of important events such as replies, mentions, updates etc."
     />

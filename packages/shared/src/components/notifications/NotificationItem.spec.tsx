@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import NotificationItem, { NotificationItemProps } from './NotificationItem';
 import {
   NotificationAvatarType,
@@ -38,10 +39,17 @@ const sampleNotification: NotificationItemProps = {
   ],
 };
 
+const renderComponent = (component: ReactNode) => {
+  const client = new QueryClient();
+  render(
+    <QueryClientProvider client={client}>{component}</QueryClientProvider>,
+  );
+};
+
 describe('notification attachment', () => {
   it('should display image', async () => {
     const [attachment] = sampleNotification.attachments;
-    render(<NotificationItem {...sampleNotification} />);
+    renderComponent(<NotificationItem {...sampleNotification} />);
     const img = await screen.findByAltText(
       `Cover preview of: ${attachment.title}`,
     );
@@ -50,7 +58,7 @@ describe('notification attachment', () => {
 
   it('should have a title', async () => {
     const [attachment] = sampleNotification.attachments;
-    render(<NotificationItem {...sampleNotification} />);
+    renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(attachment.title);
   });
 });
@@ -58,14 +66,14 @@ describe('notification attachment', () => {
 describe('notification avatars', () => {
   it('should display the avatar of the source', async () => {
     const [source] = sampleNotification.avatars;
-    render(<NotificationItem {...sampleNotification} />);
+    renderComponent(<NotificationItem {...sampleNotification} />);
     const img = await screen.findByAltText(`${source.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', source.image);
   });
 
   it('should display the avatar of the user', async () => {
     const [, user] = sampleNotification.avatars;
-    render(<NotificationItem {...sampleNotification} />);
+    renderComponent(<NotificationItem {...sampleNotification} />);
     const img = await screen.findByAltText(`${user.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', user.image);
   });
@@ -75,7 +83,7 @@ describe('notification avatars', () => {
     const notif = { ...sampleNotification } as any;
     notif.avatars[1].type = 'Test';
     const [, user] = sampleNotification.avatars;
-    render(<NotificationItem {...sampleNotification} />);
+    renderComponent(<NotificationItem {...sampleNotification} />);
     const img = screen.queryByAltText(`${user.referenceId}'s profile`);
     expect(img).not.toBeInTheDocument();
   });
@@ -83,7 +91,7 @@ describe('notification avatars', () => {
 
 describe('notification item', () => {
   it('should display the icon of the notification', async () => {
-    render(<NotificationItem {...sampleNotification} />);
+    renderComponent(<NotificationItem {...sampleNotification} />);
     const testid = `notification-${sampleNotification.icon}`;
     const img = await screen.findByTestId(testid);
     expect(img).toBeInTheDocument();
@@ -93,19 +101,19 @@ describe('notification item', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const notification = { ...sampleNotification } as any; // using any to validate unknown icon
     notification.icon = 'new notif';
-    render(<NotificationItem {...notification} />);
+    renderComponent(<NotificationItem {...notification} />);
     const testid = `notification-${notification.icon}`;
     const img = await screen.findByTestId(testid);
     expect(img).toHaveAttribute('data-testvalue', NotificationIcon.DailyDev);
   });
 
   it('should have a title that supports html', async () => {
-    render(<NotificationItem {...sampleNotification} />);
+    renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(sampleNotificationTitle);
   });
 
   it('should have a description that supports html', async () => {
-    render(<NotificationItem {...sampleNotification} />);
+    renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(sampleNotificationDescription);
   });
 });
