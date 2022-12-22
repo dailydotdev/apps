@@ -9,6 +9,7 @@ interface SidebarNavItemProps {
   href: string;
   isActive?: boolean;
   className?: string;
+  onClick?: () => void;
 }
 
 function SidebarNavItem({
@@ -17,9 +18,10 @@ function SidebarNavItem({
   title,
   isActive,
   className,
+  onClick,
 }: SidebarNavItemProps): ReactElement {
   return (
-    <Link href={href}>
+    <Link href={href} onClick={onClick}>
       <a
         className={classNames(
           'flex flex-row p-4 rounded-16 w-full tablet:w-64',

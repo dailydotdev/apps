@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';

@@ -25,12 +25,20 @@ export enum AnalyticsEvent {
   GlobalError = 'global error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
+  // notifications - start
+  ClickNotificationIcon = 'click notification icon',
+  OpenNotificationList = 'open notification list',
+  ClickNotification = 'click notification',
+  ClickEnableNotification = 'click enable notification',
+  ClickNotificationDismiss = 'click notification dismiss',
+  DisableNotification = 'disable notification',
 }
 
 export enum TargetType {
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   ScrollBlock = 'scroll block',
+  NotificationSidebarButton = 'notification sidebar button',
 }
 
 export enum TargetId {

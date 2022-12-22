@@ -1,7 +1,9 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { AnalyticsEvent } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import BellIcon from '../icons/Bell';
@@ -50,6 +52,7 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
+  const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const hideButton = showOnlyLogo || loadingUser;
@@ -68,6 +71,12 @@ function MainLayoutHeader({
 
   const hasNotification = !!unreadCount;
   const atNotificationsPage = checkAtNotificationsPage();
+  const onNavigateNotifications = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickNotificationIcon,
+      extra: JSON.stringify({ notifications_number: unreadCount }),
+    });
+  };
 
   return (
     <header
@@ -102,6 +111,7 @@ function MainLayoutHeader({
             <LinkWithTooltip
               tooltip={{ placement: 'left', content: 'Notifications' }}
               href={`${webappUrl}/notifications`}
+              onClick={onNavigateNotifications}
             >
               <Button
                 className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"

@@ -3,10 +3,19 @@ import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import {
+  disabledRefetch,
+  FunctionRecord,
+} from '@dailydotdev/shared/src/lib/func';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
+import {
+  AnalyticsEvent,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import SidebarNavItem from './SidebarNavItem';
 import {
   AccountPage,
@@ -28,6 +37,8 @@ function SidebarNav({
 }: SidebarNavProps): ReactElement {
   const router = useRouter();
   const client = useQueryClient();
+  const { trackEvent } = useAnalyticsContext();
+  const { unreadCount } = useNotificationContext();
   const closeSideNav = useCallback(
     () => client.setQueryData(['account_nav_open'], false),
     [client],
@@ -49,6 +60,15 @@ function SidebarNav({
       router.events.off('routeChangeStart', closeSideNav);
     };
   }, [router]);
+
+  const onItemClick: Partial<FunctionRecord<AccountPage>> = {
+    notifications: () =>
+      trackEvent({
+        event_name: AnalyticsEvent.ClickNotificationIcon,
+        target_type: TargetType.NotificationSidebarButton,
+        extra: JSON.stringify({ notifications_number: unreadCount }),
+      }),
+  };
 
   if (!user) {
     return null;
@@ -78,6 +98,7 @@ function SidebarNav({
               href={href}
               isActive={isActive}
               icon={accountPage[key].getIcon({ user, isActive })}
+              onClick={onItemClick[key]}
             />
           );
         })}
