@@ -56,7 +56,7 @@ const notificationsUrl = `/notifications`;
 export const checkAtNotificationsPage = (): boolean =>
   notificationsUrl === globalThis.window?.location.pathname;
 
-const MAX_UNREAD_DISPLAY = 99;
+const MAX_UNREAD_DISPLAY = 20;
 
 export const getUnreadText = (unread: number): string =>
-  unread > MAX_UNREAD_DISPLAY ? '99+' : unread.toString();
+  unread > MAX_UNREAD_DISPLAY ? `${MAX_UNREAD_DISPLAY}+` : unread.toString();
