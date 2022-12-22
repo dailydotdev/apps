@@ -1,0 +1,32 @@
+.inAppNotificationAvatar {
+    img {
+        border-radius: 6px;
+        height: 2rem;
+        width: 2rem;
+    }
+
+    svg {
+        height: 1.5rem;
+        width: 1.5rem;
+    }
+}
+
+@keyframes inAppNotificationAnimationEntry {
+  from {
+    transform: translateX(150%);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.inAppNotificationContainer {
+  animation: inAppNotificationAnimationEntry 0.14s ease-in-out;
+  transition: opacity 0.14s ease-in-out;
+
+  &:global(.exit) {
+    opacity: 0;
+  }
+}
