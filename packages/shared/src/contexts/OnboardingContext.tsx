@@ -49,7 +49,7 @@ interface OnboardingContextProviderProps {
 export const OnboardingContextProvider = ({
   children,
 }: OnboardingContextProviderProps): ReactElement => {
-  const { pathname } = useRouter();
+  const { pathname } = useRouter() ?? {};
   const { user } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -74,7 +74,7 @@ export const OnboardingContextProvider = ({
   }, [user, shouldUpdateFilters]);
 
   useEffect(() => {
-    const isHome = pathname === '/';
+    const isHome = !pathname || pathname === '/';
     const conditions = [
       !hasOnboardingLoaded,
       hasTriedOnboarding,
@@ -89,7 +89,7 @@ export const OnboardingContextProvider = ({
     setHasTriedOnboarding(false);
     setOnboardingMode(OnboardingMode.Auto);
     setIsOnboarding(true);
-  }, [hasOnboardingLoaded, user]);
+  }, [hasOnboardingLoaded, user, pathname]);
 
   const onCloseOnboardingModal = () => {
     if (onboardingMode === OnboardingMode.Auto) {
