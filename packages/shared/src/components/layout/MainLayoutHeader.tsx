@@ -1,14 +1,20 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import AuthContext from '../../contexts/AuthContext';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
+import {
+  checkAtNotificationsPage,
+  getUnreadText,
+} from '../notifications/utils';
 import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
+import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 
 interface ShouldShowLogoProps {
@@ -44,6 +50,7 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
+  const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const hideButton = showOnlyLogo || loadingUser;
 
@@ -58,6 +65,9 @@ function MainLayoutHeader({
 
     return <LoginButton className="hidden laptop:block" />;
   })();
+
+  const hasNotification = !!unreadCount;
+  const atNotificationsPage = checkAtNotificationsPage();
 
   return (
     <header
@@ -91,13 +101,28 @@ function MainLayoutHeader({
           {!hideButton && user && (
             <LinkWithTooltip
               tooltip={{ placement: 'left', content: 'Notifications' }}
-              href={`${webappUrl}notifications`}
+              href={`${webappUrl}/notifications`}
             >
               <Button
-                className="mr-4 btn-tertiary"
+                className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
                 buttonSize="small"
-                icon={<BellIcon />}
-              />
+                iconOnly
+                icon={
+                  <BellIcon
+                    className={classNames(
+                      'hover:text-theme-label-primary',
+                      atNotificationsPage && 'text-theme-label-primary',
+                    )}
+                    secondary={atNotificationsPage}
+                  />
+                }
+              >
+                {hasNotification && (
+                  <Bubble className="-top-2 px-1 shadow-bubble-cabbage left-[calc(100%-0.5rem)]">
+                    {getUnreadText(unreadCount)}
+                  </Bubble>
+                )}
+              </Button>
             </LinkWithTooltip>
           )}
           {additionalButtons}

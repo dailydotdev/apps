@@ -15,6 +15,8 @@ interface NotificationsContextData {
   hasPermission: boolean;
   isNotificationSupported: boolean;
   onTogglePermission: () => Promise<boolean>;
+  clearUnreadCount: () => void;
+  incrementUnreadCount: () => void;
 }
 
 const NotificationsContext =
@@ -36,6 +38,7 @@ export const NotificationsContextProvider = ({
   const { user } = useContext(AuthContext);
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
+  const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
 
   const onTogglePermission = async (): Promise<boolean> => {
     if (!user) return false;
@@ -53,6 +56,10 @@ export const NotificationsContextProvider = ({
 
     return isGranted;
   };
+
+  useEffect(() => {
+    setCurrentUnreadCount(unreadCount);
+  }, [unreadCount]);
 
   useEffect(() => {
     if (isInitialized || !user || isExtension) {
@@ -77,14 +84,17 @@ export const NotificationsContextProvider = ({
   const data: NotificationsContextData = useMemo(
     () => ({
       isInitialized,
-      unreadCount,
+      unreadCount: currentUnreadCount,
       hasPermission,
       onTogglePermission,
+      clearUnreadCount: () => setCurrentUnreadCount(0),
+      incrementUnreadCount: (value = 1) =>
+        setCurrentUnreadCount((current) => current + value),
       get isNotificationSupported() {
         return !!globalThis.window?.Notification;
       },
     }),
-    [hasPermission, unreadCount, isInitialized, user],
+    [hasPermission, currentUnreadCount, isInitialized, user],
   );
 
   return (
@@ -93,3 +103,6 @@ export const NotificationsContextProvider = ({
     </NotificationsContext.Provider>
   );
 };
+
+export const useNotificationContext = (): NotificationsContextData =>
+  useContext(NotificationsContext);

@@ -6,6 +6,9 @@ import {
   SquadVersion,
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
+  ToastPosition as ToastPositionEnum,
+  ArticleOnboardingVersion,
+  ScrollOnboardingVersion,
 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
@@ -175,11 +178,33 @@ export class Features<T extends FeatureValue = string> {
     ],
   );
 
+  static readonly ToastPosition = new Features(
+    'toast_position',
+    ToastPositionEnum.Bottom,
+    [ToastPositionEnum.Bottom, ToastPositionEnum.Top],
+  );
+
   static readonly SquadForm = new Features('squad_form');
 
   static readonly SquadButton = new Features('squad_button', 'New squad');
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');
+
+  static readonly ArticleOnboardingVersion = new Features(
+    'article_onboarding_version',
+    null,
+    [
+      ArticleOnboardingVersion.V1,
+      ArticleOnboardingVersion.V2,
+      ArticleOnboardingVersion.V3,
+    ],
+  );
+
+  static readonly ScrollOnboardingVersion = new Features(
+    'scroll_onboarding_version',
+    null,
+    [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2],
+  );
 
   private constructor(
     public readonly id: string,

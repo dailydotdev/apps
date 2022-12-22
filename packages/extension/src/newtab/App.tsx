@@ -14,6 +14,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
+import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
@@ -60,6 +61,7 @@ function InternalApp({
   pageRef: MutableRefObject<string>;
 }): ReactElement {
   useError();
+  useInAppNotification();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
     origin: 'on extension load',

@@ -146,7 +146,7 @@ function OnboardingModal({
   const nextButtonValidations = useMemo(() => {
     const length = OnboardingStep.Topics.length + INTRODUCTION_ADDITIONAL_STEP;
     const validations = Array(length).fill(null);
-    const filterStep = onboardingSteps.indexOf(OnboardingStep.Topics);
+    const filterStep = onboardingSteps?.indexOf(OnboardingStep.Topics);
 
     if (filterStep !== -1) {
       const index = filterStep + INTRODUCTION_ADDITIONAL_STEP;

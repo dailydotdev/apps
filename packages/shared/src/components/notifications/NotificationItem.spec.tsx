@@ -5,13 +5,14 @@ import {
   NotificationAvatarType,
   NotificationType,
 } from '../../graphql/notifications';
+import { NotificationIcon } from './utils';
 
 const sampleNotificationTitle = 'Welcome to your new notification center!';
 const sampleNotificationDescription =
   'The notification system notifies you of important events such as replies, mentions, updates etc.';
 const sampleNotification: NotificationItemProps = {
   isUnread: true,
-  icon: 'icon link',
+  icon: NotificationIcon.Comment,
   title: `<p>${sampleNotificationTitle}</p>`,
   description: `<p>${sampleNotificationDescription}</p>`,
   type: NotificationType.System,
@@ -42,7 +43,7 @@ describe('notification attachment', () => {
     const [attachment] = sampleNotification.attachments;
     render(<NotificationItem {...sampleNotification} />);
     const img = await screen.findByAltText(
-      `Preview cover of the article: ${attachment.title}`,
+      `Cover preview of: ${attachment.title}`,
     );
     expect(img).toHaveAttribute('src', attachment.image);
   });
@@ -83,8 +84,19 @@ describe('notification avatars', () => {
 describe('notification item', () => {
   it('should display the icon of the notification', async () => {
     render(<NotificationItem {...sampleNotification} />);
-    const img = await screen.findByAltText(`${sampleNotification.type}'s icon`);
-    expect(img).toHaveAttribute('src', sampleNotification.icon);
+    const testid = `notification-${sampleNotification.icon}`;
+    const img = await screen.findByTestId(testid);
+    expect(img).toBeInTheDocument();
+  });
+
+  it('should display the default icon if the passed icon is unknown', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const notification = { ...sampleNotification } as any; // using any to validate unknown icon
+    notification.icon = 'new notif';
+    render(<NotificationItem {...notification} />);
+    const testid = `notification-${notification.icon}`;
+    const img = await screen.findByTestId(testid);
+    expect(img).toHaveAttribute('data-testvalue', NotificationIcon.DailyDev);
   });
 
   it('should have a title that supports html', async () => {

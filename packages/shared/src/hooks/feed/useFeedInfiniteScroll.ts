@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import classed from '../../lib/classed';
 
 export interface UseFeedInfiniteScrollProps {
-  fetchPage: () => Promise<unknown>;
+  fetchPage: () => Promise<unknown> | void;
   canFetchMore: boolean;
 }
 

@@ -60,6 +60,13 @@ module.exports = {
           cabbage: 'var(--theme-overlay-cabbage)',
           from: 'var(--theme-overlay-from)',
           to: 'var(--theme-overlay-to)',
+          float: {
+            cabbage: 'var(--theme-overlay-float-cabbage)',
+          },
+        },
+        gradient: {
+          cabbage: 'var(--theme-gradient-cabbage)',
+          onion: 'var(--theme-gradient-onion)',
         },
         status: {
           error: 'var(--theme-status-error)',

@@ -1,7 +1,9 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useMemo } from 'react';
 import { Notification } from '../../graphql/notifications';
 import { useDomPurify } from '../../hooks/useDomPurify';
+import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 
@@ -16,51 +18,68 @@ export interface NotificationItemProps
 
 function NotificationItem({
   icon,
-  type,
   title,
   isUnread,
   description,
   avatars,
   attachments,
+  targetUrl,
 }: NotificationItemProps): ReactElement {
   const purify = useDomPurify();
+  const router = useRouter();
+  const { title: memoizedTitle, description: memoizedDescription } =
+    useMemo(() => {
+      if (!purify?.sanitize) {
+        return { title: '', description: '' };
+      }
+
+      return {
+        title: purify.sanitize(title),
+        description: purify.sanitize(description),
+      };
+    }, [purify, title, description]);
+
+  if (!purify) {
+    return null;
+  }
 
   const avatarComponents =
-    avatars?.map?.((avatar) => (
-      <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
-    )) ?? [];
-  const hasAvatar = avatarComponents.some((component) => !!component);
+    avatars
+      ?.map?.((avatar) => (
+        <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
+      ))
+      .filter((avatar) => avatar) ?? [];
+  const hasAvatar = avatarComponents.length > 0;
+
+  const onClick = () => {
+    router.push(targetUrl);
+  };
 
   return (
     <button
       type="button"
+      onClick={onClick}
       className={classNames(
         'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
         isUnread && 'bg-theme-float',
       )}
     >
-      <span className="overflow-hidden p-1 bg-theme-float rounded-8 typo-callout h-fit">
-        <img
-          className="object-contain w-6 h-6"
-          src={icon}
-          alt={`${type}'s icon`}
-        />
-      </span>
+      <NotificationItemIcon icon={icon} />
       <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
         {hasAvatar && (
           <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
         )}
         <span
-          className="font-bold break-words"
+          className="break-words"
           dangerouslySetInnerHTML={{
-            __html: purify?.sanitize?.(title),
+            __html: memoizedTitle,
           }}
         />
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-theme-label-quaternary"
             dangerouslySetInnerHTML={{
-              __html: purify?.sanitize?.(description),
+              __html: memoizedDescription,
             }}
           />
         )}

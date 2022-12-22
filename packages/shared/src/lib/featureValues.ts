@@ -12,6 +12,11 @@ export enum ShareVersion {
   V4 = 'v4',
 }
 
+export enum ToastPosition {
+  Bottom = 'bottom',
+  Top = 'top',
+}
+
 export enum OnboardingVersion {
   V1 = 'v1',
   V2 = 'v2',
@@ -28,4 +33,15 @@ export enum SquadVersion {
   V2 = 'v2',
   V3 = 'v3',
   V4 = 'v4',
+}
+
+export enum ArticleOnboardingVersion {
+  V1 = 'v1',
+  V2 = 'v2',
+  V3 = 'v3',
+}
+
+export enum ScrollOnboardingVersion {
+  V1 = 'v1',
+  V2 = 'v2',
 }

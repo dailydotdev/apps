@@ -18,9 +18,9 @@ import {
   FeedData,
   HIDE_POST_MUTATION,
   Post,
+  POST_BY_ID_QUERY,
   PostData,
   PostsEngaged,
-  POST_BY_ID_QUERY,
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
@@ -29,7 +29,7 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
-import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
+import { ANONYMOUS_FEED_QUERY, OnboardingMode } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -47,13 +47,14 @@ import { waitForNock } from '../../__tests__/helpers/utilities';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   AllTagCategoriesData,
-  FeedSettings,
   FEED_SETTINGS_QUERY,
+  FeedSettings,
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
 import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -172,12 +173,22 @@ const renderComponent = (
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <Toast autoDismissNotifications={false} />
-            <Feed
-              feedQueryKey={['feed']}
-              query={ANONYMOUS_FEED_QUERY}
-              variables={variables}
-            />
+            <OnboardingContext.Provider
+              value={{
+                myFeedMode: OnboardingMode.Manual,
+                isOnboardingOpen: false,
+                onCloseOnboardingModal: jest.fn(),
+                onInitializeOnboarding: jest.fn(),
+                onShouldUpdateFilters: jest.fn(),
+              }}
+            >
+              <Toast autoDismissNotifications={false} />
+              <Feed
+                feedQueryKey={['feed']}
+                query={ANONYMOUS_FEED_QUERY}
+                variables={variables}
+              />
+            </OnboardingContext.Provider>
           </SettingsContext.Provider>
         </AuthContext.Provider>
       </QueryClientProvider>
