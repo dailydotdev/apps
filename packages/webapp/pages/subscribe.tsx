@@ -27,16 +27,16 @@ function Subscribe(): React.ReactElement {
 
           if (hasPermission) {
             postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
-              isGranted: true,
+              permission: 'granted',
             });
             window.close();
             return;
           }
 
-          const isGranted = await onTogglePermission();
-          postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { isGranted });
+          const permission = await onTogglePermission();
+          postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { permission });
 
-          if (isGranted) {
+          if (permission === 'granted') {
             setTimeout(window.close, 2000);
           }
         }}

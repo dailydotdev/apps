@@ -34,7 +34,7 @@ type EnableNotificationProps = {
 };
 
 interface PermissionEvent extends MessageEventData {
-  isGranted: boolean;
+  permission: NotificationPermission;
 }
 
 const containerClassName: Record<NotificationPromptSource, string> = {
@@ -73,7 +73,8 @@ function EnableNotification({
       return;
     }
 
-    const isGranted = await onTogglePermission();
+    const permission = await onTogglePermission();
+    const isGranted = permission === 'granted';
 
     setIsEnabled(isGranted);
   };
@@ -82,14 +83,14 @@ function EnableNotification({
     'message',
     ENABLE_NOTIFICATION_WINDOW_KEY,
     (e) => {
-      const { isGranted } = e?.data ?? {};
+      const { permission } = e?.data ?? {};
 
-      if (!isGranted) {
+      if (!permission) {
         return;
       }
 
-      setIsEnabled(isGranted);
-      setPermissionCache(isGranted ? 'granted' : 'denied');
+      setIsEnabled(permission === 'granted');
+      setPermissionCache(permission);
     },
   );
 
