@@ -32,7 +32,8 @@ type EnableNotificationProps = {
 };
 
 const containerClassName: Record<NotificationPromptSource, string> = {
-  [NotificationPromptSource.NotificationsPage]: 'px-6 w-full border-l bg-theme-float',
+  [NotificationPromptSource.NotificationsPage]:
+    'px-6 w-full border-l bg-theme-float',
   [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
 };
