@@ -14,9 +14,9 @@ interface NotificationsContextData {
   isInitialized: boolean;
   hasPermission: boolean;
   isNotificationSupported: boolean;
-  onTogglePermission: () => Promise<boolean>;
   clearUnreadCount: () => void;
   incrementUnreadCount: () => void;
+  onTogglePermission: () => Promise<NotificationPermission>;
 }
 
 const NotificationsContext =
@@ -40,13 +40,13 @@ export const NotificationsContextProvider = ({
   const [hasPermission, setHasPermission] = useState(false);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
 
-  const onTogglePermission = async (): Promise<boolean> => {
-    if (!user) return false;
+  const onTogglePermission = async (): Promise<NotificationPermission> => {
+    if (!user) return 'default';
 
     if (hasPermission) {
       await OneSignal?.setSubscription(false);
       setHasPermission(false);
-      return true;
+      return 'denied';
     }
 
     const result = await globalThis.window?.Notification?.requestPermission();
@@ -54,7 +54,7 @@ export const NotificationsContextProvider = ({
     setHasPermission(isGranted);
     OneSignal?.setSubscription(isGranted);
 
-    return isGranted;
+    return result;
   };
 
   useEffect(() => {

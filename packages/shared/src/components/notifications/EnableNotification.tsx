@@ -52,7 +52,8 @@ function EnableNotification({
     setDismissedCache({ ...dismissedCache, [source]: value });
 
   const onEnable = async () => {
-    const isGranted = await onTogglePermission();
+    const permission = await onTogglePermission();
+    const isGranted = permission === 'granted';
 
     setIsEnabled(isGranted);
   };
