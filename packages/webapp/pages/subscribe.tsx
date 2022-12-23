@@ -1,9 +1,18 @@
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import {
+  ENABLE_NOTIFICATION_WINDOW_KEY,
+  useNotificationContext,
+} from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import React from 'react';
 import MainLayout from '../components/layouts/MainLayout';
 
 function Subscribe(): React.ReactElement {
-  const { requestPermission } = useNotificationContext();
+  const { hasPermission, isInitialized, onTogglePermission } =
+    useNotificationContext();
+
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <MainLayout
@@ -16,10 +25,19 @@ function Subscribe(): React.ReactElement {
             return;
           }
 
-          const permission = await requestPermission();
-
-          if (permission === 'granted') {
+          if (hasPermission) {
+            postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
+              isGranted: true,
+            });
             window.close();
+            return;
+          }
+
+          const isGranted = await onTogglePermission();
+          postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { isGranted });
+
+          if (isGranted) {
+            setTimeout(window.close, 2000);
           }
         }}
       >

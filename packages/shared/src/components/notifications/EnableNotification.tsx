@@ -2,11 +2,14 @@ import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { Button } from '../buttons/Button';
-import NotificationsContext from '../../contexts/NotificationsContext';
+import NotificationsContext, {
+  ENABLE_NOTIFICATION_WINDOW_KEY,
+} from '../../contexts/NotificationsContext';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
+import useWindowEvents, { MessageEventData } from '../../hooks/useWindowEvents';
 
 export enum NotificationPromptSource {
   NotificationList = 'notificationList',
@@ -15,6 +18,7 @@ export enum NotificationPromptSource {
 }
 
 const DISMISS_BROWSER_PERMISSION = 'dismissBrowserPermission';
+const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
 type DismissBrowserPermissions = Record<NotificationPromptSource, boolean>;
 
@@ -29,6 +33,10 @@ type EnableNotificationProps = {
   parentCommentAuthorName?: string;
 };
 
+interface PermissionEvent extends MessageEventData {
+  isGranted: boolean;
+}
+
 const containerClassName: Record<NotificationPromptSource, string> = {
   notificationList: 'px-6 w-full border-l bg-theme-float',
   newComment: 'rounded-16 border px-4 mt-3',
@@ -41,6 +49,12 @@ function EnableNotification({
 }: EnableNotificationProps): ReactElement {
   const isExtension = !!process.env.TARGET_BROWSER;
   const [isEnabled, setIsEnabled] = useState(false);
+  const [permissionCache, setPermissionCache] =
+    usePersistentContext<NotificationPermission>(
+      PERMISSION_NOTIFICATION_KEY,
+      'default',
+    );
+  const hasPermissionCache = permissionCache === 'granted';
   const { hasPermission, isNotificationSupported, onTogglePermission } =
     useContext(NotificationsContext);
   const [dismissedCache, setDismissedCache, isLoaded] =
@@ -55,7 +69,7 @@ function EnableNotification({
   const onEnable = async () => {
     if (isExtension) {
       const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=600,height=300,left=100,top=100`;
-      window.open(`${webappUrl}subscribe`, 'test', params);
+      window.open(`${webappUrl}subscribe`, 'subscribe popup', params);
       return;
     }
 
@@ -64,11 +78,28 @@ function EnableNotification({
     setIsEnabled(isGranted);
   };
 
+  useWindowEvents<PermissionEvent>(
+    'message',
+    ENABLE_NOTIFICATION_WINDOW_KEY,
+    (e) => {
+      const { isGranted } = e?.data ?? {};
+
+      if (!isGranted) {
+        return;
+      }
+
+      setIsEnabled(isGranted);
+      setPermissionCache(isGranted ? 'granted' : 'denied');
+    },
+  );
+
+  const hasEnabled = (hasPermission || hasPermissionCache) && isEnabled;
+
   if (
     !isLoaded ||
     dismissed ||
     !isNotificationSupported ||
-    (hasPermission && !isEnabled)
+    ((hasPermission || hasPermissionCache) && !isEnabled)
   ) {
     return null;
   }
@@ -114,15 +145,15 @@ function EnableNotification({
           message
         )}
       </p>
-      <span className="flex flex-row gap-4 mt-4">
+      {!hasEnabled && (
         <Button
           buttonSize="small"
-          className="text-white min-w-[7rem] btn-primary-cabbage"
+          className="mt-4 text-white min-w-[7rem] btn-primary-cabbage"
           onClick={onEnable}
         >
           Enable Notifications
         </Button>
-      </span>
+      )}
       <img
         className="hidden tablet:flex absolute right-4 -bottom-2"
         src={cloudinary.notifications.browser}
