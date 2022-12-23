@@ -49,6 +49,7 @@ export const useInAppNotification = (): UseInAppNotification => {
   };
 
   const addToQueue = (newNotification: NewNotification) => {
+    incrementUnreadCount();
     queue.push(newNotification);
     if (queue.length >= MAX_QUEUE_LENGTH) {
       queue.shift();
@@ -78,7 +79,6 @@ export const useInAppNotification = (): UseInAppNotification => {
     {
       next: (data: { newNotification: NewNotification }) => {
         addToQueue(data.newNotification);
-        incrementUnreadCount();
       },
     },
   );
