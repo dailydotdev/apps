@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement, useContext, useState } from 'react';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeaturesData } from '../../contexts/FeaturesContext';
 import EmbedIcon from '../icons/Embed';
@@ -34,6 +35,7 @@ export function ContributeSection({
   submitArticleModalButton,
   ...props
 }: SectionCommonProps & SubmitFlags): ReactElement {
+  const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const [showSubmitArticle, setShowSubmitArticle] = useState(false);
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
@@ -68,6 +70,18 @@ export function ContributeSection({
     };
     contributeMenuItems.unshift(submitArticleMenuItem);
   }
+
+  useEffect(() => {
+    const search = new URLSearchParams(window.location.search);
+    const query = Object.fromEntries(search);
+    if (!query?.scout) {
+      return;
+    }
+
+    const { origin, pathname } = window.location;
+    setShowSubmitArticle(true);
+    router.replace(origin + pathname);
+  }, []);
 
   return (
     <>

@@ -22,6 +22,19 @@ export interface NotificationAttachment {
 
 export enum NotificationType {
   System = 'system',
+  CommunityPicksFailed = 'community_picks_failed',
+  CommunityPicksSucceeded = 'community_picks_succeeded',
+  CommunityPicksGranted = 'community_picks_granted',
+  ArticlePicked = 'article_picked',
+  ArticleNewComment = 'article_new_comment',
+  ArticleUpvoteMilestone = 'article_upvote_milestone',
+  ArticleReportApproved = 'article_report_approved',
+  ArticleAnalytics = 'article_analytics',
+  SourceApproved = 'source_approved',
+  SourceRejected = 'source_rejected',
+  CommentMention = 'comment_mention',
+  CommentReply = 'comment_reply',
+  CommentUpvoteMilestone = 'comment_upvote_milestone',
 }
 
 export interface Notification {
