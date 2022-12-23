@@ -6,7 +6,7 @@ import {
   SquadVersion,
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
-  ToastPosition as ToastPositionEnum,
+  InAppNotificationPosition as InAppNotificationPositionEnum,
   ArticleOnboardingVersion,
   ScrollOnboardingVersion,
 } from './featureValues';
@@ -178,10 +178,10 @@ export class Features<T extends FeatureValue = string> {
     ],
   );
 
-  static readonly ToastPosition = new Features(
+  static readonly InAppNotificationPosition = new Features(
     'toast_position',
-    ToastPositionEnum.Bottom,
-    [ToastPositionEnum.Bottom, ToastPositionEnum.Top],
+    InAppNotificationPositionEnum.Bottom,
+    [InAppNotificationPositionEnum.Bottom, InAppNotificationPositionEnum.Top],
   );
 
   static readonly SquadForm = new Features('squad_form');

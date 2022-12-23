@@ -12,7 +12,7 @@ export enum ShareVersion {
   V4 = 'v4',
 }
 
-export enum ToastPosition {
+export enum InAppNotificationPosition {
   Bottom = 'bottom',
   Top = 'top',
 }
