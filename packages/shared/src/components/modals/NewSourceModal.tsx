@@ -56,7 +56,7 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
   const [scrapeError, setScrapeError] = useState<string>();
   const [showContact, setShowContact] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-  const { hasPermission, notificationsAvailable, requestPermission } =
+  const { hasPermission, isNotificationSupported, onTogglePermission } =
     useContext(NotificationsContext);
   const [feeds, setFeeds] = useState<{ label: string; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
@@ -66,8 +66,8 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
   const { onRequestClose } = props;
 
   const enableNotifications = async () => {
-    const permission = await requestPermission();
-    if (permission === 'granted') {
+    const isGranted = await onTogglePermission();
+    if (isGranted) {
       onRequestClose?.(null);
     }
   };
@@ -132,7 +132,7 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
         }),
       {
         onSuccess: () => {
-          if (hasPermission || !notificationsAvailable()) {
+          if (hasPermission || !isNotificationSupported) {
             onRequestClose?.(null);
             return;
           }

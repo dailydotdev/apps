@@ -41,7 +41,7 @@ function EnableNotification({
 }: EnableNotificationProps): ReactElement {
   const isExtension = !!process.env.TARGET_BROWSER;
   const [isEnabled, setIsEnabled] = useState(false);
-  const { hasPermission, notificationsAvailable, requestPermission } =
+  const { hasPermission, isNotificationSupported, onTogglePermission } =
     useContext(NotificationsContext);
   const [dismissedCache, setDismissedCache, isLoaded] =
     usePersistentContext<DismissBrowserPermissions>(
@@ -59,15 +59,15 @@ function EnableNotification({
       return;
     }
 
-    const permission = await requestPermission();
+    const isGranted = await onTogglePermission();
 
-    setIsEnabled(permission === 'granted');
+    setIsEnabled(isGranted);
   };
 
   if (
     !isLoaded ||
     dismissed ||
-    !notificationsAvailable() ||
+    !isNotificationSupported ||
     (hasPermission && !isEnabled)
   ) {
     return null;

@@ -17,7 +17,8 @@ import AccountContentSection from '../../components/layouts/AccountLayout/Accoun
 const ALERT_PUSH_KEY = 'alert_push_key';
 
 const AccountNotificationsPage = (): ReactElement => {
-  const { requestPermission, hasPermission } = useContext(NotificationsContext);
+  const { onTogglePermission, hasPermission, isInitialized } =
+    useContext(NotificationsContext);
   const [isAlertShown, setIsAlertShown] = usePersistentContext(
     ALERT_PUSH_KEY,
     true,
@@ -56,7 +57,8 @@ const AccountNotificationsPage = (): ReactElement => {
           className="w-20"
           compact={false}
           checked={hasPermission}
-          onToggle={requestPermission}
+          onToggle={onTogglePermission}
+          disabled={!isInitialized}
         >
           {hasPermission ? 'On' : 'Off'}
         </Switch>
