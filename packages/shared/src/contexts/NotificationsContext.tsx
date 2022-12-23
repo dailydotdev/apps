@@ -29,6 +29,8 @@ export interface NotificationsContextProviderProps {
   unreadCount?: number;
 }
 
+export const ENABLE_NOTIFICATION_WINDOW_KEY = 'enableNotificationMessage';
+
 export const NotificationsContextProvider = ({
   children,
   unreadCount = 0,
@@ -36,23 +38,33 @@ export const NotificationsContextProvider = ({
   const isExtension = !!process.env.TARGET_BROWSER;
   const [OneSignal, setOneSignal] = useState(null);
   const { user } = useContext(AuthContext);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
 
+  const onUpdatePermission = async (
+    value: NotificationPermission,
+    updateOneSignal: boolean,
+  ) => {
+    const isGranted = value === 'granted';
+    if (updateOneSignal) {
+      await OneSignal?.setSubscription(isGranted);
+    }
+
+    setHasPermission(isGranted);
+  };
   const onTogglePermission = async (): Promise<boolean> => {
     if (!user) return false;
 
     if (hasPermission) {
-      await OneSignal?.setSubscription(false);
-      setHasPermission(false);
-      return true;
+      await onUpdatePermission('denied', !isExtension);
+      return false;
     }
 
     const result = await globalThis.window?.Notification?.requestPermission();
     const isGranted = result === 'granted';
-    setHasPermission(isGranted);
-    OneSignal?.setSubscription(isGranted);
+    await onUpdatePermission(result, !isExtension);
 
     return isGranted;
   };
@@ -62,7 +74,7 @@ export const NotificationsContextProvider = ({
   }, [unreadCount]);
 
   useEffect(() => {
-    if (isInitialized || !user || isExtension) {
+    if (isInitialized || isInitializing || !user || isExtension) {
       return;
     }
 
@@ -72,6 +84,7 @@ export const NotificationsContextProvider = ({
       return;
     }
 
+    setIsInitializing(true);
     import('react-onesignal').then(async (mod) => {
       const OneSignalReact = mod.default;
       await OneSignalReact.init({
@@ -83,9 +96,9 @@ export const NotificationsContextProvider = ({
       setIsInitialized(true);
       await OneSignalReact.setExternalUserId(user.id);
       const isGranted = await OneSignalReact.getSubscription();
-      setHasPermission(isGranted);
+      onUpdatePermission(isGranted ? 'granted' : 'default', false);
     });
-  }, [isInitialized, user]);
+  }, [isInitialized, isInitializing, user]);
 
   const data: NotificationsContextData = useMemo(
     () => ({
