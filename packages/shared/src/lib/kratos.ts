@@ -1,7 +1,7 @@
 import { MessageEventData } from '../hooks/useWindowEvents';
 import { authUrl, heimdallUrl } from './constants';
 
-export type EmptyObjectLiteral = Record<string, never | unknown>;
+export type EmptyObjectLiteral<T = unknown> = Record<string, never | T>;
 
 export interface SocialRegistrationFlow extends MessageEventData {
   flow?: string;
@@ -217,7 +217,7 @@ export enum AuthFlow {
 
 export const initializeKratosFlow = async (
   flow: AuthFlow,
-  params: EmptyObjectLiteral = {},
+  params: EmptyObjectLiteral<string> = {},
 ): Promise<InitializationData> => {
   const search = new URLSearchParams(params);
   const res = await fetch(`${authUrl}/self-service${flow}/browser?${search}`, {
