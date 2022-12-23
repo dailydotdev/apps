@@ -51,6 +51,7 @@ export default function MainLayout({
   customBanner,
   additionalButtons,
   screenCentered = true,
+  className,
   onLogoClick,
   onNavTabClick,
   enableSearch,
@@ -100,6 +101,7 @@ export default function MainLayout({
       <main
         className={classNames(
           'flex flex-row',
+          className,
           !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
           hasBanner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
