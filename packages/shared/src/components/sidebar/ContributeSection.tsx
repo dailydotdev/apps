@@ -22,15 +22,11 @@ const NewSourceModal = dynamic(
 
 type SubmitFlags = Pick<
   FeaturesData,
-  | 'canSubmitArticle'
-  | 'submitArticleOn'
-  | 'submitArticleSidebarButton'
-  | 'submitArticleModalButton'
+  'canSubmitArticle' | 'submitArticleSidebarButton' | 'submitArticleModalButton'
 >;
 
 export function ContributeSection({
   canSubmitArticle,
-  submitArticleOn,
   submitArticleSidebarButton,
   submitArticleModalButton,
   ...props
@@ -39,7 +35,24 @@ export function ContributeSection({
   const { isOpen: showSubmitArticle, onIsOpen: setShowSubmitArticle } =
     useSubmitArticle();
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
+  const trackAndShowSubmitArticle = () => {
+    trackEvent({
+      event_name: 'start submit article',
+      feed_item_title: submitArticleSidebarButton,
+      extra: JSON.stringify({ has_access: canSubmitArticle }),
+    });
+    setShowSubmitArticle(true);
+  };
+
   const contributeMenuItems: SidebarMenuItem[] = [
+    {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <LinkIcon secondary={active} />} />
+      ),
+      title: submitArticleSidebarButton,
+      action: trackAndShowSubmitArticle,
+      active: showSubmitArticle,
+    },
     {
       icon: (active) => (
         <ListIcon Icon={() => <EmbedIcon secondary={active} />} />
@@ -50,26 +63,6 @@ export function ContributeSection({
     },
   ];
 
-  const trackAndShowSubmitArticle = () => {
-    trackEvent({
-      event_name: 'start submit article',
-      feed_item_title: submitArticleSidebarButton,
-      extra: JSON.stringify({ has_access: canSubmitArticle }),
-    });
-    setShowSubmitArticle(true);
-  };
-
-  if (submitArticleOn) {
-    const submitArticleMenuItem = {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <LinkIcon secondary={active} />} />
-      ),
-      title: submitArticleSidebarButton,
-      action: trackAndShowSubmitArticle,
-      active: showSubmitArticle,
-    };
-    contributeMenuItems.unshift(submitArticleMenuItem);
-  }
   return (
     <>
       <Section
