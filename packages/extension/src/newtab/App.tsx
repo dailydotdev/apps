@@ -22,6 +22,7 @@ import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPa
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -39,6 +40,7 @@ const AnalyticsConsentModal = dynamic(
     ),
 );
 
+const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
 const queryClient = new QueryClient();
 const AuthModal = dynamic(
@@ -62,6 +64,7 @@ function InternalApp({
 }): ReactElement {
   useError();
   useInAppNotification();
+  const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
     origin: 'on extension load',
@@ -93,6 +96,12 @@ function InternalApp({
       getContentScriptPermissionAndRegister();
     }
   }, [contentScriptGranted]);
+
+  useEffect(() => {
+    document.title = unreadCount
+      ? `(${unreadCount}) ${DEFAULT_TAB_TITLE} `
+      : DEFAULT_TAB_TITLE;
+  }, [unreadCount]);
 
   return (
     <DndContextProvider>
