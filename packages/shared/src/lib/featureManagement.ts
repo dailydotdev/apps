@@ -179,7 +179,7 @@ export class Features<T extends FeatureValue = string> {
   );
 
   static readonly InAppNotificationPosition = new Features(
-    'toast_position',
+    'in_app_notification_position',
     InAppNotificationPositionEnum.Bottom,
     [InAppNotificationPositionEnum.Bottom, InAppNotificationPositionEnum.Top],
   );
