@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { getUnreadTitle } from '@dailydotdev/shared/src/components/notifications/utils';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -15,9 +17,11 @@ const seo: NextSeoProps = {
 };
 
 const Popular = (): ReactElement => {
+  const { unreadCount } = useNotificationContext();
+
   return (
     <>
-      <NextSeo {...seo} />
+      <NextSeo {...seo} title={getUnreadTitle(unreadCount, seo.title)} />
     </>
   );
 };
