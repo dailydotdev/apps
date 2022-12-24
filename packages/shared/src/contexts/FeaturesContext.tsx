@@ -25,7 +25,6 @@ interface Experiments {
   onboardingVersion?: OnboardingVersion;
   onboardingFiltersLayout?: OnboardingFiltersLayout;
   popularFeedCopy?: string;
-  submitArticleOn?: boolean;
   canSubmitArticle?: boolean;
   submitArticleSidebarButton?: string;
   submitArticleModalButton?: string;
@@ -80,7 +79,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.PostEngagementNonClickable,
       flags,
     ),
-    submitArticleOn: isFeaturedEnabled(Features.SubmitArticleOn, flags),
     canSubmitArticle: isFeaturedEnabled(Features.SubmitArticle, flags),
     submitArticleSidebarButton: getFeatureValue(
       Features.SubmitArticleSidebarButton,
