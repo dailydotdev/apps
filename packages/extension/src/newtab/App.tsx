@@ -99,7 +99,7 @@ function InternalApp({
 
   useEffect(() => {
     document.title = unreadCount
-      ? `(${unreadCount}) ${DEFAULT_TAB_TITLE} `
+      ? `(${unreadCount}) ${DEFAULT_TAB_TITLE}`
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
