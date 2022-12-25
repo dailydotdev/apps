@@ -12,7 +12,6 @@ import XIcon from '@dailydotdev/shared/src/components/icons/Close';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -31,6 +30,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import WebSeo from '../../components/WebSeo';
 
 type TagPageProps = { tag: string };
 
@@ -108,7 +108,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
 
   return (
     <FeedPage>
-      <NextSeo {...seo} />
+      <WebSeo {...seo} />
       <CustomFeedHeader>
         <HashtagIcon className={customFeedIcon} />
         <span className="mr-auto">{tag}</span>

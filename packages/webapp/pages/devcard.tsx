@@ -20,7 +20,6 @@ import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import Tilt from 'react-parallax-tilt';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -349,13 +348,12 @@ const DevCardPage = (): ReactElement => {
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >
-      <NextSeo {...seo} />
       {!step ? <Step1 {...stepProps} /> : <Step2 {...stepProps} />}
     </div>
   );
 };
 
 DevCardPage.getLayout = getMainLayout;
-DevCardPage.layoutProps = { screenCentered: false };
+DevCardPage.layoutProps = { screenCentered: false, seo };
 
 export default DevCardPage;

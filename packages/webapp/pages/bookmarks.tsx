@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import {
   getBookmarkFeedLayout,
   bookmarkFeedLayoutProps,
@@ -15,14 +14,10 @@ const seo: NextSeoProps = {
 };
 
 const BookmarksPage = (): ReactElement => {
-  return (
-    <>
-      <NextSeo {...seo} />
-    </>
-  );
+  return <></>;
 };
 
 BookmarksPage.getLayout = getBookmarkFeedLayout;
-BookmarksPage.layoutProps = bookmarkFeedLayoutProps;
+BookmarksPage.layoutProps = { ...bookmarkFeedLayoutProps, seo };
 
 export default BookmarksPage;
