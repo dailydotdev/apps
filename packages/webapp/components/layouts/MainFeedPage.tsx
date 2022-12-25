@@ -12,6 +12,7 @@ import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import { getLayout } from './FeedLayout';
+import { WebappLayoutProps } from './MainLayout';
 
 const PostsSearch = dynamic(
   () =>
@@ -80,7 +81,7 @@ export default function MainFeedPage({
 export function getMainFeedLayout(
   page: ReactNode,
   pageProps: Record<string, unknown>,
-  layoutProps: MainLayoutProps & MainFeedPageProps,
+  layoutProps: WebappLayoutProps & MainFeedPageProps,
 ): ReactNode {
   return getLayout(
     <MainFeedPage {...layoutProps}>{page}</MainFeedPage>,
