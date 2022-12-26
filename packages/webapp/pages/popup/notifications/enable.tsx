@@ -2,13 +2,12 @@ import classNames from 'classnames';
 import BrowserPermissionIcon from '@dailydotdev/shared/src/components/icons/BrowserPermission/primary.svg';
 import NotificationToggleIcon from '@dailydotdev/shared/src/components/icons/NotificationToggle/primary.svg';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
-import {
-  ENABLE_NOTIFICATION_WINDOW_KEY,
-  useNotificationContext,
-} from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import React, { useEffect } from 'react';
+import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 
 const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
@@ -56,7 +55,7 @@ function Enable(): React.ReactElement {
   }
 
   return (
-    <BootDataProvider app="web" getRedirectUri={getRedirectUri}>
+    <BootDataProvider app={BootApp.Webapp} getRedirectUri={getRedirectUri}>
       <main className="flex overflow-hidden flex-col justify-center items-center w-screen h-screen max-h-[100%] max-w-[100%] bg-theme-overlay-float-cabbage">
         <h1 className="relative font-bold bg-transparent typo-mega3">
           <div className="absolute inset-0 -z-1 w-52 h-52 opacity-64 bg-theme-bg-cabbage-blur blur-[3.125rem] rounded-[3.125rem] -translate-y-[25%]" />
