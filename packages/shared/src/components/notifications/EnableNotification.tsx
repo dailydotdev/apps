@@ -69,7 +69,11 @@ function EnableNotification({
   const onEnable = async () => {
     if (isExtension) {
       const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=728,height=756,left=100,top=100`;
-      window.open(`${webappUrl}subscribe`, 'subscribe popup', params);
+      window.open(
+        `${webappUrl}popup/notifications/subscribe`,
+        'notifications subscribe popup',
+        params,
+      );
       return;
     }
 
