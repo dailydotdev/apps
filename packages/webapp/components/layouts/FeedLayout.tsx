@@ -1,16 +1,22 @@
 import React, { ReactNode } from 'react';
+import { useRouter } from 'next/router';
+import MainLayout, {
+  MainLayoutProps,
+} from '@dailydotdev/shared/src/components/MainLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
-import { getLayout as getWebappLayout, WebappLayoutProps } from './MainLayout';
 
 export default FeedLayout;
 
 export const getLayout = (
   page: ReactNode,
   pageProps: Record<string, unknown>,
-  layoutProps: WebappLayoutProps,
+  layoutProps: MainLayoutProps,
 ): ReactNode => {
+  const router = useRouter();
   return getFooterNavBarLayout(
-    getWebappLayout(<FeedLayout>{page}</FeedLayout>, pageProps, layoutProps),
+    <MainLayout {...layoutProps} activePage={router?.asPath}>
+      <FeedLayout>{page}</FeedLayout>
+    </MainLayout>,
   );
 };
