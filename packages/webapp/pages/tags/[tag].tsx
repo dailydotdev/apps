@@ -69,7 +69,6 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
 
   const seo: NextSeoProps = {
     title: `${tag} posts on daily.dev`,
-    titleTemplate: '%s',
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
   };

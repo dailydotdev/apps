@@ -9,7 +9,6 @@ import {
 } from '../components/layouts/MainFeedPage';
 
 const baseSeo: NextSeoProps = {
-  titleTemplate: '%s',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
