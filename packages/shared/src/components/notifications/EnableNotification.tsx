@@ -71,7 +71,7 @@ function EnableNotification({
       const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=728,height=756,left=100,top=100`;
       window.open(
         `${webappUrl}popup/notifications/subscribe`,
-        'notifications subscribe popup',
+        'Enable notifications popup',
         params,
       );
       return;
