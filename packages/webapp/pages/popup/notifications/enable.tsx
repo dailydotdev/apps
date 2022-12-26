@@ -22,7 +22,7 @@ const iconClasses = 'flex flex-grow mt-2';
 
 const Description = classed('p', 'typo-callout text-theme-label-tertiary');
 
-function Subscribe(): React.ReactElement {
+function Enable(): React.ReactElement {
   const { hasPermission, isInitialized, onTogglePermission } =
     useNotificationContext();
 
@@ -89,4 +89,4 @@ function Subscribe(): React.ReactElement {
   );
 }
 
-export default Subscribe;
+export default Enable;
