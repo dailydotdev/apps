@@ -6,6 +6,7 @@ import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { getLayout as getMainLayout } from '../MainLayout';
 import SidebarNav from './SidebarNav';
+import { getTemplatedTitle } from '../utils';
 
 export interface AccountLayoutProps {
   profile: PublicProfile;
@@ -23,8 +24,7 @@ export default function AccountLayout({
 
   const Seo: NextSeoProps = profile
     ? {
-        title: profile.name,
-        titleTemplate: '%s | daily.dev',
+        title: getTemplatedTitle(profile.name),
         description: profile.bio
           ? profile.bio
           : `Check out ${profile.name}'s profile`,
