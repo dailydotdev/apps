@@ -30,6 +30,12 @@ export type PostBootData = Pick<
   | 'scout'
 >;
 
+export enum BootApp {
+  Webapp = 'webapp',
+  Companion = 'companion',
+  Extension = 'extension',
+}
+
 export interface CompanionBootData {
   postData: PostBootData;
 }
