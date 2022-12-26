@@ -62,4 +62,4 @@ export const getUnreadText = (unread: number): string =>
   unread > MAX_UNREAD_DISPLAY ? `${MAX_UNREAD_DISPLAY}+` : unread.toString();
 
 export const getUnreadTitle = (count: number, title = ''): string =>
-  count ? `(${getUnreadText(count)}) ${title}` : '';
+  count ? `(${getUnreadText(count)}) ${title}` : title;
