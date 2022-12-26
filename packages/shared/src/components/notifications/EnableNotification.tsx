@@ -65,14 +65,14 @@ function EnableNotification({
 
     const isGranted = permission === 'granted';
 
-    onAcceptedPermissionJustNow(isGranted);
+    onAcceptedPermissionJustNow?.(isGranted);
   };
 
   const hasEnabled = (isSubscribed || hasPermissionCache) && isEnabled;
 
   useEffect(() => {
     return () => {
-      onAcceptedPermissionJustNow(false);
+      onAcceptedPermissionJustNow?.(false);
     };
   }, []);
 
