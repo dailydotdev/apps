@@ -15,6 +15,7 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import {
   Boot,
+  BootApp,
   BootCacheData,
   getBootData,
 } from '@dailydotdev/shared/src/lib/boot';
@@ -114,7 +115,7 @@ const getBootMock = (bootMock: BootCacheData): Boot => ({
 
 const renderComponent = (bootData = defaultBootData): RenderResult => {
   const queryClient = new QueryClient();
-  const app = 'extension';
+  const app = BootApp.Extension;
   mocked(getBootData).mockResolvedValue(getBootMock(bootData));
   return render(
     <QueryClientProvider client={queryClient}>

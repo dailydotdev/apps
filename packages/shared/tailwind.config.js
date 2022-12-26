@@ -31,6 +31,7 @@ module.exports = {
           secondary: 'var(--theme-background-secondary)',
           tertiary: 'var(--theme-background-tertiary)',
           notification: 'var(--theme-background-notification)',
+          'cabbage-blur': 'var(--theme-background-cabbage-blur)',
           bun: 'var(--theme-background-bun)',
           onion: 'var(--theme-background-onion)',
           pepper: 'var(--theme-background-pepper)',

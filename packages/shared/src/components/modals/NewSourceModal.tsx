@@ -56,7 +56,7 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
   const [scrapeError, setScrapeError] = useState<string>();
   const [showContact, setShowContact] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-  const { hasPermission, isNotificationSupported, onTogglePermission } =
+  const { isSubscribed, isNotificationSupported, onTogglePermission } =
     useContext(NotificationsContext);
   const [feeds, setFeeds] = useState<{ label: string; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
@@ -132,7 +132,7 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
         }),
       {
         onSuccess: () => {
-          if (hasPermission || !isNotificationSupported) {
+          if (isSubscribed || !isNotificationSupported) {
             onRequestClose?.(null);
             return;
           }
