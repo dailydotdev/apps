@@ -32,6 +32,8 @@ import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPa
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -69,6 +71,8 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
+  const { unreadCount } = useNotificationContext();
+  const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState } =
     useContext(AuthContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
@@ -132,7 +136,11 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
         <link rel="preconnect" href="https://res.cloudinary.com" />
       </Head>
-      <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
+      <DefaultSeo
+        {...Seo}
+        canonical={canonicalFromRouter(router)}
+        titleTemplate={unreadCount === 0 ? undefined : `(${unreadText}) %s`}
+      />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       {shouldShowLogin && (
         <AuthModal
