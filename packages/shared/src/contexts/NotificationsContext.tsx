@@ -6,10 +6,15 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import {
+  UseNotificationPermissionPopup,
+  useNotificationPermissionPopup,
+} from '../hooks/useNotificationPermissionPopup';
+import { BootApp } from '../lib/boot';
 import { isDevelopment, isTesting } from '../lib/constants';
 import AuthContext from './AuthContext';
 
-interface NotificationsContextData {
+interface NotificationsContextData extends UseNotificationPermissionPopup {
   unreadCount: number;
   isInitialized: boolean;
   hasPermission: boolean;
@@ -27,11 +32,11 @@ export default NotificationsContext;
 export interface NotificationsContextProviderProps {
   children: ReactNode;
   unreadCount?: number;
+  app: BootApp;
 }
 
-export const ENABLE_NOTIFICATION_WINDOW_KEY = 'enableNotificationMessage';
-
 export const NotificationsContextProvider = ({
+  app,
   children,
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
@@ -42,6 +47,12 @@ export const NotificationsContextProvider = ({
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
+  const {
+    onOpenPopup,
+    onHasEnabledPermission,
+    hasEnabledPermission,
+    hasPermissionCache,
+  } = useNotificationPermissionPopup();
 
   const onUpdatePermission = async (
     value: NotificationPermission,
@@ -57,6 +68,11 @@ export const NotificationsContextProvider = ({
 
   const onTogglePermission = async (): Promise<NotificationPermission> => {
     if (!user) return 'default';
+
+    if (app === BootApp.Extension) {
+      onOpenPopup();
+      return null;
+    }
 
     if (hasPermission) {
       await onUpdatePermission('denied', !isExtension);
@@ -109,6 +125,9 @@ export const NotificationsContextProvider = ({
 
   const data: NotificationsContextData = useMemo(
     () => ({
+      onHasEnabledPermission,
+      hasEnabledPermission,
+      hasPermissionCache,
       isInitialized,
       unreadCount: currentUnreadCount,
       hasPermission,
@@ -120,7 +139,14 @@ export const NotificationsContextProvider = ({
         return !!globalThis.window?.Notification;
       },
     }),
-    [hasPermission, currentUnreadCount, isInitialized, user],
+    [
+      hasPermission,
+      currentUnreadCount,
+      isInitialized,
+      user,
+      hasEnabledPermission,
+      hasPermissionCache,
+    ],
   );
 
   return (

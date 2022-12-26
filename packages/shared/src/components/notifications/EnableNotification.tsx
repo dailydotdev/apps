@@ -1,15 +1,12 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { Button } from '../buttons/Button';
-import NotificationsContext, {
-  ENABLE_NOTIFICATION_WINDOW_KEY,
-} from '../../contexts/NotificationsContext';
+import NotificationsContext from '../../contexts/NotificationsContext';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
-import useWindowEvents, { MessageEventData } from '../../hooks/useWindowEvents';
 
 export enum NotificationPromptSource {
   NotificationList = 'notificationList',
@@ -18,7 +15,6 @@ export enum NotificationPromptSource {
 }
 
 const DISMISS_BROWSER_PERMISSION = 'dismissBrowserPermission';
-const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
 type DismissBrowserPermissions = Record<NotificationPromptSource, boolean>;
 
@@ -33,10 +29,6 @@ type EnableNotificationProps = {
   parentCommentAuthorName?: string;
 };
 
-interface PermissionEvent extends MessageEventData {
-  permission: NotificationPermission;
-}
-
 const containerClassName: Record<NotificationPromptSource, string> = {
   notificationList: 'px-6 w-full border-l bg-theme-float',
   newComment: 'rounded-16 border px-4 mt-3',
@@ -47,16 +39,14 @@ function EnableNotification({
   source = NotificationPromptSource.NotificationList,
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
-  const isExtension = !!process.env.TARGET_BROWSER;
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [permissionCache, setPermissionCache] =
-    usePersistentContext<NotificationPermission>(
-      PERMISSION_NOTIFICATION_KEY,
-      'default',
-    );
-  const hasPermissionCache = permissionCache === 'granted';
-  const { hasPermission, isNotificationSupported, onTogglePermission } =
-    useContext(NotificationsContext);
+  const {
+    hasPermission,
+    isNotificationSupported,
+    hasPermissionCache,
+    hasEnabledPermission: isEnabled,
+    onTogglePermission,
+    onHasEnabledPermission,
+  } = useContext(NotificationsContext);
   const [dismissedCache, setDismissedCache, isLoaded] =
     usePersistentContext<DismissBrowserPermissions>(
       DISMISS_BROWSER_PERMISSION,
@@ -67,38 +57,25 @@ function EnableNotification({
     setDismissedCache({ ...dismissedCache, [source]: value });
 
   const onEnable = async () => {
-    if (isExtension) {
-      const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=728,height=756,left=100,top=100`;
-      window.open(
-        `${webappUrl}popup/notifications/subscribe`,
-        'notifications subscribe popup',
-        params,
-      );
+    const permission = await onTogglePermission();
+
+    if (permission === null) {
       return;
     }
 
-    const permission = await onTogglePermission();
     const isGranted = permission === 'granted';
 
-    setIsEnabled(isGranted);
+    onHasEnabledPermission(isGranted);
   };
 
-  useWindowEvents<PermissionEvent>(
-    'message',
-    ENABLE_NOTIFICATION_WINDOW_KEY,
-    (e) => {
-      const { permission } = e?.data ?? {};
-
-      if (!permission) {
-        return;
-      }
-
-      setIsEnabled(permission === 'granted');
-      setPermissionCache(permission);
-    },
-  );
-
   const hasEnabled = (hasPermission || hasPermissionCache) && isEnabled;
+
+  useEffect(
+    () => () => {
+      onHasEnabledPermission(false);
+    },
+    [],
+  );
 
   if (
     !isLoaded ||
