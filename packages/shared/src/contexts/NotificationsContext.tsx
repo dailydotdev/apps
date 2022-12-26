@@ -95,8 +95,15 @@ export const NotificationsContextProvider = ({
       setOneSignal(OneSignalReact);
       setIsInitialized(true);
       await OneSignalReact.setExternalUserId(user.id);
-      const isGranted = await OneSignalReact.getSubscription();
-      onUpdatePermission(isGranted ? 'granted' : 'default', false);
+      const isSubscribed = await OneSignalReact.getSubscription();
+      const isPermitted = globalThis.Notification?.permission === 'granted';
+      if (isSubscribed !== isPermitted) {
+        OneSignalReact.setSubscription(isPermitted);
+      }
+      onUpdatePermission(
+        isSubscribed && isPermitted ? 'granted' : 'default',
+        false,
+      );
     });
   }, [isInitialized, isInitializing, user]);
 
