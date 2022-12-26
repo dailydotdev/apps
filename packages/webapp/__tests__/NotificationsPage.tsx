@@ -98,7 +98,7 @@ const renderComponent = (
             incrementUnreadCount: jest.fn(),
             notificationsAvailable: jest.fn(),
             requestPermission: jest.fn(),
-            hasPermission: true,
+            isSubscribed: true,
           }}
         >
           <NotificationsPage />

@@ -10,8 +10,8 @@ interface PermissionEvent extends MessageEventData {
 export interface UseNotificationPermissionPopup {
   onOpenPopup?: () => void;
   onPermissionCache?: (permission: NotificationPermission) => void;
-  onHasEnabledPermission: (state: boolean) => void;
-  hasEnabledPermission: boolean;
+  onAcceptedPermissionJustNow: (state: boolean) => void;
+  acceptedPermissionJustNow: boolean;
   hasPermissionCache: boolean;
 }
 
@@ -20,7 +20,8 @@ const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
 export const useNotificationPermissionPopup =
   (): UseNotificationPermissionPopup => {
-    const [isEnabled, setIsEnabled] = useState(false);
+    const [acceptedPermissionJustNow, setAcceptedPermissionJustNow] =
+      useState(false);
     const [permissionCache, setPermissionCache] =
       usePersistentContext<NotificationPermission>(
         PERMISSION_NOTIFICATION_KEY,
@@ -46,7 +47,7 @@ export const useNotificationPermissionPopup =
           return;
         }
 
-        setIsEnabled(permission === 'granted');
+        setAcceptedPermissionJustNow(permission === 'granted');
         setPermissionCache(permission);
       },
     );
@@ -55,10 +56,10 @@ export const useNotificationPermissionPopup =
       () => ({
         onOpenPopup,
         hasPermissionCache: permissionCache === 'granted',
-        hasEnabledPermission: isEnabled,
+        acceptedPermissionJustNow,
+        onAcceptedPermissionJustNow: setAcceptedPermissionJustNow,
         onPermissionCache: setPermissionCache,
-        onHasEnabledPermission: setIsEnabled,
       }),
-      [permissionCache, isEnabled],
+      [permissionCache, acceptedPermissionJustNow],
     );
   };

@@ -22,7 +22,7 @@ const iconClasses = 'flex flex-grow mt-2';
 const Description = classed('p', 'typo-callout text-theme-label-tertiary');
 
 function Enable(): React.ReactElement {
-  const { hasPermission, isInitialized, onTogglePermission } =
+  const { isSubscribed, isInitialized, onTogglePermission } =
     useNotificationContext();
 
   useEffect(() => {
@@ -31,7 +31,7 @@ function Enable(): React.ReactElement {
     }
 
     const checkPermission = async () => {
-      if (hasPermission) {
+      if (isSubscribed) {
         postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
           permission: 'granted',
         });

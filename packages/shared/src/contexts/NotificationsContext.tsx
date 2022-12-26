@@ -17,7 +17,7 @@ import AuthContext from './AuthContext';
 interface NotificationsContextData extends UseNotificationPermissionPopup {
   unreadCount: number;
   isInitialized: boolean;
-  hasPermission: boolean;
+  isSubscribed: boolean;
   isNotificationSupported: boolean;
   clearUnreadCount: () => void;
   incrementUnreadCount: () => void;
@@ -45,13 +45,13 @@ export const NotificationsContextProvider = ({
   const { user } = useContext(AuthContext);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [hasPermission, setHasPermission] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
   const {
     onOpenPopup,
-    onHasEnabledPermission,
+    onAcceptedPermissionJustNow,
     onPermissionCache,
-    hasEnabledPermission,
+    acceptedPermissionJustNow,
     hasPermissionCache,
   } = useNotificationPermissionPopup();
 
@@ -64,7 +64,7 @@ export const NotificationsContextProvider = ({
       await OneSignal?.setSubscription(isGranted);
     }
 
-    setHasPermission(isGranted);
+    setIsSubscribed(isGranted);
   };
 
   const onTogglePermission = async (): Promise<NotificationPermission> => {
@@ -75,7 +75,7 @@ export const NotificationsContextProvider = ({
       return null;
     }
 
-    if (hasPermission) {
+    if (isSubscribed) {
       await onUpdatePermission('denied', !isExtension);
       return 'denied';
     }
@@ -97,7 +97,7 @@ export const NotificationsContextProvider = ({
 
     if (isTesting) {
       setIsInitialized(true);
-      setHasPermission(false);
+      setIsSubscribed(false);
       return;
     }
 
@@ -112,15 +112,15 @@ export const NotificationsContextProvider = ({
       setOneSignal(OneSignalReact);
       setIsInitialized(true);
       await OneSignalReact.setExternalUserId(user.id);
-      const isSubscribed = await OneSignalReact.getSubscription();
+      const subscription = await OneSignalReact.getSubscription();
       const permission = globalThis.Notification?.permission;
       const isPermitted = permission === 'granted';
       onPermissionCache(permission);
-      if (isSubscribed !== isPermitted) {
+      if (subscription !== isPermitted) {
         OneSignalReact.setSubscription(isPermitted);
       }
       onUpdatePermission(
-        isSubscribed && isPermitted ? 'granted' : 'default',
+        subscription && isPermitted ? 'granted' : 'default',
         false,
       );
     });
@@ -128,12 +128,12 @@ export const NotificationsContextProvider = ({
 
   const data: NotificationsContextData = useMemo(
     () => ({
-      onHasEnabledPermission,
-      hasEnabledPermission,
+      onAcceptedPermissionJustNow,
+      acceptedPermissionJustNow,
       hasPermissionCache,
       isInitialized,
       unreadCount: currentUnreadCount,
-      hasPermission,
+      isSubscribed,
       onTogglePermission,
       clearUnreadCount: () => setCurrentUnreadCount(0),
       incrementUnreadCount: (value = 1) =>
@@ -143,11 +143,11 @@ export const NotificationsContextProvider = ({
       },
     }),
     [
-      hasPermission,
+      isSubscribed,
       currentUnreadCount,
       isInitialized,
       user,
-      hasEnabledPermission,
+      acceptedPermissionJustNow,
       hasPermissionCache,
     ],
   );
