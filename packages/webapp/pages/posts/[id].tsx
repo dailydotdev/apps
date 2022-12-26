@@ -31,6 +31,7 @@ import {
 } from '@dailydotdev/shared/src/components/post/PostContent';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
 
@@ -74,8 +75,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   );
 
   const seo: NextSeoProps = {
-    title: postData?.post.title,
-    titleTemplate: '%s | daily.dev',
+    title: getTemplatedTitle(postData?.post.title),
     description: getSeoDescription(postData?.post),
     openGraph: {
       images: [{ url: postData?.post.image }],
