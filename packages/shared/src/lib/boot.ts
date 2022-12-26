@@ -34,6 +34,7 @@ export enum BootApp {
   Webapp = 'webapp',
   Companion = 'companion',
   Extension = 'extension',
+  Test = 'test',
 }
 
 export interface CompanionBootData {

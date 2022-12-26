@@ -34,6 +34,7 @@ import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 
 // const ReactQueryDevtools = dynamic(
 //   () => import('react-query/devtools').then((mod) => mod.ReactQueryDevtools),
@@ -156,10 +157,10 @@ export default function App(props: AppProps): ReactElement {
   return (
     <ProgressiveEnhancementContextProvider>
       <QueryClientProvider client={queryClient}>
-        <BootDataProvider app="web" getRedirectUri={getRedirectUri}>
+        <BootDataProvider app={BootApp.Webapp} getRedirectUri={getRedirectUri}>
           <SubscriptionContextProvider>
             <AnalyticsContextProvider
-              app="webapp"
+              app={BootApp.Webapp}
               version={version}
               getPage={getPage}
               deviceId={deviceId}
