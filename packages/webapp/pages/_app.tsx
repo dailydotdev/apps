@@ -32,9 +32,9 @@ import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPa
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 
 // const ReactQueryDevtools = dynamic(
 //   () => import('react-query/devtools').then((mod) => mod.ReactQueryDevtools),
