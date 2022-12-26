@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { SiteLinksSearchBoxJsonLd } from 'next-seo';
+import { NextSeo, SiteLinksSearchBoxJsonLd } from 'next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -16,19 +16,22 @@ const seo: NextSeoProps = {
 
 const Home = (): ReactElement => {
   return (
-    <SiteLinksSearchBoxJsonLd
-      url="https://app.daily.dev"
-      potentialActions={[
-        {
-          target: 'https://app.daily.dev/search?q',
-          queryInput: 'search_term_string',
-        },
-      ]}
-    />
+    <>
+      <NextSeo {...seo} />
+      <SiteLinksSearchBoxJsonLd
+        url="https://app.daily.dev"
+        potentialActions={[
+          {
+            target: 'https://app.daily.dev/search?q',
+            queryInput: 'search_term_string',
+          },
+        ]}
+      />
+    </>
   );
 };
 
 Home.getLayout = getMainFeedLayout;
-Home.layoutProps = { ...mainFeedLayoutProps, seo };
+Home.layoutProps = mainFeedLayoutProps;
 
 export default Home;

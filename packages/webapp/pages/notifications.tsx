@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import { NextSeo } from 'next-seo';
 import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
 import {
   NotificationsData,
@@ -21,7 +22,6 @@ import { getLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
 
 import ProtectedPage from '../components/ProtectedPage';
-import WebSeo from '../components/WebSeo';
 
 const hasUnread = (data: InfiniteData<NotificationsData>) =>
   data.pages.some((page) =>
@@ -29,7 +29,7 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   );
 
 const Notifications = (): ReactElement => {
-  const seo = <WebSeo title="Notifications" nofollow noindex />;
+  const seo = <NextSeo title="Notifications" nofollow noindex />;
   const { clearUnreadCount } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
     () => request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),

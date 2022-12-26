@@ -14,6 +14,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
+import { NextSeo } from 'next-seo';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
   POST_BY_ID_QUERY,
@@ -30,7 +31,6 @@ import {
 } from '@dailydotdev/shared/src/components/post/PostContent';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import WebSeo from '../../components/WebSeo';
 
 const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
 
@@ -127,7 +127,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       <Head>
         <link rel="preload" as="image" href={postById?.post.image} />
       </Head>
-      <WebSeo {...seo} />
+      <NextSeo {...seo} />
       <PostContent
         position={position}
         postById={postById}

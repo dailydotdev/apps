@@ -1,4 +1,4 @@
-import { NextSeoProps } from 'next-seo';
+import { NextSeo, NextSeoProps } from 'next-seo';
 import React, { ReactElement } from 'react';
 import {
   getMainFeedLayout,
@@ -13,9 +13,9 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const MyFeed = (): ReactElement => <></>;
+const MyFeed = (): ReactElement => <NextSeo {...seo} />;
 
 MyFeed.getLayout = getMainFeedLayout;
-MyFeed.layoutProps = { ...mainFeedLayoutProps, seo };
+MyFeed.layoutProps = mainFeedLayoutProps;
 
 export default MyFeed;

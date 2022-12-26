@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import useInfiniteReadingHistory from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
@@ -14,7 +15,6 @@ import {
   SEARCH_READING_HISTORY_QUERY,
 } from '../../shared/src/graphql/users';
 import ProtectedPage from '../components/ProtectedPage';
-import WebSeo from '../components/WebSeo';
 
 const PostsSearch = dynamic(
   () =>
@@ -27,7 +27,7 @@ const PostsSearch = dynamic(
 );
 
 const History = (): ReactElement => {
-  const seo = <WebSeo title="Reading History" nofollow noindex />;
+  const seo = <NextSeo title="Reading History" nofollow noindex />;
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const searchQuery = router.query?.q?.toString();
