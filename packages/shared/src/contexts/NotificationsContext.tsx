@@ -50,6 +50,7 @@ export const NotificationsContextProvider = ({
   const {
     onOpenPopup,
     onHasEnabledPermission,
+    onPermissionCache,
     hasEnabledPermission,
     hasPermissionCache,
   } = useNotificationPermissionPopup();
@@ -112,7 +113,9 @@ export const NotificationsContextProvider = ({
       setIsInitialized(true);
       await OneSignalReact.setExternalUserId(user.id);
       const isSubscribed = await OneSignalReact.getSubscription();
-      const isPermitted = globalThis.Notification?.permission === 'granted';
+      const permission = globalThis.Notification?.permission;
+      const isPermitted = permission === 'granted';
+      onPermissionCache(permission);
       if (isSubscribed !== isPermitted) {
         OneSignalReact.setSubscription(isPermitted);
       }
