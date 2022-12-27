@@ -136,7 +136,10 @@ function EnableNotification({
         </Button>
       )}
       <img
-        className="hidden tablet:flex absolute right-4 -bottom-2"
+        className={classNames(
+          'hidden tablet:flex absolute right-4',
+          isEnabled ? '-bottom-8' : '-bottom-2',
+        )}
         src={cloudinary.notifications.browser}
         alt="A sample browser notification"
       />
