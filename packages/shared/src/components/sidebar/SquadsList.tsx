@@ -4,11 +4,23 @@ import DefaultSquadIcon from '../icons/DefaultSquad';
 import NewSquadIcon from '../icons/NewSquad';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
+import { Image } from '../image/Image';
+import { cloudinary } from '../../lib/image';
 
 type SquadsListProps = {
   squads: Squad[];
   onNavTabClick?: (page: string) => unknown;
 };
+
+const SquadImage = ({ image, name }: Squad) => (
+  <Image
+    title={name}
+    src={image}
+    fallbackSrc={cloudinary.squads.imageFallback}
+    className="object-cover w-5 h-5 rounded-full"
+    loading="lazy"
+  />
+);
 
 export function SquadsList({
   squads,
@@ -22,9 +34,11 @@ export function SquadsList({
 
   return (
     <>
-      {squads.map(({ handle, name, permalink }) => {
+      {squads.map((squad) => {
+        const { handle, name, permalink, image } = squad;
         const menuItem: SidebarMenuItem = {
-          icon: () => <DefaultSquadIcon />,
+          icon: () =>
+            image ? <SquadImage {...squad} /> : <DefaultSquadIcon />,
           title: name,
           path: permalink,
           action: () => onNavTabClick?.(`dsadsquads/${handle}`),
