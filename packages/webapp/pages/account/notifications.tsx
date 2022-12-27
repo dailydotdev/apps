@@ -1,6 +1,6 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
@@ -26,16 +26,13 @@ const AccountNotificationsPage = (): ReactElement => {
   const { updateUserProfile } = useProfileForm();
   const { user } = useContext(AuthContext);
   const { acceptedMarketing, notificationEmail } = user ?? {};
-  const [emailNotification, setEmailNotification] = useState(
-    acceptedMarketing || notificationEmail,
-  );
+  const emailNotification = acceptedMarketing || notificationEmail;
   const onToggleEmailNotification = () => {
     const value = !emailNotification;
     updateUserProfile({
       acceptedMarketing: value,
       notificationEmail: value,
     });
-    setEmailNotification(value);
   };
 
   return (
@@ -75,13 +72,13 @@ const AccountNotificationsPage = (): ReactElement => {
               discussions, upvotes, replies or mentions on daily.dev!
             </p>
             <img
-              className="absolute top-4 right-14"
+              className="hidden laptopL:flex absolute top-4 right-14"
               src={cloudinary.notifications.browser}
               alt="A sample browser notification"
             />
             <CloseButton
               buttonSize="xsmall"
-              className="ml-32"
+              className="ml-auto laptopL:ml-32"
               onClick={() => setIsAlertShown(false)}
             />
           </div>
