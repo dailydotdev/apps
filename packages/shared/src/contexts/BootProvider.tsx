@@ -21,6 +21,7 @@ import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
 import { OnboardingContextProvider } from './OnboardingContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
+import { SquadsContextProvider } from './SquadsContext';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -58,6 +59,7 @@ const updateLocalBootData = (
     'settings',
     'user',
     'lastModifier',
+    'squads',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -78,7 +80,7 @@ export const BootDataProvider = ({
     useState<Partial<BootCacheData>>();
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
   const loadedFromCache = cachedBootData !== undefined;
-  const { user, settings, flags = {}, alerts } = cachedBootData || {};
+  const { user, settings, flags = {}, alerts, squads } = cachedBootData || {};
   const {
     data: bootRemoteData,
     refetch,
@@ -125,6 +127,7 @@ export const BootDataProvider = ({
       if (!bootRemoteData.user || !('providers' in bootRemoteData.user)) {
         delete bootRemoteData.settings;
       }
+
       setBootData(bootRemoteData, false);
     }
   }, [bootRemoteData]);
@@ -181,7 +184,9 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            <OnboardingContextProvider>{children}</OnboardingContextProvider>
+            <SquadsContextProvider squads={{ squads }}>
+              <OnboardingContextProvider>{children}</OnboardingContextProvider>
+            </SquadsContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>

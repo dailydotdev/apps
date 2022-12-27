@@ -4,6 +4,7 @@ import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
+import { Squad } from '../graphql/squads';
 
 export type PostBootData = Pick<
   Post,
@@ -38,13 +39,14 @@ export type Boot = {
   visit: Visit;
   flags: IFlags;
   settings: RemoteSettings;
+  squads: Squad[];
   postData?: PostBootData;
   isLegacyLogout?: boolean;
 };
 
 export type BootCacheData = Pick<
   Boot,
-  'user' | 'alerts' | 'settings' | 'flags' | 'postData'
+  'user' | 'alerts' | 'settings' | 'flags' | 'postData' | 'squads'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
