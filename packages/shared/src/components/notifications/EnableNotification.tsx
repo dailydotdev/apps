@@ -149,7 +149,7 @@ function EnableNotification({
       />
       <CloseButton
         buttonSize="xsmall"
-        className="top-3 right-3"
+        className="top-1 laptop:top-3 right-1 laptop:right-3"
         onClick={() => setDismissed(true)}
         position="absolute"
       />
