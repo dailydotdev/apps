@@ -137,7 +137,7 @@ function EnableNotification({
       )}
       <img
         className={classNames(
-          'hidden tablet:flex absolute right-4',
+          'hidden tablet:flex absolute right-4 w-[7.5rem]',
           isEnabled ? '-bottom-8' : '-bottom-2',
         )}
         src={
