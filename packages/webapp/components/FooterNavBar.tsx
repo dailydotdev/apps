@@ -52,9 +52,11 @@ export const tabs: Tab[] = [
     title: 'Notifications',
     icon: (active: boolean, unreadCount) => (
       <span className="relative">
-        <Bubble className="top-0 px-1 left-[calc(100%-0.75rem)]">
-          {getUnreadText(unreadCount)}
-        </Bubble>
+        {unreadCount && (
+          <Bubble className="top-0 px-1 left-[calc(100%-0.75rem)]">
+            {getUnreadText(unreadCount)}
+          </Bubble>
+        )}
         <BellIcon secondary={active} size="xxlarge" />
       </span>
     ),
