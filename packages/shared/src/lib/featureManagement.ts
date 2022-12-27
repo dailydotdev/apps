@@ -167,7 +167,7 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly SquadVersion = new Features(
     'squad_version',
-    SquadVersion.V3,
+    SquadVersion.Off,
     [
       SquadVersion.Off,
       SquadVersion.V1,
