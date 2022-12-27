@@ -68,7 +68,7 @@ export const NotificationsContextProvider = ({
     await globalThis.OneSignal?.registerForPushNotifications?.();
     const id = await globalThis.OneSignal?.getRegistrationId();
     setRegistrationId(id);
-    await OneSignal.setExternalUserId(user.id);
+    await OneSignal?.setExternalUserId?.(user.id);
 
     return id;
   };
@@ -79,7 +79,7 @@ export const NotificationsContextProvider = ({
     const isRegistered = !!id;
     const allowedPush = isGranted && isRegistered;
 
-    await OneSignal?.setSubscription(allowedPush);
+    await OneSignal?.setSubscription?.(allowedPush);
 
     setIsSubscribed(allowedPush);
     onPermissionCache(allowedPush ? 'granted' : 'default');
