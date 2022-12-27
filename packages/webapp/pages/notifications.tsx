@@ -18,8 +18,8 @@ import FirstNotification from '@dailydotdev/shared/src/components/notifications/
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { getLayout } from '../components/layouts/FooterNavBarLayout';
-import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../components/layouts/MainLayout';
 
 import ProtectedPage from '../components/ProtectedPage';
 
@@ -62,7 +62,7 @@ const Notifications = (): ReactElement => {
         className={classNames(
           pageBorders,
           pageContainerClassNames,
-          'laptop:min-h-screen',
+          'laptop:min-h-screen pb-12',
         )}
       >
         <EnableNotification />
