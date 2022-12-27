@@ -46,6 +46,7 @@ export const NotificationsContextProvider = ({
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [registrationId, setRegistrationId] = useState<string>(null);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
   const {
     onOpenPopup,
@@ -55,16 +56,33 @@ export const NotificationsContextProvider = ({
     hasPermissionCache,
   } = useNotificationPermissionPopup();
 
-  const onUpdatePermission = async (
-    value: NotificationPermission,
-    updateOneSignal: boolean,
-  ) => {
-    const isGranted = value === 'granted';
-    if (updateOneSignal) {
-      await OneSignal?.setSubscription(isGranted);
+  const getRegistrationId = async (isGranted: boolean) => {
+    if (!isGranted) {
+      return '';
     }
 
-    setIsSubscribed(isGranted);
+    if (registrationId) {
+      return registrationId;
+    }
+
+    await globalThis.OneSignal?.registerForPushNotifications?.();
+    const id = await globalThis.OneSignal?.getRegistrationId();
+    setRegistrationId(id);
+    await OneSignal.setExternalUserId(user.id);
+
+    return id;
+  };
+
+  const onUpdatePermission = async (permission: NotificationPermission) => {
+    const isGranted = permission === 'granted';
+    const id = await getRegistrationId(isGranted);
+    const isRegistered = !!id;
+    const allowedPush = isGranted && isRegistered;
+
+    await OneSignal?.setSubscription(allowedPush);
+
+    setIsSubscribed(allowedPush);
+    onPermissionCache(allowedPush ? 'granted' : 'default');
   };
 
   const onTogglePermission = async (): Promise<NotificationPermission> => {
@@ -76,12 +94,12 @@ export const NotificationsContextProvider = ({
     }
 
     if (isSubscribed) {
-      await onUpdatePermission('denied', !isExtension);
+      await onUpdatePermission('denied');
       return 'denied';
     }
 
     const result = await globalThis.window?.Notification?.requestPermission();
-    await onUpdatePermission(result, !isExtension);
+    await onUpdatePermission(result);
 
     return result;
   };
@@ -109,20 +127,20 @@ export const NotificationsContextProvider = ({
         allowLocalhostAsSecureOrigin: isDevelopment,
         serviceWorkerParam: { scope: '/push/onesignal/' },
       });
+      const isGranted = globalThis.Notification?.permission === 'granted';
+      const id = await globalThis.OneSignal?.getRegistrationId();
+      const isEnabled = await OneSignalReact.isPushNotificationsEnabled();
+      const subscribed = await OneSignalReact.getSubscription();
       setOneSignal(OneSignalReact);
       setIsInitialized(true);
-      await OneSignalReact.setExternalUserId(user.id);
-      const subscription = await OneSignalReact.getSubscription();
-      const permission = globalThis.Notification?.permission;
-      const isPermitted = permission === 'granted';
-      onPermissionCache(permission);
-      if (subscription !== isPermitted) {
-        OneSignalReact.setSubscription(isPermitted);
+      setRegistrationId(id);
+      setIsSubscribed(isEnabled && subscribed && isGranted);
+      if (!isEnabled || !isGranted) {
+        await OneSignalReact.setSubscription(false);
       }
-      onUpdatePermission(
-        subscription && isPermitted ? 'granted' : 'default',
-        false,
-      );
+      if (id) {
+        OneSignalReact.setExternalUserId(user.id);
+      }
     });
   }, [isInitialized, isInitializing, user]);
 
