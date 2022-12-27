@@ -142,8 +142,8 @@ function EnableNotification({
         )}
         src={
           isEnabled
-            ? cloudinary.notifications.browser
-            : cloudinary.notifications.browser_enabled
+            ? cloudinary.notifications.browser_enabled
+            : cloudinary.notifications.browser
         }
         alt="A sample browser notification"
       />
