@@ -38,7 +38,12 @@ function NotificationItemIcon({
 
   return (
     <span className="overflow-hidden p-1 bg-theme-float rounded-8 typo-callout h-fit">
-      <Icon secondary className={iconTheme} data-testid={testId} />
+      <Icon
+        size="medium"
+        secondary
+        className={iconTheme}
+        data-testid={testId}
+      />
     </span>
   );
 }
