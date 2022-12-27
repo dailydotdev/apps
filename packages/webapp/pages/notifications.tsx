@@ -81,7 +81,9 @@ const Notifications = (): ReactElement => {
                 ),
               ),
             )}
-          {(!length || !queryResult.hasNextPage) && <FirstNotification />}
+          {(!length || !queryResult.hasNextPage) && queryResult?.isFetched && (
+            <FirstNotification />
+          )}
         </InfiniteScrolling>
       </main>
     </ProtectedPage>
