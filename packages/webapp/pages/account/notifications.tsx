@@ -72,13 +72,13 @@ const AccountNotificationsPage = (): ReactElement => {
               discussions, upvotes, replies or mentions on daily.dev!
             </p>
             <img
-              className="absolute top-4 right-14"
+              className="hidden laptopL:flex absolute top-4 right-14"
               src={cloudinary.notifications.browser}
               alt="A sample browser notification"
             />
             <CloseButton
               buttonSize="xsmall"
-              className="ml-32"
+              className="ml-auto laptopL:ml-32"
               onClick={() => setIsAlertShown(false)}
             />
           </div>
