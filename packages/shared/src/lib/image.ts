@@ -18,6 +18,6 @@ export const cloudinary = {
   },
   squads: {
     imageFallback:
-      'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1',
+      'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
   },
 };

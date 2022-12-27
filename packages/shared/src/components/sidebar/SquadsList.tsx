@@ -41,7 +41,7 @@ export function SquadsList({
             image ? <SquadImage {...squad} /> : <DefaultSquadIcon />,
           title: name,
           path: permalink,
-          action: () => onNavTabClick?.(`dsadsquads/${handle}`),
+          action: () => onNavTabClick?.(`squads/${handle}`),
         };
         return (
           <NavItem key={`squad-${handle}`}>

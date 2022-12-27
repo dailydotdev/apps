@@ -3,7 +3,7 @@ import { Source } from './sources';
 export interface Squad extends Source {
   active: boolean;
   handle: string;
-  image: string | null;
+  image: string;
   permalink: string;
   public: boolean;
   type: 'squad';
