@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { BootCacheData, getBootData } from '../lib/boot';
+import { BootApp, BootCacheData, getBootData } from '../lib/boot';
 import { FeaturesContextProvider } from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
@@ -34,7 +34,7 @@ function filteredProps<T extends Record<string, unknown>>(
 
 export type BootDataProviderProps = {
   children?: ReactNode;
-  app: string;
+  app: BootApp;
   localBootData?: BootCacheData;
   getRedirectUri: () => string;
 };
@@ -190,6 +190,7 @@ export const BootDataProvider = ({
             loadedAlerts={loadedFromCache}
           >
             <NotificationsContextProvider
+              app={app}
               unreadCount={notifications?.unreadNotificationsCount}
             >
               <OnboardingContextProvider>{children}</OnboardingContextProvider>

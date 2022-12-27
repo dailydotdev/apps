@@ -22,6 +22,7 @@ import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPa
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -136,13 +137,13 @@ export default function App({
       <ProgressiveEnhancementContextProvider>
         <QueryClientProvider client={queryClient}>
           <BootDataProvider
-            app="extension"
+            app={BootApp.Extension}
             getRedirectUri={getRedirectUri}
             localBootData={localBootData}
           >
             <SubscriptionContextProvider>
               <AnalyticsContextProvider
-                app="extension"
+                app={BootApp.Extension}
                 version={version}
                 getPage={() => pageRef.current}
                 deviceId={deviceId}

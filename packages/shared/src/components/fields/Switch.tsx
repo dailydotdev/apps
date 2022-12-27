@@ -24,19 +24,22 @@ export function Switch({
   onToggle,
   compact = true,
   defaultTypo = true,
+  disabled,
   ...props
 }: SwitchProps): ReactElement {
   return (
     <label
       className={classNames(
         className,
-        'relative flex items-center cursor-pointer group',
+        'relative flex items-center group',
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
         styles.switch,
       )}
       htmlFor={inputId}
     >
       <input
         {...props}
+        disabled={disabled}
         id={inputId}
         name={name}
         type="checkbox"
