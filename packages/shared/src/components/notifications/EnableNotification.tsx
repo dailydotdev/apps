@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { Button } from '../buttons/Button';
@@ -39,10 +39,14 @@ function EnableNotification({
   source = NotificationPromptSource.NotificationList,
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
-  const isExtension = !!process.env.TARGET_BROWSER;
-  const [isEnabled, setIsEnabled] = useState(false);
-  const { hasPermission, notificationsAvailable, requestPermission } =
-    useContext(NotificationsContext);
+  const {
+    isSubscribed,
+    isNotificationSupported,
+    hasPermissionCache,
+    acceptedPermissionJustNow: isEnabled,
+    onTogglePermission,
+    onAcceptedPermissionJustNow,
+  } = useContext(NotificationsContext);
   const [dismissedCache, setDismissedCache, isLoaded] =
     usePersistentContext<DismissBrowserPermissions>(
       DISMISS_BROWSER_PERMISSION,
@@ -53,22 +57,30 @@ function EnableNotification({
     setDismissedCache({ ...dismissedCache, [source]: value });
 
   const onEnable = async () => {
-    if (isExtension) {
-      const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=600,height=300,left=100,top=100`;
-      window.open(`${webappUrl}subscribe`, 'test', params);
+    const permission = await onTogglePermission();
+
+    if (permission === null) {
       return;
     }
 
-    const permission = await requestPermission();
+    const isGranted = permission === 'granted';
 
-    setIsEnabled(permission === 'granted');
+    onAcceptedPermissionJustNow?.(isGranted);
   };
+
+  const hasEnabled = (isSubscribed || hasPermissionCache) && isEnabled;
+
+  useEffect(() => {
+    return () => {
+      onAcceptedPermissionJustNow?.(false);
+    };
+  }, []);
 
   if (
     !isLoaded ||
     dismissed ||
-    !notificationsAvailable() ||
-    (hasPermission && !isEnabled)
+    !isNotificationSupported ||
+    ((isSubscribed || hasPermissionCache) && !isEnabled)
   ) {
     return null;
   }
@@ -114,15 +126,15 @@ function EnableNotification({
           message
         )}
       </p>
-      <span className="flex flex-row gap-4 mt-4">
+      {!hasEnabled && (
         <Button
           buttonSize="small"
-          className="text-white min-w-[7rem] btn-primary-cabbage"
+          className="mt-4 text-white min-w-[7rem] btn-primary-cabbage"
           onClick={onEnable}
         >
           Enable Notifications
         </Button>
-      </span>
+      )}
       <img
         className="hidden tablet:flex absolute right-4 -bottom-2"
         src={cloudinary.notifications.browser}
