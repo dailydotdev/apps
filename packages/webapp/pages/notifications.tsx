@@ -71,13 +71,6 @@ const Notifications = (): ReactElement => {
   };
 
   useEffect(() => {
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      extra: JSON.stringify({ notifications_number: unreadCount }),
-    });
-  }, []);
-
-  useEffect(() => {
     if (!isFetchedAfterMount) {
       return;
     }

@@ -191,6 +191,7 @@ export const BootDataProvider = ({
           >
             <NotificationsContextProvider
               app={app}
+              firstLoad={initialLoad}
               unreadCount={notifications?.unreadNotificationsCount}
             >
               <OnboardingContextProvider>{children}</OnboardingContextProvider>
