@@ -31,7 +31,6 @@ import SquadButton from './SquadButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
-import SquadsContext from '../../contexts/SquadsContext';
 import { SquadsList } from './SquadsList';
 
 const UserSettingsModal = dynamic(
@@ -54,12 +53,9 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, squads } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { alerts } = useContext(AlertContext);
-  const {
-    squads: { squads },
-  } = useContext(SquadsContext);
   const {
     toggleSidebarExpanded,
     sidebarExpanded,

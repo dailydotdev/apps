@@ -21,7 +21,6 @@ import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
 import { OnboardingContextProvider } from './OnboardingContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
-import { SquadsContextProvider } from './SquadsContext';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -173,6 +172,7 @@ export const BootDataProvider = ({
         isLegacyLogout={bootRemoteData?.isLegacyLogout}
         firstLoad={initialLoad}
         accessToken={bootRemoteData?.accessToken}
+        squads={squads ?? []}
       >
         <SettingsContextProvider
           settings={settings}
@@ -184,9 +184,7 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            <SquadsContextProvider squads={{ squads }}>
-              <OnboardingContextProvider>{children}</OnboardingContextProvider>
-            </SquadsContextProvider>
+            <OnboardingContextProvider>{children}</OnboardingContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>
