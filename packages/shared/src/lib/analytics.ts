@@ -54,3 +54,13 @@ export enum TargetId {
 export enum ScreenValue {
   Intro = 'intro',
 }
+
+export enum NotificationChannel {
+  Email = 'email',
+  Web = 'web',
+}
+
+export enum NotificationCategory {
+  Marketing = 'marketing',
+  Product = 'product',
+}
