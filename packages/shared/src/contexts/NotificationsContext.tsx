@@ -135,13 +135,12 @@ export const NotificationsContextProvider = ({
       });
       const isGranted = globalThis.Notification?.permission === 'granted';
       const id = await globalThis.OneSignal?.getRegistrationId();
-      const isEnabled = await OneSignalReact.isPushNotificationsEnabled();
       const subscribed = await OneSignalReact.getSubscription();
       setOneSignal(OneSignalReact);
       setIsInitialized(true);
       setRegistrationId(id);
-      setIsSubscribed(isEnabled && subscribed && isGranted);
-      if (!isEnabled || !isGranted) {
+      setIsSubscribed(subscribed && isGranted);
+      if (!isGranted && subscribed) {
         await OneSignalReact.setSubscription(false);
       }
       if (id) {
