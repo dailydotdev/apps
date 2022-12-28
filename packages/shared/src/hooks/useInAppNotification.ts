@@ -84,9 +84,9 @@ export const useInAppNotification = (): UseInAppNotification => {
     }),
     {
       next: ({ newNotification }: PushNotificationSubscription) => {
-        if (!registeredNotification[newNotification?.id]) {
+        if (!registeredNotification[newNotification.id]) {
           addToQueue(newNotification);
-          registeredNotification[newNotification?.id] = true;
+          registeredNotification[newNotification.id] = true;
         }
       },
     },
