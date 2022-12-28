@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
@@ -33,6 +33,7 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
 
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
+  const [hasTrackedFetch, setHasTrackedFetch] = useState(false);
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { clearUnreadCount } = useNotificationContext();
@@ -54,6 +55,11 @@ const Notifications = (): ReactElement => {
       onSuccess: (data) => {
         if (hasUnread(data)) {
           readNotifications();
+        }
+
+        if (queryResult.isFetchedAfterMount && !hasTrackedFetch) {
+          trackEvent({ event_name: AnalyticsEvent.OpenNotificationList });
+          setHasTrackedFetch(true);
         }
       },
     },
