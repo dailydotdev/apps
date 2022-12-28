@@ -41,7 +41,7 @@ export interface AuthContextData {
   deleteAccount?: () => Promise<void>;
   refetchBoot?: () => Promise<unknown>;
   accessToken?: AccessToken;
-  squads: Squad[];
+  squads?: Squad[];
 }
 const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);

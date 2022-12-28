@@ -172,7 +172,7 @@ export const BootDataProvider = ({
         isLegacyLogout={bootRemoteData?.isLegacyLogout}
         firstLoad={initialLoad}
         accessToken={bootRemoteData?.accessToken}
-        squads={squads ?? []}
+        squads={squads}
       >
         <SettingsContextProvider
           settings={settings}
