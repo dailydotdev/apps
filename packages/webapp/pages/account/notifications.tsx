@@ -10,6 +10,12 @@ import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentCon
 import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  NotificationCategory,
+  NotificationChannel,
+} from '@dailydotdev/shared/src/lib/analytics';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -24,15 +30,71 @@ const AccountNotificationsPage = (): ReactElement => {
     true,
   );
   const { updateUserProfile } = useProfileForm();
+  const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
   const { acceptedMarketing, notificationEmail } = user ?? {};
   const emailNotification = acceptedMarketing || notificationEmail;
-  const onToggleEmailNotification = () => {
+  const onToggleEmailSettings = () => {
     const value = !emailNotification;
+
+    if (!value) {
+      trackEvent({
+        event_name: AnalyticsEvent.DisableNotification,
+        extra: JSON.stringify({
+          channel: NotificationChannel.Email,
+          category: Object.values(NotificationCategory),
+        }),
+      });
+    }
+
     updateUserProfile({
       acceptedMarketing: value,
       notificationEmail: value,
     });
+  };
+
+  const onTrackToggle = (
+    isEnabled: boolean,
+    channel: NotificationChannel,
+    category: NotificationCategory,
+  ) => {
+    if (isEnabled) {
+      return;
+    }
+
+    trackEvent({
+      event_name: AnalyticsEvent.DisableNotification,
+      extra: JSON.stringify({ channel, category }),
+    });
+  };
+
+  const onTogglePush = () => {
+    onTrackToggle(
+      !isSubscribed,
+      NotificationChannel.Web,
+      NotificationCategory.Product,
+    );
+    onTogglePermission();
+  };
+
+  const onToggleEmailNotification = () => {
+    const value = !notificationEmail;
+    onTrackToggle(
+      value,
+      NotificationChannel.Email,
+      NotificationCategory.Product,
+    );
+    updateUserProfile({ notificationEmail: value });
+  };
+
+  const onToggleEmailMarketing = () => {
+    const value = !acceptedMarketing;
+    onTrackToggle(
+      value,
+      NotificationChannel.Email,
+      NotificationCategory.Marketing,
+    );
+    updateUserProfile({ acceptedMarketing: value });
   };
 
   return (
@@ -54,7 +116,7 @@ const AccountNotificationsPage = (): ReactElement => {
           className="w-20"
           compact={false}
           checked={isSubscribed}
-          onToggle={onTogglePermission}
+          onToggle={onTogglePush}
           disabled={!isInitialized}
         >
           {isSubscribed ? 'On' : 'Off'}
@@ -101,7 +163,7 @@ const AccountNotificationsPage = (): ReactElement => {
           className="w-20"
           compact={false}
           checked={emailNotification}
-          onToggle={onToggleEmailNotification}
+          onToggle={onToggleEmailSettings}
         >
           {emailNotification ? 'On' : 'Off'}
         </Switch>
@@ -112,9 +174,7 @@ const AccountNotificationsPage = (): ReactElement => {
           name="new_activity"
           data-testId="new_activity-switch"
           checked={notificationEmail}
-          onToggle={() =>
-            updateUserProfile({ notificationEmail: !notificationEmail })
-          }
+          onToggle={onToggleEmailNotification}
         >
           New activity notifications (mentions, replies, etc.)
         </Checkbox>
@@ -122,9 +182,7 @@ const AccountNotificationsPage = (): ReactElement => {
           name="marketing"
           data-testId="marketing-switch"
           checked={acceptedMarketing}
-          onToggle={() =>
-            updateUserProfile({ acceptedMarketing: !acceptedMarketing })
-          }
+          onToggle={onToggleEmailMarketing}
         >
           Marketing updates
         </Checkbox>

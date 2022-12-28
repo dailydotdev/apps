@@ -7,22 +7,16 @@ import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 export enum NotificationPromptSource {
-  NotificationList = 'notificationList',
-  NewComment = 'newComment',
-  NewSource = 'newSource',
+  NotificationsPage = 'notifications page',
+  NewComment = 'new comment',
+  CommunityPicks = 'community picks modal',
 }
 
-const DISMISS_BROWSER_PERMISSION = 'dismissBrowserPermission';
-
-type DismissBrowserPermissions = Record<NotificationPromptSource, boolean>;
-
-const DEFAULT_CACHE_VALUE: DismissBrowserPermissions = {
-  newComment: false,
-  newSource: false,
-  notificationList: false,
-};
+const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
@@ -30,15 +24,17 @@ type EnableNotificationProps = {
 };
 
 const containerClassName: Record<NotificationPromptSource, string> = {
-  notificationList: 'px-6 w-full border-l bg-theme-float',
-  newComment: 'rounded-16 border px-4 mt-3',
-  newSource: 'rounded-16 border px-4 mt-3',
+  [NotificationPromptSource.NotificationsPage]:
+    'px-6 w-full border-l bg-theme-float',
+  [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mt-3',
+  [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
 };
 
 function EnableNotification({
-  source = NotificationPromptSource.NotificationList,
+  source = NotificationPromptSource.NotificationsPage,
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
+  const { trackEvent } = useAnalyticsContext();
   const {
     isSubscribed,
     isNotificationSupported,
@@ -47,17 +43,25 @@ function EnableNotification({
     onTogglePermission,
     onAcceptedPermissionJustNow,
   } = useContext(NotificationsContext);
-  const [dismissedCache, setDismissedCache, isLoaded] =
-    usePersistentContext<DismissBrowserPermissions>(
-      DISMISS_BROWSER_PERMISSION,
-      DEFAULT_CACHE_VALUE,
-    );
-  const dismissed = !!dismissedCache?.[source];
-  const setDismissed = (value: boolean) =>
-    setDismissedCache({ ...dismissedCache, [source]: value });
+  const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
+    DISMISS_PERMISSION_BANNER,
+    false,
+  );
+  const onDismiss = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickNotificationDismiss,
+      extra: JSON.stringify({ origin: source }),
+    });
+    setIsDismissed(true);
+  };
 
   const onEnable = async () => {
     const permission = await onTogglePermission();
+
+    trackEvent({
+      event_name: AnalyticsEvent.ClickEnableNotification,
+      extra: JSON.stringify({ origin: source, permission }),
+    });
 
     if (permission === null) {
       return;
@@ -78,7 +82,7 @@ function EnableNotification({
 
   if (
     !isLoaded ||
-    dismissed ||
+    isDismissed ||
     !isNotificationSupported ||
     ((isSubscribed || hasPermissionCache) && !isEnabled)
   ) {
@@ -89,9 +93,9 @@ function EnableNotification({
     [NotificationPromptSource.NewComment]: `Want to get notified when ${
       parentCommentAuthorName ?? 'someone'
     } responds so you can continue the conversation?`,
-    [NotificationPromptSource.NewSource]:
+    [NotificationPromptSource.CommunityPicks]:
       'Would you like to get notified on the status of your article submissions in real time?',
-    [NotificationPromptSource.NotificationList]:
+    [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
   };
   const message = sourceToMessage[source];
@@ -104,7 +108,7 @@ function EnableNotification({
         classes,
       )}
     >
-      {source === NotificationPromptSource.NotificationList && (
+      {source === NotificationPromptSource.NotificationsPage && (
         <span className="flex flex-row font-bold">
           {isEnabled && <VIcon className="mr-2" />}
           {`Push notifications${isEnabled ? ' successfully enabled' : ''}`}
@@ -150,7 +154,7 @@ function EnableNotification({
       <CloseButton
         buttonSize="xsmall"
         className="top-1 laptop:top-3 right-1 laptop:right-3"
-        onClick={() => setDismissed(true)}
+        onClick={onDismiss}
         position="absolute"
       />
     </div>

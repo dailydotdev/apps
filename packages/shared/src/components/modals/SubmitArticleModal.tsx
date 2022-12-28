@@ -250,7 +250,9 @@ export default function SubmitArticleModal({
               )
             )}
             {isEnabled && (
-              <EnableNotification source={NotificationPromptSource.NewSource} />
+              <EnableNotification
+                source={NotificationPromptSource.CommunityPicks}
+              />
             )}
             {getAlert()}
           </div>

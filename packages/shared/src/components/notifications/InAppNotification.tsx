@@ -12,6 +12,9 @@ import { isTouchDevice } from '../../lib/tooltip';
 import CloseButton from '../CloseButton';
 import { InAppNotificationItem } from './InAppNotificationItem';
 import styles from './InAppNotification.module.css';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { NotificationType } from '../../graphql/notifications';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { InAppNotificationPosition } from '../../lib/featureValues';
 
@@ -29,6 +32,7 @@ let timeoutId: number | NodeJS.Timeout = 0;
 export function InAppNotificationElement(): ReactElement {
   const router = useRouter();
   const client = useQueryClient();
+  const { trackEvent } = useAnalyticsContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
   const [isExit, setExit] = useState(false);
   const closeNotification = () => {
@@ -74,10 +78,20 @@ export function InAppNotificationElement(): ReactElement {
     };
   }, [payload]);
 
+  const onNotificationClick = (id: string, type: NotificationType) => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickNotification,
+      target_id: id,
+      extra: JSON.stringify({ origin: Origin.RealTime, type }),
+    });
+  };
+
   if (!payload?.notification) {
     return null;
   }
+
   const { inAppNotificationPosition } = useContext(FeaturesContext);
+
   return (
     <Container
       className={classNames(
@@ -96,7 +110,15 @@ export function InAppNotificationElement(): ReactElement {
         onClick={clearNotifications}
         position="absolute"
       />
-      <InAppNotificationItem {...payload.notification} />
+      <InAppNotificationItem
+        {...payload.notification}
+        onClick={() =>
+          onNotificationClick(
+            payload.notification.id,
+            payload.notification.type,
+          )
+        }
+      />
     </Container>
   );
 }

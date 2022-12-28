@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, createContext, useRef } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  createContext,
+  useRef,
+  useContext,
+} from 'react';
 import useAnalyticsQueue, {
   AnalyticsEvent,
 } from '../hooks/analytics/useAnalyticsQueue';
@@ -72,3 +78,6 @@ export const AnalyticsContextProvider = ({
     </AnalyticsContext.Provider>
   );
 };
+
+export const useAnalyticsContext = (): AnalyticsContextData =>
+  useContext(AnalyticsContext);

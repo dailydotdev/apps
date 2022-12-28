@@ -21,6 +21,8 @@ import { AuthTriggers } from '../../lib/auth';
 import { Modal, ModalProps } from './common/Modal';
 import NotificationsContext from '../../contexts/NotificationsContext';
 import { Justify } from '../utilities';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 
 interface RSS {
   url: string;
@@ -52,6 +54,7 @@ type ScrapeSourceResponse =
 
 export default function NewSourceModal(props: StyledModalProps): ReactElement {
   const scrapeFormRef = useRef<HTMLFormElement>();
+  const { trackEvent } = useAnalyticsContext();
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [scrapeError, setScrapeError] = useState<string>();
   const [showContact, setShowContact] = useState(false);
@@ -67,6 +70,10 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
 
   const enableNotifications = async () => {
     const permission = await onTogglePermission();
+    trackEvent({
+      event_name: AnalyticsEvent.ClickEnableNotification,
+      extra: JSON.stringify({ origin: Origin.NewSourceModal, permission }),
+    });
     if (permission === 'granted') {
       onRequestClose?.(null);
     }
