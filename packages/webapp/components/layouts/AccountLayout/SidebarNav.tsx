@@ -12,7 +12,7 @@ import { useRouter } from 'next/router';
 import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
 import {
   AnalyticsEvent,
-  TargetType,
+  NotificationTarget,
 } from '@dailydotdev/shared/src/lib/analytics';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
@@ -65,7 +65,7 @@ function SidebarNav({
     notifications: () =>
       trackEvent({
         event_name: AnalyticsEvent.ClickNotificationIcon,
-        target_type: TargetType.NotificationSidebarButton,
+        target_id: NotificationTarget.Sidebar,
         extra: JSON.stringify({ notifications_number: unreadCount }),
       }),
   };

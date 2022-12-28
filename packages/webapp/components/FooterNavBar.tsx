@@ -22,7 +22,7 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,
-  TargetType,
+  NotificationTarget,
 } from '@dailydotdev/shared/src/lib/analytics';
 import styles from './FooterNavBar.module.css';
 
@@ -93,7 +93,7 @@ export default function FooterNavBar(): ReactElement {
   const onNavigateNotifications = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotificationIcon,
-      target_type: TargetType.Bell,
+      target_id: NotificationTarget.Footer,
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };

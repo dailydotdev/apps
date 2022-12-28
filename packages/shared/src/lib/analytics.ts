@@ -42,8 +42,6 @@ export enum TargetType {
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   ScrollBlock = 'scroll block',
-  NotificationSidebarButton = 'notification sidebar button',
-  Bell = 'bell',
 }
 
 export enum TargetId {
@@ -63,4 +61,10 @@ export enum NotificationChannel {
 export enum NotificationCategory {
   Marketing = 'marketing',
   Product = 'product',
+}
+
+export enum NotificationTarget {
+  Sidebar = 'sidebar',
+  Header = 'header',
+  Footer = 'footer',
 }

@@ -3,7 +3,7 @@ import React, { ReactElement, ReactNode, useContext } from 'react';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import BellIcon from '../icons/Bell';
@@ -74,7 +74,7 @@ function MainLayoutHeader({
   const onNavigateNotifications = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotificationIcon,
-      target_type: TargetType.Bell,
+      target_id: NotificationTarget.Header,
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
