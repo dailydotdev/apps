@@ -160,7 +160,7 @@ export const NotificationsContextProvider = ({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
     setHasTrackedImpression(true);
-  }, [firstLoad, unreadCount]);
+  }, [firstLoad, unreadCount, hasTrackedImpression]);
 
   const data: NotificationsContextData = useMemo(
     () => ({
