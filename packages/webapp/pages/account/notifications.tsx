@@ -16,7 +16,6 @@ import {
   NotificationCategory,
   NotificationChannel,
 } from '@dailydotdev/shared/src/lib/analytics';
-import { NotifContainer } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -43,7 +42,7 @@ const AccountNotificationsPage = (): ReactElement => {
         event_name: AnalyticsEvent.DisableNotification,
         extra: JSON.stringify({
           channel: NotificationChannel.Email,
-          category: Object.values(NotifContainer),
+          category: Object.values(NotificationCategory),
         }),
       });
     }
