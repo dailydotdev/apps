@@ -20,6 +20,8 @@ export const cloudinary = {
     big: 'https://daily-now-res.cloudinary.com/image/upload/v1671199897/public/notification_big.svg',
     browser:
       'https://daily-now-res.cloudinary.com/image/upload/v1670512489/public/notification_animated.gif',
+    browser_enabled:
+      'https://daily-now-res.cloudinary.com/image/upload/v1672124926/public/notifications_enabled.gif',
     upvote:
       'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/upvote.svg',
     daily:

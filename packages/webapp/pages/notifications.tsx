@@ -21,8 +21,8 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
-import { getLayout } from '../components/layouts/FooterNavBarLayout';
-import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../components/layouts/MainLayout';
 
 import ProtectedPage from '../components/ProtectedPage';
 
@@ -81,7 +81,7 @@ const Notifications = (): ReactElement => {
         className={classNames(
           pageBorders,
           pageContainerClassNames,
-          'laptop:min-h-screen',
+          'laptop:min-h-screen pb-12',
         )}
       >
         <EnableNotification />
@@ -106,7 +106,9 @@ const Notifications = (): ReactElement => {
                 ),
               ),
             )}
-          {(!length || !queryResult.hasNextPage) && <FirstNotification />}
+          {(!length || !queryResult.hasNextPage) && queryResult?.isFetched && (
+            <FirstNotification />
+          )}
         </InfiniteScrolling>
       </main>
     </ProtectedPage>

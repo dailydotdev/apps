@@ -14,6 +14,7 @@ import useAnalyticsContextData, {
 } from '../hooks/analytics/useAnalyticsContextData';
 import useBackfillPendingEvents from '../hooks/analytics/useBackfillPendingEvents';
 import useTrackLifecycleEvents from '../hooks/analytics/useTrackLifecycleEvents';
+import { BootApp } from '../lib/boot';
 
 const AnalyticsContext = createContext<AnalyticsContextData>({
   trackEvent: () => {},
@@ -23,7 +24,7 @@ const AnalyticsContext = createContext<AnalyticsContextData>({
 export default AnalyticsContext;
 
 export type AnalyticsContextProviderProps = {
-  app: string;
+  app: BootApp;
   getPage: () => string;
   version?: string;
   fetchMethod?: typeof fetch;

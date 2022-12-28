@@ -9,7 +9,6 @@ import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const seo: NextSeoProps = {
   title: 'Most upvoted posts on daily.dev',
-  titleTemplate: '%s',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };

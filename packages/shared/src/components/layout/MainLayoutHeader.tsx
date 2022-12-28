@@ -111,8 +111,8 @@ function MainLayoutHeader({
           {!hideButton && user && (
             <LinkWithTooltip
               tooltip={{ placement: 'left', content: 'Notifications' }}
-              href={`${webappUrl}/notifications`}
               onClick={onNavigateNotifications}
+              href={`${webappUrl}notifications`}
             >
               <Button
                 className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"

@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { Button } from '../buttons/Button';
@@ -42,10 +42,15 @@ function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const { hasPermission, notificationsAvailable, requestPermission } =
-    useContext(NotificationsContext);
   const { trackEvent } = useAnalyticsContext();
+  const {
+    isSubscribed,
+    isNotificationSupported,
+    hasPermissionCache,
+    acceptedPermissionJustNow: isEnabled,
+    onTogglePermission,
+    onAcceptedPermissionJustNow,
+  } = useContext(NotificationsContext);
   const [dismissedCache, setDismissedCache, isLoaded] =
     usePersistentContext<DismissBrowserPermissions>(
       DISMISS_BROWSER_PERMISSION,
@@ -61,7 +66,7 @@ function EnableNotification({
   };
 
   const onEnable = async () => {
-    const permission = await requestPermission();
+    const permission = await onTogglePermission();
 
     trackEvent({
       event_name: AnalyticsEvent.ClickEnableNotification,
@@ -69,13 +74,28 @@ function EnableNotification({
     });
 
     setIsEnabled(permission === 'granted');
+    if (permission === null) {
+      return;
+    }
+
+    const isGranted = permission === 'granted';
+
+    onAcceptedPermissionJustNow?.(isGranted);
   };
+
+  const hasEnabled = (isSubscribed || hasPermissionCache) && isEnabled;
+
+  useEffect(() => {
+    return () => {
+      onAcceptedPermissionJustNow?.(false);
+    };
+  }, []);
 
   if (
     !isLoaded ||
     dismissed ||
-    !notificationsAvailable() ||
-    (hasPermission && !isEnabled)
+    !isNotificationSupported ||
+    ((isSubscribed || hasPermissionCache) && !isEnabled)
   ) {
     return null;
   }
@@ -121,23 +141,30 @@ function EnableNotification({
           message
         )}
       </p>
-      <span className="flex flex-row gap-4 mt-4">
+      {!hasEnabled && (
         <Button
           buttonSize="small"
-          className="text-white min-w-[7rem] btn-primary-cabbage"
+          className="mt-4 text-white min-w-[7rem] btn-primary-cabbage"
           onClick={onEnable}
         >
           Enable Notifications
         </Button>
-      </span>
+      )}
       <img
-        className="hidden tablet:flex absolute right-4 -bottom-2"
-        src={cloudinary.notifications.browser}
+        className={classNames(
+          'hidden tablet:flex absolute right-4 w-[7.5rem]',
+          isEnabled ? '-bottom-8' : '-bottom-2',
+        )}
+        src={
+          isEnabled
+            ? cloudinary.notifications.browser_enabled
+            : cloudinary.notifications.browser
+        }
         alt="A sample browser notification"
       />
       <CloseButton
         buttonSize="xsmall"
-        className="top-3 right-3"
+        className="top-1 laptop:top-3 right-1 laptop:right-3"
         onClick={() => setDismissed(true)}
         position="absolute"
       />

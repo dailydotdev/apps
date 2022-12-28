@@ -46,6 +46,7 @@ import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/Simpl
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
+import { getTemplatedTitle } from '../utils';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -103,8 +104,7 @@ export default function ProfileLayout({
 
   const Seo: NextSeoProps = profile
     ? {
-        title: profile.name,
-        titleTemplate: '%s | daily.dev',
+        title: getTemplatedTitle(profile.name),
         description: profile.bio
           ? profile.bio
           : `Check out ${profile.name}'s profile`,

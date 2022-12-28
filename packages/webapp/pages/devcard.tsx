@@ -28,6 +28,7 @@ import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
+import { getTemplatedTitle } from '../components/layouts/utils';
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
 
@@ -290,8 +291,7 @@ const Step2 = ({
 };
 
 const seo: NextSeoProps = {
-  title: 'Grab your DevCard',
-  titleTemplate: '%s | daily.dev',
+  title: getTemplatedTitle('Grab your DevCard'),
   description:
     'DevCard will show you stats about the publications and topics you love to read. Generate yours now.',
   openGraph: {

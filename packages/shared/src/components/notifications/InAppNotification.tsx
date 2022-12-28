@@ -1,10 +1,11 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import {
   InAppNotification,
   IN_APP_NOTIFICATION_KEY,
+  useInAppNotification,
 } from '../../hooks/useInAppNotification';
 import classed from '../../lib/classed';
 import { isTouchDevice } from '../../lib/tooltip';
@@ -14,13 +15,15 @@ import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { NotificationType } from '../../graphql/notifications';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import { InAppNotificationPosition } from '../../lib/featureValues';
 
 const Container = classed(
   'div',
   classNames(
     styles.inAppNotificationContainer,
     'animate-bounce',
-    'fixed bottom-10 right-10 bg-theme-bg-notification border border-theme-active rounded-16 in-app-notification slide-in z-[100] w-[22.5rem] h-22',
+    'fixed right-10 bg-theme-bg-notification border border-theme-active rounded-16 in-app-notification slide-in z-[100] w-[22.5rem] h-22',
   ),
 );
 
@@ -30,12 +33,13 @@ export function InAppNotificationElement(): ReactElement {
   const router = useRouter();
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
+  const { clearNotifications, dismissNotification } = useInAppNotification();
   const [isExit, setExit] = useState(false);
   const closeNotification = () => {
     setExit(true);
     setTimeout(() => {
       setExit(false);
-      client.setQueryData(IN_APP_NOTIFICATION_KEY, null);
+      dismissNotification();
     }, 150);
   };
   const stopTimer = () => clearTimeout(timeoutId);
@@ -56,25 +60,20 @@ export function InAppNotificationElement(): ReactElement {
     },
   );
 
-  const dismissNotification = () => {
-    if (!payload) {
-      return;
-    }
-    closeNotification();
-  };
-
   useEffect(() => {
+    const handler = () => {
+      if (!payload) {
+        return;
+      }
+      closeNotification();
+    };
     if (!isTouchDevice() || !payload) {
       return;
     }
-
-    const handler = () => dismissNotification();
-    window.addEventListener('scroll', handler);
     router.events.on('routeChangeStart', handler);
 
     // eslint-disable-next-line consistent-return
     return () => {
-      window.removeEventListener('scroll', handler);
       router.events.off('routeChangeStart', handler);
     };
   }, [payload]);
@@ -86,13 +85,20 @@ export function InAppNotificationElement(): ReactElement {
     });
   };
 
-  if (!payload) {
+  if (!payload?.notification) {
     return null;
   }
 
+  const { inAppNotificationPosition } = useContext(FeaturesContext);
+
   return (
     <Container
-      className={classNames(isExit && 'exit')}
+      className={classNames(
+        isExit && 'exit',
+        inAppNotificationPosition === InAppNotificationPosition.Bottom
+          ? 'bottom-10'
+          : 'top-16',
+      )}
       role="alert"
       onMouseEnter={stopTimer}
       onMouseLeave={() => startTimer(payload.timer)}
@@ -100,7 +106,7 @@ export function InAppNotificationElement(): ReactElement {
       <CloseButton
         buttonSize="xxsmall"
         className="top-3 right-3"
-        onClick={closeNotification}
+        onClick={clearNotifications}
         position="absolute"
       />
       <InAppNotificationItem
