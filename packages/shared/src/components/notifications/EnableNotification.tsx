@@ -16,15 +16,7 @@ export enum NotificationPromptSource {
   CommunityPicks = 'community picks modal',
 }
 
-const DISMISS_BROWSER_PERMISSION = 'dismissBrowserPermission';
-
-type DismissBrowserPermissions = Record<NotificationPromptSource, boolean>;
-
-const DEFAULT_CACHE_VALUE: DismissBrowserPermissions = {
-  [NotificationPromptSource.NewComment]: false,
-  [NotificationPromptSource.CommunityPicks]: false,
-  [NotificationPromptSource.NotificationsPage]: false,
-};
+const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
@@ -51,18 +43,16 @@ function EnableNotification({
     onTogglePermission,
     onAcceptedPermissionJustNow,
   } = useContext(NotificationsContext);
-  const [dismissedCache, setDismissedCache, isLoaded] =
-    usePersistentContext<DismissBrowserPermissions>(
-      DISMISS_BROWSER_PERMISSION,
-      DEFAULT_CACHE_VALUE,
-    );
-  const dismissed = !!dismissedCache?.[source];
-  const setDismissed = (value: boolean) => {
+  const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
+    DISMISS_PERMISSION_BANNER,
+    false,
+  );
+  const onDismiss = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotificationDismiss,
       extra: JSON.stringify({ origin: source }),
     });
-    setDismissedCache({ ...dismissedCache, [source]: value });
+    setIsDismissed(true);
   };
 
   const onEnable = async () => {
@@ -92,7 +82,7 @@ function EnableNotification({
 
   if (
     !isLoaded ||
-    dismissed ||
+    isDismissed ||
     !isNotificationSupported ||
     ((isSubscribed || hasPermissionCache) && !isEnabled)
   ) {
@@ -164,7 +154,7 @@ function EnableNotification({
       <CloseButton
         buttonSize="xsmall"
         className="top-1 laptop:top-3 right-1 laptop:right-3"
-        onClick={() => setDismissed(true)}
+        onClick={onDismiss}
         position="absolute"
       />
     </div>
