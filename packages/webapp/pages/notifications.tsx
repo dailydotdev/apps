@@ -34,7 +34,6 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
   const { trackEvent } = useAnalyticsContext();
-  const { unreadCount } = useNotificationContext();
   const { clearUnreadCount } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
     () => request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),
