@@ -67,9 +67,10 @@ const Notifications = (): ReactElement => {
 
   const length = queryResult?.data?.pages?.length ?? 0;
 
-  const onNotificationClick = (type: NotificationType) => {
+  const onNotificationClick = (id: string, type: NotificationType) => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotification,
+      target_id: id,
       extra: JSON.stringify({ origin: Origin.NonRealTime, type }),
     });
   };
@@ -107,7 +108,7 @@ const Notifications = (): ReactElement => {
                     {...props}
                     type={type}
                     isUnread={!readAt}
-                    onClick={() => onNotificationClick(type)}
+                    onClick={() => onNotificationClick(id, type)}
                   />
                 ),
               ),

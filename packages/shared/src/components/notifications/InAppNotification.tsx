@@ -78,9 +78,10 @@ export function InAppNotificationElement(): ReactElement {
     };
   }, [payload]);
 
-  const onNotificationClick = (type: NotificationType) => {
+  const onNotificationClick = (id: string, type: NotificationType) => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotification,
+      target_id: id,
       extra: JSON.stringify({ origin: Origin.RealTime, type }),
     });
   };
@@ -111,7 +112,12 @@ export function InAppNotificationElement(): ReactElement {
       />
       <InAppNotificationItem
         {...payload.notification}
-        onClick={() => onNotificationClick(payload.notification.type)}
+        onClick={() =>
+          onNotificationClick(
+            payload.notification.id,
+            payload.notification.type,
+          )
+        }
       />
     </Container>
   );
