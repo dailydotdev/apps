@@ -16,4 +16,8 @@ export const cloudinary = {
     scroll:
       'https://daily-now-res.cloudinary.com/image/upload/v1671199935/public/scroll_feed_filters.svg',
   },
+  squads: {
+    imageFallback:
+      'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
+  },
 };

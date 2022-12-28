@@ -58,6 +58,7 @@ const updateLocalBootData = (
     'settings',
     'user',
     'lastModifier',
+    'squads',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -78,7 +79,7 @@ export const BootDataProvider = ({
     useState<Partial<BootCacheData>>();
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
   const loadedFromCache = cachedBootData !== undefined;
-  const { user, settings, flags = {}, alerts } = cachedBootData || {};
+  const { user, settings, flags = {}, alerts, squads } = cachedBootData || {};
   const {
     data: bootRemoteData,
     refetch,
@@ -125,6 +126,7 @@ export const BootDataProvider = ({
       if (!bootRemoteData.user || !('providers' in bootRemoteData.user)) {
         delete bootRemoteData.settings;
       }
+
       setBootData(bootRemoteData, false);
     }
   }, [bootRemoteData]);
@@ -170,6 +172,7 @@ export const BootDataProvider = ({
         isLegacyLogout={bootRemoteData?.isLegacyLogout}
         firstLoad={initialLoad}
         accessToken={bootRemoteData?.accessToken}
+        squads={squads}
       >
         <SettingsContextProvider
           settings={settings}

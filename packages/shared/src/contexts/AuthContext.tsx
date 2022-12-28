@@ -16,6 +16,7 @@ import FeaturesContext from './FeaturesContext';
 import { AuthVersion } from '../lib/featureValues';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
+import { Squad } from '../graphql/squads';
 
 export type LoginState = { trigger: AuthTriggersOrString };
 
@@ -40,6 +41,7 @@ export interface AuthContextData {
   deleteAccount?: () => Promise<void>;
   refetchBoot?: () => Promise<unknown>;
   accessToken?: AccessToken;
+  squads?: Squad[];
 }
 const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -90,6 +92,7 @@ export type AuthContextProviderProps = {
   | 'loadedUserFromCache'
   | 'visit'
   | 'accessToken'
+  | 'squads'
 >;
 
 export const AuthContextProvider = ({
@@ -106,6 +109,7 @@ export const AuthContextProvider = ({
   isLegacyLogout,
   firstLoad,
   accessToken,
+  squads,
 }: AuthContextProviderProps): ReactElement => {
   const { authVersion } = useContext(FeaturesContext);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
@@ -150,6 +154,7 @@ export const AuthContextProvider = ({
       refetchBoot,
       deleteAccount,
       accessToken,
+      squads,
     }),
     [
       authVersion,
@@ -161,6 +166,7 @@ export const AuthContextProvider = ({
       loadedUserFromCache,
       visit,
       accessToken,
+      squads,
     ],
   );
 

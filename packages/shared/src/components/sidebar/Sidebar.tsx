@@ -31,6 +31,7 @@ import SquadButton from './SquadButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
+import { SquadsList } from './SquadsList';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -52,7 +53,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, squads } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { alerts } = useContext(AlertContext);
   const {
@@ -72,7 +73,7 @@ export default function Sidebar({
     squadForm,
     squadButton,
   } = useContext(FeaturesContext);
-  const squadVisible = sidebarRendered && user;
+  const newSquadButtonVisible = sidebarRendered && user && !squads?.length;
   const [trackedSquadImpression, setTrackedSquadImpression] = useState(false);
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -117,7 +118,7 @@ export default function Sidebar({
     if (trackedSquadImpression) {
       return;
     }
-    if (squadVersion !== SquadVersion.Off && squadVisible) {
+    if (squadVersion !== SquadVersion.Off && newSquadButtonVisible) {
       trackEvent({
         event_name: 'impression',
         target_type: 'create squad',
@@ -131,7 +132,7 @@ export default function Sidebar({
     squadVersion,
     squadButton,
     squadForm,
-    squadVisible,
+    newSquadButtonVisible,
     trackedSquadImpression,
   ]);
 
@@ -163,7 +164,7 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {squadVersion === SquadVersion.V4 && squadVisible && (
+            {squadVersion === SquadVersion.V4 && newSquadButtonVisible && (
               <SquadButton
                 {...defaultRenderSectionProps}
                 {...defaultSquadButtonProps}
@@ -179,14 +180,15 @@ export default function Sidebar({
                 onNavTabClick={onNavTabClick}
               />
             )}
+            {!!squads?.length && <SquadsList squads={squads} />}
             {[SquadVersion.V1, SquadVersion.V2].includes(squadVersion) &&
-              squadVisible && (
+              newSquadButtonVisible && (
                 <SquadButton
                   {...defaultRenderSectionProps}
                   {...defaultSquadButtonProps}
                 />
               )}
-            {squadVersion === SquadVersion.V3 && squadVisible && (
+            {squadVersion === SquadVersion.V3 && newSquadButtonVisible && (
               <SquadSection
                 {...defaultRenderSectionProps}
                 {...defaultSquadButtonProps}

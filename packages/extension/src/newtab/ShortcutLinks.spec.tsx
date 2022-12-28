@@ -101,6 +101,7 @@ const defaultBootData: BootCacheData = {
   alerts: defaultAlerts,
   user: defaultUser,
   settings: defaultSettings,
+  squads: [],
   flags: {},
 };
 
