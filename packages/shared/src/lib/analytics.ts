@@ -64,7 +64,6 @@ export enum NotificationCategory {
 }
 
 export enum NotificationTarget {
-  Sidebar = 'sidebar',
   Header = 'header',
   Footer = 'footer',
 }
