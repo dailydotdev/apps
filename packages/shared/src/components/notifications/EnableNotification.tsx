@@ -73,7 +73,6 @@ function EnableNotification({
       extra: JSON.stringify({ origin: source, permission }),
     });
 
-    setIsEnabled(permission === 'granted');
     if (permission === null) {
       return;
     }
