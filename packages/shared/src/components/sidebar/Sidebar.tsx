@@ -180,9 +180,7 @@ export default function Sidebar({
                 onNavTabClick={onNavTabClick}
               />
             )}
-            {!!squads?.length && (
-              <SquadsList squads={squads} />
-            )}
+            {!!squads?.length && <SquadsList squads={squads} />}
             {[SquadVersion.V1, SquadVersion.V2].includes(squadVersion) &&
               newSquadButtonVisible && (
                 <SquadButton
