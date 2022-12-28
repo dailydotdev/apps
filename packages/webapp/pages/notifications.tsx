@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
@@ -33,7 +33,6 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
 
 const Notifications = (): ReactElement => {
   const seo = <NextSeo title="Notifications" nofollow noindex />;
-  const [hasTrackedFetch, setHasTrackedFetch] = useState(false);
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { clearUnreadCount } = useNotificationContext();
@@ -56,14 +55,10 @@ const Notifications = (): ReactElement => {
         if (hasUnread(data)) {
           readNotifications();
         }
-
-        if (queryResult.isFetchedAfterMount && !hasTrackedFetch) {
-          trackEvent({ event_name: AnalyticsEvent.OpenNotificationList });
-          setHasTrackedFetch(true);
-        }
       },
     },
   );
+  const { isFetchedAfterMount, isFetched, hasNextPage } = queryResult ?? {};
 
   const length = queryResult?.data?.pages?.length ?? 0;
 
@@ -81,6 +76,14 @@ const Notifications = (): ReactElement => {
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   }, []);
+
+  useEffect(() => {
+    if (!isFetchedAfterMount) {
+      return;
+    }
+
+    trackEvent({ event_name: AnalyticsEvent.OpenNotificationList });
+  }, [isFetchedAfterMount]);
 
   return (
     <ProtectedPage seo={seo}>
@@ -113,9 +116,7 @@ const Notifications = (): ReactElement => {
                 ),
               ),
             )}
-          {(!length || !queryResult.hasNextPage) && queryResult?.isFetched && (
-            <FirstNotification />
-          )}
+          {(!length || !hasNextPage) && isFetched && <FirstNotification />}
         </InfiniteScrolling>
       </main>
     </ProtectedPage>
