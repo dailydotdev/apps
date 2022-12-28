@@ -13,7 +13,7 @@ export interface NotificationItemProps
     'type' | 'icon' | 'title' | 'description' | 'avatars' | 'attachments'
   > {
   isUnread?: boolean;
-  targetUrl?: string;
+  targetUrl: string;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
