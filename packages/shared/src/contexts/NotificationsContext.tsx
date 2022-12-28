@@ -10,7 +10,7 @@ import {
   UseNotificationPermissionPopup,
   useNotificationPermissionPopup,
 } from '../hooks/useNotificationPermissionPopup';
-import { AnalyticsEvent } from '../lib/analytics';
+import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { BootApp } from '../lib/boot';
 import { isDevelopment, isTesting } from '../lib/constants';
 import { useAnalyticsContext } from './AnalyticsContext';
@@ -157,6 +157,7 @@ export const NotificationsContextProvider = ({
 
     trackEvent({
       event_name: AnalyticsEvent.Impression,
+      target_type: NotificationTarget.Icon,
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
     setHasTrackedImpression(true);
