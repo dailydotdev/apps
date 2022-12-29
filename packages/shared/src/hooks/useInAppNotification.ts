@@ -55,6 +55,11 @@ export const useInAppNotification = (): UseInAppNotification => {
   };
 
   const addToQueue = (newNotification: NewNotification) => {
+    if (registeredNotification[newNotification.id]) {
+      return;
+    }
+
+    registeredNotification[newNotification.id] = true;
     incrementUnreadCount();
     queue.push(newNotification);
     if (queue.length >= MAX_QUEUE_LENGTH) {
@@ -84,10 +89,7 @@ export const useInAppNotification = (): UseInAppNotification => {
     }),
     {
       next: ({ newNotification }: PushNotificationSubscription) => {
-        if (!registeredNotification[newNotification.id]) {
-          addToQueue(newNotification);
-          registeredNotification[newNotification.id] = true;
-        }
+        addToQueue(newNotification);
       },
     },
   );
