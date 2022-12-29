@@ -132,6 +132,7 @@ export const NotificationsContextProvider = ({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
         allowLocalhostAsSecureOrigin: isDevelopment,
         serviceWorkerParam: { scope: '/push/onesignal/' },
+        serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
       });
       const isGranted = globalThis.Notification?.permission === 'granted';
       const id = await globalThis.OneSignal?.getRegistrationId();
