@@ -9,6 +9,7 @@ import { cloudinary } from '../../lib/image';
 
 type SquadsListProps = {
   squads: Squad[];
+  onNewSquad: () => void;
 };
 
 const SquadImage = ({ image, name }: Squad) => (
@@ -21,11 +22,14 @@ const SquadImage = ({ image, name }: Squad) => (
   />
 );
 
-export function SquadsList({ squads }: SquadsListProps): ReactElement {
+export function SquadsList({
+  squads,
+  onNewSquad,
+}: SquadsListProps): ReactElement {
   const newSquadMenuItem: SidebarMenuItem = {
     icon: () => <NewSquadIcon />,
     title: 'New squad',
-    path: '/new-squad',
+    action: onNewSquad,
   };
 
   return (

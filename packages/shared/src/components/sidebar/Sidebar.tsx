@@ -39,6 +39,16 @@ const UserSettingsModal = dynamic(
       /* webpackChunkName: "userSettingsModal" */ '../modals/UserSettingsModal'
     ),
 );
+const SquadsBetaModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadsBetaModal" */ '../modals/SquadsBetaModal'
+    ),
+);
+const NewSquadModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "newSquadModal" */ '../modals/NewSquadModal'),
+);
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -63,6 +73,8 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSquadsBetaModal, setShowSquadsBetaModal] = useState(false);
+  const [showCreateSquadModal, setShowCreateSquadModal] = useState(false);
   const {
     canSubmitArticle,
     submitArticleOn,
@@ -93,6 +105,19 @@ export default function Sidebar({
       feed_item_title: squadButton,
       feed_item_target_url: squadForm,
     });
+  };
+
+  const onNewSquad = () => {
+    trackSquadClicks();
+    setShowSquadsBetaModal(true);
+  };
+  const handleCreateSquadBack = () => {
+    setShowCreateSquadModal(false);
+    setShowSquadsBetaModal(true);
+  };
+  const handleSquadsBetaModalNext = () => {
+    setShowCreateSquadModal(true);
+    setShowSquadsBetaModal(false);
   };
 
   const defaultSquadButtonProps = useMemo(
@@ -180,7 +205,9 @@ export default function Sidebar({
                 onNavTabClick={onNavTabClick}
               />
             )}
-            {!!squads?.length && <SquadsList squads={squads} />}
+            {!!squads?.length && (
+              <SquadsList squads={squads} onNewSquad={onNewSquad} />
+            )}
             {[SquadVersion.V1, SquadVersion.V2].includes(squadVersion) &&
               newSquadButtonVisible && (
                 <SquadButton
@@ -229,6 +256,18 @@ export default function Sidebar({
         <UserSettingsModal
           isOpen={showSettings}
           onRequestClose={() => setShowSettings(false)}
+        />
+      )}
+      {showSquadsBetaModal && (
+        <SquadsBetaModal
+          onRequestClose={() => setShowSquadsBetaModal(false)}
+          onNext={handleSquadsBetaModalNext}
+        />
+      )}
+      {showCreateSquadModal && (
+        <NewSquadModal
+          onPreviousState={handleCreateSquadBack}
+          onRequestClose={() => setShowCreateSquadModal(false)}
         />
       )}
     </>
