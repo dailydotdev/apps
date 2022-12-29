@@ -168,7 +168,7 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
     ...props,
   };
 
-  if (!showNotification) {
+  if (showNotification) {
     return <PushNotificationModal {...modalProps} />;
   }
 
