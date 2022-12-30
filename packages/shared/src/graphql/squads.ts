@@ -54,6 +54,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     ) {
       active
       handle
+      name
       permalink
       public
       type
