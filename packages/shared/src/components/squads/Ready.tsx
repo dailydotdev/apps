@@ -17,11 +17,11 @@ import {
 
 export function SquadReady({
   modalState,
-  name,
-  handle,
-  permalink,
-}: SquadStateProps & Squad): ReactElement {
+  squad,
+}: SquadStateProps & { squad?: Squad }): ReactElement {
   if (ModalState.Ready !== modalState) return null;
+  if (!squad) return <Modal.Body>loading...</Modal.Body>;
+  const { name, handle, permalink } = squad;
   const [copying, copyLink] = useCopyLink(() => permalink);
 
   const onCopy = () => {

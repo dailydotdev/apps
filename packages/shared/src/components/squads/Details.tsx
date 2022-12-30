@@ -1,8 +1,4 @@
-import React, {
-  FormEvent,
-  ReactElement,
-  useState,
-} from 'react';
+import React, { FormEvent, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';

@@ -14,15 +14,58 @@ export type Squads = {
   squads: Squad[];
 };
 
+export type CreateSquadInput = {
+  name: string;
+  handle: string;
+  description: string;
+  postId: string;
+  commentary: string;
+  image: File;
+};
+
+export type CreateSquadOutput = {
+  createSquad: Squad;
+};
+
+/*
+
+SharePostInput
+      id: ID!
+      commentary: String!
+      sourceId: ID!
+*/
+
 export const CREATE_SQUAD_MUTATION = gql`
-  mutation CreateSquad($data: CreateSquadInput, $upload: Upload) {
-    createSquad(data: $data, upload: $upload) {
-      id
-      name
-      image
+  mutation CreateSquad(
+    $name: String!
+    $handle: String!
+    $description: String
+    $postId: ID!
+    $commentary: String!
+    $image: Upload
+  ) {
+    createSquad(
+      name: $name
+      handle: $handle
+      description: $description
+      postId: $postId
+      commentary: $commentary
+      image: $image
+    ) {
+      active
       handle
-      description
       permalink
+      public
+      type
+      description
+    }
+  }
+`;
+
+export const ADD_POST_TO_SQUAD = gql`
+mutation AddPostToSquad($data: AddPostToSquadInput) {
+  sharePost(data: $data) {
+      Post!
     }
   }
 `;

@@ -6,7 +6,12 @@ import { Squad } from '../../graphql/squads';
 import { SquadDetails } from '../squads/Details';
 import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SquadReady } from '../squads/Ready';
-import { ModalState, SquadForm, SquadStateProps } from '../squads/utils';
+import {
+  createSquad,
+  ModalState,
+  SquadForm,
+  SquadStateProps,
+} from '../squads/utils';
 import { SquadComment } from '../squads/Comment';
 
 export const modalStateOrder = [
@@ -39,19 +44,15 @@ function NewSquadModal({
       modalStateOrder.findIndex((state) => state === modalState) + 1;
     return (index / modalStateOrder.length) * 100;
   };
-  const onNext = (squadForm?: SquadForm) => {
-    changeState(false);
-    if (squadForm)
-      setSquad({
-        ...squadForm,
-        active: true,
-        image: null,
-        permalink: 'http://webapp.local.com:5002/squads/dailydotdev',
-        public: true,
-        type: 'squad',
-      });
-  };
   const [form, setForm] = useState<Partial<SquadForm>>({});
+  const onNext = async (squadForm?: SquadForm) => {
+    const currentState = modalState;
+    changeState(false);
+    if (squadForm) setForm(squadForm);
+    if (ModalState.WriteComment !== currentState) return;
+    const newSquad = await createSquad(squadForm);
+    setSquad(newSquad);
+  };
   const stateProps: SquadStateProps = {
     modalState,
     form,
@@ -83,7 +84,7 @@ function NewSquadModal({
       <SquadDetails {...stateProps} />
       <SquadSelectArticle {...stateProps} />
       <SquadComment {...stateProps} />
-      <SquadReady {...stateProps} {...squad} />
+      <SquadReady {...stateProps} squad={squad} />
     </Modal>
   );
 }
