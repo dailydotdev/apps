@@ -35,3 +35,5 @@ export type FunctionRecord<K extends string | number | symbol> = Record<
   K,
   Func
 >;
+
+export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;

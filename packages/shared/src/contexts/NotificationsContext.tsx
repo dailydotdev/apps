@@ -12,6 +12,7 @@ import {
 } from '../hooks/useNotificationPermissionPopup';
 import { BootApp } from '../lib/boot';
 import { isDevelopment, isTesting } from '../lib/constants';
+import { checkIsExtension } from '../lib/func';
 import AuthContext from './AuthContext';
 
 interface NotificationsContextData extends UseNotificationPermissionPopup {
@@ -43,7 +44,7 @@ export const NotificationsContextProvider = ({
   isNotificationsReady,
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
-  const isExtension = !!process.env.TARGET_BROWSER;
+  const isExtension = checkIsExtension();
   const [OneSignal, setOneSignal] = useState(null);
   const { user } = useContext(AuthContext);
   const [isInitializing, setIsInitializing] = useState(false);
