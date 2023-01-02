@@ -3,48 +3,12 @@ import SquadsBackgroundSvg from '../../svg/SquadsBackground';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal } from './common/Modal';
-import {
-  ConfirmationButtons,
-  ConfirmationDescription,
-  ConfirmationHeading,
-  ConfirmationModal,
-} from './ConfirmationModal';
+import { SquadsConfirmation } from './SquadsConfirmationModal';
 
 export type SquadsBetaModalProps = {
   onRequestClose: () => void;
   onNext: () => void;
 };
-
-type ConfirmationProps = {
-  onRequestClose: () => void;
-  onContinue: () => void;
-};
-
-function Confirmation({
-  onRequestClose,
-  onContinue,
-}: ConfirmationProps): ReactElement {
-  return (
-    <ConfirmationModal isOpen>
-      <ConfirmationHeading>Quit the process?</ConfirmationHeading>
-      <ConfirmationDescription>
-        <p>
-          Learning is more powerful together. Are you sure you want to quit the
-          process?
-        </p>
-        <p>p.s you can create a new squad from the left sidebar</p>
-      </ConfirmationDescription>
-      <ConfirmationButtons>
-        <Button className="btn-secondary" onClick={onRequestClose}>
-          Cancel
-        </Button>
-        <Button className="btn-primary-ketchup" onClick={onContinue}>
-          Continue
-        </Button>
-      </ConfirmationButtons>
-    </ConfirmationModal>
-  );
-}
 
 function SquadsBetaModal({
   onRequestClose,
@@ -80,7 +44,7 @@ function SquadsBetaModal({
         </Modal.Footer>
       </Modal>
       {showConfirmation && (
-        <Confirmation
+        <SquadsConfirmation
           onContinue={onRequestClose}
           onRequestClose={() => setShowConfirmation(false)}
         />

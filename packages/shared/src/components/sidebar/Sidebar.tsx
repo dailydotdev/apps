@@ -264,8 +264,9 @@ export default function Sidebar({
           onNext={handleSquadsBetaModalNext}
         />
       )}
-      {showCreateSquadModal && (
+      {(showSquadsBetaModal || showCreateSquadModal) && (
         <NewSquadModal
+          isOpen={showCreateSquadModal}
           onPreviousState={handleCreateSquadBack}
           onRequestClose={() => setShowCreateSquadModal(false)}
         />
