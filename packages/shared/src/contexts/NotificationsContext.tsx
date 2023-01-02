@@ -10,10 +10,8 @@ import {
   UseNotificationPermissionPopup,
   useNotificationPermissionPopup,
 } from '../hooks/useNotificationPermissionPopup';
-import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { BootApp } from '../lib/boot';
 import { isDevelopment, isTesting } from '../lib/constants';
-import { useAnalyticsContext } from './AnalyticsContext';
 import AuthContext from './AuthContext';
 
 interface NotificationsContextData extends UseNotificationPermissionPopup {
@@ -21,6 +19,7 @@ interface NotificationsContextData extends UseNotificationPermissionPopup {
   isInitialized: boolean;
   isSubscribed: boolean;
   isNotificationSupported: boolean;
+  isNotificationsReady?: boolean;
   clearUnreadCount: () => void;
   incrementUnreadCount: () => void;
   onTogglePermission: () => Promise<NotificationPermission>;
@@ -34,14 +33,14 @@ export default NotificationsContext;
 export interface NotificationsContextProviderProps {
   children: ReactNode;
   unreadCount?: number;
-  firstLoad?: boolean;
+  isNotificationsReady?: boolean;
   app: BootApp;
 }
 
 export const NotificationsContextProvider = ({
   app,
   children,
-  firstLoad,
+  isNotificationsReady,
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
   const isExtension = !!process.env.TARGET_BROWSER;
@@ -52,8 +51,6 @@ export const NotificationsContextProvider = ({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [registrationId, setRegistrationId] = useState<string>(null);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
-  const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
-  const { trackEvent } = useAnalyticsContext();
   const {
     onOpenPopup,
     onAcceptedPermissionJustNow,
@@ -132,35 +129,31 @@ export const NotificationsContextProvider = ({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
         allowLocalhostAsSecureOrigin: isDevelopment,
         serviceWorkerParam: { scope: '/push/onesignal/' },
+        serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
       });
       const isGranted = globalThis.Notification?.permission === 'granted';
-      const id = await globalThis.OneSignal?.getRegistrationId();
-      const subscribed = await OneSignalReact.getSubscription();
+      const [id, subscribed, externalId] = await Promise.all([
+        globalThis.OneSignal?.getRegistrationId(),
+        OneSignalReact.getSubscription(),
+        OneSignalReact.getExternalUserId(),
+      ]);
+      const isValidSubscription = subscribed && isGranted;
       setOneSignal(OneSignalReact);
       setIsInitialized(true);
-      setRegistrationId(id);
-      setIsSubscribed(subscribed && isGranted);
-      if (!isGranted && subscribed) {
-        await OneSignalReact.setSubscription(false);
-      }
+      setIsSubscribed(isValidSubscription);
       if (id) {
+        setRegistrationId(id);
+      } else if (isValidSubscription) {
+        await globalThis.OneSignal?.registerForPushNotifications?.();
+        const regId = await globalThis.OneSignal?.getRegistrationId();
+        setRegistrationId(regId);
+      }
+
+      if (isValidSubscription && !externalId) {
         OneSignalReact.setExternalUserId(user.id);
       }
     });
   }, [isInitialized, isInitializing, user]);
-
-  useEffect(() => {
-    if (!firstLoad || unreadCount === 0 || hasTrackedImpression) {
-      return;
-    }
-
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      target_type: NotificationTarget.Icon,
-      extra: JSON.stringify({ notifications_number: unreadCount }),
-    });
-    setHasTrackedImpression(true);
-  }, [firstLoad, unreadCount, hasTrackedImpression]);
 
   const data: NotificationsContextData = useMemo(
     () => ({
@@ -168,6 +161,7 @@ export const NotificationsContextProvider = ({
       acceptedPermissionJustNow,
       hasPermissionCache,
       isInitialized,
+      isNotificationsReady,
       unreadCount: currentUnreadCount,
       isSubscribed,
       onTogglePermission,
@@ -179,7 +173,9 @@ export const NotificationsContextProvider = ({
       },
     }),
     [
+      isNotificationsReady,
       isSubscribed,
+      unreadCount,
       currentUnreadCount,
       isInitialized,
       user,

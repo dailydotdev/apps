@@ -120,13 +120,13 @@ export default function FooterNavBar(): ReactElement {
               prefetch={false}
               passHref
               tooltip={{ content: tab.title }}
-              onClick={onItemClick[tab.path]}
             >
               <Button
                 {...buttonProps}
                 tag="a"
                 icon={tab.icon(index === selectedTab, unreadCount)}
                 pressed={index === selectedTab}
+                onClick={onItemClick[tab.path]}
               />
             </LinkWithTooltip>
           ) : (

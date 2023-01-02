@@ -3,7 +3,7 @@ import { webappUrl } from '../lib/constants';
 import usePersistentContext from './usePersistentContext';
 import useWindowEvents, { MessageEventData } from './useWindowEvents';
 
-interface PermissionEvent extends MessageEventData {
+export interface PermissionEvent extends MessageEventData {
   permission: NotificationPermission;
 }
 

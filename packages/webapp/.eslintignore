@@ -1,3 +1,4 @@
 build/*
 next.config.js
 public/OneSignalSDKWorker.js
+public/push/onesignal/OneSignalSDKWorker.js
