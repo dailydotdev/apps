@@ -93,14 +93,10 @@ export const NotificationsContextProvider = ({
   const onTogglePermission = async (): Promise<NotificationPermission> => {
     if (!user) return 'default';
 
-    if (app === BootApp.Extension) {
-      onOpenPopup();
-      return null;
-    }
-
     const { permission } = globalThis.Notification ?? {};
 
-    if (permission === 'denied') {
+    if (app === BootApp.Extension || permission === 'denied') {
+      onOpenPopup();
       return null;
     }
 
