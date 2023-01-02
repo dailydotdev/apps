@@ -98,6 +98,12 @@ export const NotificationsContextProvider = ({
       return null;
     }
 
+    const { permission } = globalThis.Notification ?? {};
+
+    if (permission === 'denied') {
+      return null;
+    }
+
     if (isSubscribed) {
       await onUpdatePermission('denied');
       return 'denied';
@@ -164,7 +170,7 @@ export const NotificationsContextProvider = ({
       hasPermissionCache,
       isInitialized,
       isNotificationsReady,
-      unreadCount: currentUnreadCount,
+      unreadCount: 100,
       isSubscribed,
       onTogglePermission,
       clearUnreadCount: () => setCurrentUnreadCount(0),
