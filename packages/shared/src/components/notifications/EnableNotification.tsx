@@ -9,12 +9,10 @@ import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-
-export enum NotificationPromptSource {
-  NotificationsPage = 'notifications page',
-  NewComment = 'new comment',
-  CommunityPicks = 'community picks modal',
-}
+import {
+  NotificationPromptSource,
+  useEnableNotification,
+} from '../../hooks/useEnableNotification';
 
 const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
@@ -28,6 +26,7 @@ const containerClassName: Record<NotificationPromptSource, string> = {
     'px-6 w-full border-l bg-theme-float',
   [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
+  [NotificationPromptSource.NewSourceModal]: '',
 };
 
 function EnableNotification({
@@ -35,12 +34,12 @@ function EnableNotification({
   parentCommentAuthorName,
 }: EnableNotificationProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
+  const onTogglePermission = useEnableNotification(source);
   const {
     isSubscribed,
     isNotificationSupported,
     hasPermissionCache,
     acceptedPermissionJustNow: isEnabled,
-    onTogglePermission,
     onAcceptedPermissionJustNow,
   } = useContext(NotificationsContext);
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
@@ -57,11 +56,6 @@ function EnableNotification({
 
   const onEnable = async () => {
     const permission = await onTogglePermission();
-
-    trackEvent({
-      event_name: AnalyticsEvent.ClickEnableNotification,
-      extra: JSON.stringify({ origin: source, permission }),
-    });
 
     if (permission === null) {
       return;
@@ -97,6 +91,7 @@ function EnableNotification({
       'Would you like to get notified on the status of your article submissions in real time?',
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
+    [NotificationPromptSource.NewSourceModal]: '',
   };
   const message = sourceToMessage[source];
   const classes = containerClassName[source];

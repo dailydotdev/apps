@@ -15,7 +15,8 @@ import { isDevelopment, isTesting } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import AuthContext from './AuthContext';
 
-interface NotificationsContextData extends UseNotificationPermissionPopup {
+export interface NotificationsContextData
+  extends UseNotificationPermissionPopup {
   unreadCount: number;
   isInitialized: boolean;
   isSubscribed: boolean;

@@ -1,12 +1,13 @@
 import React, { ReactElement } from 'react';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { useNotificationContext } from '../../contexts/NotificationsContext';
+import {
+  NotificationPromptSource,
+  useEnableNotification,
+} from '../../hooks/useEnableNotification';
 import {
   ENABLE_NOTIFICATION_WINDOW_KEY,
   PermissionEvent,
 } from '../../hooks/useNotificationPermissionPopup';
 import useWindowEvents from '../../hooks/useWindowEvents';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
@@ -15,15 +16,12 @@ import { Modal, ModalProps } from './common/Modal';
 function PushNotificationModal(
   modalProps: Omit<ModalProps, 'children'>,
 ): ReactElement {
-  const { trackEvent } = useAnalyticsContext();
-  const { onTogglePermission } = useNotificationContext();
   const { onRequestClose } = modalProps;
+  const onTogglePermission = useEnableNotification(
+    NotificationPromptSource.NewSourceModal,
+  );
   const enableNotifications = async () => {
     const permission = await onTogglePermission();
-    trackEvent({
-      event_name: AnalyticsEvent.ClickEnableNotification,
-      extra: JSON.stringify({ origin: Origin.NewSourceModal, permission }),
-    });
 
     if (permission === 'granted') {
       onRequestClose?.(null);
