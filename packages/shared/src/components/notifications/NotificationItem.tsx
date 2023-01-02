@@ -55,7 +55,7 @@ function NotificationItem({
   return (
     <Link href={targetUrl} passHref>
       <a
-        href="#"
+        href={targetUrl}
         onClick={onClick}
         className={classNames(
           'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
