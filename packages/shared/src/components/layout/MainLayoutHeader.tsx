@@ -129,7 +129,7 @@ function MainLayoutHeader({
                 }
               >
                 {hasNotification && (
-                  <Bubble className="-top-2 px-1 shadow-bubble-cabbage left-[calc(100%-0.5rem)]">
+                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
                     {getUnreadText(unreadCount)}
                   </Bubble>
                 )}

@@ -60,7 +60,7 @@ export const tabs: Tab[] = [
     icon: (active: boolean, unreadCount) => (
       <span className="relative">
         {unreadCount > 0 ? (
-          <Bubble className="top-0 px-1 left-[calc(100%-0.75rem)]">
+          <Bubble className="top-0 right-0 px-1 translate-x-1/2">
             {getUnreadText(unreadCount)}
           </Bubble>
         ) : null}
