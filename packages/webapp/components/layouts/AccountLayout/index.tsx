@@ -25,8 +25,7 @@ export default function AccountLayout({
     ? {
         title: profile.name,
         titleTemplate: '%s | daily.dev',
-          ? profile.bio
-          : `Check out ${profile.name}'s profile`,
+        description: profile.bio ?? `Check out ${profile.name}'s profile`,
         openGraph: {
           images: [{ url: profile.image }],
         },
