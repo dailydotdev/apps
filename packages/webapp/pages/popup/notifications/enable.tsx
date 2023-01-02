@@ -26,7 +26,7 @@ function Enable(): React.ReactElement {
     useNotificationContext();
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized || globalThis.Notification?.permission === 'denied') {
       return;
     }
 
