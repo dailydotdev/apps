@@ -13,10 +13,9 @@ import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ScoutBadge from './ScoutBadge';
 import { Post } from '../../graphql/posts';
 import { Origin } from '../../lib/analytics';
-import EnableNotification, {
-  NotificationPromptSource,
-} from '../notifications/EnableNotification';
+import EnableNotification from '../notifications/EnableNotification';
 import AuthContext from '../../contexts/AuthContext';
+import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 
 export interface Props extends CommentActionProps {
   post: Post;

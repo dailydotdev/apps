@@ -23,9 +23,8 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal } from './common/Modal';
-import EnableNotification, {
-  NotificationPromptSource,
-} from '../notifications/EnableNotification';
+import EnableNotification from '../notifications/EnableNotification';
+import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
