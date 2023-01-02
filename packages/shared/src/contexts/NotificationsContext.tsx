@@ -53,13 +53,6 @@ export const NotificationsContextProvider = ({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [registrationId, setRegistrationId] = useState<string>(null);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
-  const {
-    onOpenPopup,
-    onAcceptedPermissionJustNow,
-    onPermissionCache,
-    acceptedPermissionJustNow,
-    hasPermissionCache,
-  } = useNotificationPermissionPopup();
 
   const getRegistrationId = async (isGranted: boolean) => {
     if (!isGranted) {
@@ -78,15 +71,31 @@ export const NotificationsContextProvider = ({
     return id;
   };
 
-  const onUpdatePermission = async (permission: NotificationPermission) => {
+  const onUpdatePush = async (permission: NotificationPermission) => {
     const isGranted = permission === 'granted';
     const id = await getRegistrationId(isGranted);
     const isRegistered = !!id;
     const allowedPush = isGranted && isRegistered;
 
     await OneSignal?.setSubscription?.(allowedPush);
-
     setIsSubscribed(allowedPush);
+
+    return allowedPush;
+  };
+
+  const {
+    onOpenPopup,
+    onAcceptedPermissionJustNow,
+    onPermissionCache,
+    acceptedPermissionJustNow,
+    hasPermissionCache,
+  } = useNotificationPermissionPopup({
+    onSuccess: !isExtension && onUpdatePush,
+  });
+
+  const onUpdatePermission = async (permission: NotificationPermission) => {
+    const allowedPush = await onUpdatePush(permission);
+
     onPermissionCache(allowedPush ? 'granted' : 'default');
   };
 
