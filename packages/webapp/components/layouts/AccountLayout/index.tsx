@@ -3,10 +3,9 @@ import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
-import { NextSeo } from 'next-seo';
 import { getLayout as getMainLayout } from '../MainLayout';
 import SidebarNav from './SidebarNav';
-import { getTemplatedTitle } from '../utils';
+import WebSeo from '../../WebSeo';
 
 export interface AccountLayoutProps {
   profile: PublicProfile;
@@ -24,7 +23,8 @@ export default function AccountLayout({
 
   const Seo: NextSeoProps = profile
     ? {
-        title: getTemplatedTitle(profile.name),
+        title: profile.name,
+        titleTemplate: '%s | daily.dev',
         description: profile.bio
           ? profile.bio
           : `Check out ${profile.name}'s profile`,
@@ -42,7 +42,7 @@ export default function AccountLayout({
       <Head>
         <link rel="preload" as="image" href={profile.image} />
       </Head>
-      <NextSeo {...Seo} />
+      <WebSeo {...Seo} />
       <main className="flex relative flex-row flex-1 items-stretch pt-0 mx-auto w-full laptop:max-w-[calc(100vw-17.5rem)]">
         <SidebarNav
           className="absolute tablet:relative z-3 ml-auto w-full h-full border-l tablet:w-[unset] bg-theme-bg-primary border-theme-divider-tertiary"

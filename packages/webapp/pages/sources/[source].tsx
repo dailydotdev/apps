@@ -7,7 +7,6 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
@@ -35,6 +34,7 @@ import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import WebSeo from '../../components/WebSeo';
 
 type SourcePageProps = { source: Source };
 
@@ -95,7 +95,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
 
   return (
     <FeedPage>
-      <NextSeo {...seo} />
+      <WebSeo {...seo} />
       <CustomFeedHeader>
         <img
           src={source.image}

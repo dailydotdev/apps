@@ -1,12 +1,12 @@
 import React, { ReactElement, useMemo } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
+import WebSeo from '../components/WebSeo';
 
 const baseSeo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
@@ -28,11 +28,7 @@ const Search = (): ReactElement => {
     };
   }, [query]);
 
-  return (
-    <>
-      <NextSeo {...seo} {...baseSeo} />
-    </>
-  );
+  return <WebSeo {...seo} {...baseSeo} />;
 };
 
 Search.getLayout = getMainFeedLayout;

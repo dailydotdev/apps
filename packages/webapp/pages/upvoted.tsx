@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -14,14 +13,10 @@ const seo: NextSeoProps = {
 };
 
 const Upvoted = (): ReactElement => {
-  return (
-    <>
-      <NextSeo {...seo} />
-    </>
-  );
+  return <></>;
 };
 
 Upvoted.getLayout = getMainFeedLayout;
-Upvoted.layoutProps = mainFeedLayoutProps;
+Upvoted.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default Upvoted;
