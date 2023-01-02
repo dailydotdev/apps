@@ -34,11 +34,11 @@ export function InAppNotificationElement(): ReactElement {
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
-  const [isExit, setExit] = useState(false);
+  const [isExit, setIsExit] = useState(false);
   const closeNotification = () => {
-    setExit(true);
+    setIsExit(true);
     setTimeout(() => {
-      setExit(false);
+      setIsExit(false);
       dismissNotification();
     }, 150);
   };
