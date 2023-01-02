@@ -17,6 +17,10 @@ interface UseInAppNotification {
   dismissNotification: () => void;
 }
 
+interface PushNotificationSubscription {
+  newNotification: NewNotification;
+}
+
 export interface InAppNotification {
   notification: NewNotification;
   timer: number;
@@ -28,6 +32,8 @@ const MAX_QUEUE_LENGTH = 5;
 export interface NotifyOptionalProps {
   timer?: number;
 }
+
+const registeredNotification = {};
 
 const queue: NewNotification[] = [];
 export const useInAppNotification = (): UseInAppNotification => {
@@ -49,6 +55,11 @@ export const useInAppNotification = (): UseInAppNotification => {
   };
 
   const addToQueue = (newNotification: NewNotification) => {
+    if (registeredNotification[newNotification.id]) {
+      return;
+    }
+
+    registeredNotification[newNotification.id] = true;
     incrementUnreadCount();
     queue.push(newNotification);
     if (queue.length >= MAX_QUEUE_LENGTH) {
@@ -77,8 +88,8 @@ export const useInAppNotification = (): UseInAppNotification => {
       query: NEW_NOTIFICATIONS_SUBSCRIPTION,
     }),
     {
-      next: (data: { newNotification: NewNotification }) => {
-        addToQueue(data.newNotification);
+      next: ({ newNotification }: PushNotificationSubscription) => {
+        addToQueue(newNotification);
       },
     },
   );
