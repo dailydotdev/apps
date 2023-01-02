@@ -27,14 +27,6 @@ export type CreateSquadOutput = {
   createSquad: Squad;
 };
 
-/*
-
-SharePostInput
-      id: ID!
-      commentary: String!
-      sourceId: ID!
-*/
-
 export const CREATE_SQUAD_MUTATION = gql`
   mutation CreateSquad(
     $name: String!

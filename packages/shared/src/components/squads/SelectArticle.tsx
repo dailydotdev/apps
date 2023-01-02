@@ -40,8 +40,9 @@ export function SquadSelectArticle({
 
       {data?.pages.map((page) =>
         page.readHistory.edges.map((edge) => (
-          <div // eslint-disable-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+          <button
             key={edge.node.post.id}
+            type="button"
             className="-mx-6 hover:bg-theme-hover cursor-pointer"
             onClick={() => onNext({ ...(form as SquadForm), post: edge.node })}
           >
@@ -50,7 +51,7 @@ export function SquadSelectArticle({
               showButtons={false}
               clickable={false}
             />
-          </div>
+          </button>
         )),
       )}
       {isLoading && (
