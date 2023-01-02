@@ -140,7 +140,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DefaultSeo
         {...Seo}
         canonical={canonicalFromRouter(router)}
-        titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s' }
+        titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
       />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       {shouldShowLogin && (
