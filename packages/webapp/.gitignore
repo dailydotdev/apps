@@ -1,2 +1,3 @@
 pages/demo.tsx
 next-env.d.ts
+*.development

@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -20,6 +21,8 @@ import MainLayoutHeader, {
   MainLayoutHeaderProps,
 } from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
+import { useNotificationContext } from '../contexts/NotificationsContext';
+import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -51,6 +54,7 @@ export default function MainLayout({
   customBanner,
   additionalButtons,
   screenCentered = true,
+  className,
   onLogoClick,
   onNavTabClick,
   enableSearch,
@@ -62,6 +66,8 @@ export default function MainLayout({
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
+  const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
+  const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
   const handlers = useSwipeableSidebar({
@@ -78,6 +84,19 @@ export default function MainLayout({
   };
 
   const hasBanner = !!bannerData?.banner || !!customBanner;
+
+  useEffect(() => {
+    if (!isNotificationsReady || unreadCount === 0 || hasTrackedImpression) {
+      return;
+    }
+
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: NotificationTarget.Icon,
+      extra: JSON.stringify({ notifications_number: unreadCount }),
+    });
+    setHasTrackedImpression(true);
+  }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
 
   return (
     <div {...handlers}>
@@ -100,6 +119,7 @@ export default function MainLayout({
       <main
         className={classNames(
           'flex flex-row',
+          className,
           !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
           hasBanner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}

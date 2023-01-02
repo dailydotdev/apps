@@ -1,6 +1,6 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
@@ -10,6 +10,12 @@ import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentCon
 import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  NotificationCategory,
+  NotificationChannel,
+} from '@dailydotdev/shared/src/lib/analytics';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -17,24 +23,78 @@ import AccountContentSection from '../../components/layouts/AccountLayout/Accoun
 const ALERT_PUSH_KEY = 'alert_push_key';
 
 const AccountNotificationsPage = (): ReactElement => {
-  const { requestPermission, hasPermission } = useContext(NotificationsContext);
+  const { onTogglePermission, isSubscribed, isInitialized } =
+    useContext(NotificationsContext);
   const [isAlertShown, setIsAlertShown] = usePersistentContext(
     ALERT_PUSH_KEY,
     true,
   );
   const { updateUserProfile } = useProfileForm();
+  const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
   const { acceptedMarketing, notificationEmail } = user ?? {};
-  const [emailNotification, setEmailNotification] = useState(
-    acceptedMarketing || notificationEmail,
-  );
-  const onToggleEmailNotification = () => {
+  const emailNotification = acceptedMarketing || notificationEmail;
+  const onToggleEmailSettings = () => {
     const value = !emailNotification;
+
+    if (!value) {
+      trackEvent({
+        event_name: AnalyticsEvent.DisableNotification,
+        extra: JSON.stringify({
+          channel: NotificationChannel.Email,
+          category: Object.values(NotificationCategory),
+        }),
+      });
+    }
+
     updateUserProfile({
       acceptedMarketing: value,
       notificationEmail: value,
     });
-    setEmailNotification(value);
+  };
+
+  const onTrackToggle = (
+    isEnabled: boolean,
+    channel: NotificationChannel,
+    category: NotificationCategory,
+  ) => {
+    if (isEnabled) {
+      return;
+    }
+
+    trackEvent({
+      event_name: AnalyticsEvent.DisableNotification,
+      extra: JSON.stringify({ channel, category }),
+    });
+  };
+
+  const onTogglePush = () => {
+    onTrackToggle(
+      !isSubscribed,
+      NotificationChannel.Web,
+      NotificationCategory.Product,
+    );
+    onTogglePermission();
+  };
+
+  const onToggleEmailNotification = () => {
+    const value = !notificationEmail;
+    onTrackToggle(
+      value,
+      NotificationChannel.Email,
+      NotificationCategory.Product,
+    );
+    updateUserProfile({ notificationEmail: value });
+  };
+
+  const onToggleEmailMarketing = () => {
+    const value = !acceptedMarketing;
+    onTrackToggle(
+      value,
+      NotificationChannel.Email,
+      NotificationCategory.Marketing,
+    );
+    updateUserProfile({ acceptedMarketing: value });
   };
 
   return (
@@ -55,10 +115,11 @@ const AccountNotificationsPage = (): ReactElement => {
           name="push_notification"
           className="w-20"
           compact={false}
-          checked={hasPermission}
-          onToggle={requestPermission}
+          checked={isSubscribed}
+          onToggle={onTogglePush}
+          disabled={!isInitialized}
         >
-          {hasPermission ? 'On' : 'Off'}
+          {isSubscribed ? 'On' : 'Off'}
         </Switch>
       </div>
       {isAlertShown && (
@@ -73,13 +134,13 @@ const AccountNotificationsPage = (): ReactElement => {
               discussions, upvotes, replies or mentions on daily.dev!
             </p>
             <img
-              className="absolute top-4 right-14"
+              className="hidden laptopL:flex absolute top-4 right-14"
               src={cloudinary.notifications.browser}
               alt="A sample browser notification"
             />
             <CloseButton
               buttonSize="xsmall"
-              className="ml-32"
+              className="ml-auto laptopL:ml-32"
               onClick={() => setIsAlertShown(false)}
             />
           </div>
@@ -102,7 +163,7 @@ const AccountNotificationsPage = (): ReactElement => {
           className="w-20"
           compact={false}
           checked={emailNotification}
-          onToggle={onToggleEmailNotification}
+          onToggle={onToggleEmailSettings}
         >
           {emailNotification ? 'On' : 'Off'}
         </Switch>
@@ -113,9 +174,7 @@ const AccountNotificationsPage = (): ReactElement => {
           name="new_activity"
           data-testId="new_activity-switch"
           checked={notificationEmail}
-          onToggle={() =>
-            updateUserProfile({ notificationEmail: !notificationEmail })
-          }
+          onToggle={onToggleEmailNotification}
         >
           New activity notifications (mentions, replies, etc.)
         </Checkbox>
@@ -123,9 +182,7 @@ const AccountNotificationsPage = (): ReactElement => {
           name="marketing"
           data-testId="marketing-switch"
           checked={acceptedMarketing}
-          onToggle={() =>
-            updateUserProfile({ acceptedMarketing: !acceptedMarketing })
-          }
+          onToggle={onToggleEmailMarketing}
         >
           Marketing updates
         </Checkbox>

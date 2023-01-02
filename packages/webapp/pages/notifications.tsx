@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
 import {
   NotificationsData,
   NOTIFICATIONS_QUERY,
+  NotificationType,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
@@ -17,8 +18,10 @@ import FirstNotification from '@dailydotdev/shared/src/components/notifications/
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { getLayout } from '../components/layouts/FooterNavBarLayout';
-import { getLayout as getFooterNavBarLayout } from '../components/layouts/MainLayout';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../components/layouts/MainLayout';
 
 import ProtectedPage from '../components/ProtectedPage';
 import WebSeo from '../components/WebSeo';
@@ -30,6 +33,7 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
 
 const Notifications = (): ReactElement => {
   const seo = <WebSeo title="Notifications" nofollow noindex />;
+  const { trackEvent } = useAnalyticsContext();
   const { clearUnreadCount } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
     () => request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),
@@ -53,8 +57,25 @@ const Notifications = (): ReactElement => {
       },
     },
   );
+  const { isFetchedAfterMount, isFetched, hasNextPage } = queryResult ?? {};
 
   const length = queryResult?.data?.pages?.length ?? 0;
+
+  const onNotificationClick = (id: string, type: NotificationType) => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickNotification,
+      target_id: id,
+      extra: JSON.stringify({ origin: Origin.NonRealTime, type }),
+    });
+  };
+
+  useEffect(() => {
+    if (!isFetchedAfterMount) {
+      return;
+    }
+
+    trackEvent({ event_name: AnalyticsEvent.OpenNotificationList });
+  }, [isFetchedAfterMount]);
 
   return (
     <ProtectedPage seo={seo}>
@@ -62,7 +83,7 @@ const Notifications = (): ReactElement => {
         className={classNames(
           pageBorders,
           pageContainerClassNames,
-          'laptop:min-h-screen',
+          'laptop:min-h-screen pb-12',
         )}
       >
         <EnableNotification />
@@ -76,12 +97,18 @@ const Notifications = (): ReactElement => {
           {length > 0 &&
             queryResult.data.pages.map((page) =>
               page.notifications.edges.map(
-                ({ node: { id, readAt, ...props } }) => (
-                  <NotificationItem key={id} isUnread={!readAt} {...props} />
+                ({ node: { id, readAt, type, ...props } }) => (
+                  <NotificationItem
+                    key={id}
+                    {...props}
+                    type={type}
+                    isUnread={!readAt}
+                    onClick={() => onNotificationClick(id, type)}
+                  />
                 ),
               ),
             )}
-          {(!length || !queryResult.hasNextPage) && <FirstNotification />}
+          {(!length || !hasNextPage) && isFetched && <FirstNotification />}
         </InfiniteScrolling>
       </main>
     </ProtectedPage>

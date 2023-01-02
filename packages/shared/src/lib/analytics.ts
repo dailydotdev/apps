@@ -8,6 +8,9 @@ export enum Origin {
   PostContextMenu = 'post context menu',
   TagsFilter = 'tags filter',
   TagsSearch = 'tags search',
+  RealTime = 'realtime',
+  NonRealTime = 'nonrealtime',
+  NewSourceModal = 'new source modal',
 }
 
 export enum LoginTrigger {
@@ -25,6 +28,14 @@ export enum AnalyticsEvent {
   GlobalError = 'global error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
+  // notifications - start
+  ClickNotificationIcon = 'click notification icon',
+  OpenNotificationList = 'open notification list',
+  ClickNotification = 'click notification',
+  ClickEnableNotification = 'click enable notification',
+  ClickNotificationDismiss = 'click notification dismiss',
+  DisableNotification = 'disable notification',
+  // notifications - end
 }
 
 export enum TargetType {
@@ -40,4 +51,20 @@ export enum TargetId {
 
 export enum ScreenValue {
   Intro = 'intro',
+}
+
+export enum NotificationChannel {
+  Email = 'email',
+  Web = 'web',
+}
+
+export enum NotificationCategory {
+  Marketing = 'marketing',
+  Product = 'product',
+}
+
+export enum NotificationTarget {
+  Header = 'header',
+  Footer = 'footer',
+  Icon = 'notifications icon',
 }

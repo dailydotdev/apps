@@ -19,6 +19,11 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  NotificationTarget,
+} from '@dailydotdev/shared/src/lib/analytics';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -26,8 +31,10 @@ type Tab = {
   title: string;
   icon: (active: boolean, unread?: number) => ReactElement;
   requiresLogin?: boolean;
+  onClick?: () => void;
 };
 
+const notificationsPath = '/notifications';
 export const tabs: Tab[] = [
   {
     path: '/',
@@ -48,13 +55,15 @@ export const tabs: Tab[] = [
     icon: (active: boolean) => <SearchIcon secondary={active} size="xxlarge" />,
   },
   {
-    path: '/notifications',
+    path: notificationsPath,
     title: 'Notifications',
     icon: (active: boolean, unreadCount) => (
       <span className="relative">
-        <Bubble className="top-0 px-1 left-[calc(100%-0.75rem)]">
-          {getUnreadText(unreadCount)}
-        </Bubble>
+        {unreadCount > 0 ? (
+          <Bubble className="top-0 px-1 left-[calc(100%-0.75rem)]">
+            {getUnreadText(unreadCount)}
+          </Bubble>
+        ) : null}
         <BellIcon secondary={active} size="xxlarge" />
       </span>
     ),
@@ -69,6 +78,7 @@ export const tabs: Tab[] = [
 export default function FooterNavBar(): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { unreadCount } = useNotificationContext();
+  const { trackEvent } = useAnalyticsContext();
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
@@ -78,6 +88,18 @@ export default function FooterNavBar(): ReactElement {
     className: 'btn-tertiary',
     style: { width: '100%' },
     buttonSize: 'large',
+  };
+
+  const onNavigateNotifications = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickNotificationIcon,
+      target_id: NotificationTarget.Footer,
+      extra: JSON.stringify({ notifications_number: unreadCount }),
+    });
+  };
+
+  const onItemClick = {
+    [notificationsPath]: onNavigateNotifications,
   };
 
   return (
@@ -104,6 +126,7 @@ export default function FooterNavBar(): ReactElement {
                 tag="a"
                 icon={tab.icon(index === selectedTab, unreadCount)}
                 pressed={index === selectedTab}
+                onClick={onItemClick[tab.path]}
               />
             </LinkWithTooltip>
           ) : (

@@ -32,6 +32,7 @@ import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPa
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import Seo from '../next-seo';
@@ -164,10 +165,10 @@ export default function App(props: AppProps): ReactElement {
   return (
     <ProgressiveEnhancementContextProvider>
       <QueryClientProvider client={queryClient}>
-        <BootDataProvider app="web" getRedirectUri={getRedirectUri}>
+        <BootDataProvider app={BootApp.Webapp} getRedirectUri={getRedirectUri}>
           <SubscriptionContextProvider>
             <AnalyticsContextProvider
-              app="webapp"
+              app={BootApp.Webapp}
               version={version}
               getPage={getPage}
               deviceId={deviceId}

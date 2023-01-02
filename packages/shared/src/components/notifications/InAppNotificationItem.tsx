@@ -20,12 +20,17 @@ const NotificationText = classed(
   'flex flex-col flex-1 ml-4 w-full text-left typo-callout multi-truncate line-clamp-3 h-16',
 );
 
+interface InAppNotificationItemProps extends NewNotification {
+  onClick?: () => void;
+}
+
 export function InAppNotificationItem({
   icon,
   title,
   avatars,
   targetUrl,
-}: NewNotification): ReactElement {
+  onClick,
+}: InAppNotificationItemProps): ReactElement {
   const purify = useDomPurify();
   const { title: memoizedTitle } = useMemo(() => {
     if (!purify?.sanitize) {
@@ -42,7 +47,7 @@ export function InAppNotificationItem({
 
   const [avatar] = avatars ?? [];
   return (
-    <NotificationLink href={targetUrl}>
+    <NotificationLink href={targetUrl} onClick={onClick}>
       <NotificationAvatar>
         <NotificationItemIcon icon={icon} />
         {!!avatar && <NotificationItemAvatar {...avatar} />}
