@@ -130,12 +130,7 @@ const AccountNotificationsPage = (): ReactElement => {
         </div>
       )}
       {isNotificationSupported && isAlertShown && (
-        <div
-          className={classNames(
-            'relative w-full rounded-16 border border-theme-color-cabbage',
-            isNotificationSupported && 'mt-6',
-          )}
-        >
+        <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
           <Pointer
             className="absolute -top-5 right-8"
             color={PointerColor.Cabbage}
@@ -158,7 +153,12 @@ const AccountNotificationsPage = (): ReactElement => {
           </div>
         </div>
       )}
-      <div className="flex flex-row mt-6">
+      <div
+        className={classNames(
+          'flex flex-row',
+          isNotificationSupported && 'mt-6',
+        )}
+      >
         <AccountContentSection
           className={{
             heading: 'mt-0',
