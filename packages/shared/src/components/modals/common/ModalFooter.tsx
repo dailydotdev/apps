@@ -7,17 +7,17 @@ export type ModalFooterProps = {
   children?: ReactNode;
   className?: string;
   justify?: Justify;
-  tab?: string;
+  view?: string;
 };
 
 export function ModalFooter({
   children,
   className,
   justify = Justify.End,
-  tab,
+  view,
 }: ModalFooterProps): ReactElement {
-  const { activeTab } = useContext(ModalPropsContext);
-  if (tab && tab !== activeTab) return null;
+  const { activeView } = useContext(ModalPropsContext);
+  if (view && view !== activeView) return null;
   return (
     <footer
       className={classNames(

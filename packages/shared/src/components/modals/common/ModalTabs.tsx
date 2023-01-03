@@ -7,7 +7,7 @@ export type ModalTabsProps = {
 };
 
 export function ModalTabs({ disabledTab }: ModalTabsProps): ReactElement {
-  const { activeTab, setActiveTab, tabs } = useContext(ModalPropsContext);
+  const { activeView, setActiveView, tabs } = useContext(ModalPropsContext);
   return (
     <ul className="flex flex-row gap-4">
       {tabs.map((tab: string | ModalTabItem) => {
@@ -20,16 +20,16 @@ export function ModalTabs({ disabledTab }: ModalTabsProps): ReactElement {
             className={classNames(
               'btn relative py-1.5 h-8 px-3 text-center typo-callout rounded-10',
               disabled && 'opacity-64',
-              tab === activeTab
+              tab === activeView
                 ? 'bg-theme-active font-bold'
                 : 'text-theme-label-tertiary',
             )}
-            onClick={() => setActiveTab(tabTitle)}
+            onClick={() => setActiveView(tabTitle)}
             type="button"
             role="menuitem"
           >
             {tabTitle}
-            {tabTitle === activeTab && (
+            {tabTitle === activeView && (
               <div
                 className="absolute mx-auto w-4 h-px bg-theme-label-primary"
                 style={{ bottom: '-0.75rem', left: 'calc(50% - 0.5rem)' }}

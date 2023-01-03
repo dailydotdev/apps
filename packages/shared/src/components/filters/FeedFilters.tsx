@@ -85,7 +85,7 @@ export default function FeedFilters({
   //           className='w-74'
   //           title="Feed filters"
   //           isNavOpen={isNavOpen}
-  //           onTabChange={onNavClick}
+  //           onViewChange={onNavClick}
   //           setIsNavOpen={setIsNavOpen}
   //         />
   //         <Modal.Sidebar.Inner>
