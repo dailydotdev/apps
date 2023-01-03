@@ -97,7 +97,7 @@ export function InAppNotificationElement(): ReactElement {
       className={classNames(
         isExit && 'exit',
         inAppNotificationPosition === InAppNotificationPosition.Bottom
-          ? 'bottom-10'
+          ? 'bottom-16 laptop:bottom-10'
           : 'top-16',
       )}
       role="alert"
