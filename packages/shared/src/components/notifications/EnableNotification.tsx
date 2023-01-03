@@ -36,6 +36,7 @@ function EnableNotification({
   const { trackEvent } = useAnalyticsContext();
   const onTogglePermission = useEnableNotification(source);
   const {
+    isInitialized,
     isSubscribed,
     isNotificationSupported,
     hasPermissionCache,
@@ -77,6 +78,7 @@ function EnableNotification({
   if (
     !isLoaded ||
     isDismissed ||
+    !isInitialized ||
     !isNotificationSupported ||
     ((isSubscribed || hasPermissionCache) && !isEnabled)
   ) {
