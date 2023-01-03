@@ -3,17 +3,20 @@ import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { getSourcePermalink, Source } from '../../graphql/sources';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
+import { ProfileImageSize } from '../ProfilePicture';
 
 interface SourceButtonProps {
   source: Source;
   className?: string;
   style?: CSSProperties;
+  size?: ProfileImageSize;
   tooltipPosition?: TooltipPosition;
 }
 
 export default function SourceButton({
   source,
   tooltipPosition = 'bottom',
+  size = 'medium',
   ...props
 }: SourceButtonProps): ReactElement {
   return source ? (
@@ -24,7 +27,7 @@ export default function SourceButton({
     >
       <ProfileImageLink
         {...props}
-        picture={{ size: 'medium', rounded: 'full' }}
+        picture={{ size, rounded: 'full' }}
         user={{
           id: source.id,
           name: source.name,

@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic';
 import React, { ReactElement, useContext, useState } from 'react';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeaturesData } from '../../contexts/FeaturesContext';
+import { useSubmitArticle } from '../../hooks/useSubmitArticle';
 import EmbedIcon from '../icons/Embed';
 import LinkIcon from '../icons/Link';
 import { ListIcon, SidebarMenuItem } from './common';
@@ -21,33 +22,19 @@ const NewSourceModal = dynamic(
 
 type SubmitFlags = Pick<
   FeaturesData,
-  | 'canSubmitArticle'
-  | 'submitArticleOn'
-  | 'submitArticleSidebarButton'
-  | 'submitArticleModalButton'
+  'canSubmitArticle' | 'submitArticleSidebarButton' | 'submitArticleModalButton'
 >;
 
 export function ContributeSection({
   canSubmitArticle,
-  submitArticleOn,
   submitArticleSidebarButton,
   submitArticleModalButton,
   ...props
 }: SectionCommonProps & SubmitFlags): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [showSubmitArticle, setShowSubmitArticle] = useState(false);
+  const { isOpen: showSubmitArticle, onIsOpen: setShowSubmitArticle } =
+    useSubmitArticle();
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
-  const contributeMenuItems: SidebarMenuItem[] = [
-    {
-      icon: (active) => (
-        <ListIcon Icon={() => <EmbedIcon secondary={active} />} />
-      ),
-      title: 'Suggest new source',
-      action: () => setShowNewSourceModal(true),
-      active: showNewSourceModal,
-    },
-  ];
-
   const trackAndShowSubmitArticle = () => {
     trackEvent({
       event_name: 'start submit article',
@@ -57,17 +44,24 @@ export function ContributeSection({
     setShowSubmitArticle(true);
   };
 
-  if (submitArticleOn) {
-    const submitArticleMenuItem = {
+  const contributeMenuItems: SidebarMenuItem[] = [
+    {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <LinkIcon secondary={active} />} />
       ),
       title: submitArticleSidebarButton,
       action: trackAndShowSubmitArticle,
       active: showSubmitArticle,
-    };
-    contributeMenuItems.unshift(submitArticleMenuItem);
-  }
+    },
+    {
+      icon: (active) => (
+        <ListIcon Icon={() => <EmbedIcon secondary={active} />} />
+      ),
+      title: 'Suggest new source',
+      action: () => setShowNewSourceModal(true),
+      active: showNewSourceModal,
+    },
+  ];
 
   return (
     <>

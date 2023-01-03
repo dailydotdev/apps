@@ -13,6 +13,7 @@ import {
   ScrollOnboardingVersion,
   ShareVersion,
   SquadVersion,
+  InAppNotificationPosition,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
@@ -24,7 +25,6 @@ interface Experiments {
   onboardingVersion?: OnboardingVersion;
   onboardingFiltersLayout?: OnboardingFiltersLayout;
   popularFeedCopy?: string;
-  submitArticleOn?: boolean;
   canSubmitArticle?: boolean;
   submitArticleSidebarButton?: string;
   submitArticleModalButton?: string;
@@ -37,6 +37,7 @@ interface Experiments {
   squadVersion?: SquadVersion;
   squadForm?: string;
   squadButton?: string;
+  inAppNotificationPosition?: InAppNotificationPosition;
   articleOnboardingVersion?: ArticleOnboardingVersion;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
 }
@@ -78,7 +79,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.PostEngagementNonClickable,
       flags,
     ),
-    submitArticleOn: isFeaturedEnabled(Features.SubmitArticleOn, flags),
     canSubmitArticle: isFeaturedEnabled(Features.SubmitArticle, flags),
     submitArticleSidebarButton: getFeatureValue(
       Features.SubmitArticleSidebarButton,
@@ -95,6 +95,10 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     squadVersion: getFeatureValue(Features.SquadVersion, flags),
     squadForm: getFeatureValue(Features.SquadForm, flags),
     squadButton: getFeatureValue(Features.SquadButton, flags),
+    inAppNotificationPosition: getFeatureValue(
+      Features.InAppNotificationPosition,
+      flags,
+    ),
     articleOnboardingVersion: getFeatureValue(
       Features.ArticleOnboardingVersion,
       flags,

@@ -25,6 +25,7 @@ import { BootCacheData } from '../lib/boot';
 import { BOOT_LOCAL_KEY } from '../contexts/common';
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
 });

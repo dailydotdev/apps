@@ -10,6 +10,7 @@ import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { getUserDefaultTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import Page from '../pages/register';
@@ -80,7 +81,9 @@ const renderComponent = (
               onShouldUpdateFilters: jest.fn(),
             }}
           >
-            <Page />
+            <NotificationsContextProvider>
+              <Page />
+            </NotificationsContextProvider>
           </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>

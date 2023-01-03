@@ -60,12 +60,14 @@ const defaultSettings: RemoteSettings = {
   sortingEnabled: false,
   optOutWeeklyGoal: true,
   autoDismissNotifications: true,
+  optOutCompanion: false,
 };
 
 const defaultBootData: BootCacheData = {
   alerts: defaultAlerts,
   user: defaultUser,
   settings: defaultSettings,
+  notifications: { unreadNotificationsCount: 0 },
   flags: {},
 };
 

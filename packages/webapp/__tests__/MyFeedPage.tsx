@@ -27,8 +27,13 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import MyFeed from '../pages/my-feed';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
 let defaultAlerts: Alerts = { filter: true };
 const updateAlerts = jest.fn();
@@ -36,6 +41,7 @@ const showLogin = jest.fn();
 
 beforeEach(() => {
   defaultAlerts = { filter: true };
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(
@@ -68,12 +74,13 @@ const createFeedMock = (
     },
   },
 });
+let client: QueryClient;
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
-  const client = new QueryClient();
+  client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
@@ -123,7 +130,9 @@ const renderComponent = (
                   onShouldUpdateFilters: jest.fn(),
                 }}
               >
-                {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+                <NotificationsContextProvider>
+                  {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+                </NotificationsContextProvider>
               </OnboardingContext.Provider>
             </SettingsContext.Provider>
           </AuthContext.Provider>

@@ -23,6 +23,8 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal } from './common/Modal';
+import EnableNotification from '../notifications/EnableNotification';
+import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -245,6 +247,11 @@ export default function SubmitArticleModal({
                   title="You have reached the limit of 3 submissions per day"
                 />
               )
+            )}
+            {isEnabled && (
+              <EnableNotification
+                source={NotificationPromptSource.CommunityPicks}
+              />
             )}
             {getAlert()}
           </div>

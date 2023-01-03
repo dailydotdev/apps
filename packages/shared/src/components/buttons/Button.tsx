@@ -9,9 +9,16 @@ import classNames from 'classnames';
 import { Size, IconProps } from '../Icon';
 import { Loader } from '../Loader';
 
-export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
+export type ButtonSize =
+  | 'xxsmall'
+  | 'xsmall'
+  | 'small'
+  | 'medium'
+  | 'large'
+  | 'xlarge';
 
 const IconSize: Record<ButtonSize, Size> = {
+  xxsmall: 'xsmall',
   xsmall: 'small',
   small: 'medium',
   medium: 'large',
@@ -74,11 +81,12 @@ function ButtonComponent<TagName extends AllowedTags>(
     position = 'relative',
     textPosition = 'justify-center',
     readOnly,
+    iconOnly: showIconOnly,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
-  const iconOnly = icon && !children && !rightIcon;
+  const iconOnly = (icon && !children && !rightIcon) || showIconOnly;
 
   const getIconWithSize = useGetIconWithSize(buttonSize, iconOnly);
 

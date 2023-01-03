@@ -55,11 +55,13 @@ const createKeywordMock = (
   },
 });
 
+let client: QueryClient;
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createKeywordMock()],
   userUpdate: LoggedUser = { ...user, roles: [Roles.Moderator] },
 ): RenderResult => {
-  const client = new QueryClient();
+  client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   return render(

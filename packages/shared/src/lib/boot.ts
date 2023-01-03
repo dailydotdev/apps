@@ -5,6 +5,10 @@ import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
 
+interface NotificationsBootData {
+  unreadNotificationsCount: number;
+}
+
 export type PostBootData = Pick<
   Post,
   | 'id'
@@ -26,6 +30,13 @@ export type PostBootData = Pick<
   | 'scout'
 >;
 
+export enum BootApp {
+  Webapp = 'webapp',
+  Companion = 'companion',
+  Extension = 'extension',
+  Test = 'test',
+}
+
 export interface CompanionBootData {
   postData: PostBootData;
 }
@@ -37,6 +48,7 @@ export type Boot = {
   alerts: Alerts;
   visit: Visit;
   flags: IFlags;
+  notifications: NotificationsBootData;
   settings: RemoteSettings;
   postData?: PostBootData;
   isLegacyLogout?: boolean;
@@ -44,7 +56,7 @@ export type Boot = {
 
 export type BootCacheData = Pick<
   Boot,
-  'user' | 'alerts' | 'settings' | 'flags' | 'postData'
+  'user' | 'alerts' | 'settings' | 'flags' | 'postData' | 'notifications'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
