@@ -1,9 +1,10 @@
 import React, { ReactElement } from 'react';
 import Icon, { IconProps } from '../../Icon';
-import DarkIcon from './primary.svg';
+import PrimaryIcon from './primary.svg';
+import SecondaryIcon from './secondary.svg';
 
 const DailyIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconPrimary={DarkIcon} IconSecondary={DarkIcon} />
+  <Icon {...props} IconPrimary={PrimaryIcon} IconSecondary={SecondaryIcon} />
 );
 
 export default DailyIcon;

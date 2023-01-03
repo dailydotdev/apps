@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
-import { Boot } from '@dailydotdev/shared/src/lib/boot';
+import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -90,7 +90,7 @@ export default function App({
               <SettingsContextProvider settings={settings}>
                 <AlertContextProvider alerts={alerts}>
                   <AnalyticsContextProvider
-                    app="companion"
+                    app={BootApp.Companion}
                     version={version}
                     fetchMethod={companionFetch}
                     backgroundMethod={(msg) => browser.runtime.sendMessage(msg)}

@@ -9,13 +9,14 @@ import SettingsContext, { SettingsContextData } from './SettingsContext';
 import AuthContext, { AuthContextData } from './AuthContext';
 import { AnonymousUser } from '../lib/user';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
-import { Visit } from '../lib/boot';
+import { BootApp, Visit } from '../lib/boot';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 
 let queryClient: QueryClient;
 const getPage = jest.fn();
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   queryClient = new QueryClient();
@@ -89,7 +90,11 @@ const TestComponent = ({
         }}
       >
         <SettingsContext.Provider value={settings}>
-          <AnalyticsContextProvider app="test" getPage={getPage} deviceId="123">
+          <AnalyticsContextProvider
+            app={BootApp.Test}
+            getPage={getPage}
+            deviceId="123"
+          >
             {children}
           </AnalyticsContextProvider>
         </SettingsContext.Provider>

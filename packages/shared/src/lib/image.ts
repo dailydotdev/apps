@@ -16,8 +16,22 @@ export const cloudinary = {
     scroll:
       'https://daily-now-res.cloudinary.com/image/upload/v1671199935/public/scroll_feed_filters.svg',
   },
+  notifications: {
+    big: 'https://daily-now-res.cloudinary.com/image/upload/v1671199897/public/notification_big.svg',
+    browser:
+      'https://daily-now-res.cloudinary.com/image/upload/v1670512489/public/notification_animated.gif',
+    browser_enabled:
+      'https://daily-now-res.cloudinary.com/image/upload/v1672124926/public/notifications_enabled.gif',
+    upvote:
+      'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/upvote.svg',
+    daily:
+      'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/daily.svg',
+    discuss:
+      'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/discuss.svg',
+    bell: 'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/bell.svg',
+  },
   squads: {
     imageFallback:
       'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
-  },
+  }
 };

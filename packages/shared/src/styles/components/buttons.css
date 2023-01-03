@@ -13,6 +13,12 @@
     font-size: 1.5rem;
   }
 
+  &.xxsmall {
+    height: 1.25rem;
+    padding: 0 0.75rem;
+    border-radius: 0.375rem;
+  }
+
   &.xsmall {
     height: 1.5rem;
     padding: 0 0.75rem;
@@ -39,7 +45,7 @@
     color: var(--theme-label-primary);
   }
 
-  &.bg-theme-color-cabbage {
+  &.bg-theme-color-cabbage, &.btn-primary-cabbage {
     color: #FFFFFF;
   }
 
@@ -66,6 +72,12 @@
     width: 2.5rem;
     padding: 0;
     border-radius: 0.75rem;
+
+    &.xxsmall {
+      width: 1.25rem;
+      padding: 0;
+      border-radius: 0.375rem;
+    }
 
     &.xsmall {
       width: 1.5rem;

@@ -1,12 +1,12 @@
 import { GraphQLError } from 'graphql-request/dist/types';
 import request from 'graphql-request';
-import { FormEvent, useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { UseMutateFunction } from 'react-query/types/react/types';
 import AuthContext from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { apiUrl } from '../lib/config';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser, UserProfile } from '../lib/user';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -26,9 +26,9 @@ interface ResponseError {
   response: MutationError;
 }
 
-type ModalEvent =
-  | React.MouseEvent<Element, MouseEvent>
-  | React.KeyboardEvent<Element>;
+export interface UpdateProfileParameters extends Partial<UserProfile> {
+  image?: File;
+}
 
 interface UseProfileForm {
   hint: ProfileFormHint;
@@ -37,27 +37,12 @@ interface UseProfileForm {
   updateUserProfile: UseMutateFunction<
     LoggedUser,
     ResponseError,
-    Partial<UpdateProfileParameters & { event: FormEvent }>
+    UpdateProfileParameters
   >;
 }
 
-export interface UpdateProfileParameters {
-  image?: File;
-  name: string;
-  username: string;
-  bio: string;
-  company: string;
-  title: string;
-  twitter: string;
-  github: string;
-  hashnode: string;
-  portfolio: string;
-  timezone: string;
-  acceptedMarketing?: boolean;
-}
-
 interface UseProfileFormProps {
-  onSuccess?: (e: ModalEvent) => void;
+  onSuccess?: () => void;
 }
 
 const useProfileForm = ({
@@ -68,18 +53,18 @@ const useProfileForm = ({
   const { isLoading, mutate: updateUserProfile } = useMutation<
     LoggedUser,
     ResponseError,
-    Partial<UpdateProfileParameters & { event: ModalEvent }>
+    UpdateProfileParameters
   >(
-    ({ image, event, ...data }) =>
+    ({ image, ...data }) =>
       request(`${apiUrl}/graphql`, UPDATE_USER_PROFILE_MUTATION, {
         data,
         upload: image,
       }),
     {
-      onSuccess: async (_, { image, event, ...vars }) => {
+      onSuccess: async (_, { image, ...vars }) => {
         setHint({});
         await updateUser({ ...user, ...vars });
-        onSuccess?.(event);
+        onSuccess?.();
       },
       onError: (err) => {
         if (!err?.response?.errors?.length) {

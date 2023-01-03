@@ -46,6 +46,7 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
 });

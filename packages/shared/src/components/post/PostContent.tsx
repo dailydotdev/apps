@@ -50,6 +50,7 @@ import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
+import { Comment } from '../../graphql/comments';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
 import { ArticleOnboardingVersion } from '../../lib/featureValues';
@@ -159,6 +160,8 @@ export function PostContent({
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
+    useState<string>();
   const { articleOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -264,6 +267,13 @@ export function PostContent({
       await removeBookmark({ id: postById?.post.id });
     }
     bookmarkToast(targetBookmarkState);
+  };
+
+  const onComment = (comment: Comment, isNew?: boolean) => {
+    if (isNew) {
+      setPermissionNotificationCommentId(comment.id);
+    }
+    updatePostComments(comment, isNew);
   };
 
   const showMyFeedArticleAnonymous =
@@ -408,6 +418,7 @@ export function PostContent({
               onClick={onCommentClick}
               onShare={(comment) => openShareComment(comment, postById.post)}
               onClickUpvote={onShowUpvotedComment}
+              permissionNotificationCommentId={permissionNotificationCommentId}
             />
             {authorOnboarding && (
               <AuthorOnboarding
@@ -444,7 +455,7 @@ export function PostContent({
           isOpen={!!parentComment}
           onRequestClose={closeNewComment}
           {...parentComment}
-          onComment={updatePostComments}
+          onComment={onComment}
         />
       )}
       {postById && showShareNewComment && (

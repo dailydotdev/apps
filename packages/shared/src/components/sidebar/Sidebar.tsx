@@ -77,7 +77,6 @@ export default function Sidebar({
   const [showCreateSquadModal, setShowCreateSquadModal] = useState(false);
   const {
     canSubmitArticle,
-    submitArticleOn,
     submitArticleSidebarButton,
     submitArticleModalButton,
     popularFeedCopy,
@@ -231,7 +230,6 @@ export default function Sidebar({
             <ContributeSection
               {...defaultRenderSectionProps}
               canSubmitArticle={canSubmitArticle}
-              submitArticleOn={submitArticleOn}
               submitArticleSidebarButton={submitArticleSidebarButton}
               submitArticleModalButton={submitArticleModalButton}
             />

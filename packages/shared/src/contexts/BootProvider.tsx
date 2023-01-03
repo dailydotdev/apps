@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { BootCacheData, getBootData } from '../lib/boot';
+import { BootApp, BootCacheData, getBootData } from '../lib/boot';
 import { FeaturesContextProvider } from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
@@ -19,6 +19,7 @@ import {
 } from './SettingsContext';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
+import { NotificationsContextProvider } from './NotificationsContext';
 import { OnboardingContextProvider } from './OnboardingContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 
@@ -33,7 +34,7 @@ function filteredProps<T extends Record<string, unknown>>(
 
 export type BootDataProviderProps = {
   children?: ReactNode;
-  app: string;
+  app: BootApp;
   localBootData?: BootCacheData;
   getRedirectUri: () => string;
 };
@@ -56,6 +57,7 @@ const updateLocalBootData = (
     'alerts',
     'flags',
     'settings',
+    'notifications',
     'user',
     'lastModifier',
     'squads',
@@ -78,8 +80,15 @@ export const BootDataProvider = ({
   const [lastAppliedChange, setLastAppliedChange] =
     useState<Partial<BootCacheData>>();
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
-  const loadedFromCache = cachedBootData !== undefined;
-  const { user, settings, flags = {}, alerts, squads } = cachedBootData || {};
+  const loadedFromCache = !!cachedBootData;
+  const {
+    user,
+    settings,
+    flags = {},
+    alerts,
+    notifications,
+    squads,
+  } = cachedBootData || {};
   const {
     data: bootRemoteData,
     refetch,
@@ -184,7 +193,13 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            <OnboardingContextProvider>{children}</OnboardingContextProvider>
+            <NotificationsContextProvider
+              app={app}
+              isNotificationsReady={initialLoad}
+              unreadCount={notifications?.unreadNotificationsCount}
+            >
+              <OnboardingContextProvider>{children}</OnboardingContextProvider>
+            </NotificationsContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>

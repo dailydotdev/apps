@@ -69,7 +69,7 @@ function SidebarNav({
       <div className="px-6 tablet:px-0">
         {pageKeys.map((key) => {
           const href = `/${basePath}${accountPage[key].href}`;
-          const isActive = window.location.pathname === href;
+          const isActive = globalThis?.window?.location.pathname === href;
 
           return (
             <SidebarNavItem

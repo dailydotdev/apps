@@ -6,6 +6,7 @@ import {
   SquadVersion,
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
+  InAppNotificationPosition as InAppNotificationPositionEnum,
   ArticleOnboardingVersion,
   ScrollOnboardingVersion,
 } from './featureValues';
@@ -175,6 +176,12 @@ export class Features<T extends FeatureValue = string> {
       SquadVersion.V3,
       SquadVersion.V4,
     ],
+  );
+
+  static readonly InAppNotificationPosition = new Features(
+    'in_app_notification_position',
+    InAppNotificationPositionEnum.Bottom,
+    [InAppNotificationPositionEnum.Bottom, InAppNotificationPositionEnum.Top],
   );
 
   static readonly SquadForm = new Features('squad_form');

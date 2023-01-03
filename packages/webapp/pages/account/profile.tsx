@@ -64,7 +64,7 @@ const AccountProfilePage = (): ReactElement => {
     >
       <form ref={formRef}>
         <AccountContentSection
-          headingClassName="mt-0"
+          className={{ heading: 'mt-0' }}
           title="Profile Picture"
           description="Upload a picture to make your profile stand out and let people recognize
         your comments and contributions easily!"

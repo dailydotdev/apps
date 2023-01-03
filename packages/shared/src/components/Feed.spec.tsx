@@ -81,6 +81,7 @@ const defaultVariables = {
 };
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   variables = defaultVariables;

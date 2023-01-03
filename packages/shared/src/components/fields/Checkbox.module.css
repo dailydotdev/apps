@@ -18,6 +18,14 @@
 }
 
 .label {
+  &:global(.disabled) {
+    pointer-events: none;
+  }
+
+  &:global(.disabled), &:global(.checked.disabled) {
+    color: var(--theme-label-disabled);
+  }
+
   &:global(.checked) {
     color: var(--theme-label-primary);
 
@@ -50,6 +58,12 @@
     & .checkmark {
       background: theme('colors.water.40');
       border-color: transparent;
+    }
+
+    &:global(.disabled) {
+      & .checkmark {
+        background: var(--theme-label-disabled);
+      }
     }
 
     &:hover,

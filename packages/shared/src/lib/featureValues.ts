@@ -12,6 +12,11 @@ export enum ShareVersion {
   V4 = 'v4',
 }
 
+export enum InAppNotificationPosition {
+  Bottom = 'bottom',
+  Top = 'top',
+}
+
 export enum OnboardingVersion {
   V1 = 'v1',
   V2 = 'v2',

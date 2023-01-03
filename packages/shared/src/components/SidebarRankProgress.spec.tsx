@@ -26,6 +26,7 @@ jest.mock('../hooks/usePersistentState', () => {
 });
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
 });

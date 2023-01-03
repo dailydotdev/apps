@@ -21,12 +21,14 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import Discussed from '../pages/discussed';
 
 const showLogin = jest.fn();
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(
@@ -106,7 +108,9 @@ const renderComponent = (
               onShouldUpdateFilters: jest.fn(),
             }}
           >
-            {Discussed.getLayout(<Discussed />, {}, Discussed.layoutProps)}
+            <NotificationsContextProvider>
+              {Discussed.getLayout(<Discussed />, {}, Discussed.layoutProps)}
+            </NotificationsContextProvider>
           </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>

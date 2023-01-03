@@ -6,6 +6,7 @@ import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import MainLayout from '../components/layouts/MainLayout';
@@ -59,11 +60,12 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
               onShouldUpdateFilters: jest.fn(),
             }}
           >
-            <MainLayout />
+            <NotificationsContextProvider>
+              <MainLayout />
+            </NotificationsContextProvider>
           </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
-      ,
     </QueryClientProvider>,
   );
 };

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
@@ -13,6 +13,9 @@ import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ScoutBadge from './ScoutBadge';
 import { Post } from '../../graphql/posts';
 import { Origin } from '../../lib/analytics';
+import EnableNotification from '../notifications/EnableNotification';
+import AuthContext from '../../contexts/AuthContext';
+import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 
 export interface Props extends CommentActionProps {
   post: Post;
@@ -20,10 +23,11 @@ export interface Props extends CommentActionProps {
   origin: Origin;
   firstComment: boolean;
   lastComment: boolean;
-  parentId: string;
+  parentComment: Comment;
   postAuthorId: string | null;
   postScoutId: string | null;
   commentHash?: string;
+  permissionNotificationCommentId?: string;
   commentRef?: React.MutableRefObject<HTMLElement>;
   appendTooltipTo?: () => HTMLElement;
 }
@@ -36,7 +40,7 @@ export default function SubComment({
   origin,
   firstComment,
   lastComment,
-  parentId,
+  parentComment,
   commentHash,
   commentRef,
   onComment,
@@ -47,7 +51,9 @@ export default function SubComment({
   appendTooltipTo,
   postAuthorId,
   postScoutId,
+  permissionNotificationCommentId,
 }: Props): ReactElement {
+  const { user } = useContext(AuthContext);
   return (
     <article
       className="flex items-stretch mt-4 scroll-mt-16"
@@ -100,13 +106,23 @@ export default function SubComment({
           post={post}
           origin={origin}
           comment={comment}
-          parentId={parentId}
+          parentId={parentComment.id}
           onComment={onComment}
           onShare={onShare}
           onDelete={onDelete}
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}
         />
+        {permissionNotificationCommentId === comment.id && (
+          <EnableNotification
+            parentCommentAuthorName={
+              parentComment.author?.id !== user?.id
+                ? parentComment.author?.name
+                : undefined
+            }
+            source={NotificationPromptSource.NewComment}
+          />
+        )}
       </div>
     </article>
   );

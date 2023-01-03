@@ -3,7 +3,7 @@ import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
+import { ModalProps as StyledModalProps } from './StyledModal';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
@@ -17,7 +17,9 @@ import {
 import { Source } from '../../graphql/sources';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
+import NotificationsContext from '../../contexts/NotificationsContext';
+import PushNotificationModal from './PushNotificationModal';
 
 interface RSS {
   url: string;
@@ -47,11 +49,14 @@ type ScrapeSourceResponse =
   | ScrapeSourceRSS
   | ScrapeSourceUnavailable;
 
-export default function NewSourceModal(props: ModalProps): ReactElement {
+export default function NewSourceModal(props: StyledModalProps): ReactElement {
   const scrapeFormRef = useRef<HTMLFormElement>();
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [scrapeError, setScrapeError] = useState<string>();
   const [showContact, setShowContact] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const { hasPermissionCache, isNotificationSupported } =
+    useContext(NotificationsContext);
   const [feeds, setFeeds] = useState<{ label: string; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();
@@ -119,7 +124,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         }),
       {
         onSuccess: () => {
-          onRequestClose?.(null);
+          if (hasPermissionCache || !isNotificationSupported) {
+            onRequestClose?.(null);
+            return;
+          }
+          setShowNotification(true);
         },
       },
     );
@@ -142,7 +151,6 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     const data = formToJson<{ url: string }>(e.currentTarget);
     await scrapeSource(data.url);
   };
-
   const onSubmitFeed = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
@@ -155,14 +163,17 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
       await requestSource(data.rss);
     }
   };
+  const modalProps: Omit<ModalProps, 'children'> = {
+    onRequestClose,
+    ...props,
+  };
+
+  if (showNotification) {
+    return <PushNotificationModal {...modalProps} />;
+  }
 
   return (
-    <Modal
-      kind={Modal.Kind.FlexibleTop}
-      size={Modal.Size.Medium}
-      onRequestClose={onRequestClose}
-      {...props}
-    >
+    <Modal {...modalProps}>
       <Modal.Header title="Suggest new source" />
       <Modal.Body>
         <Modal.Text>

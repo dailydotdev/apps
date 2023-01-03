@@ -23,6 +23,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import BookmarksPage from '../pages/bookmarks';
 
@@ -34,6 +35,7 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(
@@ -67,11 +69,13 @@ const createFeedMock = (
   },
 });
 
+let client: QueryClient;
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
-  const client = new QueryClient();
+  client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
@@ -125,11 +129,13 @@ const renderComponent = (
               onShouldUpdateFilters: jest.fn(),
             }}
           >
-            {BookmarksPage.getLayout(
-              <BookmarksPage />,
-              {},
-              BookmarksPage.layoutProps,
-            )}
+            <NotificationsContextProvider>
+              {BookmarksPage.getLayout(
+                <BookmarksPage />,
+                {},
+                BookmarksPage.layoutProps,
+              )}
+            </NotificationsContextProvider>
           </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>

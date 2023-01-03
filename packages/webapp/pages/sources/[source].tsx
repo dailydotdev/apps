@@ -73,7 +73,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
 
   const seo: NextSeoProps = {
     title: `${source.name} posts on daily.dev`,
-    titleTemplate: '%s',
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
   };

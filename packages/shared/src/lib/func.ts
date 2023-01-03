@@ -27,4 +27,13 @@ export const postWindowMessage = (
   eventKey: string,
   params: EmptyObjectLiteral,
   attributes = '*',
-): void => window.opener.postMessage({ ...params, eventKey }, attributes);
+): void => window.opener?.postMessage?.({ ...params, eventKey }, attributes);
+
+export type Func<T = unknown> = () => T | Promise<T>;
+
+export type FunctionRecord<K extends string | number | symbol> = Record<
+  K,
+  Func
+>;
+
+export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;

@@ -137,7 +137,7 @@ function AccountSecurityDefault({
   return (
     <AccountPageContainer title="Security">
       <AccountContentSection
-        headingClassName="mt-0"
+        className={{ heading: 'mt-0' }}
         title="Account email"
         description="The email address associated with your daily.dev account"
       >
