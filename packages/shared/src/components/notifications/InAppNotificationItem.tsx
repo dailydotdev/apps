@@ -1,6 +1,6 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { useDomPurify } from '../../hooks/useDomPurify';
+import { useObjectPurify } from '../../hooks/useDomPurify';
 import classed from '../../lib/classed';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAvatar from './NotificationItemAvatar';
@@ -31,17 +31,9 @@ export function InAppNotificationItem({
   targetUrl,
   onClick,
 }: InAppNotificationItemProps): ReactElement {
-  const purify = useDomPurify();
-  const { title: memoizedTitle } = useMemo(() => {
-    if (!purify?.sanitize) {
-      return { title: '', description: '' };
-    }
-    return {
-      title: purify.sanitize(title),
-    };
-  }, [purify, title]);
+  const { title: memoizedTitle, isReady } = useObjectPurify({ title });
 
-  if (!purify) {
+  if (!isReady) {
     return null;
   }
 

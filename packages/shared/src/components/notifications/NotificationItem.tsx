@@ -1,8 +1,8 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { Notification } from '../../graphql/notifications';
-import { useDomPurify } from '../../hooks/useDomPurify';
+import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
@@ -27,20 +27,13 @@ function NotificationItem({
   targetUrl,
   onClick,
 }: NotificationItemProps): ReactElement {
-  const purify = useDomPurify();
-  const { title: memoizedTitle, description: memoizedDescription } =
-    useMemo(() => {
-      if (!purify?.sanitize) {
-        return { title: '', description: '' };
-      }
+  const {
+    isReady,
+    title: memoizedTitle,
+    description: memoizedDescription,
+  } = useObjectPurify({ title, description });
 
-      return {
-        title: purify.sanitize(title),
-        description: purify.sanitize(description),
-      };
-    }, [purify, title, description]);
-
-  if (!purify) {
+  if (!isReady) {
     return null;
   }
 
