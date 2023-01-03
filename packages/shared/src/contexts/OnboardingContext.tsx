@@ -51,7 +51,7 @@ export const OnboardingContextProvider = ({
 }: OnboardingContextProviderProps): ReactElement => {
   const { pathname } = useRouter() ?? {};
   const { user } = useContext(AuthContext);
-  const { alerts } = useContext(AlertContext);
+  const { loadedAlerts, alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { registerLocalFilters } = useMyFeed();
   const [isOnboarding, setIsOnboarding] = useState(false);
@@ -76,6 +76,7 @@ export const OnboardingContextProvider = ({
   useEffect(() => {
     const isHome = !pathname || pathname === '/';
     const conditions = [
+      !loadedAlerts,
       !hasOnboardingLoaded,
       hasTriedOnboarding,
       !alerts.filter,
@@ -89,7 +90,7 @@ export const OnboardingContextProvider = ({
     setHasTriedOnboarding(false);
     setOnboardingMode(OnboardingMode.Auto);
     setIsOnboarding(true);
-  }, [hasOnboardingLoaded, user, pathname]);
+  }, [hasOnboardingLoaded, user, pathname, loadedAlerts]);
 
   const onCloseOnboardingModal = () => {
     if (onboardingMode === OnboardingMode.Auto) {
