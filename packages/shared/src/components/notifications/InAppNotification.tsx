@@ -23,7 +23,7 @@ const Container = classed(
   classNames(
     styles.inAppNotificationContainer,
     'animate-bounce',
-    'fixed right-10 bg-theme-bg-notification border border-theme-active rounded-16 in-app-notification slide-in z-[100] w-[22.5rem] h-22',
+    'fixed right-3 laptop:right-10 bg-theme-bg-notification border border-theme-active rounded-16 in-app-notification slide-in z-[100] w-[22.5rem] h-22',
   ),
 );
 
