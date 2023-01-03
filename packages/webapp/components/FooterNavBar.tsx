@@ -31,6 +31,7 @@ type Tab = {
   title: string;
   icon: (active: boolean, unread?: number) => ReactElement;
   requiresLogin?: boolean;
+  shouldShowLogin?: boolean;
   onClick?: () => void;
 };
 
@@ -47,7 +48,7 @@ export const tabs: Tab[] = [
     icon: (active: boolean) => (
       <BookmarkIcon secondary={active} size="xxlarge" />
     ),
-    requiresLogin: true,
+    shouldShowLogin: true,
   },
   {
     path: '/search',
@@ -56,6 +57,7 @@ export const tabs: Tab[] = [
   },
   {
     requiresLogin: true,
+    shouldShowLogin: true,
     path: notificationsPath,
     title: 'Notifications',
     icon: (active: boolean, unreadCount) => (
@@ -113,42 +115,44 @@ export default function FooterNavBar(): ReactElement {
         styles.footerNavBar,
       )}
     >
-      {tabs.map((tab, index) => (
-        <div key={tab.path} className="relative">
-          {!tab.requiresLogin || user ? (
-            <LinkWithTooltip
-              href={tab.path}
-              prefetch={false}
-              passHref
-              tooltip={{ content: tab.title }}
-            >
-              <Button
-                {...buttonProps}
-                tag="a"
-                icon={tab.icon(index === selectedTab, unreadCount)}
-                pressed={index === selectedTab}
-                onClick={onItemClick[tab.path]}
-              />
-            </LinkWithTooltip>
-          ) : (
-            <SimpleTooltip content={tab.title}>
-              <Button
-                {...buttonProps}
-                icon={tab.icon(index === selectedTab, unreadCount)}
-                onClick={() => showLogin(AuthTriggers.Bookmark)}
-              />
-            </SimpleTooltip>
-          )}
-          <Flipped flipId="activeTabIndicator">
-            {selectedTab === index && (
-              <ActiveTabIndicator
-                className="w-12"
-                style={{ top: '-0.125rem' }}
-              />
+      {tabs.map((tab, index) =>
+        tab.requiresLogin && !user ? null : (
+          <div key={tab.path} className="relative">
+            {!tab.shouldShowLogin || user ? (
+              <LinkWithTooltip
+                href={tab.path}
+                prefetch={false}
+                passHref
+                tooltip={{ content: tab.title }}
+              >
+                <Button
+                  {...buttonProps}
+                  tag="a"
+                  icon={tab.icon(index === selectedTab, unreadCount)}
+                  pressed={index === selectedTab}
+                  onClick={onItemClick[tab.path]}
+                />
+              </LinkWithTooltip>
+            ) : (
+              <SimpleTooltip content={tab.title}>
+                <Button
+                  {...buttonProps}
+                  icon={tab.icon(index === selectedTab, unreadCount)}
+                  onClick={() => showLogin(AuthTriggers.Bookmark)}
+                />
+              </SimpleTooltip>
             )}
-          </Flipped>
-        </div>
-      ))}
+            <Flipped flipId="activeTabIndicator">
+              {selectedTab === index && (
+                <ActiveTabIndicator
+                  className="w-12"
+                  style={{ top: '-0.125rem' }}
+                />
+              )}
+            </Flipped>
+          </div>
+        ),
+      )}
     </Flipper>
   );
 }
