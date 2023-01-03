@@ -14,7 +14,7 @@ const getRedirectUri = () =>
 
 const InstructionContainer = classed(
   'div',
-  'flex flex-col p-4 mt-5 rounded-8 border border-theme-divider-tertiary',
+  'flex flex-col items-start p-4 mt-5 rounded-8 border border-theme-divider-tertiary',
 );
 
 const iconClasses = 'flex flex-grow mt-2';
@@ -68,20 +68,24 @@ function Enable(): React.ReactElement {
         <Description className="mt-28 font-bold">
           Didn&apos;t get the popup?
         </Description>
-        <InstructionContainer className="mb-1">
-          <Description>1. Click on the lock icon in the search bar</Description>
-          <BrowserPermissionIcon
-            className={classNames(iconClasses, 'w-full h-8')}
-          />
-        </InstructionContainer>
-        <InstructionContainer>
-          <Description>
-            2. Enable the toggle button under the notifications section
-          </Description>
-          <NotificationToggleIcon
-            className={classNames(iconClasses, 'w-52 h-8')}
-          />
-        </InstructionContainer>
+        <div>
+          <InstructionContainer className="mb-1">
+            <Description>
+              1. Click on the lock icon in the search bar
+            </Description>
+            <BrowserPermissionIcon
+              className={classNames(iconClasses, 'w-full h-8 max-w-[18.75rem]')}
+            />
+          </InstructionContainer>
+          <InstructionContainer>
+            <Description>
+              2. Enable the toggle button under the notifications section
+            </Description>
+            <NotificationToggleIcon
+              className={classNames(iconClasses, 'w-52 h-8')}
+            />
+          </InstructionContainer>
+        </div>
       </main>
     </BootDataProvider>
   );
