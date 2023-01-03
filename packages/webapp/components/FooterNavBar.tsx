@@ -55,6 +55,7 @@ export const tabs: Tab[] = [
     icon: (active: boolean) => <SearchIcon secondary={active} size="xxlarge" />,
   },
   {
+    requiresLogin: true,
     path: notificationsPath,
     title: 'Notifications',
     icon: (active: boolean, unreadCount) => (
