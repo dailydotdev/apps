@@ -77,7 +77,7 @@ export const BootDataProvider = ({
   const [lastAppliedChange, setLastAppliedChange] =
     useState<Partial<BootCacheData>>();
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
-  const loadedFromCache = cachedBootData !== undefined;
+  const loadedFromCache = !!cachedBootData;
   const { user, settings, flags = {}, alerts } = cachedBootData || {};
   const {
     data: bootRemoteData,
