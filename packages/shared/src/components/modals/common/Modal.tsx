@@ -24,7 +24,7 @@ export interface ModalProps extends ReactModal.Props {
   steps?: ModalStep[];
   defaultView?: string;
   onViewChange?: (view: string) => void;
-};
+}
 
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
   [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',
