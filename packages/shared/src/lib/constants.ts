@@ -24,6 +24,7 @@ export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';
 export const docs = 'https://r.daily.dev/docs';
 export const markdownGuide = 'https://r.daily.dev/markdown-guide';
+export const firstNotificationLink = 'https://r.daily.dev/notifications';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';

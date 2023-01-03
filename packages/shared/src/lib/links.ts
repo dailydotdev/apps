@@ -24,9 +24,3 @@ export const isPreviewDeployment = (() => {
 
   return !!value;
 })();
-
-export const links = {
-  notifications: {
-    firstNotification: 'https://r.daily.dev/notifications',
-  },
-};
