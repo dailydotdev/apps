@@ -81,12 +81,12 @@ export const BootDataProvider = ({
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
   const loadedFromCache = !!cachedBootData;
   const {
-      user,
-      settings,
-      flags = {},
-      alerts,
-      notifications,
-    } = cachedBootData || {};
+    user,
+    settings,
+    flags = {},
+    alerts,
+    notifications,
+  } = cachedBootData || {};
   const {
     data: bootRemoteData,
     refetch,
