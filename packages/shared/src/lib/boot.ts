@@ -58,7 +58,13 @@ export type Boot = {
 
 export type BootCacheData = Pick<
   Boot,
-  'user' | 'alerts' | 'settings' | 'flags' | 'postData' | 'notifications' | 'squads'
+  | 'user'
+  | 'alerts'
+  | 'settings'
+  | 'flags'
+  | 'postData'
+  | 'notifications'
+  | 'squads'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {

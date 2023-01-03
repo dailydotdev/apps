@@ -33,5 +33,5 @@ export const cloudinary = {
   squads: {
     imageFallback:
       'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
-  }
+  },
 };
