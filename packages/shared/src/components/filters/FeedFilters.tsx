@@ -97,13 +97,13 @@ export default function FeedFilters({
   //               onClick={() => setIsNavOpen(true)}
   //             />
   //           </Modal.Header>
-  //           <Modal.Body tab={FilterMenuTitle.Tags}>
+  //           <Modal.Body view={FilterMenuTitle.Tags}>
   //             <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />
   //           </Modal.Body>
-  //           <Modal.Body tab={FilterMenuTitle.Advanced}>
+  //           <Modal.Body view={FilterMenuTitle.Advanced}>
   //             <AdvancedSettingsFilter />
   //           </Modal.Body>
-  //           <Modal.Body tab={FilterMenuTitle.Blocked}>
+  //           <Modal.Body view={FilterMenuTitle.Blocked}>
   //             <BlockedFilter onUnblockItem={setUnblockItem} />
   //           </Modal.Body>
   //         </Modal.Sidebar.Inner>
