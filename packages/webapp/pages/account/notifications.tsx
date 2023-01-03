@@ -1,6 +1,7 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
@@ -129,7 +130,12 @@ const AccountNotificationsPage = (): ReactElement => {
         </div>
       )}
       {isNotificationSupported && isAlertShown && (
-        <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
+        <div
+          className={classNames(
+            'relative w-full rounded-16 border border-theme-color-cabbage',
+            isNotificationSupported && 'mt-6',
+          )}
+        >
           <Pointer
             className="absolute -top-5 right-8"
             color={PointerColor.Cabbage}
