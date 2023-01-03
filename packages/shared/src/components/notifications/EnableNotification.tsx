@@ -131,7 +131,7 @@ function EnableNotification({
           className="mt-4 text-white min-w-[7rem] btn-primary-cabbage"
           onClick={onEnable}
         >
-          Enable Notifications
+          Enable notifications
         </Button>
       )}
       <img

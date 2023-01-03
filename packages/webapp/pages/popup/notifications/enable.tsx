@@ -59,7 +59,7 @@ function Enable(): React.ReactElement {
       <main className="flex overflow-hidden flex-col justify-center items-center px-20 w-screen h-screen text-center max-h-[100%] max-w-[100%] bg-theme-overlay-float-cabbage">
         <h1 className="relative font-bold bg-transparent typo-mega3">
           <div className="absolute inset-0 -z-1 w-52 h-52 opacity-64 bg-theme-bg-cabbage-blur blur-[3.125rem] rounded-[3.125rem] -translate-y-[25%]" />
-          Click Allow
+          Click allow
         </h1>
         <p className="mt-6 text-theme-label-secondary typo-body">
           Enable web push notifications to be notified of important events such
