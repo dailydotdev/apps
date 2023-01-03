@@ -175,7 +175,7 @@ export const NotificationsContextProvider = ({
       hasPermissionCache,
       isInitialized,
       isNotificationsReady,
-      unreadCount: 100,
+      unreadCount: currentUnreadCount,
       isSubscribed,
       onTogglePermission,
       clearUnreadCount: () => setCurrentUnreadCount(0),
