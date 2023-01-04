@@ -1,4 +1,4 @@
-import { KeyboardEvent, MouseEvent, createContext } from 'react';
+import { KeyboardEvent, MouseEvent, createContext, ReactNode } from 'react';
 
 export enum ModalKind {
   FlexibleCenter = 'flexible-center',
@@ -18,12 +18,20 @@ export type ModalTabItem = {
   options: Record<string, unknown>;
 };
 
+export type ModalStep = {
+  key: string;
+  title?: string | ReactNode;
+  hideProgress?: boolean;
+};
+
 export type ModalContextProps = {
-  onRequestClose: null | ((event: MouseEvent | KeyboardEvent) => void);
+  activeView?: string;
   kind: ModalKind;
+  onViewChange?: (view: string) => void;
+  onRequestClose: null | ((event: MouseEvent | KeyboardEvent) => void);
+  setActiveView?: (view: string) => void;
   size: ModalSize;
-  activeTab?: string;
-  setActiveTab?: (tab: string) => void;
+  steps?: ModalStep[];
   tabs?: string[] | ModalTabItem[];
 };
 

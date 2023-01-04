@@ -14,26 +14,26 @@ export type ModalSidebarListProps = {
   title: string;
   isNavOpen: boolean;
   setIsNavOpen: (open: boolean) => void;
-  onTabChange?: (tab: string) => void;
+  onViewChange?: (view: string) => void;
 };
 
 export function ModalSidebarList({
   className,
   isNavOpen,
-  onTabChange,
+  onViewChange,
   setIsNavOpen,
   title,
 }: ModalSidebarListProps): ReactElement {
-  const { activeTab, tabs, setActiveTab } = useContext(ModalPropsContext);
+  const { activeView, tabs, setActiveView } = useContext(ModalPropsContext);
   return (
     <nav className={classNames('bg-theme-bg-primary z-2', className)}>
       <SidebarList
         className="z-1 pb-6"
-        active={activeTab}
+        active={activeView}
         title={title}
         onItemClick={(tab) => {
-          setActiveTab(tab);
-          onTabChange?.(tab);
+          setActiveView(tab);
+          onViewChange?.(tab);
         }}
         items={tabs.map((tab: string | ModalTabItem) =>
           typeof tab === 'string'
