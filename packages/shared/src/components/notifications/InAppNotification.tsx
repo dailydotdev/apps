@@ -23,7 +23,7 @@ const Container = classed(
   classNames(
     styles.inAppNotificationContainer,
     'animate-bounce',
-    'fixed right-3 laptop:right-10 bg-theme-bg-notification border border-theme-active rounded-16 in-app-notification slide-in z-[100] w-[22.5rem] h-22',
+    'fixed right-1/2 translate-x-1/2 laptop:translate-x-0 laptop:right-10 bg-theme-bg-notification border border-theme-active rounded-16 in-app-notification slide-in z-[100] w-[22.5rem] h-22',
   ),
 );
 
@@ -95,10 +95,10 @@ export function InAppNotificationElement(): ReactElement {
   return (
     <Container
       className={classNames(
+        'top-16',
         isExit && 'exit',
-        inAppNotificationPosition === InAppNotificationPosition.Bottom
-          ? 'bottom-16 laptop:bottom-10'
-          : 'top-16',
+        inAppNotificationPosition === InAppNotificationPosition.Bottom &&
+          'laptop:bottom-10 laptop:top-[unset]',
       )}
       role="alert"
       onMouseEnter={stopTimer}

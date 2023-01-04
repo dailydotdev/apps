@@ -13,11 +13,31 @@
   }
 }
 
+@keyframes mobileInAppNotificationAnimationEntry {
+  0% {
+    transform: translate(50%, -200%);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(50%, -200%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(50%, 0);
+    opacity: 1;
+  }
+}
+
+
 .inAppNotificationContainer {
-  animation: inAppNotificationAnimationEntry 0.80s ease-in-out;
+  animation: mobileInAppNotificationAnimationEntry 0.80s ease-in-out;
   transition: opacity 0.14s ease-in-out;
 
   &:global(.exit) {
     opacity: 0;
+  }
+  
+  @screen laptop {
+    animation: inAppNotificationAnimationEntry 0.80s ease-in-out;
   }
 }
