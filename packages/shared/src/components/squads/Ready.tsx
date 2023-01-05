@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
@@ -14,12 +14,13 @@ import {
   SquadTitle,
   SquadTitleColor,
 } from './utils';
+import { ModalPropsContext } from '../modals/common/types';
 
 export function SquadReady({
-  modalState,
   squad,
 }: SquadStateProps & { squad?: Squad }): ReactElement {
-  if (ModalState.Ready !== modalState) return null;
+  const { activeView } = useContext(ModalPropsContext);
+  if (ModalState.Ready !== activeView) return null;
   if (!squad) return <Modal.Body>loading...</Modal.Body>;
   const { name, handle, permalink } = squad;
   const [copying, copyLink] = useCopyLink(() => permalink);
