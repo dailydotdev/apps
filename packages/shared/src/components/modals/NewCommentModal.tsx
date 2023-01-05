@@ -181,7 +181,7 @@ export default function NewCommentModal({
       <Modal.Header.Tabs
         disabledTab={(tab) => tab === CommentTabs.Preview && disabled}
       />
-      <Modal.Body tab={CommentTabs.Write}>
+      <Modal.Body view={CommentTabs.Write}>
         <CommentBox
           {...props}
           useUserMentionOptions={useUserMentionOptions}
@@ -191,13 +191,13 @@ export default function NewCommentModal({
           sendComment={sendComment}
         />
       </Modal.Body>
-      <Modal.Body tab={CommentTabs.Preview}>
+      <Modal.Body view={CommentTabs.Preview}>
         <Markdown
           content={previewContent?.preview}
           appendTooltipTo={props.parentSelector}
         />
       </Modal.Body>
-      <Modal.Footer justify={Justify.Between} tab={CommentTabs.Write}>
+      <Modal.Footer justify={Justify.Between} view={CommentTabs.Write}>
         <Button
           className="btn-tertiary"
           buttonSize="small"
@@ -216,7 +216,7 @@ export default function NewCommentModal({
         </ClickableText>
         {updateButton}
       </Modal.Footer>
-      <Modal.Footer tab={CommentTabs.Preview}>{updateButton}</Modal.Footer>
+      <Modal.Footer view={CommentTabs.Preview}>{updateButton}</Modal.Footer>
       <DiscardActionModal
         isOpen={showDiscardModal}
         onRequestClose={() => setShowDiscardModal(false)}

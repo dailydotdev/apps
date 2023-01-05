@@ -1,6 +1,7 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
@@ -23,8 +24,12 @@ import AccountContentSection from '../../components/layouts/AccountLayout/Accoun
 const ALERT_PUSH_KEY = 'alert_push_key';
 
 const AccountNotificationsPage = (): ReactElement => {
-  const { onTogglePermission, isSubscribed, isInitialized } =
-    useContext(NotificationsContext);
+  const {
+    onTogglePermission,
+    isSubscribed,
+    isInitialized,
+    isNotificationSupported,
+  } = useContext(NotificationsContext);
   const [isAlertShown, setIsAlertShown] = usePersistentContext(
     ALERT_PUSH_KEY,
     true,
@@ -99,30 +104,32 @@ const AccountNotificationsPage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Notifications">
-      <div className="flex flex-row">
-        <AccountContentSection
-          className={{
-            heading: 'mt-0',
-            container: 'flex flex-col flex-1 w-full',
-          }}
-          title="Push notifications"
-          description="The daily.dev notification system notifies you of important events such as replies, mentions, updates, etc."
-        />
-        <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
-        <Switch
-          data-testId="push_notification-switch"
-          inputId="push_notification-switch"
-          name="push_notification"
-          className="w-20"
-          compact={false}
-          checked={isSubscribed}
-          onToggle={onTogglePush}
-          disabled={!isInitialized}
-        >
-          {isSubscribed ? 'On' : 'Off'}
-        </Switch>
-      </div>
-      {isAlertShown && (
+      {isNotificationSupported && (
+        <div className="flex flex-row">
+          <AccountContentSection
+            className={{
+              heading: 'mt-0',
+              container: 'flex flex-col flex-1 w-full',
+            }}
+            title="Push notifications"
+            description="The daily.dev notification system notifies you of important events such as replies, mentions, updates, etc."
+          />
+          <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
+          <Switch
+            data-testId="push_notification-switch"
+            inputId="push_notification-switch"
+            name="push_notification"
+            className="w-20"
+            compact={false}
+            checked={isSubscribed}
+            onToggle={onTogglePush}
+            disabled={!isInitialized}
+          >
+            {isSubscribed ? 'On' : 'Off'}
+          </Switch>
+        </div>
+      )}
+      {isNotificationSupported && isAlertShown && (
         <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
           <Pointer
             className="absolute -top-5 right-8"
@@ -146,7 +153,12 @@ const AccountNotificationsPage = (): ReactElement => {
           </div>
         </div>
       )}
-      <div className="flex flex-row mt-6">
+      <div
+        className={classNames(
+          'flex flex-row',
+          isNotificationSupported && 'mt-6',
+        )}
+      >
         <AccountContentSection
           className={{
             heading: 'mt-0',
