@@ -23,6 +23,8 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const onSubmit = jest.fn();
+
 const mockRecoveryFlow = (result = passwordRecoveryFlowMockData) => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
     .get('/self-service/recovery/browser?')
@@ -32,7 +34,7 @@ const mockRecoveryFlow = (result = passwordRecoveryFlowMockData) => {
 const defaultToken = passwordRecoveryFlowMockData.ui.nodes[0].attributes.value;
 const defaultParams: Partial<AccountRecoveryParameters> & { method: string } = {
   csrf_token: defaultToken,
-  method: 'link',
+  method: 'code',
 };
 const mockRecoveryValidationFlow = (
   params: Partial<AccountRecoveryParameters> = {},
@@ -65,7 +67,7 @@ const renderComponent = (): RenderResult => {
         loadingUser={false}
         loadedUserFromCache
       >
-        <ForgotPasswordForm />
+        <ForgotPasswordForm onSubmit={onSubmit} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -92,9 +94,6 @@ it('should post sending email recovery including token', async () => {
   mockRecoveryValidationFlow(params);
   fireEvent.submit(form);
   await waitFor(() => {
-    const sentIcon = screen.queryByTestId('email_sent_icon');
-    expect(sentIcon).toBeInTheDocument();
-    const submit = screen.queryByRole('button');
-    expect(submit).toBeDisabled();
+    expect(onSubmit).toBeCalled();
   });
 });
