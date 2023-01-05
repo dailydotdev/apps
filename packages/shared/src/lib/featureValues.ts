@@ -17,11 +17,6 @@ export enum InAppNotificationPosition {
   Top = 'top',
 }
 
-export enum OnboardingVersion {
-  V1 = 'v1',
-  V2 = 'v2',
-}
-
 export enum OnboardingFiltersLayout {
   Grid = 'grid',
   List = 'list',
