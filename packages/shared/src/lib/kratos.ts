@@ -22,7 +22,6 @@ interface InitializationNodeAttribute {
 }
 
 export enum MessageType {
-  Info = 'info',
   Error = 'error',
 }
 
@@ -63,9 +62,13 @@ interface InitializationUI {
   nodes: InitializationNode[];
 }
 
-export type RegistrationInitializationData = InitializationData;
 export type AuthenticatorLevel = 'aal0' | 'aal1';
-export type KratosMethod = 'link' | 'link_recovery' | 'password' | 'profile';
+export type KratosMethod =
+  | 'link'
+  | 'link_recovery'
+  | 'password'
+  | 'profile'
+  | 'code';
 export type AuthenticationType = 'password' | 'oidc';
 
 interface IdentityCredential {
@@ -148,24 +151,6 @@ export interface Identity {
   verifiable_addresses: VerifyableAddress[];
 }
 
-enum VerificationState {
-  ChooseMethod = 'choose_method',
-  EmailSent = 'sent_email',
-  Passed = 'passed_challenge',
-}
-
-export interface VerificationResponseData extends InitializationData {
-  active: string;
-  state: VerificationState;
-  return_to: string;
-  type: 'api' | 'browser';
-}
-
-export type EmailRecoveryResponse = RequestResponse<
-  VerificationResponseData,
-  VerificationResponseData
->;
-
 export interface LogoutSessionData {
   logout_token: string;
   logout_url: string;
@@ -241,17 +226,6 @@ export const getKratosFlow = async <T = InitializationData>(
 
 export const getKratosError = async (id: string): Promise<ErrorData> => {
   const res = await fetch(`${authUrl}/self-service/errors?id=${id}`, {
-    credentials: 'include',
-    headers: { Accept: 'application/json' },
-  });
-  return res.json();
-};
-
-export const getKratosSettingsFlow = async (
-  flow: AuthFlow,
-  id: string,
-): Promise<InitializationData> => {
-  const res = await fetch(`${authUrl}/self-service${flow}/flows?id=${id}`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
   });

@@ -45,6 +45,8 @@ import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import CodeVerificationForm from './CodeVerificationForm';
+import ChangePasswordForm from './ChangePasswordForm';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -52,6 +54,8 @@ export enum AuthDisplay {
   SocialRegistration = 'social_registration',
   SignBack = 'sign_back',
   ForgotPassword = 'forgot_password',
+  CodeVerification = 'code_verification',
+  ChangePassword = 'change_password',
   EmailSent = 'email_sent',
   ConnectedUser = 'connected_user',
   VerifiedEmail = 'VerifiedEmail',
@@ -93,6 +97,7 @@ function AuthOptions({
   const { refetchBoot, user, loginState } = useContext(AuthContext);
   const isV2 = version === AuthVersion.V2;
   const [email, setEmail] = useState('');
+  const [flow, setFlow] = useState('');
   const [connectedUser, setConnectedUser] =
     useState<RegistrationConnectedUser>();
   const [activeDisplay, setActiveDisplay] = useState(() =>
@@ -188,6 +193,12 @@ function AuthOptions({
     windowPopup.current = window.open();
     setChosenProvider(provider);
     onSocialRegistration(provider);
+  };
+
+  const onForgotPasswordSubmit = (_email: string, _flow: string) => {
+    setEmail(_email);
+    setFlow(_flow);
+    onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
   useWindowEvents<SocialRegistrationFlow>(
@@ -345,7 +356,19 @@ function AuthOptions({
           <ForgotPasswordForm
             initialEmail={email}
             onBack={onForgotPasswordBack}
+            onSubmit={onForgotPasswordSubmit}
           />
+        </Tab>
+        <Tab label={AuthDisplay.CodeVerification}>
+          <CodeVerificationForm
+            initialEmail={email}
+            initialFlow={flow}
+            onBack={onForgotPasswordBack}
+            onSubmit={() => setActiveDisplay(AuthDisplay.ChangePassword)}
+          />
+        </Tab>
+        <Tab label={AuthDisplay.ChangePassword}>
+          <ChangePasswordForm onSubmit={onProfileSuccess} />
         </Tab>
         <Tab label={AuthDisplay.EmailSent}>
           <AuthModalHeader title="Verify your email address" />

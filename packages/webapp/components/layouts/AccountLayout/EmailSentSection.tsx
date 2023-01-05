@@ -16,9 +16,9 @@ function EmailSentSection({
   email,
   className,
 }: EmailSentSectionProps): ReactElement {
-  const { sendEmail, resendTimer, isLoading } = useAccountEmailFlow(
-    AuthFlow.Verification,
-  );
+  const { sendEmail, resendTimer, isLoading } = useAccountEmailFlow({
+    flow: AuthFlow.Verification,
+  });
 
   return (
     <AlertBanner

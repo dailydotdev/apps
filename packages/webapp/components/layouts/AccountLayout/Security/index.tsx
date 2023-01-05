@@ -17,7 +17,7 @@ import {
   AuthEvent,
   AuthFlow,
   AuthSession,
-  getKratosSettingsFlow,
+  getKratosFlow,
   KratosProviderData,
   SocialRegistrationFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
@@ -100,10 +100,7 @@ function AccountSecurityDefault({
     AuthEvent.SocialRegistration,
     async (e) => {
       if (e.data?.flow) {
-        const flow = await getKratosSettingsFlow(
-          AuthFlow.Settings,
-          e.data.flow,
-        );
+        const flow = await getKratosFlow(AuthFlow.Settings, e.data.flow);
         const { ui } = flow;
         const error = ui.messages[0]?.id;
         if (error === 4000007) {
