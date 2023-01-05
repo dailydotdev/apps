@@ -60,8 +60,8 @@ export type SquadForm = Pick<Squad, 'name' | 'handle' | 'description'> & {
   commentary: string;
   post: PostItem;
 };
+
 export type SquadStateProps = {
-  modalState: ModalState;
   onNext: (squad?: SquadForm) => void;
   form: Partial<SquadForm>;
   setForm: React.Dispatch<React.SetStateAction<Partial<SquadForm>>>;
