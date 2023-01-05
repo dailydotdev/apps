@@ -19,9 +19,6 @@ import {
 import {
   FeedPage
 } from '@dailydotdev/shared/src/components/utilities';
-import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
-// import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -32,28 +29,12 @@ type SourcePageProps = { squad: Squad };
 
 const SquadPage = ({ squad }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
-  const { user, showLogin } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
     () => ({ source: squad?.id, ranking: 'TIME' }),
     [squad?.id],
   );
-
-  const { feedSettings } = useFeedSettings();
-  const { onFollowSource, onUnfollowSource } = useTagAndSource({
-    origin: 'source page',
-  });
-
-  const unfollowingSource = useMemo(() => {
-    if (!feedSettings) {
-      return true;
-    }
-    return (
-      feedSettings.excludeSources?.findIndex(
-        (excludedSource) => squad?.id === excludedSource.id,
-      ) >= 0
-    );
-  }, [feedSettings, squad]);
 
   if (!isFallback && !squad) {
     return <Custom404 />;
