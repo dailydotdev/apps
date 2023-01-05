@@ -9,17 +9,21 @@ import {
   ModalKind,
   ModalPropsContext,
   ModalSize,
+  ModalStep,
   ModalTabItem,
   modalTabTitle,
 } from './types';
 import classed from '../../../lib/classed';
+import { ModalStepsWrapper } from './ModalStepsWrapper';
 
 export interface ModalProps extends ReactModal.Props {
   children: React.ReactNode;
   kind?: ModalKind;
   size?: ModalSize;
   tabs?: string[] | ModalTabItem[];
-  defaultTab?: string;
+  steps?: ModalStep[];
+  defaultView?: string;
+  onViewChange?: (view: string) => void;
 }
 
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
@@ -59,19 +63,27 @@ const modalSizeToClassName: Record<ModalSize, string> = {
 };
 
 export function Modal({
-  defaultTab,
+  defaultView,
   className,
   overlayClassName,
   children,
   kind = ModalKind.FlexibleCenter,
   size = ModalSize.Medium,
+  onViewChange,
   onRequestClose,
   tabs,
+  steps,
   ...props
 }: ModalProps): ReactElement {
-  const [activeTab, setActiveTab] = useState<string | undefined>(
-    tabs ? defaultTab ?? modalTabTitle(tabs[0]) : undefined,
+  const stepTitle = steps ? steps?.[0].key : undefined;
+  const tabTitle = tabs ? modalTabTitle(tabs[0]) : undefined;
+  const [activeView, setView] = useState<string | undefined>(
+    defaultView ?? stepTitle ?? tabTitle,
   );
+  const setActiveView = (view: string) => {
+    if (onViewChange) onViewChange(view);
+    setView(view);
+  };
   const modalOverlayClassName = classNames(
     'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-[10]',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
@@ -95,7 +107,16 @@ export function Modal({
       {...props}
     >
       <ModalPropsContext.Provider
-        value={{ activeTab, size, kind, onRequestClose, setActiveTab, tabs }}
+        value={{
+          activeView,
+          size,
+          kind,
+          onViewChange,
+          onRequestClose,
+          setActiveView,
+          steps,
+          tabs,
+        }}
       >
         {children}
       </ModalPropsContext.Provider>
@@ -119,3 +140,4 @@ Modal.Sidebar = ModalSidebar;
 Modal.Subtitle = ModalSubtitle;
 Modal.Text = ModalText;
 Modal.Title = ModalTitle;
+Modal.StepsWrapper = ModalStepsWrapper;
