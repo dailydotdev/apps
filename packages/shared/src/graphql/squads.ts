@@ -56,9 +56,27 @@ export const CREATE_SQUAD_MUTATION = gql`
 `;
 
 export const ADD_POST_TO_SQUAD = gql`
-mutation AddPostToSquad($data: AddPostToSquadInput) {
-  sharePost(data: $data) {
+  mutation AddPostToSquad($data: AddPostToSquadInput) {
+    sharePost(data: $data) {
       Post!
     }
   }
 `;
+
+export const SQUAD_QUERY = gql`
+  query Source($handle: ID!) {
+    source(id: $handle) {
+      id
+      active
+      handle
+      name
+      permalink
+      public
+      type
+      description
+      image
+    }
+  }
+`;
+
+export type SquadData = { source: Squad };

@@ -2,25 +2,14 @@ import React, { ReactElement } from 'react';
 import { Squad } from '../../graphql/squads';
 import DefaultSquadIcon from '../icons/DefaultSquad';
 import NewSquadIcon from '../icons/NewSquad';
+import { SquadImage } from '../squads/SquadImage';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
 
 type SquadsListProps = {
   squads: Squad[];
   onNewSquad: () => void;
 };
-
-const SquadImage = ({ image, name }: Squad) => (
-  <Image
-    title={name}
-    src={image}
-    fallbackSrc={cloudinary.squads.imageFallback}
-    className="object-cover w-5 h-5 rounded-full"
-    loading="lazy"
-  />
-);
 
 export function SquadsList({
   squads,
@@ -38,7 +27,11 @@ export function SquadsList({
         const { handle, name, permalink, image } = squad;
         const menuItem: SidebarMenuItem = {
           icon: () =>
-            image ? <SquadImage {...squad} /> : <DefaultSquadIcon />,
+            image ? (
+              <SquadImage className="w-5 h-5" {...squad} />
+            ) : (
+              <DefaultSquadIcon />
+            ),
           title: name,
           path: permalink,
         };
