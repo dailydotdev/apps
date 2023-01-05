@@ -7,7 +7,6 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
   PointerColor,
 } from '@dailydotdev/shared/src/components/alert/Pointer';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -21,19 +20,15 @@ import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 
-const ALERT_PUSH_KEY = 'alert_push_key';
-
 const AccountNotificationsPage = (): ReactElement => {
   const {
+    shouldShowSettingsAlert,
+    onShouldShowSettingsAlert,
     onTogglePermission,
     isSubscribed,
     isInitialized,
     isNotificationSupported,
   } = useContext(NotificationsContext);
-  const [isAlertShown, setIsAlertShown] = usePersistentContext(
-    ALERT_PUSH_KEY,
-    true,
-  );
   const { updateUserProfile } = useProfileForm();
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
@@ -129,7 +124,7 @@ const AccountNotificationsPage = (): ReactElement => {
           </Switch>
         </div>
       )}
-      {isNotificationSupported && isAlertShown && (
+      {isNotificationSupported && shouldShowSettingsAlert && isInitialized && (
         <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
           <Pointer
             className="absolute -top-5 right-8"
@@ -148,7 +143,7 @@ const AccountNotificationsPage = (): ReactElement => {
             <CloseButton
               buttonSize="xsmall"
               className="ml-auto laptopL:ml-32"
-              onClick={() => setIsAlertShown(false)}
+              onClick={() => onShouldShowSettingsAlert(false)}
             />
           </div>
         </div>
