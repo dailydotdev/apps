@@ -43,7 +43,7 @@ export function useMyFeed(): UseMyFeed {
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
           error: JSON.stringify(err),
-          origin: 'window registration flow error',
+          origin: 'create my feed mutation error',
         }),
       });
     }
