@@ -5,6 +5,7 @@ import { AllTagCategoriesData, FeedSettings } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';
 import useMutateFilters from './useMutateFilters';
 import { BOOT_QUERY_KEY } from '../contexts/common';
+import { AuthEventNames } from '../lib/auth';
 
 interface RegisterLocalFilters {
   hasFilters: boolean;
@@ -33,8 +34,19 @@ export function useMyFeed(): UseMyFeed {
     trackEvent({
       event_name: 'create feed',
     });
-    await updateFeedFilters(feedSettings);
-    await client.invalidateQueries(BOOT_QUERY_KEY);
+
+    try {
+      await updateFeedFilters(feedSettings);
+      await client.invalidateQueries(BOOT_QUERY_KEY);
+    } catch (err) {
+      trackEvent({
+        event_name: AuthEventNames.RegistrationError,
+        extra: JSON.stringify({
+          error: JSON.stringify(err),
+          origin: 'window registration flow error',
+        }),
+      });
+    }
 
     return { hasFilters: true };
   };
