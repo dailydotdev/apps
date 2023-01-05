@@ -85,8 +85,8 @@ function EnableNotification({
 
     trackEvent({
       event_name: AnalyticsEvent.Impression,
-      target_id: source,
       target_type: TargetType.EnableNotifications,
+      extra: JSON.stringify({ origin: source }),
     });
   }, [shouldNotDisplay]);
 
