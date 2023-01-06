@@ -3,7 +3,6 @@ import { OnboardingStep } from '../components/onboarding/common';
 import {
   AuthVersion,
   ShareVersion,
-  SquadVersion,
   OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
@@ -166,27 +165,11 @@ export class Features<T extends FeatureValue = string> {
     [AuthVersion.V1, AuthVersion.V2, AuthVersion.V3, AuthVersion.V4],
   );
 
-  static readonly SquadVersion = new Features(
-    'squad_version',
-    SquadVersion.Off,
-    [
-      SquadVersion.Off,
-      SquadVersion.V1,
-      SquadVersion.V2,
-      SquadVersion.V3,
-      SquadVersion.V4,
-    ],
-  );
-
   static readonly InAppNotificationPosition = new Features(
     'in_app_notification_position',
     InAppNotificationPositionEnum.Bottom,
     [InAppNotificationPositionEnum.Bottom, InAppNotificationPositionEnum.Top],
   );
-
-  static readonly SquadForm = new Features('squad_form');
-
-  static readonly SquadButton = new Features('squad_button', 'New squad');
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');
 

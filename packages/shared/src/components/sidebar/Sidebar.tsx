@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -25,13 +19,11 @@ import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
 import { MobileMenuIcon } from './MobileMenuIcon';
 import FeaturesContext from '../../contexts/FeaturesContext';
-import { SquadVersion } from '../../lib/featureValues';
-import { SquadSection } from './SquadSection';
-import SquadButton from './SquadButton';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
 import { SquadsList } from './SquadsList';
+import { Button } from '../buttons/Button';
+import PlusIcon from '../icons/Plus';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -64,7 +56,6 @@ export default function Sidebar({
   onShowDndClick,
 }: SidebarProps): ReactElement {
   const { user, squads } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
   const { alerts } = useContext(AlertContext);
   const {
     toggleSidebarExpanded,
@@ -80,12 +71,8 @@ export default function Sidebar({
     submitArticleSidebarButton,
     submitArticleModalButton,
     popularFeedCopy,
-    squadVersion,
-    squadForm,
-    squadButton,
   } = useContext(FeaturesContext);
   const newSquadButtonVisible = sidebarRendered && user && !squads?.length;
-  const [trackedSquadImpression, setTrackedSquadImpression] = useState(false);
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
@@ -97,17 +84,7 @@ export default function Sidebar({
     action: setOpenMobileSidebar,
   });
 
-  const trackSquadClicks = () => {
-    trackEvent({
-      event_name: 'click create squad',
-      target_id: squadVersion,
-      feed_item_title: squadButton,
-      feed_item_target_url: squadForm,
-    });
-  };
-
   const onNewSquad = () => {
-    trackSquadClicks();
     setShowSquadsBetaModal(true);
   };
   const handleCreateSquadBack = () => {
@@ -119,16 +96,6 @@ export default function Sidebar({
     setShowSquadsBetaModal(false);
   };
 
-  const defaultSquadButtonProps = useMemo(
-    () => ({
-      squadForm: `${squadForm}#user_id=${user?.id}`,
-      squadButton,
-      squadVersion,
-      onSquadClick: trackSquadClicks,
-    }),
-    [squadForm, squadButton, squadVersion, user],
-  );
-
   const defaultRenderSectionProps = useMemo(
     () => ({
       sidebarExpanded,
@@ -137,28 +104,6 @@ export default function Sidebar({
     }),
     [sidebarExpanded, sidebarRendered, activePage],
   );
-
-  useEffect(() => {
-    if (trackedSquadImpression) {
-      return;
-    }
-    if (squadVersion !== SquadVersion.Off && newSquadButtonVisible) {
-      trackEvent({
-        event_name: 'impression',
-        target_type: 'create squad',
-        target_id: squadVersion,
-        feed_item_title: squadButton,
-        feed_item_target_url: squadForm,
-      });
-      setTrackedSquadImpression(true);
-    }
-  }, [
-    squadVersion,
-    squadButton,
-    squadForm,
-    newSquadButtonVisible,
-    trackedSquadImpression,
-  ]);
 
   if (!loadedSettings) {
     return <></>;
@@ -188,11 +133,24 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {squadVersion === SquadVersion.V4 && newSquadButtonVisible && (
-              <SquadButton
-                {...defaultRenderSectionProps}
-                {...defaultSquadButtonProps}
-              />
+            {newSquadButtonVisible && (
+              <div className="flex">
+                <Button
+                  buttonSize="small"
+                  icon={<PlusIcon />}
+                  iconOnly={!sidebarExpanded}
+                  className={classNames(
+                    'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage flex flex-1',
+                    sidebarExpanded ? 'mx-3' : 'mx-1.5',
+                  )}
+                  textPosition={
+                    sidebarExpanded ? 'justify-start' : 'justify-center'
+                  }
+                  onClick={onNewSquad}
+                >
+                  {sidebarExpanded && 'New squad'}
+                </Button>
+              </div>
             )}
             {!alerts?.filter && (
               <MyFeedButton
@@ -206,19 +164,6 @@ export default function Sidebar({
             )}
             {!!squads?.length && (
               <SquadsList squads={squads} onNewSquad={onNewSquad} />
-            )}
-            {[SquadVersion.V1, SquadVersion.V2].includes(squadVersion) &&
-              newSquadButtonVisible && (
-                <SquadButton
-                  {...defaultRenderSectionProps}
-                  {...defaultSquadButtonProps}
-                />
-              )}
-            {squadVersion === SquadVersion.V3 && newSquadButtonVisible && (
-              <SquadSection
-                {...defaultRenderSectionProps}
-                {...defaultSquadButtonProps}
-              />
             )}
             <DiscoverSection
               {...defaultRenderSectionProps}
