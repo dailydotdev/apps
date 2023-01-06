@@ -2,10 +2,9 @@ import React, { ReactElement, MouseEvent, useState, useRef } from 'react';
 import { Radio } from '../fields/Radio';
 import { Post } from '../../graphql/posts';
 import { Checkbox } from '../fields/Checkbox';
-import { ModalProps } from './common/Modal';
 import { Button } from '../buttons/Button';
 import { PostBootData } from '../../lib/boot';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 
 export interface Props extends ModalProps {
   postIndex: number;

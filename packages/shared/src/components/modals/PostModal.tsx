@@ -8,8 +8,7 @@ import React, {
 import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { Modal } from './common/Modal';
-import { ModalProps } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
 import { PostContent, SCROLL_OFFSET } from '../post/PostContent';

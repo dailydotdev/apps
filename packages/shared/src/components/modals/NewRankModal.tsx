@@ -15,12 +15,11 @@ import { Checkbox } from '../fields/Checkbox';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './common/Modal';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
 import useDebounce from '../../hooks/useDebounce';
 import LoginButton from '../LoginButton';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;

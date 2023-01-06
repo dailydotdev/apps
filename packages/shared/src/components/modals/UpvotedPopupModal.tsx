@@ -1,6 +1,5 @@
 import React, { ReactElement, useRef, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { ModalProps } from './common/Modal';
 import { UpvoterList } from '../profile/UpvoterList';
 import {
   UpvoterListPlaceholder,
@@ -9,7 +8,7 @@ import {
 import { apiUrl } from '../../lib/config';
 import { RequestQuery, UpvotesData } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   listPlaceholderProps: UpvoterListPlaceholderProps;
