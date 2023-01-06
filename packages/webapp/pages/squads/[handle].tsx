@@ -10,8 +10,6 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
-import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   SquadPageHeader
@@ -23,11 +21,15 @@ import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
-import { Squad, SquadData, SQUAD_QUERY } from '@dailydotdev/shared/src/graphql/squads';
+import { getSquad, getSquadMembers, Squad, SquadMember } from '@dailydotdev/shared/src/graphql/squads';
 
-type SourcePageProps = { squad: Squad };
+type SourcePageProps = {
+  squad: Squad,
+  squadMembers: SquadMember[];
+  squadMemberCount: number;
+};
 
-const SquadPage = ({ squad }: SourcePageProps): ReactElement => {
+const SquadPage = ({ squad, squadMembers, squadMemberCount }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
@@ -49,20 +51,18 @@ const SquadPage = ({ squad }: SourcePageProps): ReactElement => {
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
   };
-  const members = user ? [user] : [];
-  const memberCount = 16;
 
   return (
     <FeedPage
-      className="laptop:px-0 mb-4"
-    style={{
-      background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
-      backgroundSize: '1200px 500px',
-      backgroundPosition: 'center -270px',
-      backgroundRepeat: 'no-repeat',
-    }}>
+      className="laptop:pl-0 laptop:pr-0 mb-4"
+      style={{
+        background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
+        backgroundSize: '1200px 500px',
+        backgroundPosition: 'center -270px',
+        backgroundRepeat: 'no-repeat',
+      }}>
       <NextSeo {...seo} />
-      <SquadPageHeader squad={squad} members={members} memberCount={memberCount}/>
+      <SquadPageHeader squad={squad} members={squadMembers} memberCount={squadMemberCount}/>
       <Feed
         feedName="source"
         feedQueryKey={[
@@ -96,12 +96,15 @@ export async function getStaticProps({
   GetStaticPropsResult<SourcePageProps>
 > {
   try {
-    const res = await request<SquadData>(`${apiUrl}/graphql`, SQUAD_QUERY, {
-      handle: params.handle,
-    });
+    const squad = await getSquad(params.handle);
+    const squadMembers = await getSquadMembers(squad.id);
+    // replace with actual member count
+    const squadMemberCount = squadMembers.length;
     return {
       props: {
-        squad: res.source,
+        squad,
+        squadMembers,
+        squadMemberCount,
       },
       revalidate: 60,
     };
@@ -110,6 +113,8 @@ export async function getStaticProps({
       return {
         props: {
           squad: null,
+          squadMembers: [],
+          squadMemberCount: 0,
         },
         revalidate: 60,
       };

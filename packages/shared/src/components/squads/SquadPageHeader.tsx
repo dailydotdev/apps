@@ -1,12 +1,13 @@
 import React, { ReactElement } from 'react';
-import { Squad } from '../../graphql/squads';
-import { UserShortProfile } from '../../lib/user';
+import { Squad, SquadMember } from '../../graphql/squads';
+import { Button } from '../buttons/Button';
+import FeedbackIcon from '../icons/Feedback';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 
 type SquadPageHeaderProps = {
   squad: Squad;
-  members: UserShortProfile[];
+  members: SquadMember[];
   memberCount: number;
 };
 
@@ -16,7 +17,15 @@ export function SquadPageHeader({
   members,
 }: SquadPageHeaderProps): ReactElement {
   return (
-    <section className="flex flex-col mobileL:items-center w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
+    <section className="flex relative flex-col mobileL:items-center w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
+      <Button
+        className="-top-4 right-4 btn btn-secondary"
+        position="absolute"
+        icon={<FeedbackIcon size="medium" />}
+        buttonSize="small"
+      >
+        Feedback
+      </Button>
       <div className="flex flex-row mobileL:flex-col gap-4 mobileL:gap-6 mobileL:items-center w-full">
         <SquadImage
           className="mobileL:mt-2 w-16 mobileL:w-24 h-16 mobileL:h-24"
