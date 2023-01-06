@@ -67,12 +67,14 @@ export default function Sidebar({
   const [showSquadsBetaModal, setShowSquadsBetaModal] = useState(false);
   const [showCreateSquadModal, setShowCreateSquadModal] = useState(false);
   const {
+    hasSquadAccess,
     canSubmitArticle,
     submitArticleSidebarButton,
     submitArticleModalButton,
     popularFeedCopy,
   } = useContext(FeaturesContext);
-  const newSquadButtonVisible = sidebarRendered && user && !squads?.length;
+  const newSquadButtonVisible =
+    sidebarRendered && hasSquadAccess && !squads?.length;
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
