@@ -8,7 +8,7 @@ import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 import {
   NotificationPromptSource,
   useEnableNotification,
@@ -69,19 +69,34 @@ function EnableNotification({
 
   const hasEnabled = (isSubscribed || hasPermissionCache) && isEnabled;
 
+  const conditions = [
+    !isLoaded,
+    isDismissed,
+    !isInitialized,
+    !isNotificationSupported,
+    (isSubscribed || hasPermissionCache) && !isEnabled,
+  ];
+  const shouldNotDisplay = conditions.some((passed) => passed);
+
+  useEffect(() => {
+    if (shouldNotDisplay) {
+      return;
+    }
+
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.EnableNotifications,
+      extra: JSON.stringify({ origin: source }),
+    });
+  }, [shouldNotDisplay]);
+
   useEffect(() => {
     return () => {
       onAcceptedPermissionJustNow?.(false);
     };
   }, []);
 
-  if (
-    !isLoaded ||
-    isDismissed ||
-    !isInitialized ||
-    !isNotificationSupported ||
-    ((isSubscribed || hasPermissionCache) && !isEnabled)
-  ) {
+  if (shouldNotDisplay) {
     return null;
   }
 
