@@ -8,11 +8,13 @@ import { ItemInner, NavItem, SidebarMenuItem } from './common';
 import TimerIcon from '../icons/Timer';
 
 type SquadsListProps = {
+  activePage?: string;
   squads: Squad[];
   onNewSquad: () => void;
 };
 
 export function SquadsList({
+  activePage,
   squads,
   onNewSquad,
 }: SquadsListProps): ReactElement {
@@ -37,8 +39,9 @@ export function SquadsList({
           title: name,
           path: permalink,
         };
+        const isActive = permalink.endsWith(activePage);
         return (
-          <NavItem key={`squad-${handle}`}>
+          <NavItem key={`squad-${handle}`} active={isActive}>
             <ClickableNavItem item={menuItem}>
               <ItemInner item={menuItem} sidebarExpanded />
             </ClickableNavItem>
