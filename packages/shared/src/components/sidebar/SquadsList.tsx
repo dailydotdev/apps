@@ -5,6 +5,9 @@ import NewSquadIcon from '../icons/NewSquad';
 import { SquadImage } from '../squads/SquadImage';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
+import { Image } from '../image/Image';
+import { cloudinary } from '../../lib/image';
+import TimerIcon from '../icons/Timer';
 
 type SquadsListProps = {
   squads: Squad[];
@@ -24,7 +27,7 @@ export function SquadsList({
   return (
     <>
       {squads.map((squad) => {
-        const { handle, name, permalink, image } = squad;
+        const { handle, name, permalink, image, active } = squad;
         const menuItem: SidebarMenuItem = {
           icon: () =>
             image ? (
@@ -32,6 +35,7 @@ export function SquadsList({
             ) : (
               <DefaultSquadIcon />
             ),
+          rightIcon: () => !active && <TimerIcon />,
           title: name,
           path: permalink,
         };
