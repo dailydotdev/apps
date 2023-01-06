@@ -22,14 +22,6 @@ export enum OnboardingFiltersLayout {
   List = 'list',
 }
 
-export enum SquadVersion {
-  Off = 'off',
-  V1 = 'v1',
-  V2 = 'v2',
-  V3 = 'v3',
-  V4 = 'v4',
-}
-
 export enum ArticleOnboardingVersion {
   V1 = 'v1',
   V2 = 'v2',

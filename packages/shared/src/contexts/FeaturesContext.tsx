@@ -11,7 +11,6 @@ import {
   OnboardingFiltersLayout,
   ScrollOnboardingVersion,
   ShareVersion,
-  SquadVersion,
   InAppNotificationPosition,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
@@ -32,9 +31,6 @@ interface Experiments {
   postCardVersion?: string;
   postCardShareVersion?: ShareVersion;
   authVersion?: string;
-  squadVersion?: SquadVersion;
-  squadForm?: string;
-  squadButton?: string;
   inAppNotificationPosition?: InAppNotificationPosition;
   articleOnboardingVersion?: ArticleOnboardingVersion;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
@@ -89,9 +85,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
     postCardShareVersion: getFeatureValue(Features.PostCardShareVersion, flags),
     authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
-    squadVersion: getFeatureValue(Features.SquadVersion, flags),
-    squadForm: getFeatureValue(Features.SquadForm, flags),
-    squadButton: getFeatureValue(Features.SquadButton, flags),
     inAppNotificationPosition: getFeatureValue(
       Features.InAppNotificationPosition,
       flags,
