@@ -109,12 +109,6 @@ export const postEventName = (
   return !update.bookmarked ? 'remove post bookmark' : 'bookmark post';
 };
 
-export const LegalNotice = classed(
-  'div',
-  'text-theme-label-quaternary text-center typo-caption1',
-  styles.legal,
-);
-
 export const pageBorders =
   'laptop:border-r laptop:border-l border-theme-divider-tertiary';
 const pagePaddings = 'px-4 tablet:px-8';
