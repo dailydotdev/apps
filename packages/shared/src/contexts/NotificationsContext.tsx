@@ -10,6 +10,7 @@ import {
   UseNotificationPermissionPopup,
   useNotificationPermissionPopup,
 } from '../hooks/useNotificationPermissionPopup';
+import usePersistentContext from '../hooks/usePersistentContext';
 import { BootApp } from '../lib/boot';
 import { isDevelopment, isTesting } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
@@ -22,6 +23,8 @@ export interface NotificationsContextData
   isSubscribed: boolean;
   isNotificationSupported: boolean;
   isNotificationsReady?: boolean;
+  shouldShowSettingsAlert?: boolean;
+  onShouldShowSettingsAlert?: (state: boolean) => Promise<void>;
   clearUnreadCount: () => void;
   incrementUnreadCount: () => void;
   onTogglePermission: () => Promise<NotificationPermission>;
@@ -39,6 +42,8 @@ export interface NotificationsContextProviderProps {
   app: BootApp;
 }
 
+const ALERT_PUSH_KEY = 'alert_push_key';
+
 export const NotificationsContextProvider = ({
   app,
   children,
@@ -53,6 +58,10 @@ export const NotificationsContextProvider = ({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [registrationId, setRegistrationId] = useState<string>(null);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
+  const [isAlertShown, setIsAlertShown] = usePersistentContext(
+    ALERT_PUSH_KEY,
+    true,
+  );
 
   const getRegistrationId = async (isGranted: boolean) => {
     if (!isGranted) {
@@ -79,6 +88,10 @@ export const NotificationsContextProvider = ({
 
     await OneSignal?.setSubscription?.(allowedPush);
     setIsSubscribed(allowedPush);
+
+    if (isAlertShown && allowedPush) {
+      setIsAlertShown(false);
+    }
 
     return allowedPush;
   };
@@ -177,6 +190,8 @@ export const NotificationsContextProvider = ({
       isNotificationsReady,
       unreadCount: currentUnreadCount,
       isSubscribed,
+      shouldShowSettingsAlert: isAlertShown,
+      onShouldShowSettingsAlert: setIsAlertShown,
       onTogglePermission,
       clearUnreadCount: () => setCurrentUnreadCount(0),
       incrementUnreadCount: (value = 1) =>

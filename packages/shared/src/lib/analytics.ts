@@ -41,6 +41,7 @@ export enum TargetType {
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   ScrollBlock = 'scroll block',
+  EnableNotifications = 'enable notifications',
 }
 
 export enum TargetId {
