@@ -3,7 +3,7 @@ import { useMutation } from 'react-query';
 import { DELETE_COMMENT_MUTATION } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import {
   ConfirmationModal,
   ConfirmationHeading,

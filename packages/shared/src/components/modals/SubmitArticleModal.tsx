@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
 import {

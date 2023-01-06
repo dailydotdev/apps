@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import { Button } from '../buttons/Button';
 import PostItemCard from '../post/PostItemCard';
 import { Post } from '../../graphql/posts';

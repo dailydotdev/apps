@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Modal } from './common/Modal';
-import { ModalProps } from './StyledModal';
+import { Modal, ModalProps } from './common/Modal';
 import Settings from '../Settings';
 import { useTrackModal } from '../../hooks/useTrackModal';
 

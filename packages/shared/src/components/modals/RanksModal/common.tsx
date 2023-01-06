@@ -2,7 +2,7 @@ import { TopTags, Tag } from '../../../hooks/useReadingRank';
 import classed from '../../../lib/classed';
 import { Rank } from '../../../lib/rank';
 import { LoggedUser } from '../../../lib/user';
-import { ModalProps } from '../StyledModal';
+import { ModalProps } from '../common/Modal';
 
 export interface RanksModalProps extends ModalProps {
   previousRank?: number;

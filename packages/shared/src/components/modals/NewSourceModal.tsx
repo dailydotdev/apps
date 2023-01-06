@@ -3,7 +3,7 @@ import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
-import { ModalProps as StyledModalProps } from './StyledModal';
+import { ModalProps as StyledModalProps } from './common/Modal';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
@@ -163,7 +163,7 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
       await requestSource(data.rss);
     }
   };
-  const modalProps: Omit<ModalProps, 'children'> = {
+  const modalProps: ModalProps = {
     onRequestClose,
     ...props,
   };

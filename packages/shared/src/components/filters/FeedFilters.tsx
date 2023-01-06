@@ -1,5 +1,4 @@
 import React, { ReactElement, useState } from 'react';
-import { ModalProps } from '../modals/StyledModal';
 import HashtagIcon from '../icons/Hashtag';
 import FilterIcon from '../icons/Filter';
 import BlockIcon from '../icons/Block';
@@ -11,7 +10,7 @@ import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
 import { UnblockItem } from './FilterMenu';
 import UnblockModal from '../modals/UnblockModal';
-import { Modal } from '../modals/common/Modal';
+import { Modal, ModalProps } from '../modals/common/Modal';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
@@ -19,9 +18,11 @@ enum FilterMenuTitle {
   Blocked = 'Blocked items',
 }
 
+type FeedFiltersProps = ModalProps;
+
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
-export default function FeedFilters(props: ModalProps): ReactElement {
+export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [unblockItem, setUnblockItem] = useState<UnblockItem>();
   const tabs = [

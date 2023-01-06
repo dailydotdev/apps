@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
   ConfirmationButtons,
   ConfirmationDescription,

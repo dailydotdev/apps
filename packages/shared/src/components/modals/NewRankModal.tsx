@@ -15,7 +15,7 @@ import { Checkbox } from '../fields/Checkbox';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
 import useDebounce from '../../hooks/useDebounce';

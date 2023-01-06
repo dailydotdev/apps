@@ -13,9 +13,7 @@ import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 
-function PushNotificationModal(
-  modalProps: Omit<ModalProps, 'children'>,
-): ReactElement {
+function PushNotificationModal(modalProps: ModalProps): ReactElement {
   const { onRequestClose } = modalProps;
   const onTogglePermission = useEnableNotification(
     NotificationPromptSource.NewSourceModal,

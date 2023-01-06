@@ -1,6 +1,6 @@
 import React, { ReactElement, useRef, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import { UpvoterList } from '../profile/UpvoterList';
 import {
   UpvoterListPlaceholder,

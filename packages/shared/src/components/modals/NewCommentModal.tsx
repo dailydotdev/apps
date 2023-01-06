@@ -9,7 +9,7 @@ import {
   PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import Markdown from '../Markdown';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button } from '../buttons/Button';

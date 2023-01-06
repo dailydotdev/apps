@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import CopyIcon from '../icons/Copy';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import { Switch } from '../fields/Switch';
 import {
   BookmarksSharingData,

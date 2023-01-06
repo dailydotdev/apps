@@ -7,7 +7,6 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { ModalProps } from './StyledModal';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import FilterOnboarding from '../onboarding/FilterOnboarding';
 import LayoutOnboarding from '../onboarding/LayoutOnboarding';
@@ -18,7 +17,7 @@ import { AnalyticsEvent, LoginTrigger, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { OnboardingMode } from '../../graphql/feed';
 import DiscardActionModal from './DiscardActionModal';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { AuthEventNames } from '../../lib/auth';
