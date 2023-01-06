@@ -11,25 +11,30 @@ import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
+import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
 import {
-  SquadPageHeader
-} from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
-import {
-  FeedPage
-} from '@dailydotdev/shared/src/components/utilities';
+  getSquad,
+  getSquadMembers,
+  Squad,
+  SquadMember,
+} from '@dailydotdev/shared/src/graphql/squads';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
-import { getSquad, getSquadMembers, Squad, SquadMember } from '@dailydotdev/shared/src/graphql/squads';
 
 type SourcePageProps = {
-  squad: Squad,
+  squad: Squad;
   squadMembers: SquadMember[];
   squadMemberCount: number;
 };
 
-const SquadPage = ({ squad, squadMembers, squadMemberCount }: SourcePageProps): ReactElement => {
+const SquadPage = ({
+  squad,
+  squadMembers,
+  squadMemberCount,
+}: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
@@ -54,15 +59,20 @@ const SquadPage = ({ squad, squadMembers, squadMemberCount }: SourcePageProps): 
 
   return (
     <FeedPage
-      className="laptop:pl-0 laptop:pr-0 mb-4"
+      className="laptop:pr-0 laptop:pl-0 mb-4"
       style={{
         background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
         backgroundSize: '1200px 500px',
         backgroundPosition: 'center -270px',
         backgroundRepeat: 'no-repeat',
-      }}>
+      }}
+    >
       <NextSeo {...seo} />
-      <SquadPageHeader squad={squad} members={squadMembers} memberCount={squadMemberCount}/>
+      <SquadPageHeader
+        squad={squad}
+        members={squadMembers}
+        memberCount={squadMemberCount}
+      />
       <Feed
         feedName="source"
         feedQueryKey={[
