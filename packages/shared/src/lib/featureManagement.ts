@@ -3,7 +3,6 @@ import { OnboardingStep } from '../components/onboarding/common';
 import {
   AuthVersion,
   ShareVersion,
-  SquadVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
   ArticleOnboardingVersion,
