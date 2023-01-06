@@ -1,4 +1,5 @@
 import React, { HTMLAttributes, ReactElement, ReactHTML } from 'react';
+import classNames from 'classnames';
 import classed, { ClassedHTML } from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from './icons/Arrow';
@@ -112,11 +113,14 @@ export const pageBorders =
   'laptop:border-r laptop:border-l border-theme-divider-tertiary';
 const pagePaddings = 'px-4 tablet:px-8';
 
+export const pageContainerClassNames = classNames(
+  styles.pageContainer,
+  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+);
 export const PageContainer = classed(
   'main',
-  styles.pageContainer,
   pagePaddings,
-  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+  pageContainerClassNames,
 );
 
 export const PageWidgets = classed(
