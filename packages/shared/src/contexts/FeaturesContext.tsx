@@ -40,6 +40,7 @@ interface Experiments {
   inAppNotificationPosition?: InAppNotificationPosition;
   articleOnboardingVersion?: ArticleOnboardingVersion;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
+  hasSquadAccess?: boolean;
 }
 
 export interface FeaturesData extends Experiments {
@@ -107,6 +108,7 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.ScrollOnboardingVersion,
       flags,
     ),
+    hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
   };
 };
 
