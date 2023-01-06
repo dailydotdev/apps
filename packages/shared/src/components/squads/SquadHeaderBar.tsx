@@ -26,11 +26,18 @@ export function SquadHeaderBar({
       <div className="flex items-center px-0.5 rounded-14 border border-theme-divider-secondary">
         <SimpleTooltip placement="top" content="Members list">
           <Button className="btn-tertiary !pl-0" buttonSize="small">
-            <span className="flex gap-4 items-center">
-              {members.map(({ user }) => (
-                <ProfilePicture size="medium" key={user.username} user={user} />
-              ))}
-              {memberCount || ''}
+            <span className="flex items-center">
+              <span className="flex flex-row-reverse ml-2">
+                {members.map(({ user }) => (
+                  <ProfilePicture
+                    className="-ml-2"
+                    size="medium"
+                    key={user.username}
+                    user={user}
+                  />
+                ))}
+              </span>
+              <span className="ml-4">{memberCount || ''}</span>
             </span>
           </Button>
         </SimpleTooltip>
