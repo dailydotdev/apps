@@ -3,7 +3,6 @@ import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
-import { ModalProps as StyledModalProps } from './StyledModal';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
@@ -49,7 +48,7 @@ type ScrapeSourceResponse =
   | ScrapeSourceRSS
   | ScrapeSourceUnavailable;
 
-export default function NewSourceModal(props: StyledModalProps): ReactElement {
+export default function NewSourceModal(props: ModalProps): ReactElement {
   const scrapeFormRef = useRef<HTMLFormElement>();
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [scrapeError, setScrapeError] = useState<string>();
@@ -163,7 +162,7 @@ export default function NewSourceModal(props: StyledModalProps): ReactElement {
       await requestSource(data.rss);
     }
   };
-  const modalProps: Omit<ModalProps, 'children'> = {
+  const modalProps: ModalProps = {
     onRequestClose,
     ...props,
   };

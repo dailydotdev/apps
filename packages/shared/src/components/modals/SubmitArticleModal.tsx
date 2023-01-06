@@ -2,7 +2,6 @@ import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
 import {
@@ -22,7 +21,7 @@ import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 

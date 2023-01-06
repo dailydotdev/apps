@@ -9,14 +9,13 @@ import {
   PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
-import { ModalProps } from './StyledModal';
 import Markdown from '../Markdown';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button } from '../buttons/Button';
 import { Post } from '../../graphql/posts';
 import DiscardActionModal from './DiscardActionModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 import AtIcon from '../icons/At';
 import { ClickableText } from '../buttons/ClickableText';
 import { useUserMention } from '../../hooks/useUserMention';

@@ -6,11 +6,12 @@ import {
   ConfirmationModal,
 } from '@dailydotdev/shared/src/components/modals/ConfirmationModal';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 
 export interface DisableCompanionModalProps extends ModalProps {
   onConfirm: () => unknown;
 }
+
 export default function DisableCompanionModal({
   onConfirm,
   ...props

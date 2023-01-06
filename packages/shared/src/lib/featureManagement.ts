@@ -3,7 +3,6 @@ import { OnboardingStep } from '../components/onboarding/common';
 import {
   AuthVersion,
   ShareVersion,
-  OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
   ArticleOnboardingVersion,
@@ -145,12 +144,6 @@ export class Features<T extends FeatureValue = string> {
   static readonly OnboardingSteps = new Features(
     'onboarding_steps',
     `${OnboardingStep.Topics}/${OnboardingStep.Layout}/${OnboardingStep.Theme}`,
-  );
-
-  static readonly UserOnboardingVersion = new Features(
-    'onboarding_version',
-    OnboardingVersion.V1,
-    [OnboardingVersion.V1, OnboardingVersion.V2],
   );
 
   static readonly OnboardingFiltersLayout = new Features(

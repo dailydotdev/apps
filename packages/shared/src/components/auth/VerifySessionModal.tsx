@@ -1,11 +1,10 @@
 import React, { ReactElement, useState } from 'react';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
-import { ModalProps } from '../modals/StyledModal';
 import { LoginFormParams } from './LoginForm';
 import { KratosProviderData } from '../../lib/kratos';
 import { AuthTriggers } from '../../lib/auth';
-import { Modal } from '../modals/common/Modal';
+import { Modal, ModalProps } from '../modals/common/Modal';
 
 interface VerifySessionModalProps extends ModalProps {
   userProviders?: KratosProviderData;

@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { ModalProps } from '../modals/StyledModal';
 import AuthModalHeading from './AuthModalHeading';
 import AuthOptions, { AuthDisplay as Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
@@ -12,9 +11,11 @@ import AuthContext from '../../contexts/AuthContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { LoginTrigger } from '../../lib/analytics';
-import { Modal } from '../modals/common/Modal';
+import { Modal, ModalProps } from '../modals/common/Modal';
 
-export type AuthModalProps = { trigger?: AuthTriggersOrString } & ModalProps;
+export interface AuthModalProps extends ModalProps {
+  trigger?: AuthTriggersOrString;
+}
 
 const DiscardActionModal = dynamic(
   () =>
@@ -32,7 +33,6 @@ export default function AuthModal({
   className,
   trigger,
   onRequestClose,
-  children,
   ...props
 }: AuthModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);

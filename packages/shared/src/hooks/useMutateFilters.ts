@@ -140,11 +140,25 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
   const shouldFilterLocally = !user;
 
-  const updateFeedFilters = ({ advancedSettings, ...filters }: FeedSettings) =>
-    request(`${apiUrl}/graphql`, FEED_FILTERS_FROM_REGISTRATION, {
-      filters,
+  const updateFeedFilters = ({
+    advancedSettings,
+    ...filters
+  }: FeedSettings) => {
+    const {
+      blockedTags = [],
+      excludeSources = [],
+      includeTags = [],
+    } = filters ?? {};
+    const fixed: typeof filters = {
+      includeTags: Array.from(new Set(includeTags)),
+      blockedTags: Array.from(new Set(blockedTags)),
+      excludeSources: Array.from(new Set(excludeSources)),
+    };
+    return request(`${apiUrl}/graphql`, FEED_FILTERS_FROM_REGISTRATION, {
+      filters: fixed,
       settings: advancedSettings,
     });
+  };
 
   const onAdvancedSettingsUpdate = ({
     advancedSettings,

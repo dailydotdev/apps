@@ -4,7 +4,7 @@ import request from 'graphql-request';
 import { BAN_POST_MUTATION } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import {
   ConfirmationModal,
   ConfirmationHeading,

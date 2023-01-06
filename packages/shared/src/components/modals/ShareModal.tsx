@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { ModalProps } from './StyledModal';
 import { Button } from '../buttons/Button';
 import PostItemCard from '../post/PostItemCard';
 import { Post } from '../../graphql/posts';
@@ -13,7 +12,7 @@ import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { ShareProvider } from '../../lib/share';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { ShareVersion } from '../../lib/featureValues';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 
 type ShareModalProps = {
   post: Post;

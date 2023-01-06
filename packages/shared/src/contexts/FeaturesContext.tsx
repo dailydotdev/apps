@@ -9,7 +9,6 @@ import {
 import {
   ArticleOnboardingVersion,
   OnboardingFiltersLayout,
-  OnboardingVersion,
   ScrollOnboardingVersion,
   ShareVersion,
   InAppNotificationPosition,
@@ -21,7 +20,6 @@ import { isPreviewDeployment } from '../lib/links';
 interface Experiments {
   onboardingMinimumTopics?: number;
   onboardingSteps?: OnboardingStep[];
-  onboardingVersion?: OnboardingVersion;
   onboardingFiltersLayout?: OnboardingFiltersLayout;
   popularFeedCopy?: string;
   canSubmitArticle?: boolean;
@@ -64,7 +62,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     flags,
     onboardingSteps,
     onboardingMinimumTopics: getNumberValue(minimumTopics, 0),
-    onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
     onboardingFiltersLayout: getFeatureValue(
       Features.OnboardingFiltersLayout,
       flags,

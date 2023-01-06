@@ -17,7 +17,7 @@ import classed from '../../../lib/classed';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 
 export interface ModalProps extends ReactModal.Props {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   kind?: ModalKind;
   size?: ModalSize;
   tabs?: string[] | ModalTabItem[];
