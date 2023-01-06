@@ -23,17 +23,25 @@ export function SquadHeaderBar({
   const { onMenuClick } = useSquadMenu();
   return (
     <div className={classNames('flex flex-wrap gap-4', className)} {...props}>
-      <SimpleTooltip placement="top" content="Invite a new member">
-        <Button className="pr-2 pl-1 hover:border-theme-rank btn-secondary border-theme-divider-secondary">
-          <span className="flex gap-2 items-center w-full">
-            {members.map(({ user }) => (
-              <ProfilePicture size="medium" key={user.username} user={user} />
-            ))}
-            {memberCount || ''}
-            <AddUserIcon className="ml-2 text-theme-label-secondary" />
-          </span>
-        </Button>
-      </SimpleTooltip>
+      <div className="flex items-center px-0.5 rounded-14 border border-theme-divider-secondary">
+        <SimpleTooltip placement="top" content="Members list">
+          <Button className="btn-tertiary !pl-0" buttonSize="small">
+            <span className="flex gap-4 items-center">
+              {members.map(({ user }) => (
+                <ProfilePicture size="medium" key={user.username} user={user} />
+              ))}
+              {memberCount || ''}
+            </span>
+          </Button>
+        </SimpleTooltip>
+        <SimpleTooltip placement="top" content="Invite a new member">
+          <Button
+            className="btn-tertiary"
+            buttonSize="small"
+            icon={<AddUserIcon className="text-theme-label-secondary" />}
+          />
+        </SimpleTooltip>
+      </div>
       <Button
         className="mobileL:order-2 btn btn-secondary"
         icon={<MenuIcon size="medium" />}
