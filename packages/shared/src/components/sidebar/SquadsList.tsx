@@ -5,8 +5,6 @@ import NewSquadIcon from '../icons/NewSquad';
 import { SquadImage } from '../squads/SquadImage';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
 import TimerIcon from '../icons/Timer';
 
 type SquadsListProps = {
