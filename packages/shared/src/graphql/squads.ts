@@ -17,8 +17,13 @@ export type Squads = {
   squads: Squad[];
 };
 
+export enum SquadMemberRole {
+  Member = 'member',
+  Role = 'role',
+}
+
 export type SquadMember = {
-  role: 'owner' | 'member';
+  role: SquadMemberRole;
   user: UserShortProfile;
 };
 
@@ -122,6 +127,14 @@ export async function getSquad(handle: string): Promise<Squad> {
     handle,
   });
   return res.source;
+}
+
+export async function graphqlQuery<TReturn, TParameters>(
+  query: string,
+  parameters?: TParameters,
+): Promise<TReturn> {
+  const res = await request<TReturn>(`${apiUrl}/graphql`, query, parameters);
+  return res;
 }
 
 export async function getSquadMembers(id: string): Promise<SquadMember[]> {

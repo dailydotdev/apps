@@ -6,7 +6,6 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
@@ -20,9 +19,9 @@ import {
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
 import Custom404 from '../404';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import ProtectedPage from '../../components/ProtectedPage';
 
 type SourcePageProps = {
   squad: Squad;
@@ -51,39 +50,37 @@ const SquadPage = ({
     return <></>;
   }
 
-  const seo: NextSeoProps = {
-    title: `${squad.name} posts on daily.dev`,
-    openGraph: { ...defaultOpenGraph },
-    ...defaultSeo,
-  };
-
+  const seo = (
+    <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
+  );
   return (
-    <FeedPage
-      className="laptop:pr-0 laptop:pl-0 mb-4"
-      style={{
-        background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
-        backgroundSize: '1200px 500px',
-        backgroundPosition: 'center -270px',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      <NextSeo {...seo} />
-      <SquadPageHeader
-        squad={squad}
-        members={squadMembers}
-        memberCount={squadMemberCount}
-      />
-      <Feed
-        feedName="source"
-        feedQueryKey={[
-          'sourceFeed',
-          user?.id ?? 'anonymous',
-          Object.values(queryVariables),
-        ]}
-        query={SOURCE_FEED_QUERY}
-        variables={queryVariables}
-      />
-    </FeedPage>
+    <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
+      <FeedPage
+        className="laptop:pr-0 laptop:pl-0 mb-4"
+        style={{
+          background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
+          backgroundSize: '1200px 500px',
+          backgroundPosition: 'center -270px',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <SquadPageHeader
+          squad={squad}
+          members={squadMembers}
+          memberCount={squadMemberCount}
+        />
+        <Feed
+          feedName="source"
+          feedQueryKey={[
+            'sourceFeed',
+            user?.id ?? 'anonymous',
+            Object.values(queryVariables),
+          ]}
+          query={SOURCE_FEED_QUERY}
+          variables={queryVariables}
+        />
+      </FeedPage>
+    </ProtectedPage>
   );
 };
 

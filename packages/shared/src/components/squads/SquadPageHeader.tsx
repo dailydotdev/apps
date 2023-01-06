@@ -33,9 +33,9 @@ export function SquadPageHeader({
         />
         <div className="flex flex-col mobileL:items-center mobileL:w-full">
           <h3 className="mb-2 font-bold typo-title2">{squad.name}</h3>
-          <h4 className="typo-body text-theme-label-secondary">
+          <p className="typo-body text-theme-label-secondary">
             @{squad.handle}
-          </h4>
+          </p>
         </div>
       </div>
       <h4 className="mt-4 mb-6 typo-body text-theme-label-secondary max-w-[42rem]">
