@@ -21,6 +21,7 @@ import { MobileMenuIcon } from './MobileMenuIcon';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
+import { ProfilePicture } from '../ProfilePicture';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -113,6 +114,7 @@ export default function Sidebar({
                 isButton={isNavButtons}
                 alerts={alerts}
                 onNavTabClick={onNavTabClick}
+                icon={<ProfilePicture size="xsmall" user={user} />}
               />
             )}
             <DiscoverSection

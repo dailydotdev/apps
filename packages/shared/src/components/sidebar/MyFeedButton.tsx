@@ -1,9 +1,8 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Alerts } from '../../graphql/alerts';
 import { AlertColor, AlertDot } from '../AlertDot';
-import HomeIcon from '../icons/Home';
 import { ClickableNavItem } from './ClickableNavItem';
-import { ItemInner, ListIcon, NavItem, SidebarMenuItem } from './common';
+import { ItemInner, NavItem, SidebarMenuItem } from './common';
 
 interface MyFeedButtonProps {
   sidebarRendered?: boolean;
@@ -11,6 +10,7 @@ interface MyFeedButtonProps {
   activePage?: string;
   isButton?: boolean;
   alerts: Alerts;
+  icon: ReactNode;
   onNavTabClick?: (page: string) => void;
 }
 
@@ -20,12 +20,11 @@ function MyFeedButton({
   activePage,
   isButton,
   alerts,
+  icon,
   onNavTabClick,
 }: MyFeedButtonProps): ReactElement {
   const myFeedMenuItem: SidebarMenuItem = {
-    icon: (active: boolean) => (
-      <ListIcon Icon={() => <HomeIcon secondary={active} />} />
-    ),
+    icon,
     title: 'My feed',
     path: '/my-feed',
     alert: (alerts.filter || alerts.myFeed) && !sidebarExpanded && (
