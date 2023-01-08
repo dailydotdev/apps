@@ -1,20 +1,27 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { LoggedUser } from '../../lib/user';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 
 interface NewCommentProps {
   user?: LoggedUser;
   className?: string;
   isCommenting: boolean;
+  size?: ProfileImageSize;
   onNewComment: () => unknown;
 }
+
+const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
+  large: 'medium',
+  medium: 'small',
+};
 
 export function NewComment({
   user,
   className,
   isCommenting,
+  size = 'large',
   onNewComment,
 }: NewCommentProps): ReactElement {
   return (
@@ -32,13 +39,17 @@ export function NewComment({
       {user && (
         <ProfilePicture
           user={user}
-          size="large"
+          size={size}
           className="mr-4"
           nativeLazyLoading
         />
       )}
       <span className="text-theme-label-tertiary">Write your reply</span>
-      <Button className="ml-auto btn-secondary" disabled>
+      <Button
+        buttonSize={buttonSize[size]}
+        className="ml-auto btn-secondary"
+        disabled
+      >
         Reply
       </Button>
     </button>
