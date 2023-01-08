@@ -359,7 +359,7 @@ export function PostContent({
               }
             />
             <h1
-              className="my-6 font-bold break-words typo-large-title"
+              className="mt-6 mb-4 font-bold break-words typo-large-title"
               data-testid="post-modal-title"
             >
               {postById.post.title}
@@ -377,8 +377,7 @@ export function PostContent({
             <a
               {...postLinkProps}
               className={classNames(
-                'block overflow-hidden mb-10 rounded-2xl cursor-pointer',
-                styles.clickableImg,
+                'block overflow-hidden mb-3 rounded-2xl cursor-pointer hover:opacity-64',
               )}
               style={{ maxWidth: '25.625rem' }}
             >
@@ -412,6 +411,12 @@ export function PostContent({
               actionsClassName="hidden laptop:flex"
               origin={analyticsOrigin}
             />
+            <NewComment
+              user={user}
+              className="my-6"
+              isCommenting={!!parentComment}
+              onNewComment={() => openNewComment('start discussion button')}
+            />
             <PostComments
               post={postById.post}
               origin={analyticsOrigin}
@@ -425,10 +430,6 @@ export function PostContent({
                 onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
               />
             )}
-            <NewComment
-              user={user}
-              onNewComment={() => openNewComment('start discussion button')}
-            />
           </PostContainer>
           <PostWidgets
             onBookmark={toggleBookmark}

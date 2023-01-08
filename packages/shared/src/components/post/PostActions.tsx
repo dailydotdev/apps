@@ -14,6 +14,7 @@ import ShareIcon from '../icons/Share';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
+import BookmarkIcon from '../icons/Bookmark';
 
 export type OnShareOrBookmarkProps = {
   onShare: () => void;
@@ -33,6 +34,7 @@ export function PostActions({
   post,
   actionsClassName = 'hidden mobileL:flex',
   onComment,
+  onBookmark,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -74,7 +76,7 @@ export function PostActions({
   };
 
   return (
-    <div className="flex justify-between py-2 border-t border-b border-theme-divider-tertiary">
+    <div className="flex justify-between py-2 px-4 rounded-16 border border-theme-divider-tertiary">
       <QuaternaryButton
         id="upvote-post-btn"
         pressed={post.upvoted}
@@ -96,6 +98,17 @@ export function PostActions({
         className="btn-tertiary-avocado"
       >
         Comment
+      </QuaternaryButton>
+      <QuaternaryButton
+        id="bookmark-post-btn"
+        pressed={post.bookmarked}
+        onClick={onBookmark}
+        icon={<BookmarkIcon secondary={post.bookmarked} />}
+        aria-label="Bookmark"
+        responsiveLabelClass={actionsClassName}
+        className="btn-tertiary-avocado"
+      >
+        Bookmark
       </QuaternaryButton>
       <QuaternaryButton
         id="share-post-btn"
