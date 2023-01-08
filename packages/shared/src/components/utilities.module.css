@@ -1,14 +1,3 @@
-.legal {
-  & a {
-    display: inline-block;
-    text-decoration: underline;
-    color: inherit;
-    @supports (display: contents) {
-      display: contents;
-    }
-  }
-}
-
 .pageContainer {
   max-width: $pageMaxWidth;
   margin: auto;
@@ -58,8 +47,4 @@
     width: 23rem;
     max-width: 23rem;
   }
-}
-
-.clickableImg:hover img {
-  opacity: 0.64;
 }

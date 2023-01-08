@@ -52,9 +52,9 @@ export function CompanionDiscussion({
       )}
     >
       <NewComment
-        responsive={false}
-        className="px-6 pt-0 pb-2"
         user={user}
+        className="px-6 pt-0 pb-2"
+        isCommenting={!!parentComment}
         onNewComment={() => openNewComment('start discussion button')}
       />
       <div className="overflow-x-hidden overflow-y-auto flex-1 px-6 mt-7 border-t border-theme-divider-tertiary">
