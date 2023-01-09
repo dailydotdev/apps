@@ -23,6 +23,7 @@ import AuthContext from '../../contexts/AuthContext';
 import AlertContext from '../../contexts/AlertContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { PostNavigationProps } from '../post/PostNavigation';
+import { useScrollTopOffset } from '../../hooks/useScrollTopOffset';
 
 interface PostModalProps
   extends ModalProps,
@@ -58,39 +59,17 @@ export default function PostModal({
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
     { enabled: !!id && tokenRefreshed },
   );
-
-  useEffect(() => {
-    const modal = document.getElementById('post-modal');
-
-    if (!modal) {
-      return;
-    }
-
-    const parent = modal.parentElement;
-    const hasArticleOnboarding = sidebarRendered && alerts?.filter;
-    const onScroll = (e) => {
-      const offset = !hasArticleOnboarding
-        ? SCROLL_OFFSET
-        : SCROLL_OFFSET + ONBOARDING_OFFSET;
-      if (e.currentTarget.scrollTop > offset) {
-        if (position !== 'fixed') {
-          setPosition('fixed');
-        }
-        return;
-      }
-
-      if (position !== 'relative') {
-        setPosition('relative');
-      }
-    };
-
-    parent.addEventListener('scroll', onScroll);
-
-    // eslint-disable-next-line consistent-return
-    return () => {
-      parent.removeEventListener('scroll', onScroll);
-    };
-  }, [position]);
+  useScrollTopOffset(
+    () => document?.getElementById?.('post-modal')?.parentElement,
+    {
+      onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
+      onUnderOffset: () => position !== 'relative' && setPosition('relative'),
+      offset:
+        sidebarRendered && alerts?.filter
+          ? SCROLL_OFFSET + ONBOARDING_OFFSET
+          : SCROLL_OFFSET,
+    },
+  );
 
   useEffect(() => {
     if (isLoading) {

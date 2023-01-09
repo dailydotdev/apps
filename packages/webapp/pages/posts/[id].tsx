@@ -30,6 +30,7 @@ import {
   SCROLL_OFFSET,
 } from '@dailydotdev/shared/src/components/post/PostContent';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -85,36 +86,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       },
     },
   };
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const onScroll = (e) => {
-      if (e.currentTarget.scrollY > SCROLL_OFFSET) {
-        if (position !== 'fixed') {
-          setPosition('fixed');
-        }
-        return;
-      }
-
-      if (position !== 'relative') {
-        setPosition('relative');
-      }
-    };
-
-    window.addEventListener('scroll', onScroll);
-
-    // eslint-disable-next-line consistent-return
-    return () => {
-      if (typeof window === 'undefined') {
-        return;
-      }
-
-      window.removeEventListener('scroll', onScroll);
-    };
-  }, [position]);
+  useScrollTopOffset(() => globalThis.window, {
+    onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
+    onUnderOffset: () => position !== 'relative' && setPosition('relative'),
+    offset: SCROLL_OFFSET,
+    scrollProperty: 'scrollY',
+  });
 
   useEffect(() => {
     window.addEventListener('popstate', () => {
