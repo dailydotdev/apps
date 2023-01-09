@@ -43,8 +43,7 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ScrollOnboardingVersion, ShareVersion } from '../lib/featureValues';
-import { getNavigator } from '../lib/navigator';
+import { ScrollOnboardingVersion } from '../lib/featureValues';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -134,7 +133,6 @@ export default function Feed<T>({
 }: FeedProps<T>): ReactElement {
   const {
     postCardVersion,
-    postCardShareVersion: shareVersion,
     postModalByDefault,
     postEngagementNonClickable,
     showCommentPopover,
@@ -142,9 +140,6 @@ export default function Feed<T>({
   const { scrollOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
-  const postCardShareVersion = getNavigator()?.share
-    ? ShareVersion.V2
-    : shareVersion;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -291,13 +286,7 @@ export default function Feed<T>({
       columns: virtualizedNumCards,
       column,
       row,
-      ...feedAnalyticsExtra(
-        feedName,
-        ranking,
-        undefined,
-        undefined,
-        postCardShareVersion,
-      ),
+      ...feedAnalyticsExtra(feedName, ranking, undefined, undefined),
     };
     trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
     lastShareMenuCloseTrackEvent = () => {
@@ -444,7 +433,6 @@ export default function Feed<T>({
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
-              postCardShareVersion={postCardShareVersion}
               postCardVersion={postCardVersion}
               postModalByDefault={postModalByDefault}
               postEngagementNonClickable={postEngagementNonClickable}
@@ -468,7 +456,6 @@ export default function Feed<T>({
         <ShareOptionsMenu
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
-          postCardShareVersion={postCardShareVersion}
         />
         {selectedPost && (
           <PostModal
@@ -487,7 +474,6 @@ export default function Feed<T>({
             origin={Origin.Feed}
             {...sharePostFeedLocation}
             onRequestClose={closeSharePost}
-            postCardShareVersion={postCardShareVersion}
           />
         )}
       </div>

@@ -68,7 +68,6 @@ export const PostCard = forwardRef(function PostCard(
     style,
     insaneMode,
     onReadArticleClick,
-    postCardShareVersion,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
@@ -184,7 +183,6 @@ export const PostCard = forwardRef(function PostCard(
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          postCardShareVersion={postCardShareVersion}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
