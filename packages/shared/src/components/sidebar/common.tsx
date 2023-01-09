@@ -27,7 +27,7 @@ export interface SidebarUserButtonProps {
 }
 
 export interface SidebarMenuItem {
-  icon: (active: boolean) => ReactElement;
+  icon: ((active: boolean) => ReactElement) | ReactNode;
   title: string;
   rightIcon?: (active: boolean) => ReactElement;
   path?: string;

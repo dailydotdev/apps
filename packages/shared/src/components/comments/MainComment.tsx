@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Comment, getCommentHash } from '../../graphql/comments';
-import { CommentBox, CommentPublishDate } from './common';
+import { CommentBox, CommentContainer, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
 } from './CommentActionButtons';
@@ -30,7 +30,7 @@ export interface Props extends CommentActionProps {
   appendTooltipTo?: () => HTMLElement;
 }
 
-const MainCommentBox = classed(CommentBox, 'my-2');
+const MainCommentBox = classed(CommentBox, 'my-2 py-2');
 
 export default function MainComment({
   post,
@@ -50,55 +50,56 @@ export default function MainComment({
   permissionNotificationCommentId,
 }: Props): ReactElement {
   return (
-    <article
-      className={classNames(
-        'flex flex-col items-stretch mt-4 scroll-mt-16',
-        className,
-      )}
+    <section
+      className="flex flex-col items-stretch mt-2 scroll-mt-16"
       ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
       data-testid="comment"
     >
-      <div className="flex items-center">
-        <ProfileTooltip
-          user={comment.author}
-          tooltip={{ appendTo: appendTooltipTo }}
-        >
-          <ProfileImageLink user={comment.author} />
-        </ProfileTooltip>
-        <div className="flex flex-col ml-2">
-          <div className="flex">
-            <CommentAuthor
-              postAuthorId={postAuthorId}
-              author={comment.author}
-              appendTooltipTo={appendTooltipTo}
-            />
-            {comment.author?.id === postScoutId && <ScoutBadge />}
+      <CommentContainer className={classNames('flex-col', className)}>
+        <div className="flex items-center px-3">
+          <ProfileTooltip
+            user={comment.author}
+            tooltip={{ appendTo: appendTooltipTo }}
+          >
+            <ProfileImageLink user={comment.author} />
+          </ProfileTooltip>
+          <div className="flex flex-col ml-4">
+            <div className="flex">
+              <CommentAuthor
+                postAuthorId={postAuthorId}
+                author={comment.author}
+                appendTooltipTo={appendTooltipTo}
+              />
+              {comment.author?.id === postScoutId && <ScoutBadge />}
+            </div>
+            <CommentPublishDate comment={comment} />
           </div>
-          <CommentPublishDate comment={comment} />
         </div>
-      </div>
-      <MainCommentBox
-        className={
-          commentHash === getCommentHash(comment.id) &&
-          'border border-theme-color-cabbage'
-        }
-      >
-        <Markdown
-          content={comment.contentHtml}
-          appendTooltipTo={appendTooltipTo}
+        <MainCommentBox
+          className={classNames(
+            'px-3',
+            commentHash === getCommentHash(comment.id) &&
+              'border border-theme-color-cabbage rounded-8',
+          )}
+        >
+          <Markdown
+            content={comment.contentHtml}
+            appendTooltipTo={appendTooltipTo}
+          />
+        </MainCommentBox>
+        <CommentActionButtons
+          post={post}
+          comment={comment}
+          origin={origin}
+          parentId={comment.id}
+          onShare={onShare}
+          onComment={onComment}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          onShowUpvotes={onShowUpvotes}
+          className="ml-2"
         />
-      </MainCommentBox>
-      <CommentActionButtons
-        post={post}
-        comment={comment}
-        origin={origin}
-        parentId={comment.id}
-        onShare={onShare}
-        onComment={onComment}
-        onDelete={onDelete}
-        onEdit={onEdit}
-        onShowUpvotes={onShowUpvotes}
-      />
+      </CommentContainer>
       {comment.children?.edges.map((e, i) => (
         <SubComment
           post={post}
@@ -124,6 +125,6 @@ export default function MainComment({
       {permissionNotificationCommentId === comment.id && (
         <EnableNotification source={NotificationPromptSource.NewComment} />
       )}
-    </article>
+    </section>
   );
 }

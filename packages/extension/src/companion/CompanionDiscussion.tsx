@@ -51,13 +51,15 @@ export function CompanionDiscussion({
         'pb-6 flex absolute top-full right-0 -left-px flex-col min-h-[14rem] rounded-bl-16 bg-theme-bg-primary',
       )}
     >
-      <NewComment
-        responsive={false}
-        className="px-6 pt-0 pb-2"
-        user={user}
-        onNewComment={() => openNewComment('start discussion button')}
-      />
-      <div className="overflow-x-hidden overflow-y-auto flex-1 px-6 mt-7 border-t border-theme-divider-tertiary">
+      <span className="px-6">
+        <NewComment
+          user={user}
+          size="medium"
+          isCommenting={!!parentComment}
+          onNewComment={() => openNewComment('start discussion button')}
+        />
+      </span>
+      <div className="overflow-x-hidden overflow-y-auto flex-1 px-6 mt-5 border-t border-theme-divider-tertiary">
         <h3 className="my-3.5 font-bold typo-callout">Discussion</h3>
         <PostComments
           post={post}

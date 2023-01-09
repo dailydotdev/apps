@@ -4,7 +4,6 @@ import {
   AuthVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
-  ArticleOnboardingVersion,
   ScrollOnboardingVersion,
 } from './featureValues';
 
@@ -158,16 +157,6 @@ export class Features<T extends FeatureValue = string> {
   );
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');
-
-  static readonly ArticleOnboardingVersion = new Features(
-    'article_onboarding_version',
-    null,
-    [
-      ArticleOnboardingVersion.V1,
-      ArticleOnboardingVersion.V2,
-      ArticleOnboardingVersion.V3,
-    ],
-  );
 
   static readonly ScrollOnboardingVersion = new Features(
     'scroll_onboarding_version',

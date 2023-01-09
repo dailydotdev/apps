@@ -1,49 +1,57 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { NewCommentContainer } from '../utilities';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { LoggedUser } from '../../lib/user';
-import styles from './NewComment.module.css';
+import { Button, ButtonSize } from '../buttons/Button';
 
 interface NewCommentProps {
-  responsive?: boolean;
   user?: LoggedUser;
   className?: string;
+  isCommenting: boolean;
+  size?: ProfileImageSize;
   onNewComment: () => unknown;
 }
 
+const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
+  large: 'medium',
+  medium: 'small',
+};
+
 export function NewComment({
-  responsive = true,
   user,
   className,
+  isCommenting,
+  size = 'large',
   onNewComment,
 }: NewCommentProps): ReactElement {
   return (
-    <NewCommentContainer
+    <button
+      type="button"
       className={classNames(
+        'flex items-center p-3 w-full rounded-16 typo-callout border',
+        isCommenting
+          ? 'bg-theme-active border-theme-divider-primary'
+          : 'bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
         className,
-        responsive &&
-          'fixed right-0 py-3 px-4 bottom-0 left-0 z-2 laptop:relative laptop:p-0 laptop:bg-none',
       )}
+      onClick={onNewComment}
     >
-      <button
-        type="button"
-        className={classNames(
-          'flex w-full h-10 items-center px-4 bg-theme-bg-secondary text-theme-label-secondary rounded-2xl typo-callout focus-outline',
-          styles.discussionBar,
-        )}
-        onClick={onNewComment}
+      {user && (
+        <ProfilePicture
+          user={user}
+          size={size}
+          className="mr-4"
+          nativeLazyLoading
+        />
+      )}
+      <span className="text-theme-label-tertiary">Share your thoughts</span>
+      <Button
+        buttonSize={buttonSize[size]}
+        className="ml-auto btn-secondary"
+        disabled
       >
-        {user && (
-          <ProfilePicture
-            user={user}
-            size="small"
-            className="mr-3 -ml-2"
-            nativeLazyLoading
-          />
-        )}
-        Start the discussion...
-      </button>
-    </NewCommentContainer>
+        Post
+      </Button>
+    </button>
   );
 }

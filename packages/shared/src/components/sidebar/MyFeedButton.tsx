@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import AuthContext from '../../contexts/AuthContext';
 import { Alerts } from '../../graphql/alerts';
 import { AlertColor, AlertDot } from '../AlertDot';
@@ -12,6 +12,7 @@ interface MyFeedButtonProps {
   activePage?: string;
   isButton?: boolean;
   alerts: Alerts;
+  icon: ReactNode;
   onNavTabClick?: (page: string) => void;
 }
 
@@ -21,11 +22,12 @@ function MyFeedButton({
   activePage,
   isButton,
   alerts,
+  icon,
   onNavTabClick,
 }: MyFeedButtonProps): ReactElement {
   const { user } = useContext(AuthContext);
   const myFeedMenuItem: SidebarMenuItem = {
-    icon: () => <ProfilePicture user={user} size="xsmall" />,
+    icon,
     title: 'My feed',
     path: '/my-feed',
     alert: (alerts.filter || alerts.myFeed) && !sidebarExpanded && (

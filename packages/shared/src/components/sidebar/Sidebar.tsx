@@ -24,6 +24,7 @@ import { getFeedName } from '../MainFeedLayout';
 import { SquadsList } from './SquadsList';
 import { Button } from '../buttons/Button';
 import PlusIcon from '../icons/Plus';
+import { ProfilePicture } from '../ProfilePicture';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -162,6 +163,7 @@ export default function Sidebar({
                 isButton={isNavButtons}
                 alerts={alerts}
                 onNavTabClick={onNavTabClick}
+                icon={<ProfilePicture size="xsmall" user={user} />}
               />
             )}
             {!!squads?.length && (
