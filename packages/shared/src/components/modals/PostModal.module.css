@@ -28,7 +28,7 @@
     border: none;
     border-radius: 0;
     width: 100vw;
-    max-width: 100vw;
+    max-width: 100%;
     padding-bottom: 4rem;
 
     @screen tablet {

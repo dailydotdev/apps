@@ -7,7 +7,6 @@ import {
   isFeaturedEnabled,
 } from '../lib/featureManagement';
 import {
-  ArticleOnboardingVersion,
   OnboardingFiltersLayout,
   ScrollOnboardingVersion,
   InAppNotificationPosition,
@@ -30,7 +29,6 @@ interface Experiments {
   postCardVersion?: string;
   authVersion?: string;
   inAppNotificationPosition?: InAppNotificationPosition;
-  articleOnboardingVersion?: ArticleOnboardingVersion;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
 }
 
@@ -84,10 +82,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
     inAppNotificationPosition: getFeatureValue(
       Features.InAppNotificationPosition,
-      flags,
-    ),
-    articleOnboardingVersion: getFeatureValue(
-      Features.ArticleOnboardingVersion,
       flags,
     ),
     scrollOnboardingVersion: getFeatureValue(
