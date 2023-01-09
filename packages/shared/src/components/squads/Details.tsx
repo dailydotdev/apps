@@ -1,4 +1,10 @@
-import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+import React, {
+  FormEvent,
+  FormEventHandler,
+  ReactElement,
+  useContext,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
@@ -30,8 +36,8 @@ export function SquadDetails({
   if (activeView !== ModalState.Details) return null;
   const { name, handle, description } = form;
   const [handleValid, setHandleValid] = useState(true);
-  const onSubmit =
-    (next: () => void) => async (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = (next: FormEventHandler) => {
+    return async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const formJson = formToJson<SquadForm>(e.currentTarget);
       if (!formJson.name || !formJson.handle) {
@@ -41,9 +47,10 @@ export function SquadDetails({
       setHandleValid(!handleExists);
       if (!handleExists) {
         onNext(formJson);
-        next();
+        next(e);
       }
     };
+  };
   return (
     <Modal.StepsWrapper>
       {({ nextStep }) => (
