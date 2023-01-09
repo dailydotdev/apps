@@ -1,5 +1,4 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
-import AuthContext from '../../contexts/AuthContext';
+import React, { ReactElement, ReactNode } from 'react';
 import { Alerts } from '../../graphql/alerts';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { ClickableNavItem } from './ClickableNavItem';
