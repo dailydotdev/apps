@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
+import AuthContext from '../../contexts/AuthContext';
 import { Alerts } from '../../graphql/alerts';
 import { AlertColor, AlertDot } from '../AlertDot';
-import HomeIcon from '../icons/Home';
+import { ProfilePicture } from '../ProfilePicture';
 import { ClickableNavItem } from './ClickableNavItem';
-import { ItemInner, ListIcon, NavItem, SidebarMenuItem } from './common';
+import { ItemInner, NavItem, SidebarMenuItem } from './common';
 
 interface MyFeedButtonProps {
   sidebarRendered?: boolean;
@@ -22,10 +23,9 @@ function MyFeedButton({
   alerts,
   onNavTabClick,
 }: MyFeedButtonProps): ReactElement {
+  const { user } = useContext(AuthContext);
   const myFeedMenuItem: SidebarMenuItem = {
-    icon: (active: boolean) => (
-      <ListIcon Icon={() => <HomeIcon secondary={active} />} />
-    ),
+    icon: () => <ProfilePicture user={user} size="xsmall" />,
     title: 'My feed',
     path: '/my-feed',
     alert: (alerts.filter || alerts.myFeed) && !sidebarExpanded && (

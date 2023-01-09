@@ -1,4 +1,7 @@
-import { gql } from 'graphql-request';
+import request, { gql } from 'graphql-request';
+import { apiUrl } from '../lib/config';
+import { UserShortProfile } from '../lib/user';
+import { Edge } from './common';
 import { Source } from './sources';
 
 export interface Squad extends Source {
@@ -12,6 +15,16 @@ export interface Squad extends Source {
 
 export type Squads = {
   squads: Squad[];
+};
+
+export enum SquadMemberRole {
+  Member = 'member',
+  Owner = 'owner',
+}
+
+export type SquadMember = {
+  role: SquadMemberRole;
+  user: UserShortProfile;
 };
 
 export type CreateSquadInput = {
@@ -56,9 +69,71 @@ export const CREATE_SQUAD_MUTATION = gql`
 `;
 
 export const ADD_POST_TO_SQUAD = gql`
-mutation AddPostToSquad($data: AddPostToSquadInput) {
-  sharePost(data: $data) {
+  mutation AddPostToSquad($data: AddPostToSquadInput) {
+    sharePost(data: $data) {
       Post!
     }
   }
 `;
+
+export const SQUAD_QUERY = gql`
+  query Source($handle: ID!) {
+    source(id: $handle) {
+      id
+      active
+      handle
+      name
+      permalink
+      public
+      type
+      description
+      image
+    }
+  }
+`;
+
+export const SQUAD_MEMBERS_QUERY = gql`
+  query Source($id: ID!) {
+    sourceMembers(first: 5, sourceId: $id) {
+      edges {
+        node {
+          role
+          user {
+            id
+            name
+            image
+            permalink
+            username
+            bio
+          }
+        }
+      }
+    }
+  }
+`;
+
+export type SquadData = {
+  source: Squad;
+};
+
+export type SquadEdgesData = {
+  sourceMembers: {
+    edges: Edge<SquadMember>[];
+  };
+};
+
+export async function getSquad(handle: string): Promise<Squad> {
+  const res = await request<SquadData>(`${apiUrl}/graphql`, SQUAD_QUERY, {
+    handle,
+  });
+  return res.source;
+}
+
+export async function getSquadMembers(id: string): Promise<SquadMember[]> {
+  const res = await request<SquadEdgesData>(
+    `${apiUrl}/graphql`,
+    SQUAD_MEMBERS_QUERY,
+    { id },
+  );
+  return res.sourceMembers.edges?.map((edge) => edge.node);
+}

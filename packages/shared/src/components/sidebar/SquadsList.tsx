@@ -2,28 +2,19 @@ import React, { ReactElement } from 'react';
 import { Squad } from '../../graphql/squads';
 import DefaultSquadIcon from '../icons/DefaultSquad';
 import NewSquadIcon from '../icons/NewSquad';
+import { SquadImage } from '../squads/SquadImage';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
 import TimerIcon from '../icons/Timer';
 
 type SquadsListProps = {
+  activePage?: string;
   squads: Squad[];
   onNewSquad: () => void;
 };
 
-const SquadImage = ({ image, name }: Squad) => (
-  <Image
-    title={name}
-    src={image}
-    fallbackSrc={cloudinary.squads.imageFallback}
-    className="object-cover w-5 h-5 rounded-full"
-    loading="lazy"
-  />
-);
-
 export function SquadsList({
+  activePage,
   squads,
   onNewSquad,
 }: SquadsListProps): ReactElement {
@@ -39,13 +30,18 @@ export function SquadsList({
         const { handle, name, permalink, image, active } = squad;
         const menuItem: SidebarMenuItem = {
           icon: () =>
-            image ? <SquadImage {...squad} /> : <DefaultSquadIcon />,
+            image ? (
+              <SquadImage className="w-5 h-5" {...squad} />
+            ) : (
+              <DefaultSquadIcon />
+            ),
           rightIcon: () => !active && <TimerIcon />,
           title: name,
           path: permalink,
         };
+        const isActive = permalink.endsWith(activePage);
         return (
-          <NavItem key={`squad-${handle}`}>
+          <NavItem key={`squad-${handle}`} active={isActive}>
             <ClickableNavItem item={menuItem}>
               <ItemInner item={menuItem} sidebarExpanded />
             </ClickableNavItem>

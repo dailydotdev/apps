@@ -165,7 +165,11 @@ export default function Sidebar({
               />
             )}
             {!!squads?.length && (
-              <SquadsList squads={squads} onNewSquad={onNewSquad} />
+              <SquadsList
+                activePage={activePageProp}
+                squads={squads}
+                onNewSquad={onNewSquad}
+              />
             )}
             <DiscoverSection
               {...defaultRenderSectionProps}
