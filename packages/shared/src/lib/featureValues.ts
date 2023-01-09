@@ -22,8 +22,5 @@ export enum ScrollOnboardingVersion {
 
 export enum ExperimentWinner {
   ArticleOnboarding = 'v3',
-}
-
-export enum ExperimentWinner {
   PostCardShareVersion = 'v2',
 }
