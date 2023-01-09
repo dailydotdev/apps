@@ -171,6 +171,11 @@ export class Features<T extends FeatureValue = string> {
     [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2],
   );
 
+  static readonly CommentBoxCopy = new Features(
+    'comment_box_copy',
+    'Start the discussion...',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: T,
