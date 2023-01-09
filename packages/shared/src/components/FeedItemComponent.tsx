@@ -118,7 +118,6 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdClick,
   onReadArticleClick,
-  postCardShareVersion,
   postCardVersion,
   postModalByDefault,
   postEngagementNonClickable,
@@ -167,7 +166,6 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
           insaneMode={insaneMode}
-          postCardShareVersion={postCardShareVersion}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}

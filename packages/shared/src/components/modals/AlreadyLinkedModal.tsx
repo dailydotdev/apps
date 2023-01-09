@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
+import { ModalProps } from './common/Modal';
 import {
   ConfirmationModal,
   ConfirmationHeading,

@@ -2,8 +2,6 @@ import { IFlags } from 'flagsmith';
 import { OnboardingStep } from '../components/onboarding/common';
 import {
   AuthVersion,
-  ShareVersion,
-  OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
   ArticleOnboardingVersion,
@@ -125,12 +123,6 @@ export class Features<T extends FeatureValue = string> {
     'v2',
   ]);
 
-  static readonly PostCardShareVersion = new Features(
-    'post_card_share_version',
-    ShareVersion.V1,
-    [ShareVersion.V1, ShareVersion.V2, ShareVersion.V3, ShareVersion.V4],
-  );
-
   static readonly PostModalByDefault = new Features('post_modal_by_default');
 
   static readonly PostEngagementNonClickable = new Features(
@@ -145,12 +137,6 @@ export class Features<T extends FeatureValue = string> {
   static readonly OnboardingSteps = new Features(
     'onboarding_steps',
     `${OnboardingStep.Topics}/${OnboardingStep.Layout}/${OnboardingStep.Theme}`,
-  );
-
-  static readonly UserOnboardingVersion = new Features(
-    'onboarding_version',
-    OnboardingVersion.V1,
-    [OnboardingVersion.V1, OnboardingVersion.V2],
   );
 
   static readonly OnboardingFiltersLayout = new Features(

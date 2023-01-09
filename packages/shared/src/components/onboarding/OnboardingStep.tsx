@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
+import { Modal } from '../modals/common/Modal';
 import { OnboardingTitle } from './common';
 
 interface ClassName {
@@ -23,9 +24,9 @@ function OnboardingStep({
   className = {},
 }: OnboardingStepProps): ReactElement {
   return (
-    <div
+    <Modal.Body
       className={classNames(
-        'flex flex-col pt-8 max-h-[calc(100%-4rem)]',
+        'flex flex-col pt-8 px-0 pb-0',
         className.container,
       )}
     >
@@ -40,10 +41,8 @@ function OnboardingStep({
           {description}
         </p>
       )}
-      <div className={classNames('overflow-y-auto flex-1', className.content)}>
-        {children}
-      </div>
-    </div>
+      <div className={classNames('flex-1', className.content)}>{children}</div>
+    </Modal.Body>
   );
 }
 

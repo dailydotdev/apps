@@ -5,10 +5,7 @@ import { ArticleOnboardingVersion } from '../../lib/featureValues';
 
 export type PostCardTests = Pick<
   ActionButtonsProps,
-  | 'postCardVersion'
-  | 'postCardShareVersion'
-  | 'postModalByDefault'
-  | 'postEngagementNonClickable'
+  'postCardVersion' | 'postModalByDefault' | 'postEngagementNonClickable'
 >;
 
 export interface PostNavigationProps

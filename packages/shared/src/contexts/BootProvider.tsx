@@ -20,7 +20,6 @@ import {
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
 import { NotificationsContextProvider } from './NotificationsContext';
-import { OnboardingContextProvider } from './OnboardingContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 
 function filteredProps<T extends Record<string, unknown>>(
@@ -198,7 +197,7 @@ export const BootDataProvider = ({
               isNotificationsReady={initialLoad}
               unreadCount={notifications?.unreadNotificationsCount}
             >
-              <OnboardingContextProvider>{children}</OnboardingContextProvider>
+              {children}
             </NotificationsContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>
