@@ -155,7 +155,7 @@ export function PostComments({
     onClick(getParentComment(post, localParentComment, shared));
   };
   return (
-    <>
+    <div className="flex flex-col px-3">
       {comments.postComments.edges.map((e, i) => (
         <MainComment
           post={post}
@@ -188,6 +188,6 @@ export function PostComments({
           post={post}
         />
       )}
-    </>
+    </div>
   );
 }

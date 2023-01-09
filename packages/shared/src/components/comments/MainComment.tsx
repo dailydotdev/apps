@@ -30,7 +30,7 @@ export interface Props extends CommentActionProps {
   appendTooltipTo?: () => HTMLElement;
 }
 
-const MainCommentBox = classed(CommentBox, 'my-2');
+const MainCommentBox = classed(CommentBox, 'my-4');
 
 export default function MainComment({
   post,

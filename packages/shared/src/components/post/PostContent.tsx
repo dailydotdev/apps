@@ -123,7 +123,7 @@ const PageBodyContainer = classed(
 
 const PostContainer = classed(
   'main',
-  'flex flex-col flex-1 px-8 tablet:pb-20 tablet:border-r tablet:border-theme-divider-tertiary',
+  'flex flex-col flex-1 px-4 tablet:px-8 tablet:border-r tablet:border-theme-divider-tertiary',
 );
 
 export const SCROLL_OFFSET = 80;
@@ -409,7 +409,6 @@ export function PostContent({
         onShare={onShare}
         onReadArticle={onReadArticle}
         post={postById.post}
-        className="pb-20"
         onClose={onClose}
         origin={analyticsOrigin}
       />

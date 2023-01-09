@@ -176,7 +176,7 @@ export default function CommentActionButtons({
       {numUpvotes > 0 && (
         <SimpleTooltip content="See who upvoted">
           <ClickableText
-            className="ml-auto"
+            className="ml-auto font-bold"
             onClick={() => onShowUpvotes(comment.id, numUpvotes)}
           >
             {numUpvotes} upvote{numUpvotes === 1 ? '' : 's'}
