@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
+import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
@@ -37,6 +38,7 @@ export interface Props extends CommentActionProps {
   comment: Comment;
   origin: Origin;
   parentId: string | null;
+  className?: string;
 }
 
 export default function CommentActionButtons({
@@ -44,6 +46,7 @@ export default function CommentActionButtons({
   comment,
   origin,
   parentId,
+  className,
   onComment,
   onShare,
   onDelete,
@@ -125,7 +128,7 @@ export default function CommentActionButtons({
   };
 
   return (
-    <div className="flex flex-row items-center">
+    <div className={classNames('flex flex-row items-center', className)}>
       <SimpleTooltip content="Upvote">
         <Button
           id={`comment-${comment.id}-upvote-btn`}

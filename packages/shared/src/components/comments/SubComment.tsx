@@ -51,11 +51,7 @@ export default function SubComment({
   const { user } = useContext(AuthContext);
   return (
     <CommentContainer
-      className={classNames(
-        'flex-row items-start mt-2 scroll-mt-16',
-        commentHash === getCommentHash(comment.id) &&
-          'border border-theme-color-cabbage',
-      )}
+      className="flex-row items-start mt-2 scroll-mt-16"
       data-testid="subcomment"
       ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
     >
@@ -65,9 +61,9 @@ export default function SubComment({
       >
         <ProfileImageLink user={comment.author} />
       </ProfileTooltip>
-      <div className="flex flex-col flex-1 ml-2">
+      <div className="flex flex-col flex-1">
         <CommentBox>
-          <div className="flex">
+          <div className="flex ml-4">
             <CommentAuthor
               postAuthorId={postAuthorId}
               author={comment.author}
@@ -75,8 +71,14 @@ export default function SubComment({
             />
             {comment.author?.id === postScoutId && <ScoutBadge />}
           </div>
-          <CommentPublishDate comment={comment} />
-          <div className="my-4">
+          <CommentPublishDate className="ml-4" comment={comment} />
+          <div
+            className={classNames(
+              'py-2 px-3 my-2 mx-1',
+              commentHash === getCommentHash(comment.id) &&
+                'border border-theme-color-cabbage rounded-8',
+            )}
+          >
             <Markdown
               content={comment.contentHtml}
               appendTooltipTo={appendTooltipTo}
@@ -93,6 +95,7 @@ export default function SubComment({
           onDelete={onDelete}
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}
+          className="ml-4"
         />
         {permissionNotificationCommentId === comment.id && (
           <EnableNotification
