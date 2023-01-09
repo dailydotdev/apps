@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { Comment, getCommentHash } from '../../graphql/comments';
-import { CommentBox, CommentPublishDate } from './common';
+import { CommentBox, CommentContainer, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
 } from './CommentActionButtons';
@@ -49,8 +50,12 @@ export default function SubComment({
 }: Props): ReactElement {
   const { user } = useContext(AuthContext);
   return (
-    <article
-      className="flex flex-row items-start mt-6 scroll-mt-16"
+    <CommentContainer
+      className={classNames(
+        'flex-row items-start mt-2 scroll-mt-16',
+        commentHash === getCommentHash(comment.id) &&
+          'border border-theme-color-cabbage',
+      )}
       data-testid="subcomment"
       ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
     >
@@ -61,12 +66,7 @@ export default function SubComment({
         <ProfileImageLink user={comment.author} />
       </ProfileTooltip>
       <div className="flex flex-col flex-1 ml-2">
-        <CommentBox
-          className={
-            commentHash === getCommentHash(comment.id) &&
-            'border border-theme-color-cabbage'
-          }
-        >
+        <CommentBox>
           <div className="flex">
             <CommentAuthor
               postAuthorId={postAuthorId}
@@ -105,6 +105,6 @@ export default function SubComment({
           />
         )}
       </div>
-    </article>
+    </CommentContainer>
   );
 }
