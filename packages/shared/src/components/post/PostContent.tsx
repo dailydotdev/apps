@@ -409,6 +409,7 @@ export function PostContent({
         onShare={onShare}
         onReadArticle={onReadArticle}
         post={postById.post}
+        className="pb-8"
         onClose={onClose}
         origin={analyticsOrigin}
       />

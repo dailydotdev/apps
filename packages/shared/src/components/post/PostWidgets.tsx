@@ -60,9 +60,7 @@ export function PostWidgets({
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} link={post.commentsPermalink} />
-      {tokenRefreshed && (
-        <FurtherReading currentPost={post} className="laptopL:w-[19.5rem]" />
-      )}
+      {tokenRefreshed && <FurtherReading currentPost={post} />}
     </PageWidgets>
   );
 }
