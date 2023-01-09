@@ -53,7 +53,6 @@ function OnboardingModal({
           screenValue,
         }),
       });
-      return;
     }
 
     if (mode === OnboardingMode.Auto) {
