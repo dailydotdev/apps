@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext } from 'react';
-import classNames from 'classnames';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
 import AuthContext from '../../contexts/AuthContext';
@@ -15,7 +14,6 @@ import { Origin } from '../../lib/analytics';
 
 interface PostWidgetsProps
   extends Omit<PostModalActionsProps, 'contextMenuId'> {
-  isNavigationFixed?: boolean;
   origin?: PostOrigin;
 }
 
@@ -25,7 +23,6 @@ export function PostWidgets({
   onReadArticle,
   post,
   className,
-  isNavigationFixed,
   onClose,
   origin = Origin.ArticlePage,
 }: PostWidgetsProps): ReactElement {
@@ -50,24 +47,16 @@ export function PostWidgets({
   };
 
   return (
-    <PageWidgets
-      className={classNames(
-        className,
-        isNavigationFixed && 'tablet:pt-[5.5rem]',
-      )}
-    >
-      {!isNavigationFixed && (
-        <PostModalActions
-          onBookmark={onBookmark}
-          onShare={onShare}
-          onReadArticle={onReadArticle}
-          inlineActions={isNavigationFixed}
-          post={post}
-          onClose={onClose}
-          className="hidden tablet:flex pt-6"
-          contextMenuId="post-widgets-context"
-        />
-      )}
+    <PageWidgets className={className}>
+      <PostModalActions
+        onBookmark={onBookmark}
+        onShare={onShare}
+        onReadArticle={onReadArticle}
+        post={post}
+        onClose={onClose}
+        className="hidden tablet:flex pt-6"
+        contextMenuId="post-widgets-context"
+      />
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} link={post.commentsPermalink} />

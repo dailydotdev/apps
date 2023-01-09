@@ -409,7 +409,6 @@ export function PostContent({
         onShare={onShare}
         onReadArticle={onReadArticle}
         post={postById.post}
-        isNavigationFixed={hasNavigation && isFixed}
         className="pb-20"
         onClose={onClose}
         origin={analyticsOrigin}
