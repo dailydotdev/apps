@@ -308,12 +308,7 @@ export function PostContent({
       className={className?.container}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
     >
-      <PostContainer
-        className={classNames(
-          'relative',
-          isFixed && !hasNavigation && 'tablet:pt-0',
-        )}
-      >
+      <PostContainer className="relative">
         {showMyFeedArticleAnonymous && (
           <PostFeedFiltersOnboarding
             onInitializeOnboarding={onInitializeOnboardingClick}
