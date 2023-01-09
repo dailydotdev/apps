@@ -43,7 +43,10 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ScrollOnboardingVersion } from '../lib/featureValues';
+import {
+  ExperimentWinner,
+  ScrollOnboardingVersion,
+} from '../lib/featureValues';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -286,7 +289,13 @@ export default function Feed<T>({
       columns: virtualizedNumCards,
       column,
       row,
-      ...feedAnalyticsExtra(feedName, ranking, undefined, undefined),
+      ...feedAnalyticsExtra(
+        feedName,
+        ranking,
+        undefined,
+        undefined,
+        ExperimentWinner.PostCardShareVersion,
+      ),
     };
     trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
     lastShareMenuCloseTrackEvent = () => {
