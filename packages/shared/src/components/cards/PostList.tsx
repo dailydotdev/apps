@@ -36,7 +36,6 @@ export const PostList = forwardRef(function PostList(
     menuOpened,
     className,
     children,
-    postCardShareVersion,
     postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
@@ -121,7 +120,6 @@ export const PostList = forwardRef(function PostList(
             onMenuClick={(event) => onMenuClick?.(event, post)}
             insaneMode
             postCardVersion={postCardVersion}
-            postCardShareVersion={postCardShareVersion}
             postModalByDefault={postModalByDefault}
             postEngagementNonClickable={postEngagementNonClickable}
           />

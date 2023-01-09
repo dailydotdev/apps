@@ -2,7 +2,6 @@ import { IFlags } from 'flagsmith';
 import { OnboardingStep } from '../components/onboarding/common';
 import {
   AuthVersion,
-  ShareVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
   ArticleOnboardingVersion,
@@ -123,12 +122,6 @@ export class Features<T extends FeatureValue = string> {
     'v1',
     'v2',
   ]);
-
-  static readonly PostCardShareVersion = new Features(
-    'post_card_share_version',
-    ShareVersion.V1,
-    [ShareVersion.V1, ShareVersion.V2, ShareVersion.V3, ShareVersion.V4],
-  );
 
   static readonly PostModalByDefault = new Features('post_modal_by_default');
 

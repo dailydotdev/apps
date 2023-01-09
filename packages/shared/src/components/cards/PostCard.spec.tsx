@@ -11,6 +11,7 @@ const defaultProps: PostCardProps = {
   onCommentClick: jest.fn(),
   onBookmarkClick: jest.fn(),
   onShare: jest.fn(),
+  onShareClick: jest.fn(),
 };
 
 beforeEach(() => {
@@ -59,7 +60,7 @@ it('should call on share click on share button click', async () => {
   renderComponent({});
   const el = await screen.findByLabelText('Share post');
   el.click();
-  await waitFor(() => expect(defaultProps.onShare).toBeCalledWith(post));
+  await waitFor(() => expect(defaultProps.onShareClick).toBeCalled());
 });
 
 it('should not display publication date createdAt is empty', async () => {
