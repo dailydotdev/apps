@@ -1,4 +1,9 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, {
+  FormEventHandler,
+  ReactElement,
+  useContext,
+  useState,
+} from 'react';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
 import { ProfilePicture } from '../ProfilePicture';
@@ -16,9 +21,11 @@ export function SquadComment({ onNext, form }: SquadStateProps): ReactElement {
   const { post } = form.post;
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
-  const onSubmit = (nextStep: () => void) => () => {
-    nextStep();
-    onNext({ ...form, commentary } as SquadForm);
+  const onSubmit = (nextStep: FormEventHandler): FormEventHandler => {
+    return (e) => {
+      nextStep(e);
+      onNext({ ...form, commentary } as SquadForm);
+    };
   };
   return (
     <>

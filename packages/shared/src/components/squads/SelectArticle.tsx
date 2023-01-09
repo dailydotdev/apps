@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { MouseEventHandler, ReactElement, useContext } from 'react';
 import AuthContext from '../../contexts/AuthContext';
 import { READING_HISTORY_QUERY } from '../../graphql/users';
 import useInfiniteReadingHistory from '../../hooks/useInfiniteReadingHistory';
@@ -29,9 +29,14 @@ export function SquadSelectArticle({
   };
   const { data, isInitialLoading, isLoading } =
     useInfiniteReadingHistory(queryProps);
-  const goNext = (post: PostItem, nextStep: () => void) => () => {
-    onNext({ ...(form as SquadForm), post });
-    nextStep();
+  const goNext = (
+    post: PostItem,
+    nextStep: MouseEventHandler,
+  ): MouseEventHandler => {
+    return (e) => {
+      onNext({ ...(form as SquadForm), post });
+      nextStep(e);
+    };
   };
   return (
     <Modal.Body>

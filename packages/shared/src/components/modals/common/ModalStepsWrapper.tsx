@@ -1,10 +1,17 @@
-import { MouseEventHandler, ReactElement, useContext } from 'react';
+import {
+  MouseEventHandler,
+  ReactElement,
+  ReactEventHandler,
+  useContext,
+} from 'react';
 import { isNullOrUndefined } from '../../../lib/func';
 import { ModalPropsContext } from './types';
 
-export interface StepComponentProps {
-  previousStep?: MouseEventHandler;
-  nextStep?: MouseEventHandler;
+export interface StepComponentProps<
+  T extends ReactEventHandler = MouseEventHandler,
+> {
+  previousStep?: T;
+  nextStep?: T;
 }
 
 type ModalStepsProps = {
