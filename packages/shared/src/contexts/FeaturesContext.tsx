@@ -9,7 +9,6 @@ import {
 import {
   OnboardingFiltersLayout,
   ScrollOnboardingVersion,
-  ShareVersion,
   InAppNotificationPosition,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
@@ -28,7 +27,6 @@ interface Experiments {
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
-  postCardShareVersion?: ShareVersion;
   authVersion?: string;
   inAppNotificationPosition?: InAppNotificationPosition;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
@@ -81,7 +79,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     ),
     postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
     postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-    postCardShareVersion: getFeatureValue(Features.PostCardShareVersion, flags),
     authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
     inAppNotificationPosition: getFeatureValue(
       Features.InAppNotificationPosition,

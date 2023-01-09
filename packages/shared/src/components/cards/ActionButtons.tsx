@@ -13,7 +13,6 @@ import OptionsButton from '../buttons/OptionsButton';
 import classed from '../../lib/classed';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
-import { ShareVersion } from '../../lib/featureValues';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -31,7 +30,6 @@ export interface ActionButtonsProps {
   className?: string;
   children?: ReactNode;
   insaneMode?: boolean;
-  postCardShareVersion?: ShareVersion;
   postCardVersion?: string;
   postModalByDefault?: boolean;
   postEngagementNonClickable?: boolean;
@@ -49,18 +47,14 @@ const getContainer = (displayWhenHovered = false, className?: string) =>
   );
 
 type LastActionButtonProps = {
-  postCardShareVersion: ShareVersion;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   post: Post;
 };
 function LastActionButton(props: LastActionButtonProps) {
-  const { onShare, onShareClick, post, postCardShareVersion } = props;
-  const onClickShare =
-    !postCardShareVersion || postCardShareVersion === ShareVersion.V1
-      ? () => onShare?.(post)
-      : (event) => onShareClick?.(event, post);
+  const { onShareClick, post } = props;
+  const onClickShare = (event) => onShareClick?.(event, post);
   return (
     <SimpleTooltip content="Share post">
       <Button
@@ -87,7 +81,6 @@ export default function ActionButtons({
   children,
   insaneMode,
   postCardVersion,
-  postCardShareVersion,
   postModalByDefault,
   postEngagementNonClickable,
 }: ActionButtonsProps): ReactElement {
@@ -109,7 +102,6 @@ export default function ActionButtons({
 
   const lastActionButton = LastActionButton({
     post,
-    postCardShareVersion,
     onBookmarkClick,
     onShare,
     onShareClick,
