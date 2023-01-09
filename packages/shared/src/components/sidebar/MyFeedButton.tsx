@@ -2,7 +2,6 @@ import React, { ReactElement, ReactNode, useContext } from 'react';
 import AuthContext from '../../contexts/AuthContext';
 import { Alerts } from '../../graphql/alerts';
 import { AlertColor, AlertDot } from '../AlertDot';
-import { ProfilePicture } from '../ProfilePicture';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
 
@@ -25,7 +24,6 @@ function MyFeedButton({
   icon,
   onNavTabClick,
 }: MyFeedButtonProps): ReactElement {
-  const { user } = useContext(AuthContext);
   const myFeedMenuItem: SidebarMenuItem = {
     icon,
     title: 'My feed',
