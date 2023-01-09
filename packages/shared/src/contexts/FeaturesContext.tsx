@@ -32,8 +32,6 @@ interface Experiments {
   authVersion?: string;
   inAppNotificationPosition?: InAppNotificationPosition;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
-  commentBoxCopy?: string;
-  commentBoxButtonCopy?: string;
 }
 
 export interface FeaturesData extends Experiments {
@@ -93,8 +91,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.ScrollOnboardingVersion,
       flags,
     ),
-    commentBoxCopy: getFeatureValue(Features.CommentBoxCopy, flags),
-    commentBoxButtonCopy: getFeatureValue(Features.CommentBoxCopy, flags),
   };
 };
 

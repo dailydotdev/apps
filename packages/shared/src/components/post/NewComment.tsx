@@ -1,9 +1,8 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { LoggedUser } from '../../lib/user';
 import { Button, ButtonSize } from '../buttons/Button';
-import FeaturesContext from '../../contexts/FeaturesContext';
 
 interface NewCommentProps {
   user?: LoggedUser;
@@ -25,8 +24,6 @@ export function NewComment({
   size = 'large',
   onNewComment,
 }: NewCommentProps): ReactElement {
-  const { commentBoxCopy, commentBoxButtonCopy } = useContext(FeaturesContext);
-
   return (
     <button
       type="button"
@@ -47,13 +44,13 @@ export function NewComment({
           nativeLazyLoading
         />
       )}
-      <span className="text-theme-label-tertiary">{commentBoxCopy}</span>
+      <span className="text-theme-label-tertiary">Share your thoughts</span>
       <Button
         buttonSize={buttonSize[size]}
         className="ml-auto btn-secondary"
         disabled
       >
-        {commentBoxButtonCopy}
+        Post
       </Button>
     </button>
   );
