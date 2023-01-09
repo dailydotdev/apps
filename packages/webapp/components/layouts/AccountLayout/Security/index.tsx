@@ -127,7 +127,7 @@ function AccountSecurityDefault({
         className: 'text-white btn-primary-ketchup',
       },
     };
-    if (!(await showPrompt(options))) {
+    if (await showPrompt(options)) {
       manageSocialProviders({ type: 'unlink', provider });
     }
   };
