@@ -23,9 +23,12 @@ export function SquadHeaderBar({
   const { onMenuClick } = useSquadMenu();
   return (
     <div className={classNames('flex flex-wrap gap-4', className)} {...props}>
-      <div className="flex items-center px-0.5 rounded-14 border border-theme-divider-secondary">
+      <div className="flex items-center rounded-14 border border-theme-divider-secondary hover:border-theme-divider-primary">
         <SimpleTooltip placement="top" content="Members list">
-          <Button className="btn-tertiary !pl-0" buttonSize="small">
+          <Button
+            className="btn-tertiary !pl-1 !pr-4 !rounded-r-none"
+            buttonSize="medium"
+          >
             <span className="flex items-center">
               <span className="flex flex-row-reverse ml-2">
                 {members.map(({ user }) => (
@@ -41,10 +44,11 @@ export function SquadHeaderBar({
             </span>
           </Button>
         </SimpleTooltip>
+        <div className="w-0 h-full border-r border-theme-divider-secondary" />
         <SimpleTooltip placement="top" content="Invite a new member">
           <Button
-            className="btn-tertiary"
-            buttonSize="small"
+            className="btn-tertiary !rounded-l-none"
+            buttonSize="medium"
             icon={<AddUserIcon className="text-theme-label-secondary" />}
           />
         </SimpleTooltip>

@@ -19,7 +19,7 @@ export type Squads = {
 
 export enum SquadMemberRole {
   Member = 'member',
-  Role = 'role',
+  Owner = 'owner',
 }
 
 export type SquadMember = {
