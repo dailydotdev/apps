@@ -129,14 +129,6 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export async function graphqlQuery<TReturn, TParameters>(
-  query: string,
-  parameters?: TParameters,
-): Promise<TReturn> {
-  const res = await request<TReturn>(`${apiUrl}/graphql`, query, parameters);
-  return res;
-}
-
 export async function getSquadMembers(id: string): Promise<SquadMember[]> {
   const res = await request<SquadEdgesData>(
     `${apiUrl}/graphql`,
