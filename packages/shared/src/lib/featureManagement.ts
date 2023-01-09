@@ -176,6 +176,11 @@ export class Features<T extends FeatureValue = string> {
     'Start the discussion...',
   );
 
+  static readonly CommentBoxButtonCopy = new Features(
+    'comment_box_button_copy',
+    'Reply',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: T,

@@ -25,7 +25,7 @@ export function NewComment({
   size = 'large',
   onNewComment,
 }: NewCommentProps): ReactElement {
-  const { commentBoxCopy } = useContext(FeaturesContext);
+  const { commentBoxCopy, commentBoxButtonCopy } = useContext(FeaturesContext);
 
   return (
     <button
@@ -53,7 +53,7 @@ export function NewComment({
         className="ml-auto btn-secondary"
         disabled
       >
-        Reply
+        {commentBoxButtonCopy}
       </Button>
     </button>
   );

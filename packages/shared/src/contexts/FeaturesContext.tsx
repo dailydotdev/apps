@@ -33,6 +33,7 @@ interface Experiments {
   inAppNotificationPosition?: InAppNotificationPosition;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
   commentBoxCopy?: string;
+  commentBoxButtonCopy?: string;
 }
 
 export interface FeaturesData extends Experiments {
@@ -93,6 +94,7 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       flags,
     ),
     commentBoxCopy: getFeatureValue(Features.CommentBoxCopy, flags),
+    commentBoxButtonCopy: getFeatureValue(Features.CommentBoxCopy, flags),
   };
 };
 
