@@ -28,7 +28,7 @@ export function CommentPublishDate({
   );
 }
 
-export const CommentContainer = classed('article', 'flex py-2 rounded-16');
+export const CommentContainer = classed('article', 'flex px-3 py-2 rounded-16');
 
 export const commentBoxClassNames =
   'rounded-lg break-words-overflow typo-callout';

@@ -1,8 +1,14 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import {
+  getProfilePictureClasses,
+  ProfileImageSize,
+  ProfilePicture,
+} from '../ProfilePicture';
 import { LoggedUser } from '../../lib/user';
 import { Button, ButtonSize } from '../buttons/Button';
+import { Image } from '../image/Image';
+import { fallbackImages } from '../../lib/config';
 
 interface NewCommentProps {
   user?: LoggedUser;
@@ -36,15 +42,18 @@ export function NewComment({
       )}
       onClick={onNewComment}
     >
-      {user && (
-        <ProfilePicture
-          user={user}
-          size={size}
-          className="mr-4"
-          nativeLazyLoading
+      {user ? (
+        <ProfilePicture user={user} size={size} nativeLazyLoading />
+      ) : (
+        <Image
+          src={fallbackImages.avatar}
+          alt="Placeholder image for anonymous user"
+          className={getProfilePictureClasses('large')}
         />
       )}
-      <span className="text-theme-label-tertiary">Share your thoughts</span>
+      <span className="ml-4 text-theme-label-tertiary">
+        Share your thoughts
+      </span>
       <Button
         buttonSize={buttonSize[size]}
         className="ml-auto btn-secondary"

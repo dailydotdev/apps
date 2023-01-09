@@ -64,7 +64,6 @@ export function CompanionDiscussion({
         <PostComments
           post={post}
           origin={Origin.Companion}
-          applyBottomMargin={false}
           onClick={onCommentClick}
           onShare={(comment) => openShareComment(comment, post)}
           onClickUpvote={onShowUpvoted}

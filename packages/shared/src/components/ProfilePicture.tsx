@@ -46,6 +46,16 @@ const roundClasses = {
   full: 'rounded-full',
 };
 
+export const getProfilePictureClasses = (
+  size: ProfileImageSize,
+  roundSize?: ProfileImageRoundSize,
+): string =>
+  classNames(
+    'object-cover',
+    sizeClasses[size],
+    roundClasses[roundSize ?? size],
+  );
+
 let onError: ReactEventHandler<HTMLImageElement> = (e) => {
   const target = e.target as HTMLImageElement;
   target.onerror = null;
@@ -69,6 +79,11 @@ function ProfilePictureComponent(
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement {
+  const classes = classNames(
+    getProfilePictureClasses(size, rounded),
+    className,
+  );
+
   if (nativeLazyLoading) {
     return (
       <img
@@ -77,12 +92,7 @@ function ProfilePictureComponent(
         src={user.image}
         alt={`${user.username || user.id}'s profile`}
         onError={onError}
-        className={classNames(
-          'object-cover',
-          sizeClasses[size],
-          roundClasses[rounded ?? size],
-          className,
-        )}
+        className={classes}
         loading="lazy"
       />
     );
@@ -94,11 +104,7 @@ function ProfilePictureComponent(
       ref={ref}
       imgSrc={user.image}
       imgAlt={`${user.username || user.id}'s profile`}
-      className={classNames(
-        sizeClasses[size],
-        roundClasses[rounded ?? size],
-        className,
-      )}
+      className={classes}
       fallbackSrc={fallbackImages.avatar}
     />
   );
