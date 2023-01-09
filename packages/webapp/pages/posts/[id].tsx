@@ -135,7 +135,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         isLoading={isLoading || !isFetched}
         enableAuthorOnboarding={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
-        className="pb-20 laptop:pb-6 laptopL:pb-0"
+        className={{
+          container: 'pb-20 laptop:pb-6 laptopL:pb-0',
+          fixedNavigation: { container: 'flex laptop:hidden' },
+          navigation: {
+            container: 'tablet:hidden',
+            actions: 'justify-between w-full',
+          },
+        }}
       />
     </>
   );

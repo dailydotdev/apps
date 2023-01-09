@@ -28,11 +28,14 @@ import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
-import { PostNavigation } from './PostNavigation';
+import {
+  PostNavigation,
+  PostNavigationClassName,
+  PostNavigationProps,
+} from './PostNavigation';
 import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
-import styles from '../utilities.module.css';
 import {
   usePostComment,
   UsePostCommentOptionalProps,
@@ -51,15 +54,12 @@ import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
 import { Comment } from '../../graphql/comments';
-import ConditionalWrapper from '../ConditionalWrapper';
 import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
-import { ArticleOnboardingVersion } from '../../lib/featureValues';
-import { PostPreviousNext } from './PostPreviousNext';
-import { PostNavigationProps } from './common';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import AlertContext from '../../contexts/AlertContext';
 import OnboardingContext from '../../contexts/OnboardingContext';
+import { ExperimentWinner } from '../../lib/featureValues';
+import FixedPostNavigation from './FixedPostNavigation';
 
 const UpvotedPopupModal = dynamic(
   () =>
@@ -89,16 +89,22 @@ const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
 );
 
+interface ClassName {
+  container?: string;
+  navigation?: PostNavigationClassName;
+  fixedNavigation?: PostNavigationClassName;
+}
+
 export interface PostContentProps
   extends Omit<
       PostModalActionsProps,
-      'post' | 'onShare' | 'onBookmark' | 'contextMenuId'
+      'post' | 'onShare' | 'onBookmark' | 'contextMenuId' | 'className'
     >,
-    Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>>,
+    Pick<PostNavigationProps, 'onNextPost' | 'onPreviousPost'>,
     UsePostCommentOptionalProps {
   postById?: PostData;
   isFallback?: boolean;
-  className?: string;
+  className?: ClassName;
   enableAuthorOnboarding?: boolean;
   isLoading?: boolean;
   isModal?: boolean;
@@ -107,7 +113,7 @@ export interface PostContentProps
 
 const BodyContainer = classed(
   'div',
-  'flex flex-col max-w-[100vw] pb-6 tablet:pb-0',
+  'flex flex-col max-w-full pb-6 tablet:pb-0 tablet:flex-row',
 );
 
 const PageBodyContainer = classed(
@@ -121,16 +127,18 @@ const PostContainer = classed(
 );
 
 export const SCROLL_OFFSET = 80;
+export const ONBOARDING_OFFSET = 120;
 
 export function PostContent({
   postById,
-  className,
+  className = {},
   isFallback,
   enableAuthorOnboarding,
   enableShowShareNewComment,
   isLoading,
   isModal,
   position,
+  inlineActions,
   onPreviousPost,
   onNextPost,
   onClose,
@@ -162,7 +170,6 @@ export function PostContent({
   const { trackEvent } = useContext(AnalyticsContext);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
-  const { articleOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { sidebarRendered } = useSidebarRendered();
@@ -222,7 +229,7 @@ export function PostContent({
 
   if (isLoading) {
     return (
-      <Wrapper className={className}>
+      <Wrapper className={className?.container}>
         <PostLoadingPlaceholder />
       </Wrapper>
     );
@@ -245,7 +252,6 @@ export function PostContent({
   };
 
   const isFixed = position === 'fixed';
-  const padding = isFixed ? 'py-4' : 'pt-6';
 
   const onShare = () => openSharePost(postById.post);
   const toggleBookmark = async (): Promise<void> => {
@@ -276,173 +282,143 @@ export function PostContent({
     updatePostComments(comment, isNew);
   };
 
-  const showMyFeedArticleAnonymous =
-    sidebarRendered &&
-    alerts?.filter &&
-    !isFixed &&
-    Object.values(ArticleOnboardingVersion).includes(articleOnboardingVersion);
-  const isPostFeedFiltersOnboardingV1 =
-    showMyFeedArticleAnonymous &&
-    articleOnboardingVersion === ArticleOnboardingVersion.V1;
+  const showMyFeedArticleAnonymous = sidebarRendered && alerts?.filter;
 
   const onInitializeOnboardingClick = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickArticleAnonymousCTA,
-      target_id: articleOnboardingVersion,
+      target_id: ExperimentWinner.ArticleOnboarding,
       extra: JSON.stringify({ origin: analyticsOrigin }),
     });
     onInitializeOnboarding();
   };
-
-  const postPreviousNext = (
-    <PostPreviousNext onNextPost={onNextPost} onPreviousPost={onPreviousPost} />
-  );
-  const postFeedFiltersOnboarding = showMyFeedArticleAnonymous && (
-    <PostFeedFiltersOnboarding
-      hasNavigation={hasNavigation}
-      version={articleOnboardingVersion}
-      postPreviousNext={postPreviousNext}
-      onInitializeOnboarding={onInitializeOnboardingClick}
-    />
-  );
+  const navigationProps: PostNavigationProps = {
+    onPreviousPost,
+    onNextPost,
+    post: postById.post,
+    onBookmark: toggleBookmark,
+    onReadArticle,
+    onClose,
+    onShare,
+    inlineActions,
+  };
 
   return (
     <Wrapper
-      className={classNames(
-        className,
-        !isPostFeedFiltersOnboardingV1 && ' tablet:flex-row',
-      )}
+      className={className?.container}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
     >
-      {isPostFeedFiltersOnboardingV1 && postFeedFiltersOnboarding}
-      <ConditionalWrapper
-        condition={isPostFeedFiltersOnboardingV1}
-        wrapper={(children) => (
-          <section className="flex flex-col tablet:flex-row flex-1">
-            {children}
-          </section>
+      <PostContainer
+        className={classNames(
+          'relative',
+          isFixed && !hasNavigation && 'tablet:pt-0',
         )}
       >
-        <>
-          <PostContainer
-            className={classNames(
-              'relative',
-              isFixed && 'pt-16',
-              isFixed && !hasNavigation && 'tablet:pt-0',
-            )}
-          >
-            <PostNavigation
-              onPreviousPost={onPreviousPost}
-              onNextPost={onNextPost}
-              className={classNames(
-                !hasNavigation && !isFixed && 'tablet:pt-0',
-                !hasNavigation ? 'flex laptop:hidden' : 'flex',
-                padding,
-                position,
-                isFixed &&
-                  'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6 top-0 -ml-8',
-                isFixed && styles.fixedPostsNavigation,
-              )}
-              shouldDisplayTitle={isFixed}
-              post={postById.post}
-              onReadArticle={onReadArticle}
-              onClose={onClose}
-              isModal={isModal}
-              onBookmark={toggleBookmark}
-              onShare={onShare}
-              postFeedFiltersOnboarding={
-                !isPostFeedFiltersOnboardingV1 && postFeedFiltersOnboarding
-              }
-              postPreviousNext={isModal && postPreviousNext}
-              articleOnboardingVersion={
-                showMyFeedArticleAnonymous && articleOnboardingVersion
-              }
-            />
-            <h1
-              className="mt-6 mb-4 font-bold break-words typo-large-title"
-              data-testid="post-modal-title"
-            >
-              {postById.post.title}
-            </h1>
-            {postById.post.summary && (
-              <PostSummary summary={postById.post.summary} />
-            )}
-            <TagLinks tags={postById.post.tags || []} />
-            <PostMetadata
-              createdAt={postById.post.createdAt}
-              readTime={postById.post.readTime}
-              className="mt-4 mb-8"
-              typoClassName="typo-callout"
-            />
-            <a
-              {...postLinkProps}
-              className={classNames(
-                'block overflow-hidden mb-3 rounded-2xl cursor-pointer hover:opacity-64',
-              )}
-              style={{ maxWidth: '25.625rem' }}
-            >
-              <LazyImage
-                imgSrc={postById.post.image}
-                imgAlt="Post cover image"
-                ratio="49%"
-                eager
-                fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-              />
-            </a>
-            {postById.post?.toc?.length > 0 && (
-              <PostToc
-                post={postById.post}
-                collapsible
-                className="flex laptop:hidden mt-2 mb-4"
-              />
-            )}
-            <PostUpvotesCommentsCount
-              post={postById.post}
-              onUpvotesClick={(upvotes) =>
-                onShowUpvotedPost(postById.post.id, upvotes)
-              }
-            />
-            <PostActions
-              onBookmark={toggleBookmark}
-              onShare={onShare}
-              post={postById.post}
-              postQueryKey={postQueryKey}
-              onComment={() => openNewComment('comment button')}
-              actionsClassName="hidden laptop:flex"
-              origin={analyticsOrigin}
-            />
-            <NewComment
-              user={user}
-              className="my-6"
-              isCommenting={!!parentComment}
-              onNewComment={() => openNewComment('start discussion button')}
-            />
-            <PostComments
-              post={postById.post}
-              origin={analyticsOrigin}
-              onClick={onCommentClick}
-              onShare={(comment) => openShareComment(comment, postById.post)}
-              onClickUpvote={onShowUpvotedComment}
-              permissionNotificationCommentId={permissionNotificationCommentId}
-            />
-            {authorOnboarding && (
-              <AuthorOnboarding
-                onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
-              />
-            )}
-          </PostContainer>
-          <PostWidgets
-            onBookmark={toggleBookmark}
-            onShare={onShare}
-            onReadArticle={onReadArticle}
-            post={postById.post}
-            isNavigationFixed={hasNavigation && isFixed}
-            className="pb-20"
-            onClose={onClose}
-            origin={analyticsOrigin}
+        {showMyFeedArticleAnonymous && (
+          <PostFeedFiltersOnboarding
+            onInitializeOnboarding={onInitializeOnboardingClick}
           />
-        </>
-      </ConditionalWrapper>
+        )}
+        {isFixed && (
+          <FixedPostNavigation
+            {...navigationProps}
+            className={{
+              container: classNames(
+                'max-w-[63.65rem]',
+                className?.fixedNavigation?.container,
+              ),
+              actions: className?.fixedNavigation?.actions,
+            }}
+          />
+        )}
+        <PostNavigation
+          {...navigationProps}
+          className={{
+            container: classNames('pt-6', className?.navigation?.container),
+            actions: className?.navigation?.actions,
+          }}
+        />
+        <h1
+          className="my-6 font-bold break-words typo-large-title"
+          data-testid="post-modal-title"
+        >
+          {postById.post.title}
+        </h1>
+        {postById.post.summary && (
+          <PostSummary summary={postById.post.summary} />
+        )}
+        <TagLinks tags={postById.post.tags || []} />
+        <PostMetadata
+          createdAt={postById.post.createdAt}
+          readTime={postById.post.readTime}
+          className="mt-4 mb-8"
+          typoClassName="typo-callout"
+        />
+        <a
+          {...postLinkProps}
+          className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
+          style={{ maxWidth: '25.625rem' }}
+        >
+          <LazyImage
+            imgSrc={postById.post.image}
+            imgAlt="Post cover image"
+            ratio="49%"
+            eager
+            fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+          />
+        </a>
+        {postById.post?.toc?.length > 0 && (
+          <PostToc
+            post={postById.post}
+            collapsible
+            className="flex laptop:hidden mt-2 mb-4"
+          />
+        )}
+        <PostUpvotesCommentsCount
+          post={postById.post}
+          onUpvotesClick={(upvotes) =>
+            onShowUpvotedPost(postById.post.id, upvotes)
+          }
+        />
+        <PostActions
+          onBookmark={toggleBookmark}
+          onShare={onShare}
+          post={postById.post}
+          postQueryKey={postQueryKey}
+          onComment={() => openNewComment('comment button')}
+          actionsClassName="hidden laptop:flex"
+          origin={analyticsOrigin}
+        />
+        <NewComment
+          user={user}
+          className="my-6"
+          isCommenting={!!parentComment}
+          onNewComment={() => openNewComment('start discussion button')}
+        />
+        <PostComments
+          post={postById.post}
+          origin={analyticsOrigin}
+          onClick={onCommentClick}
+          onShare={(comment) => openShareComment(comment, postById.post)}
+          onClickUpvote={onShowUpvotedComment}
+          permissionNotificationCommentId={permissionNotificationCommentId}
+        />
+        {authorOnboarding && (
+          <AuthorOnboarding
+            onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
+          />
+        )}
+      </PostContainer>
+      <PostWidgets
+        onBookmark={toggleBookmark}
+        onShare={onShare}
+        onReadArticle={onReadArticle}
+        post={postById.post}
+        isNavigationFixed={hasNavigation && isFixed}
+        className="pb-20"
+        onClose={onClose}
+        origin={analyticsOrigin}
+      />
       {upvotedPopup.modal && (
         <UpvotedPopupModal
           requestQuery={upvotedPopup.requestQuery}

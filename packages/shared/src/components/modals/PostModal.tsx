@@ -11,12 +11,18 @@ import request from 'graphql-request';
 import { Modal, ModalProps } from './common/Modal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
-import { PostContent, SCROLL_OFFSET } from '../post/PostContent';
+import {
+  ONBOARDING_OFFSET,
+  PostContent,
+  SCROLL_OFFSET,
+} from '../post/PostContent';
 import styles from './PostModal.module.css';
 import { PostData, POST_BY_ID_QUERY } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
-import { PostNavigationProps } from '../post/common';
+import AlertContext from '../../contexts/AlertContext';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { PostNavigationProps } from '../post/PostNavigation';
 
 interface PostModalProps
   extends ModalProps,
@@ -35,6 +41,8 @@ export default function PostModal({
   onNextPost,
   ...props
 }: PostModalProps): ReactElement {
+  const { alerts } = useContext(AlertContext);
+  const { sidebarRendered } = useSidebarRendered();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const { tokenRefreshed } = useContext(AuthContext);
@@ -59,9 +67,12 @@ export default function PostModal({
     }
 
     const parent = modal.parentElement;
-
+    const hasArticleOnboarding = sidebarRendered && alerts?.filter;
     const onScroll = (e) => {
-      if (e.currentTarget.scrollTop > SCROLL_OFFSET) {
+      const offset = !hasArticleOnboarding
+        ? SCROLL_OFFSET
+        : SCROLL_OFFSET + ONBOARDING_OFFSET;
+      if (e.currentTarget.scrollTop > offset) {
         if (position !== 'fixed') {
           setPosition('fixed');
         }
@@ -112,7 +123,11 @@ export default function PostModal({
         postById={postById}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}
-        className="post-content"
+        inlineActions
+        className={{
+          container: 'post-content',
+          navigation: { actions: 'tablet:hidden ml-auto' },
+        }}
         onClose={onRequestClose}
         isLoading={isLoading || !isFetched || isFetchingNextPage}
         isModal

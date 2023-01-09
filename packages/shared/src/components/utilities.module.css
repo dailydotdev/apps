@@ -25,14 +25,6 @@
   }
 }
 
-.fixedPostsNavigation {
-  max-width: 100vw;
-
-  @screen laptop {
-    max-width: 63.65rem;
-  }
-}
-
 .activeTabIndicator {
   border-radius: 0.063rem;
 }
