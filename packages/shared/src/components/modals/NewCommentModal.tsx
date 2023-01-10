@@ -165,7 +165,7 @@ export default function NewCommentModal({
       onClick={sendComment}
       className="ml-auto btn-primary-avocado"
     >
-      {editId ? 'Update' : 'Comment'}
+      {editId ? 'Update' : 'Post'}
     </Button>
   );
   return (

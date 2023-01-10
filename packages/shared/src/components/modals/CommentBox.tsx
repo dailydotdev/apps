@@ -151,7 +151,7 @@ function CommentBox({
           )}
           defaultValue={input}
           ref={commentRef}
-          placeholder="Write your comment..."
+          placeholder="Share your thoughts"
           onInput={onTextareaInput}
           onKeyDown={handleKeydown}
           onKeyUp={onMentionKeypress}
