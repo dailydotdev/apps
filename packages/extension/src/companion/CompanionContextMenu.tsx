@@ -13,7 +13,7 @@ import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
 import { feedback } from '@dailydotdev/shared/src/lib/constants';
 import { getCompanionWrapper } from './common';
-import DisableCompanionModal from './DisableCompanionModal';
+import { PromptOptions, usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 
 interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
   postData: PostBootData;
@@ -32,7 +32,7 @@ export default function CompanionContextMenu({
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const [reportModal, setReportModal] = useState<boolean>();
-  const [disableModal, setDisableModal] = useState<boolean>();
+  const { showPrompt } = usePrompt();
 
   const onReportPost = async (
     reportPostIndex,
@@ -53,6 +53,19 @@ export default function CompanionContextMenu({
     );
 
     displayToast('🚨 Thanks for reporting!');
+  };
+
+  const disableModal = async() => {
+    const options: PromptOptions = {
+      title: 'Disable the companion widget?',
+      description: 'You can always re-enable it through the customize menu.',
+      okButton: {
+        title: 'Disable'
+      }
+    };
+    if (await showPrompt(options)) {
+      onDisableCompanion();
+    }
   };
 
   return (
@@ -91,7 +104,7 @@ export default function CompanionContextMenu({
             <FeedbackIcon size="medium" className="mr-2" /> Give us feedback
           </a>
         </Item>
-        <Item onClick={() => setDisableModal(true)}>
+        <Item onClick={() => disableModal()}>
           <EyeIcon size="medium" className="mr-2" /> Disable widget
         </Item>
       </Menu>
@@ -104,14 +117,6 @@ export default function CompanionContextMenu({
           postIndex={1}
           onReport={onReportPost}
           onRequestClose={() => setReportModal(null)}
-        />
-      )}
-      {disableModal && (
-        <DisableCompanionModal
-          onConfirm={onDisableCompanion}
-          isOpen={!!disableModal}
-          onRequestClose={() => setDisableModal(null)}
-          parentSelector={getCompanionWrapper}
         />
       )}
     </>
