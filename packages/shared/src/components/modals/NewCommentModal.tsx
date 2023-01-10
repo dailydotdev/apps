@@ -181,7 +181,7 @@ export default function NewCommentModal({
       <Modal.Header.Tabs
         disabledTab={(tab) => tab === CommentTabs.Preview && disabled}
       />
-      <Modal.Body className="min-h-[15rem]" view={CommentTabs.Write}>
+      <Modal.Body view={CommentTabs.Write}>
         <CommentBox
           {...props}
           useUserMentionOptions={useUserMentionOptions}
