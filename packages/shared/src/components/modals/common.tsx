@@ -17,14 +17,18 @@ export type PropTypes = Partial<
   React.ComponentProps<typeof SquadsBetaModal | typeof NewSquadModal>
 >;
 
+type LazyComponentProps<TComponent extends React.ComponentType> = Partial<
+  React.ComponentProps<TComponent>
+>;
+
 export type LazyModalType =
   | {
       type: LazyModal.NewSquad;
-      props?: Partial<React.ComponentProps<typeof NewSquadModal>>;
+      props?: LazyComponentProps<typeof NewSquadModal>;
     }
   | {
       type: LazyModal.SquadsBeta;
-      props?: Partial<React.ComponentProps<typeof SquadsBetaModal>>;
+      props?: LazyComponentProps<typeof SquadsBetaModal>;
     };
 
 export const modals: Record<LazyModal, React.ComponentType<PropTypes>> = {
