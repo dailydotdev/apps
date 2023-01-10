@@ -13,8 +13,7 @@ export enum ModalSize {
   Large = 'large',
 }
 
-// LazyModal
-export enum LazyModals {
+export enum LazyModal {
   NewSquad = 'newSquad',
   SquadsBeta = 'squadsBeta',
 }

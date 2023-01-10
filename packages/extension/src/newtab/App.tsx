@@ -25,7 +25,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { useModal } from '@dailydotdev/shared/src/hooks/useModal';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -67,7 +67,7 @@ function InternalApp({
 }): ReactElement {
   useError();
   useInAppNotification();
-  useModal();
+  useLazyModal();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
