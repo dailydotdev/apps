@@ -30,7 +30,7 @@ export interface Props extends CommentActionProps {
   appendTooltipTo?: () => HTMLElement;
 }
 
-const MainCommentBox = classed(CommentBox, 'my-2 py-2');
+const MainCommentBox = classed(CommentBox, 'my-4');
 
 export default function MainComment({
   post,
@@ -55,8 +55,15 @@ export default function MainComment({
       ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
       data-testid="comment"
     >
-      <CommentContainer className={classNames('flex-col', className)}>
-        <div className="flex items-center px-3">
+      <CommentContainer
+        className={classNames(
+          'flex-col',
+          commentHash === getCommentHash(comment.id) &&
+            'border border-theme-color-cabbage',
+          className,
+        )}
+      >
+        <div className="flex items-center">
           <ProfileTooltip
             user={comment.author}
             tooltip={{ appendTo: appendTooltipTo }}
@@ -75,13 +82,7 @@ export default function MainComment({
             <CommentPublishDate comment={comment} />
           </div>
         </div>
-        <MainCommentBox
-          className={classNames(
-            'px-3',
-            commentHash === getCommentHash(comment.id) &&
-              'border border-theme-color-cabbage rounded-8',
-          )}
-        >
+        <MainCommentBox>
           <Markdown
             content={comment.contentHtml}
             appendTooltipTo={appendTooltipTo}
@@ -97,7 +98,6 @@ export default function MainComment({
           onDelete={onDelete}
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}
-          className="ml-2"
         />
       </CommentContainer>
       {comment.children?.edges.map((e, i) => (
