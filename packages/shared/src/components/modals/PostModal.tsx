@@ -11,12 +11,19 @@ import request from 'graphql-request';
 import { Modal, ModalProps } from './common/Modal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
-import { PostContent, SCROLL_OFFSET } from '../post/PostContent';
+import {
+  ONBOARDING_OFFSET,
+  PostContent,
+  SCROLL_OFFSET,
+} from '../post/PostContent';
 import styles from './PostModal.module.css';
 import { PostData, POST_BY_ID_QUERY } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
-import { PostNavigationProps } from '../post/common';
+import AlertContext from '../../contexts/AlertContext';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { PostNavigationProps } from '../post/PostNavigation';
+import { useScrollTopOffset } from '../../hooks/useScrollTopOffset';
 
 interface PostModalProps
   extends ModalProps,
@@ -35,6 +42,8 @@ export default function PostModal({
   onNextPost,
   ...props
 }: PostModalProps): ReactElement {
+  const { alerts } = useContext(AlertContext);
+  const { sidebarRendered } = useSidebarRendered();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const { tokenRefreshed } = useContext(AuthContext);
@@ -50,36 +59,17 @@ export default function PostModal({
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
     { enabled: !!id && tokenRefreshed },
   );
-
-  useEffect(() => {
-    const modal = document.getElementById('post-modal');
-
-    if (!modal) {
-      return;
-    }
-
-    const parent = modal.parentElement;
-
-    const onScroll = (e) => {
-      if (e.currentTarget.scrollTop > SCROLL_OFFSET) {
-        if (position !== 'fixed') {
-          setPosition('fixed');
-        }
-        return;
-      }
-
-      if (position !== 'relative') {
-        setPosition('relative');
-      }
-    };
-
-    parent.addEventListener('scroll', onScroll);
-
-    // eslint-disable-next-line consistent-return
-    return () => {
-      parent.removeEventListener('scroll', onScroll);
-    };
-  }, [position]);
+  useScrollTopOffset(
+    () => document?.getElementById?.('post-modal')?.parentElement,
+    {
+      onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
+      onUnderOffset: () => position !== 'relative' && setPosition('relative'),
+      offset:
+        sidebarRendered && alerts?.filter
+          ? SCROLL_OFFSET + ONBOARDING_OFFSET
+          : SCROLL_OFFSET,
+    },
+  );
 
   useEffect(() => {
     if (isLoading) {
@@ -112,7 +102,11 @@ export default function PostModal({
         postById={postById}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}
-        className="post-content"
+        inlineActions
+        className={{
+          container: 'post-content',
+          navigation: { actions: 'tablet:hidden ml-auto' },
+        }}
         onClose={onRequestClose}
         isLoading={isLoading || !isFetched || isFetchingNextPage}
         isModal

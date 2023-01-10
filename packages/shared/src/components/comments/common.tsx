@@ -1,33 +1,35 @@
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { Comment } from '../../graphql/comments';
 import { commentDateFormat } from '../../lib/dateFormat';
 
+interface CommentPublishDateProps {
+  comment: Comment;
+  className?: string;
+}
+
 export function CommentPublishDate({
   comment,
-}: {
-  comment: Comment;
-}): ReactElement {
+  className,
+}: CommentPublishDateProps): ReactElement {
   const edited = !!comment.lastUpdatedAt;
   const date = edited ? comment.lastUpdatedAt : comment.createdAt;
   return (
-    <time dateTime={date} className="text-theme-label-tertiary typo-callout">
+    <time
+      dateTime={date}
+      className={classNames(
+        'text-theme-label-tertiary typo-callout',
+        className,
+      )}
+    >
       {`${edited ? 'Modified ' : ''}${commentDateFormat(date)}`}
     </time>
   );
 }
 
+export const CommentContainer = classed('article', 'flex px-3 py-2 rounded-16');
+
 export const commentBoxClassNames =
-  'py-3 px-4 bg-theme-bg-secondary rounded-lg break-words-overflow typo-callout';
-
-const StyledCommentBox = classed('div', commentBoxClassNames);
-
-export interface CommentBoxProps extends HTMLAttributes<HTMLDivElement> {
-  children?: ReactNode;
-}
-export const CommentBox = ({
-  children,
-  ...props
-}: CommentBoxProps): ReactElement => {
-  return <StyledCommentBox {...props}>{children}</StyledCommentBox>;
-};
+  'rounded-lg break-words-overflow typo-callout';
+export const CommentBox = classed('div', commentBoxClassNames);

@@ -37,7 +37,6 @@ export interface ParentComment {
 interface PostCommentsProps {
   post: Post;
   origin: Origin;
-  applyBottomMargin?: boolean;
   permissionNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
@@ -93,7 +92,6 @@ export function PostComments({
   onClickUpvote,
   modalParentSelector,
   permissionNotificationCommentId,
-  applyBottomMargin = true,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
@@ -133,7 +131,7 @@ export function PostComments({
 
   if (commentsCount === 0) {
     return (
-      <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
+      <div className="my-2 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.
       </div>
     );
@@ -155,14 +153,13 @@ export function PostComments({
     onClick(getParentComment(post, localParentComment, shared));
   };
   return (
-    <>
-      {comments.postComments.edges.map((e, i) => (
+    <div className="flex flex-col">
+      {comments.postComments.edges.map((e) => (
         <MainComment
           post={post}
           origin={origin}
           commentHash={commentHash}
           commentRef={commentRef}
-          className={i === commentsCount - 1 && applyBottomMargin && 'mb-12'}
           comment={e.node}
           key={e.node.id}
           onComment={onCommentClick}
@@ -188,6 +185,6 @@ export function PostComments({
           post={post}
         />
       )}
-    </>
+    </div>
   );
 }

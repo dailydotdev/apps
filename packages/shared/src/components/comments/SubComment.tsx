@@ -1,13 +1,12 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Comment, getCommentHash } from '../../graphql/comments';
-import { CommentBox, CommentPublishDate } from './common';
+import { CommentBox, CommentContainer, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
 } from './CommentActionButtons';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
-import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ScoutBadge from './ScoutBadge';
@@ -32,14 +31,10 @@ export interface Props extends CommentActionProps {
   appendTooltipTo?: () => HTMLElement;
 }
 
-const SubCommentBox = classed(CommentBox, 'mb-1');
-
 export default function SubComment({
   post,
   comment,
   origin,
-  firstComment,
-  lastComment,
   parentComment,
   commentHash,
   commentRef,
@@ -55,37 +50,23 @@ export default function SubComment({
 }: Props): ReactElement {
   const { user } = useContext(AuthContext);
   return (
-    <article
-      className="flex items-stretch mt-4 scroll-mt-16"
+    <CommentContainer
+      className={classNames(
+        'flex-row items-start mt-2 scroll-mt-16',
+        commentHash === getCommentHash(comment.id) &&
+          'border border-theme-color-cabbage',
+      )}
       data-testid="subcomment"
       ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
     >
-      <div className="relative">
-        <div
-          data-testid="timeline"
-          className={classNames(
-            'absolute inset-x-0 w-px mx-auto bg-theme-divider-tertiary',
-            firstComment ? 'top-0' : '-top-4',
-            lastComment ? 'h-4' : 'bottom-0',
-          )}
-        />
-        <ProfileTooltip
-          user={comment.author}
-          tooltip={{ appendTo: appendTooltipTo }}
-        >
-          <ProfileImageLink
-            user={comment.author}
-            picture={{ size: 'medium' }}
-          />
-        </ProfileTooltip>
-      </div>
-      <div className="flex flex-col flex-1 items-stretch ml-2">
-        <SubCommentBox
-          className={
-            commentHash === getCommentHash(comment.id) &&
-            'border border-theme-color-cabbage'
-          }
-        >
+      <ProfileTooltip
+        user={comment.author}
+        tooltip={{ appendTo: appendTooltipTo }}
+      >
+        <ProfileImageLink user={comment.author} />
+      </ProfileTooltip>
+      <div className="flex flex-col flex-1 ml-4">
+        <CommentBox>
           <div className="flex">
             <CommentAuthor
               postAuthorId={postAuthorId}
@@ -95,13 +76,13 @@ export default function SubComment({
             {comment.author?.id === postScoutId && <ScoutBadge />}
           </div>
           <CommentPublishDate comment={comment} />
-          <div className="mt-2">
+          <div className="my-4">
             <Markdown
               content={comment.contentHtml}
               appendTooltipTo={appendTooltipTo}
             />
           </div>
-        </SubCommentBox>
+        </CommentBox>
         <CommentActionButtons
           post={post}
           origin={origin}
@@ -124,6 +105,6 @@ export default function SubComment({
           />
         )}
       </div>
-    </article>
+    </CommentContainer>
   );
 }

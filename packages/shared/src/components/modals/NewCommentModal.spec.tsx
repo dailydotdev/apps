@@ -107,7 +107,7 @@ it('should show content of parent', async () => {
 
 it('should disable submit button when no input', async () => {
   renderComponent();
-  const el = await screen.findByText('Comment');
+  const el = await screen.findByText('Post');
   // eslint-disable-next-line testing-library/no-node-access
   expect(el.parentElement).toBeDisabled();
 });
@@ -117,7 +117,7 @@ it('should enable submit button when no input', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = 'My new comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Comment');
+  const el = await screen.findByText('Post');
   expect(el.getAttribute('disabled')).toBeFalsy();
 });
 
@@ -149,7 +149,7 @@ it('should send commentOnPost mutation', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Comment');
+  const el = await screen.findByText('Post');
   el.click();
   await waitFor(() => mutationCalled);
   await waitFor(() => expect(onComment).toBeCalledWith(newComment, true));
@@ -183,7 +183,7 @@ it('should send commentOnComment mutation', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Comment');
+  const el = await screen.findByText('Post');
   el.click();
   await waitFor(() => mutationCalled);
   await waitFor(() => expect(onComment).toBeCalledWith(newComment, true));
@@ -217,7 +217,7 @@ it('should not send comment if the input is spaces only', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = '   ';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Comment');
+  const el = await screen.findByText('Post');
   el.click();
   await waitFor(() => expect(onComment).not.toBeCalled());
   expect(mutationCalled).toBeFalsy();
@@ -240,7 +240,7 @@ it('should show alert in case of an error', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Comment');
+  const el = await screen.findByText('Post');
   el.click();
   await waitFor(() => mutationCalled);
   await screen.findByRole('alert');
