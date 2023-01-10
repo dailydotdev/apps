@@ -12,6 +12,9 @@ import { Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import LinkIcon from './icons/Link';
+import FeaturesContext from '../contexts/FeaturesContext';
+import AuthContext from '../contexts/AuthContext';
+import SquadIcon from './icons/Squad';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -40,6 +43,8 @@ export default function ShareOptionsMenu({
 }: ShareOptionsMenuProps): ReactElement {
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
+  const { squads } = useContext(AuthContext);
+  const { hasSquadAccess } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onClick = (provider: ShareProvider) =>
@@ -70,6 +75,23 @@ export default function ShareOptionsMenu({
       action: trackAndCopyLink,
     },
   ];
+
+  if (hasSquadAccess) {
+    if (!squads.length) {
+      shareOptions.push({
+        icon: <MenuIcon Icon={SquadIcon} />,
+        text: 'Post to your squad',
+        action: onBookmark,
+      });
+    }
+    squads.map((squad) =>
+      shareOptions.push({
+        icon: <MenuIcon Icon={BookmarkIcon} />,
+        text: squad.name,
+        action: onBookmark,
+      }),
+    );
+  }
 
   return (
     <PortalMenu
