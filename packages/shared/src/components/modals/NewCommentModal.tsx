@@ -173,14 +173,15 @@ export default function NewCommentModal({
       contentRef={modalRef}
       onRequestClose={confirmClose}
       kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Small}
+      size={Modal.Size.Medium}
       tabs={Object.values(CommentTabs)}
       {...props}
+      className="min-h-[25rem]"
     >
       <Modal.Header.Tabs
         disabledTab={(tab) => tab === CommentTabs.Preview && disabled}
       />
-      <Modal.Body view={CommentTabs.Write}>
+      <Modal.Body className="min-h-[15rem]" view={CommentTabs.Write}>
         <CommentBox
           {...props}
           useUserMentionOptions={useUserMentionOptions}
