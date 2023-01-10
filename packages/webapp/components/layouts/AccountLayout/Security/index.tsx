@@ -220,9 +220,8 @@ function AccountSecurityDefault({
         description="Remove the connection between daily.dev and authorized login providers."
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
-        providers={removeProviderList.filter(
-          ({ provider }) =>
-            userProviders?.result.includes(provider.toLowerCase()),
+        providers={removeProviderList.filter(({ provider }) =>
+          userProviders?.result.includes(provider.toLowerCase()),
         )}
       />
       <AccountContentSection
