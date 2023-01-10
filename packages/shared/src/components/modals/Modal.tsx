@@ -15,9 +15,12 @@ const modals: Record<LazyModals, React.ComponentType<any>> = {
   [LazyModals.SquadsBeta]: SquadsBetaModal,
 };
 
+// LazyModalElement
 export function Modal(): ReactElement {
   const { modal, closeModal } = useModal();
   if (!modal) return null;
-  const ActiveModal = modals[modal];
-  return <ActiveModal isOpen onRequestClose={closeModal} />;
+
+  const { type, ...props } = modal;
+  const ActiveModal = modals[type];
+  return <ActiveModal isOpen onRequestClose={closeModal} {...props} />;
 }

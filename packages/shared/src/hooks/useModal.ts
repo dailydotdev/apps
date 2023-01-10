@@ -4,16 +4,21 @@ import { LazyModals } from '../components/modals/common/types';
 
 export const MODAL_KEY = 'modal';
 
+interface ModalType<T> {
+  type: LazyModals;
+  props?: T;
+}
 type UseModal = {
-  openModal: (data: LazyModals) => void;
+  openModal: (data: ModalType) => void;
   closeModal: () => void;
-  modal: LazyModals;
+  modal: ModalType;
 };
 
+// useLazyModal
 export function useModal(): UseModal {
   const client = useQueryClient();
-  const { data: modal } = useQuery<LazyModals>(MODAL_KEY);
-  const openModal = (data: LazyModals) => client.setQueryData(MODAL_KEY, data);
+  const { data: modal } = useQuery<ModalType>(MODAL_KEY);
+  const openModal = (data: ModalType) => client.setQueryData(MODAL_KEY, data);
   const closeModal = () => client.setQueryData(MODAL_KEY, null);
 
   return useMemo(

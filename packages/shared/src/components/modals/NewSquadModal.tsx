@@ -23,7 +23,7 @@ export const modalStateOrder = [
 
 export type NewSquadModalProps = {
   onRequestClose: () => void;
-  onPreviousState?: () => void;
+  onPreviousState: () => void;
   isOpen: boolean;
 };
 

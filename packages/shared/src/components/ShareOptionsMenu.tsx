@@ -85,7 +85,10 @@ export default function ShareOptionsMenu({
     shareOptions.push({
       icon: <MenuIcon Icon={SquadIcon} />,
       text: 'Post to your squad',
-      action: () => openModal(LazyModals.SquadsBeta),
+      action: () =>
+        openModal({
+          type: LazyModals.SquadsBeta,
+        }),
     });
     // }
 
@@ -97,7 +100,13 @@ export default function ShareOptionsMenu({
           <MenuIcon Icon={DefaultSquadIcon} />
         ),
         text: squad.name,
-        action: () => openModal(LazyModals.NewSquad),
+        action: () =>
+          openModal({
+            type: LazyModals.NewSquad,
+            ...{
+              onPreviousState: () => alert('blabla'),
+            },
+          }),
       }),
     );
   }
