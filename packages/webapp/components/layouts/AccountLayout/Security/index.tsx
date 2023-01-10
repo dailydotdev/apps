@@ -222,7 +222,7 @@ function AccountSecurityDefault({
         providerActionType="unlink"
         providers={removeProviderList.filter(
           ({ provider }) =>
-            !userProviders?.result.includes(provider.toLowerCase()),
+            userProviders?.result.includes(provider.toLowerCase()),
         )}
       />
       <AccountContentSection
