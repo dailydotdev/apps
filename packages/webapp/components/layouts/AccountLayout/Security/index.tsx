@@ -125,9 +125,6 @@ function AccountSecurityDefault({
       okButton: {
         title: 'Remove',
         className: 'text-white btn-primary-ketchup',
-      },
-      className: {
-        buttons: 'flex-row-reverse'
       }
     };
     if (await showPrompt(options)) {
