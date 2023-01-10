@@ -126,6 +126,9 @@ function AccountSecurityDefault({
         title: 'Remove',
         className: 'text-white btn-primary-ketchup',
       },
+      className: {
+        buttons: 'flex-row-reverse'
+      }
     };
     if (await showPrompt(options)) {
       manageSocialProviders({ type: 'unlink', provider });
@@ -221,7 +224,7 @@ function AccountSecurityDefault({
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
         providers={removeProviderList.filter(({ provider }) =>
-          userProviders?.result.includes(provider.toLowerCase()),
+          !userProviders?.result.includes(provider.toLowerCase()),
         )}
       />
       <AccountContentSection

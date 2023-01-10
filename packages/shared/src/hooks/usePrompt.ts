@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from 'react-query';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { ButtonProps, StyledButtonProps } from '../components/buttons/Button';
 
 export const PROMPT_KEY = 'prompt';
@@ -14,6 +14,14 @@ export type PromptOptions = {
   description?: string | ReactNode;
   okButton?: PromptButtonProps;
   cancelButton?: PromptButtonProps;
+  className?: {
+    modal?: string;
+    title?: string;
+    description?: string;
+    buttons?: string;
+    ok?: string;
+    cancel?: string;
+  };
 };
 
 type Prompt = {
@@ -46,8 +54,11 @@ export function usePrompt(): UsePromptRet {
       setPrompt(newPrompt);
     });
 
-  return {
-    showPrompt,
-    prompt,
-  };
+  return useMemo(
+    () => ({
+      showPrompt,
+      prompt,
+    }),
+    [prompt],
+  );
 }

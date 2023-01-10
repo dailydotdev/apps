@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { usePrompt } from '../../hooks/usePrompt';
 import { Button } from '../buttons/Button';
@@ -14,29 +15,43 @@ export function PromptElement(): ReactElement {
   const {
     onFail,
     onSuccess,
-    options: { title, description, cancelButton, okButton },
+    options: {
+      title,
+      description,
+      cancelButton = {},
+      okButton = {},
+      className = {},
+    },
   } = prompt;
   return (
-    <ConfirmationModal isOpen onRequestClose={onFail}>
-      <ConfirmationHeading>{title}</ConfirmationHeading>
+    <ConfirmationModal
+      isOpen
+      onRequestClose={onFail}
+      className={className.modal}
+    >
+      <ConfirmationHeading className={className.title}>
+        {title}
+      </ConfirmationHeading>
       {!!description && (
-        <ConfirmationDescription>{description}</ConfirmationDescription>
+        <ConfirmationDescription className={className.description}>
+          {description}
+        </ConfirmationDescription>
       )}
-      <ConfirmationButtons>
+      <ConfirmationButtons className={className.buttons}>
         {cancelButton !== null && (
           <Button
-            className="btn-secondary"
+            className={classNames('btn-secondary', className.cancel)}
             onClick={onFail}
-            {...(cancelButton || {})}
+            {...cancelButton}
           >
             {cancelButton?.title ?? 'Cancel'}
           </Button>
         )}
         {okButton !== null && (
           <Button
-            className="btn-primary"
+            className={classNames('btn-primary', className.ok)}
             onClick={onSuccess}
-            {...(okButton || {})}
+            {...okButton}
           >
             {okButton?.title ?? 'Ok'}
           </Button>
