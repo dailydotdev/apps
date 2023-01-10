@@ -19,6 +19,7 @@ import { SquadImage } from './squads/SquadImage';
 import DefaultSquadIcon from './icons/DefaultSquad';
 import { useModal } from '../hooks/useModal';
 import { LazyModals } from './modals/common/types';
+import { NewSquadModalProps } from './modals/NewSquadModal';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -103,9 +104,9 @@ export default function ShareOptionsMenu({
         action: () =>
           openModal({
             type: LazyModals.NewSquad,
-            ...{
-              onPreviousState: () => alert('blabla'),
-            },
+            props: {
+              onPreviousState: () => {},
+            }
           }),
       }),
     );
