@@ -13,6 +13,11 @@ export enum ModalSize {
   Large = 'large',
 }
 
+export enum LazyModals {
+  NewSquad = 'newSquad',
+  SquadsBeta = 'squadsBeta',
+}
+
 export type ModalTabItem = {
   title: string;
   options: Record<string, unknown>;

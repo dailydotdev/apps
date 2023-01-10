@@ -23,6 +23,7 @@ import MainLayoutHeader, {
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
+import { Modal } from './modals/Modal';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -104,6 +105,7 @@ export default function MainLayout({
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
       <InAppNotificationElement />
+      <Modal />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
         greeting={greeting}
