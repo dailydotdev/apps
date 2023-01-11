@@ -81,7 +81,7 @@ export default function ShareOptionsMenu({
   ];
 
   if (hasSquadAccess) {
-    if (!squads.length) {
+    if (!squads?.length) {
       shareOptions.push({
         icon: <MenuIcon Icon={SquadIcon} />,
         text: 'Post to your squad',
@@ -92,7 +92,7 @@ export default function ShareOptionsMenu({
       });
     }
 
-    squads.map((squad) =>
+    squads?.map((squad) =>
       shareOptions.push({
         icon: squad.image ? (
           <SquadImage className="mr-2.5 w-5 h-5 text-2xl" {...squad} />
