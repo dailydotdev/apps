@@ -12,8 +12,11 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
 import { feedback } from '@dailydotdev/shared/src/lib/constants';
+import {
+  PromptOptions,
+  usePrompt,
+} from '@dailydotdev/shared/src/hooks/usePrompt';
 import { getCompanionWrapper } from './common';
-import { PromptOptions, usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 
 interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
   postData: PostBootData;
@@ -55,13 +58,13 @@ export default function CompanionContextMenu({
     displayToast('🚨 Thanks for reporting!');
   };
 
-  const disableModal = async() => {
+  const disableModal = async () => {
     const options: PromptOptions = {
       title: 'Disable the companion widget?',
       description: 'You can always re-enable it through the customize menu.',
       okButton: {
-        title: 'Disable'
-      }
+        title: 'Disable',
+      },
     };
     if (await showPrompt(options)) {
       onDisableCompanion();
