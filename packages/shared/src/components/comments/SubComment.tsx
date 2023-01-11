@@ -16,9 +16,9 @@ function SubComment({
     <CommentBox
       {...props}
       key={comment.id}
-      parentId={comment.id}
+      parentId={parentComment.id}
       comment={comment}
-      onEdit={(edge) => onEdit(edge, comment)}
+      onEdit={(edge) => onEdit(edge, parentComment)}
       className={{ container: 'relative', content: 'ml-14' }}
     >
       <div
