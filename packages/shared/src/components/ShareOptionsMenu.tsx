@@ -87,10 +87,7 @@ export default function ShareOptionsMenu({
       text: 'Post to your squad',
       action: () =>
         openModal({
-          type: LazyModal.SquadsBeta,
-          props: {
-            onNext: () => null,
-          },
+          type: LazyModal.NewSquad,
         }),
     });
     // }
@@ -105,9 +102,10 @@ export default function ShareOptionsMenu({
         text: squad.name,
         action: () =>
           openModal({
-            type: LazyModal.NewSquad,
+            type: LazyModal.PostToSquad,
             props: {
-              onPreviousState: () => null,
+              squad,
+              post,
             },
           }),
       }),

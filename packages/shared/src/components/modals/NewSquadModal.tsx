@@ -10,9 +10,9 @@ import {
   SquadForm,
   SquadStateProps,
 } from '../squads/utils';
-import { SquadComment } from '../squads/Comment';
 import { SquadsConfirmation } from './SquadsConfirmationModal';
 import { ModalStep } from './common/types';
+import { SteppedSquadComment } from '../squads/SteppedComment';
 
 export const modalStateOrder = [
   ModalState.Details,
@@ -23,7 +23,7 @@ export const modalStateOrder = [
 
 export type NewSquadModalProps = {
   onRequestClose: () => void;
-  onPreviousState: () => void;
+  onPreviousState?: () => void;
   isOpen: boolean;
 };
 
@@ -53,7 +53,9 @@ function NewSquadModal({
       key: ModalState.Details,
       title: (
         <>
-          <Modal.Header.StepsButton onClick={onPreviousState} />
+          {onPreviousState && (
+            <Modal.Header.StepsButton onClick={onPreviousState} />
+          )}
           <Modal.Header.Subtitle>{ModalState.Details}</Modal.Header.Subtitle>
         </>
       ),
@@ -88,7 +90,7 @@ function NewSquadModal({
         <Modal.Header.Steps />
         <SquadDetails {...stateProps} />
         <SquadSelectArticle {...stateProps} />
-        <SquadComment {...stateProps} />
+        <SteppedSquadComment {...stateProps} />
         <SquadReady {...stateProps} squad={squad} />
       </Modal>
       {showConfirmation && (
