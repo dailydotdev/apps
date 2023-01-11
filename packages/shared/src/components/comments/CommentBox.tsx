@@ -57,7 +57,7 @@ function CommentBox({
     <article
       ref={isCommentReferenced ? commentRef : null}
       className={classNames(
-        'flex flex-col p-3 rounded-24 hover:bg-theme-hover focus:outline',
+        'flex flex-col p-4 rounded-24 hover:bg-theme-hover focus:outline',
         isCommentReferenced
           ? 'border border-theme-color-cabbage'
           : 'border-theme-divider-tertiary',
