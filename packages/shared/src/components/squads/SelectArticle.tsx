@@ -27,7 +27,7 @@ export function SquadSelectArticle({
     key,
     query: READING_HISTORY_QUERY,
   };
-  const { data, isInitialLoading, isLoading } =
+  const { hasData, data, isInitialLoading, isLoading } =
     useInfiniteReadingHistory(queryProps);
   const goNext = (
     post: PostItem,
@@ -44,8 +44,9 @@ export function SquadSelectArticle({
         Select one <SquadTitleColor>article.</SquadTitleColor>
       </SquadTitle>
       <p className="py-4 text-center">
-        Make your squad aware of your reading history by sharing one article
-        with them
+        {!hasData
+          ? 'Please read at least one article by clicking on a post to start sharing with your squad'
+          : 'Make your squad aware of your reading history by sharing one article with them'}
       </p>
       <Modal.StepsWrapper>
         {({ nextStep }) => (
