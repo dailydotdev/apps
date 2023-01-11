@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import classed from '../../lib/classed';
 import { Comment } from '../../graphql/comments';
 import { commentDateFormat } from '../../lib/dateFormat';
 
@@ -21,9 +20,3 @@ export function CommentPublishDate({
     </time>
   );
 }
-
-export const CommentContainer = classed('article', 'flex px-3 py-2 rounded-16');
-
-export const commentBoxClassNames =
-  'rounded-lg break-words-overflow typo-callout';
-export const CommentBox = classed('div', commentBoxClassNames);

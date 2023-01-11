@@ -12,7 +12,7 @@ import CommentActionButtons, {
   CommentActionProps,
 } from './CommentActionButtons';
 import CommentAuthor from './CommentAuthor';
-import { CommentPublishDate } from './common';
+import { CommentPublishDate } from './CommentPublishDate';
 import ScoutBadge from './ScoutBadge';
 
 interface ClassName {
