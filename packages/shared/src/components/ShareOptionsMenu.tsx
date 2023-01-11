@@ -88,6 +88,9 @@ export default function ShareOptionsMenu({
       action: () =>
         openModal({
           type: LazyModal.SquadsBeta,
+          props: {
+            onNext: () => null,
+          },
         }),
     });
     // }
@@ -104,9 +107,7 @@ export default function ShareOptionsMenu({
           openModal({
             type: LazyModal.NewSquad,
             props: {
-              onPreviousState: () => {
-                alert('bla');
-              },
+              onPreviousState: () => null,
             },
           }),
       }),

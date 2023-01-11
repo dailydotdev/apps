@@ -13,10 +13,6 @@ const NewSquadModal = dynamic(
   () => import(/* webpackChunkName: "newSquadModal" */ './NewSquadModal'),
 );
 
-export type PropTypes = Partial<
-  React.ComponentProps<typeof SquadsBetaModal | typeof NewSquadModal>
->;
-
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.SquadsBeta]: SquadsBetaModal,
@@ -29,6 +25,12 @@ type GetComponentProps<T> = T extends
   : never;
 
 type ModalsType = typeof modals;
+
+export type LazyPropTypes = Partial<
+  {
+    [K in keyof ModalsType]: GetComponentProps<ModalsType[K]>;
+  }[keyof ModalsType]
+>;
 
 type LazyModalComponentType<K extends LazyModal> = Omit<
   GetComponentProps<ModalsType[K]>,
