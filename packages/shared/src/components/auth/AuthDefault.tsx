@@ -9,7 +9,6 @@ import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import AuthModalFooter from './AuthModalFooter';
-import AuthModalHeading from './AuthModalHeading';
 import { SIGNIN_METHOD_KEY } from './AuthSignBack';
 import { Provider } from './common';
 import EmailSignupForm from './EmailSignupForm';
@@ -19,8 +18,8 @@ import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import AuthModalHeader from './AuthModalHeader';
+import { ExperimentWinner } from '../../lib/featureValues';
 
 interface AuthDefaultProps {
   children?: ReactNode;
@@ -30,7 +29,6 @@ interface AuthDefaultProps {
   onProviderClick?: (provider: string, login?: boolean) => unknown;
   onForgotPassword?: () => unknown;
   targetId?: string;
-  isV2?: boolean;
   isLoginFlow?: boolean;
   logInTitle?: string;
   signUpTitle?: string;
@@ -49,7 +47,6 @@ const AuthDefault = ({
   onForgotPassword,
   onPasswordLogin,
   targetId,
-  isV2,
   isLoginFlow,
   providers,
   disableRegistration,
@@ -61,8 +58,7 @@ const AuthDefault = ({
   loginButton,
 }: AuthDefaultProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [shouldLogin, setShouldLogin] = useState(isLoginFlow || isV2);
-  const { authVersion } = useContext(FeaturesContext);
+  const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
 
   const [registerEmail, setRegisterEmail] = useState<string>(null);
@@ -76,7 +72,7 @@ const AuthDefault = ({
         ? AuthEventNames.OpenLogin
         : AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
-      target_id: targetId || authVersion,
+      target_id: targetId || ExperimentWinner.AuthVersion,
     });
   }, [shouldLogin]);
 
@@ -133,11 +129,11 @@ const AuthDefault = ({
       );
     }
 
-    return <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} />;
+    return <EmailSignupForm onSubmit={onEmailSignup} />;
   };
 
   const getOrDivider = () => {
-    if (isV2 || !providers.length || disablePassword) {
+    if (!providers.length || disablePassword) {
       return null;
     }
 
@@ -148,40 +144,18 @@ const AuthDefault = ({
     <>
       <AuthModalHeader title={title} />
       <AuthContainer className={disableRegistration && 'mb-6'}>
-        {isV2 && (
-          <AuthModalHeading
-            tag="h2"
-            className="mb-14 text-center typo-large-title"
-          >
-            Unlock the full power of daily.dev!
-          </AuthModalHeading>
-        )}
-        {!isV2 &&
-          providers.map(({ provider, ...props }) => (
-            <ProviderButton
-              key={provider}
-              provider={provider}
-              label={shouldLogin ? 'Log in with' : 'Sign up with'}
-              className="mb-1"
-              onClick={() => onSocialClick(provider.toLowerCase())}
-              {...props}
-            />
-          ))}
+        {providers.map(({ provider, ...props }) => (
+          <ProviderButton
+            key={provider}
+            provider={provider}
+            label={shouldLogin ? 'Log in with' : 'Sign up with'}
+            className="mb-1"
+            onClick={() => onSocialClick(provider.toLowerCase())}
+            {...props}
+          />
+        ))}
         {getOrDivider()}
         {getForm()}
-        {isV2 && (
-          <div className="flex flex-row gap-5 justify-center mt-10">
-            {providers.map(({ provider, ...props }) => (
-              <ProviderButton
-                key={provider}
-                provider={provider}
-                onClick={() => onProviderClick(provider)}
-                buttonSize="large"
-                {...props}
-              />
-            ))}
-          </div>
-        )}
       </AuthContainer>
       <div className="flex flex-1" />
       {!disableRegistration && (

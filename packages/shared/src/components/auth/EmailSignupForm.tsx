@@ -8,13 +8,9 @@ import { privacyPolicy, termsOfService } from '../../lib/constants';
 
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
-  isV2?: boolean;
 }
 
-function EmailSignupForm({
-  onSubmit,
-  isV2,
-}: EmailSignupFormProps): ReactElement {
+function EmailSignupForm({ onSubmit }: EmailSignupFormProps): ReactElement {
   const [email, setEmail] = useState(null);
 
   return (
@@ -27,23 +23,16 @@ function EmailSignupForm({
         name="email"
         valueChanged={(value) => setEmail(value)}
         actionButton={
-          !isV2 && (
-            <Button
-              buttonSize="small"
-              className="btn-primary"
-              icon={<ArrowIcon className="rotate-90" />}
-              type="submit"
-              data-testid="email_signup_submit"
-              disabled={!email}
-            />
-          )
+          <Button
+            buttonSize="small"
+            className="btn-primary"
+            icon={<ArrowIcon className="rotate-90" />}
+            type="submit"
+            data-testid="email_signup_submit"
+            disabled={!email}
+          />
         }
       />
-      {isV2 && (
-        <Button className="mt-4 btn-primary text-theme-label-primary bg-theme-color-cabbage">
-          Sign up
-        </Button>
-      )}
       <p className="text-center text-theme-label-quaternary typo-caption1">
         By signing up I accept the{' '}
         <a
