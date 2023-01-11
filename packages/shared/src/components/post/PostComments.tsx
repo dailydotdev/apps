@@ -12,6 +12,7 @@ import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
+  deleteComment,
 } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import MainComment from '../comments/MainComment';
@@ -21,7 +22,7 @@ import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { deleteComment } from '../../request/comment';
+import { usePostComment } from '../../hooks/usePostComment';
 
 export interface ParentComment {
   authorName: string;
@@ -112,6 +113,7 @@ export function PostComments({
   const { hash: commentHash } = window.location;
   const commentsCount = comments?.postComments?.edges?.length || 0;
   const commentRef = useRef(null);
+  const { deleteCommentCache } = usePostComment(post);
   const deleteCommentPrompt = async (
     commentId: string,
     parentId: string | null,
@@ -126,7 +128,8 @@ export function PostComments({
       },
     };
     if (await showPrompt(options)) {
-      await deleteComment({ commentId, parentId, post });
+      await deleteComment(commentId, requestMethod);
+      deleteCommentCache(commentId, parentId);
     }
   };
 

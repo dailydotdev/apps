@@ -1,6 +1,10 @@
-import { BAN_POST_MUTATION, DELETE_POST_MUTATION } from '../graphql/posts';
+import {
+  BAN_POST_MUTATION,
+  DELETE_POST_MUTATION,
+  banPost,
+  deletePost,
+} from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { banPost, deletePost } from './post';
 
 beforeEach(() => {
   jest.clearAllMocks();

@@ -11,7 +11,7 @@ import CloseIcon from '../icons/Close';
 import OpenLinkIcon from '../icons/OpenLink';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { Post } from '../../graphql/posts';
+import { Post, banPost, deletePost } from '../../graphql/posts';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -19,7 +19,6 @@ import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
 import { OnShareOrBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { banPost, deletePost } from '../../request/post';
 
 export interface PostModalActionsProps extends OnShareOrBookmarkProps {
   post: Post;
