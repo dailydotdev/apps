@@ -9,6 +9,7 @@ interface SubCommentProps extends CommentBoxProps {
 function SubComment({
   comment,
   parentComment,
+  onEdit,
   ...props
 }: SubCommentProps): ReactElement {
   return (
@@ -17,10 +18,13 @@ function SubComment({
       key={comment.id}
       parentId={comment.id}
       comment={comment}
-      onEdit={(edge) => props.onEdit(edge, comment)}
+      onEdit={(edge) => onEdit(edge, comment)}
       className={{ container: 'relative', content: 'ml-14' }}
     >
-      <div className="absolute top-0 bottom-0 left-8 w-0.5 bg-theme-float" />
+      <div
+        className="absolute top-0 bottom-0 left-8 w-0.5 bg-theme-float"
+        data-testid="subcomment"
+      />
     </CommentBox>
   );
 }
