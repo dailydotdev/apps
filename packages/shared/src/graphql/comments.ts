@@ -1,8 +1,9 @@
-import { gql } from 'graphql-request';
+import request, { gql } from 'graphql-request';
 import { Connection, Upvote } from './common';
 import { UPVOTER_FRAGMENT } from './users';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
+import { apiUrl } from '../lib/config';
 
 export interface Author {
   __typename?: string;
@@ -217,3 +218,12 @@ export const PREVIEW_COMMENT_MUTATION = gql`
     preview: commentPreview(content: $content)
   }
 `;
+
+export const deleteComment = (
+  id: string,
+  requestMethod: typeof request,
+): Promise<EmptyResponse> => {
+  return requestMethod(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {
+    id,
+  });
+};
