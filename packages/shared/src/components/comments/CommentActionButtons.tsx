@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import { Item, useContextMenu } from '@dailydotdev/react-contexify';
 import { useMutation, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -19,11 +20,16 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import ShareIcon from '../icons/Share';
 import { postAnalyticsEvent } from '../../lib/feed';
-import { upvoteCommentEventName } from '../utilities';
+import { getContextBottomPosition, upvoteCommentEventName } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
+import PortalMenu from '../fields/PortalMenu';
+import classed from '../../lib/classed';
+import OptionsButton from '../buttons/OptionsButton';
+
+const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -53,6 +59,7 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
+  const { show } = useContextMenu({ id: 'comment-actions-menu' });
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
 
@@ -147,27 +154,6 @@ export default function CommentActionButtons({
           className="mr-3 btn-tertiary-avocado"
         />
       </SimpleTooltip>
-      {user?.id === comment.author.id && (
-        <SimpleTooltip content="Edit">
-          <Button
-            buttonSize="small"
-            onClick={() => onEdit(comment)}
-            icon={<EditIcon />}
-            className="mr-3 btn-tertiary"
-          />
-        </SimpleTooltip>
-      )}
-      {(user?.id === comment.author.id ||
-        user?.roles?.indexOf(Roles.Moderator) > -1) && (
-        <SimpleTooltip content="Delete">
-          <Button
-            buttonSize="small"
-            onClick={() => onDelete(comment, parentId)}
-            icon={<TrashIcon />}
-            className="mr-3 btn-tertiary"
-          />
-        </SimpleTooltip>
-      )}
       <SimpleTooltip content="Share comment">
         <Button
           buttonSize="small"
@@ -176,6 +162,13 @@ export default function CommentActionButtons({
           className="mr-3 btn-tertiary-cabbage"
         />
       </SimpleTooltip>
+      {user?.id === comment.author.id && (
+        <OptionsButton
+          buttonSize="small"
+          tooltipPlacement="top"
+          onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
+        />
+      )}
       {numUpvotes > 0 && (
         <SimpleTooltip content="See who upvoted">
           <ClickableText
@@ -186,6 +179,26 @@ export default function CommentActionButtons({
           </ClickableText>
         </SimpleTooltip>
       )}
+      <PortalMenu
+        disableBoundariesCheck
+        id="comment-actions-menu"
+        className="menu-primary typo-callout"
+        animation="fade"
+      >
+        <Item onClick={() => onEdit(comment)}>
+          <ContextItem>
+            <EditIcon size="small" /> Edit
+          </ContextItem>
+        </Item>
+        {(user?.id === comment.author.id ||
+          user?.roles?.includes(Roles.Moderator)) && (
+          <Item onClick={() => onDelete(comment, parentId)}>
+            <ContextItem className="flex items-center w-full">
+              <TrashIcon size="small" /> Delete
+            </ContextItem>
+          </Item>
+        )}
+      </PortalMenu>
     </div>
   );
 }

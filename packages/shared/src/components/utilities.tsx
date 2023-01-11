@@ -236,3 +236,16 @@ export const getShouldRedirect = (
 };
 
 export const FlexRow = classed('span', 'flex flex-row');
+
+interface ContextPosition {
+  x: number;
+  y: number;
+}
+
+export const getContextBottomPosition = (
+  e: React.MouseEvent,
+): ContextPosition => {
+  const { right, bottom } = e.currentTarget.getBoundingClientRect();
+
+  return { x: right, y: bottom + 4 };
+};
