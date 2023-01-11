@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
+import SubComment from './SubComment';
 
 export interface MainCommentProps extends CommentBoxProps {
   permissionNotificationCommentId?: string;
@@ -24,16 +25,18 @@ export default function MainComment({
       className="flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16"
       data-testid="comment"
     >
-      <CommentBox {...props} comment={comment} parentId={comment.id} />
+      <CommentBox
+        {...props}
+        comment={comment}
+        parentId={comment.id}
+        className={{ container: 'border-b' }}
+      />
       {comment.children?.edges.map(({ node }) => (
-        <CommentBox
+        <SubComment
           {...props}
           key={node.id}
-          className={{ content: 'ml-14' }}
-          parentId={comment.id}
           comment={node}
-          isChildComment
-          onEdit={(edge) => props.onEdit(edge, comment)}
+          parentComment={comment}
         />
       ))}
       {shouldShowBanner && (

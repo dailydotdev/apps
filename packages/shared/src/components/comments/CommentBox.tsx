@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import { Origin } from '../../lib/analytics';
@@ -31,7 +31,7 @@ export interface CommentBoxProps extends CommentActionProps {
   className?: ClassName;
   parentId?: string;
   appendTooltipTo?: () => HTMLElement;
-  isChildComment?: boolean;
+  children?: ReactNode;
 }
 
 function CommentBox({
@@ -50,25 +50,22 @@ function CommentBox({
   postAuthorId,
   postScoutId,
   className = {},
-  isChildComment,
+  children,
 }: CommentBoxProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   return (
     <article
       ref={isCommentReferenced ? commentRef : null}
       className={classNames(
-        'flex relative flex-col p-3 rounded-24 hover:bg-theme-hover focus:outline',
+        'flex flex-col p-3 rounded-24 hover:bg-theme-hover focus:outline',
         isCommentReferenced
           ? 'border border-theme-color-cabbage'
           : 'border-theme-divider-tertiary',
-        !isChildComment && 'border-b',
         className.container,
       )}
       data-testid="comment"
     >
-      {isChildComment && (
-        <div className="absolute top-0 bottom-0 left-8 w-0.5 bg-theme-float" />
-      )}
+      {children}
       <header className="flex flex-row">
         <ProfileTooltip
           user={comment.author}
