@@ -172,8 +172,8 @@ export default function NewCommentModal({
     <Modal
       contentRef={modalRef}
       onRequestClose={confirmClose}
-      kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Small}
+      kind={Modal.Kind.FlexibleTop}
+      size={Modal.Size.Medium}
       tabs={Object.values(CommentTabs)}
       {...props}
     >
