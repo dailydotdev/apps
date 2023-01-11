@@ -59,10 +59,10 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
-  const { show } = useContextMenu({ id: 'comment-actions-menu' });
+  const id = `comment-actions-menu-${comment.id}`;
+  const { show } = useContextMenu({ id });
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
-
   const [upvoted, setUpvoted] = useState(comment.upvoted);
   const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
 
@@ -181,7 +181,7 @@ export default function CommentActionButtons({
       )}
       <PortalMenu
         disableBoundariesCheck
-        id="comment-actions-menu"
+        id={id}
         className="menu-primary typo-callout"
         animation="fade"
       >
