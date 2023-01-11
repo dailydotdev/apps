@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 
-interface SubCommentProps extends CommentBoxProps {
+export interface SubCommentProps extends CommentBoxProps {
   parentComment: Comment;
 }
 

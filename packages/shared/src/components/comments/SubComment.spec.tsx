@@ -1,9 +1,9 @@
 import React from 'react';
-import { screen, render, RenderResult, waitFor } from '@testing-library/react';
+import { screen, render, RenderResult } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
-import SubComment, { Props } from './SubComment';
+import SubComment, { SubCommentProps } from './SubComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import { Origin } from '../../lib/analytics';
@@ -17,13 +17,11 @@ beforeEach(() => {
 });
 
 const renderLayout = (
-  props: Partial<Props> = {},
+  props: Partial<SubCommentProps> = {},
   user: LoggedUser = null,
 ): RenderResult => {
-  const defaultProps: Props = {
+  const defaultProps: SubCommentProps = {
     comment,
-    firstComment: false,
-    lastComment: false,
     parentComment: { ...comment, id: 'c1' },
     onComment,
     onDelete,
