@@ -131,7 +131,7 @@ export function PostComments({
 
   if (commentsCount === 0) {
     return (
-      <div className="my-2 text-center text-theme-label-quaternary typo-subhead">
+      <div className="mt-8 mb-12 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.
       </div>
     );
