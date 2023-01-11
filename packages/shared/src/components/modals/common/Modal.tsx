@@ -51,7 +51,7 @@ const modalKindAndSizeToClassName: Partial<
 > = {
   [ModalKind.FlexibleTop]: {
     [ModalSize.Medium]:
-      'mobileL:max-h-[calc(100vh-7.5rem)] max-h-[calc(100vh-2.5rem)] h-auto min-h-[25rem]',
+      'mobileL:max-h-[calc(100vh-7.5rem)] max-h-[calc(100vh-2.5rem)] h-auto min-h-[25rem] mt-6',
     [ModalSize.Large]: 'laptop:mt-14 laptop:mb-10',
   },
 };
