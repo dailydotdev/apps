@@ -62,7 +62,7 @@ export function SquadDetails({
               id="squad-form"
             >
               <SquadTitle>
-                Make it look <SquadTitleColor>yours.</SquadTitleColor>
+                Let&apos;s set up your <SquadTitleColor>Squad!</SquadTitleColor>
               </SquadTitle>
               <ImageInput
                 initialValue={form.file}
@@ -88,7 +88,7 @@ export function SquadDetails({
                 valueChanged={(text) => setForm({ ...form, name: text })}
               />
               <TextField
-                label="Handle"
+                label="Squad handle"
                 inputId="handle"
                 hint={!handleValid ? 'The handle is already exists' : undefined}
                 valid={handleValid}

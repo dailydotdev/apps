@@ -10,6 +10,7 @@ import {
 } from '../../graphql/squads';
 import { PostItem } from '../../graphql/posts';
 import { base64ToFile } from '../../lib/base64';
+import { ModalProps } from '../modals/common/Modal';
 
 export async function checkSourceExists(id: string): Promise<boolean> {
   try {
@@ -44,9 +45,9 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
 
 export enum ModalState {
   Details = 'Squad details',
-  SelectArticle = 'Share article',
-  WriteComment = 'Write comment',
-  Ready = 'Squad ready',
+  SelectArticle = 'Pick an article',
+  WriteComment = 'Post article',
+  Ready = 'Almost there!',
 }
 
 export const SquadTitle = classed(
@@ -65,4 +66,5 @@ export type SquadStateProps = {
   onNext: (squad?: SquadForm) => void;
   form: Partial<SquadForm>;
   setForm: React.Dispatch<React.SetStateAction<Partial<SquadForm>>>;
+  onRequestClose?: () => void;
 };

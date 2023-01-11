@@ -39,7 +39,7 @@ export function SquadComment({ onNext, form }: SquadStateProps): ReactElement {
             >
               <ProfilePicture user={user} />
               <textarea
-                placeholder="Share your thought and insights about the article…"
+                placeholder="Share your thoughts and insights about the article…"
                 className="flex-1 self-stretch w-full min-w-0 focus:placeholder-transparent bg-transparent focus:outline-none resize-none typo-body caret-theme-label-link text-theme-label-primary"
                 value={commentary}
                 onChange={(event) => setCommentary(event.target.value)}
@@ -81,7 +81,7 @@ export function SquadComment({ onNext, form }: SquadStateProps): ReactElement {
           type="submit"
           disabled={!commentary}
         >
-          Finish
+          Done
         </Button>
       </Modal.Footer>
     </>

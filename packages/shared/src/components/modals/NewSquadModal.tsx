@@ -46,6 +46,7 @@ function NewSquadModal({
     form,
     setForm,
     onNext,
+    onRequestClose,
   };
 
   const modalSteps: ModalStep[] = [

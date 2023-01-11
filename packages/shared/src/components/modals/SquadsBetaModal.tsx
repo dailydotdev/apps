@@ -22,13 +22,13 @@ function SquadsBetaModal({
         <Modal.Body>
           <SquadsBackgroundSvg className="absolute top-0 left-0 w-full rounded-t-16" />
           <h3 className="mt-56 font-bold text-center typo-large-title">
-            You get access to
+            Wow!! You get early access to
             <br />
-            <span className="text-theme-color-cabbage">Squad Beta.</span>
+            <span className="text-theme-color-cabbage">Squads!</span>
           </h3>
           <h4 className="mt-4 text-center typo-title3">
-            With squad, you can share knowledge, content and collaborate with
-            your colleagues, in one place.
+            With Squads, you can stay up to date together as a group and discuss
+            privately in one place!
           </h4>
         </Modal.Body>
         <Modal.Footer justify={Justify.Between}>
