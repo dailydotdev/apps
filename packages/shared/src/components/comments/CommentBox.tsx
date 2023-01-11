@@ -80,11 +80,11 @@ function CommentBox({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
             />
-            {comment.author?.id === postScoutId && <ScoutBadge />}
+            {comment.author.id === postScoutId && <ScoutBadge />}
           </FlexRow>
           <FlexRow className="items-center text-theme-label-quaternary">
             <ProfileLink user={comment.author}>
-              @{comment.author?.username}
+              @{comment.author.username}
             </ProfileLink>
             <div className="mx-2 w-0.5 h-0.5 bg-theme-label-quaternary" />
             <CommentPublishDate comment={comment} />
