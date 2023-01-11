@@ -16,13 +16,7 @@ export function CommentPublishDate({
   const edited = !!comment.lastUpdatedAt;
   const date = edited ? comment.lastUpdatedAt : comment.createdAt;
   return (
-    <time
-      dateTime={date}
-      className={classNames(
-        'text-theme-label-tertiary typo-callout',
-        className,
-      )}
-    >
+    <time dateTime={date} className={classNames('typo-callout', className)}>
       {`${edited ? 'Modified ' : ''}${commentDateFormat(date)}`}
     </time>
   );

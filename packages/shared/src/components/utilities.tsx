@@ -234,3 +234,5 @@ export const getShouldRedirect = (
 
   return false;
 };
+
+export const FlexRow = classed('span', 'flex flex-row');
