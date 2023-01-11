@@ -34,6 +34,7 @@ interface UseRegistration {
   registration: InitializationData;
   isValidationIdle: boolean;
   isLoading?: boolean;
+  isReady: boolean;
   validateRegistration: (values: FormParams) => Promise<void>;
   onSocialRegistration?: (provider: string) => void;
 }
@@ -154,8 +155,9 @@ const useRegistration = ({
     onValidateRegistration(postData);
   };
 
-  return useMemo(
+  return useMemo<UseRegistration>(
     () => ({
+      isReady: !!registration?.ui,
       isLoading: isQueryLoading || isMutationLoading,
       registration,
       onSocialRegistration,

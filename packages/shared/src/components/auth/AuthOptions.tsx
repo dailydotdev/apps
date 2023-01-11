@@ -130,7 +130,12 @@ function AuthOptions({
     onLoginCheck();
   }, [user]);
 
-  const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
+  const {
+    isReady: isLoginReady,
+    loginHint,
+    onPasswordLogin,
+    isPasswordLoginLoading,
+  } = useLogin({
     onSuccessfulLogin: onLoginCheck,
     queryEnabled: !user,
     trigger,
@@ -148,26 +153,31 @@ function AuthOptions({
   } = useProfileForm({ onSuccess: onProfileSuccess });
   const windowPopup = useRef<Window>(null);
 
-  const { registration, validateRegistration, onSocialRegistration } =
-    useRegistration({
-      key: 'registration_form',
-      onValidRegistration: async () => {
-        setIsRegistration(true);
-        await refetchBoot();
-        await syncSettings();
-        onSetActiveDisplay(AuthDisplay.EmailSent);
-        onSuccessfulRegistration?.();
-      },
-      onInvalidRegistration: setRegistrationHints,
-      onRedirectFail: () => {
-        windowPopup.current.close();
-        windowPopup.current = null;
-      },
-      onRedirect: (redirect) => {
-        windowPopup.current.location.href = redirect;
-      },
-    });
+  const {
+    isReady: isRegistrationReady,
+    registration,
+    validateRegistration,
+    onSocialRegistration,
+  } = useRegistration({
+    key: 'registration_form',
+    onValidRegistration: async () => {
+      setIsRegistration(true);
+      await refetchBoot();
+      await syncSettings();
+      onSetActiveDisplay(AuthDisplay.EmailSent);
+      onSuccessfulRegistration?.();
+    },
+    onInvalidRegistration: setRegistrationHints,
+    onRedirectFail: () => {
+      windowPopup.current.close();
+      windowPopup.current = null;
+    },
+    onRedirect: (redirect) => {
+      windowPopup.current.location.href = redirect;
+    },
+  });
 
+  const isReady = isLoginReady && isRegistrationReady;
   const onProviderClick = (provider: string, login = true) => {
     trackEvent({
       event_name: 'click',
@@ -284,6 +294,7 @@ function AuthOptions({
             isLoading={isPasswordLoginLoading}
             isLoginFlow={isForgotPasswordReturn || isLoginFlow}
             trigger={trigger}
+            isReady={isReady}
           />
         </Tab>
         <Tab label={AuthDisplay.SocialRegistration}>
@@ -324,6 +335,7 @@ function AuthOptions({
               onForgotPassword={onForgotPassword}
               isLoading={isPasswordLoginLoading}
               autoFocus={false}
+              isReady={isReady}
             />
           </AuthSignBack>
         </Tab>
@@ -341,6 +353,7 @@ function AuthOptions({
           <EmailVerified hasUser={!!user}>
             {!user && (
               <LoginForm
+                isReady={isReady}
                 className="mx-4 tablet:mx-12 mt-8"
                 loginHint={loginHint}
                 onPasswordLogin={onPasswordLogin}

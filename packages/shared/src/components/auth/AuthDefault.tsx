@@ -37,6 +37,7 @@ interface AuthDefaultProps {
   disableRegistration?: boolean;
   disablePassword?: boolean;
   isLoading?: boolean;
+  isReady: boolean;
   loginButton?: string;
 }
 
@@ -52,6 +53,7 @@ const AuthDefault = ({
   disableRegistration,
   disablePassword,
   isLoading,
+  isReady,
   trigger,
   signUpTitle = 'Sign up to daily.dev',
   logInTitle = 'Log in to daily.dev',
@@ -119,6 +121,7 @@ const AuthDefault = ({
     if (!disablePassword && (shouldLogin || disableRegistration)) {
       return (
         <LoginForm
+          isReady={isReady}
           isLoading={isLoading}
           email={registerEmail}
           loginButton={loginButton}
@@ -129,7 +132,7 @@ const AuthDefault = ({
       );
     }
 
-    return <EmailSignupForm onSubmit={onEmailSignup} />;
+    return <EmailSignupForm onSubmit={onEmailSignup} isReady={isReady} />;
   };
 
   const getOrDivider = () => {
@@ -151,6 +154,7 @@ const AuthDefault = ({
             label={shouldLogin ? 'Log in with' : 'Sign up with'}
             className="mb-1"
             onClick={() => onSocialClick(provider.toLowerCase())}
+            loading={!isReady}
             {...props}
           />
         ))}

@@ -8,9 +8,13 @@ import { privacyPolicy, termsOfService } from '../../lib/constants';
 
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
+  isReady: boolean;
 }
 
-function EmailSignupForm({ onSubmit }: EmailSignupFormProps): ReactElement {
+function EmailSignupForm({
+  onSubmit,
+  isReady,
+}: EmailSignupFormProps): ReactElement {
   const [email, setEmail] = useState(null);
 
   return (
@@ -29,7 +33,7 @@ function EmailSignupForm({ onSubmit }: EmailSignupFormProps): ReactElement {
             icon={<ArrowIcon className="rotate-90" />}
             type="submit"
             data-testid="email_signup_submit"
-            disabled={!email}
+            disabled={!email || !isReady}
           />
         }
       />
