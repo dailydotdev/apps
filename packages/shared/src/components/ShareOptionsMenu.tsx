@@ -81,16 +81,16 @@ export default function ShareOptionsMenu({
   ];
 
   if (hasSquadAccess) {
-    // if (!squads.length) {
-    shareOptions.push({
-      icon: <MenuIcon Icon={SquadIcon} />,
-      text: 'Post to your squad',
-      action: () =>
-        openModal({
-          type: LazyModal.NewSquad,
-        }),
-    });
-    // }
+    if (!squads.length) {
+      shareOptions.push({
+        icon: <MenuIcon Icon={SquadIcon} />,
+        text: 'Post to your squad',
+        action: () =>
+          openModal({
+            type: LazyModal.NewSquad,
+          }),
+      });
+    }
 
     squads.map((squad) =>
       shareOptions.push({
