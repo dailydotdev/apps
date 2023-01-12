@@ -21,13 +21,15 @@ import {
   KratosProviderData,
   SocialRegistrationFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
-import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
-import AlreadyLinkedModal from '@dailydotdev/shared/src/components/modals/AlreadyLinkedModal';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import {
+  PromptOptions,
+  usePrompt,
+} from '@dailydotdev/shared/src/hooks/usePrompt';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -90,10 +92,45 @@ function AccountSecurityDefault({
 }: AccountSecurityDefaultProps): ReactElement {
   const { deleteAccount } = useContext(AuthContext);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
-  const [alreadyLinkedProvider, setAlreadyLinkedProvider] = useState(false);
   const [linkProvider, setLinkProvider] = useState(null);
-  const [unlinkProvider, setUnlinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
+  const { showPrompt } = usePrompt();
+
+  const manageSocialProviders = async ({
+    type,
+    provider,
+  }: ManageSocialProvidersProps) => {
+    setLinkProvider(provider);
+    onUpdateProviders({ [type]: provider });
+  };
+  const alreadyLinkedProvider = async (provider: string) => {
+    const options: PromptOptions = {
+      title: 'Account already linked',
+      description: `The “${provider}” account you trying to link, is already linked to another daily account.`,
+      cancelButton: {
+        title: 'Close',
+      },
+      okButton: null,
+    };
+    await showPrompt(options);
+  };
+  const unlinkProvider = async (provider: string) => {
+    const options: PromptOptions = {
+      title: `Remove ${provider}?`,
+      description:
+        'You will no longer be able to log in with this connected account',
+      cancelButton: {
+        title: 'Leave',
+      },
+      okButton: {
+        title: 'Remove',
+        className: 'text-white btn-primary-ketchup',
+      },
+    };
+    if (await showPrompt(options)) {
+      manageSocialProviders({ type: 'unlink', provider });
+    }
+  };
 
   useWindowEvents<SocialRegistrationFlow>(
     'message',
@@ -108,19 +145,11 @@ function AccountSecurityDefault({
         const error = ui.messages[0]?.id;
         if (error === 4000007) {
           // Provider is already linked to another account
-          setAlreadyLinkedProvider(true);
+          alreadyLinkedProvider(linkProvider);
         }
       }
     },
   );
-
-  const manageSocialProviders = async ({
-    type,
-    provider,
-  }: ManageSocialProvidersProps) => {
-    setLinkProvider(provider);
-    onUpdateProviders({ [type]: provider });
-  };
 
   const onChangePassword = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -189,7 +218,7 @@ function AccountSecurityDefault({
       <AccountLoginSection
         title="Connected accounts"
         description="Remove the connection between daily.dev and authorized login providers."
-        providerAction={({ provider }) => setUnlinkProvider(provider)}
+        providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
         providers={removeProviderList.filter(({ provider }) =>
           userProviders?.result.includes(provider.toLowerCase()),
@@ -229,29 +258,12 @@ function AccountSecurityDefault({
           <AlertBackground className="bg-overlay-quaternary-ketchup" />
         </AccountDangerZone>
       </AccountContentSection>
-      {unlinkProvider && (
-        <UnlinkModal
-          provider={unlinkProvider}
-          onConfirm={() => {
-            manageSocialProviders({ type: 'unlink', provider: unlinkProvider });
-          }}
-          onRequestClose={() => setUnlinkProvider(null)}
-          isOpen={!!unlinkProvider}
-        />
-      )}
       {showDeleteAccount && (
         <DeleteAccountModal
           deleteAccount={deleteAccount}
           isOpen={showDeleteAccount}
           onDelete={() => window.location.replace('/')}
           onRequestClose={() => setShowDeleteAccount(false)}
-        />
-      )}
-      {alreadyLinkedProvider && (
-        <AlreadyLinkedModal
-          provider={linkProvider}
-          isOpen={alreadyLinkedProvider}
-          onRequestClose={() => setAlreadyLinkedProvider(false)}
         />
       )}
     </AccountPageContainer>

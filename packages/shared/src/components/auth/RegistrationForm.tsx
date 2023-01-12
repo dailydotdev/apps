@@ -36,7 +36,6 @@ export interface RegistrationFormProps {
   onBack?: CloseModalFunc;
   hints?: RegistrationError;
   onUpdateHints?: (errors: RegistrationError) => void;
-  isV2?: boolean;
   onSignup?: (params: RegistrationFormValues) => void;
   token: string;
   trigger: AuthTriggersOrString;
@@ -52,7 +51,6 @@ export const RegistrationForm = ({
   formRef,
   onBack,
   onSignup,
-  isV2,
   token,
   hints,
   trigger,
@@ -118,8 +116,7 @@ export const RegistrationForm = ({
       <AuthModalHeader title="Sign up to daily.dev" onBack={onBack} />
       <AuthForm
         className={classNames(
-          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6',
-          isV2 ? 'max-w-[20rem]' : 'px-6 tablet:px-[3.75rem]',
+          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6 px-6 tablet:px-[3.75rem]',
         )}
         ref={formRef}
         onSubmit={onSubmit}

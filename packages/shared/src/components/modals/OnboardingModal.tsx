@@ -22,6 +22,7 @@ import useAuthForms from '../../hooks/useAuthForms';
 import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { AuthEventNames } from '../../lib/auth';
 import CloseButton from '../CloseButton';
+import { ExperimentWinner } from '../../lib/featureValues';
 
 interface OnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;
@@ -86,7 +87,7 @@ function OnboardingModal({
     trackEvent({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.MyFeedModal,
-      target_id: 'v2',
+      target_id: ExperimentWinner.OnboardingVersion,
       extra: JSON.stringify({
         origin: mode,
         steps: onboardingSteps,
@@ -119,7 +120,6 @@ function OnboardingModal({
             onClick={onClose}
           />
           <AuthOptions
-            version="v1"
             className="h-full"
             onClose={onClose}
             formRef={formRef}

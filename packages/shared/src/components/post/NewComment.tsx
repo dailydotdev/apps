@@ -57,7 +57,7 @@ export function NewComment({
       <Button
         buttonSize={buttonSize[size]}
         className="ml-auto btn-secondary"
-        disabled
+        readOnly
       >
         Post
       </Button>
