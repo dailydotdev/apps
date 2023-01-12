@@ -96,8 +96,10 @@ it('should call onComment callback', async () => {
 
 it('should call onDelete callback', async () => {
   renderLayout({}, loggedUser);
-  const el = await screen.findByLabelText('Delete');
+  const el = await screen.findByLabelText('Options');
   el.click();
+  const [, remove] = await screen.findAllByRole('menuitem');
+  remove.click();
   expect(onDelete).toBeCalledWith(comment, 'c1');
 });
 
