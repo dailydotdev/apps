@@ -1,9 +1,11 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
 import { Provider } from './common';
 
-interface ProviderButtonProps extends Provider {
+interface ProviderButtonProps
+  extends Provider,
+    Pick<ButtonProps<'button'>, 'loading'> {
   label?: string;
   buttonSize?: ButtonSize;
 }

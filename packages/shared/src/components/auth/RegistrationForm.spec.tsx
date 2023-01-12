@@ -92,6 +92,7 @@ const renderComponent = (
 
 const renderRegistration = async (email: string, existing = false) => {
   renderComponent();
+  await waitForNock();
   mockEmailCheck(email, existing);
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
@@ -146,6 +147,7 @@ it('should display error messages', async () => {
 it('should show login if email exists', async () => {
   const email = 'sshanzel@yahoo.com';
   renderComponent();
+  await waitForNock();
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
   });

@@ -27,7 +27,6 @@ interface Experiments {
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
-  authVersion?: string;
   inAppNotificationPosition?: InAppNotificationPosition;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
 }
@@ -79,7 +78,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     ),
     postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
     postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-    authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
     inAppNotificationPosition: getFeatureValue(
       Features.InAppNotificationPosition,
       flags,

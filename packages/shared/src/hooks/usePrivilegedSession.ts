@@ -8,6 +8,7 @@ import { useToastNotification } from './useToastNotification';
 type Func = () => void | Promise<void>;
 
 interface UsePrivilegedSession {
+  isReady: boolean;
   session: AuthSession;
   showVerifySession?: boolean;
   onCloseVerifySession: () => void;
@@ -34,6 +35,7 @@ const usePrivilegedSession = (): UsePrivilegedSession => {
     session,
     loginFlowData,
     loginHint,
+    isReady,
     onSocialLogin,
     onPasswordLogin,
     refetchSession,
@@ -71,9 +73,10 @@ const usePrivilegedSession = (): UsePrivilegedSession => {
     return setVerifySessionId(flowId);
   };
 
-  return useMemo(
+  return useMemo<UsePrivilegedSession>(
     () => ({
       session,
+      isReady,
       showVerifySession: !!verifySessionId,
       initializePrivilegedSession,
       onCloseVerifySession: () => setVerifySessionId(null),

@@ -31,6 +31,7 @@ interface UseLogin {
   isPasswordLoginLoading?: boolean;
   loginFlowData: InitializationData;
   loginHint?: ReturnType<typeof useState>;
+  isReady: boolean;
   refetchSession?: () => Promise<unknown>;
   onSocialLogin: (provider: string) => void;
   onPasswordLogin: (params: LoginFormParams) => void;
@@ -164,13 +165,14 @@ const useLogin = ({
     }
   });
 
-  return useMemo(
+  return useMemo<UseLogin>(
     () => ({
       refetchSession,
       session,
       loginFlowData: login,
       loginHint: [hint, setHint],
       isPasswordLoginLoading: isLoading,
+      isReady: !!login?.ui,
       onSocialLogin: onSubmitSocialLogin,
       onPasswordLogin: onSubmitPasswordLogin,
     }),
