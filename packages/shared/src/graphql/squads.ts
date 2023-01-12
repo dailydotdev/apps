@@ -40,6 +40,14 @@ export type CreateSquadOutput = {
   createSquad: Squad;
 };
 
+export const LEAVE_SQUAD_MUTATION = gql`
+  mutation LeaveSource($sourceId: ID!) {
+    leaveSource(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
 export const CREATE_SQUAD_MUTATION = gql`
   mutation CreateSquad(
     $name: String!
@@ -121,6 +129,11 @@ export type SquadEdgesData = {
     edges: Edge<SquadMember>[];
   };
 };
+
+export const leaveSquad = (sourceId: string): Promise<void> =>
+  request(`${apiUrl}/graphql`, LEAVE_SQUAD_MUTATION, {
+    sourceId,
+  });
 
 export async function getSquad(handle: string): Promise<Squad> {
   const res = await request<SquadData>(`${apiUrl}/graphql`, SQUAD_QUERY, {
