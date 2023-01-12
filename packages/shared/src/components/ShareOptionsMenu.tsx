@@ -12,6 +12,13 @@ import { Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import LinkIcon from './icons/Link';
+import FeaturesContext from '../contexts/FeaturesContext';
+import AuthContext from '../contexts/AuthContext';
+import SquadIcon from './icons/Squad';
+import { SquadImage } from './squads/SquadImage';
+import DefaultSquadIcon from './icons/DefaultSquad';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -40,8 +47,10 @@ export default function ShareOptionsMenu({
 }: ShareOptionsMenuProps): ReactElement {
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
+  const { squads } = useContext(AuthContext);
+  const { hasSquadAccess } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
-
+  const { openModal } = useLazyModal();
   const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -70,6 +79,38 @@ export default function ShareOptionsMenu({
       action: trackAndCopyLink,
     },
   ];
+
+  if (hasSquadAccess) {
+    if (!squads?.length) {
+      shareOptions.push({
+        icon: <MenuIcon Icon={SquadIcon} />,
+        text: 'Post to your squad',
+        action: () =>
+          openModal({
+            type: LazyModal.NewSquad,
+          }),
+      });
+    }
+
+    squads?.map((squad) =>
+      shareOptions.push({
+        icon: squad.image ? (
+          <SquadImage className="mr-2.5 w-5 h-5 text-2xl" {...squad} />
+        ) : (
+          <MenuIcon Icon={DefaultSquadIcon} />
+        ),
+        text: squad.name,
+        action: () =>
+          openModal({
+            type: LazyModal.PostToSquad,
+            props: {
+              squad,
+              post,
+            },
+          }),
+      }),
+    );
+  }
 
   return (
     <PortalMenu

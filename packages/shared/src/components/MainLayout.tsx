@@ -23,6 +23,7 @@ import MainLayoutHeader, {
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
+import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 
 export interface MainLayoutProps
@@ -105,6 +106,7 @@ export default function MainLayout({
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
       <InAppNotificationElement />
+      <LazyModalElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
