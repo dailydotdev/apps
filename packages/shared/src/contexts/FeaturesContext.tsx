@@ -87,7 +87,7 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.ScrollOnboardingVersion,
       flags,
     ),
-    hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags) ?? true,
+    hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
   };
 };
 

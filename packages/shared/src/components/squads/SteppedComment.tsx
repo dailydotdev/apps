@@ -18,12 +18,10 @@ export function SteppedSquadComment({
     };
   };
   return (
-    <>
-      <Modal.StepsWrapper>
-        {({ nextStep }) => (
-          <SquadComment form={form} onSubmit={onSubmit(nextStep)} />
-        )}
-      </Modal.StepsWrapper>
-    </>
+    <Modal.StepsWrapper>
+      {({ nextStep }) => (
+        <SquadComment form={form} onSubmit={onSubmit(nextStep)} />
+      )}
+    </Modal.StepsWrapper>
   );
 }

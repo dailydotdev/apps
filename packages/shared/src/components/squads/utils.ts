@@ -26,9 +26,8 @@ export async function checkSourceExists(id: string): Promise<boolean> {
   }
 }
 
-export async function addPostToSquad(data: PostToSquadProps): Promise<Post> {
-  return await request(`${apiUrl}/graphql`, ADD_POST_TO_SQUAD_MUTATION, data);
-}
+export const addPostToSquad = (data: PostToSquadProps): Promise<Post> =>
+  request(`${apiUrl}/graphql`, ADD_POST_TO_SQUAD_MUTATION, data);
 
 export async function createSquad(form: SquadForm): Promise<Squad> {
   const inputData: CreateSquadInput = {
