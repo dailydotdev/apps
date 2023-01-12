@@ -21,6 +21,7 @@ export function SquadComment({
   const [commentary, setCommentary] = useState(form.commentary);
 
   return (
+    <>
       <Modal.Body className="flex flex-col">
         <form
           onSubmit={onSubmit}
@@ -72,5 +73,6 @@ export function SquadComment({
           Done
         </Button>
       </Modal.Footer>
+    </>
   );
 }
