@@ -151,7 +151,7 @@ export default function Sidebar({
                   }
                   onClick={onNewSquad}
                 >
-                  {sidebarExpanded && 'New squad'}
+                  {sidebarExpanded && 'New Squad'}
                 </Button>
               </div>
             )}
