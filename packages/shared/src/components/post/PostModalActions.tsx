@@ -4,22 +4,21 @@ import React, {
   MouseEventHandler,
   ReactElement,
   useContext,
-  useState,
 } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import MenuIcon from '../icons/Menu';
 import CloseIcon from '../icons/Close';
 import OpenLinkIcon from '../icons/OpenLink';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { Post } from '../../graphql/posts';
+import { Post, banPost, deletePost } from '../../graphql/posts';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
 import { OnShareOrBookmarkProps } from './PostActions';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 
 export interface PostModalActionsProps extends OnShareOrBookmarkProps {
   post: Post;
@@ -33,17 +32,6 @@ export interface PostModalActionsProps extends OnShareOrBookmarkProps {
 }
 
 const Container = classed('div', 'flex flex-row items-center');
-
-const BanPostModal = dynamic(
-  () => import(/* webpackChunkName: "banPostModal" */ '../modals/BanPostModal'),
-);
-
-const DeletePostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "deletePostModal" */ '../modals/DeletePostModal'
-    ),
-);
 
 export function PostModalActions({
   onReadArticle,
@@ -59,8 +47,7 @@ export function PostModalActions({
 }: PostModalActionsProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showReportMenu } = useReportPostMenu(contextMenuId);
-  const [showBanPost, setShowBanPost] = useState(false);
-  const [showDeletePost, setShowDeletePost] = useState(false);
+  const { showPrompt } = usePrompt();
 
   const showPostOptionsContext = (e) => {
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
@@ -70,6 +57,35 @@ export function PostModalActions({
   };
 
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
+
+  const banPostPrompt = async () => {
+    const options: PromptOptions = {
+      title: 'Ban post 💩',
+      description: 'Are you sure you want to ban this post?',
+      okButton: {
+        title: 'Ban',
+        className: 'btn-primary-ketchup',
+      },
+    };
+    if (await showPrompt(options)) {
+      await banPost(post.id);
+    }
+  };
+
+  const deletePostPrompt = async () => {
+    const options: PromptOptions = {
+      title: 'Delete post 🚫',
+      description:
+        'Are you sure you want to delete this post? This action cannot be undone.',
+      okButton: {
+        title: 'Delete',
+        className: 'btn-primary-ketchup',
+      },
+    };
+    if (await showPrompt(options)) {
+      await deletePost(post.id);
+    }
+  };
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
@@ -109,24 +125,10 @@ export function PostModalActions({
         onBookmark={onBookmark}
         onShare={onShare}
         post={post}
-        setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
-        setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
+        setShowBanPost={isModerator ? () => banPostPrompt() : null}
+        setShowDeletePost={isModerator ? () => deletePostPrompt() : null}
         contextId={contextMenuId}
       />
-      {showBanPost && (
-        <BanPostModal
-          postId={post.id}
-          isOpen={showBanPost}
-          onRequestClose={() => setShowBanPost(false)}
-        />
-      )}
-      {showDeletePost && (
-        <DeletePostModal
-          postId={post.id}
-          isOpen={showDeletePost}
-          onRequestClose={() => setShowDeletePost(false)}
-        />
-      )}
     </Container>
   );
 }
