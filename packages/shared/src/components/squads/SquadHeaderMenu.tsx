@@ -29,7 +29,7 @@ export default function SquadHeaderMenu({
     return <></>;
   }
 
-  const onLeaveSquad = async (e) => {
+  const onLeaveSquad = async () => {
     const options: PromptOptions = {
       title: `Leave ${squad.name}`,
       description: `Leaving ${squad.name} means that you will lose your access to all posts that were shared in the Squad`,
