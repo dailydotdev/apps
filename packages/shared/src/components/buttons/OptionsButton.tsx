@@ -12,6 +12,7 @@ type OptionsButtonProps = ButtonProps<AllowedTags> & {
 const OptionsButton = ({
   className,
   tooltipPlacement = 'left',
+  buttonSize = 'small',
   ...props
 }: OptionsButtonProps): ReactElement => (
   <SimpleTooltip placement={tooltipPlacement} content="Options">
@@ -19,7 +20,7 @@ const OptionsButton = ({
       {...props}
       className={classNames('my-auto btn-tertiary', className)}
       icon={<MenuIcon size="medium" />}
-      buttonSize="small"
+      buttonSize={buttonSize}
     />
   </SimpleTooltip>
 );

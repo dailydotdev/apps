@@ -68,24 +68,22 @@ const renderComponent = (
   );
 };
 
-it('should not show delete button when user is not the author', async () => {
+it('should not show options button when user is not the author', async () => {
   renderComponent();
-  expect(screen.queryByTitle('Delete')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Options')).not.toBeInTheDocument();
 });
 
-it('should show delete button when user is the author', async () => {
-  renderComponent(
-    {},
-    {
-      id: 'u1',
-      name: 'Ido Shamun',
-      providers: ['github'],
-      email: 'ido@acme.com',
-      image: 'https://daily.dev/ido.png',
-      createdAt: '',
-    },
-  );
-  expect(screen.getByLabelText('Delete')).toBeInTheDocument();
+it('should show options button when user is the author', async () => {
+  renderComponent({}, {
+    id: 'u1',
+    name: 'Ido Shamun',
+    providers: ['github'],
+    email: 'ido@acme.com',
+    image: 'https://daily.dev/ido.png',
+    createdAt: '',
+  } as unknown as LoggedUser);
+  const el = await screen.findByLabelText('Options');
+  expect(el).toBeInTheDocument();
 });
 
 it('should show login on upvote click', async () => {
@@ -142,15 +140,19 @@ it('should call onComment callback', async () => {
 
 it('should call onDelete callback', async () => {
   renderComponent({}, loggedUser);
-  const el = await screen.findByLabelText('Delete');
+  const el = await screen.findByLabelText('Options');
   el.click();
+  const [, remove] = await screen.findAllByRole('menuitem');
+  remove.click();
   expect(onDelete).toBeCalledWith(comment, 'c1');
 });
 
 it('should call onEdit callback', async () => {
   renderComponent({}, loggedUser);
-  const el = await screen.findByLabelText('Edit');
+  const el = await screen.findByLabelText('Options');
   el.click();
+  const [edit] = await screen.findAllByRole('menuitem');
+  edit.click();
   expect(onEdit).toBeCalledWith(comment);
 });
 
