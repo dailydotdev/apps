@@ -6,16 +6,24 @@ export type CloseModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
 ) => void;
 
+const SquadsBetaModal = dynamic(
+  () => import(/* webpackChunkName: "postToSquadModal" */ './SquadsBetaModal'),
+);
 const PostToSquadModal = dynamic(
   () => import(/* webpackChunkName: "postToSquadModal" */ './PostToSquadModal'),
 );
 const NewSquadModal = dynamic(
   () => import(/* webpackChunkName: "newSquadModal" */ './NewSquadModal'),
 );
+const LockedSquadModal = dynamic(
+  () => import(/* webpackChunkName: "lockedSquadModal" */ './LockedSquadModal'),
+);
 
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
+  [LazyModal.BetaSquad]: SquadsBetaModal,
   [LazyModal.PostToSquad]: PostToSquadModal,
+  [LazyModal.LockedSquad]: LockedSquadModal,
 };
 
 type GetComponentProps<T> = T extends

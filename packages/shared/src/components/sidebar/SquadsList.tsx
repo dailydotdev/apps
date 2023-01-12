@@ -11,12 +11,14 @@ type SquadsListProps = {
   activePage?: string;
   squads: Squad[];
   onNewSquad: () => void;
+  onOpenLockedSquad: (squad: Squad) => void;
 };
 
 export function SquadsList({
   activePage,
   squads,
   onNewSquad,
+  onOpenLockedSquad,
 }: SquadsListProps): ReactElement {
   const newSquadMenuItem: SidebarMenuItem = {
     icon: () => <NewSquadIcon />,
@@ -37,7 +39,9 @@ export function SquadsList({
             ),
           rightIcon: () => !active && <TimerIcon />,
           title: name,
-          path: permalink,
+          ...(!active
+            ? { action: () => onOpenLockedSquad(squad) }
+            : { path: permalink }),
         };
         const isActive = permalink.endsWith(activePage);
         return (

@@ -40,6 +40,14 @@ export type CreateSquadOutput = {
   createSquad: Squad;
 };
 
+export const DELETE_SQUAD_MUTATION = gql`
+  mutation DeleteSquad($sourceId: ID!) {
+    removeSource(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
 export const CREATE_SQUAD_MUTATION = gql`
   mutation CreateSquad(
     $name: String!
@@ -121,6 +129,11 @@ export type SquadEdgesData = {
     edges: Edge<SquadMember>[];
   };
 };
+
+export const deleteSquad = (sourceId: string): Promise<void> =>
+  request(`${apiUrl}/graphql`, DELETE_SQUAD_MUTATION, {
+    sourceId,
+  });
 
 export async function getSquad(handle: string): Promise<Squad> {
   const res = await request<SquadData>(`${apiUrl}/graphql`, SQUAD_QUERY, {

@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -25,22 +31,15 @@ import { SquadsList } from './SquadsList';
 import { Button } from '../buttons/Button';
 import PlusIcon from '../icons/Plus';
 import { ProfilePicture } from '../ProfilePicture';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
+import { Squad } from '../../graphql/squads';
 
 const UserSettingsModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "userSettingsModal" */ '../modals/UserSettingsModal'
     ),
-);
-const SquadsBetaModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "squadsBetaModal" */ '../modals/SquadsBetaModal'
-    ),
-);
-const NewSquadModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "newSquadModal" */ '../modals/NewSquadModal'),
 );
 
 export default function Sidebar({
@@ -64,9 +63,8 @@ export default function Sidebar({
     loadedSettings,
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
+  const { openModal } = useLazyModal();
   const [showSettings, setShowSettings] = useState(false);
-  const [showSquadsBetaModal, setShowSquadsBetaModal] = useState(false);
-  const [showCreateSquadModal, setShowCreateSquadModal] = useState(false);
   const {
     hasSquadAccess,
     canSubmitArticle,
@@ -87,16 +85,31 @@ export default function Sidebar({
     action: setOpenMobileSidebar,
   });
 
-  const onNewSquad = () => {
-    setShowSquadsBetaModal(true);
-  };
-  const handleCreateSquadBack = () => {
-    setShowCreateSquadModal(false);
-    setShowSquadsBetaModal(true);
-  };
-  const handleSquadsBetaModalNext = () => {
-    setShowCreateSquadModal(true);
-    setShowSquadsBetaModal(false);
+  const previousRef = useRef(null);
+
+  const openNewSquadModal = () =>
+    openModal({
+      type: LazyModal.NewSquad,
+      props: {
+        onPreviousState: () => previousRef.current(),
+      },
+    });
+  const openSquadBetaModal = () =>
+    openModal({
+      type: LazyModal.BetaSquad,
+      props: {
+        onNext: openNewSquadModal,
+      },
+    });
+  previousRef.current = openSquadBetaModal;
+
+  const openLockedSquadModal = (squad: Squad) => {
+    openModal({
+      type: LazyModal.LockedSquad,
+      props: {
+        squad,
+      },
+    });
   };
 
   const defaultRenderSectionProps = useMemo(
@@ -149,7 +162,7 @@ export default function Sidebar({
                   textPosition={
                     sidebarExpanded ? 'justify-start' : 'justify-center'
                   }
-                  onClick={onNewSquad}
+                  onClick={openSquadBetaModal}
                 >
                   {sidebarExpanded && 'New squad'}
                 </Button>
@@ -170,7 +183,8 @@ export default function Sidebar({
               <SquadsList
                 activePage={activePageProp}
                 squads={squads}
-                onNewSquad={onNewSquad}
+                onNewSquad={openSquadBetaModal}
+                onOpenLockedSquad={openLockedSquadModal}
               />
             )}
             <DiscoverSection
@@ -207,19 +221,6 @@ export default function Sidebar({
         <UserSettingsModal
           isOpen={showSettings}
           onRequestClose={() => setShowSettings(false)}
-        />
-      )}
-      {showSquadsBetaModal && (
-        <SquadsBetaModal
-          onRequestClose={() => setShowSquadsBetaModal(false)}
-          onNext={handleSquadsBetaModalNext}
-        />
-      )}
-      {(showSquadsBetaModal || showCreateSquadModal) && (
-        <NewSquadModal
-          isOpen={showCreateSquadModal}
-          onPreviousState={handleCreateSquadBack}
-          onRequestClose={() => setShowCreateSquadModal(false)}
         />
       )}
     </>
