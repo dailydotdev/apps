@@ -7,8 +7,9 @@ import {
   CreateSquadOutput,
   CREATE_SQUAD_MUTATION,
   Squad,
+  ADD_POST_TO_SQUAD_MUTATION,
 } from '../../graphql/squads';
-import { PostItem } from '../../graphql/posts';
+import { Post, PostItem } from '../../graphql/posts';
 import { base64ToFile } from '../../lib/base64';
 
 export async function checkSourceExists(id: string): Promise<boolean> {
@@ -24,6 +25,9 @@ export async function checkSourceExists(id: string): Promise<boolean> {
     throw err;
   }
 }
+
+export const addPostToSquad = (data: PostToSquadProps): Promise<Post> =>
+  request(`${apiUrl}/graphql`, ADD_POST_TO_SQUAD_MUTATION, data);
 
 export async function createSquad(form: SquadForm): Promise<Squad> {
   const inputData: CreateSquadInput = {
@@ -55,10 +59,17 @@ export const SquadTitle = classed(
 );
 export const SquadTitleColor = classed('span', 'text-theme-color-cabbage');
 
+export type PostToSquadProps = {
+  id: string;
+  sourceId: string;
+  commentary: string;
+};
+
 export type SquadForm = Pick<Squad, 'name' | 'handle' | 'description'> & {
   file?: string;
   commentary: string;
   post: PostItem;
+  buttonText?: string;
 };
 
 export type SquadStateProps = {

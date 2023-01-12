@@ -68,10 +68,10 @@ export const CREATE_SQUAD_MUTATION = gql`
   }
 `;
 
-export const ADD_POST_TO_SQUAD = gql`
-  mutation AddPostToSquad($data: AddPostToSquadInput) {
-    sharePost(data: $data) {
-      Post!
+export const ADD_POST_TO_SQUAD_MUTATION = gql`
+  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String!) {
+    sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
+      id
     }
   }
 `;
