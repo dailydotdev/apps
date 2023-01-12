@@ -24,7 +24,7 @@ export function SquadsConfirmation({
           Learning is more powerful together. Are you sure you want to quit the
           process?
         </p>
-        <p>p.s you can create a new squad from the left sidebar</p>
+        <p>p.s you can create a new Squad from the left sidebar</p>
       </ConfirmationDescription>
       <ConfirmationButtons>
         <Button className="btn-secondary" onClick={onRequestClose}>

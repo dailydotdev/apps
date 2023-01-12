@@ -10,7 +10,6 @@ import {
 } from '../../graphql/squads';
 import { PostItem } from '../../graphql/posts';
 import { base64ToFile } from '../../lib/base64';
-import { ModalProps } from '../modals/common/Modal';
 
 export async function checkSourceExists(id: string): Promise<boolean> {
   try {

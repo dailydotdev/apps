@@ -49,8 +49,8 @@ export function SquadSelectArticle({
         </SquadTitle>
         <p className="py-4 text-center">
           {!hasData
-            ? 'Your reading history is empty! Please read at least one article by clicking on a post to start sharing with your squad'
-            : 'Pick the first article that you would like to discuss with the members of your squad'}
+            ? 'Your reading history is empty! Please read at least one article by clicking on a post to start sharing with your Squad'
+            : 'Pick the first article that you would like to discuss with the members of your Squad'}
         </p>
         <Modal.StepsWrapper>
           {({ nextStep }) => (

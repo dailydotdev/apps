@@ -20,7 +20,7 @@ export function SquadsList({
 }: SquadsListProps): ReactElement {
   const newSquadMenuItem: SidebarMenuItem = {
     icon: () => <NewSquadIcon />,
-    title: 'New squad',
+    title: 'New Squad',
     action: onNewSquad,
   };
 
