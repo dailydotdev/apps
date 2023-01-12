@@ -1,13 +1,6 @@
 import classNames from 'classnames';
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  MutableRefObject,
-  useContext,
-} from 'react';
-import FeaturesContext from '../../contexts/FeaturesContext';
+import React, { forwardRef, HTMLAttributes, MutableRefObject } from 'react';
 import classed from '../../lib/classed';
-import { AuthVersion } from '../../lib/featureValues';
 
 const Container = classed(
   'div',
@@ -18,18 +11,11 @@ function AuthContainer(
   { className, children, ...props }: HTMLAttributes<HTMLDivElement>,
   ref: MutableRefObject<HTMLDivElement>,
 ) {
-  const { authVersion } = useContext(FeaturesContext);
-
   return (
     <Container
       {...props}
       ref={ref}
-      className={classNames(
-        className,
-        authVersion === AuthVersion.V2
-          ? 'max-w-[20rem]'
-          : 'px-6 tablet:px-[3.75rem]',
-      )}
+      className={classNames(className, 'px-6 tablet:px-[3.75rem]')}
     >
       {children}
     </Container>
