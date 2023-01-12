@@ -30,11 +30,11 @@ export function SquadReady({
   };
   return (
     <>
-      <Modal.Body className="flex flex-col gap-2 items-center">
+      <Modal.Body className="flex flex-col items-center">
         <SquadTitle>
-          Invite your <SquadTitleColor>members.</SquadTitleColor>
+          Invite your Squad <SquadTitleColor>members</SquadTitleColor>
         </SquadTitle>
-        <SquadReadySvg className="mt-8 mb-4" />
+        <SquadReadySvg className="mt-6 mb-4" />
         <h3 className="font-bold typo-title2">{name}</h3>
         <h4>{handle}</h4>
         <TextField
@@ -60,7 +60,7 @@ export function SquadReady({
         <Alert
           className="mt-4"
           type={AlertType.Info}
-          title="You will be able to access the squad's space once a new member joins."
+          title="Your Squad's dedicated space will open up once a new member joins. We will notify you when it happens."
         />
       </Modal.Body>
       <Modal.Footer>

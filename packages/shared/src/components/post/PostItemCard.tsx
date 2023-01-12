@@ -72,7 +72,7 @@ export default function PostItemCard({
           }}
           nativeLazyLoading
         />
-        <h3 className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
+        <h3 className="flex flex-wrap flex-1 mr-6 ml-4 text-left line-clamp-2 typo-callout">
           {post.title}
           <PostMetadata
             readTime={post.readTime}

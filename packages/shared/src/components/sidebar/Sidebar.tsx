@@ -164,7 +164,7 @@ export default function Sidebar({
                   }
                   onClick={openSquadBetaModal}
                 >
-                  {sidebarExpanded && 'New squad'}
+                  {sidebarExpanded && 'New Squad'}
                 </Button>
               </div>
             )}
