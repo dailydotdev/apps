@@ -157,7 +157,7 @@ export default function NewCommentModal({
   useEffect(() => {
     onInputChange?.(input);
   }, [input]);
-  const disabled = !input?.trim().length || input === props.editContent;
+  const disabled = !input?.trim().length;
   const updateButton = (
     <Button
       disabled={disabled}
