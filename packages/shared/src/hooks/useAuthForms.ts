@@ -1,4 +1,5 @@
 import React, { MutableRefObject, useMemo, useRef, useState } from 'react';
+import { PromptOptions, usePrompt } from './usePrompt';
 
 export type CloseAuthModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
@@ -6,11 +7,9 @@ export type CloseAuthModalFunc = (
 ) => void;
 
 interface UseAuthForms {
-  onDiscardCanceled: CloseAuthModalFunc;
   onDiscardAttempt: CloseAuthModalFunc;
   onContainerChange: (el: HTMLDivElement) => void;
   container: HTMLDivElement;
-  isDiscardOpen: boolean;
   formRef?: MutableRefObject<HTMLFormElement>;
 }
 
@@ -20,31 +19,45 @@ interface UseAuthFormsProps {
 
 const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   const [container, setContainer] = useState<HTMLDivElement>();
-  const [isDiscardOpen, setIsDiscardOpen] = useState(false);
+  const { showPrompt } = usePrompt();
   const formRef = useRef<HTMLFormElement>();
+
+  const openPrompt = async (e) => {
+    const options: PromptOptions = {
+      title: 'Discard changes?',
+      description: 'If you leave your changes will not be saved',
+      okButton: {
+        title: 'Leave',
+        className: 'btn-secondary',
+      },
+      cancelButton: {
+        title: 'Stay',
+        className: 'btn-primary-cabbage',
+      },
+      className: {
+        buttons: 'flex-row-reverse',
+      },
+    };
+    if (await showPrompt(options)) {
+      onDiscard(e);
+    }
+  };
 
   const onDiscardAttempt: CloseAuthModalFunc = (e, forceClose = false) => {
     if (forceClose || !formRef?.current) {
       return onDiscard(e, forceClose);
     }
-    return setIsDiscardOpen(true);
-  };
-
-  const onDiscardCanceled: CloseAuthModalFunc = (e) => {
-    e.stopPropagation();
-    setIsDiscardOpen(false);
+    return openPrompt(e);
   };
 
   return useMemo(
     () => ({
       onDiscardAttempt,
-      onDiscardCanceled,
       onContainerChange: setContainer,
       container,
-      isDiscardOpen,
       formRef,
     }),
-    [formRef?.current, container, isDiscardOpen, onDiscard],
+    [formRef?.current, container, onDiscard],
   );
 };
 

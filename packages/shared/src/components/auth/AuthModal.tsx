@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import AuthOptions, { AuthDisplay as Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthContext from '../../contexts/AuthContext';
@@ -11,13 +10,6 @@ import { Modal, ModalProps } from '../modals/common/Modal';
 export interface AuthModalProps extends ModalProps {
   trigger?: AuthTriggersOrString;
 }
-
-const DiscardActionModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "discardActionModal" */ '../modals/DiscardActionModal'
-    ),
-);
 
 export default function AuthModal({
   className,
@@ -43,15 +35,8 @@ export default function AuthModal({
     onClose(e);
   };
 
-  const {
-    onDiscardAttempt,
-    onDiscardCanceled,
-    onContainerChange,
-    formRef,
-    container,
-    isDiscardOpen,
-  } = useAuthForms({
-    onDiscard: onClose,
+  const { onContainerChange, formRef, onDiscardAttempt } = useAuthForms({
+    onDiscard: closeAndLogout,
   });
   const isLogoutFlow = trigger === 'legacy_logout';
 
@@ -73,20 +58,6 @@ export default function AuthModal({
         isLoginFlow={isLogoutFlow}
         onDisplayChange={(display: Display) => setScreenValue(display)}
       />
-      {isDiscardOpen && (
-        <DiscardActionModal
-          isOpen={isDiscardOpen}
-          rightButtonAction={onDiscardCanceled}
-          leftButtonAction={closeAndLogout}
-          parentSelector={() => container}
-          onRequestClose={onDiscardCanceled}
-          title="Discard changes?"
-          description="If you leave your changes will not be saved"
-          leftButtonText="Leave"
-          rightButtonText="Stay"
-          rightButtonClass="btn-primary-cabbage"
-        />
-      )}
     </Modal>
   );
 }
