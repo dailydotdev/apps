@@ -1,4 +1,5 @@
 import React, { ComponentClass, FunctionComponent, ReactHTML } from 'react';
+import { isTesting } from './constants';
 
 type LoaderResult<P> = ComponentClass<P> | FunctionComponent<P>;
 
@@ -17,7 +18,7 @@ export default function dynamicParent<P, T = Record<string, unknown>>(
 
     async componentDidMount() {
       const { shouldLoad } = this.props;
-      if (shouldLoad) {
+      if (shouldLoad || isTesting) {
         await this.loadComponent();
       }
     }
@@ -37,6 +38,12 @@ export default function dynamicParent<P, T = Record<string, unknown>>(
     render() {
       const { componentClass } = this.state;
       const { children } = this.props;
+      if (isTesting) {
+        return componentClass
+          ? React.createElement(componentClass, this.props, children)
+          : null;
+      }
+
       if (componentClass) {
         return React.createElement(componentClass, this.props, children);
       }
