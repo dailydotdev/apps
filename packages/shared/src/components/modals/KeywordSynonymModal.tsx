@@ -9,8 +9,7 @@ import {
 } from '../../graphql/keywords';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
-import { ModalProps } from './StyledModal';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 
 export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
 

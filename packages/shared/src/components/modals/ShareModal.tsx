@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { ModalProps } from './StyledModal';
 import { Button } from '../buttons/Button';
 import PostItemCard from '../post/PostItemCard';
 import { Post } from '../../graphql/posts';
@@ -12,12 +11,11 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { ShareProvider } from '../../lib/share';
 import { Comment, getCommentHash } from '../../graphql/comments';
-import { ShareVersion } from '../../lib/featureValues';
-import { Modal } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
+import { ExperimentWinner } from '../../lib/featureValues';
 
 type ShareModalProps = {
   post: Post;
-  postCardShareVersion?: ShareVersion;
   comment?: Comment;
   origin: Origin;
 } & FeedItemPosition &
@@ -25,7 +23,6 @@ type ShareModalProps = {
 
 export default function ShareModal({
   post,
-  postCardShareVersion,
   comment,
   origin,
   columns,
@@ -49,7 +46,7 @@ export default function ShareModal({
         extra: {
           ...extra,
           origin,
-          variant: postCardShareVersion,
+          variant: ExperimentWinner.PostCardShareVersion,
           ...(comment && { commentId: comment.id }),
         },
       }),

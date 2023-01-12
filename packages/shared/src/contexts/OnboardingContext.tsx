@@ -55,6 +55,7 @@ export const OnboardingContextProvider = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const { registerLocalFilters } = useMyFeed();
   const [isOnboarding, setIsOnboarding] = useState(false);
+  const [isRegisteringFilters, setIsRegisteringFilters] = useState(false);
   const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
   const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);
   const onFeedPageChanged = useRef(null);
@@ -62,16 +63,18 @@ export const OnboardingContextProvider = ({
     usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, !alerts.filter);
 
   useEffect(() => {
-    if (!user || !shouldUpdateFilters) {
+    if (!user || !shouldUpdateFilters || isRegisteringFilters) {
       return;
     }
 
+    setIsRegisteringFilters(true);
     registerLocalFilters().then(() => {
       trackEvent({ event_name: AnalyticsEvent.CompleteOnboarding });
       setShouldUpdateFilters(false);
       setIsOnboarding(false);
+      setIsRegisteringFilters(false);
     });
-  }, [user, shouldUpdateFilters]);
+  }, [user, shouldUpdateFilters, isRegisteringFilters]);
 
   useEffect(() => {
     const isHome = !pathname || pathname === '/';

@@ -48,6 +48,7 @@ const AccountSecurityPage = (): ReactElement => {
   const {
     session,
     showVerifySession,
+    isReady,
     initializePrivilegedSession,
     onPasswordLogin,
     onCloseVerifySession,
@@ -200,6 +201,7 @@ const AccountSecurityPage = (): ReactElement => {
       {showVerifySession && (
         <VerifySessionModal
           isOpen={showVerifySession}
+          isReady={isReady}
           userProviders={userProviders}
           onRequestClose={() => onCloseVerifySession()}
           onPasswordLogin={onPasswordLogin}

@@ -1,14 +1,3 @@
-.legal {
-  & a {
-    display: inline-block;
-    text-decoration: underline;
-    color: inherit;
-    @supports (display: contents) {
-      display: contents;
-    }
-  }
-}
-
 .pageContainer {
   max-width: $pageMaxWidth;
   margin: auto;
@@ -36,30 +25,6 @@
   }
 }
 
-.fixedPostsNavigation {
-  max-width: 100vw;
-
-  @screen laptop {
-    max-width: 63.65rem;
-  }
-}
-
 .activeTabIndicator {
   border-radius: 0.063rem;
-}
-
-.pageWidgets {
-  @screen tablet {
-    width: 18.75rem;
-    max-width: 18.75rem;
-  }
-
-  @screen laptop {
-    width: 23rem;
-    max-width: 23rem;
-  }
-}
-
-.clickableImg:hover img {
-  opacity: 0.64;
 }

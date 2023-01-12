@@ -12,15 +12,17 @@ import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
+  deleteComment,
 } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
-import DeleteCommentModal from '../modals/DeleteCommentModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { usePostComment } from '../../hooks/usePostComment';
 
 export interface ParentComment {
   authorName: string;
@@ -37,17 +39,11 @@ export interface ParentComment {
 interface PostCommentsProps {
   post: Post;
   origin: Origin;
-  applyBottomMargin?: boolean;
   permissionNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
-}
-
-interface PendingComment {
-  comment: Comment;
-  parentId: string | null;
 }
 
 interface SharedData {
@@ -93,12 +89,11 @@ export function PostComments({
   onClickUpvote,
   modalParentSelector,
   permissionNotificationCommentId,
-  applyBottomMargin = true,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
-  const [pendingComment, setPendingComment] = useState<PendingComment>(null);
   const { requestMethod } = useRequestProtocol();
+  const { showPrompt } = usePrompt();
   const queryKey = ['post_comments', id];
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
@@ -118,6 +113,25 @@ export function PostComments({
   const { hash: commentHash } = window.location;
   const commentsCount = comments?.postComments?.edges?.length || 0;
   const commentRef = useRef(null);
+  const { deleteCommentCache } = usePostComment(post);
+  const deleteCommentPrompt = async (
+    commentId: string,
+    parentId: string | null,
+  ) => {
+    const options: PromptOptions = {
+      title: 'Delete comment',
+      description:
+        'Are you sure you want to delete your comment? This action cannot be undone.',
+      okButton: {
+        title: 'Delete',
+        className: 'btn-primary-ketchup',
+      },
+    };
+    if (await showPrompt(options)) {
+      await deleteComment(commentId, requestMethod);
+      deleteCommentCache(commentId, parentId);
+    }
+  };
 
   const [scrollToComment, setScrollToComment] = useState(!!commentHash);
   useEffect(() => {
@@ -133,7 +147,7 @@ export function PostComments({
 
   if (commentsCount === 0) {
     return (
-      <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
+      <div className="my-2 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.
       </div>
     );
@@ -155,20 +169,19 @@ export function PostComments({
     onClick(getParentComment(post, localParentComment, shared));
   };
   return (
-    <>
-      {comments.postComments.edges.map((e, i) => (
+    <div className="flex flex-col">
+      {comments.postComments.edges.map((e) => (
         <MainComment
           post={post}
           origin={origin}
           commentHash={commentHash}
           commentRef={commentRef}
-          className={i === commentsCount - 1 && applyBottomMargin && 'mb-12'}
           comment={e.node}
           key={e.node.id}
           onComment={onCommentClick}
           onShare={onShare}
           onDelete={(comment, parentId) =>
-            setPendingComment({ comment, parentId })
+            deleteCommentPrompt(comment.id, parentId)
           }
           onEdit={onEditClick}
           onShowUpvotes={onClickUpvote}
@@ -178,16 +191,6 @@ export function PostComments({
           permissionNotificationCommentId={permissionNotificationCommentId}
         />
       ))}
-      {pendingComment && (
-        <DeleteCommentModal
-          isOpen={!!pendingComment}
-          onRequestClose={() => setPendingComment(null)}
-          commentId={pendingComment.comment.id}
-          parentId={pendingComment.parentId}
-          parentSelector={modalParentSelector}
-          post={post}
-        />
-      )}
-    </>
+    </div>
   );
 }

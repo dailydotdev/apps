@@ -7,12 +7,8 @@ import {
   isFeaturedEnabled,
 } from '../lib/featureManagement';
 import {
-  ArticleOnboardingVersion,
   OnboardingFiltersLayout,
-  OnboardingVersion,
   ScrollOnboardingVersion,
-  ShareVersion,
-  SquadVersion,
   InAppNotificationPosition,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
@@ -22,7 +18,6 @@ import { isPreviewDeployment } from '../lib/links';
 interface Experiments {
   onboardingMinimumTopics?: number;
   onboardingSteps?: OnboardingStep[];
-  onboardingVersion?: OnboardingVersion;
   onboardingFiltersLayout?: OnboardingFiltersLayout;
   popularFeedCopy?: string;
   canSubmitArticle?: boolean;
@@ -32,13 +27,7 @@ interface Experiments {
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
-  postCardShareVersion?: ShareVersion;
-  authVersion?: string;
-  squadVersion?: SquadVersion;
-  squadForm?: string;
-  squadButton?: string;
   inAppNotificationPosition?: InAppNotificationPosition;
-  articleOnboardingVersion?: ArticleOnboardingVersion;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
 }
 
@@ -68,7 +57,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     flags,
     onboardingSteps,
     onboardingMinimumTopics: getNumberValue(minimumTopics, 0),
-    onboardingVersion: getFeatureValue(Features.UserOnboardingVersion, flags),
     onboardingFiltersLayout: getFeatureValue(
       Features.OnboardingFiltersLayout,
       flags,
@@ -90,17 +78,8 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     ),
     postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
     postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-    postCardShareVersion: getFeatureValue(Features.PostCardShareVersion, flags),
-    authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
-    squadVersion: getFeatureValue(Features.SquadVersion, flags),
-    squadForm: getFeatureValue(Features.SquadForm, flags),
-    squadButton: getFeatureValue(Features.SquadButton, flags),
     inAppNotificationPosition: getFeatureValue(
       Features.InAppNotificationPosition,
-      flags,
-    ),
-    articleOnboardingVersion: getFeatureValue(
-      Features.ArticleOnboardingVersion,
       flags,
     ),
     scrollOnboardingVersion: getFeatureValue(

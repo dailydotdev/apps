@@ -4,8 +4,10 @@ import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
-import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
-import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import {
+  Modal,
+  ModalProps,
+} from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
 import { getDefaultLink, dndOption, CustomTime, TimeFormat } from './dnd';
 import DndContext from './DndContext';

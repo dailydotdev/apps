@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -24,6 +25,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -65,6 +67,7 @@ function InternalApp({
 }): ReactElement {
   useError();
   useInAppNotification();
+  usePrompt();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
@@ -148,7 +151,9 @@ export default function App({
                 getPage={() => pageRef.current}
                 deviceId={deviceId}
               >
-                <InternalApp pageRef={pageRef} />
+                <OnboardingContextProvider>
+                  <InternalApp pageRef={pageRef} />
+                </OnboardingContextProvider>
               </AnalyticsContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>

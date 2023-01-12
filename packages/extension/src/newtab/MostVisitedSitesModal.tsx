@@ -1,8 +1,10 @@
 import React, { ReactElement } from 'react';
-import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import {
+  Modal,
+  ModalProps,
+} from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
 
 interface MostVisitedSitesModalProps extends ModalProps {

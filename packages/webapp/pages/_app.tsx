@@ -21,6 +21,7 @@ import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
@@ -35,6 +36,7 @@ import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -80,6 +82,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useTrackPageView();
   useInAppNotification();
+  usePrompt();
   useEffect(() => {
     updateCookieBanner(user);
   }, [user]);
@@ -173,7 +176,9 @@ export default function App(props: AppProps): ReactElement {
               getPage={getPage}
               deviceId={deviceId}
             >
-              <InternalApp {...props} />
+              <OnboardingContextProvider>
+                <InternalApp {...props} />
+              </OnboardingContextProvider>
             </AnalyticsContextProvider>
           </SubscriptionContextProvider>
         </BootDataProvider>

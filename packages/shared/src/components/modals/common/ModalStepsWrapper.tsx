@@ -1,14 +1,21 @@
-import { ReactElement, useContext } from 'react';
+import { MouseEventHandler, ReactElement, useContext } from 'react';
+import { isNullOrUndefined } from '../../../lib/func';
 import { ModalPropsContext } from './types';
 
+export interface StepComponentProps {
+  previousStep?: MouseEventHandler;
+  nextStep?: MouseEventHandler;
+}
+
 type ModalStepsProps = {
-  children: (props: {
-    previousStep?: () => void;
-    nextStep?: () => void;
-  }) => ReactElement;
+  children: (props: StepComponentProps) => ReactElement;
+  view?: string;
 };
 
-export function ModalStepsWrapper({ children }: ModalStepsProps): ReactElement {
+export function ModalStepsWrapper({
+  view,
+  children,
+}: ModalStepsProps): ReactElement {
   const { activeView, steps, setActiveView } = useContext(ModalPropsContext);
   const activeStepIndex = steps.findIndex(({ key }) => activeView === key);
   const activeStep = steps[activeStepIndex];
@@ -21,6 +28,10 @@ export function ModalStepsWrapper({ children }: ModalStepsProps): ReactElement {
     activeStepIndex < steps.length
       ? () => setActiveView(steps[activeStepIndex + 1]?.key)
       : undefined;
+
+  if (!isNullOrUndefined(view) && view !== activeView) {
+    return null;
+  }
 
   return children({ previousStep, nextStep });
 }

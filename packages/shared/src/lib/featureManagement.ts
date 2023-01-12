@@ -1,13 +1,8 @@
 import { IFlags } from 'flagsmith';
 import { OnboardingStep } from '../components/onboarding/common';
 import {
-  AuthVersion,
-  ShareVersion,
-  SquadVersion,
-  OnboardingVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
-  ArticleOnboardingVersion,
   ScrollOnboardingVersion,
 } from './featureValues';
 
@@ -126,12 +121,6 @@ export class Features<T extends FeatureValue = string> {
     'v2',
   ]);
 
-  static readonly PostCardShareVersion = new Features(
-    'post_card_share_version',
-    ShareVersion.V1,
-    [ShareVersion.V1, ShareVersion.V2, ShareVersion.V3, ShareVersion.V4],
-  );
-
   static readonly PostModalByDefault = new Features('post_modal_by_default');
 
   static readonly PostEngagementNonClickable = new Features(
@@ -148,34 +137,10 @@ export class Features<T extends FeatureValue = string> {
     `${OnboardingStep.Topics}/${OnboardingStep.Layout}/${OnboardingStep.Theme}`,
   );
 
-  static readonly UserOnboardingVersion = new Features(
-    'onboarding_version',
-    OnboardingVersion.V1,
-    [OnboardingVersion.V1, OnboardingVersion.V2],
-  );
-
   static readonly OnboardingFiltersLayout = new Features(
     'onboarding_filters_layout',
     OnboardingFiltersLayoutEnum.Grid,
     [OnboardingFiltersLayoutEnum.Grid, OnboardingFiltersLayoutEnum.List],
-  );
-
-  static readonly AuthenticationVersion = new Features(
-    'auth_version',
-    AuthVersion.V1,
-    [AuthVersion.V1, AuthVersion.V2, AuthVersion.V3, AuthVersion.V4],
-  );
-
-  static readonly SquadVersion = new Features(
-    'squad_version',
-    SquadVersion.Off,
-    [
-      SquadVersion.Off,
-      SquadVersion.V1,
-      SquadVersion.V2,
-      SquadVersion.V3,
-      SquadVersion.V4,
-    ],
   );
 
   static readonly InAppNotificationPosition = new Features(
@@ -184,21 +149,7 @@ export class Features<T extends FeatureValue = string> {
     [InAppNotificationPositionEnum.Bottom, InAppNotificationPositionEnum.Top],
   );
 
-  static readonly SquadForm = new Features('squad_form');
-
-  static readonly SquadButton = new Features('squad_button', 'New squad');
-
   static readonly ShowCommentPopover = new Features('show_comment_popover');
-
-  static readonly ArticleOnboardingVersion = new Features(
-    'article_onboarding_version',
-    null,
-    [
-      ArticleOnboardingVersion.V1,
-      ArticleOnboardingVersion.V2,
-      ArticleOnboardingVersion.V3,
-    ],
-  );
 
   static readonly ScrollOnboardingVersion = new Features(
     'scroll_onboarding_version',

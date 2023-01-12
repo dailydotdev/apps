@@ -1,9 +1,11 @@
 import React, { FormEventHandler, MutableRefObject, ReactElement } from 'react';
-import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UserIcon from '@dailydotdev/shared/src/components/icons/User';
 import SitesIcon from '@dailydotdev/shared/src/components/icons/Sites';
-import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import {
+  Modal,
+  ModalProps,
+} from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
 import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
