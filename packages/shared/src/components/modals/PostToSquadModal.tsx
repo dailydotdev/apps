@@ -41,17 +41,15 @@ function PostToSquadModal({
   };
 
   return (
-    <>
-      <Modal
-        isOpen={isOpen}
-        kind={Modal.Kind.FixedCenter}
-        size={Modal.Size.Small}
-        onRequestClose={onRequestClose}
-      >
-        <Modal.Header title="Post article" kind={ModalHeaderKind.Tertiary} />
-        <SquadComment form={form} onSubmit={onSubmit} />
-      </Modal>
-    </>
+    <Modal
+      isOpen={isOpen}
+      kind={Modal.Kind.FixedCenter}
+      size={Modal.Size.Small}
+      onRequestClose={onRequestClose}
+    >
+      <Modal.Header title="Post article" kind={ModalHeaderKind.Tertiary} />
+      <SquadComment form={form} onSubmit={onSubmit} />
+    </Modal>
   );
 }
 
