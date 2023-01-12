@@ -17,6 +17,7 @@ interface LoginFormProps {
   loginButton?: string;
   className?: string;
   isLoading?: boolean;
+  isReady: boolean;
   autoFocus?: boolean;
 }
 
@@ -37,6 +38,7 @@ function LoginForm({
   loginButton = 'Log in',
   className,
   isLoading,
+  isReady,
   autoFocus = true,
 }: LoginFormProps): ReactElement {
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
@@ -99,6 +101,7 @@ function LoginForm({
             !isLoading && 'bg-theme-color-cabbage',
           )}
           type="submit"
+          loading={!isReady}
           disabled={isLoading}
         >
           {loginButton}

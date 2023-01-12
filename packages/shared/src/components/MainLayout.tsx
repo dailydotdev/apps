@@ -24,6 +24,7 @@ import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
+import { PromptElement } from './modals/Prompt';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -106,6 +107,7 @@ export default function MainLayout({
       )}
       <InAppNotificationElement />
       <LazyModalElement />
+      <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
         greeting={greeting}

@@ -37,6 +37,7 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -83,6 +84,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useTrackPageView();
   useInAppNotification();
   useLazyModal();
+  usePrompt();
   useEffect(() => {
     updateCookieBanner(user);
   }, [user]);

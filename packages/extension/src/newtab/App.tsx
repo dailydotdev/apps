@@ -26,6 +26,7 @@ import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -68,6 +69,7 @@ function InternalApp({
   useError();
   useInAppNotification();
   useLazyModal();
+  usePrompt();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({

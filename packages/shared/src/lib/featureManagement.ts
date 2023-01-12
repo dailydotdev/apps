@@ -1,7 +1,6 @@
 import { IFlags } from 'flagsmith';
 import { OnboardingStep } from '../components/onboarding/common';
 import {
-  AuthVersion,
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
   ScrollOnboardingVersion,
@@ -142,12 +141,6 @@ export class Features<T extends FeatureValue = string> {
     'onboarding_filters_layout',
     OnboardingFiltersLayoutEnum.Grid,
     [OnboardingFiltersLayoutEnum.Grid, OnboardingFiltersLayoutEnum.List],
-  );
-
-  static readonly AuthenticationVersion = new Features(
-    'auth_version',
-    AuthVersion.V1,
-    [AuthVersion.V1, AuthVersion.V2, AuthVersion.V3, AuthVersion.V4],
   );
 
   static readonly InAppNotificationPosition = new Features(
