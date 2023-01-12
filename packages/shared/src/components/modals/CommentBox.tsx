@@ -66,7 +66,7 @@ function CommentBox({
     if (commentRef.current) {
       if (editContent) {
         // eslint-disable-next-line no-param-reassign
-        commentRef.current.value = editContent;
+        commentRef.current.value = input || editContent;
       }
       commentRef.current.setAttribute(
         'data-min-height',
