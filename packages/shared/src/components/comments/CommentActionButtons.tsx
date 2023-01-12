@@ -164,7 +164,6 @@ export default function CommentActionButtons({
       </SimpleTooltip>
       {user?.id === comment.author.id && (
         <OptionsButton
-          buttonSize="small"
           tooltipPlacement="top"
           onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
         />
