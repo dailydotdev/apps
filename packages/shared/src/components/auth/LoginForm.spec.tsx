@@ -66,6 +66,7 @@ const renderComponent = (
   },
 ): RenderResult => {
   const client = new QueryClient();
+  mockLoginFlow();
   mockRegistraitonFlow();
   return render(
     <QueryClientProvider client={client}>
@@ -76,7 +77,7 @@ const renderComponent = (
         getRedirectUri={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
-        refetchBoot={jest.fn()}
+        refetchBoot={onSuccessfulLogin}
       >
         <SettingsContext.Provider value={{ syncSettings: async () => {} }}>
           <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
@@ -88,6 +89,7 @@ const renderComponent = (
 
 const renderLogin = async (email: string) => {
   renderComponent();
+  await waitForNock();
   mockEmailCheck(email, true);
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
@@ -108,7 +110,6 @@ const renderLogin = async (email: string) => {
 
 it('should post login including token', async () => {
   const email = 'sshanzel@yahoo.com';
-  user = { id: '123', infoConfirmed: true, providers: [] };
   await renderLogin(email);
   fireEvent.input(screen.getByLabelText('Password'), {
     target: { value: '#123xAbc' },
@@ -117,6 +118,7 @@ it('should post login including token', async () => {
   const params = formToJson(form as HTMLFormElement);
   mockLoginValidationFlow(params);
   fireEvent.submit(form);
+  await waitForNock();
   await waitFor(() => {
     expect(onSuccessfulLogin).toBeCalled();
   });
@@ -125,7 +127,6 @@ it('should post login including token', async () => {
 it('should display error messages', async () => {
   const email = 'sshanzel@yahoo.com';
   user = null;
-  await mockLoginFlow();
   await renderLogin(email);
 
   fireEvent.input(screen.getByLabelText('Password'), {

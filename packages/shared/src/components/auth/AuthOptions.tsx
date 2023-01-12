@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
-import { AuthVersion } from '../../lib/featureValues';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
 import { AuthSignBack, SIGNIN_METHOD_KEY } from './AuthSignBack';
@@ -61,13 +60,11 @@ export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: () => unknown;
-  onShowOptionsOnly?: (value: boolean) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
   trigger: AuthTriggersOrString;
   defaultDisplay?: AuthDisplay;
   className?: string;
   isLoginFlow?: boolean;
-  version: string;
   onDisplayChange?: (value: string) => void;
 }
 
@@ -77,12 +74,10 @@ function AuthOptions({
   onSuccessfulRegistration,
   className,
   formRef,
-  onShowOptionsOnly,
   trigger,
   defaultDisplay = AuthDisplay.Default,
   onDisplayChange,
   isLoginFlow,
-  version,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -91,7 +86,6 @@ function AuthOptions({
     {},
   );
   const { refetchBoot, user, loginState } = useContext(AuthContext);
-  const isV2 = version === AuthVersion.V2;
   const [email, setEmail] = useState('');
   const [connectedUser, setConnectedUser] =
     useState<RegistrationConnectedUser>();
@@ -112,7 +106,6 @@ function AuthOptions({
       return;
     }
     if (isVerified) {
-      onShowOptionsOnly?.(!!user);
       onSetActiveDisplay(AuthDisplay.VerifiedEmail);
       return;
     }
@@ -137,7 +130,12 @@ function AuthOptions({
     onLoginCheck();
   }, [user]);
 
-  const { loginHint, onPasswordLogin, isPasswordLoginLoading } = useLogin({
+  const {
+    isReady: isLoginReady,
+    loginHint,
+    onPasswordLogin,
+    isPasswordLoginLoading,
+  } = useLogin({
     onSuccessfulLogin: onLoginCheck,
     queryEnabled: !user,
     trigger,
@@ -155,27 +153,31 @@ function AuthOptions({
   } = useProfileForm({ onSuccess: onProfileSuccess });
   const windowPopup = useRef<Window>(null);
 
-  const { registration, validateRegistration, onSocialRegistration } =
-    useRegistration({
-      key: 'registration_form',
-      onValidRegistration: async () => {
-        setIsRegistration(true);
-        await refetchBoot();
-        await syncSettings();
-        onShowOptionsOnly?.(true);
-        onSetActiveDisplay(AuthDisplay.EmailSent);
-        onSuccessfulRegistration?.();
-      },
-      onInvalidRegistration: setRegistrationHints,
-      onRedirectFail: () => {
-        windowPopup.current.close();
-        windowPopup.current = null;
-      },
-      onRedirect: (redirect) => {
-        windowPopup.current.location.href = redirect;
-      },
-    });
+  const {
+    isReady: isRegistrationReady,
+    registration,
+    validateRegistration,
+    onSocialRegistration,
+  } = useRegistration({
+    key: 'registration_form',
+    onValidRegistration: async () => {
+      setIsRegistration(true);
+      await refetchBoot();
+      await syncSettings();
+      onSetActiveDisplay(AuthDisplay.EmailSent);
+      onSuccessfulRegistration?.();
+    },
+    onInvalidRegistration: setRegistrationHints,
+    onRedirectFail: () => {
+      windowPopup.current.close();
+      windowPopup.current = null;
+    },
+    onRedirect: (redirect) => {
+      windowPopup.current.location.href = redirect;
+    },
+  });
 
+  const isReady = isLoginReady && isRegistrationReady;
   const onProviderClick = (provider: string, login = true) => {
     trackEvent({
       event_name: 'click',
@@ -219,7 +221,6 @@ function AuthOptions({
             image: getNodeValue('traits.image', connected.ui.nodes),
             flowId: connected.id,
           };
-          onShowOptionsOnly?.(true);
           setConnectedUser(registerUser);
           return onSetActiveDisplay(AuthDisplay.ConnectedUser);
         }
@@ -267,15 +268,13 @@ function AuthOptions({
   };
 
   const onShowLogin = () => {
-    onShowOptionsOnly?.(false);
     onSetActiveDisplay(AuthDisplay.SignBack);
   };
 
   return (
     <div
       className={classNames(
-        'flex overflow-y-auto z-1 flex-col w-full rounded-16 bg-theme-bg-tertiary',
-        !isV2 && 'max-w-[26.25rem]',
+        'flex overflow-y-auto z-1 flex-col w-full rounded-16 bg-theme-bg-tertiary max-w-[26.25rem]',
         className,
       )}
     >
@@ -292,17 +291,16 @@ function AuthOptions({
             onForgotPassword={onForgotPassword}
             onPasswordLogin={onPasswordLogin}
             loginHint={loginHint}
-            isV2={isV2}
             isLoading={isPasswordLoginLoading}
             isLoginFlow={isForgotPasswordReturn || isLoginFlow}
             trigger={trigger}
+            isReady={isReady}
           />
         </Tab>
         <Tab label={AuthDisplay.SocialRegistration}>
           <SocialRegistrationForm
             formRef={formRef}
             provider={chosenProvider}
-            isV2={isV2}
             onSignup={onSocialCompletion}
             hints={hint}
             isLoading={isProfileUpdateLoading}
@@ -315,7 +313,6 @@ function AuthOptions({
             onBack={() => onSetActiveDisplay(defaultDisplay)}
             formRef={formRef}
             email={email}
-            isV2={isV2}
             onSignup={onRegister}
             hints={registrationHints}
             onUpdateHints={setRegistrationHints}
@@ -338,6 +335,7 @@ function AuthOptions({
               onForgotPassword={onForgotPassword}
               isLoading={isPasswordLoginLoading}
               autoFocus={false}
+              isReady={isReady}
             />
           </AuthSignBack>
         </Tab>
@@ -355,6 +353,7 @@ function AuthOptions({
           <EmailVerified hasUser={!!user}>
             {!user && (
               <LoginForm
+                isReady={isReady}
                 className="mx-4 tablet:mx-12 mt-8"
                 loginHint={loginHint}
                 onPasswordLogin={onPasswordLogin}

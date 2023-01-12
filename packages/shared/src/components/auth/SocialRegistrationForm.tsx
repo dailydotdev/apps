@@ -38,7 +38,6 @@ export interface SocialRegistrationFormProps {
   trigger: AuthTriggersOrString;
   hints?: ProfileFormHint;
   onUpdateHints?: (errors: ProfileFormHint) => void;
-  isV2?: boolean;
   onSignup?: (params: SocialRegistrationParameters) => void;
   isLoading?: boolean;
 }
@@ -57,7 +56,6 @@ export const SocialRegistrationForm = ({
   trigger,
   onUpdateHints,
   onSignup,
-  isV2,
   isLoading,
 }: SocialRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -139,8 +137,7 @@ export const SocialRegistrationForm = ({
       <AuthModalHeader title={title} />
       <AuthForm
         className={classNames(
-          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6',
-          isV2 ? 'max-w-[20rem]' : 'px-6 tablet:px-[3.75rem]',
+          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6 px-6 tablet:px-[3.75rem]',
           className,
         )}
         ref={formRef}

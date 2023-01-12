@@ -1,16 +1,11 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import AuthModalHeading from './AuthModalHeading';
 import AuthOptions, { AuthDisplay as Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
-import FeaturesContext from '../../contexts/FeaturesContext';
-import { AuthVersion } from '../../lib/featureValues';
-import DailyCircle from '../DailyCircle';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { LoginTrigger } from '../../lib/analytics';
 import { Modal, ModalProps } from '../modals/common/Modal';
 
 export interface AuthModalProps extends ModalProps {
@@ -24,11 +19,6 @@ const DiscardActionModal = dynamic(
     ),
 );
 
-const containerMargin = {
-  v1: 'ml-auto',
-  v2: 'm-auto',
-};
-
 export default function AuthModal({
   className,
   trigger,
@@ -36,11 +26,7 @@ export default function AuthModal({
   ...props
 }: AuthModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [showOptionsOnly, setShowOptionsOnly] = useState(
-    trigger === LoginTrigger.CreateFeedFilters,
-  );
   const [screenValue, setScreenValue] = useState<Display>(Display.Default);
-  const { authVersion } = useContext(FeaturesContext);
   const { user, closeLogin, logout } = useContext(AuthContext);
   const onClose = (e) => {
     trackEvent({
@@ -68,7 +54,6 @@ export default function AuthModal({
     onDiscard: onClose,
   });
   const isLogoutFlow = trigger === 'legacy_logout';
-  const isV1 = authVersion === AuthVersion.V1;
 
   return (
     <Modal
@@ -77,60 +62,13 @@ export default function AuthModal({
       size={Modal.Size.Small}
       overlayRef={onContainerChange}
       onRequestClose={onDiscardAttempt}
-      className={classNames(
-        className,
-        'auth',
-        isV1 && !showOptionsOnly && 'laptop:w-[64rem] overflow-hidden',
-        (authVersion === 'v4' || showOptionsOnly) && 'hiddenHeadings',
-      )}
+      className={classNames(className, 'auth')}
     >
-      {isV1 && !showOptionsOnly && (
-        <div className="hidden laptop:flex absolute left-0 h-full w-[40rem] bg-theme-bg-primary">
-          <div className="flex z-1 flex-col flex-1 gap-5 p-10 h-full">
-            {isLogoutFlow ? (
-              <>
-                <AuthModalHeading className="typo-giga1">
-                  Welcome back
-                </AuthModalHeading>
-                <AuthModalHeading className="mb-4 typo-title2">
-                  We have upgraded our authentication system so we need you to
-                  log back in.
-                </AuthModalHeading>
-              </>
-            ) : (
-              <AuthModalHeading className="typo-giga1">
-                Unlock the full power of daily.dev
-              </AuthModalHeading>
-            )}
-
-            <AuthModalHeading emoji="🧙‍♀️" className="mt-4 typo-title2" tag="h2">
-              600+ sources, one feed
-            </AuthModalHeading>
-            <AuthModalHeading emoji="👩‍💻" className="typo-title2" tag="h2">
-              Loved by 150K+ developers
-            </AuthModalHeading>
-            <AuthModalHeading emoji="🔮" className="typo-title2" tag="h2">
-              Personalize your feed!
-            </AuthModalHeading>
-          </div>
-          <div className="flex absolute bottom-0 flex-col translate-y-1/2 left-[80%] -translate-x-[40%] w-[26rem] h-[26rem]">
-            <div className="relative">
-              <DailyCircle
-                className="absolute top-0 right-1/2 translate-x-full -translate-y-full"
-                size="xsmall"
-              />
-              <DailyCircle size="large" />
-            </div>
-          </div>
-        </div>
-      )}
       <AuthOptions
-        version={authVersion}
-        className={classNames('h-full', containerMargin[authVersion])}
+        className="h-full"
         onClose={onDiscardAttempt}
         formRef={formRef}
         onSuccessfulLogin={closeLogin}
-        onShowOptionsOnly={(value: boolean) => setShowOptionsOnly(value)}
         trigger={trigger}
         isLoginFlow={isLogoutFlow}
         onDisplayChange={(display: Display) => setScreenValue(display)}

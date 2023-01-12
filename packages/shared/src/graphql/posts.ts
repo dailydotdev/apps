@@ -1,9 +1,10 @@
-import { gql } from 'graphql-request';
+import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
 import { UPVOTER_FRAGMENT } from './users';
 import { Source } from './sources';
 import { EmptyResponse } from './emptyResponse';
+import { apiUrl } from '../lib/config';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -350,3 +351,15 @@ export const UNHIDE_POST_MUTATION = gql`
     }
   }
 `;
+
+export const banPost = (id: string): Promise<EmptyResponse> => {
+  return request(`${apiUrl}/graphql`, BAN_POST_MUTATION, {
+    id,
+  });
+};
+
+export const deletePost = (id: string): Promise<EmptyResponse> => {
+  return request(`${apiUrl}/graphql`, DELETE_POST_MUTATION, {
+    id,
+  });
+};

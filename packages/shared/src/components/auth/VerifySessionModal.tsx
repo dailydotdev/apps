@@ -7,6 +7,7 @@ import { AuthTriggers } from '../../lib/auth';
 import { Modal, ModalProps } from '../modals/common/Modal';
 
 interface VerifySessionModalProps extends ModalProps {
+  isReady: boolean;
   userProviders?: KratosProviderData;
   onSocialLogin?: (provider: string) => void;
   onPasswordLogin?: (params: LoginFormParams) => void;
@@ -17,6 +18,7 @@ function VerifySessionModal({
   onRequestClose,
   onPasswordLogin,
   userProviders,
+  isReady,
   ...props
 }: VerifySessionModalProps): ReactElement {
   const [hint, setHint] = useState('Enter your password to login');
@@ -33,6 +35,7 @@ function VerifySessionModal({
       onRequestClose={onRequestClose}
     >
       <AuthDefault
+        isReady={isReady}
         signUpTitle="Verify it's you (security check)"
         providers={filteredProviders}
         disableRegistration
