@@ -9,8 +9,9 @@ import PlusIcon from '../icons/Plus';
 import TagsFilter from './TagsFilter';
 import BlockedFilter from './BlockedFilter';
 import AdvancedSettingsFilter from './AdvancedSettings';
-import UnblockModal from '../modals/UnblockModal';
 import { Source } from '../../graphql/sources';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 
 const NewSourceModal = dynamic(
   () =>
@@ -27,17 +28,34 @@ interface FilterMenuProps {
   directlyOpenedTab?: string;
 }
 
+export const unBlockPromptOptions: PromptOptions = {
+  title: 'Are you sure?',
+  okButton: {
+    title: 'Yes, unblock',
+  },
+};
+
 export default function FilterMenu({
   directlyOpenedTab,
 }: FilterMenuProps): ReactElement {
-  const [unblockItem, setUnblockItem] = useState<UnblockItem>();
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
+  const { showPrompt } = usePrompt();
+  const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
+    const description = tag ? (
+      <UnblockTagCopy name={tag} />
+    ) : (
+      <UnblockSourceCopy name={source.name} />
+    );
+    if (await showPrompt({ ...unBlockPromptOptions, description })) {
+      action?.();
+    }
+  };
 
   const menuItems: MenuItem[] = [
     {
       icon: <HashtagIcon className="mr-3 text-xl" />,
       title: 'Manage tags',
-      component: <TagsFilter onUnblockItem={setUnblockItem} />,
+      component: <TagsFilter onUnblockItem={unBlockPrompt} />,
     },
     {
       icon: <FilterIcon className="mr-3 text-xl" />,
@@ -47,7 +65,7 @@ export default function FilterMenu({
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
       title: 'Blocked items',
-      component: <BlockedFilter onUnblockItem={setUnblockItem} />,
+      component: <BlockedFilter onUnblockItem={unBlockPrompt} />,
     },
     {
       icon: <PlusIcon className="mr-3 text-xl" />,
@@ -70,14 +88,6 @@ export default function FilterMenu({
         <NewSourceModal
           isOpen={showNewSourceModal}
           onRequestClose={() => setShowNewSourceModal(false)}
-        />
-      )}
-      {unblockItem && (
-        <UnblockModal
-          item={unblockItem}
-          isOpen={!!unblockItem}
-          onConfirm={unblockItem.action}
-          onRequestClose={() => setUnblockItem(null)}
         />
       )}
     </>
