@@ -26,14 +26,9 @@ import ProtectedPage from '../../components/ProtectedPage';
 type SourcePageProps = {
   squad: Squad;
   squadMembers: SquadMember[];
-  squadMemberCount: number;
 };
 
-const SquadPage = ({
-  squad,
-  squadMembers,
-  squadMemberCount,
-}: SourcePageProps): ReactElement => {
+const SquadPage = ({ squad, squadMembers }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
@@ -64,11 +59,7 @@ const SquadPage = ({
           backgroundRepeat: 'no-repeat',
         }}
       >
-        <SquadPageHeader
-          squad={squad}
-          members={squadMembers}
-          memberCount={squadMemberCount}
-        />
+        <SquadPageHeader squad={squad} members={squadMembers} />
         <Feed
           feedName="source"
           feedQueryKey={[
@@ -105,13 +96,10 @@ export async function getStaticProps({
   try {
     const squad = await getSquad(params.handle);
     const squadMembers = await getSquadMembers(squad.id);
-    // replace with actual member count
-    const squadMemberCount = squadMembers.length;
     return {
       props: {
         squad,
         squadMembers,
-        squadMemberCount,
       },
       revalidate: 60,
     };
@@ -121,7 +109,6 @@ export async function getStaticProps({
         props: {
           squad: null,
           squadMembers: [],
-          squadMemberCount: 0,
         },
         revalidate: 60,
       };
