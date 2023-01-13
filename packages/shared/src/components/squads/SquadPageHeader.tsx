@@ -8,12 +8,10 @@ import { SquadImage } from './SquadImage';
 type SquadPageHeaderProps = {
   squad: Squad;
   members: SquadMember[];
-  memberCount: number;
 };
 
 export function SquadPageHeader({
   squad,
-  memberCount,
   members,
 }: SquadPageHeaderProps): ReactElement {
   return (
@@ -44,7 +42,7 @@ export function SquadPageHeader({
       <SquadHeaderBar
         className="mb-8 mobileL:mb-12"
         members={members}
-        memberCount={memberCount}
+        memberCount={squad.membersCount}
       />
     </section>
   );

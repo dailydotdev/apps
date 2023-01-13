@@ -11,6 +11,7 @@ export interface Squad extends Source {
   public: boolean;
   type: 'squad';
   description?: string;
+  membersCount: number;
 }
 
 export type Squads = {
@@ -96,6 +97,7 @@ export const SQUAD_QUERY = gql`
       type
       description
       image
+      membersCount
     }
   }
 `;
