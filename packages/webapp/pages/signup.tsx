@@ -11,7 +11,7 @@ function Signup(): ReactElement {
   const { formRef } = useAuthForms();
   const router = useRouter();
 
-  const onClose = async (): Promise<void> => {
+  const onClose = () => {
     const closeWindow = router.query.close === 'true';
     if (closeWindow) {
       postWindowMessage(AuthEvent.Login, { login: 'true' });
