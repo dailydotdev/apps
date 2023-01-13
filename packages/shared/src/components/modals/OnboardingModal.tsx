@@ -29,6 +29,22 @@ interface OnboardingModalProps extends ModalProps {
   onRegistrationSuccess?: () => void;
 }
 
+const promptOptions: PromptOptions = {
+  title: 'Quit personalization?',
+  description:
+    'You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?',
+  okButton: {
+    title: 'Quit',
+  },
+  cancelButton: {
+    title: 'Continue',
+  },
+  className: {
+    cancel: 'btn-secondary',
+    ok: 'btn-primary-ketchup',
+  },
+};
+
 function OnboardingModal({
   onRegistrationSuccess,
   onRequestClose,
@@ -70,22 +86,7 @@ function OnboardingModal({
     if (forceClose) {
       return onRequestClose(e);
     }
-    const options: PromptOptions = {
-      title: 'Quit personalization?',
-      description:
-        'You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?',
-      okButton: {
-        title: 'Quit',
-      },
-      cancelButton: {
-        title: 'Continue',
-      },
-      className: {
-        cancel: 'btn-secondary',
-        ok: 'btn-primary-ketchup',
-      },
-    };
-    return showPrompt(options).then((result) => {
+    return showPrompt(promptOptions).then((result) => {
       if (result) {
         onCloseConfirm(e);
       }
