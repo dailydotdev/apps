@@ -83,7 +83,7 @@ function FilterOnboarding({ onClose }: OnboardingStepProps): ReactElement {
           >
             <div
               className={classNames(
-                'grid gap-4 w-full',
+                'grid gap-4 w-fit tablet:w-full',
                 classes[onboardingFiltersLayout],
               )}
             >
