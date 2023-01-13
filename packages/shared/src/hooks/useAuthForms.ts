@@ -28,11 +28,11 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
       description: 'If you leave your changes will not be saved',
       okButton: {
         title: 'Leave',
-        className: 'btn-secondary',
+        className: 'btn-primary-cabbage',
       },
       cancelButton: {
         title: 'Stay',
-        className: 'btn-primary-cabbage',
+        className: 'btn-secondary',
       },
       className: {
         buttons: 'flex-row-reverse',

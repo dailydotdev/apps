@@ -71,15 +71,18 @@ function OnboardingModal({
       return onRequestClose(e);
     }
     const options: PromptOptions = {
-      title: 'Discard changes?',
-      description: 'If you leave your changes will not be saved',
+      title: 'Quit personalization?',
+      description:
+        'You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?',
       okButton: {
-        className: 'btn-primary-ketchup',
-        title: 'Discard',
+        title: 'Quit',
       },
       cancelButton: {
-        title: 'Stay',
-        className: 'btn-primary-cabbage',
+        title: 'Continue',
+      },
+      className: {
+        cancel: 'btn-secondary',
+        ok: 'btn-primary-ketchup',
       },
     };
     return showPrompt(options).then((result) => {
