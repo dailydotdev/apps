@@ -55,7 +55,7 @@ export default function SquadHeaderMenu({
   const onDeleteSquad = async () => {
     const options: PromptOptions = {
       title: `Delete ${squad.name}`,
-      description: `Deleting ${squad.name} means that you will lose your access to all posts that were shared in the Squad`,
+      description: `Deleting ${squad.name} means you and all squad members will lose access to all posts that were shared in the Squad. Are you sure?`,
       okButton: {
         title: 'Delete',
         className: 'btn-secondary',
