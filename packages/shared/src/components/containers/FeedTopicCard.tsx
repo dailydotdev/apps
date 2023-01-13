@@ -41,7 +41,7 @@ const background: Record<OnboardingFiltersLayout, ReactNode> = {
 const classes: Record<OnboardingFiltersLayout, ClassName> = {
   grid: {
     container:
-      'justify-center w-full max-w-[7rem] aspect-square hover:bg-theme-color-cabbage',
+      'justify-center w-full aspect-square hover:bg-theme-color-cabbage',
     check: 'top-1 right-1',
     text: 'typo-callout',
   },
@@ -88,7 +88,7 @@ function FeedFilterCard({
       type="button"
       onClick={onClick}
       className={classNames(
-        'relative flex max-w-[8rem] items-center rounded-14 typo-callout group transition-[background] hover:shadow-2-black',
+        'relative flex max-w-[8rem] min-w-[8rem] tablet:min-w-full items-center rounded-14 typo-callout group transition-[background] hover:shadow-2-black',
         isActive ? 'bg-theme-color-cabbage' : 'bg-theme-divider-tertiary',
         classes[topicLayout].container,
       )}
