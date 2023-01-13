@@ -13,6 +13,23 @@ import { cloudinary } from '../../lib/image';
 import DailyCircle from '../DailyCircle';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 
+const options: PromptOptions = {
+  title: 'Delete the Squad?',
+  description:
+    'Deleting your Squad will free up your handle and members you invited will not be able to join',
+  okButton: {
+    title: 'Delete',
+    className: 'btn-secondary',
+  },
+  cancelButton: {
+    title: 'No, keep it',
+    className: 'btn-primary-cabbage',
+  },
+  className: {
+    buttons: 'flex-row-reverse',
+  },
+};
+
 type LockedSquadModalProps = {
   squad: Squad;
 } & ModalProps;
@@ -27,22 +44,6 @@ function LockedSquadModal({
   };
 
   const onDeleteSquad = async (e) => {
-    const options: PromptOptions = {
-      title: 'Delete the Squad?',
-      description:
-        'Deleting your Squad will free up your handle and members you invited will not be able to join',
-      okButton: {
-        title: 'Delete',
-        className: 'btn-secondary',
-      },
-      cancelButton: {
-        title: 'No, keep it',
-        className: 'btn-primary-cabbage',
-      },
-      className: {
-        buttons: 'flex-row-reverse',
-      },
-    };
     if (await showPrompt(options)) {
       await deleteSquad(squad.id);
       onRequestClose(e);
