@@ -16,18 +16,34 @@ import { OnboardingStep } from '../onboarding/common';
 import { AnalyticsEvent, LoginTrigger, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { OnboardingMode } from '../../graphql/feed';
-import DiscardActionModal from './DiscardActionModal';
 import { Modal, ModalProps } from './common/Modal';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { AuthEventNames } from '../../lib/auth';
 import CloseButton from '../CloseButton';
 import { ExperimentWinner } from '../../lib/featureValues';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 
 interface OnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;
   onRegistrationSuccess?: () => void;
 }
+
+const promptOptions: PromptOptions = {
+  title: 'Quit personalization?',
+  description:
+    'You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?',
+  okButton: {
+    title: 'Quit',
+  },
+  cancelButton: {
+    title: 'Continue',
+  },
+  className: {
+    cancel: 'btn-secondary',
+    ok: 'btn-primary-ketchup',
+  },
+};
 
 function OnboardingModal({
   onRegistrationSuccess,
@@ -36,7 +52,7 @@ function OnboardingModal({
   ...props
 }: OnboardingModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [isClosing, setIsClosing] = useState(false);
+  const { showPrompt } = usePrompt();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [currentView, setCurrentView] = useState(OnboardingStep.Intro);
   const [screenValue, setScreenValue] = useState<AuthDisplay>(
@@ -70,8 +86,11 @@ function OnboardingModal({
     if (forceClose) {
       return onRequestClose(e);
     }
-
-    return setIsClosing(true);
+    return showPrompt(promptOptions).then((result) => {
+      if (result) {
+        onCloseConfirm(e);
+      }
+    });
   };
 
   const { onContainerChange, formRef } = useAuthForms({ onDiscard: onClose });
@@ -152,15 +171,6 @@ function OnboardingModal({
       >
         {content}
       </Modal>
-      <DiscardActionModal
-        isOpen={isClosing}
-        onRequestClose={() => setIsClosing(false)}
-        rightButtonAction={onCloseConfirm}
-        title="Quit personalization?"
-        description="You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?"
-        leftButtonText="Continue"
-        rightButtonText="Quit"
-      />
     </>
   );
 }
