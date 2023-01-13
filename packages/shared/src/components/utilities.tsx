@@ -1,4 +1,9 @@
-import React, { HTMLAttributes, ReactElement, ReactHTML } from 'react';
+import React, {
+  CSSProperties,
+  HTMLAttributes,
+  ReactElement,
+  ReactHTML,
+} from 'react';
 import classNames from 'classnames';
 import classed, { ClassedHTML } from '../lib/classed';
 import styles from './utilities.module.css';
@@ -248,4 +253,11 @@ export const getContextBottomPosition = (
   const { right, bottom } = e.currentTarget.getBoundingClientRect();
 
   return { x: right, y: bottom + 4 };
+};
+
+export const fadedBackgroundStyle: CSSProperties = {
+  background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
+  backgroundSize: '1200px 500px',
+  backgroundPosition: 'center -270px',
+  backgroundRepeat: 'no-repeat',
 };

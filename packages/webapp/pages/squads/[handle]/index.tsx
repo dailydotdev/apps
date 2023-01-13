@@ -11,17 +11,20 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
-import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
+import {
+  fadedBackgroundStyle,
+  FeedPage,
+} from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquad,
   getSquadMembers,
   Squad,
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
-import Custom404 from '../404';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { getLayout } from '../../components/layouts/FeedLayout';
-import ProtectedPage from '../../components/ProtectedPage';
+import Custom404 from '../../404';
+import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import { getLayout } from '../../../components/layouts/FeedLayout';
+import ProtectedPage from '../../../components/ProtectedPage';
 
 type SourcePageProps = {
   squad: Squad;
@@ -52,12 +55,7 @@ const SquadPage = ({ squad, squadMembers }: SourcePageProps): ReactElement => {
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       <FeedPage
         className="laptop:pr-0 laptop:pl-0 mb-4"
-        style={{
-          background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
-          backgroundSize: '1200px 500px',
-          backgroundPosition: 'center -270px',
-          backgroundRepeat: 'no-repeat',
-        }}
+        style={fadedBackgroundStyle}
       >
         <SquadPageHeader squad={squad} members={squadMembers} />
         <Feed
@@ -96,6 +94,7 @@ export async function getStaticProps({
   try {
     const squad = await getSquad(params.handle);
     const squadMembers = await getSquadMembers(squad.id);
+
     return {
       props: {
         squad,
