@@ -41,6 +41,7 @@ export function SquadPageHeader({
       </h4>
       <SquadHeaderBar
         className="mb-8 mobileL:mb-12"
+        squad={squad}
         members={members}
         memberCount={squad.membersCount}
       />

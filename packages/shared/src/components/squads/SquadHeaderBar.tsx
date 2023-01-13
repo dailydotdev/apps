@@ -7,14 +7,16 @@ import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import useSquadMenu from '../../hooks/useSquadMenu';
 import SquadHeaderMenu from './SquadHeaderMenu';
-import { SquadMember } from '../../graphql/squads';
+import { Squad, SquadMember } from '../../graphql/squads';
 
 type SquadHeaderBarProps = {
+  squad: Squad;
   members: SquadMember[];
   memberCount: number;
 } & HTMLAttributes<HTMLDivElement>;
 
 export function SquadHeaderBar({
+  squad,
   members,
   memberCount,
   className,
@@ -61,7 +63,7 @@ export function SquadHeaderBar({
       <Button className="w-full mobileL:w-auto btn btn-secondary">
         Submit article
       </Button>
-      <SquadHeaderMenu />
+      <SquadHeaderMenu squad={squad} />
     </div>
   );
 }

@@ -1,10 +1,13 @@
 import React, { ReactElement, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { Item } from '@dailydotdev/react-contexify';
+import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import EditIcon from '../icons/Edit';
 import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { leaveSquad, Squad } from '../../graphql/squads';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -13,12 +16,40 @@ const PortalMenu = dynamic(
   },
 );
 
-export default function SquadHeaderMenu(): ReactElement {
+export default function SquadHeaderMenu({
+  squad,
+}: {
+  squad: Squad;
+}): ReactElement {
+  const router = useRouter();
   const { user } = useContext(AuthContext);
+  const { showPrompt } = usePrompt();
 
   if (!user) {
     return <></>;
   }
+
+  const onLeaveSquad = async () => {
+    const options: PromptOptions = {
+      title: `Leave ${squad.name}`,
+      description: `Leaving ${squad.name} means that you will lose your access to all posts that were shared in the Squad`,
+      okButton: {
+        title: 'Leave',
+        className: 'btn-secondary',
+      },
+      cancelButton: {
+        title: 'Stay',
+        className: 'btn-primary-cabbage',
+      },
+      className: {
+        buttons: 'flex-row-reverse',
+      },
+    };
+    if (await showPrompt(options)) {
+      await leaveSquad(squad.id);
+      await router.replace('/');
+    }
+  };
 
   return (
     <PortalMenu
@@ -39,7 +70,7 @@ export default function SquadHeaderMenu(): ReactElement {
           tour
         </span>
       </Item>
-      <Item className="typo-callout">
+      <Item className="typo-callout" onClick={onLeaveSquad}>
         <span className="flex items-center w-full typo-callout">
           <ExitIcon size="medium" secondary={false} className="mr-2" /> Leave
           Squad
