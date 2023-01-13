@@ -12,7 +12,7 @@ const Description = classed(
 );
 const Buttons = classed('div', 'flex items-center justify-around self-stretch');
 
-export function PromptElement(props: ModalProps): ReactElement {
+export function PromptElement(props: Partial<ModalProps>): ReactElement {
   const { prompt } = usePrompt();
   if (!prompt) return null;
   const {
