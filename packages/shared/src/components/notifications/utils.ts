@@ -47,7 +47,7 @@ export const notificationDefaultTheme: Record<NotificationIcon, string> = {
   [NotificationIcon.DailyDev]: '',
   [NotificationIcon.CommunityPicks]: '',
   [NotificationIcon.Comment]: 'text-theme-color-blueCheese',
-  [NotificationIcon.Upvote]: 'text-theme-color-blueCheese',
+  [NotificationIcon.Upvote]: 'text-theme-color-avocado',
   [NotificationIcon.Bell]: '',
 };
 
