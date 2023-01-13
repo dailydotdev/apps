@@ -8,9 +8,10 @@ import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
 import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
-import { UnblockItem } from './FilterMenu';
-import UnblockModal from '../modals/UnblockModal';
+import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
+import { usePrompt } from '../../hooks/usePrompt';
+import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
@@ -24,7 +25,17 @@ export const filterAlertMessage = 'Edit your personal feed preferences here';
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [unblockItem, setUnblockItem] = useState<UnblockItem>();
+  const { showPrompt } = usePrompt();
+  const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
+    const description = tag ? (
+      <UnblockTagCopy name={tag} />
+    ) : (
+      <UnblockSourceCopy name={source.name} />
+    );
+    if (await showPrompt({ ...unBlockPromptOptions, description })) {
+      action?.();
+    }
+  };
   const tabs = [
     {
       title: FilterMenuTitle.Tags,
@@ -71,18 +82,10 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
             <AdvancedSettingsFilter />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Blocked}>
-            <BlockedFilter onUnblockItem={setUnblockItem} />
+            <BlockedFilter onUnblockItem={unBlockPrompt} />
           </Modal.Body>
         </Modal.Sidebar.Inner>
       </Modal.Sidebar>
-      {unblockItem && (
-        <UnblockModal
-          item={unblockItem}
-          isOpen={!!unblockItem}
-          onConfirm={unblockItem.action}
-          onRequestClose={() => setUnblockItem(null)}
-        />
-      )}
     </Modal>
   );
 }
