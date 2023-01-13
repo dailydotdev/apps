@@ -33,6 +33,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       size={Modal.Size.XSmall}
       onRequestClose={onFail}
       className={className.modal}
+      overlayClassName="!z-[100]"
       {...props}
     >
       <Modal.Body>
