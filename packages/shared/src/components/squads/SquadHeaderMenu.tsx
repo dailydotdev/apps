@@ -30,7 +30,7 @@ export default function SquadHeaderMenu(): ReactElement {
       <Item className="typo-callout">
         <span className="flex items-center w-full typo-callout">
           <EditIcon size="medium" secondary={false} className="mr-2" /> Edit
-          squad details
+          Squad details
         </span>
       </Item>
       <Item className="typo-callout">
@@ -42,7 +42,7 @@ export default function SquadHeaderMenu(): ReactElement {
       <Item className="typo-callout">
         <span className="flex items-center w-full typo-callout">
           <ExitIcon size="medium" secondary={false} className="mr-2" /> Leave
-          squad
+          Squad
         </span>
       </Item>
     </PortalMenu>

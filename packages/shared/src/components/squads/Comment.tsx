@@ -70,7 +70,7 @@ export function SquadComment({
           type="submit"
           disabled={!commentary}
         >
-          {form.buttonText || 'Finish'}
+          Done
         </Button>
       </Modal.Footer>
     </>
