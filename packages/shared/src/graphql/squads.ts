@@ -1,7 +1,8 @@
 import request, { gql } from 'graphql-request';
+import { USER_SHORT_INFO_FRAGMENT } from './users';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
-import { Edge } from './common';
+import { Connection, Edge } from './common';
 import { Source } from './sources';
 
 export interface Squad extends Source {
@@ -12,6 +13,7 @@ export interface Squad extends Source {
   type: 'squad';
   description?: string;
   membersCount: number;
+  members: Connection<SquadMember>;
 }
 
 export type Squads = {
@@ -85,6 +87,21 @@ export const CREATE_SQUAD_MUTATION = gql`
   }
 `;
 
+const SOURCE_BASE_FRAGMENT = gql`
+  fragment SourceBaseFragment on Source {
+    id
+    active
+    handle
+    name
+    permalink
+    public
+    type
+    description
+    image
+    membersCount
+  }
+`;
+
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
   mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String!) {
     sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
@@ -96,18 +113,10 @@ export const ADD_POST_TO_SQUAD_MUTATION = gql`
 export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
-      id
-      active
-      handle
-      name
-      permalink
-      public
-      type
-      description
-      image
-      membersCount
+      ...SourceBaseFragment
     }
   }
+  ${SOURCE_BASE_FRAGMENT}
 `;
 
 export const SQUAD_MEMBERS_QUERY = gql`
@@ -117,17 +126,37 @@ export const SQUAD_MEMBERS_QUERY = gql`
         node {
           role
           user {
-            id
-            name
-            image
-            permalink
-            username
-            bio
+            ...UserShortInfoFragment
           }
         }
       }
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const SQUAD_INVITATION_QUERY = gql`
+  query SourceInvitationQuery($handle: ID!, $token: String!) {
+    member: sourceMemberByToken(token: $token) {
+      user {
+        ...UserShortInfoFragment
+      }
+    }
+    source(id: $handle) {
+      ...SourceBaseFragment
+      members {
+        edges {
+          node {
+            user {
+              ...UserShortInfoFragment
+            }
+          }
+        }
+      }
+    }
+  }
+  ${SOURCE_BASE_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export type SquadData = {
@@ -165,3 +194,18 @@ export async function getSquadMembers(id: string): Promise<SquadMember[]> {
   );
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
+
+interface SquadInvitation {
+  member: SquadMember;
+  source: Squad;
+}
+
+export interface GetSquadInvitationProps {
+  token?: string;
+  handle?: string;
+}
+
+export const getSquadInvitation = (
+  params: GetSquadInvitationProps,
+): Promise<SquadInvitation> =>
+  request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_INVITATION_QUERY, params);
