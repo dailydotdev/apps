@@ -17,28 +17,29 @@ interface UseAuthFormsProps {
   onDiscard?: CloseAuthModalFunc;
 }
 
+const promptOptions: PromptOptions = {
+  title: 'Discard changes?',
+  description: 'If you leave your changes will not be saved',
+  okButton: {
+    title: 'Leave',
+    className: 'btn-secondary',
+  },
+  cancelButton: {
+    title: 'Stay',
+    className: 'btn-primary-cabbage',
+  },
+  className: {
+    buttons: 'flex-row-reverse',
+  },
+};
+
 const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   const [container, setContainer] = useState<HTMLDivElement>();
   const { showPrompt } = usePrompt();
   const formRef = useRef<HTMLFormElement>();
 
   const openPrompt = async (e) => {
-    const options: PromptOptions = {
-      title: 'Discard changes?',
-      description: 'If you leave your changes will not be saved',
-      okButton: {
-        title: 'Leave',
-        className: 'btn-primary-cabbage',
-      },
-      cancelButton: {
-        title: 'Stay',
-        className: 'btn-secondary',
-      },
-      className: {
-        buttons: 'flex-row-reverse',
-      },
-    };
-    if (await showPrompt(options)) {
+    if (await showPrompt(promptOptions)) {
       onDiscard(e);
     }
   };

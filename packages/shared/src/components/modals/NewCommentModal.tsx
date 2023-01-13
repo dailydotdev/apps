@@ -53,6 +53,18 @@ enum CommentTabs {
   Preview = 'Preview',
 }
 
+const promptOptions: PromptOptions = {
+  title: 'Discard comment',
+  description: 'Are you sure you want to close and discard your comment?',
+  okButton: {
+    className: 'btn-primary-ketchup',
+    title: 'Discard',
+  },
+  cancelButton: {
+    title: 'Stay',
+  },
+};
+
 export default function NewCommentModal({
   onRequestClose,
   editId,
@@ -79,21 +91,10 @@ export default function NewCommentModal({
   );
 
   const confirmClose = async (event: MouseEvent): Promise<void> => {
-    const options: PromptOptions = {
-      title: 'Discard comment',
-      description: 'Are you sure you want to close and discard your comment?',
-      okButton: {
-        className: 'btn-primary-ketchup',
-        title: 'Discard',
-      },
-      cancelButton: {
-        title: 'Stay',
-      },
-    };
     if (
       ((!props.editContent && input?.length) ||
         (props.editContent && props.editContent !== input)) &&
-      !(await showPrompt(options))
+      !(await showPrompt(promptOptions))
     ) {
       return;
     }
