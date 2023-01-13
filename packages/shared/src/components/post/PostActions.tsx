@@ -106,7 +106,7 @@ export function PostActions({
         icon={<BookmarkIcon secondary={post.bookmarked} />}
         aria-label="Bookmark"
         responsiveLabelClass={actionsClassName}
-        className="btn-tertiary-avocado"
+        className="btn-tertiary-bun"
       >
         Bookmark
       </QuaternaryButton>
