@@ -144,7 +144,7 @@ export const leaveSquad = (sourceId: string): Promise<void> =>
   request(`${apiUrl}/graphql`, LEAVE_SQUAD_MUTATION, {
     sourceId,
   });
-  
+
 export const deleteSquad = (sourceId: string): Promise<void> =>
   request(`${apiUrl}/graphql`, DELETE_SQUAD_MUTATION, {
     sourceId,
