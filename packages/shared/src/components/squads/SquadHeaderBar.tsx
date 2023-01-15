@@ -33,7 +33,7 @@ export function SquadHeaderBar({
           >
             <span className="flex items-center">
               <span className="flex flex-row-reverse ml-2">
-                {members.map(({ user }) => (
+                {members?.map(({ user }) => (
                   <ProfilePicture
                     className="-ml-2"
                     size="medium"

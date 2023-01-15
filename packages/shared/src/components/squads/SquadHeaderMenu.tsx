@@ -7,7 +7,12 @@ import EditIcon from '../icons/Edit';
 import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { deleteSquad, leaveSquad, Squad } from '../../graphql/squads';
+import {
+  deleteSquad,
+  leaveSquad,
+  Squad,
+  SquadMemberRole,
+} from '../../graphql/squads';
 import TrashIcon from '../icons/Trash';
 
 const PortalMenu = dynamic(
@@ -29,6 +34,8 @@ export default function SquadHeaderMenu({
   if (!user) {
     return <></>;
   }
+
+  const isSquadOwner = squad?.currentMember === SquadMemberRole.Owner;
 
   const onLeaveSquad = async () => {
     const options: PromptOptions = {
@@ -81,30 +88,35 @@ export default function SquadHeaderMenu({
       className="menu-primary"
       animation="fade"
     >
-      <Item className="typo-callout">
-        <span className="flex items-center w-full typo-callout">
-          <EditIcon size="medium" secondary={false} className="mr-2" /> Edit
-          Squad details
-        </span>
-      </Item>
+      {isSquadOwner && (
+        <Item className="typo-callout">
+          <span className="flex items-center w-full typo-callout">
+            <EditIcon size="medium" secondary={false} className="mr-2" /> Edit
+            Squad details
+          </span>
+        </Item>
+      )}
       <Item className="typo-callout">
         <span className="flex items-center w-full typo-callout">
           <TourIcon size="medium" secondary={false} className="mr-2" /> Learn
           how Squads work
         </span>
       </Item>
-      <Item className="typo-callout" onClick={onDeleteSquad}>
-        <span className="flex items-center w-full typo-callout">
-          <TrashIcon size="medium" secondary={false} className="mr-2" /> Delete
-          Squad
-        </span>
-      </Item>
-      <Item className="typo-callout" onClick={onLeaveSquad}>
-        <span className="flex items-center w-full typo-callout">
-          <ExitIcon size="medium" secondary={false} className="mr-2" /> Leave
-          Squad
-        </span>
-      </Item>
+      {isSquadOwner ? (
+        <Item className="typo-callout" onClick={onDeleteSquad}>
+          <span className="flex items-center w-full typo-callout">
+            <TrashIcon size="medium" secondary={false} className="mr-2" />{' '}
+            Delete Squad
+          </span>
+        </Item>
+      ) : (
+        <Item className="typo-callout" onClick={onLeaveSquad}>
+          <span className="flex items-center w-full typo-callout">
+            <ExitIcon size="medium" secondary={false} className="mr-2" /> Leave
+            Squad
+          </span>
+        </Item>
+      )}
     </PortalMenu>
   );
 }

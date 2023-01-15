@@ -12,6 +12,7 @@ export interface Squad extends Source {
   type: 'squad';
   description?: string;
   membersCount: number;
+  currentMember?: SquadMemberRole;
 }
 
 export type Squads = {
@@ -85,7 +86,7 @@ export const CREATE_SQUAD_MUTATION = gql`
   }
 `;
 
-export const ADD_POST_TO_SQUAD_MUTATION = gql`
+export const ADD_POST_TO_SQUAD_MUTATION = gql`x
   mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String!) {
     sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
       id
@@ -106,6 +107,7 @@ export const SQUAD_QUERY = gql`
       description
       image
       membersCount
+      currentMember
     }
   }
 `;
@@ -144,7 +146,7 @@ export const leaveSquad = (sourceId: string): Promise<void> =>
   request(`${apiUrl}/graphql`, LEAVE_SQUAD_MUTATION, {
     sourceId,
   });
-  
+
 export const deleteSquad = (sourceId: string): Promise<void> =>
   request(`${apiUrl}/graphql`, DELETE_SQUAD_MUTATION, {
     sourceId,
