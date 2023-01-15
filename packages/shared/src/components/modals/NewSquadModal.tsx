@@ -10,7 +10,7 @@ import {
   SquadForm,
   SquadStateProps,
 } from '../squads/utils';
-import { SquadsConfirmation } from './SquadsConfirmationModal';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { ModalStep } from './common/types';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 
@@ -20,6 +20,26 @@ export const modalStateOrder = [
   ModalState.WriteComment,
   ModalState.Ready,
 ];
+
+export const quitSqualModal: PromptOptions = {
+  title: 'Quit the process?',
+  description: (
+    <>
+      <p>
+        Learning is more powerful together. Are you sure you want to quit the
+        process?
+      </p>
+      <p>p.s you can create a new Squad from the left sidebar</p>
+    </>
+  ),
+  cancelButton: {
+    title: 'Cancel',
+  },
+  okButton: {
+    title: 'Continue',
+    className: 'text-white btn-primary-ketchup',
+  },
+};
 
 export type NewSquadModalProps = {
   onRequestClose: () => void;
@@ -34,7 +54,7 @@ function NewSquadModal({
   isOpen,
 }: NewSquadModalProps): ReactElement {
   const [squad, setSquad] = useState<Squad>();
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const { showPrompt } = usePrompt();
   const [form, setForm] = useState<Partial<SquadForm>>({});
   const onNext = async (squadForm?: SquadForm) => {
     if (squadForm) setForm(squadForm);
@@ -72,35 +92,30 @@ function NewSquadModal({
       title: <Modal.Header.Title>{ModalState.Ready}</Modal.Header.Title>,
     },
   ];
-  const handleClose = () => {
-    if (activeView === ModalState.Ready) onRequestClose();
-    else setShowConfirmation(true);
+  const handleClose = async () => {
+    if (activeView === ModalState.Ready) return onRequestClose();
+
+    const shouldQuit = await showPrompt(quitSqualModal);
+    if (shouldQuit) onRequestClose();
+    return null;
   };
   return (
-    <>
-      <Modal
-        isOpen={isOpen}
-        kind={Modal.Kind.FixedCenter}
-        size={Modal.Size.Small}
-        onRequestClose={handleClose}
-        onViewChange={(view) => {
-          activeView = view;
-        }}
-        steps={modalSteps}
-      >
-        <Modal.Header.Steps />
-        <SquadDetails {...stateProps} />
-        <SquadSelectArticle {...stateProps} />
-        <SteppedSquadComment {...stateProps} />
-        <SquadReady {...stateProps} squad={squad} />
-      </Modal>
-      {showConfirmation && (
-        <SquadsConfirmation
-          onContinue={onRequestClose}
-          onRequestClose={() => setShowConfirmation(false)}
-        />
-      )}
-    </>
+    <Modal
+      isOpen={isOpen}
+      kind={Modal.Kind.FixedCenter}
+      size={Modal.Size.Small}
+      onRequestClose={handleClose}
+      onViewChange={(view) => {
+        activeView = view;
+      }}
+      steps={modalSteps}
+    >
+      <Modal.Header.Steps />
+      <SquadDetails {...stateProps} />
+      <SquadSelectArticle {...stateProps} />
+      <SteppedSquadComment {...stateProps} />
+      <SquadReady {...stateProps} squad={squad} />
+    </Modal>
   );
 }
 
