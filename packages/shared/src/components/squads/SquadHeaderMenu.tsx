@@ -35,7 +35,7 @@ export default function SquadHeaderMenu({
     return <></>;
   }
 
-  const isSquadOwner = squad?.currentMember === SquadMemberRole.Owner;
+  const isSquadOwner = squad?.currentMember?.role === SquadMemberRole.Owner;
 
   const onLeaveSquad = async () => {
     const options: PromptOptions = {

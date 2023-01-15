@@ -12,7 +12,7 @@ export interface Squad extends Source {
   type: 'squad';
   description?: string;
   membersCount: number;
-  currentMember?: SquadMemberRole;
+  currentMember?: SquadMember;
 }
 
 export type Squads = {
@@ -107,7 +107,9 @@ export const SQUAD_QUERY = gql`
       description
       image
       membersCount
-      currentMember
+      currentMember {
+        role
+      }
     }
   }
 `;
