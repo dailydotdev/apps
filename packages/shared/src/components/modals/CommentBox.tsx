@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
-import { commentBoxClassNames } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import styles from './CommentBox.module.css';
 import { ProfilePicture } from '../ProfilePicture';
@@ -67,7 +66,7 @@ function CommentBox({
     if (commentRef.current) {
       if (editContent) {
         // eslint-disable-next-line no-param-reassign
-        commentRef.current.value = editContent;
+        commentRef.current.value = input || editContent;
       }
       commentRef.current.setAttribute(
         'data-min-height',
@@ -108,12 +107,7 @@ function CommentBox({
 
   return (
     <>
-      <article
-        className={classNames(
-          'flex flex-col items-stretch',
-          commentBoxClassNames,
-        )}
-      >
+      <article className="flex flex-col items-stretch rounded-8 break-words-overflow typo-callout">
         <header className="flex items-center mb-2">
           <ProfilePicture
             size="large"

@@ -13,7 +13,6 @@ import Markdown from '../Markdown';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button } from '../buttons/Button';
 import { Post } from '../../graphql/posts';
-import DiscardActionModal from './DiscardActionModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { Modal, ModalProps } from './common/Modal';
 import AtIcon from '../icons/At';
@@ -21,6 +20,7 @@ import { ClickableText } from '../buttons/ClickableText';
 import { useUserMention } from '../../hooks/useUserMention';
 import { markdownGuide } from '../../lib/constants';
 import { Justify } from '../utilities';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 
 interface CommentVariables {
   id: string;
@@ -53,6 +53,18 @@ enum CommentTabs {
   Preview = 'Preview',
 }
 
+const promptOptions: PromptOptions = {
+  title: 'Discard comment',
+  description: 'Are you sure you want to close and discard your comment?',
+  okButton: {
+    className: 'btn-primary-ketchup',
+    title: 'Discard',
+  },
+  cancelButton: {
+    title: 'Stay',
+  },
+};
+
 export default function NewCommentModal({
   onRequestClose,
   editId,
@@ -61,9 +73,9 @@ export default function NewCommentModal({
   ...props
 }: NewCommentModalProps): ReactElement {
   const [input, setInput] = useState<string>(props.editContent || '');
-  const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>(null);
+  const { showPrompt } = usePrompt();
   const { requestMethod } = useRequestProtocol();
   const previewQueryKey = ['comment_preview', input];
   const { data: previewContent } = useQuery<{ preview: string }>(
@@ -78,15 +90,15 @@ export default function NewCommentModal({
     { enabled: input?.length > 0 },
   );
 
-  const confirmClose = (event: MouseEvent): void => {
+  const confirmClose = async (event: MouseEvent): Promise<void> => {
     if (
-      (!props.editContent && input?.length) ||
-      (props.editContent && props.editContent !== input)
+      ((!props.editContent && input?.length) ||
+        (props.editContent && props.editContent !== input)) &&
+      !(await showPrompt(promptOptions))
     ) {
-      setShowDiscardModal(true);
-    } else {
-      onRequestClose(event);
+      return;
     }
+    onRequestClose(event);
   };
 
   const key = ['post_comments_mutations', props.post.id];
@@ -157,7 +169,7 @@ export default function NewCommentModal({
   useEffect(() => {
     onInputChange?.(input);
   }, [input]);
-  const disabled = !input?.trim().length || input === props.editContent;
+  const disabled = !input?.trim().length;
   const updateButton = (
     <Button
       disabled={disabled}
@@ -216,13 +228,6 @@ export default function NewCommentModal({
         {updateButton}
       </Modal.Footer>
       <Modal.Footer view={CommentTabs.Preview}>{updateButton}</Modal.Footer>
-      <DiscardActionModal
-        isOpen={showDiscardModal}
-        onRequestClose={() => setShowDiscardModal(false)}
-        rightButtonAction={onRequestClose}
-        shouldCloseOnOverlayClick={false}
-        parentSelector={props.parentSelector}
-      />
     </Modal>
   );
 }

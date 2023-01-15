@@ -145,6 +145,7 @@ export default function MainLayout({
         )}
         {children}
       </main>
+      <PromptElement />
     </div>
   );
 }
