@@ -2,15 +2,18 @@ import {
   fadedBackgroundStyle,
   PageContainer,
 } from '@dailydotdev/shared/src/components/utilities';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
+  joinSquadInvitation,
+  SquadInvitationProps,
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { Edge } from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Link from 'next/link';
 import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -36,9 +39,36 @@ const HighlightedText = classed('span', 'font-bold text-theme-label-primary');
 
 const SquadReferral = (): ReactElement => {
   const router = useRouter();
-  const { data } = useQuery(['squad_referral', router.query], () =>
-    getSquadInvitation(router.query),
+  const { handle, token } = router.query as unknown as SquadInvitationProps;
+  const { showLogin, user: loggedUser } = useAuthContext();
+  const squadsUrl = `/squads/${handle}`;
+  const { data } = useQuery(
+    [{ type: 'squad_referral', params: { handle, token } }],
+    ({ queryKey: [{ params }] }) => getSquadInvitation(params),
+    {
+      enabled: !!handle && !!token,
+      onSuccess: (response) => {
+        if (!loggedUser) {
+          return;
+        }
+
+        const isMember = response.source.members.edges.some(
+          ({ node }) => node.user.id === loggedUser.id,
+        );
+        if (isMember) router.replace(squadsUrl);
+      },
+    },
   );
+  const { mutateAsync: onJoinSquad } = useMutation(
+    () => joinSquadInvitation({ handle, token }),
+    { onSuccess: () => router.replace(squadsUrl) },
+  );
+
+  const onJoinClick = async () => {
+    if (!loggedUser) return showLogin('join squad');
+
+    return onJoinSquad();
+  };
 
   if (!data) {
     return null;
@@ -81,7 +111,11 @@ const SquadReferral = (): ReactElement => {
             <h2 className="flex flex-col typo-headline">{source.name}</h2>
             <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
           </div>
-          <Button className="ml-auto btn-primary" buttonSize="large">
+          <Button
+            className="ml-auto btn-primary"
+            buttonSize="large"
+            onClick={onJoinClick}
+          >
             Join Squad
           </Button>
         </span>

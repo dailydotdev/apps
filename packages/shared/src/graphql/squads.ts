@@ -159,6 +159,15 @@ export const SQUAD_INVITATION_QUERY = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
+export const SQUAD_JOIN_MUTATION = gql`
+  mutation JoinSquad($handle: ID!, $token: String!) {
+    joinSource(sourceId: $handle, token: $token) {
+      ...SourceBaseFragment
+    }
+  }
+  ${SOURCE_BASE_FRAGMENT}
+`;
+
 export type SquadData = {
   source: Squad;
 };
@@ -200,12 +209,17 @@ interface SquadInvitation {
   source: Squad;
 }
 
-export interface GetSquadInvitationProps {
-  token?: string;
-  handle?: string;
+export interface SquadInvitationProps {
+  token: string;
+  handle: string;
 }
 
 export const getSquadInvitation = (
-  params: GetSquadInvitationProps,
+  params: SquadInvitationProps,
 ): Promise<SquadInvitation> =>
   request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_INVITATION_QUERY, params);
+
+export const joinSquadInvitation = (
+  params: SquadInvitationProps,
+): Promise<SquadInvitation> =>
+  request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, params);
