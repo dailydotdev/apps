@@ -1,3 +1,4 @@
+import React from 'react';
 import request from 'graphql-request';
 import { SourceData, SOURCE_QUERY } from '../../graphql/sources';
 import { apiUrl } from '../../lib/config';
@@ -11,6 +12,7 @@ import {
 } from '../../graphql/squads';
 import { Post, PostItem } from '../../graphql/posts';
 import { base64ToFile } from '../../lib/base64';
+import { PromptOptions } from '../../hooks/usePrompt';
 
 export async function checkSourceExists(id: string): Promise<boolean> {
   try {
@@ -77,4 +79,24 @@ export type SquadStateProps = {
   form: Partial<SquadForm>;
   setForm: React.Dispatch<React.SetStateAction<Partial<SquadForm>>>;
   onRequestClose?: () => void;
+};
+
+export const quitSquadModal: PromptOptions = {
+  title: 'Quit the process?',
+  description: (
+    <>
+      <p>
+        Learning is more powerful together. Are you sure you want to quit the
+        process?
+      </p>
+      <p>p.s you can create a new Squad from the left sidebar</p>
+    </>
+  ),
+  cancelButton: {
+    title: 'Cancel',
+  },
+  okButton: {
+    title: 'Continue',
+    className: 'text-white btn-primary-ketchup',
+  },
 };
