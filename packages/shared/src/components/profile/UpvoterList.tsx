@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { UseInfiniteQueryResult } from 'react-query';
 import { UpvotesData } from '../../graphql/common';
-import { UpvoterListPlaceholder } from './UpvoterListPlaceholder';
+import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
 import { UserShortInfo } from './UserShortInfo';
 import InfiniteScrolling from '../containers/InfiniteScrolling';
 
@@ -19,7 +19,7 @@ export function UpvoterList({
   return (
     <InfiniteScrolling
       queryResult={queryResult}
-      placeholder={<UpvoterListPlaceholder placeholderAmount={1} />}
+      placeholder={<UserShortInfoPlaceholder placeholderAmount={1} />}
     >
       {queryResult.data.pages.map(
         (page) =>

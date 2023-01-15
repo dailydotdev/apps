@@ -1,42 +1,45 @@
 import React, { ReactElement, useRef, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { UpvoterList } from '../profile/UpvoterList';
+import request from 'graphql-request';
 import {
   UserShortInfoPlaceholder,
   UserShortInfoPlaceholderProps,
 } from '../profile/UserShortInfoPlaceholder';
 import { apiUrl } from '../../lib/config';
-import { RequestQuery, UpvotesData } from '../../graphql/common';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { Modal, ModalProps } from './common/Modal';
+import {
+  Squad,
+  SQUAD_MEMBERS_QUERY,
+  SquadEdgesData,
+} from '../../graphql/squads';
+import { SquadMemberList } from '../profile/SquadMemberList';
 
 export interface UpvotedPopupModalProps extends ModalProps {
+  squad: Squad;
   listPlaceholderProps: UserShortInfoPlaceholderProps;
-  requestQuery: RequestQuery<UpvotesData>;
 }
 
-export function UpvotedPopupModal({
+export function SquadMemberModal({
+  squad,
   listPlaceholderProps,
   onRequestClose,
-  requestQuery: { queryKey, query, params, options = {} },
-  children,
   ...modalProps
 }: UpvotedPopupModalProps): ReactElement {
-  const { requestMethod } = useRequestProtocol();
-  const queryResult = useInfiniteQuery<UpvotesData>(
+  const queryKey = ['squadMembers', squad?.id];
+  const queryResult = useInfiniteQuery<SquadEdgesData>(
     queryKey,
     ({ pageParam }) =>
-      requestMethod(
+      request(
         `${apiUrl}/graphql`,
-        query,
-        { ...params, after: pageParam },
+        SQUAD_MEMBERS_QUERY,
+        { id: squad?.id, after: pageParam },
         { requestKey: JSON.stringify(queryKey) },
       ),
     {
-      ...options,
+      enabled: !!squad?.id,
       getNextPageParam: (lastPage) =>
-        lastPage?.upvotes?.pageInfo?.hasNextPage &&
-        lastPage?.upvotes?.pageInfo?.endCursor,
+        lastPage?.sourceMembers?.pageInfo?.hasNextPage &&
+        lastPage?.sourceMembers?.pageInfo?.endCursor,
     },
   );
 
@@ -52,14 +55,14 @@ export function UpvotedPopupModal({
       size={Modal.Size.Small}
       {...modalProps}
     >
-      <Modal.Header title="Upvoted by" />
+      <Modal.Header title="Squad members" />
       <Modal.Body
         className="py-2 px-0"
         data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
         ref={container}
       >
-        {page && page.upvotes.edges.length > 0 ? (
-          <UpvoterList
+        {page && page.sourceMembers.edges.length > 0 ? (
+          <SquadMemberList
             queryResult={queryResult}
             scrollingContainer={container.current}
             appendTooltipTo={modalRef}
@@ -72,4 +75,4 @@ export function UpvotedPopupModal({
   );
 }
 
-export default UpvotedPopupModal;
+export default SquadMemberModal;

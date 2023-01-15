@@ -18,12 +18,16 @@ const NewSquadModal = dynamic(
 const LockedSquadModal = dynamic(
   () => import(/* webpackChunkName: "lockedSquadModal" */ './LockedSquadModal'),
 );
+const SquadMemberModal = dynamic(
+  () => import(/* webpackChunkName: "squadMemberModal" */ './SquadMemberModal'),
+);
 
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.BetaSquad]: SquadsBetaModal,
   [LazyModal.PostToSquad]: PostToSquadModal,
   [LazyModal.LockedSquad]: LockedSquadModal,
+  [LazyModal.SquadMember]: SquadMemberModal,
 };
 
 type GetComponentProps<T> = T extends
