@@ -25,6 +25,7 @@ export enum LazyModal {
   BetaSquad = 'betaSquad',
   PostToSquad = 'postToSquad',
   LockedSquad = 'lockedSquad',
+  SquadMember = 'squadMember',
 }
 
 export type ModalTabItem = {

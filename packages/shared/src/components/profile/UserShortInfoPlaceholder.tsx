@@ -1,15 +1,15 @@
 import React, { ReactElement } from 'react';
 import { PlaceholderList } from '../cards/PlaceholderList';
 
-export interface UpvoterListPlaceholderProps {
+export interface UserShortInfoPlaceholderProps {
   placeholderAmount: number;
 }
 
 const MAX_DISPLAY = 5;
 
-export function UpvoterListPlaceholder({
+export function UserShortInfoPlaceholder({
   placeholderAmount,
-}: UpvoterListPlaceholderProps): ReactElement {
+}: UserShortInfoPlaceholderProps): ReactElement {
   const amount =
     placeholderAmount <= MAX_DISPLAY ? placeholderAmount : MAX_DISPLAY;
 
@@ -25,4 +25,4 @@ export function UpvoterListPlaceholder({
   );
 }
 
-export default UpvoterListPlaceholder;
+export default UserShortInfoPlaceholder;
