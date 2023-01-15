@@ -74,7 +74,7 @@ const SquadReferral = (): ReactElement => {
           has invited you to <HighlightedText>{source.name}</HighlightedText>
         </BodyParagraph>
       </span>
-      <div className="flex flex-col p-6 my-10 w-full border rounded-24 border-theme-color-cabbage">
+      <div className="flex flex-col p-6 my-10 w-full rounded-24 border border-theme-color-cabbage">
         <span className="flex flex-row items-center">
           <SourceButton source={source} size="xxlarge" />
           <div className="flex flex-col ml-4">
