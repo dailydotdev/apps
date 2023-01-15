@@ -190,7 +190,7 @@ export const deleteSquad = (sourceId: string): Promise<void> =>
 
 export async function getSquad(handle: string): Promise<Squad> {
   const res = await request<SquadData>(`${apiUrl}/graphql`, SQUAD_QUERY, {
-    handle,
+    handle: handle.toLowerCase(),
   });
   return res.source;
 }
@@ -214,12 +214,20 @@ export interface SquadInvitationProps {
   handle: string;
 }
 
-export const getSquadInvitation = (
-  params: SquadInvitationProps,
-): Promise<SquadInvitation> =>
-  request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_INVITATION_QUERY, params);
+export const getSquadInvitation = ({
+  token,
+  handle,
+}: SquadInvitationProps): Promise<SquadInvitation> =>
+  request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_INVITATION_QUERY, {
+    token,
+    handle: handle.toLowerCase(),
+  });
 
-export const joinSquadInvitation = (
-  params: SquadInvitationProps,
-): Promise<SquadInvitation> =>
-  request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, params);
+export const joinSquadInvitation = ({
+  token,
+  handle,
+}: SquadInvitationProps): Promise<SquadInvitation> =>
+  request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, {
+    token,
+    handle: handle.toLowerCase(),
+  });
