@@ -34,7 +34,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   imageSize = 'xlarge',
   tag,
   user,
-  className,
+  className = 'py-3 px-6 hover:bg-theme-hover',
   disableTooltip,
   scrollingContainer,
   appendTooltipTo,
@@ -48,13 +48,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   };
 
   return (
-    <Element
-      {...props}
-      className={classNames(
-        'flex flex-row py-3 px-6 hover:bg-theme-hover',
-        className,
-      )}
-    >
+    <Element {...props} className={classNames('flex flex-row', className)}>
       <ProfileTooltip
         user={user}
         tooltip={tooltipProps}
