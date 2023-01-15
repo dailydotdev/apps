@@ -7,10 +7,11 @@ import { SquadReady } from '../squads/Ready';
 import {
   createSquad,
   ModalState,
+  quitSquadModal,
   SquadForm,
   SquadStateProps,
 } from '../squads/utils';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { usePrompt } from '../../hooks/usePrompt';
 import { ModalStep } from './common/types';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 
@@ -20,26 +21,6 @@ export const modalStateOrder = [
   ModalState.WriteComment,
   ModalState.Ready,
 ];
-
-export const quitSqualModal: PromptOptions = {
-  title: 'Quit the process?',
-  description: (
-    <>
-      <p>
-        Learning is more powerful together. Are you sure you want to quit the
-        process?
-      </p>
-      <p>p.s you can create a new Squad from the left sidebar</p>
-    </>
-  ),
-  cancelButton: {
-    title: 'Cancel',
-  },
-  okButton: {
-    title: 'Continue',
-    className: 'text-white btn-primary-ketchup',
-  },
-};
 
 export type NewSquadModalProps = {
   onRequestClose: () => void;
@@ -95,7 +76,7 @@ function NewSquadModal({
   const handleClose = async () => {
     if (activeView === ModalState.Ready) return onRequestClose();
 
-    const shouldQuit = await showPrompt(quitSqualModal);
+    const shouldQuit = await showPrompt(quitSquadModal);
     if (shouldQuit) onRequestClose();
     return null;
   };

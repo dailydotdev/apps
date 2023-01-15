@@ -4,7 +4,7 @@ import SquadsBackgroundSvg from '../../svg/SquadsBackground';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal } from './common/Modal';
-import { quitSqualModal } from './NewSquadModal';
+import { quitSquadModal } from '../squads/utils';
 
 export type SquadsBetaModalProps = {
   onRequestClose: () => void;
@@ -17,7 +17,7 @@ function SquadsBetaModal({
 }: SquadsBetaModalProps): ReactElement {
   const { showPrompt } = usePrompt();
   const onConfirm = async () => {
-    const shouldQuit = await showPrompt(quitSqualModal);
+    const shouldQuit = await showPrompt(quitSquadModal);
     if (shouldQuit) onRequestClose();
   };
 
