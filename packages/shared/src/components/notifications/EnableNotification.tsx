@@ -19,12 +19,13 @@ const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
   parentCommentAuthorName?: string;
+  className?: string;
 };
 
 const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.NotificationsPage]:
     'px-6 w-full border-l bg-theme-float',
-  [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mt-3',
+  [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mx-3 mb-3',
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.NewSourceModal]: '',
 };
@@ -32,6 +33,7 @@ const containerClassName: Record<NotificationPromptSource, string> = {
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
   parentCommentAuthorName,
+  className,
 }: EnableNotificationProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const onTogglePermission = useEnableNotification(source);
@@ -118,6 +120,7 @@ function EnableNotification({
       className={classNames(
         'overflow-hidden relative py-4 typo-callout border-theme-color-cabbage',
         classes,
+        className,
       )}
     >
       {source === NotificationPromptSource.NotificationsPage && (

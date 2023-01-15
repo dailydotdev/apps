@@ -26,7 +26,10 @@ import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import {
+  PromptOptions,
+  usePrompt,
+} from '@dailydotdev/shared/src/hooks/usePrompt';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -36,13 +39,6 @@ import {
   getContentScriptPermissionAndRegister,
   useExtensionPermission,
 } from '../companion/useExtensionPermission';
-
-const AnalyticsConsentModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "analyticsConsentModal" */ './AnalyticsConsentModal'
-    ),
-);
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -61,6 +57,27 @@ const shouldShowConsent = process.env.TARGET_BROWSER === 'firefox';
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 
+const analyticsConsentPromptOptions: PromptOptions = {
+  title: 'Your privacy stays yours',
+  description: (
+    <p>
+      We use 3rd party analytics platforms to improve daily.dev. Instead of just
+      using it, we would like to ask for your approval. We promise to never
+      misuse it. 🙏
+      <br />
+      <br />
+      Do you agree to opt-in?
+    </p>
+  ),
+  okButton: {
+    title: "Yes, I'd love to",
+    className: 'btn-primary-water',
+  },
+  cancelButton: {
+    title: 'No',
+  },
+};
+
 function InternalApp({
   pageRef,
 }: {
@@ -70,6 +87,7 @@ function InternalApp({
   useInAppNotification();
   useLazyModal();
   usePrompt();
+  const { showPrompt } = usePrompt();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission({
@@ -81,6 +99,15 @@ function InternalApp({
     shouldShowConsent ? null : true,
   );
   const routeChangedCallbackRef = useTrackPageView();
+  const analyticsConsentPrompt = async () => {
+    setAnalyticsConsent(await showPrompt(analyticsConsentPromptOptions));
+  };
+
+  useEffect(() => {
+    if (analyticsConsent === null) {
+      analyticsConsentPrompt();
+    }
+  }, [analyticsConsent]);
 
   useEffect(() => {
     if (routeChangedCallbackRef.current) {
@@ -118,13 +145,6 @@ function InternalApp({
           onRequestClose={closeLogin}
           contentLabel="Login Modal"
           {...loginState}
-        />
-      )}
-      {analyticsConsent === null && (
-        <AnalyticsConsentModal
-          onDecline={() => setAnalyticsConsent(false)}
-          onAccept={() => setAnalyticsConsent(true)}
-          isOpen
         />
       )}
     </DndContextProvider>
