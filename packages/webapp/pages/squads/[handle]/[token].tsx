@@ -85,7 +85,7 @@ const SquadReferral = (): ReactElement => {
   return (
     <PageContainer className="relative justify-center items-center min-h-[calc(100vh-3.5rem)]">
       <div
-        className="absolute -top-4 -right-20 -left-20 h-40 rounded-26"
+        className="absolute -top-4 -right-20 -left-20 h-40 bg-no-repeat rounded-26"
         style={fadedBackgroundStyle}
       />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>

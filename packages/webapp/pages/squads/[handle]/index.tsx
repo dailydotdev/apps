@@ -54,7 +54,7 @@ const SquadPage = ({ squad, squadMembers }: SourcePageProps): ReactElement => {
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       <FeedPage
-        className="laptop:pr-0 laptop:pl-0 mb-4"
+        className="laptop:pr-0 laptop:pl-0 mb-4 bg-no-repeat"
         style={fadedBackgroundStyle}
       >
         <SquadPageHeader squad={squad} members={squadMembers} />
