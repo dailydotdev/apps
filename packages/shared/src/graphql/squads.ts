@@ -230,11 +230,7 @@ export interface SquadInvitationProps {
 export const getSquadInvitation = (token: string): Promise<SquadInvitation> =>
   request(`${apiUrl}/graphql`, SQUAD_INVITATION_QUERY, { token });
 
-export const joinSquadInvitation = ({
-  token,
-  sourceId,
-}: SquadInvitationProps): Promise<SquadInvitation> =>
-  request(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, {
-    token,
-    sourceId: sourceId.toLowerCase(),
-  });
+export const joinSquadInvitation = (
+  params: SquadInvitationProps,
+): Promise<SquadInvitation> =>
+  request(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, params);
