@@ -61,7 +61,7 @@ export function SquadMemberModal({
         data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
         ref={container}
       >
-        {page && page.sourceMembers.edges.length > 0 ? (
+        {page?.sourceMembers.edges.length > 0 ? (
           <SquadMemberList
             queryResult={queryResult}
             scrollingContainer={container.current}
