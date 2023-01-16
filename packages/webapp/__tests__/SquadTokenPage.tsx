@@ -20,6 +20,7 @@ import {
   SquadMember,
   SquadMemberRole,
   SQUAD_INVITATION_QUERY,
+  SQUAD_JOIN_MUTATION,
 } from '@dailydotdev/shared/src/graphql/squads';
 import SquadPage, {
   SquadReferralProps,
@@ -236,5 +237,28 @@ describe('squad details', () => {
       ),
     );
     expect(result.length).toEqual(members.length);
+  });
+
+  it('should join squad', async () => {
+    let mutationCalled = false;
+    const owner = generateDefaultMember();
+    renderComponent([createInvitationMock(defaultToken, owner)]);
+    await waitForNock();
+    mockGraphQL({
+      request: {
+        query: SQUAD_JOIN_MUTATION,
+        variables: { token: owner.referralToken, sourceId: owner.source.id },
+      },
+      result: () => {
+        mutationCalled = true;
+        return {
+          data: { _: true },
+        };
+      },
+    });
+    const btn = await screen.findByText('Join Squad');
+    btn.click();
+    await waitForNock();
+    expect(mutationCalled).toBeTruthy();
   });
 });
