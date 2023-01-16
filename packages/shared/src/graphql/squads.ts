@@ -29,6 +29,8 @@ export enum SquadMemberRole {
 export type SquadMember = {
   role: SquadMemberRole;
   user: UserShortProfile;
+  source: Squad;
+  referralToken: string;
 };
 
 export type CreateSquadInput = {
@@ -84,6 +86,13 @@ export const CREATE_SQUAD_MUTATION = gql`
       public
       type
       description
+      members {
+        edges {
+          node {
+            referralToken
+          }
+        }
+      }
     }
   }
 `;
@@ -140,19 +149,19 @@ export const SQUAD_MEMBERS_QUERY = gql`
 `;
 
 export const SQUAD_INVITATION_QUERY = gql`
-  query SourceInvitationQuery($handle: ID!, $token: String!) {
+  query SourceInvitationQuery($token: String!) {
     member: sourceMemberByToken(token: $token) {
       user {
         ...UserShortInfoFragment
       }
-    }
-    source(id: $handle) {
-      ...SourceBaseFragment
-      members {
-        edges {
-          node {
-            user {
-              ...UserShortInfoFragment
+      source {
+        ...SourceBaseFragment
+        members {
+          edges {
+            node {
+              user {
+                ...UserShortInfoFragment
+              }
             }
           }
         }
@@ -164,13 +173,16 @@ export const SQUAD_INVITATION_QUERY = gql`
 `;
 
 export const SQUAD_JOIN_MUTATION = gql`
-  mutation JoinSquad($handle: ID!, $token: String!) {
-    joinSource(sourceId: $handle, token: $token) {
+  mutation JoinSquad($sourceId: ID!, $token: String!) {
+    joinSource(sourceId: $sourceId, token: $token) {
       ...SourceBaseFragment
     }
   }
   ${SOURCE_BASE_FRAGMENT}
 `;
+
+export const validateSourceId = (id: string, source: Squad): boolean =>
+  source.id === id || source.handle === id.toLowerCase();
 
 export type SquadData = {
   source: Squad;
@@ -208,28 +220,21 @@ export async function getSquadMembers(id: string): Promise<SquadMember[]> {
 
 interface SquadInvitation {
   member: SquadMember;
-  source: Squad;
 }
 
 export interface SquadInvitationProps {
   token: string;
-  handle: string;
+  sourceId: string;
 }
 
-export const getSquadInvitation = ({
-  token,
-  handle,
-}: SquadInvitationProps): Promise<SquadInvitation> =>
-  request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_INVITATION_QUERY, {
-    token,
-    handle: handle.toLowerCase(),
-  });
+export const getSquadInvitation = (token: string): Promise<SquadInvitation> =>
+  request(`${apiUrl}/graphql`, SQUAD_INVITATION_QUERY, { token });
 
 export const joinSquadInvitation = ({
   token,
-  handle,
+  sourceId,
 }: SquadInvitationProps): Promise<SquadInvitation> =>
-  request<SquadInvitation>(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, {
+  request(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, {
     token,
-    handle: handle.toLowerCase(),
+    sourceId: sourceId.toLowerCase(),
   });

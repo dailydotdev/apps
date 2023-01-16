@@ -7,8 +7,8 @@ import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
   joinSquadInvitation,
-  SquadInvitationProps,
   SquadMember,
+  validateSourceId,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { Edge } from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
@@ -18,6 +18,13 @@ import Link from 'next/link';
 import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement } from 'react';
+import { ParsedUrlQuery } from 'querystring';
+import {
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+  GetStaticPropsResult,
+} from 'next';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SquadMember>[]) => {
@@ -37,30 +44,43 @@ const getOthers = (others: Edge<SquadMember>[]) => {
 const BodyParagraph = classed('p', 'typo-body text-theme-label-tertiary');
 const HighlightedText = classed('span', 'font-bold text-theme-label-primary');
 
-const SquadReferral = (): ReactElement => {
-  const router = useRouter();
-  const { handle, token } = router.query as unknown as SquadInvitationProps;
-  const { showLogin, user: loggedUser } = useAuthContext();
-  const squadsUrl = `/squads/${handle}`;
-  const { data } = useQuery(
-    [{ type: 'squad_referral', params: { handle, token } }],
-    ({ queryKey: [{ params }] }) => getSquadInvitation(params),
-    {
-      enabled: !!handle && !!token,
-      onSuccess: (response) => {
-        if (!loggedUser) {
-          return;
-        }
+interface SquadReferralProps {
+  token: string;
+  handle: string;
+}
 
-        const isMember = response.source.members.edges.some(
+const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
+  const router = useRouter();
+  const { showLogin, user: loggedUser } = useAuthContext();
+  const { data } = useQuery(
+    ['squad_referral', token, loggedUser?.id],
+    () => getSquadInvitation(token),
+    {
+      enabled: !!token,
+      onSuccess: (response) => {
+        if (!loggedUser) return null;
+
+        if (!response?.member?.source?.id) return router.replace(webappUrl);
+
+        const sourceId = response.member.source.id;
+        const squadsUrl = `/squads/${sourceId}`;
+        const isValid = validateSourceId(handle, response.member.source);
+
+        if (!isValid) return router.replace(webappUrl);
+
+        const isMember = response.member.source.members.edges.some(
           ({ node }) => node.user.id === loggedUser.id,
         );
-        if (isMember) router.replace(squadsUrl);
+        if (isMember) return router.replace(squadsUrl);
+
+        return null;
       },
     },
   );
+  const sourceId = data?.member?.source?.id;
+  const squadsUrl = `/squads/${sourceId}`;
   const { mutateAsync: onJoinSquad } = useMutation(
-    () => joinSquadInvitation({ handle, token }),
+    () => joinSquadInvitation({ sourceId, token }),
     { onSuccess: () => router.replace(squadsUrl) },
   );
 
@@ -70,14 +90,11 @@ const SquadReferral = (): ReactElement => {
     return onJoinSquad();
   };
 
-  if (!data) {
+  if (!data?.member) {
     return null;
   }
 
-  const {
-    member: { user },
-    source,
-  } = data;
+  const { user, source } = data.member;
   const others = getOthers(
     source.members.edges.filter(({ node }) => node.user.id !== user.id),
   );
@@ -139,3 +156,15 @@ SquadReferral.getLayout = getLayout;
 SquadReferral.layoutProps = { showOnlyLogo: true };
 
 export default SquadReferral;
+
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  return { paths: [], fallback: true };
+}
+
+export function getStaticProps({
+  params,
+}: GetStaticPropsContext<
+  SquadReferralProps & ParsedUrlQuery
+>): GetStaticPropsResult<SquadReferralProps> {
+  return { props: { ...params } };
+}
