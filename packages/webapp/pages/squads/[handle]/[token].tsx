@@ -1,7 +1,4 @@
-import {
-  fadedBackgroundStyle,
-  PageContainer,
-} from '@dailydotdev/shared/src/components/utilities';
+import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useQuery, useMutation } from 'react-query';
 import { useRouter } from 'next/router';
 import {
@@ -101,10 +98,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
 
   return (
     <PageContainer className="relative justify-center items-center min-h-[calc(100vh-3.5rem)]">
-      <div
-        className="absolute -top-4 -right-20 -left-20 h-40 rounded-26"
-        style={fadedBackgroundStyle}
-      />
+      <div className="absolute -top-4 -right-20 -left-20 h-40 rounded-26 squad-background-fade" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
         {source.name} is your place to stay up to date as a squad. You and your
