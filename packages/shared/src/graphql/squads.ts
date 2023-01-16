@@ -2,7 +2,7 @@ import request, { gql } from 'graphql-request';
 import { USER_SHORT_INFO_FRAGMENT } from './users';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
-import { Connection, Edge } from './common';
+import { Connection } from './common';
 import { Source } from './sources';
 
 export interface Squad extends Source {
@@ -14,6 +14,7 @@ export interface Squad extends Source {
   description?: string;
   membersCount: number;
   members: Connection<SquadMember>;
+  currentMember?: SquadMember;
 }
 
 export type Squads = {
@@ -99,6 +100,9 @@ const SOURCE_BASE_FRAGMENT = gql`
     description
     image
     membersCount
+    currentMember {
+      role
+    }
   }
 `;
 
@@ -172,11 +176,9 @@ export type SquadData = {
   source: Squad;
 };
 
-export type SquadEdgesData = {
-  sourceMembers: {
-    edges: Edge<SquadMember>[];
-  };
-};
+export interface SquadEdgesData {
+  sourceMembers: Connection<SquadMember>;
+}
 
 export const leaveSquad = (sourceId: string): Promise<void> =>
   request(`${apiUrl}/graphql`, LEAVE_SQUAD_MUTATION, {

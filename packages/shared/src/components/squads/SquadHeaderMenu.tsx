@@ -7,7 +7,13 @@ import EditIcon from '../icons/Edit';
 import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { leaveSquad, Squad } from '../../graphql/squads';
+import {
+  deleteSquad,
+  leaveSquad,
+  Squad,
+  SquadMemberRole,
+} from '../../graphql/squads';
+import TrashIcon from '../icons/Trash';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -28,6 +34,8 @@ export default function SquadHeaderMenu({
   if (!user) {
     return <></>;
   }
+
+  const isSquadOwner = squad?.currentMember?.role === SquadMemberRole.Owner;
 
   const onLeaveSquad = async () => {
     const options: PromptOptions = {
@@ -51,6 +59,28 @@ export default function SquadHeaderMenu({
     }
   };
 
+  const onDeleteSquad = async () => {
+    const options: PromptOptions = {
+      title: `Delete ${squad.name}`,
+      description: `Deleting ${squad.name} means you and all squad members will lose access to all posts that were shared in the Squad. Are you sure?`,
+      okButton: {
+        title: 'Delete',
+        className: 'btn-secondary',
+      },
+      cancelButton: {
+        title: 'No, keep it',
+        className: 'btn-primary-cabbage',
+      },
+      className: {
+        buttons: 'flex-row-reverse',
+      },
+    };
+    if (await showPrompt(options)) {
+      await deleteSquad(squad.id);
+      await router.replace('/');
+    }
+  };
+
   return (
     <PortalMenu
       disableBoundariesCheck
@@ -58,24 +88,35 @@ export default function SquadHeaderMenu({
       className="menu-primary"
       animation="fade"
     >
+      {isSquadOwner && (
+        <Item className="typo-callout">
+          <span className="flex items-center w-full typo-callout">
+            <EditIcon size="medium" secondary={false} className="mr-2" /> Edit
+            Squad details
+          </span>
+        </Item>
+      )}
       <Item className="typo-callout">
         <span className="flex items-center w-full typo-callout">
-          <EditIcon size="medium" secondary={false} className="mr-2" /> Edit
-          Squad details
+          <TourIcon size="medium" secondary={false} className="mr-2" /> Learn
+          how Squads work
         </span>
       </Item>
-      <Item className="typo-callout">
-        <span className="flex items-center w-full typo-callout">
-          <TourIcon size="medium" secondary={false} className="mr-2" /> Restart
-          tour
-        </span>
-      </Item>
-      <Item className="typo-callout" onClick={onLeaveSquad}>
-        <span className="flex items-center w-full typo-callout">
-          <ExitIcon size="medium" secondary={false} className="mr-2" /> Leave
-          Squad
-        </span>
-      </Item>
+      {isSquadOwner ? (
+        <Item className="typo-callout" onClick={onDeleteSquad}>
+          <span className="flex items-center w-full typo-callout">
+            <TrashIcon size="medium" secondary={false} className="mr-2" />{' '}
+            Delete Squad
+          </span>
+        </Item>
+      ) : (
+        <Item className="typo-callout" onClick={onLeaveSquad}>
+          <span className="flex items-center w-full typo-callout">
+            <ExitIcon size="medium" secondary={false} className="mr-2" /> Leave
+            Squad
+          </span>
+        </Item>
+      )}
     </PortalMenu>
   );
 }

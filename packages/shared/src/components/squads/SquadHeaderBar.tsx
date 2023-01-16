@@ -8,6 +8,8 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import useSquadMenu from '../../hooks/useSquadMenu';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import { Squad, SquadMember } from '../../graphql/squads';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 type SquadHeaderBarProps = {
   squad: Squad;
@@ -23,6 +25,16 @@ export function SquadHeaderBar({
   ...props
 }: SquadHeaderBarProps): ReactElement {
   const { onMenuClick } = useSquadMenu();
+  const { openModal } = useLazyModal();
+  const openMemberListModal = () =>
+    openModal({
+      type: LazyModal.SquadMember,
+      props: {
+        squad,
+        listPlaceholderProps: { placeholderAmount: squad?.membersCount },
+      },
+    });
+
   return (
     <div className={classNames('flex flex-wrap gap-4', className)} {...props}>
       <div className="flex items-center rounded-14 border border-theme-divider-secondary hover:border-theme-divider-primary">
@@ -30,10 +42,11 @@ export function SquadHeaderBar({
           <Button
             className="btn-tertiary !pl-1 !pr-4 !rounded-r-none"
             buttonSize="medium"
+            onClick={openMemberListModal}
           >
             <span className="flex items-center">
               <span className="flex flex-row-reverse ml-2">
-                {members.map(({ user }) => (
+                {members?.map(({ user }) => (
                   <ProfilePicture
                     className="-ml-2"
                     size="medium"

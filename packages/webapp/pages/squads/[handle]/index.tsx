@@ -21,30 +21,39 @@ import {
   Squad,
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
-import Custom404 from '../../404';
+import { useQuery } from 'react-query';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
 
-type SourcePageProps = {
-  squad: Squad;
-  squadMembers: SquadMember[];
-};
+type SourcePageProps = { handle: string };
 
-const SquadPage = ({ squad, squadMembers }: SourcePageProps): ReactElement => {
+const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
+  const queryKey = ['squad', handle];
+  const { data: squad, isLoading } = useQuery<Squad>(
+    queryKey,
+    () => getSquad(handle),
+    {
+      enabled: !!handle,
+    },
+  );
+  const squadId = squad?.id;
+
+  const { data: squadMembers } = useQuery<SquadMember[]>(
+    ['squadMembers', handle],
+    () => getSquadMembers(squadId),
+    { enabled: !!squadId },
+  );
+
   const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
-    () => ({ source: squad?.id, ranking: 'TIME' }),
-    [squad?.id],
+    () => ({ source: squadId, ranking: 'TIME' }),
+    [squadId],
   );
 
-  if (!isFallback && !squad) {
-    return <Custom404 />;
-  }
-
-  if (isFallback || !squad) {
+  if (isFallback || isLoading) {
     return <></>;
   }
 
@@ -85,33 +94,12 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
-
-export async function getStaticProps({
+export function getStaticProps({
   params,
-}: GetStaticPropsContext<SquadPageParams>): Promise<
-  GetStaticPropsResult<SourcePageProps>
-> {
-  try {
-    const squad = await getSquad(params.handle);
-    const squadMembers = await getSquadMembers(squad.id);
-
-    return {
-      props: {
-        squad,
-        squadMembers,
-      },
-      revalidate: 60,
-    };
-  } catch (err) {
-    if (err?.response?.errors?.[0].extensions.code === 'NOT_FOUND') {
-      return {
-        props: {
-          squad: null,
-          squadMembers: [],
-        },
-        revalidate: 60,
-      };
-    }
-    throw err;
-  }
+}: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<SourcePageProps> {
+  return {
+    props: {
+      handle: params.handle,
+    },
+  };
 }
