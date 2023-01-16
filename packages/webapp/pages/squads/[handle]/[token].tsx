@@ -22,6 +22,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { NextSeo } from 'next-seo';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SquadMember>[]) => {
@@ -101,6 +102,10 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
 
   return (
     <PageContainer className="relative justify-center items-center min-h-[calc(100vh-3.5rem)]">
+      <NextSeo
+        title={`Invitation to ${source.name}`}
+        titleTemplate="%s | daily.dev"
+      />
       <div className="absolute -top-4 -right-20 -left-20 h-40 rounded-26 squad-background-fade" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
