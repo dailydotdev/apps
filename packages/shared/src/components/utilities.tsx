@@ -259,4 +259,5 @@ export const fadedBackgroundStyle: CSSProperties = {
   background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
   backgroundSize: '1200px 500px',
   backgroundPosition: 'center -270px',
+  backgroundRepeat: 'no-repeat',
 };
