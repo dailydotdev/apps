@@ -29,7 +29,7 @@ export interface ModalProps extends ReactModal.Props {
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
   [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',
   [ModalKind.FlexibleCenter]: 'justify-center',
-  [ModalKind.FlexibleTop]: 'pt-10',
+  [ModalKind.FlexibleTop]: 'pt-5 mobileL:pt-10',
 };
 const modalKindAndSizeToOverlayClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
