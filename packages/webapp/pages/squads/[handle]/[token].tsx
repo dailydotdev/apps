@@ -147,7 +147,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
 };
 
 SquadReferral.getLayout = getLayout;
-SquadReferral.layoutProps = { showOnlyLogo: true };
+SquadReferral.layoutProps = { showSidebar: false };
 
 export default SquadReferral;
 

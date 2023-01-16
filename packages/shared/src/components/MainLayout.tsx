@@ -36,6 +36,7 @@ export interface MainLayoutProps
   dndActive?: boolean;
   screenCentered?: boolean;
   customBanner?: ReactNode;
+  showSidebar?: boolean;
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
@@ -56,6 +57,7 @@ export default function MainLayout({
   customBanner,
   additionalButtons,
   screenCentered = true,
+  showSidebar = true,
   className,
   onLogoClick,
   onNavTabClick,
@@ -128,7 +130,7 @@ export default function MainLayout({
           hasBanner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
       >
-        {!showOnlyLogo && sidebarRendered !== null && (
+        {showSidebar && !showOnlyLogo && sidebarRendered !== null && (
           <Sidebar
             promotionalBannerActive={hasBanner}
             sidebarRendered={sidebarRendered}
