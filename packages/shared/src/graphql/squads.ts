@@ -7,13 +7,12 @@ import { Source } from './sources';
 
 export interface Squad extends Source {
   active: boolean;
-  handle: string | null;
   permalink: string;
   public: boolean;
   type: 'squad';
   description?: string;
   membersCount: number;
-  members: Connection<SquadMember>;
+  members?: Connection<SquadMember>;
   currentMember?: SquadMember;
 }
 
@@ -218,7 +217,7 @@ export async function getSquadMembers(id: string): Promise<SquadMember[]> {
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
 
-interface SquadInvitation {
+export interface SquadInvitation {
   member: SquadMember;
 }
 
@@ -227,8 +226,17 @@ export interface SquadInvitationProps {
   sourceId: string;
 }
 
-export const getSquadInvitation = (token: string): Promise<SquadInvitation> =>
-  request(`${apiUrl}/graphql`, SQUAD_INVITATION_QUERY, { token });
+export const getSquadInvitation = async (
+  token: string,
+): Promise<SquadMember> => {
+  const res = await request<SquadInvitation>(
+    `${apiUrl}/graphql`,
+    SQUAD_INVITATION_QUERY,
+    { token },
+  );
+
+  return res.member;
+};
 
 export const joinSquadInvitation = (
   params: SquadInvitationProps,

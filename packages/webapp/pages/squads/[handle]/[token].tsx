@@ -41,7 +41,7 @@ const getOthers = (others: Edge<SquadMember>[]) => {
 const BodyParagraph = classed('p', 'typo-body text-theme-label-tertiary');
 const HighlightedText = classed('span', 'font-bold text-theme-label-primary');
 
-interface SquadReferralProps {
+export interface SquadReferralProps {
   token: string;
   handle: string;
 }
@@ -49,7 +49,7 @@ interface SquadReferralProps {
 const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   const router = useRouter();
   const { showLogin, user: loggedUser } = useAuthContext();
-  const { data } = useQuery(
+  const { data: member } = useQuery(
     ['squad_referral', token, loggedUser?.id],
     () => getSquadInvitation(token),
     {
@@ -57,15 +57,15 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
       onSuccess: (response) => {
         if (!loggedUser) return null;
 
-        if (!response?.member?.source?.id) return router.replace(webappUrl);
+        if (!response?.source?.id) return router.replace(webappUrl);
 
-        const sourceId = response.member.source.id;
+        const sourceId = response.source.id;
         const squadsUrl = `/squads/${sourceId}`;
-        const isValid = validateSourceId(handle, response.member.source);
+        const isValid = validateSourceId(handle, response.source);
 
         if (!isValid) return router.replace(webappUrl);
 
-        const isMember = response.member.source.members.edges.some(
+        const isMember = response.source.members.edges.some(
           ({ node }) => node.user.id === loggedUser.id,
         );
         if (isMember) return router.replace(squadsUrl);
@@ -74,7 +74,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
       },
     },
   );
-  const sourceId = data?.member?.source?.id;
+  const sourceId = member?.source?.id;
   const squadsUrl = `/squads/${sourceId}`;
   const { mutateAsync: onJoinSquad } = useMutation(
     () => joinSquadInvitation({ sourceId, token }),
@@ -87,12 +87,15 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     return onJoinSquad();
   };
 
-  if (!data?.member) {
+  if (!member) {
     return null;
   }
 
-  const { user, source } = data.member;
-  const others = getOthers(
+  const { user, source } = member;
+  const others = source.members.edges.filter(
+    ({ node }) => node.user.id !== user.id,
+  );
+  const othersLabel = getOthers(
     source.members.edges.filter(({ node }) => node.user.id !== user.id),
   );
 
@@ -105,7 +108,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
         squad members can share knowledge and content in one place. Join now to
         start collaborating.
       </BodyParagraph>
-      <span className="flex flex-row items-center mt-10">
+      <span className="flex flex-row items-center mt-10" data-testid="inviter">
         <ProfileImageLink user={user} />
         <BodyParagraph>
           <HighlightedText className="ml-4">{user.name}</HighlightedText>{' '}
@@ -134,11 +137,11 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
           {source.description}
         </BodyParagraph>
       </div>
-      <BodyParagraph>
-        {user.name} {others} waiting for you inside. Join them now!
+      <BodyParagraph data-testid="waiting-users">
+        {user.name} {othersLabel} waiting for you inside. Join them now!
       </BodyParagraph>
       <span className="flex flex-row gap-2 mt-6">
-        {source.members.edges.slice(0, 10).map(({ node }) => (
+        {others.slice(0, 10).map(({ node }) => (
           <ProfileImageLink key={node.user.id} user={node.user} />
         ))}
       </span>
