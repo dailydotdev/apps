@@ -47,7 +47,7 @@ export function SquadMemberModal({
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage: queryResult.fetchNextPage,
       }}
-      users={queryResult.data.pages
+      users={queryResult.data?.pages
         .map((p) => p.sourceMembers.edges.map(({ node }) => node.user))
         .flat()}
     />
