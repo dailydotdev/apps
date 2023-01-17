@@ -9,7 +9,11 @@ import { NextRouter } from 'next/router';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { Edge } from '@dailydotdev/shared/src/graphql/common';
+import {
+  defaultSquadToken,
+  generateTestMember,
+  generateTestOwner,
+} from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
@@ -20,7 +24,6 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   SquadInvitation,
   SquadMember,
-  SquadMemberRole,
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
 } from '@dailydotdev/shared/src/graphql/squads';
@@ -50,74 +53,9 @@ beforeEach(() => {
 
 let client: QueryClient;
 
-const defaultToken = 'ki3YLcxvSZ2Q6KgMBZvMbly1gnrZ6JnIrhTpUML-Hua';
-const generateMember = (i: string | number): SquadMember => ({
-  user: {
-    id: `Se4LmwLU0q6aVDpX1MkqX${i}`,
-    name: `Lee Hansel Solevilla - ${i}`,
-    image: `https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3${i}`,
-    permalink: `http://webapp.local.com:5002/abc123zzzz${i}`,
-    username: `abc123zzzz${i}`,
-    bio: null,
-  },
-  source: null,
-  referralToken: `${defaultToken}${i}`,
-  role: SquadMemberRole.Member,
-});
-const generateDefaultMember = (
-  members: Edge<SquadMember>[] = [],
-): SquadMember => ({
-  user: {
-    id: 'Se4LmwLU0q6aVDpX1MkqX',
-    name: 'Lee Hansel Solevilla',
-    image:
-      'https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3',
-    permalink: 'http://webapp.local.com:5002/abc123zzzz',
-    username: 'abc123zzzz',
-    bio: null,
-  },
-  source: {
-    id: '559581c2-ee2d-440c-b27f-358b074bb0d4',
-    active: true,
-    handle: 'test',
-    name: 'Test',
-    permalink: 'http://webapp.local.com:5002/squads/test',
-    public: true,
-    type: 'squad',
-    description: null,
-    image:
-      'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
-    membersCount: 4,
-    members: {
-      pageInfo: null,
-      edges: [
-        {
-          node: {
-            user: {
-              id: 'Se4LmwLU0q6aVDpX1MkqX',
-              name: 'Lee Hansel Solevilla',
-              image:
-                'https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3',
-              permalink: 'http://webapp.local.com:5002/a123124124111',
-              username: 'a123124124111',
-              bio: null,
-            },
-            source: null,
-            referralToken: defaultToken,
-            role: SquadMemberRole.Owner,
-          },
-        },
-        ...members,
-      ],
-    },
-  },
-  referralToken: defaultToken,
-  role: SquadMemberRole.Owner,
-});
-
 const createInvitationMock = (
-  token: string = defaultToken,
-  member: SquadMember = generateDefaultMember(),
+  token: string = defaultSquadToken,
+  member: SquadMember = generateTestOwner(),
 ): MockedGraphQLResponse<SquadInvitation> => ({
   request: {
     query: SQUAD_INVITATION_QUERY,
@@ -128,6 +66,7 @@ const createInvitationMock = (
   },
 });
 
+const defaultToken = defaultSquadToken;
 const renderComponent = (
   mocks = [createInvitationMock(defaultToken)],
   props: SquadReferralProps = { token: defaultToken, handle: 'test' },
@@ -168,7 +107,7 @@ const renderComponent = (
 };
 
 describe('inviter', () => {
-  const member = generateDefaultMember();
+  const member = generateTestOwner();
   it('should show profile image', async () => {
     renderComponent();
     await waitForNock();
@@ -190,7 +129,7 @@ describe('inviter', () => {
 });
 
 describe('squad details', () => {
-  const member = generateDefaultMember();
+  const member = generateTestOwner();
   it('should show page heading that includes squad name', async () => {
     renderComponent();
     await waitForNock();
@@ -220,8 +159,8 @@ describe('squad details', () => {
   });
 
   it('should show accurate waiting label when there is 2 members', async () => {
-    const owner = generateDefaultMember();
-    const newMember = generateMember('u1');
+    const owner = generateTestOwner();
+    const newMember = generateTestMember('u1');
     owner.source.members.edges.push({ node: newMember });
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
@@ -231,8 +170,8 @@ describe('squad details', () => {
   });
 
   it('should show accurate waiting label when there is 3 or more members', async () => {
-    const owner = generateDefaultMember();
-    const members = [generateMember('u1'), generateMember('u2')];
+    const owner = generateTestOwner();
+    const members = [generateTestMember('u1'), generateTestMember('u2')];
     owner.source.members.edges.push({ node: members[0] }, { node: members[1] });
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
@@ -248,7 +187,7 @@ describe('squad details', () => {
   });
 
   it('should join squad', async () => {
-    const owner = generateDefaultMember();
+    const owner = generateTestOwner();
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
     mockGraphQL({
@@ -273,7 +212,7 @@ describe('invalid token', () => {
   });
 
   it('should redirect to home page when invitation source id does not match route squad id', async () => {
-    const owner = generateDefaultMember();
+    const owner = generateTestOwner();
     renderComponent([createInvitationMock(defaultToken, owner)], {
       handle: 'not your squad',
       token: defaultToken,
@@ -283,8 +222,8 @@ describe('invalid token', () => {
   });
 
   it('should redirect to squads page when member is already part of the squad', async () => {
-    const owner = generateDefaultMember();
-    const member = generateMember(1);
+    const owner = generateTestOwner();
+    const member = generateTestMember(1);
     member.user.id = defaultUser.id;
     owner.source.members.edges.push({ node: member });
     renderComponent([createInvitationMock(defaultToken, owner)]);
