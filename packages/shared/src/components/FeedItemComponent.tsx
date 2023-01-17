@@ -13,6 +13,8 @@ import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { PostCardTests } from './post/common';
+import { Button } from './buttons/Button';
+import PlusIcon from './icons/Plus';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -192,6 +194,19 @@ export default function FeedItemComponent({
           onLinkClick={(ad) => onAdClick(ad, index, row, column)}
           showImage={!insaneMode}
         />
+      );
+    case 'new_squad_post':
+      return (
+        <div className="flex flex-col justify-center items-center rounded-14 border border-theme-color-cabbage">
+          <Button
+            className="mb-4 btn-primary-cabbage"
+            buttonSize="xlarge"
+            icon={<PlusIcon />}
+            onClick={item.action}
+            iconOnly
+          />
+          <span className="typo-title1">Create new post</span>
+        </div>
       );
     default:
       return <PlaceholderTag showImage={!insaneMode} />;

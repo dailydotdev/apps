@@ -25,9 +25,10 @@ export type PostItem = {
   page: number;
   index: number;
 };
+export type NewSquadPostItemm = { type: 'new_squad_post'; action: () => void };
 export type AdItem = { type: 'ad'; ad: Ad };
 export type PlaceholderItem = { type: 'placeholder' };
-export type FeedItem = PostItem | AdItem | PlaceholderItem;
+export type FeedItem = PostItem | AdItem | PlaceholderItem | NewSquadPostItemm;
 
 export type FeedReturnType = {
   items: FeedItem[];
@@ -104,6 +105,7 @@ export default function useFeed<T>(
   showOnlyUnreadPosts: boolean,
   query?: string,
   variables?: T,
+  onNewSquadPost?: () => void,
 ): FeedReturnType {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -172,6 +174,12 @@ export default function useFeed<T>(
           } else {
             posts.splice(adSpot, 0, {
               type: 'placeholder',
+            });
+          }
+          if (true) {
+            posts.splice(0, 0, {
+              type: 'new_squad_post',
+              action: onNewSquadPost,
             });
           }
           return posts;

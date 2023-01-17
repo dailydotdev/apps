@@ -50,6 +50,10 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
+  const onNewSquadPost = () => {
+    alert('create new post');
+  };
+
   if (isFallback || isLoading) {
     return <></>;
   }
@@ -68,7 +72,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           backgroundRepeat: 'no-repeat',
         }}
       >
-        <SquadPageHeader squad={squad} members={squadMembers} />
+        <SquadPageHeader
+          squad={squad}
+          members={squadMembers}
+          onNewSquadPost={onNewSquadPost}
+        />
         <Feed
           feedName="source"
           feedQueryKey={[
@@ -78,6 +86,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           ]}
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
+          onNewSquadPost={onNewSquadPost}
         />
       </FeedPage>
     </ProtectedPage>

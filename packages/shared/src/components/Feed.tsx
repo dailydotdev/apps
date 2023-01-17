@@ -60,6 +60,7 @@ export type FeedProps<T> = {
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
   header?: ReactNode;
+  onNewSquadPost?: () => void;
 };
 
 interface RankVariables {
@@ -133,6 +134,7 @@ export default function Feed<T>({
   header,
   onEmptyFeed,
   emptyScreen,
+  onNewSquadPost,
 }: FeedProps<T>): ReactElement {
   const {
     postCardVersion,
@@ -166,7 +168,10 @@ export default function Feed<T>({
       showOnlyUnreadPosts,
       query,
       variables,
+      onNewSquadPost,
     );
+
+  console.log(items);
   const { ranking } = (variables as RankVariables) || {};
   const {
     onOpenModal,
