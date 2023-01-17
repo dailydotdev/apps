@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from './common/Modal';
-import { Squad } from '../../graphql/squads';
-import { addPostToSquad, SquadForm } from '../squads/utils';
+import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadComment } from '../squads/Comment';
 import { ModalHeaderKind } from './common/types';
 import { Post } from '../../graphql/posts';

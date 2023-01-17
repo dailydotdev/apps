@@ -1,19 +1,13 @@
 import React, { ReactElement, useState } from 'react';
 import { Modal } from './common/Modal';
-import { Squad } from '../../graphql/squads';
-import { SquadDetails } from '../squads/Details';
+import { createSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SquadReady } from '../squads/Ready';
-import {
-  createSquad,
-  ModalState,
-  quitSquadModal,
-  SquadForm,
-  SquadStateProps,
-} from '../squads/utils';
+import { ModalState, quitSquadModal, SquadStateProps } from '../squads/utils';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ModalStep } from './common/types';
 import { SteppedSquadComment } from '../squads/SteppedComment';
+import { SteppedSquadDetails } from '../squads/SteppedDetails';
 
 export const modalStateOrder = [
   ModalState.Details,
@@ -92,7 +86,7 @@ function NewSquadModal({
       steps={modalSteps}
     >
       <Modal.Header.Steps />
-      <SquadDetails {...stateProps} />
+      <SteppedSquadDetails {...stateProps} />
       <SquadSelectArticle {...stateProps} />
       <SteppedSquadComment {...stateProps} />
       <SquadReady {...stateProps} squad={squad} />
