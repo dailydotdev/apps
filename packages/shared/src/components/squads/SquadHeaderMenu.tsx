@@ -14,6 +14,8 @@ import {
   SquadMemberRole,
 } from '../../graphql/squads';
 import TrashIcon from '../icons/Trash';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -30,6 +32,7 @@ export default function SquadHeaderMenu({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
+  const { openModal } = useLazyModal();
 
   if (!user) {
     return <></>;
@@ -81,6 +84,15 @@ export default function SquadHeaderMenu({
     }
   };
 
+  const onEditSquad = () => {
+    openModal({
+      type: LazyModal.EditSquad,
+      props: {
+        squad,
+      },
+    });
+  };
+
   return (
     <PortalMenu
       disableBoundariesCheck
@@ -89,7 +101,7 @@ export default function SquadHeaderMenu({
       animation="fade"
     >
       {isSquadOwner && (
-        <Item className="typo-callout">
+        <Item className="typo-callout" onClick={onEditSquad}>
           <span className="flex items-center w-full typo-callout">
             <EditIcon size="medium" secondary={false} className="mr-2" /> Edit
             Squad details

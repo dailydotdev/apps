@@ -2,12 +2,12 @@ import React, { ReactElement, useContext, useState } from 'react';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
 import { ProfilePicture } from '../ProfilePicture';
-import { SquadForm } from './utils';
 import { Justify } from '../utilities';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 import AuthContext from '../../contexts/AuthContext';
 import OpenLinkIcon from '../icons/OpenLink';
+import { SquadForm } from '../../graphql/squads';
 
 export function SquadComment({
   onSubmit,
