@@ -28,6 +28,7 @@ export type PostBootData = Pick<
   | 'permalink'
   | 'author'
   | 'scout'
+  | 'commented'
 >;
 
 export enum BootApp {
