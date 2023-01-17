@@ -9,12 +9,14 @@ import { NextRouter } from 'next/router';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { Edge } from '@dailydotdev/shared/src/graphql/common';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   SquadInvitation,
   SquadMember,
@@ -27,12 +29,14 @@ import SquadPage, {
 } from '../pages/squads/[handle]/[token]';
 
 const showLogin = jest.fn();
+let replaced = '';
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>
       ({
         isFallback: false,
-        replace: jest.fn(),
+        // eslint-disable-next-line no-return-assign
+        replace: (path: string) => (replaced = path),
       } as unknown as NextRouter),
   ),
 }));
@@ -41,6 +45,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  replaced = '';
 });
 
 let client: QueryClient;
@@ -59,7 +64,9 @@ const generateMember = (i: string | number): SquadMember => ({
   referralToken: `${defaultToken}${i}`,
   role: SquadMemberRole.Member,
 });
-const generateDefaultMember = (): SquadMember => ({
+const generateDefaultMember = (
+  members: Edge<SquadMember>[] = [],
+): SquadMember => ({
   user: {
     id: 'Se4LmwLU0q6aVDpX1MkqX',
     name: 'Lee Hansel Solevilla',
@@ -100,6 +107,7 @@ const generateDefaultMember = (): SquadMember => ({
             role: SquadMemberRole.Owner,
           },
         },
+        ...members,
       ],
     },
   },
@@ -240,7 +248,6 @@ describe('squad details', () => {
   });
 
   it('should join squad', async () => {
-    let mutationCalled = false;
     const owner = generateDefaultMember();
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
@@ -249,16 +256,29 @@ describe('squad details', () => {
         query: SQUAD_JOIN_MUTATION,
         variables: { token: owner.referralToken, sourceId: owner.source.id },
       },
-      result: () => {
-        mutationCalled = true;
-        return {
-          data: { _: true },
-        };
-      },
+      result: () => ({ data: { _: true } }),
     });
     const btn = await screen.findByText('Join Squad');
     btn.click();
     await waitForNock();
-    expect(mutationCalled).toBeTruthy();
+    expect(replaced).toEqual(`/squads/${owner.source.id}`);
+  });
+});
+
+describe('invalid token', () => {
+  it('should redirect to home page when source id is not found', async () => {
+    renderComponent([createInvitationMock(defaultToken, null)]);
+    await waitForNock();
+    expect(replaced).toEqual(webappUrl);
+  });
+
+  it('should redirect to squads page when member is already part of the squad', async () => {
+    const owner = generateDefaultMember();
+    const member = generateMember(1);
+    owner.source.members.edges.push({ node: member });
+    member.user.id = defaultUser.id;
+    renderComponent([createInvitationMock(defaultToken, owner)]);
+    await waitForNock();
+    expect(replaced).toEqual(`/squads/${owner.source.id}`);
   });
 });
