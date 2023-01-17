@@ -16,7 +16,6 @@ import { Button } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
-import UserIcon from '../icons/User';
 import SquadIcon from '../icons/Squad';
 
 export interface UpvotedPopupModalProps extends ModalProps {
