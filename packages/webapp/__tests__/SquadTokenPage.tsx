@@ -272,7 +272,7 @@ describe('invalid token', () => {
     expect(replaced).toEqual(webappUrl);
   });
 
-  it('should redirect to home page when source id is does not match route squad id', async () => {
+  it('should redirect to home page when invitation source id does not match route squad id', async () => {
     const owner = generateDefaultMember();
     owner.source.id = 'not your squad';
     owner.source.handle = 'not your squad';
