@@ -52,7 +52,7 @@ export function SquadMemberModal({
       users={queryResult.data?.pages
         .map((p) => p.sourceMembers.edges.map(({ node }) => node.user))
         .flat()}
-      // listItemContent={(user) => (
+      // additionalContent={(user) => (
       //   <Button
       //     buttonSize="small"
       //     className="m-auto mr-0 btn-tertiary"
