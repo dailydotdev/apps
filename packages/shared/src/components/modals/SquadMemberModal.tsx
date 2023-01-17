@@ -42,6 +42,7 @@ export function SquadMemberModal({
     <UserListModal
       {...props}
       title="Squad members"
+      onOptionsClick={null} // report member context menu (for another ticket)
       scrollingProps={{
         isFetchingNextPage: queryResult.isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),

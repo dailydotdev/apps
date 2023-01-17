@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Author } from '../../graphql/comments';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
@@ -26,6 +26,7 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   disableTooltip?: boolean;
   scrollingContainer?: HTMLElement;
   appendTooltipTo?: HTMLElement;
+  children?: ReactNode;
 }
 
 const TextEllipsis = getTextEllipsis();
@@ -38,6 +39,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   disableTooltip,
   scrollingContainer,
   appendTooltipTo,
+  children,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
@@ -69,6 +71,7 @@ export function UserShortInfo<Tag extends AnyTag>({
           {bio && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
         </div>
       </ProfileTooltip>
+      {children}
     </Element>
   );
 }
