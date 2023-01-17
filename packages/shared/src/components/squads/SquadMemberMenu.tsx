@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { Item } from '@dailydotdev/react-contexify';
 import AuthContext from '../../contexts/AuthContext';
@@ -18,7 +18,7 @@ export default function SquadMemberMenu({
 }: {
   squadId: string;
   memberId: string;
-}) {
+}): ReactElement {
   const { user } = useContext(AuthContext);
 
   return (
