@@ -20,6 +20,7 @@ function UserListModal({
   scrollingProps,
   placeholderAmount,
   additionalContent,
+  size = Modal.Size.Small,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -29,7 +30,7 @@ function UserListModal({
     <Modal
       contentRef={(e) => setModalRef(e)}
       kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Small}
+      size={size}
       {...props}
     >
       <Modal.Header title={title} />
