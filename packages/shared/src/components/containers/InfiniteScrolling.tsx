@@ -3,34 +3,38 @@ import React, { ReactElement, ReactNode } from 'react';
 import { UseInfiniteQueryResult } from 'react-query';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 
-interface InfiniteScrollingProps {
+export interface InfiniteScrollingProps {
   children: ReactNode;
   placeholder?: ReactNode;
-  queryResult: UseInfiniteQueryResult;
   className?: string;
+  canFetchMore: boolean;
+  isFetchingNextPage: boolean;
+  fetchNextPage: () => Promise<unknown>;
 }
+
+export const checkFetchMore = (queryResult: UseInfiniteQueryResult): boolean =>
+  !queryResult.isLoading &&
+  !queryResult.isFetchingNextPage &&
+  queryResult.hasNextPage &&
+  queryResult.data.pages.length > 0;
 
 function InfiniteScrolling({
   children,
   placeholder,
-  queryResult,
   className,
+  canFetchMore,
+  isFetchingNextPage,
+  fetchNextPage,
 }: InfiniteScrollingProps): ReactElement {
-  const canFetchMore =
-    !queryResult.isLoading &&
-    !queryResult.isFetchingNextPage &&
-    queryResult.hasNextPage &&
-    queryResult.data.pages.length > 0;
-
   const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: queryResult.fetchNextPage,
+    fetchPage: fetchNextPage,
     canFetchMore,
   });
 
   return (
     <div className={classNames('flex relative flex-col', className)}>
       {children}
-      {queryResult.isFetchingNextPage && placeholder}
+      {isFetchingNextPage && placeholder}
       <div
         className="absolute bottom-0 left-0 w-px h-px opacity-0 pointer-events-none"
         ref={infiniteScrollRef}
