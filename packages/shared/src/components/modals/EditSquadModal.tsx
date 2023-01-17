@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from './common/Modal';
+import { LazyModalCommonProps, Modal } from './common/Modal';
 import { Squad, editSquad } from '../../graphql/squads';
 import { SquadDetails } from '../squads/Details';
 import { ModalHeaderKind } from './common/types';
@@ -7,7 +7,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 
 export type EditSquadModalProps = {
   squad: Squad;
-} & Pick<ModalProps, 'isOpen' | 'onRequestClose'>;
+} & LazyModalCommonProps;
 
 function EditSquadModal({
   onRequestClose,
@@ -17,13 +17,13 @@ function EditSquadModal({
   const { displayToast } = useToastNotification();
   const onSubmit = async (e, form) => {
     e.preventDefault();
-    const newSquad = await editSquad(squad.id, {
+    const editedSquad = await editSquad(squad.id, {
       ...squad,
       name: form.name,
       description: form.description,
       handle: form.handle,
     });
-    if (newSquad) {
+    if (editedSquad) {
       displayToast('The Squad has been updated');
       onRequestClose(e);
     }

@@ -17,7 +17,7 @@ const squadImageId = 'squad_image_file';
 export function SquadDetails({
   onSubmit,
   form,
-  createMode,
+  createMode = true,
 }: {
   onSubmit: (e, formJson) => void;
   form: Partial<SquadForm>;

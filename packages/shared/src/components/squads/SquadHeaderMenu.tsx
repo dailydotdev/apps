@@ -84,7 +84,7 @@ export default function SquadHeaderMenu({
     }
   };
 
-  const onEditSquad = async () => {
+  const onEditSquad = () => {
     openModal({
       type: LazyModal.EditSquad,
       props: {
