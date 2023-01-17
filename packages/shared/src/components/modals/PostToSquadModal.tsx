@@ -9,7 +9,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 
 export type PostToSquadModalProps = {
   squad: Squad;
-  post: Post;
+  post?: Post;
 } & Pick<ModalProps, 'isOpen' | 'onRequestClose'>;
 
 function PostToSquadModal({
@@ -48,6 +48,7 @@ function PostToSquadModal({
       onRequestClose={onRequestClose}
     >
       <Modal.Header title="Post article" kind={ModalHeaderKind.Tertiary} />
+      {/* Need to conditionally render post selection */}
       <SquadComment form={form} onSubmit={onSubmit} />
     </Modal>
   );

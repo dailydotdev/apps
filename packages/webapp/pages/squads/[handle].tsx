@@ -19,6 +19,8 @@ import {
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { useQuery } from 'react-query';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -27,6 +29,7 @@ type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
+  const { openModal } = useLazyModal();
   const queryKey = ['squad', handle];
   const { data: squad, isLoading } = useQuery<Squad>(
     queryKey,
@@ -50,9 +53,13 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  const onNewSquadPost = () => {
-    alert('create new post');
-  };
+  const onNewSquadPost = () =>
+    openModal({
+      type: LazyModal.PostToSquad,
+      props: {
+        squad,
+      },
+    });
 
   if (isFallback || isLoading) {
     return <></>;

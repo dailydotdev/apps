@@ -171,7 +171,6 @@ export default function Feed<T>({
       onNewSquadPost,
     );
 
-  console.log(items);
   const { ranking } = (variables as RankVariables) || {};
   const {
     onOpenModal,
