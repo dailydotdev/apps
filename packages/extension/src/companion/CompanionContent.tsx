@@ -110,7 +110,7 @@ export default function CompanionContent({
           isOpen
           parentSelector={getCompanionWrapper}
           requestQuery={upvotedPopup.requestQuery}
-          listPlaceholderProps={{ placeholderAmount: post?.numUpvotes }}
+          placeholderAmount={post?.numUpvotes}
           onRequestClose={resetUpvoteQuery}
         />
       )}
