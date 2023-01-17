@@ -68,7 +68,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           backgroundRepeat: 'no-repeat',
         }}
       >
-        <SquadPageHeader squad={squad} members={squadMembers} />
+        <SquadPageHeader
+          squad={squad}
+          members={squadMembers}
+          userId={user?.id}
+        />
         <Feed
           feedName="source"
           feedQueryKey={[
