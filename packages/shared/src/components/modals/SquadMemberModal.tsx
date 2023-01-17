@@ -1,29 +1,27 @@
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import request from 'graphql-request';
-import {
-  UserShortInfoPlaceholder,
-  UserShortInfoPlaceholderProps,
-} from '../profile/UserShortInfoPlaceholder';
 import { apiUrl } from '../../lib/config';
-import { Modal, ModalProps } from './common/Modal';
+import { ModalProps } from './common/Modal';
 import {
   Squad,
   SQUAD_MEMBERS_QUERY,
   SquadEdgesData,
 } from '../../graphql/squads';
-import { SquadMemberList } from '../profile/SquadMemberList';
+import UserListModal from './UserListModal';
+import { checkFetchMore } from '../containers/InfiniteScrolling';
+import { ModalSize } from './common/types';
+// import { Button } from '../buttons/Button';
+// import MenuIcon from '../icons/Menu';
 
 export interface UpvotedPopupModalProps extends ModalProps {
+  placeholderAmount?: number;
   squad: Squad;
-  listPlaceholderProps: UserShortInfoPlaceholderProps;
 }
 
 export function SquadMemberModal({
   squad,
-  listPlaceholderProps,
-  onRequestClose,
-  ...modalProps
+  ...props
 }: UpvotedPopupModalProps): ReactElement {
   const queryKey = ['squadMembers', squad?.id];
   const queryResult = useInfiniteQuery<SquadEdgesData>(
@@ -43,35 +41,28 @@ export function SquadMemberModal({
     },
   );
 
-  const [page] = queryResult?.data?.pages || [];
-  const container = useRef<HTMLElement>();
-  const [modalRef, setModalRef] = useState<HTMLElement>();
-
   return (
-    <Modal
-      contentRef={(e) => setModalRef(e)}
-      onRequestClose={onRequestClose}
-      kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Small}
-      {...modalProps}
-    >
-      <Modal.Header title="Squad members" />
-      <Modal.Body
-        className="py-2 px-0"
-        data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
-        ref={container}
-      >
-        {page?.sourceMembers.edges.length > 0 ? (
-          <SquadMemberList
-            queryResult={queryResult}
-            scrollingContainer={container.current}
-            appendTooltipTo={modalRef}
-          />
-        ) : (
-          <UserShortInfoPlaceholder {...listPlaceholderProps} />
-        )}
-      </Modal.Body>
-    </Modal>
+    <UserListModal
+      {...props}
+      size={ModalSize.Medium}
+      title="Squad members"
+      scrollingProps={{
+        isFetchingNextPage: queryResult.isFetchingNextPage,
+        canFetchMore: checkFetchMore(queryResult),
+        fetchNextPage: queryResult.fetchNextPage,
+      }}
+      users={queryResult.data?.pages
+        .map((p) => p.sourceMembers.edges.map(({ node }) => node.user))
+        .flat()}
+      // additionalContent={(user) => (
+      //   <Button
+      //     buttonSize="small"
+      //     className="m-auto mr-0 btn-tertiary"
+      //     iconOnly
+      //     icon={<MenuIcon />}
+      //   />
+      // )}
+    />
   );
 }
 

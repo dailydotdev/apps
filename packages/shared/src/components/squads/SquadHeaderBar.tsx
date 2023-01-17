@@ -33,7 +33,7 @@ export function SquadHeaderBar({
       type: LazyModal.SquadMember,
       props: {
         squad,
-        listPlaceholderProps: { placeholderAmount: squad?.membersCount },
+        placeholderAmount: squad?.membersCount,
       },
     });
 
