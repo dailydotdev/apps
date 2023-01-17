@@ -18,7 +18,9 @@ import NotificationItem from '@dailydotdev/shared/src/components/notifications/N
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import InfiniteScrolling, {
+  checkFetchMore,
+} from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
@@ -93,7 +95,11 @@ const Notifications = (): ReactElement => {
         >
           Notifications
         </h2>
-        <InfiniteScrolling queryResult={queryResult}>
+        <InfiniteScrolling
+          isFetchingNextPage={queryResult.isFetchingNextPage}
+          canFetchMore={checkFetchMore(queryResult)}
+          fetchNextPage={queryResult.fetchNextPage}
+        >
           {length > 0 &&
             queryResult.data.pages.map((page) =>
               page.notifications.edges.map(
