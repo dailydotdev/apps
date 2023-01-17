@@ -274,9 +274,10 @@ describe('invalid token', () => {
 
   it('should redirect to home page when invitation source id does not match route squad id', async () => {
     const owner = generateDefaultMember();
-    owner.source.id = 'not your squad';
-    owner.source.handle = 'not your squad';
-    renderComponent([createInvitationMock(defaultToken, owner)]);
+    renderComponent([createInvitationMock(defaultToken, owner)], {
+      handle: 'not your squad',
+      token: defaultToken,
+    });
     await waitForNock();
     expect(replaced).toEqual(webappUrl);
   });
