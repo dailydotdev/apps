@@ -275,8 +275,8 @@ describe('invalid token', () => {
   it('should redirect to squads page when member is already part of the squad', async () => {
     const owner = generateDefaultMember();
     const member = generateMember(1);
-    owner.source.members.edges.push({ node: member });
     member.user.id = defaultUser.id;
+    owner.source.members.edges.push({ node: member });
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
     expect(replaced).toEqual(`/squads/${owner.source.id}`);
