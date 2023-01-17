@@ -416,8 +416,8 @@ export function PostContent({
       {upvotedPopup.modal && (
         <UpvotedPopupModal
           requestQuery={upvotedPopup.requestQuery}
+          placeholderAmount={upvotedPopup.upvotes}
           isOpen={upvotedPopup.modal}
-          listPlaceholderProps={{ placeholderAmount: upvotedPopup.upvotes }}
           onRequestClose={resetUpvoteQuery}
         />
       )}

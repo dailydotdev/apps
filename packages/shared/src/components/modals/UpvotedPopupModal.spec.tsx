@@ -24,7 +24,7 @@ beforeEach(() => {
 const postId = 'p1';
 const upvotedPostQueryAsDefault: UpvotedPopupModalProps = {
   isOpen: true,
-  listPlaceholderProps: { placeholderAmount: 1 },
+  placeholderAmount: 1,
   requestQuery: {
     queryKey: ['postUpvotes', postId],
     query: POST_UPVOTES_BY_ID_QUERY,
@@ -34,7 +34,7 @@ const upvotedPostQueryAsDefault: UpvotedPopupModalProps = {
 const commentId = 'c1';
 const upvotedCommentQuery: UpvotedPopupModalProps = {
   isOpen: true,
-  listPlaceholderProps: { placeholderAmount: 8 },
+  placeholderAmount: 8,
   requestQuery: {
     queryKey: ['commentUpvotes', commentId],
     query: COMMENT_UPVOTES_BY_ID_QUERY,
@@ -97,16 +97,17 @@ const renderComponent = (
 };
 
 it('should show upvoter list for post', async () => {
-  const [key, id] = upvotedPostQueryAsDefault.requestQuery
-    .queryKey as unknown[];
   renderComponent();
-  screen.getByTestId(`List of ${key} with ID ${id}`);
+  const items = await screen.findAllByRole('link');
+  expect(items.length).toEqual(1);
 });
 
 it('should show upvoter list for comment', async () => {
-  const [key, id] = upvotedCommentQuery.requestQuery.queryKey as unknown[];
-  renderComponent(upvotedCommentQuery);
-  screen.getByTestId(`List of ${key} with ID ${id}`);
+  renderComponent(upvotedCommentQuery, [
+    fetchUpvotesMock({ ...upvotedCommentQuery.requestQuery }),
+  ]);
+  const items = await screen.findAllByRole('link');
+  expect(items.length).toEqual(1);
 });
 
 it("should show user's handle", async () => {
