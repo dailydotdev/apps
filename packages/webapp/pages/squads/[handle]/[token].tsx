@@ -101,7 +101,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   );
 
   return (
-    <PageContainer className="relative justify-center items-center min-h-[calc(100vh-3.5rem)]">
+    <PageContainer className="relative justify-center items-center pt-24">
       <NextSeo
         title={`Invitation to ${source.name}`}
         titleTemplate="%s | daily.dev"
@@ -115,8 +115,8 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
       </BodyParagraph>
       <span className="flex flex-row items-center mt-10" data-testid="inviter">
         <ProfileImageLink user={user} />
-        <BodyParagraph>
-          <HighlightedText className="ml-4">{user.name}</HighlightedText>{' '}
+        <BodyParagraph className="flex-1 ml-4">
+          <HighlightedText>{user.name}</HighlightedText>{' '}
           <Link href={user.permalink}>
             <a href={user.permalink}>(@{user.username})</a>
           </Link>{' '}
