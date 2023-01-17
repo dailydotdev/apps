@@ -6,7 +6,6 @@ import { Modal } from '../modals/common/Modal';
 import PostItemCard from '../post/PostItemCard';
 import {
   ModalState,
-  SquadForm,
   SquadStateProps,
   SquadTitle,
   SquadTitleColor,
@@ -15,6 +14,7 @@ import ReadingHistoryPlaceholder from '../history/ReadingHistoryPlaceholder';
 import { ModalPropsContext } from '../modals/common/types';
 import { PostItem } from '../../graphql/posts';
 import { Button } from '../buttons/Button';
+import { SquadForm } from '../../graphql/squads';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '../containers/InfiniteScrolling';

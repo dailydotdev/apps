@@ -26,6 +26,11 @@ export interface ModalProps extends ReactModal.Props {
   onViewChange?: (view: string) => void;
 }
 
+export type LazyModalCommonProps = Pick<
+  ModalProps,
+  'isOpen' | 'onRequestClose'
+>;
+
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
   [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',
   [ModalKind.FlexibleCenter]: 'justify-center',

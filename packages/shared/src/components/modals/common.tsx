@@ -7,7 +7,10 @@ export type CloseModalFunc = (
 ) => void;
 
 const SquadsBetaModal = dynamic(
-  () => import(/* webpackChunkName: "postToSquadModal" */ './SquadsBetaModal'),
+  () => import(/* webpackChunkName: "squadsBetaModal" */ './SquadsBetaModal'),
+);
+const EditSquadModal = dynamic(
+  () => import(/* webpackChunkName: "editSquadModal" */ './EditSquadModal'),
 );
 const PostToSquadModal = dynamic(
   () => import(/* webpackChunkName: "postToSquadModal" */ './PostToSquadModal'),
@@ -25,6 +28,7 @@ const SquadMemberModal = dynamic(
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.BetaSquad]: SquadsBetaModal,
+  [LazyModal.EditSquad]: EditSquadModal,
   [LazyModal.PostToSquad]: PostToSquadModal,
   [LazyModal.LockedSquad]: LockedSquadModal,
   [LazyModal.SquadMember]: SquadMemberModal,

@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from './common/Modal';
-import { Squad } from '../../graphql/squads';
-import { addPostToSquad, SquadForm } from '../squads/utils';
+import { LazyModalCommonProps, Modal } from './common/Modal';
+import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadComment } from '../squads/Comment';
 import { ModalHeaderKind } from './common/types';
 import { Post } from '../../graphql/posts';
@@ -10,7 +9,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 export type PostToSquadModalProps = {
   squad: Squad;
   post: Post;
-} & Pick<ModalProps, 'isOpen' | 'onRequestClose'>;
+} & LazyModalCommonProps;
 
 function PostToSquadModal({
   onRequestClose,

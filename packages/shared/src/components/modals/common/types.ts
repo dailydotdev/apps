@@ -23,6 +23,7 @@ export enum ModalSize {
 export enum LazyModal {
   NewSquad = 'newSquad',
   BetaSquad = 'betaSquad',
+  EditSquad = 'editSquad',
   PostToSquad = 'postToSquad',
   LockedSquad = 'lockedSquad',
   SquadMember = 'squadMember',
