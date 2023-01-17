@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
 import { UserShortInfo } from './UserShortInfo';
@@ -6,8 +6,6 @@ import InfiniteScrolling, {
   InfiniteScrollingProps,
 } from '../containers/InfiniteScrolling';
 import { UserShortProfile } from '../../lib/user';
-import { Button } from '../buttons/Button';
-import MenuIcon from '../icons/Menu';
 
 export interface UserListProps {
   scrollingContainer?: HTMLElement;
@@ -15,18 +13,14 @@ export interface UserListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
   users: UserShortProfile[];
   placeholderAmount?: number;
-  onOptionsClick?: (
-    e: React.MouseEvent,
-    user: UserShortProfile,
-    index: number,
-  ) => void | Promise<void>;
+  listItemContent?: (user: UserShortProfile, index: number) => ReactNode;
 }
 
 function UserList({
   placeholderAmount,
   scrollingProps,
   users,
-  onOptionsClick,
+  listItemContent,
   ...props
 }: UserListProps): ReactElement {
   return (
@@ -39,15 +33,7 @@ function UserList({
       {users.map((user, i) => (
         <Link key={user.username} href={user.permalink}>
           <UserShortInfo {...props} tag="a" href={user.permalink} user={user}>
-            {onOptionsClick && (
-              <Button
-                buttonSize="small"
-                className="m-auto mr-0 btn-tertiary"
-                iconOnly
-                icon={<MenuIcon />}
-                onClick={(e) => onOptionsClick(e, user, i)}
-              />
-            )}
+            {listItemContent?.(user, i)}
           </UserShortInfo>
         </Link>
       ))}

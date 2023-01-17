@@ -7,7 +7,7 @@ import { UserShortProfile } from '../../lib/user';
 
 export interface UserListModalProps
   extends Omit<ModalProps, 'children'>,
-    Pick<UserListProps, 'onOptionsClick'> {
+    Pick<UserListProps, 'listItemContent'> {
   users: UserShortProfile[];
   placeholderAmount?: number;
   title: string;
@@ -19,7 +19,7 @@ function UserListModal({
   title,
   scrollingProps,
   placeholderAmount,
-  onOptionsClick,
+  listItemContent,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -37,11 +37,11 @@ function UserListModal({
         {users?.length ? (
           <UserList
             users={users}
-            onOptionsClick={onOptionsClick}
             scrollingProps={scrollingProps}
             scrollingContainer={container.current}
             appendTooltipTo={modalRef}
             placeholderAmount={placeholderAmount}
+            listItemContent={listItemContent}
           />
         ) : (
           <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />

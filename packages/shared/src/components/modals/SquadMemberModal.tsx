@@ -10,6 +10,8 @@ import {
 } from '../../graphql/squads';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
+// import { Button } from '../buttons/Button';
+// import MenuIcon from '../icons/Menu';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount?: number;
@@ -42,7 +44,6 @@ export function SquadMemberModal({
     <UserListModal
       {...props}
       title="Squad members"
-      onOptionsClick={null} // report member context menu (for another ticket)
       scrollingProps={{
         isFetchingNextPage: queryResult.isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
@@ -51,6 +52,14 @@ export function SquadMemberModal({
       users={queryResult.data?.pages
         .map((p) => p.sourceMembers.edges.map(({ node }) => node.user))
         .flat()}
+      // listItemContent={(user) => (
+      //   <Button
+      //     buttonSize="small"
+      //     className="m-auto mr-0 btn-tertiary"
+      //     iconOnly
+      //     icon={<MenuIcon />}
+      //   />
+      // )}
     />
   );
 }
