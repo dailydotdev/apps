@@ -272,6 +272,15 @@ describe('invalid token', () => {
     expect(replaced).toEqual(webappUrl);
   });
 
+  it('should redirect to home page when source id is does not match route squad id', async () => {
+    const owner = generateDefaultMember();
+    owner.source.id = 'not your squad';
+    owner.source.handle = 'not your squad';
+    renderComponent([createInvitationMock(defaultToken, owner)]);
+    await waitForNock();
+    expect(replaced).toEqual(webappUrl);
+  });
+
   it('should redirect to squads page when member is already part of the squad', async () => {
     const owner = generateDefaultMember();
     const member = generateMember(1);
