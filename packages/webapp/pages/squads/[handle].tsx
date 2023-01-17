@@ -38,7 +38,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const squadId = squad?.id;
 
   const { data: squadMembers } = useQuery<SquadMember[]>(
-    ['squadMembers', handle],
+    ['squadMembersInitial', handle],
     () => getSquadMembers(squadId),
     { enabled: !!squadId },
   );

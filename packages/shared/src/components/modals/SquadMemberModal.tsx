@@ -66,6 +66,7 @@ export function SquadMemberModal({
             queryResult={queryResult}
             scrollingContainer={container.current}
             appendTooltipTo={modalRef}
+            squadId={squad?.id}
           />
         ) : (
           <UserShortInfoPlaceholder {...listPlaceholderProps} />
