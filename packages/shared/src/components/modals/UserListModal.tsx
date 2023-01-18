@@ -20,7 +20,7 @@ function UserListModal({
   scrollingProps,
   placeholderAmount,
   additionalContent,
-  size = Modal.Size.Small,
+  size = Modal.Size.Medium,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();

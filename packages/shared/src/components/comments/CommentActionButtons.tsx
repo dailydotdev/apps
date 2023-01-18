@@ -151,7 +151,7 @@ export default function CommentActionButtons({
           buttonSize="small"
           onClick={() => onComment(comment, parentId)}
           icon={<CommentIcon />}
-          className="mr-3 btn-tertiary-avocado"
+          className="mr-3 btn-tertiary-blueCheese"
         />
       </SimpleTooltip>
       <SimpleTooltip content="Share comment">
