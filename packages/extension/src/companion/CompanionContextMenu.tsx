@@ -12,6 +12,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
 import { feedback } from '@dailydotdev/shared/src/lib/constants';
+import classNames from 'classnames';
 import {
   PromptOptions,
   usePrompt,
@@ -90,7 +91,10 @@ export default function CompanionContextMenu({
         <Item onClick={onBookmark}>
           <BookmarkIcon
             size="medium"
-            className="mr-2"
+            className={classNames(
+              'mr-2',
+              postData?.bookmarked && 'text-theme-color-bun',
+            )}
             secondary={postData?.bookmarked}
           />
           {postData?.bookmarked ? 'Remove from' : 'Save to'} bookmarks

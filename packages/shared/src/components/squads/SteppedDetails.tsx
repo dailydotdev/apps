@@ -2,26 +2,26 @@ import React, { FormEventHandler, ReactElement, useContext } from 'react';
 import { Modal } from '../modals/common/Modal';
 import { ModalState, SquadStateProps } from './utils';
 import { ModalPropsContext } from '../modals/common/types';
-import { SquadComment } from './Comment';
+import { SquadDetails } from './Details';
 import { SquadForm } from '../../graphql/squads';
 
-export function SteppedSquadComment({
+export function SteppedSquadDetails({
   onNext,
   form,
 }: SquadStateProps): ReactElement {
   const { activeView } = useContext(ModalPropsContext);
-  if (ModalState.WriteComment !== activeView || !form.post) return null;
-  const onSubmit = (nextStep: FormEventHandler): FormEventHandler => {
-    return (e) => {
+  if (ModalState.Details !== activeView) return null;
+  const onSubmit = (nextStep: FormEventHandler) => {
+    return (e, formJson) => {
       e.preventDefault();
       nextStep(e);
-      onNext({ ...form, commentary: e.target[0].value } as SquadForm);
+      onNext({ ...form, ...formJson } as SquadForm);
     };
   };
   return (
     <Modal.StepsWrapper>
       {({ nextStep }) => (
-        <SquadComment form={form} onSubmit={onSubmit(nextStep)} />
+        <SquadDetails form={form} onSubmit={onSubmit(nextStep)} createMode />
       )}
     </Modal.StepsWrapper>
   );

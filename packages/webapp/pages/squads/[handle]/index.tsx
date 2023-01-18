@@ -60,7 +60,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       <FeedPage className="laptop:pr-0 laptop:pl-0 mb-4 squad-background-fade">
-        <SquadPageHeader squad={squad} members={squadMembers} />
+        <SquadPageHeader
+          squad={squad}
+          members={squadMembers}
+          userId={user?.id}
+        />
         <Feed
           feedName="source"
           feedQueryKey={[

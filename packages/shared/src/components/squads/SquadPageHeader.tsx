@@ -4,19 +4,26 @@ import { Button } from '../buttons/Button';
 import FeedbackIcon from '../icons/Feedback';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
+import { squadFeedback } from '../../lib/constants';
 
 type SquadPageHeaderProps = {
+  userId: string;
   squad: Squad;
   members: SquadMember[];
 };
 
 export function SquadPageHeader({
+  userId,
   squad,
   members,
 }: SquadPageHeaderProps): ReactElement {
   return (
     <section className="flex relative flex-col mobileL:items-center w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
       <Button
+        tag="a"
+        target="_blank"
+        rel="noopener noreferrer"
+        href={`${squadFeedback}#user_id=${userId}`}
         className="-top-4 right-4 btn btn-secondary"
         position="absolute"
         icon={<FeedbackIcon size="medium" />}

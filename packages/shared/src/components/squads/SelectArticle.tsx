@@ -6,7 +6,6 @@ import { Modal } from '../modals/common/Modal';
 import PostItemCard from '../post/PostItemCard';
 import {
   ModalState,
-  SquadForm,
   SquadStateProps,
   SquadTitle,
   SquadTitleColor,
@@ -15,6 +14,10 @@ import ReadingHistoryPlaceholder from '../history/ReadingHistoryPlaceholder';
 import { ModalPropsContext } from '../modals/common/types';
 import { PostItem } from '../../graphql/posts';
 import { Button } from '../buttons/Button';
+import { SquadForm } from '../../graphql/squads';
+import InfiniteScrolling, {
+  checkFetchMore,
+} from '../containers/InfiniteScrolling';
 
 export function SquadSelectArticle({
   form,
@@ -29,7 +32,7 @@ export function SquadSelectArticle({
     key,
     query: READING_HISTORY_QUERY,
   };
-  const { hasData, data, isInitialLoading, isLoading } =
+  const { hasData, data, isInitialLoading, isLoading, queryResult } =
     useInfiniteReadingHistory(queryProps);
   const goNext = (
     post: PostItem,
@@ -54,7 +57,11 @@ export function SquadSelectArticle({
         </p>
         <Modal.StepsWrapper>
           {({ nextStep }) => (
-            <div>
+            <InfiniteScrolling
+              canFetchMore={checkFetchMore(queryResult)}
+              fetchNextPage={queryResult.fetchNextPage}
+              isFetchingNextPage={queryResult.isFetchingNextPage}
+            >
               {data?.pages.map((page) =>
                 page.readHistory.edges.map((edge) => (
                   <button
@@ -71,7 +78,7 @@ export function SquadSelectArticle({
                   </button>
                 )),
               )}
-            </div>
+            </InfiniteScrolling>
           )}
         </Modal.StepsWrapper>
         {isLoading && (

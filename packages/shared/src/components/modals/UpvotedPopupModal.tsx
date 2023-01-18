@@ -1,26 +1,21 @@
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { UpvoterList } from '../profile/UpvoterList';
-import {
-  UserShortInfoPlaceholder,
-  UserShortInfoPlaceholderProps,
-} from '../profile/UserShortInfoPlaceholder';
 import { apiUrl } from '../../lib/config';
 import { RequestQuery, UpvotesData } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { Modal, ModalProps } from './common/Modal';
+import { ModalProps } from './common/Modal';
+import { checkFetchMore } from '../containers/InfiniteScrolling';
+import UserListModal from './UserListModal';
 
 export interface UpvotedPopupModalProps extends ModalProps {
-  listPlaceholderProps: UserShortInfoPlaceholderProps;
+  placeholderAmount: number;
   requestQuery: RequestQuery<UpvotesData>;
 }
 
 export function UpvotedPopupModal({
-  listPlaceholderProps,
-  onRequestClose,
   requestQuery: { queryKey, query, params, options = {} },
   children,
-  ...modalProps
+  ...props
 }: UpvotedPopupModalProps): ReactElement {
   const { requestMethod } = useRequestProtocol();
   const queryResult = useInfiniteQuery<UpvotesData>(
@@ -40,35 +35,20 @@ export function UpvotedPopupModal({
     },
   );
 
-  const [page] = queryResult?.data?.pages || [];
-  const container = useRef<HTMLElement>();
-  const [modalRef, setModalRef] = useState<HTMLElement>();
-
   return (
-    <Modal
-      contentRef={(e) => setModalRef(e)}
-      onRequestClose={onRequestClose}
-      kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Small}
-      {...modalProps}
-    >
-      <Modal.Header title="Upvoted by" />
-      <Modal.Body
-        className="py-2 px-0"
-        data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
-        ref={container}
-      >
-        {page && page.upvotes.edges.length > 0 ? (
-          <UpvoterList
-            queryResult={queryResult}
-            scrollingContainer={container.current}
-            appendTooltipTo={modalRef}
-          />
-        ) : (
-          <UserShortInfoPlaceholder {...listPlaceholderProps} />
-        )}
-      </Modal.Body>
-    </Modal>
+    <UserListModal
+      {...props}
+      data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
+      title="Upvoted by"
+      scrollingProps={{
+        isFetchingNextPage: queryResult.isFetchingNextPage,
+        canFetchMore: checkFetchMore(queryResult),
+        fetchNextPage: queryResult.fetchNextPage,
+      }}
+      users={queryResult.data?.pages
+        .map((p) => p.upvotes.edges.map(({ node }) => node.user))
+        .flat()}
+    />
   );
 }
 

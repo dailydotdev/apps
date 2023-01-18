@@ -95,7 +95,7 @@ export function PostActions({
         icon={<CommentIcon secondary={post.commented} />}
         aria-label="Comment"
         responsiveLabelClass={actionsClassName}
-        className="btn-tertiary-avocado"
+        className="btn-tertiary-blueCheese"
       >
         Comment
       </QuaternaryButton>
