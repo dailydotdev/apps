@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import {
   AnonymousUser,
   deleteAccount,
@@ -37,6 +43,7 @@ export interface AuthContextData {
 }
 const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
+export const useAuthContext = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;
 
 export const getQueryParams = (): Record<string, string> => {

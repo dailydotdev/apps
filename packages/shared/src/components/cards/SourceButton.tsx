@@ -33,7 +33,7 @@ export default function SourceButton({
           name: source.name,
           image: source.image,
           permalink: getSourcePermalink(source.id),
-          username: source.id,
+          username: source.handle,
         }}
       />
     </LinkWithTooltip>

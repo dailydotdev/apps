@@ -19,9 +19,9 @@ import {
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { useQuery } from 'react-query';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { getLayout } from '../../components/layouts/FeedLayout';
-import ProtectedPage from '../../components/ProtectedPage';
+import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import { getLayout } from '../../../components/layouts/FeedLayout';
+import ProtectedPage from '../../../components/ProtectedPage';
 
 type SourcePageProps = { handle: string };
 
@@ -59,15 +59,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   );
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
-      <FeedPage
-        className="laptop:pr-0 laptop:pl-0 mb-4"
-        style={{
-          background: 'radial-gradient(ellipse, #c029f088 0%, #c029f000 400px)',
-          backgroundSize: '1200px 500px',
-          backgroundPosition: 'center -270px',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
+      <FeedPage className="laptop:pr-0 laptop:pl-0 mb-4 squad-background-fade">
         <SquadPageHeader
           squad={squad}
           members={squadMembers}

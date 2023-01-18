@@ -22,12 +22,21 @@ export function SquadReady({
   const { activeView } = useContext(ModalPropsContext);
   if (ModalState.Ready !== activeView) return null;
   if (!squad) return <Modal.Body>loading...</Modal.Body>;
-  const { name, handle, permalink } = squad;
-  const [copying, copyLink] = useCopyLink(() => permalink);
+  const {
+    name,
+    handle,
+    permalink,
+    members: {
+      edges: [owner],
+    },
+  } = squad;
+  const invitation = `${permalink}/${owner.node.referralToken}`;
+  const [copying, copyLink] = useCopyLink(() => invitation);
 
   const onCopy = () => {
     copyLink();
   };
+
   return (
     <>
       <Modal.Body className="flex flex-col items-center">
