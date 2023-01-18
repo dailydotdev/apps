@@ -45,7 +45,9 @@ export default function MainComment({
         <EnableNotification
           className={!comment.children?.edges?.length && 'mt-3'}
           source={NotificationPromptSource.NewComment}
-          contentName={user?.id !== comment?.author.id ? comment?.author?.name : undefined}
+          contentName={
+            user?.id !== comment?.author.id ? comment?.author?.name : undefined
+          }
         />
       )}
     </section>
