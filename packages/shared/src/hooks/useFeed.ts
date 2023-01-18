@@ -105,7 +105,6 @@ export default function useFeed<T>(
   showOnlyUnreadPosts: boolean,
   query?: string,
   variables?: T,
-  onNewSquadPost?: () => void,
 ): FeedReturnType {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
