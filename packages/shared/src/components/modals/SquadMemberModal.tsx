@@ -10,7 +10,6 @@ import {
 } from '../../graphql/squads';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
-import { ModalSize } from './common/types';
 // import { Button } from '../buttons/Button';
 // import MenuIcon from '../icons/Menu';
 
@@ -44,7 +43,6 @@ export function SquadMemberModal({
   return (
     <UserListModal
       {...props}
-      size={ModalSize.Medium}
       title="Squad members"
       scrollingProps={{
         isFetchingNextPage: queryResult.isFetchingNextPage,
