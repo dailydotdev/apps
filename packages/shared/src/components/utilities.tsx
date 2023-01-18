@@ -129,6 +129,11 @@ export const pageContainerClassNames = classNames(
   'items-stretch tablet:self-center',
 );
 
+export const PageContainerCentered = classed(
+  BasePageContainer,
+  'min-h-page justify-center items-center',
+);
+
 export const PageContainer = classed(
   BasePageContainer,
   pagePaddings,

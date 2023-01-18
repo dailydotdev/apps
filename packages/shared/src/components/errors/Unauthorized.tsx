@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { Button } from '../buttons/Button';
 import LockIcon from '../icons/Lock';
-import { BasePageContainer } from '../utilities';
+import { PageContainerCentered } from '../utilities';
 
 interface UnauthorizedProps {
   children?: ReactNode;
@@ -18,7 +18,7 @@ function Unauthorized({
   description = defaultDescription,
 }: UnauthorizedProps): ReactElement {
   return (
-    <BasePageContainer className="gap-4 justify-center items-center min-h-page">
+    <PageContainerCentered className="gap-4">
       <LockIcon
         secondary
         className="self-center text-theme-label-secondary"
@@ -34,7 +34,7 @@ function Unauthorized({
       <Button className="mt-6 btn-primary w-fit" buttonSize="large">
         Back home
       </Button>
-    </BasePageContainer>
+    </PageContainerCentered>
   );
 }
 
