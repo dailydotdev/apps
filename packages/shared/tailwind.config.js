@@ -130,6 +130,9 @@ module.exports = {
       'img-mobile': '280px',
       'rank-modal': 'calc(100vh - 5rem)',
     },
+    minHeight: {
+      page: 'calc(100vh - 3.5rem)',
+    },
     fontFamily: {
       sans: [
         'system-ui',

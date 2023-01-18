@@ -18,6 +18,7 @@ import {
   Squad,
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
+import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from 'react-query';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -50,13 +51,14 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  if (isFallback || isLoading) {
-    return <></>;
-  }
+  if (!squad && isLoading) return <></>; // loading screen
+
+  if (isFallback) return <Unauthorized />;
 
   const seo = (
     <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
   );
+
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       <FeedPage
@@ -100,6 +102,7 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
+
 export function getStaticProps({
   params,
 }: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<SourcePageProps> {

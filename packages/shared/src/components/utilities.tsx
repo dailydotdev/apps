@@ -111,14 +111,26 @@ export const postEventName = (
 
 export const pageBorders =
   'laptop:border-r laptop:border-l border-theme-divider-tertiary';
+
 const pagePaddings = 'px-4 tablet:px-8';
+const basePageClassNames = classNames(
+  styles.pageContainer,
+  'relative flex flex-col w-full z-1',
+);
+
+export const BasePageContainer = classed(
+  'main',
+  pagePaddings,
+  basePageClassNames,
+);
 
 export const pageContainerClassNames = classNames(
-  styles.pageContainer,
-  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+  basePageClassNames,
+  'items-stretch tablet:self-center',
 );
+
 export const PageContainer = classed(
-  'main',
+  BasePageContainer,
   pagePaddings,
   pageContainerClassNames,
 );
