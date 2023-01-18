@@ -20,7 +20,7 @@ export function SquadPageHeader({
   members,
 }: SquadPageHeaderProps): ReactElement {
   return (
-    <section className="flex relative flex-col mobileL:items-center w-full laptop:border-b min-h-20 border-theme-divider-tertiary pb-4 mobileL:pb-8 mobileL:mb-8">
+    <section className="flex relative flex-col mobileL:items-center pb-4 mobileL:pb-8 mobileL:mb-8 w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
       <Button
         tag="a"
         target="_blank"
@@ -49,12 +49,15 @@ export function SquadPageHeader({
         {squad.description}
       </h4>
       <SquadHeaderBar
-        className='mb-4'
+        className="mb-4"
         squad={squad}
         members={members}
         memberCount={squad.membersCount}
       />
-      <EnableNotification contentName={squad.name} source={NotificationPromptSource.SquadPage}/>
+      <EnableNotification
+        contentName={squad.name}
+        source={NotificationPromptSource.SquadPage}
+      />
     </section>
   );
 }
