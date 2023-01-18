@@ -181,7 +181,7 @@ export default function Sidebar({
             )}
             {!!squads?.length && (
               <SquadsList
-                activePage={activePageProp}
+                {...defaultRenderSectionProps}
                 squads={squads}
                 onNewSquad={openSquadBetaModal}
                 onOpenLockedSquad={openLockedSquadModal}

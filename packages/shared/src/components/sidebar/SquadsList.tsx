@@ -12,6 +12,8 @@ type SquadsListProps = {
   squads: Squad[];
   onNewSquad: () => void;
   onOpenLockedSquad: (squad: Squad) => void;
+  sidebarExpanded: boolean;
+  sidebarRendered: boolean;
 };
 
 export function SquadsList({
@@ -19,6 +21,7 @@ export function SquadsList({
   squads,
   onNewSquad,
   onOpenLockedSquad,
+  sidebarExpanded,
 }: SquadsListProps): ReactElement {
   const newSquadMenuItem: SidebarMenuItem = {
     icon: () => <NewSquadIcon />,
@@ -37,7 +40,7 @@ export function SquadsList({
             ) : (
               <DefaultSquadIcon />
             ),
-          rightIcon: () => !active && <TimerIcon />,
+          rightIcon: () => sidebarExpanded && !active && <TimerIcon />,
           title: name,
           ...(!active
             ? { action: () => onOpenLockedSquad(squad) }
@@ -47,14 +50,17 @@ export function SquadsList({
         return (
           <NavItem key={`squad-${handle}`} active={isActive}>
             <ClickableNavItem item={menuItem}>
-              <ItemInner item={menuItem} sidebarExpanded />
+              <ItemInner item={menuItem} sidebarExpanded={sidebarExpanded} />
             </ClickableNavItem>
           </NavItem>
         );
       })}
       <NavItem>
         <ClickableNavItem item={newSquadMenuItem}>
-          <ItemInner item={newSquadMenuItem} sidebarExpanded />
+          <ItemInner
+            item={newSquadMenuItem}
+            sidebarExpanded={sidebarExpanded}
+          />
         </ClickableNavItem>
       </NavItem>
     </>
