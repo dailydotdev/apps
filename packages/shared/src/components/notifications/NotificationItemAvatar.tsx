@@ -15,7 +15,11 @@ function NotificationItemAvatar({
   referenceId,
 }: NotificationAvatar): ReactElement {
   if (type === NotificationAvatarType.Source) {
-    return <SourceButton source={{ id: referenceId, name, image }} />;
+    return (
+      <SourceButton
+        source={{ id: referenceId, handle: referenceId, name, image }}
+      />
+    );
   }
 
   if (type === NotificationAvatarType.User) {
