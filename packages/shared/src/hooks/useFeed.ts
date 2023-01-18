@@ -176,12 +176,6 @@ export default function useFeed<T>(
               type: 'placeholder',
             });
           }
-          if (true) {
-            posts.splice(0, 0, {
-              type: 'new_squad_post',
-              action: onNewSquadPost,
-            });
-          }
           return posts;
         },
       );

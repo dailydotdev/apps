@@ -29,7 +29,7 @@ export interface ModalProps extends ReactModal.Props {
 export type LazyModalCommonProps = Pick<
   ModalProps,
   'isOpen' | 'onRequestClose'
->;
+> & { onRequestClose: (e?: React.MouseEvent | React.KeyboardEvent) => void };
 
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
   [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',

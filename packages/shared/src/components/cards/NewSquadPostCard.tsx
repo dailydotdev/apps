@@ -11,7 +11,7 @@ export default function NewSquadPostCard({
 }: AdCardProps): ReactElement {
   return (
     <Button
-      className="flex flex-col justify-center items-center h-full rounded-14 border border-theme-color-cabbage hover:shadow-2-cabbage"
+      className="flex flex-col justify-center items-center h-full rounded-14 border hover:shadow-2-cabbage border-theme-color-cabbage"
       onClick={onClick}
     >
       <Button
