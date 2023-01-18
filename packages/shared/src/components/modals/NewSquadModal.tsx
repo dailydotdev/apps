@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { Modal } from './common/Modal';
 import { createSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadSelectArticle } from '../squads/SelectArticle';
@@ -47,31 +47,25 @@ function NewSquadModal({
     onRequestClose,
   };
 
-  const modalSteps = useMemo(() => {
-    const steps: ModalStep[] = [
-      {
-        key: ModalState.Details,
-        title: (
-          <>
-            {onPreviousState && (
-              <Modal.Header.StepsButton onClick={onPreviousState} />
-            )}
-            <Modal.Header.Subtitle>{ModalState.Details}</Modal.Header.Subtitle>
-          </>
-        ),
-      },
-    ];
-
-    if (!post) steps.push({ key: ModalState.SelectArticle });
-
-    return steps.concat(
-      { key: ModalState.WriteComment },
-      {
-        key: ModalState.Ready,
-        title: <Modal.Header.Title>{ModalState.Ready}</Modal.Header.Title>,
-      },
-    );
-  }, [onPreviousState, post]);
+  const modalSteps: ModalStep[] = [
+    {
+      key: ModalState.Details,
+      title: (
+        <>
+          {onPreviousState && (
+            <Modal.Header.StepsButton onClick={onPreviousState} />
+          )}
+          <Modal.Header.Subtitle>{ModalState.Details}</Modal.Header.Subtitle>
+        </>
+      ),
+    },
+    !post ? { key: ModalState.SelectArticle } : undefined,
+    { key: ModalState.WriteComment },
+    {
+      key: ModalState.Ready,
+      title: <Modal.Header.Title>{ModalState.Ready}</Modal.Header.Title>,
+    },
+  ].filter((step) => step);
 
   const handleClose = async () => {
     if (activeView === ModalState.Ready) return onRequestClose();
