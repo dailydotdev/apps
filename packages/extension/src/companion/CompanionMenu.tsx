@@ -207,7 +207,8 @@ export default function CompanionMenu({
       >
         <Button
           buttonSize="medium"
-          className="btn-tertiary"
+          className="btn-tertiary-blueCheese"
+          pressed={post?.commented}
           icon={<CommentIcon />}
           onClick={() => openNewComment('comment button')}
         />

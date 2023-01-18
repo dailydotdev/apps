@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryClient, QueryKey, useQueryClient } from 'react-query';
@@ -63,7 +64,14 @@ const getBookmarkIconAndMenuText = (bookmarked: boolean) => (
   <>
     <MenuIcon
       Icon={({ secondary, ...props }) => (
-        <BookmarkIcon secondary={bookmarked} {...props} />
+        <BookmarkIcon
+          secondary={bookmarked}
+          {...props}
+          className={classNames(
+            props.className,
+            bookmarked && 'text-theme-color-bun',
+          )}
+        />
       )}
     />
     {bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks'}
