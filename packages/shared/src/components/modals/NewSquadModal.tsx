@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { Modal } from './common/Modal';
 import { createSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadSelectArticle } from '../squads/SelectArticle';
@@ -8,6 +8,7 @@ import { usePrompt } from '../../hooks/usePrompt';
 import { ModalStep } from './common/types';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { SteppedSquadDetails } from '../squads/SteppedDetails';
+import { Post } from '../../graphql/posts';
 
 export const modalStateOrder = [
   ModalState.Details,
@@ -20,6 +21,7 @@ export type NewSquadModalProps = {
   onRequestClose: () => void;
   onPreviousState?: () => void;
   isOpen: boolean;
+  post?: Post;
 };
 
 let activeView;
@@ -27,10 +29,11 @@ function NewSquadModal({
   onPreviousState,
   onRequestClose,
   isOpen,
+  post,
 }: NewSquadModalProps): ReactElement {
   const [squad, setSquad] = useState<Squad>();
   const { showPrompt } = usePrompt();
-  const [form, setForm] = useState<Partial<SquadForm>>({});
+  const [form, setForm] = useState<Partial<SquadForm>>({ post: { post } });
   const onNext = async (squadForm?: SquadForm) => {
     if (squadForm) setForm(squadForm);
     if (!squadForm.commentary) return;
@@ -44,29 +47,32 @@ function NewSquadModal({
     onRequestClose,
   };
 
-  const modalSteps: ModalStep[] = [
-    {
-      key: ModalState.Details,
-      title: (
-        <>
-          {onPreviousState && (
-            <Modal.Header.StepsButton onClick={onPreviousState} />
-          )}
-          <Modal.Header.Subtitle>{ModalState.Details}</Modal.Header.Subtitle>
-        </>
-      ),
-    },
-    {
-      key: ModalState.SelectArticle,
-    },
-    {
-      key: ModalState.WriteComment,
-    },
-    {
-      key: ModalState.Ready,
-      title: <Modal.Header.Title>{ModalState.Ready}</Modal.Header.Title>,
-    },
-  ];
+  const modalSteps = useMemo(() => {
+    const steps: ModalStep[] = [
+      {
+        key: ModalState.Details,
+        title: (
+          <>
+            {onPreviousState && (
+              <Modal.Header.StepsButton onClick={onPreviousState} />
+            )}
+            <Modal.Header.Subtitle>{ModalState.Details}</Modal.Header.Subtitle>
+          </>
+        ),
+      },
+    ];
+
+    if (!post) steps.push({ key: ModalState.SelectArticle });
+
+    return steps.concat(
+      { key: ModalState.WriteComment },
+      {
+        key: ModalState.Ready,
+        title: <Modal.Header.Title>{ModalState.Ready}</Modal.Header.Title>,
+      },
+    );
+  }, [onPreviousState, post]);
+
   const handleClose = async () => {
     if (activeView === ModalState.Ready) return onRequestClose();
 
@@ -87,7 +93,7 @@ function NewSquadModal({
     >
       <Modal.Header.Steps />
       <SteppedSquadDetails {...stateProps} />
-      <SquadSelectArticle {...stateProps} />
+      {!post && <SquadSelectArticle {...stateProps} />}
       <SteppedSquadComment {...stateProps} />
       <SquadReady {...stateProps} squad={squad} />
     </Modal>
