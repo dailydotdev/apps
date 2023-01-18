@@ -5,6 +5,7 @@ export interface Source {
   id?: string;
   name: string;
   image: string;
+  handle: string;
 }
 
 export const getSourcePermalink = (id: string): string =>

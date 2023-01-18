@@ -1,4 +1,5 @@
 import request, { gql } from 'graphql-request';
+import { USER_SHORT_INFO_FRAGMENT } from './users';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
@@ -8,12 +9,12 @@ import { base64ToFile } from '../lib/base64';
 
 export interface Squad extends Source {
   active: boolean;
-  handle: string | null;
   permalink: string;
   public: boolean;
   type: 'squad';
   description?: string;
   membersCount: number;
+  members?: Connection<SquadMember>;
   currentMember?: SquadMember;
 }
 
@@ -36,6 +37,8 @@ export enum SquadMemberRole {
 export type SquadMember = {
   role: SquadMemberRole;
   user: UserShortProfile;
+  source: Squad;
+  referralToken: string;
 };
 
 type EditSquadInput = {
@@ -104,6 +107,31 @@ export const CREATE_SQUAD_MUTATION = gql`
       public
       type
       description
+      members {
+        edges {
+          node {
+            referralToken
+          }
+        }
+      }
+    }
+  }
+`;
+
+const SOURCE_BASE_FRAGMENT = gql`
+  fragment SourceBaseFragment on Source {
+    id
+    active
+    handle
+    name
+    permalink
+    public
+    type
+    description
+    image
+    membersCount
+    currentMember {
+      role
     }
   }
 `;
@@ -127,21 +155,10 @@ export const ADD_POST_TO_SQUAD_MUTATION = gql`
 export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
-      id
-      active
-      handle
-      name
-      permalink
-      public
-      type
-      description
-      image
-      membersCount
-      currentMember {
-        role
-      }
+      ...SourceBaseFragment
     }
   }
+  ${SOURCE_BASE_FRAGMENT}
 `;
 
 export const SQUAD_MEMBERS_QUERY = gql`
@@ -151,18 +168,50 @@ export const SQUAD_MEMBERS_QUERY = gql`
         node {
           role
           user {
-            id
-            name
-            image
-            permalink
-            username
-            bio
+            ...UserShortInfoFragment
           }
         }
       }
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
+
+export const SQUAD_INVITATION_QUERY = gql`
+  query SourceInvitationQuery($token: String!) {
+    member: sourceMemberByToken(token: $token) {
+      user {
+        ...UserShortInfoFragment
+      }
+      source {
+        ...SourceBaseFragment
+        members {
+          edges {
+            node {
+              user {
+                ...UserShortInfoFragment
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${SOURCE_BASE_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const SQUAD_JOIN_MUTATION = gql`
+  mutation JoinSquad($sourceId: ID!, $token: String!) {
+    joinSource(sourceId: $sourceId, token: $token) {
+      ...SourceBaseFragment
+    }
+  }
+  ${SOURCE_BASE_FRAGMENT}
+`;
+
+export const validateSourceId = (id: string, source: Squad): boolean =>
+  source.id === id || source.handle === id.toLowerCase();
 
 export type SquadData = {
   source: Squad;
@@ -184,7 +233,7 @@ export const deleteSquad = (sourceId: string): Promise<void> =>
 
 export async function getSquad(handle: string): Promise<Squad> {
   const res = await request<SquadData>(`${apiUrl}/graphql`, SQUAD_QUERY, {
-    handle,
+    handle: handle.toLowerCase(),
   });
   return res.source;
 }
@@ -198,6 +247,31 @@ export async function getSquadMembers(id: string): Promise<SquadMember[]> {
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
 
+export interface SquadInvitation {
+  member: SquadMember;
+}
+
+export interface SquadInvitationProps {
+  token: string;
+  sourceId: string;
+}
+
+export const getSquadInvitation = async (
+  token: string,
+): Promise<SquadMember> => {
+  const res = await request<SquadInvitation>(
+    `${apiUrl}/graphql`,
+    SQUAD_INVITATION_QUERY,
+    { token },
+  );
+
+  return res.member;
+};
+
+export const joinSquadInvitation = (
+  params: SquadInvitationProps,
+): Promise<SquadInvitation> =>
+  request(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, params);
 export async function checkSourceExists(id: string): Promise<boolean> {
   try {
     const data = await request<SourceData>(`${apiUrl}/graphql`, SOURCE_QUERY, {
