@@ -19,6 +19,7 @@ import {
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
+import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from 'react-query';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
@@ -51,7 +52,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  if (!squad && isLoading) return <></>; // loading screen
+  if (!squad && isLoading) return <SquadLoading />;
 
   if (isFallback) return <Unauthorized />;
 
