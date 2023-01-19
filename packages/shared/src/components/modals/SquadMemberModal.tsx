@@ -11,7 +11,6 @@ import {
 } from '../../graphql/squads';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
-import { ModalSize } from './common/types';
 import { Button } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import useContextMenu from '../../hooks/useContextMenu';
