@@ -5,6 +5,8 @@ import FeedbackIcon from '../icons/Feedback';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import { squadFeedback } from '../../lib/constants';
+import EnableNotification from '../notifications/EnableNotification';
+import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 
 type SquadPageHeaderProps = {
   userId: string;
@@ -20,7 +22,7 @@ export function SquadPageHeader({
   onNewSquadPost,
 }: SquadPageHeaderProps): ReactElement {
   return (
-    <section className="flex relative flex-col mobileL:items-center mb-12 w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
+    <section className="flex relative flex-col mobileL:items-center pb-4 mobileL:pb-8 mobileL:mb-8 w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
       <Button
         tag="a"
         target="_blank"
@@ -49,11 +51,15 @@ export function SquadPageHeader({
         {squad.description}
       </h4>
       <SquadHeaderBar
-        className="mb-8 mobileL:mb-12"
+        className="mb-4"
         squad={squad}
         members={members}
         memberCount={squad.membersCount}
         onNewSquadPost={onNewSquadPost}
+      />
+      <EnableNotification
+        contentName={squad.name}
+        source={NotificationPromptSource.SquadPage}
       />
     </section>
   );
