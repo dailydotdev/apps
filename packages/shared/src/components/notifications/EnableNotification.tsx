@@ -112,7 +112,7 @@ function EnableNotification({
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',
-    [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on "${contentName}".`,
+    [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on ${contentName}.`,
   };
   const message = sourceToMessage[source];
   const classes = containerClassName[source];
