@@ -18,6 +18,7 @@ import { SquadForm } from '../../graphql/squads';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '../containers/InfiniteScrolling';
+import ArrowIcon from '../icons/Arrow';
 
 export function SquadSelectArticle({
   form,
@@ -67,13 +68,17 @@ export function SquadSelectArticle({
                   <button
                     key={edge.node.post.id}
                     type="button"
-                    className="-mx-6 hover:bg-theme-hover cursor-pointer"
+                    className="group relative -mx-6 hover:bg-theme-hover cursor-pointer"
                     onClick={goNext(edge.node, nextStep)}
                   >
                     <PostItemCard
                       postItem={edge.node}
                       showButtons={false}
                       clickable={false}
+                    />
+                    <ArrowIcon
+                      size="large"
+                      className="hidden group-hover:flex absolute top-1/2 right-3 rotate-90 -translate-y-1/2"
                     />
                   </button>
                 )),
