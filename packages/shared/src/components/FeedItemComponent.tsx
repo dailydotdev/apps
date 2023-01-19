@@ -13,6 +13,7 @@ import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { PostCardTests } from './post/common';
+import NewSquadPostCard from './cards/NewSquadPostCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -193,6 +194,8 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
         />
       );
+    case 'new_squad_post':
+      return <NewSquadPostCard onClick={item.action} />;
     default:
       return <PlaceholderTag showImage={!insaneMode} />;
   }

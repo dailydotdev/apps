@@ -60,6 +60,7 @@ export type FeedProps<T> = {
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
   header?: ReactNode;
+  onNewSquadPost?: () => void;
 };
 
 interface RankVariables {
@@ -167,6 +168,7 @@ export default function Feed<T>({
       query,
       variables,
     );
+
   const { ranking } = (variables as RankVariables) || {};
   const {
     onOpenModal,

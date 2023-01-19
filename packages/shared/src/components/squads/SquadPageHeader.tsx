@@ -10,15 +10,17 @@ type SquadPageHeaderProps = {
   userId: string;
   squad: Squad;
   members: SquadMember[];
+  onNewSquadPost: () => void;
 };
 
 export function SquadPageHeader({
   userId,
   squad,
   members,
+  onNewSquadPost,
 }: SquadPageHeaderProps): ReactElement {
   return (
-    <section className="flex relative flex-col mobileL:items-center w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
+    <section className="flex relative flex-col mobileL:items-center mb-12 w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
       <Button
         tag="a"
         target="_blank"
@@ -51,6 +53,7 @@ export function SquadPageHeader({
         squad={squad}
         members={members}
         memberCount={squad.membersCount}
+        onNewSquadPost={onNewSquadPost}
       />
     </section>
   );
