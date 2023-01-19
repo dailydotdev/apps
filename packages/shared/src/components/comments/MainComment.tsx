@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
+import AuthContext from '../../contexts/AuthContext';
 
 export interface MainCommentProps extends CommentBoxProps {
   permissionNotificationCommentId?: string;
@@ -14,6 +15,7 @@ export default function MainComment({
   permissionNotificationCommentId,
   ...props
 }: MainCommentProps): ReactElement {
+  const { user } = useContext(AuthContext);
   const shouldShowBanner =
     permissionNotificationCommentId === comment.id ||
     comment.children?.edges?.some(
@@ -43,6 +45,9 @@ export default function MainComment({
         <EnableNotification
           className={!comment.children?.edges?.length && 'mt-3'}
           source={NotificationPromptSource.NewComment}
+          contentName={
+            user?.id !== comment?.author.id ? comment?.author?.name : undefined
+          }
         />
       )}
     </section>

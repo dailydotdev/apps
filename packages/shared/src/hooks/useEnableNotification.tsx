@@ -11,6 +11,7 @@ export enum NotificationPromptSource {
   NewComment = 'new comment',
   CommunityPicks = 'community picks modal',
   NewSourceModal = 'new source modal',
+  SquadPage = 'squad page',
 }
 
 export const useEnableNotification = (
