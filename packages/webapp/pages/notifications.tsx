@@ -32,7 +32,14 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   );
 
 const Notifications = (): ReactElement => {
-  const seo = <NextSeo title="Notifications" nofollow noindex />;
+  const seo = (
+    <NextSeo
+      title="Notifications"
+      nofollow
+      noindex
+      titleTemplate="%s | daily.dev"
+    />
+  );
   const { trackEvent } = useAnalyticsContext();
   const { clearUnreadCount } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
