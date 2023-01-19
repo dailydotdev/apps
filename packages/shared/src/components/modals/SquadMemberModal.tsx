@@ -57,7 +57,6 @@ export function SquadMemberModal({
     <>
       <UserListModal
         {...props}
-        size={ModalSize.Medium}
         title="Squad members"
         scrollingProps={{
           isFetchingNextPage: queryResult.isFetchingNextPage,
