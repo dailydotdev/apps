@@ -129,6 +129,7 @@ module.exports = {
       'img-desktop': '400px',
       'img-mobile': '280px',
       'rank-modal': 'calc(100vh - 5rem)',
+      page: 'calc(100vh - 3.5rem)',
     },
     minHeight: {
       page: 'calc(100vh - 3.5rem)',
