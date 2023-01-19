@@ -6,7 +6,7 @@ const RectangleElement = classed(PlaceholderElement, 'rounded-12');
 
 function SquadLoading(): ReactElement {
   return (
-    <div className="flex overflow-hidden flex-col items-center pt-6 w-full max-h-[calc(100vh-3.5rem)]">
+    <div className="flex overflow-hidden flex-col items-center pt-6 w-full max-h-page">
       <PlaceholderElement className="w-24 h-24 rounded-full" />
       <RectangleElement className="mt-6 h-5 w-[30rem]" />
       <RectangleElement className="mt-4 w-52 h-5" />
