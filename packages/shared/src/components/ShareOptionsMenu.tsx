@@ -90,7 +90,7 @@ export default function ShareOptionsMenu({
     if (!squads?.length) {
       shareOptions.push({
         icon: <MenuIcon Icon={SquadIcon} />,
-        text: 'Post to your squad',
+        text: 'Post to new squad',
         action: () =>
           openModal({
             type: LazyModal.NewSquad,
