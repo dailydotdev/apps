@@ -12,12 +12,14 @@ type SquadPageHeaderProps = {
   userId: string;
   squad: Squad;
   members: SquadMember[];
+  onNewSquadPost: () => void;
 };
 
 export function SquadPageHeader({
   userId,
   squad,
   members,
+  onNewSquadPost,
 }: SquadPageHeaderProps): ReactElement {
   return (
     <section className="flex relative flex-col mobileL:items-center pb-4 mobileL:pb-8 mobileL:mb-8 w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
@@ -53,6 +55,7 @@ export function SquadPageHeader({
         squad={squad}
         members={members}
         memberCount={squad.membersCount}
+        onNewSquadPost={onNewSquadPost}
       />
       <EnableNotification
         contentName={squad.name}

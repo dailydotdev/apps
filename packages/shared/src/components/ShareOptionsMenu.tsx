@@ -90,7 +90,7 @@ export default function ShareOptionsMenu({
     if (!squads?.length) {
       shareOptions.push({
         icon: <MenuIcon Icon={SquadIcon} />,
-        text: 'Post to your squad',
+        text: 'Post to new squad',
         action: () =>
           openModal({
             type: LazyModal.NewSquad,
@@ -99,23 +99,25 @@ export default function ShareOptionsMenu({
       });
     }
 
-    squads?.map((squad) =>
-      shareOptions.push({
-        icon: squad.image ? (
-          <SquadImage className="mr-2.5 w-5 h-5 text-2xl" {...squad} />
-        ) : (
-          <MenuIcon Icon={DefaultSquadIcon} />
-        ),
-        text: squad.name,
-        action: () =>
-          openModal({
-            type: LazyModal.PostToSquad,
-            props: {
-              squad,
-              post,
-            },
-          }),
-      }),
+    squads?.map(
+      (squad) =>
+        squad.active &&
+        shareOptions.push({
+          icon: squad.image ? (
+            <SquadImage className="mr-2.5 w-5 h-5 text-2xl" {...squad} />
+          ) : (
+            <MenuIcon Icon={DefaultSquadIcon} />
+          ),
+          text: squad.name,
+          action: () =>
+            openModal({
+              type: LazyModal.PostToSquad,
+              props: {
+                squad,
+                post,
+              },
+            }),
+        }),
     );
   }
 
