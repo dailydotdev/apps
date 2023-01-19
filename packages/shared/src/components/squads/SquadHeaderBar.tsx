@@ -79,7 +79,7 @@ export function SquadHeaderBar({
         className="w-full mobileL:w-auto btn btn-secondary"
         onClick={onNewSquadPost}
       >
-        Create new post
+        Share post
       </Button>
       <SquadHeaderMenu squad={squad} />
     </div>

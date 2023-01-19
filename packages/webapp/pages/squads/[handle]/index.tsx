@@ -21,9 +21,9 @@ import {
 import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { getLayout } from '../../components/layouts/FeedLayout';
-import ProtectedPage from '../../components/ProtectedPage';
+import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import { getLayout } from '../../../components/layouts/FeedLayout';
+import ProtectedPage from '../../../components/ProtectedPage';
 
 type SourcePageProps = { handle: string };
 

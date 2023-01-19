@@ -21,7 +21,7 @@ export default function NewSquadPostCard({
         tag="span"
         iconOnly
       />
-      <span className="typo-title1">Create new post</span>
+      <span className="typo-title1">Share post</span>
     </Button>
   );
 }
