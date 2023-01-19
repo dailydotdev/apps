@@ -28,7 +28,7 @@ export type PostItem = {
 export type NewSquadPostItem = { type: 'new_squad_post'; action: () => void };
 export type AdItem = { type: 'ad'; ad: Ad };
 export type PlaceholderItem = { type: 'placeholder' };
-export type FeedItem = PostItem | AdItem | PlaceholderItem | NewSquadPostItemm;
+export type FeedItem = PostItem | AdItem | PlaceholderItem | NewSquadPostItem;
 
 export type FeedReturnType = {
   items: FeedItem[];
