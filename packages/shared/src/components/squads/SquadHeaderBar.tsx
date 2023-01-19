@@ -15,6 +15,7 @@ type SquadHeaderBarProps = {
   squad: Squad;
   members: SquadMember[];
   memberCount: number;
+  onNewSquadPost: () => void;
 } & HTMLAttributes<HTMLDivElement>;
 
 export function SquadHeaderBar({
@@ -22,6 +23,7 @@ export function SquadHeaderBar({
   members,
   memberCount,
   className,
+  onNewSquadPost,
   ...props
 }: SquadHeaderBarProps): ReactElement {
   const { onMenuClick } = useSquadMenu();
@@ -75,8 +77,11 @@ export function SquadHeaderBar({
         icon={<MenuIcon size="medium" />}
         onClick={onMenuClick}
       />
-      <Button className="w-full mobileL:w-auto btn btn-secondary">
-        Submit article
+      <Button
+        className="w-full mobileL:w-auto btn btn-secondary"
+        onClick={onNewSquadPost}
+      >
+        Share post
       </Button>
       <SquadHeaderMenu squad={squad} />
     </div>
