@@ -17,6 +17,7 @@ import MenuIcon from '../icons/Menu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
 import SquadIcon from '../icons/Squad';
+import { getSquadMembersUserRole } from '../squads/utils';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount?: number;
@@ -64,16 +65,10 @@ export function SquadMemberModal({
           fetchNextPage: queryResult.fetchNextPage,
         }}
         users={queryResult.data?.pages
-          .map((p) => p.sourceMembers.edges.map(({ node }) => node.user))
+          .map((page) => page.sourceMembers.edges.map(({ node }) => node.user))
           .flat()}
         additionalContent={(user) => {
-          const role = queryResult.data?.pages
-            .map((p) =>
-              p.sourceMembers.edges.filter(
-                ({ node }) => node.user.id === user.id,
-              ),
-            )
-            .flat()?.[0].node.role;
+          const role = getSquadMembersUserRole(queryResult, user);
           if (role === SquadMemberRole.Owner) {
             return (
               <span className="flex gap-1 items-center font-bold typo-footnote text-theme-color-cabbage">

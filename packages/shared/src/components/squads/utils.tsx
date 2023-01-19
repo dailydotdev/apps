@@ -1,7 +1,9 @@
 import React from 'react';
+import { UseInfiniteQueryResult } from 'react-query';
 import classed from '../../lib/classed';
 import { PromptOptions } from '../../hooks/usePrompt';
-import { SquadForm } from '../../graphql/squads';
+import { SquadEdgesData, SquadForm } from '../../graphql/squads';
+import { UserShortProfile } from '../../lib/user';
 
 export enum ModalState {
   Details = 'Squad details',
@@ -41,4 +43,15 @@ export const quitSquadModal: PromptOptions = {
     title: 'Continue',
     className: 'text-white btn-primary-ketchup',
   },
+};
+
+export const getSquadMembersUserRole = (
+  input: UseInfiniteQueryResult<SquadEdgesData>,
+  user: UserShortProfile,
+) => {
+  return input.data?.pages
+    .map((page) =>
+      page.sourceMembers.edges.filter(({ node }) => node.user.id === user.id),
+    )
+    .flat()[0].node.role;
 };
