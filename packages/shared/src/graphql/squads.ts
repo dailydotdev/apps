@@ -41,15 +41,18 @@ export type SquadMember = {
   referralToken: string;
 };
 
-type EditSquadInput = {
-  sourceId: string;
+type SharedSquadInput = {
   name: string;
   handle: string;
   description: string;
   image?: File;
 };
 
-type CreateSquadInput = EditSquadInput & {
+type EditSquadInput = SharedSquadInput & {
+  sourceId: string;
+};
+
+type CreateSquadInput = SharedSquadInput & {
   postId: string;
   commentary: string;
 };
