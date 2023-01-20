@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import React, { CSSProperties } from 'react';
 import cloneDeep from 'lodash.clonedeep';
 // import TwitterIcon from '../icons/Twitter';
 import FacebookIcon from '../icons/Facebook';
@@ -7,8 +7,6 @@ import GitHubIcon from '../icons/GitHub';
 import AppleIcon from '../icons/Apple';
 import classed from '../../lib/classed';
 import { IconType } from '../buttons/Button';
-import DiscardActionModal from '../modals/DiscardActionModal';
-import { CloseModalFunc } from '../modals/common';
 
 export interface Provider {
   icon: IconType;
@@ -65,31 +63,4 @@ export const providers: Provider[] = Object.values(providerMap);
 export const AuthModalText = classed(
   'p',
   'typo-body text-theme-label-secondary',
-);
-
-interface DiscardAuthProps {
-  onContinue: CloseModalFunc;
-  onExit: CloseModalFunc;
-  container?: HTMLElement;
-  isOpen: boolean;
-}
-
-export const DiscardAuthModal = ({
-  container,
-  onContinue,
-  onExit,
-  isOpen,
-}: DiscardAuthProps): ReactElement => (
-  <DiscardActionModal
-    isOpen={isOpen}
-    rightButtonAction={onContinue}
-    leftButtonAction={onExit}
-    parentSelector={() => container}
-    onRequestClose={onContinue}
-    title="Discard changes?"
-    description="If you leave your changes will not be saved"
-    leftButtonText="Leave"
-    rightButtonText="Stay"
-    rightButtonClass="btn-primary-cabbage"
-  />
 );

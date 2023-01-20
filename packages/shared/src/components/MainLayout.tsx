@@ -105,7 +105,6 @@ export default function MainLayout({
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
       <InAppNotificationElement />
-      <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
         greeting={greeting}
@@ -143,6 +142,7 @@ export default function MainLayout({
         )}
         {children}
       </main>
+      <PromptElement />
     </div>
   );
 }

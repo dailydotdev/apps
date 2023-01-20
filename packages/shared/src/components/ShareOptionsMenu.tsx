@@ -60,7 +60,13 @@ export default function ShareOptionsMenu({
       action: onShare,
     },
     {
-      icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
+      icon: (
+        <MenuIcon
+          secondary={post?.bookmarked}
+          Icon={BookmarkIcon}
+          className={post?.bookmarked && 'text-theme-color-bun'}
+        />
+      ),
       text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onBookmark,
     },

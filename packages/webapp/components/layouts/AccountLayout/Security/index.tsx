@@ -21,7 +21,6 @@ import {
   KratosProviderData,
   SocialRegistrationFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
-import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
@@ -81,6 +80,35 @@ interface AccountSecurityDefaultProps {
   onUpdateProviders: (params: UpdateProvidersParams) => void;
 }
 
+const alreadyLinkedProviderOptions: PromptOptions = {
+  title: 'Account already linked',
+  cancelButton: {
+    title: 'Close',
+  },
+  okButton: null,
+};
+const unlinkProviderPromptOptions: PromptOptions = {
+  title: 'Remove provider?',
+  description:
+    'You will no longer be able to log in with this connected account',
+  cancelButton: {
+    title: 'Leave',
+  },
+  okButton: {
+    title: 'Remove',
+    className: 'text-white btn-primary-ketchup',
+  },
+};
+const deleteAccountPromptOptions: PromptOptions = {
+  title: 'Delete account',
+  description:
+    'Are you sure you want to delete your account? This action cannot be undone.',
+  okButton: {
+    title: 'Delete',
+    className: 'btn-primary-ketchup',
+  },
+};
+
 function AccountSecurityDefault({
   email,
   session,
@@ -91,7 +119,6 @@ function AccountSecurityDefault({
   onUpdateProviders,
 }: AccountSecurityDefaultProps): ReactElement {
   const { deleteAccount } = useContext(AuthContext);
-  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [linkProvider, setLinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
   const { showPrompt } = usePrompt();
@@ -104,31 +131,25 @@ function AccountSecurityDefault({
     onUpdateProviders({ [type]: provider });
   };
   const alreadyLinkedProvider = async (provider: string) => {
-    const options: PromptOptions = {
-      title: 'Account already linked',
+    await showPrompt({
+      ...alreadyLinkedProviderOptions,
       description: `The “${provider}” account you trying to link, is already linked to another daily account.`,
-      cancelButton: {
-        title: 'Close',
-      },
-      okButton: null,
-    };
-    await showPrompt(options);
+    });
   };
   const unlinkProvider = async (provider: string) => {
-    const options: PromptOptions = {
-      title: `Remove ${provider}?`,
-      description:
-        'You will no longer be able to log in with this connected account',
-      cancelButton: {
-        title: 'Leave',
-      },
-      okButton: {
-        title: 'Remove',
-        className: 'text-white btn-primary-ketchup',
-      },
-    };
-    if (await showPrompt(options)) {
+    if (
+      await showPrompt({
+        ...unlinkProviderPromptOptions,
+        title: `Remove ${provider}?`,
+      })
+    ) {
       manageSocialProviders({ type: 'unlink', provider });
+    }
+  };
+  const deleteAccountPrompt = async () => {
+    if (await showPrompt(deleteAccountPromptOptions)) {
+      await deleteAccount();
+      window.location.replace('/');
     }
   };
 
@@ -249,20 +270,12 @@ function AccountSecurityDefault({
       </AccountContentSection>
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
-          onDelete={() => setShowDeleteAccount(true)}
+          onDelete={() => deleteAccountPrompt()}
           className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
         >
           <AlertBackground className="bg-overlay-quaternary-ketchup" />
         </AccountDangerZone>
       </AccountContentSection>
-      {showDeleteAccount && (
-        <DeleteAccountModal
-          deleteAccount={deleteAccount}
-          isOpen={showDeleteAccount}
-          onDelete={() => window.location.replace('/')}
-          onRequestClose={() => setShowDeleteAccount(false)}
-        />
-      )}
     </AccountPageContainer>
   );
 }

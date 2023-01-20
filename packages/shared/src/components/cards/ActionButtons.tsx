@@ -94,11 +94,8 @@ export default function ActionButtons({
   const upvoteCommentProps: ButtonProps<'button'> = {
     readOnly: postEngagementNonClickable,
     buttonSize: 'small',
-    className: classNames(
-      'btn-tertiary-avocado',
-      !postEngagementNonClickable && 'w-[4.875rem]',
-    ),
   };
+  const buttonClass = !postEngagementNonClickable && 'w-[4.875rem]';
 
   const lastActionButton = LastActionButton({
     post,
@@ -132,6 +129,7 @@ export default function ActionButtons({
             pressed={post.upvoted}
             onClick={() => onUpvoteClick?.(post, !post.upvoted)}
             {...upvoteCommentProps}
+            className={classNames('btn-tertiary-avocado', buttonClass)}
           >
             {postEngagementNonClickable && !post.numUpvotes ? null : (
               <InteractionCounter
@@ -151,6 +149,7 @@ export default function ActionButtons({
             pressed={post.commented}
             onClick={() => onCommentClick?.(post)}
             {...upvoteCommentProps}
+            className={classNames('btn-tertiary-blueCheese', buttonClass)}
           >
             <InteractionCounter
               value={post.numComments > 0 && post.numComments}

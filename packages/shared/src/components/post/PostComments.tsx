@@ -147,7 +147,7 @@ export function PostComments({
 
   if (commentsCount === 0) {
     return (
-      <div className="my-2 text-center text-theme-label-quaternary typo-subhead">
+      <div className="mt-8 mb-12 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.
       </div>
     );
@@ -169,7 +169,7 @@ export function PostComments({
     onClick(getParentComment(post, localParentComment, shared));
   };
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-4 mb-12">
       {comments.postComments.edges.map((e) => (
         <MainComment
           post={post}
