@@ -161,20 +161,10 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
           const posts: FeedItem[] = [];
-          if (onNewSquadPost) {
+          if (onNewSquadPost && !pageIndex) {
             posts.push({
               type: 'new_squad_post',
               action: onNewSquadPost,
-            });
-          }
-          if (adsQuery.data?.pages[pageIndex]) {
-            posts.push({
-              type: 'ad',
-              ad: adsQuery.data?.pages[pageIndex],
-            });
-          } else if (!onNewSquadPost) {
-            posts.push({
-              type: 'placeholder',
             });
           }
           page.edges.map(({ node }, index) =>
@@ -184,6 +174,19 @@ export default function useFeed<T>(
               page: pageIndex,
               index,
             }),
+          );
+          const ad = adsQuery.data?.pages[pageIndex];
+          posts.splice(
+            adSpot,
+            0,
+            ad
+              ? {
+                  type: 'ad',
+                  ad,
+                }
+              : {
+                  type: 'placeholder',
+                },
           );
           return posts;
         },
