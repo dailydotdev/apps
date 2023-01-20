@@ -160,34 +160,28 @@ export default function useFeed<T>(
     if (feedQuery.data) {
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
-          const posts: FeedItem[] = [];
+          const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
+            type: 'post',
+            post: node,
+            page: pageIndex,
+            index,
+          }));
+          if (adsQuery.data?.pages[pageIndex]) {
+            posts.splice(adSpot, 0, {
+              type: 'ad',
+              ad: adsQuery.data?.pages[pageIndex],
+            });
+          } else {
+            posts.splice(adSpot, 0, {
+              type: 'placeholder',
+            });
+          }
           if (onNewSquadPost && !pageIndex) {
-            posts.push({
+            posts.unshift({
               type: 'new_squad_post',
               action: onNewSquadPost,
             });
           }
-          page.edges.map(({ node }, index) =>
-            posts.push({
-              type: 'post',
-              post: node,
-              page: pageIndex,
-              index,
-            }),
-          );
-          const ad = adsQuery.data?.pages[pageIndex];
-          posts.splice(
-            adSpot,
-            0,
-            ad
-              ? {
-                  type: 'ad',
-                  ad,
-                }
-              : {
-                  type: 'placeholder',
-                },
-          );
           return posts;
         },
       );

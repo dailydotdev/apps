@@ -208,7 +208,7 @@ export default function Feed<T>({
     onInitializeOnboarding();
   };
 
-  const useList = insaneMode && numCards > 1;
+  const useList = onNewSquadPost ? false : insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
 
