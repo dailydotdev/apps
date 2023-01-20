@@ -49,7 +49,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
-    () => ({ source: squadId, ranking: 'TIME', supportedTypes: ['share', 'article'] }),
+    () => ({
+      source: squadId,
+      ranking: 'TIME',
+      supportedTypes: ['share', 'article'],
+    }),
     [squadId],
   );
 
