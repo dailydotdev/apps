@@ -41,14 +41,18 @@ export type SquadMember = {
   referralToken: string;
 };
 
-type EditSquadInput = {
+type SharedSquadInput = {
   name: string;
   handle: string;
   description: string;
   image?: File;
 };
 
-type CreateSquadInput = EditSquadInput & {
+type EditSquadInput = SharedSquadInput & {
+  sourceId: string;
+};
+
+type CreateSquadInput = SharedSquadInput & {
   postId: string;
   commentary: string;
 };
@@ -137,9 +141,27 @@ const SOURCE_BASE_FRAGMENT = gql`
 `;
 
 export const EDIT_SQUAD_MUTATION = gql`
-  mutation EditSquad() {
-    editSquad() {
-
+  mutation EditSquad(
+    $sourceId: ID!
+    $name: String!
+    $handle: String!
+    $description: String
+    $image: Upload
+  ) {
+    editSquad(
+      sourceId: $sourceId
+      name: $name
+      handle: $handle
+      description: $description
+      image: $image
+    ) {
+      active
+      handle
+      name
+      permalink
+      public
+      type
+      description
     }
   }
 `;
@@ -316,6 +338,7 @@ export async function editSquad(
   form: EditSquadForm,
 ): Promise<Squad> {
   const inputData: EditSquadInput = {
+    sourceId: id,
     description: form.description,
     handle: form.handle,
     name: form.name,
@@ -323,7 +346,7 @@ export async function editSquad(
   };
   const data = await request<EditSquadOutput>(
     `${apiUrl}/graphql`,
-    CREATE_SQUAD_MUTATION,
+    EDIT_SQUAD_MUTATION,
     inputData,
   );
   return data.editSquad;

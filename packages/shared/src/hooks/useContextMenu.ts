@@ -1,9 +1,9 @@
-import { useContextMenu } from '@dailydotdev/react-contexify';
+import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-contexify';
 
-export default function useSquadMenu(): {
+export default function useContextMenu({ id }: { id: string }): {
   onMenuClick: (e: React.MouseEvent) => void;
 } {
-  const { show } = useContextMenu({ id: 'squad-menu-context' });
+  const { show } = useContexifyContextMenu({ id });
 
   const onMenuClick = (e: React.MouseEvent) => {
     const { right, bottom } = e.currentTarget.getBoundingClientRect();

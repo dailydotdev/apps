@@ -5,11 +5,11 @@ import MenuIcon from '../icons/Menu';
 import AddUserIcon from '../icons/AddUser';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import useSquadMenu from '../../hooks/useSquadMenu';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import { Squad, SquadMember } from '../../graphql/squads';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import useContextMenu from '../../hooks/useContextMenu';
 
 type SquadHeaderBarProps = {
   squad: Squad;
@@ -26,7 +26,7 @@ export function SquadHeaderBar({
   onNewSquadPost,
   ...props
 }: SquadHeaderBarProps): ReactElement {
-  const { onMenuClick } = useSquadMenu();
+  const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
   const { openModal } = useLazyModal();
   const openMemberListModal = () =>
     openModal({
