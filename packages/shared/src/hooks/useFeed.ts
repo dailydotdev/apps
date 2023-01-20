@@ -105,6 +105,7 @@ export default function useFeed<T>(
   showOnlyUnreadPosts: boolean,
   query?: string,
   variables?: T,
+  onNewSquadPost?: () => void,
 ): FeedReturnType {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -159,22 +160,31 @@ export default function useFeed<T>(
     if (feedQuery.data) {
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
-          const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
-            type: 'post',
-            post: node,
-            page: pageIndex,
-            index,
-          }));
+          const posts: FeedItem[] = [];
+          if (onNewSquadPost) {
+            posts.push({
+              type: 'new_squad_post',
+              action: onNewSquadPost,
+            });
+          }
           if (adsQuery.data?.pages[pageIndex]) {
-            posts.splice(adSpot, 0, {
+            posts.push({
               type: 'ad',
               ad: adsQuery.data?.pages[pageIndex],
             });
-          } else {
-            posts.splice(adSpot, 0, {
+          } else if (!onNewSquadPost) {
+            posts.push({
               type: 'placeholder',
             });
           }
+          page.edges.map(({ node }, index) =>
+            posts.push({
+              type: 'post',
+              post: node,
+              page: pageIndex,
+              index,
+            }),
+          );
           return posts;
         },
       );
