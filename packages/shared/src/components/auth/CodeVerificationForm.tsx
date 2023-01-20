@@ -45,9 +45,9 @@ function CodeVerificationForm({
 
   const onCodeVerification = async (e) => {
     e.preventDefault();
-    // trackEvent({
-    //   event_name: AuthEventNames.SubmitForgotPassword,
-    // });
+    trackEvent({
+      event_name: AuthEventNames.SubmitForgotPassword,
+    });
     setHint('');
     const { code } = formToJson<{ code: string }>(e.currentTarget);
     await verifyCode(code);
