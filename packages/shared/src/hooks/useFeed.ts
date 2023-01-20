@@ -105,6 +105,7 @@ export default function useFeed<T>(
   showOnlyUnreadPosts: boolean,
   query?: string,
   variables?: T,
+  onNewSquadPost?: () => void,
 ): FeedReturnType {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -173,6 +174,12 @@ export default function useFeed<T>(
           } else {
             posts.splice(adSpot, 0, {
               type: 'placeholder',
+            });
+          }
+          if (onNewSquadPost && !pageIndex) {
+            posts.unshift({
+              type: 'new_squad_post',
+              action: onNewSquadPost,
             });
           }
           return posts;

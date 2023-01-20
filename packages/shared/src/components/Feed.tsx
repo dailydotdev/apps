@@ -134,6 +134,7 @@ export default function Feed<T>({
   header,
   onEmptyFeed,
   emptyScreen,
+  onNewSquadPost,
 }: FeedProps<T>): ReactElement {
   const {
     postCardVersion,
@@ -167,6 +168,7 @@ export default function Feed<T>({
       showOnlyUnreadPosts,
       query,
       variables,
+      onNewSquadPost,
     );
 
   const { ranking } = (variables as RankVariables) || {};
@@ -206,7 +208,7 @@ export default function Feed<T>({
     onInitializeOnboarding();
   };
 
-  const useList = insaneMode && numCards > 1;
+  const useList = onNewSquadPost ? false : insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
 
