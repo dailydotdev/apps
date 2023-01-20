@@ -22,6 +22,11 @@ export const FEED_POST_FRAGMENT = gql`
       name
       image
     }
+    sharedPost {
+      id
+      title
+      image
+    }
     permalink
     numComments
     numUpvotes
@@ -41,6 +46,7 @@ export const FEED_POST_FRAGMENT = gql`
     }
     trending
     tags
+    type
   }
 `;
 
@@ -161,12 +167,14 @@ export const SOURCE_FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
+    $supportedTypes: [String!] = ["article"]
   ) {
     page: sourceFeed(
       source: $source
       first: $first
       after: $after
       ranking: $ranking
+      supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
     }
