@@ -213,6 +213,17 @@ export const initializeKratosFlow = async (
   return res.json();
 };
 
+export const getKratosSettingsFlow = async (
+  flow: AuthFlow,
+  id: string,
+): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service${flow}/flows?id=${id}`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  return res.json();
+};
+
 export const getKratosFlow = async <T = InitializationData>(
   flow: AuthFlow,
   id: string,
