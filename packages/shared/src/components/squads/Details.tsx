@@ -32,7 +32,9 @@ export function SquadDetails({
     if (!formJson.name || !formJson.handle) {
       return;
     }
-    const handleExists = await checkSourceExists(formJson.handle);
+    const handleExists = createMode
+      ? await checkSourceExists(formJson.handle)
+      : false;
     setHandleValid(!handleExists);
     if (!handleExists) {
       onSubmit(e, formJson);
