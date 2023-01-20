@@ -85,7 +85,10 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   const onJoinClick = async () => {
     if (loggedUser) return onJoinSquad();
 
-    return showLogin('join squad', { referral: member.user.id });
+    return showLogin('join squad', {
+      referral: member.user.id,
+      onRegistrationSuccess: onJoinClick,
+    });
   };
 
   if (!member) {

@@ -19,6 +19,7 @@ import { Squad } from '../graphql/squads';
 export interface LoginState {
   trigger: AuthTriggersOrString;
   referral?: string;
+  onRegistrationSuccess?: () => void;
 }
 
 type LoginOptions = Omit<LoginState, 'trigger'>;
