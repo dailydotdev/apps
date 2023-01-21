@@ -11,6 +11,13 @@ export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
 
+export interface SharedPost {
+  __typename?: string;
+  id: string;
+  title: string;
+  image: string;
+}
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -40,6 +47,7 @@ export interface Post {
   impressionStatus?: number;
   isAuthor?: number;
   isScout?: number;
+  sharedPost?: SharedPost;
 }
 
 export interface Ad {

@@ -182,6 +182,7 @@ export default function Sidebar({
             {!!squads?.length && (
               <SquadsList
                 {...defaultRenderSectionProps}
+                activePage={activePageProp}
                 squads={squads}
                 onNewSquad={openSquadBetaModal}
                 onOpenLockedSquad={openLockedSquadModal}

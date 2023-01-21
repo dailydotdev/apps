@@ -41,7 +41,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const squadId = squad?.id;
 
   const { data: squadMembers } = useQuery<SquadMember[]>(
-    ['squadMembers', handle],
+    ['squadMembersInitial', handle],
     () => getSquadMembers(squadId),
     { enabled: !!squadId },
   );
@@ -49,7 +49,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
-    () => ({ source: squadId, ranking: 'TIME' }),
+    () => ({
+      source: squadId,
+      ranking: 'TIME',
+      supportedTypes: ['share'],
+    }),
     [squadId],
   );
 
