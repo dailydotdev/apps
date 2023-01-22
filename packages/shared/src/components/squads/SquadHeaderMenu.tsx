@@ -4,7 +4,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import EditIcon from '../icons/Edit';
-import TourIcon from '../icons/Tour';
+// import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import {
