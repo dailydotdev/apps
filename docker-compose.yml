@@ -19,22 +19,6 @@ services:
     ports:
       - "6379:6379"
 
-  daily-mysql:
-    image: mariadb:10.8.2
-    healthcheck:
-      test: mysql --user=root --password=$$MYSQL_ROOT_PASSWORD -e 'SHOW DATABASES;'
-      interval: 1s
-      timeout: 3s
-      retries: 60
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: gateway
-      MYSQL_PASSWORD: root
-    volumes:
-      - db:/var/lib/mysql/data
-    ports:
-      - "3306:3306"
-
   daily-postgres:
     image: postgres:11.6-alpine
     healthcheck:
@@ -56,9 +40,6 @@ services:
 
   daily-gateway:
     image: us.gcr.io/daily-ops/daily-gateway
-    depends_on:
-      daily-mysql:
-        condition: service_healthy
     command: ["yarn", "start"]
     ports:
       - "4000:4000"
@@ -90,6 +71,7 @@ services:
       - REFRESH_TOKEN_SECRET=topsecret
       - REFRESH_TOKEN_SALT=salt
       - FLAGSMITH_KEY=LZp89Rk56sytKH9AeHyCtF
+      - HEIMDALL_ORIGIN=disabled
 
   daily-api:
     image: us.gcr.io/daily-ops/daily-api

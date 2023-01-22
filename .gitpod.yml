@@ -8,8 +8,6 @@ ports:
     onOpen: ignore
   - port: 6379
     onOpen: ignore
-  - port: 3306
-    onOpen: ignore
   - port: 5432
     onOpen: ignore
 
@@ -25,10 +23,8 @@ tasks:
     init: |
       sleep 30
       ./wait-for.sh localhost:5432
-      ./wait-for.sh localhost:3306
     command: |
-      docker exec apps-daily-api-1 node ./node_modules/typeorm/cli.js migration:run
-      docker exec apps-daily-gateway-1 yarn run db:migrate:latest
+      docker exec apps-daily-api-1 node ./node_modules/typeorm/cli.js migration:run -d src/data-source.js
       docker exec apps-daily-api-1 node bin/import.js
   - name: webapp
     before: |
