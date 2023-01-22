@@ -108,12 +108,12 @@ export default function SquadHeaderMenu({
           </span>
         </Item>
       )}
-      <Item className="typo-callout">
-        <span className="flex items-center w-full typo-callout">
-          <TourIcon size="medium" secondary={false} className="mr-2" /> Learn
-          how Squads work
-        </span>
-      </Item>
+      {/* <Item className="typo-callout"> */}
+      {/*  <span className="flex items-center w-full typo-callout"> */}
+      {/*    <TourIcon size="medium" secondary={false} className="mr-2" /> Learn */}
+      {/*    how Squads work */}
+      {/*  </span> */}
+      {/* </Item> */}
       {isSquadOwner ? (
         <Item className="typo-callout" onClick={onDeleteSquad}>
           <span className="flex items-center w-full typo-callout">
