@@ -22,10 +22,11 @@ tasks:
       sudo apt-get install -y netcat
     init: |
       sleep 60
-      ./wait-for.sh localhost:5432
+      ./wait-for.sh localhost:5000
     command: |
       docker exec apps-daily-api-1 node ./node_modules/typeorm/cli.js migration:run -d src/data-source.js
       docker exec apps-daily-api-1 node bin/import.js
+      docker exec apps-daily-postgres-1 psql -U postgres -d api -c "update post set type='article';"
   - name: webapp
     env:
       NEXT_PUBLIC_API_URL: http://localhost:4000
