@@ -5,16 +5,17 @@ import MenuIcon from '../icons/Menu';
 import AddUserIcon from '../icons/AddUser';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import useSquadMenu from '../../hooks/useSquadMenu';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import { Squad, SquadMember } from '../../graphql/squads';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import useContextMenu from '../../hooks/useContextMenu';
 
 type SquadHeaderBarProps = {
   squad: Squad;
   members: SquadMember[];
   memberCount: number;
+  onNewSquadPost: () => void;
 } & HTMLAttributes<HTMLDivElement>;
 
 export function SquadHeaderBar({
@@ -22,9 +23,10 @@ export function SquadHeaderBar({
   members,
   memberCount,
   className,
+  onNewSquadPost,
   ...props
 }: SquadHeaderBarProps): ReactElement {
-  const { onMenuClick } = useSquadMenu();
+  const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
   const { openModal } = useLazyModal();
   const openMemberListModal = () =>
     openModal({
@@ -37,35 +39,37 @@ export function SquadHeaderBar({
 
   return (
     <div className={classNames('flex flex-wrap gap-4', className)} {...props}>
-      <div className="flex items-center rounded-14 border border-theme-divider-secondary hover:border-theme-divider-primary">
+      <div className="flex items-center rounded-14 border border-theme-divider-secondary">
         <SimpleTooltip placement="top" content="Members list">
           <Button
-            className="btn-tertiary !pl-1 !pr-4 !rounded-r-none"
+            className="active:bg-theme-active btn-tertiary !pl-1 !pr-3 !rounded-r-none"
             buttonSize="medium"
             onClick={openMemberListModal}
           >
             <span className="flex items-center">
-              <span className="flex flex-row-reverse ml-2">
+              <span className="flex flex-row-reverse ml-1">
                 {members?.map(({ user }) => (
                   <ProfilePicture
-                    className="-ml-2"
-                    size="medium"
+                    className="-ml-2 border-2 border-theme-bg-primary"
+                    size="large"
                     key={user.username}
                     user={user}
                   />
                 ))}
               </span>
-              <span className="ml-4">{memberCount || ''}</span>
+              <span className="ml-3">{memberCount || ''}</span>
             </span>
           </Button>
         </SimpleTooltip>
         <div className="w-0 h-full border-r border-theme-divider-secondary" />
         <SimpleTooltip placement="top" content="Invite a new member">
-          <Button
-            className="btn-tertiary !rounded-l-none"
-            buttonSize="medium"
-            icon={<AddUserIcon className="text-theme-label-secondary" />}
-          />
+          <div className="p-1">
+            <Button
+              className="active:bg-theme-active btn-tertiary"
+              buttonSize="small"
+              icon={<AddUserIcon className="text-theme-label-secondary" />}
+            />
+          </div>
         </SimpleTooltip>
       </div>
       <Button
@@ -73,8 +77,11 @@ export function SquadHeaderBar({
         icon={<MenuIcon size="medium" />}
         onClick={onMenuClick}
       />
-      <Button className="w-full mobileL:w-auto btn btn-secondary">
-        Submit article
+      <Button
+        className="w-full mobileL:w-auto btn btn-secondary"
+        onClick={onNewSquadPost}
+      >
+        Share post
       </Button>
       <SquadHeaderMenu squad={squad} />
     </div>

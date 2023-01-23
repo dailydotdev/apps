@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useQueryClient } from 'react-query';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { Squad, editSquad } from '../../graphql/squads';
 import { SquadDetails } from '../squads/Details';
@@ -14,6 +15,7 @@ function EditSquadModal({
   isOpen,
   squad,
 }: EditSquadModalProps): ReactElement {
+  const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const onSubmit = async (e, form) => {
     e.preventDefault();
@@ -24,6 +26,8 @@ function EditSquadModal({
       handle: form.handle,
     });
     if (editedSquad) {
+      const queryKey = ['squad', editedSquad.handle];
+      await queryClient.invalidateQueries(queryKey);
       displayToast('The Squad has been updated');
       onRequestClose(e);
     }

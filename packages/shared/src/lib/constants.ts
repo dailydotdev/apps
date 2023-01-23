@@ -25,6 +25,7 @@ export const devCard = 'https://r.daily.dev/devcard-github';
 export const docs = 'https://r.daily.dev/docs';
 export const markdownGuide = 'https://r.daily.dev/markdown-guide';
 export const firstNotificationLink = 'https://r.daily.dev/notifications';
+export const reportSquadMember = 'https://r.daily.dev/report-squad-member';
 export const squadFeedback = 'https://r.daily.dev/squad-feedback';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
