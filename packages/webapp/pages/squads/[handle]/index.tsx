@@ -52,7 +52,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     () => ({
       source: squadId,
       ranking: 'TIME',
-      supportedTypes: ['share'],
     }),
     [squadId],
   );
