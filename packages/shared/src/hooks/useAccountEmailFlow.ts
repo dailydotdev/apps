@@ -51,7 +51,7 @@ function useAccountEmailFlow({
         : initializeKratosFlow(type),
     {
       ...(flowId
-        ? { ...disabledRefetch, retry: false, enabled: !!flowId }
+        ? { ...disabledRefetch, retry: false }
         : { enabled: isQueryEnabled }),
     },
   );
