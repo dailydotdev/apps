@@ -134,6 +134,9 @@ const SOURCE_BASE_FRAGMENT = gql`
     description
     image
     membersCount
+    currentMember {
+      role
+    }
   }
 `;
 
