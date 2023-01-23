@@ -18,6 +18,8 @@ import {
   Squad,
   SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
+import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
+import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -52,10 +54,13 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     () => ({
       source: squadId,
       ranking: 'TIME',
-      supportedTypes: ['share'],
     }),
     [squadId],
   );
+
+  if (!squad && isLoading) return <SquadLoading />;
+
+  if (isFallback) return <Unauthorized />;
 
   const onNewSquadPost = () =>
     openModal({
@@ -65,13 +70,10 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
       },
     });
 
-  if (isFallback || isLoading) {
-    return <></>;
-  }
-
   const seo = (
     <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
   );
+
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       <FeedPage className="laptop:pr-0 laptop:pl-0 mb-4 squad-background-fade">
@@ -109,6 +111,7 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
+
 export function getStaticProps({
   params,
 }: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<SourcePageProps> {
