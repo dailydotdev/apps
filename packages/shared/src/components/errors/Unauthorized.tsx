@@ -22,7 +22,7 @@ function Unauthorized({
       <LockIcon
         secondary
         className="self-center text-theme-label-secondary"
-        size="heading"
+        size="xxxlarge"
       />
       <h1 className="px-16 font-bold text-center break-words-overflow typo-title1">
         {title}
