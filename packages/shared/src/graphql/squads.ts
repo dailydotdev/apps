@@ -81,7 +81,7 @@ export const LEAVE_SQUAD_MUTATION = gql`
 
 export const DELETE_SQUAD_MUTATION = gql`
   mutation DeleteSquad($sourceId: ID!) {
-    removeSource(sourceId: $sourceId) {
+    deleteSource(sourceId: $sourceId) {
       _
     }
   }

@@ -1,4 +1,5 @@
 import React, { ReactElement, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import { Modal } from './common/Modal';
 import { createSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadSelectArticle } from '../squads/SelectArticle';
@@ -9,6 +10,7 @@ import { ModalStep } from './common/types';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { SteppedSquadDetails } from '../squads/SteppedDetails';
 import { Post } from '../../graphql/posts';
+import { BOOT_QUERY_KEY } from '../../contexts/common';
 
 export const modalStateOrder = [
   ModalState.Details,
@@ -33,11 +35,13 @@ function NewSquadModal({
 }: NewSquadModalProps): ReactElement {
   const [squad, setSquad] = useState<Squad>();
   const { showPrompt } = usePrompt();
+  const client = useQueryClient();
   const [form, setForm] = useState<Partial<SquadForm>>({ post: { post } });
   const onNext = async (squadForm?: SquadForm) => {
     if (squadForm) setForm(squadForm);
     if (!squadForm.commentary) return;
     const newSquad = await createSquad(squadForm);
+    await client.invalidateQueries(BOOT_QUERY_KEY);
     setSquad(newSquad);
   };
   const stateProps: SquadStateProps = {

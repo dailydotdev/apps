@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useQueryClient } from 'react-query';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
@@ -12,6 +13,8 @@ import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 import DailyCircle from '../DailyCircle';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { BOOT_QUERY_KEY } from '../../contexts/common';
 
 const options: PromptOptions = {
   title: 'Delete the Squad?',
@@ -38,15 +41,23 @@ function LockedSquadModal({
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
   const { showPrompt } = usePrompt();
+  const client = useQueryClient();
+  const { displayToast } = useToastNotification();
   const [copying, copyLink] = useCopyLink(() => squad.permalink);
   const onCopy = () => {
     copyLink();
   };
 
   const onDeleteSquad = async (e) => {
-    if (await showPrompt(options)) {
+    if (!(await showPrompt(options))) {
+      return;
+    }
+    try {
       await deleteSquad(squad.id);
+      await client.invalidateQueries(BOOT_QUERY_KEY);
       onRequestClose(e);
+    } catch (error) {
+      displayToast('An error occurred.');
     }
   };
 
