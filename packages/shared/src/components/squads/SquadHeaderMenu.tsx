@@ -4,7 +4,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import EditIcon from '../icons/Edit';
-import TourIcon from '../icons/Tour';
+// import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import {
@@ -108,12 +108,12 @@ export default function SquadHeaderMenu({
           </span>
         </Item>
       )}
-      <Item className="typo-callout">
-        <span className="flex items-center w-full typo-callout">
-          <TourIcon size="medium" secondary={false} className="mr-2" /> Learn
-          how Squads work
-        </span>
-      </Item>
+      {/* <Item className="typo-callout"> */}
+      {/*  <span className="flex items-center w-full typo-callout"> */}
+      {/*    <TourIcon size="medium" secondary={false} className="mr-2" /> Learn */}
+      {/*    how Squads work */}
+      {/*  </span> */}
+      {/* </Item> */}
       {isSquadOwner ? (
         <Item className="typo-callout" onClick={onDeleteSquad}>
           <span className="flex items-center w-full typo-callout">
