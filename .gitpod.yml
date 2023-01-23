@@ -8,8 +8,6 @@ ports:
     onOpen: ignore
   - port: 6379
     onOpen: ignore
-  - port: 3306
-    onOpen: ignore
   - port: 5432
     onOpen: ignore
 
@@ -23,14 +21,20 @@ tasks:
       sudo apt-get update
       sudo apt-get install -y netcat
     init: |
-      sleep 30
-      ./wait-for.sh localhost:5432
-      ./wait-for.sh localhost:3306
+      sleep 60
+      ./wait-for.sh localhost:5000
     command: |
-      docker exec apps-daily-api-1 node ./node_modules/typeorm/cli.js migration:run
-      docker exec apps-daily-gateway-1 yarn run db:migrate:latest
+      docker exec apps-daily-api-1 node ./node_modules/typeorm/cli.js migration:run -d src/data-source.js
       docker exec apps-daily-api-1 node bin/import.js
+      docker exec apps-daily-postgres-1 psql -U postgres -d api -c "update post set type='article';"
   - name: webapp
+    env:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NEXT_PUBLIC_SUBS_URL: ws://localhost:5000/graphql
+      NEXT_PUBLIC_DOMAIN: localhost
+      NEXT_PUBLIC_WEBAPP_URL: /
+      NEXT_PUBLIC_AUTH_URL: http://localhost
+      NEXT_PUBLIC_HEIMDALL_URL: http://localhost
     before: |
       nvm install
       nvm use
