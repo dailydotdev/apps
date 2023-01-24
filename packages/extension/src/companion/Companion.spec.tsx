@@ -71,6 +71,7 @@ const renderComponent = (postdata, settings): RenderResult => {
       flags={{}}
       deviceId="123"
       accessToken={{ token: '', expiresIn: '' }}
+      features={[]}
     />,
   );
 };
