@@ -8,6 +8,7 @@ import React, {
 import classNames from 'classnames';
 import { Size, IconProps } from '../Icon';
 import { Loader } from '../Loader';
+import { combinedClicks } from '../../lib/click';
 
 export type ButtonSize =
   | 'xxsmall'
@@ -82,6 +83,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     textPosition = 'justify-center',
     readOnly,
     iconOnly: showIconOnly,
+    onClick,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
@@ -93,6 +95,7 @@ function ButtonComponent<TagName extends AllowedTags>(
   return (
     <Tag
       {...(props as StyledButtonProps)}
+      {...combinedClicks(onClick)}
       aria-busy={loading}
       aria-pressed={pressed}
       ref={ref}
