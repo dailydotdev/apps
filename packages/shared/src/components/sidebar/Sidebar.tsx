@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -35,7 +29,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
-import { FeatureType, hasFeatureAccess } from '../../graphql/features';
 
 const UserSettingsModal = dynamic(
   () =>

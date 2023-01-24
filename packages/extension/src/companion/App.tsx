@@ -31,6 +31,7 @@ export type CompanionData = { url: string; deviceId: string } & Pick<
   | 'user'
   | 'visit'
   | 'accessToken'
+  | 'features'
 >;
 
 const refreshTokenKey = 'refresh_token';
@@ -45,6 +46,7 @@ export default function App({
   alerts,
   visit,
   accessToken,
+  features,
 }: CompanionData): ReactElement {
   useError();
   const [token, setToken] = useState(accessToken);
@@ -79,7 +81,7 @@ export default function App({
       </style>
       <RouterContext.Provider value={router}>
         <QueryClientProvider client={queryClient}>
-          <FeaturesContextProvider flags={memoizedFlags}>
+          <FeaturesContextProvider flags={memoizedFlags} features={features}>
             <AuthContextProvider
               user={user}
               visit={visit}
