@@ -77,13 +77,13 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const onPostCardClick = () => onPostClick(post);
-  const [sharedPostHeight, setSharedPostHeight] = useState(0);
+  const [isSharedPostShort, setSharedPostShort] = useState(true);
   const containerRef = useRef<HTMLDivElement>();
   const onSharedPostTextHeightChange = (height: number) => {
     if (!containerRef.current) {
       return;
     }
-    setSharedPostHeight(containerRef.current.offsetHeight - height + 100);
+    setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
   const isV1 = postCardVersion === 'v1';
   const isSharedPost = !!post.sharedPost;
@@ -161,7 +161,7 @@ export const PostCard = forwardRef(function PostCard(
         {isSharedPost ? (
           <SharedPostCardFooter
             sharedPost={post.sharedPost}
-            height={sharedPostHeight}
+            isShort={isSharedPostShort}
           />
         ) : (
           <PostCardFooter
