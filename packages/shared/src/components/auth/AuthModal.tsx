@@ -19,7 +19,7 @@ export default function AuthModal({
 }: AuthModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [screenValue, setScreenValue] = useState<Display>(Display.Default);
-  const { user, closeLogin, logout } = useContext(AuthContext);
+  const { user, closeLogin, logout, loginState } = useContext(AuthContext);
   const onClose = (e) => {
     trackEvent({
       event_name: AuthEventNames.CloseSignUp,
@@ -54,6 +54,7 @@ export default function AuthModal({
         onClose={onDiscardAttempt}
         formRef={formRef}
         onSuccessfulLogin={closeLogin}
+        onSuccessfulRegistration={loginState?.onRegistrationSuccess}
         trigger={trigger}
         isLoginFlow={isLogoutFlow}
         onDisplayChange={(display: Display) => setScreenValue(display)}

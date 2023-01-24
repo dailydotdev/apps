@@ -16,14 +16,20 @@ import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 import { Squad } from '../graphql/squads';
 
-export type LoginState = { trigger: AuthTriggersOrString };
+export interface LoginState {
+  trigger: AuthTriggersOrString;
+  referral?: string;
+  onRegistrationSuccess?: () => void;
+}
+
+type LoginOptions = Omit<LoginState, 'trigger'>;
 
 export interface AuthContextData {
   user?: LoggedUser;
   referral?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
-  showLogin: (trigger: AuthTriggersOrString) => void;
+  showLogin: (trigger: AuthTriggersOrString, options?: LoginOptions) => void;
   closeLogin: () => void;
   loginState?: LoginState;
   logout: () => Promise<void>;
@@ -125,17 +131,17 @@ export const AuthContextProvider = ({
   const authContext: AuthContextData = useMemo(
     () => ({
       user: endUser,
-      referral,
+      referral: loginState?.referral ?? referral,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger) => {
+      showLogin: (trigger, options = {}) => {
         const hasCompanion = !!isCompanionActivated();
         if (hasCompanion) {
           const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
           window.open(signup);
         } else {
-          setLoginState({ trigger });
+          setLoginState({ ...options, trigger });
         }
       },
       closeLogin: () => setLoginState(null),
