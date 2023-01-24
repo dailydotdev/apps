@@ -184,6 +184,12 @@ export const SQUAD_QUERY = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
+export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
+  query SourceHandleExists($handle: String!) {
+    sourceHandleExists(handle: $handle)
+  }
+`;
+
 export const SQUAD_MEMBERS_QUERY = gql`
   query Source($id: ID!) {
     sourceMembers(first: 5, sourceId: $id) {
@@ -295,6 +301,17 @@ export const joinSquadInvitation = (
   params: SquadInvitationProps,
 ): Promise<SquadInvitation> =>
   request(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, params);
+
+export const checkExistingHandle = async (handle: string): Promise<boolean> => {
+  const req = await request(
+    `${apiUrl}/graphql`,
+    SQUAD_HANDE_AVAILABILITY_QUERY,
+    { handle },
+  );
+
+  return req.sourceHandleExists;
+};
+
 export async function checkSourceExists(id: string): Promise<boolean> {
   try {
     const data = await request<SourceData>(`${apiUrl}/graphql`, SOURCE_QUERY, {
