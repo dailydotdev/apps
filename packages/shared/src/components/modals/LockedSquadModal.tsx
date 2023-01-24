@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useQuery } from 'react-query';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
@@ -6,7 +7,7 @@ import { TextField } from '../fields/TextField';
 import CopyIcon from '../icons/Copy';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
-import { deleteSquad, Squad } from '../../graphql/squads';
+import { deleteSquad, getSquad } from '../../graphql/squads';
 import { useCopyLink } from '../../hooks/useCopyLink';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
@@ -31,14 +32,21 @@ const options: PromptOptions = {
 };
 
 type LockedSquadModalProps = {
-  squad: Squad;
+  squadId: string;
 } & ModalProps;
+
 function LockedSquadModal({
-  squad,
+  squadId,
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
+  const { data: squad, isLoading } = useQuery(
+    [{ type: 'squad_locked', squadId }],
+    ({ queryKey: [{ squadId: id }] }) => getSquad(id),
+  );
   const { showPrompt } = usePrompt();
-  const [copying, copyLink] = useCopyLink(() => squad.permalink);
+  const token = squad?.currentMember?.referralToken ?? '';
+  const invitation = `${squad?.permalink}/${token}`;
+  const [copying, copyLink] = useCopyLink(() => invitation);
   const onCopy = () => {
     copyLink();
   };
@@ -49,6 +57,8 @@ function LockedSquadModal({
       onRequestClose(e);
     }
   };
+
+  if (isLoading && !squad) return <></>;
 
   return (
     <Modal
@@ -78,7 +88,7 @@ function LockedSquadModal({
           className={{ container: 'w-full mt-10' }}
           name="permalink"
           inputId="permalink"
-          label={squad.permalink}
+          label={invitation}
           type="url"
           fieldType="tertiary"
           disabled
@@ -91,7 +101,7 @@ function LockedSquadModal({
               data-testid="textfield-action-icon"
             />
           }
-          value={squad.permalink}
+          value={invitation}
           readOnly
         />
         <Alert

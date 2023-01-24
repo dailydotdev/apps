@@ -106,9 +106,7 @@ export default function Sidebar({
   const openLockedSquadModal = (squad: Squad) => {
     openModal({
       type: LazyModal.LockedSquad,
-      props: {
-        squad,
-      },
+      props: { squadId: squad.id },
     });
   };
 
