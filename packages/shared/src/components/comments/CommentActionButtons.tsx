@@ -134,8 +134,6 @@ export default function CommentActionButtons({
     return undefined;
   };
 
-  const isModerator = user?.roles?.includes(Roles.Moderator);
-
   return (
     <div className={classNames('flex flex-row items-center', className)}>
       <SimpleTooltip content="Upvote">
@@ -164,7 +162,7 @@ export default function CommentActionButtons({
           className="mr-3 btn-tertiary-cabbage"
         />
       </SimpleTooltip>
-      {(user?.id === comment.author.id || isModerator) && (
+      {user?.id === comment.author.id && (
         <OptionsButton
           tooltipPlacement="top"
           onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
@@ -191,7 +189,8 @@ export default function CommentActionButtons({
             <EditIcon size="small" /> Edit
           </ContextItem>
         </Item>
-        {(user?.id === comment.author.id || isModerator) && (
+        {(user?.id === comment.author.id ||
+          user?.roles?.includes(Roles.Moderator)) && (
           <Item onClick={() => onDelete(comment, parentId)}>
             <ContextItem className="flex items-center w-full">
               <TrashIcon size="small" /> Delete

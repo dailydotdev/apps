@@ -2,7 +2,7 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
-import { LoggedUser, Roles } from '../../lib/user';
+import { LoggedUser } from '../../lib/user';
 import CommentActionButtons, { Props } from './CommentActionButtons';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
@@ -140,20 +140,6 @@ it('should call onComment callback', async () => {
 
 it('should call onDelete callback', async () => {
   renderComponent({}, loggedUser);
-  const el = await screen.findByLabelText('Options');
-  el.click();
-  const [, remove] = await screen.findAllByRole('menuitem');
-  remove.click();
-  expect(onDelete).toBeCalledWith(comment, 'c1');
-});
-
-it('should allow delete for moderators', async () => {
-  const user: LoggedUser = {
-    ...loggedUser,
-    id: 'other user',
-    roles: [Roles.Moderator],
-  };
-  renderComponent({}, user);
   const el = await screen.findByLabelText('Options');
   el.click();
   const [, remove] = await screen.findAllByRole('menuitem');
