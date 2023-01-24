@@ -44,7 +44,7 @@ function LockedSquadModal({
     ({ queryKey: [{ squadId: id }] }) => getSquad(id),
   );
   const { showPrompt } = usePrompt();
-  const token = squad?.currentMember?.referralToken ?? '';
+  const token = squad?.currentMember.referralToken ?? '';
   const invitation = `${squad?.permalink}/${token}`;
   const [copying, copyLink] = useCopyLink(() => invitation);
   const onCopy = () => {
