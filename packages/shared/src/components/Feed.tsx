@@ -154,9 +154,10 @@ export default function Feed<T>({
     openNewTab,
     showOnlyUnreadPosts,
     spaciness,
-    insaneMode,
+    insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const insaneMode = !onNewSquadPost && listMode;
   const [showFeedFilters, setShowFeedFilters] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
@@ -208,7 +209,7 @@ export default function Feed<T>({
     onInitializeOnboarding();
   };
 
-  const useList = onNewSquadPost ? false : insaneMode && numCards > 1;
+  const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
 

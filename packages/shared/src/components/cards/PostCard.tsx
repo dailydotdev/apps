@@ -4,30 +4,31 @@ import React, {
   ReactElement,
   Ref,
   useMemo,
+  useRef,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import {
   Card,
   CardButton,
-  CardImage,
   CardSpace,
   CardTextContainer,
   CardTitle,
   getPostClassNames,
 } from './Card';
-import FeatherIcon from '../icons/Feather';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
-import PostAuthor from './PostAuthor';
-import { ProfilePicture } from '../ProfilePicture';
 import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
-import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
+import { SharedPostCardHeader } from './SharedPostCardHeader';
+import { SharedPostText } from './SharedPostText';
+import { PostCardFooter } from './PostCardFooter';
+import { SharedPostCardFooter } from './SharedPostCardFooter';
 
 type Callback = (post: Post) => unknown;
 
@@ -76,7 +77,16 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const onPostCardClick = () => onPostClick(post);
+  const [sharedPostHeight, setSharedPostHeight] = useState(0);
+  const containerRef = useRef<HTMLDivElement>();
+  const onSharedPostTextHeightChange = (height: number) => {
+    if (!containerRef.current) {
+      return;
+    }
+    setSharedPostHeight(containerRef.current.offsetHeight - height + 100);
+  };
   const isV1 = postCardVersion === 'v1';
+  const isSharedPost = !!post.sharedPost;
   const Containter = useMemo(
     () =>
       classed(
@@ -91,7 +101,7 @@ export const PostCard = forwardRef(function PostCard(
   const card = (
     <Card
       {...props}
-      className={getPostClassNames(post, className)}
+      className={getPostClassNames(post, className, 'min-h-[22.5rem]')}
       style={{ ...style, ...customStyle }}
       ref={ref}
     >
@@ -106,72 +116,64 @@ export const PostCard = forwardRef(function PostCard(
         />
       )}
       <CardTextContainer>
-        {isV1 && (
-          <PostCardHeader
-            openNewTab={openNewTab}
+        {isSharedPost ? (
+          <SharedPostCardHeader
+            author={post.author}
             source={post.source}
-            postLink={post.permalink}
+            permalink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
-            postModalByDefault={postModalByDefault}
-            postEngagementNonClickable={postEngagementNonClickable}
+            createdAt={post.createdAt}
           />
+        ) : (
+          <>
+            {isV1 && (
+              <PostCardHeader
+                openNewTab={openNewTab}
+                source={post.source}
+                postLink={post.permalink}
+                onMenuClick={(event) => onMenuClick?.(event, post)}
+                onReadArticleClick={onReadArticleClick}
+                postModalByDefault={postModalByDefault}
+                postEngagementNonClickable={postEngagementNonClickable}
+              />
+            )}
+            <CardTitle>{post.title}</CardTitle>
+          </>
         )}
-        <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>
-      <Containter className="mb-8 tablet:mb-0">
-        <CardSpace />
-        <PostMetadata
-          createdAt={post.createdAt}
-          readTime={post.readTime}
-          className="mx-4"
+      {isSharedPost ? (
+        <SharedPostText
+          title={post.title}
+          onHeightChange={onSharedPostTextHeightChange}
         />
-      </Containter>
-      <Containter>
-        {postCardVersion === 'v2' && (
-          <PostFooterOverlay
-            className={classNames(
-              'rounded-b-12',
-              insaneMode
-                ? 'relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2 tablet:mt-0 tablet:border-0 border-t border-theme-divider-tertiary'
-                : 'absolute right-0 bottom-0 left-0',
-            )}
-            openNewTab={openNewTab}
-            postLink={post.permalink}
-            source={post.source}
-            author={post.author}
+      ) : (
+        <Containter className="mb-8 tablet:mb-0">
+          <CardSpace />
+          <PostMetadata
+            createdAt={post.createdAt}
+            readTime={post.readTime}
+            className="mx-4"
+          />
+        </Containter>
+      )}
+      <Containter ref={containerRef}>
+        {isSharedPost ? (
+          <SharedPostCardFooter
+            sharedPost={post.sharedPost}
+            height={sharedPostHeight}
+          />
+        ) : (
+          <PostCardFooter
             insaneMode={insaneMode}
+            openNewTab={openNewTab}
+            post={post}
+            showImage={showImage}
             onReadArticleClick={onReadArticleClick}
-            postModalByDefault={postModalByDefault}
+            postCardVersion={postCardVersion}
             postEngagementNonClickable={postEngagementNonClickable}
+            postModalByDefault={postModalByDefault}
           />
-        )}
-        {!showImage && (
-          <PostAuthor post={post} className="hidden tablet:flex mx-4 mt-2" />
-        )}
-        {showImage && (
-          <CardImage
-            alt="Post Cover image"
-            src={post.image}
-            fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-            className={classNames('object-cover', isV1 ? 'my-2' : 'mt-2')}
-            loading="lazy"
-          />
-        )}
-        {showImage && post.author && isV1 && (
-          <div
-            className={classNames(
-              'absolute rounded-t-xl mt-2 flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
-              styles.authorBox,
-            )}
-          >
-            <ProfilePicture size="small" user={post.author} />
-            <span className="flex-1 mx-3 truncate">{post.author.name}</span>
-            <FeatherIcon
-              secondary
-              className="text-2xl text-theme-status-help"
-            />
-          </div>
         )}
         <ActionButtons
           openNewTab={openNewTab}
