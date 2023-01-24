@@ -11,7 +11,7 @@ import { cloudinary } from '../../lib/image';
 import CameraIcon from '../icons/Camera';
 import { formToJson } from '../../lib/form';
 import { Modal } from '../modals/common/Modal';
-import { checkSourceExists, SquadForm } from '../../graphql/squads';
+import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 
 const squadImageId = 'squad_image_file';
 export function SquadDetails({
@@ -33,7 +33,7 @@ export function SquadDetails({
       return;
     }
     const handleExists = createMode
-      ? await checkSourceExists(formJson.handle)
+      ? await checkExistingHandle(formJson.handle)
       : false;
     setHandleValid(!handleExists);
     if (!handleExists) {
