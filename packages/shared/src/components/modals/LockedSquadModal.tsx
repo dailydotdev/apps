@@ -32,17 +32,17 @@ const options: PromptOptions = {
 };
 
 type LockedSquadModalProps = {
-  initialSqual: Squad;
+  initialSquad: Squad;
 } & ModalProps;
 
 function LockedSquadModal({
-  initialSqual,
+  initialSquad,
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
   const { data: squad, isLoading } = useQuery(
-    [{ type: 'squad_locked', id: initialSqual.id }],
+    [{ type: 'squad_locked', id: initialSquad.id }],
     ({ queryKey: [{ id }] }) => getSquad(id),
-    { initialData: initialSqual },
+    { initialData: initialSquad },
   );
   const { showPrompt } = usePrompt();
   const token = squad?.currentMember?.referralToken ?? '';
