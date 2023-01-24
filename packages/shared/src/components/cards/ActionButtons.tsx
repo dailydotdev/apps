@@ -30,7 +30,6 @@ export interface ActionButtonsProps {
   className?: string;
   children?: ReactNode;
   insaneMode?: boolean;
-  postCardVersion?: string;
   postModalByDefault?: boolean;
   postEngagementNonClickable?: boolean;
   openNewTab?: boolean;
@@ -80,16 +79,14 @@ export default function ActionButtons({
   className,
   children,
   insaneMode,
-  postCardVersion,
   postModalByDefault,
   postEngagementNonClickable,
 }: ActionButtonsProps): ReactElement {
-  const isV2 = postCardVersion === 'v2';
   const separatedActions =
     (insaneMode && postModalByDefault) || postEngagementNonClickable;
   const LeftContainer = separatedActions ? getContainer() : React.Fragment;
   const RightContainer = separatedActions
-    ? getContainer(isV2 || (insaneMode && postModalByDefault), 'ml-auto')
+    ? getContainer(insaneMode && postModalByDefault, 'ml-auto')
     : React.Fragment;
   const upvoteCommentProps: ButtonProps<'button'> = {
     readOnly: postEngagementNonClickable,
@@ -110,7 +107,6 @@ export default function ActionButtons({
         styles.actionButtons,
         'flex flex-row items-center',
         separatedActions && 'justify-between',
-        insaneMode && isV2 && 'flex-1',
         className,
       )}
     >
@@ -172,7 +168,7 @@ export default function ActionButtons({
         )}
         {(!insaneMode || !postModalByDefault || postEngagementNonClickable) &&
           lastActionButton}
-        {(isV2 || insaneMode) && (
+        {insaneMode && (
           <OptionsButton
             className={classNames(
               visibleOnGroupHover,

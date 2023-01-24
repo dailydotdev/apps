@@ -26,7 +26,6 @@ interface Experiments {
   showCommentPopover?: boolean;
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
-  postCardVersion?: string;
   inAppNotificationPosition?: InAppNotificationPosition;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
   hasSquadAccess?: boolean;
@@ -78,7 +77,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       flags,
     ),
     postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
-    postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
     inAppNotificationPosition: getFeatureValue(
       Features.InAppNotificationPosition,
       flags,

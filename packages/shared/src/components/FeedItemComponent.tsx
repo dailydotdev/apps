@@ -119,7 +119,6 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdClick,
   onReadArticleClick,
-  postCardVersion,
   postModalByDefault,
   postEngagementNonClickable,
 }: FeedItemComponentProps): ReactElement {
@@ -167,7 +166,6 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
           insaneMode={insaneMode}
-          postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
         >

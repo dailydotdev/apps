@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactElement, Ref, useMemo } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import { PostCardProps } from './PostCard';
 import {
   getPostClassNames,
@@ -16,9 +16,6 @@ import SourceButton from './SourceButton';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
-import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { ProfileImageLink } from '../profile/ProfileImageLink';
-import classed from '../../lib/classed';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -36,7 +33,6 @@ export const PostList = forwardRef(function PostList(
     menuOpened,
     className,
     children,
-    postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
     ...props
@@ -45,11 +41,6 @@ export const PostList = forwardRef(function PostList(
 ): ReactElement {
   const onPostCardClick = () => onPostClick(post);
   const { trending } = post;
-  const isV1 = postCardVersion === 'v1';
-  const isV2 = postCardVersion === 'v2';
-  const ActionsContainer = isV2
-    ? useMemo(() => classed('div', 'flex flex-row items-center w-full'), [isV2])
-    : React.Fragment;
 
   const card = (
     <ListCard
@@ -67,18 +58,14 @@ export const PostList = forwardRef(function PostList(
           onLinkClick={onPostCardClick}
         />
       )}
-      {isV1 && (
-        <>
-          <ListCardAside className="w-14">
-            <SourceButton
-              source={post?.source}
-              className="pb-2"
-              tooltipPosition="top"
-            />
-          </ListCardAside>
-          <ListCardDivider className="mb-1" />
-        </>
-      )}
+      <ListCardAside className="w-14">
+        <SourceButton
+          source={post?.source}
+          className="pb-2"
+          tooltipPosition="top"
+        />
+      </ListCardAside>
+      <ListCardDivider className="mb-1" />
       <ListCardMain>
         <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
@@ -86,44 +73,23 @@ export const PostList = forwardRef(function PostList(
           readTime={post.readTime}
           className="my-1"
         >
-          {isV1 && <PostAuthor post={post} className="ml-2" />}
+          <PostAuthor post={post} className="ml-2" />
         </PostMetadata>
-        <ActionsContainer>
-          {isV2 && (
-            <>
-              <SourceButton source={post?.source} tooltipPosition="top" />
-              {post.author && (
-                <ProfileTooltip
-                  link={{ href: post.author.permalink }}
-                  user={post.author}
-                >
-                  <ProfileImageLink
-                    className="ml-2"
-                    user={post.author}
-                    picture={{ size: 'medium' }}
-                  />
-                </ProfileTooltip>
-              )}
-              <ListCardDivider className="mx-3" />
-            </>
-          )}
-          <ActionButtons
-            post={post}
-            openNewTab={openNewTab}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onBookmarkClick={onBookmarkClick}
-            onReadArticleClick={onReadArticleClick}
-            onShare={onShare}
-            onShareClick={onShareClick}
-            className="relative self-stretch mt-1"
-            onMenuClick={(event) => onMenuClick?.(event, post)}
-            insaneMode
-            postCardVersion={postCardVersion}
-            postModalByDefault={postModalByDefault}
-            postEngagementNonClickable={postEngagementNonClickable}
-          />
-        </ActionsContainer>
+        <ActionButtons
+          post={post}
+          openNewTab={openNewTab}
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onBookmarkClick={onBookmarkClick}
+          onReadArticleClick={onReadArticleClick}
+          onShare={onShare}
+          onShareClick={onShareClick}
+          className="relative self-stretch mt-1"
+          onMenuClick={(event) => onMenuClick?.(event, post)}
+          insaneMode
+          postModalByDefault={postModalByDefault}
+          postEngagementNonClickable={postEngagementNonClickable}
+        />
       </ListCardMain>
       {children}
     </ListCard>

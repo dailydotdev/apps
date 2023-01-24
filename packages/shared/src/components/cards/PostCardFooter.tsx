@@ -4,7 +4,6 @@ import { CardImage } from './Card';
 import FeatherIcon from '../icons/Feather';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
-import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
 import { Post } from '../../graphql/posts';
 import styles from './Card.module.css';
@@ -18,36 +17,11 @@ type PostCardFooterProps = {
 } & PostCardTests;
 
 export const PostCardFooter = ({
-  postCardVersion,
-  insaneMode,
-  openNewTab,
   post,
-  onReadArticleClick,
-  postModalByDefault,
-  postEngagementNonClickable,
   showImage,
 }: PostCardFooterProps): ReactElement => {
-  const isV1 = postCardVersion === 'v1';
   return (
     <>
-      {postCardVersion === 'v2' && (
-        <PostFooterOverlay
-          className={classNames(
-            'rounded-b-12',
-            insaneMode
-              ? 'relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2 tablet:mt-0 tablet:border-0 border-t border-theme-divider-tertiary'
-              : 'absolute right-0 bottom-0 left-0',
-          )}
-          openNewTab={openNewTab}
-          postLink={post.permalink}
-          source={post.source}
-          author={post.author}
-          insaneMode={insaneMode}
-          onReadArticleClick={onReadArticleClick}
-          postModalByDefault={postModalByDefault}
-          postEngagementNonClickable={postEngagementNonClickable}
-        />
-      )}
       {!showImage && (
         <PostAuthor post={post} className="hidden tablet:flex mx-4 mt-2" />
       )}
@@ -56,11 +30,11 @@ export const PostCardFooter = ({
           alt="Post Cover image"
           src={post.image}
           fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-          className={classNames('object-cover', isV1 ? 'my-2' : 'mt-2')}
+          className="object-cover my-2"
           loading="lazy"
         />
       )}
-      {showImage && post.author && isV1 && (
+      {showImage && post.author && (
         <div
           className={classNames(
             'absolute rounded-t-xl mt-2 flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',

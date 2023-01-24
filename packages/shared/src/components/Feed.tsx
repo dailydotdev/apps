@@ -136,12 +136,8 @@ export default function Feed<T>({
   emptyScreen,
   onNewSquadPost,
 }: FeedProps<T>): ReactElement {
-  const {
-    postCardVersion,
-    postModalByDefault,
-    postEngagementNonClickable,
-    showCommentPopover,
-  } = useContext(FeaturesContext);
+  const { postModalByDefault, postEngagementNonClickable, showCommentPopover } =
+    useContext(FeaturesContext);
   const { scrollOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -447,7 +443,6 @@ export default function Feed<T>({
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
-              postCardVersion={postCardVersion}
               postModalByDefault={postModalByDefault}
               postEngagementNonClickable={postEngagementNonClickable}
             />

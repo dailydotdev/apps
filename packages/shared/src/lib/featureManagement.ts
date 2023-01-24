@@ -116,11 +116,6 @@ export class Features<T extends FeatureValue = string> {
     'Activate companion',
   );
 
-  static readonly PostCardVersion = new Features('post_card_version', 'v1', [
-    'v1',
-    'v2',
-  ]);
-
   static readonly PostModalByDefault = new Features('post_modal_by_default');
 
   static readonly PostEngagementNonClickable = new Features(

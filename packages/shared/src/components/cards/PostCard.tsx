@@ -3,7 +3,6 @@ import React, {
   HTMLAttributes,
   ReactElement,
   Ref,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -31,6 +30,7 @@ import { PostCardFooter } from './PostCardFooter';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
 
 type Callback = (post: Post) => unknown;
+const Containter = classed('div', 'relative flex flex-1 flex-col');
 
 export type PostCardProps = {
   post: Post;
@@ -69,7 +69,6 @@ export const PostCard = forwardRef(function PostCard(
     style,
     insaneMode,
     onReadArticleClick,
-    postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
     ...props
@@ -85,17 +84,7 @@ export const PostCard = forwardRef(function PostCard(
     }
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
-  const isV1 = postCardVersion === 'v1';
   const isSharedPost = !!post.sharedPost;
-  const Containter = useMemo(
-    () =>
-      classed(
-        'div',
-        'relative flex flex-1',
-        postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
-      ),
-    [postCardVersion],
-  );
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -127,17 +116,15 @@ export const PostCard = forwardRef(function PostCard(
           />
         ) : (
           <>
-            {isV1 && (
-              <PostCardHeader
-                openNewTab={openNewTab}
-                source={post.source}
-                postLink={post.permalink}
-                onMenuClick={(event) => onMenuClick?.(event, post)}
-                onReadArticleClick={onReadArticleClick}
-                postModalByDefault={postModalByDefault}
-                postEngagementNonClickable={postEngagementNonClickable}
-              />
-            )}
+            <PostCardHeader
+              openNewTab={openNewTab}
+              source={post.source}
+              postLink={post.permalink}
+              onMenuClick={(event) => onMenuClick?.(event, post)}
+              onReadArticleClick={onReadArticleClick}
+              postModalByDefault={postModalByDefault}
+              postEngagementNonClickable={postEngagementNonClickable}
+            />
             <CardTitle>{post.title}</CardTitle>
           </>
         )}
@@ -170,7 +157,6 @@ export const PostCard = forwardRef(function PostCard(
             post={post}
             showImage={showImage}
             onReadArticleClick={onReadArticleClick}
-            postCardVersion={postCardVersion}
             postEngagementNonClickable={postEngagementNonClickable}
             postModalByDefault={postModalByDefault}
           />
@@ -185,7 +171,6 @@ export const PostCard = forwardRef(function PostCard(
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
           className={classNames(
