@@ -32,17 +32,17 @@ const options: PromptOptions = {
 };
 
 type LockedSquadModalProps = {
-  squad: Squad;
+  initialSqual: Squad;
 } & ModalProps;
 
 function LockedSquadModal({
-  squad: squadProp,
+  initialSqual,
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
   const { data: squad, isLoading } = useQuery(
-    [{ type: 'squad_locked', id: squadProp.id }],
+    [{ type: 'squad_locked', id: initialSqual.id }],
     ({ queryKey: [{ id }] }) => getSquad(id),
-    { initialData: squadProp },
+    { initialData: initialSqual },
   );
   const { showPrompt } = usePrompt();
   const token = squad?.currentMember?.referralToken ?? '';
@@ -58,8 +58,6 @@ function LockedSquadModal({
       onRequestClose(e);
     }
   };
-
-  if (isLoading && !squad) return <></>;
 
   return (
     <Modal
@@ -86,6 +84,7 @@ function LockedSquadModal({
         <h3 className="font-bold typo-title2">{squad.name}</h3>
         <h4 className="text-theme-label-tertiary">@{squad.handle}</h4>
         <TextField
+          aria-busy={isLoading}
           className={{ container: 'w-full mt-10' }}
           name="permalink"
           inputId="permalink"
