@@ -89,13 +89,13 @@ function ButtonComponent<TagName extends AllowedTags>(
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const iconOnly = (icon && !children && !rightIcon) || showIconOnly;
-
   const getIconWithSize = useGetIconWithSize(buttonSize, iconOnly);
+  const isAnchor = Tag === 'a';
 
   return (
     <Tag
       {...(props as StyledButtonProps)}
-      {...combinedClicks(onClick)}
+      {...(isAnchor ? combinedClicks(onClick) : { onClick })}
       aria-busy={loading}
       aria-pressed={pressed}
       ref={ref}
