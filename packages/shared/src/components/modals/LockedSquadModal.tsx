@@ -7,7 +7,7 @@ import { TextField } from '../fields/TextField';
 import CopyIcon from '../icons/Copy';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
-import { deleteSquad, getSquad } from '../../graphql/squads';
+import { deleteSquad, getSquad, Squad } from '../../graphql/squads';
 import { useCopyLink } from '../../hooks/useCopyLink';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
@@ -32,19 +32,20 @@ const options: PromptOptions = {
 };
 
 type LockedSquadModalProps = {
-  squadId: string;
+  squad: Squad;
 } & ModalProps;
 
 function LockedSquadModal({
-  squadId,
+  squad: squadProp,
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
   const { data: squad, isLoading } = useQuery(
-    [{ type: 'squad_locked', squadId }],
-    ({ queryKey: [{ squadId: id }] }) => getSquad(id),
+    [{ type: 'squad_locked', id: squadProp.id }],
+    ({ queryKey: [{ id }] }) => getSquad(id),
+    { initialData: squadProp },
   );
   const { showPrompt } = usePrompt();
-  const token = squad?.currentMember.referralToken ?? '';
+  const token = squad?.currentMember?.referralToken ?? '';
   const invitation = `${squad?.permalink}/${token}`;
   const [copying, copyLink] = useCopyLink(() => invitation);
   const onCopy = () => {
