@@ -34,6 +34,8 @@ import { ProfilePicture } from '../ProfilePicture';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/squads';
+import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
+import { FeatureType, hasFeatureAccess } from '../../graphql/features';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -63,6 +65,7 @@ export default function Sidebar({
     loadedSettings,
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
+  const { openSquadBetaModal } = useCreateSquadModal();
   const { openModal } = useLazyModal();
   const [showSettings, setShowSettings] = useState(false);
   const {
@@ -84,24 +87,6 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
-
-  const previousRef = useRef(null);
-
-  const openNewSquadModal = () =>
-    openModal({
-      type: LazyModal.NewSquad,
-      props: {
-        onPreviousState: () => previousRef.current(),
-      },
-    });
-  const openSquadBetaModal = () =>
-    openModal({
-      type: LazyModal.BetaSquad,
-      props: {
-        onNext: openNewSquadModal,
-      },
-    });
-  previousRef.current = openSquadBetaModal;
 
   const openLockedSquadModal = (squad: Squad) => {
     openModal({

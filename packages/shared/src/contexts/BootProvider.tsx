@@ -60,6 +60,7 @@ const updateLocalBootData = (
     'user',
     'lastModifier',
     'squads',
+    'features',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -87,6 +88,7 @@ export const BootDataProvider = ({
     alerts,
     notifications,
     squads,
+    features,
   } = cachedBootData || {};
   const {
     data: bootRemoteData,
@@ -164,6 +166,7 @@ export const BootDataProvider = ({
   return (
     <FeaturesContextProvider
       flags={flags}
+      features={features}
       isFlagsFetched={initialLoad}
       isFeaturesLoaded={loadedFromCache}
     >

@@ -7,13 +7,15 @@ import {
   isFeaturedEnabled,
 } from '../lib/featureManagement';
 import {
+  InAppNotificationPosition,
   OnboardingFiltersLayout,
   ScrollOnboardingVersion,
-  InAppNotificationPosition,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
 import { isPreviewDeployment } from '../lib/links';
+import { BootCacheData } from '../lib/boot';
+import { Feature, FeatureType, hasFeatureAccess } from '../graphql/features';
 
 interface Experiments {
   onboardingMinimumTopics?: number;
@@ -42,11 +44,12 @@ const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
 export default FeaturesContext;
 
 export interface FeaturesContextProviderProps
-  extends Pick<FeaturesData, 'flags' | 'isFlagsFetched' | 'isFeaturesLoaded'> {
+  extends Pick<FeaturesData, 'flags' | 'isFlagsFetched' | 'isFeaturesLoaded'>,
+    Pick<BootCacheData, 'features'> {
   children?: ReactNode;
 }
 
-const getFeatures = (flags: IFlags): FeaturesData => {
+const getFeatures = (flags: IFlags, features: Feature[]): FeaturesData => {
   const steps = getFeatureValue(Features.OnboardingSteps, flags);
   const onboardingSteps = (steps?.split?.('/') || []) as OnboardingStep[];
   const minimumTopics = getFeatureValue(
@@ -87,7 +90,7 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.ScrollOnboardingVersion,
       flags,
     ),
-    hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
+    hasSquadAccess: hasFeatureAccess(features, FeatureType.Squad),
   };
 };
 
@@ -96,23 +99,24 @@ export const FeaturesContextProvider = ({
   isFlagsFetched,
   children,
   flags,
+  features,
 }: FeaturesContextProviderProps): ReactElement => {
   const featuresFlags: FeaturesData = useMemo(() => {
-    const features = getFeatures(flags);
+    const flagFeatures = getFeatures(flags, features);
     const props = { isFeaturesLoaded, isFlagsFetched };
 
     if (!isPreviewDeployment) {
-      return { ...features, ...props };
+      return { ...flagFeatures, ...props };
     }
 
     const featuresCookie = getCookieFeatureFlags();
     const updated = updateFeatureFlags(flags, featuresCookie);
-    const result = getFeatures(updated);
+    const result = getFeatures(updated, features);
 
-    globalThis.getFeatureKeys = () => Object.keys(features);
+    globalThis.getFeatureKeys = () => Object.keys(flagFeatures);
 
     return { ...result, ...props };
-  }, [flags, isFeaturesLoaded, isFlagsFetched]);
+  }, [flags, isFeaturesLoaded, isFlagsFetched, features]);
 
   return (
     <FeaturesContext.Provider value={featuresFlags}>
