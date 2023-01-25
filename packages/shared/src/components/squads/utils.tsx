@@ -30,22 +30,22 @@ export type SquadStateProps = {
 };
 
 export const quitSquadModal: PromptOptions = {
-  title: 'Quit the process?',
+  title: 'Are you sure?',
   description: (
     <>
-      <p>
-        Learning is more powerful together. Are you sure you want to quit the
-        process?
-      </p>
-      <p>p.s you can create a new Squad from the left sidebar</p>
+      <p>You can always create a new Squad from the left sidebar</p>
     </>
   ),
+  className: {
+    buttons: 'flex-row-reverse',
+  },
   cancelButton: {
-    title: 'Cancel',
+    title: 'Stay',
+    className: 'btn-primary-cabbage',
   },
   okButton: {
-    title: 'Continue',
-    className: 'text-white btn-primary-ketchup',
+    title: 'Close',
+    className: 'btn-secondary',
   },
 };
 
