@@ -17,7 +17,7 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/v1671199935/public/scroll_feed_filters.svg',
   },
   notifications: {
-    big: 'https://daily-now-res.cloudinary.com/image/upload/v1671199897/public/notification_big.svg',
+    big: 'https://daily-now-res.cloudinary.com/image/upload/public/notification_big.svg',
     browser:
       'https://daily-now-res.cloudinary.com/image/upload/v1670512489/public/notification_animated.gif',
     browser_enabled:
