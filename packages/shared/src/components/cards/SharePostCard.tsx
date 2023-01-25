@@ -1,22 +1,13 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
 import classNames from 'classnames';
-import {
-  Card,
-  CardButton,
-  CardSpace,
-  CardTextContainer,
-  CardTitle,
-  getPostClassNames,
-} from './Card';
-import styles from './Card.module.css';
-import TrendingFlag from './TrendingFlag';
-import PostMetadata from './PostMetadata';
+import { Card, CardButton, CardTextContainer, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
-import { PostCardHeader } from './PostCardHeader';
-import { PostCardFooter } from './PostCardFooter';
+import { SharedPostCardHeader } from './SharedPostCardHeader';
+import { SharedPostText } from './SharedPostText';
+import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Containter, PostCardProps } from './common';
 
-export const PostCard = forwardRef(function PostCard(
+export const SharePostCard = forwardRef(function SharePostCard(
   {
     post,
     onPostClick,
@@ -40,10 +31,16 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const onPostCardClick = () => onPostClick(post);
+  const [isSharedPostShort, setSharedPostShort] = useState(true);
   const containerRef = useRef<HTMLDivElement>();
-  const { trending } = post;
+  const onSharedPostTextHeightChange = (height: number) => {
+    if (!containerRef.current) {
+      return;
+    }
+    setSharedPostShort(containerRef.current.offsetHeight - height < 40);
+  };
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
-  const card = (
+  return (
     <Card
       {...props}
       className={getPostClassNames(post, className, 'min-h-[22.5rem]')}
@@ -52,30 +49,23 @@ export const PostCard = forwardRef(function PostCard(
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
       <CardTextContainer>
-        <PostCardHeader
-          openNewTab={openNewTab}
+        <SharedPostCardHeader
+          author={post.author}
           source={post.source}
-          postLink={post.permalink}
+          permalink={post.permalink}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-        />
-        <CardTitle>{post.title}</CardTitle>
-      </CardTextContainer>
-      <Containter className="mb-8 tablet:mb-0">
-        <CardSpace />
-        <PostMetadata
           createdAt={post.createdAt}
-          readTime={post.readTime}
-          className="mx-4"
         />
-      </Containter>
+      </CardTextContainer>
+      <SharedPostText
+        title={post.title}
+        onHeightChange={onSharedPostTextHeightChange}
+      />
       <Containter ref={containerRef}>
-        <PostCardFooter
-          insaneMode={insaneMode}
-          openNewTab={openNewTab}
-          post={post}
-          showImage={showImage}
-          onReadArticleClick={onReadArticleClick}
+        <SharedPostCardFooter
+          sharedPost={post.sharedPost}
+          isShort={isSharedPostShort}
         />
         <ActionButtons
           openNewTab={openNewTab}
@@ -96,14 +86,4 @@ export const PostCard = forwardRef(function PostCard(
       {children}
     </Card>
   );
-
-  if (trending) {
-    return (
-      <div className={`relative ${styles.cardContainer}`}>
-        {card}
-        <TrendingFlag trending={trending} />
-      </div>
-    );
-  }
-  return card;
 });

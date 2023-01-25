@@ -1,5 +1,5 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import { PostCardProps } from './PostCard';
+import { PostCardProps } from './common';
 import {
   getPostClassNames,
   ListCard,
