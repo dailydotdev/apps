@@ -49,7 +49,9 @@ const getEndIndex = (value: string, start: number) => {
 
 const getRowvalue = (row: number, value: string) => {
   const content = value ?? '';
-  return content.split('\n')[row - 1] ?? content.split('\n')[row] ?? '';
+  const split = content.split('\n');
+
+  return split[row - 1] ?? split[row] ?? '';
 };
 
 export function getWord(
