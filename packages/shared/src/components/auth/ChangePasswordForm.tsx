@@ -44,7 +44,7 @@ function ChangePasswordForm({
         }
 
         if (!error?.ui) {
-          return setHint('Session could have expired!');
+          return setHint('Session might have expired!');
         }
 
         const json = errorsToJson<keyof RegistrationParameters>(error);

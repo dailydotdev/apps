@@ -77,7 +77,7 @@ function CodeVerificationForm({
           type="code"
           inputId="code"
           label="Code"
-          hint={hint as string}
+          hint={hint}
           valid={!hint}
           onChange={() => hint && setHint('')}
           leftIcon={<KeyIcon />}
@@ -87,7 +87,6 @@ function CodeVerificationForm({
         </Button>
         <Button
           className="mx-auto mt-6 btn-secondary w-30"
-          tag="a"
           onClick={onSendEmail}
           disabled={emailSent || isLoading}
         >

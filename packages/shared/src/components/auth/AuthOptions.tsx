@@ -79,7 +79,7 @@ function AuthOptions({
   className,
   formRef,
   trigger,
-  defaultDisplay = AuthDisplay.Default,
+  defaultDisplay = AuthDisplay.CodeVerification,
   onDisplayChange,
   isLoginFlow,
 }: AuthOptionsProps): ReactElement {
@@ -197,9 +197,9 @@ function AuthOptions({
     onSocialRegistration(provider);
   };
 
-  const onForgotPasswordSubmit = (_email: string, _flow: string) => {
-    setEmail(_email);
-    setFlow(_flow);
+  const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
+    setEmail(inputEmail);
+    setFlow(inputFlow);
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
