@@ -13,6 +13,8 @@ import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 import DailyCircle from '../DailyCircle';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { useBoot } from '../../hooks/useBoot';
 
 const options: PromptOptions = {
   title: 'Delete the Squad?',
@@ -39,12 +41,14 @@ function LockedSquadModal({
   initialSquad,
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
+  const { deleteSquad: deleteCachedSquad } = useBoot();
+  const { showPrompt } = usePrompt();
+  const { displayToast } = useToastNotification();
   const { data: squad, isLoading } = useQuery(
     [{ type: 'squad_locked', id: initialSquad.id }],
     ({ queryKey: [{ id }] }) => getSquad(id),
     { initialData: initialSquad },
   );
-  const { showPrompt } = usePrompt();
   const token = squad?.currentMember?.referralToken ?? '';
   const invitation = `${squad?.permalink}/${token}`;
   const [copying, copyLink] = useCopyLink(() => invitation);
@@ -53,9 +57,15 @@ function LockedSquadModal({
   };
 
   const onDeleteSquad = async (e) => {
-    if (await showPrompt(options)) {
+    if (!(await showPrompt(options))) {
+      return;
+    }
+    try {
       await deleteSquad(squad.id);
+      deleteCachedSquad(squad.id);
       onRequestClose(e);
+    } catch (error) {
+      displayToast('An error occurred.');
     }
   };
 
