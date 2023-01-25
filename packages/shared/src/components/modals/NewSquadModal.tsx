@@ -34,13 +34,13 @@ function NewSquadModal({
 }: NewSquadModalProps): ReactElement {
   const [squad, setSquad] = useState<Squad>();
   const { showPrompt } = usePrompt();
-  const { updateSquads } = useBoot();
+  const { addSquad } = useBoot();
   const [form, setForm] = useState<Partial<SquadForm>>({ post: { post } });
   const onNext = async (squadForm?: SquadForm) => {
     if (squadForm) setForm(squadForm);
     if (!squadForm.commentary) return;
     const newSquad = await createSquad(squadForm);
-    await updateSquads();
+    addSquad(newSquad);
     setSquad(newSquad);
   };
   const stateProps: SquadStateProps = {
