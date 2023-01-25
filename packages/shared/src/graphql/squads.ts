@@ -2,7 +2,7 @@ import request, { gql } from 'graphql-request';
 import { USER_SHORT_INFO_FRAGMENT } from './users';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
-import { Connection, Edge } from './common';
+import { Connection } from './common';
 import { Source, SourceData, SOURCE_QUERY } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
