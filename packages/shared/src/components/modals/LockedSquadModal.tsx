@@ -41,7 +41,7 @@ function LockedSquadModal({
   initialSquad,
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
-  const { updateSquads } = useBoot();
+  const { deleteSquad: deleteCachedSquad } = useBoot();
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
   const { data: squad, isLoading } = useQuery(
@@ -62,7 +62,7 @@ function LockedSquadModal({
     }
     try {
       await deleteSquad(squad.id);
-      await updateSquads();
+      deleteCachedSquad(squad.id);
       onRequestClose(e);
     } catch (error) {
       displayToast('An error occurred.');
