@@ -46,7 +46,7 @@ const sendBootData = async (_, tab: Tabs.Tab) => {
 
   const [
     deviceId,
-    { postData, settings, flags, user, alerts, visit, accessToken, features },
+    { postData, settings, flags, user, alerts, visit, accessToken },
   ] = await Promise.all([
     getOrGenerateDeviceId(),
     getBootData('companion', href),
@@ -66,7 +66,6 @@ const sendBootData = async (_, tab: Tabs.Tab) => {
     alerts,
     visit,
     accessToken,
-    features,
   });
 };
 

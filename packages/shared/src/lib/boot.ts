@@ -53,7 +53,6 @@ export type Boot = {
   notifications: NotificationsBootData;
   settings: RemoteSettings;
   squads: Squad[];
-  features: IFlags;
   postData?: PostBootData;
   isLegacyLogout?: boolean;
 };
@@ -67,7 +66,6 @@ export type BootCacheData = Pick<
   | 'postData'
   | 'notifications'
   | 'squads'
-  | 'features'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {

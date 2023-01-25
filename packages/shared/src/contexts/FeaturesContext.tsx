@@ -14,7 +14,6 @@ import {
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
 import { isPreviewDeployment } from '../lib/links';
-import { BootCacheData } from '../lib/boot';
 
 interface Experiments {
   onboardingMinimumTopics?: number;
@@ -43,8 +42,7 @@ const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
 export default FeaturesContext;
 
 export interface FeaturesContextProviderProps
-  extends Pick<FeaturesData, 'flags' | 'isFlagsFetched' | 'isFeaturesLoaded'>,
-    Pick<BootCacheData, 'features'> {
+  extends Pick<FeaturesData, 'flags' | 'isFlagsFetched' | 'isFeaturesLoaded'> {
   children?: ReactNode;
 }
 
@@ -98,24 +96,22 @@ export const FeaturesContextProvider = ({
   isFlagsFetched,
   children,
   flags,
-  features,
 }: FeaturesContextProviderProps): ReactElement => {
   const featuresFlags: FeaturesData = useMemo(() => {
-    const combinedFlags = { ...flags, ...features };
-    const flagFeatures = getFeatures(combinedFlags);
+    const features = getFeatures(flags);
     const props = { isFeaturesLoaded, isFlagsFetched };
 
     if (!isPreviewDeployment) {
-      return { ...flagFeatures, ...props };
+      return { ...features, ...props };
     }
 
     const featuresCookie = getCookieFeatureFlags();
-    const updated = updateFeatureFlags(combinedFlags, featuresCookie);
+    const updated = updateFeatureFlags(flags, featuresCookie);
     const result = getFeatures(updated);
 
-    globalThis.getFeatureKeys = () => Object.keys(flagFeatures);
+    globalThis.getFeatureKeys = () => Object.keys(flags);
     return { ...result, ...props };
-  }, [flags, isFeaturesLoaded, isFlagsFetched, features]);
+  }, [flags, isFeaturesLoaded, isFlagsFetched]);
 
   return (
     <FeaturesContext.Provider value={featuresFlags}>
