@@ -67,7 +67,7 @@ type EditSquadOutput = {
 
 type SquadMembershipsOutput = {
   mySourceMemberships: {
-    members: Edge<SquadMember>[];
+    members: Edge<Pick<SquadMember, 'source'>>[];
   };
 };
 
