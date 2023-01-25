@@ -7,9 +7,9 @@ import {
   isFeaturedEnabled,
 } from '../lib/featureManagement';
 import {
+  InAppNotificationPosition,
   OnboardingFiltersLayout,
   ScrollOnboardingVersion,
-  InAppNotificationPosition,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
@@ -109,8 +109,7 @@ export const FeaturesContextProvider = ({
     const updated = updateFeatureFlags(flags, featuresCookie);
     const result = getFeatures(updated);
 
-    globalThis.getFeatureKeys = () => Object.keys(features);
-
+    globalThis.getFeatureKeys = () => Object.keys(flags);
     return { ...result, ...props };
   }, [flags, isFeaturesLoaded, isFlagsFetched]);
 
