@@ -79,7 +79,7 @@ function AuthOptions({
   className,
   formRef,
   trigger,
-  defaultDisplay = AuthDisplay.CodeVerification,
+  defaultDisplay = AuthDisplay.Default,
   onDisplayChange,
   isLoginFlow,
 }: AuthOptionsProps): ReactElement {
