@@ -8,6 +8,7 @@ import React, {
 import classNames from 'classnames';
 import { Size, IconProps } from '../Icon';
 import { Loader } from '../Loader';
+import { combinedClicks } from '../../lib/click';
 
 export type ButtonSize =
   | 'xxsmall'
@@ -82,17 +83,19 @@ function ButtonComponent<TagName extends AllowedTags>(
     textPosition = 'justify-center',
     readOnly,
     iconOnly: showIconOnly,
+    onClick,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const iconOnly = (icon && !children && !rightIcon) || showIconOnly;
-
   const getIconWithSize = useGetIconWithSize(buttonSize, iconOnly);
+  const isAnchor = Tag === 'a';
 
   return (
     <Tag
       {...(props as StyledButtonProps)}
+      {...(isAnchor ? combinedClicks(onClick) : { onClick })}
       aria-busy={loading}
       aria-pressed={pressed}
       ref={ref}
