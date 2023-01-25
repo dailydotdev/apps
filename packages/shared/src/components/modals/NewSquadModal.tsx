@@ -9,6 +9,7 @@ import { ModalStep } from './common/types';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { SteppedSquadDetails } from '../squads/SteppedDetails';
 import { Post } from '../../graphql/posts';
+import { useBoot } from '../../hooks/useBoot';
 
 export const modalStateOrder = [
   ModalState.Details,
@@ -33,11 +34,13 @@ function NewSquadModal({
 }: NewSquadModalProps): ReactElement {
   const [squad, setSquad] = useState<Squad>();
   const { showPrompt } = usePrompt();
+  const { addSquad } = useBoot();
   const [form, setForm] = useState<Partial<SquadForm>>({ post: { post } });
   const onNext = async (squadForm?: SquadForm) => {
     if (squadForm) setForm(squadForm);
     if (!squadForm.commentary) return;
     const newSquad = await createSquad(squadForm);
+    addSquad(newSquad);
     setSquad(newSquad);
   };
   const stateProps: SquadStateProps = {
