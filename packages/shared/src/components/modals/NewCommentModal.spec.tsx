@@ -21,6 +21,7 @@ import { RecommendedMention } from '../RecommendedMention';
 import comment from '../../../__tests__/fixture/comment';
 import user from '../../../__tests__/fixture/loggedUser';
 import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
+import { PostType } from '../../graphql/posts';
 
 const onRequestClose = jest.fn();
 const onComment = jest.fn();
@@ -46,6 +47,7 @@ const renderComponent = (
       title: 'Title',
       image: 'https://image.com',
       commentsPermalink: 'https://daily.dev',
+      type: PostType.Article,
     },
     isOpen: true,
     ariaHideApp: false,

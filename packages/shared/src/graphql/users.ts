@@ -212,6 +212,7 @@ const READING_HISTORY_FRAGMENT = gql`
       author {
         id
       }
+      type
     }
   }
 `;

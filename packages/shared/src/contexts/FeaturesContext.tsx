@@ -24,9 +24,6 @@ interface Experiments {
   submitArticleSidebarButton?: string;
   submitArticleModalButton?: string;
   showCommentPopover?: boolean;
-  postEngagementNonClickable?: boolean;
-  postModalByDefault?: boolean;
-  postCardVersion?: string;
   inAppNotificationPosition?: InAppNotificationPosition;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
   hasSquadAccess?: boolean;
@@ -64,10 +61,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     ),
     popularFeedCopy: getFeatureValue(Features.PopularFeedCopy, flags),
     showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
-    postEngagementNonClickable: isFeaturedEnabled(
-      Features.PostEngagementNonClickable,
-      flags,
-    ),
     canSubmitArticle: isFeaturedEnabled(Features.SubmitArticle, flags),
     submitArticleSidebarButton: getFeatureValue(
       Features.SubmitArticleSidebarButton,
@@ -77,8 +70,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.SubmitArticleModalButton,
       flags,
     ),
-    postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
-    postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
     inAppNotificationPosition: getFeatureValue(
       Features.InAppNotificationPosition,
       flags,

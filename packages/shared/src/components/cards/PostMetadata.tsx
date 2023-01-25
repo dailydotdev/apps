@@ -6,6 +6,7 @@ import { Post } from '../../graphql/posts';
 
 type PostMetadataProps = Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> & {
   className?: string;
+  username?: string;
   children?: ReactNode;
   typoClassName?: string;
 };
@@ -16,6 +17,7 @@ export default function PostMetadata({
   numUpvotes,
   className,
   children,
+  username,
   typoClassName = 'typo-footnote',
 }: PostMetadataProps): ReactElement {
   const date = useMemo(
@@ -25,12 +27,10 @@ export default function PostMetadata({
 
   return (
     <div
-      className={classNames(
-        'flex items-center text-theme-label-tertiary',
-        typoClassName,
-        className,
-      )}
+      className={classNames('flex items-center  ', typoClassName, className)}
     >
+      {!!username && <span>@{username}</span>}
+      {!!createdAt && !!username && <Separator />}
       {!!createdAt && <time dateTime={createdAt}>{date}</time>}
       {!!createdAt && !!readTime && <Separator />}
       {!!readTime && <span data-testid="readTime">{readTime}m read time</span>}

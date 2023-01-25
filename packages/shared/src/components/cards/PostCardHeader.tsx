@@ -5,9 +5,8 @@ import SourceButton from './SourceButton';
 import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
-import { PostCardTests } from '../post/common';
 
-interface CardHeaderProps extends PostCardTests {
+interface CardHeaderProps {
   children?: ReactNode;
   source: Source;
   onMenuClick?: (e: React.MouseEvent) => void;
@@ -24,8 +23,6 @@ export const PostCardHeader = ({
   children,
   source,
   postLink,
-  postModalByDefault,
-  postEngagementNonClickable,
   openNewTab,
 }: CardHeaderProps): ReactElement => {
   return (
@@ -33,14 +30,12 @@ export const PostCardHeader = ({
       <SourceButton source={source} />
       {children}
       <Container className="flex flex-row ml-auto">
-        {(postModalByDefault || postEngagementNonClickable) && (
-          <ReadArticleButton
-            className="mr-2 btn-primary"
-            href={postLink}
-            onClick={onReadArticleClick}
-            openNewTab={openNewTab}
-          />
-        )}
+        <ReadArticleButton
+          className="mr-2 btn-primary"
+          href={postLink}
+          onClick={onReadArticleClick}
+          openNewTab={openNewTab}
+        />
         <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
       </Container>
     </CardHeader>

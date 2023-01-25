@@ -136,12 +136,7 @@ export default function Feed<T>({
   emptyScreen,
   onNewSquadPost,
 }: FeedProps<T>): ReactElement {
-  const {
-    postCardVersion,
-    postModalByDefault,
-    postEngagementNonClickable,
-    showCommentPopover,
-  } = useContext(FeaturesContext);
+  const { showCommentPopover } = useContext(FeaturesContext);
   const { scrollOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -154,9 +149,10 @@ export default function Feed<T>({
     openNewTab,
     showOnlyUnreadPosts,
     spaciness,
-    insaneMode,
+    insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const insaneMode = !onNewSquadPost && listMode;
   const [showFeedFilters, setShowFeedFilters] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
@@ -208,7 +204,7 @@ export default function Feed<T>({
     onInitializeOnboarding();
   };
 
-  const useList = onNewSquadPost ? false : insaneMode && numCards > 1;
+  const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
 
@@ -263,13 +259,8 @@ export default function Feed<T>({
 
   const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
     await onPostClick(post, index, row, column, {
-      skipPostUpdate: postModalByDefault,
+      skipPostUpdate: true,
     });
-
-    if (!postModalByDefault) {
-      return;
-    }
-
     onPostModalOpen(index);
   };
 
@@ -446,9 +437,6 @@ export default function Feed<T>({
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
-              postCardVersion={postCardVersion}
-              postModalByDefault={postModalByDefault}
-              postEngagementNonClickable={postEngagementNonClickable}
             />
           ))}
           {showScrollOnboardingVersion && showFeedFilters && (
