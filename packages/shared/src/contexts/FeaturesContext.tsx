@@ -15,7 +15,6 @@ import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
 import { isPreviewDeployment } from '../lib/links';
 import { BootCacheData } from '../lib/boot';
-import { Feature, FeatureType, hasFeatureAccess } from '../graphql/features';
 
 interface Experiments {
   onboardingMinimumTopics?: number;
@@ -49,7 +48,7 @@ export interface FeaturesContextProviderProps
   children?: ReactNode;
 }
 
-const getFeatures = (flags: IFlags, features: Feature[]): FeaturesData => {
+const getFeatures = (flags: IFlags): FeaturesData => {
   const steps = getFeatureValue(Features.OnboardingSteps, flags);
   const onboardingSteps = (steps?.split?.('/') || []) as OnboardingStep[];
   const minimumTopics = getFeatureValue(
@@ -90,7 +89,7 @@ const getFeatures = (flags: IFlags, features: Feature[]): FeaturesData => {
       Features.ScrollOnboardingVersion,
       flags,
     ),
-    hasSquadAccess: hasFeatureAccess(features, FeatureType.Squad),
+    hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
   };
 };
 
@@ -102,7 +101,8 @@ export const FeaturesContextProvider = ({
   features,
 }: FeaturesContextProviderProps): ReactElement => {
   const featuresFlags: FeaturesData = useMemo(() => {
-    const flagFeatures = getFeatures(flags, features);
+    const combinedFlags = { ...flags, ...features };
+    const flagFeatures = getFeatures(combinedFlags);
     const props = { isFeaturesLoaded, isFlagsFetched };
 
     if (!isPreviewDeployment) {
@@ -110,11 +110,10 @@ export const FeaturesContextProvider = ({
     }
 
     const featuresCookie = getCookieFeatureFlags();
-    const updated = updateFeatureFlags(flags, featuresCookie);
-    const result = getFeatures(updated, features);
+    const updated = updateFeatureFlags(combinedFlags, featuresCookie);
+    const result = getFeatures(updated);
 
     globalThis.getFeatureKeys = () => Object.keys(flagFeatures);
-
     return { ...result, ...props };
   }, [flags, isFeaturesLoaded, isFlagsFetched, features]);
 

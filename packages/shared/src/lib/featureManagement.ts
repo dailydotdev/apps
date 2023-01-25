@@ -157,6 +157,8 @@ export class Features<T extends FeatureValue = string> {
     [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2],
   );
 
+  static readonly HasSquadAccess = new Features('squad');
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: T,

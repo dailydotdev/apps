@@ -5,7 +5,6 @@ import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/squads';
-import { Feature } from '../graphql/features';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -54,7 +53,7 @@ export type Boot = {
   notifications: NotificationsBootData;
   settings: RemoteSettings;
   squads: Squad[];
-  features: Feature[];
+  features: IFlags;
   postData?: PostBootData;
   isLegacyLogout?: boolean;
 };
