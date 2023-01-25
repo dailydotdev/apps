@@ -116,12 +116,6 @@ export class Features<T extends FeatureValue = string> {
     'Activate companion',
   );
 
-  static readonly PostModalByDefault = new Features('post_modal_by_default');
-
-  static readonly PostEngagementNonClickable = new Features(
-    'post_engagement_non_clickable',
-  );
-
   static readonly OnboardingMinimumTopics = new Features<number>(
     'onboarding_minimum_topics',
     0,

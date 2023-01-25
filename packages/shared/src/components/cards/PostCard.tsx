@@ -18,12 +18,10 @@ import {
 } from './Card';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';
-import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
-import { PostCardTests } from '../post/common';
 import { SharedPostCardHeader } from './SharedPostCardHeader';
 import { SharedPostText } from './SharedPostText';
 import { PostCardFooter } from './PostCardFooter';
@@ -47,8 +45,7 @@ export type PostCardProps = {
   menuOpened?: boolean;
   showImage?: boolean;
   insaneMode?: boolean;
-} & HTMLAttributes<HTMLDivElement> &
-  PostCardTests;
+} & HTMLAttributes<HTMLDivElement>;
 
 export const PostCard = forwardRef(function PostCard(
   {
@@ -69,8 +66,6 @@ export const PostCard = forwardRef(function PostCard(
     style,
     insaneMode,
     onReadArticleClick,
-    postModalByDefault,
-    postEngagementNonClickable,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -94,16 +89,7 @@ export const PostCard = forwardRef(function PostCard(
       style={{ ...style, ...customStyle }}
       ref={ref}
     >
-      {postModalByDefault ? (
-        <CardButton title={post.title} onClick={onPostCardClick} />
-      ) : (
-        <PostLink
-          title={post.title}
-          href={post.permalink}
-          openNewTab={openNewTab}
-          onLinkClick={onPostCardClick}
-        />
-      )}
+      <CardButton title={post.title} onClick={onPostCardClick} />
       <CardTextContainer>
         {isSharedPost ? (
           <SharedPostCardHeader
@@ -122,8 +108,6 @@ export const PostCard = forwardRef(function PostCard(
               postLink={post.permalink}
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
-              postModalByDefault={postModalByDefault}
-              postEngagementNonClickable={postEngagementNonClickable}
             />
             <CardTitle>{post.title}</CardTitle>
           </>
@@ -157,8 +141,6 @@ export const PostCard = forwardRef(function PostCard(
             post={post}
             showImage={showImage}
             onReadArticleClick={onReadArticleClick}
-            postEngagementNonClickable={postEngagementNonClickable}
-            postModalByDefault={postModalByDefault}
           />
         )}
         <ActionButtons
@@ -171,11 +153,8 @@ export const PostCard = forwardRef(function PostCard(
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          postModalByDefault={postModalByDefault}
-          postEngagementNonClickable={postEngagementNonClickable}
           className={classNames(
-            'mx-4',
-            !postEngagementNonClickable && 'justify-between',
+            'mx-4 justify-between',
             !showImage && 'my-4 laptop:mb-0',
           )}
         />

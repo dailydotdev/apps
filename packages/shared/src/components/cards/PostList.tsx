@@ -9,7 +9,6 @@ import {
   ListCardMain,
   CardButton,
 } from './Card';
-import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
@@ -33,8 +32,6 @@ export const PostList = forwardRef(function PostList(
     menuOpened,
     className,
     children,
-    postModalByDefault,
-    postEngagementNonClickable,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -48,16 +45,7 @@ export const PostList = forwardRef(function PostList(
       className={getPostClassNames(post, className)}
       ref={ref}
     >
-      {postModalByDefault ? (
-        <CardButton title={post.title} onClick={onPostCardClick} />
-      ) : (
-        <PostLink
-          title={post.title}
-          href={post.permalink}
-          openNewTab={openNewTab}
-          onLinkClick={onPostCardClick}
-        />
-      )}
+      <CardButton title={post.title} onClick={onPostCardClick} />
       <ListCardAside className="w-14">
         <SourceButton
           source={post?.source}
@@ -87,8 +75,6 @@ export const PostList = forwardRef(function PostList(
           className="relative self-stretch mt-1"
           onMenuClick={(event) => onMenuClick?.(event, post)}
           insaneMode
-          postModalByDefault={postModalByDefault}
-          postEngagementNonClickable={postEngagementNonClickable}
         />
       </ListCardMain>
       {children}

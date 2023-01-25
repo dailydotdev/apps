@@ -4,7 +4,6 @@ import { CardImage } from './Card';
 import FeatherIcon from '../icons/Feather';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
-import { PostCardTests } from '../post/common';
 import { Post } from '../../graphql/posts';
 import styles from './Card.module.css';
 
@@ -14,7 +13,7 @@ type PostCardFooterProps = {
   showImage: boolean;
   post: Post;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
-} & PostCardTests;
+};
 
 export const PostCardFooter = ({
   post,

@@ -12,7 +12,6 @@ import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { PostCardTests } from './post/common';
 import NewSquadPostCard from './cards/NewSquadPostCard';
 
 const CommentPopup = dynamic(
@@ -79,7 +78,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
-} & PostCardTests;
+};
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
   const item = items[index];
@@ -119,8 +118,6 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdClick,
   onReadArticleClick,
-  postModalByDefault,
-  postEngagementNonClickable,
 }: FeedItemComponentProps): ReactElement {
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
@@ -166,8 +163,6 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
           insaneMode={insaneMode}
-          postModalByDefault={postModalByDefault}
-          postEngagementNonClickable={postEngagementNonClickable}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup

@@ -136,8 +136,7 @@ export default function Feed<T>({
   emptyScreen,
   onNewSquadPost,
 }: FeedProps<T>): ReactElement {
-  const { postModalByDefault, postEngagementNonClickable, showCommentPopover } =
-    useContext(FeaturesContext);
+  const { showCommentPopover } = useContext(FeaturesContext);
   const { scrollOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -260,13 +259,8 @@ export default function Feed<T>({
 
   const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
     await onPostClick(post, index, row, column, {
-      skipPostUpdate: postModalByDefault,
+      skipPostUpdate: true,
     });
-
-    if (!postModalByDefault) {
-      return;
-    }
-
     onPostModalOpen(index);
   };
 
@@ -443,8 +437,6 @@ export default function Feed<T>({
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
-              postModalByDefault={postModalByDefault}
-              postEngagementNonClickable={postEngagementNonClickable}
             />
           ))}
           {showScrollOnboardingVersion && showFeedFilters && (
