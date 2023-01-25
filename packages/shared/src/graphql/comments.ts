@@ -83,9 +83,9 @@ export const RECOMMEND_MENTIONS_QUERY = gql`
   query RecommendedMentions(
     $postId: String!
     $query: String
-    $squadId: String
+    $sourceId: String
   ) {
-    recommendedMentions(postId: $postId, query: $query, sourceId: $squadId) {
+    recommendedMentions(postId: $postId, query: $query, sourceId: $sourceId) {
       username
       name
       image
@@ -218,8 +218,8 @@ export const EDIT_COMMENT_MUTATION = gql`
 `;
 
 export const PREVIEW_COMMENT_MUTATION = gql`
-  query CommentPreview($content: String!, $squadId: String) {
-    preview: commentPreview(content: $content, sourceId: $squadId)
+  query CommentPreview($content: String!, $sourceId: String) {
+    preview: commentPreview(content: $content, sourceId: $sourceId)
   }
 `;
 
