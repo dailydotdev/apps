@@ -63,7 +63,7 @@ export function SquadReady({
               data-testid="textfield-action-icon"
             />
           }
-          value={permalink}
+          value={invitation}
           readOnly
         />
         <Alert
