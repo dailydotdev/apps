@@ -65,12 +65,6 @@ type EditSquadOutput = {
   editSquad: Squad;
 };
 
-type SquadMembershipsOutput = {
-  mySourceMemberships: {
-    members: Edge<Pick<SquadMember, 'source'>>[];
-  };
-};
-
 type PostToSquadProps = {
   id: string;
   sourceId: string;
@@ -193,27 +187,6 @@ export const SQUAD_QUERY = gql`
 export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
   query SourceHandleExists($handle: String!) {
     sourceHandleExists(handle: $handle)
-  }
-`;
-
-export const SQUAD_MEMBERSHIPS_QUERY = gql`
-  query Source {
-    mySourceMemberships {
-      members: edges {
-        node {
-          source {
-            active
-            handle
-            id
-            image
-            name
-            permalink
-            public
-            type
-          }
-        }
-      }
-    }
   }
 `;
 
@@ -395,12 +368,4 @@ export async function editSquad(
     inputData,
   );
   return data.editSquad;
-}
-
-export async function squadMemberships(): Promise<Squad[]> {
-  const data = await request<SquadMembershipsOutput>(
-    `${apiUrl}/graphql`,
-    SQUAD_MEMBERSHIPS_QUERY,
-  );
-  return data.mySourceMemberships.members.map((node) => node.node.source);
 }

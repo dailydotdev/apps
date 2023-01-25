@@ -1,12 +1,11 @@
 import { useQueryClient } from 'react-query';
 import { BOOT_QUERY_KEY } from '../contexts/common';
-import { Squad, squadMemberships } from '../graphql/squads';
+import { Squad } from '../graphql/squads';
 import { Boot } from '../lib/boot';
 
 type UseBoot = {
   addSquad: (squad: Squad) => void;
   deleteSquad: (squadId: string) => void;
-  updateSquads: () => Promise<void>;
   updateSquad: (squad: Squad) => void;
 };
 
@@ -30,15 +29,9 @@ export const useBoot = (): UseBoot => {
     );
     client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
   };
-  const updateSquads = async () => {
-    const squads = await squadMemberships();
-    const bootData = client.getQueryData<Boot>(BOOT_QUERY_KEY);
-    client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
-  };
   return {
     addSquad,
     deleteSquad,
-    updateSquads,
     updateSquad,
   };
 };
