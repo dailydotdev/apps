@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import {
   Card,
@@ -40,7 +40,6 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const onPostCardClick = () => onPostClick(post);
-  const containerRef = useRef<HTMLDivElement>();
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -69,7 +68,7 @@ export const PostCard = forwardRef(function PostCard(
           className="mx-4"
         />
       </Containter>
-      <Containter ref={containerRef}>
+      <Containter>
         <PostCardFooter
           insaneMode={insaneMode}
           openNewTab={openNewTab}

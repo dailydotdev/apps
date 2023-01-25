@@ -1,5 +1,4 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
-import classNames from 'classnames';
 import { Card, CardButton, CardTextContainer, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
 import { SharedPostCardHeader } from './SharedPostCardHeader';
@@ -22,7 +21,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
     menuOpened,
     className,
     children,
-    showImage = true,
     style,
     insaneMode,
     onReadArticleClick,
@@ -39,12 +37,11 @@ export const SharePostCard = forwardRef(function SharePostCard(
     }
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
-  const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   return (
     <Card
       {...props}
       className={getPostClassNames(post, className, 'min-h-[22.5rem]')}
-      style={{ ...style, ...customStyle }}
+      style={style}
       ref={ref}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
@@ -77,10 +74,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          className={classNames(
-            'mx-4 justify-between',
-            !showImage && 'my-4 laptop:mb-0',
-          )}
+          className="justify-between my-4 mx-4 laptop:mb-0"
         />
       </Containter>
       {children}
