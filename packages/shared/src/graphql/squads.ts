@@ -2,7 +2,7 @@ import request, { gql } from 'graphql-request';
 import { USER_SHORT_INFO_FRAGMENT } from './users';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
-import { Connection } from './common';
+import { Connection, Edge } from './common';
 import { Source, SourceData, SOURCE_QUERY } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
@@ -67,11 +67,7 @@ type EditSquadOutput = {
 
 type SquadMembershipsOutput = {
   mySourceMemberships: {
-    sources: {
-      node: {
-        source: Squad;
-      };
-    }[];
+    members: Edge<SquadMember>[];
   };
 };
 
@@ -203,7 +199,7 @@ export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
 export const SQUAD_MEMBERSHIPS_QUERY = gql`
   query Source {
     mySourceMemberships {
-      sources: edges {
+      members: edges {
         node {
           source {
             active
@@ -406,5 +402,5 @@ export async function squadMemberships(): Promise<Squad[]> {
     `${apiUrl}/graphql`,
     SQUAD_MEMBERSHIPS_QUERY,
   );
-  return data.mySourceMemberships.sources.map((node) => node.node.source);
+  return data.mySourceMemberships.members.map((node) => node.node.source);
 }
