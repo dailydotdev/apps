@@ -5,6 +5,7 @@ import { Squad, editSquad } from '../../graphql/squads';
 import { SquadDetails } from '../squads/Details';
 import { ModalHeaderKind } from './common/types';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { useBoot } from '../../hooks/useBoot';
 
 export type EditSquadModalProps = {
   squad: Squad;
@@ -16,6 +17,7 @@ function EditSquadModal({
   squad,
 }: EditSquadModalProps): ReactElement {
   const queryClient = useQueryClient();
+  const { updateSquad } = useBoot();
   const { displayToast } = useToastNotification();
   const onSubmit = async (e, form) => {
     e.preventDefault();
@@ -28,6 +30,7 @@ function EditSquadModal({
     if (editedSquad) {
       const queryKey = ['squad', editedSquad.handle];
       await queryClient.invalidateQueries(queryKey);
+      updateSquad(editedSquad);
       displayToast('The Squad has been updated');
       onRequestClose(e);
     }
