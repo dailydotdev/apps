@@ -163,6 +163,7 @@ export const POST_BY_ID_QUERY = gql`
         text
         id
       }
+      type
     }
   }
 `;
@@ -211,6 +212,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         text
         id
       }
+      type
     }
   }
 `;

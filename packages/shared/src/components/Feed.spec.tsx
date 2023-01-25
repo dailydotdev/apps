@@ -24,6 +24,7 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
+  PostType,
 } from '../graphql/posts';
 import {
   MockedGraphQLResponse,
@@ -910,6 +911,7 @@ const createPostMock = (
         id: '0e4005b2d3cf191f8c44c2718a457a1e',
         __typename: 'PostPage',
         title: 'Eminem Quotes Generator - Simple PHP RESTful API',
+        summary: '',
         permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
         image:
           'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
@@ -919,6 +921,7 @@ const createPostMock = (
         source: {
           __typename: 'Source',
           name: 'Towards Data Science',
+          handle: '',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
         },
@@ -928,6 +931,7 @@ const createPostMock = (
         commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
         numUpvotes: 0,
         numComments: 0,
+        type: PostType.Article,
         ...data,
       },
     },

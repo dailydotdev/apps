@@ -1,4 +1,4 @@
-import { Post } from '../../src/graphql/posts';
+import { Post, PostType } from '../../src/graphql/posts';
 
 import comment from './comment';
 import { author } from './loggedUser';
@@ -6,10 +6,12 @@ import { author } from './loggedUser';
 const post: Post = {
   id: 'e3fd75b62cadd02073a31ee3444975cc',
   title: 'The Prosecutor’s Fallacy',
+  summary: '',
   permalink: 'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
   createdAt: '2018-06-13T01:20:42.000Z',
   source: {
     id: 'tds',
+    handle: 'tds',
     name: 'Towards Data Science',
     image:
       'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
@@ -23,6 +25,7 @@ const post: Post = {
   author,
   featuredComments: [comment],
   tags: ['webdev', 'javascript'],
+  type: PostType.Article,
 };
 
 export default post;
