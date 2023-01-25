@@ -146,6 +146,7 @@ const SOURCE_BASE_FRAGMENT = gql`
     membersCount
     currentMember {
       role
+      referralToken
     }
   }
 `;

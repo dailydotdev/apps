@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useQuery } from 'react-query';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
@@ -6,7 +7,7 @@ import { TextField } from '../fields/TextField';
 import CopyIcon from '../icons/Copy';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
-import { deleteSquad, Squad } from '../../graphql/squads';
+import { deleteSquad, getSquad, Squad } from '../../graphql/squads';
 import { useCopyLink } from '../../hooks/useCopyLink';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
@@ -33,16 +34,24 @@ const options: PromptOptions = {
 };
 
 type LockedSquadModalProps = {
-  squad: Squad;
+  initialSquad: Squad;
 } & ModalProps;
+
 function LockedSquadModal({
-  squad,
+  initialSquad,
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
   const { updateSquads } = useBoot();
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
-  const [copying, copyLink] = useCopyLink(() => squad.permalink);
+  const { data: squad, isLoading } = useQuery(
+    [{ type: 'squad_locked', id: initialSquad.id }],
+    ({ queryKey: [{ id }] }) => getSquad(id),
+    { initialData: initialSquad },
+  );
+  const token = squad?.currentMember?.referralToken ?? '';
+  const invitation = `${squad?.permalink}/${token}`;
+  const [copying, copyLink] = useCopyLink(() => invitation);
   const onCopy = () => {
     copyLink();
   };
@@ -85,10 +94,11 @@ function LockedSquadModal({
         <h3 className="font-bold typo-title2">{squad.name}</h3>
         <h4 className="text-theme-label-tertiary">@{squad.handle}</h4>
         <TextField
+          aria-busy={isLoading}
           className={{ container: 'w-full mt-10' }}
           name="permalink"
           inputId="permalink"
-          label={squad.permalink}
+          label={invitation}
           type="url"
           fieldType="tertiary"
           disabled
@@ -101,7 +111,7 @@ function LockedSquadModal({
               data-testid="textfield-action-icon"
             />
           }
-          value={squad.permalink}
+          value={invitation}
           readOnly
         />
         <Alert
