@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import {
   desktop,
   desktopL,
@@ -15,7 +15,7 @@ import useMedia from '../hooks/useMedia';
 import SettingsContext from '../contexts/SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 
-export type FeedLayoutProps = { children?: ReactNode };
+export type FeedLayoutProps = { children?: ReactNode; squadId?: string };
 
 type DetermineFeedSettingsProps = {
   sidebarExpanded: boolean;
@@ -163,6 +163,7 @@ const determineFeedSettings = ({
 
 export default function FeedLayout({
   children,
+  squadId,
 }: FeedLayoutProps): ReactElement {
   const { sidebarExpanded } = useContext(SettingsContext);
   const { sidebarRendered } = useSidebarRendered();
@@ -171,10 +172,10 @@ export default function FeedLayout({
     determineFeedSettings({ sidebarExpanded, sidebarRendered }),
     defaultFeedContextData,
   );
-
-  return (
-    <FeedContext.Provider value={currentSettings}>
-      {children}
-    </FeedContext.Provider>
+  const data: FeedContextData = useMemo(
+    () => ({ ...currentSettings, squadId }),
+    [currentSettings, squadId],
   );
+
+  return <FeedContext.Provider value={data}>{children}</FeedContext.Provider>;
 }

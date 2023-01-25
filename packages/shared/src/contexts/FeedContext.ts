@@ -5,6 +5,7 @@ export type FeedContextData = {
   pageSize: number;
   adSpot: number;
   numCards: Record<Spaciness, number>;
+  squadId?: string;
 };
 
 export const defaultFeedContextData: FeedContextData = {
