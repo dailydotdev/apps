@@ -1,4 +1,10 @@
-import React, { ReactElement, useState, MouseEvent, useEffect } from 'react';
+import React, {
+  ReactElement,
+  useState,
+  MouseEvent,
+  useEffect,
+  useContext,
+} from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
@@ -21,6 +27,7 @@ import { useUserMention } from '../../hooks/useUserMention';
 import { markdownGuide } from '../../lib/constants';
 import { Justify } from '../utilities';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import FeedContext from '../../contexts/FeedContext';
 
 interface CommentVariables {
   id: string;
@@ -77,6 +84,7 @@ export default function NewCommentModal({
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const { showPrompt } = usePrompt();
   const { requestMethod } = useRequestProtocol();
+  const { squadId } = useContext(FeedContext);
   const previewQueryKey = ['comment_preview', input];
   const { data: previewContent } = useQuery<{ preview: string }>(
     previewQueryKey,
@@ -84,7 +92,7 @@ export default function NewCommentModal({
       requestMethod(
         `${apiUrl}/graphql`,
         PREVIEW_COMMENT_MUTATION,
-        { content: input },
+        { content: input, squadId },
         { requestKey: JSON.stringify(previewQueryKey) },
       ),
     { enabled: input?.length > 0 },
