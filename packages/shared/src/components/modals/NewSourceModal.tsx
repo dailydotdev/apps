@@ -19,8 +19,6 @@ import { AuthTriggers } from '../../lib/auth';
 import { Modal, ModalProps } from './common/Modal';
 import NotificationsContext from '../../contexts/NotificationsContext';
 import PushNotificationModal from './PushNotificationModal';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
 
 interface RSS {
   url: string;
@@ -64,10 +62,6 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const { user, loginState, showLogin } = useContext(AuthContext);
   const loginTrigger = AuthTriggers.SubmitNewSource;
   const { onRequestClose } = props;
-  const [isDismissed, setIsDismissed] = usePersistentContext(
-    DISMISS_PERMISSION_BANNER,
-    false,
-  );
 
   const failedToScrape = () => {
     setShowContact(true);
@@ -129,7 +123,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         }),
       {
         onSuccess: () => {
-          if (hasPermissionCache || !isNotificationSupported || isDismissed) {
+          if (hasPermissionCache || !isNotificationSupported) {
             onRequestClose?.(null);
             return;
           }
@@ -168,14 +162,8 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
       await requestSource(data.rss);
     }
   };
-
-  const onNotificationClose = async (e: React.MouseEvent) => {
-    await setIsDismissed(true);
-    onRequestClose(e);
-  };
-
   const modalProps: ModalProps = {
-    onRequestClose: onNotificationClose,
+    onRequestClose,
     ...props,
   };
 

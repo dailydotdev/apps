@@ -14,7 +14,7 @@ import {
   useEnableNotification,
 } from '../../hooks/useEnableNotification';
 
-export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
+const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;

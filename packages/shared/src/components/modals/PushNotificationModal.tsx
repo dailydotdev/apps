@@ -48,9 +48,9 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
     >
       <Modal.Header />
       <Modal.Body>
-        <Modal.Title>Enable Push Notifications</Modal.Title>
+        <Modal.Title>Push notifications</Modal.Title>
         <Modal.Text className="text-center">
-          Get notified of the status of your source submissions
+          Get notified on the status of your source submissions in real time
         </Modal.Text>
         <img
           className="my-14 mx-auto"
