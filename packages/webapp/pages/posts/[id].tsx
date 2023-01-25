@@ -94,7 +94,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   });
 
   useEffect(() => {
-    window.addEventListener('popstate', () => {
+    globalThis.window?.addEventListener('popstate', () => {
       router.reload();
     });
   }, []);
@@ -110,7 +110,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         postById={postById}
         isFallback={isFallback}
         isLoading={isLoading || !isFetched}
-        enableAuthorOnboarding={!!router.query?.author}
+        shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
         className={{
           container: 'pb-20 laptop:pb-6 laptopL:pb-0',

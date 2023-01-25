@@ -17,10 +17,10 @@ import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
-import { OnShareOrBookmarkProps } from './PostActions';
+import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 
-export interface PostModalActionsProps extends OnShareOrBookmarkProps {
+export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
   onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;

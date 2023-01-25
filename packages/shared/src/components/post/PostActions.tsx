@@ -16,12 +16,12 @@ import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import BookmarkIcon from '../icons/Bookmark';
 
-export type OnShareOrBookmarkProps = {
+export interface ShareBookmarkProps {
   onShare: () => void;
   onBookmark: () => void;
-};
+}
 
-interface PostActionsProps extends OnShareOrBookmarkProps {
+interface PostActionsProps extends ShareBookmarkProps {
   post: Post;
   postQueryKey: QueryKey;
   actionsClassName?: string;

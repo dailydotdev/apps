@@ -5,7 +5,6 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -20,11 +19,6 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
-import { AuthorOnboarding } from './AuthorOnboarding';
-import { NewComment } from './NewComment';
-import { PostActions } from './PostActions';
-import { PostComments } from './PostComments';
-import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
@@ -36,11 +30,7 @@ import {
 import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
-import {
-  usePostComment,
-  UsePostCommentOptionalProps,
-} from '../../hooks/usePostComment';
-import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
+import { UsePostCommentOptionalProps } from '../../hooks/usePostComment';
 import {
   ToastSubject,
   useToastNotification,
@@ -50,41 +40,20 @@ import useBookmarkPost from '../../hooks/useBookmarkPost';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { useSharePost } from '../../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { useShareComment } from '../../hooks/useShareComment';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import { AuthTriggers } from '../../lib/auth';
-import { Comment } from '../../graphql/comments';
 import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import AlertContext from '../../contexts/AlertContext';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ExperimentWinner } from '../../lib/featureValues';
 import FixedPostNavigation from './FixedPostNavigation';
+import PostEngagements from './PostEngagements';
 
-const UpvotedPopupModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "upvotedPopupModal" */ '../modals/UpvotedPopupModal'
-    ),
-);
-const NewCommentModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "newCommentModal" */ '../modals/NewCommentModal'
-    ),
-);
-const ShareNewCommentPopup = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "shareNewCommentPopup" */ '../ShareNewCommentPopup'
-    ),
-  {
-    ssr: false,
-  },
-);
 const SharePostModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
 );
+
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
 );
@@ -105,7 +74,7 @@ export interface PostContentProps
   postById?: PostData;
   isFallback?: boolean;
   className?: ClassName;
-  enableAuthorOnboarding?: boolean;
+  shouldOnboardAuthor?: boolean;
   isLoading?: boolean;
   isModal?: boolean;
   position?: CSSProperties['position'];
@@ -133,7 +102,7 @@ export function PostContent({
   postById,
   className = {},
   isFallback,
-  enableAuthorOnboarding,
+  shouldOnboardAuthor,
   enableShowShareNewComment,
   isLoading,
   isModal,
@@ -149,39 +118,17 @@ export function PostContent({
     return <Custom404 />;
   }
 
-  const {
-    closeNewComment,
-    openNewComment,
-    onCommentClick,
-    updatePostComments,
-    onShowShareNewComment,
-    parentComment,
-    showShareNewComment,
-  } = usePostComment(postById?.post, {
-    enableShowShareNewComment,
-  });
-  const {
-    requestQuery: upvotedPopup,
-    resetUpvoteQuery,
-    onShowUpvotedPost,
-    onShowUpvotedComment,
-  } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
-    useState<string>();
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { sidebarRendered } = useSidebarRendered();
-  const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
   const analyticsOrigin = isModal ? Origin.ArticleModal : Origin.ArticlePage;
   const { subject } = useToastNotification();
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
-  const { shareComment, openShareComment, closeShareComment } =
-    useShareComment(analyticsOrigin);
   const { updatePost } = useUpdatePost();
   const onPostClick = useOnPostClick({ origin: analyticsOrigin });
   const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost({
@@ -217,12 +164,6 @@ export function PostContent({
 
     trackEvent(postAnalyticsEvent(`${analyticsOrigin} view`, postById.post));
   }, [postById]);
-
-  useEffect(() => {
-    if (enableAuthorOnboarding) {
-      setAuthorOnboarding(true);
-    }
-  }, [enableAuthorOnboarding]);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
@@ -273,13 +214,6 @@ export function PostContent({
       await removeBookmark({ id: postById?.post.id });
     }
     bookmarkToast(targetBookmarkState);
-  };
-
-  const onComment = (comment: Comment, isNew?: boolean) => {
-    if (isNew) {
-      setPermissionNotificationCommentId(comment.id);
-    }
-    updatePostComments(comment, isNew);
   };
 
   const showMyFeedArticleAnonymous = sidebarRendered && alerts?.filter;
@@ -369,38 +303,14 @@ export function PostContent({
             className="flex laptop:hidden mt-2 mb-4"
           />
         )}
-        <PostUpvotesCommentsCount
-          post={postById.post}
-          onUpvotesClick={(upvotes) =>
-            onShowUpvotedPost(postById.post.id, upvotes)
-          }
-        />
-        <PostActions
-          onBookmark={toggleBookmark}
-          onShare={onShare}
-          post={postById.post}
-          postQueryKey={postQueryKey}
-          onComment={() => openNewComment('comment button')}
-          actionsClassName="hidden laptop:flex"
-          origin={analyticsOrigin}
-        />
-        <NewComment
-          user={user}
-          className="my-6"
-          isCommenting={!!parentComment}
-          onNewComment={() => openNewComment('start discussion button')}
-        />
-        <PostComments
-          post={postById.post}
-          origin={analyticsOrigin}
-          onClick={onCommentClick}
-          onShare={(comment) => openShareComment(comment, postById.post)}
-          onClickUpvote={onShowUpvotedComment}
-          permissionNotificationCommentId={permissionNotificationCommentId}
-        />
-        {authorOnboarding && (
-          <AuthorOnboarding
-            onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
+        {postById && (
+          <PostEngagements
+            post={postById.post}
+            onShare={onShare}
+            onBookmark={toggleBookmark}
+            analyticsOrigin={analyticsOrigin}
+            shouldOnboardAuthor={shouldOnboardAuthor}
+            enableShowShareNewComment={enableShowShareNewComment}
           />
         )}
       </PostContainer>
@@ -413,44 +323,12 @@ export function PostContent({
         onClose={onClose}
         origin={analyticsOrigin}
       />
-      {upvotedPopup.modal && (
-        <UpvotedPopupModal
-          requestQuery={upvotedPopup.requestQuery}
-          placeholderAmount={upvotedPopup.upvotes}
-          isOpen={upvotedPopup.modal}
-          onRequestClose={resetUpvoteQuery}
-        />
-      )}
-      {parentComment && (
-        <NewCommentModal
-          isOpen={!!parentComment}
-          onRequestClose={closeNewComment}
-          {...parentComment}
-          onComment={onComment}
-        />
-      )}
-      {postById && showShareNewComment && (
-        <ShareNewCommentPopup
-          post={postById.post}
-          commentId={showShareNewComment}
-          onRequestClose={() => onShowShareNewComment(null)}
-        />
-      )}
       {sharePost && (
         <SharePostModal
           isOpen={!!sharePost}
           post={postById.post}
           origin={analyticsOrigin}
           onRequestClose={closeSharePost}
-        />
-      )}
-      {shareComment && (
-        <SharePostModal
-          isOpen={!!shareComment}
-          post={postById.post}
-          comment={shareComment}
-          origin={analyticsOrigin}
-          onRequestClose={closeShareComment}
         />
       )}
     </Wrapper>
