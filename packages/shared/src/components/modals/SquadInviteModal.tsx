@@ -5,64 +5,29 @@ import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
-import { deleteSquad, getSquad, Squad } from '../../graphql/squads';
+import { getSquad, Squad } from '../../graphql/squads';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 import DailyCircle from '../DailyCircle';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { useToastNotification } from '../../hooks/useToastNotification';
-import { useBoot } from '../../hooks/useBoot';
 import {
   InviteTextField,
   InviteTextFieldHandle,
 } from '../squads/InviteTextField';
 
-const options: PromptOptions = {
-  title: 'Delete the Squad?',
-  description:
-    'Deleting your Squad will free up your handle and members you invited will not be able to join',
-  okButton: {
-    title: 'Delete',
-    className: 'btn-secondary',
-  },
-  cancelButton: {
-    title: 'No, keep it',
-    className: 'btn-primary-cabbage',
-  },
-  className: {
-    buttons: 'flex-row-reverse',
-  },
-};
-
-type LockedSquadModalProps = {
+type SquadInviteModalProps = {
   initialSquad: Squad;
 } & ModalProps;
 
-function LockedSquadModal({
+function SquadInviteModal({
   initialSquad,
   onRequestClose,
-}: LockedSquadModalProps): ReactElement {
-  const { deleteSquad: deleteCachedSquad } = useBoot();
-  const { showPrompt } = usePrompt();
-  const { displayToast } = useToastNotification();
+}: SquadInviteModalProps): ReactElement {
   const { data: squad, isLoading } = useQuery(
     [{ type: 'squad_locked', id: initialSquad.id }],
     ({ queryKey: [{ id }] }) => getSquad(id),
     { initialData: initialSquad },
   );
   const inviteTextRef = useRef<InviteTextFieldHandle>();
-  const onDeleteSquad = async (e) => {
-    if (!(await showPrompt(options))) {
-      return;
-    }
-    try {
-      await deleteSquad(squad.id);
-      deleteCachedSquad(squad.id);
-      onRequestClose(e);
-    } catch (error) {
-      displayToast('An error occurred.');
-    }
-  };
 
   return (
     <Modal
@@ -100,9 +65,6 @@ function LockedSquadModal({
         />
       </Modal.Body>
       <Modal.Footer justify={Justify.Between}>
-        <Button className="btn-tertiary" onClick={onDeleteSquad}>
-          Delete Squad
-        </Button>
         <Button
           icon={<LinkIcon />}
           className="btn-primary-cabbage"
@@ -115,4 +77,4 @@ function LockedSquadModal({
   );
 }
 
-export default LockedSquadModal;
+export default SquadInviteModal;
