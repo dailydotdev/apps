@@ -22,7 +22,10 @@ import { LazyImage } from '../LazyImage';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
-import { PostNavigationClassName, PostNavigationProps } from './PostNavigation';
+import PostNavigation, {
+  PostNavigationClassName,
+  PostNavigationProps,
+} from './PostNavigation';
 import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
@@ -40,8 +43,8 @@ import { ExperimentWinner } from '../../lib/featureValues';
 import PostEngagements from './PostEngagements';
 import PostContentContainer from './PostContentContainer';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import PostModalNavigation from './PostModalNavigation';
 import usePostContent from '../../hooks/usePostContent';
+import FixedPostNavigation from './FixedPostNavigation';
 
 const SharePostModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
@@ -181,29 +184,41 @@ export function PostContent({
     onInitializeOnboarding();
   };
 
+  const navigationProps: PostNavigationProps = {
+    onPreviousPost,
+    onNextPost,
+    post,
+    onBookmark: onToggleBookmark,
+    onReadArticle,
+    onClose,
+    onShare,
+    inlineActions,
+  };
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
       className={containerClass}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
     >
+      {position === 'fixed' && (
+        <FixedPostNavigation
+          {...navigationProps}
+          className={className?.fixedNavigation}
+        />
+      )}
       <PostContainer className="relative">
         {showMyFeedArticleAnonymous && (
           <PostFeedFiltersOnboarding
             onInitializeOnboarding={onInitializeOnboardingClick}
           />
         )}
-        <PostModalNavigation
-          isFixed={position === 'fixed'}
-          className={className}
-          post={post}
-          onBookmark={onToggleBookmark}
-          onPreviousPost={onPreviousPost}
-          onNextPost={onNextPost}
-          onReadArticle={onReadArticle}
-          onClose={onClose}
-          onShare={onShare}
-          inlineActions={inlineActions}
+        <PostNavigation
+          {...navigationProps}
+          className={{
+            container: classNames('pt-6', className?.navigation?.container),
+            actions: className?.navigation?.actions,
+          }}
         />
         <h1
           className="my-6 font-bold break-words typo-large-title"

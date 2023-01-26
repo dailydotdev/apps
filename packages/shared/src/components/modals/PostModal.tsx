@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
-import { ModalProps } from './common/Modal';
+import { ModalProps, modalSizeToClassName } from './common/Modal';
 import { PostContent } from '../post/PostContent';
 import { PostNavigationProps } from '../post/PostNavigation';
 import { Origin } from '../../lib/analytics';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
+import { ModalSize } from './common/types';
 
 interface PostModalProps
   extends ModalProps,
@@ -42,6 +43,9 @@ export default function PostModal({
         inlineActions
         className={{
           container: 'post-content',
+          fixedNavigation: {
+            container: modalSizeToClassName[ModalSize.XLarge],
+          },
           navigation: { actions: 'tablet:hidden ml-auto' },
         }}
         onClose={onRequestClose}
