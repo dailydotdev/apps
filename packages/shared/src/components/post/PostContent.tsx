@@ -226,7 +226,9 @@ export function PostContent({
         >
           {post.title}
         </h1>
-        {post.summary && <PostSummary summary={post.summary} />}
+        {post.summary && (
+          <PostSummary className="mb-6" summary={post.summary} />
+        )}
         <TagLinks tags={post.tags || []} />
         <PostMetadata
           createdAt={post.createdAt}
