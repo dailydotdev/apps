@@ -61,6 +61,7 @@ export type FeedProps<T> = {
   emptyScreen?: ReactNode;
   header?: ReactNode;
   onNewSquadPost?: () => void;
+  isFeedSquad?: boolean;
 };
 
 interface RankVariables {
@@ -72,6 +73,10 @@ const SharePostModal = dynamic(
 );
 const PostModal = dynamic(
   () => import(/* webpackChunkName: "postModal" */ './modals/PostModal'),
+);
+const SquadPostModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "squadPostModal" */ './modals/SquadPostModal'),
 );
 const ScrollFeedFiltersOnboarding = dynamic(
   () =>
@@ -132,6 +137,7 @@ export default function Feed<T>({
   variables,
   className,
   header,
+  isFeedSquad,
   onEmptyFeed,
   emptyScreen,
   onNewSquadPost,
@@ -381,6 +387,9 @@ export default function Feed<T>({
     },
     post,
   };
+
+  const ArticleModal = isFeedSquad ? SquadPostModal : PostModal;
+
   return (
     <div
       className={classNames(
@@ -459,7 +468,7 @@ export default function Feed<T>({
           onHidden={onShareOptionsHidden}
         />
         {selectedPost && (
-          <PostModal
+          <ArticleModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
             onRequestClose={() => onCloseModal(false)}

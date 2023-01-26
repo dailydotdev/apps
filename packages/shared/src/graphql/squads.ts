@@ -3,7 +3,12 @@ import { USER_SHORT_INFO_FRAGMENT } from './users';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
-import { Source, SourceData, SOURCE_QUERY } from './sources';
+import {
+  Source,
+  SourceData,
+  SOURCE_BASE_FRAGMENT,
+  SOURCE_QUERY,
+} from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
 
@@ -118,25 +123,6 @@ export const CREATE_SQUAD_MUTATION = gql`
           }
         }
       }
-    }
-  }
-`;
-
-const SOURCE_BASE_FRAGMENT = gql`
-  fragment SourceBaseFragment on Source {
-    id
-    active
-    handle
-    name
-    permalink
-    public
-    type
-    description
-    image
-    membersCount
-    currentMember {
-      role
-      referralToken
     }
   }
 `;

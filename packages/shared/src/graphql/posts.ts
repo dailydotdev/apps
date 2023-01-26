@@ -2,7 +2,7 @@ import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
 import { UPVOTER_FRAGMENT } from './users';
-import { Source } from './sources';
+import { Source, SOURCE_SHORT_INFO_FRAGMENT } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { apiUrl } from '../lib/config';
 
@@ -11,7 +11,7 @@ export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
 
-export interface SharedPost {
+export interface SharedPost extends Post {
   __typename?: string;
   id: string;
   title: string;
@@ -138,6 +138,15 @@ export const POST_BY_ID_QUERY = gql`
       numUpvotes
       numComments
       views
+      sharedPost {
+        id
+        title
+        image
+        readTime
+        source {
+          ...SourceShortInfoFragment
+        }
+      }
       source {
         id
         name
@@ -167,6 +176,7 @@ export const POST_BY_ID_QUERY = gql`
       type
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
