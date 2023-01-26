@@ -5,7 +5,7 @@ import {
   getSquadInvitation,
   joinSquadInvitation,
   SquadMember,
-  validateSourceId,
+  validateSourceHandle,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { Edge } from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
@@ -57,12 +57,10 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
       enabled: !!token,
       onSuccess: (response) => {
         if (!loggedUser) return null;
-
         if (!response?.source?.id) return router.replace(webappUrl);
 
-        const sourceId = response.source.id;
-        const squadsUrl = `/squads/${sourceId}`;
-        const isValid = validateSourceId(handle, response.source);
+        const squadsUrl = `/squads/${handle}`;
+        const isValid = validateSourceHandle(handle, response.source);
 
         if (!isValid) return router.replace(webappUrl);
 
