@@ -90,7 +90,7 @@ function LockedSquadModal({
         <Button
           icon={<LinkIcon />}
           className="btn-primary-cabbage"
-          onClick={() => inviteTextRef.current?.onCopy()}
+          onClick={() => inviteTextRef.current?.copyLink()}
         >
           Copy invitation link
         </Button>

@@ -43,7 +43,7 @@ export function SquadReady({
         <Button
           icon={<LinkIcon />}
           className="flex-1 mx-4 btn-primary-cabbage"
-          onClick={() => inviteTextRef.current?.onCopy()}
+          onClick={() => inviteTextRef.current?.copyLink()}
         >
           Copy invitation link
         </Button>

@@ -16,7 +16,7 @@ type InviteTextFieldProps = {
 };
 
 export type InviteTextFieldHandle = {
-  onCopy: () => void;
+  copyLink: () => void;
 };
 
 const InviteText: ForwardRefRenderFunction<
@@ -26,11 +26,8 @@ const InviteText: ForwardRefRenderFunction<
   const token = squad?.currentMember?.referralToken ?? '';
   const invitation = `${squad?.permalink}/${token}`;
   const [copying, copyLink] = useCopyLink(() => invitation);
-  const onCopy = () => {
-    copyLink();
-  };
   useImperativeHandle(ref, () => ({
-    onCopy,
+    copyLink,
   }));
   return (
     <TextField
@@ -45,7 +42,7 @@ const InviteText: ForwardRefRenderFunction<
       actionButton={
         <Button
           icon={<CopyIcon />}
-          onClick={onCopy}
+          onClick={() => copyLink()}
           disabled={copying}
           className="btn-tertiary"
           data-testid="textfield-action-icon"
