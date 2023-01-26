@@ -228,6 +228,6 @@ describe('invalid token', () => {
     owner.source.members.edges.push({ node: member });
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
-    expect(replaced).toEqual(`/squads/${owner.source.id}`);
+    expect(replaced).toEqual(`/squads/${owner.source.handle}`);
   });
 });
