@@ -18,6 +18,11 @@ export interface SharedPost {
   image: string;
 }
 
+export enum PostType {
+  Article = 'article',
+  Share = 'share',
+}
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -48,6 +53,7 @@ export interface Post {
   isAuthor?: number;
   isScout?: number;
   sharedPost?: SharedPost;
+  type: PostType;
 }
 
 export interface Ad {
@@ -158,6 +164,7 @@ export const POST_BY_ID_QUERY = gql`
         text
         id
       }
+      type
     }
   }
 `;
@@ -206,6 +213,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         text
         id
       }
+      type
     }
   }
 `;
