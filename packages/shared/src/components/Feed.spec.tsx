@@ -9,6 +9,7 @@ import {
   RenderResult,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
@@ -231,12 +232,12 @@ it('should render feed with sorting ranking by date', async () => {
   expect(elements.length).toBeGreaterThan(0);
   const [latest, old] = elements;
   // eslint-disable-next-line testing-library/no-node-access
-  const latestTitle = latest.querySelector('a').getAttribute('title');
+  const latestTitle = latest.querySelector('button').getAttribute('title');
   const latestPost = defaultFeedPage.edges.find(
     (edge) => edge.node.title === latestTitle,
   ).node;
   // eslint-disable-next-line testing-library/no-node-access
-  const oldTitle = old.querySelector('a').getAttribute('title');
+  const oldTitle = old.querySelector('button').getAttribute('title');
   const oldPost = defaultFeedPage.edges.find(
     (edge) => edge.node.title === oldTitle,
   ).node;
@@ -424,9 +425,11 @@ it('should increase reading rank progress', async () => {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
     reads: 0,
   });
-  const el = await screen.findByTitle(
+  const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
+  // eslint-disable-next-line testing-library/no-node-access
+  const el = await within(main.parentElement).findByText('Read article');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -455,6 +458,9 @@ it('should not increase reading rank progress when read today', async () => {
   const el = await screen.findByTitle(
     'One Word Domains — Database of all available one-word domains',
   );
+  // const parentDiv = el.parentElement;
+  // const card = within(screen.getByText('Dog Food').parentElement);
+  // const el = await card.findByText('Read article');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -482,9 +488,11 @@ it('should increase reading rank progress and rank', async () => {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 2 },
     reads: 0,
   });
-  const el = await screen.findByTitle(
+  const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
+  // eslint-disable-next-line testing-library/no-node-access
+  const el = await within(main.parentElement).findByText('Read article');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -548,9 +556,11 @@ it('should increase reading rank progress for anonymous users', async () => {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
     reads: 0,
   });
-  const el = await screen.findByTitle(
+  const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
+  // eslint-disable-next-line testing-library/no-node-access
+  const el = await within(main.parentElement).findByText('Read article');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
