@@ -18,6 +18,7 @@ export enum ModalSize {
   Small = 'small',
   Medium = 'medium',
   Large = 'large',
+  XLarge = 'xlarge',
 }
 
 export enum LazyModal {
