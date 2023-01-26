@@ -27,7 +27,7 @@ export interface PostNavigationProps extends PostActions {
   children?: ReactNode;
 }
 
-export function PostNavigation({
+function PostNavigation({
   onPreviousPost,
   onNextPost,
   className = {},
@@ -70,3 +70,5 @@ export function PostNavigation({
     </div>
   );
 }
+
+export default PostNavigation;

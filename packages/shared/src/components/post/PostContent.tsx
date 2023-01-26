@@ -8,11 +8,11 @@ import React, {
 } from 'react';
 import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import AuthContext from '../../contexts/AuthContext';
 import {
   PostData,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
+  Post,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -22,11 +22,7 @@ import { LazyImage } from '../LazyImage';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
-import {
-  PostNavigation,
-  PostNavigationClassName,
-  PostNavigationProps,
-} from './PostNavigation';
+import { PostNavigationClassName, PostNavigationProps } from './PostNavigation';
 import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
@@ -35,20 +31,17 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
-import { postEventName } from '../utilities';
-import useBookmarkPost from '../../hooks/useBookmarkPost';
-import useUpdatePost from '../../hooks/useUpdatePost';
-import { useSharePost } from '../../hooks/useSharePost';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import useOnPostClick from '../../hooks/useOnPostClick';
-import { AuthTriggers } from '../../lib/auth';
+import { AnalyticsEvent } from '../../lib/analytics';
 import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import AlertContext from '../../contexts/AlertContext';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ExperimentWinner } from '../../lib/featureValues';
-import FixedPostNavigation from './FixedPostNavigation';
 import PostEngagements from './PostEngagements';
+import PostContentContainer from './PostContentContainer';
+import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import PostModalNavigation from './PostModalNavigation';
+import usePostContent from '../../hooks/usePostContent';
 
 const SharePostModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
@@ -71,24 +64,14 @@ export interface PostContentProps
     >,
     Pick<PostNavigationProps, 'onNextPost' | 'onPreviousPost'>,
     UsePostCommentOptionalProps {
-  postById?: PostData;
+  post?: Post;
   isFallback?: boolean;
   className?: ClassName;
+  analyticsOrigin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   isLoading?: boolean;
-  isModal?: boolean;
   position?: CSSProperties['position'];
 }
-
-const BodyContainer = classed(
-  'div',
-  'flex flex-col max-w-full pb-6 tablet:pb-0 tablet:flex-row',
-);
-
-const PageBodyContainer = classed(
-  BodyContainer,
-  'm-auto w-full max-w-[63.75rem] laptop:border-l laptop:border-theme-divider-tertiary',
-);
 
 const PostContainer = classed(
   'main',
@@ -99,42 +82,35 @@ export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
 
 export function PostContent({
-  postById,
+  post,
   className = {},
   isFallback,
   shouldOnboardAuthor,
   enableShowShareNewComment,
   isLoading,
-  isModal,
+  analyticsOrigin,
   position,
   inlineActions,
   onPreviousPost,
   onNextPost,
   onClose,
 }: PostContentProps): ReactElement {
-  const { id } = postById?.post || {};
+  const { id } = post ?? {};
 
   if (!id && !isFallback && !isLoading) {
     return <Custom404 />;
   }
 
-  const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { sidebarRendered } = useSidebarRendered();
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
-  const analyticsOrigin = isModal ? Origin.ArticleModal : Origin.ArticlePage;
   const { subject } = useToastNotification();
-  const { sharePost, openSharePost, closeSharePost } =
-    useSharePost(analyticsOrigin);
-  const { updatePost } = useUpdatePost();
-  const onPostClick = useOnPostClick({ origin: analyticsOrigin });
-  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
-    onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
-  });
+  const showMyFeedArticleAnonymous = sidebarRendered && alerts?.filter;
+  const { onCloseShare, onReadArticle, onShare, onToggleBookmark, sharePost } =
+    usePostContent({ origin: analyticsOrigin, post });
 
   useSubscription(
     () => ({
@@ -158,32 +134,36 @@ export function PostContent({
   );
 
   useEffect(() => {
-    if (!postById?.post) {
+    if (!post) {
       return;
     }
 
-    trackEvent(postAnalyticsEvent(`${analyticsOrigin} view`, postById.post));
-  }, [postById]);
+    trackEvent(postAnalyticsEvent(`${analyticsOrigin} view`, post));
+  }, [post]);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
-  const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
+  const containerClass = classNames(
+    'tablet:pb-0 tablet:flex-row',
+    className?.container,
+  );
 
   if (isLoading) {
     return (
-      <Wrapper className={className?.container}>
+      <PostContentContainer
+        hasNavigation={hasNavigation}
+        className={containerClass}
+      >
         <PostLoadingPlaceholder />
-      </Wrapper>
+      </PostContentContainer>
     );
   }
 
-  if (!postById?.post) {
+  if (!post) {
     return <Custom404 />;
   }
 
-  const onReadArticle = () => onPostClick({ post: postById.post });
-
   const postLinkProps = {
-    href: postById?.post.permalink,
+    href: post.permalink,
     title: 'Go to article',
     target: '_blank',
     rel: 'noopener',
@@ -191,32 +171,6 @@ export function PostContent({
     onMouseUp: (event: React.MouseEvent) =>
       event.button === 1 && onReadArticle(),
   };
-
-  const isFixed = position === 'fixed';
-
-  const onShare = () => openSharePost(postById.post);
-  const toggleBookmark = async (): Promise<void> => {
-    if (!user) {
-      showLogin(AuthTriggers.Bookmark);
-      return;
-    }
-    const targetBookmarkState = !postById?.post.bookmarked;
-    trackEvent(
-      postAnalyticsEvent(
-        postEventName({ bookmarked: targetBookmarkState }),
-        postById?.post,
-        { extra: { origin } },
-      ),
-    );
-    if (targetBookmarkState) {
-      await bookmark({ id: postById?.post.id });
-    } else {
-      await removeBookmark({ id: postById?.post.id });
-    }
-    bookmarkToast(targetBookmarkState);
-  };
-
-  const showMyFeedArticleAnonymous = sidebarRendered && alerts?.filter;
 
   const onInitializeOnboardingClick = () => {
     trackEvent({
@@ -226,20 +180,11 @@ export function PostContent({
     });
     onInitializeOnboarding();
   };
-  const navigationProps: PostNavigationProps = {
-    onPreviousPost,
-    onNextPost,
-    post: postById.post,
-    onBookmark: toggleBookmark,
-    onReadArticle,
-    onClose,
-    onShare,
-    inlineActions,
-  };
 
   return (
-    <Wrapper
-      className={className?.container}
+    <PostContentContainer
+      hasNavigation={hasNavigation}
+      className={containerClass}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
     >
       <PostContainer className="relative">
@@ -248,38 +193,29 @@ export function PostContent({
             onInitializeOnboarding={onInitializeOnboardingClick}
           />
         )}
-        {isFixed && (
-          <FixedPostNavigation
-            {...navigationProps}
-            className={{
-              container: classNames(
-                'max-w-[63.65rem]',
-                className?.fixedNavigation?.container,
-              ),
-              actions: className?.fixedNavigation?.actions,
-            }}
-          />
-        )}
-        <PostNavigation
-          {...navigationProps}
-          className={{
-            container: classNames('pt-6', className?.navigation?.container),
-            actions: className?.navigation?.actions,
-          }}
+        <PostModalNavigation
+          isFixed={position === 'fixed'}
+          className={className}
+          post={post}
+          onBookmark={onToggleBookmark}
+          onPreviousPost={onPreviousPost}
+          onNextPost={onNextPost}
+          onReadArticle={onReadArticle}
+          onClose={onClose}
+          onShare={onShare}
+          inlineActions={inlineActions}
         />
         <h1
           className="my-6 font-bold break-words typo-large-title"
           data-testid="post-modal-title"
         >
-          {postById.post.title}
+          {post.title}
         </h1>
-        {postById.post.summary && (
-          <PostSummary summary={postById.post.summary} />
-        )}
-        <TagLinks tags={postById.post.tags || []} />
+        {post.summary && <PostSummary summary={post.summary} />}
+        <TagLinks tags={post.tags || []} />
         <PostMetadata
-          createdAt={postById.post.createdAt}
-          readTime={postById.post.readTime}
+          createdAt={post.createdAt}
+          readTime={post.readTime}
           className="mt-4 mb-8"
           typoClassName="typo-callout"
         />
@@ -289,25 +225,25 @@ export function PostContent({
           style={{ maxWidth: '25.625rem' }}
         >
           <LazyImage
-            imgSrc={postById.post.image}
+            imgSrc={post.image}
             imgAlt="Post cover image"
             ratio="49%"
             eager
             fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
           />
         </a>
-        {postById.post?.toc?.length > 0 && (
+        {post.toc?.length > 0 && (
           <PostToc
-            post={postById.post}
+            post={post}
             collapsible
             className="flex laptop:hidden mt-2 mb-4"
           />
         )}
-        {postById && (
+        {post && (
           <PostEngagements
-            post={postById.post}
+            post={post}
             onShare={onShare}
-            onBookmark={toggleBookmark}
+            onBookmark={onToggleBookmark}
             analyticsOrigin={analyticsOrigin}
             shouldOnboardAuthor={shouldOnboardAuthor}
             enableShowShareNewComment={enableShowShareNewComment}
@@ -315,10 +251,10 @@ export function PostContent({
         )}
       </PostContainer>
       <PostWidgets
-        onBookmark={toggleBookmark}
+        onBookmark={onToggleBookmark}
         onShare={onShare}
         onReadArticle={onReadArticle}
-        post={postById.post}
+        post={post}
         className="pb-8"
         onClose={onClose}
         origin={analyticsOrigin}
@@ -326,11 +262,11 @@ export function PostContent({
       {sharePost && (
         <SharePostModal
           isOpen={!!sharePost}
-          post={postById.post}
+          post={post}
           origin={analyticsOrigin}
-          onRequestClose={closeSharePost}
+          onRequestClose={onCloseShare}
         />
       )}
-    </Wrapper>
+    </PostContentContainer>
   );
 }

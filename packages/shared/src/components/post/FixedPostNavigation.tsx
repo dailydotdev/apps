@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { PostNavigation, PostNavigationProps } from './PostNavigation';
+import PostNavigation, { PostNavigationProps } from './PostNavigation';
 
 function FixedPostNavigation({
   onPreviousPost,

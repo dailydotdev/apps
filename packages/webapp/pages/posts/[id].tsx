@@ -1,13 +1,6 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useQuery } from 'react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -17,20 +10,20 @@ import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
-  POST_BY_ID_QUERY,
   PostData,
   Post,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
+import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   PostContent,
   SCROLL_OFFSET,
 } from '@dailydotdev/shared/src/components/post/PostContent';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -57,7 +50,6 @@ interface PostParams extends ParsedUrlQuery {
 const PostPage = ({ id, postData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
-  const { tokenRefreshed } = useContext(AuthContext);
   const router = useRouter();
   const { isFallback } = router;
 
@@ -65,15 +57,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     return <Custom404 />;
   }
 
-  const {
-    data: postById,
-    isLoading,
-    isFetched,
-  } = useQuery<PostData>(
-    ['post', id],
-    () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
-    { initialData: postData, enabled: !!id && tokenRefreshed },
-  );
+  const { post, isLoading } = usePostById({
+    id,
+    options: { initialData: postData },
+  });
 
   const seo: NextSeoProps = {
     title: getTemplatedTitle(postData?.post.title),
@@ -102,18 +89,19 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   return (
     <>
       <Head>
-        <link rel="preload" as="image" href={postById?.post.image} />
+        <link rel="preload" as="image" href={post?.image} />
       </Head>
       <NextSeo {...seo} />
       <PostContent
         position={position}
-        postById={postById}
+        post={post}
         isFallback={isFallback}
-        isLoading={isLoading || !isFetched}
+        isLoading={isLoading}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
+        analyticsOrigin={Origin.ArticlePage}
         className={{
-          container: 'pb-20 laptop:pb-6 laptopL:pb-0',
+          container: 'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop',
           fixedNavigation: { container: 'flex laptop:hidden' },
           navigation: {
             container: 'tablet:hidden',
