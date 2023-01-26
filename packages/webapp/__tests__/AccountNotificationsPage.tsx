@@ -29,7 +29,6 @@ let client: QueryClient;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.restoreAllMocks();
   nock.cleanAll();
   client = new QueryClient();
 });
