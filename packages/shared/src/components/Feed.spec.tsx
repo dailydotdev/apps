@@ -458,9 +458,6 @@ it('should not increase reading rank progress when read today', async () => {
   const el = await screen.findByTitle(
     'One Word Domains — Database of all available one-word domains',
   );
-  // const parentDiv = el.parentElement;
-  // const card = within(screen.getByText('Dog Food').parentElement);
-  // const el = await card.findByText('Read article');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
