@@ -12,7 +12,6 @@ import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import NewSquadPostCard from './cards/NewSquadPostCard';
 import { SharePostCard } from './cards/SharePostCard';
 
 const CommentPopup = dynamic(
@@ -196,8 +195,6 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
         />
       );
-    case 'new_squad_post':
-      return <NewSquadPostCard onClick={item.action} />;
     default:
       return <PlaceholderTag showImage={!insaneMode} />;
   }

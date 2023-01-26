@@ -44,7 +44,7 @@ export function SquadsList({
           title: name,
           ...(!active
             ? { action: () => onOpenLockedSquad(squad) }
-            : { path: permalink }),
+            : { path: `/squads/${handle}` }),
         };
         const isActive = permalink.endsWith(activePage);
         return (
