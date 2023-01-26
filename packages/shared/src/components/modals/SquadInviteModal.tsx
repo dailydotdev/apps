@@ -44,7 +44,7 @@ function SquadInviteModal({
         <Alert
           className="mt-4"
           type={AlertType.Info}
-          title={`Invite more users to the ${squad.name} Squad to share post with your friends.`}
+          title={`Invite more members to ${squad.name} to stay up to date together and collaborate.`}
         />
       </Modal.Body>
       <Modal.Footer>
