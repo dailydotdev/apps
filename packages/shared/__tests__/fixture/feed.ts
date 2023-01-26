@@ -1,5 +1,5 @@
 import { Connection } from '../../src/graphql/common';
-import { Post } from '../../src/graphql/posts';
+import { Post, PostType } from '../../src/graphql/posts';
 
 const feed: Connection<Post> = {
   pageInfo: {
@@ -32,6 +32,7 @@ const feed: Connection<Post> = {
         read: true,
         upvoted: false,
         commented: true,
+        type: PostType.Article,
       },
     },
     {
@@ -59,6 +60,7 @@ const feed: Connection<Post> = {
         upvoted: true,
         commented: true,
         bookmarked: true,
+        type: PostType.Article,
       },
     },
     {
@@ -85,6 +87,7 @@ const feed: Connection<Post> = {
         read: false,
         upvoted: true,
         commented: true,
+        type: PostType.Article,
       },
     },
     {
@@ -112,6 +115,7 @@ const feed: Connection<Post> = {
         read: false,
         upvoted: true,
         commented: true,
+        type: PostType.Article,
       },
     },
     {
@@ -138,6 +142,7 @@ const feed: Connection<Post> = {
         read: false,
         upvoted: true,
         commented: true,
+        type: PostType.Article,
       },
     },
     {
@@ -164,6 +169,7 @@ const feed: Connection<Post> = {
         read: false,
         upvoted: true,
         commented: true,
+        type: PostType.Article,
       },
     },
     {
@@ -190,6 +196,7 @@ const feed: Connection<Post> = {
         read: false,
         upvoted: false,
         commented: true,
+        type: PostType.Article,
       },
     },
   ],

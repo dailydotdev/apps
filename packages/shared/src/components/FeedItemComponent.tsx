@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
@@ -7,13 +7,13 @@ import { AdList } from './cards/AdList';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderList } from './cards/PlaceholderList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import { Ad, Post } from '../graphql/posts';
+import { Ad, Post, PostType } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { PostCardTests } from './post/common';
 import NewSquadPostCard from './cards/NewSquadPostCard';
+import { SharePostCard } from './cards/SharePostCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -79,7 +79,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
-} & PostCardTests;
+};
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
   const item = items[index];
@@ -92,6 +92,11 @@ export function getFeedItemKey(items: FeedItem[], index: number): string {
       return `placeholder-${index}`;
   }
 }
+
+const PostTypeToTag: Record<PostType, FunctionComponent> = {
+  [PostType.Article]: PostCard,
+  [PostType.Share]: SharePostCard,
+};
 
 export default function FeedItemComponent({
   items,
@@ -119,11 +124,7 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdClick,
   onReadArticleClick,
-  postCardVersion,
-  postModalByDefault,
-  postEngagementNonClickable,
 }: FeedItemComponentProps): ReactElement {
-  const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
   const PlaceholderTag = useList ? PlaceholderList : PlaceholderCard;
   const item = items[index];
@@ -138,7 +139,10 @@ export default function FeedItemComponent({
   );
 
   switch (item.type) {
-    case 'post':
+    case 'post': {
+      const PostTag = useList
+        ? PostList
+        : PostTypeToTag[item.post.type] ?? PostCard;
       return (
         <PostTag
           ref={inViewRef}
@@ -167,9 +171,6 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
           insaneMode={insaneMode}
-          postCardVersion={postCardVersion}
-          postModalByDefault={postModalByDefault}
-          postEngagementNonClickable={postEngagementNonClickable}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup
@@ -184,6 +185,7 @@ export default function FeedItemComponent({
           )}
         </PostTag>
       );
+    }
     case 'ad':
       return (
         <AdTag
