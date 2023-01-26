@@ -11,6 +11,7 @@ import { cloudinary } from '../../lib/image';
 import CameraIcon from '../icons/Camera';
 import { formToJson } from '../../lib/form';
 import { Modal } from '../modals/common/Modal';
+import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 
 const squadImageId = 'squad_image_file';
@@ -24,6 +25,7 @@ export function SquadDetails({
   createMode: boolean;
 }): ReactElement {
   const { name, handle, description } = form;
+  const [imageChanged, setImageChanged] = useState(false);
   const [handleValid, setHandleValid] = useState(true);
   const [canSubmit, setCanSubmit] = useState(!!name && !!handle);
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -31,6 +33,11 @@ export function SquadDetails({
     const formJson = formToJson<SquadForm>(e.currentTarget);
     if (!formJson.name || !formJson.handle) {
       return;
+    }
+    if (imageChanged) {
+      const input = document.getElementById(squadImageId) as HTMLInputElement;
+      const file = input.files[0];
+      formJson.file = await blobToBase64(file);
     }
     const handleExists = createMode
       ? await checkExistingHandle(formJson.handle)
@@ -68,6 +75,8 @@ export function SquadDetails({
               img: 'object-cover',
             }}
             hoverIcon={<CameraIcon size="xlarge" />}
+            alwayShowHover={!createMode && !imageChanged}
+            onChange={() => setImageChanged(true)}
             size={createMode ? 'medium' : 'large'}
           />
           <TextField

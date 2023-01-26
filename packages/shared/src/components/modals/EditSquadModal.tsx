@@ -21,12 +21,14 @@ function EditSquadModal({
   const { displayToast } = useToastNotification();
   const onSubmit = async (e, form) => {
     e.preventDefault();
-    const editedSquad = await editSquad(squad.id, {
+    const formJson = {
       ...squad,
       name: form.name,
       description: form.description,
       handle: form.handle,
-    });
+      file: form.file,
+    };
+    const editedSquad = await editSquad(squad.id, formJson);
     if (editedSquad) {
       const queryKey = ['squad', editedSquad.handle];
       await queryClient.invalidateQueries(queryKey);
