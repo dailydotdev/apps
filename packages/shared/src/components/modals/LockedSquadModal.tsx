@@ -6,9 +6,6 @@ import { Modal, ModalProps } from './common/Modal';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
 import { deleteSquad, getSquad, Squad } from '../../graphql/squads';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
-import DailyCircle from '../DailyCircle';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useBoot } from '../../hooks/useBoot';
@@ -16,6 +13,7 @@ import {
   InviteTextField,
   InviteTextFieldHandle,
 } from '../squads/InviteTextField';
+import { SquadModalHeader } from '../squads/ModalHeader';
 
 const options: PromptOptions = {
   title: 'Delete the Squad?',
@@ -73,21 +71,7 @@ function LockedSquadModal({
     >
       <Modal.Header title="Waiting for members to join" />
       <Modal.Body className="flex overflow-x-hidden flex-col items-center">
-        <div className="flex relative justify-center items-center my-4 w-full h-40">
-          <DailyCircle className=" absolute bottom-0 -left-10" size="xsmall" />
-          <DailyCircle className=" absolute top-4 left-10" size="xxsmall" />
-          <Image
-            src={squad.name}
-            alt={squad.name}
-            className="object-cover w-40 h-40 rounded-full"
-            loading="lazy"
-            fallbackSrc={cloudinary.squads.imageFallback}
-          />
-          <DailyCircle className=" absolute top-0 -right-10" size="xsmall" />
-          <DailyCircle className=" absolute right-10 bottom-4" size="xxsmall" />
-        </div>
-        <h3 className="font-bold typo-title2">{squad.name}</h3>
-        <h4 className="text-theme-label-tertiary">@{squad.handle}</h4>
+        <SquadModalHeader squad={squad} />
         <InviteTextField
           isLoading={isLoading}
           squad={squad}
