@@ -1,10 +1,8 @@
-import classNames from 'classnames';
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
-import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthModalText } from './common';
@@ -18,27 +16,21 @@ import AuthForm from './AuthForm';
 interface ForgotPasswordFormProps {
   initialEmail?: string;
   onBack?: CloseModalFunc;
+  onSubmit?: (email: string, flow: string) => void;
 }
 
 function ForgotPasswordForm({
   initialEmail,
   onBack,
+  onSubmit,
 }: ForgotPasswordFormProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [hint, setHint] = useState('');
-  const [successHint, setSuccessHint] = useState('');
-  const [emailSent, setEmailSent] = useState(false);
-  const { sendEmail, resendTimer, isLoading, token } = useAccountEmailFlow(
-    AuthFlow.Recovery,
-    {
-      onTimerFinished: () => setEmailSent(false),
-      onError: setHint,
-      onSuccess: () => {
-        setEmailSent(true);
-        setSuccessHint('We have sent you a password reset link.');
-      },
-    },
-  );
+  const { sendEmail, isLoading, token } = useAccountEmailFlow({
+    flow: AuthFlow.Recovery,
+    onError: setHint,
+    onSuccess: onSubmit,
+  });
 
   const onSendEmail = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,7 +52,7 @@ function ForgotPasswordForm({
         <TokenInput token={token} />
         <AuthModalText className="text-center">
           Enter the email address you registered with and we will send you a
-          password reset link.
+          verification code.
         </AuthModalText>
         <TextField
           className={{ container: 'mt-6 w-full' }}
@@ -69,28 +61,17 @@ function ForgotPasswordForm({
           inputId="email"
           label="Email"
           defaultValue={initialEmail}
-          hint={(hint as string) || successHint}
+          hint={hint as string}
           valid={!hint}
           onChange={() => hint && setHint('')}
           leftIcon={<MailIcon />}
-          rightIcon={
-            emailSent && (
-              <VIcon
-                className="text-theme-color-avocado"
-                data-testid="email_sent_icon"
-              />
-            )
-          }
         />
         <Button
-          className={classNames(
-            'mt-6',
-            emailSent ? 'btn-primary' : 'bg-theme-color-cabbage',
-          )}
+          className="mt-6 bg-theme-color-cabbage"
           type="submit"
-          disabled={emailSent || isLoading}
+          disabled={isLoading}
         >
-          {resendTimer === 0 ? 'Send email' : `${resendTimer}s`}
+          Send verification code
         </Button>
       </AuthForm>
     </>
