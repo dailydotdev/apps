@@ -21,6 +21,7 @@ export const FEED_POST_FRAGMENT = gql`
       id
       name
       image
+      handle
     }
     sharedPost {
       id

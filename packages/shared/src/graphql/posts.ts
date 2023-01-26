@@ -136,6 +136,7 @@ export const POST_BY_ID_QUERY = gql`
         id
         name
         image
+        handle
       }
       scout {
         id
