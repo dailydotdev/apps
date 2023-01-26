@@ -1,20 +1,19 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import { useQuery } from 'react-query';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
-import { TextField } from '../fields/TextField';
-import CopyIcon from '../icons/Copy';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
 import { deleteSquad, getSquad, Squad } from '../../graphql/squads';
-import { useCopyLink } from '../../hooks/useCopyLink';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
-import DailyCircle from '../DailyCircle';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useBoot } from '../../hooks/useBoot';
+import {
+  InviteTextField,
+  InviteTextFieldHandle,
+} from '../squads/InviteTextField';
+import { SquadModalHeader } from '../squads/ModalHeader';
 
 const options: PromptOptions = {
   title: 'Delete the Squad?',
@@ -49,13 +48,7 @@ function LockedSquadModal({
     ({ queryKey: [{ id }] }) => getSquad(id),
     { initialData: initialSquad },
   );
-  const token = squad?.currentMember?.referralToken ?? '';
-  const invitation = `${squad?.permalink}/${token}`;
-  const [copying, copyLink] = useCopyLink(() => invitation);
-  const onCopy = () => {
-    copyLink();
-  };
-
+  const inviteTextRef = useRef<InviteTextFieldHandle>();
   const onDeleteSquad = async (e) => {
     if (!(await showPrompt(options))) {
       return;
@@ -78,41 +71,11 @@ function LockedSquadModal({
     >
       <Modal.Header title="Waiting for members to join" />
       <Modal.Body className="flex overflow-x-hidden flex-col items-center">
-        <div className="flex relative justify-center items-center my-4 w-full h-40">
-          <DailyCircle className=" absolute bottom-0 -left-10" size="xsmall" />
-          <DailyCircle className=" absolute top-4 left-10" size="xxsmall" />
-          <Image
-            src={squad.name}
-            alt={squad.name}
-            className="object-cover w-40 h-40 rounded-full"
-            loading="lazy"
-            fallbackSrc={cloudinary.squads.imageFallback}
-          />
-          <DailyCircle className=" absolute top-0 -right-10" size="xsmall" />
-          <DailyCircle className=" absolute right-10 bottom-4" size="xxsmall" />
-        </div>
-        <h3 className="font-bold typo-title2">{squad.name}</h3>
-        <h4 className="text-theme-label-tertiary">@{squad.handle}</h4>
-        <TextField
-          aria-busy={isLoading}
-          className={{ container: 'w-full mt-10' }}
-          name="permalink"
-          inputId="permalink"
-          label={invitation}
-          type="url"
-          fieldType="tertiary"
-          disabled
-          actionButton={
-            <Button
-              icon={<CopyIcon />}
-              onClick={onCopy}
-              disabled={copying}
-              className="btn-tertiary"
-              data-testid="textfield-action-icon"
-            />
-          }
-          value={invitation}
-          readOnly
+        <SquadModalHeader squad={squad} />
+        <InviteTextField
+          isLoading={isLoading}
+          squad={squad}
+          ref={inviteTextRef}
         />
         <Alert
           className="mt-4"
@@ -127,8 +90,7 @@ function LockedSquadModal({
         <Button
           icon={<LinkIcon />}
           className="btn-primary-cabbage"
-          onClick={onCopy}
-          disabled={copying}
+          onClick={() => inviteTextRef.current?.copyLink()}
         >
           Copy invitation link
         </Button>

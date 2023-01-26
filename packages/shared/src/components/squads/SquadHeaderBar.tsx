@@ -36,6 +36,13 @@ export function SquadHeaderBar({
         placeholderAmount: squad?.membersCount,
       },
     });
+  const openSquadInviteModal = () =>
+    openModal({
+      type: LazyModal.SquadInvite,
+      props: {
+        initialSquad: squad,
+      },
+    });
 
   return (
     <div className={classNames('flex flex-wrap gap-4', className)} {...props}>
@@ -67,6 +74,7 @@ export function SquadHeaderBar({
             <Button
               className="active:bg-theme-active btn-tertiary"
               buttonSize="small"
+              onClick={openSquadInviteModal}
               icon={<AddUserIcon className="text-theme-label-secondary" />}
             />
           </div>
