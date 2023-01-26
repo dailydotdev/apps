@@ -457,7 +457,7 @@ export const emailSentRecoveryMockData = {
         attributes: {
           name: 'method',
           type: 'submit',
-          value: 'link',
+          value: 'code',
           disabled: false,
           node_type: 'input',
         },
