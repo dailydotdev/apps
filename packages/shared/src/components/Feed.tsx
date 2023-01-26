@@ -60,7 +60,7 @@ export type FeedProps<T> = {
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
   header?: ReactNode;
-  onNewSquadPost?: () => void;
+  forceCardMode?: boolean;
 };
 
 interface RankVariables {
@@ -134,7 +134,7 @@ export default function Feed<T>({
   header,
   onEmptyFeed,
   emptyScreen,
-  onNewSquadPost,
+  forceCardMode,
 }: FeedProps<T>): ReactElement {
   const { showCommentPopover } = useContext(FeaturesContext);
   const { scrollOnboardingVersion } = useContext(FeaturesContext);
@@ -152,7 +152,7 @@ export default function Feed<T>({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const insaneMode = !onNewSquadPost && listMode;
+  const insaneMode = !forceCardMode && listMode;
   const [showFeedFilters, setShowFeedFilters] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
@@ -164,7 +164,6 @@ export default function Feed<T>({
       showOnlyUnreadPosts,
       query,
       variables,
-      onNewSquadPost,
     );
 
   const { ranking } = (variables as RankVariables) || {};
