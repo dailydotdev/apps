@@ -424,7 +424,6 @@ export function PostContent({
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
-          sourceId={postById.post.source.id}
           onRequestClose={closeNewComment}
           {...parentComment}
           onComment={onComment}
