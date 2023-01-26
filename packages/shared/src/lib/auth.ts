@@ -67,13 +67,6 @@ export interface ResetPasswordParameters extends AuthPostParams {
   password: string;
   method: KratosMethod;
 }
-export interface ValidateEmailParameters extends AuthPostParams {
-  'traits.email': string;
-  'traits.name': string;
-  'traits.username': string;
-  'traits.image': string;
-  method: KratosMethod;
-}
 
 export type VerificationParams = KratosFormParams<AccountRecoveryParameters>;
 
@@ -102,9 +95,6 @@ export interface RegistrationParameters {
   'traits.acceptedMarketing'?: boolean;
   optOutMarketing?: boolean;
 }
-
-export type ValidateRecoveryParams =
-  KratosFormParams<AccountRecoveryParameters>;
 
 export interface SettingsParameters extends AuthPostParams {
   link?: string;
