@@ -51,7 +51,7 @@ export default function AuthModal({
     >
       <AuthOptions
         className="h-full"
-        onClose={onDiscardAttempt}
+        onClose={onClose}
         formRef={formRef}
         onSuccessfulLogin={closeLogin}
         trigger={trigger}
