@@ -48,6 +48,12 @@ const renderComponent = (
       image: 'https://image.com',
       commentsPermalink: 'https://daily.dev',
       type: PostType.Article,
+      source: {
+        id: 's',
+        name: 's',
+        handle: 's',
+        image: 's',
+      },
     },
     isOpen: true,
     ariaHideApp: false,
