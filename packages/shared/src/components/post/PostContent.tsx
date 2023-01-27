@@ -72,7 +72,7 @@ export function PostContent({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
-    'tablet:pb-0 tablet:flex-row',
+    'tablet:pb-0 tablet:flex-row bg-theme-bg-primary',
     className?.container,
   );
 
