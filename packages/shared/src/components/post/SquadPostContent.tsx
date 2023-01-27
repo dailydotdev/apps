@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { modalSizeToClassName } from '../modals/common/Modal';
 import { PostNavigationProps } from './PostNavigation';
@@ -51,11 +51,11 @@ function SquadPostContent({
     inlineActions,
   };
 
-  const getHeight = () => {
+  const tldrHeight = useMemo(() => {
     if (height === null) return 'auto';
 
     return shoudShowSummary ? height : 0;
-  };
+  }, [shoudShowSummary, height]);
 
   const containerClass =
     sidebarRendered && modalSizeToClassName[ModalSize.Large];
@@ -141,30 +141,32 @@ function SquadPostContent({
               </a>
             </span>
             {post.sharedPost.summary && (
-              <PostSummary
-                ref={(el) => {
-                  if (!el?.offsetHeight || height !== null) return;
+              <>
+                <PostSummary
+                  ref={(el) => {
+                    if (!el?.offsetHeight || height !== null) return;
 
-                  setHeight(el.offsetHeight);
-                }}
-                style={{ height: getHeight() }}
-                className="m-4 mt-0 transition-all duration-150 ease-in-out"
-                summary={post.sharedPost.summary}
-              />
+                    setHeight(el.offsetHeight);
+                  }}
+                  style={{ height: tldrHeight }}
+                  className="m-4 mt-0 transition-all duration-150 ease-in-out"
+                  summary={post.sharedPost.summary}
+                />
+                <button
+                  type="button"
+                  className="flex flex-row justify-center py-2 w-full font-bold hover:underline border-t border-theme-divider-tertiary typo-callout"
+                  onClick={() => setShouldShowSummary(!shoudShowSummary)}
+                >
+                  {shoudShowSummary ? 'Hide' : 'Show'} TLDR{' '}
+                  <ArrowIcon
+                    className={classNames(
+                      'ml-2',
+                      !shoudShowSummary && 'rotate-180',
+                    )}
+                  />
+                </button>
+              </>
             )}
-            <button
-              type="button"
-              className="flex flex-row justify-center py-2 w-full font-bold hover:underline border-t border-theme-divider-tertiary typo-callout"
-              onClick={() => setShouldShowSummary(!shoudShowSummary)}
-            >
-              {shoudShowSummary ? 'Hide' : 'Show'} TLDR{' '}
-              <ArrowIcon
-                className={classNames(
-                  'ml-2',
-                  !shoudShowSummary && 'rotate-180',
-                )}
-              />
-            </button>
           </div>
         </BasePostContent>
       </PostContentContainer>
