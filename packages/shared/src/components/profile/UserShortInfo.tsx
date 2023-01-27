@@ -71,7 +71,7 @@ export function UserShortInfo<Tag extends AnyTag>({
         <ProfilePicture user={user} size={imageSize} nativeLazyLoading />
       </Tooltip>
       <Tooltip>
-        <div className="flex overflow-hidden flex-col ml-4 typo-callout w-fit">
+        <div className="flex overflow-hidden flex-col flex-1 ml-4 typo-callout w-fit">
           <TextEllipsis className="font-bold">{name}</TextEllipsis>
           <TextEllipsis className="text-theme-label-secondary">
             @{username}
