@@ -84,7 +84,7 @@ export default function NewCommentModal({
       requestMethod(
         `${apiUrl}/graphql`,
         PREVIEW_COMMENT_MUTATION,
-        { content: input },
+        { content: input, sourceId: props.post.source.id },
         { requestKey: JSON.stringify(previewQueryKey) },
       ),
     { enabled: input?.length > 0 },
@@ -163,6 +163,7 @@ export default function NewCommentModal({
   };
   const useUserMentionOptions = useUserMention({
     postId: props.post.id,
+    sourceId: props.post.source.id,
     onInput: setInput,
   });
 
