@@ -12,6 +12,7 @@ export interface Source {
   image: string;
   handle: string;
   type: SourceType;
+  permalink: string;
 }
 
 const SOURCE_PATH: Record<SourceType, string> = {
