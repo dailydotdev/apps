@@ -47,42 +47,45 @@ export const getSeoDescription = (post: Post): string => {
 };
 export interface Props {
   id: string;
-  postData?: PostData;
+  initialData?: PostData;
 }
 
 interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const PostPage = ({ id, postData }: Props): ReactElement => {
+const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const { tokenRefreshed } = useContext(AuthContext);
   const router = useRouter();
   const { isFallback } = router;
 
-  if (!isFallback && !id) {
-    return <Custom404 />;
-  }
-
   const {
-    data: postById,
+    data: fetchedPost,
     isLoading,
     isFetched,
   } = useQuery<PostData>(
     ['post', id],
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
-    { initialData: postData, enabled: !!id && tokenRefreshed },
+    { initialData, enabled: !!id && tokenRefreshed },
   );
 
+  // Need this as sometimes client side might still be loading, but we already have initial data.
+  const post = fetchedPost ?? initialData;
+
+  if ((!isFallback && !id) || (isFetched && !post.post.id)) {
+    return <Custom404 />;
+  }
+
   const seo: NextSeoProps = {
-    title: getTemplatedTitle(postData?.post.title),
-    description: getSeoDescription(postData?.post),
+    title: getTemplatedTitle(post?.post.title),
+    description: getSeoDescription(post?.post),
     openGraph: {
-      images: [{ url: postData?.post.image }],
+      images: [{ url: post?.post.image }],
       article: {
-        publishedTime: postData?.post.createdAt,
-        tags: postData?.post.tags,
+        publishedTime: post?.post.createdAt,
+        tags: post?.post.tags,
       },
     },
   };
@@ -102,12 +105,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   return (
     <>
       <Head>
-        <link rel="preload" as="image" href={postById?.post.image} />
+        <link rel="preload" as="image" href={post?.post.image} />
       </Head>
       <NextSeo {...seo} />
       <PostContent
         position={position}
-        postById={postById}
+        postById={post}
         isFallback={isFallback}
         isLoading={isLoading || !isFetched}
         enableAuthorOnboarding={!!router.query?.author}
@@ -139,7 +142,7 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    const postData = await request<PostData>(
+    const initialData = await request<PostData>(
       `${apiUrl}/graphql`,
       POST_BY_ID_STATIC_FIELDS_QUERY,
       { id },
@@ -147,7 +150,7 @@ export async function getStaticProps({
     return {
       props: {
         id,
-        postData,
+        initialData,
       },
       revalidate: 60,
     };
@@ -155,7 +158,7 @@ export async function getStaticProps({
     const clientError = err as ClientError;
     if (clientError?.response?.errors?.[0]?.extensions?.code === 'NOT_FOUND') {
       return {
-        props: { id: null },
+        props: { id },
         revalidate: 60,
       };
     }
