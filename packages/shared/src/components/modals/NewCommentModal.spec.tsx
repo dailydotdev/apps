@@ -255,13 +255,6 @@ it('should show alert in case of an error', async () => {
   expect(onRequestClose).toBeCalledTimes(0);
 });
 
-// it('should show content of comment to edit', async () => {
-//   renderComponent({ editContent: 'My comment to edit' });
-//   await waitFor(async () =>
-//     expect(await screen.getByText('My comment to edit')).toBeInTheDocument(),
-//   );
-// });
-
 it('should send editComment mutation', async () => {
   let mutationCalled = false;
   renderComponent({ editId: 'c1', editContent: 'My comment to edit' }, [
@@ -295,7 +288,7 @@ it('should recommend users previously mentioned', async () => {
     {
       request: {
         query: RECOMMEND_MENTIONS_QUERY,
-        variables: { postId: 'p1', query: '' },
+        variables: { postId: 'p1', query: '', sourceId: 's' },
       },
       result: () => {
         queryPreviouslyMentioned = true;
@@ -322,7 +315,7 @@ it('should recommend users based on query', async () => {
     {
       request: {
         query: RECOMMEND_MENTIONS_QUERY,
-        variables: { postId: 'p1', query: '' },
+        variables: { postId: 'p1', query: '', sourceId: 's' },
       },
       result: () => {
         return {
@@ -337,7 +330,7 @@ it('should recommend users based on query', async () => {
     {
       request: {
         query: RECOMMEND_MENTIONS_QUERY,
-        variables: { postId: 'p1', query: 'l' },
+        variables: { postId: 'p1', query: 'l', sourceId: 's' },
       },
       result: () => {
         queryMatchingNameOrUsername = true;
