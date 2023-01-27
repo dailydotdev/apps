@@ -68,14 +68,18 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   } = useQuery<PostData>(
     ['post', id],
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
-    { initialData, enabled: !!id && tokenRefreshed },
+    { initialData, enabled: !!id && tokenRefreshed, retry: false },
   );
 
   // Need this as sometimes client side might still be loading, but we already have initial data.
   const post = fetchedPost ?? initialData;
 
-  if ((!isFallback && !id) || (isFetched && !post.post.id)) {
+  if ((!isFallback && !id) || (isFetched && !post?.post.title)) {
     return <Custom404 />;
+  }
+
+  if (isFallback && !initialData) {
+    return <></>;
   }
 
   const seo: NextSeoProps = {
