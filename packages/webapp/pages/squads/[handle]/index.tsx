@@ -84,7 +84,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           userId={user?.id}
         />
         <Feed
-          isFeedSquad
           feedName="source"
           feedQueryKey={[
             'sourceFeed',
