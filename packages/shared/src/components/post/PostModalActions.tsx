@@ -19,6 +19,7 @@ import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import SettingsContext from '../../contexts/SettingsContext';
 
 export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
@@ -45,6 +46,7 @@ export function PostModalActions({
   contextMenuId,
   ...props
 }: PostModalActionsProps): ReactElement {
+  const { openNewTab } = useContext(SettingsContext);
   const { user } = useContext(AuthContext);
   const { showReportMenu } = useReportPostMenu(contextMenuId);
   const { showPrompt } = usePrompt();
@@ -99,7 +101,7 @@ export function PostModalActions({
             className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
             tag="a"
             href={post.permalink}
-            target="_blank"
+            target={openNewTab ? '_blank' : '_self'}
             icon={<OpenLinkIcon />}
             onClick={onReadArticle}
           >

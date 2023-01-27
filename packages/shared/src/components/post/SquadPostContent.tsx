@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { modalSizeToClassName } from '../modals/common/Modal';
 import { PostNavigationProps } from './PostNavigation';
@@ -17,6 +17,7 @@ import { PostContentProps } from './PostContent';
 import { BasePostContent } from './BasePostContent';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { cloudinary } from '../../lib/image';
+import SettingsContext from '../../contexts/SettingsContext';
 
 function SquadPostContent({
   post,
@@ -33,8 +34,9 @@ function SquadPostContent({
   onNextPost,
   onClose,
 }: PostContentProps): ReactElement {
-  if (isLoading) return <>loading</>;
+  if (isLoading) return <></>;
 
+  const { openNewTab } = useContext(SettingsContext);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const [height, setHeight] = useState<number>(null);
   const { sidebarRendered } = useSidebarRendered();
@@ -120,6 +122,7 @@ function SquadPostContent({
                   buttonSize="medium"
                   className="mt-5 btn-secondary w-fit"
                   href={post.sharedPost.permalink}
+                  openNewTab={openNewTab}
                 />
               </div>
               <a
