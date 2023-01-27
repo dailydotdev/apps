@@ -16,6 +16,7 @@ import PostSourceInfo from './PostSourceInfo';
 import { PostContentProps } from './PostContent';
 import { BasePostContent } from './BasePostContent';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { cloudinary } from '../../lib/image';
 
 function SquadPostContent({
   post,
@@ -135,7 +136,7 @@ function SquadPostContent({
                   imgAlt="Post cover image"
                   ratio="52%"
                   eager
-                  fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+                  fallbackSrc={cloudinary.post.imageCoverPlaceholder}
                 />
               </a>
             </span>

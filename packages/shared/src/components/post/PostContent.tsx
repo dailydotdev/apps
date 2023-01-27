@@ -23,6 +23,7 @@ import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
 import { modalSizeToClassName } from '../modals/common/Modal';
 import { ModalSize } from '../modals/common/types';
+import { cloudinary } from '../../lib/image';
 
 export interface PostContentProps
   extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
@@ -163,7 +164,7 @@ export function PostContent({
               imgAlt="Post cover image"
               ratio="49%"
               eager
-              fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
             />
           </a>
           {post.toc?.length > 0 && (

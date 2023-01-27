@@ -6,6 +6,7 @@ import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { Post } from '../../graphql/posts';
 import styles from './Card.module.css';
+import { cloudinary } from '../../lib/image';
 
 type PostCardFooterProps = {
   insaneMode: boolean;
@@ -28,7 +29,7 @@ export const PostCardFooter = ({
         <CardImage
           alt="Post Cover image"
           src={post.image}
-          fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           className="object-cover my-2"
           loading="lazy"
         />
