@@ -40,8 +40,8 @@ import {
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
