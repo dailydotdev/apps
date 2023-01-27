@@ -9,7 +9,7 @@ import React, {
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import useFeed, { PostItem } from '../hooks/useFeed';
-import { Ad, Post } from '../graphql/posts';
+import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import styles from './Feed.module.css';
@@ -61,7 +61,6 @@ export type FeedProps<T> = {
   emptyScreen?: ReactNode;
   header?: ReactNode;
   onNewSquadPost?: () => void;
-  isFeedSquad?: boolean;
 };
 
 interface RankVariables {
@@ -130,6 +129,11 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   return {};
 };
 
+const PostModalMap = {
+  [PostType.Article]: PostModal,
+  [PostType.Share]: SquadPostModal,
+};
+
 export default function Feed<T>({
   feedName,
   feedQueryKey,
@@ -137,7 +141,6 @@ export default function Feed<T>({
   variables,
   className,
   header,
-  isFeedSquad,
   onEmptyFeed,
   emptyScreen,
   onNewSquadPost,
@@ -388,7 +391,7 @@ export default function Feed<T>({
     post,
   };
 
-  const ArticleModal = isFeedSquad ? SquadPostModal : PostModal;
+  const ArticleModal = PostModalMap[selectedPost?.type];
 
   return (
     <div
@@ -467,7 +470,7 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {selectedPost && (
+        {selectedPost && ArticleModal && (
           <ArticleModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
