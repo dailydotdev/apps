@@ -99,7 +99,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         isLoading={isLoading}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
-        analyticsOrigin={Origin.ArticlePage}
+        origin={Origin.ArticlePage}
         className={{
           container: 'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop',
           fixedNavigation: { container: 'flex laptop:hidden' },
