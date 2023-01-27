@@ -144,6 +144,7 @@ export const POST_BY_ID_QUERY = gql`
         image
         readTime
         permalink
+        summary
         source {
           ...SourceShortInfoFragment
         }
