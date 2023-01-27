@@ -2,7 +2,6 @@ import React, {
   CSSProperties,
   ReactElement,
   useCallback,
-  useEffect,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
@@ -71,9 +70,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   useWindowEvents(
     'popstate',
     CHECK_POPSTATE,
-    useCallback(() => {
-      router.reload();
-    }, []),
+    useCallback(() => router.reload(), []),
     false,
   );
 
@@ -101,12 +98,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     offset: SCROLL_OFFSET,
     scrollProperty: 'scrollY',
   });
-
-  useEffect(() => {
-    globalThis.window?.addEventListener('popstate', () => {
-      router.reload();
-    });
-  }, []);
 
   const Content = CONTENT_MAP[post?.type];
 
