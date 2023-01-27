@@ -134,7 +134,7 @@ function SquadPostContent({
                 className="block overflow-hidden w-70 rounded-2xl cursor-pointer"
               >
                 <LazyImage
-                  imgSrc={post.image}
+                  imgSrc={post.sharedPost.image}
                   imgAlt="Post cover image"
                   ratio="52%"
                   eager
