@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { QueryKey } from 'react-query';
 import { LazyModal } from '../components/modals/common/types';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../graphql/comments';
@@ -17,6 +17,7 @@ export interface RequestQueryProps {
 type UpvoteType = 'post' | 'comment';
 
 interface UseUpvoteQuery {
+  queryKey: string;
   onShowUpvoted: (id: string, upvotes: number, type?: UpvoteType) => unknown;
 }
 
@@ -34,11 +35,14 @@ const QUERY_MAP = {
 
 export const useUpvoteQuery = (): UseUpvoteQuery => {
   const { openModal } = useLazyModal();
+  const [queryKey, setQueryKey] = useState<string>();
   const onShowUpvoted = (
     id: string,
     upvotes: number,
     type: UpvoteType = 'post',
   ) => {
+    const key = KEY_MAP[type];
+    setQueryKey(key);
     openModal({
       type: LazyModal.UpvotedPopup,
       props: {
@@ -52,5 +56,5 @@ export const useUpvoteQuery = (): UseUpvoteQuery => {
     });
   };
 
-  return useMemo(() => ({ onShowUpvoted }), []);
+  return useMemo(() => ({ onShowUpvoted, queryKey }), [queryKey]);
 };
