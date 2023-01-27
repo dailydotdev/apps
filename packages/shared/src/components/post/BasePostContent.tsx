@@ -24,7 +24,7 @@ const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
 );
 
-interface ClassName {
+export interface PostContentClassName {
   container?: string;
   onboarding?: string;
   navigation?: PostNavigationClassName;
@@ -36,7 +36,7 @@ export interface BasePostContentProps extends UsePostContentProps {
   children: ReactNode;
   isLoading?: boolean;
   isFallback?: boolean;
-  className?: ClassName;
+  className?: PostContentClassName;
   navigationProps: PostNavigationProps;
   engagementProps: UsePostContent;
   shouldOnboardAuthor?: boolean;

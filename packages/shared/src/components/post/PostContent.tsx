@@ -7,7 +7,7 @@ import { LazyImage } from '../LazyImage';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
-import { PostNavigationClassName, PostNavigationProps } from './PostNavigation';
+import { PostNavigationProps } from './PostNavigation';
 import { PostModalActionsProps } from './PostModalActions';
 import { UsePostCommentOptionalProps } from '../../hooks/usePostComment';
 import {
@@ -18,15 +18,11 @@ import PostContentContainer from './PostContentContainer';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import usePostContent from '../../hooks/usePostContent';
 import FixedPostNavigation from './FixedPostNavigation';
-import { BasePostContent } from './BasePostContent';
+import { BasePostContent, PostContentClassName } from './BasePostContent';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
-
-interface ClassName {
-  container?: string;
-  navigation?: PostNavigationClassName;
-  fixedNavigation?: PostNavigationClassName;
-}
+import { modalSizeToClassName } from '../modals/common/Modal';
+import { ModalSize } from '../modals/common/types';
 
 export interface PostContentProps
   extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
@@ -34,7 +30,7 @@ export interface PostContentProps
     UsePostCommentOptionalProps {
   post?: Post;
   isFallback?: boolean;
-  className?: ClassName;
+  className?: PostContentClassName;
   origin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   isLoading?: boolean;
@@ -117,7 +113,10 @@ export function PostContent({
         <BasePostContent
           className={{
             ...className,
-            onboarding: 'mt-8',
+            onboarding: classNames('mt-8', className.onboarding),
+            fixedNavigation: {
+              container: modalSizeToClassName[ModalSize.XLarge],
+            },
             navigation: {
               actions: className?.navigation?.actions,
               container:

@@ -1,12 +1,11 @@
 import React, { ReactElement, useContext } from 'react';
-import { ModalProps, modalSizeToClassName } from './common/Modal';
+import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
 import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
 import { PostNavigationProps } from '../post/PostNavigation';
 import { Origin } from '../../lib/analytics';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
-import { ModalSize } from './common/types';
 import OnboardingContext from '../../contexts/OnboardingContext';
 
 interface PostModalProps
@@ -46,10 +45,10 @@ export default function PostModal({
         inlineActions
         className={{
           container: 'post-content',
-          fixedNavigation: {
-            container: modalSizeToClassName[ModalSize.XLarge],
-          },
           navigation: { actions: 'tablet:hidden ml-auto' },
+          fixedNavigation: {
+            container: modalSizeToClassName[Modal.Size.XLarge],
+          },
         }}
         onClose={onRequestClose}
         isLoading={isLoading}

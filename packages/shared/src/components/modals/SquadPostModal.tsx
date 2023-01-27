@@ -1,11 +1,10 @@
 import React, { ReactElement, useContext } from 'react';
-import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
+import { Modal, ModalProps } from './common/Modal';
 import { PostNavigationProps } from '../post/PostNavigation';
 import BasePostModal from './BasePostModal';
 import { Origin } from '../../lib/analytics';
 import usePostById from '../../hooks/usePostById';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
-import { ModalSize } from './common/types';
 import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ONBOARDING_OFFSET } from '../post/BasePostContent';
@@ -51,9 +50,6 @@ export default function PostModal({
         origin={Origin.ArticleModal}
         className={{
           container: 'post-content',
-          fixedNavigation: {
-            container: modalSizeToClassName[ModalSize.XLarge],
-          },
           navigation: { actions: 'tablet:hidden ml-auto' },
         }}
       />
