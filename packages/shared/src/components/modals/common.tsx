@@ -21,6 +21,9 @@ const NewSquadModal = dynamic(
 const LockedSquadModal = dynamic(
   () => import(/* webpackChunkName: "lockedSquadModal" */ './LockedSquadModal'),
 );
+const SquadInviteModal = dynamic(
+  () => import(/* webpackChunkName: "squadInviteModal" */ './SquadInviteModal'),
+);
 const SquadMemberModal = dynamic(
   () => import(/* webpackChunkName: "squadMemberModal" */ './SquadMemberModal'),
 );
@@ -35,6 +38,7 @@ export const modals = {
   [LazyModal.EditSquad]: EditSquadModal,
   [LazyModal.PostToSquad]: PostToSquadModal,
   [LazyModal.LockedSquad]: LockedSquadModal,
+  [LazyModal.SquadInvite]: SquadInviteModal,
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
 };

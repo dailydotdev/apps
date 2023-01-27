@@ -226,8 +226,8 @@ export const SQUAD_JOIN_MUTATION = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
-export const validateSourceId = (id: string, source: Squad): boolean =>
-  source.id === id || source.handle === id.toLowerCase();
+export const validateSourceHandle = (handle: string, source: Squad): boolean =>
+  source.handle === handle || source.handle === handle.toLowerCase();
 
 export type SquadData = {
   source: Squad;

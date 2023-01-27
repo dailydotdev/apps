@@ -7,6 +7,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 
 interface SourceButtonProps {
   source: Source;
+  link?: string;
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;
@@ -15,6 +16,7 @@ interface SourceButtonProps {
 
 export default function SourceButton({
   source,
+  link,
   tooltipPosition = 'bottom',
   size = 'medium',
   ...props
