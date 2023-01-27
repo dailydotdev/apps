@@ -181,18 +181,18 @@ export default function PostModal({
               />
             </a>
           </span>
-          {/* {post.summary && showSumamry && ( */}
-          <PostSummary
-            ref={(el) => {
-              if (!el?.offsetHeight || height !== null) return;
+          {post.summary && (
+            <PostSummary
+              ref={(el) => {
+                if (!el?.offsetHeight || height !== null) return;
 
-              setHeight(el.offsetHeight);
-            }}
-            style={{ height: getHeight() }}
-            className="m-4 mt-0 transition-all duration-150 ease-in-out"
-            summary="The awesome-pages plugin allows you to customize how your pages show up the navigation of your MkDocs. It gives you detailed control using a small configuration file directly placed in the relevant directory of your documentation. This package requires Python >=3.5 and Mk Docs version 1.0 or higher."
-          />
-          {/* )} */}
+                setHeight(el.offsetHeight);
+              }}
+              style={{ height: getHeight() }}
+              className="m-4 mt-0 transition-all duration-150 ease-in-out"
+              summary="The awesome-pages plugin allows you to customize how your pages show up the navigation of your MkDocs. It gives you detailed control using a small configuration file directly placed in the relevant directory of your documentation. This package requires Python >=3.5 and Mk Docs version 1.0 or higher."
+            />
+          )}
           <button
             type="button"
             className="flex flex-row justify-center py-2 w-full font-bold hover:underline border-t border-theme-divider-tertiary typo-callout"
