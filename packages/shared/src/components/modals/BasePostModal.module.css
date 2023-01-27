@@ -32,7 +32,7 @@
     @screen tablet {
       min-height: calc(100vh - 6rem);
       padding-bottom: 0;
-  }
+    }
 
     @screen laptop {
       height: unset;

@@ -21,8 +21,6 @@ import FixedPostNavigation from './FixedPostNavigation';
 import { BasePostContent, PostContentClassName } from './BasePostContent';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
-import { modalSizeToClassName } from '../modals/common/Modal';
-import { ModalSize } from '../modals/common/types';
 import { cloudinary } from '../../lib/image';
 
 export interface PostContentProps
@@ -98,6 +96,7 @@ export function PostContent({
       </PostContentContainer>
     );
   }
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -110,14 +109,10 @@ export function PostContent({
           className={className?.fixedNavigation}
         />
       )}
-      <PostContainer className={classNames('relative', className?.container)}>
+      <PostContainer className={classNames('relative', className?.content)}>
         <BasePostContent
           className={{
             ...className,
-            onboarding: classNames('mt-8', className.onboarding),
-            fixedNavigation: {
-              container: modalSizeToClassName[ModalSize.XLarge],
-            },
             navigation: {
               actions: className?.navigation?.actions,
               container:

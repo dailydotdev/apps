@@ -67,14 +67,17 @@ function SquadPostContent({
           {...navigationProps}
           onReadArticle={onReadArticle}
           className={{
-            container: containerClass,
+            actions: className?.fixedNavigation?.container,
+            container: classNames(
+              containerClass,
+              className?.fixedNavigation?.container,
+            ),
           }}
         />
       )}
-
       <PostContentContainer
         className={classNames(
-          'relative py-4 px-6 post-content',
+          'relative py-8 px-6 post-content',
           containerClass,
           className?.container,
         )}
@@ -83,14 +86,14 @@ function SquadPostContent({
         <BasePostContent
           className={{
             ...className,
-            onboarding: 'mt-4 mb-6',
+            onboarding: 'mb-8',
             navigation: { actions: 'ml-auto', container: 'mb-6' },
           }}
           isLoading={isLoading}
           isFallback={isFallback}
           enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
-          navigationProps={navigationProps}
+          navigationProps={null}
           engagementProps={engagementActions}
           origin={origin}
           post={post}

@@ -26,6 +26,7 @@ const Custom404 = dynamic(
 
 export interface PostContentClassName {
   container?: string;
+  content?: string;
   onboarding?: string;
   navigation?: PostNavigationClassName;
   fixedNavigation?: PostNavigationClassName;
@@ -37,7 +38,7 @@ export interface BasePostContentProps extends UsePostContentProps {
   isLoading?: boolean;
   isFallback?: boolean;
   className?: PostContentClassName;
-  navigationProps: PostNavigationProps;
+  navigationProps?: PostNavigationProps;
   engagementProps: UsePostContent;
   shouldOnboardAuthor?: boolean;
   enableShowShareNewComment?: boolean;
@@ -65,7 +66,7 @@ export function BasePostContent({
 
   const { onCloseShare, sharePost, onSharePost, onToggleBookmark } =
     engagementProps;
-  const { onPreviousPost, onNextPost } = navigationProps;
+  const { onPreviousPost, onNextPost } = navigationProps ?? {};
   const { onStartArticleOnboarding, showArticleOnboarding } =
     useContext(OnboardingContext);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -93,7 +94,9 @@ export function BasePostContent({
           onInitializeOnboarding={onStartArticleOnboarding}
         />
       )}
-      <PostNavigation {...navigationProps} className={className.navigation} />
+      {navigationProps && (
+        <PostNavigation {...navigationProps} className={className.navigation} />
+      )}
       {children}
       <PostEngagements
         post={post}

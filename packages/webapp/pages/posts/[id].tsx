@@ -127,14 +127,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         enableShowShareNewComment={!!router?.query.new}
         origin={Origin.ArticlePage}
         className={{
-          onboarding: 'mb-8',
           container:
             'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r',
           fixedNavigation: { container: 'flex laptop:hidden' },
-          navigation: {
-            container: 'tablet:hidden',
-            actions: 'justify-between w-full',
-          },
+          content: 'pt-8',
         }}
       />
     </>

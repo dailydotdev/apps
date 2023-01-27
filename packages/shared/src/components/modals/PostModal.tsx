@@ -44,6 +44,8 @@ export default function PostModal({
         onNextPost={onNextPost}
         inlineActions
         className={{
+          onboarding: 'mt-8',
+          container: 'border border-theme-divider-tertiary rounded-16',
           navigation: { actions: 'tablet:hidden ml-auto' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.XLarge],
