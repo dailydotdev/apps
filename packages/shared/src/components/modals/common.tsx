@@ -49,7 +49,7 @@ type GetComponentProps<T> = T extends
   ? P
   : never;
 
-type ModalsType = typeof modals;
+export type ModalsType = typeof modals;
 
 export type LazyPropTypes = Partial<
   {
@@ -68,7 +68,7 @@ type RequiredKeys<T> = {
 
 type NonOptional<T> = Pick<T, RequiredKeys<T>>;
 
-export type LazyModalType = {
+export type LazyModalType<T extends keyof ModalsType> = {
   [K in keyof ModalsType]: NonOptional<
     LazyModalComponentType<K>
   > extends Record<string, never>
@@ -80,4 +80,4 @@ export type LazyModalType = {
         type: K;
         props: LazyModalComponentType<K>;
       };
-}[keyof ModalsType];
+}[T];
