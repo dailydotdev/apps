@@ -28,7 +28,7 @@ export enum LazyModal {
   PostToSquad = 'postToSquad',
   LockedSquad = 'lockedSquad',
   SquadMember = 'squadMember',
-  UpvotedPopup = 'upvotedpopup',
+  UpvotedPopup = 'upvotedPopup',
 }
 
 export type ModalTabItem = {

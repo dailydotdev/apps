@@ -8,12 +8,14 @@ import { usePostComment } from '../../hooks/usePostComment';
 import { useShareComment } from '../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
 import { AuthTriggers } from '../../lib/auth';
-import { AuthorOnboarding } from './AuthorOnboarding';
 import { NewComment } from './NewComment';
 import { PostActions, ShareBookmarkProps } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 
+const AuthorOnboarding = dynamic(
+  () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
+);
 const NewCommentModal = dynamic(
   () =>
     import(
