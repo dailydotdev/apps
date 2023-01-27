@@ -1,4 +1,10 @@
-import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
+import React, {
+  CSSProperties,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import {
@@ -26,6 +32,7 @@ import {
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
+import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -54,11 +61,21 @@ interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
+const CHECK_POPSTATE = 'popstate_key';
+
 const PostPage = ({ id, postData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
   const { isFallback } = router;
+  useWindowEvents(
+    'popstate',
+    CHECK_POPSTATE,
+    useCallback(() => {
+      router.reload();
+    }, []),
+    false,
+  );
 
   if (!isFallback && !id) return <Custom404 />;
 
@@ -138,15 +155,15 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    // const postData = await request<PostData>(
-    //   `${apiUrl}/graphql`,
-    //   POST_BY_ID_STATIC_FIELDS_QUERY,
-    //   { id },
-    // );
+    const postData = await request<PostData>(
+      `${apiUrl}/graphql`,
+      POST_BY_ID_STATIC_FIELDS_QUERY,
+      { id },
+    );
     return {
       props: {
         id,
-        // postData,
+        postData,
       },
       revalidate: 60,
     };
