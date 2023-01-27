@@ -1,27 +1,22 @@
-import { CSSProperties, useContext, useEffect, useState } from 'react';
-import {
-  ONBOARDING_OFFSET,
-  SCROLL_OFFSET,
-} from '../components/post/PostContent';
-import AlertContext from '../contexts/AlertContext';
+import { CSSProperties, useEffect, useState } from 'react';
+import { SCROLL_OFFSET } from '../components/post/PostContent';
 import { useHideOnModal } from './useHideOnModal';
 import { useResetScrollForResponsiveModal } from './useResetScrollForResponsiveModal';
 import { useScrollTopOffset } from './useScrollTopOffset';
-import useSidebarRendered from './useSidebarRendered';
 
 interface UsePostNavigationPosition {
   isLoading: boolean;
   isDisplayed: boolean;
+  offset?: number;
 }
 
 const usePostNavigationPosition = ({
   isLoading,
   isDisplayed,
+  offset = 0,
 }: UsePostNavigationPosition): CSSProperties['position'] => {
   useResetScrollForResponsiveModal();
   useHideOnModal(isDisplayed);
-  const { alerts } = useContext(AlertContext);
-  const { sidebarRendered } = useSidebarRendered();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   useScrollTopOffset(
@@ -29,10 +24,7 @@ const usePostNavigationPosition = ({
     {
       onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
       onUnderOffset: () => position !== 'relative' && setPosition('relative'),
-      offset:
-        sidebarRendered && alerts?.filter
-          ? SCROLL_OFFSET + ONBOARDING_OFFSET
-          : SCROLL_OFFSET,
+      offset: SCROLL_OFFSET + offset,
     },
   );
 

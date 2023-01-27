@@ -1,12 +1,14 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { ModalProps, modalSizeToClassName } from './common/Modal';
-import { PostContent } from '../post/PostContent';
+import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
 import { PostNavigationProps } from '../post/PostNavigation';
 import { Origin } from '../../lib/analytics';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
 import { ModalSize } from './common/types';
+import AlertContext from '../../contexts/AlertContext';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
 
 interface PostModalProps
   extends ModalProps,
@@ -27,10 +29,13 @@ export default function PostModal({
   onNextPost,
   ...props
 }: PostModalProps): ReactElement {
+  const { alerts } = useContext(AlertContext);
+  const { sidebarRendered } = useSidebarRendered();
   const { post, isLoading } = usePostById({ id, isFetchingNextPage });
   const position = usePostNavigationPosition({
     isLoading,
     isDisplayed: props.isOpen,
+    offset: sidebarRendered && alerts?.filter ? ONBOARDING_OFFSET : 0,
   });
 
   return (
