@@ -7,6 +7,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 
 interface SourceButtonProps {
   source: Source;
+  link?: string;
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;
@@ -15,13 +16,14 @@ interface SourceButtonProps {
 
 export default function SourceButton({
   source,
+  link,
   tooltipPosition = 'bottom',
   size = 'medium',
   ...props
 }: SourceButtonProps): ReactElement {
   return source ? (
     <LinkWithTooltip
-      href={getSourcePermalink(source.id)}
+      href={link || getSourcePermalink(source.id)}
       prefetch={false}
       tooltip={{ content: source.name, placement: tooltipPosition }}
     >
@@ -32,7 +34,7 @@ export default function SourceButton({
           id: source.id,
           name: source.name,
           image: source.image,
-          permalink: getSourcePermalink(source.id),
+          permalink: link || getSourcePermalink(source.id),
           username: source.handle,
         }}
       />
