@@ -12,6 +12,7 @@ import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   Post,
+  PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
@@ -24,6 +25,7 @@ import {
 } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -43,6 +45,11 @@ export interface Props {
   postData?: PostData;
 }
 
+const CONTENT_MAP: Record<PostType, typeof PostContent> = {
+  article: PostContent,
+  share: SquadPostContent,
+};
+
 interface PostParams extends ParsedUrlQuery {
   id: string;
 }
@@ -53,9 +60,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const router = useRouter();
   const { isFallback } = router;
 
-  if (!isFallback && !id) {
-    return <Custom404 />;
-  }
+  if (!isFallback && !id) return <Custom404 />;
 
   const { post, isLoading } = usePostById({
     id,
@@ -86,13 +91,17 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     });
   }, []);
 
+  const Content = CONTENT_MAP[post?.type];
+
+  if (!Content) return <Custom404 />;
+
   return (
     <>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
       <NextSeo {...seo} />
-      <PostContent
+      <Content
         position={position}
         post={post}
         isFallback={isFallback}
