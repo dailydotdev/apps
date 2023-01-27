@@ -13,15 +13,12 @@ import usePostById from '../../hooks/usePostById';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import { ModalSize } from './common/types';
 import FixedPostNavigation from '../post/FixedPostNavigation';
-import SourceButton from '../cards/SourceButton';
-import { Separator } from '../cards/common';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
-import { Source } from '../../graphql/sources';
-import { ProfileImageSize } from '../ProfilePicture';
 import { ReadArticleButton } from '../cards/ReadArticleButton';
 import ArrowIcon from '../icons/Arrow';
+import PostSourceInfo from '../post/PostSourceInfo';
 
 const SharePostModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
@@ -33,34 +30,6 @@ interface PostModalProps
   id: string;
   isFetchingNextPage?: boolean;
 }
-
-interface SourceInfoProps {
-  source: Source;
-  date?: string;
-  size?: ProfileImageSize;
-  typo?: string;
-}
-
-const SourceInfo = ({
-  date,
-  source,
-  size = 'medium',
-  typo = 'typo-callout',
-}: SourceInfoProps) => {
-  return (
-    <span
-      className={classNames(
-        'flex flex-row items-center text-theme-label-tertiary',
-        typo,
-      )}
-    >
-      <SourceButton source={source} size={size} />
-      <h3 className="ml-3">{source.handle}</h3>
-      <Separator />
-      <time dateTime={date}>{date}</time>
-    </span>
-  );
-};
 
 export default function PostModal({
   id,
@@ -137,7 +106,7 @@ export default function PostModal({
           onReadArticle={null}
           className={{ actions: 'ml-auto', container: 'mb-6' }}
         />
-        <SourceInfo
+        <PostSourceInfo
           date={postDateFormat(post.createdAt)}
           source={post.source}
         />
@@ -156,7 +125,7 @@ export default function PostModal({
               <h2 className="flex flex-wrap mb-4 font-bold line-clamp-2 typo-body">
                 {post.sharedPost.title}
               </h2>
-              <SourceInfo
+              <PostSourceInfo
                 date={`${post.sharedPost.readTime}m read time`}
                 source={post.source}
                 typo="typo-footnote"
