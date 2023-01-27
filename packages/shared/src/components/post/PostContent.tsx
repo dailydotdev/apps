@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { CSSProperties, ReactElement } from 'react';
+import React, { CSSProperties, ReactElement, ReactNode } from 'react';
 import { Post } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
@@ -33,6 +33,7 @@ export interface PostContentProps
   origin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   isLoading?: boolean;
+  customNavigation?: ReactNode;
   position?: CSSProperties['position'];
 }
 

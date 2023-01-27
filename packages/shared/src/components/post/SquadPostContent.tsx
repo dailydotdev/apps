@@ -28,6 +28,7 @@ function SquadPostContent({
   position,
   inlineActions,
   className,
+  customNavigation,
   onPreviousPost,
   onNextPost,
   onClose,
@@ -77,6 +78,7 @@ function SquadPostContent({
         )}
         hasNavigation={hasNavigation}
       >
+        {customNavigation}
         <BasePostContent
           className={{
             ...className,
@@ -87,7 +89,7 @@ function SquadPostContent({
           isFallback={isFallback}
           enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
-          navigationProps={null}
+          navigationProps={customNavigation ? null : navigationProps}
           engagementProps={engagementActions}
           origin={origin}
           post={post}
