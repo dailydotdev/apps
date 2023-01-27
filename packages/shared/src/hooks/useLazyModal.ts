@@ -4,7 +4,7 @@ import { LazyModalType, ModalsType } from '../components/modals/common';
 
 export const MODAL_KEY = 'modal';
 
-type UseLazyModal<K extends keyof ModalsType, T = LazyModalType<K>> = {
+type UseLazyModal<K extends keyof ModalsType, T extends LazyModalType<K>> = {
   openModal: (data: T) => void;
   closeModal: () => void;
   modal: T;
