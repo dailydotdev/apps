@@ -50,6 +50,7 @@ export default function PostModal({
         origin={Origin.ArticleModal}
         className={{
           container: 'post-content',
+          fixedNavigation: { container: 'w-[inherit]' },
           navigation: { actions: 'tablet:hidden ml-auto' },
         }}
       />

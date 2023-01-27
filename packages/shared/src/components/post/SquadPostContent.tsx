@@ -66,13 +66,7 @@ function SquadPostContent({
         <FixedPostNavigation
           {...navigationProps}
           onReadArticle={onReadArticle}
-          className={{
-            actions: className?.fixedNavigation?.container,
-            container: classNames(
-              containerClass,
-              className?.fixedNavigation?.container,
-            ),
-          }}
+          className={className?.fixedNavigation}
         />
       )}
       <PostContentContainer
