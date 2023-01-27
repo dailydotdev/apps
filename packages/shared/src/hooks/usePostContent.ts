@@ -1,8 +1,13 @@
-import { useMemo } from 'react';
-import { Origin } from '../lib/analytics';
+import { useEffect, useMemo } from 'react';
+import { useQueryClient } from 'react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useSharePost } from './useSharePost';
-import { Post } from '../graphql/posts';
+import {
+  Post,
+  PostData,
+  PostsEngaged,
+  POSTS_ENGAGED_SUBSCRIPTION,
+} from '../graphql/posts';
 import useUpdatePost from './useUpdatePost';
 import useBookmarkPost from './useBookmarkPost';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
@@ -10,17 +15,19 @@ import { AuthTriggers } from '../lib/auth';
 import { postAnalyticsEvent } from '../lib/feed';
 import { postEventName } from '../components/utilities';
 import useOnPostClick from './useOnPostClick';
+import useSubscription from './useSubscription';
+import { PostOrigin } from './analytics/useAnalyticsContextData';
 
-interface UsePostContent {
+export interface UsePostContent {
   sharePost: Post;
-  onShare: () => void;
+  onSharePost: () => void;
   onCloseShare: () => void;
   onReadArticle: () => Promise<void>;
   onToggleBookmark: () => Promise<void>;
 }
 
-interface UsePostContentProps {
-  origin: Origin;
+export interface UsePostContentProps {
+  origin: PostOrigin;
   post: Post;
 }
 
@@ -29,6 +36,8 @@ const usePostContent = ({
   post,
 }: UsePostContentProps): UsePostContent => {
   const id = post?.id;
+  const postQueryKey = ['post', id];
+  const queryClient = useQueryClient();
   const { user, showLogin } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
   const { updatePost } = useUpdatePost();
@@ -61,15 +70,44 @@ const usePostContent = ({
     bookmarkToast(targetBookmarkState);
   };
 
+  useSubscription(
+    () => ({
+      query: POSTS_ENGAGED_SUBSCRIPTION,
+      variables: {
+        ids: [id],
+      },
+    }),
+    {
+      next: (data: PostsEngaged) => {
+        if (data.postsEngaged.id === id) {
+          queryClient.setQueryData<PostData>(postQueryKey, (oldPost) => ({
+            post: {
+              ...oldPost.post,
+              ...data.postsEngaged,
+            },
+          }));
+        }
+      },
+    },
+  );
+
+  useEffect(() => {
+    if (!post) {
+      return;
+    }
+
+    trackEvent(postAnalyticsEvent(`${origin} view`, post));
+  }, [post]);
+
   return useMemo(
     () => ({
       sharePost,
       onReadArticle,
       onToggleBookmark: toggleBookmark,
-      onShare,
+      onSharePost: onShare,
       onCloseShare: closeSharePost,
     }),
-    [post, origin],
+    [post, user, origin, sharePost],
   );
 };
 

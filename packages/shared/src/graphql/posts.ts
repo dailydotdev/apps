@@ -143,6 +143,7 @@ export const POST_BY_ID_QUERY = gql`
         title
         image
         readTime
+        permalink
         source {
           ...SourceShortInfoFragment
         }
@@ -221,6 +222,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       type
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export interface UpvoteData {
@@ -313,6 +315,7 @@ export const AUTHOR_FEED_QUERY = gql`
       }
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const KEYWORD_FEED_QUERY = gql`

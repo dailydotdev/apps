@@ -30,7 +30,7 @@ const ShareNewCommentPopup = dynamic(
   { ssr: false },
 );
 
-const SharePostModal = dynamic(
+const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
 );
 
@@ -132,7 +132,7 @@ function PostEngagements({
         />
       )}
       {shareComment && (
-        <SharePostModal
+        <ShareModal
           isOpen={!!shareComment}
           post={post}
           comment={shareComment}

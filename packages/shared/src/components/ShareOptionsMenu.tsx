@@ -66,7 +66,7 @@ export default function ShareOptionsMenu({
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share article via...',
-      action: onShare,
+      action: () => onShare(post),
     },
     {
       icon: (

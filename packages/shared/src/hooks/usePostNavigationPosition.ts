@@ -6,7 +6,7 @@ import { useScrollTopOffset } from './useScrollTopOffset';
 
 interface UsePostNavigationPosition {
   isLoading: boolean;
-  isDisplayed: boolean;
+  isDisplayed?: boolean;
   offset?: number;
 }
 

@@ -17,7 +17,7 @@ import { AuthTriggers } from '../../lib/auth';
 import BookmarkIcon from '../icons/Bookmark';
 
 export interface ShareBookmarkProps {
-  onShare: () => void;
+  onShare: (post: Post) => void;
   onBookmark: () => void;
 }
 
@@ -112,7 +112,7 @@ export function PostActions({
       </QuaternaryButton>
       <QuaternaryButton
         id="share-post-btn"
-        onClick={onShare}
+        onClick={() => onShare(post)}
         icon={<ShareIcon />}
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-cabbage"

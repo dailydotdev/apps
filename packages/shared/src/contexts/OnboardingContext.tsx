@@ -17,9 +17,10 @@ import { useMyFeed } from '../hooks/useMyFeed';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AuthContext from './AuthContext';
 import AlertContext from './AlertContext';
-import { MainFeedPage } from '../components/utilities';
 import AnalyticsContext from './AnalyticsContext';
 import { isTesting } from '../lib/constants';
+import useSidebarRendered from '../hooks/useSidebarRendered';
+import { ExperimentWinner } from '../lib/featureValues';
 
 const OnboardingModal = dynamic(
   () =>
@@ -33,11 +34,11 @@ const LOGGED_USER_ONBOARDING = 'hasTriedOnboarding';
 export interface OnboardingContextData {
   myFeedMode: OnboardingMode;
   isOnboardingOpen: boolean;
+  showArticleOnboarding?: boolean;
   onCloseOnboardingModal: () => void;
   onShouldUpdateFilters: Dispatch<SetStateAction<boolean>>;
-  onInitializeOnboarding: (
-    onFeedPageChangedFn?: (page: MainFeedPage) => void,
-  ) => void;
+  onInitializeOnboarding: (onFinish?: () => void) => void;
+  onStartArticleOnboarding: () => void;
 }
 
 const OnboardingContext = React.createContext<OnboardingContextData>(null);
@@ -61,6 +62,23 @@ export const OnboardingContextProvider = ({
   const onFeedPageChanged = useRef(null);
   const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
     usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, !alerts.filter);
+
+  const onInitializeOnboarding = (onFinish: () => void) => {
+    if (onFinish) {
+      onFeedPageChanged.current = onFinish;
+    }
+    setIsOnboarding(true);
+  };
+  const { sidebarRendered } = useSidebarRendered();
+  const showArticleOnboarding = sidebarRendered && alerts?.filter;
+  const onStartArticleOnboarding = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickArticleAnonymousCTA,
+      target_id: ExperimentWinner.ArticleOnboarding,
+      extra: JSON.stringify({ origin }),
+    });
+    onInitializeOnboarding(null);
+  };
 
   useEffect(() => {
     if (!user || !shouldUpdateFilters || isRegisteringFilters) {
@@ -107,22 +125,19 @@ export const OnboardingContextProvider = ({
     setIsOnboarding(false);
 
     if (user && !alerts.filter && onFeedPageChanged.current) {
-      onFeedPageChanged.current(MainFeedPage.MyFeed);
+      onFeedPageChanged.current?.();
     }
   };
 
   const onboardingContextData = useMemo<OnboardingContextData>(
     () => ({
+      onStartArticleOnboarding,
       myFeedMode: onboardingMode,
       isOnboardingOpen: isOnboarding,
+      showArticleOnboarding,
       onCloseOnboardingModal,
       onShouldUpdateFilters: setShouldUpdateFilters,
-      onInitializeOnboarding: (onFeedPageChangedFn) => {
-        if (onFeedPageChangedFn) {
-          onFeedPageChanged.current = onFeedPageChangedFn;
-        }
-        setIsOnboarding(true);
-      },
+      onInitializeOnboarding,
     }),
     [isOnboarding, user, alerts, onboardingMode, shouldUpdateFilters],
   );

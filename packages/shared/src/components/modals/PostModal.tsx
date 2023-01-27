@@ -7,8 +7,7 @@ import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
 import { ModalSize } from './common/types';
-import AlertContext from '../../contexts/AlertContext';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
+import OnboardingContext from '../../contexts/OnboardingContext';
 
 interface PostModalProps
   extends ModalProps,
@@ -29,13 +28,12 @@ export default function PostModal({
   onNextPost,
   ...props
 }: PostModalProps): ReactElement {
-  const { alerts } = useContext(AlertContext);
-  const { sidebarRendered } = useSidebarRendered();
+  const { showArticleOnboarding } = useContext(OnboardingContext);
   const { post, isLoading } = usePostById({ id, isFetchingNextPage });
   const position = usePostNavigationPosition({
     isLoading,
     isDisplayed: props.isOpen,
-    offset: sidebarRendered && alerts?.filter ? ONBOARDING_OFFSET : 0,
+    offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
 
   return (
@@ -55,7 +53,7 @@ export default function PostModal({
         }}
         onClose={onRequestClose}
         isLoading={isLoading}
-        analyticsOrigin={Origin.ArticleModal}
+        origin={Origin.ArticleModal}
       />
     </BasePostModal>
   );

@@ -8,7 +8,7 @@ import { Comment, getCommentHash } from '../graphql/comments';
 
 export function useShareComment(origin: Origin): {
   shareComment: Comment;
-  openShareComment: (Comment, Post) => void;
+  openShareComment: (comment: Comment, post: Post) => void;
   closeShareComment: () => void;
 } {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -17,7 +17,7 @@ export function useShareComment(origin: Origin): {
   return useMemo(
     () => ({
       shareComment: shareModal,
-      openShareComment: async (comment: Comment, post: Post) => {
+      openShareComment: async (comment, post) => {
         if ('share' in navigator) {
           try {
             await navigator.share({

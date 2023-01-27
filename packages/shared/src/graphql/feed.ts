@@ -27,6 +27,7 @@ export const FEED_POST_FRAGMENT = gql`
       image
       readTime
       summary
+      permalink
       source {
         ...SourceShortInfoFragment
       }
