@@ -63,7 +63,10 @@ export function UserShortInfo<Tag extends AnyTag>({
       {child}
     </ProfileTooltip>
   );
-  const Tooltip = useCallback(() => TooltipComponent, [user, tooltipProps])();
+  const Tooltip = useCallback(
+    () => TooltipComponent,
+    [user, appendTooltipTo, disableTooltip],
+  )();
 
   const content = (
     <>
