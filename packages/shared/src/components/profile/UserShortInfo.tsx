@@ -30,7 +30,7 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   unclickable?: boolean;
 }
 
-interface ElemehtChildren {
+interface ElementChildren {
   children: ReactElement;
 }
 
@@ -54,7 +54,7 @@ export function UserShortInfo<Tag extends AnyTag>({
     appendTo: appendTooltipTo || document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
   };
-  const TooltipComponent = ({ children: child }: ElemehtChildren) => (
+  const TooltipComponent = ({ children: child }: ElementChildren) => (
     <ProfileTooltip
       user={user}
       tooltip={tooltipProps}
