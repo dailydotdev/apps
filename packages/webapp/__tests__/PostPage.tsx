@@ -18,6 +18,7 @@ import {
   PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
+  PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -40,6 +41,7 @@ import {
 import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -89,6 +91,7 @@ const createPostMock = (
         id: '0e4005b2d3cf191f8c44c2718a457a1e',
         __typename: 'PostPage',
         title: 'Learn SQL',
+        type: PostType.Article,
         permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
         image:
           'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
@@ -101,6 +104,7 @@ const createPostMock = (
           handle: 's',
           permalink: 'permalink/s',
           name: 'Towards Data Science',
+          type: SourceType.Machine,
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
         },
