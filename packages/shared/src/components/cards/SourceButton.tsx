@@ -21,7 +21,7 @@ export default function SourceButton({
 }: SourceButtonProps): ReactElement {
   return source ? (
     <LinkWithTooltip
-      href={getSourcePermalink(source.handle)}
+      href={getSourcePermalink(source.handle, source.type)}
       prefetch={false}
       tooltip={{ content: source.name, placement: tooltipPosition }}
     >
@@ -32,7 +32,7 @@ export default function SourceButton({
           id: source.id,
           name: source.name,
           image: source.image,
-          permalink: getSourcePermalink(source.handle),
+          permalink: getSourcePermalink(source.handle, source.type),
           username: source.handle,
         }}
       />

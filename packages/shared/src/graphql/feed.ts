@@ -19,10 +19,7 @@ export const FEED_POST_FRAGMENT = gql`
     image
     readTime
     source {
-      id
-      name
-      image
-      handle
+      ...SourceShortInfoFragment
     }
     sharedPost {
       id

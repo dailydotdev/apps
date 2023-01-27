@@ -5,6 +5,7 @@ import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
 import {
   Source,
+  SourceType,
   SourceData,
   SOURCE_BASE_FRAGMENT,
   SOURCE_QUERY,
@@ -16,7 +17,7 @@ export interface Squad extends Source {
   active: boolean;
   permalink: string;
   public: boolean;
-  type: 'squad';
+  type: SourceType.Squad;
   description?: string;
   membersCount: number;
   members?: Connection<SquadMember>;
