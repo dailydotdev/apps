@@ -15,6 +15,7 @@ import ArrowIcon from '../icons/Arrow';
 import PostSourceInfo from './PostSourceInfo';
 import { PostContentProps } from './PostContent';
 import { BasePostContent } from './BasePostContent';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
 
 function SquadPostContent({
   post,
@@ -34,6 +35,7 @@ function SquadPostContent({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const [height, setHeight] = useState<number>(null);
+  const { sidebarRendered } = useSidebarRendered();
   const [shoudShowSummary, setShouldShowSummary] = useState(true);
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onSharePost, onToggleBookmark } = engagementActions;
@@ -54,6 +56,9 @@ function SquadPostContent({
     return shoudShowSummary ? height : 0;
   };
 
+  const containerClass =
+    sidebarRendered && modalSizeToClassName[ModalSize.Large];
+
   return (
     <>
       {position === 'fixed' && (
@@ -61,13 +66,17 @@ function SquadPostContent({
           {...navigationProps}
           onReadArticle={onReadArticle}
           className={{
-            container: modalSizeToClassName[ModalSize.Large],
+            container: containerClass,
           }}
         />
       )}
 
       <PostContentContainer
-        className="relative py-4 px-6 post-content"
+        className={classNames(
+          'relative py-4 px-6 post-content',
+          containerClass,
+          className?.container,
+        )}
         hasNavigation={hasNavigation}
       >
         <BasePostContent
@@ -96,9 +105,9 @@ function SquadPostContent({
           />
           <p className="mt-6 typo-title3">{post.title}</p>
           <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary">
-            <span className="flex flex-row p-4 max-w-full">
+            <span className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
               <div className="flex flex-col flex-1">
-                <h2 className="flex flex-wrap mb-4 font-bold line-clamp-2 typo-body">
+                <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold line-clamp-2 typo-body">
                   {post.sharedPost.title}
                 </h2>
                 <PostSourceInfo

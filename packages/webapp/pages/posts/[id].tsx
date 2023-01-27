@@ -111,7 +111,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         origin={Origin.ArticlePage}
         className={{
           onboarding: 'mb-8',
-          container: 'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop',
+          container:
+            'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r',
           fixedNavigation: { container: 'flex laptop:hidden' },
           navigation: {
             container: 'tablet:hidden',
@@ -137,15 +138,15 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    const postData = await request<PostData>(
-      `${apiUrl}/graphql`,
-      POST_BY_ID_STATIC_FIELDS_QUERY,
-      { id },
-    );
+    // const postData = await request<PostData>(
+    //   `${apiUrl}/graphql`,
+    //   POST_BY_ID_STATIC_FIELDS_QUERY,
+    //   { id },
+    // );
     return {
       props: {
         id,
-        postData,
+        // postData,
       },
       revalidate: 60,
     };
