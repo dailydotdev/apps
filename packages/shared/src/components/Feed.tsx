@@ -129,7 +129,7 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   return {};
 };
 
-const PostModalMap = {
+const PostModalMap: Record<PostType, typeof PostModal> = {
   [PostType.Article]: PostModal,
   [PostType.Share]: SquadPostModal,
 };
