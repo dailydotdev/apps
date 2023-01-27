@@ -115,10 +115,7 @@ export default function PostModal({
           imageSize="xxlarge"
           user={post.author}
         />
-        <p className="mt-6 typo-title3">
-          They breezed through simple tasks. I threw more complex tasks at them
-          — tasks for those who had a year of experience. What did I get?
-        </p>
+        <p className="mt-6 typo-title3">{post.title}</p>
         <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary">
           <span className="flex flex-row p-4 max-w-full">
             <div className="flex flex-col flex-1">
@@ -150,7 +147,7 @@ export default function PostModal({
               />
             </a>
           </span>
-          {post.summary && (
+          {post.sharedPost.summary && (
             <PostSummary
               ref={(el) => {
                 if (!el?.offsetHeight || height !== null) return;
@@ -159,7 +156,7 @@ export default function PostModal({
               }}
               style={{ height: getHeight() }}
               className="m-4 mt-0 transition-all duration-150 ease-in-out"
-              summary="The awesome-pages plugin allows you to customize how your pages show up the navigation of your MkDocs. It gives you detailed control using a small configuration file directly placed in the relevant directory of your documentation. This package requires Python >=3.5 and Mk Docs version 1.0 or higher."
+              summary={post.sharedPost.summary}
             />
           )}
           <button
