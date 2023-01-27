@@ -42,7 +42,7 @@ export default function PostModal({
 }: PostModalProps): ReactElement {
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const [height, setHeight] = useState<number>(null);
-  const [shoudShowSumamry, setShouldShowSummary] = useState(true);
+  const [shoudShowSummary, setShouldShowSummary] = useState(true);
   const { post, isLoading } = usePostById({ id, isFetchingNextPage });
   const position = usePostNavigationPosition({
     isLoading,
@@ -80,7 +80,7 @@ export default function PostModal({
   const getHeight = () => {
     if (height === null) return 'auto';
 
-    return shoudShowSumamry ? height : 0;
+    return shoudShowSummary ? height : 0;
   };
 
   return (
@@ -162,11 +162,11 @@ export default function PostModal({
           <button
             type="button"
             className="flex flex-row justify-center py-2 w-full font-bold hover:underline border-t border-theme-divider-tertiary typo-callout"
-            onClick={() => setShouldShowSummary(!shoudShowSumamry)}
+            onClick={() => setShouldShowSummary(!shoudShowSummary)}
           >
-            {shoudShowSumamry ? 'Hide' : 'Show'} TLDR{' '}
+            {shoudShowSummary ? 'Hide' : 'Show'} TLDR{' '}
             <ArrowIcon
-              className={classNames('ml-2', !shoudShowSumamry && 'rotate-180')}
+              className={classNames('ml-2', !shoudShowSummary && 'rotate-180')}
             />
           </button>
         </div>
