@@ -14,12 +14,6 @@ import { PostActions, ShareBookmarkProps } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 
-const UpvotedPopupModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "upvotedPopupModal" */ '../modals/UpvotedPopupModal'
-    ),
-);
 const NewCommentModal = dynamic(
   () =>
     import(
@@ -58,12 +52,7 @@ function PostEngagements({
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
-  const {
-    requestQuery: upvotedPopup,
-    resetUpvoteQuery,
-    onShowUpvotedPost,
-    onShowUpvotedComment,
-  } = useUpvoteQuery();
+  const { onShowUpvoted } = useUpvoteQuery();
   const {
     closeNewComment,
     openNewComment,
@@ -95,7 +84,7 @@ function PostEngagements({
     <>
       <PostUpvotesCommentsCount
         post={post}
-        onUpvotesClick={(upvotes) => onShowUpvotedPost(post.id, upvotes)}
+        onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
       />
       <PostActions
         onBookmark={onBookmark}
@@ -117,20 +106,12 @@ function PostEngagements({
         origin={analyticsOrigin}
         onClick={onCommentClick}
         onShare={(comment) => openShareComment(comment, post)}
-        onClickUpvote={onShowUpvotedComment}
+        onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
         permissionNotificationCommentId={permissionNotificationCommentId}
       />
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
-        />
-      )}
-      {upvotedPopup.modal && (
-        <UpvotedPopupModal
-          requestQuery={upvotedPopup.requestQuery}
-          placeholderAmount={upvotedPopup.upvotes}
-          isOpen={upvotedPopup.modal}
-          onRequestClose={resetUpvoteQuery}
         />
       )}
       {parentComment && (

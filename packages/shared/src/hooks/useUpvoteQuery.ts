@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { QueryKey } from 'react-query';
+import { LazyModal } from '../components/modals/common/types';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../graphql/comments';
 import { POST_UPVOTES_BY_ID_QUERY } from '../graphql/posts';
+import { useLazyModal } from './useLazyModal';
 
 export interface RequestQueryProps {
   queryKey: QueryKey;
@@ -12,61 +14,43 @@ export interface RequestQueryProps {
   };
 }
 
-export type UpvotedPopupInitialStateProps = {
-  upvotes: number;
-  modal: boolean;
-  requestQuery?: RequestQueryProps;
-};
+type UpvoteType = 'post' | 'comment';
 
 interface UseUpvoteQuery {
-  requestQuery: UpvotedPopupInitialStateProps;
-  onShowUpvotedPost: (postId: string, upvotes: number) => unknown;
-  onShowUpvotedComment: (commentId: string, upvotes: number) => unknown;
-  resetUpvoteQuery: () => void;
+  onShowUpvoted: (id: string, upvotes: number, type?: UpvoteType) => unknown;
 }
-
-export const getUpvotedPopupInitialState =
-  (): UpvotedPopupInitialStateProps => ({
-    upvotes: 0,
-    modal: false,
-    requestQuery: null,
-  });
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
 
+const KEY_MAP = {
+  post: 'postUpvotes',
+  comment: 'commentUpvotes',
+};
+
+const QUERY_MAP = {
+  post: POST_UPVOTES_BY_ID_QUERY,
+  comment: COMMENT_UPVOTES_BY_ID_QUERY,
+};
+
 export const useUpvoteQuery = (): UseUpvoteQuery => {
-  const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
-  const onShowUpvotedPost = (postId: string, upvotes: number) => {
-    setUpvotedPopup({
-      modal: true,
-      upvotes,
-      requestQuery: {
-        queryKey: ['postUpvotes', postId],
-        query: POST_UPVOTES_BY_ID_QUERY,
-        params: { id: postId, first: DEFAULT_UPVOTES_PER_PAGE },
+  const { openModal } = useLazyModal();
+  const onShowUpvoted = (
+    id: string,
+    upvotes: number,
+    type: UpvoteType = 'post',
+  ) => {
+    openModal({
+      type: LazyModal.UpvotedPopup,
+      props: {
+        placeholderAmount: upvotes,
+        requestQuery: {
+          queryKey: [KEY_MAP[type], id],
+          query: QUERY_MAP[type],
+          params: { id, first: DEFAULT_UPVOTES_PER_PAGE },
+        },
       },
     });
   };
 
-  const onShowUpvotedComment = (commentId: string, upvotes: number) => {
-    setUpvotedPopup({
-      modal: true,
-      upvotes,
-      requestQuery: {
-        queryKey: ['commentUpvotes', commentId],
-        query: COMMENT_UPVOTES_BY_ID_QUERY,
-        params: { id: commentId, first: DEFAULT_UPVOTES_PER_PAGE },
-      },
-    });
-  };
-
-  return useMemo(
-    () => ({
-      requestQuery: upvotedPopup,
-      onShowUpvotedPost,
-      onShowUpvotedComment,
-      resetUpvoteQuery: () => setUpvotedPopup(getUpvotedPopupInitialState()),
-    }),
-    [upvotedPopup, onShowUpvotedPost, onShowUpvotedComment],
-  );
+  return useMemo(() => ({ onShowUpvoted }), []);
 };
