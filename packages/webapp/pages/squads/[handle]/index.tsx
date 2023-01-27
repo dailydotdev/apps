@@ -74,7 +74,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
   );
 
-  const content = (
+  return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       <FeedPage className="laptop:pr-0 laptop:pl-0 mb-4 squad-background-fade">
         <SquadPageHeader
@@ -97,9 +97,10 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
       </FeedPage>
     </ProtectedPage>
   );
-
-  return <>{getLayout(content, { squadId }, mainFeedLayoutProps)}</>;
 };
+
+SquadPage.getLayout = getLayout;
+SquadPage.layoutProps = mainFeedLayoutProps;
 
 export default SquadPage;
 
