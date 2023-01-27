@@ -80,8 +80,12 @@ export const COMMENT_WITH_CHILDREN_FRAGMENT = gql`
 `;
 
 export const RECOMMEND_MENTIONS_QUERY = gql`
-  query RecommendedMentions($postId: String!, $query: String) {
-    recommendedMentions(postId: $postId, query: $query) {
+  query RecommendedMentions(
+    $postId: String!
+    $query: String
+    $sourceId: String
+  ) {
+    recommendedMentions(postId: $postId, query: $query, sourceId: $sourceId) {
       username
       name
       image
@@ -214,8 +218,8 @@ export const EDIT_COMMENT_MUTATION = gql`
 `;
 
 export const PREVIEW_COMMENT_MUTATION = gql`
-  query CommentPreview($content: String!) {
-    preview: commentPreview(content: $content)
+  query CommentPreview($content: String!, $sourceId: String) {
+    preview: commentPreview(content: $content, sourceId: $sourceId)
   }
 `;
 

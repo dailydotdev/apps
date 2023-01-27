@@ -47,11 +47,18 @@ const getEndIndex = (value: string, start: number) => {
   return end === -1 ? undefined : end;
 };
 
+const getRowvalue = (row: number, value: string) => {
+  const content = value ?? '';
+  const split = content.split('\n');
+
+  return split[row - 1] ?? split[row] ?? '';
+};
+
 export function getWord(
   textarea: HTMLTextAreaElement,
   [col, row]: CaretPosition,
 ): string {
-  const line = textarea.value.split('\n')[row - 1];
+  const line = getRowvalue(row, textarea.value);
   const end = getEndIndex(line, col);
 
   return line.substring(col, end);
@@ -98,7 +105,7 @@ export function hasSpaceBeforeWord(
   [col, row]: CaretPosition,
 ): [boolean, string, number] {
   let position = 0;
-  const line = textarea.value.split('\n')[row - 1];
+  const line = getRowvalue(row, textarea.value);
   const query = line.split(' ').find((word, index) => {
     const offset = index > 0 ? 1 : 0;
     position += word.length + offset;
