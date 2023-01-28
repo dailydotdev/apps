@@ -29,7 +29,6 @@
     padding-bottom: 4rem;
 
     @screen tablet {
-      min-height: calc(100vh - 6rem);
       padding-bottom: 0;
     }
 
