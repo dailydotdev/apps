@@ -7,7 +7,6 @@ import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { ModalSize } from '../modals/common/types';
 import FixedPostNavigation from './FixedPostNavigation';
-import { UserShortInfo } from '../profile/UserShortInfo';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
 import { ReadArticleButton } from '../cards/ReadArticleButton';
@@ -18,6 +17,8 @@ import { BasePostContent } from './BasePostContent';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { cloudinary } from '../../lib/image';
 import SettingsContext from '../../contexts/SettingsContext';
+import { ProfilePicture } from '../ProfilePicture';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 function SquadPostContent({
   post,
@@ -100,11 +101,26 @@ function SquadPostContent({
             date={postDateFormat(post.createdAt)}
             source={post.source}
           />
-          <UserShortInfo
-            className="items-center pt-3"
-            imageSize="xxlarge"
-            user={post.author}
-          />
+          <span className="flex flex-row items-center mt-3">
+            <ProfileTooltip user={post.author}>
+              <ProfilePicture
+                user={post.author}
+                size="xxlarge"
+                nativeLazyLoading
+              />
+            </ProfileTooltip>
+            <ProfileTooltip
+              user={post.author}
+              link={{ href: post.author.permalink }}
+            >
+              <a className="flex flex-col ml-4">
+                <span className="font-bold">{post.author.name}</span>
+                <span className="text-theme-label-tertiary">
+                  @{post.author.username}
+                </span>
+              </a>
+            </ProfileTooltip>
+          </span>
           <p className="mt-6 typo-title3">{post.title}</p>
           <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary">
             <span className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
