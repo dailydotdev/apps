@@ -131,7 +131,7 @@ function SquadPostContent({
           <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary">
             <span className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
               <div className="flex flex-col flex-1">
-                <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold line-clamp-2 typo-body">
+                <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body">
                   {post.sharedPost.title}
                 </h2>
                 <PostSourceInfo
