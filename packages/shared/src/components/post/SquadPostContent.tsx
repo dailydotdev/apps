@@ -173,7 +173,10 @@ function SquadPostContent({
                     setHeight(el.offsetHeight);
                   }}
                   style={{ height: tldrHeight }}
-                  className="m-4 mt-0 transition-all duration-150 ease-in-out"
+                  className={classNames(
+                    'mx-4 transition-all duration-300 ease-in-out',
+                    shoudShowSummary && 'mb-4',
+                  )}
                   summary={post.sharedPost.summary}
                 />
                 <button
@@ -184,7 +187,7 @@ function SquadPostContent({
                   {shoudShowSummary ? 'Hide' : 'Show'} TLDR{' '}
                   <ArrowIcon
                     className={classNames(
-                      'ml-2',
+                      'ml-2 transition-transform ease-in-out duration-300',
                       !shoudShowSummary && 'rotate-180',
                     )}
                   />
