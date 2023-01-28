@@ -28,7 +28,10 @@ export type Squads = {
   squads: Squad[];
 };
 
-export type SquadForm = Pick<Squad, 'name' | 'handle' | 'description'> & {
+export type SquadForm = Pick<
+  Squad,
+  'name' | 'handle' | 'description' | 'image'
+> & {
   file?: string;
   commentary: string;
   post: PostItem;
@@ -117,6 +120,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       public
       type
       description
+      image
       members {
         edges {
           node {
@@ -150,6 +154,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       public
       type
       description
+      image
     }
   }
 `;
