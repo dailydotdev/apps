@@ -191,8 +191,12 @@ export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
 `;
 
 export const SQUAD_MEMBERS_QUERY = gql`
-  query Source($id: ID!) {
-    sourceMembers(first: 5, sourceId: $id) {
+  query Source($id: ID!, $after: String, $first: Int) {
+    sourceMembers(sourceId: $id, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
       edges {
         node {
           role
@@ -271,7 +275,7 @@ export async function getSquadMembers(id: string): Promise<SquadMember[]> {
   const res = await request<SquadEdgesData>(
     `${apiUrl}/graphql`,
     SQUAD_MEMBERS_QUERY,
-    { id },
+    { id, first: 5 },
   );
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
