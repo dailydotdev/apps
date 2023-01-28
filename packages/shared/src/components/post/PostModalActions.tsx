@@ -100,7 +100,7 @@ export function PostModalActions({
           <Button
             className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
             tag="a"
-            href={post.permalink}
+            href={post.sharedPost.permalink}
             target={openNewTab ? '_blank' : '_self'}
             icon={<OpenLinkIcon />}
             onClick={onReadArticle}
