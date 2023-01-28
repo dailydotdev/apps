@@ -1,12 +1,11 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useCallback } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Author } from '../../graphql/comments';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import { getTextEllipsis } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
 
-// reference: https://stackoverflow.com/a/54049872/5532217
 type AnyTag =
   | string
   | React.FunctionComponent<never>
@@ -27,11 +26,6 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   scrollingContainer?: HTMLElement;
   appendTooltipTo?: HTMLElement;
   children?: ReactNode;
-  unclickable?: boolean;
-}
-
-interface ElementChildren {
-  children: ReactElement;
 }
 
 const TextEllipsis = getTextEllipsis();
@@ -45,7 +39,6 @@ export function UserShortInfo<Tag extends AnyTag>({
   scrollingContainer,
   appendTooltipTo,
   children,
-  unclickable,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
@@ -54,44 +47,29 @@ export function UserShortInfo<Tag extends AnyTag>({
     appendTo: appendTooltipTo || document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
   };
-  const TooltipComponent = ({ children: child }: ElementChildren) => (
-    <ProfileTooltip
-      user={user}
-      tooltip={tooltipProps}
-      scrollingContainer={scrollingContainer}
-    >
-      {child}
-    </ProfileTooltip>
-  );
-  const Tooltip = useCallback(
-    () => TooltipComponent,
-    [user, appendTooltipTo, disableTooltip],
-  )();
 
-  const content = (
-    <>
-      <Tooltip>
+  return (
+    <Element {...props} className={classNames('flex flex-row', className)}>
+      <ProfileTooltip
+        user={user}
+        tooltip={tooltipProps}
+        scrollingContainer={scrollingContainer}
+      >
         <ProfilePicture user={user} size={imageSize} nativeLazyLoading />
-      </Tooltip>
-      <Tooltip>
-        <div className="flex overflow-hidden flex-col flex-1 ml-4 typo-callout w-fit">
+      </ProfileTooltip>
+      <ProfileTooltip
+        user={user}
+        tooltip={tooltipProps}
+        scrollingContainer={scrollingContainer}
+      >
+        <div className="flex overflow-hidden flex-col flex-1 ml-4 typo-callout">
           <TextEllipsis className="font-bold">{name}</TextEllipsis>
           <TextEllipsis className="text-theme-label-secondary">
             @{username}
           </TextEllipsis>
           {bio && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
         </div>
-      </Tooltip>
-    </>
-  );
-
-  const containerClasses = classNames('flex flex-row', className);
-
-  if (unclickable) return <span className={containerClasses}>{content}</span>;
-
-  return (
-    <Element {...props} className={containerClasses}>
-      {content}
+      </ProfileTooltip>
       {children}
     </Element>
   );
