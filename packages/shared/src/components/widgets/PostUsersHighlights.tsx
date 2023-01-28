@@ -22,6 +22,7 @@ const StyledImage = classed(LazyImage, 'w-10 h-10');
 
 interface SourceAuthorProps {
   id?: string;
+  handle?: string;
   image: string;
   name: string;
   username?: string;
@@ -74,7 +75,7 @@ const Image = (props: SourceAuthorProps) => {
 };
 
 const UserHighlight = (props: SourceAuthorProps) => {
-  const { id, name, username, userType = 'source' } = props;
+  const { id, handle, name, username, userType = 'source' } = props;
   const Icon = getUserIcon(userType);
   const LinkWrapper = userType === 'source' ? React.Fragment : ProfileTooltip;
 
@@ -101,12 +102,12 @@ const UserHighlight = (props: SourceAuthorProps) => {
           <ProfileLink className="font-bold typo-callout" user={props}>
             {name}
           </ProfileLink>
-          {(username || id) && (
+          {(handle || username || id) && (
             <ProfileLink
               className="mt-0.5 typo-footnote text-theme-label-tertiary"
               user={props}
             >
-              @{username || id}
+              @{handle || username || id}
             </ProfileLink>
           )}
         </div>
