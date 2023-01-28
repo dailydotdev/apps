@@ -93,7 +93,7 @@ export function PostContent({
         hasNavigation={hasNavigation}
         className={containerClass}
       >
-        <PostLoadingPlaceholder />
+        <PostLoadingPlaceholder className="tablet:border-r tablet:border-theme-divider-tertiary" />
       </PostContentContainer>
     );
   }

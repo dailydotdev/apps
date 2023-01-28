@@ -19,6 +19,7 @@ import { cloudinary } from '../../lib/image';
 import SettingsContext from '../../contexts/SettingsContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 
 function SquadPostContent({
   post,
@@ -35,7 +36,12 @@ function SquadPostContent({
   onNextPost,
   onClose,
 }: PostContentProps): ReactElement {
-  if (isLoading) return <></>;
+  if (isLoading)
+    return (
+      <PostContentContainer hasNavigation>
+        <PostLoadingPlaceholder shouldShowWidgets={false} />
+      </PostContentContainer>
+    );
 
   const { openNewTab } = useContext(SettingsContext);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
