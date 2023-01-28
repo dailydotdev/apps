@@ -42,6 +42,10 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
+import SettingsContext, {
+  SettingsContextProvider,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -165,17 +169,19 @@ const renderPost = (
             getRedirectUri: jest.fn(),
           }}
         >
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-            }}
-          >
-            <PostPage {...defaultProps} {...props} />
-          </OnboardingContext.Provider>
+          <SettingsContext.Provider value={createTestSettings()}>
+            <OnboardingContext.Provider
+              value={{
+                myFeedMode: OnboardingMode.Manual,
+                isOnboardingOpen: false,
+                onCloseOnboardingModal: jest.fn(),
+                onInitializeOnboarding: jest.fn(),
+                onShouldUpdateFilters: jest.fn(),
+              }}
+            >
+              <PostPage {...defaultProps} {...props} />
+            </OnboardingContext.Provider>
+          </SettingsContext.Provider>
         </AuthContext.Provider>
       </FeaturesContextProvider>
     </QueryClientProvider>,
