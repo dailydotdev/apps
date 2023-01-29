@@ -1,4 +1,5 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadComment } from '../squads/Comment';
@@ -8,6 +9,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
+import AuthContext from '../../contexts/AuthContext';
 
 export type PostToSquadModalProps = {
   squad: Squad;
@@ -28,6 +30,8 @@ function PostToSquadModal({
   post,
   squad,
 }: PostToSquadModalProps): ReactElement {
+  const client = useQueryClient();
+  const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const [form, setForm] = useState<Partial<SquadForm>>({
     post: { post },
@@ -49,6 +53,7 @@ function PostToSquadModal({
     });
     if (squadPost) {
       displayToast('This post has been shared to your squad');
+      await client.invalidateQueries(['sourceFeed', user.id]);
       onRequestClose(e);
     }
   };
