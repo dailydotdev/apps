@@ -1,6 +1,7 @@
 import React, {
   CSSProperties,
   ReactElement,
+  useCallback,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
@@ -29,6 +30,8 @@ import {
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
+import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
+import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -71,21 +74,19 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     false,
   );
 
-  if (!isFallback && !id) return <Custom404 />;
-
   const { post, isLoading } = usePostById({
     id,
     options: { initialData },
   });
 
   const seo: NextSeoProps = {
-    title: getTemplatedTitle(post?.post.title),
-    description: getSeoDescription(post?.post),
+    title: getTemplatedTitle(post?.title),
+    description: getSeoDescription(post),
     openGraph: {
-      images: [{ url: post?.post.image }],
+      images: [{ url: post?.image }],
       article: {
-        publishedTime: post?.post.createdAt,
-        tags: post?.post.tags,
+        publishedTime: post?.createdAt,
+        tags: post?.tags,
       },
     },
   };
@@ -96,7 +97,13 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
+  if ((isFallback && !initialData) || (!initialData && isLoading)) {
+    return <></>;
+  }
+
   const Content = CONTENT_MAP[post?.type];
+
+  if (!isFallback && !id) return <Custom404 />;
 
   if (!Content) return <Custom404 />;
 
@@ -154,7 +161,11 @@ export async function getStaticProps({
     };
   } catch (err) {
     const clientError = err as ClientError;
-    if (clientError?.response?.errors?.[0]?.extensions?.code === 'NOT_FOUND') {
+    if (
+      ['FORBIDDEN', 'NOT_FOUND'].includes(
+        clientError?.response?.errors?.[0]?.extensions?.code,
+      )
+    ) {
       return {
         props: { id },
         revalidate: 60,
