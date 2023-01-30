@@ -121,6 +121,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       type
       description
       image
+      id
       members {
         edges {
           node {
