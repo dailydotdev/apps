@@ -58,11 +58,12 @@ export function PostContent({
   onClose,
   isLoading,
   isFallback,
+  customNavigation,
 }: PostContentProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
     origin,
-    post,
+    post: post.sharedPost,
   });
   const {
     onSharePost: onShare,
