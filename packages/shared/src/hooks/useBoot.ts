@@ -2,7 +2,6 @@ import { useQueryClient } from 'react-query';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { Squad } from '../graphql/squads';
 import { Boot } from '../lib/boot';
-import sortBy from 'lodash.sortby';
 
 type UseBoot = {
   addSquad: (squad: Squad) => void;
@@ -10,12 +9,17 @@ type UseBoot = {
   updateSquad: (squad: Squad) => void;
 };
 
+const sortByName = (squads: Squad[]): Squad[] =>
+  [...squads].sort((a, b) =>
+    a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1,
+  );
+
 export const useBoot = (): UseBoot => {
   const client = useQueryClient();
   const getBootData = () => client.getQueryData<Boot>(BOOT_QUERY_KEY);
   const addSquad = (squad: Squad) => {
     const bootData = getBootData();
-    const squads = sortBy([...(bootData.squads || []), squad], 'name');
+    const squads = sortByName([...(bootData.squads || []), squad]);
     client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
   };
   const deleteSquad = (squadId: string) => {
@@ -28,7 +32,10 @@ export const useBoot = (): UseBoot => {
     const squads = bootData.squads?.map((bootSquad) =>
       squad.id !== bootSquad.id ? bootSquad : squad,
     );
-    client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads: sortBy(squads ?? [], 'name') });
+    client.setQueryData<Boot>(BOOT_QUERY_KEY, {
+      ...bootData,
+      squads: sortByName(squads ?? []),
+    });
   };
   return {
     addSquad,
