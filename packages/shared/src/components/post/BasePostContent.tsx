@@ -43,6 +43,7 @@ export interface BasePostContentProps extends UsePostContentProps {
   shouldOnboardAuthor?: boolean;
   enableShowShareNewComment?: boolean;
   loadingPlaceholder?: ReactNode;
+  customNavigation?: ReactNode;
 }
 
 export const SCROLL_OFFSET = 80;
@@ -59,6 +60,7 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   enableShowShareNewComment,
+  customNavigation,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
 
@@ -94,7 +96,7 @@ export function BasePostContent({
           onInitializeOnboarding={onStartArticleOnboarding}
         />
       )}
-      {navigationProps && (
+      {customNavigation ?? (
         <PostNavigation {...navigationProps} className={className.navigation} />
       )}
       {children}

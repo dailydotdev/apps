@@ -106,7 +106,7 @@ export const usePostModalNavigation = (
         let index = openedPostIndex - 1;
         for (; index > 0 && items[index].type !== 'post'; index -= 1);
         const item = items[index];
-        if (item.type !== 'post') {
+        if (!item || item.type !== 'post') {
           return;
         }
 

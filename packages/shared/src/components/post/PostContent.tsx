@@ -58,6 +58,7 @@ export function PostContent({
   onClose,
   isLoading,
   isFallback,
+  customNavigation,
 }: PostContentProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -123,6 +124,7 @@ export function PostContent({
           }}
           isLoading={isLoading}
           isFallback={isFallback}
+          customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
