@@ -18,6 +18,7 @@ type PostActions = Pick<
 export interface PostNavigationClassName {
   container?: string;
   actions?: string;
+  title?: string;
 }
 
 export interface PostNavigationProps extends PostActions {
@@ -27,7 +28,7 @@ export interface PostNavigationProps extends PostActions {
   children?: ReactNode;
 }
 
-export function PostNavigation({
+function PostNavigation({
   onPreviousPost,
   onNextPost,
   className = {},
@@ -70,3 +71,5 @@ export function PostNavigation({
     </div>
   );
 }
+
+export default PostNavigation;

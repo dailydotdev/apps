@@ -927,8 +927,10 @@ const createPostMock = (
         tags: ['development', 'data-science', 'sql'],
         source: {
           __typename: 'Source',
+          id: 's',
           name: 'Towards Data Science',
-          handle: '',
+          handle: 's',
+          permalink: 's',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
         },

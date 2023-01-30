@@ -1,20 +1,22 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { LazyModalType } from '../components/modals/common';
+import { LazyModalType, ModalsType } from '../components/modals/common';
 
 export const MODAL_KEY = 'modal';
 
-type UseLazyModal = {
-  openModal: (data: LazyModalType) => void;
+type UseLazyModal<K extends keyof ModalsType, T extends LazyModalType<K>> = {
+  openModal: (data: T) => void;
   closeModal: () => void;
-  modal: LazyModalType;
+  modal: T;
 };
 
-export function useLazyModal(): UseLazyModal {
+export function useLazyModal<
+  K extends keyof ModalsType,
+  T extends LazyModalType<K> = LazyModalType<K>,
+>(): UseLazyModal<K, T> {
   const client = useQueryClient();
-  const { data: modal } = useQuery<LazyModalType>(MODAL_KEY);
-  const openModal = (data: LazyModalType) =>
-    client.setQueryData(MODAL_KEY, data);
+  const { data: modal } = useQuery<T>(MODAL_KEY);
+  const openModal = (data: T) => client.setQueryData(MODAL_KEY, data);
   const closeModal = () => client.setQueryData(MODAL_KEY, null);
 
   return useMemo(
