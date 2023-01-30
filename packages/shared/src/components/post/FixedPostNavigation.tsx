@@ -31,7 +31,7 @@ function FixedPostNavigation({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
-      <div className="overflow-hidden flex-col flex-1 ml-2">
+      <div className="hidden tablet:flex overflow-hidden flex-col flex-1 ml-2">
         <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
           {content.subtitle}
         </span>
