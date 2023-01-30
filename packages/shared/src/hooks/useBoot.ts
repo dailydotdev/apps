@@ -9,12 +9,17 @@ type UseBoot = {
   updateSquad: (squad: Squad) => void;
 };
 
+const sortByName = (squads: Squad[]): Squad[] =>
+  [...squads].sort((a, b) =>
+    a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1,
+  );
+
 export const useBoot = (): UseBoot => {
   const client = useQueryClient();
   const getBootData = () => client.getQueryData<Boot>(BOOT_QUERY_KEY);
   const addSquad = (squad: Squad) => {
     const bootData = getBootData();
-    const squads = [...(bootData.squads || []), squad];
+    const squads = sortByName([...(bootData.squads || []), squad]);
     client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
   };
   const deleteSquad = (squadId: string) => {
@@ -27,7 +32,10 @@ export const useBoot = (): UseBoot => {
     const squads = bootData.squads?.map((bootSquad) =>
       squad.id !== bootSquad.id ? bootSquad : squad,
     );
-    client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
+    client.setQueryData<Boot>(BOOT_QUERY_KEY, {
+      ...bootData,
+      squads: sortByName(squads ?? []),
+    });
   };
   return {
     addSquad,
