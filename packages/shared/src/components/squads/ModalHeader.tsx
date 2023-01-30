@@ -17,7 +17,7 @@ export const SquadModalHeader = ({
         <DailyCircle className=" absolute bottom-0 -left-10" size="xsmall" />
         <DailyCircle className=" absolute top-4 left-10" size="xxsmall" />
         <Image
-          src={squad.name}
+          src={squad.image}
           alt={squad.name}
           className="object-cover w-40 h-40 rounded-full"
           loading="lazy"
