@@ -58,7 +58,6 @@ export default function Sidebar({
     loadedSettings,
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
-  const { openSquadBetaModal } = useCreateSquadModal();
   const { openModal } = useLazyModal();
   const [showSettings, setShowSettings] = useState(false);
   const {
@@ -68,6 +67,10 @@ export default function Sidebar({
     submitArticleModalButton,
     popularFeedCopy,
   } = useContext(FeaturesContext);
+  const { openSquadBetaModal } = useCreateSquadModal({
+    hasSquads: !!squads?.length,
+    hasAccess: hasSquadAccess,
+  });
   const newSquadButtonVisible =
     sidebarRendered && hasSquadAccess && !squads?.length;
   const feedName = getFeedName(activePageProp, {
