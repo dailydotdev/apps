@@ -32,7 +32,7 @@ const InviteText: ForwardRefRenderFunction<
   return (
     <TextField
       aria-busy={isLoading}
-      className={{ container: 'w-full mt-10' }}
+      className={{ container: 'w-full mt-7' }}
       name="permalink"
       inputId="permalink"
       label={invitation}
