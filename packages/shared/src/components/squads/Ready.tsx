@@ -31,7 +31,7 @@ export function SquadReady({
         </SquadTitle>
         <SquadReadySvg className="mt-6 mb-4" />
         <h3 className="font-bold typo-title2">{name}</h3>
-        <h4>{handle}</h4>
+        <h4>@{handle}</h4>
         <InviteTextField squad={squad} ref={inviteTextRef} />
         <Alert
           className="mt-4"
