@@ -22,7 +22,6 @@ import {
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
-import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   PostContent,
@@ -32,6 +31,7 @@ import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOf
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
+import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -48,7 +48,7 @@ export const getSeoDescription = (post: Post): string => {
 };
 export interface Props {
   id: string;
-  postData?: PostData;
+  initialData?: PostData;
 }
 
 const CONTENT_MAP: Record<PostType, typeof PostContent> = {
@@ -62,7 +62,7 @@ interface PostParams extends ParsedUrlQuery {
 
 const CHECK_POPSTATE = 'popstate_key';
 
-const PostPage = ({ id, postData }: Props): ReactElement => {
+const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
@@ -74,21 +74,19 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     false,
   );
 
-  if (!isFallback && !id) return <Custom404 />;
-
   const { post, isLoading } = usePostById({
     id,
-    options: { initialData: postData },
+    options: { initialData },
   });
 
   const seo: NextSeoProps = {
-    title: getTemplatedTitle(postData?.post.title),
-    description: getSeoDescription(postData?.post),
+    title: getTemplatedTitle(post?.title),
+    description: getSeoDescription(post),
     openGraph: {
-      images: [{ url: postData?.post.image }],
+      images: [{ url: post?.image }],
       article: {
-        publishedTime: postData?.post.createdAt,
-        tags: postData?.post.tags,
+        publishedTime: post?.createdAt,
+        tags: post?.tags,
       },
     },
   };
@@ -99,7 +97,13 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
+  if ((isFallback && !initialData) || (!initialData && isLoading)) {
+    return <></>;
+  }
+
   const Content = CONTENT_MAP[post?.type];
+
+  if (!isFallback && !id) return <Custom404 />;
 
   if (!Content) return <Custom404 />;
 
@@ -143,7 +147,7 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    const postData = await request<PostData>(
+    const initialData = await request<PostData>(
       `${apiUrl}/graphql`,
       POST_BY_ID_STATIC_FIELDS_QUERY,
       { id },
@@ -151,15 +155,19 @@ export async function getStaticProps({
     return {
       props: {
         id,
-        postData,
+        initialData,
       },
       revalidate: 60,
     };
   } catch (err) {
     const clientError = err as ClientError;
-    if (clientError?.response?.errors?.[0]?.extensions?.code === 'NOT_FOUND') {
+    if (
+      ['FORBIDDEN', 'NOT_FOUND'].includes(
+        clientError?.response?.errors?.[0]?.extensions?.code,
+      )
+    ) {
       return {
-        props: { id: null },
+        props: { id },
         revalidate: 60,
       };
     }

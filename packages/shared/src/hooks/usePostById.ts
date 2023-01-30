@@ -32,9 +32,11 @@ const usePostById = ({
     { ...options, enabled: !!id && tokenRefreshed },
   );
 
+  const post = postById || (options?.initialData as PostData);
+
   return useMemo(
     () => ({
-      post: postById?.post,
+      post: post?.post,
       isLoading: isLoading || !isFetched || isFetchingNextPage,
     }),
     [postById, isLoading],
