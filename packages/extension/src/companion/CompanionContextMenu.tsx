@@ -10,7 +10,7 @@ import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
-import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
+import { ShareBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
 import { feedback } from '@dailydotdev/shared/src/lib/constants';
 import classNames from 'classnames';
 import {
@@ -19,7 +19,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { getCompanionWrapper } from './common';
 
-interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
+interface CompanionContextMenuProps extends ShareBookmarkProps {
   postData: PostBootData;
   onReport: (T) => void;
   onBlockSource: (T) => void;

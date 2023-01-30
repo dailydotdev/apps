@@ -17,10 +17,11 @@ import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
-import { OnShareOrBookmarkProps } from './PostActions';
+import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import SettingsContext from '../../contexts/SettingsContext';
 
-export interface PostModalActionsProps extends OnShareOrBookmarkProps {
+export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
   onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
@@ -45,6 +46,7 @@ export function PostModalActions({
   contextMenuId,
   ...props
 }: PostModalActionsProps): ReactElement {
+  const { openNewTab } = useContext(SettingsContext);
   const { user } = useContext(AuthContext);
   const { showReportMenu } = useReportPostMenu(contextMenuId);
   const { showPrompt } = usePrompt();
@@ -89,22 +91,24 @@ export function PostModalActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <SimpleTooltip
-        placement="bottom"
-        content="Read article"
-        disabled={!inlineActions}
-      >
-        <Button
-          className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
-          tag="a"
-          href={post.permalink}
-          target="_blank"
-          icon={<OpenLinkIcon />}
-          onClick={onReadArticle}
+      {onReadArticle && (
+        <SimpleTooltip
+          placement="bottom"
+          content="Read article"
+          disabled={!inlineActions}
         >
-          {!inlineActions && 'Read article'}
-        </Button>
-      </SimpleTooltip>
+          <Button
+            className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
+            tag="a"
+            href={post.sharedPost?.permalink ?? post.permalink}
+            target={openNewTab ? '_blank' : '_self'}
+            icon={<OpenLinkIcon />}
+            onClick={onReadArticle}
+          >
+            {!inlineActions && 'Read article'}
+          </Button>
+        </SimpleTooltip>
+      )}
       <SimpleTooltip placement="bottom" content="Options">
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}

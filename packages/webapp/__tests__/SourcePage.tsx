@@ -10,7 +10,7 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter } from 'next/router';
-import { Source } from '@dailydotdev/shared/src/graphql/sources';
+import { Source, SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -97,7 +97,14 @@ const renderComponent = (
     createSourcesSettingsMock(),
   ],
   user: LoggedUser = defaultUser,
-  source: Source = { id: 'react', name: 'React', image: 'https://reactjs.org' },
+  source: Source = {
+    id: 'react',
+    name: 'React',
+    image: 'https://reactjs.org',
+    handle: 'react',
+    permalink: 'permalink/react',
+    type: SourceType.Machine,
+  },
 ): RenderResult => {
   client = new QueryClient();
 

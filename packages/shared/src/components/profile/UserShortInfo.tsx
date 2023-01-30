@@ -6,7 +6,6 @@ import { TooltipProps } from '../tooltips/BaseTooltip';
 import { getTextEllipsis } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
 
-// reference: https://stackoverflow.com/a/54049872/5532217
 type AnyTag =
   | string
   | React.FunctionComponent<never>

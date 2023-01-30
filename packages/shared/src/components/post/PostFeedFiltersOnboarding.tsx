@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
+import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { cloudinary } from '../../lib/image';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -9,10 +10,12 @@ const imageClassNames = 'absolute right-0';
 
 interface PostFeedFiltersOnboardingProps {
   onInitializeOnboarding: () => void;
+  className?: string;
 }
 
 export function PostFeedFiltersOnboarding({
   onInitializeOnboarding,
+  className,
 }: PostFeedFiltersOnboardingProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   useEffect(() => {
@@ -24,7 +27,12 @@ export function PostFeedFiltersOnboarding({
   }, []);
 
   return (
-    <div className="flex relative mt-8 rounded-16 border border-theme-color-cabbage">
+    <div
+      className={classNames(
+        'flex relative rounded-16 border border-theme-color-cabbage',
+        className,
+      )}
+    >
       <div className="py-3 px-4 w-3/5">
         <p className="font-bold typo-callout">
           Let&apos;s super-charge your feed with the content you actually read!

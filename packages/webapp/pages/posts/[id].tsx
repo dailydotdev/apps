@@ -1,13 +1,10 @@
 import React, {
   CSSProperties,
   ReactElement,
-  useContext,
-  useEffect,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useQuery } from 'react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -17,9 +14,9 @@ import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
-  POST_BY_ID_QUERY,
   PostData,
   Post,
+  PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
@@ -29,8 +26,9 @@ import {
   PostContent,
   SCROLL_OFFSET,
 } from '@dailydotdev/shared/src/components/post/PostContent';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -50,37 +48,35 @@ export interface Props {
   initialData?: PostData;
 }
 
+const CONTENT_MAP: Record<PostType, typeof PostContent> = {
+  article: PostContent,
+  share: SquadPostContent,
+};
+
 interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
+const CHECK_POPSTATE = 'popstate_key';
+
 const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
-  const { tokenRefreshed } = useContext(AuthContext);
   const router = useRouter();
   const { isFallback } = router;
-
-  const {
-    data: fetchedPost,
-    isLoading,
-    isFetched,
-  } = useQuery<PostData>(
-    ['post', id],
-    () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
-    { initialData, enabled: !!id && tokenRefreshed, retry: false },
+  useWindowEvents(
+    'popstate',
+    CHECK_POPSTATE,
+    useCallback(() => router.reload(), []),
+    false,
   );
 
-  // Need this as sometimes client side might still be loading, but we already have initial data.
-  const post = fetchedPost ?? initialData;
+  if (!isFallback && !id) return <Custom404 />;
 
-  if ((!isFallback && !id) || (isFetched && !post?.post.title)) {
-    return <Custom404 />;
-  }
-
-  if (isFallback && !initialData) {
-    return <></>;
-  }
+  const { post, isLoading } = usePostById({
+    id,
+    options: { initialData },
+  });
 
   const seo: NextSeoProps = {
     title: getTemplatedTitle(post?.post.title),
@@ -100,32 +96,30 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  useEffect(() => {
-    window.addEventListener('popstate', () => {
-      router.reload();
-    });
-  }, []);
+  const Content = CONTENT_MAP[post?.type];
+
+  if (!Content) return <Custom404 />;
 
   return (
     <>
       <Head>
-        <link rel="preload" as="image" href={post?.post.image} />
+        <link rel="preload" as="image" href={post?.image} />
       </Head>
       <NextSeo {...seo} />
-      <PostContent
+      <Content
         position={position}
-        postById={post}
+        post={post}
         isFallback={isFallback}
-        isLoading={isLoading || !isFetched}
-        enableAuthorOnboarding={!!router.query?.author}
+        isLoading={isLoading}
+        shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
+        origin={Origin.ArticlePage}
         className={{
-          container: 'pb-20 laptop:pb-6 laptopL:pb-0',
+          container:
+            'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r',
           fixedNavigation: { container: 'flex laptop:hidden' },
-          navigation: {
-            container: 'tablet:hidden',
-            actions: 'justify-between w-full',
-          },
+          navigation: { actions: 'flex-1 justify-between' },
+          content: 'pt-8',
         }}
       />
     </>

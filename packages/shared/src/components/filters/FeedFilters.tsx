@@ -55,7 +55,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       {...props}
       className="overflow-auto flex-1 h-full"
       kind={Modal.Kind.FixedCenter}
-      size={Modal.Size.Large}
+      size={Modal.Size.XLarge}
       tabs={tabs}
     >
       <Modal.Sidebar>
