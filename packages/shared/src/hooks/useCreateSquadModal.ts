@@ -11,12 +11,19 @@ interface UseCreateSquadModal {
 
 const SQUAD_ONBOARDING = 'hasTriedSquadOnboarding';
 
-export const useCreateSquadModal = (): UseCreateSquadModal => {
+type UseCreateSquadModalProps = {
+  hasSquads: boolean;
+  hasAccess: boolean;
+};
+export const useCreateSquadModal = ({
+  hasSquads = false,
+  hasAccess = false,
+}: UseCreateSquadModalProps): UseCreateSquadModal => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   const previousRef = useRef(null);
   const [hasTriedOnboarding, setHasTriedOnboarding, isLoaded] =
-    usePersistentContext<boolean>(SQUAD_ONBOARDING, false);
+    usePersistentContext<boolean>(SQUAD_ONBOARDING, hasSquads);
 
   const openNewSquadModal = () =>
     openModal({
@@ -47,13 +54,13 @@ export const useCreateSquadModal = (): UseCreateSquadModal => {
   }, [router.pathname]);
 
   useEffect(() => {
-    if (!isLoaded || hasTriedOnboarding) {
+    if (!isLoaded || hasTriedOnboarding || hasSquads || !hasAccess) {
       return;
     }
 
     openSquadBetaModal();
     setHasTriedOnboarding(true);
-  }, [hasTriedOnboarding, isLoaded]);
+  }, [hasTriedOnboarding, isLoaded, hasSquads, hasAccess]);
 
   return useMemo(
     () => ({ openNewSquadModal, openSquadBetaModal }),
