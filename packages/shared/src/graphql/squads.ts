@@ -113,15 +113,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       commentary: $commentary
       image: $image
     ) {
-      active
-      handle
-      name
-      permalink
-      public
-      type
-      description
-      image
-      id
+      ...SourceBaseFragment
       members {
         edges {
           node {
@@ -131,6 +123,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       }
     }
   }
+  ${SOURCE_BASE_FRAGMENT}
 `;
 
 export const EDIT_SQUAD_MUTATION = gql`
@@ -148,17 +141,10 @@ export const EDIT_SQUAD_MUTATION = gql`
       description: $description
       image: $image
     ) {
-      active
-      handle
-      name
-      permalink
-      public
-      type
-      description
-      image
-      id
+      ...SourceBaseFragment
     }
   }
+  ${SOURCE_BASE_FRAGMENT}
 `;
 
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
