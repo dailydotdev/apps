@@ -67,7 +67,7 @@ export function SquadDetails({
             </SquadTitle>
           )}
           <ImageInput
-            initialValue={form.file}
+            initialValue={form.image ?? form.file}
             id={squadImageId}
             fallbackImage={cloudinary.squads.imageFallback}
             className={{
