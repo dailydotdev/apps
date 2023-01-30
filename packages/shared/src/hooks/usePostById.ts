@@ -43,6 +43,7 @@ const usePostById = ({
         if (!err?.response?.errors?.length) {
           return;
         }
+
         // eslint-disable-next-line no-console
         console.error(err.response.errors[0]);
       },
