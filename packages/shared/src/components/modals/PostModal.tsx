@@ -49,6 +49,7 @@ export default function PostModal({
           navigation: { actions: 'tablet:hidden ml-auto' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.XLarge],
+            actions: 'ml-auto',
           },
         }}
         onClose={onRequestClose}

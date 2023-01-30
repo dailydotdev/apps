@@ -64,7 +64,7 @@ function PostNavigation({
       {children}
       <PostModalActions
         {...props}
-        className={classNames('flex ml-auto', className?.actions)}
+        className={classNames('flex', className?.actions)}
         notificactionClassName="ml-4"
         contextMenuId="post-navigation-context"
       />

@@ -121,6 +121,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           container:
             'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r',
           fixedNavigation: { container: 'flex laptop:hidden' },
+          navigation: { actions: 'flex-1 justify-between' },
           content: 'pt-8',
         }}
       />
