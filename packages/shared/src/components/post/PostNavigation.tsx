@@ -18,6 +18,7 @@ type PostActions = Pick<
 export interface PostNavigationClassName {
   container?: string;
   actions?: string;
+  title?: string;
 }
 
 export interface PostNavigationProps extends PostActions {
@@ -63,7 +64,7 @@ function PostNavigation({
       {children}
       <PostModalActions
         {...props}
-        className={classNames('flex', className?.actions)}
+        className={classNames('flex ml-auto', className?.actions)}
         notificactionClassName="ml-4"
         contextMenuId="post-navigation-context"
       />
