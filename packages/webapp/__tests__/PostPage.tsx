@@ -18,6 +18,7 @@ import {
   PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
+  PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -39,6 +40,9 @@ import {
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
@@ -89,6 +93,7 @@ const createPostMock = (
         id: '0e4005b2d3cf191f8c44c2718a457a1e',
         __typename: 'PostPage',
         title: 'Learn SQL',
+        type: PostType.Article,
         permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
         image:
           'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
@@ -97,7 +102,11 @@ const createPostMock = (
         tags: ['development', 'data-science', 'sql'],
         source: {
           __typename: 'Source',
+          id: 's',
+          handle: 's',
+          permalink: 'permalink/s',
           name: 'Towards Data Science',
+          type: SourceType.Machine,
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
         },
@@ -158,17 +167,19 @@ const renderPost = (
             getRedirectUri: jest.fn(),
           }}
         >
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-            }}
-          >
-            <PostPage {...defaultProps} {...props} />
-          </OnboardingContext.Provider>
+          <SettingsContext.Provider value={createTestSettings()}>
+            <OnboardingContext.Provider
+              value={{
+                myFeedMode: OnboardingMode.Manual,
+                isOnboardingOpen: false,
+                onCloseOnboardingModal: jest.fn(),
+                onInitializeOnboarding: jest.fn(),
+                onShouldUpdateFilters: jest.fn(),
+              }}
+            >
+              <PostPage {...defaultProps} {...props} />
+            </OnboardingContext.Provider>
+          </SettingsContext.Provider>
         </AuthContext.Provider>
       </FeaturesContextProvider>
     </QueryClientProvider>,

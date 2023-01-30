@@ -1,12 +1,13 @@
 import React, { ReactElement, useContext } from 'react';
-import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
-import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
+import { Modal, ModalProps } from './common/Modal';
 import { PostNavigationProps } from '../post/PostNavigation';
-import { Origin } from '../../lib/analytics';
-import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
-import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
+import { Origin } from '../../lib/analytics';
+import usePostById from '../../hooks/usePostById';
+import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
+import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
+import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 
 interface PostModalProps
   extends ModalProps,
@@ -14,9 +15,6 @@ interface PostModalProps
   id: string;
   isFetchingNextPage?: boolean;
 }
-
-export const postModalOverlayClasses =
-  'post-modal-overlay bg-overlay-quaternary-onion';
 
 export default function PostModal({
   id,
@@ -36,25 +34,25 @@ export default function PostModal({
   });
 
   return (
-    <BasePostModal {...props} onRequestClose={onRequestClose}>
-      <PostContent
+    <BasePostModal
+      {...props}
+      size={Modal.Size.Large}
+      onRequestClose={onRequestClose}
+    >
+      <SquadPostContent
         position={position}
         post={post}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}
         inlineActions
-        className={{
-          onboarding: 'mt-8',
-          container: 'border border-theme-divider-tertiary rounded-16',
-          navigation: { actions: 'tablet:hidden ml-auto' },
-          fixedNavigation: {
-            container: modalSizeToClassName[Modal.Size.XLarge],
-            actions: 'ml-auto',
-          },
-        }}
         onClose={onRequestClose}
         isLoading={isLoading}
         origin={Origin.ArticleModal}
+        className={{
+          container: 'post-content',
+          fixedNavigation: { container: 'w-[inherit]' },
+          navigation: { actions: 'tablet:hidden ml-auto' },
+        }}
       />
     </BasePostModal>
   );

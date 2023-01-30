@@ -17,8 +17,13 @@ function NotificationItemAvatar({
   if (type === NotificationAvatarType.Source) {
     return (
       <SourceButton
-        link={targetUrl}
-        source={{ id: referenceId, handle: referenceId, name, image }}
+        source={{
+          id: referenceId,
+          handle: referenceId,
+          name,
+          image,
+          permalink: targetUrl,
+        }}
       />
     );
   }

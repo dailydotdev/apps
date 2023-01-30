@@ -27,6 +27,10 @@ const SquadInviteModal = dynamic(
 const SquadMemberModal = dynamic(
   () => import(/* webpackChunkName: "squadMemberModal" */ './SquadMemberModal'),
 );
+const UpvotedPopupModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "upvotedPopupModal" */ './UpvotedPopupModal'),
+);
 
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
@@ -36,6 +40,7 @@ export const modals = {
   [LazyModal.LockedSquad]: LockedSquadModal,
   [LazyModal.SquadInvite]: SquadInviteModal,
   [LazyModal.SquadMember]: SquadMemberModal,
+  [LazyModal.UpvotedPopup]: UpvotedPopupModal,
 };
 
 type GetComponentProps<T> = T extends
@@ -44,7 +49,7 @@ type GetComponentProps<T> = T extends
   ? P
   : never;
 
-type ModalsType = typeof modals;
+export type ModalsType = typeof modals;
 
 export type LazyPropTypes = Partial<
   {
@@ -63,7 +68,7 @@ type RequiredKeys<T> = {
 
 type NonOptional<T> = Pick<T, RequiredKeys<T>>;
 
-export type LazyModalType = {
+export type LazyModalType<T extends keyof ModalsType> = {
   [K in keyof ModalsType]: NonOptional<
     LazyModalComponentType<K>
   > extends Record<string, never>
@@ -75,4 +80,4 @@ export type LazyModalType = {
         type: K;
         props: LazyModalComponentType<K>;
       };
-}[keyof ModalsType];
+}[T];

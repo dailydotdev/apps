@@ -9,9 +9,7 @@ interface AuthorOnboardingProps {
   onSignUp?: () => unknown;
 }
 
-export function AuthorOnboarding({
-  onSignUp,
-}: AuthorOnboardingProps): ReactElement {
+function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
   return (
     <section
       className={classNames(
@@ -66,3 +64,5 @@ export function AuthorOnboarding({
     </section>
   );
 }
+
+export default AuthorOnboarding;
