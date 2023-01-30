@@ -87,18 +87,18 @@ function SquadPostContent({
         )}
         hasNavigation={hasNavigation}
       >
-        {customNavigation}
         <BasePostContent
           className={{
             ...className,
-            onboarding: 'mb-8',
+            onboarding: 'mb-6',
             navigation: { actions: 'ml-auto', container: 'mb-6' },
           }}
           isLoading={isLoading}
           isFallback={isFallback}
+          customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
-          navigationProps={customNavigation ? null : navigationProps}
+          navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
           post={post}

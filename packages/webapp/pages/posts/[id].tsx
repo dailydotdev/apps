@@ -1,6 +1,7 @@
 import React, {
   CSSProperties,
   ReactElement,
+  ReactNode,
   useCallback,
   useState,
 } from 'react';
@@ -30,6 +31,7 @@ import {
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
+import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
@@ -102,6 +104,15 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   }
 
   const Content = CONTENT_MAP[post?.type];
+  const navigation: Record<PostType, ReactNode> = {
+    article: <></>,
+    share: !post?.source ? (
+      <></>
+    ) : (
+      <SquadPostPageNavigation squadLink={post.source.permalink} />
+    ),
+  };
+  const customNavigation = navigation[post?.type] ?? navigation.article;
 
   if (!isFallback && !id) return <Custom404 />;
 
@@ -118,6 +129,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         post={post}
         isFallback={isFallback}
         isLoading={isLoading}
+        customNavigation={customNavigation}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
         origin={Origin.ArticlePage}
