@@ -40,6 +40,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
       enabled: !!handle,
     },
   );
+
   const squadId = squad?.id;
 
   const { data: squadMembers } = useQuery<SquadMember[]>(
@@ -60,7 +61,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad && isLoading) return <SquadLoading />;
 
-  if (isFallback) return <Unauthorized />;
+  if (isFallback || !squad.active) return <Unauthorized />;
 
   const onNewSquadPost = () =>
     openModal({

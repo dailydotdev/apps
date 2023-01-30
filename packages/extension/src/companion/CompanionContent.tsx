@@ -12,7 +12,6 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import classNames from 'classnames';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
-import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
@@ -20,7 +19,6 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
-import { getCompanionWrapper } from './common';
 
 type CompanionContentProps = {
   post: PostBootData;
@@ -34,13 +32,8 @@ export default function CompanionContent({
   const { trackEvent } = useContext(AnalyticsContext);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
-  const {
-    requestQuery: upvotedPopup,
-    resetUpvoteQuery,
-    onShowUpvotedPost,
-    onShowUpvotedComment,
-  } = useUpvoteQuery();
-  useBackgroundPaginatedRequest(upvotedPopup.requestQuery?.queryKey);
+  const { queryKey, onShowUpvoted } = useUpvoteQuery();
+  useBackgroundPaginatedRequest(queryKey);
 
   const trackAndCopyLink = () => {
     trackEvent(
@@ -98,22 +91,13 @@ export default function CompanionContent({
       </p>
       <CompanionEngagements
         post={post}
-        onUpvotesClick={() => onShowUpvotedPost(post.id, post.numUpvotes)}
+        onUpvotesClick={() => onShowUpvoted(post.id, post.numUpvotes)}
       />
       <CompanionDiscussion
         style={{ maxHeight: `calc(100vh - ${heightPx})` }}
         post={post}
-        onShowUpvoted={onShowUpvotedComment}
+        onShowUpvoted={(id, count) => onShowUpvoted(id, count, 'comment')}
       />
-      {upvotedPopup.modal && (
-        <UpvotedPopupModal
-          isOpen
-          parentSelector={getCompanionWrapper}
-          requestQuery={upvotedPopup.requestQuery}
-          placeholderAmount={post?.numUpvotes}
-          onRequestClose={resetUpvoteQuery}
-        />
-      )}
     </div>
   );
 }

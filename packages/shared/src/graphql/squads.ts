@@ -3,7 +3,13 @@ import { USER_SHORT_INFO_FRAGMENT } from './users';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
-import { Source, SourceData, SOURCE_QUERY } from './sources';
+import {
+  Source,
+  SourceType,
+  SourceData,
+  SOURCE_BASE_FRAGMENT,
+  SOURCE_QUERY,
+} from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
 
@@ -11,7 +17,7 @@ export interface Squad extends Source {
   active: boolean;
   permalink: string;
   public: boolean;
-  type: 'squad';
+  type: SourceType.Squad;
   description?: string;
   membersCount: number;
   members?: Connection<SquadMember>;
@@ -22,7 +28,10 @@ export type Squads = {
   squads: Squad[];
 };
 
-export type SquadForm = Pick<Squad, 'name' | 'handle' | 'description'> & {
+export type SquadForm = Pick<
+  Squad,
+  'name' | 'handle' | 'description' | 'image'
+> & {
   file?: string;
   commentary: string;
   post: PostItem;
@@ -111,6 +120,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       public
       type
       description
+      image
       members {
         edges {
           node {
@@ -118,25 +128,6 @@ export const CREATE_SQUAD_MUTATION = gql`
           }
         }
       }
-    }
-  }
-`;
-
-const SOURCE_BASE_FRAGMENT = gql`
-  fragment SourceBaseFragment on Source {
-    id
-    active
-    handle
-    name
-    permalink
-    public
-    type
-    description
-    image
-    membersCount
-    currentMember {
-      role
-      referralToken
     }
   }
 `;
@@ -163,6 +154,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       public
       type
       description
+      image
     }
   }
 `;

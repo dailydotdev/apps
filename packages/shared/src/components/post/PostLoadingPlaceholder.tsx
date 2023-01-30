@@ -11,16 +11,15 @@ import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 
-const Container = classed(
-  'div',
-  'flex flex-col flex-1 p-8 tablet:border-r tablet:border-theme-divider-tertiary',
-);
+const Container = classed('div', 'flex flex-col flex-1 p-8');
+
+interface LoadingPlaceholderContainerProps {
+  children?: ReactNode;
+}
 
 const LoadingPlaceholderContainer = ({
   children,
-}: {
-  children?: ReactNode;
-}) => (
+}: LoadingPlaceholderContainerProps) => (
   <WidgetContainer>
     <TextPlaceholder className="my-4 ml-6 w-2/5" />
     <PlaceholderSeparator />
@@ -33,10 +32,18 @@ const LoadingPlaceholderContainer = ({
   </WidgetContainer>
 );
 
-export const PostLoadingPlaceholder = (): ReactElement => {
+interface PostLoadingPlaceholderProps extends LoadingPlaceholderContainerProps {
+  shouldShowWidgets?: boolean;
+  className?: string;
+}
+
+export const PostLoadingPlaceholder = ({
+  shouldShowWidgets = true,
+  className,
+}: PostLoadingPlaceholderProps): ReactElement => {
   return (
     <>
-      <Container>
+      <Container className={className}>
         <ElementPlaceholder className="my-2 mb-8 w-3/5 h-8 rounded-full" />
         <ListItemPlaceholder padding="p-0 gap-2" textClassName="h-4" />
         <div className="flex flex-row gap-2 my-8">
@@ -48,18 +55,20 @@ export const PostLoadingPlaceholder = (): ReactElement => {
         <PlaceholderSeparator />
         <PlaceholderCommentList />
       </Container>
-      <PageWidgets className="flex-1 p-8">
-        <LoadingPlaceholderContainer>
-          <UserItemPlaceholder />
-          <UserItemPlaceholder />
-          <UserItemPlaceholder />
-        </LoadingPlaceholderContainer>
-        <LoadingPlaceholderContainer>
-          <ListItemPlaceholder />
-          <ListItemPlaceholder />
-          <ListItemPlaceholder />
-        </LoadingPlaceholderContainer>
-      </PageWidgets>
+      {shouldShowWidgets && (
+        <PageWidgets className="flex-1 p-8">
+          <LoadingPlaceholderContainer>
+            <UserItemPlaceholder />
+            <UserItemPlaceholder />
+            <UserItemPlaceholder />
+          </LoadingPlaceholderContainer>
+          <LoadingPlaceholderContainer>
+            <ListItemPlaceholder />
+            <ListItemPlaceholder />
+            <ListItemPlaceholder />
+          </LoadingPlaceholderContainer>
+        </PageWidgets>
+      )}
     </>
   );
 };

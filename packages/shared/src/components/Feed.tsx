@@ -9,7 +9,7 @@ import React, {
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import useFeed, { PostItem } from '../hooks/useFeed';
-import { Ad, Post } from '../graphql/posts';
+import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import styles from './Feed.module.css';
@@ -73,6 +73,10 @@ const SharePostModal = dynamic(
 const PostModal = dynamic(
   () => import(/* webpackChunkName: "postModal" */ './modals/PostModal'),
 );
+const SquadPostModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "squadPostModal" */ './modals/SquadPostModal'),
+);
 const ScrollFeedFiltersOnboarding = dynamic(
   () =>
     import(
@@ -123,6 +127,11 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
       : { maxWidth: '63.75rem' };
   }
   return {};
+};
+
+const PostModalMap: Record<PostType, typeof PostModal> = {
+  [PostType.Article]: PostModal,
+  [PostType.Share]: SquadPostModal,
 };
 
 export default function Feed<T>({
@@ -380,6 +389,9 @@ export default function Feed<T>({
     },
     post,
   };
+
+  const ArticleModal = PostModalMap[selectedPost?.type];
+
   return (
     <div
       className={classNames(
@@ -457,8 +469,8 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {selectedPost && (
-          <PostModal
+        {selectedPost && ArticleModal && (
+          <ArticleModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
             onRequestClose={() => onCloseModal(false)}

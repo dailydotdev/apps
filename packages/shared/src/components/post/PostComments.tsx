@@ -141,16 +141,16 @@ export function PostComments({
     }
   }, [commentsCount, scrollToComment]);
 
-  if (isLoadingComments || comments === null) {
-    return <PlaceholderCommentList placeholderAmount={post.numComments} />;
-  }
-
-  if (commentsCount === 0) {
+  if (post.numComments === 0) {
     return (
       <div className="mt-8 mb-12 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.
       </div>
     );
+  }
+
+  if (isLoadingComments || comments === null) {
+    return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
   const onCommentClick = (comment: Comment, parentId: string | null) => {
