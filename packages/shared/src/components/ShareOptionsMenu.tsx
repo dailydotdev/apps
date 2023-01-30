@@ -6,7 +6,7 @@ import ShareIcon from './icons/Share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { OnShareOrBookmarkProps } from './post/PostActions';
+import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
@@ -25,7 +25,7 @@ const PortalMenu = dynamic(
   { ssr: false },
 );
 
-interface ShareOptionsMenuProps extends OnShareOrBookmarkProps {
+interface ShareOptionsMenuProps extends ShareBookmarkProps {
   post: Post;
   onHidden?: () => unknown;
   contextId?: string;
@@ -66,7 +66,7 @@ export default function ShareOptionsMenu({
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share article via...',
-      action: onShare,
+      action: () => onShare(post),
     },
     {
       icon: (

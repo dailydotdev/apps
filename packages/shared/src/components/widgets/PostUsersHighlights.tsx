@@ -10,7 +10,6 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { getSourcePermalink } from '../../graphql/sources';
 
 interface PostAuthorProps {
   post: Post;
@@ -120,11 +119,7 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
 
   return (
     <WidgetContainer className="flex flex-col">
-      <UserHighlight
-        {...source}
-        permalink={getSourcePermalink(source.id)}
-        userType="source"
-      />
+      <UserHighlight {...source} userType="source" />
       {author && <UserHighlight {...author} userType="author" />}
       {scout && <UserHighlight {...scout} userType="scout" />}
     </WidgetContainer>

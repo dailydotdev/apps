@@ -44,7 +44,7 @@ export function SquadComment({
             src={post.image}
             className="object-cover w-16 laptop:w-24 h-16 rounded-16"
             loading="lazy"
-            fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+            fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
           <a href={post.permalink} target="_blank">
             <OpenLinkIcon />

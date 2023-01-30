@@ -11,18 +11,19 @@ const useWindowEvents = <T extends MessageEventData = MessageEventData>(
   event: EventParameter,
   key: string,
   func: KeyedWindowEventHandler<T>,
+  validateKey = true,
 ): void => {
   useEffect(() => {
     const handler = (e: MessageEvent<T>) => {
-      if (!e.data?.eventKey || e.data.eventKey !== key) {
+      if (validateKey && (!e.data?.eventKey || e.data.eventKey !== key)) {
         return;
       }
 
       func(e);
     };
 
-    window.addEventListener(event, handler);
-    return () => window.removeEventListener(event, handler);
+    globalThis?.window.addEventListener(event, handler);
+    return () => globalThis?.window.removeEventListener(event, handler);
   }, [event, func]);
 };
 
