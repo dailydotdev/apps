@@ -10,7 +10,6 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { getSourcePermalink } from '../../graphql/sources';
 
 interface PostAuthorProps {
   post: Post;
@@ -22,6 +21,7 @@ const StyledImage = classed(LazyImage, 'w-10 h-10');
 
 interface SourceAuthorProps {
   id?: string;
+  handle?: string;
   image: string;
   name: string;
   username?: string;
@@ -74,7 +74,7 @@ const Image = (props: SourceAuthorProps) => {
 };
 
 const UserHighlight = (props: SourceAuthorProps) => {
-  const { id, name, username, userType = 'source' } = props;
+  const { id, handle, name, username, userType = 'source' } = props;
   const Icon = getUserIcon(userType);
   const LinkWrapper = userType === 'source' ? React.Fragment : ProfileTooltip;
 
@@ -101,12 +101,12 @@ const UserHighlight = (props: SourceAuthorProps) => {
           <ProfileLink className="font-bold typo-callout" user={props}>
             {name}
           </ProfileLink>
-          {(username || id) && (
+          {(handle || username || id) && (
             <ProfileLink
               className="mt-0.5 typo-footnote text-theme-label-tertiary"
               user={props}
             >
-              @{username || id}
+              @{handle || username || id}
             </ProfileLink>
           )}
         </div>
@@ -120,11 +120,7 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
 
   return (
     <WidgetContainer className="flex flex-col">
-      <UserHighlight
-        {...source}
-        permalink={getSourcePermalink(source.id)}
-        userType="source"
-      />
+      <UserHighlight {...source} userType="source" />
       {author && <UserHighlight {...author} userType="author" />}
       {scout && <UserHighlight {...scout} userType="scout" />}
     </WidgetContainer>

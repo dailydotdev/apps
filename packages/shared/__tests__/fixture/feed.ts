@@ -19,6 +19,8 @@ const feed: Connection<Post> = {
         readTime: 0,
         source: {
           id: 'echojs',
+          handle: 'echojs',
+          permalink: 'permalink/echojs',
           name: 'Echo JS',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/echojs',
@@ -47,6 +49,8 @@ const feed: Connection<Post> = {
         readTime: 3,
         source: {
           id: 'ph',
+          handle: 'ph',
+          permalink: 'permalink/ph',
           name: 'Product Hunt',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/ph',
@@ -75,6 +79,8 @@ const feed: Connection<Post> = {
         readTime: 8,
         source: {
           id: 'tds',
+          handle: 'tds',
+          permalink: 'permalink/tds',
           name: 'Towards Data Science',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
@@ -103,6 +109,8 @@ const feed: Connection<Post> = {
         readTime: 2,
         source: {
           id: 'tc',
+          handle: 'tc',
+          permalink: 'permalink/tc',
           name: 'TechCrunch',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tc',
@@ -130,6 +138,8 @@ const feed: Connection<Post> = {
         readTime: null,
         source: {
           id: 'codepen',
+          handle: 'codepen',
+          permalink: 'permalink/codepen',
           name: 'CodePen',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/codepen',
@@ -157,6 +167,8 @@ const feed: Connection<Post> = {
         readTime: null,
         source: {
           id: 'andpol',
+          handle: 'andpol',
+          permalink: 'permalink/andpol',
           name: 'Android Police',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/andpol',
@@ -184,6 +196,8 @@ const feed: Connection<Post> = {
         readTime: 7,
         source: {
           id: '80lv',
+          handle: '80lv',
+          permalink: 'permalink/80lv',
           name: '80 LEVEL',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/78eebcd76c154e6bbfd565fed7dc4093',

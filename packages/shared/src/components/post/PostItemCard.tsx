@@ -11,6 +11,7 @@ import PostMetadata from '../cards/PostMetadata';
 import { ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { cloudinary } from '../../lib/image';
 
 interface PostItemCardProps {
   className?: string;
@@ -59,7 +60,7 @@ export default function PostItemCard({
           alt={post.title}
           className="object-cover w-16 laptop:w-24 h-16 rounded-16"
           loading="lazy"
-          fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
         />
         <SourceShadow />
         <ProfilePicture

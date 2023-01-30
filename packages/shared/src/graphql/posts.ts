@@ -2,7 +2,7 @@ import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
 import { UPVOTER_FRAGMENT } from './users';
-import { Source } from './sources';
+import { Source, SOURCE_SHORT_INFO_FRAGMENT } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { apiUrl } from '../lib/config';
 
@@ -11,7 +11,7 @@ export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
 
-export interface SharedPost {
+export interface SharedPost extends Post {
   __typename?: string;
   id: string;
   title: string;
@@ -138,10 +138,19 @@ export const POST_BY_ID_QUERY = gql`
       numUpvotes
       numComments
       views
-      source {
+      sharedPost {
         id
-        name
+        title
         image
+        readTime
+        permalink
+        summary
+        source {
+          ...SourceShortInfoFragment
+        }
+      }
+      source {
+        ...SourceShortInfoFragment
       }
       scout {
         id
@@ -166,6 +175,7 @@ export const POST_BY_ID_QUERY = gql`
       type
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
@@ -202,9 +212,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       numUpvotes
       numComments
       source {
-        id
-        name
-        image
+        ...SourceShortInfoFragment
       }
       description
       summary
@@ -215,6 +223,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       type
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export interface UpvoteData {
@@ -296,9 +305,7 @@ export const AUTHOR_FEED_QUERY = gql`
           commentsPermalink
           image
           source {
-            id
-            name
-            image
+            ...SourceShortInfoFragment
           }
           numUpvotes
           numComments
@@ -309,6 +316,7 @@ export const AUTHOR_FEED_QUERY = gql`
       }
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const KEYWORD_FEED_QUERY = gql`
