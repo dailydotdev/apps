@@ -155,6 +155,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       type
       description
       image
+      id
     }
   }
 `;
