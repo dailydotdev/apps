@@ -62,7 +62,7 @@ export function PostContent({
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
     origin,
-    post: post.sharedPost,
+    post,
   });
   const {
     onSharePost: onShare,
