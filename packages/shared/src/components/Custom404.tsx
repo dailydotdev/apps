@@ -8,7 +8,7 @@ interface Custom404Props {
 export default function Custom404({ children }: Custom404Props): ReactElement {
   return (
     <div
-      className="flex flex-col justify-center items-center mx-auto min-h-screen"
+      className="flex flex-col justify-center items-center mx-auto min-h-page"
       data-testid="notFound"
     >
       {children}

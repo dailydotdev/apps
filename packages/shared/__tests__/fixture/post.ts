@@ -13,6 +13,7 @@ const post: Post = {
     id: 'tds',
     handle: 'tds',
     name: 'Towards Data Science',
+    permalink: 'permalink/tds',
     image:
       'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
   },

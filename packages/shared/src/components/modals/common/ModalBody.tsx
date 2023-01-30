@@ -8,6 +8,8 @@ export type ModalBodyProps = JSX.IntrinsicElements['section'] & {
   view?: string;
 };
 
+const bigModals = [ModalSize.Large, ModalSize.XLarge];
+
 function ModalBodyComponent({
   children,
   className,
@@ -17,7 +19,7 @@ function ModalBodyComponent({
   const { activeView, kind, size } = useContext(ModalPropsContext);
   const sectionClassName = classNames(
     'overflow-auto relative w-full h-full shrink max-h-full p-6',
-    kind === ModalKind.FlexibleTop && size === ModalSize.Large && 'mobileL:p-8',
+    kind === ModalKind.FlexibleTop && bigModals.includes(size) && 'mobileL:p-8',
     className,
   );
   if (view && view !== activeView) return null;

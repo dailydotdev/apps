@@ -1,14 +1,22 @@
-import React, { ReactElement } from 'react';
+import React, {
+  forwardRef,
+  HTMLAttributes,
+  ReactElement,
+  RefObject,
+} from 'react';
 import { SummaryContainer, TLDRText } from '../utilities';
 import ShowMoreContent from './ShowMoreContent';
 
-interface SummaryProps {
+interface SummaryProps extends HTMLAttributes<HTMLDivElement> {
   summary: string;
 }
 
-export default function PostSummary({ summary }: SummaryProps): ReactElement {
+function PostSummary(
+  { summary, ...props }: SummaryProps,
+  ref: RefObject<HTMLDivElement>,
+): ReactElement {
   return (
-    <SummaryContainer>
+    <SummaryContainer ref={ref} {...props}>
       <ShowMoreContent
         content={summary}
         charactersLimit={300}
@@ -18,3 +26,5 @@ export default function PostSummary({ summary }: SummaryProps): ReactElement {
     </SummaryContainer>
   );
 }
+
+export default forwardRef(PostSummary);

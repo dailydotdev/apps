@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { SOURCE_SHORT_INFO_FRAGMENT } from './sources';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',
@@ -18,14 +19,18 @@ export const FEED_POST_FRAGMENT = gql`
     image
     readTime
     source {
-      id
-      name
-      image
+      ...SourceShortInfoFragment
     }
     sharedPost {
       id
       title
       image
+      readTime
+      summary
+      permalink
+      source {
+        ...SourceShortInfoFragment
+      }
     }
     permalink
     numComments
@@ -48,6 +53,7 @@ export const FEED_POST_FRAGMENT = gql`
     tags
     type
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const USER_POST_FRAGMENT = gql`
