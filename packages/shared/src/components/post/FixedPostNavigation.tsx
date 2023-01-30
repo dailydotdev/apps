@@ -14,6 +14,7 @@ function FixedPostNavigation({
     ? published
     : `${published} by ${post?.author.name}`;
   const content = { title: post?.title, subtitle };
+  const hasNavigation = !!onPreviousPost || !!onNextPost;
 
   return (
     <PostNavigation
@@ -31,7 +32,12 @@ function FixedPostNavigation({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
-      <div className="hidden tablet:flex overflow-hidden flex-col flex-1 ml-2">
+      <div
+        className={classNames(
+          'overflow-hidden flex-col flex-1 ml-2',
+          hasNavigation && 'hidden tablet:flex',
+        )}
+      >
         <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
           {content.subtitle}
         </span>
