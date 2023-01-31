@@ -85,7 +85,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
         if (squad) return router.replace(squad.permalink);
 
         addSquad(squad);
-        return router.replace(squad.permalink);
+        return router.replace(data.permalink);
       },
     },
   );
