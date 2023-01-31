@@ -141,42 +141,42 @@ function SquadPostContent({
             </ProfileTooltip>
           </span>
           <p className="mt-6 typo-title3">{post.title}</p>
-          <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary">
-            <span className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
-              <div className="flex flex-col flex-1">
-                <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body">
-                  {post.sharedPost.title}
-                </h2>
-                <PostSourceInfo
-                  date={`${post.sharedPost.readTime}m read time`}
-                  source={post.source}
-                  typo="typo-footnote"
-                  size="small"
-                />
-                <ReadArticleButton
-                  buttonSize="medium"
-                  className="mt-5 btn-secondary w-fit"
-                  href={post.sharedPost.permalink}
-                  openNewTab={openNewTab}
-                />
-              </div>
-              <a
-                href={post.sharedPost.permalink}
-                title="Go to article"
-                target="_blank"
-                rel="noopener"
-                onClick={onReadArticle}
-                className="block overflow-hidden w-70 rounded-2xl cursor-pointer"
-              >
-                <LazyImage
-                  imgSrc={post.sharedPost.image}
-                  imgAlt="Post cover image"
-                  ratio="52%"
-                  eager
-                  fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-                />
-              </a>
-            </span>
+          <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
+            <a
+              href={post.sharedPost.commentsPermalink}
+              title="Go to article"
+              rel="noopener"
+              onClick={onReadArticle}
+            >
+              <span className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
+                <div className="flex flex-col flex-1">
+                  <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body">
+                    {post.sharedPost.title}
+                  </h2>
+                  <PostSourceInfo
+                    date={`${post.sharedPost.readTime}m read time`}
+                    source={post.source}
+                    typo="typo-footnote"
+                    size="small"
+                  />
+                  <ReadArticleButton
+                    buttonSize="medium"
+                    className="mt-5 btn-secondary w-fit"
+                    href={post.sharedPost.permalink}
+                    openNewTab={openNewTab}
+                  />
+                </div>
+                <div className="block overflow-hidden w-70 rounded-2xl cursor-pointer h-fit">
+                  <LazyImage
+                    imgSrc={post.sharedPost.image}
+                    imgAlt="Post cover image"
+                    ratio="52%"
+                    eager
+                    fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                  />
+                </div>
+              </span>
+            </a>
             {post.sharedPost.summary && (
               <>
                 <PostSummary
