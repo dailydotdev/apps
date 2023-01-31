@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import { modalSizeToClassName } from '../modals/common/Modal';
 import { PostNavigationProps } from './PostNavigation';
@@ -50,6 +51,7 @@ function SquadPostContent({
       </PostContentContainer>
     );
 
+  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
   const { openNewTab } = useContext(SettingsContext);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const [height, setHeight] = useState<number>(null);
@@ -75,7 +77,7 @@ function SquadPostContent({
   }, [shoudShowSummary, height]);
 
   useEffect(() => {
-    sendViewPost(post.id);
+    onSendViewPost(post.id);
   }, []);
 
   const containerClass =
