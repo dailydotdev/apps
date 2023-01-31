@@ -99,7 +99,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if ((isFallback && !initialData) || (!initialData && isLoading)) {
+  if (!initialData && (isFallback || isLoading)) {
     return <></>;
   }
 
@@ -114,7 +114,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
-  if ((!isFallback && !id) || !Content) return <Custom404 />;
+  if (!Content && (!isFallback || !isLoading)) return <Custom404 />;
 
   return (
     <>

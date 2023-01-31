@@ -1,4 +1,11 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import { modalSizeToClassName } from '../modals/common/Modal';
 import { PostNavigationProps } from './PostNavigation';
@@ -20,6 +27,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
+import { sendViewPost } from '../../graphql/posts';
 
 function SquadPostContent({
   post,
@@ -43,6 +51,7 @@ function SquadPostContent({
       </PostContentContainer>
     );
 
+  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
   const { openNewTab } = useContext(SettingsContext);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const [height, setHeight] = useState<number>(null);
@@ -66,6 +75,10 @@ function SquadPostContent({
 
     return shoudShowSummary ? height : 0;
   }, [shoudShowSummary, height]);
+
+  useEffect(() => {
+    onSendViewPost(post.id);
+  }, []);
 
   const containerClass =
     sidebarRendered && modalSizeToClassName[ModalSize.Large];
