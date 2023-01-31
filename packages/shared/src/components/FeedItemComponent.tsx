@@ -2,7 +2,7 @@ import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
-import { ArticlePostCard } from './cards/PostCard';
+import { ArticlePostCard } from './cards/ArticlePostCard';
 import { AdList } from './cards/AdList';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderList } from './cards/PlaceholderList';

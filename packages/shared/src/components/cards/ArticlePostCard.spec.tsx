@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { PostCard, PostCardProps } from './PostCard';
+import { ArticlePostCard } from './ArticlePostCard';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import post from '../../../__tests__/fixture/post';
+import { PostCardProps } from './common';
 
 const defaultProps: PostCardProps = {
   post,
@@ -22,7 +23,7 @@ beforeEach(() => {
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <FeaturesContextProvider flags={{}}>
-      <PostCard {...defaultProps} {...props} />
+      <ArticlePostCard {...defaultProps} {...props} />
     </FeaturesContextProvider>,
   );
 };
