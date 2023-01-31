@@ -16,7 +16,7 @@ import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
 import { Containter, PostCardProps } from './common';
 
-export const PostCard = forwardRef(function PostCard(
+export const ArticlePostCard = forwardRef(function PostCard(
   {
     post,
     onPostClick,
