@@ -146,36 +146,35 @@ function SquadPostContent({
               href={post.sharedPost.commentsPermalink}
               title="Go to article"
               rel="noopener"
+              className="flex flex-col-reverse laptop:flex-row p-4 max-w-full"
               onClick={onReadArticle}
             >
-              <span className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
-                <div className="flex flex-col flex-1">
-                  <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body">
-                    {post.sharedPost.title}
-                  </h2>
-                  <PostSourceInfo
-                    date={`${post.sharedPost.readTime}m read time`}
-                    source={post.source}
-                    typo="typo-footnote"
-                    size="small"
-                  />
-                  <ReadArticleButton
-                    buttonSize="medium"
-                    className="mt-5 btn-secondary w-fit"
-                    href={post.sharedPost.permalink}
-                    openNewTab={openNewTab}
-                  />
-                </div>
-                <div className="block overflow-hidden w-70 rounded-2xl cursor-pointer h-fit">
-                  <LazyImage
-                    imgSrc={post.sharedPost.image}
-                    imgAlt="Post cover image"
-                    ratio="52%"
-                    eager
-                    fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-                  />
-                </div>
-              </span>
+              <div className="flex flex-col flex-1">
+                <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body">
+                  {post.sharedPost.title}
+                </h2>
+                <PostSourceInfo
+                  date={`${post.sharedPost.readTime}m read time`}
+                  source={post.source}
+                  typo="typo-footnote"
+                  size="small"
+                />
+                <ReadArticleButton
+                  buttonSize="medium"
+                  className="mt-5 btn-secondary w-fit"
+                  href={post.sharedPost.permalink}
+                  openNewTab={openNewTab}
+                />
+              </div>
+              <div className="block overflow-hidden w-70 rounded-2xl cursor-pointer h-fit">
+                <LazyImage
+                  imgSrc={post.sharedPost.image}
+                  imgAlt="Post cover image"
+                  ratio="52%"
+                  eager
+                  fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                />
+              </div>
             </a>
             {post.sharedPost.summary && (
               <>
