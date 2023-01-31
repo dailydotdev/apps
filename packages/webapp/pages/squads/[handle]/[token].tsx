@@ -14,6 +14,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Link from 'next/link';
 import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import React, { ReactElement } from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {
@@ -49,11 +50,13 @@ export interface SquadReferralProps {
 
 const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   const router = useRouter();
-  const { showLogin, user: loggedUser } = useAuthContext();
+  const { addSquad } = useBoot();
+  const { showLogin, user: loggedUser, squads } = useAuthContext();
   const { data: member } = useQuery(
     ['squad_referral', token, loggedUser?.id],
     () => getSquadInvitation(token),
     {
+      keepPreviousData: true,
       enabled: !!token,
       onSuccess: (response) => {
         if (!loggedUser) return null;
@@ -74,10 +77,17 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     },
   );
   const sourceId = member?.source?.id;
-  const squadsUrl = `/squads/${sourceId}`;
   const { mutateAsync: onJoinSquad } = useMutation(
     () => joinSquadInvitation({ sourceId, token }),
-    { onSuccess: () => router.replace(squadsUrl) },
+    {
+      onSuccess: (data) => {
+        const squad = squads.find(({ id }) => id === data.id);
+        if (squad) return router.replace(squad.permalink);
+
+        addSquad(squad);
+        return router.replace(data.permalink);
+      },
+    },
   );
 
   const onJoinClick = async () => {
@@ -85,6 +95,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
 
     return showLogin('join squad', {
       referral: member.user.id,
+      onLoginSuccess: onJoinSquad,
       onRegistrationSuccess: onJoinSquad,
     });
   };

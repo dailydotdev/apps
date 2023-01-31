@@ -210,7 +210,7 @@ export const SQUAD_INVITATION_QUERY = gql`
 
 export const SQUAD_JOIN_MUTATION = gql`
   mutation JoinSquad($sourceId: ID!, $token: String!) {
-    joinSource(sourceId: $sourceId, token: $token) {
+    source: joinSource(sourceId: $sourceId, token: $token) {
       ...SourceBaseInfo
     }
   }
@@ -266,19 +266,22 @@ export interface SquadInvitationProps {
 export const getSquadInvitation = async (
   token: string,
 ): Promise<SquadMember> => {
-  const res = await request<SquadInvitation>(
-    `${apiUrl}/graphql`,
-    SQUAD_INVITATION_QUERY,
-    { token },
-  );
+  try {
+    const res = await request<SquadInvitation>(
+      `${apiUrl}/graphql`,
+      SQUAD_INVITATION_QUERY,
+      { token },
+    );
 
-  return res.member;
+    return res.member;
+  } catch (err) {
+    return null;
+  }
 };
 
 export const joinSquadInvitation = (
   params: SquadInvitationProps,
-): Promise<SquadInvitation> =>
-  request(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, params);
+): Promise<Squad> => request(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, params);
 
 export const checkExistingHandle = async (handle: string): Promise<boolean> => {
   const req = await request(
