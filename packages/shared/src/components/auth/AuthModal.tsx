@@ -39,6 +39,10 @@ export default function AuthModal({
     onDiscard: closeAndLogout,
   });
   const isLogoutFlow = trigger === 'legacy_logout';
+  const onSuccessfulLogin = () => {
+    loginState?.onLoginSuccess?.();
+    closeLogin();
+  };
 
   return (
     <Modal
@@ -53,7 +57,7 @@ export default function AuthModal({
         className="h-full"
         onClose={onClose}
         formRef={formRef}
-        onSuccessfulLogin={closeLogin}
+        onSuccessfulLogin={onSuccessfulLogin}
         onSuccessfulRegistration={loginState?.onRegistrationSuccess}
         trigger={trigger}
         isLoginFlow={isLogoutFlow}
