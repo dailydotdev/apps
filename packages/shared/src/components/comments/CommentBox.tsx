@@ -71,7 +71,7 @@ function CommentBox({
           user={comment.author}
           tooltip={{ appendTo: appendTooltipTo }}
         >
-          <ProfileImageLink user={comment.author} />
+          <ProfileImageLink className="z-1" user={comment.author} />
         </ProfileTooltip>
         <div className="flex flex-col ml-3 typo-callout">
           <FlexRow>
