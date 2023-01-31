@@ -126,7 +126,7 @@ export const BasePageContainer = classed(
 
 export const pageContainerClassNames = classNames(
   basePageClassNames,
-  'items-stretch tablet:self-center',
+  'items-stretch tablet:self-center laptop:min-h-page',
 );
 
 export const PageContainerCentered = classed(

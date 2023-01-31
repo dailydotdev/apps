@@ -89,11 +89,7 @@ const Notifications = (): ReactElement => {
   return (
     <ProtectedPage seo={seo}>
       <main
-        className={classNames(
-          pageBorders,
-          pageContainerClassNames,
-          'laptop:min-h-screen pb-12',
-        )}
+        className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
         <EnableNotification />
         <h2
