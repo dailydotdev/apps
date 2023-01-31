@@ -82,7 +82,7 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
 `;
 
 export const USER_SHORT_INFO_FRAGMENT = gql`
-  fragment UserShortInfoFragment on User {
+  fragment UserShortInfo on User {
     id
     name
     image

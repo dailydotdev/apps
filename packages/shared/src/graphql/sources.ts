@@ -18,7 +18,7 @@ export interface Source {
 export type SourceData = { source: Source };
 
 export const SOURCE_BASE_FRAGMENT = gql`
-  fragment SourceBaseFragment on Source {
+  fragment SourceBaseInfo on Source {
     id
     active
     handle
@@ -37,7 +37,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
 `;
 
 export const SOURCE_SHORT_INFO_FRAGMENT = gql`
-  fragment SourceShortInfoFragment on Source {
+  fragment SourceShortInfo on Source {
     id
     handle
     name

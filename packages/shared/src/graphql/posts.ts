@@ -1,7 +1,7 @@
 import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
-import { UPVOTER_FRAGMENT } from './users';
+import { UPVOTER_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './users';
 import { Source, SOURCE_SHORT_INFO_FRAGMENT } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { apiUrl } from '../lib/config';
@@ -22,6 +22,22 @@ export enum PostType {
   Article = 'article',
   Share = 'share',
 }
+
+export const SHARED_POST_INFO_FRAGMENT = gql`
+  fragment SharedPostInfo on Post {
+    id
+    title
+    image
+    readTime
+    permalink
+    commentsPermalink
+    summary
+    source {
+      ...SourceShortInfo
+    }
+  }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
+`;
 
 export interface Post {
   __typename?: string;
@@ -139,32 +155,16 @@ export const POST_BY_ID_QUERY = gql`
       numComments
       views
       sharedPost {
-        id
-        title
-        image
-        readTime
-        permalink
-        summary
-        source {
-          ...SourceShortInfoFragment
-        }
+        ...SharedPostInfo
       }
       source {
-        ...SourceShortInfoFragment
+        ...SourceShortInfo
       }
       scout {
-        id
-        image
-        name
-        permalink
-        username
+        ...UserShortInfo
       }
       author {
-        id
-        image
-        name
-        permalink
-        username
+        ...UserShortInfo
       }
       description
       summary
@@ -175,7 +175,8 @@ export const POST_BY_ID_QUERY = gql`
       type
     }
   }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
+  ${SHARED_POST_INFO_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
@@ -212,7 +213,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       numUpvotes
       numComments
       source {
-        ...SourceShortInfoFragment
+        ...SourceShortInfo
       }
       description
       summary
@@ -305,7 +306,7 @@ export const AUTHOR_FEED_QUERY = gql`
           commentsPermalink
           image
           source {
-            ...SourceShortInfoFragment
+            ...SourceShortInfo
           }
           numUpvotes
           numComments

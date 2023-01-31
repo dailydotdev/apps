@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
-import { SOURCE_SHORT_INFO_FRAGMENT } from './sources';
+import { SHARED_POST_INFO_FRAGMENT } from './posts';
+import { USER_SHORT_INFO_FRAGMENT } from './users';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',
@@ -19,41 +20,27 @@ export const FEED_POST_FRAGMENT = gql`
     image
     readTime
     source {
-      ...SourceShortInfoFragment
+      ...SourceShortInfo
     }
     sharedPost {
-      id
-      title
-      image
-      readTime
-      summary
-      permalink
-      source {
-        ...SourceShortInfoFragment
-      }
+      ...SharedPostInfo
     }
     permalink
     numComments
     numUpvotes
     commentsPermalink
     scout {
-      id
-      name
-      image
-      username
+      ...UserShortInfo
     }
     author {
-      id
-      name
-      image
-      username
-      permalink
+      ...UserShortInfo
     }
     trending
     tags
     type
   }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
+  ${SHARED_POST_INFO_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const USER_POST_FRAGMENT = gql`
