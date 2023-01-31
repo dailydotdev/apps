@@ -108,7 +108,7 @@ export default function ShareOptionsMenu({
           ) : (
             <MenuIcon Icon={DefaultSquadIcon} />
           ),
-          text: squad.name,
+          text: `Post to ${squad.name}`,
           action: () =>
             openModal({
               type: LazyModal.PostToSquad,
