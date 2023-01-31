@@ -23,6 +23,7 @@ import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading
 import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import Custom404 from '@dailydotdev/shared/src/components/Custom404';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -59,7 +60,9 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  if (!squad && isLoading) return <SquadLoading />;
+  if (isLoading) return <SquadLoading />;
+
+  if (!squad) return <Custom404 />;
 
   if (isFallback || !squad.active) return <Unauthorized />;
 
