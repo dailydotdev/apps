@@ -74,7 +74,7 @@ export default function ShareModal({
       {!isComment && (
         <PostItemCard
           className="mt-2"
-          postItem={{ post: article }}
+          postItem={{ post }}
           showButtons={false}
           clickable={false}
         />
