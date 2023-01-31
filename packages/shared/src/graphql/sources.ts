@@ -17,37 +17,6 @@ export interface Source {
 
 export type SourceData = { source: Source };
 
-export const SOURCE_BASE_FRAGMENT = gql`
-  fragment SourceBaseInfo on Source {
-    id
-    active
-    handle
-    name
-    permalink
-    public
-    type
-    description
-    image
-    membersCount
-    currentMember {
-      role
-      referralToken
-    }
-  }
-`;
-
-export const SOURCE_SHORT_INFO_FRAGMENT = gql`
-  fragment SourceShortInfo on Source {
-    id
-    handle
-    name
-    permalink
-    description
-    image
-    type
-  }
-`;
-
 export const SOURCE_QUERY = gql`
   query Source($id: ID!) {
     source(id: $id) {

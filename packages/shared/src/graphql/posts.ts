@@ -1,10 +1,14 @@
 import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
-import { UPVOTER_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './users';
-import { Source, SOURCE_SHORT_INFO_FRAGMENT } from './sources';
+import { Source } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { apiUrl } from '../lib/config';
+import {
+  SHARED_POST_INFO_FRAGMENT,
+  SOURCE_SHORT_INFO_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -22,22 +26,6 @@ export enum PostType {
   Article = 'article',
   Share = 'share',
 }
-
-export const SHARED_POST_INFO_FRAGMENT = gql`
-  fragment SharedPostInfo on Post {
-    id
-    title
-    image
-    readTime
-    permalink
-    commentsPermalink
-    summary
-    source {
-      ...SourceShortInfo
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
-`;
 
 export interface Post {
   __typename?: string;
@@ -111,6 +99,7 @@ export type ReadHistoryPost = Pick<
   | 'numComments'
   | 'trending'
   | 'tags'
+  | 'sharedPost'
 > & { source?: Pick<Source, 'image' | 'id'> } & {
   author?: Pick<Author, 'id'>;
 } & {
@@ -180,7 +169,7 @@ export const POST_BY_ID_QUERY = gql`
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
-  ${UPVOTER_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
   query PostUpvotes($id: String!, $after: String, $first: Int) {
     upvotes: postUpvotes(id: $id, after: $after, first: $first) {
       pageInfo {

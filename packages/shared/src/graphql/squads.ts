@@ -1,15 +1,9 @@
 import request, { gql } from 'graphql-request';
-import { USER_SHORT_INFO_FRAGMENT } from './users';
+import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
-import {
-  Source,
-  SourceType,
-  SourceData,
-  SOURCE_BASE_FRAGMENT,
-  SOURCE_QUERY,
-} from './sources';
+import { Source, SourceType, SourceData, SOURCE_QUERY } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
 
