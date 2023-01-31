@@ -77,7 +77,7 @@ function PostToSquadModal({
       onRequestClose={onRequestClose}
       steps={post ? undefined : modalSteps}
     >
-      <Modal.Header title="Post article" kind={ModalHeaderKind.Tertiary} />
+      <Modal.Header title="Share article" kind={ModalHeaderKind.Tertiary} />
       {post ? (
         <SquadComment form={form} onSubmit={onSubmit} />
       ) : (
