@@ -1,15 +1,9 @@
 import request, { gql } from 'graphql-request';
-import { USER_SHORT_INFO_FRAGMENT } from './users';
+import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
-import {
-  Source,
-  SourceType,
-  SourceData,
-  SOURCE_BASE_FRAGMENT,
-  SOURCE_QUERY,
-} from './sources';
+import { Source, SourceType, SourceData, SOURCE_QUERY } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
 
@@ -113,7 +107,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       commentary: $commentary
       image: $image
     ) {
-      ...SourceBaseFragment
+      ...SourceBaseInfo
       members {
         edges {
           node {
@@ -141,7 +135,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       description: $description
       image: $image
     ) {
-      ...SourceBaseFragment
+      ...SourceBaseInfo
     }
   }
   ${SOURCE_BASE_FRAGMENT}
@@ -158,7 +152,7 @@ export const ADD_POST_TO_SQUAD_MUTATION = gql`
 export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
-      ...SourceBaseFragment
+      ...SourceBaseInfo
     }
   }
   ${SOURCE_BASE_FRAGMENT}
@@ -181,7 +175,7 @@ export const SQUAD_MEMBERS_QUERY = gql`
         node {
           role
           user {
-            ...UserShortInfoFragment
+            ...UserShortInfo
           }
         }
       }
@@ -194,15 +188,15 @@ export const SQUAD_INVITATION_QUERY = gql`
   query SourceInvitationQuery($token: String!) {
     member: sourceMemberByToken(token: $token) {
       user {
-        ...UserShortInfoFragment
+        ...UserShortInfo
       }
       source {
-        ...SourceBaseFragment
+        ...SourceBaseInfo
         members {
           edges {
             node {
               user {
-                ...UserShortInfoFragment
+                ...UserShortInfo
               }
             }
           }
@@ -217,7 +211,7 @@ export const SQUAD_INVITATION_QUERY = gql`
 export const SQUAD_JOIN_MUTATION = gql`
   mutation JoinSquad($sourceId: ID!, $token: String!) {
     joinSource(sourceId: $sourceId, token: $token) {
-      ...SourceBaseFragment
+      ...SourceBaseInfo
     }
   }
   ${SOURCE_BASE_FRAGMENT}

@@ -1,6 +1,6 @@
 import request, { gql } from 'graphql-request';
 import { Connection, Upvote } from './common';
-import { UPVOTER_FRAGMENT } from './users';
+import { USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { apiUrl } from '../lib/config';
@@ -144,7 +144,7 @@ export const USER_COMMENTS_QUERY = gql`
 `;
 
 export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
-  ${UPVOTER_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
   query CommentUpvotes($id: String!, $after: String, $first: Int) {
     upvotes: commentUpvotes(id: $id, after: $after, first: $first) {
       pageInfo {
