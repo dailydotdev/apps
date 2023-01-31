@@ -4,5 +4,9 @@ export async function base64ToFile(
 ): Promise<File> {
   const res: Response = await fetch(dataUrl);
   const blob: Blob = await res.blob();
-  return new File([blob], fileName, { type: 'image/png' });
+  const type = dataUrl.substring(
+    dataUrl.indexOf(':') + 1,
+    dataUrl.indexOf(';'),
+  );
+  return new File([blob], fileName, { type });
 }

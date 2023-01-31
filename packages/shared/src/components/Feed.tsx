@@ -67,15 +67,15 @@ interface RankVariables {
   ranking?: string;
 }
 
-const SharePostModal = dynamic(
+const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
 );
 const PostModal = dynamic(
   () => import(/* webpackChunkName: "postModal" */ './modals/PostModal'),
 );
-const SquadPostModal = dynamic(
+const SharePostModal = dynamic(
   () =>
-    import(/* webpackChunkName: "squadPostModal" */ './modals/SquadPostModal'),
+    import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
 const ScrollFeedFiltersOnboarding = dynamic(
   () =>
@@ -131,7 +131,7 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
 
 const PostModalMap: Record<PostType, typeof PostModal> = {
   [PostType.Article]: PostModal,
-  [PostType.Share]: SquadPostModal,
+  [PostType.Share]: SharePostModal,
 };
 
 export default function Feed<T>({
@@ -480,7 +480,7 @@ export default function Feed<T>({
           />
         )}
         {sharePost && (
-          <SharePostModal
+          <ShareModal
             isOpen={!!sharePost}
             post={sharePost}
             origin={Origin.Feed}

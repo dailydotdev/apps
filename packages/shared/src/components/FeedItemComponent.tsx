@@ -2,7 +2,7 @@ import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
-import { PostCard } from './cards/PostCard';
+import { ArticlePostCard } from './cards/PostCard';
 import { AdList } from './cards/AdList';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderList } from './cards/PlaceholderList';
@@ -93,7 +93,7 @@ export function getFeedItemKey(items: FeedItem[], index: number): string {
 }
 
 const PostTypeToTag: Record<PostType, FunctionComponent> = {
-  [PostType.Article]: PostCard,
+  [PostType.Article]: ArticlePostCard,
   [PostType.Share]: SharePostCard,
 };
 
@@ -141,7 +141,7 @@ export default function FeedItemComponent({
     case 'post': {
       const PostTag = useList
         ? PostList
-        : PostTypeToTag[item.post.type] ?? PostCard;
+        : PostTypeToTag[item.post.type] ?? ArticlePostCard;
       return (
         <PostTag
           ref={inViewRef}

@@ -49,7 +49,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
         <SharedPostCardHeader
           author={post.author}
           source={post.source}
-          permalink={post.permalink}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
           createdAt={post.createdAt}
