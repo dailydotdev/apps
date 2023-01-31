@@ -76,6 +76,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     },
   );
   const sourceId = member?.source?.id;
+  console.log(sourceId);
   const { mutateAsync: onJoinSquad } = useMutation(
     () => joinSquadInvitation({ sourceId, token }),
     {
