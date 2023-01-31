@@ -114,7 +114,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
-  if ((!isFallback && !id) || !Content) return <Custom404 />;
+  if (!isFallback || !Content) return <Custom404 />;
 
   return (
     <>
