@@ -68,6 +68,7 @@ function PostToSquadModal({
     onNext,
     onRequestClose,
   };
+  const title = `${post ? 'Share' : 'Post'} article`;
 
   return (
     <Modal
@@ -77,7 +78,7 @@ function PostToSquadModal({
       onRequestClose={onRequestClose}
       steps={post ? undefined : modalSteps}
     >
-      <Modal.Header title="Share article" kind={ModalHeaderKind.Tertiary} />
+      <Modal.Header title={title} kind={ModalHeaderKind.Tertiary} />
       {post ? (
         <SquadComment form={form} onSubmit={onSubmit} />
       ) : (
