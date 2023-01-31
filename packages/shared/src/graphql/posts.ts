@@ -387,3 +387,14 @@ export const deletePost = (id: string): Promise<EmptyResponse> => {
     id,
   });
 };
+
+export const VIEW_POST_MUTATION = gql`
+  mutation ViewPost($id: ID!) {
+    viewPost(id: $id) {
+      _
+    }
+  }
+`;
+
+export const sendViewPost = (id: string): Promise<void> =>
+  request(`${apiUrl}/graphql`, VIEW_POST_MUTATION, { id });

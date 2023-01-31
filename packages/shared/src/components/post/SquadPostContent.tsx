@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { modalSizeToClassName } from '../modals/common/Modal';
 import { PostNavigationProps } from './PostNavigation';
@@ -20,6 +26,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
+import { sendViewPost } from '../../graphql/posts';
 
 function SquadPostContent({
   post,
@@ -66,6 +73,10 @@ function SquadPostContent({
 
     return shoudShowSummary ? height : 0;
   }, [shoudShowSummary, height]);
+
+  useEffect(() => {
+    sendViewPost(post.id);
+  }, []);
 
   const containerClass =
     sidebarRendered && modalSizeToClassName[ModalSize.Large];
