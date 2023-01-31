@@ -31,9 +31,12 @@ export default function ShareModal({
   ...props
 }: ShareModalProps): ReactElement {
   const isComment = !!comment;
+  const permalink = isComment
+    ? post?.commentsPermalink
+    : post?.sharedPost?.commentsPermalink ?? post?.commentsPermalink;
   const link = isComment
-    ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
-    : post?.commentsPermalink;
+    ? `${permalink}${getCommentHash(comment.id)}`
+    : permalink;
   const { trackEvent } = useContext(AnalyticsContext);
   const [, copyUrl] = useCopyLink(() => link);
 
@@ -63,13 +66,15 @@ export default function ShareModal({
     return () => baseTrackingEvent('close share');
   }, []);
 
+  const article = post?.sharedPost ?? post;
+
   return (
     <Modal size={Modal.Size.Small} kind={Modal.Kind.FlexibleCenter} {...props}>
       <Modal.Header title={isComment ? 'Share comment' : 'Share article'} />
       {!isComment && (
         <PostItemCard
           className="mt-2"
-          postItem={{ post }}
+          postItem={{ post: article }}
           showButtons={false}
           clickable={false}
         />
@@ -96,7 +101,7 @@ export default function ShareModal({
         />
         <p className="py-2.5 font-bold typo-callout">Share via</p>
         <SocialShare
-          post={post}
+          post={article}
           comment={comment}
           origin={origin}
           columns={columns}
