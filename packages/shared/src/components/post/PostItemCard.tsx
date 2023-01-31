@@ -40,6 +40,7 @@ export default function PostItemCard({
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
   };
+  const article = post?.sharedPost ?? post;
 
   return (
     <ConditionalWrapper
@@ -56,7 +57,7 @@ export default function PostItemCard({
         )}
       >
         <Image
-          src={post.image}
+          src={article.image}
           alt={post.title}
           className="object-cover w-16 laptop:w-24 h-16 rounded-16"
           loading="lazy"
@@ -68,7 +69,7 @@ export default function PostItemCard({
           rounded="full"
           className="absolute left-6"
           user={{
-            image: post.source?.image,
+            image: post.source.image,
             username: `source of ${post.title}`,
           }}
           nativeLazyLoading
