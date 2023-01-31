@@ -141,8 +141,14 @@ function SquadPostContent({
             </ProfileTooltip>
           </span>
           <p className="mt-6 typo-title3">{post.title}</p>
-          <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary">
-            <span className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
+          <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
+            <a
+              href={post.sharedPost.commentsPermalink}
+              title="Go to article"
+              rel="noopener"
+              className="flex flex-col-reverse laptop:flex-row p-4 max-w-full"
+              onClick={onReadArticle}
+            >
               <div className="flex flex-col flex-1">
                 <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body">
                   {post.sharedPost.title}
@@ -160,14 +166,7 @@ function SquadPostContent({
                   openNewTab={openNewTab}
                 />
               </div>
-              <a
-                href={post.sharedPost.permalink}
-                title="Go to article"
-                target="_blank"
-                rel="noopener"
-                onClick={onReadArticle}
-                className="block overflow-hidden w-70 rounded-2xl cursor-pointer"
-              >
+              <div className="block overflow-hidden w-70 rounded-2xl cursor-pointer h-fit">
                 <LazyImage
                   imgSrc={post.sharedPost.image}
                   imgAlt="Post cover image"
@@ -175,8 +174,8 @@ function SquadPostContent({
                   eager
                   fallbackSrc={cloudinary.post.imageCoverPlaceholder}
                 />
-              </a>
-            </span>
+              </div>
+            </a>
             {post.sharedPost.summary && (
               <>
                 <PostSummary
