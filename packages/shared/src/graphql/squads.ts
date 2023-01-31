@@ -266,13 +266,17 @@ export interface SquadInvitationProps {
 export const getSquadInvitation = async (
   token: string,
 ): Promise<SquadMember> => {
-  const res = await request<SquadInvitation>(
-    `${apiUrl}/graphql`,
-    SQUAD_INVITATION_QUERY,
-    { token },
-  );
+  try {
+    const res = await request<SquadInvitation>(
+      `${apiUrl}/graphql`,
+      SQUAD_INVITATION_QUERY,
+      { token },
+    );
 
-  return res.member;
+    return res.member;
+  } catch (err) {
+    return null;
+  }
 };
 
 export const joinSquadInvitation = (
