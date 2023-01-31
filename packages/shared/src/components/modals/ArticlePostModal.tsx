@@ -8,7 +8,7 @@ import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
 
-interface PostModalProps
+interface ArticlePostModalProps
   extends ModalProps,
     Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'> {
   id: string;
@@ -18,7 +18,7 @@ interface PostModalProps
 export const postModalOverlayClasses =
   'post-modal-overlay bg-overlay-quaternary-onion';
 
-export default function PostModal({
+export default function ArticlePostModal({
   id,
   className,
   isFetchingNextPage,
@@ -26,7 +26,7 @@ export default function PostModal({
   onPreviousPost,
   onNextPost,
   ...props
-}: PostModalProps): ReactElement {
+}: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const { post, isLoading } = usePostById({ id, isFetchingNextPage });
   const position = usePostNavigationPosition({

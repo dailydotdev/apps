@@ -70,8 +70,11 @@ interface RankVariables {
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
 );
-const PostModal = dynamic(
-  () => import(/* webpackChunkName: "postModal" */ './modals/PostModal'),
+const ArticlePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "articlePostModal" */ './modals/ArticlePostModal'
+    ),
 );
 const SharePostModal = dynamic(
   () =>
@@ -129,8 +132,8 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   return {};
 };
 
-const PostModalMap: Record<PostType, typeof PostModal> = {
-  [PostType.Article]: PostModal,
+const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
+  [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
 };
 
