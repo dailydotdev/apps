@@ -8,6 +8,7 @@ import { cloudinary } from '../../lib/image';
 import AuthContext from '../../contexts/AuthContext';
 import OpenLinkIcon from '../icons/OpenLink';
 import { SquadForm } from '../../graphql/squads';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export function SquadComment({
   onSubmit,
@@ -64,14 +65,22 @@ export function SquadComment({
             </h6>
           </div>
         </div>
-        <Button
-          form="squad-comment"
-          className="btn-primary-cabbage"
-          type="submit"
-          disabled={!commentary}
+        <SimpleTooltip
+          placement="left"
+          content={commentary ? '' : 'Please add a comment before proceeding'}
+          interactive
         >
-          Done
-        </Button>
+          <div>
+            <Button
+              form="squad-comment"
+              className="btn-primary-cabbage"
+              type="submit"
+              disabled={!commentary}
+            >
+              Done
+            </Button>
+          </div>
+        </SimpleTooltip>
       </Modal.Footer>
     </>
   );
