@@ -25,6 +25,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import {
   PromptOptions,
   usePrompt,
@@ -84,6 +85,8 @@ function InternalApp({
 }): ReactElement {
   useError();
   useInAppNotification();
+  useLazyModal();
+  usePrompt();
   const { showPrompt } = usePrompt();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);

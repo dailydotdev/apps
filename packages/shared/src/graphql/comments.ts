@@ -1,6 +1,6 @@
 import request, { gql } from 'graphql-request';
 import { Connection, Upvote } from './common';
-import { UPVOTER_FRAGMENT } from './users';
+import { USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { apiUrl } from '../lib/config';
@@ -80,8 +80,12 @@ export const COMMENT_WITH_CHILDREN_FRAGMENT = gql`
 `;
 
 export const RECOMMEND_MENTIONS_QUERY = gql`
-  query RecommendedMentions($postId: String!, $query: String) {
-    recommendedMentions(postId: $postId, query: $query) {
+  query RecommendedMentions(
+    $postId: String!
+    $query: String
+    $sourceId: String
+  ) {
+    recommendedMentions(postId: $postId, query: $query, sourceId: $sourceId) {
       username
       name
       image
@@ -140,7 +144,7 @@ export const USER_COMMENTS_QUERY = gql`
 `;
 
 export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
-  ${UPVOTER_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
   query CommentUpvotes($id: String!, $after: String, $first: Int) {
     upvotes: commentUpvotes(id: $id, after: $after, first: $first) {
       pageInfo {
@@ -214,8 +218,8 @@ export const EDIT_COMMENT_MUTATION = gql`
 `;
 
 export const PREVIEW_COMMENT_MUTATION = gql`
-  query CommentPreview($content: String!) {
-    preview: commentPreview(content: $content)
+  query CommentPreview($content: String!, $sourceId: String) {
+    preview: commentPreview(content: $content, sourceId: $sourceId)
   }
 `;
 

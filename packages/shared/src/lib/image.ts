@@ -2,6 +2,10 @@ export const smallPostImage = (url: string): string =>
   url.replace('/f_auto,q_auto/', '/c_fill,f_auto,q_auto,w_192/');
 
 export const cloudinary = {
+  post: {
+    imageCoverPlaceholder:
+      'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1',
+  },
   feedFilters: {
     recommended:
       'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/recommended.png',
@@ -29,5 +33,9 @@ export const cloudinary = {
     discuss:
       'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/discuss.svg',
     bell: 'https://daily-now-res.cloudinary.com/image/upload/v1670251800/notifications/icons/bell.svg',
+  },
+  squads: {
+    imageFallback:
+      'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
   },
 };

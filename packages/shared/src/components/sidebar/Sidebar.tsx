@@ -21,7 +21,14 @@ import { MobileMenuIcon } from './MobileMenuIcon';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
+import { SquadsList } from './SquadsList';
+import { Button } from '../buttons/Button';
+import PlusIcon from '../icons/Plus';
 import { ProfilePicture } from '../ProfilePicture';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
+import { Squad } from '../../graphql/squads';
+import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -43,7 +50,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, squads } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const {
     toggleSidebarExpanded,
@@ -51,13 +58,21 @@ export default function Sidebar({
     loadedSettings,
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
+  const { openModal } = useLazyModal();
   const [showSettings, setShowSettings] = useState(false);
   const {
+    hasSquadAccess,
     canSubmitArticle,
     submitArticleSidebarButton,
     submitArticleModalButton,
     popularFeedCopy,
   } = useContext(FeaturesContext);
+  const { openSquadBetaModal } = useCreateSquadModal({
+    hasSquads: !!squads?.length,
+    hasAccess: hasSquadAccess,
+  });
+  const newSquadButtonVisible =
+    sidebarRendered && hasSquadAccess && !squads?.length;
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
@@ -68,6 +83,13 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
+
+  const openLockedSquadModal = (squad: Squad) => {
+    openModal({
+      type: LazyModal.LockedSquad,
+      props: { initialSquad: squad },
+    });
+  };
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -106,6 +128,25 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
+            {newSquadButtonVisible && (
+              <div className="flex">
+                <Button
+                  buttonSize="small"
+                  icon={<PlusIcon />}
+                  iconOnly={!sidebarExpanded}
+                  className={classNames(
+                    'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage flex flex-1',
+                    sidebarExpanded ? 'mx-3' : 'mx-1.5',
+                  )}
+                  textPosition={
+                    sidebarExpanded ? 'justify-start' : 'justify-center'
+                  }
+                  onClick={openSquadBetaModal}
+                >
+                  {sidebarExpanded && 'New Squad'}
+                </Button>
+              </div>
+            )}
             {!alerts?.filter && (
               <MyFeedButton
                 sidebarRendered={sidebarRendered}
@@ -115,6 +156,15 @@ export default function Sidebar({
                 alerts={alerts}
                 onNavTabClick={onNavTabClick}
                 icon={<ProfilePicture size="xsmall" user={user} />}
+              />
+            )}
+            {!!squads?.length && (
+              <SquadsList
+                {...defaultRenderSectionProps}
+                activePage={activePageProp}
+                squads={squads}
+                onNewSquad={openSquadBetaModal}
+                onOpenLockedSquad={openLockedSquadModal}
               />
             )}
             <DiscoverSection

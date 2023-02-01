@@ -26,6 +26,11 @@ export interface ModalProps extends ReactModal.Props {
   onViewChange?: (view: string) => void;
 }
 
+export type LazyModalCommonProps = Pick<
+  ModalProps,
+  'isOpen' | 'onRequestClose'
+> & { onRequestClose: (e?: React.MouseEvent | React.KeyboardEvent) => void };
+
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
   [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',
   [ModalKind.FlexibleCenter]: 'justify-center',
@@ -53,13 +58,15 @@ const modalKindAndSizeToClassName: Partial<
     [ModalSize.Medium]:
       'mobileL:max-h-[calc(100vh-7.5rem)] max-h-[calc(100vh-2.5rem)] h-auto min-h-[25rem] mt-6',
     [ModalSize.Large]: 'laptop:mt-14 laptop:mb-10',
+    [ModalSize.XLarge]: 'laptop:mt-14 laptop:mb-10',
   },
 };
-const modalSizeToClassName: Record<ModalSize, string> = {
+export const modalSizeToClassName: Record<ModalSize, string> = {
   [ModalSize.XSmall]: 'w-[21.25rem]',
   [ModalSize.Small]: 'w-[26.25rem]',
   [ModalSize.Medium]: 'w-[35rem]',
-  [ModalSize.Large]: 'w-[63.75rem]',
+  [ModalSize.Large]: 'w-[42.5rem]',
+  [ModalSize.XLarge]: 'w-[63.75rem]',
 };
 
 export function Modal({

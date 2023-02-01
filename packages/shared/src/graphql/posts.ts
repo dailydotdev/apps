@@ -1,15 +1,31 @@
 import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
-import { UPVOTER_FRAGMENT } from './users';
 import { Source } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { apiUrl } from '../lib/config';
+import {
+  SHARED_POST_INFO_FRAGMENT,
+  SOURCE_SHORT_INFO_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
+
+export interface SharedPost extends Post {
+  __typename?: string;
+  id: string;
+  title: string;
+  image: string;
+}
+
+export enum PostType {
+  Article = 'article',
+  Share = 'share',
+}
 
 export interface Post {
   __typename?: string;
@@ -40,6 +56,8 @@ export interface Post {
   impressionStatus?: number;
   isAuthor?: number;
   isScout?: number;
+  sharedPost?: SharedPost;
+  type: PostType;
 }
 
 export interface Ad {
@@ -81,6 +99,7 @@ export type ReadHistoryPost = Pick<
   | 'numComments'
   | 'trending'
   | 'tags'
+  | 'sharedPost'
 > & { source?: Pick<Source, 'image' | 'id'> } & {
   author?: Pick<Author, 'id'>;
 } & {
@@ -124,24 +143,17 @@ export const POST_BY_ID_QUERY = gql`
       numUpvotes
       numComments
       views
+      sharedPost {
+        ...SharedPostInfo
+      }
       source {
-        id
-        name
-        image
+        ...SourceShortInfo
       }
       scout {
-        id
-        image
-        name
-        permalink
-        username
+        ...UserShortInfo
       }
       author {
-        id
-        image
-        name
-        permalink
-        username
+        ...UserShortInfo
       }
       description
       summary
@@ -149,12 +161,15 @@ export const POST_BY_ID_QUERY = gql`
         text
         id
       }
+      type
     }
   }
+  ${SHARED_POST_INFO_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
-  ${UPVOTER_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
   query PostUpvotes($id: String!, $after: String, $first: Int) {
     upvotes: postUpvotes(id: $id, after: $after, first: $first) {
       pageInfo {
@@ -187,9 +202,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       numUpvotes
       numComments
       source {
-        id
-        name
-        image
+        ...SourceShortInfo
       }
       description
       summary
@@ -197,8 +210,10 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         text
         id
       }
+      type
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export interface UpvoteData {
@@ -280,9 +295,7 @@ export const AUTHOR_FEED_QUERY = gql`
           commentsPermalink
           image
           source {
-            id
-            name
-            image
+            ...SourceShortInfo
           }
           numUpvotes
           numComments
@@ -293,6 +306,7 @@ export const AUTHOR_FEED_QUERY = gql`
       }
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const KEYWORD_FEED_QUERY = gql`
@@ -363,3 +377,14 @@ export const deletePost = (id: string): Promise<EmptyResponse> => {
     id,
   });
 };
+
+export const VIEW_POST_MUTATION = gql`
+  mutation ViewPost($id: ID!) {
+    viewPost(id: $id) {
+      _
+    }
+  }
+`;
+
+export const sendViewPost = (id: string): Promise<void> =>
+  request(`${apiUrl}/graphql`, VIEW_POST_MUTATION, { id });

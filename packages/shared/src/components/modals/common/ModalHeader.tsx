@@ -3,18 +3,25 @@ import classNames from 'classnames';
 import classed from '../../../lib/classed';
 import { ModalTabs, ModalTabsProps } from './ModalTabs';
 import { ModalClose } from './ModalClose';
-import { ModalPropsContext } from './types';
+import { ModalHeaderKind, ModalPropsContext } from './types';
 import { Button, ButtonProps } from '../../buttons/Button';
 import ArrowIcon from '../../icons/Arrow';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 
 export type ModalHeaderProps = {
+  kind?: ModalHeaderKind;
   children?: ReactNode;
   className?: string;
   title?: string;
 };
 
-const ModalHeaderTitle = classed('h3', 'font-bold typo-title3');
+const headerKindToTitleClassName: Record<ModalHeaderKind, string> = {
+  [ModalHeaderKind.Primary]: 'typo-title3',
+  [ModalHeaderKind.Secondary]: 'typo-body',
+  [ModalHeaderKind.Tertiary]: 'typo-callout text-theme-label-tertiary',
+  [ModalHeaderKind.Quaternary]: 'typo-callout text-theme-label-tertiary',
+};
+const ModalHeaderTitle = classed('h3', 'font-bold');
 const ModalHeaderOuter = classed(
   'header',
   'flex items-center py-4 px-6 w-full h-14',
@@ -22,6 +29,7 @@ const ModalHeaderOuter = classed(
 const ModalHeaderSubtitle = classed('h3', 'font-bold typo-callout');
 
 export function ModalHeader({
+  kind = ModalHeaderKind.Primary,
   children,
   className,
   title,
@@ -36,7 +44,11 @@ export function ModalHeader({
       )}
     >
       {children}
-      {!!modalTitle && <ModalHeaderTitle>{modalTitle}</ModalHeaderTitle>}
+      {!!modalTitle && (
+        <ModalHeaderTitle className={headerKindToTitleClassName[kind]}>
+          {modalTitle}
+        </ModalHeaderTitle>
+      )}
       {onRequestClose && <ModalClose onClick={onRequestClose} />}
     </ModalHeaderOuter>
   );

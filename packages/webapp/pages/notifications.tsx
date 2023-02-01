@@ -5,7 +5,6 @@ import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
 import {
   NotificationsData,
   NOTIFICATIONS_QUERY,
-  NotificationType,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
@@ -18,9 +17,12 @@ import NotificationItem from '@dailydotdev/shared/src/components/notifications/N
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import InfiniteScrolling, {
+  checkFetchMore,
+} from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 
@@ -87,11 +89,7 @@ const Notifications = (): ReactElement => {
   return (
     <ProtectedPage seo={seo}>
       <main
-        className={classNames(
-          pageBorders,
-          pageContainerClassNames,
-          'laptop:min-h-screen pb-12',
-        )}
+        className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
         <EnableNotification />
         <h2
@@ -100,7 +98,11 @@ const Notifications = (): ReactElement => {
         >
           Notifications
         </h2>
-        <InfiniteScrolling queryResult={queryResult}>
+        <InfiniteScrolling
+          isFetchingNextPage={queryResult.isFetchingNextPage}
+          canFetchMore={checkFetchMore(queryResult)}
+          fetchNextPage={queryResult.fetchNextPage}
+        >
           {length > 0 &&
             queryResult.data.pages.map((page) =>
               page.notifications.edges.map(

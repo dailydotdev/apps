@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { SHARED_POST_INFO_FRAGMENT } from './fragments';
 
 type PostStats = {
   numPosts: number;
@@ -164,17 +165,6 @@ export const USER_READING_HISTORY_QUERY = gql`
   }
 `;
 
-export const UPVOTER_FRAGMENT = gql`
-  fragment UpvoterFragment on User {
-    id
-    name
-    username
-    bio
-    image
-    permalink
-  }
-`;
-
 const READING_HISTORY_FRAGMENT = gql`
   fragment ReadingHistoryFrament on ReadingHistory {
     timestamp
@@ -191,6 +181,9 @@ const READING_HISTORY_FRAGMENT = gql`
       numUpvotes
       bookmarked
       numComments
+      sharedPost {
+        ...SharedPostInfo
+      }
       source {
         id
         image
@@ -201,8 +194,10 @@ const READING_HISTORY_FRAGMENT = gql`
       author {
         id
       }
+      type
     }
   }
+  ${SHARED_POST_INFO_FRAGMENT}
 `;
 
 const READING_HISTORY_CONNECTION_FRAGMENT = gql`

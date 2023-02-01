@@ -21,7 +21,7 @@ import {
 } from '../hooks/useToastNotification';
 import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { OnShareOrBookmarkProps } from './post/PostActions';
+import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
 
@@ -32,7 +32,7 @@ const PortalMenu = dynamic(
   },
 );
 
-interface PostOptionsMenuProps extends OnShareOrBookmarkProps {
+interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
   feedName?: string;

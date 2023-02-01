@@ -23,6 +23,7 @@ import MainLayoutHeader, {
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
+import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 
 export interface MainLayoutProps
@@ -35,6 +36,7 @@ export interface MainLayoutProps
   dndActive?: boolean;
   screenCentered?: boolean;
   customBanner?: ReactNode;
+  showSidebar?: boolean;
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
@@ -55,6 +57,7 @@ export default function MainLayout({
   customBanner,
   additionalButtons,
   screenCentered = true,
+  showSidebar = true,
   className,
   onLogoClick,
   onNavTabClick,
@@ -99,12 +102,39 @@ export default function MainLayout({
     setHasTrackedImpression(true);
   }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
 
+  const renderSidebar = () => {
+    if (
+      showOnlyLogo ||
+      sidebarRendered === null ||
+      (sidebarRendered && !showSidebar)
+    )
+      return null;
+
+    return (
+      <Sidebar
+        promotionalBannerActive={hasBanner}
+        sidebarRendered={sidebarRendered}
+        openMobileSidebar={openMobileSidebar}
+        onNavTabClick={onNavTabClick}
+        enableSearch={enableSearch}
+        activePage={activePage}
+        showDnd={showDnd}
+        dndActive={dndActive}
+        isNavButtons={isNavItemsButton}
+        onShowDndClick={onShowDndClick}
+        setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
+      />
+    );
+  };
+
   return (
     <div {...handlers}>
       {customBanner || (
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
       <InAppNotificationElement />
+      <LazyModalElement />
+      <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
         greeting={greeting}
@@ -125,21 +155,7 @@ export default function MainLayout({
           hasBanner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
       >
-        {!showOnlyLogo && sidebarRendered !== null && (
-          <Sidebar
-            promotionalBannerActive={hasBanner}
-            sidebarRendered={sidebarRendered}
-            openMobileSidebar={openMobileSidebar}
-            onNavTabClick={onNavTabClick}
-            enableSearch={enableSearch}
-            activePage={activePage}
-            showDnd={showDnd}
-            dndActive={dndActive}
-            isNavButtons={isNavItemsButton}
-            onShowDndClick={onShowDndClick}
-            setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
-          />
-        )}
+        {renderSidebar()}
         {children}
       </main>
       <PromptElement />

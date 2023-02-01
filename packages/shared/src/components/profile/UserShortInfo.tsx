@@ -1,12 +1,11 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Author } from '../../graphql/comments';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import { getTextEllipsis } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
 
-// reference: https://stackoverflow.com/a/54049872/5532217
 type AnyTag =
   | string
   | React.FunctionComponent<never>
@@ -26,6 +25,7 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   disableTooltip?: boolean;
   scrollingContainer?: HTMLElement;
   appendTooltipTo?: HTMLElement;
+  children?: ReactNode;
 }
 
 const TextEllipsis = getTextEllipsis();
@@ -34,10 +34,11 @@ export function UserShortInfo<Tag extends AnyTag>({
   imageSize = 'xlarge',
   tag,
   user,
-  className,
+  className = 'py-3 px-6 hover:bg-theme-hover',
   disableTooltip,
   scrollingContainer,
   appendTooltipTo,
+  children,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
@@ -48,13 +49,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   };
 
   return (
-    <Element
-      {...props}
-      className={classNames(
-        'flex flex-row py-3 px-6 hover:bg-theme-hover',
-        className,
-      )}
-    >
+    <Element {...props} className={classNames('flex flex-row', className)}>
       <ProfileTooltip
         user={user}
         tooltip={tooltipProps}
@@ -75,6 +70,7 @@ export function UserShortInfo<Tag extends AnyTag>({
           {bio && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
         </div>
       </ProfileTooltip>
+      {children}
     </Element>
   );
 }

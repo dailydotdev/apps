@@ -116,17 +116,6 @@ export class Features<T extends FeatureValue = string> {
     'Activate companion',
   );
 
-  static readonly PostCardVersion = new Features('post_card_version', 'v1', [
-    'v1',
-    'v2',
-  ]);
-
-  static readonly PostModalByDefault = new Features('post_modal_by_default');
-
-  static readonly PostEngagementNonClickable = new Features(
-    'post_engagement_non_clickable',
-  );
-
   static readonly OnboardingMinimumTopics = new Features<number>(
     'onboarding_minimum_topics',
     0,
@@ -156,6 +145,8 @@ export class Features<T extends FeatureValue = string> {
     null,
     [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2],
   );
+
+  static readonly HasSquadAccess = new Features('squad');
 
   private constructor(
     public readonly id: string,

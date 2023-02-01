@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { PostCard, PostCardProps } from './PostCard';
+import { ArticlePostCard } from './ArticlePostCard';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import post from '../../../__tests__/fixture/post';
+import { PostCardProps } from './common';
 
 const defaultProps: PostCardProps = {
   post,
@@ -12,6 +13,7 @@ const defaultProps: PostCardProps = {
   onBookmarkClick: jest.fn(),
   onShare: jest.fn(),
   onShareClick: jest.fn(),
+  onReadArticleClick: jest.fn(),
 };
 
 beforeEach(() => {
@@ -21,23 +23,25 @@ beforeEach(() => {
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <FeaturesContextProvider flags={{}}>
-      <PostCard {...defaultProps} {...props} />
+      <ArticlePostCard {...defaultProps} {...props} />
     </FeaturesContextProvider>,
   );
 };
 
 it('should call on link click on component left click', async () => {
   renderComponent();
-  const el = await screen.findAllByRole('link');
-  el[0].click();
+  const el = await screen.findByTitle('The Prosecutor’s Fallacy');
+  el.click();
   await waitFor(() => expect(defaultProps.onPostClick).toBeCalled());
 });
 
 it('should call on link click on component middle mouse up', async () => {
   renderComponent();
-  const el = await screen.findAllByRole('link');
-  el[0].dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
-  await waitFor(() => expect(defaultProps.onPostClick).toBeCalledWith(post));
+  const el = await screen.findByText('Read article');
+  el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
+  await waitFor(() =>
+    expect(defaultProps.onReadArticleClick).toBeCalledTimes(1),
+  );
 });
 
 it('should call on upvote click on upvote button click', async () => {

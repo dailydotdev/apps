@@ -1,4 +1,8 @@
 import { gql } from 'graphql-request';
+import {
+  SHARED_POST_INFO_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',
@@ -18,30 +22,27 @@ export const FEED_POST_FRAGMENT = gql`
     image
     readTime
     source {
-      id
-      name
-      image
+      ...SourceShortInfo
+    }
+    sharedPost {
+      ...SharedPostInfo
     }
     permalink
     numComments
     numUpvotes
     commentsPermalink
     scout {
-      id
-      name
-      image
-      username
+      ...UserShortInfo
     }
     author {
-      id
-      name
-      image
-      username
-      permalink
+      ...UserShortInfo
     }
     trending
     tags
+    type
   }
+  ${SHARED_POST_INFO_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const USER_POST_FRAGMENT = gql`
@@ -161,12 +162,14 @@ export const SOURCE_FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
+    $supportedTypes: [String!] = ["article", "share"]
   ) {
     page: sourceFeed(
       source: $source
       first: $first
       after: $after
       ranking: $ranking
+      supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
     }

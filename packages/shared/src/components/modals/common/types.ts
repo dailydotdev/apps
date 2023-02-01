@@ -1,5 +1,12 @@
 import { KeyboardEvent, MouseEvent, createContext, ReactNode } from 'react';
 
+export enum ModalHeaderKind {
+  Primary = 'primary',
+  Secondary = 'secondary',
+  Tertiary = 'tertiary',
+  Quaternary = 'quaternary',
+}
+
 export enum ModalKind {
   FlexibleCenter = 'flexible-center',
   FlexibleTop = 'flexible-top',
@@ -11,6 +18,18 @@ export enum ModalSize {
   Small = 'small',
   Medium = 'medium',
   Large = 'large',
+  XLarge = 'xlarge',
+}
+
+export enum LazyModal {
+  BetaSquad = 'betaSquad',
+  EditSquad = 'editSquad',
+  LockedSquad = 'lockedSquad',
+  NewSquad = 'newSquad',
+  PostToSquad = 'postToSquad',
+  SquadInvite = 'squadInvite',
+  SquadMember = 'squadMember',
+  UpvotedPopup = 'upvotedPopup',
 }
 
 export type ModalTabItem = {

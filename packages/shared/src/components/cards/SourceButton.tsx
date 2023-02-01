@@ -1,12 +1,12 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
-import { getSourcePermalink, Source } from '../../graphql/sources';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileImageSize } from '../ProfilePicture';
+import { Source } from '../../graphql/sources';
 
 interface SourceButtonProps {
-  source: Source;
+  source: Omit<Source, 'type'>;
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;
@@ -21,7 +21,7 @@ export default function SourceButton({
 }: SourceButtonProps): ReactElement {
   return source ? (
     <LinkWithTooltip
-      href={getSourcePermalink(source.id)}
+      href={source.permalink}
       prefetch={false}
       tooltip={{ content: source.name, placement: tooltipPosition }}
     >
@@ -32,8 +32,8 @@ export default function SourceButton({
           id: source.id,
           name: source.name,
           image: source.image,
-          permalink: getSourcePermalink(source.id),
-          username: source.id,
+          permalink: source.permalink,
+          username: source.handle,
         }}
       />
     </LinkWithTooltip>

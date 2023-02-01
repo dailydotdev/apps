@@ -30,9 +30,6 @@ export interface ActionButtonsProps {
   className?: string;
   children?: ReactNode;
   insaneMode?: boolean;
-  postCardVersion?: string;
-  postModalByDefault?: boolean;
-  postEngagementNonClickable?: boolean;
   openNewTab?: boolean;
 }
 
@@ -80,22 +77,14 @@ export default function ActionButtons({
   className,
   children,
   insaneMode,
-  postCardVersion,
-  postModalByDefault,
-  postEngagementNonClickable,
 }: ActionButtonsProps): ReactElement {
-  const isV2 = postCardVersion === 'v2';
-  const separatedActions =
-    (insaneMode && postModalByDefault) || postEngagementNonClickable;
-  const LeftContainer = separatedActions ? getContainer() : React.Fragment;
-  const RightContainer = separatedActions
-    ? getContainer(isV2 || (insaneMode && postModalByDefault), 'ml-auto')
+  const LeftContainer = insaneMode ? getContainer() : React.Fragment;
+  const RightContainer = insaneMode
+    ? getContainer(true, 'ml-auto')
     : React.Fragment;
   const upvoteCommentProps: ButtonProps<'button'> = {
-    readOnly: postEngagementNonClickable,
     buttonSize: 'small',
   };
-  const buttonClass = !postEngagementNonClickable && 'w-[4.875rem]';
 
   const lastActionButton = LastActionButton({
     post,
@@ -109,60 +98,43 @@ export default function ActionButtons({
       className={classNames(
         styles.actionButtons,
         'flex flex-row items-center',
-        separatedActions && 'justify-between',
-        insaneMode && isV2 && 'flex-1',
+        insaneMode && 'justify-between',
         className,
       )}
     >
       <LeftContainer>
-        <SimpleTooltip
-          disabled={postEngagementNonClickable}
-          content={post.upvoted ? 'Remove upvote' : 'Upvote'}
-        >
+        <SimpleTooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
           <QuaternaryButton
             id={`post-${post.id}-upvote-btn`}
-            icon={
-              <UpvoteIcon
-                secondary={post.upvoted || postEngagementNonClickable}
-              />
-            }
+            icon={<UpvoteIcon secondary={post.upvoted} />}
             pressed={post.upvoted}
             onClick={() => onUpvoteClick?.(post, !post.upvoted)}
             {...upvoteCommentProps}
-            className={classNames('btn-tertiary-avocado', buttonClass)}
+            className="btn-tertiary-avocado w-[4.875rem]"
           >
-            {postEngagementNonClickable && !post.numUpvotes ? null : (
-              <InteractionCounter
-                value={post.numUpvotes > 0 && post.numUpvotes}
-              />
-            )}
+            <InteractionCounter
+              value={post.numUpvotes > 0 && post.numUpvotes}
+            />
           </QuaternaryButton>
         </SimpleTooltip>
-        <SimpleTooltip content="Comments" disabled={postEngagementNonClickable}>
+        <SimpleTooltip content="Comments">
           <QuaternaryButton
             id={`post-${post.id}-comment-btn`}
-            icon={
-              <CommentIcon
-                secondary={post.commented || postEngagementNonClickable}
-              />
-            }
+            icon={<CommentIcon secondary={post.commented} />}
             pressed={post.commented}
             onClick={() => onCommentClick?.(post)}
             {...upvoteCommentProps}
-            className={classNames('btn-tertiary-blueCheese', buttonClass)}
+            className="btn-tertiary-blueCheese w-[4.875rem]"
           >
             <InteractionCounter
               value={post.numComments > 0 && post.numComments}
             />
           </QuaternaryButton>
         </SimpleTooltip>
-        {insaneMode &&
-          postModalByDefault &&
-          !postEngagementNonClickable &&
-          lastActionButton}
+        {insaneMode && lastActionButton}
       </LeftContainer>
       <RightContainer>
-        {insaneMode && postModalByDefault && (
+        {insaneMode && (
           <ReadArticleButton
             href={post.permalink}
             className="btn-tertiary"
@@ -170,14 +142,10 @@ export default function ActionButtons({
             openNewTab={openNewTab}
           />
         )}
-        {(!insaneMode || !postModalByDefault || postEngagementNonClickable) &&
-          lastActionButton}
-        {(isV2 || insaneMode) && (
+        {!insaneMode && lastActionButton}
+        {insaneMode && (
           <OptionsButton
-            className={classNames(
-              visibleOnGroupHover,
-              insaneMode && !postModalByDefault && 'ml-auto',
-            )}
+            className={visibleOnGroupHover}
             onClick={onMenuClick}
             tooltipPlacement="top"
           />

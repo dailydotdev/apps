@@ -11,6 +11,7 @@ import PostMetadata from '../cards/PostMetadata';
 import { ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { cloudinary } from '../../lib/image';
 
 interface PostItemCardProps {
   className?: string;
@@ -39,6 +40,7 @@ export default function PostItemCard({
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
   };
+  const article = post?.sharedPost ?? post;
 
   return (
     <ConditionalWrapper
@@ -55,11 +57,11 @@ export default function PostItemCard({
         )}
       >
         <Image
-          src={post.image}
+          src={article.image}
           alt={post.title}
           className="object-cover w-16 laptop:w-24 h-16 rounded-16"
           loading="lazy"
-          fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
         />
         <SourceShadow />
         <ProfilePicture
@@ -67,12 +69,12 @@ export default function PostItemCard({
           rounded="full"
           className="absolute left-6"
           user={{
-            image: post.source?.image,
+            image: post.source.image,
             username: `source of ${post.title}`,
           }}
           nativeLazyLoading
         />
-        <h3 className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
+        <h3 className="flex flex-wrap flex-1 mr-6 ml-4 text-left line-clamp-2 typo-callout">
           {post.title}
           <PostMetadata
             readTime={post.readTime}

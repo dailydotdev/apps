@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import {
   AnonymousUser,
   deleteAccount,
@@ -8,15 +14,23 @@ import {
 import { AccessToken, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
+import { Squad } from '../graphql/squads';
 
-export type LoginState = { trigger: AuthTriggersOrString };
+export interface LoginState {
+  trigger: AuthTriggersOrString;
+  referral?: string;
+  onLoginSuccess?: () => void;
+  onRegistrationSuccess?: () => void;
+}
+
+type LoginOptions = Omit<LoginState, 'trigger'>;
 
 export interface AuthContextData {
   user?: LoggedUser;
   referral?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
-  showLogin: (trigger: AuthTriggersOrString) => void;
+  showLogin: (trigger: AuthTriggersOrString, options?: LoginOptions) => void;
   closeLogin: () => void;
   loginState?: LoginState;
   logout: () => Promise<void>;
@@ -32,9 +46,11 @@ export interface AuthContextData {
   deleteAccount?: () => Promise<void>;
   refetchBoot?: () => Promise<unknown>;
   accessToken?: AccessToken;
+  squads?: Squad[];
 }
 const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
+export const useAuthContext = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;
 
 export const getQueryParams = (): Record<string, string> => {
@@ -82,6 +98,7 @@ export type AuthContextProviderProps = {
   | 'loadedUserFromCache'
   | 'visit'
   | 'accessToken'
+  | 'squads'
 >;
 
 export const AuthContextProvider = ({
@@ -98,6 +115,7 @@ export const AuthContextProvider = ({
   isLegacyLogout,
   firstLoad,
   accessToken,
+  squads,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -114,17 +132,17 @@ export const AuthContextProvider = ({
   const authContext: AuthContextData = useMemo(
     () => ({
       user: endUser,
-      referral,
+      referral: loginState?.referral ?? referral,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger) => {
+      showLogin: (trigger, options = {}) => {
         const hasCompanion = !!isCompanionActivated();
         if (hasCompanion) {
           const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
           window.open(signup);
         } else {
-          setLoginState({ trigger });
+          setLoginState({ ...options, trigger });
         }
       },
       closeLogin: () => setLoginState(null),
@@ -141,6 +159,7 @@ export const AuthContextProvider = ({
       refetchBoot,
       deleteAccount,
       accessToken,
+      squads,
     }),
     [
       user,
@@ -151,6 +170,7 @@ export const AuthContextProvider = ({
       loadedUserFromCache,
       visit,
       accessToken,
+      squads,
     ],
   );
 

@@ -27,6 +27,7 @@ interface ImageInputProps {
   viewOnly?: boolean;
   fallbackImage?: string;
   hoverIcon?: ReactNode;
+  alwayShowHover?: boolean;
 }
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
@@ -45,6 +46,7 @@ function ImageInput({
   size = 'medium',
   viewOnly,
   hoverIcon,
+  alwayShowHover,
   fallbackImage = fallbackImages.avatar,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
@@ -102,6 +104,7 @@ function ImageInput({
         className={classNames(
           'w-full h-full',
           className?.img,
+          alwayShowHover && 'opacity-[0.8]',
           !viewOnly && 'mouse:group-hover:opacity-64',
         )}
         src={image}
@@ -110,7 +113,7 @@ function ImageInput({
       />
       <span
         className={classNames(
-          'hidden',
+          !alwayShowHover && 'hidden',
           !viewOnly && 'mouse:group-hover:block absolute',
         )}
       >

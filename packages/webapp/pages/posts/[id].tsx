@@ -1,13 +1,12 @@
 import React, {
   CSSProperties,
   ReactElement,
-  useContext,
-  useEffect,
+  ReactNode,
+  useCallback,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useQuery } from 'react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -17,9 +16,9 @@ import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
-  POST_BY_ID_QUERY,
   PostData,
   Post,
+  PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
@@ -29,8 +28,12 @@ import {
   PostContent,
   SCROLL_OFFSET,
 } from '@dailydotdev/shared/src/components/post/PostContent';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
+import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
+import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
+import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -47,42 +50,45 @@ export const getSeoDescription = (post: Post): string => {
 };
 export interface Props {
   id: string;
-  postData?: PostData;
+  initialData?: PostData;
 }
+
+const CONTENT_MAP: Record<PostType, typeof PostContent> = {
+  article: PostContent,
+  share: SquadPostContent,
+};
 
 interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const PostPage = ({ id, postData }: Props): ReactElement => {
+const CHECK_POPSTATE = 'popstate_key';
+
+const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
-  const { tokenRefreshed } = useContext(AuthContext);
   const router = useRouter();
   const { isFallback } = router;
-
-  if (!isFallback && !id) {
-    return <Custom404 />;
-  }
-
-  const {
-    data: postById,
-    isLoading,
-    isFetched,
-  } = useQuery<PostData>(
-    ['post', id],
-    () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
-    { initialData: postData, enabled: !!id && tokenRefreshed },
+  useWindowEvents(
+    'popstate',
+    CHECK_POPSTATE,
+    useCallback(() => router.reload(), []),
+    false,
   );
 
+  const { post, isLoading } = usePostById({
+    id,
+    options: { initialData },
+  });
+
   const seo: NextSeoProps = {
-    title: getTemplatedTitle(postData?.post.title),
-    description: getSeoDescription(postData?.post),
+    title: getTemplatedTitle(post?.title),
+    description: getSeoDescription(post),
     openGraph: {
-      images: [{ url: postData?.post.image }],
+      images: [{ url: post?.image }],
       article: {
-        publishedTime: postData?.post.createdAt,
-        tags: postData?.post.tags,
+        publishedTime: post?.createdAt,
+        tags: post?.tags,
       },
     },
   };
@@ -93,32 +99,44 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  useEffect(() => {
-    window.addEventListener('popstate', () => {
-      router.reload();
-    });
-  }, []);
+  if (!initialData && (isFallback || isLoading)) {
+    return <></>;
+  }
+
+  const Content = CONTENT_MAP[post?.type];
+  const navigation: Record<PostType, ReactNode> = {
+    article: <></>,
+    share: !post?.source ? (
+      <></>
+    ) : (
+      <SquadPostPageNavigation squadLink={post.source.permalink} />
+    ),
+  };
+  const customNavigation = navigation[post?.type] ?? navigation.article;
+
+  if (!Content && (!isFallback || !isLoading)) return <Custom404 />;
 
   return (
     <>
       <Head>
-        <link rel="preload" as="image" href={postById?.post.image} />
+        <link rel="preload" as="image" href={post?.image} />
       </Head>
       <NextSeo {...seo} />
-      <PostContent
+      <Content
         position={position}
-        postById={postById}
+        post={post}
         isFallback={isFallback}
-        isLoading={isLoading || !isFetched}
-        enableAuthorOnboarding={!!router.query?.author}
+        isLoading={isLoading}
+        customNavigation={customNavigation}
+        shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
+        origin={Origin.ArticlePage}
         className={{
-          container: 'pb-20 laptop:pb-6 laptopL:pb-0',
+          container:
+            'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
           fixedNavigation: { container: 'flex laptop:hidden' },
-          navigation: {
-            container: 'tablet:hidden',
-            actions: 'justify-between w-full',
-          },
+          navigation: { actions: 'flex-1 justify-between' },
+          content: 'pt-8',
         }}
       />
     </>
@@ -139,7 +157,7 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    const postData = await request<PostData>(
+    const initialData = await request<PostData>(
       `${apiUrl}/graphql`,
       POST_BY_ID_STATIC_FIELDS_QUERY,
       { id },
@@ -147,15 +165,19 @@ export async function getStaticProps({
     return {
       props: {
         id,
-        postData,
+        initialData,
       },
       revalidate: 60,
     };
   } catch (err) {
     const clientError = err as ClientError;
-    if (clientError?.response?.errors?.[0]?.extensions?.code === 'NOT_FOUND') {
+    if (
+      ['FORBIDDEN', 'NOT_FOUND'].includes(
+        clientError?.response?.errors?.[0]?.extensions?.code,
+      )
+    ) {
       return {
-        props: { id: null },
+        props: { id },
         revalidate: 60,
       };
     }

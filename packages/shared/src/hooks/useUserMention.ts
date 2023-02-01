@@ -45,6 +45,7 @@ export interface UseUserMentionOptions {
 
 interface UseUserMentionProps {
   postId: string;
+  sourceId?: string;
   onInput: (content: string) => unknown;
 }
 
@@ -61,9 +62,9 @@ export const fixHeight = (el: HTMLElement): void => {
 
 export function useUserMention({
   postId,
+  sourceId,
   onInput,
 }: UseUserMentionProps): UseUserMentionOptions {
-  const key = ['user-mention', postId];
   const commentRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
@@ -71,6 +72,7 @@ export function useUserMention({
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
   const [position, setPosition] = useState<CaretPosition>([0, 0]);
   const [query, setQuery] = useState<string>();
+  const key = ['user-mention', postId, sourceId, query];
   const { requestMethod } = useRequestProtocol();
   const { data = { recommendedMentions: [] }, refetch } =
     useQuery<RecommendedMentionsData>(
@@ -79,7 +81,7 @@ export function useUserMention({
         requestMethod(
           `${apiUrl}/graphql`,
           RECOMMEND_MENTIONS_QUERY,
-          { postId, query },
+          { postId, query, sourceId },
           { requestKey: JSON.stringify(key) },
         ),
       {

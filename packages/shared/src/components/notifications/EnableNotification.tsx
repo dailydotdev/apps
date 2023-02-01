@@ -18,7 +18,7 @@ export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
-  parentCommentAuthorName?: string;
+  contentName?: string;
   className?: string;
 };
 
@@ -28,11 +28,12 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mx-3 mb-3',
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.NewSourceModal]: '',
+  [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-3',
 };
 
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
-  parentCommentAuthorName,
+  contentName,
   className,
 }: EnableNotificationProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
@@ -104,13 +105,14 @@ function EnableNotification({
 
   const sourceToMessage: Record<NotificationPromptSource, string> = {
     [NotificationPromptSource.NewComment]: `Want to get notified when ${
-      parentCommentAuthorName ?? 'someone'
+      contentName ?? 'someone'
     } responds so you can continue the conversation?`,
     [NotificationPromptSource.CommunityPicks]:
       'Would you like to get notified on the status of your article submissions in real time?',
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',
+    [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on ${contentName}.`,
   };
   const message = sourceToMessage[source];
   const classes = containerClassName[source];

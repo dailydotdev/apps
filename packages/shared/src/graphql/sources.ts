@@ -1,14 +1,19 @@
 import { gql } from 'graphql-request';
 
+export enum SourceType {
+  Machine = 'machine',
+  Squad = 'squad',
+}
+
 export interface Source {
   __typename?: string;
   id?: string;
   name: string;
   image: string;
+  handle: string;
+  type: SourceType;
+  permalink: string;
 }
-
-export const getSourcePermalink = (id: string): string =>
-  `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/${id}`;
 
 export type SourceData = { source: Source };
 

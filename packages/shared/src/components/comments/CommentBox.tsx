@@ -66,7 +66,7 @@ function CommentBox({
       data-testid="comment"
     >
       {children}
-      <header className="flex flex-row">
+      <header className="flex z-1 flex-row">
         <ProfileTooltip
           user={comment.author}
           tooltip={{ appendTo: appendTooltipTo }}

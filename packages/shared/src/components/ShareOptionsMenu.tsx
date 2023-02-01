@@ -6,19 +6,26 @@ import ShareIcon from './icons/Share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { OnShareOrBookmarkProps } from './post/PostActions';
+import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import LinkIcon from './icons/Link';
+import FeaturesContext from '../contexts/FeaturesContext';
+import AuthContext from '../contexts/AuthContext';
+import SquadIcon from './icons/Squad';
+import { SquadImage } from './squads/SquadImage';
+import DefaultSquadIcon from './icons/DefaultSquad';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
   { ssr: false },
 );
 
-interface ShareOptionsMenuProps extends OnShareOrBookmarkProps {
+interface ShareOptionsMenuProps extends ShareBookmarkProps {
   post: Post;
   onHidden?: () => unknown;
   contextId?: string;
@@ -40,8 +47,10 @@ export default function ShareOptionsMenu({
 }: ShareOptionsMenuProps): ReactElement {
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
+  const { squads } = useContext(AuthContext);
+  const { hasSquadAccess } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
-
+  const { openModal } = useLazyModal();
   const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -57,7 +66,7 @@ export default function ShareOptionsMenu({
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share article via...',
-      action: onShare,
+      action: () => onShare(post),
     },
     {
       icon: (
@@ -76,6 +85,41 @@ export default function ShareOptionsMenu({
       action: trackAndCopyLink,
     },
   ];
+
+  if (hasSquadAccess) {
+    if (!squads?.length) {
+      shareOptions.push({
+        icon: <MenuIcon Icon={SquadIcon} />,
+        text: 'Post to new squad',
+        action: () =>
+          openModal({
+            type: LazyModal.NewSquad,
+            props: { post },
+          }),
+      });
+    }
+
+    squads?.map(
+      (squad) =>
+        squad.active &&
+        shareOptions.push({
+          icon: squad.image ? (
+            <SquadImage className="mr-2.5 w-5 h-5 text-2xl" {...squad} />
+          ) : (
+            <MenuIcon Icon={DefaultSquadIcon} />
+          ),
+          text: `Share to ${squad.name}`,
+          action: () =>
+            openModal({
+              type: LazyModal.PostToSquad,
+              props: {
+                squad,
+                post,
+              },
+            }),
+        }),
+    );
+  }
 
   return (
     <PortalMenu

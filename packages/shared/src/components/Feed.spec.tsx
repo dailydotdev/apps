@@ -9,6 +9,7 @@ import {
   RenderResult,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
@@ -24,6 +25,7 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
+  PostType,
 } from '../graphql/posts';
 import {
   MockedGraphQLResponse,
@@ -230,12 +232,12 @@ it('should render feed with sorting ranking by date', async () => {
   expect(elements.length).toBeGreaterThan(0);
   const [latest, old] = elements;
   // eslint-disable-next-line testing-library/no-node-access
-  const latestTitle = latest.querySelector('a').getAttribute('title');
+  const latestTitle = latest.querySelector('button').getAttribute('title');
   const latestPost = defaultFeedPage.edges.find(
     (edge) => edge.node.title === latestTitle,
   ).node;
   // eslint-disable-next-line testing-library/no-node-access
-  const oldTitle = old.querySelector('a').getAttribute('title');
+  const oldTitle = old.querySelector('button').getAttribute('title');
   const oldPost = defaultFeedPage.edges.find(
     (edge) => edge.node.title === oldTitle,
   ).node;
@@ -423,9 +425,11 @@ it('should increase reading rank progress', async () => {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
     reads: 0,
   });
-  const el = await screen.findByTitle(
+  const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
+  // eslint-disable-next-line testing-library/no-node-access
+  const el = await within(main.parentElement).findByText('Read article');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -481,9 +485,11 @@ it('should increase reading rank progress and rank', async () => {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 2 },
     reads: 0,
   });
-  const el = await screen.findByTitle(
+  const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
+  // eslint-disable-next-line testing-library/no-node-access
+  const el = await within(main.parentElement).findByText('Read article');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -547,9 +553,11 @@ it('should increase reading rank progress for anonymous users', async () => {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
     reads: 0,
   });
-  const el = await screen.findByTitle(
+  const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
+  // eslint-disable-next-line testing-library/no-node-access
+  const el = await within(main.parentElement).findByText('Read article');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -910,6 +918,7 @@ const createPostMock = (
         id: '0e4005b2d3cf191f8c44c2718a457a1e',
         __typename: 'PostPage',
         title: 'Eminem Quotes Generator - Simple PHP RESTful API',
+        summary: '',
         permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
         image:
           'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
@@ -918,7 +927,10 @@ const createPostMock = (
         tags: ['development', 'data-science', 'sql'],
         source: {
           __typename: 'Source',
+          id: 's',
           name: 'Towards Data Science',
+          handle: 's',
+          permalink: 's',
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
         },
@@ -928,6 +940,7 @@ const createPostMock = (
         commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
         numUpvotes: 0,
         numComments: 0,
+        type: PostType.Article,
         ...data,
       },
     },

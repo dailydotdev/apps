@@ -234,7 +234,9 @@ export default function MainFeedLayout({
     <LayoutHeader className="flex-col">
       {alerts?.filter && (
         <CreateMyFeedButton
-          action={() => onInitializeOnboarding(onFeedPageChanged)}
+          action={() =>
+            onInitializeOnboarding(() => onFeedPageChanged(MainFeedPage.MyFeed))
+          }
           flags={flags}
         />
       )}

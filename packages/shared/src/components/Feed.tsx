@@ -9,7 +9,7 @@ import React, {
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import useFeed, { PostItem } from '../hooks/useFeed';
-import { Ad, Post } from '../graphql/posts';
+import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import styles from './Feed.module.css';
@@ -60,17 +60,25 @@ export type FeedProps<T> = {
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
   header?: ReactNode;
+  forceCardMode?: boolean;
 };
 
 interface RankVariables {
   ranking?: string;
 }
 
-const SharePostModal = dynamic(
+const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
 );
-const PostModal = dynamic(
-  () => import(/* webpackChunkName: "postModal" */ './modals/PostModal'),
+const ArticlePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "articlePostModal" */ './modals/ArticlePostModal'
+    ),
+);
+const SharePostModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
 const ScrollFeedFiltersOnboarding = dynamic(
   () =>
@@ -124,6 +132,11 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   return {};
 };
 
+const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
+  [PostType.Article]: ArticlePostModal,
+  [PostType.Share]: SharePostModal,
+};
+
 export default function Feed<T>({
   feedName,
   feedQueryKey,
@@ -133,13 +146,9 @@ export default function Feed<T>({
   header,
   onEmptyFeed,
   emptyScreen,
+  forceCardMode,
 }: FeedProps<T>): ReactElement {
-  const {
-    postCardVersion,
-    postModalByDefault,
-    postEngagementNonClickable,
-    showCommentPopover,
-  } = useContext(FeaturesContext);
+  const { showCommentPopover } = useContext(FeaturesContext);
   const { scrollOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -152,9 +161,10 @@ export default function Feed<T>({
     openNewTab,
     showOnlyUnreadPosts,
     spaciness,
-    insaneMode,
+    insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const insaneMode = !forceCardMode && listMode;
   const [showFeedFilters, setShowFeedFilters] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
@@ -167,6 +177,7 @@ export default function Feed<T>({
       query,
       variables,
     );
+
   const { ranking } = (variables as RankVariables) || {};
   const {
     onOpenModal,
@@ -259,13 +270,8 @@ export default function Feed<T>({
 
   const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
     await onPostClick(post, index, row, column, {
-      skipPostUpdate: postModalByDefault,
+      skipPostUpdate: true,
     });
-
-    if (!postModalByDefault) {
-      return;
-    }
-
     onPostModalOpen(index);
   };
 
@@ -386,6 +392,9 @@ export default function Feed<T>({
     },
     post,
   };
+
+  const ArticleModal = PostModalMap[selectedPost?.type];
+
   return (
     <div
       className={classNames(
@@ -442,9 +451,6 @@ export default function Feed<T>({
               onCommentClick={onCommentClick}
               onAdClick={onAdClick}
               onReadArticleClick={onReadArticleClick}
-              postCardVersion={postCardVersion}
-              postModalByDefault={postModalByDefault}
-              postEngagementNonClickable={postEngagementNonClickable}
             />
           ))}
           {showScrollOnboardingVersion && showFeedFilters && (
@@ -466,8 +472,8 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {selectedPost && (
-          <PostModal
+        {selectedPost && ArticleModal && (
+          <ArticleModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
             onRequestClose={() => onCloseModal(false)}
@@ -477,7 +483,7 @@ export default function Feed<T>({
           />
         )}
         {sharePost && (
-          <SharePostModal
+          <ShareModal
             isOpen={!!sharePost}
             post={sharePost}
             origin={Origin.Feed}
