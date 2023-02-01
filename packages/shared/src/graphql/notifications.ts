@@ -1,5 +1,8 @@
 import { gql } from 'graphql-request';
-import { NotificationIcon } from '../components/notifications/utils';
+import {
+  NotificationIconType,
+  NotificationType,
+} from '../components/notifications/utils';
 import { Connection } from './common';
 
 export enum NotificationAvatarType {
@@ -20,16 +23,12 @@ export interface NotificationAttachment {
   title: string;
 }
 
-export enum NotificationType {
-  System = 'system',
-}
-
 export interface Notification {
   id: string;
   userId: string;
   createdAt: Date;
   readAt?: Date;
-  icon: NotificationIcon;
+  icon: NotificationIconType;
   title: string;
   type: NotificationType;
   description?: string;

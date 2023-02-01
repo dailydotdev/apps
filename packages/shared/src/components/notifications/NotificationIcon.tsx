@@ -1,28 +1,30 @@
 import React, { ReactElement } from 'react';
 import {
-  notificationDefaultTheme,
   notificationIcon,
-  NotificationIcon,
+  NotificationIconType,
+  notificationIconTypeTheme,
 } from './utils';
 
 const noBackgroundIcons = [
-  NotificationIcon.DailyDev,
-  NotificationIcon.CommunityPicks,
+  NotificationIconType.DailyDev,
+  NotificationIconType.CommunityPicks,
 ];
 
 interface NotificationItemIconProps {
-  icon: NotificationIcon;
+  icon: NotificationIconType;
+  iconTheme?: string;
 }
 
 function NotificationItemIcon({
   icon,
+  iconTheme,
 }: NotificationItemIconProps): ReactElement {
   const Icon = notificationIcon[icon] ?? notificationIcon.DailyDev;
   const testId = `notification-${icon}`;
 
   if (!notificationIcon[icon] || noBackgroundIcons.includes(icon)) {
     const testValue = !notificationIcon[icon]
-      ? NotificationIcon.DailyDev
+      ? NotificationIconType.DailyDev
       : icon;
     return (
       <Icon
@@ -34,16 +36,11 @@ function NotificationItemIcon({
     );
   }
 
-  const iconTheme = notificationDefaultTheme[icon];
+  const theme = iconTheme ?? notificationIconTypeTheme[icon];
 
   return (
     <span className="overflow-hidden p-1 bg-theme-float rounded-8 typo-callout h-fit">
-      <Icon
-        size="medium"
-        secondary
-        className={iconTheme}
-        data-testid={testId}
-      />
+      <Icon size="medium" secondary className={theme} data-testid={testId} />
     </span>
   );
 }
