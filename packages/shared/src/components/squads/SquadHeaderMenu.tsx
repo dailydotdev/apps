@@ -16,6 +16,7 @@ import {
 import TrashIcon from '../icons/Trash';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { useBoot } from '../../hooks/useBoot';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -30,6 +31,7 @@ export default function SquadHeaderMenu({
   squad: Squad;
 }): ReactElement {
   const router = useRouter();
+  const { deleteSquad: deleteSquadFromList } = useBoot();
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { openModal } = useLazyModal();
@@ -58,6 +60,7 @@ export default function SquadHeaderMenu({
     };
     if (await showPrompt(options)) {
       await leaveSquad(squad.id);
+      deleteSquadFromList(squad.id);
       await router.replace('/');
     }
   };
@@ -80,6 +83,7 @@ export default function SquadHeaderMenu({
     };
     if (await showPrompt(options)) {
       await deleteSquad(squad.id);
+      deleteSquadFromList(squad.id);
       await router.replace('/');
     }
   };
