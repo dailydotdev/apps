@@ -5,7 +5,6 @@ import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
 import {
   NotificationsData,
   NOTIFICATIONS_QUERY,
-  NotificationType,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
@@ -23,6 +22,7 @@ import InfiniteScrolling, {
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 

@@ -14,7 +14,7 @@ import { InAppNotificationItem } from './InAppNotificationItem';
 import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { NotificationType } from '../../graphql/notifications';
+import { NotificationType } from './utils';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { InAppNotificationPosition } from '../../lib/featureValues';
 
