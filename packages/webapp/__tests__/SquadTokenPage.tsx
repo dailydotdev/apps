@@ -198,7 +198,7 @@ describe('squad details', () => {
         query: SQUAD_JOIN_MUTATION,
         variables: { token: owner.referralToken, sourceId: owner.source.id },
       },
-      result: () => ({ data: owner.source }),
+      result: () => ({ data: { source: owner.source } }),
     });
     const btn = await screen.findByText('Join Squad');
     btn.click();
