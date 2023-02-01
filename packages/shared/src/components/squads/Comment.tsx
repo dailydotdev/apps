@@ -67,7 +67,8 @@ export function SquadComment({
         </div>
         <SimpleTooltip
           placement="left"
-          content={commentary ? '' : 'Please add a comment before proceeding'}
+          disabled={commentary}
+          content="Please add a comment before proceeding"
         >
           <div>
             <Button
