@@ -12,6 +12,7 @@ export interface MainCommentProps extends CommentBoxProps {
 export default function MainComment({
   className,
   comment,
+  appendTooltipTo,
   permissionNotificationCommentId,
   ...props
 }: MainCommentProps): ReactElement {
@@ -32,6 +33,7 @@ export default function MainComment({
         comment={comment}
         parentId={comment.id}
         className={{ container: 'border-b' }}
+        appendTooltipTo={appendTooltipTo}
       />
       {comment.children?.edges.map(({ node }) => (
         <SubComment
@@ -39,6 +41,7 @@ export default function MainComment({
           key={node.id}
           comment={node}
           parentComment={comment}
+          appendTooltipTo={appendTooltipTo}
         />
       ))}
       {shouldShowBanner && (
