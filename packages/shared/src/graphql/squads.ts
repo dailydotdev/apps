@@ -279,9 +279,17 @@ export const getSquadInvitation = async (
   }
 };
 
-export const joinSquadInvitation = (
+export const joinSquadInvitation = async (
   params: SquadInvitationProps,
-): Promise<Squad> => request(`${apiUrl}/graphql`, SQUAD_JOIN_MUTATION, params);
+): Promise<Squad> => {
+  const res = await request<SquadData>(
+    `${apiUrl}/graphql`,
+    SQUAD_JOIN_MUTATION,
+    params,
+  );
+
+  return res.source;
+};
 
 export const checkExistingHandle = async (handle: string): Promise<boolean> => {
   const req = await request(
