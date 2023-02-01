@@ -24,6 +24,7 @@ import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -37,7 +38,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { data: squad, isLoading } = useQuery<Squad>(
     queryKey,
     () => getSquad(handle),
-    { enabled: !!handle, retry: false },
+    {
+      ...disabledRefetch,
+      enabled: !!handle,
+      retry: false,
+    },
   );
 
   const squadId = squad?.id;

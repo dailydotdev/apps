@@ -24,6 +24,7 @@ import {
 } from 'next';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SquadMember>[]) => {
@@ -56,6 +57,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     ['squad_referral', token, loggedUser?.id],
     () => getSquadInvitation(token),
     {
+      ...disabledRefetch,
       keepPreviousData: true,
       retry: false,
       enabled: !!token,
