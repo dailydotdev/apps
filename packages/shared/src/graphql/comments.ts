@@ -154,7 +154,7 @@ export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
       edges {
         node {
           user {
-            ...UpvoterFragment
+            ...UserShortInfo
           }
         }
       }
