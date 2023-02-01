@@ -2,18 +2,15 @@ import React, { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NotificationItem, { NotificationItemProps } from './NotificationItem';
-import {
-  NotificationAvatarType,
-  NotificationType,
-} from '../../graphql/notifications';
-import { NotificationIcon } from './utils';
+import { NotificationAvatarType } from '../../graphql/notifications';
+import { NotificationType, NotificationIconType } from './utils';
 
 const sampleNotificationTitle = 'Welcome to your new notification center!';
 const sampleNotificationDescription =
   'The notification system notifies you of important events such as replies, mentions, updates etc.';
 const sampleNotification: NotificationItemProps = {
   isUnread: true,
-  icon: NotificationIcon.Comment,
+  icon: NotificationIconType.Comment,
   title: `<p>${sampleNotificationTitle}</p>`,
   description: `<p>${sampleNotificationDescription}</p>`,
   type: NotificationType.System,
@@ -104,7 +101,10 @@ describe('notification item', () => {
     renderComponent(<NotificationItem {...notification} />);
     const testid = `notification-${notification.icon}`;
     const img = await screen.findByTestId(testid);
-    expect(img).toHaveAttribute('data-testvalue', NotificationIcon.DailyDev);
+    expect(img).toHaveAttribute(
+      'data-testvalue',
+      NotificationIconType.DailyDev,
+    );
   });
 
   it('should have a title that supports html', async () => {

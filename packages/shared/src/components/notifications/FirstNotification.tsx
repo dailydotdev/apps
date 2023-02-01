@@ -1,9 +1,8 @@
 import React, { ReactElement, useEffect } from 'react';
-import { NotificationType } from '../../graphql/notifications';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { firstNotificationLink } from '../../lib/constants';
 import NotificationItem from './NotificationItem';
-import { NotificationIcon } from './utils';
+import { NotificationType, NotificationIconType } from './utils';
 
 const READ_KEY = 'FIRST_NOTIFICATION_READ';
 
@@ -20,7 +19,7 @@ function FirstNotification(): ReactElement {
     <NotificationItem
       isUnread={isUnread}
       type={NotificationType.System}
-      icon={NotificationIcon.Bell}
+      icon={NotificationIconType.Bell}
       targetUrl={firstNotificationLink}
       title="Welcome to your new notification center!"
       description="The notification system notifies you of important events such as replies, mentions, updates etc."

@@ -3,7 +3,6 @@ import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import {
   Notification,
-  NotificationType,
   NotificationsData,
   NOTIFICATIONS_QUERY,
   READ_NOTIFICATIONS_MUTATION,
@@ -17,6 +16,7 @@ import { render, screen } from '@testing-library/preact';
 import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import NotificationsPage from '../pages/notifications';

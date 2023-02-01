@@ -6,6 +6,7 @@ import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
+import { notificationTypeTheme } from './utils';
 
 export interface NotificationItemProps
   extends Pick<
@@ -19,6 +20,7 @@ export interface NotificationItemProps
 
 function NotificationItem({
   icon,
+  type,
   title,
   isUnread,
   description,
@@ -55,7 +57,10 @@ function NotificationItem({
           isUnread && 'bg-theme-float',
         )}
       >
-        <NotificationItemIcon icon={icon} />
+        <NotificationItemIcon
+          icon={icon}
+          iconTheme={notificationTypeTheme[type]}
+        />
         <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
           {hasAvatar && (
             <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
