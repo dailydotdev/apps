@@ -57,6 +57,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     () => getSquadInvitation(token),
     {
       keepPreviousData: true,
+      retry: false,
       enabled: !!token,
       onSuccess: (response) => {
         if (!loggedUser) return null;

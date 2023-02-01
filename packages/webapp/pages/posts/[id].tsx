@@ -78,7 +78,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 
   const { post, isLoading } = usePostById({
     id,
-    options: { initialData },
+    options: { initialData, retry: false },
   });
 
   const seo: NextSeoProps = {

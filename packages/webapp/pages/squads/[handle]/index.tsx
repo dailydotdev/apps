@@ -37,9 +37,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { data: squad, isLoading } = useQuery<Squad>(
     queryKey,
     () => getSquad(handle),
-    {
-      enabled: !!handle,
-    },
+    { enabled: !!handle, retry: false },
   );
 
   const squadId = squad?.id;
