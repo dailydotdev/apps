@@ -27,6 +27,7 @@ import {
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
 } from '@dailydotdev/shared/src/graphql/squads';
+import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
 import SquadPage, {
   SquadReferralProps,
 } from '../pages/squads/[handle]/[token]';
@@ -86,6 +87,7 @@ const renderComponent = (
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
+          squads: [],
         }}
       >
         <SettingsContext.Provider value={defaultTestSettings}>
@@ -187,6 +189,7 @@ describe('squad details', () => {
   });
 
   it('should join squad', async () => {
+    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     const owner = generateTestOwner();
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
@@ -195,12 +198,12 @@ describe('squad details', () => {
         query: SQUAD_JOIN_MUTATION,
         variables: { token: owner.referralToken, sourceId: owner.source.id },
       },
-      result: () => ({ data: { _: true } }),
+      result: () => ({ data: owner.source }),
     });
     const btn = await screen.findByText('Join Squad');
     btn.click();
     await waitForNock();
-    expect(replaced).toEqual(`/squads/${owner.source.id}`);
+    expect(replaced).toEqual(owner.source.permalink);
   });
 });
 
