@@ -125,7 +125,7 @@ export default function Sidebar({
             toggleSidebarExpanded={toggleSidebarExpanded}
           />
         )}
-        <SidebarScrollWrapper className="z-1">
+        <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
             {newSquadButtonVisible && (
