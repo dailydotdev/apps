@@ -14,6 +14,7 @@ interface UsePostByIdProps {
 interface UsePostById {
   post: Post;
   isLoading: boolean;
+  isFetched: boolean;
 }
 
 const usePostById = ({
@@ -29,7 +30,10 @@ const usePostById = ({
   } = useQuery<PostData>(
     ['post', id],
     () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
-    { ...options, enabled: !!id && tokenRefreshed },
+    {
+      ...options,
+      enabled: !!id && tokenRefreshed,
+    },
   );
 
   const post = postById || (options?.initialData as PostData);
@@ -37,9 +41,10 @@ const usePostById = ({
   return useMemo(
     () => ({
       post: post?.post,
-      isLoading: isLoading || !isFetched || isFetchingNextPage,
+      isFetched,
+      isLoading: isLoading || isFetchingNextPage,
     }),
-    [postById, isLoading],
+    [id, postById, isLoading, options, isFetched, isFetchingNextPage],
   );
 };
 

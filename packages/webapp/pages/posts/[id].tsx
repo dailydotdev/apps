@@ -34,7 +34,6 @@ import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostC
 import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -77,9 +76,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     false,
   );
 
-  const { post, isLoading } = usePostById({
+  const { post, isFetched } = usePostById({
     id,
-    options: { initialData, retry: false, ...disabledRefetch },
+    options: { initialData, retry: false },
   });
 
   const seo: NextSeoProps = {
@@ -100,7 +99,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (!initialData && (isFallback || isLoading)) {
+  if (!initialData && (isFallback || !isFetched)) {
     return <></>;
   }
 
@@ -115,7 +114,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
-  if (!Content && (!isFallback || !isLoading)) return <Custom404 />;
+  if (!Content && (!isFallback || isFetched)) return <Custom404 />;
 
   return (
     <>
@@ -127,7 +126,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         position={position}
         post={post}
         isFallback={isFallback}
-        isLoading={isLoading}
+        isLoading={!isFetched}
         customNavigation={customNavigation}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
