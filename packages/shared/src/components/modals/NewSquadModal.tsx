@@ -10,7 +10,9 @@ import { SteppedSquadComment } from '../squads/SteppedComment';
 import { SteppedSquadDetails } from '../squads/SteppedDetails';
 import { Post } from '../../graphql/posts';
 import { useBoot } from '../../hooks/useBoot';
-import SquadsBetaModal from './SquadsBetaModal';
+import SquadsBackgroundSvg from '../../svg/SquadsBackground';
+import { Justify } from '../utilities';
+import { Button } from '../buttons/Button';
 
 export const modalStateOrder = [
   ModalState.Details,
@@ -85,10 +87,31 @@ function NewSquadModal({
 
   if (shouldShowBetaModal) {
     return (
-      <SquadsBetaModal
-        onRequestClose={handleClose}
-        onNext={() => setShouldShowBetaModal(false)}
-      />
+      <Modal isOpen kind={Modal.Kind.FixedCenter} size={Modal.Size.Small}>
+        <Modal.Body>
+          <SquadsBackgroundSvg className="absolute top-0 left-0 w-full rounded-t-16" />
+          <h3 className="mt-56 font-bold text-center typo-large-title">
+            Wow! You get early access to
+            <br />
+            <span className="text-theme-color-cabbage">Squads!</span>
+          </h3>
+          <h4 className="mt-4 text-center typo-title3">
+            With Squads, you can stay up to date together as a group and discuss
+            privately in one place.
+          </h4>
+        </Modal.Body>
+        <Modal.Footer justify={Justify.Between}>
+          <Button className="btn-tertiary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button
+            className="btn-primary-cabbage"
+            onClick={() => setShouldShowBetaModal(false)}
+          >
+            Create squad
+          </Button>
+        </Modal.Footer>
+      </Modal>
     );
   }
 
