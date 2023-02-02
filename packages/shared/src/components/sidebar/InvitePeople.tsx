@@ -40,7 +40,7 @@ export default function InvitePeople({
         onMouseEnter={() => !sidebarExpanded && !visible && setVisible(true)}
         onMouseOut={() => !sidebarExpanded && visible && setVisible(false)}
       >
-        <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
+        <ItemInner item={item} shouldShowLabel={sidebarExpanded} />
       </ClickableNavItem>
     </NavItem>
   );

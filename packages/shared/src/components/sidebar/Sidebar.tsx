@@ -95,6 +95,7 @@ export default function Sidebar({
     () => ({
       sidebarExpanded,
       sidebarRendered,
+      shouldShowLabel: sidebarExpanded || sidebarRendered === false,
       activePage,
     }),
     [sidebarExpanded, sidebarRendered, activePage],
@@ -149,9 +150,7 @@ export default function Sidebar({
             )}
             {!alerts?.filter && (
               <MyFeedButton
-                sidebarRendered={sidebarRendered}
-                sidebarExpanded={sidebarExpanded}
-                activePage={activePage}
+                {...defaultRenderSectionProps}
                 isButton={isNavButtons}
                 alerts={alerts}
                 onNavTabClick={onNavTabClick}

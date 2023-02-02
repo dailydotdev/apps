@@ -3,11 +3,9 @@ import { Alerts } from '../../graphql/alerts';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
+import { SectionCommonProps } from './Section';
 
-interface MyFeedButtonProps {
-  sidebarRendered?: boolean;
-  sidebarExpanded: boolean;
-  activePage?: string;
+interface MyFeedButtonProps extends SectionCommonProps {
   isButton?: boolean;
   alerts: Alerts;
   icon: ReactNode;
@@ -16,7 +14,7 @@ interface MyFeedButtonProps {
 
 function MyFeedButton({
   sidebarExpanded,
-  sidebarRendered,
+  shouldShowLabel,
   activePage,
   isButton,
   alerts,
@@ -39,7 +37,7 @@ function MyFeedButton({
       <ClickableNavItem item={myFeedMenuItem} isButton={isButton}>
         <ItemInner
           item={myFeedMenuItem}
-          sidebarExpanded={sidebarExpanded || sidebarRendered === false}
+          shouldShowLabel={shouldShowLabel}
           active={isActive}
         />
       </ClickableNavItem>

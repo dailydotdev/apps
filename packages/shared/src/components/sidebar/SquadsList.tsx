@@ -20,7 +20,7 @@ export function SquadsList({
   onNewSquad,
   onOpenLockedSquad,
   sidebarExpanded,
-  sidebarRendered,
+  shouldShowLabel,
 }: SquadsListProps): ReactElement {
   const newSquadMenuItem: SidebarMenuItem = {
     icon: () => <NewSquadIcon />,
@@ -49,10 +49,7 @@ export function SquadsList({
         return (
           <NavItem key={`squad-${handle}`} active={isActive}>
             <ClickableNavItem item={menuItem}>
-              <ItemInner
-                item={menuItem}
-                sidebarExpanded={sidebarExpanded || sidebarRendered === false}
-              />
+              <ItemInner item={menuItem} shouldShowLabel={shouldShowLabel} />
             </ClickableNavItem>
           </NavItem>
         );
@@ -61,7 +58,7 @@ export function SquadsList({
         <ClickableNavItem item={newSquadMenuItem}>
           <ItemInner
             item={newSquadMenuItem}
-            sidebarExpanded={sidebarExpanded}
+            shouldShowLabel={shouldShowLabel}
           />
         </ClickableNavItem>
       </NavItem>
