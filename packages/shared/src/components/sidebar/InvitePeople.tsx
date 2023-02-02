@@ -4,15 +4,18 @@ import UserShareIcon from '../icons/UserShare';
 import AuthContext from '../../contexts/AuthContext';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ClickableNavItem } from './ClickableNavItem';
+import { SectionCommonProps } from './Section';
 
 const DEFAULT_INVITE_LINK = 'https://daily.dev/';
 const INVITE_TEXT = `I'm using daily.dev to stay updated on developer news. I think you will find it helpful:`;
 
 export default function InvitePeople({
   sidebarExpanded,
-}: {
-  sidebarExpanded: boolean;
-}): ReactElement {
+  shouldShowLabel,
+}: Pick<
+  SectionCommonProps,
+  'sidebarExpanded' | 'shouldShowLabel'
+>): ReactElement {
   const [visible, setVisible] = useState(false);
   const { user } = useContext(AuthContext);
 
@@ -40,7 +43,7 @@ export default function InvitePeople({
         onMouseEnter={() => !sidebarExpanded && !visible && setVisible(true)}
         onMouseOut={() => !sidebarExpanded && visible && setVisible(false)}
       >
-        <ItemInner item={item} shouldShowLabel={sidebarExpanded} />
+        <ItemInner item={item} shouldShowLabel={shouldShowLabel} />
       </ClickableNavItem>
     </NavItem>
   );
