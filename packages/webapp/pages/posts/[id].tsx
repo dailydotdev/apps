@@ -34,7 +34,6 @@ import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostC
 import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -79,7 +78,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 
   const { post, isLoading } = usePostById({
     id,
-    options: { initialData, retry: false, ...disabledRefetch },
+    options: { initialData, retry: false, enabled: !!initialData },
   });
 
   const seo: NextSeoProps = {
@@ -100,8 +99,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (!initialData && (isFallback || isLoading)) {
-    return <></>;
+  if (!initialData) {
+    return <Custom404 />;
   }
 
   const Content = CONTENT_MAP[post?.type];
