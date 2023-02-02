@@ -31,7 +31,7 @@ import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from 'react-query';
 import Rank from '@dailydotdev/shared/src/components/Rank';
 import request, { ClientError } from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
@@ -93,7 +93,7 @@ export default function ProfileLayout({
   const { data: userRank } = useQuery<UserReadingRankData>(
     userRankQueryKey,
     () =>
-      request(`${apiUrl}/graphql`, USER_READING_RANK_QUERY, {
+      request(graphqlUrl, USER_READING_RANK_QUERY, {
         id: initialProfile?.id,
         version: 2,
       }),

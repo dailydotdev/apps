@@ -16,7 +16,7 @@ import {
   subYears,
 } from 'date-fns';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,
@@ -138,7 +138,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { data: remoteReadingHistory } = useQuery<ProfileReadingData>(
     ['reading_history', profile?.id, selectedHistoryYear],
     () =>
-      request(`${apiUrl}/graphql`, USER_READING_HISTORY_QUERY, {
+      request(graphqlUrl, USER_READING_HISTORY_QUERY, {
         id: profile?.id,
         before,
         after,
@@ -168,7 +168,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { data: userStats } = useQuery<UserStatsData>(
     ['user_stats', profile?.id],
     () =>
-      request(`${apiUrl}/graphql`, USER_STATS_QUERY, {
+      request(graphqlUrl, USER_STATS_QUERY, {
         id: profile?.id,
       }),
     {

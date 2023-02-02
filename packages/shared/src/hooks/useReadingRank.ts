@@ -12,7 +12,7 @@ import { isThisISOWeek, isToday } from 'date-fns';
 import { LoggedUser } from '../lib/user';
 import AuthContext from '../contexts/AuthContext';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import usePersistentState from './usePersistentState';
 import AlertContext, { MAX_DATE } from '../contexts/AlertContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -93,7 +93,7 @@ export default function useReadingRank(
   const { data: remoteRank } = useQuery<MyRankData>(
     queryKey,
     () =>
-      request(`${apiUrl}/graphql`, MY_READING_RANK_QUERY, {
+      request(graphqlUrl, MY_READING_RANK_QUERY, {
         id: user.id,
         version: 2,
       }),

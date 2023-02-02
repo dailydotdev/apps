@@ -1,5 +1,5 @@
 import nodeFetch from 'node-fetch';
-import { apiUrl } from './config';
+import { apiUrl, graphqlUrl } from './config';
 import { USER_BY_ID_STATIC_FIELDS_QUERY } from '../graphql/users';
 
 export enum Roles {
@@ -148,7 +148,7 @@ export async function changeProfileImage(file: File): Promise<LoggedUser> {
 }
 
 const getProfileRequest = async (method = fetch, id: string) => {
-  const userRes = await method(`${apiUrl}/graphql`, {
+  const userRes = await method(graphqlUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

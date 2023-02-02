@@ -5,7 +5,7 @@ import { useMutation } from 'react-query';
 import { UseMutateFunction } from 'react-query/types/react/types';
 import AuthContext from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { LoggedUser, UserProfile } from '../lib/user';
 
 export interface ProfileFormHint {
@@ -56,7 +56,7 @@ const useProfileForm = ({
     UpdateProfileParameters
   >(
     ({ image, ...data }) =>
-      request(`${apiUrl}/graphql`, UPDATE_USER_PROFILE_MUTATION, {
+      request(graphqlUrl, UPDATE_USER_PROFILE_MUTATION, {
         data,
         upload: image,
       }),

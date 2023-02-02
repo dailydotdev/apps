@@ -8,7 +8,7 @@ import {
   EDIT_COMMENT_MUTATION,
   PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import Markdown from '../Markdown';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button } from '../buttons/Button';
@@ -82,7 +82,7 @@ export default function NewCommentModal({
     previewQueryKey,
     () =>
       requestMethod(
-        `${apiUrl}/graphql`,
+        graphqlUrl,
         PREVIEW_COMMENT_MUTATION,
         { content: input, sourceId: props.post.source.id },
         { requestKey: JSON.stringify(previewQueryKey) },
@@ -109,7 +109,7 @@ export default function NewCommentModal({
   >(
     (variables) =>
       requestMethod(
-        `${apiUrl}/graphql`,
+        graphqlUrl,
         props.commentId
           ? COMMENT_ON_COMMENT_MUTATION
           : COMMENT_ON_POST_MUTATION,
@@ -125,7 +125,7 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      requestMethod(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables, {
+      requestMethod(graphqlUrl, EDIT_COMMENT_MUTATION, variables, {
         requestKey: JSON.stringify(key),
       }),
     { onSuccess: (data) => data && onComment(data.comment, false) },

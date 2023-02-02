@@ -5,7 +5,7 @@ import {
   COMMENT_ON_POST_MUTATION,
   CommentOnData,
 } from '../../graphql/comments';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
@@ -40,7 +40,7 @@ export default function useCommentPopup(
     }
   >(
     ({ post, content }) =>
-      request(`${apiUrl}/graphql`, COMMENT_ON_POST_MUTATION, {
+      request(graphqlUrl, COMMENT_ON_POST_MUTATION, {
         id: post.id,
         content,
       }),

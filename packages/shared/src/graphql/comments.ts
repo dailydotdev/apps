@@ -3,7 +3,7 @@ import { Connection, Upvote } from './common';
 import { USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 
 export interface Author {
   __typename?: string;
@@ -227,7 +227,7 @@ export const deleteComment = (
   id: string,
   requestMethod: typeof request,
 ): Promise<EmptyResponse> => {
-  return requestMethod(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {
+  return requestMethod(graphqlUrl, DELETE_COMMENT_MUTATION, {
     id,
   });
 };

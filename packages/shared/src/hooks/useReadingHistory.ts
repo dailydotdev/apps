@@ -1,6 +1,6 @@
 import { useQueryClient, useMutation, QueryKey } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import {
   HidePostItemCardProps,
   HIDE_READING_HISTORY_MUTATION,
@@ -26,7 +26,7 @@ function useReadingHistory(key: QueryKey): UseReadingHistoryReturn {
     () => void
   >(
     ({ postId, timestamp }: HidePostItemCardProps) =>
-      request(`${apiUrl}/graphql`, HIDE_READING_HISTORY_MUTATION, {
+      request(graphqlUrl, HIDE_READING_HISTORY_MUTATION, {
         postId,
         timestamp,
       }),

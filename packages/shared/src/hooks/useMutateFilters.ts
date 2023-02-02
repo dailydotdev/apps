@@ -3,7 +3,7 @@ import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
 import { LoggedUser } from '../lib/user';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import {
   FeedAdvancedSettings,
   ADD_FILTERS_TO_FEED_MUTATION,
@@ -154,7 +154,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
       blockedTags: Array.from(new Set(blockedTags)),
       excludeSources: Array.from(new Set(excludeSources)),
     };
-    return request(`${apiUrl}/graphql`, FEED_FILTERS_FROM_REGISTRATION, {
+    return request(graphqlUrl, FEED_FILTERS_FROM_REGISTRATION, {
       filters: fixed,
       settings: advancedSettings,
     });
@@ -188,7 +188,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     () => Promise<void>
   >(
     ({ advancedSettings: settings }) =>
-      request(`${apiUrl}/graphql`, UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
+      request(graphqlUrl, UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
         settings,
       }),
     {
@@ -216,7 +216,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     () => Promise<void>
   >(
     ({ tags }) =>
-      request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
+      request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           includeTags: tags,
         },
@@ -252,7 +252,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     () => Promise<void>
   >(
     ({ tags }) =>
-      request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
+      request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           blockedTags: tags,
         },
@@ -284,7 +284,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     () => void
   >(
     ({ tags }) =>
-      request(`${apiUrl}/graphql`, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+      request(graphqlUrl, REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           includeTags: tags,
         },
@@ -316,7 +316,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     () => void
   >(
     ({ tags }) =>
-      request(`${apiUrl}/graphql`, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+      request(graphqlUrl, REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           blockedTags: tags,
         },
@@ -351,7 +351,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     () => void
   >(
     ({ source }) =>
-      request(`${apiUrl}/graphql`, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+      request(graphqlUrl, REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           excludeSources: [source.id],
         },
@@ -381,7 +381,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     () => Promise<void>
   >(
     ({ source }) =>
-      request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
+      request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           excludeSources: [source.id],
         },

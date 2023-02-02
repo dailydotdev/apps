@@ -1,6 +1,6 @@
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { CANCEL_UPVOTE_MUTATION, UPVOTE_MUTATION } from '../graphql/posts';
 import { MutateFunc } from '../lib/query';
 
@@ -26,7 +26,7 @@ export default function useUpvotePost<
     (() => void) | undefined
   >(
     ({ id }) =>
-      request(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
+      request(graphqlUrl, UPVOTE_MUTATION, {
         id,
       }),
     {
@@ -42,7 +42,7 @@ export default function useUpvotePost<
     (() => void) | undefined
   >(
     ({ id }) =>
-      request(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
+      request(graphqlUrl, CANCEL_UPVOTE_MUTATION, {
         id,
       }),
     {

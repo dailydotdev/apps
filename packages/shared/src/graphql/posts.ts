@@ -3,7 +3,7 @@ import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
 import { Source } from './sources';
 import { EmptyResponse } from './emptyResponse';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import {
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
@@ -368,13 +368,13 @@ export const UNHIDE_POST_MUTATION = gql`
 `;
 
 export const banPost = (id: string): Promise<EmptyResponse> => {
-  return request(`${apiUrl}/graphql`, BAN_POST_MUTATION, {
+  return request(graphqlUrl, BAN_POST_MUTATION, {
     id,
   });
 };
 
 export const deletePost = (id: string): Promise<EmptyResponse> => {
-  return request(`${apiUrl}/graphql`, DELETE_POST_MUTATION, {
+  return request(graphqlUrl, DELETE_POST_MUTATION, {
     id,
   });
 };
@@ -388,4 +388,4 @@ export const VIEW_POST_MUTATION = gql`
 `;
 
 export const sendViewPost = (id: string): Promise<void> =>
-  request(`${apiUrl}/graphql`, VIEW_POST_MUTATION, { id });
+  request(graphqlUrl, VIEW_POST_MUTATION, { id });
