@@ -14,11 +14,9 @@ interface SidebarBottomSectionProps extends SectionCommonProps {
 }
 
 export function SidebarBottomSectionSection({
-  sidebarExpanded,
-  sidebarRendered,
   optOutWeeklyGoal,
   showSettings,
-  activePage,
+  ...props
 }: SidebarBottomSectionProps): ReactElement {
   const bottomMenuItems: SidebarMenuItem[] = [
     {
@@ -42,21 +40,10 @@ export function SidebarBottomSectionSection({
 
   return (
     <Nav>
-      <Section
-        activePage={activePage}
-        sidebarExpanded={sidebarExpanded}
-        sidebarRendered={sidebarRendered}
-        items={bottomMenuItems}
-        isItemsButton={false}
-      />
-      <InvitePeople
-        sidebarExpanded={sidebarExpanded || sidebarRendered === false}
-      />
-      {sidebarRendered && !optOutWeeklyGoal && (
-        <SidebarRankProgress
-          disableNewRankPopup={showSettings}
-          sidebarExpanded={sidebarExpanded}
-        />
+      <Section {...props} items={bottomMenuItems} isItemsButton={false} />
+      <InvitePeople {...props} />
+      {props.sidebarExpanded && !optOutWeeklyGoal && (
+        <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
     </Nav>
   );

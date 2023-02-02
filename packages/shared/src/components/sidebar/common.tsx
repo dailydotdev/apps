@@ -47,9 +47,9 @@ interface ListIconProps {
   Icon: React.ComponentType<{ className }>;
 }
 
-interface ItemInnerProps {
+export interface ItemInnerProps {
   item: SidebarMenuItem;
-  sidebarExpanded: boolean;
+  shouldShowLabel: boolean;
   active?: boolean;
 }
 interface NavItemProps {
@@ -128,17 +128,17 @@ const ItemInnerIconTooltip = ({
 
 export const ItemInner = ({
   item,
-  sidebarExpanded,
+  shouldShowLabel,
   active,
 }: ItemInnerProps): ReactElement => {
-  const Icon = sidebarExpanded ? ItemInnerIcon : ItemInnerIconTooltip;
+  const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
   return (
     <>
       <Icon {...item} active={active} />
       <span
         className={classNames(
           'flex-1 text-left transition-opacity truncate',
-          sidebarExpanded ? 'opacity-100 delay-150' : 'opacity-0',
+          shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
           item?.className?.text,
         )}
       >
