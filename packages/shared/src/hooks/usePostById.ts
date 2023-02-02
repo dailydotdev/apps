@@ -1,7 +1,7 @@
 import request from 'graphql-request';
 import { useMemo } from 'react';
 import { QueryObserverOptions, useQuery } from 'react-query';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
 import { Post, PostData, POST_BY_ID_QUERY } from '../graphql/posts';
 
@@ -28,7 +28,7 @@ const usePostById = ({
     isFetched,
   } = useQuery<PostData>(
     ['post', id],
-    () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
+    () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
     { ...options, enabled: !!id && tokenRefreshed },
   );
 

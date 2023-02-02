@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
 import { formToJson } from '../../lib/form';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import {
   communityLinksGuidelines,
   submissionGuidelineDocsLink,
@@ -50,9 +50,7 @@ export default function SubmitArticleModal({
   const availabilityKey = ['submission_availability', user?.id];
   const { data: access, isFetched } = useQuery<{
     submissionAvailability: SubmissionAvailability;
-  }>(availabilityKey, () =>
-    request(`${apiUrl}/graphql`, SUBMISSION_AVAILABILITY_QUERY),
-  );
+  }>(availabilityKey, () => request(graphqlUrl, SUBMISSION_AVAILABILITY_QUERY));
   const { submissionAvailability } = access || {};
   const isEnabled = submissionAvailability?.hasAccess;
   const { mutateAsync: submitArticle } = useMutation<
@@ -60,7 +58,7 @@ export default function SubmitArticleModal({
     unknown,
     string
   >((articleUrl: string) =>
-    request(`${apiUrl}/graphql`, SUBMIT_ARTICLE_MUTATION, {
+    request(graphqlUrl, SUBMIT_ARTICLE_MUTATION, {
       url: articleUrl,
     }),
   );

@@ -6,7 +6,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { useInfiniteQuery, useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   FeedData,
   KEYWORD_FEED_QUERY,
@@ -53,7 +53,7 @@ export default function KeywordManagement({
 
   const { mutateAsync: allowKeyword } = useMutation(
     () =>
-      request(`${apiUrl}/graphql`, ALLOW_KEYWORD_MUTATION, {
+      request(graphqlUrl, ALLOW_KEYWORD_MUTATION, {
         keyword: keyword.value,
       }),
     {
@@ -63,7 +63,7 @@ export default function KeywordManagement({
 
   const { mutateAsync: denyKeyword } = useMutation(
     () =>
-      request(`${apiUrl}/graphql`, DENY_KEYWORD_MUTATION, {
+      request(graphqlUrl, DENY_KEYWORD_MUTATION, {
         keyword: keyword.value,
       }),
     {
@@ -74,7 +74,7 @@ export default function KeywordManagement({
   const posts = useInfiniteQuery<FeedData>(
     ['keyword_post', keyword.value],
     ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, KEYWORD_FEED_QUERY, {
+      request(graphqlUrl, KEYWORD_FEED_QUERY, {
         keyword: keyword.value,
         first: 4,
         after: pageParam,

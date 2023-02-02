@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import { ModalProps } from './common/Modal';
 import {
   Squad,
@@ -34,7 +34,7 @@ export function SquadMemberModal({
     queryKey,
     ({ pageParam }) =>
       request(
-        `${apiUrl}/graphql`,
+        graphqlUrl,
         SQUAD_MEMBERS_QUERY,
         { id: squad?.id, after: pageParam },
         { requestKey: JSON.stringify(queryKey) },

@@ -6,7 +6,7 @@ import { Button } from '../buttons/Button';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
-import { apiUrl } from '../../lib/config';
+import { apiUrl, graphqlUrl } from '../../lib/config';
 import fetchTimeout from '../../lib/fetchTimeout';
 import { contentGuidelines } from '../../lib/constants';
 import {
@@ -76,7 +76,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
 
   const { mutateAsync: checkIfSourceExists, isLoading: checkingIfExists } =
     useMutation<{ source: Source }, unknown, string>((feed: string) =>
-      request(`${apiUrl}/graphql`, SOURCE_BY_FEED_QUERY, {
+      request(graphqlUrl, SOURCE_BY_FEED_QUERY, {
         feed,
       }),
     );
@@ -124,7 +124,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const { mutateAsync: requestSource, isLoading: requestingSource } =
     useMutation<unknown, unknown, string>(
       (feed: string) =>
-        request(`${apiUrl}/graphql`, REQUEST_SOURCE_MUTATION, {
+        request(graphqlUrl, REQUEST_SOURCE_MUTATION, {
           data: { sourceUrl: feed },
         }),
       {

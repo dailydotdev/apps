@@ -3,7 +3,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   CountPendingKeywordsData,
   KeywordData,
@@ -24,7 +24,7 @@ const PendingKeywords = (): ReactElement => {
     isLoading: isLoadingCurrentKeyword,
   } = useQuery<KeywordData & CountPendingKeywordsData>(
     'randomPendingKeyword',
-    () => request(`${apiUrl}/graphql`, RANDOM_PENDING_KEYWORD_QUERY),
+    () => request(graphqlUrl, RANDOM_PENDING_KEYWORD_QUERY),
     {
       enabled: tokenRefreshed,
       refetchOnMount: false,

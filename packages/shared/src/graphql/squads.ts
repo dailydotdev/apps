@@ -1,6 +1,6 @@
 import request, { gql } from 'graphql-request';
 import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
 import { Source, SourceType, SourceData, SOURCE_QUERY } from './sources';
@@ -229,28 +229,27 @@ export interface SquadEdgesData {
 }
 
 export const leaveSquad = (sourceId: string): Promise<void> =>
-  request(`${apiUrl}/graphql`, LEAVE_SQUAD_MUTATION, {
+  request(graphqlUrl, LEAVE_SQUAD_MUTATION, {
     sourceId,
   });
 
 export const deleteSquad = (sourceId: string): Promise<void> =>
-  request(`${apiUrl}/graphql`, DELETE_SQUAD_MUTATION, {
+  request(graphqlUrl, DELETE_SQUAD_MUTATION, {
     sourceId,
   });
 
 export async function getSquad(handle: string): Promise<Squad> {
-  const res = await request<SquadData>(`${apiUrl}/graphql`, SQUAD_QUERY, {
+  const res = await request<SquadData>(graphqlUrl, SQUAD_QUERY, {
     handle: handle.toLowerCase(),
   });
   return res.source;
 }
 
 export async function getSquadMembers(id: string): Promise<SquadMember[]> {
-  const res = await request<SquadEdgesData>(
-    `${apiUrl}/graphql`,
-    SQUAD_MEMBERS_QUERY,
-    { id, first: 5 },
-  );
+  const res = await request<SquadEdgesData>(graphqlUrl, SQUAD_MEMBERS_QUERY, {
+    id,
+    first: 5,
+  });
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
 
@@ -268,7 +267,7 @@ export const getSquadInvitation = async (
 ): Promise<SquadMember> => {
   try {
     const res = await request<SquadInvitation>(
-      `${apiUrl}/graphql`,
+      graphqlUrl,
       SQUAD_INVITATION_QUERY,
       { token },
     );
@@ -282,28 +281,22 @@ export const getSquadInvitation = async (
 export const joinSquadInvitation = async (
   params: SquadInvitationProps,
 ): Promise<Squad> => {
-  const res = await request<SquadData>(
-    `${apiUrl}/graphql`,
-    SQUAD_JOIN_MUTATION,
-    params,
-  );
+  const res = await request<SquadData>(graphqlUrl, SQUAD_JOIN_MUTATION, params);
 
   return res.source;
 };
 
 export const checkExistingHandle = async (handle: string): Promise<boolean> => {
-  const req = await request(
-    `${apiUrl}/graphql`,
-    SQUAD_HANDE_AVAILABILITY_QUERY,
-    { handle },
-  );
+  const req = await request(graphqlUrl, SQUAD_HANDE_AVAILABILITY_QUERY, {
+    handle,
+  });
 
   return req.sourceHandleExists;
 };
 
 export async function checkSourceExists(id: string): Promise<boolean> {
   try {
-    const data = await request<SourceData>(`${apiUrl}/graphql`, SOURCE_QUERY, {
+    const data = await request<SourceData>(graphqlUrl, SOURCE_QUERY, {
       id,
     });
     return !!data.source;
@@ -316,7 +309,7 @@ export async function checkSourceExists(id: string): Promise<boolean> {
 }
 
 export const addPostToSquad = (data: PostToSquadProps): Promise<Post> =>
-  request(`${apiUrl}/graphql`, ADD_POST_TO_SQUAD_MUTATION, data);
+  request(graphqlUrl, ADD_POST_TO_SQUAD_MUTATION, data);
 
 export async function createSquad(form: SquadForm): Promise<Squad> {
   const inputData: CreateSquadInput = {
@@ -328,7 +321,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
   };
   const data = await request<CreateSquadOutput>(
-    `${apiUrl}/graphql`,
+    graphqlUrl,
     CREATE_SQUAD_MUTATION,
     inputData,
   );
@@ -352,7 +345,7 @@ export async function editSquad(
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
   };
   const data = await request<EditSquadOutput>(
-    `${apiUrl}/graphql`,
+    graphqlUrl,
     EDIT_SQUAD_MUTATION,
     inputData,
   );

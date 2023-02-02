@@ -4,7 +4,7 @@ import request from 'graphql-request';
 import usePersistentState from './usePersistentState';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import { BannerData, BANNER_QUERY } from '../graphql/banner';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { laptop } from '../styles/media';
 
 export const footerNavBarBreakpoint = laptop;
@@ -21,7 +21,7 @@ export default function usePromotionalBanner(): {
   );
   const { data: bannerData } = useQuery<BannerData>(
     ['banner', lastSeen?.getTime()],
-    () => request(`${apiUrl}/graphql`, BANNER_QUERY, { lastSeen }),
+    () => request(graphqlUrl, BANNER_QUERY, { lastSeen }),
     {
       enabled: windowLoaded && !!lastSeen,
     },

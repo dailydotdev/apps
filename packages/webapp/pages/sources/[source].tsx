@@ -16,7 +16,7 @@ import {
   SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
@@ -145,7 +145,7 @@ export async function getStaticProps({
   GetStaticPropsResult<SourcePageProps>
 > {
   try {
-    const res = await request<SourceData>(`${apiUrl}/graphql`, SOURCE_QUERY, {
+    const res = await request<SourceData>(graphqlUrl, SOURCE_QUERY, {
       id: params.source,
     });
 

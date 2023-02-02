@@ -6,7 +6,7 @@ import {
   UserReadingRank,
   MostReadTag,
 } from '../graphql/users';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { useRequestProtocol } from './useRequestProtocol';
 
 export type UserTooltipContentData = {
@@ -37,7 +37,7 @@ export const useProfileTooltip = ({
     key,
     () =>
       requestMethod(
-        `${apiUrl}/graphql`,
+        graphqlUrl,
         USER_TOOLTIP_CONTENT_QUERY,
         {
           id: userId,

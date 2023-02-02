@@ -1,7 +1,7 @@
 import 'content-scripts-register-polyfill';
 import { browser, Runtime, Tabs } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import request from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
@@ -125,7 +125,7 @@ async function handleMessages(message, sender: Runtime.MessageSender) {
       BOOT_LOCAL_KEY,
       JSON.stringify({ ...cacheData, settings, lastModifier: 'companion' }),
     );
-    return request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
+    return request(graphqlUrl, UPDATE_USER_SETTINGS_MUTATION, {
       data: {
         optOutCompanion: true,
       },

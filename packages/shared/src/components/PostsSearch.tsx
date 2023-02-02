@@ -4,7 +4,7 @@ import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import useDebounce from '../hooks/useDebounce';
 import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
@@ -56,7 +56,7 @@ export default function PostsSearch({
     [suggestionType: string]: { hits: { title: string }[] };
   }>(
     [suggestionType, query],
-    () => request(`${apiUrl}/graphql`, SEARCH_URL, { query }),
+    () => request(graphqlUrl, SEARCH_URL, { query }),
     {
       enabled: !!query,
     },

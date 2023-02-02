@@ -12,7 +12,7 @@ import {
   RecommendedMentionsData,
   RECOMMEND_MENTIONS_QUERY,
 } from '../graphql/comments';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import AuthContext from '../contexts/AuthContext';
 import useDebounce from './useDebounce';
@@ -79,7 +79,7 @@ export function useUserMention({
       key,
       () =>
         requestMethod(
-          `${apiUrl}/graphql`,
+          graphqlUrl,
           RECOMMEND_MENTIONS_QUERY,
           { postId, query, sourceId },
           { requestKey: JSON.stringify(key) },

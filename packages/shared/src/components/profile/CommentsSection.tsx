@@ -4,7 +4,7 @@ import request from 'graphql-request';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import UpvoteIcon from '../icons/Upvote';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import ActivitySection from './ActivitySection';
@@ -32,7 +32,7 @@ export default function CommentsSection({
   const comments = useInfiniteQuery<UserCommentsData>(
     ['user_comments', userId],
     ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, USER_COMMENTS_QUERY, {
+      request(graphqlUrl, USER_COMMENTS_QUERY, {
         userId,
         first: 3,
         after: pageParam,
