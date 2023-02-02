@@ -38,7 +38,8 @@ function NewSquadModal({
   const [squad, setSquad] = useState<Squad>();
   const { showPrompt } = usePrompt();
   const { addSquad } = useBoot();
-  const [isIntroShown, setIsIntroShown] = useState(shouldShowIntro);
+  const [shouldShowBetaModal, setShouldShowBetaModal] =
+    useState(shouldShowIntro);
   const [form, setForm] = useState<Partial<SquadForm>>({ post: { post } });
   const onNext = async (squadForm?: SquadForm) => {
     if (squadForm) setForm(squadForm);
@@ -82,11 +83,11 @@ function NewSquadModal({
     return null;
   };
 
-  if (isIntroShown) {
+  if (shouldShowBetaModal) {
     return (
       <SquadsBetaModal
         onRequestClose={handleClose}
-        onNext={() => setIsIntroShown(false)}
+        onNext={() => setShouldShowBetaModal(false)}
       />
     );
   }
