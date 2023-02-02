@@ -31,7 +31,7 @@ function SquadPostPageNavigation({
     <Link href={link}>
       <a className="flex -left-4 flex-row items-center mb-6 font-bold text-theme-label-tertiary typo-callout">
         <ArrowIcon size="large" className="mr-2 -rotate-90" />
-        {isFromNavigation ? 'Notifications center' : 'Back to Squad discussion'}
+        {isFromNavigation ? 'Notifications center' : "Back to Squad's page"}
       </a>
     </Link>
   );
