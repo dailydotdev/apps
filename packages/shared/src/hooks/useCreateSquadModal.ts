@@ -34,9 +34,10 @@ export const useCreateSquadModal = ({
     });
   const openSquadBetaModal = () =>
     openModal({
-      type: LazyModal.BetaSquad,
+      type: LazyModal.NewSquad,
       props: {
-        onNext: openNewSquadModal,
+        shouldShowIntro: true,
+        onPreviousState: () => previousRef.current(),
       },
     });
   previousRef.current = openSquadBetaModal;
