@@ -10,6 +10,7 @@ import { SteppedSquadComment } from '../squads/SteppedComment';
 import { SteppedSquadDetails } from '../squads/SteppedDetails';
 import { Post } from '../../graphql/posts';
 import { useBoot } from '../../hooks/useBoot';
+import SquadAccessIntro from '../sidebar/SquadAccessIntro';
 
 export const modalStateOrder = [
   ModalState.Details,
@@ -23,6 +24,7 @@ export type NewSquadModalProps = {
   onPreviousState?: () => void;
   isOpen: boolean;
   post?: Post;
+  shouldShowIntro?: boolean;
 };
 
 let activeView;
@@ -31,10 +33,13 @@ function NewSquadModal({
   onRequestClose,
   isOpen,
   post,
+  shouldShowIntro = false,
 }: NewSquadModalProps): ReactElement {
   const [squad, setSquad] = useState<Squad>();
   const { showPrompt } = usePrompt();
   const { addSquad } = useBoot();
+  const [shouldShowBetaModal, setShouldShowBetaModal] =
+    useState(shouldShowIntro);
   const [form, setForm] = useState<Partial<SquadForm>>({ post: { post } });
   const onNext = async (squadForm?: SquadForm) => {
     if (squadForm) setForm(squadForm);
@@ -77,6 +82,23 @@ function NewSquadModal({
     if (shouldQuit) onRequestClose();
     return null;
   };
+
+  if (shouldShowBetaModal) {
+    return (
+      <Modal
+        isOpen
+        kind={Modal.Kind.FixedCenter}
+        size={Modal.Size.Small}
+        onRequestClose={handleClose}
+      >
+        <SquadAccessIntro
+          onClose={handleClose}
+          onCreateSquad={() => setShouldShowBetaModal(false)}
+        />
+      </Modal>
+    );
+  }
+
   return (
     <Modal
       isOpen={isOpen}
