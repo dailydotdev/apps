@@ -4,7 +4,6 @@ import { QueryObserverOptions, useQuery } from 'react-query';
 import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
 import { Post, PostData, POST_BY_ID_QUERY } from '../graphql/posts';
-import { isNullOrUndefined } from '../lib/func';
 
 interface UsePostByIdProps {
   id: string;
@@ -24,7 +23,6 @@ const usePostById = ({
   options = {},
 }: UsePostByIdProps): UsePostById => {
   const { tokenRefreshed } = useAuthContext();
-  const isEnabled = !!id && tokenRefreshed;
   const {
     data: postById,
     isLoading,
@@ -34,9 +32,7 @@ const usePostById = ({
     () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
     {
       ...options,
-      enabled: isNullOrUndefined(options.enabled)
-        ? isEnabled
-        : isEnabled && options.enabled,
+      enabled: !!id && tokenRefreshed,
     },
   );
 
