@@ -6,7 +6,7 @@ import { Button } from '../buttons/Button';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
-import { graphqlUrl } from '../../lib/config';
+import { apiUrl, graphqlUrl } from '../../lib/config';
 import fetchTimeout from '../../lib/fetchTimeout';
 import { contentGuidelines } from '../../lib/constants';
 import {

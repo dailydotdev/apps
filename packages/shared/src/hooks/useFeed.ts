@@ -15,7 +15,7 @@ import {
   PostsEngaged,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { graphqlUrl } from '../lib/config';
+import { apiUrl, graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import { Connection } from '../graphql/common';
 

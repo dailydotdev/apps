@@ -1,5 +1,5 @@
 import nodeFetch from 'node-fetch';
-import { graphqlUrl } from './config';
+import { apiUrl, graphqlUrl } from './config';
 import { USER_BY_ID_STATIC_FIELDS_QUERY } from '../graphql/users';
 
 export enum Roles {
