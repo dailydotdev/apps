@@ -126,7 +126,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         position={position}
         post={post}
         isFallback={isFallback}
-        isLoading={isLoading || !isFetched}
+        isLoading={!isFetched}
         customNavigation={customNavigation}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
