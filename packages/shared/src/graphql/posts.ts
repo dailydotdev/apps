@@ -180,7 +180,7 @@ export const POST_UPVOTES_BY_ID_QUERY = gql`
       edges {
         node {
           user {
-            ...UpvoterFragment
+            ...UserShortInfo
           }
         }
       }
