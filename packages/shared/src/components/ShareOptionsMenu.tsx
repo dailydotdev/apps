@@ -86,7 +86,7 @@ export default function ShareOptionsMenu({
     },
   ];
 
-  if (hasSquadAccess) {
+  if (hasSquadAccess && !post.private) {
     if (!squads?.length) {
       shareOptions.push({
         icon: <MenuIcon Icon={SquadIcon} />,

@@ -40,6 +40,7 @@ export const FEED_POST_FRAGMENT = gql`
     trending
     tags
     type
+    private
   }
   ${SHARED_POST_INFO_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}
