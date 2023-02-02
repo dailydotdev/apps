@@ -12,7 +12,7 @@ import {
   pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
@@ -45,13 +45,13 @@ const Notifications = (): ReactElement => {
   const { trackEvent } = useAnalyticsContext();
   const { clearUnreadCount } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
-    () => request(`${apiUrl}/graphql`, READ_NOTIFICATIONS_MUTATION),
+    () => request(graphqlUrl, READ_NOTIFICATIONS_MUTATION),
     { onSuccess: clearUnreadCount },
   );
   const queryResult = useInfiniteQuery<NotificationsData>(
     ['notifications'],
     ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, NOTIFICATIONS_QUERY, {
+      request(graphqlUrl, NOTIFICATIONS_QUERY, {
         first: 100,
         after: pageParam,
       }),

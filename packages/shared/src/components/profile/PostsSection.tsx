@@ -24,7 +24,7 @@ import { largeNumberFormat } from '../../lib/numberFormat';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
 import { AUTHOR_FEED_QUERY, FeedData, Post } from '../../graphql/posts';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import { LazyImage } from '../LazyImage';
 import { UserProfile } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
@@ -111,7 +111,7 @@ export default function PostsSection({
   const posts = useInfiniteQuery<FeedData>(
     ['user_posts', userId],
     ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, AUTHOR_FEED_QUERY, {
+      request(graphqlUrl, AUTHOR_FEED_QUERY, {
         userId,
         first: 3,
         after: pageParam,

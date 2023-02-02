@@ -9,7 +9,7 @@ import {
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,
 } from '../../graphql/bookmarksSharing';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import { TextField } from '../fields/TextField';
 import TwitterIcon from '../icons/Twitter';
 import SlackIcon from '../icons/Slack';
@@ -26,7 +26,7 @@ export default function SharedBookmarksModal({
 
   const { data: bookmarksSharingData, isFetched } =
     useQuery<BookmarksSharingData>('bookmarksSharing', () =>
-      request(`${apiUrl}/graphql`, BOOKMARK_SHARING_QUERY),
+      request(graphqlUrl, BOOKMARK_SHARING_QUERY),
     );
 
   const { mutateAsync: updateBookmarksSharing } = useMutation<{
@@ -34,7 +34,7 @@ export default function SharedBookmarksModal({
   }>(
     () => {
       const updatedValue = !bookmarksSharingData?.bookmarksSharing?.enabled;
-      return request(`${apiUrl}/graphql`, BOOKMARK_SHARING_MUTATION, {
+      return request(graphqlUrl, BOOKMARK_SHARING_MUTATION, {
         enabled: updatedValue,
       });
     },

@@ -13,7 +13,7 @@ import {
   UPVOTE_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -76,7 +76,7 @@ export default function CommentActionButtons({
   const { requestMethod } = useRequestProtocol();
   const { mutateAsync: upvoteComment } = useMutation(
     () =>
-      requestMethod(`${apiUrl}/graphql`, UPVOTE_COMMENT_MUTATION, {
+      requestMethod(graphqlUrl, UPVOTE_COMMENT_MUTATION, {
         id: comment.id,
       }),
     {
@@ -95,7 +95,7 @@ export default function CommentActionButtons({
 
   const { mutateAsync: cancelCommentUpvote } = useMutation(
     () =>
-      requestMethod(`${apiUrl}/graphql`, CANCEL_COMMENT_UPVOTE_MUTATION, {
+      requestMethod(graphqlUrl, CANCEL_COMMENT_UPVOTE_MUTATION, {
         id: comment.id,
       }),
     {

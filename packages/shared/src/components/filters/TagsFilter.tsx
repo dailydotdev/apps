@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { SearchField } from '../fields/SearchField';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import { getSearchTagsQueryKey } from '../../hooks/useMutateFilters';
 import { SearchTagsData, SEARCH_TAGS_QUERY } from '../../graphql/feedSettings';
 import TagCategoryDropdown, { TagCategoryLayout } from './TagCategoryDropdown';
@@ -64,7 +64,7 @@ export default function TagsFilter({
     searchKey,
     async () => {
       const data = await request<SearchTagsData>(
-        `${apiUrl}/graphql`,
+        graphqlUrl,
         SEARCH_TAGS_QUERY,
         { query },
       );

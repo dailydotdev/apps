@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
 import {
   Comment,
@@ -100,7 +100,7 @@ export function PostComments({
       queryKey,
       () =>
         requestMethod(
-          `${apiUrl}/graphql`,
+          graphqlUrl,
           POST_COMMENTS_QUERY,
           { postId: id, [initialDataKey]: comments, first: 500 },
           { requestKey: JSON.stringify(queryKey) },

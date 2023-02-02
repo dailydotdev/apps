@@ -14,7 +14,7 @@ import {
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
 import AuthContext from './AuthContext';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 
@@ -151,7 +151,7 @@ export const SettingsContextProvider = ({
     RemoteSettings
   >(
     (params) =>
-      request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
+      request(graphqlUrl, UPDATE_USER_SETTINGS_MUTATION, {
         data: params,
       }),
     {

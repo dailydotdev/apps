@@ -2,7 +2,7 @@ import request from 'graphql-request';
 import React, { ReactNode, ReactElement, useMemo } from 'react';
 import { UseMutateAsyncFunction, useMutation } from 'react-query';
 import { Alerts, UPDATE_ALERTS } from '../graphql/alerts';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 
 export const ALERT_DEFAULTS: Alerts = {
   filter: true,
@@ -47,7 +47,7 @@ export const AlertContextProvider = ({
     Alerts
   >(
     (params) =>
-      request(`${apiUrl}/graphql`, UPDATE_ALERTS, {
+      request(graphqlUrl, UPDATE_ALERTS, {
         data: params,
       }),
     {
