@@ -15,6 +15,7 @@ interface UsePostByIdProps {
 interface UsePostById {
   post: Post;
   isLoading: boolean;
+  isFetched: boolean;
 }
 
 const usePostById = ({
@@ -44,9 +45,10 @@ const usePostById = ({
   return useMemo(
     () => ({
       post: post?.post,
-      isLoading: isLoading || !isFetched || isFetchingNextPage,
+      isFetched,
+      isLoading: isLoading || isFetchingNextPage,
     }),
-    [id, postById, isLoading, options, isFetchingNextPage],
+    [id, postById, isLoading, options, isFetched, isFetchingNextPage],
   );
 };
 

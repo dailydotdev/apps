@@ -76,9 +76,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     false,
   );
 
-  const { post, isLoading } = usePostById({
+  const { post, isLoading, isFetched } = usePostById({
     id,
-    options: { initialData, retry: false, enabled: !!initialData },
+    options: { initialData, retry: false },
   });
 
   const seo: NextSeoProps = {
@@ -99,8 +99,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (!initialData) {
-    return <Custom404 />;
+  if (!initialData && (isFallback || !isFetched)) {
+    return <></>;
   }
 
   const Content = CONTENT_MAP[post?.type];
@@ -126,7 +126,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         position={position}
         post={post}
         isFallback={isFallback}
-        isLoading={isLoading}
+        isLoading={isLoading || !isFetched}
         customNavigation={customNavigation}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
