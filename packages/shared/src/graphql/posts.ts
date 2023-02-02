@@ -58,6 +58,7 @@ export interface Post {
   isScout?: number;
   sharedPost?: SharedPost;
   type: PostType;
+  private: boolean;
 }
 
 export interface Ad {
