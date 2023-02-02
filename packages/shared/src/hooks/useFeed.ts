@@ -29,10 +29,12 @@ export type AdItem = { type: 'ad'; ad: Ad };
 export type PlaceholderItem = { type: 'placeholder' };
 export type FeedItem = PostItem | AdItem | PlaceholderItem;
 
+export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
+
 export type FeedReturnType = {
   items: FeedItem[];
   fetchPage: () => Promise<void>;
-  updatePost: (page: number, index: number, post: Post) => void;
+  updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
   canFetchMore: boolean;
   emptyFeed: boolean;
