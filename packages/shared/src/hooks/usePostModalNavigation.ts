@@ -3,7 +3,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
-import { FeedItem, PostItem } from './useFeed';
+import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
 import { Origin } from '../lib/analytics';
 
@@ -19,6 +19,7 @@ interface UsePostModalNavigation {
 export const usePostModalNavigation = (
   items: FeedItem[],
   fetchPage: () => Promise<unknown>,
+  updatePost?: UpdateFeedPost,
 ): UsePostModalNavigation => {
   const [currentPage, setCurrentPage] = useState<string>();
   const isExtension = !!process.env.TARGET_BROWSER;
@@ -33,7 +34,11 @@ export const usePostModalNavigation = (
     }
   };
 
-  const getPost = (index) =>
+  const getPostItem = (index: number) =>
+    index !== null && items[index].type === 'post'
+      ? (items[index] as PostItem)
+      : null;
+  const getPost = (index: number) =>
     index !== null && items[index].type === 'post'
       ? (items[index] as PostItem).post
       : null;
@@ -43,6 +48,10 @@ export const usePostModalNavigation = (
     const post = !fromPopState && getPost(index);
     if (post) {
       changeHistory({}, `Post: ${post.id}`, `/posts/${post.id}`);
+    }
+    if (updatePost) {
+      const item = getPostItem(index);
+      updatePost(item.page, item.index, { ...post, read: true });
     }
   };
 
