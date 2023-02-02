@@ -155,7 +155,7 @@ function SquadPostContent({
                 </h2>
                 <PostSourceInfo
                   date={`${post.sharedPost.readTime}m read time`}
-                  source={post.source}
+                  source={post.sharedPost.source}
                   typo="typo-footnote"
                   size="small"
                 />
