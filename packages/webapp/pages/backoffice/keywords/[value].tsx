@@ -30,8 +30,7 @@ const KeywordPage = ({
   const { data: keywordData, isLoading: isLoadingKeyword } =
     useQuery<KeywordData>(
       ['keyword', keywordValue],
-      () =>
-        request(graphqlUrl, KEYWORD_QUERY, { value: keywordValue }),
+      () => request(graphqlUrl, KEYWORD_QUERY, { value: keywordValue }),
       {
         enabled: tokenRefreshed && !!keywordValue,
       },
