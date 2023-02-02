@@ -76,7 +76,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     false,
   );
 
-  const { post, isLoading, isFetched } = usePostById({
+  const { post, isFetched } = usePostById({
     id,
     options: { initialData, retry: false },
   });
@@ -114,7 +114,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
-  if (!Content && (!isFallback || !isLoading)) return <Custom404 />;
+  if (!Content && (!isFallback || !isFetched)) return <Custom404 />;
 
   return (
     <>
