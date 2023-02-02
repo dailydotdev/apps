@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { Post } from '../graphql/posts';
+import { Post, PostType } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
@@ -19,7 +19,7 @@ interface UsePostModalNavigation {
 export const usePostModalNavigation = (
   items: FeedItem[],
   fetchPage: () => Promise<unknown>,
-  updatePost?: UpdateFeedPost,
+  updatePost: UpdateFeedPost,
 ): UsePostModalNavigation => {
   const [currentPage, setCurrentPage] = useState<string>();
   const isExtension = !!process.env.TARGET_BROWSER;
@@ -49,7 +49,7 @@ export const usePostModalNavigation = (
     if (post) {
       changeHistory({}, `Post: ${post.id}`, `/posts/${post.id}`);
     }
-    if (updatePost) {
+    if (post?.type === PostType.Share) {
       const item = getPostItem(index);
       updatePost(item.page, item.index, { ...post, read: true });
     }

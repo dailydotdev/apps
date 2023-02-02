@@ -100,7 +100,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
-          updatePostWhenViewed
         />
       </FeedPage>
     </ProtectedPage>

@@ -61,7 +61,6 @@ export type FeedProps<T> = {
   emptyScreen?: ReactNode;
   header?: ReactNode;
   forceCardMode?: boolean;
-  updatePostWhenViewed?: boolean;
 };
 
 interface RankVariables {
@@ -148,7 +147,6 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
   forceCardMode,
-  updatePostWhenViewed,
 }: FeedProps<T>): ReactElement {
   const { showCommentPopover } = useContext(FeaturesContext);
   const { scrollOnboardingVersion } = useContext(FeaturesContext);
@@ -188,11 +186,7 @@ export default function Feed<T>({
     onNext,
     selectedPost,
     isFetchingNextPage,
-  } = usePostModalNavigation(
-    items,
-    fetchPage,
-    updatePostWhenViewed ? updatePost : null,
-  );
+  } = usePostModalNavigation(items, fetchPage, updatePost);
 
   useEffect(() => {
     if (emptyFeed) {
