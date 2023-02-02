@@ -23,7 +23,7 @@ import {
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   PostContent,
   SCROLL_OFFSET,
@@ -159,7 +159,7 @@ export async function getStaticProps({
   const { id } = params;
   try {
     const initialData = await request<PostData>(
-      `${apiUrl}/graphql`,
+      graphqlUrl,
       POST_BY_ID_STATIC_FIELDS_QUERY,
       { id },
     );

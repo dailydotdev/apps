@@ -11,7 +11,7 @@ import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LoaderOverlay } from '@dailydotdev/shared/src/components/LoaderOverlay';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
 import { useMutation } from 'react-query';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
@@ -312,7 +312,7 @@ const DevCardPage = (): ReactElement => {
 
   const { mutateAsync: generateDevCard } = useMutation(
     ({ file, url }: GenerateDevCardParams = {}) =>
-      request(`${apiUrl}/graphql`, GENERATE_DEVCARD_MUTATION, {
+      request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
         file,
         url,
       }),

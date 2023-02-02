@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useMutation } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
@@ -53,7 +53,7 @@ export default function useCompanionActions<
     T,
     (() => void) | undefined
   >(({ id, reason, comment }) =>
-    companionRequest(`${apiUrl}/graphql`, REPORT_POST_MUTATION, {
+    companionRequest(graphqlUrl, REPORT_POST_MUTATION, {
       id,
       reason,
       comment,
@@ -66,7 +66,7 @@ export default function useCompanionActions<
     T,
     (() => void) | undefined
   >(({ id }) =>
-    companionRequest(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
+    companionRequest(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
       filters: {
         excludeSources: [id],
       },
@@ -87,7 +87,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      companionRequest(`${apiUrl}/graphql`, ADD_BOOKMARKS_MUTATION, {
+      companionRequest(graphqlUrl, ADD_BOOKMARKS_MUTATION, {
         data: { postIds: [id] },
       }),
     {
@@ -105,7 +105,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      companionRequest(`${apiUrl}/graphql`, REMOVE_BOOKMARK_MUTATION, {
+      companionRequest(graphqlUrl, REMOVE_BOOKMARK_MUTATION, {
         id,
       }),
     {
@@ -123,7 +123,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      companionRequest(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
+      companionRequest(graphqlUrl, UPVOTE_MUTATION, {
         id,
       }),
     {
@@ -141,7 +141,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      companionRequest(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
+      companionRequest(graphqlUrl, CANCEL_UPVOTE_MUTATION, {
         id,
       }),
     {
@@ -159,7 +159,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     () =>
-      companionRequest(`${apiUrl}/graphql`, UPDATE_ALERTS, {
+      companionRequest(graphqlUrl, UPDATE_ALERTS, {
         data: {
           companionHelper: false,
         },
@@ -179,7 +179,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ companionExpandedValue }) =>
-      companionRequest(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
+      companionRequest(graphqlUrl, UPDATE_USER_SETTINGS_MUTATION, {
         data: {
           companionExpanded: companionExpandedValue,
         },

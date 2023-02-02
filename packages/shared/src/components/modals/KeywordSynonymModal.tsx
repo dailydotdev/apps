@@ -7,7 +7,7 @@ import {
   SearchKeywordData,
   SET_KEYWORD_AS_SYNONYM_MUTATION,
 } from '../../graphql/keywords';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
 
@@ -22,12 +22,12 @@ export default function KeywordSynonymModal({
 
   const { data: searchResults, isLoading: isSearching } =
     useQuery<SearchKeywordData>(['searchKeywords', query], () =>
-      request(`${apiUrl}/graphql`, SEARCH_KEYWORDS_QUERY, { query }),
+      request(graphqlUrl, SEARCH_KEYWORDS_QUERY, { query }),
     );
 
   const { mutateAsync: setSynonym } = useMutation(
     (originalKeyword: string) =>
-      request(`${apiUrl}/graphql`, SET_KEYWORD_AS_SYNONYM_MUTATION, {
+      request(graphqlUrl, SET_KEYWORD_AS_SYNONYM_MUTATION, {
         originalKeyword,
         keywordToUpdate: selectedKeyword.toLowerCase(),
       }),

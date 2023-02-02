@@ -10,7 +10,7 @@ import {
   getEmptyFeedSettings,
 } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import { generateQueryKey } from '../lib/query';
 import { LoggedUser } from '../lib/user';
 import usePersistentContext from './usePersistentContext';
@@ -66,7 +66,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     filtersKey,
     async () => {
       const req = await request<AllTagCategoriesData>(
-        `${apiUrl}/graphql`,
+        graphqlUrl,
         FEED_SETTINGS_QUERY,
         { loggedIn: !!user?.id },
       );

@@ -7,7 +7,7 @@ import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
 } from '../../graphql/furtherReading';
-import { apiUrl } from '../../lib/config';
+import { graphqlUrl } from '../../lib/config';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
 import { Post } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -69,7 +69,7 @@ export default function FurtherReading({
   const { data: posts, isLoading } = useQuery<FurtherReadingData>(
     queryKey,
     () =>
-      request(`${apiUrl}/graphql`, FURTHER_READING_QUERY, {
+      request(graphqlUrl, FURTHER_READING_QUERY, {
         loggedIn: !!user,
         post: postId,
         trendingFirst: 1,

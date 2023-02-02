@@ -15,7 +15,7 @@ import {
   PostsEngaged,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import { Connection } from '../graphql/common';
 
@@ -111,7 +111,7 @@ export default function useFeed<T>(
   const feedQuery = useInfiniteQuery<FeedData>(
     feedQueryKey,
     ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, query, {
+      request(graphqlUrl, query, {
         ...variables,
         first: pageSize,
         after: pageParam,

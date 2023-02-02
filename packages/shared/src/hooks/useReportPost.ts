@@ -7,7 +7,7 @@ import {
   ReportReason,
   UNHIDE_POST_MUTATION,
 } from '../graphql/posts';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import AuthContext from '../contexts/AuthContext';
 import { BooleanPromise } from '../components/filters/common';
 import { AuthTriggers } from '../lib/auth';
@@ -34,16 +34,14 @@ export default function useReportPost(): UseReportPostRet {
     void,
     unknown,
     ReportPostProps
-  >((variables) =>
-    request(`${apiUrl}/graphql`, REPORT_POST_MUTATION, variables),
-  );
+  >((variables) => request(graphqlUrl, REPORT_POST_MUTATION, variables));
 
   const { mutateAsync: hidePostAsync } = useMutation<void, unknown, string>(
-    (id) => request(`${apiUrl}/graphql`, HIDE_POST_MUTATION, { id }),
+    (id) => request(graphqlUrl, HIDE_POST_MUTATION, { id }),
   );
 
   const { mutateAsync: unhidePostAsync } = useMutation<void, unknown, string>(
-    (id) => request(`${apiUrl}/graphql`, UNHIDE_POST_MUTATION, { id }),
+    (id) => request(graphqlUrl, UNHIDE_POST_MUTATION, { id }),
   );
 
   const reportPost = async (params: ReportPostProps) => {

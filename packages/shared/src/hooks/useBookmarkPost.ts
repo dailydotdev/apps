@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { graphqlUrl } from '../lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
@@ -40,7 +40,7 @@ export default function useBookmarkPost<
     (() => void) | undefined
   >(
     ({ id }) =>
-      request(`${apiUrl}/graphql`, ADD_BOOKMARKS_MUTATION, {
+      request(graphqlUrl, ADD_BOOKMARKS_MUTATION, {
         data: { postIds: [id] },
       }),
     {
@@ -58,7 +58,7 @@ export default function useBookmarkPost<
     (() => void) | undefined
   >(
     ({ id }) =>
-      request(`${apiUrl}/graphql`, REMOVE_BOOKMARK_MUTATION, {
+      request(graphqlUrl, REMOVE_BOOKMARK_MUTATION, {
         id,
       }),
     {

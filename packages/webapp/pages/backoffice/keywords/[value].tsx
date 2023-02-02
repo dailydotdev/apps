@@ -5,7 +5,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { ParsedUrlQuery } from 'querystring';
 import {
   KEYWORD_QUERY,
@@ -31,7 +31,7 @@ const KeywordPage = ({
     useQuery<KeywordData>(
       ['keyword', keywordValue],
       () =>
-        request(`${apiUrl}/graphql`, KEYWORD_QUERY, { value: keywordValue }),
+        request(graphqlUrl, KEYWORD_QUERY, { value: keywordValue }),
       {
         enabled: tokenRefreshed && !!keywordValue,
       },
