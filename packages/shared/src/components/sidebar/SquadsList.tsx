@@ -6,15 +6,13 @@ import { SquadImage } from '../squads/SquadImage';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
 import TimerIcon from '../icons/Timer';
+import { SectionCommonProps } from './Section';
 
-type SquadsListProps = {
-  activePage?: string;
+interface SquadsListProps extends SectionCommonProps {
   squads: Squad[];
   onNewSquad: () => void;
   onOpenLockedSquad: (squad: Squad) => void;
-  sidebarExpanded: boolean;
-  sidebarRendered: boolean;
-};
+}
 
 export function SquadsList({
   activePage,
@@ -22,6 +20,7 @@ export function SquadsList({
   onNewSquad,
   onOpenLockedSquad,
   sidebarExpanded,
+  shouldShowLabel,
 }: SquadsListProps): ReactElement {
   const newSquadMenuItem: SidebarMenuItem = {
     icon: () => <NewSquadIcon />,
@@ -50,7 +49,7 @@ export function SquadsList({
         return (
           <NavItem key={`squad-${handle}`} active={isActive}>
             <ClickableNavItem item={menuItem}>
-              <ItemInner item={menuItem} sidebarExpanded={sidebarExpanded} />
+              <ItemInner item={menuItem} shouldShowLabel={shouldShowLabel} />
             </ClickableNavItem>
           </NavItem>
         );
@@ -59,7 +58,7 @@ export function SquadsList({
         <ClickableNavItem item={newSquadMenuItem}>
           <ItemInner
             item={newSquadMenuItem}
-            sidebarExpanded={sidebarExpanded}
+            shouldShowLabel={shouldShowLabel}
           />
         </ClickableNavItem>
       </NavItem>

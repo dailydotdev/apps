@@ -4,13 +4,15 @@ import AuthContext from '../../contexts/AuthContext';
 import { ClickableNavItem } from './ClickableNavItem';
 import {
   ItemInner,
+  ItemInnerProps,
   NavHeader,
   NavItem,
   NavSection,
   SidebarMenuItem,
 } from './common';
 
-export interface SectionCommonProps {
+export interface SectionCommonProps
+  extends Pick<ItemInnerProps, 'shouldShowLabel'> {
   sidebarExpanded: boolean;
   sidebarRendered: boolean;
   activePage: string;
@@ -27,6 +29,7 @@ export function Section({
   items,
   sidebarExpanded,
   sidebarRendered,
+  shouldShowLabel,
   activePage,
   isItemsButton,
 }: SectionProps): ReactElement {
@@ -62,7 +65,7 @@ export function Section({
           >
             <ItemInner
               item={item}
-              sidebarExpanded={sidebarExpanded || sidebarRendered === false}
+              shouldShowLabel={shouldShowLabel}
               active={isActive(item)}
             />
           </ClickableNavItem>
