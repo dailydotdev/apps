@@ -78,7 +78,7 @@ function SquadPostContent({
 
   useEffect(() => {
     onSendViewPost(post.id);
-  }, []);
+  }, [post.id]);
 
   const containerClass =
     sidebarRendered && modalSizeToClassName[ModalSize.Large];
