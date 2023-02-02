@@ -183,8 +183,13 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
+    $supportedTypes: [String!] = ["article", "share"]
   ) {
-    page: bookmarksFeed(first: $first, after: $after) {
+    page: bookmarksFeed(
+      first: $first
+      after: $after
+      supportedTypes: $supportedTypes
+    ) {
       ...FeedPostConnection
     }
   }

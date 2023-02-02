@@ -1,28 +1,20 @@
 import React, { ReactElement } from 'react';
-import { usePrompt } from '../../hooks/usePrompt';
 import SquadsBackgroundSvg from '../../svg/SquadsBackground';
 import { Button } from '../buttons/Button';
+import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
-import { Modal } from './common/Modal';
-import { quitSquadModal } from '../squads/utils';
 
-export type SquadsBetaModalProps = {
-  onRequestClose: () => void;
-  onNext: () => void;
-};
+interface SquadAccessIntroProps {
+  onClose: () => void;
+  onCreateSquad: () => void;
+}
 
-function SquadsBetaModal({
-  onRequestClose,
-  onNext,
-}: SquadsBetaModalProps): ReactElement {
-  const { showPrompt } = usePrompt();
-  const onConfirm = async () => {
-    const shouldQuit = await showPrompt(quitSquadModal);
-    if (shouldQuit) onRequestClose();
-  };
-
+function SquadAccessIntro({
+  onClose,
+  onCreateSquad,
+}: SquadAccessIntroProps): ReactElement {
   return (
-    <Modal isOpen kind={Modal.Kind.FixedCenter} size={Modal.Size.Small}>
+    <>
       <Modal.Body>
         <SquadsBackgroundSvg className="absolute top-0 left-0 w-full rounded-t-16" />
         <h3 className="mt-56 font-bold text-center typo-large-title">
@@ -36,15 +28,15 @@ function SquadsBetaModal({
         </h4>
       </Modal.Body>
       <Modal.Footer justify={Justify.Between}>
-        <Button className="btn-tertiary" onClick={onConfirm}>
+        <Button className="btn-tertiary" onClick={onClose}>
           Close
         </Button>
-        <Button className="btn-primary-cabbage" onClick={onNext}>
+        <Button className="btn-primary-cabbage" onClick={onCreateSquad}>
           Create squad
         </Button>
       </Modal.Footer>
-    </Modal>
+    </>
   );
 }
 
-export default SquadsBetaModal;
+export default SquadAccessIntro;
