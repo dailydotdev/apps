@@ -87,6 +87,7 @@ function NewSquadModal({
     return (
       <Modal
         isOpen
+        key="intro-modal"
         kind={Modal.Kind.FixedCenter}
         size={Modal.Size.Small}
         onRequestClose={handleClose}
@@ -102,6 +103,7 @@ function NewSquadModal({
   return (
     <Modal
       isOpen={isOpen}
+      key="form-modal"
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
       onRequestClose={handleClose}
