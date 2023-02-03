@@ -123,7 +123,7 @@ export const SocialShare = ({
         squads.map((squad) => (
           <button
             type="button"
-            className="flex flex-col"
+            className="flex flex-col items-center"
             key={squad.id}
             onClick={() => onShareToSquad(squad)}
           >
