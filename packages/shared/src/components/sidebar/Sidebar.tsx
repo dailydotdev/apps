@@ -66,10 +66,12 @@ export default function Sidebar({
     submitArticleSidebarButton,
     submitArticleModalButton,
     popularFeedCopy,
+    isFlagsFetched,
   } = useContext(FeaturesContext);
   const { openSquadBetaModal } = useCreateSquadModal({
     hasSquads: !!squads?.length,
     hasAccess: hasSquadAccess,
+    isFlagsFetched,
   });
   const newSquadButtonVisible =
     sidebarRendered && hasSquadAccess && !squads?.length;

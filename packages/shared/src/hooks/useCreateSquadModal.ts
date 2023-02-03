@@ -14,10 +14,13 @@ const SQUAD_ONBOARDING = 'hasTriedSquadOnboarding';
 type UseCreateSquadModalProps = {
   hasSquads: boolean;
   hasAccess: boolean;
+  isFlagsFetched: boolean;
 };
+
 export const useCreateSquadModal = ({
   hasSquads = false,
   hasAccess = false,
+  isFlagsFetched,
 }: UseCreateSquadModalProps): UseCreateSquadModal => {
   const router = useRouter();
   const { openModal } = useLazyModal();
@@ -55,13 +58,19 @@ export const useCreateSquadModal = ({
   }, [router.pathname]);
 
   useEffect(() => {
-    if (!isLoaded || hasTriedOnboarding || hasSquads || !hasAccess) {
+    if (
+      !isLoaded ||
+      hasTriedOnboarding ||
+      hasSquads ||
+      !hasAccess ||
+      !isFlagsFetched
+    ) {
       return;
     }
 
     openSquadBetaModal();
     setHasTriedOnboarding(true);
-  }, [hasTriedOnboarding, isLoaded, hasSquads, hasAccess]);
+  }, [hasTriedOnboarding, isLoaded, hasSquads, hasAccess, isFlagsFetched]);
 
   return useMemo(
     () => ({ openNewSquadModal, openSquadBetaModal }),

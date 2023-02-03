@@ -34,14 +34,14 @@ export type LazyModalCommonProps = Pick<
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
   [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',
   [ModalKind.FlexibleCenter]: 'justify-center',
-  [ModalKind.FlexibleTop]: 'pt-5 mobileL:pt-10',
+  [ModalKind.FlexibleTop]: '',
 };
 const modalKindAndSizeToOverlayClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
-    [ModalSize.Small]: 'mobileL:pt-20',
-    [ModalSize.Medium]: 'mobileL:pt-14',
+    [ModalSize.Small]: 'pt-10 mobileL:pt-20',
+    [ModalSize.Medium]: 'pt-10 mobileL:pt-20',
   },
 };
 const modalKindToClassName: Record<ModalKind, string> = {
@@ -55,8 +55,7 @@ const modalKindAndSizeToClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
-    [ModalSize.Medium]:
-      'mobileL:max-h-[calc(100vh-7.5rem)] max-h-[calc(100vh-2.5rem)] h-auto min-h-[25rem] mt-6',
+    [ModalSize.Medium]: 'h-full mobileL:h-auto min-h-[25rem]',
     [ModalSize.Large]: 'laptop:mt-14 laptop:mb-10',
     [ModalSize.XLarge]: 'laptop:mt-14 laptop:mb-10',
   },
