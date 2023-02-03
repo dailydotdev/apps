@@ -27,7 +27,7 @@ export function SquadPageHeader({
         tag="a"
         target="_blank"
         rel="noopener noreferrer"
-        href={`${squadFeedback}#user_id=${userId}`}
+        href={`${squadFeedback}#user_id=${userId}&squad_id=${squad.id}`}
         className="-top-4 right-4 btn btn-secondary"
         position="absolute"
         icon={<FeedbackIcon size="medium" />}
