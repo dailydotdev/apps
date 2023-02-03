@@ -73,7 +73,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          className="justify-between mx-4 mb-4 laptop:mb-0"
+          className="justify-between mx-4"
         />
       </Containter>
       {children}
