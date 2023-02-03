@@ -118,17 +118,19 @@ export const SocialShare = ({
         onClick={() => trackClick(ShareProvider.Email)}
         label="Email"
       />
-      {squads.map((squad) => (
-        <button
-          type="button"
-          className="flex flex-col"
-          key={squad.id}
-          onClick={() => onShareToSquad(squad)}
-        >
-          <SourceProfilePicture source={squad} />
-          <ShareText className="mt-2">@{squad.handle}</ShareText>
-        </button>
-      ))}
+      {!isComment &&
+        !post.sharedPost &&
+        squads.map((squad) => (
+          <button
+            type="button"
+            className="flex flex-col"
+            key={squad.id}
+            onClick={() => onShareToSquad(squad)}
+          >
+            <SourceProfilePicture source={squad} />
+            <ShareText className="mt-2">@{squad.handle}</ShareText>
+          </button>
+        ))}
     </section>
   );
 };
