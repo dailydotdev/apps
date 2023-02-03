@@ -14,7 +14,7 @@ function ProfileImageLinkComponent(
   ref?: Ref<HTMLAnchorElement>,
 ): ReactElement {
   return (
-    <ProfileLink {...props} ref={ref}>
+    <ProfileLink {...props} href={props.user.permalink} ref={ref}>
       <ProfilePicture
         {...picture}
         ref={null}

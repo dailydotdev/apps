@@ -1,12 +1,18 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
+import classed from '../../lib/classed';
 
 interface SocialShareIconProps extends HTMLAttributes<HTMLButtonElement> {
   href: string;
   icon: ReactElement;
   label: string;
 }
+
+export const ShareText = classed(
+  'span',
+  'typo-caption2 text-theme-label-tertiary',
+);
 
 export const SocialShareIcon = ({
   href,
@@ -29,7 +35,7 @@ export const SocialShareIcon = ({
         iconOnly
         icon={icon}
       />
-      <span className="typo-caption2 text-theme-label-tertiary">{label}</span>
+      <ShareText>{label}</ShareText>
     </div>
   );
 };

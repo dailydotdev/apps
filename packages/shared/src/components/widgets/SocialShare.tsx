@@ -9,7 +9,7 @@ import {
   getWhatsappShareLink,
   ShareProvider,
 } from '../../lib/share';
-import { SocialShareIcon } from './SocialShareIcon';
+import { ShareText, SocialShareIcon } from './SocialShareIcon';
 import { Post } from '../../graphql/posts';
 import MailIcon from '../icons/Mail';
 import TwitterIcon from '../icons/Twitter';
@@ -22,6 +22,11 @@ import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
+import { Squad } from '../../graphql/squads';
+import SourceProfilePicture from '../profile/SourceProfilePicture';
 
 interface SocialShareProps {
   origin: Origin;
@@ -36,7 +41,9 @@ export const SocialShare = ({
   column,
   row,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
+  const { squads } = useAuthContext();
   const isComment = !!comment;
+  const { openModal } = useLazyModal();
   const link = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
@@ -50,6 +57,15 @@ export const SocialShare = ({
         extra: { provider, origin, ...(comment && { commentId: comment.id }) },
       }),
     );
+
+  const onShareToSquad = (squad: Squad) =>
+    openModal({
+      type: LazyModal.PostToSquad,
+      props: {
+        squad,
+        post,
+      },
+    });
 
   return (
     <section className="flex flex-wrap gap-4 pt-2">
@@ -102,6 +118,17 @@ export const SocialShare = ({
         onClick={() => trackClick(ShareProvider.Email)}
         label="Email"
       />
+      {squads.map((squad) => (
+        <button
+          type="button"
+          className="flex flex-col"
+          key={squad.id}
+          onClick={() => onShareToSquad(squad)}
+        >
+          <SourceProfilePicture source={squad} />
+          <ShareText className="mt-2">@{squad.handle}</ShareText>
+        </button>
+      ))}
     </section>
   );
 };
