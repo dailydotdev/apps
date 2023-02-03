@@ -224,7 +224,9 @@ function AuthOptions({
           }),
         });
 
-        if ([4010002, 4010003].includes(connected?.ui?.messages?.[0]?.id)) {
+        if (
+          [4010002, 4010003, 4000007].includes(connected?.ui?.messages?.[0]?.id)
+        ) {
           const registerUser = {
             provider: chosenProvider,
             name: getNodeValue('traits.name', connected.ui.nodes),
