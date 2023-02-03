@@ -65,7 +65,7 @@ export default function ShareOptionsMenu({
   const shareOptions: ShareOption[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
-      text: 'Share article via...',
+      text: 'Share post via...',
       action: () => onShare(post),
     },
     {
@@ -81,7 +81,7 @@ export default function ShareOptionsMenu({
     },
     {
       icon: <MenuIcon Icon={LinkIcon} />,
-      text: 'Copy link to article',
+      text: 'Copy link to post',
       action: trackAndCopyLink,
     },
   ];

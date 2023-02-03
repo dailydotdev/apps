@@ -134,7 +134,7 @@ export default function PostOptionsReadingHistoryMenu({
       >
         <Item className="typo-callout" onClick={onShare}>
           <span className="flex w-full typo-callout">
-            <MenuIcon Icon={ShareIcon} /> Share article via...
+            <MenuIcon Icon={ShareIcon} /> Share post via...
           </span>
         </Item>
         <Item className="typo-callout" onClick={onBookmarkReadingHistoryPost}>
@@ -147,7 +147,7 @@ export default function PostOptionsReadingHistoryMenu({
           onClick={() => onHideHistoryPost(post?.id)}
         >
           <span className="flex w-full typo-callout">
-            <MenuIcon Icon={XIcon} /> Remove article
+            <MenuIcon Icon={XIcon} /> Remove post
           </span>
         </Item>
       </PortalMenu>

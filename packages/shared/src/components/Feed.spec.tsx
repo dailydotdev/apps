@@ -429,7 +429,7 @@ it('should increase reading rank progress', async () => {
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
   // eslint-disable-next-line testing-library/no-node-access
-  const el = await within(main.parentElement).findByText('Read article');
+  const el = await within(main.parentElement).findByText('Read post');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -489,7 +489,7 @@ it('should increase reading rank progress and rank', async () => {
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
   // eslint-disable-next-line testing-library/no-node-access
-  const el = await within(main.parentElement).findByText('Read article');
+  const el = await within(main.parentElement).findByText('Read post');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -557,7 +557,7 @@ it('should increase reading rank progress for anonymous users', async () => {
     'Eminem Quotes Generator - Simple PHP RESTful API',
   );
   // eslint-disable-next-line testing-library/no-node-access
-  const el = await within(main.parentElement).findByText('Read article');
+  const el = await within(main.parentElement).findByText('Read post');
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -850,9 +850,7 @@ it('should block a source', async () => {
   });
   const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
-  const contextBtn = await screen.findByText(
-    "Don't show articles from Echo JS",
-  );
+  const contextBtn = await screen.findByText("Don't show posts from Echo JS");
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await screen.findByRole('alert');

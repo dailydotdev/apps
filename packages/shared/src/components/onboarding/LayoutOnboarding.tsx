@@ -37,7 +37,7 @@ function LayoutOnboarding({ onClose }: OnboardingStepProps): ReactElement {
         <>
           <OnboardingStepContainer
             title="Cards or list?"
-            description="Customize the look of your feed by choosing whether to view articles as cards or as a list."
+            description="Customize the look of your feed by choosing whether to view posts as cards or as a list."
             className={{
               container: 'items-center',
               content: classNames(

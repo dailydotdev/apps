@@ -63,7 +63,7 @@ const readHistoryToTooltip = (
     year: 'numeric',
   });
   if (!value?.reads) {
-    return `No articles read on ${formattedDate}`;
+    return `No posts read on ${formattedDate}`;
   }
   return (
     <>
