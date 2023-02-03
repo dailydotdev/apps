@@ -5,6 +5,7 @@ import PostNavigation, { PostNavigationProps } from './PostNavigation';
 function FixedPostNavigation({
   onPreviousPost,
   onNextPost,
+  postPosition,
   post,
   className = {},
   ...props
@@ -31,6 +32,7 @@ function FixedPostNavigation({
       }}
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
+      postPosition={postPosition}
     >
       <div
         className={classNames(

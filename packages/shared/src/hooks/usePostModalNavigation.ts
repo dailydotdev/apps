@@ -7,7 +7,15 @@ import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
 import { Origin } from '../lib/analytics';
 
+export enum PostPosition {
+  First = 'first',
+  Only = 'only',
+  Middle = 'middle',
+  Last = 'last',
+}
+
 interface UsePostModalNavigation {
+  postPosition: PostPosition;
   onPrevious: () => void;
   onNext: () => Promise<void>;
   onOpenModal: (index: number, fromPopState?: boolean) => void;
@@ -106,8 +114,18 @@ export const usePostModalNavigation = (
     };
   }, [items]);
 
+  const getPostPosition = () => {
+    const isPost = (item: FeedItem) => item.type === 'post';
+    const firstPost = items.findIndex(isPost);
+    const lastPost = [...items].reverse().findIndex(isPost);
+    const isLast = items.length - lastPost - 1 === openedPostIndex;
+    if (firstPost === openedPostIndex)
+      return isLast ? PostPosition.Only : PostPosition.First;
+    return isLast ? PostPosition.Last : PostPosition.Middle;
+  };
   const ret = useMemo<UsePostModalNavigation>(
     () => ({
+      postPosition: getPostPosition(),
       isFetchingNextPage,
       onCloseModal,
       onOpenModal,

@@ -11,7 +11,10 @@ import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 
 interface PostModalProps
   extends ModalProps,
-    Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'> {
+    Pick<
+      PostNavigationProps,
+      'onPreviousPost' | 'onNextPost' | 'postPosition'
+    > {
   id: string;
   isFetchingNextPage?: boolean;
 }
@@ -23,6 +26,7 @@ export default function PostModal({
   onRequestClose,
   onPreviousPost,
   onNextPost,
+  postPosition,
   ...props
 }: PostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
@@ -44,6 +48,7 @@ export default function PostModal({
         post={post}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}
+        postPosition={postPosition}
         inlineActions
         onClose={onRequestClose}
         isLoading={isLoading}
