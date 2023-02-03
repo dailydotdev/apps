@@ -119,7 +119,7 @@ export const SocialShare = ({
         label="Email"
       />
       {!isComment &&
-        !post.sharedPost &&
+        !post.private &&
         squads.map((squad) => (
           <button
             type="button"
