@@ -21,7 +21,7 @@ export default function CommentAuthor({
   return (
     <ProfileTooltip user={author} tooltip={{ appendTo: appendTooltipTo }}>
       <ProfileLink
-        user={author}
+        href={author.permalink}
         className={classNames(
           'overflow-hidden font-bold whitespace-nowrap w-fit commentAuthor text-theme-label-primary typo-callout',
           className,

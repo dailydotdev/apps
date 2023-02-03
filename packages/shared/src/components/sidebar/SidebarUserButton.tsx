@@ -29,7 +29,7 @@ export default function SidebarUserButton({
             <>
               <div className="flex justify-between items-center mb-4">
                 <ProfileLink
-                  user={user}
+                  href={user.permalink}
                   className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
                 >
                   <ProfilePicture user={user} size="medium" />

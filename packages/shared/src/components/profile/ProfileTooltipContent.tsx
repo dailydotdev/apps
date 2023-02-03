@@ -38,11 +38,14 @@ export function ProfileTooltipContent({
       </div>
       <ProfileLink
         className="mt-5 font-bold text-theme-label-primary"
-        user={user}
+        href={user.permalink}
       >
         {user.name}
       </ProfileLink>
-      <ProfileLink className="mb-3 text-theme-label-secondary" user={user}>
+      <ProfileLink
+        className="mb-3 text-theme-label-secondary"
+        href={user.permalink}
+      >
         @{user.username}
       </ProfileLink>
       {user.bio && (
