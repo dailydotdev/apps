@@ -18,7 +18,7 @@ function SquadAccessIntro({
       <Modal.Body>
         <SquadsBackgroundSvg className="absolute top-0 left-0 w-full rounded-t-16" />
         <h3 className="mt-56 font-bold text-center typo-large-title">
-          Wow! You get early access to
+          Wow! You got early access to
           <br />
           <span className="text-theme-color-cabbage">Squads!</span>
         </h3>
