@@ -139,7 +139,8 @@ export default function useFeed<T>(
     },
     {
       getNextPageParam: () => Date.now(),
-      enabled: query && tokenRefreshed,
+      enabled:
+        process.env.NODE_ENV !== 'development' && query && tokenRefreshed,
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
