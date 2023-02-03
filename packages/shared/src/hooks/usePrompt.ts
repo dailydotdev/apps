@@ -37,7 +37,9 @@ type UsePromptRet = {
 
 export function usePrompt(): UsePromptRet {
   const client = useQueryClient();
-  const { data: prompt } = useQuery<Prompt>(PROMPT_KEY);
+  const { data: prompt } = useQuery<Prompt>(PROMPT_KEY, () =>
+    client.getQueryData<Prompt>(PROMPT_KEY),
+  );
   const setPrompt = (data: Prompt) => client.setQueryData(PROMPT_KEY, data);
 
   const showPrompt = (promptOptions: PromptOptions): Promise<boolean> =>
