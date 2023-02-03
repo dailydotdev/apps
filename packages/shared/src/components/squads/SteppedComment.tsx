@@ -1,5 +1,4 @@
 import React, { FormEventHandler, ReactElement } from 'react';
-import { ClientError } from 'graphql-request';
 import { Modal } from '../modals/common/Modal';
 import { ModalState, SquadStateProps } from './utils';
 import { SquadComment } from './Comment';
@@ -35,11 +34,7 @@ export function SteppedSquadComment({
         onCreate(newSquad);
         nextStep(e);
       } catch (err) {
-        const clientError = err as ClientError;
-        const message = clientError?.response?.errors?.[0]?.message;
-        if (!message) return;
-        const error = JSON.parse(message);
-        displayToast(error?.handle ?? DEFAULT_ERROR);
+        displayToast(DEFAULT_ERROR);
       }
     };
   };
