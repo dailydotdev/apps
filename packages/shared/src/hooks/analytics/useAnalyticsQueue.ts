@@ -32,6 +32,13 @@ export default function useAnalyticsQueue({
   const enabledRef = useRef(false);
   const { mutateAsync: sendEvents } = useMutation(
     async (events: AnalyticsEvent[]) => {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('useAnalyticsQueue.sendEvents', { events });
+
+        return;
+      }
+
       const res = await fetchMethod(ANALYTICS_ENDPOINT, {
         method: 'POST',
         body: JSON.stringify({ events }),
@@ -78,6 +85,14 @@ export default function useAnalyticsQueue({
           const blob = new Blob([JSON.stringify({ events })], {
             type: 'application/json',
           });
+
+          if (process.env.NODE_ENV === 'development') {
+            // eslint-disable-next-line no-console
+            console.log('useAnalyticsQueue.sendBeacon', { events });
+
+            return;
+          }
+
           if (backgroundMethod) {
             backgroundMethod?.({
               url: ANALYTICS_ENDPOINT,
