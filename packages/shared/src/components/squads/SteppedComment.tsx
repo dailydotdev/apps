@@ -1,25 +1,43 @@
-import React, { FormEventHandler, ReactElement, useContext } from 'react';
+import React, { FormEventHandler, ReactElement } from 'react';
+import { ClientError } from 'graphql-request';
 import { Modal } from '../modals/common/Modal';
 import { ModalState, SquadStateProps } from './utils';
-import { ModalPropsContext } from '../modals/common/types';
 import { SquadComment } from './Comment';
-import { SquadForm } from '../../graphql/squads';
+import { createSquad, Squad, SquadForm } from '../../graphql/squads';
+import { useToastNotification } from '../../hooks/useToastNotification';
+
+interface SteppedSquadCommentProps extends SquadStateProps {
+  onCreate: (squad: Squad) => void;
+}
+
+const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 
 export function SteppedSquadComment({
-  onNext,
+  onCreate,
   form,
-}: SquadStateProps): ReactElement {
-  const { activeView } = useContext(ModalPropsContext);
-  if (ModalState.WriteComment !== activeView || !form.post) return null;
+}: SteppedSquadCommentProps): ReactElement {
+  const { displayToast } = useToastNotification();
   const onSubmit = (nextStep: FormEventHandler): FormEventHandler => {
-    return (e) => {
+    return async (e) => {
       e.preventDefault();
-      nextStep(e);
-      onNext({ ...form, commentary: e.target[0].value } as SquadForm);
+      const data = { ...form, commentary: e.target[0].value } as SquadForm;
+      try {
+        const newSquad = await createSquad({ ...form, ...data });
+        if (!newSquad) return;
+        onCreate(newSquad);
+        nextStep(e);
+      } catch (err) {
+        const clientError = err as ClientError;
+        const message = clientError?.response?.errors?.[0]?.message;
+        if (!message) return;
+        const error = JSON.parse(message);
+        displayToast(error?.handle ?? DEFAULT_ERROR);
+      }
     };
   };
+
   return (
-    <Modal.StepsWrapper>
+    <Modal.StepsWrapper view={ModalState.WriteComment}>
       {({ nextStep }) => (
         <SquadComment form={form} onSubmit={onSubmit(nextStep)} />
       )}
