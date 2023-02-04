@@ -74,7 +74,7 @@ export function SquadDetails({
     if (!createMode) return onSubmit(e, data);
 
     const handleExists = await onValidateHandle(formJson.handle);
-    setHandleHint(handleExists ? 'The handle is already exists' : null);
+    setHandleHint(handleExists ? 'The handle already exists' : null);
 
     if (!handleExists) return onSubmit(e, data);
 
