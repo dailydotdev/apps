@@ -68,7 +68,7 @@ export const SocialShare = ({
     });
 
   return (
-    <section className="flex flex-wrap gap-4 pt-2">
+    <section className="grid grid-cols-5 gap-4 pt-2 w-fit">
       <SocialShareIcon
         href={getTwitterShareLink(link, post?.title)}
         icon={<TwitterIcon />}
@@ -128,7 +128,7 @@ export const SocialShare = ({
             onClick={() => onShareToSquad(squad)}
           >
             <SourceProfilePicture source={squad} />
-            <ShareText className="mt-2">@{squad.handle}</ShareText>
+            <ShareText className="mt-2 break-words">@{squad.handle}</ShareText>
           </button>
         ))}
     </section>
