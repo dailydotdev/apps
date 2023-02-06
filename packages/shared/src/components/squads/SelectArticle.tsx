@@ -32,6 +32,9 @@ export function SquadSelectArticle({
   const queryProps = {
     key,
     query: READING_HISTORY_QUERY,
+    variables: {
+      isPublic: true,
+    },
   };
   const { hasData, data, isInitialLoading, isLoading, queryResult } =
     useInfiniteReadingHistory(queryProps);
