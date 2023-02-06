@@ -9,6 +9,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import useDebounce from './useDebounce';
 import { AuthTriggers } from '../lib/auth';
+import { updatePostCache } from './usePostById';
 
 export interface UsePostCommentOptionalProps {
   enableShowShareNewComment?: boolean;
@@ -94,6 +95,11 @@ export const usePostComment = (
     }
   };
 
+  const updatePostCommentsCount = (increment: number) =>
+    updatePostCache(client, post.id, {
+      numComments: post.numComments + increment,
+    });
+
   const getCommentEdge = (comment: Comment, isNew = true): Edge<Comment> => {
     if (isNew) {
       return { node: { ...comment, children: { edges: [], pageInfo: null } } };
@@ -126,6 +132,7 @@ export const usePostComment = (
       return null;
     }
 
+    updatePostCommentsCount(-1);
     if (parentId === commentId) {
       const index = edges.findIndex((e) => e.node.id === commentId);
       const count = edges[index].node.children?.edges?.length || 0;
@@ -156,6 +163,7 @@ export const usePostComment = (
     const parentId = parentComment.commentId;
 
     if (isNew) {
+      updatePostCommentsCount(1);
       if (!parentId) {
         cached.postComments.edges.push(comment);
         return client.setQueryData(key, cached);
