@@ -99,7 +99,7 @@ const findIndexOfPostInData = (
   return { pageIndex: -1, index: -1 };
 };
 
-interface UseFeedOptionalParams<T> {
+export interface UseFeedOptionalParams<T> {
   query?: string;
   variables?: T;
   options?: UseInfiniteQueryOptions<FeedData>;

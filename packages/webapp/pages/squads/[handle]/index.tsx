@@ -101,6 +101,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
+          options={{ refetchOnMount: true }}
         />
       </FeedPage>
     </ProtectedPage>

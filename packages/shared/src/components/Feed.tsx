@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import useFeed, { PostItem } from '../hooks/useFeed';
+import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
@@ -51,7 +51,8 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 
-export type FeedProps<T> = {
+export interface FeedProps<T>
+  extends Pick<UseFeedOptionalParams<T>, 'options'> {
   feedName: string;
   feedQueryKey: unknown[];
   query?: string;
@@ -61,7 +62,7 @@ export type FeedProps<T> = {
   emptyScreen?: ReactNode;
   header?: ReactNode;
   forceCardMode?: boolean;
-};
+}
 
 interface RankVariables {
   ranking?: string;
@@ -147,6 +148,7 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
   forceCardMode,
+  options,
 }: FeedProps<T>): ReactElement {
   const { showCommentPopover } = useContext(FeaturesContext);
   const { scrollOnboardingVersion } = useContext(FeaturesContext);
@@ -174,7 +176,7 @@ export default function Feed<T>({
       currentSettings.adSpot,
       numCards,
       showOnlyUnreadPosts,
-      { query, variables, options: { refetchOnMount: true } },
+      { query, variables, options },
     );
 
   const { ranking } = (variables as RankVariables) || {};
