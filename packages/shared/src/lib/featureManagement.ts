@@ -37,12 +37,12 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly SubmitArticleSidebarButton = new Features(
     'submit_article_sidebar_button',
-    'Submit article',
+    'Submit post',
   );
 
   static readonly SubmitArticleModalButton = new Features(
     'submit_article_modal_button',
-    'Submit article',
+    'Submit post',
   );
 
   static readonly MyFeedButtonColor = new Features(
@@ -103,7 +103,7 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly CompanionPermissionDescription = new Features(
     'companion_permission_description',
-    "We'll ask for extra permissions so we can show the companion directly on an article!",
+    "We'll ask for extra permissions so we can show the companion directly on an post!",
   );
 
   static readonly CompanionPermissionLink = new Features(

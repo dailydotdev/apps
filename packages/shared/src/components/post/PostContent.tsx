@@ -152,7 +152,7 @@ export function PostContent({
           />
           <a
             href={post.permalink}
-            title="Go to article"
+            title="Go to post"
             target="_blank"
             rel="noopener"
             onClick={onReadArticle}

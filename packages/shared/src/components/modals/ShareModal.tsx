@@ -28,6 +28,7 @@ export default function ShareModal({
   columns,
   column,
   row,
+  onRequestClose,
   ...props
 }: ShareModalProps): ReactElement {
   const isComment = !!comment;
@@ -64,8 +65,13 @@ export default function ShareModal({
   }, []);
 
   return (
-    <Modal size={Modal.Size.Small} kind={Modal.Kind.FlexibleCenter} {...props}>
-      <Modal.Header title={isComment ? 'Share comment' : 'Share article'} />
+    <Modal
+      size={Modal.Size.Small}
+      kind={Modal.Kind.FlexibleCenter}
+      onRequestClose={onRequestClose}
+      {...props}
+    >
+      <Modal.Header title={isComment ? 'Share comment' : 'Share post'} />
       {!isComment && (
         <PostItemCard
           className="mt-2"
@@ -102,6 +108,7 @@ export default function ShareModal({
           columns={columns}
           column={column}
           row={row}
+          onSquadShare={() => onRequestClose(null)}
         />
       </Modal.Body>
     </Modal>

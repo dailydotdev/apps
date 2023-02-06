@@ -63,7 +63,7 @@ const readHistoryToTooltip = (
     year: 'numeric',
   });
   if (!value?.reads) {
-    return `No articles read on ${formattedDate}`;
+    return `No posts read on ${formattedDate}`;
   }
   return (
     <>
@@ -246,8 +246,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           </ActivityContainer>
           <ActivityContainer>
             <ActivitySectionTitle>
-              Articles read in{' '}
-              {getHistoryTitle(fullHistory, selectedHistoryYear)}
+              Posts read in {getHistoryTitle(fullHistory, selectedHistoryYear)}
               {totalReads >= 0 && (
                 <ActivitySectionTitleStat>
                   ({totalReads})

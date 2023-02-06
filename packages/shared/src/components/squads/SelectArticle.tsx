@@ -52,12 +52,12 @@ export function SquadSelectArticle({
       <Modal.Body>
         <SquadTitle>
           {!hasData ? 'Read' : 'Share'}{' '}
-          <SquadTitleColor>an article</SquadTitleColor>
+          <SquadTitleColor>a post</SquadTitleColor>
         </SquadTitle>
         <p className="py-4 text-center">
           {!hasData
-            ? 'Your reading history is empty! Please read at least one article by clicking on a post to start sharing with your Squad.'
-            : 'Pick an article that you would like to discuss with the members of your Squad.'}
+            ? 'Your reading history is empty! Please read at least one post by clicking on a post to start sharing with your Squad.'
+            : 'Pick an post that you would like to discuss with the members of your Squad.'}
         </p>
         <Modal.StepsWrapper>
           {({ nextStep }) => (

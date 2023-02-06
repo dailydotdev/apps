@@ -70,7 +70,7 @@ export default function MainFeedPage({
       isSearchOn={isSearchOn}
       onFeedPageChanged={(page) => router.replace(`/${page}`)}
       searchQuery={router.query?.q?.toString()}
-      searchChildren={<PostsSearch placeholder="Search articles" />}
+      searchChildren={<PostsSearch placeholder="Search posts" />}
     >
       {children}
     </MainFeedLayout>
