@@ -37,6 +37,7 @@ function SquadPostContent({
   isLoading,
   origin,
   position,
+  postPosition,
   inlineActions,
   className,
   customNavigation,
@@ -66,6 +67,7 @@ function SquadPostContent({
     onPreviousPost,
     onNextPost,
     onShare: onSharePost,
+    postPosition,
     onClose,
     inlineActions,
   };

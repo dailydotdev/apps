@@ -4,6 +4,7 @@ import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../icons/Arrow';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostPosition } from '../../hooks/usePostModalNavigation';
 
 type PostActions = Pick<
   PostModalActionsProps,
@@ -22,6 +23,7 @@ export interface PostNavigationClassName {
 }
 
 export interface PostNavigationProps extends PostActions {
+  postPosition?: PostPosition;
   onPreviousPost?: () => unknown;
   onNextPost?: () => unknown;
   className?: PostNavigationClassName;
@@ -29,6 +31,7 @@ export interface PostNavigationProps extends PostActions {
 }
 
 function PostNavigation({
+  postPosition,
   onPreviousPost,
   onNextPost,
   className = {},
@@ -49,6 +52,9 @@ function PostNavigation({
             className="-rotate-90 btn-secondary"
             icon={<ArrowIcon />}
             onClick={onPreviousPost}
+            disabled={[PostPosition.First, PostPosition.Only].includes(
+              postPosition,
+            )}
           />
         </SimpleTooltip>
       )}
@@ -58,6 +64,9 @@ function PostNavigation({
             className="rotate-90 btn-secondary"
             icon={<ArrowIcon />}
             onClick={onNextPost}
+            disabled={[PostPosition.Last, PostPosition.Only].includes(
+              postPosition,
+            )}
           />
         </SimpleTooltip>
       )}

@@ -185,6 +185,7 @@ export default function Feed<T>({
     onCloseModal,
     onPrevious,
     onNext,
+    postPosition,
     selectedPost,
     isFetchingNextPage,
   } = usePostModalNavigation(items, fetchPage, updatePost);
@@ -481,6 +482,7 @@ export default function Feed<T>({
             onPreviousPost={onPrevious}
             onNextPost={onNext}
             isFetchingNextPage={isFetchingNextPage}
+            postPosition={postPosition}
           />
         )}
         {sharePost && (
