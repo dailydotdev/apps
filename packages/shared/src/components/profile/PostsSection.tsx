@@ -194,7 +194,7 @@ export default function PostsSection({
 
   return (
     <ActivitySection
-      title={`${isSameUser ? 'Your ' : ''}Articles`}
+      title={`${isSameUser ? 'Your ' : ''}Posts`}
       query={posts}
       count={numPosts}
       emptyScreen={postsEmptyScreen}

@@ -37,12 +37,12 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly SubmitArticleSidebarButton = new Features(
     'submit_article_sidebar_button',
-    'Submit article',
+    'Submit post',
   );
 
   static readonly SubmitArticleModalButton = new Features(
     'submit_article_modal_button',
-    'Submit article',
+    'Submit post',
   );
 
   static readonly MyFeedButtonColor = new Features(

@@ -246,8 +246,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           </ActivityContainer>
           <ActivityContainer>
             <ActivitySectionTitle>
-              Articles read in{' '}
-              {getHistoryTitle(fullHistory, selectedHistoryYear)}
+              Posts read in {getHistoryTitle(fullHistory, selectedHistoryYear)}
               {totalReads >= 0 && (
                 <ActivitySectionTitleStat>
                   ({totalReads})

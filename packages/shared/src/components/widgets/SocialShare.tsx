@@ -96,7 +96,7 @@ export const SocialShare = ({
         label="Telegram"
       />
       <SocialShareIcon
-        href={getEmailShareLink(link, 'I found this amazing article')}
+        href={getEmailShareLink(link, 'I found this amazing post')}
         icon={<MailIcon />}
         className="bg-theme-bg-email"
         onClick={() => trackClick(ShareProvider.Email)}
