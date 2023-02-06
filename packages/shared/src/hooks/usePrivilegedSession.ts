@@ -26,8 +26,10 @@ export const VERIFY_SESSION_KEY = 'verify_session';
 const usePrivilegedSession = (): UsePrivilegedSession => {
   const onVerification = useRef<Func>();
   const { displayToast } = useToastNotification();
-  const { data: verifySessionId } = useQuery(VERIFY_SESSION_KEY);
   const client = useQueryClient();
+  const { data: verifySessionId } = useQuery(VERIFY_SESSION_KEY, () =>
+    client.getQueryData(VERIFY_SESSION_KEY),
+  );
   const setVerifySessionId = (value: string) =>
     client.setQueryData(VERIFY_SESSION_KEY, value);
 

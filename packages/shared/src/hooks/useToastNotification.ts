@@ -31,7 +31,9 @@ export interface NotifyOptionalProps {
 
 export const useToastNotification = (): UseToastNotification => {
   const client = useQueryClient();
-  const { data: toast } = useQuery<ToastNotification>(TOAST_NOTIF_KEY);
+  const { data: toast } = useQuery<ToastNotification>(TOAST_NOTIF_KEY, () =>
+    client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY),
+  );
   const setToastNotification = (data: ToastNotification) =>
     client.setQueryData(TOAST_NOTIF_KEY, data);
 
