@@ -83,7 +83,7 @@ function CommentBox({
             {comment.author.id === postScoutId && <ScoutBadge />}
           </FlexRow>
           <FlexRow className="items-center text-theme-label-quaternary">
-            <ProfileLink user={comment.author}>
+            <ProfileLink href={comment.author.permalink}>
               @{comment.author.username}
             </ProfileLink>
             <div className="mx-2 w-0.5 h-0.5 bg-theme-label-quaternary" />
