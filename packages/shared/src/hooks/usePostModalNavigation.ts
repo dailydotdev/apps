@@ -121,6 +121,8 @@ export const usePostModalNavigation = (
       return items.length - 1 === openedPostIndex
         ? PostPosition.Only
         : PostPosition.First;
+    // We do not set the Last position because the local last might not be the actual last.
+    // The setting can be updated once we update the API to return the information if the page is last or not.
     return PostPosition.Middle;
   };
   const ret = useMemo<UsePostModalNavigation>(
