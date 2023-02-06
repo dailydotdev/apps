@@ -25,7 +25,7 @@ function AccountDangerZone({
             associations.
           </li>
           <li>
-            2. Permanently delete all your content, including your articles,
+            2. Permanently delete all your content, including your posts,
             bookmarks, comments, upvotes, etc.
           </li>
           <li>3. Allow your username to become available to anyone.</li>
