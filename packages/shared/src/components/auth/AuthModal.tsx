@@ -29,7 +29,7 @@ export default function AuthModal({
   };
 
   const closeAndLogout = (e) => {
-    if (user) {
+    if (user && !user.username) {
       logout();
     }
     onClose(e);
