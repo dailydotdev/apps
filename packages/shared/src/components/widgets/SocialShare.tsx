@@ -32,7 +32,9 @@ interface SocialShareProps {
   origin: Origin;
   post: Post;
   comment?: Comment;
+  onSquadShare?: (post: Post) => void;
 }
+
 export const SocialShare = ({
   post,
   comment,
@@ -40,6 +42,7 @@ export const SocialShare = ({
   columns,
   column,
   row,
+  onSquadShare,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const { squads } = useAuthContext();
   const isComment = !!comment;
@@ -64,6 +67,7 @@ export const SocialShare = ({
       props: {
         squad,
         post,
+        onSharedSuccessfully: onSquadShare,
       },
     });
 
