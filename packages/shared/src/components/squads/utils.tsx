@@ -11,7 +11,7 @@ import { UserShortProfile } from '../../lib/user';
 
 export enum ModalState {
   Details = 'Squad details',
-  SelectArticle = 'Pick an post',
+  SelectArticle = 'Pick a post',
   WriteComment = 'Share post',
   Ready = 'Almost there!',
 }
