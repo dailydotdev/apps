@@ -401,6 +401,7 @@ export default function Feed<T>({
       className={classNames(
         'flex flex-col laptopL:mx-auto w-full',
         styles.container,
+        className,
       )}
       style={style}
     >
@@ -408,7 +409,6 @@ export default function Feed<T>({
       <div
         className={classNames(
           'relative mx-auto w-full',
-          className,
           styles.feed,
           !useList && styles.cards,
         )}
