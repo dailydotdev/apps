@@ -1,6 +1,11 @@
 import request from 'graphql-request';
 import { useMemo } from 'react';
-import { QueryObserverOptions, useQuery } from 'react-query';
+import {
+  QueryClient,
+  QueryKey,
+  QueryObserverOptions,
+  useQuery,
+} from 'react-query';
 import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
 import { Post, PostData, POST_BY_ID_QUERY } from '../graphql/posts';
@@ -17,18 +22,35 @@ interface UsePostById {
   isFetched: boolean;
 }
 
+const POST_KEY = 'post';
+
+export const getPostByIdKey = (id: string): QueryKey => [POST_KEY, id];
+
+export const updatePostCache = (
+  client: QueryClient,
+  id: string,
+  { id: _, ...postUpdate }: Partial<Post>,
+): PostData =>
+  client.setQueryData<PostData>(getPostByIdKey(id), (node) => ({
+    post: {
+      ...node.post,
+      ...postUpdate,
+    },
+  }));
+
 const usePostById = ({
   id,
   isFetchingNextPage,
   options = {},
 }: UsePostByIdProps): UsePostById => {
   const { tokenRefreshed } = useAuthContext();
+  const key = getPostByIdKey(id);
   const {
     data: postById,
     isLoading,
     isFetched,
   } = useQuery<PostData>(
-    ['post', id],
+    key,
     () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
     {
       ...options,
