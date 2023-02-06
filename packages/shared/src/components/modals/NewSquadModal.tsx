@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { Modal } from './common/Modal';
-import { createSquad, Squad, SquadForm } from '../../graphql/squads';
+import { Squad, SquadForm } from '../../graphql/squads';
 import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SquadReady } from '../squads/Ready';
 import { ModalState, quitSquadModal, SquadStateProps } from '../squads/utils';
@@ -41,10 +41,9 @@ function NewSquadModal({
   const [shouldShowBetaModal, setShouldShowBetaModal] =
     useState(shouldShowIntro);
   const [form, setForm] = useState<Partial<SquadForm>>({ post: { post } });
-  const onNext = async (squadForm?: SquadForm) => {
-    if (squadForm) setForm(squadForm);
-    if (!squadForm.commentary) return;
-    const newSquad = await createSquad(squadForm);
+  const onNext = async (squadForm?: SquadForm) =>
+    squadForm && setForm(squadForm);
+  const onCreate = (newSquad: Squad) => {
     addSquad(newSquad);
     setSquad(newSquad);
   };
@@ -115,8 +114,8 @@ function NewSquadModal({
       <Modal.Header.Steps />
       <SteppedSquadDetails {...stateProps} />
       {!post && <SquadSelectArticle {...stateProps} />}
-      <SteppedSquadComment {...stateProps} />
-      <SquadReady {...stateProps} squad={squad} />
+      <SteppedSquadComment {...stateProps} onCreate={onCreate} />
+      {squad && <SquadReady {...stateProps} squad={squad} />}
     </Modal>
   );
 }

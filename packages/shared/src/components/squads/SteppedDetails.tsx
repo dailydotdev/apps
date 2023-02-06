@@ -1,7 +1,6 @@
-import React, { FormEventHandler, ReactElement, useContext } from 'react';
+import React, { FormEventHandler, ReactElement } from 'react';
 import { Modal } from '../modals/common/Modal';
 import { ModalState, SquadStateProps } from './utils';
-import { ModalPropsContext } from '../modals/common/types';
 import { SquadDetails } from './Details';
 import { SquadForm } from '../../graphql/squads';
 
@@ -9,8 +8,6 @@ export function SteppedSquadDetails({
   onNext,
   form,
 }: SquadStateProps): ReactElement {
-  const { activeView } = useContext(ModalPropsContext);
-  if (ModalState.Details !== activeView) return null;
   const onSubmit = (nextStep: FormEventHandler) => {
     return (e, formJson) => {
       e.preventDefault();
@@ -18,8 +15,9 @@ export function SteppedSquadDetails({
       onNext({ ...form, ...formJson } as SquadForm);
     };
   };
+
   return (
-    <Modal.StepsWrapper>
+    <Modal.StepsWrapper view={ModalState.Details}>
       {({ nextStep }) => (
         <SquadDetails form={form} onSubmit={onSubmit(nextStep)} createMode />
       )}

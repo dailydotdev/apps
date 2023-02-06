@@ -9,7 +9,7 @@ import {
   getWhatsappShareLink,
   ShareProvider,
 } from '../../lib/share';
-import { SocialShareIcon } from './SocialShareIcon';
+import { ShareText, SocialShareIcon } from './SocialShareIcon';
 import { Post } from '../../graphql/posts';
 import MailIcon from '../icons/Mail';
 import TwitterIcon from '../icons/Twitter';
@@ -22,6 +22,11 @@ import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
+import { Squad } from '../../graphql/squads';
+import SourceProfilePicture from '../profile/SourceProfilePicture';
 
 interface SocialShareProps {
   origin: Origin;
@@ -36,7 +41,9 @@ export const SocialShare = ({
   column,
   row,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
+  const { squads } = useAuthContext();
   const isComment = !!comment;
+  const { openModal } = useLazyModal();
   const link = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
@@ -51,8 +58,30 @@ export const SocialShare = ({
       }),
     );
 
+  const onShareToSquad = (squad: Squad) =>
+    openModal({
+      type: LazyModal.PostToSquad,
+      props: {
+        squad,
+        post,
+      },
+    });
+
   return (
-    <section className="flex flex-wrap gap-4 pt-2">
+    <section className="grid grid-cols-5 gap-4 pt-2 w-fit">
+      {!isComment &&
+        !post.private &&
+        squads?.map((squad) => (
+          <button
+            type="button"
+            className="flex flex-col items-center"
+            key={squad.id}
+            onClick={() => onShareToSquad(squad)}
+          >
+            <SourceProfilePicture source={squad} />
+            <ShareText className="mt-2 break-words">@{squad.handle}</ShareText>
+          </button>
+        ))}
       <SocialShareIcon
         href={getTwitterShareLink(link, post?.title)}
         icon={<TwitterIcon />}

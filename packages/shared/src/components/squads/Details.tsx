@@ -1,5 +1,7 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
 import classNames from 'classnames';
+import { ClientError } from 'graphql-request';
+import { useMutation } from 'react-query';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import UserIcon from '../icons/User';
@@ -13,39 +15,70 @@ import { formToJson } from '../../lib/form';
 import { Modal } from '../modals/common/Modal';
 import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
+import { capitalize } from '../../lib/strings';
 
 const squadImageId = 'squad_image_file';
+
+interface SquadDetailsProps {
+  onSubmit: (e: FormEvent, formJson: SquadForm) => void;
+  form: Partial<SquadForm>;
+  createMode: boolean;
+}
+
+const getFormData = async (
+  current: SquadForm,
+  imageChanged: boolean,
+): Promise<SquadForm> => {
+  if (!imageChanged) return current;
+
+  const input = document.getElementById(squadImageId) as HTMLInputElement;
+  const file = input.files[0];
+  const base64 = await blobToBase64(file);
+
+  return { ...current, file: base64 };
+};
+
 export function SquadDetails({
   onSubmit,
   form,
   createMode = true,
-}: {
-  onSubmit: (e, formJson) => void;
-  form: Partial<SquadForm>;
-  createMode: boolean;
-}): ReactElement {
+}: SquadDetailsProps): ReactElement {
   const { name, handle, description } = form;
   const [imageChanged, setImageChanged] = useState(false);
-  const [handleValid, setHandleValid] = useState(true);
+  const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!handle);
+  const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
+    onError: (err) => {
+      const clientError = err as ClientError;
+      const message = clientError?.response?.errors?.[0]?.message;
+      if (!message) return null;
+
+      const error = JSON.parse(message);
+      if (error?.handle) return setHandleHint(capitalize(error?.handle));
+
+      const [unknown] = Object.values(error);
+
+      return setHandleHint(unknown as string);
+    },
+  });
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formJson = formToJson<SquadForm>(e.currentTarget);
+
     if (!formJson.name || !formJson.handle) {
-      return;
+      return null;
     }
-    if (imageChanged) {
-      const input = document.getElementById(squadImageId) as HTMLInputElement;
-      const file = input.files[0];
-      formJson.file = await blobToBase64(file);
-    }
-    const handleExists = createMode
-      ? await checkExistingHandle(formJson.handle)
-      : false;
-    setHandleValid(!handleExists);
-    if (!handleExists) {
-      onSubmit(e, formJson);
-    }
+
+    const data = await getFormData(formJson, imageChanged);
+
+    if (!createMode) return onSubmit(e, data);
+
+    const handleExists = await onValidateHandle(formJson.handle);
+    setHandleHint(handleExists ? 'The handle already exists' : null);
+
+    if (!handleExists) return onSubmit(e, data);
+
+    return null;
   };
   const handleChange = (e: FormEvent<HTMLFormElement>) => {
     const formJson = formToJson<SquadForm>(e.currentTarget);
@@ -93,14 +126,15 @@ export function SquadDetails({
           <TextField
             label="Squad handle"
             inputId="handle"
-            hint={!handleValid ? 'The handle is already exists' : undefined}
-            valid={handleValid}
+            hint={handleHint}
+            valid={!handleHint}
             name="handle"
             leftIcon={<AtIcon />}
             value={handle ?? ''}
+            onChange={() => !!handleHint && setHandleHint(null)}
             className={{
               hint: 'text-theme-status-error',
-              container: classNames('w-full', handleValid && 'mb-5'),
+              container: classNames('w-full', !handleHint && 'mb-5'),
             }}
           />
           <Textarea

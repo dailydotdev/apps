@@ -31,11 +31,7 @@ export type SquadStateProps = {
 
 export const quitSquadModal: PromptOptions = {
   title: 'Are you sure?',
-  description: (
-    <>
-      <p>You can always create a new Squad from the left sidebar</p>
-    </>
-  ),
+  description: <p>You can always create a new Squad from the left sidebar</p>,
   className: {
     buttons: 'flex-row-reverse',
   },
