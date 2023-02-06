@@ -15,7 +15,9 @@ export function useLazyModal<
   T extends LazyModalType<K> = LazyModalType<K>,
 >(): UseLazyModal<K, T> {
   const client = useQueryClient();
-  const { data: modal } = useQuery<T>(MODAL_KEY);
+  const { data: modal } = useQuery<T>(MODAL_KEY, () =>
+    client.getQueryData<T>(MODAL_KEY),
+  );
   const openModal = (data: T) => client.setQueryData(MODAL_KEY, data);
   const closeModal = () => client.setQueryData(MODAL_KEY, null);
 
