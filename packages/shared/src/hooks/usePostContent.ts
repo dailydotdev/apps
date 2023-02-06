@@ -4,7 +4,6 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { useSharePost } from './useSharePost';
 import {
   Post,
-  PostData,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
 } from '../graphql/posts';
@@ -17,6 +16,7 @@ import { postEventName } from '../components/utilities';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
 import { PostOrigin } from './analytics/useAnalyticsContextData';
+import { updatePostCache } from './usePostById';
 
 export interface UsePostContent {
   sharePost: Post;
@@ -36,7 +36,6 @@ const usePostContent = ({
   post,
 }: UsePostContentProps): UsePostContent => {
   const id = post?.id;
-  const postQueryKey = ['post', id];
   const queryClient = useQueryClient();
   const { user, showLogin } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
@@ -80,12 +79,7 @@ const usePostContent = ({
     {
       next: (data: PostsEngaged) => {
         if (data.postsEngaged.id === id) {
-          queryClient.setQueryData<PostData>(postQueryKey, (oldPost) => ({
-            post: {
-              ...oldPost.post,
-              ...data.postsEngaged,
-            },
-          }));
+          updatePostCache(queryClient, post.id, data.postsEngaged);
         }
       },
     },

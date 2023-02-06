@@ -10,7 +10,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { Visit } from '@dailydotdev/shared/src/lib/boot';
+import { BootApp, Visit } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
@@ -74,7 +74,7 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
         visit={defaultVisit}
         tokenRefreshed
       >
-        <NotificationsContextProvider>
+        <NotificationsContextProvider app={BootApp.Webapp}>
           <ProfileNotificationsPage />
         </NotificationsContextProvider>
       </AuthContextProvider>
