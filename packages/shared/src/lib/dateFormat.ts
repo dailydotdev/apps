@@ -1,4 +1,11 @@
-import { addDays, format, isEqual, isSameDay, subDays } from 'date-fns';
+import {
+  addDays,
+  format,
+  isEqual,
+  isSameDay,
+  isSameYear,
+  subDays,
+} from 'date-fns';
 
 const oneMinute = 60;
 const oneHour = 3600;
@@ -22,11 +29,12 @@ export function postDateFormat(
 
   if (isSameDay(date, subDays(now, 1))) return 'Yesterday';
 
-  return date.toLocaleString('en-US', {
+  const options: Intl.DateTimeFormatOptions = {
     month: 'short',
     day: '2-digit',
-    year: 'numeric',
-  });
+  };
+  if (!isSameYear(date, now)) options.year = 'numeric';
+  return date.toLocaleString('en-US', options);
 }
 
 export function commentDateFormat(

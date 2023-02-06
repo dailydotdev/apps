@@ -21,7 +21,7 @@ export const SharedPostCardHeader = ({
   onMenuClick,
 }: SharedPostCardHeaderProps): ReactElement => {
   return (
-    <CardHeader className="gap-4 mt-4 mb-6">
+    <CardHeader className="gap-2 mt-4 mb-6">
       <div className="relative">
         <ProfilePicture user={author} />
         <SourceButton
@@ -30,15 +30,19 @@ export const SharedPostCardHeader = ({
           size="xsmall"
         />
       </div>
-      <div className="flex flex-col flex-grow typo-footnote">
-        <span className="font-bold">{author.name}</span>
+      <div className="flex flex-col flex-1 flex-grow ml-2 typo-footnote">
+        <span className="font-bold line-clamp-2">{author.name}</span>
         <PostMetadata
-          className="text-theme-label-secondary"
+          className="line-clamp-1 text-theme-label-secondary !flex"
           createdAt={createdAt}
           username={author.username}
         />
       </div>
-      <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
+      <OptionsButton
+        className="!mx-0"
+        onClick={onMenuClick}
+        tooltipPlacement="top"
+      />
     </CardHeader>
   );
 };
