@@ -68,7 +68,7 @@ function PostToSquadModal({
     onNext,
     onRequestClose,
   };
-  const title = `${post ? 'Share' : 'Post'} article`;
+  const title = `Share post`;
 
   return (
     <Modal

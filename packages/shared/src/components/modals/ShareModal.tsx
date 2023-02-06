@@ -65,7 +65,7 @@ export default function ShareModal({
 
   return (
     <Modal size={Modal.Size.Small} kind={Modal.Kind.FlexibleCenter} {...props}>
-      <Modal.Header title={isComment ? 'Share comment' : 'Share article'} />
+      <Modal.Header title={isComment ? 'Share comment' : 'Share post'} />
       {!isComment && (
         <PostItemCard
           className="mt-2"

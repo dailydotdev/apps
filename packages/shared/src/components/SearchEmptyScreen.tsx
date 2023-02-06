@@ -14,7 +14,7 @@ export default function SearchEmptyScreen(): ReactElement {
       />
       <h2 className="my-4 text-center typo-title1">No results found</h2>
       <p className="p-0 m-0 text-center text-theme-label-secondary typo-callout">
-        We cannot find the articles you are searching for. 🤷‍♀️
+        We cannot find the posts you are searching for. 🤷‍♀️
       </p>
     </div>
   );

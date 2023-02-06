@@ -108,7 +108,7 @@ function EnableNotification({
       contentName ?? 'someone'
     } responds so you can continue the conversation?`,
     [NotificationPromptSource.CommunityPicks]:
-      'Would you like to get notified on the status of your article submissions in real time?',
+      'Would you like to get notified on the status of your post submissions in real time?',
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',
