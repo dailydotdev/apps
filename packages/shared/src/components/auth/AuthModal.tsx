@@ -43,10 +43,6 @@ export default function AuthModal({
     loginState?.onLoginSuccess?.();
     closeLogin();
   };
-  const onSuccessfulRegistration = () => {
-    loginState?.onRegistrationSuccess?.();
-    closeLogin();
-  };
 
   return (
     <Modal
@@ -59,9 +55,10 @@ export default function AuthModal({
     >
       <AuthOptions
         className="h-full"
+        onClose={onClose}
         formRef={formRef}
         onSuccessfulLogin={onSuccessfulLogin}
-        onSuccessfulRegistration={onSuccessfulRegistration}
+        onSuccessfulRegistration={loginState?.onRegistrationSuccess}
         trigger={trigger}
         isLoginFlow={isLogoutFlow}
         onDisplayChange={(display: Display) => setScreenValue(display)}
