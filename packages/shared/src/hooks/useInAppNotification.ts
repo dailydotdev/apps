@@ -41,6 +41,7 @@ export const useInAppNotification = (): UseInAppNotification => {
   const { incrementUnreadCount } = useNotificationContext();
   const { data: notification } = useQuery<InAppNotification>(
     IN_APP_NOTIFICATION_KEY,
+    () => client.getQueryData<InAppNotification>(IN_APP_NOTIFICATION_KEY),
   );
   const hasNotification = (): boolean =>
     !!client.getQueryData(IN_APP_NOTIFICATION_KEY);
