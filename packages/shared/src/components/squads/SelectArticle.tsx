@@ -49,7 +49,7 @@ export function SquadSelectArticle({
       <Modal.Body>
         <SquadTitle>
           {!hasData ? 'Read' : 'Share'}{' '}
-          <SquadTitleColor>an post</SquadTitleColor>
+          <SquadTitleColor>a post</SquadTitleColor>
         </SquadTitle>
         <p className="py-4 text-center">
           {!hasData
