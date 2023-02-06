@@ -288,7 +288,7 @@ export const joinSquadInvitation = async (
 
 export const checkExistingHandle = async (handle: string): Promise<boolean> => {
   const req = await request(graphqlUrl, SQUAD_HANDE_AVAILABILITY_QUERY, {
-    handle,
+    handle: handle.toLocaleLowerCase(),
   });
 
   return req.sourceHandleExists;
