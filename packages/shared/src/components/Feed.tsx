@@ -174,8 +174,7 @@ export default function Feed<T>({
       currentSettings.adSpot,
       numCards,
       showOnlyUnreadPosts,
-      query,
-      variables,
+      { query, variables, options: { refetchOnMount: true } },
     );
 
   const { ranking } = (variables as RankVariables) || {};
