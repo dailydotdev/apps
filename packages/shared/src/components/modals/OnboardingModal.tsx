@@ -140,7 +140,6 @@ function OnboardingModal({
           />
           <AuthOptions
             className="h-full"
-            onClose={onClose}
             formRef={formRef}
             onSuccessfulLogin={onRegistrationSuccess}
             onSuccessfulRegistration={onRegistrationSuccess}

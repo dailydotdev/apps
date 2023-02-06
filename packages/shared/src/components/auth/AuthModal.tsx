@@ -29,7 +29,7 @@ export default function AuthModal({
   };
 
   const closeAndLogout = (e) => {
-    if (user) {
+    if (user && !user.username) {
       logout();
     }
     onClose(e);
@@ -41,6 +41,10 @@ export default function AuthModal({
   const isLogoutFlow = trigger === 'legacy_logout';
   const onSuccessfulLogin = () => {
     loginState?.onLoginSuccess?.();
+    closeLogin();
+  };
+  const onSuccessfulRegistration = () => {
+    loginState?.onRegistrationSuccess?.();
     closeLogin();
   };
 
@@ -55,10 +59,9 @@ export default function AuthModal({
     >
       <AuthOptions
         className="h-full"
-        onClose={onClose}
         formRef={formRef}
         onSuccessfulLogin={onSuccessfulLogin}
-        onSuccessfulRegistration={loginState?.onRegistrationSuccess}
+        onSuccessfulRegistration={onSuccessfulRegistration}
         trigger={trigger}
         isLoginFlow={isLogoutFlow}
         onDisplayChange={(display: Display) => setScreenValue(display)}
