@@ -91,6 +91,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           userId={user?.id}
         />
         <Feed
+          className="laptop:px-16"
           feedName="source"
           feedQueryKey={[
             'sourceFeed',
