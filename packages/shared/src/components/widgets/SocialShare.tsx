@@ -69,6 +69,19 @@ export const SocialShare = ({
 
   return (
     <section className="grid grid-cols-5 gap-4 pt-2 w-fit">
+      {!isComment &&
+        !post.private &&
+        squads.map((squad) => (
+          <button
+            type="button"
+            className="flex flex-col items-center"
+            key={squad.id}
+            onClick={() => onShareToSquad(squad)}
+          >
+            <SourceProfilePicture source={squad} />
+            <ShareText className="mt-2 break-words">@{squad.handle}</ShareText>
+          </button>
+        ))}
       <SocialShareIcon
         href={getTwitterShareLink(link, post?.title)}
         icon={<TwitterIcon />}
@@ -118,19 +131,6 @@ export const SocialShare = ({
         onClick={() => trackClick(ShareProvider.Email)}
         label="Email"
       />
-      {!isComment &&
-        !post.private &&
-        squads.map((squad) => (
-          <button
-            type="button"
-            className="flex flex-col items-center"
-            key={squad.id}
-            onClick={() => onShareToSquad(squad)}
-          >
-            <SourceProfilePicture source={squad} />
-            <ShareText className="mt-2 break-words">@{squad.handle}</ShareText>
-          </button>
-        ))}
     </section>
   );
 };
