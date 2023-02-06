@@ -28,6 +28,7 @@ export const usePostModalNavigation = (
   items: FeedItem[],
   fetchPage: () => Promise<unknown>,
   updatePost: UpdateFeedPost,
+  canFetchMore: boolean,
 ): UsePostModalNavigation => {
   const [currentPage, setCurrentPage] = useState<string>();
   const isExtension = !!process.env.TARGET_BROWSER;
@@ -117,13 +118,12 @@ export const usePostModalNavigation = (
   const getPostPosition = () => {
     const isPost = (item: FeedItem) => item.type === 'post';
     const firstPost = items.findIndex(isPost);
+    const isLast = items.length - 1 === openedPostIndex;
     if (firstPost === openedPostIndex)
       return items.length - 1 === openedPostIndex
         ? PostPosition.Only
         : PostPosition.First;
-    // We do not set the Last position because the local last might not be the actual last.
-    // The setting can be updated once we update the API to return the information if the page is last or not.
-    return PostPosition.Middle;
+    return !canFetchMore && isLast ? PostPosition.Last : PostPosition.Middle;
   };
   const ret = useMemo<UsePostModalNavigation>(
     () => ({
@@ -156,7 +156,7 @@ export const usePostModalNavigation = (
         );
         const item = items[index];
 
-        if (index === items.length) {
+        if (index === items.length && canFetchMore) {
           if (isFetchingNextPage) {
             return;
           }
@@ -165,6 +165,8 @@ export const usePostModalNavigation = (
           setIsFetchingNextPage(true);
           return;
         }
+
+        if (!item) return;
 
         if (item.type !== 'post') {
           return;
