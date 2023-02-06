@@ -62,7 +62,7 @@ const Image = (props: SourceAuthorProps) => {
   const user = props as Author;
 
   return (
-    <ProfileLink user={user} data-testid="authorLink">
+    <ProfileLink href={user.permalink} data-testid="authorLink">
       <StyledImage
         className="rounded-12"
         imgSrc={image}
@@ -74,14 +74,14 @@ const Image = (props: SourceAuthorProps) => {
 };
 
 const UserHighlight = (props: SourceAuthorProps) => {
-  const { id, handle, name, username, userType = 'source' } = props;
+  const { id, handle, name, username, permalink, userType = 'source' } = props;
   const Icon = getUserIcon(userType);
   const LinkWrapper = userType === 'source' ? React.Fragment : ProfileTooltip;
 
   return (
     <div className="flex relative flex-row p-3">
       <LinkWrapper user={{ id }}>
-        <ProfileLink user={props}>
+        <ProfileLink href={permalink}>
           <Image {...props} />
         </ProfileLink>
       </LinkWrapper>
@@ -98,13 +98,13 @@ const UserHighlight = (props: SourceAuthorProps) => {
       )}
       <LinkWrapper user={{ id }}>
         <div className="flex flex-col ml-4">
-          <ProfileLink className="font-bold typo-callout" user={props}>
+          <ProfileLink className="font-bold typo-callout" href={permalink}>
             {name}
           </ProfileLink>
           {(handle || username || id) && (
             <ProfileLink
               className="mt-0.5 typo-footnote text-theme-label-tertiary"
-              user={props}
+              href={permalink}
             >
               @{handle || username || id}
             </ProfileLink>

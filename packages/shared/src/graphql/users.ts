@@ -245,8 +245,8 @@ export const SEARCH_READING_HISTORY_QUERY = gql`
 
 export const READING_HISTORY_QUERY = gql`
   ${READING_HISTORY_CONNECTION_FRAGMENT}
-  query ReadHistory($after: String, $first: Int) {
-    readHistory(after: $after, first: $first) {
+  query ReadHistory($after: String, $first: Int, $isPublic: Boolean) {
+    readHistory(after: $after, first: $first, isPublic: $isPublic) {
       ...ReadingHistoryConnectionFragment
     }
   }

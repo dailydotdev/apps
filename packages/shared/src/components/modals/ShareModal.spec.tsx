@@ -8,6 +8,7 @@ import { getWhatsappShareLink } from '../../lib/share';
 import { Origin } from '../../lib/analytics';
 import Comment from '../../../__tests__/fixture/comment';
 import { getCommentHash } from '../../graphql/comments';
+import { AuthContextProvider } from '../../contexts/AuthContext';
 
 const defaultPost = Post;
 const defaultComment = Comment;
@@ -29,14 +30,16 @@ const renderComponent = (comment?): RenderResult => {
 
   return render(
     <QueryClientProvider client={client}>
-      <ShareModal
-        origin={Origin.Feed}
-        post={defaultPost}
-        comment={comment}
-        isOpen
-        onRequestClose={onRequestClose}
-        ariaHideApp={false}
-      />
+      <AuthContextProvider user={null} squads={[]}>
+        <ShareModal
+          origin={Origin.Feed}
+          post={defaultPost}
+          comment={comment}
+          isOpen
+          onRequestClose={onRequestClose}
+          ariaHideApp={false}
+        />
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };

@@ -14,12 +14,13 @@ import {
 import { ModalPropsContext } from '../modals/common/types';
 import { InviteTextField, InviteTextFieldHandle } from './InviteTextField';
 
-export function SquadReady({
-  squad,
-}: SquadStateProps & { squad?: Squad }): ReactElement {
+interface SquadReadyProps extends SquadStateProps {
+  squad?: Squad;
+}
+
+export function SquadReady({ squad }: SquadReadyProps): ReactElement {
   const { activeView } = useContext(ModalPropsContext);
   if (ModalState.Ready !== activeView) return null;
-  if (!squad) return <Modal.Body>loading...</Modal.Body>;
   const { name, handle } = squad;
   const inviteTextRef = useRef<InviteTextFieldHandle>();
 
