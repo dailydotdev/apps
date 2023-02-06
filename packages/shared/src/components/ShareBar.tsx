@@ -45,7 +45,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
   return (
     <WidgetContainer className="hidden laptop:flex flex-col p-3">
       <p className="typo-callout text-theme-label-tertiary">
-        Would you recommend this article?
+        Would you recommend this post?
       </p>
       <div className="inline-flex relative flex-row items-center mt-3">
         <SimpleTooltip content="Copy link">

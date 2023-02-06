@@ -50,7 +50,7 @@ The main project with most of the components that are used in the applications. 
 
 ### webapp
 
-The web app project. It is a Next.js project and it has more pages than the extension. Such as registration page, article page, profile page, etc.
+The web app project. It is a Next.js project and it has more pages than the extension. Such as registration page, post page, profile page, etc.
 For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
 
 ## Local Environment

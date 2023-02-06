@@ -32,7 +32,7 @@ export default function AuthorStats({
           <OverallStatData>
             {userStats.numPostViews.toLocaleString()}
           </OverallStatData>
-          <OverallStatDescription>Article views</OverallStatDescription>
+          <OverallStatDescription>Post views</OverallStatDescription>
         </OverallStatContainer>
         <OverallStatContainer>
           <OverallStatData>

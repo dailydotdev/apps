@@ -40,7 +40,7 @@ export const MyFeedIntro = (): ReactElement => {
       <UserIcon size="xxxxlarge" />
       <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
       <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
-        Devs with a personal feed get 11.5x more relevant articles
+        Devs with a personal feed get 11.5x more relevant posts
       </p>
       <FeedFiltersIntroModalTagsContainer>
         {/* eslint-disable react/no-array-index-key */}

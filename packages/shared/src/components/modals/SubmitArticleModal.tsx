@@ -151,8 +151,8 @@ export default function SubmitArticleModal({
     return (
       <Alert className="mt-4" title="Submission guidelines">
         <AlertParagraph>
-          We want you to submit articles that are well thought out, high value
-          and high quality.
+          We want you to submit posts that are well thought out, high value and
+          high quality.
         </AlertParagraph>
         <AlertParagraph>
           Please do not add your own posts, promotional content, clickbait etc.
@@ -195,9 +195,9 @@ export default function SubmitArticleModal({
         >
           <div>
             <p className="mb-2 typo-callout text-theme-label-tertiary">
-              Found an interesting article? Do you want to share it with the
-              community? Enter the article&apos;s URL / link below to add it to
-              the feed.
+              Found an interesting post? Do you want to share it with the
+              community? Enter the post&apos;s URL / link below to add it to the
+              feed.
             </p>
             {!isEnabled && (
               <p className="mt-6 mb-2 typo-callout text-theme-label-tertiary">
@@ -224,7 +224,7 @@ export default function SubmitArticleModal({
               fieldType="tertiary"
               name="articleUrl"
               inputId="article_url"
-              label="Paste article url"
+              label="Paste post url"
               disabled={!isEnabled}
               hint={urlHint}
               valid={!urlHint}
@@ -234,7 +234,7 @@ export default function SubmitArticleModal({
               <Alert
                 className="mt-4"
                 type={AlertType.Success}
-                title="You will be notified via email about the article request status"
+                title="You will be notified via email about the post request status"
               />
             ) : (
               submissionAvailability?.todaySubmissionsCount === 3 && (

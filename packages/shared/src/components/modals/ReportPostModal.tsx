@@ -43,7 +43,7 @@ export default function RepostPostModal({
       onRequestClose={props.onRequestClose}
       {...props}
     >
-      <Modal.Header title="Report article" />
+      <Modal.Header title="Report post" />
       <Modal.Body>
         <p className="mb-6 text-theme-label-tertiary typo-callout">
           &quot;{post?.title}&quot;
@@ -67,7 +67,7 @@ export default function RepostPostModal({
           name="blockSource"
           className="self-center font-normal"
         >
-          Don&apos;t show articles from {post?.source?.name}
+          Don&apos;t show posts from {post?.source?.name}
         </Checkbox>
       </Modal.Body>
       <Modal.Footer>
