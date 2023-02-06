@@ -117,11 +117,11 @@ export const usePostModalNavigation = (
   const getPostPosition = () => {
     const isPost = (item: FeedItem) => item.type === 'post';
     const firstPost = items.findIndex(isPost);
-    const lastPost = [...items].reverse().findIndex(isPost);
-    const isLast = items.length - lastPost - 1 === openedPostIndex;
     if (firstPost === openedPostIndex)
-      return isLast ? PostPosition.Only : PostPosition.First;
-    return isLast ? PostPosition.Last : PostPosition.Middle;
+      return items.length - 1 === openedPostIndex
+        ? PostPosition.Only
+        : PostPosition.First;
+    return PostPosition.Middle;
   };
   const ret = useMemo<UsePostModalNavigation>(
     () => ({
