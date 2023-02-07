@@ -5,7 +5,6 @@ import React, {
   ClipboardEvent,
   MouseEvent,
   KeyboardEvent,
-  useRef,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -106,27 +105,23 @@ function CommentBox({
     onInput(cleanupEmptySpaces(e.currentTarget.value));
   };
 
-  const onInputRef = useRef<EventListener>();
-  const onKeydownRef = useRef<EventListener>();
-  const onKeypressRef = useRef<EventListener>();
-  onInputRef.current = onTextareaInput as unknown as EventListener;
-  onKeydownRef.current = handleKeydown as unknown as EventListener;
-  onKeypressRef.current = onMentionKeypress as unknown as EventListener;
-
   useEffect(() => {
     if (!commentRef?.current) return null;
 
+    const onInputText = onTextareaInput as unknown as EventListener;
+    const onKeydown = handleKeydown as unknown as EventListener;
+    const onKeypress = onMentionKeypress as unknown as EventListener;
     const el = commentRef.current;
-    el.addEventListener('input', onInputRef.current);
-    el.addEventListener('keydown', onKeydownRef.current);
-    el.addEventListener('keyup', onKeypressRef.current);
+    el.addEventListener('input', onInputText);
+    el.addEventListener('keydown', onKeydown);
+    el.addEventListener('keyup', onKeypress);
 
     return () => {
-      el.removeEventListener('input', onInputRef.current);
-      el.removeEventListener('keydown', onKeydownRef.current);
-      el.removeEventListener('keyup', onKeypressRef.current);
+      el.removeEventListener('input', onInputText);
+      el.removeEventListener('keydown', onKeydown);
+      el.removeEventListener('keyup', onKeypress);
     };
-  }, []);
+  }, [offset, mentions, mentionQuery, selected]);
 
   return (
     <>
