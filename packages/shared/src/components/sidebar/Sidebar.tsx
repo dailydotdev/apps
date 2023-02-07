@@ -132,25 +132,25 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {/* {newSquadButtonVisible && ( */}
-            <div className="flex">
-              <Button
-                buttonSize="small"
-                icon={<PlusIcon />}
-                iconOnly={!sidebarExpanded}
-                className={classNames(
-                  'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage flex flex-1',
-                  sidebarExpanded ? 'mx-3' : 'mx-1.5',
-                )}
-                textPosition={
-                  sidebarExpanded ? 'justify-start' : 'justify-center'
-                }
-                onClick={() => openSquadBetaModal({ origin: Origin.Sidebar })}
-              >
-                {sidebarExpanded && 'New Squad'}
-              </Button>
-            </div>
-            {/* )} */}
+            {newSquadButtonVisible && (
+              <div className="flex">
+                <Button
+                  buttonSize="small"
+                  icon={<PlusIcon />}
+                  iconOnly={!sidebarExpanded}
+                  className={classNames(
+                    'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage flex flex-1',
+                    sidebarExpanded ? 'mx-3' : 'mx-1.5',
+                  )}
+                  textPosition={
+                    sidebarExpanded ? 'justify-start' : 'justify-center'
+                  }
+                  onClick={() => openSquadBetaModal({ origin: Origin.Sidebar })}
+                >
+                  {sidebarExpanded && 'New Squad'}
+                </Button>
+              </div>
+            )}
             {!alerts?.filter && (
               <MyFeedButton
                 {...defaultRenderSectionProps}
