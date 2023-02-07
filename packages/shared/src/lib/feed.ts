@@ -54,6 +54,7 @@ interface FeedAnalyticsExtra {
     feed: string;
     ranking?: string;
     variant?: string;
+    parent_id?: string;
   };
 }
 
@@ -65,6 +66,7 @@ export function feedAnalyticsExtra(
   },
   origin?: Origin,
   variant?: string,
+  parent_id?: string,
 ): FeedAnalyticsExtra {
   return {
     extra: {
@@ -73,6 +75,7 @@ export function feedAnalyticsExtra(
       variant,
       ...(ranking && { ranking }),
       ...(extra && extra),
+      ...(parent_id && { parent_id }),
     },
   };
 }

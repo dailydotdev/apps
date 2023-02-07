@@ -41,7 +41,11 @@ const usePostContent = ({
   const { trackEvent } = useAnalyticsContext();
   const { updatePost } = useUpdatePost();
   const onPostClick = useOnPostClick({ origin });
-  const onReadArticle = () => onPostClick({ post });
+  const onReadArticle = () =>
+    onPostClick({
+      post: post?.sharedPost || post,
+      optional: { parent_id: post.sharedPost && post.id },
+    });
   const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
     onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),

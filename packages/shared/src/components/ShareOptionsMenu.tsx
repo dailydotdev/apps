@@ -110,14 +110,18 @@ export default function ShareOptionsMenu({
           ),
           text: `Share to ${squad.name}`,
           action: () => {
-            trackEvent({ event_name: AnalyticsEvent.StartShareToSquad });
+            trackEvent(
+              postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post),
+            );
             openModal({
               type: LazyModal.PostToSquad,
               props: {
                 squad,
                 post,
                 onSharedSuccessfully: () => {
-                  trackEvent({ event_name: AnalyticsEvent.ShareToSquad });
+                  trackEvent(
+                    postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post),
+                  );
                 },
               },
             });
