@@ -351,3 +351,13 @@ export async function editSquad(
   );
   return data.editSquad;
 }
+
+export const rolePriority: Record<SquadMemberRole, number> = {
+  member: 0,
+  owner: 10,
+};
+
+const DEFAULT_NEW_ROLES = 1;
+
+export const getRolePriority = (role: SquadMemberRole): number =>
+  rolePriority[role] ?? DEFAULT_NEW_ROLES;

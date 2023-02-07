@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '../../lib/config';
@@ -8,6 +8,7 @@ import {
   SQUAD_MEMBERS_QUERY,
   SquadEdgesData,
   SquadMemberRole,
+  getRolePriority,
 } from '../../graphql/squads';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
@@ -52,6 +53,23 @@ export function SquadMemberModal({
     onMenuClick(e);
   };
 
+  const members = useMemo(
+    () =>
+      queryResult.data?.pages
+        .map((page) =>
+          page.sourceMembers.edges.map(({ node }) => ({
+            ...node.user,
+            role: node.role,
+          })),
+        )
+        .flat()
+        .sort(
+          (user1, user2) =>
+            getRolePriority(user2.role) - getRolePriority(user1.role),
+        ),
+    [queryResult.data],
+  );
+
   return (
     <>
       <UserListModal
@@ -62,9 +80,7 @@ export function SquadMemberModal({
           canFetchMore: checkFetchMore(queryResult),
           fetchNextPage: queryResult.fetchNextPage,
         }}
-        users={queryResult.data?.pages
-          .map((page) => page.sourceMembers.edges.map(({ node }) => node.user))
-          .flat()}
+        users={members}
         additionalContent={(user) => {
           const role = getSquadMembersUserRole(queryResult, user);
           if (role === SquadMemberRole.Owner) {
