@@ -146,7 +146,8 @@ function SquadPostContent({
           <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
             <a
               href={post.sharedPost.commentsPermalink}
-              title="Go to article"
+              title="Go to post"
+              target="_blank"
               rel="noopener"
               className="flex flex-col-reverse laptop:flex-row p-4 max-w-full"
               onClick={onReadArticle}
@@ -166,6 +167,7 @@ function SquadPostContent({
                   className="mt-5 btn-secondary w-fit"
                   href={post.sharedPost.permalink}
                   openNewTab={openNewTab}
+                  onClick={onReadArticle}
                 />
               </div>
               <div className="block overflow-hidden w-70 rounded-2xl cursor-pointer h-fit">

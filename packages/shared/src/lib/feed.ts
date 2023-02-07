@@ -54,6 +54,7 @@ interface FeedAnalyticsExtra {
     feed: string;
     ranking?: string;
     variant?: string;
+    parent_id?: string;
   };
 }
 
@@ -65,6 +66,7 @@ export function feedAnalyticsExtra(
   },
   origin?: Origin,
   variant?: string,
+  parent_id?: string,
 ): FeedAnalyticsExtra {
   return {
     extra: {
@@ -73,6 +75,7 @@ export function feedAnalyticsExtra(
       variant,
       ...(ranking && { ranking }),
       ...(extra && extra),
+      ...(parent_id && { parent_id }),
     },
   };
 }
@@ -108,6 +111,8 @@ export function postAnalyticsEvent(
     post_upvotes_count: post.numUpvotes,
     target_id: post.id,
     target_type: 'post',
+    post_type: post.type,
+    post_source_type: post.source?.type,
     extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
   };
 }

@@ -5,32 +5,14 @@ import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
-import { deleteSquad, getSquad, Squad } from '../../graphql/squads';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { useToastNotification } from '../../hooks/useToastNotification';
-import { useBoot } from '../../hooks/useBoot';
+import { getSquad, Squad } from '../../graphql/squads';
 import {
   InviteTextField,
   InviteTextFieldHandle,
 } from '../squads/InviteTextField';
 import { SquadModalHeader } from '../squads/ModalHeader';
-
-const options: PromptOptions = {
-  title: 'Delete the Squad?',
-  description:
-    'Deleting your Squad will free up your handle and members you invited will not be able to join',
-  okButton: {
-    title: 'Delete',
-    className: 'btn-secondary',
-  },
-  cancelButton: {
-    title: 'No, keep it',
-    className: 'btn-primary-cabbage',
-  },
-  className: {
-    buttons: 'flex-row-reverse',
-  },
-};
+import { useDeleteSquad } from '../../hooks/useDeleteSquad';
+import { Origin } from '../../lib/analytics';
 
 type LockedSquadModalProps = {
   initialSquad: Squad;
@@ -40,27 +22,13 @@ function LockedSquadModal({
   initialSquad,
   onRequestClose,
 }: LockedSquadModalProps): ReactElement {
-  const { deleteSquad: deleteCachedSquad } = useBoot();
-  const { showPrompt } = usePrompt();
-  const { displayToast } = useToastNotification();
   const { data: squad, isLoading } = useQuery(
     [{ type: 'squad_locked', id: initialSquad.id }],
     ({ queryKey: [{ id }] }) => getSquad(id),
     { initialData: initialSquad },
   );
+  const { onDeleteSquad } = useDeleteSquad({ squad, callback: onRequestClose });
   const inviteTextRef = useRef<InviteTextFieldHandle>();
-  const onDeleteSquad = async (e) => {
-    if (!(await showPrompt(options))) {
-      return;
-    }
-    try {
-      await deleteSquad(squad.id);
-      deleteCachedSquad(squad.id);
-      onRequestClose(e);
-    } catch (error) {
-      displayToast('An error occurred.');
-    }
-  };
 
   return (
     <Modal
@@ -76,6 +44,7 @@ function LockedSquadModal({
           isLoading={isLoading}
           squad={squad}
           ref={inviteTextRef}
+          origin={Origin.LockedSquad}
         />
         <Alert
           className="mt-4"

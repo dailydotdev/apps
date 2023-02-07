@@ -101,7 +101,8 @@ export type ReadHistoryPost = Pick<
   | 'trending'
   | 'tags'
   | 'sharedPost'
-> & { source?: Pick<Source, 'image' | 'id'> } & {
+  | 'type'
+> & { source?: Pick<Source, 'image' | 'id' | 'type'> } & {
   author?: Pick<Author, 'id'>;
 } & {
   scout?: Pick<Scout, 'id'>;

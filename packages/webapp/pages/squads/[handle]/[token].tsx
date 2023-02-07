@@ -15,7 +15,7 @@ import Link from 'next/link';
 import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {
   GetStaticPathsResult,
@@ -25,6 +25,8 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SquadMember>[]) => {
@@ -51,8 +53,11 @@ export interface SquadReferralProps {
 
 const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   const router = useRouter();
+  const { trackEvent } = useContext(AnalyticsContext);
   const { addSquad } = useBoot();
   const { showLogin, user: loggedUser, squads } = useAuthContext();
+  const [trackedImpression, setTrackedImpression] = useState(false);
+
   const { data: member } = useQuery(
     ['squad_referral', token, loggedUser?.id],
     () => getSquadInvitation(token),
@@ -79,11 +84,34 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
       },
     },
   );
+
+  const joinSquadAnalyticsExtra = () => {
+    return JSON.stringify({
+      inviter: member.user.id,
+      squad: member.source.id,
+    });
+  };
+
+  useEffect(() => {
+    if (trackedImpression || !member) return;
+
+    trackEvent({
+      event_name: AnalyticsEvent.ViewSquadInvitation,
+      extra: joinSquadAnalyticsExtra(),
+    });
+    setTrackedImpression(true);
+  }, [member, trackedImpression]);
+
   const sourceId = member?.source?.id;
   const { mutateAsync: onJoinSquad } = useMutation(
     () => joinSquadInvitation({ sourceId, token }),
     {
       onSuccess: (data) => {
+        trackEvent({
+          event_name: AnalyticsEvent.CompleteJoiningSquad,
+          extra: joinSquadAnalyticsExtra(),
+        });
+
         const squad = squads.find(({ id }) => id === data.id);
         if (squad) return router.replace(squad.permalink);
 
@@ -94,6 +122,11 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   );
 
   const onJoinClick = async () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ClickJoinSquad,
+      extra: joinSquadAnalyticsExtra(),
+    });
+
     if (loggedUser) return onJoinSquad();
 
     return showLogin('join squad', {
