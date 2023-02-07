@@ -5,6 +5,7 @@ import React, {
   ClipboardEvent,
   MouseEvent,
   KeyboardEvent,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -100,10 +101,29 @@ function CommentBox({
     return e.stopPropagation();
   };
 
-  const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+  const onTextareaInput = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     fixHeight(e.currentTarget);
     onInput(cleanupEmptySpaces(e.currentTarget.value));
   };
+
+  const onInputRef = useRef(onTextareaInput as unknown as EventListener);
+  const onKeydownRef = useRef(handleKeydown as unknown as EventListener);
+  const onKeypressRef = useRef(onMentionKeypress as unknown as EventListener);
+
+  useEffect(() => {
+    if (!commentRef?.current) return null;
+
+    const el = commentRef.current;
+    el.addEventListener('input', onInputRef.current);
+    el.addEventListener('keydown', onKeydownRef.current);
+    el.addEventListener('keyup', onKeypressRef.current);
+
+    return () => {
+      el.removeEventListener('input', onInputRef.current);
+      el.removeEventListener('keydown', onKeydownRef.current);
+      el.removeEventListener('keyup', onKeypressRef.current);
+    };
+  }, []);
 
   return (
     <>
@@ -146,9 +166,6 @@ function CommentBox({
           defaultValue={input}
           ref={commentRef}
           placeholder="Share your thoughts"
-          onInput={onTextareaInput}
-          onKeyDown={handleKeydown}
-          onKeyUp={onMentionKeypress}
           onClick={onInputClick}
           onPaste={onPaste}
           tabIndex={0}
