@@ -106,9 +106,12 @@ function CommentBox({
     onInput(cleanupEmptySpaces(e.currentTarget.value));
   };
 
-  const onInputRef = useRef(onTextareaInput as unknown as EventListener);
-  const onKeydownRef = useRef(handleKeydown as unknown as EventListener);
-  const onKeypressRef = useRef(onMentionKeypress as unknown as EventListener);
+  const onInputRef = useRef<EventListener>();
+  const onKeydownRef = useRef<EventListener>();
+  const onKeypressRef = useRef<EventListener>();
+  onInputRef.current = onTextareaInput as unknown as EventListener;
+  onKeydownRef.current = handleKeydown as unknown as EventListener;
+  onKeypressRef.current = onMentionKeypress as unknown as EventListener;
 
   useEffect(() => {
     if (!commentRef?.current) return null;
