@@ -35,6 +35,11 @@ export function SquadComment({
             className="flex-1 self-stretch w-full min-w-0 focus:placeholder-transparent bg-transparent focus:outline-none resize-none typo-body caret-theme-label-link text-theme-label-primary"
             value={commentary}
             onChange={(event) => setCommentary(event.target.value)}
+            ref={(el) => {
+              if (!el) return;
+
+              el.focus();
+            }}
           />
         </form>
         <div className="flex gap-4 items-center py-2 px-4 w-full rounded-12 border border-theme-divider-tertiary">
