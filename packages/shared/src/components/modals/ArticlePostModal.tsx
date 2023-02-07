@@ -10,7 +10,10 @@ import OnboardingContext from '../../contexts/OnboardingContext';
 
 interface ArticlePostModalProps
   extends ModalProps,
-    Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'> {
+    Pick<
+      PostNavigationProps,
+      'onPreviousPost' | 'onNextPost' | 'postPosition'
+    > {
   id: string;
   isFetchingNextPage?: boolean;
 }
@@ -25,6 +28,7 @@ export default function ArticlePostModal({
   onRequestClose,
   onPreviousPost,
   onNextPost,
+  postPosition,
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
@@ -40,6 +44,7 @@ export default function ArticlePostModal({
       <PostContent
         position={position}
         post={post}
+        postPosition={postPosition}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}
         inlineActions

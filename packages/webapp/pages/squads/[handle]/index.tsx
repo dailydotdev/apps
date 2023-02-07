@@ -3,6 +3,7 @@ import {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import { ClientError } from 'graphql-request';
 import { ParsedUrlQuery } from 'querystring';
 import React, {
   ReactElement,
@@ -30,7 +31,8 @@ import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
@@ -42,18 +44,23 @@ type SourcePageProps = { handle: string };
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { isFallback } = useRouter();
+  const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
   const [trackedImpression, setTrackedImpression] = useState(false);
   const queryKey = ['squad', handle];
-  const { data: squad, isLoading } = useQuery<Squad>(
-    queryKey,
-    () => getSquad(handle),
-    {
-      ...disabledRefetch,
-      enabled: !!handle,
-      retry: false,
+  const {
+    data: squad,
+    isLoading,
+    isFetched,
+  } = useQuery<Squad, ClientError>(queryKey, () => getSquad(handle), {
+    enabled: !!handle && !isForbidden,
+    retry: false,
+    onError: (err) => {
+      const isErrorForbidden =
+        err?.response?.errors?.[0]?.extensions?.code === ApiError.Forbidden;
+      if (!isForbidden && isErrorForbidden) setIsForbidden(true);
     },
-  );
+  });
 
   const squadId = squad?.id;
 
@@ -83,11 +90,15 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  if (isLoading) return <SquadLoading />;
+  if (isLoading && !isFetched && !squad) return <SquadLoading />;
+
+  if (!isFetched) return <></>;
+
+  const isInactive = !isNullOrUndefined(squad) && !squad.active;
+
+  if (isFallback || isInactive || isForbidden) return <Unauthorized />;
 
   if (!squad) return <Custom404 />;
-
-  if (isFallback || !squad.active) return <Unauthorized />;
 
   const onNewSquadPost = () =>
     openModal({
@@ -121,6 +132,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
+          options={{ refetchOnMount: true }}
         />
       </FeedPage>
     </ProtectedPage>

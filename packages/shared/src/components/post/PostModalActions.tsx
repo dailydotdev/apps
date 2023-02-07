@@ -94,7 +94,7 @@ export function PostModalActions({
       {onReadArticle && (
         <SimpleTooltip
           placement="bottom"
-          content="Read article"
+          content="Read post"
           disabled={!inlineActions}
         >
           <Button
@@ -105,7 +105,7 @@ export function PostModalActions({
             icon={<OpenLinkIcon />}
             onClick={onReadArticle}
           >
-            {!inlineActions && 'Read article'}
+            {!inlineActions && 'Read post'}
           </Button>
         </SimpleTooltip>
       )}

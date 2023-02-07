@@ -174,7 +174,7 @@ export default function PostOptionsMenu({
     );
 
     showMessageAndRemovePost(
-      '🙈 This article won’t show up on your feed anymore',
+      '🙈 This post won’t show up on your feed anymore',
       postIndex,
       () => unhidePost(post.id),
     );
@@ -203,7 +203,7 @@ export default function PostOptionsMenu({
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,
-      text: `Don't show articles from ${post?.source?.name}`,
+      text: `Don't show posts from ${post?.source?.name}`,
       action: onBlockSource,
     },
   ];

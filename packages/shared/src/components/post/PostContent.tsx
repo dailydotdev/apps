@@ -25,7 +25,7 @@ import { cloudinary } from '../../lib/image';
 
 export interface PostContentProps
   extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
-    Pick<PostNavigationProps, 'onNextPost' | 'onPreviousPost'>,
+    Pick<PostNavigationProps, 'onNextPost' | 'onPreviousPost' | 'postPosition'>,
     UsePostCommentOptionalProps {
   post?: Post;
   isFallback?: boolean;
@@ -56,6 +56,7 @@ export function PostContent({
   onPreviousPost,
   onNextPost,
   onClose,
+  postPosition,
   isLoading,
   isFallback,
   customNavigation,
@@ -78,6 +79,7 @@ export function PostContent({
   );
 
   const navigationProps: PostNavigationProps = {
+    postPosition,
     onPreviousPost,
     onNextPost,
     post,
@@ -150,7 +152,7 @@ export function PostContent({
           />
           <a
             href={post.permalink}
-            title="Go to article"
+            title="Go to post"
             target="_blank"
             rel="noopener"
             onClick={onReadArticle}

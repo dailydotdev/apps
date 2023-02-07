@@ -4,6 +4,7 @@ import {
   InfiniteData,
   QueryClient,
   useInfiniteQuery,
+  UseInfiniteQueryOptions,
   useQueryClient,
 } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
@@ -98,15 +99,21 @@ const findIndexOfPostInData = (
   return { pageIndex: -1, index: -1 };
 };
 
+export interface UseFeedOptionalParams<T> {
+  query?: string;
+  variables?: T;
+  options?: UseInfiniteQueryOptions<FeedData>;
+}
+
 export default function useFeed<T>(
   feedQueryKey: unknown[],
   pageSize: number,
   adSpot: number,
   placeholdersPerPage: number,
   showOnlyUnreadPosts: boolean,
-  query?: string,
-  variables?: T,
+  params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
+  const { query, variables, options = {} } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
@@ -121,8 +128,9 @@ export default function useFeed<T>(
         unreadOnly: showOnlyUnreadPosts,
       }),
     {
-      enabled: query && tokenRefreshed,
       refetchOnMount: false,
+      ...options,
+      enabled: query && tokenRefreshed,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
       getNextPageParam: (lastPage) =>

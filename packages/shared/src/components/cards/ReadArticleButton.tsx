@@ -22,6 +22,6 @@ export const ReadArticleButton = ({
     rightIcon={<OpenLinkIcon className="ml-2" secondary />}
     target={openNewTab ? '_blank' : '_self'}
   >
-    Read article
+    Read post
   </Button>
 );

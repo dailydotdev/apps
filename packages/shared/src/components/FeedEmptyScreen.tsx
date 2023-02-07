@@ -27,8 +27,8 @@ function FeedEmptyScreen({
             Your feed filters are too specific.
           </EmptyScreenTitle>
           <EmptyScreenDescription>
-            We couldn&apos;t fetch enough articles based on your selected tags.
-            Try adding more tags using the feed settings.
+            We couldn&apos;t fetch enough posts based on your selected tags. Try
+            adding more tags using the feed settings.
           </EmptyScreenDescription>
           <EmptyScreenButton onClick={openFeedFilters} buttonSize="large">
             Feed filters

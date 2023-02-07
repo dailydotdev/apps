@@ -13,10 +13,14 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { render, screen } from '@testing-library/preact';
-import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
+import {
+  NotificationIconType,
+  NotificationType,
+} from '@dailydotdev/shared/src/components/notifications/utils';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import NotificationsPage from '../pages/notifications';
@@ -26,7 +30,6 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
-  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   mocked(useRouter).mockImplementation(
@@ -43,7 +46,7 @@ const sampleNotification: Notification = {
   userId: 'lee',
   createdAt: new Date(),
   readAt: new Date(),
-  icon: 'icon link',
+  icon: NotificationIconType.Bell,
   title: 'Sample title',
   type: NotificationType.System,
   avatars: [],
@@ -68,7 +71,6 @@ const fetchNotificationsMock = (
 
 let client: QueryClient;
 
-const clearUnread = jest.fn();
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [fetchNotificationsMock()],
   unreadCount = 0,
@@ -91,18 +93,12 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <NotificationsContext.Provider
-          value={{
-            unreadCount,
-            clearUnreadCount: clearUnread,
-            incrementUnreadCount: jest.fn(),
-            notificationsAvailable: jest.fn(),
-            requestPermission: jest.fn(),
-            isSubscribed: true,
-          }}
+        <NotificationsContextProvider
+          unreadCount={unreadCount}
+          app={BootApp.Webapp}
         >
           <NotificationsPage />
-        </NotificationsContext.Provider>
+        </NotificationsContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -161,5 +157,4 @@ it('should get all notifications and send a mutation to read all unread notifica
   await waitForNock();
   await screen.findByText(sampleNotification.title);
   expect(mutationCalled).toBeTruthy();
-  expect(clearUnread).toHaveBeenCalled();
 });

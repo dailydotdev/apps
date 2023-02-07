@@ -126,7 +126,7 @@ export default function PostsSection({
   let postsEmptyScreen: ReactNode;
   if (!isSameUser) {
     postsEmptyScreen = (
-      <EmptyMessage data-testid="emptyPosts">No articles yet.</EmptyMessage>
+      <EmptyMessage data-testid="emptyPosts">No posts yet.</EmptyMessage>
     );
   } else if (user.twitter) {
     postsEmptyScreen = (
@@ -134,7 +134,7 @@ export default function PostsSection({
         className="typo-callout text-theme-label-tertiary"
         data-testid="emptyPosts"
       >
-        No articles yet.
+        No posts yet.
         <br />
         <br />
         <a
@@ -143,21 +143,20 @@ export default function PostsSection({
           target="_blank"
           rel="noopener"
         >
-          How daily.dev picks up new articles
+          How daily.dev picks up new posts
         </a>
         <br />
         <br />
-        Do you have articles you wrote that got picked up by daily.dev in the
-        past?
+        Do you have posts you wrote that got picked up by daily.dev in the past?
         <br />
         <br />
         <a
           className="no-underline text-theme-label-link"
-          href="mailto:support@daily.dev?subject=Add my articles retroactively&body=README: To add your articles retroactively, please reply with your username or a link to your profile on daily.dev. Keep in mind that we can only add articles that we're already picked up by daily.dev. Not sure if your article appeared in our feed? Try searching its headline here: https://app.daily.dev/search"
+          href="mailto:support@daily.dev?subject=Add my posts retroactively&body=README: To add your posts retroactively, please reply with your username or a link to your profile on daily.dev. Keep in mind that we can only add posts that we're already picked up by daily.dev. Not sure if your post appeared in our feed? Try searching its headline here: https://app.daily.dev/search"
           target="_blank"
           rel="noopener"
         >
-          Email us to add your articles retroactively
+          Email us to add your posts retroactively
         </a>
       </p>
     );
@@ -165,7 +164,7 @@ export default function PostsSection({
     postsEmptyScreen = (
       <>
         <EmptyMessage data-testid="emptyPosts">
-          {`Track when articles you published are getting picked by
+          {`Track when posts you published are getting picked by
           daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
         </EmptyMessage>
         <form
@@ -195,7 +194,7 @@ export default function PostsSection({
 
   return (
     <ActivitySection
-      title={`${isSameUser ? 'Your ' : ''}Articles`}
+      title={`${isSameUser ? 'Your ' : ''}Posts`}
       query={posts}
       count={numPosts}
       emptyScreen={postsEmptyScreen}

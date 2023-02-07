@@ -65,7 +65,7 @@ export default function ShareOptionsMenu({
   const shareOptions: ShareOption[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
-      text: 'Share article via...',
+      text: 'Share post via...',
       action: () => onShare(post),
     },
     {
@@ -81,7 +81,7 @@ export default function ShareOptionsMenu({
     },
     {
       icon: <MenuIcon Icon={LinkIcon} />,
-      text: 'Copy link to article',
+      text: 'Copy link to post',
       action: trackAndCopyLink,
     },
   ];
@@ -104,7 +104,7 @@ export default function ShareOptionsMenu({
         squad.active &&
         shareOptions.push({
           icon: squad.image ? (
-            <SquadImage className="mr-2.5 w-5 h-5 text-2xl" {...squad} />
+            <SquadImage className="mr-2.5 w-6 h-6" {...squad} />
           ) : (
             <MenuIcon Icon={DefaultSquadIcon} />
           ),

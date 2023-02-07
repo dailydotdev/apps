@@ -11,10 +11,11 @@ import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
 
-export type PostToSquadModalProps = {
+export interface PostToSquadModalProps extends LazyModalCommonProps {
   squad: Squad;
   post?: Post;
-} & LazyModalCommonProps;
+  onSharedSuccessfully?: (post: Post) => void;
+}
 
 const modalSteps: ModalStep[] = [
   {
@@ -25,6 +26,7 @@ const modalSteps: ModalStep[] = [
   },
 ];
 function PostToSquadModal({
+  onSharedSuccessfully,
   onRequestClose,
   isOpen,
   post,
@@ -54,6 +56,7 @@ function PostToSquadModal({
     if (squadPost) {
       displayToast('This post has been shared to your squad');
       await client.invalidateQueries(['sourceFeed', user.id]);
+      onSharedSuccessfully?.(squadPost);
       onRequestClose(e);
     }
   };
@@ -68,7 +71,7 @@ function PostToSquadModal({
     onNext,
     onRequestClose,
   };
-  const title = `${post ? 'Share' : 'Post'} article`;
+  const title = `Share post`;
 
   return (
     <Modal

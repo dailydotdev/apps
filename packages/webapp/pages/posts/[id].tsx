@@ -34,6 +34,7 @@ import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostC
 import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -171,11 +172,8 @@ export async function getStaticProps({
     };
   } catch (err) {
     const clientError = err as ClientError;
-    if (
-      ['FORBIDDEN', 'NOT_FOUND'].includes(
-        clientError?.response?.errors?.[0]?.extensions?.code,
-      )
-    ) {
+    const errors = Object.values(ApiError);
+    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
       return {
         props: { id },
         revalidate: 60,
