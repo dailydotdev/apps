@@ -5,6 +5,7 @@ import React, {
   ClipboardEvent,
   MouseEvent,
   KeyboardEvent,
+  CompositionEvent,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -15,8 +16,9 @@ import Markdown from '../Markdown';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 import {
   fixHeight,
-  UPDOWN_ARROW_KEYS,
+  VERTICAL_ARROW_KEYS,
   UseUserMentionOptions,
+  ARROW_KEYS,
 } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import { cleanupEmptySpaces } from '../../lib/strings';
@@ -91,7 +93,7 @@ function CommentBox({
     }
 
     if (
-      (e.key === 'Enter' || UPDOWN_ARROW_KEYS.indexOf(e.key) !== -1) &&
+      (e.key === 'Enter' || VERTICAL_ARROW_KEYS.indexOf(e.key) !== -1) &&
       mentions?.length
     ) {
       return e.preventDefault();
@@ -100,28 +102,18 @@ function CommentBox({
     return e.stopPropagation();
   };
 
-  const onTextareaInput = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    fixHeight(e.currentTarget);
-    onInput(cleanupEmptySpaces(e.currentTarget.value));
+  const onTextareaInput = (e: CompositionEvent<HTMLTextAreaElement>) => {
+    const target = e.target as HTMLInputElement;
+    fixHeight(target);
+    onInput(cleanupEmptySpaces(target.value));
+    onMentionKeypress(e.data, e);
   };
 
-  useEffect(() => {
-    if (!commentRef?.current) return null;
+  const onKeyUp = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!ARROW_KEYS.includes(e.key)) return;
 
-    const onInputText = onTextareaInput as unknown as EventListener;
-    const onKeydown = handleKeydown as unknown as EventListener;
-    const onKeypress = onMentionKeypress as unknown as EventListener;
-    const el = commentRef.current;
-    el.addEventListener('input', onInputText);
-    el.addEventListener('keydown', onKeydown);
-    el.addEventListener('keyup', onKeypress);
-
-    return () => {
-      el.removeEventListener('input', onInputText);
-      el.removeEventListener('keydown', onKeydown);
-      el.removeEventListener('keyup', onKeypress);
-    };
-  }, [offset, mentions, mentionQuery, selected]);
+    onMentionKeypress(e.key, e);
+  };
 
   return (
     <>
@@ -164,6 +156,9 @@ function CommentBox({
           defaultValue={input}
           ref={commentRef}
           placeholder="Share your thoughts"
+          onInput={onTextareaInput}
+          onKeyDown={handleKeydown}
+          onKeyUp={onKeyUp}
           onClick={onInputClick}
           onPaste={onPaste}
           tabIndex={0}

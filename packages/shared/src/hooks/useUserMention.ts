@@ -2,11 +2,12 @@ import { useQuery, useQueryClient } from 'react-query';
 import {
   useState,
   useContext,
-  KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   MutableRefObject,
   useRef,
   useMemo,
+  CompositionEvent,
+  KeyboardEvent,
 } from 'react';
 import {
   RecommendedMentionsData,
@@ -31,9 +32,13 @@ import {
 import { nextTick } from '../lib/func';
 import { useRequestProtocol } from './useRequestProtocol';
 
+type KeyMentionEvent =
+  | CompositionEvent<HTMLTextAreaElement>
+  | KeyboardEvent<HTMLTextAreaElement>;
+
 export interface UseUserMentionOptions {
   mentionQuery?: string;
-  onMentionKeypress: (event: ReactKeyboardEvent) => unknown;
+  onMentionKeypress: (key: string, event: KeyMentionEvent) => unknown;
   selected: number;
   mentions: UserShortProfile[];
   offset: CaretOffset;
@@ -49,8 +54,9 @@ interface UseUserMentionProps {
   onInput: (content: string) => unknown;
 }
 
-export const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
-const LEFTRIGHT_ARROW_KEYS = ['ArrowLeft', 'ArrowRight'];
+export const VERTICAL_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
+const HORIZONTAL_ARROW_KEYS = ['ArrowLeft', 'ArrowRight'];
+export const ARROW_KEYS = VERTICAL_ARROW_KEYS.concat(HORIZONTAL_ARROW_KEYS);
 
 /* eslint-disable no-param-reassign */
 export const fixHeight = (el: HTMLElement): void => {
@@ -163,17 +169,18 @@ export function useUserMention({
   };
 
   const onKeypress = async (
-    event: ReactKeyboardEvent<HTMLTextAreaElement>,
+    pressed: string,
+    event: KeyMentionEvent,
   ): Promise<unknown> => {
-    if (LEFTRIGHT_ARROW_KEYS.indexOf(event.key) !== -1) {
+    if (HORIZONTAL_ARROW_KEYS.indexOf(pressed) !== -1) {
       return onInputClick();
     }
 
     if (typeof query === 'undefined') {
       if (
-        !isAlphaNumeric(event.key) &&
-        event.key !== '@' &&
-        event.key !== 'Backspace'
+        !isAlphaNumeric(pressed ?? '') &&
+        pressed !== '@' &&
+        pressed !== 'Backspace'
       ) {
         return null;
       }
@@ -181,27 +188,27 @@ export function useUserMention({
       return initializeMention();
     }
 
-    if (UPDOWN_ARROW_KEYS.indexOf(event.key) !== -1) {
-      onArrowKey(event.key);
+    if (VERTICAL_ARROW_KEYS.indexOf(pressed) !== -1) {
+      onArrowKey(pressed);
       return event.preventDefault();
     }
 
-    if (event.key === ' ') {
+    if (pressed === ' ') {
       return setQuery(undefined);
     }
 
-    if (event.key === 'Enter') {
+    if (pressed === 'Enter') {
       event.preventDefault();
       return onMention(mentions[selected].username);
     }
 
     await nextTick();
 
-    if (event.key === 'Backspace') {
+    if (pressed === 'Backspace') {
       return onBackspace(commentRef.current);
     }
 
-    const value = isSpecialCharacter(event.key)
+    const value = isSpecialCharacter(pressed)
       ? undefined
       : getWord(commentRef.current, position);
 
