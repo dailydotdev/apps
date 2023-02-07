@@ -89,7 +89,7 @@ export default function ShareOptionsMenu({
   if (hasSquadAccess && !post?.private) {
     if (!squads?.length) {
       shareOptions.push({
-        icon: <MenuIcon Icon={SquadIcon} size="medium" />,
+        icon: <MenuIcon Icon={SquadIcon} />,
         text: 'Post to new squad',
         action: () =>
           openModal({
@@ -106,7 +106,7 @@ export default function ShareOptionsMenu({
           icon: squad.image ? (
             <SquadImage className="mr-2.5 w-6 h-6" {...squad} />
           ) : (
-            <MenuIcon Icon={DefaultSquadIcon} size="medium" />
+            <MenuIcon Icon={DefaultSquadIcon} />
           ),
           text: `Share to ${squad.name}`,
           action: () =>
