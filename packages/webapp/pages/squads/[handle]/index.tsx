@@ -3,8 +3,9 @@ import {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import { ClientError } from 'graphql-request';
 import { ParsedUrlQuery } from 'querystring';
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
@@ -24,6 +25,8 @@ import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -32,15 +35,21 @@ type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
+  const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
   const queryKey = ['squad', handle];
   const {
     data: squad,
     isLoading,
     isFetched,
-  } = useQuery<Squad>(queryKey, () => getSquad(handle), {
-    enabled: !!handle,
+  } = useQuery<Squad, ClientError>(queryKey, () => getSquad(handle), {
+    enabled: !!handle && !isForbidden,
     retry: false,
+    onError: (err) => {
+      const isErrorForbidden =
+        err?.response?.errors?.[0]?.extensions?.code === ApiError.Forbidden;
+      if (!isForbidden && isErrorForbidden) setIsForbidden(true);
+    },
   });
 
   const squadId = squad?.id;
@@ -65,9 +74,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!isFetched) return <></>;
 
-  if (!squad) return <Custom404 />;
+  const isInactive = !isNullOrUndefined(squad) && !squad.active;
 
-  if (isFallback || !squad.active) return <Unauthorized />;
+  if (isFallback || isInactive || isForbidden) return <Unauthorized />;
+
+  if (!squad) return <Custom404 />;
 
   const onNewSquadPost = () =>
     openModal({
