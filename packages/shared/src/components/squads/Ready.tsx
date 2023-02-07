@@ -13,6 +13,7 @@ import {
 } from './utils';
 import { ModalPropsContext } from '../modals/common/types';
 import { InviteTextField, InviteTextFieldHandle } from './InviteTextField';
+import { Origin } from '../../lib/analytics';
 
 interface SquadReadyProps extends SquadStateProps {
   squad?: Squad;
@@ -33,7 +34,11 @@ export function SquadReady({ squad }: SquadReadyProps): ReactElement {
         <SquadReadySvg className="mt-6 mb-4" />
         <h3 className="font-bold typo-title2">{name}</h3>
         <h4>@{handle}</h4>
-        <InviteTextField squad={squad} ref={inviteTextRef} />
+        <InviteTextField
+          squad={squad}
+          ref={inviteTextRef}
+          origin={Origin.SquadCreation}
+        />
         <Alert
           className="mt-4"
           type={AlertType.Info}

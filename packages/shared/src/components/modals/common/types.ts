@@ -1,4 +1,5 @@
 import { KeyboardEvent, MouseEvent, createContext, ReactNode } from 'react';
+import { AnalyticsEvent } from '../../../lib/analytics';
 
 export enum ModalHeaderKind {
   Primary = 'primary',
@@ -38,6 +39,7 @@ export type ModalTabItem = {
 
 export type ModalStep = {
   key: string;
+  screen_value?: string;
   title?: string | ReactNode;
   hideProgress?: boolean;
 };
@@ -51,6 +53,8 @@ export type ModalContextProps = {
   size: ModalSize;
   steps?: ModalStep[];
   tabs?: string[] | ModalTabItem[];
+  onTrackNext?: AnalyticsEvent;
+  onTrackPrev?: AnalyticsEvent;
 };
 
 export const ModalPropsContext = createContext<ModalContextProps>({
