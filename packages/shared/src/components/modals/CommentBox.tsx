@@ -18,10 +18,9 @@ import {
   fixHeight,
   VERTICAL_ARROW_KEYS,
   UseUserMentionOptions,
-  ARROW_KEYS,
 } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
-import { cleanupEmptySpaces } from '../../lib/strings';
+import { cleanupEmptySpaces, isAlphaNumeric } from '../../lib/strings';
 
 export interface CommentBoxProps {
   authorName: string;
@@ -106,13 +105,12 @@ function CommentBox({
     const target = e.target as HTMLInputElement;
     fixHeight(target);
     onInput(cleanupEmptySpaces(target.value));
-    onMentionKeypress(e.data, e);
+
+    if (e.data) onMentionKeypress(e.data, e);
   };
 
   const onKeyUp = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!ARROW_KEYS.includes(e.key)) return;
-
-    onMentionKeypress(e.key, e);
+    if (!isAlphaNumeric(e.key)) onMentionKeypress(e.key, e);
   };
 
   return (
