@@ -110,7 +110,7 @@ function CommentBox({
   };
 
   const onKeyUp = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!isAlphaNumeric(e.key)) onMentionKeypress(e.key, e);
+    if (e.key !== '@' && !isAlphaNumeric(e.key)) onMentionKeypress(e.key, e);
   };
 
   return (
