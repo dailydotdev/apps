@@ -21,7 +21,6 @@ export const modalStateOrder = [
 
 export type NewSquadModalProps = {
   onRequestClose: () => void;
-  onPreviousState?: () => void;
   isOpen: boolean;
   post?: Post;
   shouldShowIntro?: boolean;
@@ -29,7 +28,6 @@ export type NewSquadModalProps = {
 
 let activeView;
 function NewSquadModal({
-  onPreviousState,
   onRequestClose,
   isOpen,
   post,
@@ -59,8 +57,10 @@ function NewSquadModal({
       key: ModalState.Details,
       title: (
         <>
-          {onPreviousState && (
-            <Modal.Header.StepsButton onClick={onPreviousState} />
+          {shouldShowIntro && (
+            <Modal.Header.StepsButton
+              onClick={() => setShouldShowBetaModal(true)}
+            />
           )}
           <Modal.Header.Subtitle>{ModalState.Details}</Modal.Header.Subtitle>
         </>

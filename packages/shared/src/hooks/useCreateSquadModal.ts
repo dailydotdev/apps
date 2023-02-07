@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { LazyModal } from '../components/modals/common/types';
+import { NewSquadModalProps } from '../components/modals/NewSquadModal';
 import { useLazyModal } from './useLazyModal';
 import usePersistentContext from './usePersistentContext';
 
@@ -8,6 +9,8 @@ interface UseCreateSquadModal {
   openNewSquadModal: () => void;
   openSquadBetaModal: () => void;
 }
+
+type ModalProps = Omit<NewSquadModalProps, 'onRequestClose' | 'isOpen'>;
 
 const SQUAD_ONBOARDING = 'hasTriedSquadOnboarding';
 
@@ -24,26 +27,12 @@ export const useCreateSquadModal = ({
 }: UseCreateSquadModalProps): UseCreateSquadModal => {
   const router = useRouter();
   const { openModal } = useLazyModal();
-  const previousRef = useRef(null);
   const [hasTriedOnboarding, setHasTriedOnboarding, isLoaded] =
     usePersistentContext<boolean>(SQUAD_ONBOARDING, hasSquads);
 
-  const openNewSquadModal = () =>
-    openModal({
-      type: LazyModal.NewSquad,
-      props: {
-        onPreviousState: () => previousRef.current(),
-      },
-    });
-  const openSquadBetaModal = () =>
-    openModal({
-      type: LazyModal.NewSquad,
-      props: {
-        shouldShowIntro: true,
-        onPreviousState: () => previousRef.current(),
-      },
-    });
-  previousRef.current = openSquadBetaModal;
+  const openNewSquadModal = (props: ModalProps = {}) =>
+    openModal({ type: LazyModal.NewSquad, props });
+  const openSquadBetaModal = () => openNewSquadModal({ shouldShowIntro: true });
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
@@ -53,7 +42,7 @@ export const useCreateSquadModal = ({
     }
 
     const { origin, pathname } = window.location;
-    openSquadBetaModal();
+    openNewSquadModal();
     router.replace(origin + pathname);
   }, [router.pathname]);
 
