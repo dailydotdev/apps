@@ -123,7 +123,9 @@ export const usePostModalNavigation = (
       return items.length - 1 === openedPostIndex
         ? PostPosition.Only
         : PostPosition.First;
-    return !canFetchMore && isLast ? PostPosition.Last : PostPosition.Middle;
+    return (!canFetchMore || isFetchingNextPage) && isLast
+      ? PostPosition.Last
+      : PostPosition.Middle;
   };
   const ret = useMemo<UsePostModalNavigation>(
     () => ({
