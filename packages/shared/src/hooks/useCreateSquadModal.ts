@@ -42,7 +42,7 @@ export const useCreateSquadModal = ({
     }
 
     const { origin, pathname } = window.location;
-    openNewSquadModal();
+    openSquadBetaModal();
     router.replace(origin + pathname);
   }, [router.pathname]);
 
