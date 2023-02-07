@@ -85,25 +85,22 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     },
   );
 
-  useEffect(() => {
-    if (trackedImpression || !member) return;
-
-    trackEvent({
-      event_name: AnalyticsEvent.ViewSquadInvitation,
-      extra: JSON.stringify({
-        inviter: member.user.id,
-        squad: member.source.id,
-      }),
-    });
-    setTrackedImpression(true);
-  }, [member, trackedImpression]);
-
   const joinSquadAnalyticsExtra = () => {
     return JSON.stringify({
       inviter: member.user.id,
       squad: member.source.id,
     });
   };
+
+  useEffect(() => {
+    if (trackedImpression || !member) return;
+
+    trackEvent({
+      event_name: AnalyticsEvent.ViewSquadInvitation,
+      extra: joinSquadAnalyticsExtra(),
+    });
+    setTrackedImpression(true);
+  }, [member, trackedImpression]);
 
   const sourceId = member?.source?.id;
   const { mutateAsync: onJoinSquad } = useMutation(

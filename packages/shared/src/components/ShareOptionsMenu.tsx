@@ -8,7 +8,7 @@ import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
-import { Origin } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import LinkIcon from './icons/Link';
@@ -109,14 +109,19 @@ export default function ShareOptionsMenu({
             <MenuIcon Icon={DefaultSquadIcon} />
           ),
           text: `Share to ${squad.name}`,
-          action: () =>
+          action: () => {
+            trackEvent({ event_name: AnalyticsEvent.StartShareToSquad });
             openModal({
               type: LazyModal.PostToSquad,
               props: {
                 squad,
                 post,
+                onSharedSuccessfully: () => {
+                  trackEvent({ event_name: AnalyticsEvent.ShareToSquad });
+                },
               },
-            }),
+            });
+          },
         }),
     );
   }

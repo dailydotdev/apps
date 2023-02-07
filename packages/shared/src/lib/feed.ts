@@ -108,6 +108,8 @@ export function postAnalyticsEvent(
     post_upvotes_count: post.numUpvotes,
     target_id: post.id,
     target_type: 'post',
+    post_type: post.type,
+    post_source_type: post.source?.type,
     extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
   };
 }

@@ -47,7 +47,7 @@ export enum AnalyticsEvent {
   // squads - start
   ViewSquadInvitation = 'view squad invitation',
   ClickJoinSquad = 'click join squad',
-  CompleteJoiningSquad = 'complete joining the squad',
+  CompleteJoiningSquad = 'complete joining squad',
   DeleteSquad = 'delete squad',
   LeaveSquad = 'leave squad',
   ShareSquadInvitation = 'share squad invitation',
@@ -55,6 +55,8 @@ export enum AnalyticsEvent {
   CompleteSquadCreation = 'complete squad creation',
   ClickSquadCreationNext = 'click squad creation next',
   ClickSquadCreationBack = 'click squad creation back',
+  StartShareToSquad = 'start share to squad',
+  ShareToSquad = 'share to squad',
   // squads - end
 }
 
