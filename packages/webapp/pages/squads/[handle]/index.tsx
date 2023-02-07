@@ -4,7 +4,13 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
@@ -25,6 +31,8 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -32,8 +40,10 @@ import ProtectedPage from '../../../components/ProtectedPage';
 type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { isFallback } = useRouter();
   const { openModal } = useLazyModal();
+  const [trackedImpression, setTrackedImpression] = useState(false);
   const queryKey = ['squad', handle];
   const { data: squad, isLoading } = useQuery<Squad>(
     queryKey,
@@ -46,6 +56,16 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   );
 
   const squadId = squad?.id;
+
+  useEffect(() => {
+    if (trackedImpression || !squadId) return;
+
+    trackEvent({
+      event_name: AnalyticsEvent.ViewSquadPage,
+      extra: JSON.stringify({ squad: squadId }),
+    });
+    setTrackedImpression(true);
+  }, [squadId, trackedImpression]);
 
   const { data: squadMembers } = useQuery<SquadMember[]>(
     ['squadMembersInitial', handle],

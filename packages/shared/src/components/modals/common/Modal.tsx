@@ -15,6 +15,7 @@ import {
 } from './types';
 import classed from '../../../lib/classed';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
+import { AnalyticsEvent } from '../../../lib/analytics';
 
 export interface ModalProps extends ReactModal.Props {
   children?: React.ReactNode;
@@ -24,6 +25,8 @@ export interface ModalProps extends ReactModal.Props {
   steps?: ModalStep[];
   defaultView?: string;
   onViewChange?: (view: string) => void;
+  onTrackNext?: AnalyticsEvent;
+  onTrackPrev?: AnalyticsEvent;
 }
 
 export type LazyModalCommonProps = Pick<
@@ -76,6 +79,8 @@ export function Modal({
   kind = ModalKind.FlexibleCenter,
   size = ModalSize.Medium,
   onViewChange,
+  onTrackNext,
+  onTrackPrev,
   onRequestClose,
   tabs,
   steps,
@@ -122,6 +127,8 @@ export function Modal({
           setActiveView,
           steps,
           tabs,
+          onTrackNext,
+          onTrackPrev,
         }}
       >
         {children}

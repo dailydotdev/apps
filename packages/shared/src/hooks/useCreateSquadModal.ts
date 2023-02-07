@@ -1,12 +1,15 @@
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { LazyModal } from '../components/modals/common/types';
+import { NewSquadModalProps } from '../components/modals/NewSquadModal';
+import { Origin } from '../lib/analytics';
 import { useLazyModal } from './useLazyModal';
 import usePersistentContext from './usePersistentContext';
 
+type ModalProps = Omit<NewSquadModalProps, 'onRequestClose' | 'isOpen'>;
 interface UseCreateSquadModal {
-  openNewSquadModal: () => void;
-  openSquadBetaModal: () => void;
+  openNewSquadModal: (props?: ModalProps) => void;
+  openSquadBetaModal: (props?: ModalProps) => void;
 }
 
 const SQUAD_ONBOARDING = 'hasTriedSquadOnboarding';
@@ -24,26 +27,16 @@ export const useCreateSquadModal = ({
 }: UseCreateSquadModalProps): UseCreateSquadModal => {
   const router = useRouter();
   const { openModal } = useLazyModal();
-  const previousRef = useRef(null);
   const [hasTriedOnboarding, setHasTriedOnboarding, isLoaded] =
     usePersistentContext<boolean>(SQUAD_ONBOARDING, hasSquads);
 
-  const openNewSquadModal = () =>
-    openModal({
-      type: LazyModal.NewSquad,
-      props: {
-        onPreviousState: () => previousRef.current(),
-      },
-    });
-  const openSquadBetaModal = () =>
-    openModal({
-      type: LazyModal.NewSquad,
-      props: {
-        shouldShowIntro: true,
-        onPreviousState: () => previousRef.current(),
-      },
-    });
-  previousRef.current = openSquadBetaModal;
+  const openNewSquadModal = (props: ModalProps) =>
+    openModal({ type: LazyModal.NewSquad, props });
+  const openSquadBetaModal = ({
+    origin = Origin.Sidebar,
+  }: {
+    origin?: Origin;
+  }) => openNewSquadModal({ shouldShowIntro: true, origin });
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
@@ -53,7 +46,7 @@ export const useCreateSquadModal = ({
     }
 
     const { origin, pathname } = window.location;
-    openSquadBetaModal();
+    openSquadBetaModal({ origin: Origin.Notification });
     router.replace(origin + pathname);
   }, [router.pathname]);
 
@@ -68,7 +61,7 @@ export const useCreateSquadModal = ({
       return;
     }
 
-    openSquadBetaModal();
+    openSquadBetaModal({ origin: Origin.Auto });
     setHasTriedOnboarding(true);
   }, [hasTriedOnboarding, isLoaded, hasSquads, hasAccess, isFlagsFetched]);
 

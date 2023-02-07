@@ -94,7 +94,7 @@ export default function ShareOptionsMenu({
         action: () =>
           openModal({
             type: LazyModal.NewSquad,
-            props: { post },
+            props: { post, origin: Origin.Share },
           }),
       });
     }

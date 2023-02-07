@@ -10,6 +10,15 @@ export enum Origin {
   TagsSearch = 'tags search',
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
+  // squads - start
+  SquadCreation = 'squad creation',
+  LockedSquad = 'locked squad',
+  SquadPage = 'squad page',
+  Auto = 'auto',
+  Sidebar = 'sidebar',
+  Share = 'share',
+  Notification = 'notification',
+  // squads - end
 }
 
 export enum LoginTrigger {
@@ -35,6 +44,18 @@ export enum AnalyticsEvent {
   ClickNotificationDismiss = 'click notification dismiss',
   DisableNotification = 'disable notification',
   // notifications - end
+  // squads - start
+  ViewSquadInvitation = 'view squad invitation',
+  ClickJoinSquad = 'click join squad',
+  CompleteJoiningSquad = 'complete joining the squad',
+  DeleteSquad = 'delete squad',
+  LeaveSquad = 'leave squad',
+  ShareSquadInvitation = 'share squad invitation',
+  ViewSquadPage = 'view squad page',
+  CompleteSquadCreation = 'complete squad creation',
+  ClickSquadCreationNext = 'click squad creation next',
+  ClickSquadCreationBack = 'click squad creation back',
+  // squads - end
 }
 
 export enum TargetType {
@@ -42,6 +63,7 @@ export enum TargetType {
   ArticleAnonymousCTA = 'article anonymous cta',
   ScrollBlock = 'scroll block',
   EnableNotifications = 'enable notifications',
+  CreateSquadPopup = 'create squad popup',
 }
 
 export enum TargetId {

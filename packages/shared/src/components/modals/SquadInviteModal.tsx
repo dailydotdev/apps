@@ -10,6 +10,7 @@ import {
   InviteTextFieldHandle,
 } from '../squads/InviteTextField';
 import { SquadModalHeader } from '../squads/ModalHeader';
+import { Origin } from '../../lib/analytics';
 
 type SquadInviteModalProps = {
   initialSquad: Squad;
@@ -40,6 +41,7 @@ function SquadInviteModal({
           isLoading={isLoading}
           squad={squad}
           ref={inviteTextRef}
+          origin={Origin.SquadPage}
         />
         <Alert
           className="mt-4"

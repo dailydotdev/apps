@@ -15,7 +15,12 @@ export enum ModalState {
   WriteComment = 'Post article',
   Ready = 'Almost there!',
 }
-
+export const modalStateToScreenValue: Record<ModalState, string> = {
+  [ModalState.Details]: 'squad details',
+  [ModalState.SelectArticle]: 'share article',
+  [ModalState.WriteComment]: 'comment',
+  [ModalState.Ready]: 'invitation',
+};
 export const SquadTitle = classed(
   'h3',
   'text-center typo-large-title font-bold',

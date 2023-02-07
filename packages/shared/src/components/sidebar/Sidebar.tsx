@@ -29,6 +29,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
+import { Origin } from '../../lib/analytics';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -68,7 +69,7 @@ export default function Sidebar({
     popularFeedCopy,
     isFlagsFetched,
   } = useContext(FeaturesContext);
-  const { openSquadBetaModal } = useCreateSquadModal({
+  const { openNewSquadModal, openSquadBetaModal } = useCreateSquadModal({
     hasSquads: !!squads?.length,
     hasAccess: hasSquadAccess,
     isFlagsFetched,
@@ -131,25 +132,25 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {newSquadButtonVisible && (
-              <div className="flex">
-                <Button
-                  buttonSize="small"
-                  icon={<PlusIcon />}
-                  iconOnly={!sidebarExpanded}
-                  className={classNames(
-                    'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage flex flex-1',
-                    sidebarExpanded ? 'mx-3' : 'mx-1.5',
-                  )}
-                  textPosition={
-                    sidebarExpanded ? 'justify-start' : 'justify-center'
-                  }
-                  onClick={openSquadBetaModal}
-                >
-                  {sidebarExpanded && 'New Squad'}
-                </Button>
-              </div>
-            )}
+            {/* {newSquadButtonVisible && ( */}
+            <div className="flex">
+              <Button
+                buttonSize="small"
+                icon={<PlusIcon />}
+                iconOnly={!sidebarExpanded}
+                className={classNames(
+                  'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage flex flex-1',
+                  sidebarExpanded ? 'mx-3' : 'mx-1.5',
+                )}
+                textPosition={
+                  sidebarExpanded ? 'justify-start' : 'justify-center'
+                }
+                onClick={() => openSquadBetaModal({ origin: Origin.Sidebar })}
+              >
+                {sidebarExpanded && 'New Squad'}
+              </Button>
+            </div>
+            {/* )} */}
             {!alerts?.filter && (
               <MyFeedButton
                 {...defaultRenderSectionProps}
@@ -164,7 +165,7 @@ export default function Sidebar({
                 {...defaultRenderSectionProps}
                 activePage={activePageProp}
                 squads={squads}
-                onNewSquad={openSquadBetaModal}
+                onNewSquad={() => openNewSquadModal({ origin: Origin.Sidebar })}
                 onOpenLockedSquad={openLockedSquadModal}
               />
             )}
