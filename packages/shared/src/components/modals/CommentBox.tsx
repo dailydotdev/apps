@@ -14,13 +14,19 @@ import styles from './CommentBox.module.css';
 import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
-import {
-  fixHeight,
-  VERTICAL_ARROW_KEYS,
-  UseUserMentionOptions,
-} from '../../hooks/useUserMention';
+import { fixHeight, UseUserMentionOptions } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
-import { cleanupEmptySpaces, isAlphaNumeric } from '../../lib/strings';
+import { cleanupEmptySpaces } from '../../lib/strings';
+import {
+  ArrowKey,
+  BaseInputEvent,
+  checkIsKeyboardCommand,
+  KeyboardCommand,
+  Y_AXIS_KEYS,
+} from '../../lib/element';
+
+type TextareaInputEvent = CompositionEvent<HTMLTextAreaElement> &
+  BaseInputEvent;
 
 export interface CommentBoxProps {
   authorName: string;
@@ -87,12 +93,14 @@ function CommentBox({
   };
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && input?.length) {
+    const pressedSpecialkey = e.ctrlKey || e.metaKey;
+    if (pressedSpecialkey && e.key === KeyboardCommand.Enter && input?.length) {
       return sendComment(e);
     }
 
     if (
-      (e.key === 'Enter' || VERTICAL_ARROW_KEYS.indexOf(e.key) !== -1) &&
+      (e.key === KeyboardCommand.Enter ||
+        Y_AXIS_KEYS.includes(e.key as ArrowKey)) &&
       mentions?.length
     ) {
       return e.preventDefault();
@@ -101,16 +109,16 @@ function CommentBox({
     return e.stopPropagation();
   };
 
-  const onTextareaInput = (e: CompositionEvent<HTMLTextAreaElement>) => {
+  const onTextareaInput = (e: TextareaInputEvent) => {
     const target = e.target as HTMLInputElement;
     fixHeight(target);
     onInput(cleanupEmptySpaces(target.value));
 
-    if (e.data) onMentionKeypress(e.data, e);
+    onMentionKeypress(e.data, e);
   };
 
-  const onKeyUp = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key !== '@' && !isAlphaNumeric(e.key)) onMentionKeypress(e.key, e);
+  const onKeyUp = async (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (checkIsKeyboardCommand(e)) onMentionKeypress(e.key, e);
   };
 
   return (

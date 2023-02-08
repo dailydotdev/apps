@@ -6,8 +6,6 @@ import {
   MutableRefObject,
   useRef,
   useMemo,
-  CompositionEvent,
-  KeyboardEvent,
 } from 'react';
 import {
   RecommendedMentionsData,
@@ -28,17 +26,20 @@ import {
   CaretOffset,
   parentClassContains,
   getSelectionStart,
+  CommentInputEvent,
+  X_AXIS_KEYS,
+  ArrowKey,
+  Y_AXIS_KEYS,
+  KeyboardCommand,
+  deleteInputs,
+  InputEventType,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
 import { useRequestProtocol } from './useRequestProtocol';
 
-type KeyMentionEvent =
-  | CompositionEvent<HTMLTextAreaElement>
-  | KeyboardEvent<HTMLTextAreaElement>;
-
 export interface UseUserMentionOptions {
   mentionQuery?: string;
-  onMentionKeypress: (key: string, event: KeyMentionEvent) => unknown;
+  onMentionKeypress: (key: string, event: CommentInputEvent) => unknown;
   selected: number;
   mentions: UserShortProfile[];
   offset: CaretOffset;
@@ -53,10 +54,6 @@ interface UseUserMentionProps {
   sourceId?: string;
   onInput: (content: string) => unknown;
 }
-
-export const VERTICAL_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
-const HORIZONTAL_ARROW_KEYS = ['ArrowLeft', 'ArrowRight'];
-export const ARROW_KEYS = VERTICAL_ARROW_KEYS.concat(HORIZONTAL_ARROW_KEYS);
 
 /* eslint-disable no-param-reassign */
 export const fixHeight = (el: HTMLElement): void => {
@@ -142,10 +139,10 @@ export function useUserMention({
     fixHeight(element);
   };
 
-  const onArrowKey = (arrowKey: string) => {
-    if (arrowKey === 'ArrowUp' && selected > 0) {
+  const onArrowKey = (arrowKey: ArrowKey) => {
+    if (arrowKey === ArrowKey.Up && selected > 0) {
       setSelected(selected - 1);
-    } else if (arrowKey === 'ArrowDown' && selected < mentions.length - 1) {
+    } else if (arrowKey === ArrowKey.Down && selected < mentions.length - 1) {
       setSelected(selected + 1);
     }
   };
@@ -170,26 +167,29 @@ export function useUserMention({
 
   const onKeypress = async (
     pressed: string,
-    event: KeyMentionEvent,
+    event: CommentInputEvent,
   ): Promise<unknown> => {
-    if (HORIZONTAL_ARROW_KEYS.indexOf(pressed) !== -1) {
+    if (X_AXIS_KEYS.includes(pressed as ArrowKey)) {
       return onInputClick();
     }
 
+    const isBackspace =
+      pressed === KeyboardCommand.Backspace ||
+      (event.inputType && deleteInputs.includes(event.inputType));
+    const isEnter =
+      pressed === KeyboardCommand.Enter ||
+      event.inputType === InputEventType.InsertLineBreak;
+
     if (typeof query === 'undefined') {
-      if (
-        !isAlphaNumeric(pressed ?? '') &&
-        pressed !== '@' &&
-        pressed !== 'Backspace'
-      ) {
+      if (!isAlphaNumeric(pressed ?? '') && pressed !== '@' && !isBackspace) {
         return null;
       }
 
       return initializeMention();
     }
 
-    if (VERTICAL_ARROW_KEYS.indexOf(pressed) !== -1) {
-      onArrowKey(pressed);
+    if (Y_AXIS_KEYS.includes(pressed as ArrowKey)) {
+      onArrowKey(pressed as ArrowKey);
       return event.preventDefault();
     }
 
@@ -197,14 +197,14 @@ export function useUserMention({
       return setQuery(undefined);
     }
 
-    if (pressed === 'Enter') {
+    if (isEnter) {
       event.preventDefault();
       return onMention(mentions[selected].username);
     }
 
     await nextTick();
 
-    if (pressed === 'Backspace') {
+    if (isBackspace) {
       return onBackspace(commentRef.current);
     }
 
