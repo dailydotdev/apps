@@ -121,10 +121,6 @@ function CommentBox({
     if (checkIsKeyboardCommand(e)) onMentionKeypress(e.key, e);
   };
 
-  useEffect(() => {
-    if (!mentions?.length) commentRef?.current?.focus();
-  }, [mentions]);
-
   return (
     <>
       <article className="flex flex-col items-stretch rounded-8 break-words-overflow typo-callout">
@@ -184,6 +180,7 @@ function CommentBox({
         query={mentionQuery}
         appendTo={parentSelector}
         onMentionClick={onMentionClick}
+        onHide={commentRef?.current?.focus}
       />
       <div
         className="my-2 mx-3 text-theme-status-error typo-caption1"
