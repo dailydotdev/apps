@@ -181,6 +181,7 @@ const READING_HISTORY_FRAGMENT = gql`
       numUpvotes
       bookmarked
       numComments
+      private
       sharedPost {
         ...SharedPostInfo
       }
