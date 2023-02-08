@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -29,6 +23,8 @@ import user from '../../../__tests__/fixture/loggedUser';
 import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 import { PostType } from '../../graphql/posts';
 import { UserShortProfile } from '../../lib/user';
+import { SourceType } from '../../graphql/sources';
+import { BootApp } from '../../lib/boot';
 
 const onRequestClose = jest.fn();
 const onComment = jest.fn();
@@ -46,7 +42,6 @@ const renderComponent = (
     authorImage: 'https://daily.dev/nimrod.png',
     authorName: 'Nimrod',
     publishDate: new Date(2017, 1, 10, 0, 0),
-    content: 'This is the main comment',
     contentHtml: '<p>This is the main comment</p>',
     commentId: null,
     post: {
@@ -55,11 +50,14 @@ const renderComponent = (
       image: 'https://image.com',
       commentsPermalink: 'https://daily.dev',
       type: PostType.Article,
+      summary: '',
       source: {
         id: 's',
         name: 's',
         handle: 's',
         image: 's',
+        type: SourceType.Machine,
+        permalink: '',
       },
     },
     isOpen: true,
@@ -85,7 +83,7 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <NotificationsContextProvider>
+        <NotificationsContextProvider app={BootApp.Webapp}>
           <NewCommentModal {...defaultProps} {...props} />
         </NotificationsContextProvider>
       </AuthContext.Provider>
