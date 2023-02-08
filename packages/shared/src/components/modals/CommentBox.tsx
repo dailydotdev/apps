@@ -5,6 +5,7 @@ import React, {
   ClipboardEvent,
   MouseEvent,
   KeyboardEvent,
+  CompositionEvent,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -13,13 +14,19 @@ import styles from './CommentBox.module.css';
 import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
-import {
-  fixHeight,
-  UPDOWN_ARROW_KEYS,
-  UseUserMentionOptions,
-} from '../../hooks/useUserMention';
+import { fixHeight, UseUserMentionOptions } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import { cleanupEmptySpaces } from '../../lib/strings';
+import {
+  ArrowKey,
+  BaseInputEvent,
+  checkIsKeyboardCommand,
+  KeyboardCommand,
+  Y_AXIS_KEYS,
+} from '../../lib/element';
+
+type TextareaInputEvent = CompositionEvent<HTMLTextAreaElement> &
+  BaseInputEvent;
 
 export interface CommentBoxProps {
   authorName: string;
@@ -86,24 +93,36 @@ function CommentBox({
   };
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && input?.length) {
+    const pressedSpecialkey = e.ctrlKey || e.metaKey;
+    if (pressedSpecialkey && e.key === KeyboardCommand.Enter && input?.length) {
       return sendComment(e);
     }
 
-    if (
-      (e.key === 'Enter' || UPDOWN_ARROW_KEYS.indexOf(e.key) !== -1) &&
-      mentions?.length
-    ) {
+    const isNavigatingPopup =
+      e.key === KeyboardCommand.Enter ||
+      Y_AXIS_KEYS.includes(e.key as ArrowKey);
+    if (isNavigatingPopup && mentions?.length) {
       return e.preventDefault();
     }
 
     return e.stopPropagation();
   };
 
-  const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    fixHeight(e.currentTarget);
-    onInput(cleanupEmptySpaces(e.currentTarget.value));
+  const onTextareaInput = (e: TextareaInputEvent) => {
+    const target = e.target as HTMLInputElement;
+    fixHeight(target);
+    onInput(cleanupEmptySpaces(target.value));
+
+    onMentionKeypress(e.data, e);
   };
+
+  const onKeyUp = async (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (checkIsKeyboardCommand(e)) onMentionKeypress(e.key, e);
+  };
+
+  useEffect(() => {
+    if (!mentions?.length) commentRef?.current?.focus();
+  }, [mentions]);
 
   return (
     <>
@@ -148,7 +167,7 @@ function CommentBox({
           placeholder="Share your thoughts"
           onInput={onTextareaInput}
           onKeyDown={handleKeydown}
-          onKeyUp={onMentionKeypress}
+          onKeyUp={onKeyUp}
           onClick={onInputClick}
           onPaste={onPaste}
           tabIndex={0}

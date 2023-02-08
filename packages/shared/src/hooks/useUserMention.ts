@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from 'react-query';
 import {
   useState,
   useContext,
-  KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   MutableRefObject,
   useRef,
@@ -27,13 +26,20 @@ import {
   CaretOffset,
   parentClassContains,
   getSelectionStart,
+  CommentInputEvent,
+  X_AXIS_KEYS,
+  ArrowKey,
+  Y_AXIS_KEYS,
+  KeyboardCommand,
+  deleteInputs,
+  InputEventType,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
 import { useRequestProtocol } from './useRequestProtocol';
 
 export interface UseUserMentionOptions {
   mentionQuery?: string;
-  onMentionKeypress: (event: ReactKeyboardEvent) => unknown;
+  onMentionKeypress: (key: string, event: CommentInputEvent) => unknown;
   selected: number;
   mentions: UserShortProfile[];
   offset: CaretOffset;
@@ -48,9 +54,6 @@ interface UseUserMentionProps {
   sourceId?: string;
   onInput: (content: string) => unknown;
 }
-
-export const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
-const LEFTRIGHT_ARROW_KEYS = ['ArrowLeft', 'ArrowRight'];
 
 /* eslint-disable no-param-reassign */
 export const fixHeight = (el: HTMLElement): void => {
@@ -134,12 +137,13 @@ export function useUserMention({
     client.setQueryData(key, []);
     onInput(element.value);
     fixHeight(element);
+    commentRef.current.focus();
   };
 
-  const onArrowKey = (arrowKey: string) => {
-    if (arrowKey === 'ArrowUp' && selected > 0) {
+  const onArrowKey = (arrowKey: ArrowKey) => {
+    if (arrowKey === ArrowKey.Up && selected > 0) {
       setSelected(selected - 1);
-    } else if (arrowKey === 'ArrowDown' && selected < mentions.length - 1) {
+    } else if (arrowKey === ArrowKey.Down && selected < mentions.length - 1) {
       setSelected(selected + 1);
     }
   };
@@ -163,45 +167,49 @@ export function useUserMention({
   };
 
   const onKeypress = async (
-    event: ReactKeyboardEvent<HTMLTextAreaElement>,
+    pressed: string,
+    event: CommentInputEvent,
   ): Promise<unknown> => {
-    if (LEFTRIGHT_ARROW_KEYS.indexOf(event.key) !== -1) {
+    if (X_AXIS_KEYS.includes(pressed as ArrowKey)) {
       return onInputClick();
     }
 
+    const isBackspace =
+      pressed === KeyboardCommand.Backspace ||
+      (event.inputType && deleteInputs.includes(event.inputType));
+    const isEnter =
+      pressed === KeyboardCommand.Enter ||
+      event.inputType === InputEventType.InsertLineBreak;
+
     if (typeof query === 'undefined') {
-      if (
-        !isAlphaNumeric(event.key) &&
-        event.key !== '@' &&
-        event.key !== 'Backspace'
-      ) {
+      if (!isAlphaNumeric(pressed ?? '') && pressed !== '@' && !isBackspace) {
         return null;
       }
 
       return initializeMention();
     }
 
-    if (UPDOWN_ARROW_KEYS.indexOf(event.key) !== -1) {
-      onArrowKey(event.key);
+    if (Y_AXIS_KEYS.includes(pressed as ArrowKey)) {
+      onArrowKey(pressed as ArrowKey);
       return event.preventDefault();
     }
 
-    if (event.key === ' ') {
+    if (pressed === ' ') {
       return setQuery(undefined);
     }
 
-    if (event.key === 'Enter') {
+    if (isEnter) {
       event.preventDefault();
       return onMention(mentions[selected].username);
     }
 
     await nextTick();
 
-    if (event.key === 'Backspace') {
+    if (isBackspace) {
       return onBackspace(commentRef.current);
     }
 
-    const value = isSpecialCharacter(event.key)
+    const value = isSpecialCharacter(pressed)
       ? undefined
       : getWord(commentRef.current, position);
 
@@ -227,7 +235,7 @@ export function useUserMention({
     textarea.focus();
     textarea.selectionEnd = start + 2;
 
-    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
+    textarea.dispatchEvent(new InputEvent('input', { data: '@' }));
   };
 
   useEffect(() => {
