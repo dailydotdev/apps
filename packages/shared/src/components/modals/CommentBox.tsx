@@ -179,6 +179,7 @@ function CommentBox({
         query={mentionQuery}
         appendTo={parentSelector}
         onMentionClick={onMentionClick}
+        onHide={commentRef?.current?.focus}
       />
       <div
         className="my-2 mx-3 text-theme-status-error typo-caption1"
