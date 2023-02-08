@@ -120,9 +120,7 @@ export function PostContent({
             ...className,
             navigation: {
               actions: className?.navigation?.actions,
-              container:
-                hasNavigation &&
-                classNames('pt-6', className?.navigation?.container),
+              container: classNames('pt-6', className?.navigation?.container),
             },
           }}
           isLoading={isLoading}
