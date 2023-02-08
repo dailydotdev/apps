@@ -78,8 +78,7 @@ export const SocialShare = ({
 
   return (
     <section className="grid grid-cols-5 gap-4 pt-2 w-fit">
-      {!post.sharedPost &&
-        !isComment &&
+      {!isComment &&
         !post.private &&
         squads
           ?.filter(({ active }) => active)
