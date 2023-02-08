@@ -81,17 +81,21 @@ export const SocialShare = ({
       {!post.sharedPost &&
         !isComment &&
         !post.private &&
-        squads?.map((squad) => (
-          <button
-            type="button"
-            className="flex flex-col items-center"
-            key={squad.id}
-            onClick={() => onShareToSquad(squad)}
-          >
-            <SourceProfilePicture source={squad} />
-            <ShareText className="mt-2 break-words">@{squad.handle}</ShareText>
-          </button>
-        ))}
+        squads
+          ?.filter(({ active }) => active)
+          ?.map((squad) => (
+            <button
+              type="button"
+              className="flex flex-col items-center"
+              key={squad.id}
+              onClick={() => onShareToSquad(squad)}
+            >
+              <SourceProfilePicture source={squad} />
+              <ShareText className="mt-2 break-words">
+                @{squad.handle}
+              </ShareText>
+            </button>
+          ))}
       <SocialShareIcon
         href={getTwitterShareLink(link, post?.title)}
         icon={<TwitterIcon />}
