@@ -54,8 +54,8 @@ const renderComponent = (
       >
         <NotificationsContextProvider>
           <SubmitArticleModal
-            headerCopy="Submit post"
-            submitArticleModalButton="Submit post"
+            headerCopy="Submit link"
+            submitArticleModalButton="Submit link"
             isOpen
             onRequestClose={onRequestClose}
           />
@@ -69,7 +69,7 @@ it('should disable the button on invalid URL', async () => {
   renderComponent();
   const input = await screen.findByRole('textbox');
   userEvent.type(input, 'fakeURL');
-  const btn = await screen.findByLabelText('Submit post');
+  const btn = await screen.findByLabelText('Submit link');
   expect(btn).toBeDisabled();
 });
 
@@ -79,7 +79,7 @@ it('should submit a valid URL', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLInputElement;
   userEvent.type(input, link);
   input.value = link;
-  const btn = await screen.findByLabelText('Submit post');
+  const btn = await screen.findByLabelText('Submit link');
   await waitFor(() => expect(btn).toBeEnabled());
   btn.click();
 
@@ -99,7 +99,7 @@ it('should submit a valid URL', async () => {
     },
   });
 
-  const sent = 'You will be notified via email about the post request status';
+  const sent = 'We will notify you about the post-submission status via email';
   expect(await screen.findByText(sent)).toBeInTheDocument();
 });
 
@@ -190,7 +190,7 @@ it('should feedback existing article', async () => {
     const input = (await screen.findByRole('textbox')) as HTMLInputElement;
     userEvent.type(input, link);
     input.value = link;
-    const btn = await screen.findByLabelText('Submit post');
+    const btn = await screen.findByLabelText('Submit link');
     await waitFor(() => expect(btn).toBeEnabled());
     btn.click();
   });
@@ -220,7 +220,7 @@ it('should feedback already submitted article', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLInputElement;
   userEvent.type(input, link);
   input.value = link;
-  const btn = await screen.findByLabelText('Submit post');
+  const btn = await screen.findByLabelText('Submit link');
   await waitFor(() => expect(btn).toBeEnabled());
   btn.click();
 
@@ -251,7 +251,7 @@ it('should feedback submitted article is deleted', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLInputElement;
   userEvent.type(input, link);
   input.value = link;
-  const btn = await screen.findByLabelText('Submit post');
+  const btn = await screen.findByLabelText('Submit link');
   await waitFor(() => expect(btn).toBeEnabled());
   btn.click();
 
