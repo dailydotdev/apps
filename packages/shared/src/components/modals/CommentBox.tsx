@@ -121,6 +121,10 @@ function CommentBox({
     if (checkIsKeyboardCommand(e)) onMentionKeypress(e.key, e);
   };
 
+  useEffect(() => {
+    if (!mentions?.length) commentRef?.current?.focus();
+  }, [mentions]);
+
   return (
     <>
       <article className="flex flex-col items-stretch rounded-8 break-words-overflow typo-callout">
