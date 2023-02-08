@@ -13,7 +13,6 @@ interface RecommendedMentionTooltipProps {
   onMentionClick?: (username: string) => unknown;
   appendTo?: () => HTMLElement;
   elementRef: MutableRefObject<HTMLElement>;
-  onHide?: () => void;
 }
 
 const EXTRA_SPACES = 26;
@@ -26,7 +25,6 @@ export function RecommendedMentionTooltip({
   offset = [0, 0],
   onMentionClick,
   appendTo,
-  onHide,
   elementRef,
 }: RecommendedMentionTooltipProps): ReactElement {
   if (isTesting) {
@@ -58,7 +56,6 @@ export function RecommendedMentionTooltip({
       arrow={false}
       placement="top-start"
       visible={typeof query !== 'undefined'}
-      onHidden={onHide}
     />
   );
 }
