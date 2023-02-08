@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -22,6 +28,7 @@ import comment from '../../../__tests__/fixture/comment';
 import user from '../../../__tests__/fixture/loggedUser';
 import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 import { PostType } from '../../graphql/posts';
+import { UserShortProfile } from '../../lib/user';
 
 const onRequestClose = jest.fn();
 const onComment = jest.fn();
@@ -282,74 +289,71 @@ it('should send editComment mutation', async () => {
   await waitFor(() => expect(onComment).toBeCalledWith(comment, false));
 });
 
+const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
+  Simulate.input(el, { data: key } as unknown);
+  // eslint-disable-next-line no-param-reassign
+  el.value += key;
+};
+
+const defaultMention = [
+  { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
+];
+const createMentionMock = (
+  recommendedMentions: Partial<UserShortProfile>[] = defaultMention,
+  onSuccess?: () => void,
+  query = '',
+) => ({
+  request: {
+    query: RECOMMEND_MENTIONS_QUERY,
+    variables: { postId: 'p1', query, sourceId: 's' },
+  },
+  result: () => {
+    onSuccess?.();
+    return {
+      data: { recommendedMentions },
+    };
+  },
+});
+
 it('should recommend users previously mentioned', async () => {
   let queryPreviouslyMentioned = false;
   renderComponent({}, [
-    {
-      request: {
-        query: RECOMMEND_MENTIONS_QUERY,
-        variables: { postId: 'p1', query: '', sourceId: 's' },
-      },
-      result: () => {
-        queryPreviouslyMentioned = true;
-        return {
-          data: {
-            recommendedMentions: [
-              { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
-            ],
-          },
-        };
-      },
-    },
+    createMentionMock(defaultMention, () => {
+      queryPreviouslyMentioned = true;
+    }),
   ]);
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = '@';
-  Simulate.keyUp(input, { key: '@' });
+  simulateTextboxInput(input, '@');
   await waitForNock();
   expect(queryPreviouslyMentioned).toBeTruthy();
 });
 
 it('should recommend users based on query', async () => {
+  let queryPreviouslyMentioned = false;
   let queryMatchingNameOrUsername = false;
   renderComponent({}, [
-    {
-      request: {
-        query: RECOMMEND_MENTIONS_QUERY,
-        variables: { postId: 'p1', query: '', sourceId: 's' },
+    createMentionMock(
+      [{ name: 'Ido', username: 'idoshamun', image: 'sample.image.com' }],
+      () => {
+        queryPreviouslyMentioned = true;
       },
-      result: () => {
-        return {
-          data: {
-            recommendedMentions: [
-              { name: 'Ido', username: 'idoshamun', image: 'sample.image.com' },
-            ],
-          },
-        };
-      },
-    },
-    {
-      request: {
-        query: RECOMMEND_MENTIONS_QUERY,
-        variables: { postId: 'p1', query: 'l', sourceId: 's' },
-      },
-      result: () => {
-        queryMatchingNameOrUsername = true;
-        return {
-          data: {
-            recommendedMentions: [
-              { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
-            ],
-          },
-        };
-      },
-    },
+    ),
   ]);
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = '@';
-  Simulate.keyUp(input, { key: '@' });
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  input.value = '@l';
-  Simulate.keyUp(input, { key: 'l' });
+  simulateTextboxInput(input, '@');
+  await waitForNock();
+  expect(queryPreviouslyMentioned).toBeTruthy();
+  const query = 'l';
+  mockGraphQL(
+    createMentionMock(
+      defaultMention,
+      () => {
+        queryMatchingNameOrUsername = true;
+      },
+      query,
+    ),
+  );
+  simulateTextboxInput(input, query);
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();
 });

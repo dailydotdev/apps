@@ -235,7 +235,7 @@ export function useUserMention({
     textarea.focus();
     textarea.selectionEnd = start + 2;
 
-    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
+    textarea.dispatchEvent(new InputEvent('input', { data: '@' }));
   };
 
   useEffect(() => {
