@@ -78,7 +78,8 @@ export const SocialShare = ({
 
   return (
     <section className="grid grid-cols-5 gap-4 pt-2 w-fit">
-      {!isComment &&
+      {!post.sharedPost &&
+        !isComment &&
         !post.private &&
         squads?.map((squad) => (
           <button
