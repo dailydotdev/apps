@@ -1,7 +1,56 @@
+import { CompositionEvent, KeyboardEvent } from 'react';
 import classNames from 'classnames';
 
 type Column = number;
 type Row = number;
+
+export enum KeyboardCommand {
+  Enter = 'Enter',
+  Backspace = 'Backspace',
+}
+
+export const keyboardCommands = Object.values(KeyboardCommand);
+
+export enum ArrowKey {
+  Up = 'ArrowUp',
+  Down = 'ArrowDown',
+  Left = 'ArrowLeft',
+  Right = 'ArrowRight',
+}
+
+export enum InputEventType {
+  DeleteContentBackward = 'deleteContentBackward',
+  DeleteContentForward = 'deleteContentForward',
+  InsertLineBreak = 'insertLineBreak',
+}
+
+export const deleteInputs = [
+  InputEventType.DeleteContentBackward,
+  InputEventType.DeleteContentForward,
+];
+
+export const X_AXIS_KEYS = [ArrowKey.Left, ArrowKey.Right];
+export const Y_AXIS_KEYS = [ArrowKey.Up, ArrowKey.Down];
+export const arrowKeys = Object.values(ArrowKey);
+
+type TextareaEvent =
+  | CompositionEvent<HTMLTextAreaElement>
+  | KeyboardEvent<HTMLTextAreaElement>;
+
+export interface BaseInputEvent {
+  inputType?: InputEventType;
+}
+
+export type CommentInputEvent = TextareaEvent & BaseInputEvent;
+
+export const checkIsKeyboardCommand = (
+  event: KeyboardEvent<HTMLTextAreaElement>,
+): boolean => {
+  const isArrowKey = arrowKeys.includes(event.key as ArrowKey);
+  const isEnter = event.key === KeyboardCommand.Enter;
+
+  return isArrowKey || isEnter;
+};
 
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
