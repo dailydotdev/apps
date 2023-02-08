@@ -141,6 +141,7 @@ export const POST_BY_ID_QUERY = gql`
       trending
       upvoted
       commented
+      private
       commentsPermalink
       numUpvotes
       numComments
