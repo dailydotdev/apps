@@ -22,6 +22,7 @@ import { BasePostContent, PostContentClassName } from './BasePostContent';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
+import { combinedClicks } from '../../lib/click';
 
 export interface PostContentProps
   extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
@@ -155,7 +156,7 @@ export function PostContent({
             title="Go to post"
             target="_blank"
             rel="noopener"
-            onClick={onReadArticle}
+            {...combinedClicks(onReadArticle)}
             className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
             style={{ maxWidth: '25.625rem' }}
           >

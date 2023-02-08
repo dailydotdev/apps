@@ -29,6 +29,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
+import { Origin } from '../../lib/analytics';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -68,7 +69,7 @@ export default function Sidebar({
     popularFeedCopy,
     isFlagsFetched,
   } = useContext(FeaturesContext);
-  const { openSquadBetaModal } = useCreateSquadModal({
+  const { openNewSquadModal, openSquadBetaModal } = useCreateSquadModal({
     hasSquads: !!squads?.length,
     hasAccess: hasSquadAccess,
     isFlagsFetched,
@@ -144,7 +145,7 @@ export default function Sidebar({
                   textPosition={
                     sidebarExpanded ? 'justify-start' : 'justify-center'
                   }
-                  onClick={openSquadBetaModal}
+                  onClick={() => openSquadBetaModal({ origin: Origin.Sidebar })}
                 >
                   {sidebarExpanded && 'New Squad'}
                 </Button>
@@ -164,7 +165,7 @@ export default function Sidebar({
                 {...defaultRenderSectionProps}
                 activePage={activePageProp}
                 squads={squads}
-                onNewSquad={openSquadBetaModal}
+                onNewSquad={() => openNewSquadModal({ origin: Origin.Sidebar })}
                 onOpenLockedSquad={openLockedSquadModal}
               />
             )}

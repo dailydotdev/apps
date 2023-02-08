@@ -19,7 +19,7 @@ import RedditIcon from '../icons/Reddit';
 import LinkedInIcon from '../icons/LinkedIn';
 import TelegramIcon from '../icons/Telegram';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -61,15 +61,20 @@ export const SocialShare = ({
       }),
     );
 
-  const onShareToSquad = (squad: Squad) =>
+  const onShareToSquad = (squad: Squad) => {
+    trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
     openModal({
       type: LazyModal.PostToSquad,
       props: {
         squad,
         post,
-        onSharedSuccessfully: onSquadShare,
+        onSharedSuccessfully: () => {
+          trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
+          return onSquadShare;
+        },
       },
     });
+  };
 
   return (
     <section className="grid grid-cols-5 gap-4 pt-2 w-fit">

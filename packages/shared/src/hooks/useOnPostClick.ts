@@ -7,6 +7,7 @@ import { Origin } from '../lib/analytics';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
+  parent_id?: string;
 }
 
 export type FeedPostClick = ({
@@ -46,7 +47,14 @@ export default function useOnPostClick({
             columns,
             column,
             row,
-            ...feedAnalyticsExtra(feedName, ranking, null, origin),
+            ...feedAnalyticsExtra(
+              feedName,
+              ranking,
+              null,
+              origin,
+              null,
+              optional?.parent_id,
+            ),
           }),
         );
 

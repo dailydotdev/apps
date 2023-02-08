@@ -188,7 +188,7 @@ export default function Feed<T>({
     postPosition,
     selectedPost,
     isFetchingNextPage,
-  } = usePostModalNavigation(items, fetchPage, updatePost);
+  } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
 
   useEffect(() => {
     if (emptyFeed) {

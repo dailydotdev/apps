@@ -32,6 +32,15 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     permalink
     commentsPermalink
     summary
+    createdAt
+    scout {
+      id
+    }
+    author {
+      id
+    }
+    type
+    tags
     source {
       ...SourceShortInfo
     }

@@ -47,15 +47,18 @@ export function SquadSelectArticle({
       nextStep(e);
     };
   };
+
+  const noDataAvailable = !hasData && !isInitialLoading;
+
   return (
     <>
       <Modal.Body>
         <SquadTitle>
-          {!hasData ? 'Read' : 'Share'}{' '}
+          {noDataAvailable ? 'Read' : 'Share'}{' '}
           <SquadTitleColor>a post</SquadTitleColor>
         </SquadTitle>
         <p className="py-4 text-center">
-          {!hasData
+          {noDataAvailable
             ? 'Your reading history is empty! Please read at least one post by clicking on a post to start sharing with your Squad.'
             : 'Pick an post that you would like to discuss with the members of your Squad.'}
         </p>
@@ -93,7 +96,7 @@ export function SquadSelectArticle({
           <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
         )}
       </Modal.Body>
-      {!hasData && (
+      {noDataAvailable && (
         <Modal.Footer>
           <Button className="btn-secondary" onClick={onRequestClose}>
             Close
