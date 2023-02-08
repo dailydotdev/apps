@@ -98,11 +98,10 @@ function CommentBox({
       return sendComment(e);
     }
 
-    if (
-      (e.key === KeyboardCommand.Enter ||
-        Y_AXIS_KEYS.includes(e.key as ArrowKey)) &&
-      mentions?.length
-    ) {
+    const isNavigatingPopup =
+      e.key === KeyboardCommand.Enter ||
+      Y_AXIS_KEYS.includes(e.key as ArrowKey);
+    if (isNavigatingPopup && mentions?.length) {
       return e.preventDefault();
     }
 
