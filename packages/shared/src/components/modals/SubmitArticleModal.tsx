@@ -151,7 +151,7 @@ export default function SubmitArticleModal({
     return (
       <Alert className="mt-4" title="Submission guidelines">
         <AlertParagraph>
-          We want you to submit posts that are well thought out, high value and
+          We want you to submit links that are well thought out, high value and
           high quality.
         </AlertParagraph>
         <AlertParagraph>
@@ -234,7 +234,7 @@ export default function SubmitArticleModal({
               <Alert
                 className="mt-4"
                 type={AlertType.Success}
-                title="You will be notified via email about the post request status"
+                title="We will notify you about the post-submission status via email"
               />
             ) : (
               submissionAvailability?.todaySubmissionsCount === 3 && (
