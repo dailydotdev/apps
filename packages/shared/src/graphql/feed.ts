@@ -107,6 +107,7 @@ export const FEED_QUERY = gql`
       ranking: $ranking
       unreadOnly: $unreadOnly
       version: $version
+      supportedTypes: ["article", "share"]
     ) {
       ...FeedPostConnection
     }
