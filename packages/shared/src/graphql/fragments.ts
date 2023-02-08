@@ -20,6 +20,7 @@ export const SOURCE_SHORT_INFO_FRAGMENT = gql`
     description
     image
     type
+    active
   }
 `;
 
@@ -33,6 +34,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     commentsPermalink
     summary
     createdAt
+    private
     scout {
       id
     }
