@@ -137,6 +137,7 @@ export function useUserMention({
     client.setQueryData(key, []);
     onInput(element.value);
     fixHeight(element);
+    commentRef.current.focus();
   };
 
   const onArrowKey = (arrowKey: ArrowKey) => {
