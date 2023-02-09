@@ -345,7 +345,7 @@ const DevCardPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page flex min-h-screen flex-col items-center px-6 py-10 laptop:-mt-12 max-w-full laptop:justify-center mx-auto',
+        'page flex min-h-page flex-col justify-center items-center px-6 py-10 tablet:-mt-12 max-w-full mx-auto',
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >
