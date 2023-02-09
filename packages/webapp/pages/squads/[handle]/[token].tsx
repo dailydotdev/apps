@@ -1,5 +1,6 @@
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useQuery, useMutation } from 'react-query';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
@@ -148,8 +149,18 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     source.members.edges.filter(({ node }) => node.user.id !== user.id),
   );
 
+  const renderJoinButton = (className?: string) => (
+    <Button
+      className={classNames('btn-primary', className)}
+      buttonSize="large"
+      onClick={onJoinClick}
+    >
+      Join Squad
+    </Button>
+  );
+
   return (
-    <PageContainer className="relative justify-center items-center pt-24">
+    <PageContainer className="overflow-hidden relative justify-center items-center pt-24">
       <NextSeo
         title={`Invitation to ${source.name}`}
         titleTemplate="%s | daily.dev"
@@ -178,22 +189,19 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
             <h2 className="flex flex-col typo-headline">{source.name}</h2>
             <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
           </div>
-          <Button
-            className="ml-auto btn-primary"
-            buttonSize="large"
-            onClick={onJoinClick}
-          >
-            Join Squad
-          </Button>
+          {renderJoinButton('hidden tablet:flex ml-auto')}
         </span>
-        <BodyParagraph className="mt-3 ml-[4.5rem]">
-          {source.description}
-        </BodyParagraph>
+        {source.description && (
+          <BodyParagraph className="mt-4 ml-[4.5rem]">
+            {source.description}
+          </BodyParagraph>
+        )}
+        {renderJoinButton('flex tablet:hidden mt-4 w-full')}
       </div>
       <BodyParagraph data-testid="waiting-users">
         {user.name} {othersLabel} waiting for you inside. Join them now!
       </BodyParagraph>
-      <span className="flex flex-row gap-2 mt-6">
+      <span className="flex flex-row flex-wrap gap-2 mt-6">
         {others.slice(0, 10).map(({ node }) => (
           <ProfileImageLink key={node.user.id} user={node.user} />
         ))}
