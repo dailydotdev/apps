@@ -53,6 +53,7 @@ export default function BookmarkFeedLayout({
       feedQueryKey: ['bookmarks', user?.id ?? 'anonymous'],
       query: BOOKMARKS_FEED_QUERY,
       onEmptyFeed: () => setShowEmptyScreen(true),
+      options: { refetchOnMount: true },
     };
   }, [searchQuery, user]);
 
