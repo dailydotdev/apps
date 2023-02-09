@@ -200,7 +200,7 @@ describe('squad details', () => {
       },
       result: () => ({ data: { source: owner.source } }),
     });
-    const [btn] = await screen.findAllByAltText('Join Squad');
+    const [btn] = await screen.findAllByText('Join Squad');
     btn.click();
     await waitForNock();
     expect(replaced).toEqual(owner.source.permalink);
