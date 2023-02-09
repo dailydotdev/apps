@@ -149,7 +149,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   );
 
   return (
-    <PageContainer className="relative justify-center items-center pt-24">
+    <PageContainer className="overflow-hidden relative justify-center items-center pt-24">
       <NextSeo
         title={`Invitation to ${source.name}`}
         titleTemplate="%s | daily.dev"
@@ -179,21 +179,30 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
             <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
           </div>
           <Button
-            className="ml-auto btn-primary"
+            className="hidden tablet:flex ml-auto btn-primary"
             buttonSize="large"
             onClick={onJoinClick}
           >
             Join Squad
           </Button>
         </span>
-        <BodyParagraph className="mt-3 ml-[4.5rem]">
-          {source.description}
-        </BodyParagraph>
+        {source.description && (
+          <BodyParagraph className="mt-4 ml-[4.5rem]">
+            {source.description}
+          </BodyParagraph>
+        )}
+        <Button
+          className="flex tablet:hidden mt-4 ml-auto w-full btn-primary"
+          buttonSize="large"
+          onClick={onJoinClick}
+        >
+          Join Squad
+        </Button>
       </div>
       <BodyParagraph data-testid="waiting-users">
         {user.name} {othersLabel} waiting for you inside. Join them now!
       </BodyParagraph>
-      <span className="flex flex-row gap-2 mt-6">
+      <span className="flex flex-row flex-wrap gap-2 mt-6">
         {others.slice(0, 10).map(({ node }) => (
           <ProfileImageLink key={node.user.id} user={node.user} />
         ))}
