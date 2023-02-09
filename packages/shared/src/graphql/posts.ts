@@ -9,6 +9,7 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
+import { SUPPORTED_TYPES } from './feed';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -280,12 +281,18 @@ export interface FeedData {
 }
 
 export const AUTHOR_FEED_QUERY = gql`
-  query AuthorFeed($userId: ID!, $after: String, $first: Int) {
+  query AuthorFeed(
+    $userId: ID!,
+    $after: String,
+    $first: Int
+    ${SUPPORTED_TYPES}
+   ) {
     page: authorFeed(
       author: $userId
       after: $after
       first: $first
       ranking: TIME
+      supportedTypes: $supportedTypes
     ) {
       pageInfo {
         endCursor
@@ -313,8 +320,13 @@ export const AUTHOR_FEED_QUERY = gql`
 `;
 
 export const KEYWORD_FEED_QUERY = gql`
-  query KeywordFeed($keyword: String!, $after: String, $first: Int) {
-    page: keywordFeed(keyword: $keyword, after: $after, first: $first) {
+  query KeywordFeed(
+    $keyword: String!,
+    $after: String,
+    $first: Int
+    ${SUPPORTED_TYPES}
+   ) {
+    page: keywordFeed(keyword: $keyword, after: $after, first: $first, supportedTypes: $supportedTypes) {
       pageInfo {
         endCursor
         hasNextPage
