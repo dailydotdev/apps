@@ -26,6 +26,10 @@ export interface SidebarUserButtonProps {
   sidebarRendered?: boolean;
 }
 
+export interface SidebarMenuItemBadge {
+  active: boolean;
+}
+
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
   title: string;
@@ -41,6 +45,7 @@ export interface SidebarMenuItem {
   className?: {
     text?: string;
   };
+  badge?: SidebarMenuItemBadge;
 }
 
 interface ListIconProps {
@@ -137,12 +142,15 @@ export const ItemInner = ({
       <Icon {...item} active={active} />
       <span
         className={classNames(
-          'flex-1 text-left transition-opacity truncate',
+          'flex flex-1 text-left transition-opacity truncate flex-row items-center',
           shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
           item?.className?.text,
         )}
       >
         {item.title}
+        {item.badge?.active === true && (
+          <span className="block ml-auto w-2 h-2 rounded-lg bg-theme-color-cabbage" />
+        )}
       </span>
       {item.rightIcon && (
         <ItemInnerIcon

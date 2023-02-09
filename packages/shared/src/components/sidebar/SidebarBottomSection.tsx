@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useQuery } from 'react-query';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
 import TerminalIcon from '../icons/Terminal';
@@ -18,6 +19,14 @@ export function SidebarBottomSectionSection({
   showSettings,
   ...props
 }: SidebarBottomSectionProps): ReactElement {
+  const { data } = useQuery(['changelog'], () => ({
+    lastChangelog: Date.now(),
+    changelogVersion: '3.66.2',
+  }));
+
+  // TODO WT-1054-changelog check this against last changelog user has seen
+  const isChangelogModalActive = data?.lastChangelog < Date.now();
+
   const bottomMenuItems: SidebarMenuItem[] = [
     {
       icon: () => <ListIcon Icon={() => <DocsIcon />} />,
@@ -29,6 +38,9 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
+      badge: {
+        active: isChangelogModalActive,
+      },
     },
     {
       icon: () => <ListIcon Icon={() => <FeedbackIcon />} />,
