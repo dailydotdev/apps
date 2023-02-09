@@ -1,5 +1,6 @@
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useQuery, useMutation } from 'react-query';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
@@ -148,6 +149,16 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     source.members.edges.filter(({ node }) => node.user.id !== user.id),
   );
 
+  const renderJoinButton = (className?: string) => (
+    <Button
+      className={classNames('btn-primary', className)}
+      buttonSize="large"
+      onClick={onJoinClick}
+    >
+      Join Squad
+    </Button>
+  );
+
   return (
     <PageContainer className="overflow-hidden relative justify-center items-center pt-24">
       <NextSeo
@@ -178,26 +189,14 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
             <h2 className="flex flex-col typo-headline">{source.name}</h2>
             <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
           </div>
-          <Button
-            className="hidden tablet:flex ml-auto btn-primary"
-            buttonSize="large"
-            onClick={onJoinClick}
-          >
-            Join Squad
-          </Button>
+          {renderJoinButton('hidden tablet:flex ml-auto')}
         </span>
         {source.description && (
           <BodyParagraph className="mt-4 ml-[4.5rem]">
             {source.description}
           </BodyParagraph>
         )}
-        <Button
-          className="flex tablet:hidden mt-4 ml-auto w-full btn-primary"
-          buttonSize="large"
-          onClick={onJoinClick}
-        >
-          Join Squad
-        </Button>
+        {renderJoinButton('flex tablet:hidden mt-4 w-full')}
       </div>
       <BodyParagraph data-testid="waiting-users">
         {user.name} {othersLabel} waiting for you inside. Join them now!
