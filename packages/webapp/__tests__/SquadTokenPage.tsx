@@ -188,7 +188,7 @@ describe('squad details', () => {
     expect(result.length).toEqual(members.length);
   });
 
-  it('should join squad', async () => {
+  it('should join squad on the first button', async () => {
     client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     const owner = generateTestOwner();
     renderComponent([createInvitationMock(defaultToken, owner)]);
@@ -200,8 +200,26 @@ describe('squad details', () => {
       },
       result: () => ({ data: { source: owner.source } }),
     });
-    const [btn] = await screen.findAllByText('Join Squad');
-    btn.click();
+    const [desktop] = await screen.findAllByText('Join Squad');
+    desktop.click();
+    await waitForNock();
+    expect(replaced).toEqual(owner.source.permalink);
+  });
+
+  it('should join squad on the second button', async () => {
+    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
+    const owner = generateTestOwner();
+    renderComponent([createInvitationMock(defaultToken, owner)]);
+    await waitForNock();
+    mockGraphQL({
+      request: {
+        query: SQUAD_JOIN_MUTATION,
+        variables: { token: owner.referralToken, sourceId: owner.source.id },
+      },
+      result: () => ({ data: { source: owner.source } }),
+    });
+    const [, mobile] = await screen.findAllByText('Join Squad');
+    mobile.click();
     await waitForNock();
     expect(replaced).toEqual(owner.source.permalink);
   });
