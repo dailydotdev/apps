@@ -14,6 +14,7 @@ import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
 import ShareIcon from './icons/Share';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -37,12 +38,12 @@ export default function BookmarkFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
-
+  const defaultKey = generateQueryKey(RequestKey.Bookmarks, user);
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
         feedName: 'search-bookmarks',
-        feedQueryKey: ['bookmarks', user?.id ?? 'anonymous', searchQuery],
+        feedQueryKey: defaultKey.concat(searchQuery),
         query: SEARCH_BOOKMARKS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
@@ -50,7 +51,7 @@ export default function BookmarkFeedLayout({
     }
     return {
       feedName: 'bookmarks',
-      feedQueryKey: ['bookmarks', user?.id ?? 'anonymous'],
+      feedQueryKey: defaultKey,
       query: BOOKMARKS_FEED_QUERY,
       onEmptyFeed: () => setShowEmptyScreen(true),
       options: { refetchOnMount: true },
