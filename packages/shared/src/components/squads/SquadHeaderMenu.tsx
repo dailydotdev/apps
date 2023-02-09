@@ -82,6 +82,7 @@ export default function SquadHeaderMenu({
       {/*  </span> */}
       {/* </Item> */}
       <ContextMenuItem
+        className="flex tablet:hidden"
         Icon={FeedbackIcon}
         label="Feedback"
         href={feedbackLink}

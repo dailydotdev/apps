@@ -1,4 +1,5 @@
 import { Item, ItemProps } from '@dailydotdev/react-contexify';
+import classNames from 'classnames';
 import Link from 'next/link';
 import React, { ReactElement } from 'react';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -15,6 +16,8 @@ function ContextMenuItem({
   label,
   onClick,
   Icon,
+  className,
+  ...props
 }: ContextMenuItemProps): ReactElement {
   return (
     <ConditionalWrapper
@@ -25,7 +28,11 @@ function ContextMenuItem({
         </Link>
       )}
     >
-      <Item className="typo-callout" onClick={onClick}>
+      <Item
+        {...props}
+        className={classNames('typo-callout', className)}
+        onClick={onClick}
+      >
         <span className="flex items-center w-full">
           <Icon size="medium" className="mr-2" />
           {label}
