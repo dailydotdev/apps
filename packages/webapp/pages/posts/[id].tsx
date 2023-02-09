@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useCallback,
+  useContext,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
@@ -28,6 +29,7 @@ import {
   PostContent,
   SCROLL_OFFSET,
 } from '@dailydotdev/shared/src/components/post/PostContent';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
@@ -35,6 +37,7 @@ import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/Squ
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -66,6 +69,7 @@ interface PostParams extends ParsedUrlQuery {
 const CHECK_POPSTATE = 'popstate_key';
 
 const PostPage = ({ id, initialData }: Props): ReactElement => {
+  const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
@@ -96,7 +100,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
     onUnderOffset: () => position !== 'relative' && setPosition('relative'),
-    offset: SCROLL_OFFSET,
+    offset: SCROLL_OFFSET + (showArticleOnboarding ? ONBOARDING_OFFSET : 0),
     scrollProperty: 'scrollY',
   });
 
@@ -106,7 +110,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 
   const Content = CONTENT_MAP[post?.type];
   const navigation: Record<PostType, ReactNode> = {
-    article: <></>,
+    article: null,
     share: !post?.source ? (
       <></>
     ) : (
@@ -136,7 +140,10 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
           container:
             'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
           fixedNavigation: { container: 'flex laptop:hidden' },
-          navigation: { actions: 'flex-1 justify-between' },
+          navigation: {
+            container: 'flex tablet:hidden',
+            actions: 'flex-1 justify-between',
+          },
           content: 'pt-8',
         }}
       />
