@@ -100,7 +100,7 @@ export const FEED_QUERY = gql`
     $ranking: Ranking
     $unreadOnly: Boolean
     $version: Int
-    supportedTypes: ["article", "share"]
+    $supportedTypes: ["article", "share"]
   ) {
     page: feed(
       first: $first
