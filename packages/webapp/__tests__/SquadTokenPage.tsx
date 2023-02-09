@@ -228,7 +228,7 @@ describe('squad details', () => {
     client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     const owner = generateTestOwner();
     renderComponent([createInvitationMock(defaultToken, owner)]);
-    const [desktop, mobile] = await screen.findAllByText('Join Squad');
+    const [desktop, mobile] = await screen.findAllByRole('button');
     expect(desktop).toHaveClass('hidden tablet:flex');
     expect(mobile).toHaveClass('flex tablet:hidden');
   });
