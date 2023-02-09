@@ -1,25 +1,20 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import SettingsContext from '../../contexts/SettingsContext';
-import { useOnboardingSteps } from '../../hooks/useOnboardingSteps';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { CustomSwitch } from '../fields/CustomSwitch';
 import CardLayout from '../icons/CardLayout';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
-import { OnboardingStep, OnboardingStepProps } from './common';
+import { OnboardingStep } from './common';
 import OnboardingStepContainer from './OnboardingStep';
 
 const TOGGLE_ANIMATION_MS = 300;
 
-function LayoutOnboarding({ onClose }: OnboardingStepProps): ReactElement {
+function LayoutOnboarding(): ReactElement {
   const { insaneMode, toggleInsaneMode } = useContext(SettingsContext);
   const [isListMode, setIsListMode] = useState(insaneMode);
-  const { onStepBackward, onStepForward, index } = useOnboardingSteps(
-    OnboardingStep.Layout,
-    onClose,
-  );
 
   useEffect(() => {
     if (insaneMode === isListMode) {
@@ -33,7 +28,7 @@ function LayoutOnboarding({ onClose }: OnboardingStepProps): ReactElement {
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Layout}>
-      {({ previousStep, nextStep }) => (
+      {({ activeStepIndex, previousStep, nextStep }) => (
         <>
           <OnboardingStepContainer
             title="Cards or list?"
@@ -65,16 +60,10 @@ function LayoutOnboarding({ onClose }: OnboardingStepProps): ReactElement {
             />
           </OnboardingStepContainer>
           <Modal.Footer justify={Justify.Between}>
-            <Button
-              className="btn-tertiary"
-              onClick={onStepBackward(previousStep)}
-            >
-              {index === 1 ? 'Close' : 'Back'}
+            <Button className="btn-tertiary" onClick={previousStep}>
+              {activeStepIndex === 1 ? 'Close' : 'Back'}
             </Button>
-            <Button
-              className="bg-theme-color-cabbage"
-              onClick={onStepForward(nextStep)}
-            >
+            <Button className="bg-theme-color-cabbage" onClick={nextStep}>
               Next
             </Button>
           </Modal.Footer>

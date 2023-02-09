@@ -1,23 +1,17 @@
 import React, { ReactElement, useContext } from 'react';
 import SettingsContext, { themes } from '../../contexts/SettingsContext';
-import { useOnboardingSteps } from '../../hooks/useOnboardingSteps';
 import { Button } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
 import ThemeWidget from '../widgets/ThemeWidget';
 import Container from './OnboardingStep';
-import { OnboardingStep, OnboardingStepProps } from './common';
+import { OnboardingStep } from './common';
 
-function ThemeOnboarding({ onClose }: OnboardingStepProps): ReactElement {
+function ThemeOnboarding(): ReactElement {
   const { themeMode, setTheme } = useContext(SettingsContext);
-  const { onStepBackward, onStepForward, index } = useOnboardingSteps(
-    OnboardingStep.Theme,
-    onClose,
-  );
-
   return (
     <Modal.StepsWrapper view={OnboardingStep.Theme}>
-      {({ previousStep, nextStep }) => (
+      {({ activeStepIndex, previousStep, nextStep }) => (
         <>
           <Container
             title="Your eyes don’t lie"
@@ -35,16 +29,10 @@ function ThemeOnboarding({ onClose }: OnboardingStepProps): ReactElement {
             ))}
           </Container>
           <Modal.Footer justify={Justify.Between}>
-            <Button
-              className="btn-tertiary"
-              onClick={onStepBackward(previousStep)}
-            >
-              {index === 1 ? 'Close' : 'Back'}
+            <Button className="btn-tertiary" onClick={previousStep}>
+              {activeStepIndex === 1 ? 'Close' : 'Back'}
             </Button>
-            <Button
-              className="bg-theme-color-cabbage"
-              onClick={onStepForward(nextStep)}
-            >
+            <Button className="bg-theme-color-cabbage" onClick={nextStep}>
               Next
             </Button>
           </Modal.Footer>
