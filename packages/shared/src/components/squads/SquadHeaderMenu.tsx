@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
 import dynamic from 'next/dynamic';
-import { Item } from '@dailydotdev/react-contexify';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import EditIcon from '../icons/Edit';
@@ -12,6 +11,11 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
 import { useLeaveSquad } from '../../hooks/useLeaveSquad';
+import FeedbackIcon from '../icons/Feedback';
+import { squadFeedback } from '../../lib/constants';
+import ContextMenuItem, {
+  ContextMenuItemProps,
+} from '../tooltips/ContextMenuItem';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -20,11 +24,13 @@ const PortalMenu = dynamic(
   },
 );
 
+interface SquadHeaderMenuProps {
+  squad: Squad;
+}
+
 export default function SquadHeaderMenu({
   squad,
-}: {
-  squad: Squad;
-}): ReactElement {
+}: SquadHeaderMenuProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { openModal } = useLazyModal();
@@ -50,6 +56,10 @@ export default function SquadHeaderMenu({
       },
     });
   };
+  const feedbackLink = `${squadFeedback}#user_id=${user.id}&squad_id=${squad.id}`;
+  const removeSquadProps: ContextMenuItemProps = isSquadOwner
+    ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }
+    : { Icon: ExitIcon, onClick: onLeaveSquad, label: 'Leave Squad' };
 
   return (
     <PortalMenu
@@ -59,12 +69,11 @@ export default function SquadHeaderMenu({
       animation="fade"
     >
       {isSquadOwner && (
-        <Item className="typo-callout" onClick={onEditSquad}>
-          <span className="flex items-center w-full typo-callout">
-            <EditIcon size="medium" secondary={false} className="mr-2" /> Edit
-            Squad details
-          </span>
-        </Item>
+        <ContextMenuItem
+          Icon={EditIcon}
+          onClick={onEditSquad}
+          label="Edit Squad details"
+        />
       )}
       {/* <Item className="typo-callout"> */}
       {/*  <span className="flex items-center w-full typo-callout"> */}
@@ -72,21 +81,12 @@ export default function SquadHeaderMenu({
       {/*    how Squads work */}
       {/*  </span> */}
       {/* </Item> */}
-      {isSquadOwner ? (
-        <Item className="typo-callout" onClick={onDeleteSquad}>
-          <span className="flex items-center w-full typo-callout">
-            <TrashIcon size="medium" secondary={false} className="mr-2" />{' '}
-            Delete Squad
-          </span>
-        </Item>
-      ) : (
-        <Item className="typo-callout" onClick={onLeaveSquad}>
-          <span className="flex items-center w-full typo-callout">
-            <ExitIcon size="medium" secondary={false} className="mr-2" /> Leave
-            Squad
-          </span>
-        </Item>
-      )}
+      <ContextMenuItem
+        Icon={FeedbackIcon}
+        label="Feedback"
+        href={feedbackLink}
+      />
+      <ContextMenuItem {...removeSquadProps} />
     </PortalMenu>
   );
 }
