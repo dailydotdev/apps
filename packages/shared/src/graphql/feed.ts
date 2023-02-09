@@ -100,7 +100,7 @@ export const FEED_QUERY = gql`
     $ranking: Ranking
     $unreadOnly: Boolean
     $version: Int
-    $supportedTypes: ["article", "share"]
+    $supportedTypes: [String!] = ["article", "share"]
   ) {
     page: feed(
       first: $first
@@ -108,6 +108,7 @@ export const FEED_QUERY = gql`
       ranking: $ranking
       unreadOnly: $unreadOnly
       version: $version
+      supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
     }
