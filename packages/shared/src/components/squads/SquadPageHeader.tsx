@@ -35,7 +35,7 @@ export function SquadPageHeader({
       >
         Feedback
       </Button>
-      <div className="flex flex-row mobileL:flex-col gap-4 mobileL:gap-6 mobileL:items-center w-full">
+      <div className="flex flex-row mobileL:flex-col gap-4 mobileL:gap-6 mobileL:items-center mt-6 tablet:mt-0 w-full">
         <SquadImage
           className="mobileL:mt-2 w-16 mobileL:w-24 h-16 mobileL:h-24"
           {...squad}
