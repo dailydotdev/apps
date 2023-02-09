@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useQuery } from 'react-query';
+import dynamic from 'next/dynamic';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
 import TerminalIcon from '../icons/Terminal';
@@ -8,6 +9,11 @@ import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
+
+const ChangelogModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "changelogModal" */ '../modals/ChangelogModal'),
+);
 
 interface SidebarBottomSectionProps extends SectionCommonProps {
   optOutWeeklyGoal: boolean;
@@ -57,6 +63,7 @@ export function SidebarBottomSectionSection({
       {props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
+      <ChangelogModal isOpen={isChangelogModalActive} />
     </Nav>
   );
 }
