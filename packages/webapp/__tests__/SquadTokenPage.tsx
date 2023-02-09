@@ -205,6 +205,15 @@ describe('squad details', () => {
     await waitForNock();
     expect(replaced).toEqual(owner.source.permalink);
   });
+
+  it('should have two join squad one is displayed on desktop and one on mobile', async () => {
+    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
+    const owner = generateTestOwner();
+    renderComponent([createInvitationMock(defaultToken, owner)]);
+    const [desktop, mobile] = await screen.findAllByText('Join Squad');
+    expect(desktop).toHaveClass('hidden tablet:flex');
+    expect(mobile).toHaveClass('flex tablet:hidden');
+  });
 });
 
 describe('invalid token', () => {
