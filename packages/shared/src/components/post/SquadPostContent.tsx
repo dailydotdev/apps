@@ -170,7 +170,7 @@ function SquadPostContent({
                   onClick={onReadArticle}
                 />
               </div>
-              <div className="block overflow-hidden w-70 rounded-2xl cursor-pointer h-fit">
+              <div className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit">
                 <LazyImage
                   imgSrc={post.sharedPost.image}
                   imgAlt="Post cover image"
