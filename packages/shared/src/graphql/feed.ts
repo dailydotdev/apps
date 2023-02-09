@@ -14,6 +14,8 @@ export enum OnboardingMode {
   Auto = 'auto',
 }
 
+export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["article", "share"]`;
+
 export const FEED_POST_FRAGMENT = gql`
   fragment FeedPost on Post {
     id
@@ -79,12 +81,14 @@ export const ANONYMOUS_FEED_QUERY = gql`
     $after: String
     $ranking: Ranking
     $version: Int
+    ${SUPPORTED_TYPES}
   ) {
     page: anonymousFeed(
       first: $first
       after: $after
       ranking: $ranking
       version: $version
+      supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
     }
@@ -100,6 +104,7 @@ export const FEED_QUERY = gql`
     $ranking: Ranking
     $unreadOnly: Boolean
     $version: Int
+    ${SUPPORTED_TYPES}
   ) {
     page: feed(
       first: $first
@@ -107,6 +112,7 @@ export const FEED_QUERY = gql`
       ranking: $ranking
       unreadOnly: $unreadOnly
       version: $version
+      supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
     }
@@ -120,8 +126,9 @@ export const MOST_UPVOTED_FEED_QUERY = gql`
     $first: Int
     $after: String
     $period: Int
+    ${SUPPORTED_TYPES}
   ) {
-    page: mostUpvotedFeed(first: $first, after: $after, period: $period) {
+    page: mostUpvotedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes) {
       ...FeedPostConnection
     }
   }
@@ -133,8 +140,9 @@ export const MOST_DISCUSSED_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
+    ${SUPPORTED_TYPES}
   ) {
-    page: mostDiscussedFeed(first: $first, after: $after) {
+    page: mostDiscussedFeed(first: $first, after: $after, supportedTypes: $supportedTypes) {
       ...FeedPostConnection
     }
   }
@@ -148,8 +156,9 @@ export const TAG_FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
+    ${SUPPORTED_TYPES}
   ) {
-    page: tagFeed(tag: $tag, first: $first, after: $after, ranking: $ranking) {
+    page: tagFeed(tag: $tag, first: $first, after: $after, ranking: $ranking, supportedTypes: $supportedTypes) {
       ...FeedPostConnection
     }
   }
@@ -163,7 +172,7 @@ export const SOURCE_FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
-    $supportedTypes: [String!] = ["article", "share"]
+    ${SUPPORTED_TYPES}
   ) {
     page: sourceFeed(
       source: $source
@@ -183,7 +192,7 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
-    $supportedTypes: [String!] = ["article", "share"]
+    ${SUPPORTED_TYPES}
   ) {
     page: bookmarksFeed(
       first: $first
@@ -202,8 +211,9 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
     $first: Int
     $after: String
     $query: String!
+    ${SUPPORTED_TYPES}
   ) {
-    page: searchBookmarks(first: $first, after: $after, query: $query) {
+    page: searchBookmarks(first: $first, after: $after, query: $query, supportedTypes: $supportedTypes) {
       ...FeedPostConnection
     }
   }
@@ -226,8 +236,9 @@ export const SEARCH_POSTS_QUERY = gql`
     $first: Int
     $after: String
     $query: String!
+    ${SUPPORTED_TYPES}
   ) {
-    page: searchPosts(first: $first, after: $after, query: $query) {
+    page: searchPosts(first: $first, after: $after, query: $query, supportedTypes: $supportedTypes) {
       ...FeedPostConnection
     }
   }
