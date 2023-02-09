@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
@@ -56,10 +56,31 @@ export default function SquadHeaderMenu({
       },
     });
   };
-  const feedbackLink = `${squadFeedback}#user_id=${user.id}&squad_id=${squad.id}`;
-  const removeSquadProps: ContextMenuItemProps = isSquadOwner
-    ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }
-    : { Icon: ExitIcon, onClick: onLeaveSquad, label: 'Leave Squad' };
+  const items = useMemo(() => {
+    const feedbackLink = `${squadFeedback}#user_id=${user.id}&squad_id=${squad.id}`;
+    const list: ContextMenuItemProps[] = [
+      // { Icon: TourIcon, onClick: console.log, label: 'Learn how Squads work' },
+      {
+        className: 'flex tablet:hidden',
+        Icon: FeedbackIcon,
+        label: 'Feedback',
+        href: feedbackLink,
+      },
+      isSquadOwner
+        ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }
+        : { Icon: ExitIcon, onClick: onLeaveSquad, label: 'Leave Squad' },
+    ];
+
+    if (isSquadOwner) {
+      list.unshift({
+        Icon: EditIcon,
+        onClick: onEditSquad,
+        label: 'Edit Squad details',
+      });
+    }
+
+    return list;
+  }, [isSquadOwner, squad, user, onDeleteSquad, onLeaveSquad]);
 
   return (
     <PortalMenu
@@ -68,26 +89,9 @@ export default function SquadHeaderMenu({
       className="menu-primary"
       animation="fade"
     >
-      {isSquadOwner && (
-        <ContextMenuItem
-          Icon={EditIcon}
-          onClick={onEditSquad}
-          label="Edit Squad details"
-        />
-      )}
-      {/* <Item className="typo-callout"> */}
-      {/*  <span className="flex items-center w-full typo-callout"> */}
-      {/*    <TourIcon size="medium" secondary={false} className="mr-2" /> Learn */}
-      {/*    how Squads work */}
-      {/*  </span> */}
-      {/* </Item> */}
-      <ContextMenuItem
-        className="flex tablet:hidden"
-        Icon={FeedbackIcon}
-        label="Feedback"
-        href={feedbackLink}
-      />
-      <ContextMenuItem {...removeSquadProps} />
+      {items.map((props) => (
+        <ContextMenuItem key={props.label} {...props} />
+      ))}
     </PortalMenu>
   );
 }
