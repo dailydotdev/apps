@@ -97,9 +97,9 @@ function OnboardingModal({
 
   const components: Record<OnboardingStep, ReactNode> = {
     intro: null,
-    topics: <FilterOnboarding key={OnboardingStep.Topics} onClose={onClose} />,
-    layout: <LayoutOnboarding key={OnboardingStep.Layout} onClose={onClose} />,
-    theme: <ThemeOnboarding key={OnboardingStep.Theme} onClose={onClose} />,
+    topics: <FilterOnboarding key={OnboardingStep.Topics} />,
+    layout: <LayoutOnboarding key={OnboardingStep.Layout} />,
+    theme: <ThemeOnboarding key={OnboardingStep.Theme} />,
   };
 
   useEffect(() => {
@@ -168,6 +168,8 @@ function OnboardingModal({
         overlayRef={onContainerChange}
         steps={isAuthenticating ? null : steps}
         onViewChange={onViewChange}
+        onTrackNext={AnalyticsEvent.ClickOnboardingNext}
+        onTrackPrev={AnalyticsEvent.ClickOnboardingBack}
       >
         {content}
       </Modal>
