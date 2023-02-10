@@ -1,15 +1,22 @@
 import { useContext } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
+  FeedData,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { MutateFunc } from '../lib/query';
+import {
+  filterInfiniteCache,
+  generateQueryKey,
+  MutateFunc,
+  RequestKey,
+} from '../lib/query';
 import { useToastNotification } from './useToastNotification';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
+import { useAuthContext } from '../contexts/AuthContext';
 
 type UseBookmarkPostParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
@@ -31,6 +38,8 @@ export default function useBookmarkPost<
   onBookmarkTrackObject,
   onRemoveBookmarkTrackObject,
 }: UseBookmarkPostParams<T>): UseBookmarkPostRet<T> {
+  const client = useQueryClient();
+  const { user } = useAuthContext();
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { mutateAsync: bookmark } = useMutation<
@@ -64,9 +73,19 @@ export default function useBookmarkPost<
     {
       onMutate: onRemoveBookmarkMutate,
       onError: (err, _, rollback) => rollback?.(),
-      onSuccess: () =>
-        onRemoveBookmarkTrackObject &&
-        trackEvent(onRemoveBookmarkTrackObject()),
+      onSuccess: (_, { id }) => {
+        if (onRemoveBookmarkTrackObject)
+          trackEvent(onRemoveBookmarkTrackObject());
+
+        filterInfiniteCache<FeedData>(
+          {
+            client,
+            prop: 'page',
+            queryKey: generateQueryKey(RequestKey.Bookmarks, user),
+          },
+          ({ node }) => node.id !== id,
+        );
+      },
     },
   );
   const bookmarkToast = (targetBookmarState) =>
