@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { InfiniteData, useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
 import {
@@ -8,7 +8,12 @@ import {
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { generateQueryKey, MutateFunc, RequestKey } from '../lib/query';
+import {
+  filterCache,
+  generateQueryKey,
+  MutateFunc,
+  RequestKey,
+} from '../lib/query';
 import { useToastNotification } from './useToastNotification';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -72,20 +77,11 @@ export default function useBookmarkPost<
         if (onRemoveBookmarkTrackObject)
           trackEvent(onRemoveBookmarkTrackObject());
 
-        const key = generateQueryKey(RequestKey.Bookmarks, user);
-        client.setQueryData<InfiniteData<FeedData>>(key, (feed) => {
-          if (!feed) return null;
-
-          return {
-            ...feed,
-            pages: feed?.pages?.map((edge) => ({
-              ...edge,
-              page: {
-                ...edge.page,
-                edges: edge.page.edges.filter(({ node }) => node.id !== id),
-              },
-            })),
-          };
+        filterCache<FeedData>({
+          client,
+          prop: 'page',
+          queryKey: generateQueryKey(RequestKey.Bookmarks, user),
+          condition: ({ node }) => node.id !== id,
         });
       },
     },
