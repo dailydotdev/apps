@@ -65,7 +65,7 @@ function FilterOnboarding(): ReactElement {
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Topics}>
-      {({ activeStepIndex, previousStep, nextStep }) => (
+      {({ previousStep, nextStep }) => (
         <>
           <Container
             title="Choose topics to follow"
@@ -95,7 +95,7 @@ function FilterOnboarding(): ReactElement {
           </Container>
           <Modal.Footer justify={Justify.Between}>
             <Button className="btn-tertiary" onClick={previousStep}>
-              {activeStepIndex === 1 ? 'Close' : 'Back'}
+              Back
             </Button>
             <SimpleTooltip
               forceLoad
