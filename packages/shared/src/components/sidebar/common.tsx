@@ -2,6 +2,7 @@ import React, {
   ReactNode,
   ReactElement,
   HTMLAttributeAnchorTarget,
+  MutableRefObject,
 } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
@@ -28,6 +29,7 @@ export interface SidebarUserButtonProps {
 
 export interface SidebarMenuItemBadge {
   active: boolean;
+  ref?: MutableRefObject<HTMLElement>;
 }
 
 export interface SidebarMenuItem {
@@ -149,7 +151,10 @@ export const ItemInner = ({
       >
         {item.title}
         {item.badge?.active === true && (
-          <span className="block ml-auto w-2 h-2 rounded-lg bg-theme-color-cabbage" />
+          <span
+            ref={item.badge.ref}
+            className="block ml-auto w-2 h-2 rounded-lg bg-theme-color-cabbage"
+          />
         )}
       </span>
       {item.rightIcon && (

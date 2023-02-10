@@ -1,0 +1,17 @@
+.changelogTooltipArrow {
+  @apply bg-cabbage-40;
+  bottom: 6rem;
+  left: 0 !important; /* override popper style */
+  height: 0.5rem;
+  width: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  &::before {
+    width: 2.5rem;
+    height: 1px;
+    transform: none;
+  }
+}
+

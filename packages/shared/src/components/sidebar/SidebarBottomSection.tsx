@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import { useQuery } from 'react-query';
 import dynamic from 'next/dynamic';
 import DocsIcon from '../icons/Docs';
@@ -10,9 +10,11 @@ import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
 
-const ChangelogModal = dynamic(
+const ChangelogTooltip = dynamic(
   () =>
-    import(/* webpackChunkName: "changelogModal" */ '../modals/ChangelogModal'),
+    import(
+      /* webpackChunkName: "changelogTooltip" */ '../tooltips/ChangelogTooltip'
+    ),
 );
 
 interface SidebarBottomSectionProps extends SectionCommonProps {
@@ -31,7 +33,8 @@ export function SidebarBottomSectionSection({
   }));
 
   // TODO WT-1054-changelog check this against last changelog user has seen
-  const isChangelogModalActive = data?.lastChangelog < Date.now();
+  const isChangelogVisible = data?.lastChangelog < Date.now();
+  const changelogBadgeRef = useRef<HTMLElement>();
 
   const bottomMenuItems: SidebarMenuItem[] = [
     {
@@ -45,7 +48,8 @@ export function SidebarBottomSectionSection({
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
       badge: {
-        active: isChangelogModalActive,
+        active: isChangelogVisible,
+        ref: changelogBadgeRef,
       },
     },
     {
@@ -63,7 +67,14 @@ export function SidebarBottomSectionSection({
       {props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
-      <ChangelogModal isOpen={isChangelogModalActive} />
+      <ChangelogTooltip
+        visible={isChangelogVisible}
+        elementRef={changelogBadgeRef}
+        onRequestClose={() => {
+          // TODO WT-1054-changelog update query state and mutate
+          // state on the server
+        }}
+      />
     </Nav>
   );
 }
