@@ -9,7 +9,7 @@ import {
 } from '../graphql/posts';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import {
-  filterCache,
+  filterInfiniteCache,
   generateQueryKey,
   MutateFunc,
   RequestKey,
@@ -77,12 +77,14 @@ export default function useBookmarkPost<
         if (onRemoveBookmarkTrackObject)
           trackEvent(onRemoveBookmarkTrackObject());
 
-        filterCache<FeedData>({
-          client,
-          prop: 'page',
-          queryKey: generateQueryKey(RequestKey.Bookmarks, user),
-          condition: ({ node }) => node.id !== id,
-        });
+        filterInfiniteCache<FeedData>(
+          {
+            client,
+            prop: 'page',
+            queryKey: generateQueryKey(RequestKey.Bookmarks, user),
+          },
+          ({ node }) => node.id !== id,
+        );
       },
     },
   );
