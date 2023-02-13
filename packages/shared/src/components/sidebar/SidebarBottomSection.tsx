@@ -13,6 +13,8 @@ import { AlertColor, AlertDot } from '../AlertDot';
 import AlertContext from '../../contexts/AlertContext';
 import { getLatestChangelogPost } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
+import { laptop } from '../../styles/media';
+import useMedia from '../../hooks/useMedia';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -33,6 +35,7 @@ export function SidebarBottomSectionSection({
 }: SidebarBottomSectionProps): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { user } = useContext(AuthContext);
+  const isDesktop = useMedia([laptop.replace('@media ', '')], [true], false);
 
   const { data: lastestChangelogPost } = useQuery(
     ['changelog', 'latest-post', { loggedIn: !!user?.id }] as const,
@@ -41,8 +44,11 @@ export function SidebarBottomSectionSection({
 
       return getLatestChangelogPost(variables.loggedIn);
     },
+    {
+      enabled: isDesktop,
+    },
   );
-  const isChangelogVisible = useMemo(() => {
+  const hasNewChangelog = useMemo(() => {
     const lastChangelogDate = Date.parse(alerts?.lastChangelog);
     const lastPostDate = Date.parse(lastestChangelogPost?.createdAt);
 
@@ -65,7 +71,7 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      badge: isChangelogVisible && (
+      badge: hasNewChangelog && (
         <AlertDot
           className="right-2"
           ref={changelogBadgeRef}
@@ -88,7 +94,7 @@ export function SidebarBottomSectionSection({
       {props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
-      {isChangelogVisible && (
+      {hasNewChangelog && isDesktop && (
         <ChangelogTooltip elementRef={changelogBadgeRef} />
       )}
     </Nav>
