@@ -46,7 +46,10 @@ function ChangelogTooltip<TRef extends HTMLElement>({
         !!post && (
           <div className="flex flex-col w-96 whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none changelog bg-theme-bg-tertiary border-theme-color-cabbage">
             <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
-              <Button className="text-white bg-theme-color-water btn-primary small">
+              <Button
+                disabled
+                className="text-white bg-theme-color-water btn-primary small"
+              >
                 New release
               </Button>
               <ModalClose
@@ -81,7 +84,12 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               </div>
             </section>
             <footer className="flex gap-3 items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">
-              <Button className="btn-tertiary" onClick={updateChangelogAlert}>
+              <Button
+                className="btn-tertiary"
+                onClick={updateChangelogAlert}
+                tag="a"
+                href={post.permalink}
+              >
                 Release notes
               </Button>
               {isExtension && (
