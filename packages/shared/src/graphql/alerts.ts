@@ -5,6 +5,7 @@ export type Alerts = {
   rankLastSeen?: Date;
   myFeed?: string;
   companionHelper?: boolean;
+  lastChangelog?: string;
 };
 
 export const UPDATE_ALERTS = gql`

@@ -1,18 +1,10 @@
-import React, {
-  MutableRefObject,
-  ReactElement,
-  useCallback,
-  useContext,
-} from 'react';
+import React, { MutableRefObject, ReactElement, useContext } from 'react';
 import { useQuery } from 'react-query';
-import request from 'graphql-request';
 import { BaseTooltip } from './BaseTooltip';
 import { Button } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 import styles from './ChangelogTooltip.module.css';
-import { FeedData, Post } from '../../graphql/posts';
-import { SOURCE_FEED_QUERY } from '../../graphql/feed';
-import { graphqlUrl } from '../../lib/config';
+import { getLatestChangelogPost } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
@@ -30,26 +22,12 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   // TODO WT-1054-changelog test extension
   const isExtension = true; // !!process.env.TARGET_BROWSER;
   const { user } = useContext(AuthContext);
-  const { data: post } = useQuery<FeedData, unknown, Post>(
-    [
-      'changelog',
-      'latest-post',
-      {
-        source: 'daily_updates',
-        first: 1,
-        loggedIn: !!user?.id,
-        unreadOnly: false,
-      },
-    ],
+  const { data: post } = useQuery(
+    ['changelog', 'latest-post', { loggedIn: !!user?.id }] as const,
     async ({ queryKey }) => {
       const [, , variables] = queryKey;
 
-      return await request(graphqlUrl, SOURCE_FEED_QUERY, variables);
-    },
-    {
-      select: useCallback((data) => {
-        return data?.page.edges[0]?.node;
-      }, []),
+      return getLatestChangelogPost(variables.loggedIn);
     },
   );
 

@@ -1,6 +1,6 @@
-import React, { ReactElement, useRef } from 'react';
-import { useQuery } from 'react-query';
+import React, { ReactElement, useContext, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { useQuery } from 'react-query';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
 import TerminalIcon from '../icons/Terminal';
@@ -10,6 +10,9 @@ import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
+import AlertContext from '../../contexts/AlertContext';
+import { getLatestChangelogPost } from '../../graphql/posts';
+import AuthContext from '../../contexts/AuthContext';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -28,13 +31,28 @@ export function SidebarBottomSectionSection({
   showSettings,
   ...props
 }: SidebarBottomSectionProps): ReactElement {
-  const { data } = useQuery(['changelog'], () => ({
-    lastChangelog: Date.now(),
-    changelogVersion: '3.66.2',
-  }));
+  const { alerts } = useContext(AlertContext);
+  const { user } = useContext(AuthContext);
 
-  // TODO WT-1054-changelog check this against last changelog user has seen
-  const isChangelogVisible = data?.lastChangelog < Date.now();
+  const { data: lastestChangelogPost } = useQuery(
+    ['changelog', 'latest-post', { loggedIn: !!user?.id }] as const,
+    async ({ queryKey }) => {
+      const [, , variables] = queryKey;
+
+      return getLatestChangelogPost(variables.loggedIn);
+    },
+  );
+  const isChangelogVisible = useMemo(() => {
+    // TODO WT-1054-changelog remove this before production
+    const lastChangelogDate = new Date().setFullYear(2018); //  Date.parse(alerts?.lastChangelog);
+    const lastPostDate = Date.parse(lastestChangelogPost?.createdAt);
+
+    if (Number.isNaN(lastChangelogDate) || Number.isNaN(lastPostDate)) {
+      return false;
+    }
+
+    return lastPostDate > lastChangelogDate;
+  }, [alerts.lastChangelog, lastestChangelogPost?.createdAt]);
   const changelogBadgeRef = useRef<HTMLElement>();
 
   const bottomMenuItems: SidebarMenuItem[] = [
@@ -48,7 +66,7 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      badge: (
+      badge: isChangelogVisible && (
         <AlertDot
           className="right-2"
           ref={changelogBadgeRef}
