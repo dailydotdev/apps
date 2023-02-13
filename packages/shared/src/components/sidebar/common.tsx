@@ -150,12 +150,6 @@ export const ItemInner = ({
         )}
       >
         {item.title}
-        {item.badge?.active === true && (
-          <span
-            ref={item.badge.ref}
-            className="block ml-auto w-2 h-2 rounded-lg bg-theme-color-cabbage"
-          />
-        )}
       </span>
       {item.rightIcon && (
         <ItemInnerIcon

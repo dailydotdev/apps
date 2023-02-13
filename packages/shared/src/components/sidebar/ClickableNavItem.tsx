@@ -32,17 +32,25 @@ export function ClickableNavItem({
 
   if (!isButton && (!item.action || item.path)) {
     return (
-      <Link href={item.path} passHref prefetch={false}>
-        <a
-          {...(item.action && { onClick: item.action })}
-          {...props}
-          target={item?.target}
-          className={navBtnClass}
-          rel="noopener noreferrer"
-        >
-          {children}
-        </a>
-      </Link>
+      <>
+        <Link href={item.path} passHref prefetch={false}>
+          <a
+            {...(item.action && { onClick: item.action })}
+            {...props}
+            target={item?.target}
+            className={navBtnClass}
+            rel="noopener noreferrer"
+          >
+            {children}
+          </a>
+        </Link>
+        {item.badge?.active === true && (
+          <span
+            ref={item.badge.ref}
+            className="block mr-4 w-2 h-2 rounded-lg bg-theme-color-cabbage"
+          />
+        )}
+      </>
     );
   }
 
