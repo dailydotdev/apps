@@ -19,13 +19,11 @@ import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
 
 interface ChangelogTooltipProps<TRef> {
-  visible: boolean;
   elementRef: MutableRefObject<TRef>;
   onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
 }
 
 function ChangelogTooltip<TRef extends HTMLElement>({
-  visible,
   elementRef,
   onRequestClose,
 }: ChangelogTooltipProps<TRef>): ReactElement {
@@ -110,7 +108,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       reference={elementRef}
       arrow
       placement="right-end"
-      visible={visible && !!post}
+      visible={!!post}
     />
   );
 }

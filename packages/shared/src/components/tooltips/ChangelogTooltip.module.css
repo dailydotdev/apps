@@ -2,7 +2,7 @@
   @apply bg-cabbage-40;
   bottom: 6rem;
   left: 0 !important; /* override popper style */
-  height: 0.5rem;
+  height: 0.625rem;
   width: 0;
   display: flex;
   align-items: center;

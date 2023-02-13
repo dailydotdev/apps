@@ -1,4 +1,9 @@
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, {
+  HTMLAttributes,
+  isValidElement,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import Link from 'next/link';
 import { navBtnClass, SidebarMenuItem } from './common';
 
@@ -44,12 +49,7 @@ export function ClickableNavItem({
             {children}
           </a>
         </Link>
-        {item.badge?.active === true && (
-          <span
-            ref={item.badge.ref}
-            className="block mr-4 w-2 h-2 rounded-lg bg-theme-color-cabbage"
-          />
-        )}
+        {isValidElement(item.badge) && item.badge}
       </>
     );
   }

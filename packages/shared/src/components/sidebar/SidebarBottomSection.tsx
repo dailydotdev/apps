@@ -9,6 +9,7 @@ import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
+import { AlertColor, AlertDot } from '../AlertDot';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -47,10 +48,13 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      badge: {
-        active: isChangelogVisible,
-        ref: changelogBadgeRef,
-      },
+      badge: (
+        <AlertDot
+          className="right-2"
+          ref={changelogBadgeRef}
+          color={AlertColor.Cabbage}
+        />
+      ),
     },
     {
       icon: () => <ListIcon Icon={() => <FeedbackIcon />} />,
@@ -67,14 +71,15 @@ export function SidebarBottomSectionSection({
       {props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
-      <ChangelogTooltip
-        visible={isChangelogVisible}
-        elementRef={changelogBadgeRef}
-        onRequestClose={() => {
-          // TODO WT-1054-changelog update query state and mutate
-          // state on the server
-        }}
-      />
+      {isChangelogVisible && (
+        <ChangelogTooltip
+          elementRef={changelogBadgeRef}
+          onRequestClose={() => {
+            // TODO WT-1054-changelog update query state and mutate
+            // state on the server
+          }}
+        />
+      )}
     </Nav>
   );
 }
