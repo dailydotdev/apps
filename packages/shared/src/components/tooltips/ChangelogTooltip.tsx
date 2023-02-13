@@ -20,8 +20,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   elementRef,
   onRequestClose,
 }: ChangelogTooltipProps<TRef>): ReactElement {
-  // TODO WT-1054-changelog test extension
-  const isExtension = true; // !!process.env.TARGET_BROWSER;
+  const isExtension = !!process.env.TARGET_BROWSER;
   const { user } = useContext(AuthContext);
   const { updateAlerts } = useContext(AlertContext);
   const { data: post } = useQuery(
