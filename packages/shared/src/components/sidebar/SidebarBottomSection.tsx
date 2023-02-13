@@ -43,8 +43,7 @@ export function SidebarBottomSectionSection({
     },
   );
   const isChangelogVisible = useMemo(() => {
-    // TODO WT-1054-changelog remove this before production
-    const lastChangelogDate = new Date().setFullYear(2018); //  Date.parse(alerts?.lastChangelog);
+    const lastChangelogDate = Date.parse(alerts?.lastChangelog);
     const lastPostDate = Date.parse(lastestChangelogPost?.createdAt);
 
     if (Number.isNaN(lastChangelogDate) || Number.isNaN(lastPostDate)) {
@@ -90,13 +89,7 @@ export function SidebarBottomSectionSection({
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
       {isChangelogVisible && (
-        <ChangelogTooltip
-          elementRef={changelogBadgeRef}
-          onRequestClose={() => {
-            // TODO WT-1054-changelog update query state and mutate
-            // state on the server
-          }}
-        />
+        <ChangelogTooltip elementRef={changelogBadgeRef} />
       )}
     </Nav>
   );

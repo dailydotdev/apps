@@ -9,6 +9,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
+import AlertContext from '../../contexts/AlertContext';
 
 interface ChangelogTooltipProps<TRef> {
   elementRef: MutableRefObject<TRef>;
@@ -22,6 +23,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   // TODO WT-1054-changelog test extension
   const isExtension = true; // !!process.env.TARGET_BROWSER;
   const { user } = useContext(AuthContext);
+  const { updateAlerts } = useContext(AlertContext);
   const { data: post } = useQuery(
     ['changelog', 'latest-post', { loggedIn: !!user?.id }] as const,
     async ({ queryKey }) => {
@@ -30,6 +32,14 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       return getLatestChangelogPost(variables.loggedIn);
     },
   );
+
+  const updateChangelogAlert = () => {
+    const currentDate = new Date();
+
+    return updateAlerts({
+      lastChangelog: currentDate.toISOString(),
+    });
+  };
 
   return (
     <BaseTooltip
@@ -40,7 +50,15 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               <Button className="bg-water-40 btn-primary small text-theme-label-secondary">
                 New release
               </Button>
-              {onRequestClose && <ModalClose onClick={onRequestClose} />}
+              <ModalClose
+                onClick={(event) => {
+                  if (typeof onRequestClose === 'function') {
+                    onRequestClose(event);
+                  }
+
+                  updateChangelogAlert();
+                }}
+              />
             </header>
             <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
               <Image
@@ -64,9 +82,14 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               </div>
             </section>
             <footer className="flex gap-3 items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">
-              <Button className="btn-tertiary">Release notes</Button>
+              <Button className="btn-tertiary" onClick={updateChangelogAlert}>
+                Release notes
+              </Button>
               {isExtension && (
-                <Button className="bg-cabbage-40 btn-primary">
+                <Button
+                  className="bg-cabbage-40 btn-primary"
+                  onClick={updateChangelogAlert}
+                >
                   Update extension
                 </Button>
               )}
