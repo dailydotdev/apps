@@ -20,6 +20,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   elementRef,
   onRequestClose,
 }: ChangelogTooltipProps<TRef>): ReactElement {
+  // TODO WT-1045 check if current extension version is up to date
   const isExtension = !!process.env.TARGET_BROWSER;
   const { user } = useContext(AuthContext);
   const { updateAlerts } = useContext(AlertContext);
@@ -95,7 +96,18 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               {isExtension && (
                 <Button
                   className="bg-cabbage-40 btn-primary"
-                  onClick={updateChangelogAlert}
+                  onClick={() => {
+                    if (isExtension) {
+                      // @ts-expect-error Property 'browser' does not exist on type 'Window & typeof globalThis'
+                      const sendMessage = window?.browser?.runtime?.sendMessage;
+
+                      if (typeof sendMessage === 'function') {
+                        sendMessage({ type: 'REQUEST_UPDATE' });
+                      }
+                    }
+
+                    updateChangelogAlert();
+                  }}
                 >
                   Update extension
                 </Button>

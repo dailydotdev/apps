@@ -131,6 +131,25 @@ async function handleMessages(message, sender: Runtime.MessageSender) {
       },
     });
   }
+
+  if (message.type === 'REQUEST_UPDATE') {
+    // check if requestUpdateCheck is available
+    // @ts-expect-error Property 'requestUpdateCheck' does not exist on type 'Static'
+    if (typeof browser.runtime.requestUpdateCheck === 'function') {
+      // @ts-expect-error Property 'requestUpdateCheck' does not exist on type 'Static'
+      const [status] = await browser.runtime.requestUpdateCheck();
+
+      // if update is available reload extension to apply the update
+      if (status === 'update_available') {
+        browser.runtime.reload();
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   return null;
 }
 
@@ -152,3 +171,11 @@ browser.runtime.onInstalled.addListener(async (details) => {
 browser.runtime.onStartup.addListener(async () => {
   await getContentScriptPermissionAndRegister();
 });
+
+// only add update listener if requestUpdateCheck is not available
+// @ts-expect-error Property 'requestUpdateCheck' does not exist on type 'Static'
+if (typeof browser.runtime.requestUpdateCheck === 'undefined') {
+  browser.runtime.onUpdateAvailable.addListener(() => {
+    browser.runtime.reload();
+  });
+}
