@@ -59,7 +59,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
     <BaseTooltip
       content={
         !!post && (
-          <div className="flex flex-col w-96 rounded-16 border shadow-2 focus:outline-none changelog bg-theme-bg-tertiary border-theme-color-cabbage">
+          <div className="flex flex-col w-96 whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none changelog bg-theme-bg-tertiary border-theme-color-cabbage">
             <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
               <Button className="bg-water-40 btn-primary small text-theme-label-secondary">
                 New release
