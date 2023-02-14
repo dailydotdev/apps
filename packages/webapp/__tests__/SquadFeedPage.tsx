@@ -246,6 +246,7 @@ it('should show all members of the squad and list the owner first', async () => 
   expect(list.childNodes.length).toBeGreaterThan(defaultSquad.membersCount);
 });
 
+const link = `${squadFeedback}#user_id=${defaultUser.id}&squad_id=${defaultSquad.id}`;
 const copyToClipboard = jest.fn();
 Object.assign(navigator, {
   clipboard: {
@@ -272,6 +273,26 @@ it('should show feedback button on tablet and desktop', async () => {
   renderComponent();
   const feedback = await screen.findByLabelText('squad-feedback');
   expect(feedback).toHaveClass('hidden tablet:flex');
-  const link = `${squadFeedback}#user_id=${defaultUser.id}&squad_id=${defaultSquad.id}`;
   expect(feedback).toHaveAttribute('href', link);
 });
+
+// currently unable to test the options menu - the contextify is throwing error on test, needs investigation
+// describe('squad options', () => {
+//   it('should show when squad options is clicked', async () => {
+//     renderComponent();
+//     const options = await screen.findByLabelText('Squad options');
+//     options.click();
+//     await waitFor(async () => {
+//       await screen.findByRole('menu');
+//     });
+//   });
+
+//   it('should have a feedback button on mobile devices', async () => {
+//     renderComponent();
+//     const options = await screen.findByLabelText('Squad options');
+//     options.click();
+//     const feedback = await screen.findByLabelText('squad-options-feedback');
+//     expect(feedback).toHaveClass('flex tablet:hidden');
+//     expect(feedback).toHaveAttribute('href', link);
+//   });
+// });

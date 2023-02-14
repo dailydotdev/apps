@@ -83,11 +83,14 @@ export function SquadHeaderBar({
           />
         </SimpleTooltip>
       </div>
-      <Button
-        className="mobileL:order-2 btn btn-secondary"
-        icon={<MenuIcon size="medium" />}
-        onClick={onMenuClick}
-      />
+      <SimpleTooltip placement="top" content="Squad options">
+        <Button
+          className="mobileL:order-2 btn btn-secondary"
+          icon={<MenuIcon size="medium" />}
+          onClick={onMenuClick}
+          aria-label="Squad options"
+        />
+      </SimpleTooltip>
       <Button
         className="w-full mobileL:w-auto btn btn-secondary"
         onClick={onNewSquadPost}
