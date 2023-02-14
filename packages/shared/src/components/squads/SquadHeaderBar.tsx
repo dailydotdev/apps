@@ -54,7 +54,10 @@ export function SquadHeaderBar({
             onClick={openMemberListModal}
           >
             <span className="flex items-center">
-              <span className="flex flex-row-reverse ml-1">
+              <span
+                className="flex flex-row-reverse ml-1"
+                aria-label="squad-members-short-list"
+              >
                 {members?.map(({ user }) => (
                   <ProfilePicture
                     className="-ml-2 border-2 border-theme-bg-primary"
@@ -64,7 +67,9 @@ export function SquadHeaderBar({
                   />
                 ))}
               </span>
-              <span className="ml-3">{memberCount || ''}</span>
+              <span className="ml-3" aria-label="squad-members-count">
+                {memberCount || ''}
+              </span>
             </span>
           </Button>
         </SimpleTooltip>
