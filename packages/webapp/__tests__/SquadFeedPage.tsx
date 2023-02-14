@@ -41,6 +41,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/squads';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { squadFeedback } from '@dailydotdev/shared/src/lib/constants';
 import SquadPage from '../pages/squads/[handle]';
 
 const showLogin = jest.fn();
@@ -265,4 +266,12 @@ it('should show invitation modal and allow to copy link', async () => {
   const copy = await screen.findByText('Copy invitation link');
   copy.click();
   expect(copyToClipboard).toHaveBeenCalledWith(invitation);
+});
+
+it('should show feedback button on tablet and desktop', async () => {
+  renderComponent();
+  const feedback = await screen.findByLabelText('squad-feedback');
+  expect(feedback).toHaveClass('hidden tablet:flex');
+  const link = `${squadFeedback}#user_id=${defaultUser.id}&squad_id=${defaultSquad.id}`;
+  expect(feedback).toHaveAttribute('href', link);
 });

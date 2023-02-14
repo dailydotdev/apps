@@ -32,6 +32,7 @@ export function SquadPageHeader({
         position="absolute"
         icon={<FeedbackIcon size="medium" />}
         buttonSize="small"
+        aria-label="squad-feedback"
       >
         Feedback
       </Button>
