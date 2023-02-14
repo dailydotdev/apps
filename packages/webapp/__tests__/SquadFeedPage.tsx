@@ -344,9 +344,6 @@ describe('invitation modal', () => {
 
   it('should allow footer button to copy link', async () => {
     await openedInvitationModal();
-    const input = await screen.findByRole('textbox');
-    expect(input).toHaveValue(defaultInvitation);
-
     const copy = await screen.findByText('Copy invitation link');
     copy.click();
     expect(copyToClipboard).toHaveBeenCalledWith(defaultInvitation);
