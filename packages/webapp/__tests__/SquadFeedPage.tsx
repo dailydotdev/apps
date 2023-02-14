@@ -99,6 +99,14 @@ const createSourceMock = (
   result,
 });
 
+const feedbackLink = `${squadFeedback}#user_id=${defaultUser.id}&squad_id=${defaultSquad.id}`;
+const copyToClipboard = jest.fn();
+Object.assign(navigator, {
+  clipboard: {
+    writeText: copyToClipboard,
+  },
+});
+
 const createSourceMembersMock = (
   result = generateMembersResult(),
   variables: unknown = { id: defaultSquad.id, first: 5 },
@@ -167,71 +175,89 @@ const renderComponent = (
   );
 };
 
-it('should request source feed', async () => {
-  renderComponent();
-  await waitForNock();
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
+describe('squad page', () => {
+  it('should request source feed', async () => {
+    renderComponent();
+    await waitForNock();
+    await waitFor(async () => {
+      const elements = await screen.findAllByTestId('postItem');
+      expect(elements.length).toBeTruthy();
+    });
+  });
+
+  it('should show forbidden access if not a member of the squad', async () => {
+    const handle = 'sample';
+    const forbidden = generateForbiddenSquadResult();
+    renderComponent(handle, [createSourceMock(handle, {}, forbidden)]);
+    await waitForNock();
+    await screen.findByText('Oops! This link leads to a private discussion');
+  });
+
+  it('should show not-found if squad does not exist', async () => {
+    const handle = 'sample';
+    const notfound = generateNotFoundSquadResult();
+    renderComponent(handle, [createSourceMock(handle, {}, notfound)]);
+    await waitForNock();
+    await screen.findByText('Oops, this page couldn’t be found');
   });
 });
 
-it('should show forbidden access if not a member of the squad', async () => {
-  const handle = 'sample';
-  const forbidden = generateForbiddenSquadResult();
-  renderComponent(handle, [createSourceMock(handle, {}, forbidden)]);
-  await waitForNock();
-  await screen.findByText('Oops! This link leads to a private discussion');
+describe('squad page header', () => {
+  it('should show squad name', async () => {
+    renderComponent();
+    await screen.findByText(defaultSquad.name);
+  });
+
+  it('should show squad handle', async () => {
+    renderComponent();
+    await screen.findByText(`@${defaultSquad.handle}`);
+  });
+
+  it('should show squad description', async () => {
+    renderComponent();
+    await screen.findByText(defaultSquad.description);
+  });
+
+  it('should show squad image', async () => {
+    renderComponent();
+    const alt = `${defaultSquad.handle}'s logo`;
+    await screen.findByAltText(alt);
+  });
+
+  it('should show feedback button on tablet and desktop', async () => {
+    renderComponent();
+    const feedback = await screen.findByLabelText('squad-feedback');
+    expect(feedback).toHaveClass('hidden tablet:flex');
+    expect(feedback).toHaveAttribute('href', feedbackLink);
+  });
 });
 
-it('should show not found if squad does not exist', async () => {
-  const handle = 'sample';
-  const notfound = generateNotFoundSquadResult();
-  renderComponent(handle, [createSourceMock(handle, {}, notfound)]);
-  await waitForNock();
-  await screen.findByText('Oops, this page couldn’t be found');
-});
+describe('squad header bar', () => {
+  it('should show five of the squad member images', async () => {
+    const members = generateMembersResult().sourceMembers.edges;
+    renderComponent();
+    const count = await screen.findByLabelText('squad-members-count');
+    expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
+    const result = await Promise.all(
+      members.map(({ node: { user } }) =>
+        screen.findByAltText(`${user.username}'s profile`),
+      ),
+    );
+    expect(result.length).toEqual(5);
+    const list = await screen.findByLabelText('squad-members-short-list');
+    expect(list.childNodes.length).toEqual(5);
+  });
 
-it('should show squad name', async () => {
-  renderComponent();
-  await screen.findByText(defaultSquad.name);
-});
+  it('should show total members count', async () => {
+    renderComponent();
+    const count = await screen.findByLabelText('squad-members-count');
+    expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
+  });
 
-it('should show squad handle', async () => {
-  renderComponent();
-  await screen.findByText(`@${defaultSquad.handle}`);
-});
-
-it('should show squad description', async () => {
-  renderComponent();
-  await screen.findByText(defaultSquad.description);
-});
-
-it('should show squad image', async () => {
-  renderComponent();
-  const alt = `${defaultSquad.handle}'s logo`;
-  await screen.findByAltText(alt);
-});
-
-it('should show five of the squad member images', async () => {
-  const members = generateMembersResult().sourceMembers.edges;
-  renderComponent();
-  const count = await screen.findByLabelText('squad-members-count');
-  expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
-  const result = await Promise.all(
-    members.map(({ node: { user } }) =>
-      screen.findByAltText(`${user.username}'s profile`),
-    ),
-  );
-  expect(result.length).toEqual(5);
-  const list = await screen.findByLabelText('squad-members-short-list');
-  expect(list.childNodes.length).toEqual(5);
-});
-
-it('should show total members count', async () => {
-  renderComponent();
-  const count = await screen.findByLabelText('squad-members-count');
-  expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
+  it('should show options menu button', async () => {
+    renderComponent();
+    await screen.findByLabelText('Squad options');
+  });
 });
 
 describe('squad members modal', () => {
@@ -264,14 +290,6 @@ describe('squad members modal', () => {
     const options = await screen.findAllByLabelText('Member options');
     expect(options.length).toEqual(defaultSquad.membersCount);
   });
-});
-
-const link = `${squadFeedback}#user_id=${defaultUser.id}&squad_id=${defaultSquad.id}`;
-const copyToClipboard = jest.fn();
-Object.assign(navigator, {
-  clipboard: {
-    writeText: copyToClipboard,
-  },
 });
 
 describe('invitation modal', () => {
@@ -333,13 +351,6 @@ describe('invitation modal', () => {
     const header = screen.queryByText('Invite more members to join');
     await waitFor(() => expect(header).not.toBeInTheDocument());
   });
-});
-
-it('should show feedback button on tablet and desktop', async () => {
-  renderComponent();
-  const feedback = await screen.findByLabelText('squad-feedback');
-  expect(feedback).toHaveClass('hidden tablet:flex');
-  expect(feedback).toHaveAttribute('href', link);
 });
 
 // currently unable to test the options menu - the contextify is throwing error on test, needs investigation
