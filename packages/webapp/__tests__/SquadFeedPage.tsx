@@ -244,3 +244,25 @@ it('should show all members of the squad and list the owner first', async () => 
   const list = await screen.findByLabelText('users-list');
   expect(list.childNodes.length).toBeGreaterThan(defaultSquad.membersCount);
 });
+
+const copyToClipboard = jest.fn();
+Object.assign(navigator, {
+  clipboard: {
+    writeText: copyToClipboard,
+  },
+});
+
+it('should show invitation modal and allow to copy link', async () => {
+  renderComponent();
+  const trigger = await screen.findByLabelText('Invite a new member');
+  trigger.click();
+  await screen.findByText('Invite more members to join');
+  const input = await screen.findByRole('textbox');
+  const token = defaultSquad.currentMember.referralToken;
+  const invitation = `${defaultSquad?.permalink}/${token}`;
+  expect(input).toHaveValue(invitation);
+
+  const copy = await screen.findByText('Copy invitation link');
+  copy.click();
+  expect(copyToClipboard).toHaveBeenCalledWith(invitation);
+});
