@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { useOnboardingSteps } from '../../hooks/useOnboardingSteps';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
@@ -11,8 +10,6 @@ import Container from './OnboardingStep';
 function IntroductionOnboarding({
   onClose,
 }: OnboardingStepProps): ReactElement {
-  const { onStepForward } = useOnboardingSteps(OnboardingStep.Intro, onClose);
-
   return (
     <Modal.StepsWrapper view={OnboardingStep.Intro}>
       {({ nextStep }: StepComponentProps) => (
@@ -37,10 +34,7 @@ function IntroductionOnboarding({
             <Button className="btn-tertiary" onClick={onClose}>
               Skip
             </Button>
-            <Button
-              className="bg-theme-color-cabbage"
-              onClick={onStepForward(nextStep)}
-            >
+            <Button className="bg-theme-color-cabbage" onClick={nextStep}>
               Continue
             </Button>
           </Modal.Footer>

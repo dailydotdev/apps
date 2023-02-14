@@ -29,7 +29,7 @@ import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import useDebounce from '../../hooks/useDebounce';
 
-const TagsContainer = classed('div', 'grid grid-cols-1 gap-4 mx-6');
+const TagsContainer = classed('div', 'grid grid-cols-1 gap-4');
 
 interface TagsFilterProps extends FilterMenuProps {
   tagCategoryLayout?: TagCategoryLayout;
@@ -113,7 +113,7 @@ export default function TagsFilter({
       aria-busy={isLoading}
       data-testid="tagsFilter"
     >
-      <div className="flex flex-col px-6 pb-6">
+      <div className="flex flex-col pb-6">
         <SearchField
           inputId="search-filters"
           placeholder="Search"

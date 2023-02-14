@@ -17,15 +17,14 @@ import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { OnboardingStep, OnboardingStepProps } from './common';
-import { useOnboardingSteps } from '../../hooks/useOnboardingSteps';
+import { OnboardingStep } from './common';
 
 const classes: Record<OnboardingFiltersLayout, string> = {
   grid: 'tablet:grid-cols-3 grid-cols-2',
   list: 'grid-cols-1',
 };
 
-function FilterOnboarding({ onClose }: OnboardingStepProps): ReactElement {
+function FilterOnboarding(): ReactElement {
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const [selectedTopics, setSelectedTopics] = useState({});
   const { onboardingFiltersLayout, onboardingMinimumTopics } =
@@ -34,10 +33,6 @@ function FilterOnboarding({ onClose }: OnboardingStepProps): ReactElement {
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.TagsFilter,
   });
-  const { onStepBackward, onStepForward, index } = useOnboardingSteps(
-    OnboardingStep.Topics,
-    onClose,
-  );
 
   const onChangeSelectedTopic = (e: ButtonEvent, value: string) => {
     const isFollowed = !selectedTopics[value];
@@ -99,11 +94,8 @@ function FilterOnboarding({ onClose }: OnboardingStepProps): ReactElement {
             </div>
           </Container>
           <Modal.Footer justify={Justify.Between}>
-            <Button
-              className="btn-tertiary"
-              onClick={onStepBackward(previousStep)}
-            >
-              {index === 1 ? 'Close' : 'Back'}
+            <Button className="btn-tertiary" onClick={previousStep}>
+              Back
             </Button>
             <SimpleTooltip
               forceLoad
@@ -116,7 +108,7 @@ function FilterOnboarding({ onClose }: OnboardingStepProps): ReactElement {
             >
               <Button
                 className="bg-theme-color-cabbage"
-                onClick={(e) => onFilterNext(e, onStepForward(nextStep))}
+                onClick={(e) => onFilterNext(e, nextStep)}
               >
                 Next
               </Button>

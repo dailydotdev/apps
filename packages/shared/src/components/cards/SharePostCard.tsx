@@ -1,10 +1,11 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
-import { Card, CardButton, CardTextContainer, getPostClassNames } from './Card';
+import { Card, CardButton, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
 import { SharedPostCardHeader } from './SharedPostCardHeader';
 import { SharedPostText } from './SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Containter, PostCardProps } from './common';
+import OptionsButton from '../buttons/OptionsButton';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -45,15 +46,17 @@ export const SharePostCard = forwardRef(function SharePostCard(
       ref={ref}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
-      <CardTextContainer>
-        <SharedPostCardHeader
-          author={post.author}
-          source={post.source}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          onReadArticleClick={onReadArticleClick}
-          createdAt={post.createdAt}
-        />
-      </CardTextContainer>
+      <OptionsButton
+        className="group-hover:flex laptop:hidden top-2 right-2"
+        onClick={(event) => onMenuClick?.(event, post)}
+        tooltipPlacement="top"
+        position="absolute"
+      />
+      <SharedPostCardHeader
+        author={post.author}
+        source={post.source}
+        createdAt={post.createdAt}
+      />
       <SharedPostText
         title={post.title}
         onHeightChange={onSharedPostTextHeightChange}
