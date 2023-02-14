@@ -105,8 +105,6 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                         sendMessage({ type: 'REQUEST_UPDATE' });
                       }
                     }
-
-                    updateChangelogAlert();
                   }}
                 >
                   Update extension
