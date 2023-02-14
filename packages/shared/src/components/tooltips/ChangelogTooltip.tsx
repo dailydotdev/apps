@@ -1,15 +1,12 @@
-import React, { MutableRefObject, ReactElement, useContext } from 'react';
-import { useQuery } from 'react-query';
+import React, { MutableRefObject, ReactElement } from 'react';
 import { BaseTooltip } from './BaseTooltip';
 import { Button } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 import styles from './ChangelogTooltip.module.css';
-import { getLatestChangelogPost } from '../../graphql/posts';
-import AuthContext from '../../contexts/AuthContext';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
-import AlertContext from '../../contexts/AlertContext';
+import { useChangelog } from '../../hooks/useChangelog';
 
 interface ChangelogTooltipProps<TRef> {
   elementRef: MutableRefObject<TRef>;
@@ -23,24 +20,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
 }: ChangelogTooltipProps<TRef>): ReactElement {
   // TODO WT-1045 check if current extension version is up to date
   const isExtension = !!process.env.TARGET_BROWSER;
-  const { user } = useContext(AuthContext);
-  const { updateAlerts } = useContext(AlertContext);
-  const { data: post } = useQuery(
-    ['changelog', 'latest-post', { loggedIn: !!user?.id }] as const,
-    async ({ queryKey }) => {
-      const [, , variables] = queryKey;
-
-      return getLatestChangelogPost(variables.loggedIn);
-    },
-  );
-
-  const updateChangelogAlert = () => {
-    const currentDate = new Date();
-
-    return updateAlerts({
-      lastChangelog: currentDate.toISOString(),
-    });
-  };
+  const { latestPost: post, dismiss: dismissChangelog } = useChangelog();
 
   return (
     <BaseTooltip
@@ -65,7 +45,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                     onRequestClose(event);
                   }
 
-                  updateChangelogAlert();
+                  dismissChangelog();
                 }}
                 data-testid="changelogModalClose"
               />
@@ -99,7 +79,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
             <footer className="flex gap-3 items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">
               <Button
                 className="btn-tertiary"
-                onClick={updateChangelogAlert}
+                onClick={dismissChangelog}
                 tag="a"
                 href={post.permalink}
                 data-testid="changelogReleaseNotesBtn"

@@ -1,6 +1,5 @@
-import React, { ReactElement, useContext, useMemo, useRef } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { useQuery } from 'react-query';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
 import TerminalIcon from '../icons/Terminal';
@@ -10,11 +9,7 @@ import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
-import AlertContext from '../../contexts/AlertContext';
-import { getLatestChangelogPost } from '../../graphql/posts';
-import AuthContext from '../../contexts/AuthContext';
-import { laptop } from '../../styles/media';
-import useMedia from '../../hooks/useMedia';
+import { useChangelog } from '../../hooks/useChangelog';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -33,31 +28,7 @@ export function SidebarBottomSectionSection({
   showSettings,
   ...props
 }: SidebarBottomSectionProps): ReactElement {
-  const { alerts } = useContext(AlertContext);
-  const { user } = useContext(AuthContext);
-  const isDesktop = useMedia([laptop.replace('@media ', '')], [true], false);
-
-  const { data: lastestChangelogPost } = useQuery(
-    ['changelog', 'latest-post', { loggedIn: !!user?.id }] as const,
-    async ({ queryKey }) => {
-      const [, , variables] = queryKey;
-
-      return getLatestChangelogPost(variables.loggedIn);
-    },
-    {
-      enabled: isDesktop,
-    },
-  );
-  const hasNewChangelog = useMemo(() => {
-    const lastChangelogDate = Date.parse(alerts?.lastChangelog);
-    const lastPostDate = Date.parse(lastestChangelogPost?.createdAt);
-
-    if (Number.isNaN(lastChangelogDate) || Number.isNaN(lastPostDate)) {
-      return false;
-    }
-
-    return lastPostDate > lastChangelogDate;
-  }, [alerts.lastChangelog, lastestChangelogPost?.createdAt]);
+  const changelog = useChangelog();
   const changelogBadgeRef = useRef<HTMLElement>();
 
   const bottomMenuItems: SidebarMenuItem[] = [
@@ -71,7 +42,7 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      badge: hasNewChangelog && (
+      badge: changelog.isAvailable && (
         <AlertDot
           className="right-2"
           ref={changelogBadgeRef}
@@ -94,7 +65,7 @@ export function SidebarBottomSectionSection({
       {props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
-      {hasNewChangelog && isDesktop && (
+      {changelog.isAvailable && (
         <ChangelogTooltip elementRef={changelogBadgeRef} />
       )}
     </Nav>
