@@ -254,6 +254,14 @@ describe('squad header bar', () => {
     expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
   });
 
+  // this modal should have its own test suite due to its complexity, we already have a ticket for reminder
+  it('should show share a post modal', async () => {
+    renderComponent();
+    const trigger = await screen.findByText('Create new post');
+    trigger.click();
+    await screen.findByText('Share post');
+  });
+
   it('should show options menu button', async () => {
     renderComponent();
     await screen.findByLabelText('Squad options');
