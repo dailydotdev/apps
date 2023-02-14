@@ -254,19 +254,65 @@ Object.assign(navigator, {
   },
 });
 
-it('should show invitation modal and allow to copy link', async () => {
-  renderComponent();
-  const trigger = await screen.findByLabelText('Invite a new member');
-  trigger.click();
-  await screen.findByText('Invite more members to join');
-  const input = await screen.findByRole('textbox');
+describe('invitation modal', () => {
   const token = defaultSquad.currentMember.referralToken;
-  const invitation = `${defaultSquad?.permalink}/${token}`;
-  expect(input).toHaveValue(invitation);
+  const defaultInvitation = `${defaultSquad?.permalink}/${token}`;
+  const renderOpenedInvitation = async () => {
+    renderComponent();
+    const trigger = await screen.findByLabelText('Invite a new member');
+    trigger.click();
+    await screen.findByText('Invite more members to join');
+  };
 
-  const copy = await screen.findByText('Copy invitation link');
-  copy.click();
-  expect(copyToClipboard).toHaveBeenCalledWith(invitation);
+  it('should show squad name', async () => {
+    await renderOpenedInvitation();
+    const result = await screen.findAllByText(defaultSquad.name);
+    expect(result.length).toEqual(2);
+  });
+
+  it('should show squad handle', async () => {
+    await renderOpenedInvitation();
+    const result = await screen.findAllByText(`@${defaultSquad.handle}`);
+    expect(result.length).toEqual(2);
+  });
+
+  it('should show squad image', async () => {
+    await renderOpenedInvitation();
+    const alt = `${defaultSquad.handle}'s logo`;
+    const result = await screen.findAllByAltText(alt);
+    expect(result.length).toEqual(2);
+  });
+
+  it('should show invitation link on a textfield', async () => {
+    await renderOpenedInvitation();
+    const input = await screen.findByRole('textbox');
+    expect(input).toHaveValue(defaultInvitation);
+  });
+
+  it('should allow textfield icon to copy link', async () => {
+    await renderOpenedInvitation();
+    const copy = await screen.findByTestId('textfield-action-icon');
+    copy.click();
+    expect(copyToClipboard).toHaveBeenCalledWith(defaultInvitation);
+  });
+
+  it('should allow footer button to copy link', async () => {
+    await renderOpenedInvitation();
+    const input = await screen.findByRole('textbox');
+    expect(input).toHaveValue(defaultInvitation);
+
+    const copy = await screen.findByText('Copy invitation link');
+    copy.click();
+    expect(copyToClipboard).toHaveBeenCalledWith(defaultInvitation);
+  });
+
+  it('should close the modal when close button is clicked', async () => {
+    await renderOpenedInvitation();
+    const close = await screen.findByTitle('Close');
+    close.click();
+    const header = screen.queryByText('Invite more members to join');
+    await waitFor(() => expect(header).not.toBeInTheDocument());
+  });
 });
 
 it('should show feedback button on tablet and desktop', async () => {
