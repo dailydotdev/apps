@@ -228,22 +228,42 @@ it('should show five of the squad member images', async () => {
   expect(list.childNodes.length).toEqual(5);
 });
 
-it('should show all members of the squad and list the owner first', async () => {
+it('should show total members count', async () => {
   renderComponent();
   const count = await screen.findByLabelText('squad-members-count');
   expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
+});
 
-  const fullMembers = generateMembersList();
-  const [first] = fullMembers;
-  const result = generateMembersResult(fullMembers);
-  mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id }));
-  const btn = await screen.findByLabelText('Members list');
-  btn.click();
+describe('squad members modal', () => {
+  const openedMembersModal = async (members = generateMembersList()) => {
+    renderComponent();
+    const result = generateMembersResult(members);
+    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id }));
+    const trigger = await screen.findByLabelText('Members list');
+    trigger.click();
+    await screen.findByText('Squad members');
+    return members;
+  };
 
-  await screen.findByText('Squad members');
-  expect(first.node.role).toEqual(SquadMemberRole.Owner);
-  const list = await screen.findByLabelText('users-list');
-  expect(list.childNodes.length).toBeGreaterThan(defaultSquad.membersCount);
+  it('should show the owner on top of the list', async () => {
+    const fullMembers = await openedMembersModal();
+    const [first] = fullMembers;
+    expect(first.node.role).toEqual(SquadMemberRole.Owner);
+    const owner = await screen.findByText('Owner');
+    expect(owner).toHaveAttribute('data-testvalue', first.node.user.username);
+  });
+
+  it('should show all members of the squad', async () => {
+    await openedMembersModal();
+    const list = await screen.findByLabelText('users-list');
+    expect(list.childNodes.length).toBeGreaterThan(defaultSquad.membersCount);
+  });
+
+  it('should show options button to all members', async () => {
+    await openedMembersModal();
+    const options = await screen.findAllByLabelText('Member options');
+    expect(options.length).toEqual(defaultSquad.membersCount);
+  });
 });
 
 const link = `${squadFeedback}#user_id=${defaultUser.id}&squad_id=${defaultSquad.id}`;
@@ -257,7 +277,7 @@ Object.assign(navigator, {
 describe('invitation modal', () => {
   const token = defaultSquad.currentMember.referralToken;
   const defaultInvitation = `${defaultSquad?.permalink}/${token}`;
-  const renderOpenedInvitation = async () => {
+  const openedInvitationModal = async () => {
     renderComponent();
     const trigger = await screen.findByLabelText('Invite a new member');
     trigger.click();
@@ -265,39 +285,39 @@ describe('invitation modal', () => {
   };
 
   it('should show squad name', async () => {
-    await renderOpenedInvitation();
+    await openedInvitationModal();
     const result = await screen.findAllByText(defaultSquad.name);
     expect(result.length).toEqual(2);
   });
 
   it('should show squad handle', async () => {
-    await renderOpenedInvitation();
+    await openedInvitationModal();
     const result = await screen.findAllByText(`@${defaultSquad.handle}`);
     expect(result.length).toEqual(2);
   });
 
   it('should show squad image', async () => {
-    await renderOpenedInvitation();
+    await openedInvitationModal();
     const alt = `${defaultSquad.handle}'s logo`;
     const result = await screen.findAllByAltText(alt);
     expect(result.length).toEqual(2);
   });
 
   it('should show invitation link on a textfield', async () => {
-    await renderOpenedInvitation();
+    await openedInvitationModal();
     const input = await screen.findByRole('textbox');
     expect(input).toHaveValue(defaultInvitation);
   });
 
   it('should allow textfield icon to copy link', async () => {
-    await renderOpenedInvitation();
+    await openedInvitationModal();
     const copy = await screen.findByTestId('textfield-action-icon');
     copy.click();
     expect(copyToClipboard).toHaveBeenCalledWith(defaultInvitation);
   });
 
   it('should allow footer button to copy link', async () => {
-    await renderOpenedInvitation();
+    await openedInvitationModal();
     const input = await screen.findByRole('textbox');
     expect(input).toHaveValue(defaultInvitation);
 
@@ -307,7 +327,7 @@ describe('invitation modal', () => {
   });
 
   it('should close the modal when close button is clicked', async () => {
-    await renderOpenedInvitation();
+    await openedInvitationModal();
     const close = await screen.findByTitle('Close');
     close.click();
     const header = screen.queryByText('Invite more members to join');
