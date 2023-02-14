@@ -19,6 +19,7 @@ interface ChangelogTooltipProps<TRef> {
 function ChangelogTooltip<TRef extends HTMLElement>({
   elementRef,
   onRequestClose,
+  ...props
 }: ChangelogTooltipProps<TRef>): ReactElement {
   // TODO WT-1045 check if current extension version is up to date
   const isExtension = !!process.env.TARGET_BROWSER;
@@ -43,13 +44,18 @@ function ChangelogTooltip<TRef extends HTMLElement>({
 
   return (
     <BaseTooltip
+      {...props}
       content={
         !!post && (
-          <div className="flex flex-col w-96 whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none changelog bg-theme-bg-tertiary border-theme-color-cabbage">
+          <div
+            className="flex flex-col w-96 whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none changelog bg-theme-bg-tertiary border-theme-color-cabbage"
+            data-testid="changelog"
+          >
             <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
               <Button
                 disabled
                 className="text-white bg-theme-color-water btn-primary small"
+                data-testid="changelogNewReleaseTag"
               >
                 New release
               </Button>
@@ -61,6 +67,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
 
                   updateChangelogAlert();
                 }}
+                data-testid="changelogModalClose"
               />
             </header>
             <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
@@ -70,13 +77,18 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 src={post.image}
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
                 loading="lazy"
+                data-testid="changelogImage"
               />
-              <h3 className="mt-2 font-bold text-theme-label-primary typo-title3">
+              <h3
+                className="mt-2 font-bold text-theme-label-primary typo-title3"
+                data-testid="changelogTitle"
+              >
                 {post.title}
               </h3>
               <time
                 className="text-theme-label-quaternary typo-callout"
                 dateTime={post.createdAt}
+                data-testid="changelogDate"
               >
                 {postDateFormat(post.createdAt)}
               </time>
@@ -90,12 +102,14 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 onClick={updateChangelogAlert}
                 tag="a"
                 href={post.permalink}
+                data-testid="changelogReleaseNotesBtn"
               >
                 Release notes
               </Button>
               {isExtension && (
                 <Button
                   className="bg-cabbage-40 btn-primary"
+                  data-testid="changelogExtensionBtn"
                   onClick={() => {
                     if (isExtension) {
                       // @ts-expect-error Property 'browser' does not exist on type 'Window & typeof globalThis'

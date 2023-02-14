@@ -413,5 +413,5 @@ export const getLatestChangelogPost = async (
     loggedIn,
   });
 
-  return feedData?.page.edges[0]?.node;
+  return feedData?.page?.edges?.[0]?.node;
 };
