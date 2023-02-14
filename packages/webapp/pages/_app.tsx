@@ -38,13 +38,9 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-
-// const ReactQueryDevtools = dynamic(
-//   () => import('react-query/devtools').then((mod) => mod.ReactQueryDevtools),
-//   { ssr: false },
-// );
 
 const AuthModal = dynamic(
   () =>
@@ -184,6 +180,7 @@ export default function App(props: AppProps): ReactElement {
             </AnalyticsContextProvider>
           </SubscriptionContextProvider>
         </BootDataProvider>
+        <ReactQueryDevtools />
       </QueryClientProvider>
     </ProgressiveEnhancementContextProvider>
   );
