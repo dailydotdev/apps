@@ -1,4 +1,4 @@
-import { GraphQLResult } from './../helpers/graphql';
+import { GraphQLResult } from '../helpers/graphql';
 import { Edge } from '../../src/graphql/common';
 import { SourceType } from '../../src/graphql/sources';
 import {
