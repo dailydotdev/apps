@@ -47,6 +47,7 @@ function SquadTourModal({
         banner="/squad_tour2.png"
         title="Share from main feed"
         description="Share articles using the share button!"
+        className={{ banner: '!px-2' }}
         badge="NEW"
       />,
       <SquadTourCard

@@ -27,7 +27,7 @@ function SquadTourCard({
     <FlexCol className={className?.container}>
       <FlexCentered className="h-80 bg-gradient-to-l from-cabbage-90 to-cabbage-50">
         <img
-          className={classNames('w-full max-w-[19.5rem]', className?.banner)}
+          className={classNames('w-full px-12', className?.banner)}
           src={banner}
           alt={`${title} banner`}
         />
