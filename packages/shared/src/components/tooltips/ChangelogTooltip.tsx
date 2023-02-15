@@ -92,8 +92,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                   data-testid="changelogExtensionBtn"
                   onClick={() => {
                     if (isExtension) {
-                      // @ts-expect-error Property 'browser' does not exist on type 'Window & typeof globalThis'
-                      const sendMessage = window?.browser?.runtime?.sendMessage;
+                      const sendMessage = globalThis?.browser?.runtime?.sendMessage;
 
                       if (typeof sendMessage === 'function') {
                         sendMessage({ type: 'REQUEST_UPDATE' });
