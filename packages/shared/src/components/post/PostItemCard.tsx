@@ -74,14 +74,16 @@ export default function PostItemCard({
           }}
           nativeLazyLoading
         />
-        <h3 className="flex flex-wrap flex-1 mr-6 ml-4 text-left line-clamp-2 typo-callout">
-          {post.title}
+        <div className="flex flex-col flex-1 ml-4">
+          <h3 className="flex flex-1 mr-6 text-left break-words line-clamp-2 typo-callout">
+            {post.title}
+          </h3>
           <PostMetadata
             readTime={post.readTime}
             numUpvotes={post.numUpvotes}
-            typoClassName="typo-callout"
+            typoClassName="typo-footnote text-theme-label-tertiary"
           />
-        </h3>
+        </div>
         {showButtons && onHide && (
           <Button
             buttonSize="small"
