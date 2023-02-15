@@ -1,4 +1,5 @@
 import React, { ReactElement, useState } from 'react';
+import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import Carousel from '../containers/Carousel';
 import SquadTourCard from '../squads/SquadTourCard';
@@ -16,7 +17,7 @@ function SquadTourModal({
         <>
           <SquadTourCard
             key="intro"
-            banner="/squad_tour0.png"
+            banner={cloudinary.squads.tour.banner0}
             title="Let's see what you can do with Squads!"
             className={{ container: 'h-[29.25rem]' }}
           />
@@ -38,14 +39,14 @@ function SquadTourModal({
     const items = [
       <SquadTourCard
         key="step1"
-        banner="/squad_tour1.png"
+        banner={cloudinary.squads.tour.banner1}
         title="Share articles"
         description="Share articles, receive and give feedback!"
         badge="NEW"
       />,
       <SquadTourCard
         key="step2"
-        banner="/squad_tour2.png"
+        banner={cloudinary.squads.tour.banner2}
         title="Share from main feed"
         description="Share articles using the share button!"
         className={{ banner: '!px-2' }}
@@ -53,14 +54,14 @@ function SquadTourModal({
       />,
       <SquadTourCard
         key="step3"
-        banner="/squad_tour3.png"
+        banner={cloudinary.squads.tour.banner3}
         title="Private discussions"
         description="Hold private discussions and stay up to date with friends, colleagues and like-minded developers."
         badge="NEW"
       />,
       <SquadTourCard
         key="step4"
-        banner="/squad_tour4.png"
+        banner={cloudinary.squads.tour.banner4}
         title="Invite members"
         description="Invite friends and colleagues to your Squads"
         badge="NEW"
