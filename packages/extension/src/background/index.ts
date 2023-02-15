@@ -139,7 +139,7 @@ async function handleMessages(
     });
   }
 
-  if (message.type === 'REQUEST_UPDATE') {
+  if (message.type === ExtensionMessageType.RequestUpdate) {
     // check if requestUpdateCheck is available
     // @ts-expect-error Property 'requestUpdateCheck' does not exist on type 'Static'
     if (typeof browser.runtime.requestUpdateCheck === 'function') {

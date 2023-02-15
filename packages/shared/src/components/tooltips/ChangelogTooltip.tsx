@@ -7,6 +7,7 @@ import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
 import { useChangelog } from '../../hooks/useChangelog';
+import { ExtensionMessageType } from '../../lib/extension';
 
 interface ChangelogTooltipProps<TRef> {
   elementRef: MutableRefObject<TRef>;
@@ -96,7 +97,9 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                         globalThis?.browser?.runtime?.sendMessage;
 
                       if (typeof sendMessage === 'function') {
-                        sendMessage({ type: 'REQUEST_UPDATE' });
+                        sendMessage({
+                          type: ExtensionMessageType.RequestUpdate,
+                        });
                       }
                     }
                   }}

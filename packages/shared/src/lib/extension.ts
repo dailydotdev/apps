@@ -3,4 +3,5 @@ export enum ExtensionMessageType {
   GraphQLRequest = 'GRAPHQL_REQUEST',
   FetchRequest = 'FETCH_REQUEST',
   DisableCompanion = 'DISABLE_COMPANION',
+  RequestUpdate = 'REQUEST_UPDATE',
 }

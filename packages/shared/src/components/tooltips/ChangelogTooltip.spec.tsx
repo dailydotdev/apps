@@ -18,6 +18,7 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { ExtensionMessageType } from '../../lib/extension';
 
 describe('ChangelogTooltip component', () => {
   const noop = jest.fn();
@@ -157,7 +158,9 @@ describe('ChangelogTooltip component', () => {
     });
 
     expect(sendMessageFn).toHaveBeenCalledTimes(1);
-    expect(sendMessageFn).toHaveBeenCalledWith({ type: 'REQUEST_UPDATE' });
+    expect(sendMessageFn).toHaveBeenCalledWith({
+      type: ExtensionMessageType.RequestUpdate,
+    });
 
     delete process.env.TARGET_BROWSER;
     delete global.browser;
