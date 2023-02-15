@@ -29,6 +29,10 @@ export function useChangelog(): UseChangelog {
     },
   );
   const isAvailable = useMemo(() => {
+    if (!isDesktop) {
+      return false;
+    }
+
     const lastChangelogDate = Date.parse(alerts?.lastChangelog);
     const lastPostDate = Date.parse(latestPost?.createdAt);
 
@@ -37,7 +41,7 @@ export function useChangelog(): UseChangelog {
     }
 
     return lastPostDate > lastChangelogDate;
-  }, [alerts.lastChangelog, latestPost?.createdAt]);
+  }, [alerts.lastChangelog, latestPost?.createdAt, isDesktop]);
 
   const dismiss = async () => {
     const currentDate = new Date();
