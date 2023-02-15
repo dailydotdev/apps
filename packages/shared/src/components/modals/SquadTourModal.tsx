@@ -18,6 +18,7 @@ function SquadTourModal({
             key="intro"
             banner="/squad_tour0.png"
             title="Let's see what you can do with Squads!"
+            className={{ container: 'h-[29.25rem]' }}
           />
           <Modal.Footer>
             <Button className="btn-tertiary" onClick={onRequestClose}>
