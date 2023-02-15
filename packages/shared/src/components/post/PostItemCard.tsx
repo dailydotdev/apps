@@ -79,9 +79,9 @@ export default function PostItemCard({
             {post.title}
           </h3>
           <PostMetadata
+            className="text-theme-label-tertiary"
             readTime={post.readTime}
             numUpvotes={post.numUpvotes}
-            typoClassName="typo-footnote text-theme-label-tertiary"
           />
         </div>
         {showButtons && onHide && (
