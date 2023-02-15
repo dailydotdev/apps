@@ -77,12 +77,15 @@ function SquadTourModal({
       >
         {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
           <span className="flex flex-row justify-between items-center p-3 border-t border-theme-divider-tertiary">
-            <Button className="btn-tertiary" onClick={(e) => onSwipedRight(e)}>
+            <Button
+              className="w-22 btn-tertiary"
+              onClick={(e) => onSwipedRight(e)}
+            >
               {index === 0 ? 'Close' : 'Back'}
             </Button>
             {indicator}
             <Button
-              className="btn-primary-cabbage"
+              className="w-22 btn-primary-cabbage"
               onClick={(e) => onSwipedLeft(e)}
             >
               {index === items.length - 1 ? 'Close' : 'Next'}
