@@ -3,12 +3,13 @@ import { browser, Runtime, Tabs } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
-import request from 'graphql-request';
+import request, { RequestDocument } from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { uninstall } from '@dailydotdev/shared/src/lib/constants';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
+import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
 
 const excludedCompanionOrigins = [
@@ -88,15 +89,21 @@ const sendRequestResponse = async (
   });
 };
 
-async function handleMessages(message, sender: Runtime.MessageSender) {
+async function handleMessages(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  message: Record<string, any> & {
+    type: ExtensionMessageType;
+  },
+  sender: Runtime.MessageSender,
+) {
   await getContentScriptPermissionAndRegister();
 
-  if (message.type === 'CONTENT_LOADED') {
+  if (message.type === ExtensionMessageType.ContentLoaded) {
     sendBootData(message, sender.tab);
     return null;
   }
 
-  if (message.type === 'GRAPHQL_REQUEST') {
+  if (message.type === ExtensionMessageType.GraphQLRequest) {
     const { requestKey } = message.headers || {};
     const req = request(message.url, message.document, message.variables);
 
@@ -107,7 +114,7 @@ async function handleMessages(message, sender: Runtime.MessageSender) {
     return sendRequestResponse(requestKey, req, sender, message.variables);
   }
 
-  if (message.type === 'FETCH_REQUEST') {
+  if (message.type === ExtensionMessageType.FetchRequest) {
     const { requestKey } = message.args.headers || {};
     const req = await fetch(message.url, { ...message.args });
 
@@ -118,7 +125,7 @@ async function handleMessages(message, sender: Runtime.MessageSender) {
     return sendRequestResponse(requestKey, req.json(), sender, message.body);
   }
 
-  if (message.type === 'DISABLE_COMPANION') {
+  if (message.type === ExtensionMessageType.DisableCompanion) {
     const cacheData = getLocalBootData();
     const settings = { ...cacheData.settings, optOutCompanion: true };
     localStorage.setItem(
