@@ -253,6 +253,8 @@ export const getShouldRedirect = (
 };
 
 export const FlexRow = classed('span', 'flex flex-row');
+export const FlexCol = classed('div', 'flex flex-col');
+export const FlexCentered = classed('div', 'flex justify-center items-center');
 
 interface ContextPosition {
   x: number;
