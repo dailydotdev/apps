@@ -92,7 +92,8 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                   data-testid="changelogExtensionBtn"
                   onClick={() => {
                     if (isExtension) {
-                      const sendMessage = globalThis?.browser?.runtime?.sendMessage;
+                      const sendMessage =
+                        globalThis?.browser?.runtime?.sendMessage;
 
                       if (typeof sendMessage === 'function') {
                         sendMessage({ type: 'REQUEST_UPDATE' });

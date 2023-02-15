@@ -2,7 +2,6 @@ import React, {
   ReactNode,
   ReactElement,
   HTMLAttributeAnchorTarget,
-  MutableRefObject,
 } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
@@ -25,11 +24,6 @@ export interface SidebarProps {
 
 export interface SidebarUserButtonProps {
   sidebarRendered?: boolean;
-}
-
-export interface SidebarMenuItemBadge {
-  active: boolean;
-  ref?: MutableRefObject<HTMLElement>;
 }
 
 export interface SidebarMenuItem {
