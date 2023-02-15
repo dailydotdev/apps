@@ -42,12 +42,14 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      badge: changelog.isAvailable && (
-        <AlertDot
-          className="right-2"
-          ref={changelogBadgeRef}
-          color={AlertColor.Cabbage}
-        />
+      rightIcon: () => (
+        <div className="h-2">
+          <AlertDot
+            className="right-2"
+            ref={changelogBadgeRef}
+            color={AlertColor.Cabbage}
+          />
+        </div>
       ),
     },
     {

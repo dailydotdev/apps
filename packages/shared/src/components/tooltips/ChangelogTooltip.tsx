@@ -2,7 +2,6 @@ import React, { MutableRefObject, ReactElement } from 'react';
 import { BaseTooltip } from './BaseTooltip';
 import { Button } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
-import styles from './ChangelogTooltip.module.css';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
@@ -118,9 +117,11 @@ function ChangelogTooltip<TRef extends HTMLElement>({
         paddingClassName: 'p-0',
         roundedClassName: 'rounded-16',
         bgClassName: 'bg-cabbage-40',
-        arrowClassName: styles.changelogTooltipArrow,
+        arrowClassName:
+          'bg-cabbage-40 bottom-24 !left-0 !h-2.5 !w-0 flex items-center justify-end before:!w-10 before:!h-px before:!transform-none',
       }}
       reference={elementRef}
+      appendTo={globalThis?.document?.body}
       arrow
       placement="right-end"
       visible={!!post}

@@ -41,7 +41,6 @@ export interface SidebarMenuItem {
   className?: {
     text?: string;
   };
-  badge?: ReactElement;
 }
 
 interface ListIconProps {

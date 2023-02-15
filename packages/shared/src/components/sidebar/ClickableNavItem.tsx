@@ -1,9 +1,4 @@
-import React, {
-  HTMLAttributes,
-  isValidElement,
-  ReactElement,
-  ReactNode,
-} from 'react';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { navBtnClass, SidebarMenuItem } from './common';
 
@@ -37,20 +32,17 @@ export function ClickableNavItem({
 
   if (!isButton && (!item.action || item.path)) {
     return (
-      <>
-        <Link href={item.path} passHref prefetch={false}>
-          <a
-            {...(item.action && { onClick: item.action })}
-            {...props}
-            target={item?.target}
-            className={navBtnClass}
-            rel="noopener noreferrer"
-          >
-            {children}
-          </a>
-        </Link>
-        {isValidElement(item.badge) && item.badge}
-      </>
+      <Link href={item.path} passHref prefetch={false}>
+        <a
+          {...(item.action && { onClick: item.action })}
+          {...props}
+          target={item?.target}
+          className={navBtnClass}
+          rel="noopener noreferrer"
+        >
+          {children}
+        </a>
+      </Link>
     );
   }
 
