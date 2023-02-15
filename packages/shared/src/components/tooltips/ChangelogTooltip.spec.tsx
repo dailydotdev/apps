@@ -227,4 +227,33 @@ describe('ChangelogTooltip component', () => {
 
     expect(updateAlerts).toHaveBeenCalled();
   });
+
+  it('should link to blog post on firefox', async () => {
+    client.setQueryData(
+      ['changelog', 'latest-post', { loggedIn: false }],
+      defaultPost,
+    );
+
+    process.env.TARGET_BROWSER = 'firefox';
+
+    const sendMessageFn = jest.fn();
+    global.browser = {
+      runtime: {
+        sendMessage: sendMessageFn,
+      },
+    };
+
+    await act(async () => {
+      renderComponent();
+      await screen.findByTestId('changelog');
+    });
+
+    const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
+
+    expect(changelogExtensionBtn.tagName.toLowerCase()).toBe('a');
+    expect(changelogExtensionBtn.getAttribute('href')).not.toBeNull();
+
+    delete process.env.TARGET_BROWSER;
+    delete global.browser;
+  });
 });

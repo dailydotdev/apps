@@ -20,6 +20,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
 }: ChangelogTooltipProps<TRef>): ReactElement {
   // TODO WT-1045 check if current extension version is up to date
   const isExtension = !!process.env.TARGET_BROWSER;
+  const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
   const { latestPost: post, dismiss: dismissChangelog } = useChangelog();
 
   return (
@@ -88,9 +89,20 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               </Button>
               {isExtension && (
                 <Button
+                  tag={isFirefoxExtension ? 'a' : undefined}
+                  href={
+                    // TODO WT-1045 replace with rebrandly short link
+                    isFirefoxExtension
+                      ? 'https://daily.dev/blog/how-to-manually-update-chrome-firefox-extensions'
+                      : undefined
+                  }
                   className="bg-cabbage-40 btn-primary"
                   data-testid="changelogExtensionBtn"
                   onClick={() => {
+                    if (isFirefoxExtension) {
+                      return;
+                    }
+
                     if (isExtension) {
                       const sendMessage =
                         globalThis?.browser?.runtime?.sendMessage;
