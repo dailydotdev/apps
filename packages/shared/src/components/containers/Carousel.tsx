@@ -6,11 +6,11 @@ import CarouselIndicator from './CarouselIndicator';
 interface ChildProps {
   onSwipedLeft: SwipeCallback;
   onSwipedRight: SwipeCallback;
-  onIndicatorClick: (index: number) => void;
   index: number;
 }
 
 interface ClassName {
+  wrapper?: string;
   container?: string;
   item?: string;
 }
@@ -21,6 +21,7 @@ interface CarouselProps {
   preSelectedIndex?: number;
   hasCustomIndicator?: boolean;
   onClose?: SwipeCallback;
+  onEnd?: SwipeCallback;
   children?: (props: ChildProps, stepIndicator: ReactNode) => void;
 }
 
@@ -30,6 +31,7 @@ function Carousel({
   preSelectedIndex = 0,
   hasCustomIndicator = false,
   onClose,
+  onEnd,
   children,
 }: CarouselProps): ReactElement {
   const [index, setIndex] = useState(preSelectedIndex);
@@ -44,23 +46,19 @@ function Carousel({
   const onSwipedLeft: SwipeCallback = (e) => {
     e?.event?.stopPropagation?.();
 
-    if (index === items.length - 1) return null;
+    if (index === items.length - 1) return onEnd?.(e);
 
     return setIndex((state) => state + 1);
-  };
-
-  const onIndicatorClick = (position: number) => {
-    return setIndex(position);
   };
 
   const handlers = useSwipeable({ onSwipedLeft, onSwipedRight });
   const indicator = (
     <CarouselIndicator
-      onItemClick={onIndicatorClick}
+      onItemClick={setIndex}
       max={items.length}
       active={index}
       className={{
-        container: 'absolute bottom-4 left-1/2 -translate-x-1/2',
+        container: !children && 'absolute bottom-4 left-1/2 -translate-x-1/2',
       }}
     />
   );
@@ -71,6 +69,7 @@ function Carousel({
       className={classNames(
         'relative flex flex-row overflow-x-hidden',
         className?.container,
+        children ? 'w-[inherit]' : className?.wrapper,
       )}
     >
       {items.map((item, i) => (
@@ -93,12 +92,9 @@ function Carousel({
   if (!children) return content;
 
   return (
-    <div className="flex flex-col">
+    <div className={classNames('flex flex-col', className?.wrapper)}>
       {content}
-      {children?.(
-        { onSwipedLeft, onSwipedRight, onIndicatorClick, index },
-        indicator,
-      )}
+      {children?.({ onSwipedLeft, onSwipedRight, index }, indicator)}
     </div>
   );
 }
