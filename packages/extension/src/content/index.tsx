@@ -1,5 +1,6 @@
 import { browser } from 'webextension-polyfill-ts';
 import { removeLinkTargetElement } from '@dailydotdev/shared/src/lib/strings';
+import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 
 const isRendered = !!document.querySelector('daily-companion-app');
 
@@ -17,14 +18,14 @@ if (!isRendered) {
   wrapper.id = 'daily-companion-wrapper';
   shadow.appendChild(wrapper);
 
-  browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
+  browser.runtime.sendMessage({ type: ExtensionMessageType.ContentLoaded });
 
   let lastUrl = removeLinkTargetElement(window.location.href);
   new MutationObserver(() => {
     const current = removeLinkTargetElement(window.location.href);
     if (current !== lastUrl) {
       lastUrl = current;
-      browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
+      browser.runtime.sendMessage({ type: ExtensionMessageType.ContentLoaded });
     }
   }).observe(document, { subtree: true, childList: true });
 }
