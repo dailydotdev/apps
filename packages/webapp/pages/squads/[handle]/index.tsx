@@ -35,6 +35,7 @@ import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -90,13 +91,16 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
+  const isActive = !isNullOrUndefined(squad) && squad.active;
+  const isFinishedLoading = isFetched && !isLoading && !!squad;
+
+  useSquadOnboarding(isFinishedLoading && isActive && !isForbidden);
+
   if (isLoading && !isFetched && !squad) return <SquadLoading />;
 
   if (!isFetched) return <></>;
 
-  const isInactive = !isNullOrUndefined(squad) && !squad.active;
-
-  if (isFallback || isInactive || isForbidden) return <Unauthorized />;
+  if (isFallback || !isActive || isForbidden) return <Unauthorized />;
 
   if (!squad) return <Custom404 />;
 
