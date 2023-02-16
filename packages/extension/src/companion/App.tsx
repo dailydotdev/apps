@@ -13,6 +13,7 @@ import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -58,7 +59,7 @@ export default function App({
 
   const memoizedFlags = useMemo(() => flags, [flags]);
   const refetchData = async () =>
-    browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
+    browser.runtime.sendMessage({ type: ExtensionMessageType.ContentLoaded });
 
   useRefreshToken(token, refetchData);
   useBackgroundRequest(refreshTokenKey, {

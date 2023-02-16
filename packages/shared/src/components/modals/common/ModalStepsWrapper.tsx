@@ -11,6 +11,7 @@ import AnalyticsContext from '../../../contexts/AnalyticsContext';
 export interface StepComponentProps<
   T extends ReactEventHandler = MouseEventHandler,
 > {
+  activeStepIndex: number;
   previousStep?: T;
   nextStep?: T;
 }
@@ -63,5 +64,5 @@ export function ModalStepsWrapper({
     return null;
   }
 
-  return children({ previousStep, nextStep });
+  return children({ activeStepIndex, previousStep, nextStep });
 }

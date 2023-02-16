@@ -9,11 +9,15 @@ import BookmarkIcon from './icons/Bookmark';
 import XIcon from './icons/Close';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
-import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
+import {
+  ReadHistoryInfiniteData,
+  ReadHistoryData,
+} from '../hooks/useInfiniteReadingHistory';
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
 import { postAnalyticsEvent } from '../lib/feed';
 import { postEventName } from './utilities';
+import { updateInfiniteCache } from '../lib/query';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -34,30 +38,26 @@ export type PostOptionsReadingHistoryMenuProps = {
 /* eslint-disable no-param-reassign */
 const updateReadingHistoryPost =
   (
-    queryClient: QueryClient,
-    historyQueryKey: QueryKey,
-    readHistoryPostUpdated: Partial<ReadHistoryPost>,
+    client: QueryClient,
+    queryKey: QueryKey,
+    post: Partial<ReadHistoryPost>,
     { page, edge }: QueryIndexes,
   ): ((args: { id: string }) => Promise<() => void>) =>
   async () => {
-    const oldReadingHistory =
-      queryClient.getQueryData<ReadHistoryInfiniteData>(historyQueryKey);
-    const newItems = [...oldReadingHistory.pages];
-    const history = newItems[page].readHistory.edges[edge].node.post;
-    newItems[page].readHistory.edges[edge].node.post = {
-      ...history,
-      ...readHistoryPostUpdated,
-    };
-    queryClient.setQueryData<ReadHistoryInfiniteData>(historyQueryKey, {
-      ...oldReadingHistory,
-      pages: newItems,
+    const history = client.getQueryData<ReadHistoryInfiniteData>(queryKey);
+    const { node } = history.pages[page].readHistory.edges[edge];
+    const updated = { ...node, post: { ...node.post, ...post } };
+
+    updateInfiniteCache<ReadHistoryData>({
+      client,
+      edge,
+      page,
+      entity: updated,
+      prop: 'readHistory',
+      queryKey,
     });
-    return () => {
-      queryClient.setQueryData<ReadHistoryInfiniteData>(
-        historyQueryKey,
-        oldReadingHistory,
-      );
-    };
+    return () =>
+      client.setQueryData<ReadHistoryInfiniteData>(queryKey, history);
   };
 
 const getBookmarkIconAndMenuText = (bookmarked: boolean) => (
