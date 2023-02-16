@@ -18,7 +18,7 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
-import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
+import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquad,
   getSquadMembers,
@@ -47,6 +47,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
+  const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const queryKey = ['squad', handle];
   const {
@@ -54,7 +55,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     isLoading,
     isFetched,
   } = useQuery<Squad, ClientError>(queryKey, () => getSquad(handle), {
-    enabled: !!handle && !isForbidden,
+    enabled: isBootFetched && !!handle && !isForbidden,
     retry: false,
     onError: (err) => {
       const isErrorForbidden =
@@ -78,10 +79,9 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { data: squadMembers } = useQuery<SquadMember[]>(
     ['squadMembersInitial', handle],
     () => getSquadMembers(squadId),
-    { enabled: !!squadId },
+    { enabled: isBootFetched && !!squadId },
   );
 
-  const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
     () => ({
@@ -118,7 +118,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
-      <FeedPage className="laptop:pr-0 laptop:pl-0 mb-4 squad-background-fade">
+      <BaseFeedPage className="relative pt-2 mb-4 squad-background-fade">
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
@@ -126,7 +126,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           userId={user?.id}
         />
         <Feed
-          className="laptop:px-16"
+          className="px-6 laptop:px-16"
           feedName="source"
           feedQueryKey={[
             'sourceFeed',
@@ -138,7 +138,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           forceCardMode
           options={{ refetchOnMount: true }}
         />
-      </FeedPage>
+      </BaseFeedPage>
     </ProtectedPage>
   );
 };

@@ -11,8 +11,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
 import { useLeaveSquad } from '../../hooks/useLeaveSquad';
-import FeedbackIcon from '../icons/Feedback';
-import { squadFeedback } from '../../lib/constants';
 import ContextMenuItem, {
   ContextMenuItemProps,
 } from '../tooltips/ContextMenuItem';
@@ -57,18 +55,11 @@ export default function SquadHeaderMenu({
     });
   };
   const items = useMemo(() => {
-    const feedbackLink = `${squadFeedback}#user_id=${user.id}&squad_id=${squad.id}`;
     const list: ContextMenuItemProps[] = [
       {
         Icon: TourIcon,
         onClick: () => openModal({ type: LazyModal.SquadTour }),
         label: 'Learn how Squads work',
-      },
-      {
-        className: 'flex tablet:hidden',
-        Icon: FeedbackIcon,
-        label: 'Feedback',
-        href: feedbackLink,
       },
       isSquadOwner
         ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }

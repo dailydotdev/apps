@@ -22,36 +22,32 @@ export function SquadPageHeader({
   onNewSquadPost,
 }: SquadPageHeaderProps): ReactElement {
   return (
-    <section className="flex relative flex-col mobileL:items-center pb-4 mobileL:pb-8 mobileL:mb-8 w-full laptop:border-b min-h-20 border-theme-divider-tertiary">
+    <section className="flex flex-col items-center px-6 pb-0 tablet:pb-10 mb-6 w-full tablet:border-b min-h-20 border-theme-divider-tertiary">
       <Button
         tag="a"
         target="_blank"
         rel="noopener noreferrer"
         href={`${squadFeedback}#user_id=${userId}&squad_id=${squad.id}`}
-        className="hidden tablet:flex -top-4 right-4 btn btn-secondary"
+        className="top-5 right-4 btn btn-secondary"
         position="absolute"
-        icon={<FeedbackIcon size="medium" />}
+        icon={<FeedbackIcon className="hidden tablet:flex" size="medium" />}
         buttonSize="small"
       >
         Feedback
       </Button>
-      <div className="flex flex-row mobileL:flex-col gap-4 mobileL:gap-6 mobileL:items-center w-full">
-        <SquadImage
-          className="mobileL:mt-2 w-16 mobileL:w-24 h-16 mobileL:h-24"
-          {...squad}
-        />
-        <div className="flex flex-col mobileL:items-center mobileL:w-full">
-          <h3 className="mb-2 font-bold typo-title2">{squad.name}</h3>
-          <p className="typo-body text-theme-label-secondary">
-            @{squad.handle}
-          </p>
-        </div>
-      </div>
-      <h4 className="mt-4 mb-6 typo-body text-theme-label-secondary max-w-[42rem]">
-        {squad.description}
+      <SquadImage
+        className="mt-4 w-16 tablet:w-24 h-16 tablet:h-24"
+        {...squad}
+      />
+      <h3 className="mt-4 tablet:mt-6 font-bold typo-title2">{squad.name}</h3>
+      <h4 className="mt-1 tablet:mt-2 typo-body text-theme-label-tertiary">
+        @{squad.handle}
       </h4>
+      <p className="mt-5 tablet:mt-4 w-full text-center typo-body text-theme-label-secondary max-w-[42rem]">
+        {squad.description}
+      </p>
       <SquadHeaderBar
-        className="mb-4"
+        className="mt-6"
         squad={squad}
         members={members}
         memberCount={squad.membersCount}
