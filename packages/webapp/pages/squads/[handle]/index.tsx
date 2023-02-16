@@ -30,7 +30,6 @@ import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading
 import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import Custom404 from '@dailydotdev/shared/src/components/Custom404';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
@@ -39,6 +38,17 @@ import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboar
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
+import dynamic from 'next/dynamic';
+
+const Custom404 = dynamic(
+  () => import(/* webpackChunkName: "404" */ '../../404'),
+);
+const SquadTourPopup = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadTourPopup" */ '@dailydotdev/shared/src/components/squads/SquadTourPopup'
+    ),
+);
 
 type SourcePageProps = { handle: string };
 
@@ -94,7 +104,9 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const isActive = !isNullOrUndefined(squad) && squad.active;
   const isFinishedLoading = isFetched && !isLoading && !!squad;
 
-  useSquadOnboarding(isFinishedLoading && isActive && !isForbidden);
+  const { isPopupOpen, onClosePopup } = useSquadOnboarding(
+    isFinishedLoading && isActive && !isForbidden,
+  );
 
   if (isLoading && !isFetched && !squad) return <SquadLoading />;
 
@@ -118,6 +130,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
+      {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
       <BaseFeedPage className="relative pt-2 mb-4 squad-background-fade">
         <SquadPageHeader
           squad={squad}
