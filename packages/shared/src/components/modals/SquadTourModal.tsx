@@ -1,6 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
+import CloseButton from '../CloseButton';
 import Carousel from '../containers/Carousel';
 import SquadTourCard from '../squads/SquadTourCard';
 import { Modal, ModalProps } from './common/Modal';
@@ -106,6 +107,10 @@ function SquadTourModal({
       className="overflow-hidden !border-theme-color-cabbage"
     >
       {renderContent()}
+      <CloseButton
+        className="top-3 right-3 !absolute !btn-secondary"
+        onClick={onRequestClose}
+      />
     </Modal>
   );
 }
