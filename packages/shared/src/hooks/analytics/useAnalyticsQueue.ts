@@ -2,6 +2,7 @@ import { useMutation } from 'react-query';
 import { MutableRefObject, useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounce from '../useDebounce';
+import { ExtensionMessageType } from '../../lib/extension';
 
 export interface AnalyticsEvent extends Record<string, unknown> {
   visit_id?: string;
@@ -81,7 +82,7 @@ export default function useAnalyticsQueue({
           if (backgroundMethod) {
             backgroundMethod?.({
               url: ANALYTICS_ENDPOINT,
-              type: 'FETCH_REQUEST',
+              type: ExtensionMessageType.FetchRequest,
               args: {
                 body: JSON.stringify(events),
                 credentials: 'include',
