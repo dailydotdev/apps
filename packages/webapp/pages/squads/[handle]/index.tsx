@@ -35,10 +35,10 @@ import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
+import dynamic from 'next/dynamic';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
-import dynamic from 'next/dynamic';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
