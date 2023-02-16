@@ -93,7 +93,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                   href={
                     // TODO WT-1045 replace with rebrandly short link
                     isFirefoxExtension
-                      ? 'https://daily.dev/blog/how-to-manually-update-chrome-firefox-extensions'
+                      ? 'https://r.daily.dev/firefoxupdate'
                       : undefined
                   }
                   className="bg-cabbage-40 btn-primary"

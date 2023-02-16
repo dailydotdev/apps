@@ -251,7 +251,7 @@ describe('ChangelogTooltip component', () => {
     const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
 
     expect(changelogExtensionBtn.tagName.toLowerCase()).toBe('a');
-    expect(changelogExtensionBtn.getAttribute('href')).not.toBeNull();
+    expect(changelogExtensionBtn.getAttribute('href')).toBeTruthy();
 
     delete process.env.TARGET_BROWSER;
     delete global.browser;
