@@ -84,7 +84,7 @@ export function SquadHeaderBar({
         onClick={onMenuClick}
       />
       <Button
-        className="w-full mobileL:w-auto btn btn-secondary"
+        className="w-full mobileL:w-auto btn btn-primary"
         onClick={onNewSquadPost}
       >
         Create new post
