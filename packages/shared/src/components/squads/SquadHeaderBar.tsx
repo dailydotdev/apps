@@ -69,16 +69,14 @@ export function SquadHeaderBar({
           </Button>
         </SimpleTooltip>
         <div className="w-0 h-full border-r border-theme-divider-secondary" />
-        <SimpleTooltip placement="top" content="Invite a new member">
-          <div className="p-1">
-            <Button
-              className="active:bg-theme-active btn-tertiary"
-              buttonSize="small"
-              onClick={openSquadInviteModal}
-              icon={<AddUserIcon className="text-theme-label-secondary" />}
-            />
-          </div>
-        </SimpleTooltip>
+        <Button
+          className="m-1 active:bg-theme-active btn-tertiary"
+          buttonSize="small"
+          onClick={openSquadInviteModal}
+          icon={<AddUserIcon className="text-theme-label-secondary" />}
+        >
+          Invite
+        </Button>
       </div>
       <Button
         className="mobileL:order-2 btn btn-secondary"
