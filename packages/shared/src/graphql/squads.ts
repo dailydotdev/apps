@@ -245,13 +245,10 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export async function getSquadMembers(
-  id: string,
-  count = 5,
-): Promise<SquadMember[]> {
+export async function getSquadMembers(id: string): Promise<SquadMember[]> {
   const res = await request<SquadEdgesData>(graphqlUrl, SQUAD_MEMBERS_QUERY, {
     id,
-    first: count,
+    first: 5,
   });
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }

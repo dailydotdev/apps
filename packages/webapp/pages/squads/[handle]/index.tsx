@@ -41,8 +41,6 @@ import ProtectedPage from '../../../components/ProtectedPage';
 
 type SourcePageProps = { handle: string };
 
-const membersPreviewCount = 3;
-
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { isFallback } = useRouter();
@@ -78,7 +76,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   const { data: squadMembers } = useQuery<SquadMember[]>(
     ['squadMembersInitial', handle],
-    () => getSquadMembers(squadId, membersPreviewCount),
+    () => getSquadMembers(squadId),
     { enabled: !!squadId },
   );
 
