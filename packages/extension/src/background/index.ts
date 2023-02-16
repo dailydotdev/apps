@@ -149,12 +149,12 @@ async function handleMessages(
       // if update is available reload extension to apply the update
       if (status === 'update_available') {
         browser.runtime.reload();
-
-        return true;
       }
+
+      return { status };
     }
 
-    return false;
+    return { status: 'no_update' };
   }
 
   return null;

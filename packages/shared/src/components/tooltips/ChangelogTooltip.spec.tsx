@@ -19,6 +19,10 @@ import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { ExtensionMessageType } from '../../lib/extension';
+import {
+  ToastNotification,
+  TOAST_NOTIF_KEY,
+} from '../../hooks/useToastNotification';
 
 describe('ChangelogTooltip component', () => {
   const noop = jest.fn();
@@ -26,6 +30,10 @@ describe('ChangelogTooltip component', () => {
   const client = new QueryClient();
   const updateAlerts = jest.fn();
   const defaultAlerts: Alerts = {};
+  let extensionUpdateStatus = 'update_available';
+  const sendMessageFn = jest.fn(() => ({
+    status: extensionUpdateStatus,
+  }));
 
   beforeEach(async () => {
     nock.cleanAll();
@@ -140,7 +148,6 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'chrome';
 
-    const sendMessageFn = jest.fn();
     global.browser = {
       runtime: {
         sendMessage: sendMessageFn,
@@ -152,11 +159,15 @@ describe('ChangelogTooltip component', () => {
       await screen.findByTestId('changelog');
     });
 
-    act(() => {
+    await act(async () => {
       const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
       fireEvent.click(changelogExtensionBtn);
+      await new Promise(process.nextTick);
     });
 
+    expect(
+      client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY),
+    ).toBeDefined();
     expect(sendMessageFn).toHaveBeenCalledTimes(1);
     expect(sendMessageFn).toHaveBeenCalledWith({
       type: ExtensionMessageType.RequestUpdate,
@@ -236,7 +247,33 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'firefox';
 
-    const sendMessageFn = jest.fn();
+    await act(async () => {
+      renderComponent();
+      await screen.findByTestId('changelog');
+    });
+
+    const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
+
+    await act(async () => {
+      fireEvent.click(changelogExtensionBtn);
+      await new Promise(process.nextTick);
+    });
+
+    expect(sendMessageFn).not.toHaveBeenCalled();
+    expect(changelogExtensionBtn.tagName.toLowerCase()).toBe('a');
+    expect(changelogExtensionBtn.getAttribute('href')).toBeTruthy();
+
+    delete process.env.TARGET_BROWSER;
+  });
+
+  it('should show toast when no extension update available', async () => {
+    client.setQueryData(
+      ['changelog', 'latest-post', { loggedIn: false }],
+      defaultPost,
+    );
+
+    process.env.TARGET_BROWSER = 'chrome';
+
     global.browser = {
       runtime: {
         sendMessage: sendMessageFn,
@@ -250,8 +287,52 @@ describe('ChangelogTooltip component', () => {
 
     const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
 
-    expect(changelogExtensionBtn.tagName.toLowerCase()).toBe('a');
-    expect(changelogExtensionBtn.getAttribute('href')).toBeTruthy();
+    extensionUpdateStatus = 'no_update';
+
+    await act(async () => {
+      fireEvent.click(changelogExtensionBtn);
+      await new Promise(process.nextTick);
+    });
+
+    expect(
+      client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY),
+    ).toBeDefined();
+
+    delete process.env.TARGET_BROWSER;
+    delete global.browser;
+  });
+
+  it('should show toast when no extension update is throttled', async () => {
+    client.setQueryData(
+      ['changelog', 'latest-post', { loggedIn: false }],
+      defaultPost,
+    );
+
+    process.env.TARGET_BROWSER = 'chrome';
+
+    global.browser = {
+      runtime: {
+        sendMessage: sendMessageFn,
+      },
+    };
+
+    await act(async () => {
+      renderComponent();
+      await screen.findByTestId('changelog');
+    });
+
+    const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
+
+    extensionUpdateStatus = 'throttled';
+
+    await act(async () => {
+      fireEvent.click(changelogExtensionBtn);
+      await new Promise(process.nextTick);
+    });
+
+    expect(
+      client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY),
+    ).toBeDefined();
 
     delete process.env.TARGET_BROWSER;
     delete global.browser;
