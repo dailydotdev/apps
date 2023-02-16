@@ -1,4 +1,4 @@
-import React, { MutableRefObject, ReactElement, useEffect } from 'react';
+import React, { MutableRefObject, ReactElement } from 'react';
 import { BaseTooltip, BaseTooltipProps } from './BaseTooltip';
 import { Button } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
