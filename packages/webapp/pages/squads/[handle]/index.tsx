@@ -46,6 +46,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
+  const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const queryKey = ['squad', handle];
   const {
@@ -53,7 +54,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     isLoading,
     isFetched,
   } = useQuery<Squad, ClientError>(queryKey, () => getSquad(handle), {
-    enabled: !!handle && !isForbidden,
+    enabled: isBootFetched && !!handle && !isForbidden,
     retry: false,
     onError: (err) => {
       const isErrorForbidden =
@@ -77,10 +78,9 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { data: squadMembers } = useQuery<SquadMember[]>(
     ['squadMembersInitial', handle],
     () => getSquadMembers(squadId),
-    { enabled: !!squadId },
+    { enabled: isBootFetched && !!squadId },
   );
 
-  const { user } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
     () => ({
