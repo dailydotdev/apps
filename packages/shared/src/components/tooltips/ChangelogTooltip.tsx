@@ -137,6 +137,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       arrow
       placement="right-end"
       visible={!!post}
+      zIndex={9}
     />
   );
 }
