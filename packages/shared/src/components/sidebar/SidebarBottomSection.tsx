@@ -30,6 +30,7 @@ export function SidebarBottomSectionSection({
 }: SidebarBottomSectionProps): ReactElement {
   const changelog = useChangelog();
   const changelogBadgeRef = useRef<HTMLElement>();
+  const navItemRef = useRef<HTMLElement>();
 
   const bottomMenuItems: SidebarMenuItem[] = [
     {
@@ -53,6 +54,7 @@ export function SidebarBottomSectionSection({
             </div>
           )
         : undefined,
+      navItemRef,
     },
     {
       icon: () => <ListIcon Icon={() => <FeedbackIcon />} />,
@@ -70,7 +72,10 @@ export function SidebarBottomSectionSection({
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
       {changelog.isAvailable && (
-        <ChangelogTooltip elementRef={changelogBadgeRef} />
+        <ChangelogTooltip
+          elementRef={changelogBadgeRef}
+          appendTo={() => navItemRef.current}
+        />
       )}
     </Nav>
   );

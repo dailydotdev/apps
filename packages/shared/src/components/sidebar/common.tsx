@@ -2,6 +2,8 @@ import React, {
   ReactNode,
   ReactElement,
   HTMLAttributeAnchorTarget,
+  forwardRef,
+  MutableRefObject,
 } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
@@ -41,6 +43,7 @@ export interface SidebarMenuItem {
   className?: {
     text?: string;
   };
+  navItemRef?: MutableRefObject<HTMLElement>;
 }
 
 interface ListIconProps {
@@ -155,25 +158,24 @@ export const ItemInner = ({
   );
 };
 
-export const NavItem = ({
-  className,
-  color,
-  active,
-  children,
-}: NavItemProps): ReactElement => {
-  const baseClasses = active
-    ? 'text-theme-label-primary'
-    : 'hover:text-theme-label-primary text-theme-label-tertiary';
+export const NavItem = forwardRef<HTMLElement, NavItemProps>(
+  ({ className, color, active, children }, ref): ReactElement => {
+    const baseClasses = active
+      ? 'text-theme-label-primary'
+      : 'hover:text-theme-label-primary text-theme-label-tertiary';
 
-  return (
-    <RawNavItem
-      className={classNames(
-        className,
-        color || baseClasses,
-        active && 'bg-theme-active',
-      )}
-    >
-      {children}
-    </RawNavItem>
-  );
-};
+    return (
+      <RawNavItem
+        ref={ref}
+        className={classNames(
+          className,
+          color || baseClasses,
+          active && 'bg-theme-active',
+        )}
+      >
+        {children}
+      </RawNavItem>
+    );
+  },
+);
+NavItem.displayName = 'NavItem';

@@ -1,5 +1,5 @@
 import React, { MutableRefObject, ReactElement } from 'react';
-import { BaseTooltip } from './BaseTooltip';
+import { BaseTooltip, BaseTooltipProps } from './BaseTooltip';
 import { Button } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 import { cloudinary } from '../../lib/image';
@@ -8,7 +8,7 @@ import { Image } from '../image/Image';
 import { useChangelog } from '../../hooks/useChangelog';
 import { ExtensionMessageType } from '../../lib/extension';
 
-interface ChangelogTooltipProps<TRef> {
+interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
   elementRef: MutableRefObject<TRef>;
   onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
 }
@@ -133,7 +133,6 @@ function ChangelogTooltip<TRef extends HTMLElement>({
           'bg-cabbage-40 bottom-24 !left-0 !h-2.5 !w-0 flex items-center justify-end before:!w-10 before:!h-px before:!transform-none',
       }}
       reference={elementRef}
-      appendTo={globalThis?.document?.body}
       arrow
       placement="right-end"
       visible={!!post}
