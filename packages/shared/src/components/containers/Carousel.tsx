@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useState } from 'react';
 import { useSwipeable, SwipeCallback } from 'react-swipeable';
+import { isNullOrUndefined } from '../../lib/func';
 import CarouselIndicator from './CarouselIndicator';
 
 interface ChildProps {
@@ -38,7 +39,7 @@ function Carousel({
   const onSwipedRight: SwipeCallback = (e) => {
     e?.event?.stopPropagation?.();
 
-    if (index === 0) return onClose?.(e);
+    if (index === 0) return isNullOrUndefined(e?.dir) && onClose?.(e);
 
     return setIndex((state) => state - 1);
   };
@@ -46,7 +47,8 @@ function Carousel({
   const onSwipedLeft: SwipeCallback = (e) => {
     e?.event?.stopPropagation?.();
 
-    if (index === items.length - 1) return onEnd?.(e);
+    const max = items.length - 1;
+    if (index === max) return isNullOrUndefined(e?.dir) && onEnd?.(e);
 
     return setIndex((state) => state + 1);
   };

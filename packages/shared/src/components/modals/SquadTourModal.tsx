@@ -73,6 +73,8 @@ function SquadTourModal({
         hasCustomIndicator
         items={items}
         className={{ wrapper: 'w-full' }}
+        onClose={() => onRequestClose?.(null)}
+        onEnd={() => onRequestClose?.(null)}
       >
         {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
           <span className="flex flex-row justify-between items-center p-3 border-t border-theme-divider-tertiary">
