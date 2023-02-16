@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import EditIcon from '../icons/Edit';
-// import TourIcon from '../icons/Tour';
+import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
 import { Squad, SquadMemberRole } from '../../graphql/squads';
 import TrashIcon from '../icons/Trash';
@@ -59,7 +59,11 @@ export default function SquadHeaderMenu({
   const items = useMemo(() => {
     const feedbackLink = `${squadFeedback}#user_id=${user.id}&squad_id=${squad.id}`;
     const list: ContextMenuItemProps[] = [
-      // { Icon: TourIcon, onClick: console.log, label: 'Learn how Squads work' },
+      {
+        Icon: TourIcon,
+        onClick: () => openModal({ type: LazyModal.SquadTour }),
+        label: 'Learn how Squads work',
+      },
       {
         className: 'flex tablet:hidden',
         Icon: FeedbackIcon,
