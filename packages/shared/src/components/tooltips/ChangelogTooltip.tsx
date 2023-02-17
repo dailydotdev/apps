@@ -113,23 +113,16 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                             type: ExtensionMessageType.RequestUpdate,
                           });
 
-                        let toastMessage: string;
+                        const toastMessageMap = {
+                          throttled:
+                            'There is no update available, try again later',
+                          no_update:
+                            'You are already on the latest available version',
+                          update_available: 'Browser extension updated',
+                        };
 
-                        switch (updateResponse.status) {
-                          case 'throttled':
-                            toastMessage =
-                              'There is no update available, try again later';
-                            break;
-                          case 'no_update':
-                            toastMessage =
-                              'You are already on the latest available version';
-                            break;
-                          case 'update_available':
-                            toastMessage = 'Browser extension updated';
-                            break;
-                          default:
-                            break;
-                        }
+                        const toastMessage =
+                          toastMessageMap[updateResponse.status];
 
                         if (toastMessage) {
                           toast.displayToast(toastMessage);
