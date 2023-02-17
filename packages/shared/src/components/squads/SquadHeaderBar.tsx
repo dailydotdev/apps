@@ -45,40 +45,42 @@ export function SquadHeaderBar({
     });
 
   return (
-    <div className={classNames('flex flex-wrap gap-4', className)} {...props}>
-      <div className="flex items-center rounded-14 border border-theme-divider-secondary">
+    <div
+      {...props}
+      className={classNames(
+        'flex flex-row flex-wrap items-center gap-4',
+        className,
+      )}
+    >
+      <div className="flex overflow-hidden items-center rounded-14 border border-theme-divider-secondary">
         <SimpleTooltip placement="top" content="Members list">
-          <Button
-            className="active:bg-theme-active btn-tertiary !pl-1 !pr-3 !rounded-r-none"
-            buttonSize="medium"
+          <button
+            type="button"
+            className="flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active border-r border-theme-divider-tertiary"
             onClick={openMemberListModal}
           >
-            <span className="flex items-center">
-              <span className="flex flex-row-reverse ml-1">
-                {members?.map(({ user }) => (
-                  <ProfilePicture
-                    className="-ml-2 border-2 border-theme-bg-primary"
-                    size="large"
-                    key={user.username}
-                    user={user}
-                  />
-                ))}
-              </span>
-              <span className="ml-3">{memberCount || ''}</span>
-            </span>
-          </Button>
+            <span className="mr-1 ml-2 min-w-[1rem]">{memberCount}</span>
+            {members?.map(({ user }, index) => (
+              <ProfilePicture
+                className={classNames(
+                  '-ml-2 border-2 border-theme-bg-primary',
+                  index > 2 && 'hidden tablet:flex',
+                )}
+                size="medium"
+                key={user.username}
+                user={user}
+              />
+            ))}
+          </button>
         </SimpleTooltip>
-        <div className="w-0 h-full border-r border-theme-divider-secondary" />
-        <SimpleTooltip placement="top" content="Invite a new member">
-          <div className="p-1">
-            <Button
-              className="active:bg-theme-active btn-tertiary"
-              buttonSize="small"
-              onClick={openSquadInviteModal}
-              icon={<AddUserIcon className="text-theme-label-secondary" />}
-            />
-          </div>
-        </SimpleTooltip>
+        <Button
+          className="m-1 active:bg-theme-active btn-tertiary"
+          buttonSize="small"
+          onClick={openSquadInviteModal}
+          icon={<AddUserIcon className="text-theme-label-secondary" />}
+        >
+          Invite
+        </Button>
       </div>
       <Button
         className="mobileL:order-2 btn btn-secondary"
@@ -86,7 +88,7 @@ export function SquadHeaderBar({
         onClick={onMenuClick}
       />
       <Button
-        className="w-full mobileL:w-auto btn btn-secondary"
+        className="w-full mobileL:w-auto btn btn-primary"
         onClick={onNewSquadPost}
       >
         Create new post

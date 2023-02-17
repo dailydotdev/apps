@@ -158,9 +158,15 @@ export const ResponsivePageContainer = classed(
   'py-6 laptop:min-h-screen',
 );
 
-export const FeedPage = classed(
+export const BaseFeedPage = classed(
   'main',
-  'withNavBar flex flex-col flex-1 items-start pb-3 px-6 laptop:px-16 pt-10 max-w-full',
+  'flex flex-col flex-1 items-start max-w-full pb-16',
+  styles.feedPage,
+);
+
+export const FeedPage = classed(
+  BaseFeedPage,
+  'pt-10 px-6 laptop:px-16',
   styles.feedPage,
 );
 
