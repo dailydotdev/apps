@@ -1,9 +1,15 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { ArticlePostCard } from './ArticlePostCard';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import post from '../../../__tests__/fixture/post';
-import { PostCardProps } from './common';
+import { PostCardProps, visibleOnGroupHover } from './common';
 
 const defaultProps: PostCardProps = {
   post,
@@ -99,6 +105,8 @@ it('should show author name when available', async () => {
   renderComponent();
   const el = await screen.findByText('Ido Shamun');
   expect(el).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/no-node-access
+  expect(el.parentElement).toHaveClass(visibleOnGroupHover);
 });
 
 it('should show trending flag', async () => {
@@ -107,4 +115,17 @@ it('should show trending flag', async () => {
   expect(
     await screen.findByText('20 devs read it last hour'),
   ).toBeInTheDocument();
+});
+
+it('should open the article when clicking the read post button', async () => {
+  renderComponent();
+  const read = await screen.findByText('Read post');
+  fireEvent.click(read);
+  expect(defaultProps.onReadArticleClick).toBeCalledTimes(1);
+});
+
+it('should show read post button on hover when in laptop size', async () => {
+  renderComponent();
+  const header = await screen.findByTestId('cardHeaderActions');
+  expect(header).toHaveClass(visibleOnGroupHover);
 });

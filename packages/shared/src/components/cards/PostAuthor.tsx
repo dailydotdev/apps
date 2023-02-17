@@ -1,30 +1,26 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Post } from '../../graphql/posts';
-import styles from './Card.module.css';
 import FeatherIcon from '../icons/Feather';
+import { Author } from '../../graphql/comments';
+
+interface PostAuthorProps {
+  author: Author;
+  className?: string;
+}
 
 export default function PostAuthor({
-  post,
+  author,
   className,
-}: {
-  post: Post;
-  className?: string;
-}): ReactElement {
-  if (!post.author) {
-    return <></>;
-  }
-
+}: PostAuthorProps): ReactElement {
   return (
     <div
       className={classNames(
-        'flex items-center font-bold typo-footnote text-theme-status-help',
-        styles.authorBox,
+        'flex flex-row items-center font-bold typo-footnote text-theme-status-help',
         className,
       )}
     >
       <FeatherIcon secondary className="mr-1 text-xl" />
-      <span className="truncate">{post.author.name}</span>
+      <span className="truncate">{author.name}</span>
     </div>
   );
 }
