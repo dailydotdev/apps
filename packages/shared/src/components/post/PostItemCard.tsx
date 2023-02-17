@@ -78,11 +78,7 @@ export default function PostItemCard({
           <h3 className="flex flex-1 mr-6 text-left break-words line-clamp-2 typo-callout">
             {post.title}
           </h3>
-          <PostMetadata
-            className="text-theme-label-tertiary"
-            readTime={post.readTime}
-            numUpvotes={post.numUpvotes}
-          />
+          <PostMetadata readTime={post.readTime} numUpvotes={post.numUpvotes} />
         </div>
         {showButtons && onHide && (
           <Button
