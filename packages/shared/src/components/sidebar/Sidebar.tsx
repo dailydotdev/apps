@@ -175,6 +175,7 @@ export default function Sidebar({
               onNavTabClick={onNavTabClick}
               enableSearch={enableSearch}
               isItemsButton={isNavButtons}
+              className={!!squads?.length && '!mt-6'}
             />
             <ContributeSection
               {...defaultRenderSectionProps}
