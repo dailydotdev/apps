@@ -1,4 +1,5 @@
 import React, { MutableRefObject, ReactElement } from 'react';
+import { useMutation } from 'react-query';
 import { BaseTooltip, BaseTooltipProps } from './BaseTooltip';
 import { Button } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
@@ -23,6 +24,34 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
   const { latestPost: post, dismiss: dismissChangelog } = useChangelog();
   const toast = useToastNotification();
+
+  const { mutateAsync: updateExtension } = useMutation(async () => {
+    if (isFirefoxExtension) {
+      return;
+    }
+
+    if (isExtension) {
+      const sendMessage = globalThis?.browser?.runtime?.sendMessage;
+
+      if (typeof sendMessage === 'function') {
+        const updateResponse: { status: string } = await sendMessage({
+          type: ExtensionMessageType.RequestUpdate,
+        });
+
+        const toastMessageMap = {
+          throttled: 'There is no update available, try again later',
+          no_update: 'You are already on the latest available version',
+          update_available: 'Browser extension updated',
+        };
+
+        const toastMessage = toastMessageMap[updateResponse.status];
+
+        if (toastMessage) {
+          toast.displayToast(toastMessage);
+        }
+      }
+    }
+  });
 
   return (
     <BaseTooltip
@@ -99,36 +128,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                   className="bg-cabbage-40 btn-primary"
                   data-testid="changelogExtensionBtn"
                   onClick={async () => {
-                    if (isFirefoxExtension) {
-                      return;
-                    }
-
-                    if (isExtension) {
-                      const sendMessage =
-                        globalThis?.browser?.runtime?.sendMessage;
-
-                      if (typeof sendMessage === 'function') {
-                        const updateResponse: { status: string } =
-                          await sendMessage({
-                            type: ExtensionMessageType.RequestUpdate,
-                          });
-
-                        const toastMessageMap = {
-                          throttled:
-                            'There is no update available, try again later',
-                          no_update:
-                            'You are already on the latest available version',
-                          update_available: 'Browser extension updated',
-                        };
-
-                        const toastMessage =
-                          toastMessageMap[updateResponse.status];
-
-                        if (toastMessage) {
-                          toast.displayToast(toastMessage);
-                        }
-                      }
-                    }
+                    await updateExtension();
                   }}
                 >
                   Update extension
