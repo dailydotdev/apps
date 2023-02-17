@@ -40,6 +40,7 @@ interface PostCommentsProps {
   post: Post;
   origin: Origin;
   permissionNotificationCommentId?: string;
+  modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
@@ -86,6 +87,7 @@ export function PostComments({
   onClick,
   onShare,
   onClickUpvote,
+  modalParentSelector,
   permissionNotificationCommentId,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
@@ -186,7 +188,7 @@ export function PostComments({
           onShowUpvotes={onClickUpvote}
           postAuthorId={post.author?.id}
           postScoutId={post.scout?.id}
-          appendTooltipTo={() => container?.current}
+          appendTooltipTo={modalParentSelector ?? (() => container?.current)}
           permissionNotificationCommentId={permissionNotificationCommentId}
         />
       ))}
