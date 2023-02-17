@@ -3,8 +3,7 @@ import { useQuery } from 'react-query';
 import AlertContext from '../contexts/AlertContext';
 import AuthContext from '../contexts/AuthContext';
 import { getLatestChangelogPost, Post } from '../graphql/posts';
-import { laptop } from '../styles/media';
-import useMedia from './useMedia';
+import useSidebarRendered from './useSidebarRendered';
 
 type UseChangelog = {
   isAvailable: boolean;
@@ -15,7 +14,7 @@ type UseChangelog = {
 export function useChangelog(): UseChangelog {
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user } = useContext(AuthContext);
-  const isDesktop = useMedia([laptop.replace('@media ', '')], [true], false);
+  const { sidebarRendered } = useSidebarRendered();
 
   const { data: latestPost } = useQuery(
     ['changelog', 'latest-post', { loggedIn: !!user?.id }] as const,
@@ -25,11 +24,11 @@ export function useChangelog(): UseChangelog {
       return getLatestChangelogPost(variables.loggedIn);
     },
     {
-      enabled: isDesktop,
+      enabled: sidebarRendered,
     },
   );
   const isAvailable = useMemo(() => {
-    if (!isDesktop) {
+    if (!sidebarRendered) {
       return false;
     }
 
@@ -41,7 +40,7 @@ export function useChangelog(): UseChangelog {
     }
 
     return lastPostDate > lastChangelogDate;
-  }, [alerts.lastChangelog, latestPost?.createdAt, isDesktop]);
+  }, [alerts.lastChangelog, latestPost?.createdAt, sidebarRendered]);
 
   const dismiss = async () => {
     const currentDate = new Date();
