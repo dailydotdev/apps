@@ -69,3 +69,20 @@ export const SOURCE_BASE_FRAGMENT = gql`
     }
   }
 `;
+
+export const COMMENT_FRAGMENT = gql`
+  fragment CommentFragment on Comment {
+    id
+    content
+    contentHtml
+    createdAt
+    lastUpdatedAt
+    permalink
+    upvoted
+    numUpvotes
+    author {
+      ...UserShortInfo
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
