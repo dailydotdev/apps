@@ -106,6 +106,8 @@ it('should show author name when available', async () => {
   const el = await screen.findByText('Ido Shamun');
   expect(el).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access
+  expect(el.parentElement).toHaveClass('flex');
+  // eslint-disable-next-line testing-library/no-node-access
   expect(el.parentElement).toHaveClass(visibleOnGroupHover);
 });
 
@@ -127,5 +129,6 @@ it('should open the article when clicking the read post button', async () => {
 it('should show read post button on hover when in laptop size', async () => {
   renderComponent();
   const header = await screen.findByTestId('cardHeaderActions');
+  expect(header).toHaveClass('flex');
   expect(header).toHaveClass(visibleOnGroupHover);
 });
