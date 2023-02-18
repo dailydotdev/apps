@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
 import { ProfilePicture } from '../ProfilePicture';
@@ -10,13 +10,17 @@ import OpenLinkIcon from '../icons/OpenLink';
 import { SquadForm } from '../../graphql/squads';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
+interface SquadCommentProps {
+  onSubmit: React.EventHandler<FormEvent>;
+  form: Partial<SquadForm>;
+  isLoading?: boolean;
+}
+
 export function SquadComment({
   onSubmit,
   form,
-}: {
-  onSubmit: (e) => void;
-  form: Partial<SquadForm>;
-}): ReactElement {
+  isLoading,
+}: SquadCommentProps): ReactElement {
   const { post } = form.post;
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
@@ -80,7 +84,8 @@ export function SquadComment({
               form="squad-comment"
               className="btn-primary-cabbage"
               type="submit"
-              disabled={!commentary}
+              loading={isLoading}
+              disabled={!commentary || isLoading}
             >
               Done
             </Button>
