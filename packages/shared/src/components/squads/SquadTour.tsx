@@ -33,7 +33,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
             className="ml-auto btn-primary-cabbage"
             onClick={() => setShouldShowCarousel(true)}
           >
-            Next
+            Start
           </FooterButton>
         </ModalFooter>
       </>
