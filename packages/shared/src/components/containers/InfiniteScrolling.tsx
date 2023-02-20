@@ -1,9 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import { UseInfiniteQueryResult } from 'react-query';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 
-export interface InfiniteScrollingProps {
+export interface InfiniteScrollingProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'placeholder'> {
   children: ReactNode;
   placeholder?: ReactNode;
   className?: string;
@@ -25,6 +26,7 @@ function InfiniteScrolling({
   canFetchMore,
   isFetchingNextPage,
   fetchNextPage,
+  ...props
 }: InfiniteScrollingProps): ReactElement {
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage: fetchNextPage,
@@ -32,7 +34,7 @@ function InfiniteScrolling({
   });
 
   return (
-    <div className={classNames('flex relative flex-col', className)}>
+    <div {...props} className={classNames('flex relative flex-col', className)}>
       {children}
       {isFetchingNextPage && placeholder}
       <div
