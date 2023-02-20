@@ -357,24 +357,3 @@ describe('invitation modal', () => {
     await waitFor(() => expect(header).not.toBeInTheDocument());
   });
 });
-
-// currently unable to test the options menu - the contextify is throwing error on test, needs investigation
-// describe('squad options', () => {
-//   it('should show when squad options is clicked', async () => {
-//     renderComponent();
-//     const options = await screen.findByLabelText('Squad options');
-//     options.click();
-//     await waitFor(async () => {
-//       await screen.findByRole('menu');
-//     });
-//   });
-
-//   it('should have a feedback button on mobile devices', async () => {
-//     renderComponent();
-//     const options = await screen.findByLabelText('Squad options');
-//     options.click();
-//     const feedback = await screen.findByLabelText('squad-options-feedback');
-//     expect(feedback).toHaveClass('flex tablet:hidden');
-//     expect(feedback).toHaveAttribute('href', link);
-//   });
-// });
