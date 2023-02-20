@@ -18,7 +18,7 @@ export const SquadModalHeader = ({
         <DailyCircle className=" absolute top-4 left-10" size="xxsmall" />
         <Image
           src={squad.image}
-          alt={squad.name}
+          alt={`${squad.handle}'s logo`}
           className="object-cover w-40 h-40 rounded-full"
           loading="lazy"
           fallbackSrc={cloudinary.squads.imageFallback}

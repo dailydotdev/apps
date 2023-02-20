@@ -30,8 +30,15 @@ export function SquadPageHeader({
         href={`${squadFeedback}#user_id=${userId}&squad_id=${squad.id}`}
         className="top-5 right-4 btn btn-secondary"
         position="absolute"
-        icon={<FeedbackIcon className="hidden tablet:flex" size="medium" />}
+        icon={
+          <FeedbackIcon
+            className="hidden tablet:flex"
+            size="medium"
+            aria-label="squad-feedback-icon"
+          />
+        }
         buttonSize="small"
+        aria-label="squad-feedback"
       >
         Feedback
       </Button>
