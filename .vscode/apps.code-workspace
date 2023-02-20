@@ -1,0 +1,36 @@
+{
+  "folders": [
+    {
+      "name": "apps",
+      "path": "../"
+    },
+    {
+      "path": "../packages/webapp"
+    },
+    {
+      "path": "../packages/extension"
+    },
+    {
+      "path": "../packages/shared"
+    }
+  ],
+  "settings": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "tailwindCSS.classAttributes": [
+      "class",
+      "className",
+      ".*ClassName",
+      ".*Class"
+    ],
+    "tailwindCSS.experimental.classRegex": [
+      ":\\s*?[\"'`]([^\"'`]*).*?,",
+      [
+        "classNames\\(([^)]*)\\)",
+        "'([^']*)'"
+      ],
+      "classed\\([A-z]*[^,]*,([^)]*)\\)"
+    ]
+  }
+}
