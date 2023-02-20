@@ -37,11 +37,14 @@ export enum AccountPage {
   Profile = 'profile',
   Security = 'security',
   Notifications = 'notifications',
+  OtherSettings = 'others',
 }
 
 export enum AccountSecurityDisplay {
   Default = 'default',
+  ChangePassword = 'change_password',
   ChangeEmail = 'change_email',
+  ConnectEmail = 'connect_email',
 }
 
 interface AccountSidebarPage {
