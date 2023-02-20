@@ -144,6 +144,7 @@ const renderComponent = (
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
+          isFetched: true,
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
