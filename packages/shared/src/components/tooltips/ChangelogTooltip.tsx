@@ -15,6 +15,8 @@ interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
   onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
 }
 
+const tooltipArrowOffset: [number, number] = [6 * 16, 2.5 * 16];
+
 function ChangelogTooltip<TRef extends HTMLElement>({
   elementRef,
   onRequestClose,
@@ -138,7 +140,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
           </div>
         )
       }
-      offset={[6 * 16, 2.5 * 16]}
+      offset={tooltipArrowOffset}
       interactive
       container={{
         className: 'shadow',
