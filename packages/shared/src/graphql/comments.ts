@@ -37,10 +37,6 @@ export interface CommentUpvote extends Upvote {
   comment: Comment;
 }
 
-export interface CommentUpvotesData {
-  commentUpvotes: Connection<CommentUpvote>;
-}
-
 export interface RecommendedMentionsData {
   recommendedMentions: UserShortProfile[];
 }
@@ -78,14 +74,6 @@ export interface PostCommentsData {
 
 export interface UserCommentsData {
   page: Connection<Comment>;
-}
-
-export interface UpvoteCommentData {
-  upvoteComment: EmptyResponse;
-}
-
-export interface CancelCommentUpvoteData {
-  cancelCommentUpvote: EmptyResponse;
 }
 
 export const POST_COMMENTS_QUERY = gql`

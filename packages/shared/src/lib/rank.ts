@@ -127,13 +127,7 @@ export const getNextRankText = ({
 export const isFinalRank = (rank: number): boolean => rank === RANKS.length;
 export const isFinalRankCompleted = (rank: number, progress: number): boolean =>
   isFinalRank(rank) && progress === RANKS[getRank(rank)].steps;
-export const getShowRank = (rank: number, progress: number): number => {
-  if (isFinalRank(rank) || isFinalRank(progress)) {
-    return rank;
-  }
 
-  return rank + 1;
-};
 export const isRankCompleted = (
   currentRank: number,
   checkRank: number,
