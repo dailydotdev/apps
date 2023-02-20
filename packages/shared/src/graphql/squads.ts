@@ -3,7 +3,7 @@ import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
-import { Source, SourceType, SourceData, SOURCE_QUERY } from './sources';
+import { Source, SourceType } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
 
@@ -17,10 +17,6 @@ export interface Squad extends Source {
   members?: Connection<SquadMember>;
   currentMember?: SquadMember;
 }
-
-export type Squads = {
-  squads: Squad[];
-};
 
 export type SquadForm = Pick<
   Squad,
@@ -293,20 +289,6 @@ export const checkExistingHandle = async (handle: string): Promise<boolean> => {
 
   return req.sourceHandleExists;
 };
-
-export async function checkSourceExists(id: string): Promise<boolean> {
-  try {
-    const data = await request<SourceData>(graphqlUrl, SOURCE_QUERY, {
-      id,
-    });
-    return !!data.source;
-  } catch (err) {
-    if (err?.response?.errors?.[0].extensions?.code === 'NOT_FOUND') {
-      return false;
-    }
-    throw err;
-  }
-}
 
 export const addPostToSquad = (data: PostToSquadProps): Promise<Post> =>
   request(graphqlUrl, ADD_POST_TO_SQUAD_MUTATION, data);

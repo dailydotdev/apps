@@ -34,12 +34,6 @@ export const themes: ThemeOption[] = Object.values(ThemeMode).map((theme) => ({
   value: theme,
 }));
 
-export type BookmarksSharing = {
-  enabled: boolean;
-  slug: string;
-  rssUrl: string;
-};
-
 export type SettingsContextData = {
   spaciness: Spaciness;
   themeMode: ThemeMode;

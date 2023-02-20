@@ -9,8 +9,6 @@ export enum KeyboardCommand {
   Backspace = 'Backspace',
 }
 
-export const keyboardCommands = Object.values(KeyboardCommand);
-
 export enum ArrowKey {
   Up = 'ArrowUp',
   Down = 'ArrowDown',
