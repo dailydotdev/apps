@@ -91,6 +91,7 @@ export function PostComments({
   permissionNotificationCommentId,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
+  const container = useRef<HTMLDivElement>();
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
   const { showPrompt } = usePrompt();
@@ -169,7 +170,7 @@ export function PostComments({
     onClick(getParentComment(post, localParentComment, shared));
   };
   return (
-    <div className="flex flex-col gap-4 mb-12">
+    <div className="flex flex-col gap-4 mb-12" ref={container}>
       {comments.postComments.edges.map((e) => (
         <MainComment
           post={post}
@@ -187,7 +188,7 @@ export function PostComments({
           onShowUpvotes={onClickUpvote}
           postAuthorId={post.author?.id}
           postScoutId={post.scout?.id}
-          appendTooltipTo={modalParentSelector}
+          appendTooltipTo={modalParentSelector ?? (() => container?.current)}
           permissionNotificationCommentId={permissionNotificationCommentId}
         />
       ))}
