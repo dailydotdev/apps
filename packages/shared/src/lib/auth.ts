@@ -36,7 +36,6 @@ export enum AuthTriggers {
   LegacyLogout = 'legacy_logout',
   Verification = 'verification',
   VerifySession = 'verify session',
-  CreateFeedFilters = 'create feed filters',
   ReportPost = 'report post',
   HidePost = 'hide post',
   MainButton = 'main button',
