@@ -1,6 +1,6 @@
 import request, { gql } from 'graphql-request';
 import { Connection, Upvote } from './common';
-import { USER_SHORT_INFO_FRAGMENT } from './fragments';
+import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
@@ -41,27 +41,6 @@ export interface RecommendedMentionsData {
   recommendedMentions: UserShortProfile[];
 }
 
-export const COMMENT_FRAGMENT = gql`
-  fragment CommentFragment on Comment {
-    id
-    content
-    contentHtml
-    createdAt
-    lastUpdatedAt
-    permalink
-    upvoted
-    numUpvotes
-    author {
-      id
-      name
-      image
-      permalink
-      username
-      bio
-    }
-  }
-`;
-
 export const COMMENT_WITH_CHILDREN_FRAGMENT = gql`
   fragment CommentWithChildrenFragment on Comment {
     ...CommentFragment
@@ -73,6 +52,7 @@ export const COMMENT_WITH_CHILDREN_FRAGMENT = gql`
       }
     }
   }
+  ${COMMENT_FRAGMENT}
 `;
 
 export const RECOMMEND_MENTIONS_QUERY = gql`
@@ -82,11 +62,10 @@ export const RECOMMEND_MENTIONS_QUERY = gql`
     $sourceId: String
   ) {
     recommendedMentions(postId: $postId, query: $query, sourceId: $sourceId) {
-      username
-      name
-      image
+      ...UserShortInfo
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export interface PostCommentsData {
@@ -107,7 +86,6 @@ export const POST_COMMENTS_QUERY = gql`
       }
     }
   }
-  ${COMMENT_FRAGMENT}
   ${COMMENT_WITH_CHILDREN_FRAGMENT}
 `;
 

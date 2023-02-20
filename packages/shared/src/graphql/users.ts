@@ -186,14 +186,13 @@ const READING_HISTORY_FRAGMENT = gql`
         ...SharedPostInfo
       }
       source {
-        id
-        image
+        ...SourceShortInfo
       }
       scout {
-        id
+        ...UserShortInfo
       }
       author {
-        id
+        ...UserShortInfo
       }
       type
     }
