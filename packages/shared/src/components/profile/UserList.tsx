@@ -26,6 +26,7 @@ function UserList({
   return (
     <InfiniteScrolling
       {...scrollingProps}
+      aria-label="users-list"
       placeholder={
         <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
       }
