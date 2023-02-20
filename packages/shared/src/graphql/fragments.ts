@@ -36,10 +36,10 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     createdAt
     private
     scout {
-      id
+      ...UserShortInfo
     }
     author {
-      id
+      ...UserShortInfo
     }
     type
     tags
@@ -48,6 +48,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const SOURCE_BASE_FRAGMENT = gql`
@@ -67,4 +68,21 @@ export const SOURCE_BASE_FRAGMENT = gql`
       referralToken
     }
   }
+`;
+
+export const COMMENT_FRAGMENT = gql`
+  fragment CommentFragment on Comment {
+    id
+    content
+    contentHtml
+    createdAt
+    lastUpdatedAt
+    permalink
+    upvoted
+    numUpvotes
+    author {
+      ...UserShortInfo
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
