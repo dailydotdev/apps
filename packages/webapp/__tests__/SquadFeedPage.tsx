@@ -228,8 +228,16 @@ describe('squad page header', () => {
   it('should show feedback button on tablet and desktop', async () => {
     renderComponent();
     const feedback = await screen.findByLabelText('squad-feedback');
-    expect(feedback).toHaveClass('hidden tablet:flex');
     expect(feedback).toHaveAttribute('href', feedbackLink);
+    const icon = await screen.findByLabelText('squad-feedback-icon');
+    expect(icon).toHaveClass('hidden tablet:flex');
+  });
+
+  it('should hide feedback icon on tablet and desktop but keep the label', async () => {
+    renderComponent();
+    await screen.findByLabelText('squad-feedback');
+    const icon = await screen.findByLabelText('squad-feedback-icon');
+    expect(icon).toHaveClass('hidden tablet:flex');
   });
 });
 
@@ -237,16 +245,15 @@ describe('squad header bar', () => {
   it('should show five of the squad member images', async () => {
     const members = generateMembersResult().sourceMembers.edges;
     renderComponent();
-    const count = await screen.findByLabelText('squad-members-count');
-    expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
     const result = await Promise.all(
       members.map(({ node: { user } }) =>
         screen.findByAltText(`${user.username}'s profile`),
       ),
     );
+    const COUNTER_ELEMENT = 1;
     expect(result.length).toEqual(5);
-    const list = await screen.findByLabelText('squad-members-short-list');
-    expect(list.childNodes.length).toEqual(5);
+    const list = await screen.findByLabelText('Members list');
+    expect(list.childNodes.length).toEqual(result.length + COUNTER_ELEMENT);
   });
 
   it('should show total members count', async () => {
@@ -306,7 +313,7 @@ describe('invitation modal', () => {
   const defaultInvitation = `${defaultSquad?.permalink}/${token}`;
   const openedInvitationModal = async () => {
     renderComponent();
-    const trigger = await screen.findByLabelText('Invite a new member');
+    const trigger = await screen.findByText('Invite');
     trigger.click();
     await screen.findByText('Invite more members to join');
   };
