@@ -30,7 +30,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
-const getOthers = (others: Edge<SquadMember>[]) => {
+const getOthers = (others: Edge<SquadMember>[], total: number) => {
   const { length } = others;
   if (length === 0) {
     return 'is';
@@ -41,7 +41,7 @@ const getOthers = (others: Edge<SquadMember>[]) => {
     return `and ${member} are`;
   }
 
-  return `and ${length} others are`;
+  return `and ${total - 1} others are`;
 };
 
 const BodyParagraph = classed('p', 'typo-body text-theme-label-tertiary');
@@ -147,6 +147,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   );
   const othersLabel = getOthers(
     source.members.edges.filter(({ node }) => node.user.id !== user.id),
+    source.membersCount,
   );
 
   const renderJoinButton = (className?: string) => (
