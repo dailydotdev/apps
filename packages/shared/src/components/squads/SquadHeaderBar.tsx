@@ -59,7 +59,12 @@ export function SquadHeaderBar({
             className="flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active border-r border-theme-divider-tertiary"
             onClick={openMemberListModal}
           >
-            <span className="mr-1 ml-2 min-w-[1rem]">{memberCount}</span>
+            <span
+              className="mr-1 ml-2 min-w-[1rem]"
+              aria-label="squad-members-count"
+            >
+              {memberCount}
+            </span>
             {members?.map(({ user }, index) => (
               <ProfilePicture
                 className={classNames(
