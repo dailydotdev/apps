@@ -16,6 +16,7 @@ export interface SectionCommonProps
   sidebarExpanded: boolean;
   sidebarRendered: boolean;
   activePage: string;
+  className?: string;
 }
 
 interface SectionProps extends SectionCommonProps {
@@ -32,6 +33,7 @@ export function Section({
   shouldShowLabel,
   activePage,
   isItemsButton,
+  className,
 }: SectionProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -43,7 +45,7 @@ export function Section({
   };
 
   return (
-    <NavSection>
+    <NavSection className={className}>
       {title && (
         <NavHeader
           className={classNames(
