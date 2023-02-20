@@ -1,4 +1,8 @@
 import { gql } from 'graphql-request';
+import {
+  SOURCE_SHORT_INFO_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 import { Post } from './posts';
 
 export type FurtherReadingData = {
@@ -23,17 +27,13 @@ export const FURTHER_READING_QUERY = gql`
       commentsPermalink
       bookmarked @include(if: $loggedIn)
       source {
-        id
-        name
-        image
+        ...SourceShortInfo
       }
       scout {
-        id
-        username
+        ...UserShortInfo
       }
       author {
-        id
-        username
+        ...UserShortInfo
       }
       trending
       tags
@@ -49,17 +49,13 @@ export const FURTHER_READING_QUERY = gql`
       commentsPermalink
       bookmarked @include(if: $loggedIn)
       source {
-        id
-        name
-        image
+        ...SourceShortInfo
       }
       scout {
-        id
-        username
+        ...UserShortInfo
       }
       author {
-        id
-        username
+        ...UserShortInfo
       }
       numComments
       numUpvotes
@@ -72,25 +68,22 @@ export const FURTHER_READING_QUERY = gql`
       commentsPermalink
       numComments
       source {
-        id
+        ...SourceShortInfo
       }
       tags
       scout {
-        id
-        username
+        ...UserShortInfo
       }
       author {
-        id
-        username
+        ...UserShortInfo
       }
       featuredComments {
         author {
-          id
-          image
-          name
-          username
+          ...UserShortInfo
         }
       }
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;

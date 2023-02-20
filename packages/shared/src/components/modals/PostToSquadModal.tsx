@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadComment } from '../squads/Comment';
@@ -43,35 +43,44 @@ function PostToSquadModal({
     buttonText: 'Done',
   });
 
+  const { mutateAsync: onPost, isLoading } = useMutation(addPostToSquad, {
+    onSuccess: async (squadPost) => {
+      if (squadPost) {
+        displayToast('This post has been shared to your squad');
+        await client.invalidateQueries(['sourceFeed', user.id]);
+        onSharedSuccessfully?.(squadPost);
+        onRequestClose(null);
+      }
+    },
+  });
+
   const onSubmit = async (
     e?: React.MouseEvent | React.KeyboardEvent,
     commentary?: string,
   ) => {
     e?.preventDefault();
-    const squadPost = await addPostToSquad({
+
+    if (isLoading) return;
+
+    onPost({
       id: form.post.post.id,
       sourceId: squad.id,
       commentary: commentary ?? e?.target[0].value,
     });
-    if (squadPost) {
-      displayToast('This post has been shared to your squad');
-      await client.invalidateQueries(['sourceFeed', user.id]);
-      onSharedSuccessfully?.(squadPost);
-      onRequestClose(e);
-    }
   };
+
   const onNext = async (squadForm?: SquadForm) => {
     if (squadForm) setForm(squadForm);
     if (!squadForm.commentary) return;
     onSubmit(undefined, squadForm.commentary);
   };
+
   const stateProps: SquadStateProps = {
     form,
     setForm,
     onNext,
     onRequestClose,
   };
-  const title = `Share post`;
 
   return (
     <Modal
@@ -81,9 +90,9 @@ function PostToSquadModal({
       onRequestClose={onRequestClose}
       steps={post ? undefined : modalSteps}
     >
-      <Modal.Header title={title} kind={ModalHeaderKind.Tertiary} />
+      <Modal.Header title="Share post" kind={ModalHeaderKind.Tertiary} />
       {post ? (
-        <SquadComment form={form} onSubmit={onSubmit} />
+        <SquadComment form={form} onSubmit={onSubmit} isLoading={isLoading} />
       ) : (
         <>
           <SquadSelectArticle {...stateProps} />
