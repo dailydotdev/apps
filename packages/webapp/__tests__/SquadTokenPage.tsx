@@ -175,6 +175,7 @@ describe('squad details', () => {
     const owner = generateTestOwner();
     const members = [generateTestMember('u1'), generateTestMember('u2')];
     owner.source.members.edges.push({ node: members[0] }, { node: members[1] });
+    owner.source.membersCount = 3;
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
     const label = `${owner.user.name} and 2 others are waiting for you inside. Join them now`;
