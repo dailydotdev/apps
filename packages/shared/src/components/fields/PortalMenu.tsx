@@ -1,10 +1,6 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import { Menu, MenuProps } from '@dailydotdev/react-contexify';
-import { createPortal } from 'react-dom';
-
-function Portal({ children }: { children: ReactNode }): ReactElement {
-  return createPortal(children, document.body);
-}
+import Portal from '../tooltips/Portal';
 
 export default function PortalMenu(props: MenuProps): ReactElement {
   return (

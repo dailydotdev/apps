@@ -68,15 +68,6 @@ export enum TargetType {
   CreateSquadPopup = 'create squad popup',
 }
 
-export enum TargetId {
-  MyFeedHeading = 'my feed heading',
-  Legacy = 'legacy',
-}
-
-export enum ScreenValue {
-  Intro = 'intro',
-}
-
 export enum NotificationChannel {
   Email = 'email',
   Web = 'web',

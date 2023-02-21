@@ -15,15 +15,3 @@ export function formToJson<T>(form: HTMLFormElement, initialValue?: T): T {
     };
   }, initialValue);
 }
-
-export const formInputs = (
-  form: HTMLFormElement,
-): { [k in string]: HTMLInputElement } => {
-  return Array.from(form.elements).reduce((acc, el: HTMLInputElement) => {
-    if (el.name === '') {
-      return acc;
-    }
-
-    return { ...acc, [el.name]: el };
-  }, {});
-};

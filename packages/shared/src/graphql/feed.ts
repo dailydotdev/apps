@@ -1,8 +1,5 @@
 import { gql } from 'graphql-request';
-import {
-  SHARED_POST_INFO_FRAGMENT,
-  USER_SHORT_INFO_FRAGMENT,
-} from './fragments';
+import { SHARED_POST_INFO_FRAGMENT } from './fragments';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',
@@ -45,7 +42,6 @@ export const FEED_POST_FRAGMENT = gql`
     private
   }
   ${SHARED_POST_INFO_FRAGMENT}
-  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const USER_POST_FRAGMENT = gql`

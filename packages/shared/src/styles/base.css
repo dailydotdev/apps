@@ -32,6 +32,8 @@ body {
       padding-right: 0.5rem;
     }
   }
+  
+  overflow-x: hidden;
 }
 
 @define-mixin dark-mode {

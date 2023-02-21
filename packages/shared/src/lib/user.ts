@@ -117,36 +117,6 @@ export async function updateProfile(
   throw new Error('Unexpected response');
 }
 
-export function loggedUserToProfile(user: LoggedUser): UserProfile {
-  return {
-    name: user.name,
-    email: user.email,
-    username: user.username,
-    company: user.company,
-    title: user.title,
-    twitter: user.twitter,
-    github: user.github,
-    portfolio: user.github,
-    bio: user.bio,
-    acceptedMarketing: user.acceptedMarketing,
-  };
-}
-
-export async function changeProfileImage(file: File): Promise<LoggedUser> {
-  const formData = new FormData();
-  formData.append('file', file);
-  const res = await fetch(`${apiUrl}/v1/users/me/image`, {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
-  });
-  const data = await res.json();
-  if (res.status === 200) {
-    return data;
-  }
-  throw new Error('Unexpected response');
-}
-
 const getProfileRequest = async (method = fetch, id: string) => {
   const userRes = await method(graphqlUrl, {
     method: 'POST',

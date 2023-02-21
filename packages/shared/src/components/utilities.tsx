@@ -147,11 +147,6 @@ export const PageWidgets = classed(
   'laptop:w-[21.25rem] laptop:max-w-[21.25rem]',
 );
 
-export const NewCommentContainer = classed(
-  'div',
-  'flex flex-col items-stretch w-full bg-theme-bg-primary',
-);
-
 export const ResponsivePageContainer = classed(
   PageContainer,
   pageBorders,
@@ -174,8 +169,6 @@ export const FormErrorMessage = classed(
   'div',
   'mt-4 text-theme-status-error typo-caption1',
 );
-
-export const ProfileHeading = classed('h1', 'm-0 self-start typo-title2');
 
 export const ActiveTabIndicator = classed(
   'div',
@@ -259,6 +252,8 @@ export const getShouldRedirect = (
 };
 
 export const FlexRow = classed('span', 'flex flex-row');
+export const FlexCol = classed('div', 'flex flex-col');
+export const FlexCentered = classed('div', 'flex justify-center items-center');
 
 interface ContextPosition {
   x: number;

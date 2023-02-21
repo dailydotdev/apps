@@ -5,9 +5,6 @@ import usePersistentState from './usePersistentState';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import { BannerData, BANNER_QUERY } from '../graphql/banner';
 import { graphqlUrl } from '../lib/config';
-import { laptop } from '../styles/media';
-
-export const footerNavBarBreakpoint = laptop;
 
 export default function usePromotionalBanner(): {
   bannerData: BannerData;
