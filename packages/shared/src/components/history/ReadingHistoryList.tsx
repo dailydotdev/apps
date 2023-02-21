@@ -84,7 +84,7 @@ export default function ReadHistoryList({
   }, [data, onHide]);
 
   return (
-    <section className="flex relative flex-col">
+    <section className="relative flex flex-col">
       {renderList()}
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsReadingHistoryMenu

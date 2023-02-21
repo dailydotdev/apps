@@ -32,10 +32,10 @@ const background: Record<OnboardingFiltersLayout, ReactNode> = {
   grid: (
     <>
       <BackgroundLayer className="-z-1 opacity-64 group-hover:-rotate-12" />
-      <BackgroundLayer className="opacity-24 -z-2 group-hover:-rotate-[24deg]" />
+      <BackgroundLayer className="-z-2 opacity-24 group-hover:-rotate-[24deg]" />
     </>
   ),
-  list: <BackgroundLayer className="hidden group-hover:flex opacity-64" />,
+  list: <BackgroundLayer className="hidden opacity-64 group-hover:flex" />,
 };
 
 const classes: Record<OnboardingFiltersLayout, ClassName> = {

@@ -48,7 +48,7 @@ function MyFeedHeading({
       placement={sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom}
     >
       <Button
-        className="mr-auto btn-tertiary headline"
+        className="headline btn-tertiary mr-auto"
         onClick={onClick}
         rightIcon={<FilterIcon />}
       >

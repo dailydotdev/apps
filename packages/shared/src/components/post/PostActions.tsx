@@ -76,7 +76,7 @@ export function PostActions({
   };
 
   return (
-    <div className="flex justify-between py-2 px-4 rounded-16 border border-theme-divider-tertiary">
+    <div className="flex justify-between rounded-16 border border-theme-divider-tertiary py-2 px-4">
       <QuaternaryButton
         id="upvote-post-btn"
         pressed={post.upvoted}

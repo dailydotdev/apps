@@ -67,7 +67,7 @@ export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
 const ModalHeaderStepsButton = (props: ButtonProps<'button'>) => (
   <Button
     icon={<ArrowIcon className="-rotate-90" />}
-    className="flex justify-center items-center mr-2 -ml-2 btn btn-tertiary iconOnly"
+    className="btn iconOnly btn-tertiary mr-2 -ml-2 flex items-center justify-center"
     {...props}
   />
 );
@@ -80,7 +80,7 @@ export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement {
   const stepperWidth = () => ((activeStepIndex + 1) / steps.length) * 100;
   const progress = activeStep.hideProgress ? null : (
     <div
-      className="absolute left-0 h-1 top-[3.3rem] bg-theme-color-cabbage transition-[width]"
+      className="absolute left-0 top-[3.3rem] h-1 bg-theme-color-cabbage transition-[width]"
       style={{ width: `${stepperWidth()}%` }}
     />
   );

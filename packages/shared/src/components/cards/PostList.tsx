@@ -72,7 +72,7 @@ export const PostList = forwardRef(function PostList(
           onReadArticleClick={onReadArticleClick}
           onShare={onShare}
           onShareClick={onShareClick}
-          className="relative self-stretch mt-1"
+          className="relative mt-1 self-stretch"
           onMenuClick={(event) => onMenuClick?.(event, post)}
           insaneMode
         />

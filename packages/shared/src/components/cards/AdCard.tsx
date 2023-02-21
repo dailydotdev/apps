@@ -38,7 +38,7 @@ export const AdCard = forwardRef(function AdCard(
       </CardTextContainer>
       <CardSpace />
       {showImage && (
-        <div className="overflow-hidden relative rounded-xl">
+        <div className="relative overflow-hidden rounded-xl">
           <CardImage
             alt="Ad image"
             src={ad.image}
@@ -65,7 +65,7 @@ export const AdCard = forwardRef(function AdCard(
           src={pixel}
           key={pixel}
           data-testid="pixel"
-          className="hidden w-0 h-0"
+          className="hidden h-0 w-0"
           alt="Pixel"
         />
       ))}

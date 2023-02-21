@@ -15,7 +15,7 @@ export const SharedPostCardHeader = ({
   source,
 }: SharedPostCardHeaderProps): ReactElement => {
   return (
-    <div className="flex relative flex-row gap-2 m-2 mb-3">
+    <div className="relative m-2 mb-3 flex flex-row gap-2">
       <div className="relative">
         <ProfilePicture user={author} />
         <SourceButton
@@ -24,10 +24,10 @@ export const SharedPostCardHeader = ({
           size="xsmall"
         />
       </div>
-      <div className="flex flex-col flex-1 flex-grow mr-6 ml-2 typo-footnote">
+      <div className="mr-6 ml-2 flex flex-1 flex-grow flex-col typo-footnote">
         <span className="font-bold line-clamp-2">{author.name}</span>
         <PostMetadata
-          className="line-clamp-1 text-theme-label-secondary !flex"
+          className="!flex text-theme-label-secondary line-clamp-1"
           createdAt={createdAt}
           username={author.username}
         />

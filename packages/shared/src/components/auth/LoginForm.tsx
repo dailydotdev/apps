@@ -81,11 +81,11 @@ function LoginForm({
         label="Password"
         showStrength={false}
       />
-      <span className="flex flex-row mt-4 w-full">
+      <span className="mt-4 flex w-full flex-row">
         {onForgotPassword && (
           <ClickableText
             type="button"
-            className="flex-1 underline grow-[2] btn-primary"
+            className="btn-primary flex-1 grow-[2] underline"
             onClick={onForgotPassword}
           >
             Forgot password?

@@ -145,7 +145,7 @@ export default function CommentActionButtons({
           pressed={upvoted}
           onClick={toggleUpvote}
           icon={<UpvoteIcon secondary={upvoted} />}
-          className="mr-3 btn-tertiary-avocado"
+          className="btn-tertiary-avocado mr-3"
         />
       </SimpleTooltip>
       <SimpleTooltip content="Comment">
@@ -153,7 +153,7 @@ export default function CommentActionButtons({
           buttonSize="small"
           onClick={() => onComment(comment, parentId)}
           icon={<CommentIcon />}
-          className="mr-3 btn-tertiary-blueCheese"
+          className="btn-tertiary-blueCheese mr-3"
         />
       </SimpleTooltip>
       <SimpleTooltip content="Share comment">
@@ -161,7 +161,7 @@ export default function CommentActionButtons({
           buttonSize="small"
           onClick={() => onShare(comment)}
           icon={<ShareIcon />}
-          className="mr-3 btn-tertiary-cabbage"
+          className="btn-tertiary-cabbage mr-3"
         />
       </SimpleTooltip>
       {(user?.id === comment.author.id || isModerator) && (
@@ -193,7 +193,7 @@ export default function CommentActionButtons({
         </Item>
         {(user?.id === comment.author.id || isModerator) && (
           <Item onClick={() => onDelete(comment, parentId)}>
-            <ContextItem className="flex items-center w-full">
+            <ContextItem className="flex w-full items-center">
               <TrashIcon size="small" /> Delete
             </ContextItem>
           </Item>

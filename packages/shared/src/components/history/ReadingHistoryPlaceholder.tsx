@@ -18,8 +18,8 @@ function ReadingHistoryPlaceholder({
         .map((_, i) => (
           // eslint-disable-next-line react/no-array-index-key
           <div key={i} className="flex flex-row items-center py-3 px-8">
-            <ElementPlaceholder className="w-16 laptop:w-24 h-16 rounded-16" />
-            <div className="flex flex-col flex-1 ml-4">
+            <ElementPlaceholder className="h-16 w-16 rounded-16 laptop:w-24" />
+            <div className="ml-4 flex flex-1 flex-col">
               <Text className="w-full laptop:w-1/2" />
               <Text className="mt-2 w-2/3 laptop:w-1/3" />
             </div>

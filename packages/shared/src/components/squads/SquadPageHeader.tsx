@@ -22,13 +22,13 @@ export function SquadPageHeader({
   onNewSquadPost,
 }: SquadPageHeaderProps): ReactElement {
   return (
-    <section className="flex flex-col items-center px-6 pb-0 tablet:pb-10 mb-6 w-full tablet:border-b min-h-20 border-theme-divider-tertiary">
+    <section className="min-h-20 mb-6 flex w-full flex-col items-center border-theme-divider-tertiary px-6 pb-0 tablet:border-b tablet:pb-10">
       <Button
         tag="a"
         target="_blank"
         rel="noopener noreferrer"
         href={`${squadFeedback}#user_id=${userId}&squad_id=${squad.id}`}
-        className="top-5 right-4 btn btn-secondary"
+        className="btn btn-secondary top-5 right-4"
         position="absolute"
         icon={
           <FeedbackIcon
@@ -43,14 +43,14 @@ export function SquadPageHeader({
         Feedback
       </Button>
       <SquadImage
-        className="mt-4 w-16 tablet:w-24 h-16 tablet:h-24"
+        className="mt-4 h-16 w-16 tablet:h-24 tablet:w-24"
         {...squad}
       />
-      <h3 className="mt-4 tablet:mt-6 font-bold typo-title2">{squad.name}</h3>
-      <h4 className="mt-1 tablet:mt-2 typo-body text-theme-label-tertiary">
+      <h3 className="mt-4 font-bold typo-title2 tablet:mt-6">{squad.name}</h3>
+      <h4 className="mt-1 text-theme-label-tertiary typo-body tablet:mt-2">
         @{squad.handle}
       </h4>
-      <p className="mt-5 tablet:mt-4 w-full text-center typo-body text-theme-label-secondary max-w-[42rem]">
+      <p className="mt-5 w-full  max-w-[42rem] text-center text-theme-label-secondary typo-body tablet:mt-4">
         {squad.description}
       </p>
       <SquadHeaderBar

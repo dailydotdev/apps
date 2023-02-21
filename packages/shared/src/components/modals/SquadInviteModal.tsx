@@ -35,7 +35,7 @@ function SquadInviteModal({
       onRequestClose={onRequestClose}
     >
       <Modal.Header title="Invite more members to join" />
-      <Modal.Body className="flex overflow-x-hidden flex-col items-center">
+      <Modal.Body className="flex flex-col items-center overflow-x-hidden">
         <SquadModalHeader squad={squad} />
         <InviteTextField
           isLoading={isLoading}
@@ -52,7 +52,7 @@ function SquadInviteModal({
       <Modal.Footer>
         <Button
           icon={<LinkIcon />}
-          className="flex-1 mx-4 btn-primary-cabbage"
+          className="btn-primary-cabbage mx-4 flex-1"
           onClick={() => inviteTextRef.current?.copyLink()}
         >
           Copy invitation link

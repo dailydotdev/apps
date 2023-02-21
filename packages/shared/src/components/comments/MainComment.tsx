@@ -25,7 +25,7 @@ export default function MainComment({
 
   return (
     <section
-      className="flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16"
+      className="flex scroll-mt-16 flex-col items-stretch rounded-24 border border-theme-divider-tertiary"
       data-testid="comment"
     >
       <CommentBox

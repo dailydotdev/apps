@@ -77,7 +77,7 @@ export const SocialShare = ({
   };
 
   return (
-    <section className="grid grid-cols-5 gap-4 pt-2 w-fit">
+    <section className="grid w-fit grid-cols-5 gap-4 pt-2">
       {!isComment &&
         !post.private &&
         squads

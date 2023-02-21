@@ -23,14 +23,14 @@ export const PostCardFooter = ({
   return (
     <>
       {!showImage && (
-        <PostAuthor post={post} className="hidden tablet:flex mx-4 mt-2" />
+        <PostAuthor post={post} className="mx-4 mt-2 hidden tablet:flex" />
       )}
       {showImage && (
         <CardImage
           alt="Post Cover image"
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className="object-cover my-2"
+          className="my-2 object-cover"
           loading="lazy"
         />
       )}
@@ -42,7 +42,7 @@ export const PostCardFooter = ({
           )}
         >
           <ProfilePicture size="small" user={post.author} />
-          <span className="flex-1 mx-3 truncate">{post.author.name}</span>
+          <span className="mx-3 flex-1 truncate">{post.author.name}</span>
           <FeatherIcon secondary className="text-2xl text-theme-status-help" />
         </div>
       )}

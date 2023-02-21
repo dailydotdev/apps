@@ -56,7 +56,7 @@ export default function PostModal({
         className={{
           container: 'post-content',
           fixedNavigation: { container: 'w-[inherit]', actions: 'ml-auto' },
-          navigation: { actions: 'tablet:hidden ml-auto' },
+          navigation: { actions: 'ml-auto tablet:hidden' },
         }}
       />
     </BasePostModal>

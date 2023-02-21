@@ -52,11 +52,11 @@ export function SquadHeaderBar({
         className,
       )}
     >
-      <div className="flex overflow-hidden items-center rounded-14 border border-theme-divider-secondary">
+      <div className="flex items-center overflow-hidden rounded-14 border border-theme-divider-secondary">
         <SimpleTooltip placement="top" content="Members list">
           <button
             type="button"
-            className="flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active border-r border-theme-divider-tertiary"
+            className="flex flex-row-reverse items-center border-r border-theme-divider-tertiary p-1 pl-3 hover:bg-theme-hover active:bg-theme-active"
             onClick={openMemberListModal}
           >
             <span
@@ -79,7 +79,7 @@ export function SquadHeaderBar({
           </button>
         </SimpleTooltip>
         <Button
-          className="m-1 active:bg-theme-active btn-tertiary"
+          className="btn-tertiary m-1 active:bg-theme-active"
           buttonSize="small"
           onClick={openSquadInviteModal}
           icon={<AddUserIcon className="text-theme-label-secondary" />}
@@ -89,14 +89,14 @@ export function SquadHeaderBar({
       </div>
       <SimpleTooltip placement="top" content="Squad options">
         <Button
-          className="mobileL:order-2 btn btn-secondary"
+          className="btn btn-secondary mobileL:order-2"
           icon={<MenuIcon size="medium" />}
           onClick={onMenuClick}
           aria-label="Squad options"
         />
       </SimpleTooltip>
       <Button
-        className="w-full mobileL:w-auto btn btn-primary"
+        className="btn btn-primary w-full mobileL:w-auto"
         onClick={onNewSquadPost}
       >
         Create new post

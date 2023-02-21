@@ -16,7 +16,7 @@ function ThemeOnboarding(): ReactElement {
           <Container
             title="Your eyes don’t lie"
             description="daily.dev looks good in dark mode or in light mode, the choice is yours!"
-            className={{ content: 'grid grid-cols-1 gap-6 mt-11 px-11' }}
+            className={{ content: 'mt-11 grid grid-cols-1 gap-6 px-11' }}
           >
             {themes.map((theme) => (
               <ThemeWidget

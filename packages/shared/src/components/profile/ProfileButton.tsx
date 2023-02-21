@@ -23,7 +23,7 @@ export default function ProfileButton({
           )}
           onClick={onMenuClick}
         >
-          <span className="hidden laptop:block mr-2 ml-3">
+          <span className="mr-2 ml-3 hidden laptop:block">
             {user.reputation ?? 0}
           </span>
           <ProfilePicture user={user} size="medium" />

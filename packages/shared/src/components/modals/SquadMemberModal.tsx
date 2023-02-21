@@ -71,7 +71,7 @@ export function SquadMemberModal({
           if (role === SquadMemberRole.Owner) {
             return (
               <span
-                className="flex gap-1 items-center font-bold typo-footnote text-theme-color-cabbage"
+                className="flex items-center gap-1 font-bold text-theme-color-cabbage typo-footnote"
                 data-testvalue={user.username}
               >
                 <SquadIcon secondary /> Owner
@@ -83,7 +83,7 @@ export function SquadMemberModal({
             <SimpleTooltip content="Member options">
               <Button
                 buttonSize="small"
-                className="m-auto mr-0 btn-tertiary"
+                className="btn-tertiary m-auto mr-0"
                 iconOnly
                 onClick={(e) => onReportClick(e, user.id)}
                 icon={<MenuIcon />}

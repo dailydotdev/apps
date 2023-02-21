@@ -18,11 +18,11 @@ export default function MultiLevelMenuMaster({
     <ul className="mt-6">
       {menuItems.map((item) => (
         <li
-          className="first:border-t border-b cursor-pointer border-theme-divider-tertiary"
+          className="cursor-pointer border-b border-theme-divider-tertiary first:border-t"
           key={item.title}
         >
           <MenuButton
-            className="flex items-center py-3 px-4 w-full"
+            className="flex w-full items-center py-3 px-4"
             onClick={
               item.action ||
               (() => setMultiLevelMenuDetail(item, item.component))
@@ -30,7 +30,7 @@ export default function MultiLevelMenuMaster({
           >
             {item.icon}
             <a className="flex-1 text-left typo-headline">{item.title}</a>
-            <ArrowIcon className="text-xl rotate-90" />
+            <ArrowIcon className="rotate-90 text-xl" />
           </MenuButton>
         </li>
       ))}

@@ -134,7 +134,7 @@ export function PostContent({
           post={post}
         >
           <h1
-            className="my-6 font-bold break-words typo-large-title"
+            className="my-6 break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
             {post.title}
@@ -155,7 +155,7 @@ export function PostContent({
             target="_blank"
             rel="noopener"
             {...combinedClicks(onReadArticle)}
-            className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
+            className="mb-10 block cursor-pointer overflow-hidden rounded-2xl"
             style={{ maxWidth: '25.625rem' }}
           >
             <LazyImage
@@ -170,7 +170,7 @@ export function PostContent({
             <PostToc
               post={post}
               collapsible
-              className="flex laptop:hidden mt-2 mb-4"
+              className="mt-2 mb-4 flex laptop:hidden"
             />
           )}
         </BasePostContent>

@@ -76,7 +76,7 @@ const getRankElement = ({
   return (
     <strong
       ref={plusRef}
-      className="flex absolute inset-0 justify-center items-center text-theme-rank typo-callout"
+      className="absolute inset-0 flex items-center justify-center text-theme-rank typo-callout"
     >
       +1
     </strong>
@@ -302,7 +302,7 @@ export function RankProgress({
       >
         {showRankAnimation && (
           <div
-            className="absolute -z-1 w-full h-full bg-theme-active rounded-full opacity-0 l-0 t-0"
+            className="l-0 t-0 absolute -z-1 h-full w-full rounded-full bg-theme-active opacity-0"
             ref={attentionRef}
           />
         )}
@@ -345,11 +345,11 @@ export function RankProgress({
             mountOnEnter
             unmountOnExit
           >
-            <div className="flex flex-col items-start ml-3">
+            <div className="ml-3 flex flex-col items-start">
               <span className="font-bold text-theme-rank typo-callout">
                 {animatingProgress ? getLevelText : getRankName(shownRank)}
               </span>
-              <span className="typo-footnote text-theme-label-tertiary">
+              <span className="text-theme-label-tertiary typo-footnote">
                 {getNextRankText({
                   nextRank,
                   rank,

@@ -48,7 +48,7 @@ export function SquadReady({ squad }: SquadReadyProps): ReactElement {
       <Modal.Footer>
         <Button
           icon={<LinkIcon />}
-          className="flex-1 mx-4 btn-primary-cabbage"
+          className="btn-primary-cabbage mx-4 flex-1"
           onClick={() => inviteTextRef.current?.copyLink()}
         >
           Copy invitation link

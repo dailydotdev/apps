@@ -118,7 +118,7 @@ export default function NewRankModal({
       <Modal.Header />
       <Modal.Body className="flex flex-col" style={{ overflow: 'visible' }}>
         <div
-          className={`${styles.rankProgressContainer} relative flex items-center justify-center -mt-4 z-0`}
+          className={`${styles.rankProgressContainer} relative z-0 -mt-4 flex items-center justify-center`}
         >
           {!user || !rankAnimationEnded ? (
             <RankProgress
@@ -137,7 +137,7 @@ export default function NewRankModal({
                 className={styles.radialProgress}
               />
               <img
-                className={`${styles.profileImage} absolute inset-0 object-cover m-auto rounded-full`}
+                className={`${styles.profileImage} absolute inset-0 m-auto rounded-full object-cover`}
                 src={user.image}
                 alt="Your profile"
               />
@@ -156,7 +156,7 @@ export default function NewRankModal({
             unmountOnExit
           >
             <RankConfetti
-              className={`${styles.rankConfetti} absolute top-0 h-full mx-auto`}
+              className={`${styles.rankConfetti} absolute top-0 mx-auto h-full`}
               style={
                 {
                   '--fill-color': rank <= RANKS.length && 'var(--rank-color)',
@@ -165,7 +165,7 @@ export default function NewRankModal({
             />
           </CSSTransition>
         </div>
-        <h1 className="mt-2 font-bold text-center typo-callout">{title}</h1>
+        <h1 className="mt-2 text-center font-bold typo-callout">{title}</h1>
         <p className="mt-1 mb-8 text-center text-theme-label-secondary typo-callout">
           You earned the {RANKS[getRank(rank)].name?.toLowerCase()} rank
           {!user && (
@@ -190,7 +190,7 @@ export default function NewRankModal({
         ) : (
           <LoginButton className="mx-auto" />
         )}
-        <Checkbox ref={inputRef} name="neverShow" className="self-center mt-4">
+        <Checkbox ref={inputRef} name="neverShow" className="mt-4 self-center">
           Never show this popup again
         </Checkbox>
       </Modal.Body>

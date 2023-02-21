@@ -26,7 +26,7 @@ export function RadioItem({
     >
       <input
         type="radio"
-        className="absolute w-0 h-0 opacity-0"
+        className="absolute h-0 w-0 opacity-0"
         checked={checked}
         {...props}
       />

@@ -379,7 +379,7 @@ function AuthOptions({
             {!user && (
               <LoginForm
                 isReady={isReady}
-                className="mx-4 tablet:mx-12 mt-8"
+                className="mx-4 mt-8 tablet:mx-12"
                 loginHint={loginHint}
                 onPasswordLogin={onPasswordLogin}
                 onForgotPassword={() =>

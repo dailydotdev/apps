@@ -8,7 +8,7 @@ import { AnalyticsEvent, TargetType } from '../lib/analytics';
 
 const GaussianBlur = (): ReactElement => {
   return (
-    <div className="absolute w-52 h-52 rounded-full opacity-32 blur-2xl bg-theme-color-cabbage" />
+    <div className="absolute h-52 w-52 rounded-full bg-theme-color-cabbage opacity-32 blur-2xl" />
   );
 };
 
@@ -57,10 +57,10 @@ export default function scrollFeedFiltersOnboarding({
         {version === ScrollOnboardingVersion.V1 ? (
           <GaussianBlur />
         ) : (
-          <div className="flex relative justify-center items-center mb-10">
+          <div className="relative mb-10 flex items-center justify-center">
             <GaussianBlur />
             <img
-              className="w-[4.625rem] h-[4.625rem]"
+              className="h-[4.625rem] w-[4.625rem]"
               src={cloudinary.feedFilters.supercharge}
               alt="supercharge your feed"
             />
@@ -87,7 +87,7 @@ export default function scrollFeedFiltersOnboarding({
         <img
           src={cloudinary.feedFilters.scroll}
           alt="example topics for your feed"
-          className="laptop:hidden laptopL:block ml-2"
+          className="ml-2 laptop:hidden laptopL:block"
         />
       )}
     </div>

@@ -17,13 +17,13 @@ export default function SourceItemRow({
 }): ReactElement {
   return (
     <FilterItem className="relative">
-      <a className="flex flex-1 items-center py-2 pr-14 pl-6 h-12 rounded-md cursor-default">
+      <a className="flex h-12 flex-1 cursor-default items-center rounded-md py-2 pr-14 pl-6">
         <LazyImage
           imgSrc={source.image}
           imgAlt={`${source.name} logo`}
-          className="w-8 h-8 rounded-md"
+          className="h-8 w-8 rounded-md"
         />
-        <span className="flex-1 ml-3 text-left truncate typo-callout text-theme-label-tertiary">
+        <span className="ml-3 flex-1 truncate text-left text-theme-label-tertiary typo-callout">
           {source.name}
         </span>
       </a>
@@ -32,7 +32,7 @@ export default function SourceItemRow({
         content={blocked ? 'Unblock source' : 'Block source'}
       >
         <Button
-          className="right-4 my-auto btn-tertiary"
+          className="btn-tertiary right-4 my-auto"
           style={{ position: 'absolute' }}
           onClick={() => onSourceClick?.(source)}
           icon={<BlockIcon />}

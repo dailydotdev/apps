@@ -33,7 +33,7 @@ function SidebarList({
         className,
       )}
     >
-      <span className="flex tablet:hidden flex-row justify-between items-center p-2 mb-6 w-full border-b border-theme-divider-tertiary">
+      <span className="mb-6 flex w-full flex-row items-center justify-between border-b border-theme-divider-tertiary p-2 tablet:hidden">
         <span className="ml-4 font-bold typo-title3">{title}</span>
         <CloseButton onClick={onClose} />
       </span>

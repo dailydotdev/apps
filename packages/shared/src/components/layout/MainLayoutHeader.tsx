@@ -89,14 +89,14 @@ function MainLayoutHeader({
       {sidebarRendered !== undefined && (
         <>
           <Button
-            className="block laptop:hidden btn-tertiary"
+            className="btn-tertiary block laptop:hidden"
             iconOnly
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex flex-row flex-1 justify-center laptop:justify-start">
+          <div className="flex flex-1 flex-row justify-center laptop:justify-start">
             {mobileTitle && (
-              <h3 className="block laptop:hidden typo-callout">
+              <h3 className="block typo-callout laptop:hidden">
                 {mobileTitle}
               </h3>
             )}
@@ -114,7 +114,7 @@ function MainLayoutHeader({
               href={`${webappUrl}notifications`}
             >
               <Button
-                className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
+                className="btn-tertiary mr-4 hidden bg-theme-bg-secondary laptop:flex"
                 buttonSize="small"
                 iconOnly
                 onClick={onNavigateNotifications}
@@ -129,7 +129,7 @@ function MainLayoutHeader({
                 }
               >
                 {hasNotification && (
-                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
+                  <Bubble className="top-0 right-0 translate-x-1/2 -translate-y-1/2 px-1 shadow-bubble-cabbage">
                     {getUnreadText(unreadCount)}
                   </Bubble>
                 )}

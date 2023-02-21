@@ -36,7 +36,7 @@ export function SquadComment({
           <ProfilePicture user={user} />
           <textarea
             placeholder="Share your thought and insights about the post…"
-            className="flex-1 self-stretch w-full min-w-0 focus:placeholder-transparent bg-transparent focus:outline-none resize-none typo-body caret-theme-label-link text-theme-label-primary"
+            className="w-full min-w-0 flex-1 resize-none self-stretch bg-transparent text-theme-label-primary caret-theme-label-link typo-body focus:placeholder-transparent focus:outline-none"
             value={commentary}
             onChange={(event) => setCommentary(event.target.value)}
             ref={(el) => {
@@ -46,13 +46,13 @@ export function SquadComment({
             }}
           />
         </form>
-        <div className="flex gap-4 items-center py-2 px-4 w-full rounded-12 border border-theme-divider-tertiary">
-          <p className="flex-1 line-clamp-3 multi-truncate text-theme-label-secondary typo-caption1">
+        <div className="flex w-full items-center gap-4 rounded-12 border border-theme-divider-tertiary py-2 px-4">
+          <p className="multi-truncate flex-1 text-theme-label-secondary typo-caption1 line-clamp-3">
             {post.title}
           </p>
           <Image
             src={post.image}
-            className="object-cover w-16 laptop:w-24 h-16 rounded-16"
+            className="h-16 w-16 rounded-16 object-cover laptop:w-24"
             loading="lazy"
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
@@ -69,7 +69,7 @@ export function SquadComment({
           />
           <div>
             <h5 className="font-bold typo-caption1">{form.name}</h5>
-            <h6 className="typo-caption1 text-theme-label-tertiary">
+            <h6 className="text-theme-label-tertiary typo-caption1">
               @{form.handle}
             </h6>
           </div>

@@ -35,14 +35,14 @@ export default function ScrollToTopButton(): ReactElement {
       <Button
         aria-label="scroll to top"
         {...props}
-        className="laptop:hidden right-4 z-2 btn-primary"
+        className="btn-primary right-4 z-2 laptop:hidden"
         buttonSize="large"
         style={{ ...style, bottom: '4.5rem' }}
       />
       <Button
         aria-label="scroll to top"
         {...props}
-        className="hidden laptop:flex right-8 bottom-8 z-2 btn-primary"
+        className="btn-primary right-8 bottom-8 z-2 hidden laptop:flex"
         buttonSize="xlarge"
         style={style}
       />

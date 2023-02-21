@@ -37,7 +37,7 @@ function OnboardingStep({
         <OnboardingTitle>{title}</OnboardingTitle>
       )}
       {description && (
-        <p className="px-6 mt-3 text-center text-theme-label-secondary typo-body">
+        <p className="mt-3 px-6 text-center text-theme-label-secondary typo-body">
           {description}
         </p>
       )}

@@ -122,7 +122,7 @@ function SquadPostContent({
             date={postDateFormat(post.createdAt)}
             source={post.source}
           />
-          <span className="flex flex-row items-center mt-3">
+          <span className="mt-3 flex flex-row items-center">
             <ProfileTooltip user={post.author}>
               <ProfilePicture
                 user={post.author}
@@ -134,7 +134,7 @@ function SquadPostContent({
               user={post.author}
               link={{ href: post.author.permalink }}
             >
-              <a className="flex flex-col ml-4">
+              <a className="ml-4 flex flex-col">
                 <span className="font-bold">{post.author.name}</span>
                 <span className="text-theme-label-tertiary">
                   @{post.author.username}
@@ -143,17 +143,17 @@ function SquadPostContent({
             </ProfileTooltip>
           </span>
           <p className="mt-6 typo-title3">{post.title}</p>
-          <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
+          <div className="mt-8 flex flex-col rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
             <a
               href={post.sharedPost.commentsPermalink}
               title="Go to post"
               target="_blank"
               rel="noopener"
-              className="flex flex-col-reverse laptop:flex-row p-4 max-w-full"
+              className="flex max-w-full flex-col-reverse p-4 laptop:flex-row"
               onClick={onReadArticle}
             >
-              <div className="flex flex-col flex-1">
-                <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body">
+              <div className="flex flex-1 flex-col">
+                <h2 className="mt-4 mb-4 flex flex-wrap font-bold typo-body laptop:mt-0">
                   {post.sharedPost.title}
                 </h2>
                 <PostSourceInfo
@@ -164,13 +164,13 @@ function SquadPostContent({
                 />
                 <ReadArticleButton
                   buttonSize="medium"
-                  className="mt-5 btn-secondary w-fit"
+                  className="btn-secondary mt-5 w-fit"
                   href={post.sharedPost.permalink}
                   openNewTab={openNewTab}
                   onClick={onReadArticle}
                 />
               </div>
-              <div className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit">
+              <div className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-2xl">
                 <LazyImage
                   imgSrc={post.sharedPost.image}
                   imgAlt="Post cover image"
@@ -197,7 +197,7 @@ function SquadPostContent({
                 />
                 <button
                   type="button"
-                  className="flex flex-row justify-center py-2 w-full font-bold hover:underline border-t border-theme-divider-tertiary typo-callout"
+                  className="flex w-full flex-row justify-center border-t border-theme-divider-tertiary py-2 font-bold typo-callout hover:underline"
                   onClick={() => setShouldShowSummary(!shoudShowSummary)}
                 >
                   {shoudShowSummary ? 'Hide' : 'Show'} TLDR{' '}

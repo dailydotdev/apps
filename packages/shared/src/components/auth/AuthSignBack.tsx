@@ -30,10 +30,10 @@ export const AuthSignBack = ({
   }, []);
 
   return (
-    <span className="flex flex-col flex-1">
+    <span className="flex flex-1 flex-col">
       <AuthModalHeader title="Login to daily.dev" />
       <AuthContainer>
-        <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
+        <p className="mb-2 text-center text-theme-label-tertiary typo-callout">
           Sign back in with
         </p>
         <ProviderButton
@@ -43,7 +43,7 @@ export const AuthSignBack = ({
           {...signback}
         />
         <OrDivider />
-        <div className="flex flex-row gap-3 justify-center">
+        <div className="flex flex-row justify-center gap-3">
           {providers
             .filter(({ provider }) => provider !== signback.provider)
             .map(({ provider, style, ...props }) => (

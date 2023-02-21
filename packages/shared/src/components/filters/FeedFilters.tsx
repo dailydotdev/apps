@@ -53,7 +53,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   return (
     <Modal
       {...props}
-      className="overflow-auto flex-1 h-full"
+      className="h-full flex-1 overflow-auto"
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.XLarge}
       tabs={tabs}
@@ -70,7 +70,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           <Modal.Header>
             <Button
               buttonSize="small"
-              className="flex tablet:hidden mr-2 -rotate-90"
+              className="mr-2 flex -rotate-90 tablet:hidden"
               icon={<ArrowIcon />}
               onClick={() => setIsNavOpen(true)}
             />

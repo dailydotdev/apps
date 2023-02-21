@@ -24,7 +24,7 @@ function TabList({ items, active, onClick }: TabListProps): ReactElement {
           {tab}
           {tab === active && (
             <div
-              className="absolute bottom-0 mx-auto w-4 h-px bg-theme-label-primary"
+              className="absolute bottom-0 mx-auto h-px w-4 bg-theme-label-primary"
               style={{ left: 'calc(50% - 0.5rem)' }}
             />
           )}

@@ -48,7 +48,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     >
       {post.title}
     </h5>
-    <div className="flex items-center typo-footnote text-theme-label-tertiary">
+    <div className="flex items-center text-theme-label-tertiary typo-footnote">
       {post.featuredComments?.length > 0 && (
         <div
           className="relative mr-2 h-6"
@@ -73,7 +73,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
 
 const ListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="flex relative flex-col items-start py-3 px-4">
+  <article aria-busy className="relative flex flex-col items-start py-3 px-4">
     <TextPlaceholder style={{ width: '80%' }} />
     <TextPlaceholder style={{ width: '80%' }} />
     <TextPlaceholder style={{ width: '40%' }} />
@@ -109,7 +109,7 @@ export default function BestDiscussions({
 
   return (
     <BestDiscussionsContainer className={className}>
-      <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
+      <h4 className="py-3 pr-4 pl-6 text-theme-label-tertiary typo-body">
         Best discussions
       </h4>
       {Separator}
@@ -134,7 +134,7 @@ export default function BestDiscussions({
         passHref
       >
         <Button
-          className="self-start my-2 ml-2 btn-tertiary"
+          className="btn-tertiary my-2 ml-2 self-start"
           buttonSize="small"
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}

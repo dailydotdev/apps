@@ -120,7 +120,7 @@ function Textarea({
           }),
         )}
       />
-      <span className="py-2 ml-auto typo-caption1 text-theme-label-quaternary">
+      <span className="ml-auto py-2 text-theme-label-quaternary typo-caption1">
         {`${inputLength}/${maxLength}`}
       </span>
     </BaseFieldContainer>

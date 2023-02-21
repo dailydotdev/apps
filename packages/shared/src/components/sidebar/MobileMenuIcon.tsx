@@ -29,9 +29,9 @@ export function MobileMenuIcon({
       <Button
         onClick={trackAndToggleSidebarExpanded}
         position="absolute"
-        className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
+        className={`btn btn-primary top-3 -right-3 z-3 h-6 w-6 ${
           sidebarExpanded &&
-          'transition-opacity invisible group-hover:visible opacity-0 group-hover:opacity-100'
+          'invisible opacity-0 transition-opacity group-hover:visible group-hover:opacity-100'
         }`}
         buttonSize="xsmall"
       >

@@ -20,8 +20,8 @@ const Wrapper = ({ sidebarExpanded, children, ...props }: WrapperProps) => {
     <li
       data-testid="sidebarRankProgressWrapper"
       className={classnames(
-        'flex items-center mt-4',
-        sidebarExpanded ? 'px-3 h-16' : 'px-1.5 h-8',
+        'mt-4 flex items-center',
+        sidebarExpanded ? 'h-16 px-3' : 'h-8 px-1.5',
       )}
       {...props}
     >

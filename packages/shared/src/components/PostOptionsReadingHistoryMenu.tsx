@@ -143,7 +143,7 @@ export default function PostOptionsReadingHistoryMenu({
           </span>
         </Item>
         <Item
-          className="laptop:hidden typo-callout"
+          className="typo-callout laptop:hidden"
           onClick={() => onHideHistoryPost(post?.id)}
         >
           <span className="flex w-full typo-callout">

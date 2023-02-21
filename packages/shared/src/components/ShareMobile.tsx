@@ -14,7 +14,7 @@ export function ShareMobile({ share, link }: Props): ReactElement {
   const [copying, copyLink] = useCopyPostLink(link);
 
   return (
-    <WidgetContainer className="flex laptop:hidden flex-col gap-2 items-start p-3">
+    <WidgetContainer className="flex flex-col items-start gap-2 p-3 laptop:hidden">
       <Button
         buttonSize="small"
         onClick={() => copyLink()}

@@ -47,7 +47,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
       <OptionsButton
-        className="group-hover:flex laptop:hidden top-2 right-2"
+        className="top-2 right-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
         position="absolute"
@@ -76,7 +76,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          className="justify-between mx-4"
+          className="mx-4 justify-between"
         />
       </Containter>
       {children}

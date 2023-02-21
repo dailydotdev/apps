@@ -74,7 +74,7 @@ export function SquadSelectArticle({
                   <button
                     key={edge.node.post.id}
                     type="button"
-                    className="group relative -mx-6 hover:bg-theme-hover cursor-pointer"
+                    className="group relative -mx-6 cursor-pointer hover:bg-theme-hover"
                     onClick={goNext(edge.node, nextStep)}
                   >
                     <PostItemCard
@@ -84,7 +84,7 @@ export function SquadSelectArticle({
                     />
                     <ArrowIcon
                       size="large"
-                      className="hidden group-hover:flex absolute top-1/2 right-3 rotate-90 -translate-y-1/2"
+                      className="absolute top-1/2 right-3 hidden -translate-y-1/2 rotate-90 group-hover:flex"
                     />
                   </button>
                 )),

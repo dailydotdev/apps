@@ -31,7 +31,7 @@ export function ModalTabs({ disabledTab }: ModalTabsProps): ReactElement {
             {tabTitle}
             {tabTitle === activeView && (
               <div
-                className="absolute mx-auto w-4 h-px bg-theme-label-primary"
+                className="absolute mx-auto h-px w-4 bg-theme-label-primary"
                 style={{ bottom: '-0.75rem', left: 'calc(50% - 0.5rem)' }}
               />
             )}

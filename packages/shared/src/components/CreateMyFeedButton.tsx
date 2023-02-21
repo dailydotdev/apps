@@ -48,7 +48,7 @@ export default function CreateMyFeedButton({
   }, [buttonCopy]);
 
   return (
-    <div className="flex flex-col items-center mb-4 w-full">
+    <div className="mb-4 flex w-full flex-col items-center">
       <div
         className={classNames(
           'p-2 border flex-col tablet:flex-row flex items-center rounded-12',
@@ -56,7 +56,7 @@ export default function CreateMyFeedButton({
           explainerColor.shadow,
         )}
       >
-        <p className="ml-2 text-center tablet:text-left transition-all typo-footnote">
+        <p className="ml-2 text-center transition-all typo-footnote tablet:text-left">
           {explainerCopy}
         </p>
         <Button

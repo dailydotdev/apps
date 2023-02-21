@@ -6,13 +6,13 @@ function NotificationItemAttachment({
   title,
 }: NotificationAttachment): ReactElement {
   return (
-    <div className="flex flex-row items-center p-4 mt-2 rounded-16 border border-theme-divider-tertiary">
+    <div className="mt-2 flex flex-row items-center rounded-16 border border-theme-divider-tertiary p-4">
       <img
-        className="object-cover w-24 h-16 rounded-16"
+        className="h-16 w-24 rounded-16 object-cover"
         src={image}
         alt={`Cover preview of: ${title}`}
       />
-      <span className="flex-1 ml-4 break-words typo-callout">{title}</span>
+      <span className="ml-4 flex-1 break-words typo-callout">{title}</span>
     </div>
   );
 }

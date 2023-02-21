@@ -20,7 +20,7 @@ function AuthModalHeader({
       {onBack && (
         <Button
           icon={<ArrowIcon className="-rotate-90" />}
-          className="mr-2 btn-tertiary"
+          className="btn-tertiary mr-2"
           onClick={onBack}
         />
       )}

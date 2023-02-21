@@ -30,7 +30,7 @@ export default function BlockedFilter({
 
   return (
     <div className="flex flex-col" aria-busy={isLoading}>
-      <p className="mx-6 mb-6 typo-callout text-theme-label-tertiary">
+      <p className="mx-6 mb-6 text-theme-label-tertiary typo-callout">
         Block tags and sources directly from the feed. Whenever you see a post
         with a tag/source you wish to block, click on the more options button
         (⋮) and choose “Not interested in…“.

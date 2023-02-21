@@ -44,7 +44,7 @@ export default function RanksModal({
           previousRank={previousRank}
         />
         {!user && (
-          <div className="flex flex-col items-center mt-2">
+          <div className="mt-2 flex flex-col items-center">
             <span className="typo-footnote">
               Sign up to add your weekly achievements to your profile.
             </span>

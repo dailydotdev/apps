@@ -13,13 +13,13 @@ export const SquadModalHeader = ({
 }: SquadModalHeaderProps): ReactElement => {
   return (
     <>
-      <div className="flex relative justify-center items-center my-4 w-full h-40">
+      <div className="relative my-4 flex h-40 w-full items-center justify-center">
         <DailyCircle className=" absolute bottom-0 -left-10" size="xsmall" />
         <DailyCircle className=" absolute top-4 left-10" size="xxsmall" />
         <Image
           src={squad.image}
           alt={`${squad.handle}'s logo`}
-          className="object-cover w-40 h-40 rounded-full"
+          className="h-40 w-40 rounded-full object-cover"
           loading="lazy"
           fallbackSrc={cloudinary.squads.imageFallback}
         />

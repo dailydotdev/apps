@@ -15,7 +15,7 @@ function AccountDangerZone({
 }: AccountDangerZoneProps): ReactElement {
   return (
     <section className={classNames('flex flex-col', className)}>
-      <p className="typo-callout text-theme-label-tertiary">
+      <p className="text-theme-label-tertiary typo-callout">
         Deleting your account will:
         <br />
         <br />
@@ -47,7 +47,7 @@ function AccountDangerZone({
       <Button
         onClick={onDelete}
         buttonSize="small"
-        className="self-start mt-6 btn-primary-ketchup text-theme-label-primary"
+        className="btn-primary-ketchup mt-6 self-start text-theme-label-primary"
       >
         Delete account
       </Button>

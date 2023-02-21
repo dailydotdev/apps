@@ -192,7 +192,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           feed.
         </Modal.Text>
         <a
-          className="mb-2 font-bold underline typo-callout text-theme-label-link"
+          className="mb-2 font-bold text-theme-label-link underline typo-callout"
           target="_blank"
           rel="noopener"
           href={contentGuidelines}
@@ -200,7 +200,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           Content guidelines
         </a>
         <form
-          className="flex flex-col w-full"
+          className="flex w-full flex-col"
           ref={scrapeFormRef}
           onSubmit={onScrapeSubmit}
           aria-busy={isScraping}
@@ -223,11 +223,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           />
         </form>
         {!!existingSource && (
-          <div className="flex items-center self-start px-12 mb-6 w-full typo-callout">
+          <div className="mb-6 flex w-full items-center self-start px-12 typo-callout">
             <img
               src={existingSource.image}
               alt={existingSource.name}
-              className="w-8 h-8 rounded-lg"
+              className="h-8 w-8 rounded-lg"
             />
             <div className="ml-3 truncate">{existingSource.name}</div>
             <div className="ml-auto text-theme-label-tertiary">
@@ -237,11 +237,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         )}
         {!!feeds?.length && (
           <>
-            <div className="self-start mb-6 typo-callout text-theme-label-tertiary">
+            <div className="mb-6 self-start text-theme-label-tertiary typo-callout">
               {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
             </div>
             <form
-              className="flex flex-col items-center w-full"
+              className="flex w-full flex-col items-center"
               id="select-feed"
               onSubmit={onSubmitFeed}
             >
@@ -269,7 +269,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             {showContact && (
               <Button
                 tag="a"
-                className="self-start mt-3 mb-6 btn-secondary small"
+                className="small btn-secondary mt-3 mb-6 self-start"
                 href="mailto:hi@daily.dev?subject=Failed to add new source"
                 target="_blank"
                 rel="noopener noreferrer"

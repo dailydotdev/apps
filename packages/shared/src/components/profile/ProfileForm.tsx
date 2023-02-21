@@ -269,8 +269,8 @@ export default function ProfileForm({
           emailHint !== defaultEmailHint && setEmailHint(defaultEmailHint)
         }
       />
-      <div className="flex flex-col items-stretch self-stretch mb-3">
-        <p className="px-2 mb-1 font-bold text-theme-label-primary typo-caption1">
+      <div className="mb-3 flex flex-col items-stretch self-stretch">
+        <p className="mb-1 px-2 font-bold text-theme-label-primary typo-caption1">
           Time zone
         </p>
         <Dropdown
@@ -283,7 +283,7 @@ export default function ProfileForm({
           scrollable
           className={{ menu: 'menu-secondary' }}
         />
-        <div className="px-2 mt-1 typo-caption1 text-theme-label-tertiary">
+        <div className="mt-1 px-2 text-theme-label-tertiary typo-caption1">
           Your current time zone. Used to calculate your weekly goal&apos;s
           cycle and other time-based activities.
         </div>
@@ -304,10 +304,10 @@ export default function ProfileForm({
       </FormSwitch>
       {mode !== 'update' && (
         <details
-          className={`flex flex-col w-full border-b border-theme-divider-tertiary ${styles.optionalFields}`}
+          className={`flex w-full flex-col border-b border-theme-divider-tertiary ${styles.optionalFields}`}
         >
           <Summary className={styles.optionalSummary}>
-            <div className="flex items-center h-10 font-bold text-theme-label-tertiary typo-callout">
+            <div className="flex h-10 items-center font-bold text-theme-label-tertiary typo-callout">
               More details (optional)
               <SummaryArrow />
             </div>

@@ -86,7 +86,7 @@ function CodeVerificationForm({
           Verify
         </Button>
         <Button
-          className="mx-auto mt-6 btn-secondary w-30"
+          className="w-30 btn-secondary mx-auto mt-6"
           onClick={onSendEmail}
           disabled={emailSent || isLoading}
         >

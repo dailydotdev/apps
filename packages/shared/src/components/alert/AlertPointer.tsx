@@ -126,7 +126,7 @@ export default function AlertPointer({
             buttonSize="xsmall"
             iconOnly
             style={{ position: 'absolute' }}
-            className="top-2 right-2 btn-tertiary"
+            className="btn-tertiary top-2 right-2"
           />
         </AlertPointerMessage>
       </AlertPointerContainer>

@@ -45,7 +45,7 @@ export function Switch({
         type="checkbox"
         checked={checked}
         onChange={onToggle}
-        className="absolute w-0 h-0 opacity-0"
+        className="absolute h-0 w-0 opacity-0"
       />
       <span
         className={classNames(

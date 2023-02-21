@@ -73,7 +73,7 @@ function FilterOnboarding(): ReactElement {
             className={{
               container: 'px-0 pb-0',
               content:
-                'p-4 mt-1 mb-4 flex flex-row justify-center overflow-x-hidden',
+                'mt-1 mb-4 flex flex-row justify-center overflow-x-hidden p-4',
             }}
           >
             <div

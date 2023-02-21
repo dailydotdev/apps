@@ -59,7 +59,7 @@ export default function PostItemCard({
         <Image
           src={article.image}
           alt={post.title}
-          className="object-cover w-16 laptop:w-24 h-16 rounded-16"
+          className="h-16 w-16 rounded-16 object-cover laptop:w-24"
           loading="lazy"
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
         />
@@ -74,8 +74,8 @@ export default function PostItemCard({
           }}
           nativeLazyLoading
         />
-        <div className="flex flex-col flex-1 ml-4">
-          <h3 className="flex flex-1 mr-6 text-left break-words line-clamp-2 typo-callout">
+        <div className="ml-4 flex flex-1 flex-col">
+          <h3 className="mr-6 flex flex-1 break-words text-left typo-callout line-clamp-2">
             {post.title}
           </h3>
           <PostMetadata
@@ -87,7 +87,7 @@ export default function PostItemCard({
         {showButtons && onHide && (
           <Button
             buttonSize="small"
-            className="hidden laptop:flex btn-tertiary"
+            className="btn-tertiary hidden laptop:flex"
             icon={<XIcon />}
             onClick={onHideClick}
           />

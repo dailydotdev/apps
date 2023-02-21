@@ -28,13 +28,13 @@ export default function TrendingFlag({
               : 'w-10 h-full flex-col mouse:translate-y-4 rounded-t',
           )}
         >
-          <span className="font-bold text-white uppercase typo-caption2">
+          <span className="font-bold uppercase text-white typo-caption2">
             Hot
           </span>
         </div>
       </SimpleTooltip>
       {!listMode && (
-        <span className="mouse:hidden ml-2 typo-footnote text-theme-label-tertiary">
+        <span className="ml-2 text-theme-label-tertiary typo-footnote mouse:hidden">
           {description}
         </span>
       )}

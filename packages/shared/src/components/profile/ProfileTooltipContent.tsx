@@ -21,7 +21,7 @@ export function ProfileTooltipContent({
 }: ProfileTooltipContentProps): ReactElement {
   return (
     <div
-      className="flex flex-col font-normal shrink typo-callout"
+      className="flex shrink flex-col font-normal typo-callout"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -29,7 +29,7 @@ export function ProfileTooltipContent({
         <ProfileImageLink user={user} picture={{ size: 'xxlarge' }} />
         {rank && (
           <Rank
-            className="absolute -right-2 -bottom-2 w-6 h-6 rounded-8 bg-theme-bg-primary"
+            className="absolute -right-2 -bottom-2 h-6 w-6 rounded-8 bg-theme-bg-primary"
             rank={rank.currentRank}
             colorByRank
             data-testid={rank.currentRank}
@@ -49,12 +49,12 @@ export function ProfileTooltipContent({
         @{user.username}
       </ProfileLink>
       {user.bio && (
-        <p className="mb-3 break-words line-clamp-3 text-theme-label-tertiary">
+        <p className="mb-3 break-words text-theme-label-tertiary line-clamp-3">
           {user.bio}
         </p>
       )}
       {tags?.length ? (
-        <span className="mb-2 typo-subhead text-theme-label-quaternary">
+        <span className="mb-2 text-theme-label-quaternary typo-subhead">
           Loves reading about
         </span>
       ) : null}

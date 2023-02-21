@@ -38,7 +38,7 @@ function LockedSquadModal({
       onRequestClose={onRequestClose}
     >
       <Modal.Header title="Waiting for members to join" />
-      <Modal.Body className="flex overflow-x-hidden flex-col items-center">
+      <Modal.Body className="flex flex-col items-center overflow-x-hidden">
         <SquadModalHeader squad={squad} />
         <InviteTextField
           isLoading={isLoading}

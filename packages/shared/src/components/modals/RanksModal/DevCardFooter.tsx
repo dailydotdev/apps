@@ -19,14 +19,14 @@ export default function DevCardFooter({
   return (
     <div className="pt-2">
       <Modal.Subtitle>Generate your DevCard</Modal.Subtitle>
-      <div className="flex mt-2">
+      <div className="mt-2 flex">
         <DevCardPlaceholder
           profileImage={user?.image}
           height={80}
           rank={rank}
           isLocked={isLocked}
         />
-        <div className="flex flex-col flex-1 items-start ml-6">
+        <div className="ml-6 flex flex-1 flex-col items-start">
           <Modal.Text>{devCardText({ user })}</Modal.Text>
           <GoToDevCardButton className="mt-3" isLocked={isLocked}>
             Generate

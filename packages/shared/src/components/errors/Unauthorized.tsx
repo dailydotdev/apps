@@ -24,14 +24,14 @@ function Unauthorized({
         className="self-center text-theme-label-secondary"
         size="xxxlarge"
       />
-      <h1 className="px-16 font-bold text-center break-words-overflow typo-title1">
+      <h1 className="break-words-overflow px-16 text-center font-bold typo-title1">
         {title}
       </h1>
       <p className="px-10 text-center text-theme-label-tertiary">
         {description}
       </p>
       {children}
-      <Button className="mt-6 btn-primary w-fit" buttonSize="large">
+      <Button className="btn-primary mt-6 w-fit" buttonSize="large">
         Back home
       </Button>
     </PageContainerCentered>

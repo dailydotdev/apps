@@ -29,9 +29,9 @@ export const PostCardHeader = ({
     <CardHeader>
       <SourceButton source={source} />
       {children}
-      <Container className="flex flex-row ml-auto">
+      <Container className="ml-auto flex flex-row">
         <ReadArticleButton
-          className="mr-2 btn-primary"
+          className="btn-primary mr-2"
           href={postLink}
           onClick={onReadArticleClick}
           openNewTab={openNewTab}

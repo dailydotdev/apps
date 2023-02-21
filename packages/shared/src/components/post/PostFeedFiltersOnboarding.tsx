@@ -33,12 +33,12 @@ export function PostFeedFiltersOnboarding({
         className,
       )}
     >
-      <div className="py-3 px-4 w-3/5">
+      <div className="w-3/5 py-3 px-4">
         <p className="font-bold typo-callout">
           Let&apos;s super-charge your feed with the content you actually read!
         </p>
         <Button
-          className="mt-4 text-white btn-primary-cabbage"
+          className="btn-primary-cabbage mt-4 text-white"
           buttonSize="small"
           onClick={onInitializeOnboarding}
         >

@@ -126,15 +126,15 @@ function CommentBox({
 
   return (
     <>
-      <article className="flex flex-col items-stretch rounded-8 break-words-overflow typo-callout">
-        <header className="flex items-center mb-2">
+      <article className="break-words-overflow flex flex-col items-stretch rounded-8 typo-callout">
+        <header className="mb-2 flex items-center">
           <ProfilePicture
             size="large"
             rounded="full"
             user={{ image: authorImage, username: authorName }}
             nativeLazyLoading
           />
-          <div className="flex flex-col ml-2">
+          <div className="ml-2 flex flex-col">
             <div className="truncate typo-callout">{authorName}</div>
             <time
               dateTime={publishDate.toString()}
@@ -146,8 +146,8 @@ function CommentBox({
         </header>
         <Markdown content={contentHtml} />
       </article>
-      <div className="flex items-center px-2 h-11">
-        <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
+      <div className="flex h-11 items-center px-2">
+        <div className="ml-3 h-full w-px bg-theme-divider-tertiary" />
         <div className="ml-6 text-theme-label-secondary typo-caption1">
           Reply to{' '}
           <strong className="font-bold text-theme-label-primary">
@@ -155,7 +155,7 @@ function CommentBox({
           </strong>
         </div>
       </div>
-      <div className="flex relative flex-1 pl-2">
+      <div className="relative flex flex-1 pl-2">
         <ProfilePicture user={user} size="small" nativeLazyLoading />
         <textarea
           className={classNames(

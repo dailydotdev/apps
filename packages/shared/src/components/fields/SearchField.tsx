@@ -43,7 +43,7 @@ export interface SearchFieldProps
 
 const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
   isPrimary ? (
-    <CloseIcon className="text-lg icon group-hover:text-theme-label-primary" />
+    <CloseIcon className="icon text-lg group-hover:text-theme-label-primary" />
   ) : (
     <ArrowIcon className="rotate-90" />
   );
@@ -107,19 +107,19 @@ export const SearchField = forwardRef(function SearchField(
         (isSecondary && hasInput ? (
           <Button
             type="button"
-            className="mr-2 btn-tertiary"
+            className="btn-tertiary mr-2"
             buttonSize="xsmall"
             title="Clear query"
             onClick={onClearClick}
             icon={
-              <CloseIcon className="text-lg icon group-hover:text-theme-label-primary" />
+              <CloseIcon className="icon text-lg group-hover:text-theme-label-primary" />
             }
             disabled={!hasInput}
           />
         ) : (
           <SearchIcon
             secondary={focused}
-            className="mr-2 text-2xl icon"
+            className="icon mr-2 text-2xl"
             style={{
               color:
                 focused || hasInput

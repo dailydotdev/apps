@@ -35,7 +35,7 @@ export function SquadsList({
         const menuItem: SidebarMenuItem = {
           icon: () =>
             image ? (
-              <SquadImage className="w-5 h-5" {...squad} />
+              <SquadImage className="h-5 w-5" {...squad} />
             ) : (
               <DefaultSquadIcon />
             ),

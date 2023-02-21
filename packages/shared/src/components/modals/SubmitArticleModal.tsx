@@ -162,7 +162,7 @@ export default function SubmitArticleModal({
         <AlertParagraph>
           For more details see our{' '}
           <a
-            className="hover:underline text-theme-label-link"
+            className="text-theme-label-link hover:underline"
             href={submissionGuidelineDocsLink}
             target="_blank"
             rel="noopener"
@@ -194,18 +194,18 @@ export default function SubmitArticleModal({
           onSubmit={onSubmit}
         >
           <div>
-            <p className="mb-2 typo-callout text-theme-label-tertiary">
+            <p className="mb-2 text-theme-label-tertiary typo-callout">
               Found an interesting post? Do you want to share it with the
               community? Enter the post&apos;s URL / link below to add it to the
               feed.
             </p>
             {!isEnabled && (
-              <p className="mt-6 mb-2 typo-callout text-theme-label-tertiary">
+              <p className="mt-6 mb-2 text-theme-label-tertiary typo-callout">
                 You need more reputation to enable this feature
               </p>
             )}
             <a
-              className="font-bold underline typo-callout text-theme-label-link"
+              className="font-bold text-theme-label-link underline typo-callout"
               target="_blank"
               rel="noopener"
               href={communityLinksGuidelines}
@@ -256,7 +256,7 @@ export default function SubmitArticleModal({
       </Modal.Body>
       {existingArticle && (
         <div className="w-full">
-          <h4 className="pl-6 mb-2 font-bold typo-callout">Article exists</h4>
+          <h4 className="mb-2 pl-6 font-bold typo-callout">Article exists</h4>
           <PostItemCard postItem={existingArticle} showButtons={false} />
         </div>
       )}

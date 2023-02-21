@@ -43,11 +43,11 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
   };
 
   return (
-    <WidgetContainer className="hidden laptop:flex flex-col p-3">
-      <p className="typo-callout text-theme-label-tertiary">
+    <WidgetContainer className="hidden flex-col p-3 laptop:flex">
+      <p className="text-theme-label-tertiary typo-callout">
         Would you recommend this post?
       </p>
-      <div className="inline-flex relative flex-row items-center mt-3">
+      <div className="relative mt-3 inline-flex flex-row items-center">
         <SimpleTooltip content="Copy link">
           <ShareButton
             onClick={trackAndCopyLink}

@@ -89,7 +89,7 @@ export function SquadDetails({
     <>
       <Modal.Body>
         <form
-          className="flex flex-col gap-4 items-center -mb-2"
+          className="-mb-2 flex flex-col items-center gap-4"
           onSubmit={handleSubmit}
           onChange={handleChange}
           id="squad-form"
@@ -104,7 +104,7 @@ export function SquadDetails({
             id={squadImageId}
             fallbackImage={cloudinary.squads.imageFallback}
             className={{
-              container: '!rounded-full border-0 my-1',
+              container: 'my-1 !rounded-full border-0',
               img: 'object-cover',
             }}
             hoverIcon={<CameraIcon size="xlarge" />}

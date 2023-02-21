@@ -61,9 +61,9 @@ function NotificationItem({
           icon={icon}
           iconTheme={notificationTypeTheme[type]}
         />
-        <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
+        <div className="ml-4 flex w-full flex-1 flex-col text-left typo-callout">
           {hasAvatar && (
-            <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
+            <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
           )}
           <span
             className="break-words"

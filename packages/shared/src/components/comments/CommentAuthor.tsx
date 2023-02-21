@@ -29,7 +29,7 @@ export default function CommentAuthor({
       >
         {author.name}
         {author.id === postAuthorId && (
-          <span className="flex items-center ml-2 text-theme-status-help typo-footnote">
+          <span className="ml-2 flex items-center text-theme-status-help typo-footnote">
             <FeatherIcon secondary className="mx-0.5" size="small" />
             Author
           </span>

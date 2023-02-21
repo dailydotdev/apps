@@ -30,12 +30,12 @@ export default function SquadMemberMenu({
     >
       <Item className="typo-callout">
         <a
-          className="flex items-center w-full"
+          className="flex w-full items-center"
           href={`${reportSquadMember}#user_id=${user.id}&reportee_id=${memberId}&squad_id=${squadId}`}
           target="_blank"
           rel="noopener noreferrer"
         >
-          <span className="flex items-center w-full typo-callout">
+          <span className="flex w-full items-center typo-callout">
             <FlagIcon size="medium" secondary={false} className="mr-2" /> Report
             member
           </span>

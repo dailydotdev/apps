@@ -78,7 +78,7 @@ export default function BookmarkFeedLayout({
       <FeedPageHeader className="mb-5">
         <h3 className="font-bold typo-callout">Bookmarks</h3>
       </FeedPageHeader>
-      <CustomFeedHeader className="flex mb-6">
+      <CustomFeedHeader className="mb-6 flex">
         {searchChildren}
         {shareBookmarksButton(
           'hidden laptop:flex ml-4 btn-secondary',

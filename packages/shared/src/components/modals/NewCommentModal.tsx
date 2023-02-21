@@ -176,7 +176,7 @@ export default function NewCommentModal({
       disabled={disabled}
       loading={sendingComment}
       onClick={sendComment}
-      className="ml-auto btn-primary-avocado"
+      className="btn-primary-avocado ml-auto"
     >
       {editId ? 'Update' : 'Post'}
     </Button>
@@ -216,7 +216,7 @@ export default function NewCommentModal({
           icon={<AtIcon />}
           onClick={useUserMentionOptions.onInitializeMention}
         />
-        <div className="-ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
+        <div className="-ml-2 h-6 w-px border border-theme-divider-tertiary border-opacity-24" />
         <ClickableText
           tag="a"
           href={markdownGuide}

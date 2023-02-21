@@ -62,7 +62,7 @@ export function UserShortInfo<Tag extends AnyTag>({
         tooltip={tooltipProps}
         scrollingContainer={scrollingContainer}
       >
-        <div className="flex overflow-hidden flex-col flex-1 ml-4 typo-callout">
+        <div className="ml-4 flex flex-1 flex-col overflow-hidden typo-callout">
           <TextEllipsis className="font-bold">{name}</TextEllipsis>
           <TextEllipsis className="text-theme-label-secondary">
             @{username}

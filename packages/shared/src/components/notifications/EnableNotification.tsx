@@ -131,7 +131,7 @@ function EnableNotification({
           {`Push notifications${isEnabled ? ' successfully enabled' : ''}`}
         </span>
       )}
-      <p className="mt-2 w-full tablet:w-3/5 text-theme-label-tertiary">
+      <p className="mt-2 w-full text-theme-label-tertiary tablet:w-3/5">
         {isEnabled ? (
           <>
             Changing your{' '}
@@ -150,7 +150,7 @@ function EnableNotification({
       {!hasEnabled && (
         <Button
           buttonSize="small"
-          className="mt-4 text-white min-w-[7rem] btn-primary-cabbage"
+          className="btn-primary-cabbage mt-4 min-w-[7rem] text-white"
           onClick={onEnable}
         >
           Enable notifications
@@ -170,7 +170,7 @@ function EnableNotification({
       />
       <CloseButton
         buttonSize="xsmall"
-        className="top-1 laptop:top-3 right-1 laptop:right-3"
+        className="top-1 right-1 laptop:top-3 laptop:right-3"
         onClick={onDismiss}
         position="absolute"
       />

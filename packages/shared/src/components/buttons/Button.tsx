@@ -115,7 +115,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       {loading && (
         <Loader
           data-testid="buttonLoader"
-          className="hidden absolute top-0 right-0 bottom-0 left-0 m-auto btn-loader"
+          className="btn-loader absolute top-0 right-0 bottom-0 left-0 m-auto hidden"
         />
       )}
     </Tag>

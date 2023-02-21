@@ -47,8 +47,8 @@ export default function ArticlePostModal({
         inlineActions
         className={{
           onboarding: 'mt-8',
-          container: 'border border-theme-divider-tertiary rounded-16',
-          navigation: { actions: 'tablet:hidden ml-auto' },
+          container: 'rounded-16 border border-theme-divider-tertiary',
+          navigation: { actions: 'ml-auto tablet:hidden' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.XLarge],
             actions: 'ml-auto',

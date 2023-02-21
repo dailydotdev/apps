@@ -131,14 +131,14 @@ export default function PostsSection({
   } else if (user.twitter) {
     postsEmptyScreen = (
       <p
-        className="typo-callout text-theme-label-tertiary"
+        className="text-theme-label-tertiary typo-callout"
         data-testid="emptyPosts"
       >
         No posts yet.
         <br />
         <br />
         <a
-          className="no-underline text-theme-label-link"
+          className="text-theme-label-link no-underline"
           href={ownershipGuide}
           target="_blank"
           rel="noopener"
@@ -151,7 +151,7 @@ export default function PostsSection({
         <br />
         <br />
         <a
-          className="no-underline text-theme-label-link"
+          className="text-theme-label-link no-underline"
           href="mailto:support@daily.dev?subject=Add my posts retroactively&body=README: To add your posts retroactively, please reply with your username or a link to your profile on daily.dev. Keep in mind that we can only add posts that we're already picked up by daily.dev. Not sure if your post appeared in our feed? Try searching its headline here: https://app.daily.dev/search"
           target="_blank"
           rel="noopener"
@@ -168,7 +168,7 @@ export default function PostsSection({
           daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
         </EmptyMessage>
         <form
-          className="flex flex-col items-stretch mt-6 max-w-sm"
+          className="mt-6 flex max-w-sm flex-col items-stretch"
           ref={formRef}
           onSubmit={onSubmit}
         >
@@ -181,7 +181,7 @@ export default function PostsSection({
             value={user.twitter}
           />
           <Button
-            className="mt-4 w-28 btn-primary"
+            className="btn-primary mt-4 w-28"
             type="submit"
             disabled={isLoading}
           >
@@ -221,7 +221,7 @@ export default function PostsSection({
               <CommentContent className={styles.postContent}>
                 {post.title}
               </CommentContent>
-              <div className="grid grid-flow-col auto-cols-max gap-x-4 mt-3 tablet:mt-0 tablet:ml-auto">
+              <div className="mt-3 grid auto-cols-max grid-flow-col gap-x-4 tablet:mt-0 tablet:ml-auto">
                 {post.views !== null && (
                   <PostStat>
                     <EyeIcon className={postStatIconClass} />

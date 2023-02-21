@@ -127,7 +127,7 @@ export default function PostsSearch({
   return (
     <>
       <SearchField
-        className="flex-1 compact"
+        className="compact flex-1"
         inputId="posts-search"
         fieldSize="medium"
         placeholder={placeholder}

@@ -19,7 +19,7 @@ export const SharedPostText = ({
 
   return (
     <div className="px-2 pt-2 pb-3" ref={sharedPostTitleRef}>
-      <p className="line-clamp-6 typo-callout">{title}</p>
+      <p className="typo-callout line-clamp-6">{title}</p>
     </div>
   );
 };

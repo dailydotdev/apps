@@ -55,12 +55,12 @@ export default function RepostPostModal({
           value={reason}
           onChange={setReason}
         />
-        <p className="px-2 mt-6 mb-1 font-bold typo-caption1">
+        <p className="mt-6 mb-1 px-2 font-bold typo-caption1">
           Anything else you&apos;d like to add?
         </p>
         <textarea
           onChange={(event) => setComment(event.target.value)}
-          className="self-stretch p-2 mb-4 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
+          className="mb-4 h-20 w-full resize-none self-stretch rounded-10 bg-theme-float p-2 typo-body"
         />
         <Checkbox
           ref={inputRef}

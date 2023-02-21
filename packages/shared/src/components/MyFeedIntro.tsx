@@ -36,16 +36,16 @@ const TagPill = ({
 
 export const MyFeedIntro = (): ReactElement => {
   return (
-    <div className="flex overflow-hidden absolute flex-col justify-center items-center p-6 mobileL:px-10 w-full h-full">
+    <div className="absolute flex h-full w-full flex-col items-center justify-center overflow-hidden p-6 mobileL:px-10">
       <UserIcon size="xxxxlarge" />
       <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
-      <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
+      <p className="mt-3 mb-16 text-center text-theme-label-tertiary typo-title3">
         Devs with a personal feed get 11.5x more relevant posts
       </p>
       <FeedFiltersIntroModalTagsContainer>
         {/* eslint-disable react/no-array-index-key */}
         {tagsRows.map((row, i) => (
-          <ul className="flex gap-3 mb-3" key={i}>
+          <ul className="mb-3 flex gap-3" key={i}>
             {row.map((tag, j) => (
               <TagPill
                 autoWidth={!!tag.length}

@@ -29,10 +29,10 @@ function ConnectedUserModal({
 
   return (
     <>
-      <div className="flex flex-col flex-1 items-center px-10 pt-8 w-full">
+      <div className="flex w-full flex-1 flex-col items-center px-10 pt-8">
         <ImageInput viewOnly initialValue={user.image} size="large" />
         <span className="mt-5 typo-title3">{user.email}</span>
-        <span className="mt-1 typo-footnote text-theme-label-tertiary">
+        <span className="mt-1 text-theme-label-tertiary typo-footnote">
           Connected log in methods:{' '}
           {data?.result?.map((method) => capitalize(method)).join(', ')}
         </span>
@@ -42,7 +42,7 @@ function ConnectedUserModal({
           login again.
         </p>
       </div>
-      <span className="flex flex-row justify-center p-3 mt-auto w-full border-t border-theme-divider-tertiary">
+      <span className="mt-auto flex w-full flex-row justify-center border-t border-theme-divider-tertiary p-3">
         <Button
           className="btn-primary bg-theme-color-cabbage"
           onClick={onLogin}

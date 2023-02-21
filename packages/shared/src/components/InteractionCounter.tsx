@@ -34,14 +34,14 @@ export default function InteractionCounter({
     <span className={`relative overflow-hidden ${styles.interactionCounter}`}>
       <span
         className={
-          animate ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
+          animate ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'
         }
       >
         {shownValue}
       </span>
       <span
         className={`absolute top-0 left-0 ${
-          animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
+          animate ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
         }`}
         onTransitionEnd={updateShownValue}
       >

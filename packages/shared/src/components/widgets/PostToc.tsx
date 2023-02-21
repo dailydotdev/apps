@@ -43,7 +43,7 @@ export default function PostToc({
           rel="noopener"
           title={item.text}
           onClick={onLinkClick}
-          className="flex-1 py-2 px-4 truncate hover:bg-theme-hover typo-callout"
+          className="flex-1 truncate py-2  px-4 typo-callout hover:bg-theme-hover"
         >
           {item.text}
         </a>

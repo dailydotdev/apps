@@ -64,7 +64,7 @@ const ListItem = ({
       >
         {post.title}
       </h5>
-      <div className="flex items-center typo-footnote text-theme-label-tertiary">
+      <div className="flex items-center text-theme-label-tertiary typo-footnote">
         {post.trending ? (
           <>
             <HotLabel />
@@ -84,7 +84,7 @@ const ListItem = ({
     </div>
     <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
       <Button
-        className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
+        className="btn-tertiary-bun mt-1 group-hover:visible mouse:invisible"
         pressed={post.bookmarked}
         buttonSize="small"
         icon={<BookmarkIcon secondary={post.bookmarked} />}
@@ -97,7 +97,7 @@ const ListItem = ({
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
 
 const ListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="flex relative items-start py-2 pr-2 pl-4">
+  <article aria-busy className="relative flex items-start py-2 pr-2 pl-4">
     <ElementPlaceholder className={imageClassName} />
     <div className={textContainerClassName}>
       <TextPlaceholder style={{ width: '80%' }} />
@@ -130,7 +130,7 @@ export default function SimilarPosts({
         className,
       )}
     >
-      <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
+      <h4 className="py-3 pr-4 pl-6 text-theme-label-tertiary typo-body">
         You might like
       </h4>
       {Separator}
@@ -156,7 +156,7 @@ export default function SimilarPosts({
       {Separator}
       <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL} passHref>
         <Button
-          className="self-start my-2 ml-2 btn-tertiary"
+          className="btn-tertiary my-2 ml-2 self-start"
           buttonSize="small"
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}
