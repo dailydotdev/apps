@@ -6,15 +6,9 @@ import { cloudinary } from '../lib/image';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../lib/analytics';
 
-const GaussianBlur = (): ReactElement => {
-  return (
-    <div className="absolute w-52 h-52 rounded-full opacity-32 blur-2xl bg-theme-color-cabbage" />
-  );
-};
-
-const versionToContainerClassName: Record<ScrollOnboardingVersion, string> = {
-  [ScrollOnboardingVersion.V1]: 'h-60',
-  [ScrollOnboardingVersion.V2]: 'h-[36rem]',
+const versionToContainerClassName = {
+  [ScrollOnboardingVersion.V1]: 'h-48 my-5',
+  [ScrollOnboardingVersion.V2]: 'h-80 m-10',
 };
 const versionToButtonClassName: Record<ScrollOnboardingVersion, string> = {
   [ScrollOnboardingVersion.V1]: 'w-[16.25rem]',
@@ -25,11 +19,32 @@ const versionToButtonText: Record<ScrollOnboardingVersion, string> = {
   [ScrollOnboardingVersion.V2]: 'Start',
 };
 
+const versionToGaussianBlurClassName: Record<ScrollOnboardingVersion, string> =
+  {
+    [ScrollOnboardingVersion.V1]: 'top-0 right-0 bottom-0 left-0 m-auto',
+    [ScrollOnboardingVersion.V2]: '',
+  };
+
+const GaussianBlur = ({
+  version,
+}: {
+  version: ScrollOnboardingVersion;
+}): ReactElement => {
+  return (
+    <div
+      className={classNames(
+        'absolute w-48 h-48 rounded-full blur-2xl opacity-[0.2] bg-theme-color-cabbage',
+        versionToGaussianBlurClassName[version],
+      )}
+    />
+  );
+};
+
 interface ScrollFeedFiltersOnboardingProps {
   version: ScrollOnboardingVersion;
   onInitializeOnboarding: () => void;
 }
-export default function scrollFeedFiltersOnboarding({
+export default function ScrollFeedFiltersOnboarding({
   version,
   onInitializeOnboarding,
 }: ScrollFeedFiltersOnboardingProps): ReactElement {
@@ -45,7 +60,7 @@ export default function scrollFeedFiltersOnboarding({
   return (
     <div
       className={classNames(
-        'flex fixed bottom-0 left-60 z-3 gap-16 justify-center items-center w-full pr-40',
+        'flex flex-1 justify-center items-center relative',
         versionToContainerClassName[version],
       )}
       style={{
@@ -55,10 +70,10 @@ export default function scrollFeedFiltersOnboarding({
     >
       <div className="flex flex-col items-center">
         {version === ScrollOnboardingVersion.V1 ? (
-          <GaussianBlur />
+          <GaussianBlur version={version} />
         ) : (
           <div className="flex relative justify-center items-center mb-10">
-            <GaussianBlur />
+            <GaussianBlur version={version} />
             <img
               className="w-[4.625rem] h-[4.625rem]"
               src={cloudinary.feedFilters.supercharge}

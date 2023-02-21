@@ -141,7 +141,7 @@ export class Features<T extends FeatureValue = string> {
   static readonly ShowCommentPopover = new Features('show_comment_popover');
 
   static readonly ScrollOnboardingVersion = new Features(
-    'scroll_onboarding_version',
+    'anonymous_users_scroll_home_page',
     null,
     [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2],
   );

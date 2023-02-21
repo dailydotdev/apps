@@ -455,13 +455,13 @@ export default function Feed<T>({
               onReadArticleClick={onReadArticleClick}
             />
           ))}
-          {showScrollOnboardingVersion && showFeedFilters && (
-            <ScrollFeedFiltersOnboarding
-              version={scrollOnboardingVersion}
-              onInitializeOnboarding={onInitializeOnboardingClick}
-            />
-          )}
         </div>
+        {showScrollOnboardingVersion && showFeedFilters && (
+          <ScrollFeedFiltersOnboarding
+            version={scrollOnboardingVersion}
+            onInitializeOnboarding={onInitializeOnboardingClick}
+          />
+        )}
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         <PostOptionsMenu
           {...commonMenuItems}
