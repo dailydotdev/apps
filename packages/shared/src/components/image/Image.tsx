@@ -12,6 +12,5 @@ export const Image = ({ fallbackSrc, ...props }: ImageProps): ReactElement => {
     }
   };
 
-  // eslint-disable-next-line jsx-a11y/alt-text
   return <img {...props} onError={onError} />;
 };

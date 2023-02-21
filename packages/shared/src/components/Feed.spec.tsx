@@ -444,6 +444,7 @@ it('should increase reading rank progress', async () => {
       reads: 0,
     });
     const state = queryClient.getQueryState(queryKey);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(state.isInvalidated).toEqual(true);
   });
 });

@@ -34,7 +34,7 @@ export default function AutoCompleteMenu({
   return createPortal(
     <div
       role="menu"
-      className="top-full mt-1 react-contexify menu-secondary"
+      className="react-contexify menu-secondary top-full mt-1"
       style={{
         position: 'absolute',
         top: placement?.y,
@@ -45,7 +45,6 @@ export default function AutoCompleteMenu({
       }}
     >
       {sanitizedItems.map((item, index) => (
-        // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
         <div
           className={classNames(
             { focus: index === focusedItemIndex },

@@ -107,6 +107,7 @@ it('should create dynamically the progress bar according to the props', async ()
   renderComponent();
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
 });
@@ -119,10 +120,12 @@ it('should first show cached rank and animate to fetched rank', async () => {
   renderComponent();
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(0);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
 });
@@ -135,6 +138,7 @@ it('should show rank for anonymous users', async () => {
   renderComponent([], null);
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
 });
@@ -147,6 +151,7 @@ it('should show rank if show weekly goals toggle is checked', async () => {
   renderComponent([], null);
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
 });
@@ -183,6 +188,7 @@ it.each<RankType>(RANKS.map((rank) => [rank.name, rank]))(
       expect(screen.queryAllByTestId('completedPath').length).toEqual(
         rank.level === 7 ? 1 : rank.steps,
       );
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(screen.queryAllByTestId('remainingPath').length).toEqual(
         rank.level === 7 ? 0 : 1,
       );
@@ -210,6 +216,7 @@ it.each<RankType>(RANKS.map((rank) => [rank.name, rank]))(
       expect(screen.queryAllByTestId('completedPath').length).toEqual(
         rank.steps - 1,
       );
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(screen.queryAllByTestId('remainingPath').length).toEqual(
         rank.level === 7 ? 1 : 2,
       );
@@ -225,10 +232,12 @@ it('should show the specific ranks', async () => {
   renderComponent();
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(0);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
 });

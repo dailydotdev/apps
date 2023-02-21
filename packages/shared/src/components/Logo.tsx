@@ -27,7 +27,6 @@ export default function Logo({
       prefetch={false}
       tooltip={{ placement: 'right', content: 'Home' }}
     >
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
       <a
         className={classNames('flex items-center', className)}
         onClick={onLogoClick}

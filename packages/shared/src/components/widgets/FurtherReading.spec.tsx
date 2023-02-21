@@ -217,5 +217,5 @@ it('should show table of contents when it exists', async () => {
     ...post,
     toc: [{ text: 'Toc Item' }],
   });
-  expect(screen.queryByText('Table of contents')).toBeInTheDocument();
+  expect(screen.getByText('Table of contents')).toBeInTheDocument();
 });

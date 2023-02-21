@@ -10,6 +10,7 @@ it('should create dynamically the progress bar according to the props', async ()
   renderComponent({ steps: 3, progress: 0 });
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(0);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(3);
   });
 });
@@ -18,6 +19,7 @@ it('should add completed bars according to the progress', async () => {
   renderComponent({ steps: 3, progress: 2 });
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(2);
+    // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
 });

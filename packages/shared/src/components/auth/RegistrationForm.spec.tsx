@@ -97,6 +97,7 @@ const renderRegistration = async (email: string, existing = false) => {
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
   });
+  // eslint-disable-next-line testing-library/no-unnecessary-act
   await act(async () => {
     const submit = await screen.findByTestId('email_signup_submit');
     fireEvent.click(submit);
@@ -124,6 +125,8 @@ it('should post registration', async () => {
   await waitFor(() => {
     const sentText = screen.queryByText('We just sent an email to:');
     expect(sentText).toBeInTheDocument();
+  });
+  await waitFor(() => {
     const emailText = screen.queryByText(email);
     expect(emailText).toBeInTheDocument();
   });

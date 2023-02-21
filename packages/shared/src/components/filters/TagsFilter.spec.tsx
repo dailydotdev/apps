@@ -293,6 +293,7 @@ it('should utilize query cache to follow a tag when not logged in', async () => 
   const button = await screen.findByTestId('tagCategoryTags');
   expect(button).toBeVisible();
 
+  // eslint-disable-next-line testing-library/no-unnecessary-act
   await act(async () => {
     const webdev = await screen.findByText('#webdev');
     expect(webdev).toBeVisible();
@@ -323,6 +324,7 @@ it('should utilize query cache to unfollow a tag when not logged in', async () =
   const button = await screen.findByTestId('tagCategoryTags');
   expect(button).toBeVisible();
 
+  // eslint-disable-next-line testing-library/no-unnecessary-act
   await act(async () => {
     const react = await screen.findByText(`#${unfollow}`);
     expect(react).toBeVisible();
@@ -336,6 +338,7 @@ it('should utilize query cache to unfollow a tag when not logged in', async () =
     initialSettings.includeTags.find((tag) => tag === unfollow),
   ).toBeTruthy();
 
+  // eslint-disable-next-line testing-library/no-unnecessary-act
   await act(async () => {
     const react = await screen.findByText(`#${unfollow}`);
     expect(react).toBeVisible();

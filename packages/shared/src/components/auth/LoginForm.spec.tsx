@@ -94,6 +94,7 @@ const renderLogin = async (email: string) => {
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
   });
+  // eslint-disable-next-line testing-library/no-unnecessary-act
   await act(async () => {
     const submit = await screen.findByTestId('email_signup_submit');
     fireEvent.click(submit);

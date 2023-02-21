@@ -185,6 +185,7 @@ it('should feedback existing article', async () => {
     },
   });
   renderComponent();
+  // eslint-disable-next-line testing-library/no-unnecessary-act
   await act(async () => {
     const link = 'http://blog.daily.dev/blog/article-1';
     const input = (await screen.findByRole('textbox')) as HTMLInputElement;
