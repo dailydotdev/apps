@@ -35,7 +35,7 @@ const InviteText: ForwardRefRenderFunction<
   const trackAndCopyLink = () => {
     trackEvent({
       event_name: AnalyticsEvent.ShareSquadInvitation,
-      extra: JSON.stringify({ origin }),
+      extra: JSON.stringify({ origin, squad: squad?.id }),
     });
     return copyLink();
   };
