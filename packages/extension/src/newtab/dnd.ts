@@ -9,7 +9,6 @@ export type TimeFormat =
   | 'CUSTOM';
 
 export enum CustomTime {
-  MINUTES = 'Minutes',
   HOURS = 'Hours',
   DAYS = 'Days',
 }

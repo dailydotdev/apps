@@ -5,15 +5,6 @@ import { COMMENT_UPVOTES_BY_ID_QUERY } from '../graphql/comments';
 import { POST_UPVOTES_BY_ID_QUERY } from '../graphql/posts';
 import { useLazyModal } from './useLazyModal';
 
-export interface RequestQueryProps {
-  queryKey: QueryKey;
-  query: string;
-  params: {
-    id: string;
-    first: number;
-  };
-}
-
 type UpvoteType = 'post' | 'comment';
 
 interface UseUpvoteQuery {
