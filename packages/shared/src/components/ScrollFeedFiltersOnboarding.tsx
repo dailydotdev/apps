@@ -4,26 +4,29 @@ import { Button } from './buttons/Button';
 import { ScrollOnboardingVersion } from '../lib/featureValues';
 import { cloudinary } from '../lib/image';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../lib/analytics';
+import { AnalyticsEvent } from '../lib/analytics';
+
+type ScrollOnboardingVersionMap = Partial<
+  Record<ScrollOnboardingVersion, string>
+>;
 
 const versionToContainerClassName = {
   [ScrollOnboardingVersion.V1]: 'h-48 my-5',
   [ScrollOnboardingVersion.V2]: 'h-80 m-10',
 };
-const versionToButtonClassName: Record<ScrollOnboardingVersion, string> = {
+const versionToButtonClassName: ScrollOnboardingVersionMap = {
   [ScrollOnboardingVersion.V1]: 'w-[16.25rem]',
   [ScrollOnboardingVersion.V2]: 'w-40',
 };
-const versionToButtonText: Record<ScrollOnboardingVersion, string> = {
+const versionToButtonText: ScrollOnboardingVersionMap = {
   [ScrollOnboardingVersion.V1]: 'Customize your feed',
   [ScrollOnboardingVersion.V2]: 'Start',
 };
 
-const versionToGaussianBlurClassName: Record<ScrollOnboardingVersion, string> =
-  {
-    [ScrollOnboardingVersion.V1]: 'top-0 right-0 bottom-0 left-0 m-auto',
-    [ScrollOnboardingVersion.V2]: '',
-  };
+const versionToGaussianBlurClassName: ScrollOnboardingVersionMap = {
+  [ScrollOnboardingVersion.V1]: 'top-0 right-0 bottom-0 left-0 m-auto',
+  [ScrollOnboardingVersion.V2]: '',
+};
 
 const GaussianBlur = ({
   version,
@@ -55,6 +58,10 @@ export default function ScrollFeedFiltersOnboarding({
       target_id: version,
     });
   }, [version]);
+
+  if (version === ScrollOnboardingVersion.Control) {
+    return null;
+  }
 
   return (
     <div

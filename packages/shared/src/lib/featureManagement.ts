@@ -142,8 +142,12 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly ScrollOnboardingVersion = new Features(
     'anonymous_users_scroll_home_page',
-    null,
-    [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2],
+    ScrollOnboardingVersion.Control,
+    [
+      ScrollOnboardingVersion.Control,
+      ScrollOnboardingVersion.V1,
+      ScrollOnboardingVersion.V2,
+    ],
   );
 
   static readonly HasSquadAccess = new Features('squad');
