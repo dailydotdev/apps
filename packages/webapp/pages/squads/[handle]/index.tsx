@@ -101,18 +101,18 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  const isActive = !isNullOrUndefined(squad) && squad.active;
+  const isInactive = !isNullOrUndefined(squad) && !squad.active;
   const isFinishedLoading = isFetched && !isLoading && !!squad;
 
   const { isPopupOpen, onClosePopup } = useSquadOnboarding(
-    isFinishedLoading && isActive && !isForbidden,
+    isFinishedLoading && !isInactive && !isForbidden,
   );
 
   if (isLoading && !isFetched && !squad) return <SquadLoading />;
 
   if (!isFetched) return <></>;
 
-  if (isFallback || !isActive || isForbidden) return <Unauthorized />;
+  if (isFallback || isInactive || isForbidden) return <Unauthorized />;
 
   if (!squad) return <Custom404 />;
 
