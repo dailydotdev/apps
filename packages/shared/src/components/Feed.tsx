@@ -199,6 +199,7 @@ export default function Feed<T>({
   const showScrollOnboardingVersion =
     sidebarRendered &&
     alerts?.filter &&
+    !user?.id &&
     Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
   const fetchPageFn = showScrollOnboardingVersion
     ? () => setShowFeedFilters(true)
