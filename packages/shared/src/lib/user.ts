@@ -117,7 +117,7 @@ export async function updateProfile(
   throw new Error('Unexpected response');
 }
 
-const getProfileRequest = async (method = fetch, id: string) => {
+const getProfileRequest = async (id: string, method = fetch) => {
   const userRes = await method(graphqlUrl, {
     method: 'POST',
     headers: {
@@ -139,9 +139,9 @@ const getProfileRequest = async (method = fetch, id: string) => {
 };
 
 export async function getProfileSSR(id: string): Promise<PublicProfile> {
-  return await getProfileRequest(nodeFetch, id);
+  return await getProfileRequest(id, nodeFetch);
 }
 
 export async function getProfile(id: string): Promise<PublicProfile> {
-  return await getProfileRequest(fetch, id);
+  return await getProfileRequest(id, fetch);
 }

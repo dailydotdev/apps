@@ -110,7 +110,7 @@ function classed<P extends SVGAttributes<T>, T extends SVGElement>(
   ...classes: string[]
 ): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
 
-function classed<P extends unknown>(
+function classed<P>(
   type: FunctionComponent<P>,
   className: string | Record<string, string>,
   ...classes: string[]
@@ -118,7 +118,7 @@ function classed<P extends unknown>(
   PropsWithoutRef<P> & RefAttributes<FunctionComponent<P>>
 >;
 
-function classed<P extends unknown>(
+function classed<P>(
   type: ComponentType<P>,
   className: string | Record<string, string>,
   ...classes: string[]
