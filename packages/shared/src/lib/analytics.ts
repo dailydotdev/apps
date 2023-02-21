@@ -58,12 +58,12 @@ export enum AnalyticsEvent {
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
   // squads - end
+  EligibleScrollBlock = 'eligible scroll block',
 }
 
 export enum TargetType {
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
-  ScrollBlock = 'scroll block',
   EnableNotifications = 'enable notifications',
   CreateSquadPopup = 'create squad popup',
 }

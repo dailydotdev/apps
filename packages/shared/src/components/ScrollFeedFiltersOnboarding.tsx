@@ -51,8 +51,7 @@ export default function ScrollFeedFiltersOnboarding({
   const { trackEvent } = useContext(AnalyticsContext);
   useEffect(() => {
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      target_type: TargetType.ScrollBlock,
+      event_name: AnalyticsEvent.EligibleScrollBlock,
       target_id: version,
     });
   }, [version]);
