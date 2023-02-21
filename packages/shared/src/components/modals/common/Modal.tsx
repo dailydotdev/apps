@@ -99,14 +99,14 @@ export function Modal({
     'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-[10]',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
-    overlayClassName,
+    overlayClassName as string,
   );
   const modalClassName = classNames(
     'modal flex flex-col relative focus:outline-none max-w-full items-center bg-theme-bg-tertiary shadow-2 border border-theme-divider-secondary rounded-16',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],
-    className,
+    className as string,
   );
 
   return (

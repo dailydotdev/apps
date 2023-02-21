@@ -51,7 +51,7 @@ export default function AuthModal({
       size={Modal.Size.Small}
       overlayRef={onContainerChange}
       onRequestClose={onDiscardAttempt}
-      className={classNames(className, 'auth')}
+      className={classNames(className as string, 'auth')}
     >
       <AuthOptions
         className="h-full"

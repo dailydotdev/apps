@@ -9,7 +9,7 @@ module.exports = {
     'prettier',
     'plugin:prettier/recommended',
   ],
-  plugins: ['prettier', 'tailwindcss', '@dailydotdev/daily-dev-eslint-rules'],
+  plugins: ['import', 'prettier', 'tailwindcss', '@dailydotdev/daily-dev-eslint-rules'],
   parserOptions: {
     project: './tsconfig.eslint.json',
     ecmaVersion: 2020,

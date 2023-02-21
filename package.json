@@ -2,6 +2,6 @@
   "name": "daily-apps",
   "private": true,
   "dependencies": {
-    "postcss-rem-to-responsive-pixel": "^5.1.1"
+    "postcss-rem-to-responsive-pixel": "^5.1.3"
   }
 }

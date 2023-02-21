@@ -135,7 +135,7 @@ function classed<T, P extends Record<string, unknown>>(
         ...props,
         className: classNames(
           // eslint-disable-next-line react/prop-types
-          props?.className,
+          props?.className as string,
           className,
           ...classes,
         ),

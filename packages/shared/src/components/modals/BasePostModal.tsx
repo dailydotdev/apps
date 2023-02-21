@@ -15,7 +15,10 @@ function BasePostModal({
       portalClassName={styles.postModal}
       id="post-modal"
       {...props}
-      className={classNames(className, 'post-modal focus:outline-none')}
+      className={classNames(
+        className as string,
+        'post-modal focus:outline-none',
+      )}
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
     >
       {children}
