@@ -55,7 +55,7 @@ export default function ScrollFeedFiltersOnboarding({
       target_type: TargetType.ScrollBlock,
       target_id: version,
     });
-  }, []);
+  }, [version]);
 
   return (
     <div
