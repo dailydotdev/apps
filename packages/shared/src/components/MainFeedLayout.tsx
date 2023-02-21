@@ -76,7 +76,7 @@ const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
 
 const LayoutHeader = classed(
   'header',
-  'flex justify-between items-center overflow-x-auto relative justify-between mb-6 min-h-14 w-full no-scrollbar',
+  'flex justify-between items-center overflow-x-auto relative mb-6 min-h-14 w-full no-scrollbar',
 );
 
 export type MainFeedLayoutProps = {
