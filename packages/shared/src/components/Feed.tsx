@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -167,7 +166,6 @@ export default function Feed<T>({
     loadedSettings,
   } = useContext(SettingsContext);
   const insaneMode = !forceCardMode && listMode;
-  const [showFeedFilters, setShowFeedFilters] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
@@ -201,13 +199,10 @@ export default function Feed<T>({
     alerts?.filter &&
     !user?.id &&
     Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
-  const fetchPageFn = showScrollOnboardingVersion
-    ? () => setShowFeedFilters(true)
-    : fetchPage;
 
   const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: fetchPageFn,
-    canFetchMore,
+    fetchPage,
+    canFetchMore: !showScrollOnboardingVersion && canFetchMore,
   });
 
   const onInitializeOnboardingClick = () => {
@@ -457,7 +452,7 @@ export default function Feed<T>({
             />
           ))}
         </div>
-        {showScrollOnboardingVersion && showFeedFilters && (
+        {showScrollOnboardingVersion && (
           <ScrollFeedFiltersOnboarding
             version={scrollOnboardingVersion}
             onInitializeOnboarding={onInitializeOnboardingClick}
