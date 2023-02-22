@@ -207,10 +207,12 @@ export default function Feed<T>({
     alerts?.filter &&
     !user?.id &&
     Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
+  const shouldScrollBlock =
+    scrollOnboardingVersion !== ScrollOnboardingVersion.Control;
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
-    canFetchMore: !showScrollOnboardingVersion && canFetchMore,
+    canFetchMore: canFetchMore && !shouldScrollBlock,
   });
 
   const onInitializeOnboardingClick = () => {
