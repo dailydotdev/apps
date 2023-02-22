@@ -121,6 +121,7 @@ function SquadPostContent({
           <PostSourceInfo
             date={postDateFormat(post.createdAt)}
             source={post.source}
+            className="!typo-body"
           />
           <span className="flex flex-row items-center mt-3">
             <ProfileTooltip user={post.author}>
@@ -159,7 +160,6 @@ function SquadPostContent({
                 <PostSourceInfo
                   date={`${post.sharedPost.readTime}m read time`}
                   source={post.sharedPost.source}
-                  typo="typo-footnote"
                   size="small"
                 />
                 <ReadArticleButton
