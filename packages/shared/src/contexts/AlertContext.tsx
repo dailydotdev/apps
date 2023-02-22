@@ -8,7 +8,7 @@ export const ALERT_DEFAULTS: Alerts = {
   filter: true,
   rankLastSeen: null,
   myFeed: null,
-  showSquadTour: true,
+  squadTour: true,
 };
 
 export interface AlertContextData {

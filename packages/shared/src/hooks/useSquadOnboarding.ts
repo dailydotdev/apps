@@ -31,14 +31,14 @@ export const useSquadOnboarding = (
 
     if (hasTriedOnboarding) {
       // to update sync - backwards compatibility
-      if (alerts.showSquadTour) updateAlerts({ showSquadTour: false });
+      if (alerts.squadTour) updateAlerts({ squadTour: false });
 
       return;
     }
 
-    if (isPopupOpen || !alerts.showSquadTour) return;
+    if (isPopupOpen || !alerts.squadTour) return;
 
-    updateAlerts({ showSquadTour: false });
+    updateAlerts({ squadTour: false });
     setHasTriedOnboarding(true);
     if (sidebarRendered) {
       setIsPopupOpen(true);
