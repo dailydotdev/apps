@@ -10,7 +10,7 @@ type ScrollOnboardingVersionMap = Partial<
   Record<ScrollOnboardingVersion, string>
 >;
 
-const versionToContainerClassName = {
+const versionToContainerClassName: ScrollOnboardingVersionMap = {
   [ScrollOnboardingVersion.V1]: 'h-48 my-5',
   [ScrollOnboardingVersion.V2]: 'h-80 m-10',
 };
