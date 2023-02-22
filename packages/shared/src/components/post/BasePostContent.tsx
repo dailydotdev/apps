@@ -46,7 +46,6 @@ export interface BasePostContentProps extends UsePostContentProps {
   customNavigation?: ReactNode;
 }
 
-export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
 
 export function BasePostContent({

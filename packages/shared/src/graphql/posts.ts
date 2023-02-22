@@ -123,10 +123,6 @@ export interface PostUpvote extends Upvote {
   post: Post;
 }
 
-export interface PostUpvotesData {
-  postUpvotes: Connection<PostUpvote>;
-}
-
 export const POST_BY_ID_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
@@ -169,7 +165,6 @@ export const POST_BY_ID_QUERY = gql`
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
-  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
@@ -219,14 +214,6 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
-
-export interface UpvoteData {
-  upvote: EmptyResponse;
-}
-
-export interface CancelUpvoteData {
-  cancelUpvote: EmptyResponse;
-}
 
 export const UPVOTE_MUTATION = gql`
   mutation Upvote($id: ID!) {

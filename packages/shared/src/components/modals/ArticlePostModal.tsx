@@ -18,9 +18,6 @@ interface ArticlePostModalProps
   isFetchingNextPage?: boolean;
 }
 
-export const postModalOverlayClasses =
-  'post-modal-overlay bg-overlay-quaternary-onion';
-
 export default function ArticlePostModal({
   id,
   className,

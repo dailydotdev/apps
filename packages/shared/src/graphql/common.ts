@@ -81,5 +81,4 @@ export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
 
 export enum ApiError {
   Forbidden = 'FORBIDDEN',
-  NotFound = 'NOT_FOUND',
 }

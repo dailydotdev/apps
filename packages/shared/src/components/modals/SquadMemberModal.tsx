@@ -17,6 +17,7 @@ import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
 import SquadIcon from '../icons/Squad';
 import { getSquadMembersUserRole } from '../squads/utils';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount?: number;
@@ -69,20 +70,25 @@ export function SquadMemberModal({
           const role = getSquadMembersUserRole(queryResult, user);
           if (role === SquadMemberRole.Owner) {
             return (
-              <span className="flex gap-1 items-center font-bold typo-footnote text-theme-color-cabbage">
+              <span
+                className="flex gap-1 items-center font-bold typo-footnote text-theme-color-cabbage"
+                data-testvalue={user.username}
+              >
                 <SquadIcon secondary /> Owner
               </span>
             );
           }
 
           return (
-            <Button
-              buttonSize="small"
-              className="m-auto mr-0 btn-tertiary"
-              iconOnly
-              onClick={(e) => onReportClick(e, user.id)}
-              icon={<MenuIcon />}
-            />
+            <SimpleTooltip content="Member options">
+              <Button
+                buttonSize="small"
+                className="m-auto mr-0 btn-tertiary"
+                iconOnly
+                onClick={(e) => onReportClick(e, user.id)}
+                icon={<MenuIcon />}
+              />
+            </SimpleTooltip>
           );
         }}
       />

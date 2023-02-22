@@ -30,14 +30,25 @@ import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading
 import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import Custom404 from '@dailydotdev/shared/src/components/Custom404';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
+import dynamic from 'next/dynamic';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
+
+const Custom404 = dynamic(
+  () => import(/* webpackChunkName: "404" */ '../../404'),
+);
+const SquadTourPopup = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadTourPopup" */ '@dailydotdev/shared/src/components/squads/SquadTourPopup'
+    ),
+);
 
 type SourcePageProps = { handle: string };
 
@@ -90,11 +101,16 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
+  const isInactive = !isNullOrUndefined(squad) && !squad.active;
+  const isFinishedLoading = isFetched && !isLoading && !!squad;
+
+  const { isPopupOpen, onClosePopup } = useSquadOnboarding(
+    isFinishedLoading && !isInactive && !isForbidden,
+  );
+
   if (isLoading && !isFetched && !squad) return <SquadLoading />;
 
   if (!isFetched) return <></>;
-
-  const isInactive = !isNullOrUndefined(squad) && !squad.active;
 
   if (isFallback || isInactive || isForbidden) return <Unauthorized />;
 
@@ -114,6 +130,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
+      {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
       <BaseFeedPage className="relative pt-2 mb-4 squad-background-fade">
         <SquadPageHeader
           squad={squad}

@@ -64,11 +64,6 @@ export const ListCardDivider = classed(
   'w-px h-full bg-theme-divider-tertiary',
 );
 
-export const CardNotification = classed(
-  'div',
-  'px-4 py-1.5 -mx-1.5 rounded-10 bg-theme-label-primary text-theme-label-invert typo-callout font-bold',
-);
-
 export const getPostClassNames = (
   post: Post,
   ...postClassNames: string[]

@@ -186,14 +186,13 @@ const READING_HISTORY_FRAGMENT = gql`
         ...SharedPostInfo
       }
       source {
-        id
-        image
+        ...SourceShortInfo
       }
       scout {
-        id
+        ...UserShortInfo
       }
       author {
-        id
+        ...UserShortInfo
       }
       type
     }
@@ -257,25 +256,6 @@ export const HIDE_READING_HISTORY_MUTATION = gql`
   mutation HideReadHistory($postId: String!, $timestamp: DateTime!) {
     hideReadHistory(postId: $postId, timestamp: $timestamp) {
       _
-    }
-  }
-`;
-
-export const QUERY_USER_BY_EMAIL = gql`
-  query UserByEmail($email: String!) {
-    user: userByEmail(email: $email) {
-      id
-      name
-      image
-      username
-      permalink
-      bio
-      twitter
-      github
-      hashnode
-      createdAt
-      infoConfirmed
-      timezone
     }
   }
 `;

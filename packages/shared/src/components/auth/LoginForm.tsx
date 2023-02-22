@@ -26,10 +26,6 @@ export type LoginFormParams = Pick<
   'identifier' | 'password'
 >;
 
-export interface LoginSocialFormParams {
-  provider: string;
-}
-
 function LoginForm({
   onForgotPassword,
   onPasswordLogin,
