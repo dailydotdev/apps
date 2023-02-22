@@ -5,6 +5,7 @@ import { ScrollOnboardingVersion } from '../lib/featureValues';
 import { cloudinary } from '../lib/image';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
+import SuperchargeIcon from '../../icons/supercharge.svg';
 
 type ScrollOnboardingVersionMap = Partial<
   Record<ScrollOnboardingVersion, string>
@@ -80,11 +81,7 @@ export default function ScrollFeedFiltersOnboarding({
         ) : (
           <div className="flex relative justify-center items-center mb-10">
             <GaussianBlur version={version} />
-            <img
-              className="w-[4.625rem] h-[4.625rem]"
-              src={cloudinary.feedFilters.supercharge}
-              alt="supercharge your feed"
-            />
+            <SuperchargeIcon className="w-[4.625rem] h-[4.625rem]" />
           </div>
         )}
         {version === ScrollOnboardingVersion.V2 && (
