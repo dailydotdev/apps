@@ -203,6 +203,7 @@ export default function Feed<T>({
 
   const showScrollOnboardingVersion =
     sidebarRendered &&
+    feedName === 'popular' &&
     !isLoading &&
     alerts?.filter &&
     !user?.id &&
