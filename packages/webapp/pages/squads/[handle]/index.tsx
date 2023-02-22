@@ -59,6 +59,8 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { openModal } = useLazyModal();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
+  const [trackedForbiddenImpression, setTrackedForbiddenImpression] =
+    useState(false);
   const queryKey = ['squad', handle];
   const {
     data: squad,
@@ -112,7 +114,16 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!isFetched) return <></>;
 
-  if (isFallback || isInactive || isForbidden) return <Unauthorized />;
+  if (isFallback || isInactive || isForbidden) {
+    if (!trackedForbiddenImpression) {
+      trackEvent({
+        event_name: AnalyticsEvent.ViewSquadForbiddenPage,
+        extra: JSON.stringify({ squad: squadId ?? handle }),
+      });
+      setTrackedForbiddenImpression(true);
+    }
+    return <Unauthorized />;
+  }
 
   if (!squad) return <Custom404 />;
 
