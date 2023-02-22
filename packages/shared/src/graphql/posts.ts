@@ -9,7 +9,7 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { SOURCE_FEED_QUERY, SUPPORTED_TYPES } from './feed';
+import { RankingAlgorithm, SOURCE_FEED_QUERY, SUPPORTED_TYPES } from './feed';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -398,6 +398,7 @@ export const getLatestChangelogPost = async (
     source: 'daily_updates',
     first: 1,
     loggedIn,
+    ranking: RankingAlgorithm.Time,
   });
 
   return feedData?.page?.edges?.[0]?.node;
