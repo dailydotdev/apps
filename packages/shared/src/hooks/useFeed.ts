@@ -39,6 +39,7 @@ export type FeedReturnType = {
   removePost: (page: number, index: number) => void;
   canFetchMore: boolean;
   emptyFeed: boolean;
+  isLoading: boolean;
 };
 
 const updateCachedPage = (
@@ -235,5 +236,6 @@ export default function useFeed<T>(
     canFetchMore: feedQuery.hasNextPage,
     emptyFeed:
       !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,
+    isLoading: feedQuery.isLoading,
   };
 }

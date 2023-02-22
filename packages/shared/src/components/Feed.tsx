@@ -167,15 +167,22 @@ export default function Feed<T>({
   } = useContext(SettingsContext);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
-    useFeed(
-      feedQueryKey,
-      currentSettings.pageSize,
-      currentSettings.adSpot,
-      numCards,
-      showOnlyUnreadPosts,
-      { query, variables, options },
-    );
+  const {
+    items,
+    updatePost,
+    removePost,
+    fetchPage,
+    canFetchMore,
+    emptyFeed,
+    isLoading,
+  } = useFeed(
+    feedQueryKey,
+    currentSettings.pageSize,
+    currentSettings.adSpot,
+    numCards,
+    showOnlyUnreadPosts,
+    { query, variables, options },
+  );
 
   const { ranking } = (variables as RankVariables) || {};
   const {
@@ -196,6 +203,7 @@ export default function Feed<T>({
 
   const showScrollOnboardingVersion =
     sidebarRendered &&
+    !isLoading &&
     alerts?.filter &&
     !user?.id &&
     Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
