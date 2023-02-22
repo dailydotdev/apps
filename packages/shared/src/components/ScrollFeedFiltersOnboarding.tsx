@@ -66,10 +66,21 @@ export default function ScrollFeedFiltersOnboarding({
 
   return (
     <div
+      onClick={onInitializeOnboarding}
+      role="button"
+      tabIndex={0}
+      aria-label={versionToButtonText[version]}
       className={classNames(
         'flex flex-1 justify-center items-center relative',
         versionToContainerClassName[version],
       )}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter') {
+          return;
+        }
+
+        onInitializeOnboarding();
+      }}
       style={{
         background:
           'linear-gradient(180deg, #04131e00 0%, #04131eb3 20%, #0e1217 100%)',
@@ -96,7 +107,7 @@ export default function ScrollFeedFiltersOnboarding({
             versionToButtonClassName[version],
           )}
           buttonSize="large"
-          onClick={onInitializeOnboarding}
+          tabIndex={-1}
         >
           {versionToButtonText[version]}
         </Button>
