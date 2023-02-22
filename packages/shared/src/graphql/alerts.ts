@@ -4,6 +4,7 @@ export type Alerts = {
   filter?: boolean;
   rankLastSeen?: Date;
   myFeed?: string;
+  showSquadTour?: boolean;
   companionHelper?: boolean;
 };
 
