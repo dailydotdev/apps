@@ -52,6 +52,7 @@ export enum AnalyticsEvent {
   LeaveSquad = 'leave squad',
   ShareSquadInvitation = 'share squad invitation',
   ViewSquadPage = 'view squad page',
+  ViewSquadForbiddenPage = 'view squad forbidden',
   CompleteSquadCreation = 'complete squad creation',
   ClickSquadCreationNext = 'click squad creation next',
   ClickSquadCreationBack = 'click squad creation back',
