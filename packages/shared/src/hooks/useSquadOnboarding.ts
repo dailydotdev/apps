@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { LazyModal } from '../components/modals/common/types';
+import AlertContext from '../contexts/AlertContext';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { useLazyModal } from './useLazyModal';
 import usePersistentContext from './usePersistentContext';
@@ -15,15 +16,29 @@ interface UseSquadOnboarding {
 export const useSquadOnboarding = (
   isPageReady: boolean,
 ): UseSquadOnboarding => {
+  const { alerts, isFetched, updateAlerts } = useContext(AlertContext);
   const { sidebarRendered } = useSidebarRendered();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { openModal } = useLazyModal<LazyModal.SquadTour>();
-  const [hasTriedOnboarding, setHasTriedOnboarding, isFetched] =
+  const [hasTriedOnboarding, setHasTriedOnboarding, isCacheFetched] =
     usePersistentContext(SQUAD_ONBOARDING_KEY, false);
 
   useEffect(() => {
-    if (!isPageReady || !isFetched || hasTriedOnboarding || isPopupOpen) return;
+    const conditions = [isPageReady, isFetched, isCacheFetched];
+    const isReady = conditions.every((isMet) => isMet);
 
+    if (!isReady) return;
+
+    if (hasTriedOnboarding) {
+      // to update sync - backwards compatibility
+      if (alerts.squadTour) updateAlerts({ squadTour: false });
+
+      return;
+    }
+
+    if (isPopupOpen || !alerts.squadTour) return;
+
+    updateAlerts({ squadTour: false });
     setHasTriedOnboarding(true);
     if (sidebarRendered) {
       setIsPopupOpen(true);
@@ -33,7 +48,9 @@ export const useSquadOnboarding = (
   }, [
     hasTriedOnboarding,
     isFetched,
+    isCacheFetched,
     isPageReady,
+    alerts,
     isPopupOpen,
     sidebarRendered,
   ]);
