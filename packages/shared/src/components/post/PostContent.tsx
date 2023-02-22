@@ -146,8 +146,7 @@ export function PostContent({
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.readTime}
-            className="mt-4 mb-8"
-            typoClassName="typo-callout"
+            className="mt-4 mb-8 !typo-callout"
           />
           <a
             href={post.permalink}

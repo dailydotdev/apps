@@ -9,20 +9,20 @@ interface SourceInfoProps {
   source: Source;
   date?: string;
   size?: ProfileImageSize;
-  typo?: string;
+  className?: string;
 }
 
 function PostSourceInfo({
   date,
   source,
   size = 'medium',
-  typo = 'typo-callout',
+  className,
 }: SourceInfoProps): ReactElement {
   return (
     <span
       className={classNames(
-        'flex flex-row items-center text-theme-label-tertiary',
-        typo,
+        'flex flex-row items-center text-theme-label-tertiary typo-footnote',
+        className,
       )}
     >
       <SourceButton source={source} size={size} />
