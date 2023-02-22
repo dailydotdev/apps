@@ -121,7 +121,7 @@ function SquadPostContent({
           <PostSourceInfo
             date={postDateFormat(post.createdAt)}
             source={post.source}
-            className="!typo-callout"
+            className="!typo-body"
           />
           <span className="flex flex-row items-center mt-3">
             <ProfileTooltip user={post.author}>
