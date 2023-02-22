@@ -15,6 +15,7 @@ export const UPDATE_ALERTS = gql`
       rankLastSeen
       myFeed
       companionHelper
+      showSquadTour
     }
   }
 `;
