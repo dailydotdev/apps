@@ -9,6 +9,7 @@ import { Image } from '../image/Image';
 import { useChangelog } from '../../hooks/useChangelog';
 import { ExtensionMessageType } from '../../lib/extension';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { updateFirefoxExtensionLink } from '../../lib/constants';
 
 interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
   elementRef: MutableRefObject<TRef>;
@@ -123,9 +124,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 <Button
                   tag={isFirefoxExtension ? 'a' : undefined}
                   href={
-                    isFirefoxExtension
-                      ? 'https://r.daily.dev/firefoxupdate'
-                      : undefined
+                    isFirefoxExtension ? updateFirefoxExtensionLink : undefined
                   }
                   className="bg-cabbage-40 btn-primary"
                   data-testid="changelogExtensionBtn"
