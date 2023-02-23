@@ -33,7 +33,7 @@ const iconType: AlertPropObject<typeof FeedbackIcon> = {
 
 interface AlertProps {
   className?: string;
-  title?: string;
+  title?: ReactNode;
   type?: AlertType;
   children?: ReactNode;
 }
