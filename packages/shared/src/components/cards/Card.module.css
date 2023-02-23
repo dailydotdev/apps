@@ -77,14 +77,4 @@
       color: var(--theme-label-tertiary);
     }
   }
-
-  @screen mouse {
-    & .authorBox {
-      visibility: hidden;
-    }
-
-    &:hover .authorBox {
-      visibility: visible;
-    }
-  }
 }

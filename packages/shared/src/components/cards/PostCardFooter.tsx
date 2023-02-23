@@ -5,8 +5,8 @@ import FeatherIcon from '../icons/Feather';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { Post } from '../../graphql/posts';
-import styles from './Card.module.css';
 import { cloudinary } from '../../lib/image';
+import { visibleOnGroupHover } from './common';
 
 type PostCardFooterProps = {
   insaneMode: boolean;
@@ -22,8 +22,14 @@ export const PostCardFooter = ({
 }: PostCardFooterProps): ReactElement => {
   return (
     <>
-      {!showImage && (
-        <PostAuthor post={post} className="hidden tablet:flex mx-4 mt-2" />
+      {!showImage && post.author && (
+        <PostAuthor
+          author={post.author}
+          className={classNames(
+            'hidden tablet:flex laptop:hidden mx-4 mt-2',
+            visibleOnGroupHover,
+          )}
+        />
       )}
       {showImage && (
         <CardImage
@@ -38,7 +44,7 @@ export const PostCardFooter = ({
         <div
           className={classNames(
             'absolute rounded-t-xl mt-2 flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
-            styles.authorBox,
+            visibleOnGroupHover,
           )}
         >
           <ProfilePicture size="small" user={post.author} />

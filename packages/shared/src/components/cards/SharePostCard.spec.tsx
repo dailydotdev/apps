@@ -1,16 +1,11 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
-import { ArticlePostCard } from './ArticlePostCard';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { SharePostCard } from './SharePostCard';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import post from '../../../__tests__/fixture/post';
-import { PostCardProps, visibleOnGroupHover } from './common';
+import { sharePost } from '../../../__tests__/fixture/post';
+import { PostCardProps } from './common';
 
+const post = sharePost;
 const defaultProps: PostCardProps = {
   post,
   onPostClick: jest.fn(),
@@ -29,25 +24,16 @@ beforeEach(() => {
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <FeaturesContextProvider flags={{}}>
-      <ArticlePostCard {...defaultProps} {...props} />
+      <SharePostCard {...defaultProps} {...props} />
     </FeaturesContextProvider>,
   );
 };
 
 it('should call on link click on component left click', async () => {
   renderComponent();
-  const el = await screen.findByTitle('The Prosecutor’s Fallacy');
+  const el = await screen.findByTitle('Good read about react-query');
   el.click();
   await waitFor(() => expect(defaultProps.onPostClick).toBeCalled());
-});
-
-it('should call on link click on component middle mouse up', async () => {
-  renderComponent();
-  const el = await screen.findByText('Read post');
-  el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
-  await waitFor(() =>
-    expect(defaultProps.onReadArticleClick).toBeCalledTimes(1),
-  );
 });
 
 it('should call on upvote click on upvote button click', async () => {
@@ -84,14 +70,8 @@ it('should not display publication date createdAt is empty', async () => {
 
 it('should format publication date', async () => {
   renderComponent();
-  const el = await screen.findByText('Jun 13, 2018');
+  const el = await screen.findByText('Feb 09');
   expect(el).toBeInTheDocument();
-});
-
-it('should format read time when available', async () => {
-  renderComponent();
-  const el = await screen.findByTestId('readTime');
-  expect(el).toHaveTextContent('8m read time');
 });
 
 it('should hide read time when not available', async () => {
@@ -101,34 +81,15 @@ it('should hide read time when not available', async () => {
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
 
-it('should show author name when available', async () => {
+it('should show author name and handle', async () => {
   renderComponent();
-  const el = await screen.findByText('Ido Shamun');
-  expect(el).toBeInTheDocument();
-  // eslint-disable-next-line testing-library/no-node-access
-  expect(el.parentElement).toHaveClass('flex');
-  // eslint-disable-next-line testing-library/no-node-access
-  expect(el.parentElement).toHaveClass(visibleOnGroupHover);
+  await screen.findByText('Lee Hansel Solevilla Jr');
+  await screen.findByText('@sshanzel');
 });
 
-it('should show trending flag', async () => {
-  const usePost = { ...post, trending: 20 };
-  renderComponent({ post: usePost });
-  expect(
-    await screen.findByText('20 devs read it last hour'),
-  ).toBeInTheDocument();
-});
-
-it('should open the article when clicking the read post button', async () => {
+it('should show options button on hover when in laptop size', async () => {
   renderComponent();
-  const read = await screen.findByText('Read post');
-  fireEvent.click(read);
-  expect(defaultProps.onReadArticleClick).toBeCalledTimes(1);
-});
-
-it('should show read post button on hover when in laptop size', async () => {
-  renderComponent();
-  const header = await screen.findByTestId('cardHeaderActions');
+  const header = await screen.findByLabelText('Options');
   expect(header).toHaveClass('flex');
-  expect(header).toHaveClass(visibleOnGroupHover);
+  expect(header).toHaveClass('group-hover:flex laptop:hidden');
 });

@@ -189,6 +189,7 @@ export const BootDataProvider = ({
         >
           <AlertContextProvider
             alerts={alerts}
+            isFetched={isFetched}
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
