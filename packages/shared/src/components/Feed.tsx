@@ -49,6 +49,7 @@ import {
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { MainFeedPage } from './utilities';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -203,7 +204,7 @@ export default function Feed<T>({
 
   const showScrollOnboardingVersion =
     sidebarRendered &&
-    feedName === 'popular' &&
+    feedName === MainFeedPage.Popular &&
     !isLoading &&
     alerts?.filter &&
     !user?.id &&
