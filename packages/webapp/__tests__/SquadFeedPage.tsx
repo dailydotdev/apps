@@ -70,7 +70,6 @@ const createFeedMock = (
     first: 7,
     loggedIn: true,
     source: defaultSquad.id,
-    unreadOnly: false,
     ranking: 'TIME',
   },
 ): MockedGraphQLResponse<FeedData> => ({

@@ -79,7 +79,6 @@ let variables: unknown;
 const defaultVariables = {
   first: 7,
   loggedIn: true,
-  unreadOnly: false,
 };
 
 beforeEach(() => {
@@ -307,7 +306,6 @@ it('should open login modal on anonymous upvote', async () => {
         {
           first: 7,
           loggedIn: false,
-          unreadOnly: false,
         },
       ),
     ],
@@ -390,7 +388,6 @@ it('should open login modal on anonymous bookmark', async () => {
         {
           first: 7,
           loggedIn: false,
-          unreadOnly: false,
         },
       ),
     ],
@@ -540,7 +537,6 @@ it('should increase reading rank progress for anonymous users', async () => {
         {
           first: 7,
           loggedIn: false,
-          unreadOnly: false,
         },
       ),
     ],

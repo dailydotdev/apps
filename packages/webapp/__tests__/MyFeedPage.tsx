@@ -61,7 +61,6 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
-    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -145,7 +144,6 @@ it('should request user feed', async () => {
     createFeedMock(defaultFeedPage, FEED_QUERY, {
       first: 7,
       loggedIn: true,
-      unreadOnly: false,
       version: 1,
       ranking: RankingAlgorithm.Popularity,
     }),
@@ -162,7 +160,6 @@ it('should request anonymous feed', async () => {
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
         first: 7,
         loggedIn: false,
-        unreadOnly: false,
         version: 1,
         ranking: RankingAlgorithm.Popularity,
       }),

@@ -55,7 +55,6 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
-    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {

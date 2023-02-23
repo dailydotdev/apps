@@ -56,7 +56,6 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
-    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -131,7 +130,6 @@ it('should request user feed when query is empty and logged in', async () => {
     createFeedMock(defaultFeedPage, FEED_QUERY, {
       first: 7,
       loggedIn: true,
-      unreadOnly: false,
       version: 1,
     }),
   ]);
@@ -148,7 +146,6 @@ it('should request anonymous feed when query is empty and not logged in', async 
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
         first: 7,
         loggedIn: false,
-        unreadOnly: false,
         version: 1,
       }),
     ],
@@ -175,7 +172,6 @@ it('should request search feed', async () => {
       first: 7,
       loggedIn: true,
       query: 'daily',
-      unreadOnly: false,
     }),
   ]);
   await waitFor(async () => {
@@ -189,7 +185,6 @@ it('should update query param on enter', async (done) => {
     createFeedMock(defaultFeedPage, FEED_QUERY, {
       first: 7,
       loggedIn: true,
-      unreadOnly: false,
     }),
   ]);
   const input = (await screen.findByRole('textbox')) as HTMLInputElement;
@@ -232,7 +227,6 @@ it('should show empty screen on no results', async () => {
         first: 7,
         loggedIn: true,
         query: 'daily',
-        unreadOnly: false,
       },
     ),
   ]);

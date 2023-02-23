@@ -48,7 +48,6 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
-    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -121,7 +120,6 @@ it('should request most upvoted feed when logged-in', async () => {
     createFeedMock(defaultFeedPage, MOST_UPVOTED_FEED_QUERY, {
       first: 7,
       loggedIn: true,
-      unreadOnly: false,
       period: 7,
       version: 1,
     }),
@@ -138,7 +136,6 @@ it('should request most upvoted feed when not', async () => {
       createFeedMock(defaultFeedPage, MOST_UPVOTED_FEED_QUERY, {
         first: 7,
         loggedIn: false,
-        unreadOnly: false,
         period: 7,
         version: 1,
       }),
