@@ -162,6 +162,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
+
+    if (existingSource) return;
+
     const data = formToJson<{ rss: string }>(e.currentTarget);
     const res = await checkIfSourceExists(data.rss);
     if (res.source) {
