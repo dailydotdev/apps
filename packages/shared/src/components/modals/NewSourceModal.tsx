@@ -312,7 +312,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
               form="select-feed"
               className="btn-primary"
               type="submit"
-              disabled={!selectedFeed}
+              disabled={!selectedFeed || !!existingSource}
               loading={checkingIfExists || requestingSource}
             >
               Submit for review
