@@ -210,7 +210,10 @@ export default function Feed<T>({
     !user?.id &&
     Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
   const shouldScrollBlock =
-    scrollOnboardingVersion !== ScrollOnboardingVersion.Control;
+    sidebarRendered &&
+    [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2].includes(
+      scrollOnboardingVersion,
+    );
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
