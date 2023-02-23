@@ -3,9 +3,10 @@ import classNames from 'classnames';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
 import { Post } from '../../graphql/posts';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 type PostMetadataProps = Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> & {
-  className?: string;
+  conditionalWrapper?: string;
   username?: string;
   children?: ReactNode;
 };
@@ -14,7 +15,7 @@ export default function PostMetadata({
   createdAt,
   readTime,
   numUpvotes,
-  className,
+  conditionalWrapper,
   children,
   username,
 }: PostMetadataProps): ReactElement {
@@ -27,21 +28,31 @@ export default function PostMetadata({
     <div
       className={classNames(
         'flex items-center text-theme-label-tertiary typo-footnote',
-        className,
       )}
     >
-      {!!username && <span>@{username}</span>}
-      {!!createdAt && !!username && <Separator />}
-      {!!createdAt && <time dateTime={createdAt}>{date}</time>}
-      {!!createdAt && !!readTime && <Separator />}
-      {!!readTime && <span data-testid="readTime">{readTime}m read time</span>}
-      {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
-      {!!numUpvotes && (
-        <span data-testid="numUpvotes">
-          {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}
-        </span>
-      )}
-      {children}
+      <ConditionalWrapper
+        condition={!!conditionalWrapper}
+        wrapper={(wrappedChildren) => (
+          <div className={conditionalWrapper}>{wrappedChildren}</div>
+        )}
+      >
+        <>
+          {!!username && <span>@{username}</span>}
+          {!!createdAt && !!username && <Separator />}
+          {!!createdAt && <time dateTime={createdAt}>{date}</time>}
+          {!!createdAt && !!readTime && <Separator />}
+          {!!readTime && (
+            <span data-testid="readTime">{readTime}m read time</span>
+          )}
+          {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
+          {!!numUpvotes && (
+            <span data-testid="numUpvotes">
+              {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}
+            </span>
+          )}
+          {children}
+        </>
+      </ConditionalWrapper>
     </div>
   );
 }
