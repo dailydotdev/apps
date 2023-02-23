@@ -8,7 +8,6 @@ type PostMetadataProps = Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> & {
   className?: string;
   username?: string;
   children?: ReactNode;
-  typoClassName?: string;
 };
 
 export default function PostMetadata({
@@ -18,7 +17,6 @@ export default function PostMetadata({
   className,
   children,
   username,
-  typoClassName = 'typo-footnote',
 }: PostMetadataProps): ReactElement {
   const date = useMemo(
     () => createdAt && postDateFormat(createdAt),
@@ -27,7 +25,10 @@ export default function PostMetadata({
 
   return (
     <div
-      className={classNames('flex items-center  ', typoClassName, className)}
+      className={classNames(
+        'flex items-center text-theme-label-tertiary typo-footnote',
+        className,
+      )}
     >
       {!!username && <span>@{username}</span>}
       {!!createdAt && !!username && <Separator />}

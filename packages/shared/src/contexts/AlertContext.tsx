@@ -8,10 +8,12 @@ export const ALERT_DEFAULTS: Alerts = {
   filter: true,
   rankLastSeen: null,
   myFeed: null,
+  squadTour: true,
 };
 
 export interface AlertContextData {
   alerts: Alerts;
+  isFetched?: boolean;
   loadedAlerts?: boolean;
   updateAlerts?: UseMutateAsyncFunction<
     unknown,
@@ -31,6 +33,7 @@ const AlertContext = React.createContext<AlertContextData>({
 interface AlertContextProviderProps {
   children: ReactNode;
   alerts?: Alerts;
+  isFetched?: boolean;
   loadedAlerts?: boolean;
   updateAlerts?: (alerts: Alerts) => unknown;
 }
@@ -39,6 +42,7 @@ export const AlertContextProvider = ({
   children,
   alerts = ALERT_DEFAULTS,
   loadedAlerts,
+  isFetched,
   updateAlerts,
 }: AlertContextProviderProps): ReactElement => {
   const { mutateAsync: updateRemoteAlerts } = useMutation<
@@ -66,10 +70,11 @@ export const AlertContextProvider = ({
   const alertContextData = useMemo<AlertContextData>(
     () => ({
       alerts,
+      isFetched,
       loadedAlerts,
       updateAlerts: updateRemoteAlerts,
     }),
-    [alerts, updateRemoteAlerts],
+    [alerts, loadedAlerts, isFetched, updateRemoteAlerts],
   );
 
   return (

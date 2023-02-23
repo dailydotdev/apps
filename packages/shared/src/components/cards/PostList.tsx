@@ -61,7 +61,7 @@ export const PostList = forwardRef(function PostList(
           readTime={post.readTime}
           className="my-1"
         >
-          <PostAuthor post={post} className="ml-2" />
+          {post.author && <PostAuthor author={post.author} className="ml-2" />}
         </PostMetadata>
         <ActionButtons
           post={post}

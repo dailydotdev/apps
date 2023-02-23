@@ -29,7 +29,10 @@ export const PostCardHeader = ({
     <CardHeader>
       <SourceButton source={source} />
       {children}
-      <Container className="flex flex-row ml-auto">
+      <Container
+        className="flex flex-row ml-auto"
+        data-testid="cardHeaderActions"
+      >
         <ReadArticleButton
           className="mr-2 btn-primary"
           href={postLink}

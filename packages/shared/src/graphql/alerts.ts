@@ -4,6 +4,7 @@ export type Alerts = {
   filter?: boolean;
   rankLastSeen?: Date;
   myFeed?: string;
+  squadTour?: boolean;
   companionHelper?: boolean;
   lastChangelog?: string;
 };
@@ -15,6 +16,7 @@ export const UPDATE_ALERTS = gql`
       rankLastSeen
       myFeed
       companionHelper
+      squadTour
       lastChangelog
     }
   }
