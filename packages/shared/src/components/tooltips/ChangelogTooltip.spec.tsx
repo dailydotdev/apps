@@ -74,10 +74,8 @@ describe('ChangelogTooltip component', () => {
       defaultPost,
     );
 
-    await act(async () => {
-      renderComponent();
-      await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    await screen.findByTestId('changelog');
 
     const changelogNewReleaseTag = screen.getByTestId('changelogNewReleaseTag');
     expect(changelogNewReleaseTag).toBeInTheDocument();
@@ -120,10 +118,8 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'chrome';
 
-    await act(async () => {
-      renderComponent();
-      await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    await screen.findByTestId('changelog');
 
     const changelogExtensionBtn = screen.queryByTestId('changelogExtensionBtn');
     expect(changelogExtensionBtn).toBeInTheDocument();
@@ -131,10 +127,8 @@ describe('ChangelogTooltip component', () => {
     delete process.env.TARGET_BROWSER;
   });
 
-  it('should not render if post is loading or undefined', async () => {
-    await act(async () => {
-      renderComponent();
-    });
+  it('should not render if post is loading or undefined', () => {
+    renderComponent();
 
     const changelogExtensionBtn = screen.queryByTestId('changelog');
     expect(changelogExtensionBtn).not.toBeInTheDocument();
@@ -154,10 +148,8 @@ describe('ChangelogTooltip component', () => {
       },
     };
 
-    await act(async () => {
-      renderComponent();
-      await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    await screen.findByTestId('changelog');
 
     await act(async () => {
       const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
@@ -193,10 +185,8 @@ describe('ChangelogTooltip component', () => {
       }),
     });
 
-    await act(async () => {
-      renderComponent();
-      await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    await screen.findByTestId('changelog');
 
     await act(async () => {
       const changelogReleaseNotesBtn = screen.getByTestId(
@@ -225,10 +215,8 @@ describe('ChangelogTooltip component', () => {
       }),
     });
 
-    await act(async () => {
-      renderComponent();
-      await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    await screen.findByTestId('changelog');
 
     await act(async () => {
       const changelogModalClose = screen.getByTestId('changelogModalClose');
@@ -247,10 +235,8 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'firefox';
 
-    await act(async () => {
-      renderComponent();
-      await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    await screen.findByTestId('changelog');
 
     const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
 
@@ -280,10 +266,8 @@ describe('ChangelogTooltip component', () => {
       },
     };
 
-    await act(async () => {
-      renderComponent();
-      await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    await screen.findByTestId('changelog');
 
     const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
 
@@ -316,10 +300,8 @@ describe('ChangelogTooltip component', () => {
       },
     };
 
-    await act(async () => {
-      renderComponent();
-      await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    await screen.findByTestId('changelog');
 
     const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
 

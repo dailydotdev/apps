@@ -1,4 +1,4 @@
-import { act, render, RenderResult, screen } from '@testing-library/react';
+import { render, RenderResult, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
@@ -77,12 +77,8 @@ describe('SidebarBottomSection component', () => {
     lastChangelog.setMonth(lastChangelog.getMonth() - 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
-    let changelog: HTMLElement;
-
-    await act(async () => {
-      renderComponent();
-      changelog = await screen.findByTestId('changelog');
-    });
+    renderComponent();
+    const changelog = await screen.findByTestId('changelog');
 
     const changelogBadge = screen.getByTestId('changelogBadge');
     expect(changelogBadge).toBeInTheDocument();
@@ -90,7 +86,7 @@ describe('SidebarBottomSection component', () => {
     expect(changelog).toBeInTheDocument();
   });
 
-  it('should NOT render changelog and badge if changelog NOT available', async () => {
+  it('should NOT render changelog and badge if changelog NOT available', () => {
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -99,9 +95,7 @@ describe('SidebarBottomSection component', () => {
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
-    act(() => {
-      renderComponent();
-    });
+    renderComponent();
 
     const changelogBadge = screen.queryByTestId('changelogBadge');
     expect(changelogBadge).not.toBeInTheDocument();
