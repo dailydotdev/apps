@@ -72,13 +72,11 @@ const renderComponent = (
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
-    showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
     themeMode: 'dark',
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
-    toggleShowOnlyUnreadPosts: jest.fn(),
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),

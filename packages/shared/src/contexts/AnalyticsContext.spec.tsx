@@ -46,9 +46,7 @@ const settings: SettingsContextData = {
   openNewTab: true,
   setSpaciness: jest.fn(),
   toggleOpenNewTab: jest.fn(),
-  toggleShowOnlyUnreadPosts: jest.fn(),
   toggleShowTopSites: jest.fn(),
-  showOnlyUnreadPosts: false,
 };
 
 const AnalyticsContextTester = ({

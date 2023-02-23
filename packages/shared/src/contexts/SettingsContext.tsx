@@ -37,7 +37,6 @@ export const themes: ThemeOption[] = Object.values(ThemeMode).map((theme) => ({
 export type SettingsContextData = {
   spaciness: Spaciness;
   themeMode: ThemeMode;
-  showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
   showTopSites: boolean;
@@ -47,7 +46,6 @@ export type SettingsContextData = {
   optOutCompanion: boolean;
   autoDismissNotifications: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
-  toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
   toggleInsaneMode: () => Promise<void>;
@@ -109,7 +107,6 @@ export type SettingsContextProviderProps = {
 
 const defaultSettings: RemoteSettings = {
   spaciness: 'eco',
-  showOnlyUnreadPosts: false,
   openNewTab: true,
   insaneMode: false,
   showTopSites: true,
@@ -193,11 +190,6 @@ export const SettingsContextProvider = ({
       themeMode: themeModes[settings.theme],
       setTheme: (theme: ThemeMode) =>
         setSettings({ ...settings, theme: remoteThemes[theme] }),
-      toggleShowOnlyUnreadPosts: () =>
-        setSettings({
-          ...settings,
-          showOnlyUnreadPosts: !settings.showOnlyUnreadPosts,
-        }),
       toggleOpenNewTab: () =>
         setSettings({ ...settings, openNewTab: !settings.openNewTab }),
       setSpaciness: (density) =>

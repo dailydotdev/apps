@@ -51,7 +51,6 @@ const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
 const defaultSettings: RemoteSettings = {
   theme: 'bright',
   openNewTab: false,
-  showOnlyUnreadPosts: true,
   spaciness: 'roomy',
   insaneMode: false,
   showTopSites: true,
@@ -115,8 +114,6 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
     sidebarExpanded,
     setTheme,
     themeMode,
-    toggleShowOnlyUnreadPosts,
-    showOnlyUnreadPosts,
     toggleOpenNewTab,
     openNewTab,
     setSpaciness,
@@ -148,13 +145,6 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
         data-test-value={themeMode}
       >
         Theme
-      </button>
-      <button
-        onClick={toggleShowOnlyUnreadPosts}
-        type="button"
-        data-test-value={showOnlyUnreadPosts}
-      >
-        Show Only Unread
       </button>
       <button
         onClick={toggleOptOutWeeklyGoal}
@@ -233,19 +223,6 @@ it('should trigget set theme callback', async () => {
   );
   fireEvent.click(theme);
   expect(theme).toHaveAttribute('data-test-value', expected);
-});
-
-it('should toggle show unread posts only callback', async () => {
-  const expected = false;
-  mockSettingsMutation({ showOnlyUnreadPosts: expected });
-  renderComponent(<SettingsMock />);
-  const unread = await screen.findByText('Show Only Unread');
-  expect(unread).toHaveAttribute(
-    'data-test-value',
-    defaultSettings.showOnlyUnreadPosts.toString(),
-  );
-  fireEvent.click(unread);
-  expect(unread).toHaveAttribute('data-test-value', expected.toString());
 });
 
 it('should set spaciness callback', async () => {

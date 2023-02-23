@@ -58,13 +58,11 @@ const renderComponent = (
 ): RenderResult => {
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
-    showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
     themeMode: ThemeMode.Dark,
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
-    toggleShowOnlyUnreadPosts: jest.fn(),
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
@@ -143,15 +141,6 @@ it('should show the sidebar as closed if user has this set', async () => {
 
   const section = await screen.findByText('Discover');
   expect(section).toHaveClass('opacity-0');
-});
-
-it('should invoke the feed customization modal', async () => {
-  renderComponent();
-  const el = await screen.findByText('Customize');
-  el.click();
-  await waitFor(async () =>
-    expect(await screen.findByText('Hide read posts')).toBeInTheDocument(),
-  );
 });
 
 it('should render the mobile sidebar version on small screens', async () => {
