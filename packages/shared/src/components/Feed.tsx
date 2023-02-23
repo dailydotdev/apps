@@ -225,7 +225,7 @@ export default function Feed<T>({
       event_name: AnalyticsEvent.ClickScrollBlock,
       target_id: scrollOnboardingVersion,
     });
-    onInitializeOnboarding();
+    onInitializeOnboarding(undefined, true);
   };
 
   const useList = insaneMode && numCards > 1;
