@@ -32,15 +32,12 @@ export function useChangelog(): UseChangelog {
       return false;
     }
 
-    const lastChangelogDate = Date.parse(alerts?.lastChangelog);
-    const lastPostDate = Date.parse(latestPost?.createdAt);
-
-    if (Number.isNaN(lastChangelogDate) || Number.isNaN(lastPostDate)) {
+    if (!latestPost) {
       return false;
     }
 
-    return lastPostDate > lastChangelogDate;
-  }, [alerts.lastChangelog, latestPost?.createdAt, sidebarRendered]);
+    return alerts.changelog || false;
+  }, [alerts.changelog, latestPost, sidebarRendered]);
 
   const dismiss = async () => {
     const currentDate = new Date();

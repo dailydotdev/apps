@@ -7,6 +7,7 @@ export type Alerts = {
   squadTour?: boolean;
   companionHelper?: boolean;
   lastChangelog?: string;
+  changelog?: boolean;
 };
 
 export const UPDATE_ALERTS = gql`

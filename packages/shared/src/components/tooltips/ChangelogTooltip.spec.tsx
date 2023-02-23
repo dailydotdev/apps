@@ -169,7 +169,7 @@ describe('ChangelogTooltip component', () => {
     delete global.browser;
   });
 
-  it('update lastChangelog on release notes click', async () => {
+  it('close changelog on release notes click', async () => {
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -181,7 +181,7 @@ describe('ChangelogTooltip component', () => {
         variables: { data: { lastChangelog: /.*/ } },
       },
       result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
+        data: { data: { changelog: false } },
       }),
     });
 
@@ -196,10 +196,13 @@ describe('ChangelogTooltip component', () => {
       await waitForNock();
     });
 
+    const changelog = screen.queryByTestId('changelog');
+
     expect(updateAlerts).toHaveBeenCalled();
+    expect(changelog).not.toBeInTheDocument();
   });
 
-  it('update lastChangelog on close modal click', async () => {
+  it('close changelog on close modal click', async () => {
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -211,7 +214,7 @@ describe('ChangelogTooltip component', () => {
         variables: { data: { lastChangelog: /.*/ } },
       },
       result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
+        data: { data: { changelog: false } },
       }),
     });
 
@@ -224,7 +227,10 @@ describe('ChangelogTooltip component', () => {
       await waitForNock();
     });
 
+    const changelog = screen.queryByTestId('changelog');
+
     expect(updateAlerts).toHaveBeenCalled();
+    expect(changelog).not.toBeInTheDocument();
   });
 
   it('should link to blog post on firefox', async () => {

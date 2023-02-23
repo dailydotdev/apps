@@ -12,7 +12,7 @@ const defaultPost = Post;
 const noop = jest.fn();
 const updateAlerts = jest.fn();
 const defaultAlerts: Alerts = {
-  lastChangelog: new Date(defaultPost.createdAt).toISOString(),
+  changelog: false,
 };
 
 const Wrapper = ({ children }) => {
@@ -51,14 +51,12 @@ describe('useChangelog hook', () => {
     });
   });
 
-  it('changelog should be available if post createdAt is greater then lastChangelog', async () => {
+  it('changelog should be available if changelog alert is true', async () => {
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
-    lastChangelog.setMonth(lastChangelog.getMonth() - 1);
-    defaultAlerts.lastChangelog = lastChangelog.toISOString();
+    defaultAlerts.changelog = true;
 
     const { result } = renderHook(() => useChangelog(), {
       wrapper: Wrapper,
@@ -70,14 +68,12 @@ describe('useChangelog hook', () => {
     expect(changelog.latestPost).not.toBeUndefined();
   });
 
-  it('changelog should be NOT be available if post createdAt is less then lastChangelog', async () => {
+  it('changelog should be NOT be available if changelog alert is false', async () => {
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
-    lastChangelog.setMonth(lastChangelog.getMonth() + 1);
-    defaultAlerts.lastChangelog = lastChangelog.toISOString();
+    defaultAlerts.changelog = false;
 
     const { result } = renderHook(() => useChangelog(), {
       wrapper: Wrapper,
@@ -89,9 +85,7 @@ describe('useChangelog hook', () => {
   });
 
   it('changelog should be NOT be available when post is not defined', async () => {
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
-    lastChangelog.setMonth(lastChangelog.getMonth() + 1);
-    defaultAlerts.lastChangelog = lastChangelog.toISOString();
+    defaultAlerts.changelog = true;
 
     const { result } = renderHook(() => useChangelog(), {
       wrapper: Wrapper,
@@ -113,9 +107,7 @@ describe('useChangelog hook', () => {
       })),
     });
 
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
-    lastChangelog.setMonth(lastChangelog.getMonth() + 1);
-    defaultAlerts.lastChangelog = lastChangelog.toISOString();
+    defaultAlerts.changelog = true;
 
     const { result } = renderHook(() => useChangelog(), {
       wrapper: Wrapper,
@@ -136,9 +128,7 @@ describe('useChangelog hook', () => {
       })),
     });
 
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
-    lastChangelog.setMonth(lastChangelog.getMonth() + 1);
-    defaultAlerts.lastChangelog = lastChangelog.toISOString();
+    defaultAlerts.changelog = true;
 
     const { result } = renderHook(() => useChangelog(), {
       wrapper: Wrapper,
