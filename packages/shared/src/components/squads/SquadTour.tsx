@@ -23,7 +23,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           key="intro"
           banner={cloudinary.squads.tour.banner0}
           title="Let's see what you can do with Squads!"
-          className={{ container: 'h-[29.25rem]' }}
+          className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
         <ModalFooter>
           <FooterButton className="btn-tertiary" onClick={onClose}>
@@ -53,7 +53,6 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       banner={cloudinary.squads.tour.banner2}
       title="Share from main feed"
       description="Share articles using the share button!"
-      className={{ banner: '!px-2' }}
       badge="NEW"
     />,
     <SquadTourCard
