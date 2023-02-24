@@ -16,7 +16,7 @@ describe('SidebarBottomSection component', () => {
   const client = new QueryClient();
   const updateAlerts = jest.fn();
   const defaultAlerts: Alerts = {
-    changelog: false,
+    lastChangelog: new Date(defaultPost.createdAt).toISOString(),
   };
 
   beforeEach(async () => {
@@ -73,7 +73,9 @@ describe('SidebarBottomSection component', () => {
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
-    defaultAlerts.changelog = true;
+    const lastChangelog = new Date(defaultAlerts.lastChangelog);
+    lastChangelog.setMonth(lastChangelog.getMonth() - 1);
+    defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
     renderComponent();
     const changelog = await screen.findByTestId('changelog');
@@ -89,7 +91,9 @@ describe('SidebarBottomSection component', () => {
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
-    defaultAlerts.changelog = false;
+    const lastChangelog = new Date(defaultAlerts.lastChangelog);
+    lastChangelog.setMonth(lastChangelog.getMonth() + 1);
+    defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
     renderComponent();
 
