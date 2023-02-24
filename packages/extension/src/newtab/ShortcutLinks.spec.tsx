@@ -79,7 +79,6 @@ const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
 const defaultSettings: RemoteSettings = {
   theme: 'bright',
   openNewTab: false,
-  showOnlyUnreadPosts: true,
   spaciness: 'roomy',
   insaneMode: false,
   showTopSites: true,

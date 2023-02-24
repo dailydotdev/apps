@@ -73,8 +73,6 @@ export default function Settings({
     setSpaciness,
     themeMode,
     setTheme,
-    showOnlyUnreadPosts,
-    toggleShowOnlyUnreadPosts,
     openNewTab,
     toggleOpenNewTab,
     insaneMode,
@@ -146,13 +144,6 @@ export default function Settings({
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <SectionContent>
-          <SettingsSwitch
-            name="hide-read"
-            checked={showOnlyUnreadPosts}
-            onToggle={() => onToggleForLoggedInUsers(toggleShowOnlyUnreadPosts)}
-          >
-            Hide read posts
-          </SettingsSwitch>
           <SettingsSwitch
             name="new-tab"
             checked={openNewTab}
