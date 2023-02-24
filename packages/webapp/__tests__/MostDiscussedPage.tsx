@@ -48,7 +48,6 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
-    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -72,13 +71,11 @@ const renderComponent = (
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
-    showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
     themeMode: 'dark',
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
-    toggleShowOnlyUnreadPosts: jest.fn(),
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
@@ -123,7 +120,6 @@ it('should request most discussed feed when logged-in', async () => {
     createFeedMock(defaultFeedPage, MOST_DISCUSSED_FEED_QUERY, {
       first: 7,
       loggedIn: true,
-      unreadOnly: false,
       version: 1,
     }),
   ]);
@@ -139,7 +135,6 @@ it('should request most discussed feed when not', async () => {
       createFeedMock(defaultFeedPage, MOST_DISCUSSED_FEED_QUERY, {
         first: 7,
         loggedIn: false,
-        unreadOnly: false,
         version: 1,
       }),
     ],

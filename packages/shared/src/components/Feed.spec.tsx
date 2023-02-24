@@ -79,7 +79,6 @@ let variables: unknown;
 const defaultVariables = {
   first: 7,
   loggedIn: true,
-  unreadOnly: false,
 };
 
 beforeEach(() => {
@@ -133,13 +132,11 @@ const renderComponent = (
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
-    showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
     themeMode: ThemeMode.Dark,
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
-    toggleShowOnlyUnreadPosts: jest.fn(),
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
@@ -309,7 +306,6 @@ it('should open login modal on anonymous upvote', async () => {
         {
           first: 7,
           loggedIn: false,
-          unreadOnly: false,
         },
       ),
     ],
@@ -392,7 +388,6 @@ it('should open login modal on anonymous bookmark', async () => {
         {
           first: 7,
           loggedIn: false,
-          unreadOnly: false,
         },
       ),
     ],
@@ -542,7 +537,6 @@ it('should increase reading rank progress for anonymous users', async () => {
         {
           first: 7,
           loggedIn: false,
-          unreadOnly: false,
         },
       ),
     ],

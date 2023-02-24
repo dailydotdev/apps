@@ -35,7 +35,6 @@ const showLogin = jest.fn();
 const defaultSettings: RemoteSettings = {
   theme: 'bright',
   openNewTab: false,
-  showOnlyUnreadPosts: true,
   spaciness: 'roomy',
   insaneMode: false,
   showTopSites: true,
@@ -103,12 +102,6 @@ it('should fetch remote settings', async () => {
 
   const checkbox = await screen.findAllByRole('checkbox');
 
-  await waitFor(() =>
-    expect(
-      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      checkbox.find((el) => queryByText(el.parentElement, 'Hide read posts')),
-    ).toBeChecked(),
-  );
   await waitFor(() =>
     expect(
       checkbox.find((el) =>
@@ -241,16 +234,6 @@ it('should set light to dark mode setting', () =>
     { ...defaultSettings, theme: 'darcula' },
   ));
 
-it('should mutate hide read posts setting', () =>
-  testSettingsMutation({ showOnlyUnreadPosts: false }, async () => {
-    const checkboxes = await screen.findAllByRole('checkbox');
-    const checkbox = checkboxes.find((el) =>
-      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      queryByText(el.parentElement, 'Hide read posts'),
-    ) as HTMLInputElement;
-    fireEvent.click(checkbox);
-  }));
-
 it('should mutate open links in new tab setting', () =>
   testSettingsMutation({ openNewTab: true }, async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
@@ -293,17 +276,6 @@ it('should not have the Show custom shortcuts switch in the webapp', async () =>
   renderComponent(null);
   const checkbox = screen.queryByText('Show custom shortcuts');
   expect(checkbox).not.toBeInTheDocument();
-});
-
-it('should open login when hide read posts is clicked and the user is logged out', async () => {
-  renderComponent(null);
-
-  const [el] = await waitFor(() =>
-    screen.findAllByLabelText('Hide read posts'),
-  );
-  fireEvent.click(el);
-
-  await waitFor(() => expect(showLogin).toBeCalledWith('settings'));
 });
 
 it('should mutate Show custom shortcuts setting in extension', async () => {

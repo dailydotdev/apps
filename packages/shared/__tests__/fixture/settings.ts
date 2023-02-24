@@ -7,13 +7,11 @@ export const createTestSettings = (
   props: Partial<SettingsContextData> = {},
 ): SettingsContextData => ({
   spaciness: 'eco',
-  showOnlyUnreadPosts: false,
   openNewTab: true,
   setTheme: jest.fn(),
   themeMode: ThemeMode.Dark,
   setSpaciness: jest.fn(),
   toggleOpenNewTab: jest.fn(),
-  toggleShowOnlyUnreadPosts: jest.fn(),
   insaneMode: false,
   loadedSettings: true,
   toggleInsaneMode: jest.fn(),
