@@ -58,7 +58,6 @@ const createFeedMock = (
     first: 7,
     loggedIn: true,
     source: 'react',
-    unreadOnly: false,
     ranking: 'TIME',
   },
 ): MockedGraphQLResponse<FeedData> => ({
@@ -112,13 +111,11 @@ const renderComponent = (
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
-    showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
     themeMode: 'dark',
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
-    toggleShowOnlyUnreadPosts: jest.fn(),
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
@@ -195,7 +192,6 @@ it('should show login popup when logged-out on add to feed click', async () => {
         first: 7,
         loggedIn: false,
         source: 'react',
-        unreadOnly: false,
         ranking: 'TIME',
       }),
     ],

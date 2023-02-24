@@ -161,7 +161,6 @@ export default function Feed<T>({
   const { subject } = useToastNotification();
   const {
     openNewTab,
-    showOnlyUnreadPosts,
     spaciness,
     insaneMode: listMode,
     loadedSettings,
@@ -175,7 +174,6 @@ export default function Feed<T>({
       currentSettings.pageSize,
       currentSettings.adSpot,
       numCards,
-      showOnlyUnreadPosts,
       { query, variables, options },
     );
 

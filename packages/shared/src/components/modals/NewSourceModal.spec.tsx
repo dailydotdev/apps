@@ -106,7 +106,12 @@ it('should show if the source already exists in the system', async () => {
   expect(await screen.findByText('RSS')).toBeInTheDocument();
   expect(await screen.findByText('Ido RSS')).toBeInTheDocument();
   userEvent.click(await screen.findByText('RSS'));
-
+  const source = {
+    id: 'daily',
+    name: 'daily.dev',
+    handle: 'daily',
+    image: 'https://daily.dev',
+  };
   mockGraphQL({
     request: {
       query: SOURCE_BY_FEED_QUERY,
@@ -114,17 +119,14 @@ it('should show if the source already exists in the system', async () => {
     },
     result: {
       data: {
-        source: {
-          id: 'daily',
-          name: 'daily.dev',
-          image: 'https://daily.dev',
-        },
+        source,
       },
     },
   });
 
+  const exists = `${source.name} already exist`;
   userEvent.click(await screen.findByText('Submit for review'));
-  expect(await screen.findByText('Already exists')).toBeInTheDocument();
+  expect(await screen.findByText(exists)).toBeInTheDocument();
 });
 
 it('should send source request', async () => {

@@ -5,7 +5,6 @@ export type RemoteTheme = 'darcula' | 'bright' | 'auto';
 
 export type RemoteSettings = {
   openNewTab: boolean;
-  showOnlyUnreadPosts: boolean;
   theme: RemoteTheme;
   spaciness: Spaciness;
   insaneMode: boolean;

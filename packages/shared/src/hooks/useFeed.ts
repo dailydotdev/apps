@@ -110,7 +110,6 @@ export default function useFeed<T>(
   pageSize: number,
   adSpot: number,
   placeholdersPerPage: number,
-  showOnlyUnreadPosts: boolean,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
   const { query, variables, options = {} } = params;
@@ -125,7 +124,6 @@ export default function useFeed<T>(
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,
-        unreadOnly: showOnlyUnreadPosts,
       }),
     {
       refetchOnMount: false,
