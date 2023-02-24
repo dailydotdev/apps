@@ -101,6 +101,7 @@ export const OnboardingContextProvider = ({
       setShouldUpdateFilters(false);
       setIsOnboarding(false);
       setIsRegisteringFilters(false);
+      setSkipIntro(false);
     });
   }, [user, shouldUpdateFilters, isRegisteringFilters]);
 
@@ -133,6 +134,7 @@ export const OnboardingContextProvider = ({
     }
 
     setIsOnboarding(false);
+    setSkipIntro(false);
 
     if (user && !alerts.filter && onFeedPageChanged.current) {
       onFeedPageChanged.current?.();
@@ -159,14 +161,6 @@ export const OnboardingContextProvider = ({
       shouldSkipIntro,
     ],
   );
-
-  // if onboarding is done/closed reset
-  // state values to default
-  useEffect(() => {
-    if (!isOnboarding) {
-      setSkipIntro(false);
-    }
-  }, [isOnboarding]);
 
   return (
     <OnboardingContext.Provider value={onboardingContextData}>
