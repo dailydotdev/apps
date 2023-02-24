@@ -98,7 +98,6 @@ export const FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
-    $unreadOnly: Boolean
     $version: Int
     ${SUPPORTED_TYPES}
   ) {
@@ -106,7 +105,6 @@ export const FEED_QUERY = gql`
       first: $first
       after: $after
       ranking: $ranking
-      unreadOnly: $unreadOnly
       version: $version
       supportedTypes: $supportedTypes
     ) {
