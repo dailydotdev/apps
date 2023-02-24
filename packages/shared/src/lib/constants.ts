@@ -27,6 +27,7 @@ export const markdownGuide = 'https://r.daily.dev/markdown-guide';
 export const firstNotificationLink = 'https://r.daily.dev/notifications';
 export const reportSquadMember = 'https://r.daily.dev/report-squad-member';
 export const squadFeedback = 'https://r.daily.dev/squad-feedback';
+export const updateFirefoxExtensionLink = 'https://r.daily.dev/firefoxupdate';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
@@ -47,5 +48,3 @@ export const authUrl =
 export const heimdallUrl = isDevelopment
   ? process.env.NEXT_PUBLIC_HEIMDALL_URL || 'http://127.0.0.1:3000'
   : authUrl;
-
-export const updateFirefoxExtensionLink = 'https://r.daily.dev/firefoxupdate';
