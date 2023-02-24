@@ -7,8 +7,6 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts } from '../../graphql/alerts';
 import { SidebarBottomSectionSection } from './SidebarBottomSection';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
 
 describe('SidebarBottomSection component', () => {
   const noop = jest.fn();
@@ -31,11 +29,6 @@ describe('SidebarBottomSection component', () => {
         addListener: jest.fn(),
         removeListener: jest.fn(),
       })),
-    });
-
-    mockGraphQL({
-      request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: false } },
-      result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
     });
   });
 
@@ -73,6 +66,7 @@ describe('SidebarBottomSection component', () => {
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
+    defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() - 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
@@ -91,6 +85,7 @@ describe('SidebarBottomSection component', () => {
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
+    defaultAlerts.changelog = false;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();

@@ -12,6 +12,7 @@ const defaultPost = Post;
 const noop = jest.fn();
 const updateAlerts = jest.fn();
 const defaultAlerts: Alerts = {
+  changelog: false,
   lastChangelog: new Date(defaultPost.createdAt).toISOString(),
 };
 
@@ -56,6 +57,7 @@ describe('useChangelog hook', () => {
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
+    defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() - 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
@@ -75,6 +77,7 @@ describe('useChangelog hook', () => {
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
+    defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
@@ -89,6 +92,7 @@ describe('useChangelog hook', () => {
   });
 
   it('changelog should be NOT be available when post is not defined', async () => {
+    defaultAlerts.changelog = false;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
@@ -113,6 +117,11 @@ describe('useChangelog hook', () => {
       })),
     });
 
+    client.setQueryData(
+      ['changelog', 'latest-post', { loggedIn: false }],
+      defaultPost,
+    );
+    defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
@@ -136,6 +145,11 @@ describe('useChangelog hook', () => {
       })),
     });
 
+    client.setQueryData(
+      ['changelog', 'latest-post', { loggedIn: false }],
+      defaultPost,
+    );
+    defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();

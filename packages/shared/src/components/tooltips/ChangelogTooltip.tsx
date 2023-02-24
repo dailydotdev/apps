@@ -28,33 +28,34 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   const { latestPost: post, dismiss: dismissChangelog } = useChangelog();
   const toast = useToastNotification();
 
-  const { mutateAsync: updateExtension } = useMutation(async () => {
-    if (isFirefoxExtension) {
-      return;
-    }
+  const { mutateAsync: updateExtension, isLoading: isExtensionUpdating } =
+    useMutation(async () => {
+      if (isFirefoxExtension) {
+        return;
+      }
 
-    if (isExtension) {
-      const sendMessage = globalThis?.browser?.runtime?.sendMessage;
+      if (isExtension) {
+        const sendMessage = globalThis?.browser?.runtime?.sendMessage;
 
-      if (typeof sendMessage === 'function') {
-        const updateResponse: { status: string } = await sendMessage({
-          type: ExtensionMessageType.RequestUpdate,
-        });
+        if (typeof sendMessage === 'function') {
+          const updateResponse: { status: string } = await sendMessage({
+            type: ExtensionMessageType.RequestUpdate,
+          });
 
-        const toastMessageMap = {
-          throttled: 'There is no update available, try again later',
-          no_update: 'You are already on the latest available version',
-          update_available: 'Browser extension updated',
-        };
+          const toastMessageMap = {
+            throttled: 'There is no update available, try again later',
+            no_update: 'You are already on the latest available version',
+            update_available: 'Browser extension updated',
+          };
 
-        const toastMessage = toastMessageMap[updateResponse.status];
+          const toastMessage = toastMessageMap[updateResponse.status];
 
-        if (toastMessage) {
-          toast.displayToast(toastMessage);
+          if (toastMessage) {
+            toast.displayToast(toastMessage);
+          }
         }
       }
-    }
-  });
+    });
 
   return (
     <BaseTooltip
@@ -128,6 +129,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                   }
                   className="bg-cabbage-40 btn-primary"
                   data-testid="changelogExtensionBtn"
+                  loading={isExtensionUpdating}
                   onClick={async () => {
                     await updateExtension();
                   }}

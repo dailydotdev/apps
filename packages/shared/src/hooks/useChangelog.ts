@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import AlertContext from '../contexts/AlertContext';
 import AuthContext from '../contexts/AuthContext';
 import { getLatestChangelogPost, Post } from '../graphql/posts';
@@ -24,9 +24,10 @@ export function useChangelog(): UseChangelog {
       return getLatestChangelogPost(variables.loggedIn);
     },
     {
-      enabled: sidebarRendered,
+      enabled: sidebarRendered && !!alerts.changelog,
     },
   );
+
   const isAvailable = useMemo(() => {
     if (!sidebarRendered) {
       return false;
@@ -42,12 +43,20 @@ export function useChangelog(): UseChangelog {
     return lastPostDate > lastChangelogDate;
   }, [alerts.lastChangelog, latestPost?.createdAt, sidebarRendered]);
 
-  const dismiss = async () => {
+  const dismissMutation = useMutation(() => {
     const currentDate = new Date();
 
-    await updateAlerts({
+    return updateAlerts({
       lastChangelog: currentDate.toISOString(),
     });
+  });
+
+  const dismiss = async () => {
+    if (dismissMutation.isLoading) {
+      return;
+    }
+
+    await dismissMutation.mutateAsync();
   };
 
   return {

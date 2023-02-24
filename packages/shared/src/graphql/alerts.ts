@@ -7,6 +7,7 @@ export type Alerts = {
   squadTour?: boolean;
   companionHelper?: boolean;
   lastChangelog?: string;
+  changelog?: boolean; // read only, comes from boot as computed property
 };
 
 export const UPDATE_ALERTS = gql`
