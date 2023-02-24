@@ -7,8 +7,10 @@ export type Alerts = {
   squadTour?: boolean;
   companionHelper?: boolean;
   lastChangelog?: string;
-  changelog?: boolean; // read only, comes from boot as computed property
+  changelog?: boolean;
 };
+
+export type AlertsUpdate = Omit<Alerts, 'changelog'>;
 
 export const UPDATE_ALERTS = gql`
   mutation UpdateUserAlerts($data: UpdateAlertsInput!) {
