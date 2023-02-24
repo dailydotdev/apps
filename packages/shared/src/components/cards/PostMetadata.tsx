@@ -3,21 +3,26 @@ import classNames from 'classnames';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
 import { Post } from '../../graphql/posts';
-import ConditionalWrapper from '../ConditionalWrapper';
+import ConditionalWrapper, {
+  ConditionalWrapperProps,
+} from '../ConditionalWrapper';
 
-type PostMetadataProps = Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> & {
-  conditionalWrapper?: string;
+interface PostMetadataProps
+  extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'>,
+    Partial<Pick<ConditionalWrapperProps, 'wrapper'>> {
+  className?: string;
   username?: string;
   children?: ReactNode;
-};
+}
 
 export default function PostMetadata({
   createdAt,
   readTime,
   numUpvotes,
-  conditionalWrapper,
+  className,
   children,
   username,
+  wrapper,
 }: PostMetadataProps): ReactElement {
   const date = useMemo(
     () => createdAt && postDateFormat(createdAt),
@@ -28,14 +33,10 @@ export default function PostMetadata({
     <div
       className={classNames(
         'flex items-center text-theme-label-tertiary typo-footnote',
+        className,
       )}
     >
-      <ConditionalWrapper
-        condition={!!conditionalWrapper}
-        wrapper={(wrappedChildren) => (
-          <div className={conditionalWrapper}>{wrappedChildren}</div>
-        )}
-      >
+      <ConditionalWrapper condition={!!wrapper} wrapper={wrapper}>
         <>
           {!!username && <span>@{username}</span>}
           {!!createdAt && !!username && <Separator />}

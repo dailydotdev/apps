@@ -27,9 +27,9 @@ export const SharedPostCardHeader = ({
       <div className="flex flex-col flex-1 flex-grow mr-6 ml-2 typo-footnote">
         <span className="font-bold line-clamp-2">{author.name}</span>
         <PostMetadata
-          conditionalWrapper="line-clamp-1"
           createdAt={createdAt}
           username={author.username}
+          wrapper={(children) => <div className="line-clamp-1">{children}</div>}
         />
       </div>
     </div>
