@@ -21,6 +21,8 @@ import NotificationsContext from '../../contexts/NotificationsContext';
 import PushNotificationModal from './PushNotificationModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
+import Alert, { AlertType } from '../widgets/Alert';
+import SourceProfilePicture from '../profile/SourceProfilePicture';
 
 interface RSS {
   url: string;
@@ -160,6 +162,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
+
+    if (existingSource) return;
+
     const data = formToJson<{ rss: string }>(e.currentTarget);
     const res = await checkIfSourceExists(data.rss);
     if (res.source) {
@@ -222,20 +227,23 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             rightButtonProps={false}
           />
         </form>
-        {!!existingSource && (
-          <div className="flex items-center self-start px-12 mb-6 w-full typo-callout">
-            <img
-              src={existingSource.image}
-              alt={existingSource.name}
-              className="w-8 h-8 rounded-lg"
-            />
-            <div className="ml-3 truncate">{existingSource.name}</div>
-            <div className="ml-auto text-theme-label-tertiary">
-              Already exists
-            </div>
-          </div>
+        {existingSource && (
+          <Alert
+            className="mt-4"
+            type={AlertType.Error}
+            title={
+              <>
+                {existingSource.name} already exist{' '}
+                <SourceProfilePicture
+                  className="ml-auto"
+                  source={existingSource}
+                  size="small"
+                />
+              </>
+            }
+          />
         )}
-        {!!feeds?.length && (
+        {!!feeds?.length && !existingSource && (
           <>
             <div className="self-start mb-6 typo-callout text-theme-label-tertiary">
               {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
@@ -307,7 +315,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
               form="select-feed"
               className="btn-primary"
               type="submit"
-              disabled={!selectedFeed}
+              disabled={!selectedFeed || !!existingSource}
               loading={checkingIfExists || requestingSource}
             >
               Submit for review

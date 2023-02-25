@@ -61,7 +61,6 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
-    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -86,13 +85,11 @@ const renderComponent = (
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
-    showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
     themeMode: 'dark',
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
-    toggleShowOnlyUnreadPosts: jest.fn(),
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
@@ -147,7 +144,6 @@ it('should request user feed', async () => {
     createFeedMock(defaultFeedPage, FEED_QUERY, {
       first: 7,
       loggedIn: true,
-      unreadOnly: false,
       version: 1,
       ranking: RankingAlgorithm.Popularity,
     }),
@@ -164,7 +160,6 @@ it('should request anonymous feed', async () => {
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
         first: 7,
         loggedIn: false,
-        unreadOnly: false,
         version: 1,
         ranking: RankingAlgorithm.Popularity,
       }),
