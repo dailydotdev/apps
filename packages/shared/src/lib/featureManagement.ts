@@ -141,9 +141,13 @@ export class Features<T extends FeatureValue = string> {
   static readonly ShowCommentPopover = new Features('show_comment_popover');
 
   static readonly ScrollOnboardingVersion = new Features(
-    'scroll_onboarding_version',
-    null,
-    [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2],
+    'anonymous_users_scroll_home_page',
+    ScrollOnboardingVersion.Control,
+    [
+      ScrollOnboardingVersion.Control,
+      ScrollOnboardingVersion.V1,
+      ScrollOnboardingVersion.V2,
+    ],
   );
 
   static readonly HasSquadAccess = new Features('squad');

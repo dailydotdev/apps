@@ -11,8 +11,6 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/recommended.png',
     yourFeed:
       'https://daily-now-res.cloudinary.com/image/upload/v1667998924/public/your_feed.png',
-    supercharge:
-      'https://daily-now-res.cloudinary.com/image/upload/v1665563545/public/supercharge.png',
     topicsV2:
       'https://daily-now-res.cloudinary.com/image/upload/v1670321759/public/feed_filters_v2.svg',
     topicsV3:
