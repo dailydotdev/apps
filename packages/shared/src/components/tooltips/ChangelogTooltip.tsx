@@ -66,12 +66,12 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       }
     });
 
-  const onModalCloseClick = (event) => {
+  const onModalCloseClick = async (event) => {
     if (typeof onRequestClose === 'function') {
       onRequestClose(event);
     }
 
-    dismissChangelog();
+    await dismissChangelog();
   };
 
   const onExtensionUpdateClick = async () => {

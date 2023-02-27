@@ -11,7 +11,6 @@ import { SidebarBottomSectionSection } from './SidebarBottomSection';
 describe('SidebarBottomSection component', () => {
   const noop = jest.fn();
   const defaultPost = Post;
-  const client = new QueryClient();
   const updateAlerts = jest.fn();
   const defaultAlerts: Alerts = {
     lastChangelog: new Date(defaultPost.createdAt).toISOString(),
@@ -20,7 +19,6 @@ describe('SidebarBottomSection component', () => {
   beforeEach(async () => {
     nock.cleanAll();
     jest.clearAllMocks();
-    client.clear();
 
     Object.defineProperty(global, 'matchMedia', {
       writable: true,
@@ -32,7 +30,11 @@ describe('SidebarBottomSection component', () => {
     });
   });
 
-  const renderComponent = (): RenderResult => {
+  const renderComponent = ({
+    client,
+  }: {
+    client: QueryClient;
+  }): RenderResult => {
     return render(
       <QueryClientProvider client={client}>
         <AuthContextProvider
@@ -62,6 +64,7 @@ describe('SidebarBottomSection component', () => {
   };
 
   it('should render changelog and badge if available', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -71,7 +74,7 @@ describe('SidebarBottomSection component', () => {
     lastChangelog.setMonth(lastChangelog.getMonth() - 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
-    renderComponent();
+    renderComponent({ client });
     const changelog = await screen.findByTestId('changelog');
 
     const changelogBadge = await screen.findByTestId('changelogBadge');
@@ -81,6 +84,7 @@ describe('SidebarBottomSection component', () => {
   });
 
   it('should NOT render changelog and badge if changelog NOT available', () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -90,7 +94,7 @@ describe('SidebarBottomSection component', () => {
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
-    renderComponent();
+    renderComponent({ client });
 
     const changelogBadge = screen.queryByTestId('changelogBadge');
     expect(changelogBadge).not.toBeInTheDocument();

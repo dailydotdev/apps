@@ -27,7 +27,6 @@ import {
 describe('ChangelogTooltip component', () => {
   const noop = jest.fn();
   const defaultPost = Post;
-  const client = new QueryClient();
   const updateAlerts = jest.fn();
   const defaultAlerts: Alerts = {};
   let extensionUpdateStatus = 'update_available';
@@ -38,10 +37,13 @@ describe('ChangelogTooltip component', () => {
   beforeEach(async () => {
     nock.cleanAll();
     jest.clearAllMocks();
-    client.clear();
   });
 
-  const renderComponent = (): RenderResult => {
+  const renderComponent = ({
+    client,
+  }: {
+    client: QueryClient;
+  }): RenderResult => {
     const {
       result: { current: changelogBadgeRef },
     } = renderHook(() => useRef());
@@ -69,12 +71,13 @@ describe('ChangelogTooltip component', () => {
   };
 
   it('should render', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
     );
 
-    renderComponent();
+    renderComponent({ client });
 
     const changelogNewReleaseTag = await screen.findByTestId(
       'changelogNewReleaseTag',
@@ -114,6 +117,7 @@ describe('ChangelogTooltip component', () => {
   });
 
   it('should render update button when used inside extension', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -121,7 +125,7 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'chrome';
 
-    renderComponent();
+    renderComponent({ client });
     await screen.findByTestId('changelog');
 
     const changelogExtensionBtn = screen.queryByTestId('changelogExtensionBtn');
@@ -131,13 +135,15 @@ describe('ChangelogTooltip component', () => {
   });
 
   it('should not render if post is loading or undefined', () => {
-    renderComponent();
+    const client = new QueryClient();
+    renderComponent({ client });
 
     const changelogExtensionBtn = screen.queryByTestId('changelog');
     expect(changelogExtensionBtn).not.toBeInTheDocument();
   });
 
   it('should request extension update on update button click', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -151,7 +157,7 @@ describe('ChangelogTooltip component', () => {
       },
     };
 
-    renderComponent();
+    renderComponent({ client });
     await screen.findByTestId('changelog');
 
     await act(async () => {
@@ -175,6 +181,7 @@ describe('ChangelogTooltip component', () => {
   });
 
   it('update lastChangelog on release notes click', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -190,7 +197,7 @@ describe('ChangelogTooltip component', () => {
       }),
     });
 
-    renderComponent();
+    renderComponent({ client });
     await screen.findByTestId('changelog');
 
     await act(async () => {
@@ -205,6 +212,7 @@ describe('ChangelogTooltip component', () => {
   });
 
   it('update lastChangelog on close modal click', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -220,7 +228,7 @@ describe('ChangelogTooltip component', () => {
       }),
     });
 
-    renderComponent();
+    renderComponent({ client });
     await screen.findByTestId('changelog');
 
     await act(async () => {
@@ -235,6 +243,7 @@ describe('ChangelogTooltip component', () => {
   });
 
   it('should link to blog post on firefox', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -242,7 +251,7 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'firefox';
 
-    renderComponent();
+    renderComponent({ client });
     await screen.findByTestId('changelog');
 
     const changelogExtensionBtn = await screen.findByTestId(
@@ -262,6 +271,7 @@ describe('ChangelogTooltip component', () => {
   });
 
   it('should show toast when no extension update available', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -275,7 +285,7 @@ describe('ChangelogTooltip component', () => {
       },
     };
 
-    renderComponent();
+    renderComponent({ client });
     await screen.findByTestId('changelog');
 
     const changelogExtensionBtn = await screen.findByTestId(
@@ -298,6 +308,7 @@ describe('ChangelogTooltip component', () => {
   });
 
   it('should show toast when no extension update is throttled', async () => {
+    const client = new QueryClient();
     client.setQueryData(
       ['changelog', 'latest-post', { loggedIn: false }],
       defaultPost,
@@ -311,7 +322,7 @@ describe('ChangelogTooltip component', () => {
       },
     };
 
-    renderComponent();
+    renderComponent({ client });
     await screen.findByTestId('changelog');
 
     const changelogExtensionBtn = await screen.findByTestId(
