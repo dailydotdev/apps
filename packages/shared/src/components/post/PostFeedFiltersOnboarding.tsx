@@ -32,6 +32,17 @@ export function PostFeedFiltersOnboarding({
         'flex relative rounded-16 border border-theme-color-cabbage',
         className,
       )}
+      onClick={onInitializeOnboarding}
+      role="button"
+      tabIndex={0}
+      aria-label="Customize your feed"
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter') {
+          return;
+        }
+
+        onInitializeOnboarding();
+      }}
     >
       <div className="py-3 px-4 w-3/5">
         <p className="font-bold typo-callout">
@@ -40,7 +51,7 @@ export function PostFeedFiltersOnboarding({
         <Button
           className="mt-4 text-white btn-primary-cabbage"
           buttonSize="small"
-          onClick={onInitializeOnboarding}
+          tabIndex={-1}
         >
           Customize
         </Button>
