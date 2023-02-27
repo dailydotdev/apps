@@ -66,6 +66,18 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       }
     });
 
+  const onModalCloseClick = (event) => {
+    if (typeof onRequestClose === 'function') {
+      onRequestClose(event);
+    }
+
+    dismissChangelog();
+  };
+
+  const onExtensionUpdateClick = async () => {
+    await updateExtension();
+  };
+
   return (
     <BaseTooltip
       {...props}
@@ -84,13 +96,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 New release
               </Button>
               <ModalClose
-                onClick={(event) => {
-                  if (typeof onRequestClose === 'function') {
-                    onRequestClose(event);
-                  }
-
-                  dismissChangelog();
-                }}
+                onClick={onModalCloseClick}
                 data-testid="changelogModalClose"
               />
             </header>
@@ -139,9 +145,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                   className="bg-cabbage-40 btn-primary"
                   data-testid="changelogExtensionBtn"
                   loading={isExtensionUpdating}
-                  onClick={async () => {
-                    await updateExtension();
-                  }}
+                  onClick={onExtensionUpdateClick}
                 >
                   Update extension
                 </Button>
