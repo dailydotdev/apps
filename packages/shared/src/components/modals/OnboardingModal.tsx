@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
@@ -27,6 +28,11 @@ import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 interface OnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;
   onRegistrationSuccess?: () => void;
+  shouldSkipIntro?: boolean;
+}
+
+interface OnboardingStepItem {
+  key: OnboardingStep;
 }
 
 const promptOptions: PromptOptions = {
@@ -49,17 +55,20 @@ function OnboardingModal({
   onRegistrationSuccess,
   onRequestClose,
   mode = OnboardingMode.Manual,
+  shouldSkipIntro = false,
   ...props
 }: OnboardingModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { showPrompt } = usePrompt();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [currentView, setCurrentView] = useState(OnboardingStep.Intro);
+  const { onboardingSteps, onboardingMinimumTopics } =
+    useContext(FeaturesContext);
+  const [currentView, setCurrentView] = useState(
+    shouldSkipIntro ? onboardingSteps[0] : OnboardingStep.Intro,
+  );
   const [screenValue, setScreenValue] = useState<AuthDisplay>(
     AuthDisplay.Default,
   );
-  const { onboardingSteps, onboardingMinimumTopics } =
-    useContext(FeaturesContext);
 
   const onCloseConfirm = (e: MouseEvent | KeyboardEvent) => {
     if (isAuthenticating) {
@@ -115,11 +124,23 @@ function OnboardingModal({
     });
   }, []);
 
-  const steps = [{ key: OnboardingStep.Intro }].concat(
-    onboardingSteps.map((onboardingStep) => ({
-      key: onboardingStep,
-    })),
-  );
+  const steps = useMemo(() => {
+    const items: OnboardingStepItem[] = [];
+
+    if (!shouldSkipIntro) {
+      items.push({
+        key: OnboardingStep.Intro,
+      });
+    }
+
+    onboardingSteps.forEach((onboardingStep) => {
+      items.push({
+        key: onboardingStep,
+      });
+    });
+
+    return items;
+  }, [onboardingSteps, shouldSkipIntro]);
 
   const onViewChange = (view: OnboardingStep) => {
     if (!view) {
@@ -170,6 +191,7 @@ function OnboardingModal({
         onViewChange={onViewChange}
         onTrackNext={AnalyticsEvent.ClickOnboardingNext}
         onTrackPrev={AnalyticsEvent.ClickOnboardingBack}
+        onRequestClose={onClose}
       >
         {content}
       </Modal>

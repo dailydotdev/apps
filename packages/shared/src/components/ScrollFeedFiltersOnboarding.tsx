@@ -4,50 +4,83 @@ import { Button } from './buttons/Button';
 import { ScrollOnboardingVersion } from '../lib/featureValues';
 import { cloudinary } from '../lib/image';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../lib/analytics';
+import { AnalyticsEvent } from '../lib/analytics';
+import SuperchargeIcon from '../../icons/supercharge.svg';
 
-const GaussianBlur = (): ReactElement => {
-  return (
-    <div className="absolute w-52 h-52 rounded-full opacity-32 blur-2xl bg-theme-color-cabbage" />
-  );
-};
+type ScrollOnboardingVersionMap = Partial<
+  Record<ScrollOnboardingVersion, string>
+>;
 
-const versionToContainerClassName: Record<ScrollOnboardingVersion, string> = {
-  [ScrollOnboardingVersion.V1]: 'h-60',
-  [ScrollOnboardingVersion.V2]: 'h-[36rem]',
+const versionToContainerClassName: ScrollOnboardingVersionMap = {
+  [ScrollOnboardingVersion.V1]: 'h-48 my-5',
+  [ScrollOnboardingVersion.V2]: 'h-80 m-10',
 };
-const versionToButtonClassName: Record<ScrollOnboardingVersion, string> = {
+const versionToButtonClassName: ScrollOnboardingVersionMap = {
   [ScrollOnboardingVersion.V1]: 'w-[16.25rem]',
   [ScrollOnboardingVersion.V2]: 'w-40',
 };
-const versionToButtonText: Record<ScrollOnboardingVersion, string> = {
+const versionToButtonText: ScrollOnboardingVersionMap = {
   [ScrollOnboardingVersion.V1]: 'Customize your feed',
   [ScrollOnboardingVersion.V2]: 'Start',
+};
+
+const versionToGaussianBlurClassName: ScrollOnboardingVersionMap = {
+  [ScrollOnboardingVersion.V1]: 'top-0 right-0 bottom-0 left-0 m-auto',
+  [ScrollOnboardingVersion.V2]: '',
+};
+
+const GaussianBlur = ({
+  version,
+}: {
+  version: ScrollOnboardingVersion;
+}): ReactElement => {
+  return (
+    <div
+      className={classNames(
+        'absolute w-48 h-48 rounded-full blur-2xl opacity-[0.2] bg-theme-color-cabbage',
+        versionToGaussianBlurClassName[version],
+      )}
+    />
+  );
 };
 
 interface ScrollFeedFiltersOnboardingProps {
   version: ScrollOnboardingVersion;
   onInitializeOnboarding: () => void;
 }
-export default function scrollFeedFiltersOnboarding({
+export default function ScrollFeedFiltersOnboarding({
   version,
   onInitializeOnboarding,
 }: ScrollFeedFiltersOnboardingProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   useEffect(() => {
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      target_type: TargetType.ScrollBlock,
+      event_name: AnalyticsEvent.EligibleScrollBlock,
       target_id: version,
     });
-  }, []);
+  }, [version]);
+
+  if (version === ScrollOnboardingVersion.Control) {
+    return null;
+  }
 
   return (
     <div
+      onClick={onInitializeOnboarding}
+      role="button"
+      tabIndex={0}
+      aria-label={versionToButtonText[version]}
       className={classNames(
-        'flex fixed bottom-0 left-60 z-3 gap-16 justify-center items-center w-full pr-40',
+        'flex flex-1 justify-center items-center relative',
         versionToContainerClassName[version],
       )}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter') {
+          return;
+        }
+
+        onInitializeOnboarding();
+      }}
       style={{
         background:
           'linear-gradient(180deg, #04131e00 0%, #04131eb3 20%, #0e1217 100%)',
@@ -55,15 +88,11 @@ export default function scrollFeedFiltersOnboarding({
     >
       <div className="flex flex-col items-center">
         {version === ScrollOnboardingVersion.V1 ? (
-          <GaussianBlur />
+          <GaussianBlur version={version} />
         ) : (
           <div className="flex relative justify-center items-center mb-10">
-            <GaussianBlur />
-            <img
-              className="w-[4.625rem] h-[4.625rem]"
-              src={cloudinary.feedFilters.supercharge}
-              alt="supercharge your feed"
-            />
+            <GaussianBlur version={version} />
+            <SuperchargeIcon className="w-[4.625rem] h-[4.625rem]" />
           </div>
         )}
         {version === ScrollOnboardingVersion.V2 && (
@@ -78,7 +107,7 @@ export default function scrollFeedFiltersOnboarding({
             versionToButtonClassName[version],
           )}
           buttonSize="large"
-          onClick={onInitializeOnboarding}
+          tabIndex={-1}
         >
           {versionToButtonText[version]}
         </Button>

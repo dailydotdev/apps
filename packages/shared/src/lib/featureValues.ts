@@ -9,6 +9,7 @@ export enum OnboardingFiltersLayout {
 }
 
 export enum ScrollOnboardingVersion {
+  Control = 'control',
   V1 = 'v1',
   V2 = 'v2',
 }

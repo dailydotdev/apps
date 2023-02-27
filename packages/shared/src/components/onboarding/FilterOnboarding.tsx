@@ -18,6 +18,7 @@ import { Justify } from '../utilities';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { OnboardingStep } from './common';
+import { ModalPropsContext } from '../modals/common/types';
 
 const classes: Record<OnboardingFiltersLayout, string> = {
   grid: 'tablet:grid-cols-3 grid-cols-2',
@@ -33,6 +34,7 @@ function FilterOnboarding(): ReactElement {
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.TagsFilter,
   });
+  const { onRequestClose } = useContext(ModalPropsContext);
 
   const onChangeSelectedTopic = (e: ButtonEvent, value: string) => {
     const isFollowed = !selectedTopics[value];
@@ -65,7 +67,7 @@ function FilterOnboarding(): ReactElement {
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Topics}>
-      {({ previousStep, nextStep }) => (
+      {({ activeStepIndex, previousStep, nextStep }) => (
         <>
           <Container
             title="Choose topics to follow"
@@ -94,8 +96,11 @@ function FilterOnboarding(): ReactElement {
             </div>
           </Container>
           <Modal.Footer justify={Justify.Between}>
-            <Button className="btn-tertiary" onClick={previousStep}>
-              Back
+            <Button
+              className="btn-tertiary"
+              onClick={activeStepIndex === 0 ? onRequestClose : previousStep}
+            >
+              {activeStepIndex === 0 ? 'Close' : 'Back'}
             </Button>
             <SimpleTooltip
               forceLoad
