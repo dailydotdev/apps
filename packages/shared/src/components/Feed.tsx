@@ -208,7 +208,7 @@ export default function Feed<T>({
     !user?.id &&
     Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
   const shouldScrollBlock =
-    sidebarRendered &&
+    showScrollOnboardingVersion &&
     [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2].includes(
       scrollOnboardingVersion,
     );
