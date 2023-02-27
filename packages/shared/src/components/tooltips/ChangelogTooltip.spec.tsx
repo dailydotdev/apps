@@ -75,29 +75,32 @@ describe('ChangelogTooltip component', () => {
     );
 
     renderComponent();
-    await screen.findByTestId('changelog');
 
-    const changelogNewReleaseTag = screen.getByTestId('changelogNewReleaseTag');
+    const changelogNewReleaseTag = await screen.findByTestId(
+      'changelogNewReleaseTag',
+    );
     expect(changelogNewReleaseTag).toBeInTheDocument();
 
-    const changelogModalClose = screen.getByTestId('changelogModalClose');
+    const changelogModalClose = await screen.findByTestId(
+      'changelogModalClose',
+    );
     expect(changelogModalClose).toBeInTheDocument();
 
-    const changelogImage = screen.getByTestId('changelogImage');
+    const changelogImage = await screen.findByTestId('changelogImage');
     expect(changelogImage).toBeInTheDocument();
     expect(changelogImage).toHaveAttribute('src', defaultPost.image);
 
-    const changelogTitle = screen.getByTestId('changelogTitle');
+    const changelogTitle = await screen.findByTestId('changelogTitle');
     expect(changelogTitle).toBeInTheDocument();
     expect(changelogTitle).toHaveTextContent(defaultPost.title);
 
-    const changelogDate = screen.getByTestId('changelogDate');
+    const changelogDate = await screen.findByTestId('changelogDate');
     expect(changelogDate).toBeInTheDocument();
     expect(changelogDate).toHaveTextContent(
       postDateFormat(defaultPost.createdAt),
     );
 
-    const changelogReleaseNotesBtn = screen.getByTestId(
+    const changelogReleaseNotesBtn = await screen.findByTestId(
       'changelogReleaseNotesBtn',
     );
     expect(changelogReleaseNotesBtn).toBeInTheDocument();
@@ -152,7 +155,9 @@ describe('ChangelogTooltip component', () => {
     await screen.findByTestId('changelog');
 
     await act(async () => {
-      const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
+      const changelogExtensionBtn = await screen.findByTestId(
+        'changelogExtensionBtn',
+      );
       fireEvent.click(changelogExtensionBtn);
       await new Promise(process.nextTick);
     });
@@ -189,7 +194,7 @@ describe('ChangelogTooltip component', () => {
     await screen.findByTestId('changelog');
 
     await act(async () => {
-      const changelogReleaseNotesBtn = screen.getByTestId(
+      const changelogReleaseNotesBtn = await screen.findByTestId(
         'changelogReleaseNotesBtn',
       );
       fireEvent.click(changelogReleaseNotesBtn);
@@ -219,7 +224,9 @@ describe('ChangelogTooltip component', () => {
     await screen.findByTestId('changelog');
 
     await act(async () => {
-      const changelogModalClose = screen.getByTestId('changelogModalClose');
+      const changelogModalClose = await screen.findByTestId(
+        'changelogModalClose',
+      );
       fireEvent.click(changelogModalClose);
       await waitForNock();
     });
@@ -238,7 +245,9 @@ describe('ChangelogTooltip component', () => {
     renderComponent();
     await screen.findByTestId('changelog');
 
-    const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
+    const changelogExtensionBtn = await screen.findByTestId(
+      'changelogExtensionBtn',
+    );
 
     await act(async () => {
       fireEvent.click(changelogExtensionBtn);
@@ -269,7 +278,9 @@ describe('ChangelogTooltip component', () => {
     renderComponent();
     await screen.findByTestId('changelog');
 
-    const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
+    const changelogExtensionBtn = await screen.findByTestId(
+      'changelogExtensionBtn',
+    );
 
     extensionUpdateStatus = 'no_update';
 
@@ -303,7 +314,9 @@ describe('ChangelogTooltip component', () => {
     renderComponent();
     await screen.findByTestId('changelog');
 
-    const changelogExtensionBtn = screen.getByTestId('changelogExtensionBtn');
+    const changelogExtensionBtn = await screen.findByTestId(
+      'changelogExtensionBtn',
+    );
 
     extensionUpdateStatus = 'throttled';
 

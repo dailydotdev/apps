@@ -74,7 +74,7 @@ describe('SidebarBottomSection component', () => {
     renderComponent();
     const changelog = await screen.findByTestId('changelog');
 
-    const changelogBadge = screen.getByTestId('changelogBadge');
+    const changelogBadge = await screen.findByTestId('changelogBadge');
     expect(changelogBadge).toBeInTheDocument();
 
     expect(changelog).toBeInTheDocument();
