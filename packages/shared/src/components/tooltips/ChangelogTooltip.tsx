@@ -18,6 +18,13 @@ interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
 
 const tooltipArrowOffset: [number, number] = [6 * 16, 2.5 * 16];
 
+const toastMessageMap = {
+  error: 'Something went wrong, try again later',
+  throttled: 'There is no update available, try again later',
+  no_update: 'You are already on the latest available version',
+  update_available: 'Browser extension updated',
+};
+
 function ChangelogTooltip<TRef extends HTMLElement>({
   elementRef,
   onRequestClose,
@@ -34,26 +41,28 @@ function ChangelogTooltip<TRef extends HTMLElement>({
         return;
       }
 
-      if (isExtension) {
-        const sendMessage = globalThis?.browser?.runtime?.sendMessage;
+      if (!isExtension) {
+        toast.displayToast(toastMessageMap.error);
 
-        if (typeof sendMessage === 'function') {
-          const updateResponse: { status: string } = await sendMessage({
-            type: ExtensionMessageType.RequestUpdate,
-          });
+        return;
+      }
 
-          const toastMessageMap = {
-            throttled: 'There is no update available, try again later',
-            no_update: 'You are already on the latest available version',
-            update_available: 'Browser extension updated',
-          };
+      const sendMessage = globalThis?.browser?.runtime?.sendMessage;
 
-          const toastMessage = toastMessageMap[updateResponse.status];
+      if (typeof sendMessage !== 'function') {
+        toast.displayToast(toastMessageMap.error);
 
-          if (toastMessage) {
-            toast.displayToast(toastMessage);
-          }
-        }
+        return;
+      }
+
+      const updateResponse: { status: string } = await sendMessage({
+        type: ExtensionMessageType.RequestUpdate,
+      });
+
+      const toastMessage = toastMessageMap[updateResponse.status];
+
+      if (toastMessage) {
+        toast.displayToast(toastMessage);
       }
     });
 
