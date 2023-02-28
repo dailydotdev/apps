@@ -3,8 +3,12 @@ import {
   DELETE_POST_MUTATION,
   banPost,
   deletePost,
+  Post,
+  getLatestChangelogPost,
 } from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { RankingAlgorithm, SOURCE_FEED_QUERY } from './feed';
+import { Connection } from './common';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -53,4 +57,49 @@ it('should send deletePost query', async () => {
   });
   await deletePost(id);
   expect(queryCalled).toBeTruthy();
+});
+
+it('should return latest changelog post', async () => {
+  interface MockFeedData {
+    page: Connection<Pick<Post, 'id'>>;
+  }
+
+  let queryCalled = false;
+  mockGraphQL<MockFeedData>({
+    request: {
+      query: SOURCE_FEED_QUERY,
+      variables: {
+        source: 'daily_updates',
+        first: 1,
+        loggedIn: false,
+        ranking: RankingAlgorithm.Time,
+      },
+    },
+    result: () => {
+      queryCalled = true;
+
+      return {
+        data: {
+          page: {
+            edges: [
+              {
+                node: { id: 'test1' },
+              },
+              {
+                node: { id: 'test2' },
+              },
+              {
+                node: { id: 'test3' },
+              },
+            ],
+            pageInfo: {},
+          },
+        },
+      };
+    },
+  });
+  const result = await getLatestChangelogPost(false);
+
+  expect(queryCalled).toBeTruthy();
+  expect(result.id).toBe('test1');
 });

@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -50,6 +49,7 @@ import {
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { MainFeedPage } from './utilities';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -166,16 +166,22 @@ export default function Feed<T>({
     loadedSettings,
   } = useContext(SettingsContext);
   const insaneMode = !forceCardMode && listMode;
-  const [showFeedFilters, setShowFeedFilters] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
-    useFeed(
-      feedQueryKey,
-      currentSettings.pageSize,
-      currentSettings.adSpot,
-      numCards,
-      { query, variables, options },
-    );
+  const {
+    items,
+    updatePost,
+    removePost,
+    fetchPage,
+    canFetchMore,
+    emptyFeed,
+    isLoading,
+  } = useFeed(
+    feedQueryKey,
+    currentSettings.pageSize,
+    currentSettings.adSpot,
+    numCards,
+    { query, variables, options },
+  );
 
   const { ranking } = (variables as RankVariables) || {};
   const {
@@ -196,15 +202,20 @@ export default function Feed<T>({
 
   const showScrollOnboardingVersion =
     sidebarRendered &&
+    feedName === MainFeedPage.Popular &&
+    !isLoading &&
     alerts?.filter &&
+    !user?.id &&
     Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
-  const fetchPageFn = showScrollOnboardingVersion
-    ? () => setShowFeedFilters(true)
-    : fetchPage;
+  const shouldScrollBlock =
+    showScrollOnboardingVersion &&
+    [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2].includes(
+      scrollOnboardingVersion,
+    );
 
   const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: fetchPageFn,
-    canFetchMore,
+    fetchPage,
+    canFetchMore: canFetchMore && !shouldScrollBlock,
   });
 
   const onInitializeOnboardingClick = () => {
@@ -212,7 +223,7 @@ export default function Feed<T>({
       event_name: AnalyticsEvent.ClickScrollBlock,
       target_id: scrollOnboardingVersion,
     });
-    onInitializeOnboarding();
+    onInitializeOnboarding(undefined, true);
   };
 
   const useList = insaneMode && numCards > 1;
@@ -453,13 +464,13 @@ export default function Feed<T>({
               onReadArticleClick={onReadArticleClick}
             />
           ))}
-          {showScrollOnboardingVersion && showFeedFilters && (
-            <ScrollFeedFiltersOnboarding
-              version={scrollOnboardingVersion}
-              onInitializeOnboarding={onInitializeOnboardingClick}
-            />
-          )}
         </div>
+        {showScrollOnboardingVersion && (
+          <ScrollFeedFiltersOnboarding
+            version={scrollOnboardingVersion}
+            onInitializeOnboarding={onInitializeOnboardingClick}
+          />
+        )}
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         <PostOptionsMenu
           {...commonMenuItems}

@@ -6,7 +6,11 @@ export type Alerts = {
   myFeed?: string;
   squadTour?: boolean;
   companionHelper?: boolean;
+  lastChangelog?: string;
+  changelog?: boolean;
 };
+
+export type AlertsUpdate = Omit<Alerts, 'changelog'>;
 
 export const UPDATE_ALERTS = gql`
   mutation UpdateUserAlerts($data: UpdateAlertsInput!) {
@@ -16,6 +20,7 @@ export const UPDATE_ALERTS = gql`
       myFeed
       companionHelper
       squadTour
+      lastChangelog
     }
   }
 `;

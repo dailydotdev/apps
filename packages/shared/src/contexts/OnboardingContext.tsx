@@ -37,8 +37,9 @@ export interface OnboardingContextData {
   showArticleOnboarding?: boolean;
   onCloseOnboardingModal: () => void;
   onShouldUpdateFilters: Dispatch<SetStateAction<boolean>>;
-  onInitializeOnboarding: (onFinish?: () => void) => void;
+  onInitializeOnboarding: (onFinish?: () => void, skipIntro?: boolean) => void;
   onStartArticleOnboarding: () => void;
+  shouldSkipIntro: boolean;
 }
 
 const OnboardingContext = React.createContext<OnboardingContextData>(null);
@@ -62,11 +63,20 @@ export const OnboardingContextProvider = ({
   const onFeedPageChanged = useRef(null);
   const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
     usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, !alerts.filter);
+  const [shouldSkipIntro, setSkipIntro] = useState(false);
 
-  const onInitializeOnboarding = (onFinish: () => void) => {
+  const onInitializeOnboarding = (
+    onFinish: () => void,
+    skipIntro?: boolean,
+  ) => {
     if (onFinish) {
       onFeedPageChanged.current = onFinish;
     }
+
+    if (skipIntro) {
+      setSkipIntro(true);
+    }
+
     setIsOnboarding(true);
   };
   const { sidebarRendered } = useSidebarRendered();
@@ -91,6 +101,7 @@ export const OnboardingContextProvider = ({
       setShouldUpdateFilters(false);
       setIsOnboarding(false);
       setIsRegisteringFilters(false);
+      setSkipIntro(false);
     });
   }, [user, shouldUpdateFilters, isRegisteringFilters]);
 
@@ -123,6 +134,7 @@ export const OnboardingContextProvider = ({
     }
 
     setIsOnboarding(false);
+    setSkipIntro(false);
 
     if (user && !alerts.filter && onFeedPageChanged.current) {
       onFeedPageChanged.current?.();
@@ -138,8 +150,16 @@ export const OnboardingContextProvider = ({
       onCloseOnboardingModal,
       onShouldUpdateFilters: setShouldUpdateFilters,
       onInitializeOnboarding,
+      shouldSkipIntro,
     }),
-    [isOnboarding, user, alerts, onboardingMode, shouldUpdateFilters],
+    [
+      isOnboarding,
+      user,
+      alerts,
+      onboardingMode,
+      shouldUpdateFilters,
+      shouldSkipIntro,
+    ],
   );
 
   return (
@@ -153,6 +173,7 @@ export const OnboardingContextProvider = ({
           onRegistrationSuccess={() =>
             onboardingContextData.onShouldUpdateFilters(true)
           }
+          shouldSkipIntro={shouldSkipIntro}
         />
       )}
     </OnboardingContext.Provider>
