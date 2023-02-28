@@ -3,13 +3,9 @@ import classNames from 'classnames';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
 import { Post } from '../../graphql/posts';
-import ConditionalWrapper, {
-  ConditionalWrapperProps,
-} from '../ConditionalWrapper';
 
 interface PostMetadataProps
-  extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'>,
-    Partial<Pick<ConditionalWrapperProps, 'wrapper'>> {
+  extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
   className?: string;
   username?: string;
   children?: ReactNode;
@@ -22,7 +18,6 @@ export default function PostMetadata({
   className,
   children,
   username,
-  wrapper,
 }: PostMetadataProps): ReactElement {
   const date = useMemo(
     () => createdAt && postDateFormat(createdAt),
@@ -36,24 +31,18 @@ export default function PostMetadata({
         className,
       )}
     >
-      <ConditionalWrapper condition={!!wrapper} wrapper={wrapper}>
-        <>
-          {!!username && <span>@{username}</span>}
-          {!!createdAt && !!username && <Separator />}
-          {!!createdAt && <time dateTime={createdAt}>{date}</time>}
-          {!!createdAt && !!readTime && <Separator />}
-          {!!readTime && (
-            <span data-testid="readTime">{readTime}m read time</span>
-          )}
-          {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
-          {!!numUpvotes && (
-            <span data-testid="numUpvotes">
-              {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}
-            </span>
-          )}
-          {children}
-        </>
-      </ConditionalWrapper>
+      {!!username && <span>@{username}</span>}
+      {!!createdAt && !!username && <Separator />}
+      {!!createdAt && <time dateTime={createdAt}>{date}</time>}
+      {!!createdAt && !!readTime && <Separator />}
+      {!!readTime && <span data-testid="readTime">{readTime}m read time</span>}
+      {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
+      {!!numUpvotes && (
+        <span data-testid="numUpvotes">
+          {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}
+        </span>
+      )}
+      {children}
     </div>
   );
 }

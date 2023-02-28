@@ -1,10 +1,9 @@
-import { HTMLAttributes, ReactHTML } from 'react';
+import React, { HTMLAttributes, ReactElement, ReactHTML } from 'react';
 import { Post } from '../../graphql/posts';
 import classed, { ClassedHTML } from '../../lib/classed';
 
-export const Separator = classed(
-  'div',
-  'mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary',
+export const Separator = (): ReactElement => (
+  <span className="mx-1">&#x2022;</span>
 );
 
 export const visibleOnGroupHover =
