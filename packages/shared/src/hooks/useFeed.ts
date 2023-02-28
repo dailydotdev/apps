@@ -20,14 +20,23 @@ import { apiUrl, graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import { Connection } from '../graphql/common';
 
+export enum PostItemType {
+  'Post' = 'post',
+  'Ad' = 'ad',
+  Placeholder = 'placeholder',
+}
+
 export type PostItem = {
-  type: 'post';
+  type: PostItemType.Post;
   post: Post;
   page: number;
   index: number;
 };
-export type AdItem = { type: 'ad'; ad: Ad };
-export type PlaceholderItem = { type: 'placeholder' };
+
+const alwaysValidTypes = [PostItemType.Ad, PostItemType.Placeholder];
+
+export type AdItem = { type: PostItemType.Ad; ad: Ad };
+export type PlaceholderItem = { type: PostItemType.Placeholder };
 export type FeedItem = PostItem | AdItem | PlaceholderItem;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
@@ -168,31 +177,37 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
           const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
-            type: 'post',
+            type: PostItemType.Post,
             post: node,
             page: pageIndex,
             index,
           }));
           if (adsQuery.data?.pages[pageIndex]) {
             posts.splice(adSpot, 0, {
-              type: 'ad',
+              type: PostItemType.Ad,
               ad: adsQuery.data?.pages[pageIndex],
             });
           } else {
             posts.splice(adSpot, 0, {
-              type: 'placeholder',
+              type: PostItemType.Placeholder,
             });
           }
           return posts;
         },
       );
     }
+
     if (feedQuery.isFetching) {
       newItems.push(
-        ...Array(placeholdersPerPage).fill({ type: 'placeholder' }),
+        ...Array(placeholdersPerPage).fill({ type: PostItemType.Placeholder }),
       );
     }
-    return newItems;
+
+    return newItems.filter(
+      (item) =>
+        alwaysValidTypes.includes(item.type) ||
+        (item.type === PostItemType.Post && item.post.visible !== false),
+    );
   }, [
     feedQuery.data,
     feedQuery.isFetching,
