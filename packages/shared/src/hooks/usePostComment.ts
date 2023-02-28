@@ -19,7 +19,7 @@ export interface UsePostComment {
   commentsNum: number;
   closeNewComment: () => void;
   openNewComment: (origin: string) => void;
-  onCommentClick: (parent: ParentComment) => void;
+  onCommentClick: (parent: ParentComment, replyTo: string) => void;
   onShowShareNewComment: (value: boolean) => void;
   updatePostComments: (comment: Comment, isNew?: boolean) => void;
   deleteCommentCache: (commentId: string, parentId?: string) => void;
@@ -68,9 +68,9 @@ export const usePostComment = (
     }
   };
 
-  const onCommentClick = (parent: ParentComment) => {
+  const onCommentClick = (parent: ParentComment, replyTo: string) => {
     setLastScroll(window.scrollY);
-    setParentComment(parent);
+    setParentComment({ ...parent, replyTo });
   };
 
   const openNewComment = (origin: string) => {

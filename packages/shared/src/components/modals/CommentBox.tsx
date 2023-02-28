@@ -69,17 +69,20 @@ function CommentBox({
     onInputClick,
   } = useUserMentionOptions;
   useEffect(() => {
-    commentRef.current?.focus();
-    if (commentRef.current) {
-      if (editContent) {
-        // eslint-disable-next-line no-param-reassign
-        commentRef.current.value = input || editContent;
-      }
-      commentRef.current.setAttribute(
-        'data-min-height',
-        commentRef.current.offsetHeight.toString(),
-      );
+    const element = commentRef.current;
+
+    if (!element) return;
+
+    element.focus();
+    const value = input || editContent;
+
+    if (value) {
+      // eslint-disable-next-line no-param-reassign
+      element.value = value;
+      element.setSelectionRange(element.value.length, element.value.length);
     }
+
+    element.setAttribute('data-min-height', element.offsetHeight.toString());
   }, []);
 
   const onPaste = (event: ClipboardEvent): void => {

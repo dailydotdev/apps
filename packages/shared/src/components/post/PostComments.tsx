@@ -22,7 +22,7 @@ import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { usePostComment } from '../../hooks/usePostComment';
+import { UsePostComment, usePostComment } from '../../hooks/usePostComment';
 
 export interface ParentComment {
   authorName: string;
@@ -41,7 +41,7 @@ interface PostCommentsProps {
   origin: Origin;
   permissionNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
-  onClick?: (parent: ParentComment) => unknown;
+  onClick?: UsePostComment['onCommentClick'];
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
 }
@@ -154,12 +154,15 @@ export function PostComments({
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
+  const getReplyTo = (comment: Comment) =>
+    comment.author.id === user.id ? '' : `@${comment.author.username} `;
+
   const onCommentClick = (comment: Comment, parentId: string | null) => {
     if (user) {
       const parent = getParentComment(post, comment);
       parent.commentId = parentId;
-
-      onClick(parent);
+      const replyTo = getReplyTo(comment);
+      onClick(parent, replyTo);
     } else {
       showLogin(AuthTriggers.Comment);
     }
@@ -167,8 +170,10 @@ export function PostComments({
 
   const onEditClick = (comment: Comment, localParentComment?: Comment) => {
     const shared = { editContent: comment.content, editId: comment.id };
-    onClick(getParentComment(post, localParentComment, shared));
+    const replyTo = getReplyTo(comment);
+    onClick(getParentComment(post, localParentComment, shared), replyTo);
   };
+
   return (
     <div className="flex flex-col gap-4 mb-12" ref={container}>
       {comments.postComments.edges.map((e) => (

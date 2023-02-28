@@ -85,6 +85,7 @@ export interface ParentComment {
   post: Post;
   editContent?: string;
   editId?: string;
+  replyTo?: string;
 }
 
 export type ReadHistoryPost = Pick<
