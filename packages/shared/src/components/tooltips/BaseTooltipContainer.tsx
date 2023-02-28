@@ -5,6 +5,7 @@ export type TooltipPosition =
   | 'top'
   | 'top-start'
   | 'right'
+  | 'right-end'
   | 'bottom'
   | 'bottom-start'
   | 'left';

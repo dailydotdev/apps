@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
 import TerminalIcon from '../icons/Terminal';
@@ -7,6 +8,15 @@ import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
+import { AlertColor, AlertDot } from '../AlertDot';
+import { useChangelog } from '../../hooks/useChangelog';
+
+const ChangelogTooltip = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "changelogTooltip" */ '../tooltips/ChangelogTooltip'
+    ),
+);
 
 interface SidebarBottomSectionProps extends SectionCommonProps {
   optOutWeeklyGoal: boolean;
@@ -18,6 +28,10 @@ export function SidebarBottomSectionSection({
   showSettings,
   ...props
 }: SidebarBottomSectionProps): ReactElement {
+  const changelog = useChangelog();
+  const changelogBadgeRef = useRef<HTMLElement>();
+  const navItemRef = useRef<HTMLElement>();
+
   const bottomMenuItems: SidebarMenuItem[] = [
     {
       icon: () => <ListIcon Icon={() => <DocsIcon />} />,
@@ -29,6 +43,18 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
+      rightIcon: changelog.isAvailable
+        ? () => (
+            <div className="h-2" data-testid="changelogBadge">
+              <AlertDot
+                className="right-2"
+                ref={changelogBadgeRef}
+                color={AlertColor.Cabbage}
+              />
+            </div>
+          )
+        : undefined,
+      navItemRef,
     },
     {
       icon: () => <ListIcon Icon={() => <FeedbackIcon />} />,
@@ -44,6 +70,12 @@ export function SidebarBottomSectionSection({
       <InvitePeople {...props} />
       {props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
+      )}
+      {changelog.isAvailable && (
+        <ChangelogTooltip
+          elementRef={changelogBadgeRef}
+          appendTo={() => navItemRef.current}
+        />
       )}
     </Nav>
   );
