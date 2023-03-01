@@ -4,14 +4,20 @@ import { ButtonProps } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
 
 function ModalCloseComponent(
-  { className, style, onClick, ...props }: ButtonProps<'button'>,
+  {
+    className,
+    style,
+    onClick,
+    buttonSize = 'medium',
+    ...props
+  }: ButtonProps<'button'>,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
   if (!onClick) return null;
   return (
     <CloseButton
       {...props}
-      buttonSize="medium"
+      buttonSize={buttonSize}
       onClick={onClick}
       ref={ref}
       className={classNames('right-2 z-1', className)}

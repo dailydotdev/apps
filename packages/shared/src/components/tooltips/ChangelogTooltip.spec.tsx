@@ -26,7 +26,10 @@ import {
 
 describe('ChangelogTooltip component', () => {
   const noop = jest.fn();
-  const defaultPost = Post;
+  const defaultPost = {
+    ...Post,
+    summary: 'Some post summary goes here for testing!',
+  };
   const updateAlerts = jest.fn();
   const defaultAlerts: Alerts = {};
   let extensionUpdateStatus = 'update_available';
@@ -102,6 +105,13 @@ describe('ChangelogTooltip component', () => {
     expect(changelogDate).toHaveTextContent(
       postDateFormat(defaultPost.createdAt),
     );
+
+    const changelogSummary = await screen.findByTestId('changelogSummary');
+    expect(changelogSummary).toBeInTheDocument();
+    expect(changelogSummary).toHaveTextContent(defaultPost.summary);
+
+    const changelogActionBar = await screen.findByTestId('changelogActionBar');
+    expect(changelogActionBar).toBeInTheDocument();
 
     const changelogReleaseNotesBtn = await screen.findByTestId(
       'changelogReleaseNotesBtn',

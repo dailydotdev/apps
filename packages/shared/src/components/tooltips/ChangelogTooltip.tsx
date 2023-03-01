@@ -10,6 +10,9 @@ import { useChangelog } from '../../hooks/useChangelog';
 import { ExtensionMessageType } from '../../lib/extension';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { updateFirefoxExtensionLink } from '../../lib/constants';
+import UpvoteIcon from '../icons/Upvote';
+import CommentIcon from '../icons/Discuss';
+import InteractionCounter from '../InteractionCounter';
 
 interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
   elementRef: MutableRefObject<TRef>;
@@ -84,20 +87,22 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       content={
         !!post && (
           <div
-            className="flex flex-col w-96 whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none changelog bg-theme-bg-tertiary border-theme-color-cabbage"
+            className="flex flex-col whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none w-[22.5rem] changelog bg-theme-bg-tertiary border-theme-color-cabbage"
             data-testid="changelog"
           >
             <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
               <Button
                 disabled
-                className="text-white bg-theme-color-water btn-primary small"
+                className="font-normal text-white bg-theme-color-water btn-primary small"
                 data-testid="changelogNewReleaseTag"
               >
                 New release
               </Button>
               <ModalClose
+                className="right-4"
                 onClick={onModalCloseClick}
                 data-testid="changelogModalClose"
+                buttonSize="xsmall"
               />
             </header>
             <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
@@ -110,7 +115,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 data-testid="changelogImage"
               />
               <h3
-                className="mt-2 font-bold text-theme-label-primary typo-title3"
+                className="mt-2.5 font-normal text-theme-label-primary typo-title3"
                 data-testid="changelogTitle"
               >
                 {post.title}
@@ -122,8 +127,30 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               >
                 {postDateFormat(post.createdAt)}
               </time>
-              <div className="mt-2 w text-theme-label-tertiary typo-callout">
-                {post.summary}
+              {!!post.summary && (
+                <div
+                  className="mt-2.5 w text-theme-label-tertiary typo-callout"
+                  data-testid="changelogSummary"
+                >
+                  {post.summary}
+                </div>
+              )}
+              <div
+                className="flex gap-4 py-1.5 px-2.5 mt-4 font-bold w text-theme-color-salt typo-footnote"
+                data-testid="changelogActionBar"
+              >
+                <span className="flex gap-1.5">
+                  <UpvoteIcon secondary />
+                  <InteractionCounter
+                    value={post.numUpvotes > 0 && post.numUpvotes}
+                  />
+                </span>
+                <span className="flex gap-1.5">
+                  <CommentIcon secondary />
+                  <InteractionCounter
+                    value={post.numComments > 0 && post.numComments}
+                  />
+                </span>
               </div>
             </section>
             <footer className="flex gap-3 items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">
