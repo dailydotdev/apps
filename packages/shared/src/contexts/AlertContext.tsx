@@ -1,7 +1,7 @@
 import request from 'graphql-request';
 import React, { ReactNode, ReactElement, useMemo } from 'react';
 import { UseMutateAsyncFunction, useMutation } from 'react-query';
-import { Alerts, UPDATE_ALERTS } from '../graphql/alerts';
+import { Alerts, AlertsUpdate, UPDATE_ALERTS } from '../graphql/alerts';
 import { graphqlUrl } from '../lib/config';
 
 export const ALERT_DEFAULTS: Alerts = {
@@ -18,7 +18,7 @@ export interface AlertContextData {
   updateAlerts?: UseMutateAsyncFunction<
     unknown,
     unknown,
-    Alerts,
+    AlertsUpdate,
     () => Promise<void>
   >;
 }

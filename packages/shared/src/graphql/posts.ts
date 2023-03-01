@@ -9,7 +9,7 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { SUPPORTED_TYPES } from './feed';
+import { RankingAlgorithm, SOURCE_FEED_QUERY, SUPPORTED_TYPES } from './feed';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -391,3 +391,16 @@ export const VIEW_POST_MUTATION = gql`
 
 export const sendViewPost = (id: string): Promise<void> =>
   request(graphqlUrl, VIEW_POST_MUTATION, { id });
+
+export const getLatestChangelogPost = async (
+  loggedIn: boolean,
+): Promise<Post> => {
+  const feedData = await request<FeedData>(graphqlUrl, SOURCE_FEED_QUERY, {
+    source: 'daily_updates',
+    first: 1,
+    loggedIn,
+    ranking: RankingAlgorithm.Time,
+  });
+
+  return feedData?.page?.edges?.[0]?.node;
+};

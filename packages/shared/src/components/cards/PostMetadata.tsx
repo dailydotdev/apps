@@ -4,11 +4,12 @@ import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
 import { Post } from '../../graphql/posts';
 
-type PostMetadataProps = Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> & {
+interface PostMetadataProps
+  extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
   className?: string;
   username?: string;
   children?: ReactNode;
-};
+}
 
 export default function PostMetadata({
   createdAt,
