@@ -287,6 +287,13 @@ it('should send editComment mutation', async () => {
   await waitFor(() => expect(onComment).toBeCalledWith(comment, false));
 });
 
+it('should pre-populate comment box with the author username when', async () => {
+  const replyTo = '@sshanzel ';
+  renderComponent({ commentId: 'c1', replyTo });
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  expect(input).toHaveValue(replyTo);
+});
+
 const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
   Simulate.input(el, { data: key } as unknown);
   // eslint-disable-next-line no-param-reassign
