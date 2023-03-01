@@ -29,6 +29,8 @@ describe('ChangelogTooltip component', () => {
   const defaultPost = {
     ...Post,
     summary: 'Some post summary goes here for testing!',
+    numUpvotes: 69,
+    numComments: 42,
   };
   const updateAlerts = jest.fn();
   const defaultAlerts: Alerts = {};
@@ -110,8 +112,21 @@ describe('ChangelogTooltip component', () => {
     expect(changelogSummary).toBeInTheDocument();
     expect(changelogSummary).toHaveTextContent(defaultPost.summary);
 
-    const changelogActionBar = await screen.findByTestId('changelogActionBar');
-    expect(changelogActionBar).toBeInTheDocument();
+    const changelogUpvotesCounter = await screen.findByTestId(
+      'changelogUpvotesCounter',
+    );
+    expect(changelogUpvotesCounter).toBeInTheDocument();
+    expect(changelogUpvotesCounter).toHaveTextContent(
+      defaultPost.numUpvotes.toString(),
+    );
+
+    const changelogCommentsCounter = await screen.findByTestId(
+      'changelogCommentsCounter',
+    );
+    expect(changelogCommentsCounter).toBeInTheDocument();
+    expect(changelogCommentsCounter).toHaveTextContent(
+      defaultPost.numComments.toString(),
+    );
 
     const changelogReleaseNotesBtn = await screen.findByTestId(
       'changelogReleaseNotesBtn',

@@ -135,21 +135,20 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                   {post.summary}
                 </div>
               )}
-              <div
-                className="flex gap-4 py-1.5 px-2.5 mt-4 font-bold w text-theme-color-salt typo-footnote"
-                data-testid="changelogActionBar"
-              >
-                <span className="flex gap-1.5">
+              <div className="flex gap-4 py-1.5 px-2.5 mt-4 font-bold w text-theme-color-salt typo-footnote">
+                <span
+                  className="flex gap-1.5"
+                  data-testid="changelogUpvotesCounter"
+                >
                   <UpvoteIcon secondary />
-                  <InteractionCounter
-                    value={post.numUpvotes > 0 && post.numUpvotes}
-                  />
+                  <InteractionCounter value={post.numUpvotes} />
                 </span>
-                <span className="flex gap-1.5">
+                <span
+                  className="flex gap-1.5"
+                  data-testid="changelogCommentsCounter"
+                >
                   <CommentIcon secondary />
-                  <InteractionCounter
-                    value={post.numComments > 0 && post.numComments}
-                  />
+                  <InteractionCounter value={post.numComments} />
                 </span>
               </div>
             </section>
