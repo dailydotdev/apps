@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement, useContext, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
@@ -8,8 +8,9 @@ import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
-import { AlertColor, AlertDot } from '../AlertDot';
+import { AlertColor, AlertDot, AlertDotSize } from '../AlertDot';
 import { useChangelog } from '../../hooks/useChangelog';
+import SettingsContext from '../../contexts/SettingsContext';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -31,6 +32,7 @@ export function SidebarBottomSectionSection({
   const changelog = useChangelog();
   const changelogBadgeRef = useRef<HTMLElement>();
   const navItemRef = useRef<HTMLElement>();
+  const { sidebarExpanded } = useContext(SettingsContext);
 
   const bottomMenuItems: SidebarMenuItem[] = [
     {
@@ -47,9 +49,10 @@ export function SidebarBottomSectionSection({
         ? () => (
             <div className="h-2" data-testid="changelogBadge">
               <AlertDot
-                className="right-2"
+                className={sidebarExpanded ? 'right-2' : 'right-1'}
                 ref={changelogBadgeRef}
                 color={AlertColor.Cabbage}
+                size={AlertDotSize.XSmall}
               />
             </div>
           )

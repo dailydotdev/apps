@@ -1,5 +1,11 @@
-import React, { MutableRefObject, ReactElement } from 'react';
+import React, {
+  MutableRefObject,
+  ReactElement,
+  useContext,
+  useMemo,
+} from 'react';
 import { useMutation } from 'react-query';
+import classNames from 'classnames';
 import { BaseTooltip, BaseTooltipProps } from './BaseTooltip';
 import { Button } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
@@ -13,13 +19,12 @@ import { updateFirefoxExtensionLink } from '../../lib/constants';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
 import InteractionCounter from '../InteractionCounter';
+import SettingsContext from '../../contexts/SettingsContext';
 
 interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
   elementRef: MutableRefObject<TRef>;
   onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
 }
-
-const tooltipArrowOffset: [number, number] = [6 * 16, 2.5 * 16];
 
 const toastMessageMap = {
   error: 'Something went wrong, try again later',
@@ -37,6 +42,11 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
   const { latestPost: post, dismiss: dismissChangelog } = useChangelog();
   const toast = useToastNotification();
+  const { sidebarExpanded } = useContext(SettingsContext);
+
+  const tooltipArrowOffset: [number, number] = useMemo(() => {
+    return [(sidebarExpanded ? 8 : 3) * 16, 3 * 16];
+  }, [sidebarExpanded]);
 
   const { mutateAsync: updateExtension, isLoading: isExtensionUpdating } =
     useMutation(async () => {
@@ -187,8 +197,10 @@ function ChangelogTooltip<TRef extends HTMLElement>({
         paddingClassName: 'p-0',
         roundedClassName: 'rounded-16',
         bgClassName: 'bg-cabbage-40',
-        arrowClassName:
-          'bg-cabbage-40 bottom-24 !left-0 !h-2.5 !w-0 flex items-center justify-end before:!w-10 before:!h-px before:!transform-none',
+        arrowClassName: classNames(
+          sidebarExpanded ? 'bottom-[7.95rem]' : 'bottom-[2.95rem]',
+          'bg-cabbage-40 !left-0 !h-2.5 !w-0 flex items-center justify-end before:!w-12 before:!h-px before:!transform-none',
+        ),
       }}
       reference={elementRef}
       arrow

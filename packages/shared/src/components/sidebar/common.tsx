@@ -4,11 +4,13 @@ import React, {
   HTMLAttributeAnchorTarget,
   forwardRef,
   MutableRefObject,
+  useContext,
 } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TooltipProps } from '../tooltips/BaseTooltip';
+import SettingsContext from '../../contexts/SettingsContext';
 
 export interface SidebarProps {
   promotionalBannerActive?: boolean;
@@ -135,18 +137,22 @@ export const ItemInner = ({
   active,
 }: ItemInnerProps): ReactElement => {
   const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
+  const { sidebarExpanded } = useContext(SettingsContext);
+
   return (
     <>
       <Icon {...item} active={active} />
-      <span
-        className={classNames(
-          'flex flex-1 text-left transition-opacity truncate flex-row items-center',
-          shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
-          item?.className?.text,
-        )}
-      >
-        {item.title}
-      </span>
+      {sidebarExpanded && (
+        <span
+          className={classNames(
+            'flex flex-1 text-left transition-opacity truncate flex-row items-center',
+            shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
+            item?.className?.text,
+          )}
+        >
+          {item.title}
+        </span>
+      )}
       {item.rightIcon && (
         <ItemInnerIcon
           {...item}
