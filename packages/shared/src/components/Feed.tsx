@@ -380,6 +380,18 @@ export default function Feed<T>({
 
   const ArticleModal = PostModalMap[selectedPost?.type];
 
+  // TODO WT-1109-personal-digest proper condition, from API
+  const showPersonalDigest = feedName === MainFeedPage.MyFeed;
+
+  // TODO WT-1109-personal-digest move to proper component
+  const DigestPostItem = (props: Post) => {
+    return (
+      <div className="w-[320px] h-[376px]">
+        <ArticlePostCard post={props} />
+      </div>
+    );
+  };
+
   return (
     <div
       className={classNames(
@@ -400,6 +412,26 @@ export default function Feed<T>({
         aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
         data-testid="posts-feed"
       >
+        {showPersonalDigest && (
+          <Slider
+            // TODO WT-1109-personal-digest items from API
+            items={items
+              .slice(2, 8)
+              .filter(Boolean)
+              .map((item) => item.type === 'post' && item.post)}
+            itemWidth={320}
+            Item={DigestPostItem}
+            canSwipeLeft={(index, sliderItems) => {
+              const visibleItems = numCards;
+              const swipeableItems =
+                visibleItems > sliderItems.length
+                  ? 0
+                  : sliderItems.length - visibleItems;
+
+              return index < swipeableItems;
+            }}
+          />
+        )}
         <ScrollToTopButton />
         <div
           className={classNames(
