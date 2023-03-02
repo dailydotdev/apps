@@ -103,7 +103,7 @@ export default function ScrollFeedFiltersOnboarding({
         )}
         <Button
           className={classNames(
-            'text-white btn-primary-cabbage ',
+            'btn-primary-cabbage ',
             versionToButtonClassName[version],
           )}
           buttonSize="large"
