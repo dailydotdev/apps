@@ -65,6 +65,7 @@ const getFeedLabel = (label: string, link: string) => (
     <Button
       className="btn-tertiary"
       tag="a"
+      target="_blank"
       href={link}
       icon={<OpenLinkIcon />}
     />
