@@ -14,7 +14,7 @@ import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
-import { Containter, PostCardProps } from './common';
+import { Container, PostCardProps } from './common';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -60,15 +60,15 @@ export const ArticlePostCard = forwardRef(function PostCard(
         />
         <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>
-      <Containter className="mb-8 tablet:mb-0">
+      <Container className="mb-8 tablet:mb-0">
         <CardSpace />
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}
           className="mx-4"
         />
-      </Containter>
-      <Containter>
+      </Container>
+      <Container>
         <PostCardFooter
           insaneMode={insaneMode}
           openNewTab={openNewTab}
@@ -91,7 +91,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             !showImage && 'my-4 laptop:mb-0',
           )}
         />
-      </Containter>
+      </Container>
       {children}
     </Card>
   );

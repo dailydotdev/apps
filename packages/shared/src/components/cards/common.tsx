@@ -18,7 +18,7 @@ export const getGroupedHoverContainer = <
 
 export type Callback = (post: Post) => unknown;
 
-export const Containter = classed('div', 'relative flex flex-1 flex-col');
+export const Container = classed('div', 'relative flex flex-1 flex-col');
 
 export type PostCardProps = {
   post: Post;
