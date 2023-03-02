@@ -1,4 +1,4 @@
-import React, { CSSProperties, forwardRef, ReactElement } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
 import classed from '../lib/classed';
 
