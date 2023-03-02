@@ -13,7 +13,6 @@ import OptionsButton from '../buttons/OptionsButton';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
-import classed from '../../lib/classed';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -80,8 +79,6 @@ export default function ActionButtons({
     onShareClick,
   });
 
-  const Container = classed('div', 'flex justify-between', className);
-
   return (
     <div
       className={classNames(
@@ -93,7 +90,9 @@ export default function ActionButtons({
     >
       <ConditionalWrapper
         condition={insaneMode}
-        wrapper={(leftChildren) => <Container>{leftChildren}</Container>}
+        wrapper={(leftChildren) => (
+          <div className="flex justify-between">{leftChildren}</div>
+        )}
       >
         <SimpleTooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
           <QuaternaryButton
@@ -128,7 +127,11 @@ export default function ActionButtons({
       <ConditionalWrapper
         condition={insaneMode}
         wrapper={(rightChildren) => (
-          <Container className={visibleOnGroupHover}>{rightChildren}</Container>
+          <div
+            className={classNames('flex justify-between', visibleOnGroupHover)}
+          >
+            {rightChildren}
+          </div>
         )}
       >
         {insaneMode && (
