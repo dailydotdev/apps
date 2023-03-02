@@ -29,7 +29,10 @@ import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import {
   adAnalyticsEvent,
+  cardClass,
   feedAnalyticsExtra,
+  gapClass,
+  getFeedGapPx,
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
@@ -50,6 +53,8 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { MainFeedPage } from './utilities';
+import Slider from './containers/Slider';
+import { ArticlePostCard } from './cards/ArticlePostCard';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -87,37 +92,6 @@ const ScrollFeedFiltersOnboarding = dynamic(
       /* webpackChunkName: "scrollFeedFiltersOnboarding" */ './ScrollFeedFiltersOnboarding'
     ),
 );
-
-const listGaps = {
-  cozy: 'gap-5',
-  roomy: 'gap-3',
-};
-const gridGaps = {
-  cozy: 'gap-14',
-  roomy: 'gap-12',
-};
-const getFeedGapPx = {
-  'gap-2': 8,
-  'gap-3': 12,
-  'gap-5': 20,
-  'gap-8': 32,
-  'gap-12': 48,
-  'gap-14': 56,
-};
-const gapClass = (useList: boolean, spaciness: Spaciness) =>
-  useList ? listGaps[spaciness] ?? 'gap-2' : gridGaps[spaciness] ?? 'gap-8';
-
-const cardListClass = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-  4: 'grid-cols-4',
-  5: 'grid-cols-5',
-  6: 'grid-cols-6',
-  7: 'grid-cols-7',
-};
-const cardClass = (useList: boolean, numCards: number): string =>
-  useList ? 'grid-cols-1' : cardListClass[numCards];
 
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);

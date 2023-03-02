@@ -3,6 +3,7 @@ import { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { PostBootData } from './boot';
 import { Origin } from './analytics';
+import { Spaciness } from '../graphql/settings';
 
 export function optimisticPostUpdateInFeed(
   items: FeedItem[],
@@ -141,3 +142,34 @@ export function adAnalyticsEvent(
     extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
   };
 }
+
+export const listGaps = {
+  cozy: 'gap-5',
+  roomy: 'gap-3',
+};
+export const gridGaps = {
+  cozy: 'gap-14',
+  roomy: 'gap-12',
+};
+export const getFeedGapPx = {
+  'gap-2': 8,
+  'gap-3': 12,
+  'gap-5': 20,
+  'gap-8': 32,
+  'gap-12': 48,
+  'gap-14': 56,
+};
+export const gapClass = (useList: boolean, spaciness: Spaciness): string =>
+  useList ? listGaps[spaciness] ?? 'gap-2' : gridGaps[spaciness] ?? 'gap-8';
+
+export const cardListClass = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+  4: 'grid-cols-4',
+  5: 'grid-cols-5',
+  6: 'grid-cols-6',
+  7: 'grid-cols-7',
+};
+export const cardClass = (useList: boolean, numCards: number): string =>
+  useList ? 'grid-cols-1' : cardListClass[numCards];
