@@ -60,11 +60,12 @@ type ScrapeSourceResponse =
   | ScrapeSourceUnavailable;
 
 const getFeedLabel = (label: string, link: string) => (
-  <span className="flex justify-between items-center w-full">
+  <span className="flex flex-1 justify-between items-center w-full">
     {label}
     <Button
       className="btn-tertiary"
       tag="a"
+      target="_blank"
       href={link}
       icon={<OpenLinkIcon />}
     />
@@ -276,7 +277,10 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 options={feeds}
                 onChange={setSelectedFeed}
                 value={selectedFeed}
-                className="self-start"
+                className={{
+                  container: 'self-start w-full',
+                  content: 'w-full pr-0',
+                }}
               />
             </form>
           </>
