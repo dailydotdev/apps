@@ -7,6 +7,8 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts } from '../../graphql/alerts';
 import { SidebarBottomSectionSection } from './SidebarBottomSection';
+import { createTestSettings } from '../../../__tests__/fixture/settings';
+import SettingsContext from '../../contexts/SettingsContext';
 
 describe('SidebarBottomSection component', () => {
   const noop = jest.fn();
@@ -44,20 +46,22 @@ describe('SidebarBottomSection component', () => {
           updateUser={noop}
           tokenRefreshed={false}
         >
-          <AlertContextProvider
-            alerts={defaultAlerts}
-            updateAlerts={updateAlerts}
-            loadedAlerts
-          >
-            <SidebarBottomSectionSection
-              optOutWeeklyGoal
-              showSettings={false}
-              sidebarExpanded={false}
-              sidebarRendered
-              activePage="/"
-              shouldShowLabel
-            />
-          </AlertContextProvider>
+          <SettingsContext.Provider value={createTestSettings()}>
+            <AlertContextProvider
+              alerts={defaultAlerts}
+              updateAlerts={updateAlerts}
+              loadedAlerts
+            >
+              <SidebarBottomSectionSection
+                optOutWeeklyGoal
+                showSettings={false}
+                sidebarExpanded={false}
+                sidebarRendered
+                activePage="/"
+                shouldShowLabel
+              />
+            </AlertContextProvider>
+          </SettingsContext.Provider>
         </AuthContextProvider>
       </QueryClientProvider>,
     );

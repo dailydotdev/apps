@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import React, { useRef } from 'react';
 import nock from 'nock';
 import { renderHook } from '@testing-library/react-hooks';
+import { createTestSettings } from '../../../__tests__/fixture/settings';
 import Post from '../../../__tests__/fixture/post';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import ChangelogTooltip from './ChangelogTooltip';
@@ -23,6 +24,7 @@ import {
   ToastNotification,
   TOAST_NOTIF_KEY,
 } from '../../hooks/useToastNotification';
+import SettingsContext from '../../contexts/SettingsContext';
 
 describe('ChangelogTooltip component', () => {
   const noop = jest.fn();
@@ -50,7 +52,7 @@ describe('ChangelogTooltip component', () => {
     client: QueryClient;
   }): RenderResult => {
     const {
-      result: { current: changelogBadgeRef },
+      result: { current: anchorRef },
     } = renderHook(() => useRef());
 
     return render(
@@ -62,14 +64,17 @@ describe('ChangelogTooltip component', () => {
           updateUser={noop}
           tokenRefreshed={false}
         >
-          <AlertContextProvider
-            alerts={defaultAlerts}
-            updateAlerts={updateAlerts}
-            loadedAlerts
-          >
-            <AlertDot ref={changelogBadgeRef} color={AlertColor.Cabbage} />
-            <ChangelogTooltip elementRef={changelogBadgeRef} />
-          </AlertContextProvider>
+          <SettingsContext.Provider value={createTestSettings()}>
+            <AlertContextProvider
+              alerts={defaultAlerts}
+              updateAlerts={updateAlerts}
+              loadedAlerts
+            >
+              <AlertDot color={AlertColor.Cabbage} />
+              <div ref={anchorRef} />
+              <ChangelogTooltip elementRef={anchorRef} />
+            </AlertContextProvider>
+          </SettingsContext.Provider>
         </AuthContextProvider>
       </QueryClientProvider>,
     );
