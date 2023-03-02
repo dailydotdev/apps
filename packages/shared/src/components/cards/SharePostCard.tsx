@@ -4,7 +4,7 @@ import ActionButtons from './ActionButtons';
 import { SharedPostCardHeader } from './SharedPostCardHeader';
 import { SharedPostText } from './SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
-import { Containter, PostCardProps } from './common';
+import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 
 export const SharePostCard = forwardRef(function SharePostCard(
@@ -61,7 +61,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
         title={post.title}
         onHeightChange={onSharedPostTextHeightChange}
       />
-      <Containter ref={containerRef}>
+      <Container ref={containerRef}>
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
           isShort={isSharedPostShort}
@@ -78,7 +78,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
           onReadArticleClick={onReadArticleClick}
           className="justify-between mx-4"
         />
-      </Containter>
+      </Container>
       {children}
     </Card>
   );
