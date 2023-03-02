@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
+import { sticky } from 'tippy.js';
 import { BaseTooltip, BaseTooltipProps } from './BaseTooltip';
 import { Button } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
@@ -45,7 +46,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   const { sidebarExpanded } = useContext(SettingsContext);
 
   const tooltipArrowOffset: [number, number] = useMemo(() => {
-    return [(sidebarExpanded ? 8 : 3) * 16, 3 * 16];
+    return [(sidebarExpanded ? 7.5 : 2.5) * 16, 2 * 16];
   }, [sidebarExpanded]);
 
   const { mutateAsync: updateExtension, isLoading: isExtensionUpdating } =
@@ -198,8 +199,9 @@ function ChangelogTooltip<TRef extends HTMLElement>({
         roundedClassName: 'rounded-16',
         bgClassName: 'bg-cabbage-40',
         arrowClassName: classNames(
-          sidebarExpanded ? 'bottom-[7.95rem]' : 'bottom-[2.95rem]',
-          'bg-cabbage-40 !left-0 !h-2.5 !w-0 flex items-center justify-end before:!w-12 before:!h-px before:!transform-none',
+          sidebarExpanded ? 'bottom-[8.05rem]' : 'bottom-[3.05rem]',
+          sidebarExpanded ? 'before:!w-14' : 'before:!w-9',
+          'bg-cabbage-40 !left-0 !h-2.5 !w-0 flex items-center justify-end before:!w-14 before:!h-px before:!transform-none',
         ),
       }}
       reference={elementRef}
@@ -207,6 +209,8 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       placement="right-end"
       visible={!!post}
       zIndex={9}
+      sticky
+      plugins={[sticky]}
     />
   );
 }

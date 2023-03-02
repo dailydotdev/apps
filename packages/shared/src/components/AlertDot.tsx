@@ -28,17 +28,16 @@ const alertSizeMap: Record<AlertDotSize, string> = {
   [AlertDotSize.Small]: 'w-2.5 h-2.5',
 };
 
-export const AlertDot = forwardRef<HTMLElement, AlertDotProps>(
-  function AlertDot(
-    { color, className, size = AlertDotSize.Small, ...props }: AlertDotProps,
-    ref,
-  ): ReactElement {
-    return (
-      <Dot
-        ref={ref}
-        {...props}
-        className={classNames(color, alertSizeMap[size], className)}
-      />
-    );
-  },
-);
+export const AlertDot = function AlertDot({
+  color,
+  className,
+  size = AlertDotSize.Small,
+  ...props
+}: AlertDotProps): ReactElement {
+  return (
+    <Dot
+      {...props}
+      className={classNames(color, alertSizeMap[size], className)}
+    />
+  );
+};

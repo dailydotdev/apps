@@ -73,7 +73,10 @@ export function BaseTooltip(
       ref={ref}
       {...props}
       maxWidth=""
-      plugins={[lazyPlugin]}
+      plugins={[
+        lazyPlugin,
+        ...(Array.isArray(props.plugins) ? props.plugins : []),
+      ]}
       placement={placement}
       delay={delay}
       duration={duration}

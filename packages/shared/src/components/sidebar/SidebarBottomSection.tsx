@@ -30,7 +30,6 @@ export function SidebarBottomSectionSection({
   ...props
 }: SidebarBottomSectionProps): ReactElement {
   const changelog = useChangelog();
-  const changelogBadgeRef = useRef<HTMLElement>();
   const navItemRef = useRef<HTMLElement>();
   const { sidebarExpanded } = useContext(SettingsContext);
 
@@ -50,7 +49,6 @@ export function SidebarBottomSectionSection({
             <div className="h-2" data-testid="changelogBadge">
               <AlertDot
                 className={sidebarExpanded ? 'right-2' : 'right-1'}
-                ref={changelogBadgeRef}
                 color={AlertColor.Cabbage}
                 size={AlertDotSize.XSmall}
               />
@@ -76,7 +74,7 @@ export function SidebarBottomSectionSection({
       )}
       {changelog.isAvailable && (
         <ChangelogTooltip
-          elementRef={changelogBadgeRef}
+          elementRef={navItemRef}
           appendTo={() => navItemRef.current}
         />
       )}
