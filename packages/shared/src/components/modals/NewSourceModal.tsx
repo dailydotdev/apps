@@ -29,6 +29,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
 import Alert, { AlertType } from '../widgets/Alert';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
+import OpenLinkIcon from '../icons/OpenLink';
 
 interface RSS {
   url: string;
@@ -59,9 +60,14 @@ type ScrapeSourceResponse =
   | ScrapeSourceUnavailable;
 
 const getFeedLabel = (label: string, link: string) => (
-  <span className="flex justify-between">
+  <span className="flex justify-between items-center w-full">
     {label}
-    <Button className="btn-tertiary" tag="a" href={link} />
+    <Button
+      className="btn-tertiary"
+      tag="a"
+      href={link}
+      icon={<OpenLinkIcon />}
+    />
   </span>
 );
 
