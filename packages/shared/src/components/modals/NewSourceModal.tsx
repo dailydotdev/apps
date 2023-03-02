@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
@@ -52,6 +58,13 @@ type ScrapeSourceResponse =
   | ScrapeSourceRSS
   | ScrapeSourceUnavailable;
 
+const getFeedLabel = (label: string, link: string) => (
+  <span className="flex justify-between">
+    {label}
+    <Button className="btn-tertiary" tag="a" href={link} />
+  </span>
+);
+
 export default function NewSourceModal(props: ModalProps): ReactElement {
   const scrapeFormRef = useRef<HTMLFormElement>();
   const [enableSubmission, setEnableSubmission] = useState(false);
@@ -60,7 +73,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const [showNotification, setShowNotification] = useState(false);
   const { hasPermissionCache, isNotificationSupported } =
     useContext(NotificationsContext);
-  const [feeds, setFeeds] = useState<{ label: string; value: string }[]>();
+  const [feeds, setFeeds] = useState<{ label: ReactNode; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();
   const { user, loginState, showLogin } = useContext(AuthContext);
@@ -107,17 +120,16 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         setExistingSource(null);
       },
       onSuccess: (data) => {
-        if (data.type === 'website') {
-          if (!data.rss.length) {
-            setScrapeError('Could not find RSS feed');
-          } else {
-            setFeeds(
-              data.rss.map((feed) => ({ label: feed.title, value: feed.url })),
-            );
-          }
-        } else {
-          failedToScrape();
-        }
+        if (data.type !== 'website') return failedToScrape();
+
+        if (!data.rss.length) return setScrapeError('Could not find RSS feed');
+
+        return setFeeds(
+          data.rss.map((feed) => ({
+            label: getFeedLabel(feed.title, feed.url),
+            value: feed.url,
+          })),
+        );
       },
       onError: failedToScrape,
     },

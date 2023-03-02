@@ -1,9 +1,9 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { RadioItem } from './RadioItem';
 
 export interface RadioOption<T = string> {
-  label: string;
+  label: ReactNode;
   value: T;
   id?: string;
 }
