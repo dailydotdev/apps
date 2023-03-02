@@ -276,7 +276,10 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 options={feeds}
                 onChange={setSelectedFeed}
                 value={selectedFeed}
-                className="self-start"
+                className={{
+                  container: 'self-start w-full',
+                  content: 'w-full',
+                }}
               />
             </form>
           </>
