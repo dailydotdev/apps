@@ -39,24 +39,34 @@ const SliderControlButton = ({
   position: SliderControlPosition;
 }) => {
   return (
-    <div
-      className={classNames(
-        'absolute top-1/2 my-auto mx-0 -translate-y-1/2',
-        position === 'left' ? 'left-3' : 'right-3',
-      )}
-    >
-      <Button
-        className="w-12 h-12 btn-primary"
-        onClick={() => {
-          onClick();
-        }}
+    <>
+      <div
+        className={classNames(
+          'absolute my-auto mx-0 top-0 bottom-0 flex items-center w-24 opacity-64',
+          position === 'left'
+            ? 'bg-gradient-to-l from-transparent to-[black] rounded-l-16 left-0'
+            : 'bg-gradient-to-r to-[black] from-transparent rounded-r-16 right-0',
+        )}
+      />
+      <div
+        className={classNames(
+          'absolute top-1/2 my-auto mx-0 -translate-y-1/2',
+          position === 'left' ? 'left-2.5' : 'right-2.5',
+        )}
       >
-        <ArrowIcon
-          className={position === 'left' ? '-rotate-90' : 'rotate-90'}
-          size="xlarge"
-        />
-      </Button>
-    </div>
+        <Button
+          className="w-12 h-12 btn-primary"
+          onClick={() => {
+            onClick();
+          }}
+        >
+          <ArrowIcon
+            className={position === 'left' ? '-rotate-90' : 'rotate-90'}
+            size="xlarge"
+          />
+        </Button>
+      </div>
+    </>
   );
 };
 
@@ -104,7 +114,10 @@ function Slider<TSliderItem extends { id: string }>({
   const itemWidthWithGap = itemWidth + 1 * itemGapPx;
 
   return (
-    <div {...swipeable} className="relative">
+    <div
+      {...swipeable}
+      className="box-border relative p-4 -mx-4 bg-gradient-to-l from-cabbage-40 to-onion-40 rounded-16"
+    >
       <div className="overflow-hidden">
         <div
           className={classNames(
@@ -120,8 +133,12 @@ function Slider<TSliderItem extends { id: string }>({
           ))}
         </div>
       </div>
-      <SliderControlButton position="left" onClick={onSwipedRight} />
-      <SliderControlButton position="right" onClick={onSwipedLeft} />
+      {canSwipeRight(index, items) && (
+        <SliderControlButton position="left" onClick={onSwipedRight} />
+      )}
+      {canSwipeLeft(index, items) && (
+        <SliderControlButton position="right" onClick={onSwipedLeft} />
+      )}
     </div>
   );
 }
