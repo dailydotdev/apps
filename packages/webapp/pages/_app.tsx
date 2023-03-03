@@ -98,7 +98,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           content="initial-scale=1.0, width=device-width, viewport-fit=cover"
         />
         <meta name="theme-color" content="#151618" />
-        <meta name="msapplication-navbutton-color" content="#151618" />
+        <meta name="msapplication-nav" content="#151618" />
         <meta name="apple-mobile-web-app-status-bar-style" content="#151618" />
 
         <meta name="application-name" content="daily.dev" />

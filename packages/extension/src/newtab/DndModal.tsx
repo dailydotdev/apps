@@ -68,7 +68,7 @@ export default function DndModal({
               valueChanged={(text) => setLink(text)}
             />
             <Radio
-              className="mt-8"
+              className={{ container: 'mt-8' }}
               name="timeOff"
               value={dndTime}
               options={timeFormatOptions}
