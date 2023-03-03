@@ -45,7 +45,7 @@
     color: var(--theme-label-primary);
   }
 
-  &.bg-theme-color-cabbage, &.btn-primary-cabbage {
+  &.bg-theme-color-cabbage {
     color: #FFFFFF;
   }
 

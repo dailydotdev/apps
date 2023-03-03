@@ -7,7 +7,10 @@ const variations = {
   primary: (color) => ({
     darkStates: {
       default: {
-        color: 'var(--theme-label-invert)',
+        color:
+          color && colors[color]?.darkLabel
+            ? colors[color].darkLabel
+            : 'var(--theme-label-invert)',
         background: color ? colors[color]['40'] : '#FFFFFF',
         'border-color': 'transparent',
       },
@@ -33,6 +36,10 @@ const variations = {
     },
     lightStates: {
       default: {
+        color:
+          color && colors[color]?.lightLabel
+            ? colors[color].lightLabel
+            : undefined,
         background: color ? colors[color]['60'] : colors.pepper['90'],
       },
       hover: {
