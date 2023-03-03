@@ -421,6 +421,7 @@ export default function Feed<T>({
       >
         {showPersonalDigest && (
           <Slider
+            className="mb-12"
             // TODO WT-1109-personal-digest items from API
             items={items
               .slice(2, 8)

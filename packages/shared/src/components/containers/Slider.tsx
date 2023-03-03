@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, {
   FunctionComponent,
+  HTMLAttributes,
   ReactElement,
   useContext,
   useState,
@@ -17,7 +18,8 @@ type SliderCanSwipeFn = <TSliderItem extends { id: string }>(
   items: TSliderItem[],
 ) => boolean;
 
-interface SliderProps<TSliderItem extends { id: string }> {
+interface SliderProps<TSliderItem extends { id: string }>
+  extends HTMLAttributes<HTMLDivElement> {
   items: TSliderItem[];
   itemWidth: number;
   Item: FunctionComponent<TSliderItem>;
@@ -77,6 +79,7 @@ const SliderControlButton = ({
 };
 
 function Slider<TSliderItem extends { id: string }>({
+  className,
   items,
   itemWidth,
   Item,
@@ -131,9 +134,12 @@ function Slider<TSliderItem extends { id: string }>({
   const itemWidthWithGap = itemWidth + 1 * itemGapPx;
 
   return (
-    <div
+    <section
       {...swipeable}
-      className="box-border relative p-4 -mx-4 bg-gradient-to-l from-cabbage-40 to-onion-40 rounded-16"
+      className={classNames(
+        'box-border relative p-4 -mx-4 bg-gradient-to-l from-cabbage-40 to-onion-40 rounded-16',
+        className,
+      )}
     >
       <div className="overflow-hidden">
         <div
@@ -156,7 +162,7 @@ function Slider<TSliderItem extends { id: string }>({
       {canSlideLeft(index, items) && (
         <SliderControlButton position="right" onClick={onSwipedLeft} />
       )}
-    </div>
+    </section>
   );
 }
 
