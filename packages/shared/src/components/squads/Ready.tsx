@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useRef } from 'react';
 import { Modal } from '../modals/common/Modal';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import LinkIcon from '../icons/Link';
 import { Squad } from '../../graphql/squads';
 import SquadReadySvg from '../../svg/SquadReady';

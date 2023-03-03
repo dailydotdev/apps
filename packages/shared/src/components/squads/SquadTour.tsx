@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';

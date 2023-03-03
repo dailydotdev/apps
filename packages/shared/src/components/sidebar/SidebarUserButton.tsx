@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfilePicture } from '../ProfilePicture';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import useProfileMenu from '../../hooks/useProfileMenu';
 import AuthContext from '../../contexts/AuthContext';
 import SettingsIcon from '../icons/Settings';

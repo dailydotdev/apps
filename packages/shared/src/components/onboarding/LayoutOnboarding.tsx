@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import SettingsContext from '../../contexts/SettingsContext';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import { CustomSwitch } from '../fields/CustomSwitch';
 import CardLayout from '../icons/CardLayout';
 import { Modal } from '../modals/common/Modal';

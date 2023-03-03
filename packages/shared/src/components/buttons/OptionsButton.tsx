@@ -20,7 +20,7 @@ const OptionsButton = ({
     <Button
       {...props}
       className={classNames('my-auto btn-tertiary', className)}
-      icon={<MenuIcon size={IconSize.Small} />}
+      icon={<MenuIcon />}
       buttonSize={buttonSize}
     />
   </SimpleTooltip>

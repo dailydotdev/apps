@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { MenuItem } from '../filters/common';
 

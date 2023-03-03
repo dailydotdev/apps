@@ -2,7 +2,7 @@ import React, { ReactElement, MouseEvent, useState, useRef } from 'react';
 import { Radio } from '../fields/Radio';
 import { Post } from '../../graphql/posts';
 import { Checkbox } from '../fields/Checkbox';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import { PostBootData } from '../../lib/boot';
 import { Modal, ModalProps } from './common/Modal';
 

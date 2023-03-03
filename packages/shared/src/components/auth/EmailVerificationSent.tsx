@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import EmailSentIcon from '../../../icons/mail_sent.svg';
 import useTimer from '../../hooks/useTimer';
 import {

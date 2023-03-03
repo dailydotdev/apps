@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import SettingsContext, { themes } from '../../contexts/SettingsContext';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
 import ThemeWidget from '../widgets/ThemeWidget';

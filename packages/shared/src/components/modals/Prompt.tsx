@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { usePrompt } from '../../hooks/usePrompt';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import classed from '../../lib/classed';
 import { Modal, ModalProps } from './common/Modal';
 

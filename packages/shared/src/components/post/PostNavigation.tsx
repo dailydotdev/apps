@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../icons/Arrow';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';

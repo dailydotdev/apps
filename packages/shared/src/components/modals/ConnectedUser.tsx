@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useQuery } from 'react-query';
 import { getKratosProviders } from '../../lib/kratos';
 import { capitalize } from '../../lib/strings';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 
 export interface ConnectedUser {
