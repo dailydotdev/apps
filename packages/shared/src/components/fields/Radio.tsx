@@ -1,11 +1,16 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { RadioItem } from './RadioItem';
 
 export interface RadioOption<T = string> {
-  label: string;
+  label: ReactNode;
   value: T;
   id?: string;
+}
+
+interface ClassName {
+  container?: string;
+  content?: string;
 }
 
 export type RadioProps = {
@@ -13,7 +18,7 @@ export type RadioProps = {
   options: RadioOption[];
   value?: string;
   onChange: (value: string) => unknown;
-  className?: string;
+  className?: ClassName;
 };
 
 export function Radio({
@@ -21,10 +26,15 @@ export function Radio({
   options,
   value,
   onChange,
-  className,
+  className = {},
 }: RadioProps): ReactElement {
   return (
-    <div className={classNames('flex flex-col -my-0.5 items-start', className)}>
+    <div
+      className={classNames(
+        'flex flex-col -my-0.5 items-start',
+        className.container,
+      )}
+    >
       {options.map((option) => (
         <RadioItem
           key={option.value}
@@ -33,7 +43,7 @@ export function Radio({
           value={option.value}
           checked={value === option.value}
           onChange={() => onChange(option.value)}
-          className="my-0.5 truncate"
+          className={classNames('my-0.5 truncate', className.content)}
         >
           {option.label}
         </RadioItem>

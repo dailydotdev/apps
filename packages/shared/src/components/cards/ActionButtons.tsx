@@ -10,9 +10,9 @@ import CommentIcon from '../icons/Discuss';
 import { Button, ButtonProps } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import OptionsButton from '../buttons/OptionsButton';
-import classed from '../../lib/classed';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -32,16 +32,6 @@ export interface ActionButtonsProps {
   insaneMode?: boolean;
   openNewTab?: boolean;
 }
-
-const getContainer = (displayWhenHovered = false, className?: string) =>
-  classed(
-    'div',
-    classNames(
-      'flex justify-between',
-      displayWhenHovered && visibleOnGroupHover,
-      className,
-    ),
-  );
 
 type LastActionButtonProps = {
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
@@ -78,10 +68,6 @@ export default function ActionButtons({
   children,
   insaneMode,
 }: ActionButtonsProps): ReactElement {
-  const LeftContainer = insaneMode ? getContainer() : React.Fragment;
-  const RightContainer = insaneMode
-    ? getContainer(true, 'ml-auto')
-    : React.Fragment;
   const upvoteCommentProps: ButtonProps<'button'> = {
     buttonSize: 'small',
   };
@@ -102,7 +88,12 @@ export default function ActionButtons({
         className,
       )}
     >
-      <LeftContainer>
+      <ConditionalWrapper
+        condition={insaneMode}
+        wrapper={(leftChildren) => (
+          <div className="flex justify-between">{leftChildren}</div>
+        )}
+      >
         <SimpleTooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
           <QuaternaryButton
             id={`post-${post.id}-upvote-btn`}
@@ -132,12 +123,21 @@ export default function ActionButtons({
           </QuaternaryButton>
         </SimpleTooltip>
         {insaneMode && lastActionButton}
-      </LeftContainer>
-      <RightContainer>
+      </ConditionalWrapper>
+      <ConditionalWrapper
+        condition={insaneMode}
+        wrapper={(rightChildren) => (
+          <div
+            className={classNames('flex justify-between', visibleOnGroupHover)}
+          >
+            {rightChildren}
+          </div>
+        )}
+      >
         {insaneMode && (
           <ReadArticleButton
+            className="mr-2 btn-primary"
             href={post.permalink}
-            className="btn-tertiary"
             onClick={onReadArticleClick}
             openNewTab={openNewTab}
           />
@@ -151,7 +151,7 @@ export default function ActionButtons({
           />
         )}
         {children}
-      </RightContainer>
+      </ConditionalWrapper>
     </div>
   );
 }

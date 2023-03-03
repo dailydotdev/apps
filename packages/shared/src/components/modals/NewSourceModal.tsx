@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
@@ -23,6 +29,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
 import Alert, { AlertType } from '../widgets/Alert';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
+import OpenLinkIcon from '../icons/OpenLink';
 
 interface RSS {
   url: string;
@@ -52,6 +59,19 @@ type ScrapeSourceResponse =
   | ScrapeSourceRSS
   | ScrapeSourceUnavailable;
 
+const getFeedLabel = (label: string, link: string) => (
+  <span className="flex flex-1 justify-between items-center w-full">
+    {label}
+    <Button
+      className="btn-tertiary"
+      tag="a"
+      target="_blank"
+      href={link}
+      icon={<OpenLinkIcon />}
+    />
+  </span>
+);
+
 export default function NewSourceModal(props: ModalProps): ReactElement {
   const scrapeFormRef = useRef<HTMLFormElement>();
   const [enableSubmission, setEnableSubmission] = useState(false);
@@ -60,7 +80,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const [showNotification, setShowNotification] = useState(false);
   const { hasPermissionCache, isNotificationSupported } =
     useContext(NotificationsContext);
-  const [feeds, setFeeds] = useState<{ label: string; value: string }[]>();
+  const [feeds, setFeeds] = useState<{ label: ReactNode; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();
   const { user, loginState, showLogin } = useContext(AuthContext);
@@ -107,17 +127,16 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         setExistingSource(null);
       },
       onSuccess: (data) => {
-        if (data.type === 'website') {
-          if (!data.rss.length) {
-            setScrapeError('Could not find RSS feed');
-          } else {
-            setFeeds(
-              data.rss.map((feed) => ({ label: feed.title, value: feed.url })),
-            );
-          }
-        } else {
-          failedToScrape();
-        }
+        if (data.type !== 'website') return failedToScrape();
+
+        if (!data.rss.length) return setScrapeError('Could not find RSS feed');
+
+        return setFeeds(
+          data.rss.map((feed) => ({
+            label: getFeedLabel(feed.title, feed.url),
+            value: feed.url,
+          })),
+        );
       },
       onError: failedToScrape,
     },
@@ -258,7 +277,10 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 options={feeds}
                 onChange={setSelectedFeed}
                 value={selectedFeed}
-                className="self-start"
+                className={{
+                  container: 'self-start w-full',
+                  content: 'w-full pr-0',
+                }}
               />
             </form>
           </>

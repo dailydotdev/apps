@@ -46,6 +46,7 @@ export interface NewCommentModalProps extends ModalProps, CommentProps {
   editContent?: string;
   editId?: string;
   onInputChange?: (value: string) => void;
+  replyTo?: string;
 }
 
 enum CommentTabs {
@@ -70,9 +71,11 @@ export default function NewCommentModal({
   editId,
   onComment,
   onInputChange,
+  replyTo,
+  editContent,
   ...props
 }: NewCommentModalProps): ReactElement {
-  const [input, setInput] = useState<string>(props.editContent || '');
+  const [input, setInput] = useState<string>(editContent || replyTo);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const { showPrompt } = usePrompt();
@@ -92,8 +95,8 @@ export default function NewCommentModal({
 
   const confirmClose = async (event: MouseEvent): Promise<void> => {
     if (
-      ((!props.editContent && input?.length) ||
-        (props.editContent && props.editContent !== input)) &&
+      ((!editContent && input?.length) ||
+        (editContent && editContent !== input)) &&
       !(await showPrompt(promptOptions))
     ) {
       return;
@@ -181,6 +184,7 @@ export default function NewCommentModal({
       {editId ? 'Update' : 'Post'}
     </Button>
   );
+
   return (
     <Modal
       contentRef={modalRef}
@@ -196,6 +200,7 @@ export default function NewCommentModal({
       <Modal.Body view={CommentTabs.Write}>
         <CommentBox
           {...props}
+          editContent={editContent}
           useUserMentionOptions={useUserMentionOptions}
           onInput={setInput}
           input={input}

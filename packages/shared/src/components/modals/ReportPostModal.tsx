@@ -49,7 +49,7 @@ export default function RepostPostModal({
           &quot;{post?.title}&quot;
         </p>
         <Radio
-          className="mt-2 mb-4"
+          className={{ container: 'mt-2 mb-4' }}
           name="report_reason"
           options={reportReasons}
           value={reason}
