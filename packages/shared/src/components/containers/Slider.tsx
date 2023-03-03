@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { SwipeEventData, useSwipeable } from 'react-swipeable';
+import { ConfigurationOptions } from 'react-swipeable/dist/types';
 import SettingsContext from '../../contexts/SettingsContext';
 import { gridGaps, gapClass } from '../../lib/feed';
 import { Button } from '../buttons/Button';
@@ -23,6 +24,7 @@ interface SliderProps<TSliderItem extends { id: string }> {
   canSlideRight?: SliderCanSwipeFn;
   canSlideLeft?: SliderCanSwipeFn;
   swipeEnabled?: boolean;
+  swipeableConfig?: ConfigurationOptions;
 }
 
 const defaultCanSlideRight: SliderCanSwipeFn = (index) => index > 0;
@@ -78,6 +80,7 @@ function Slider<TSliderItem extends { id: string }>({
   canSlideRight = defaultCanSlideRight,
   canSlideLeft = defaultCanSlideLeft,
   swipeEnabled = true,
+  swipeableConfig,
 }: SliderProps<TSliderItem>): ReactElement {
   const [index, setIndex] = useState(0);
   const { spaciness } = useContext(SettingsContext);
@@ -115,6 +118,7 @@ function Slider<TSliderItem extends { id: string }>({
   };
 
   const swipeable = useSwipeable({
+    ...swipeableConfig,
     onSwipedRight,
     onSwipedLeft,
     trackMouse: true,
