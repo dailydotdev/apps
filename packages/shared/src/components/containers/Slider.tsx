@@ -20,13 +20,14 @@ interface SliderProps<TSliderItem extends { id: string }> {
   items: TSliderItem[];
   itemWidth: number;
   Item: FunctionComponent<TSliderItem>;
-  canSwipeRight?: SliderCanSwipeFn;
-  canSwipeLeft?: SliderCanSwipeFn;
+  canSlideRight?: SliderCanSwipeFn;
+  canSlideLeft?: SliderCanSwipeFn;
+  swipeEnabled?: boolean;
 }
 
-const defaultCanSwipeRight: SliderCanSwipeFn = (index) => index > 0;
+const defaultCanSlideRight: SliderCanSwipeFn = (index) => index > 0;
 
-const defaultCanSwipeLeft: SliderCanSwipeFn = (index, items) =>
+const defaultCanSlideLeft: SliderCanSwipeFn = (index, items) =>
   index < items.length;
 
 type SliderControlPosition = 'left' | 'right';
@@ -74,8 +75,9 @@ function Slider<TSliderItem extends { id: string }>({
   items,
   itemWidth,
   Item,
-  canSwipeRight = defaultCanSwipeRight,
-  canSwipeLeft = defaultCanSwipeLeft,
+  canSlideRight = defaultCanSlideRight,
+  canSlideLeft = defaultCanSlideLeft,
+  swipeEnabled = true,
 }: SliderProps<TSliderItem>): ReactElement {
   const [index, setIndex] = useState(0);
   const { spaciness } = useContext(SettingsContext);
@@ -83,8 +85,12 @@ function Slider<TSliderItem extends { id: string }>({
   const onSwipedRight = (swipeEvent?: SwipeEventData) => {
     swipeEvent?.event.stopPropagation();
 
+    if (swipeEvent && !swipeEnabled) {
+      return;
+    }
+
     setIndex((current) => {
-      if (canSwipeRight(current, items)) {
+      if (canSlideRight(current, items)) {
         return current - 1;
       }
 
@@ -95,8 +101,12 @@ function Slider<TSliderItem extends { id: string }>({
   const onSwipedLeft = (swipeEvent?: SwipeEventData) => {
     swipeEvent?.event.stopPropagation();
 
+    if (swipeEvent && !swipeEnabled) {
+      return;
+    }
+
     setIndex((current) => {
-      if (canSwipeLeft(current, items)) {
+      if (canSlideLeft(current, items)) {
         return current + 1;
       }
 
@@ -133,10 +143,10 @@ function Slider<TSliderItem extends { id: string }>({
           ))}
         </div>
       </div>
-      {canSwipeRight(index, items) && (
+      {canSlideRight(index, items) && (
         <SliderControlButton position="left" onClick={onSwipedRight} />
       )}
-      {canSwipeLeft(index, items) && (
+      {canSlideLeft(index, items) && (
         <SliderControlButton position="right" onClick={onSwipedLeft} />
       )}
     </div>

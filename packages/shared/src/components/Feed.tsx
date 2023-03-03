@@ -55,6 +55,7 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import { MainFeedPage } from './utilities';
 import Slider from './containers/Slider';
 import { ArticlePostCard } from './cards/ArticlePostCard';
+import useMedia from '../hooks/useMedia';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -392,6 +393,12 @@ export default function Feed<T>({
     );
   };
 
+  const isScrollableBreakpoint = useMedia(
+    ['(min-width: 600px) and (max-width: 1024px)'],
+    [true],
+    false,
+  );
+
   return (
     <div
       className={classNames(
@@ -421,7 +428,7 @@ export default function Feed<T>({
               .map((item) => item.type === 'post' && item.post)}
             itemWidth={320}
             Item={DigestPostItem}
-            canSwipeLeft={(index, sliderItems) => {
+            canSlideLeft={(index, sliderItems) => {
               const visibleItems = numCards;
               const swipeableItems =
                 visibleItems > sliderItems.length
@@ -430,6 +437,7 @@ export default function Feed<T>({
 
               return index < swipeableItems;
             }}
+            swipeEnabled={isScrollableBreakpoint}
           />
         )}
         <ScrollToTopButton />
