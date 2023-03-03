@@ -4,7 +4,6 @@ import { AllowedTags, Button, ButtonProps, ButtonSize } from './Button';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
-import { IconSize } from '../Icon';
 
 type OptionsButtonProps = ButtonProps<AllowedTags> & {
   tooltipPlacement?: TooltipPosition;
