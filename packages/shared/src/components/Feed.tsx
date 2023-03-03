@@ -382,7 +382,7 @@ export default function Feed<T>({
   const ArticleModal = PostModalMap[selectedPost?.type];
 
   // TODO WT-1109-personal-digest proper condition, from API
-  const showPersonalDigest = feedName === MainFeedPage.MyFeed;
+  const showPersonalDigest = feedName === MainFeedPage.Popular;
 
   // TODO WT-1109-personal-digest move to proper component
   const DigestPostItem = (props: Post) => {
