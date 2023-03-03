@@ -58,8 +58,8 @@ const SliderControlButton = ({
       />
       <div
         className={classNames(
-          'absolute top-1/2 my-auto mx-0 -translate-y-1/2',
-          position === 'left' ? 'left-2.5' : 'right-2.5',
+          'absolute top-1/2 my-auto mx-0 -translate-y-1/2 p-2.5',
+          position === 'left' ? 'left-0' : 'right-0',
         )}
       >
         <Button
