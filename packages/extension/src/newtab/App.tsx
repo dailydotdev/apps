@@ -30,6 +30,7 @@ import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -42,7 +43,7 @@ import {
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
-const queryClient = new QueryClient();
+const queryClient = new QueryClient(defaultQueryClientConfig);
 const AuthModal = dynamic(
   () =>
     import(
