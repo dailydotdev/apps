@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import SquadsBackgroundSvg from '../../svg/SquadsBackground';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
 

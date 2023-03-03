@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import FilterIcon from '../icons/Filter';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import AlertPointer, { AlertPlacement } from '../alert/AlertPointer';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';

@@ -25,8 +25,8 @@ const ContentContainer = classed(
 );
 
 const baseContentClass = 'transform transition-transform text-base';
-const unselectedContentClass = 'text-theme-label-tertiary scale-125';
-const selectedContentClass = 'scale-150';
+const unselectedContentClass = 'text-theme-label-tertiary';
+const selectedContentClass = 'scale-125';
 
 export function CustomSwitch({
   className,

@@ -15,7 +15,7 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import { Origin } from '../../lib/analytics';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { OnboardingStep } from './common';
 import { ModalPropsContext } from '../modals/common/types';

@@ -5,7 +5,7 @@ import React, {
   useContext,
   useImperativeHandle,
 } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import CopyIcon from '../icons/Copy';
 import { useCopyLink } from '../../hooks/useCopyLink';

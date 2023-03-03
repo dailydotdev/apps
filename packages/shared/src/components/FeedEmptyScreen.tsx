@@ -8,6 +8,7 @@ import {
 } from './EmptyScreen';
 import FilterIcon from './icons/Filter';
 import { PageContainer } from './utilities';
+import { ButtonSize } from './buttons/Button';
 
 interface FeedEmptyScreenProps {
   openFeedFilters: () => unknown;
@@ -30,7 +31,10 @@ function FeedEmptyScreen({
             We couldn&apos;t fetch enough posts based on your selected tags. Try
             adding more tags using the feed settings.
           </EmptyScreenDescription>
-          <EmptyScreenButton onClick={openFeedFilters} buttonSize="large">
+          <EmptyScreenButton
+            onClick={openFeedFilters}
+            buttonSize={ButtonSize.Large}
+          >
             Feed filters
           </EmptyScreenButton>
         </EmptyScreenContainer>

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { CloseModalFunc } from '../modals/common';
 import { Modal } from '../modals/common/Modal';

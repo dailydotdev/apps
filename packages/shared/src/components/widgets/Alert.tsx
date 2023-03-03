@@ -4,6 +4,7 @@ import FeedbackIcon from '../icons/Feedback/index';
 import AlertIcon from '../icons/Alert';
 import CheckIcon from '../icons/V';
 import classed from '../../lib/classed';
+import { IconSize } from '../Icon';
 
 type AlertPropObject<T> = Record<AlertType, T>;
 
@@ -58,7 +59,10 @@ function Alert({
       )}
     >
       <span className="flex flex-row items-center">
-        <Icon size="medium" className={classNames('mr-2', fontColor[type])} />
+        <Icon
+          size={IconSize.Small}
+          className={classNames('mr-2', fontColor[type])}
+        />
         <span
           className={classNames(
             'typo-callout flex flex-1',

@@ -7,6 +7,7 @@ import {
   ModalProps,
 } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
 
@@ -52,14 +53,19 @@ export default function CustomLinksModal({
             <CardSelection
               title="My shortcuts"
               description="Curate your own shortcuts manually"
-              icon={<UserIcon size="xlarge" secondary={isManual} />}
+              icon={<UserIcon size={IconSize.Large} secondary={isManual} />}
               isActive={isManual}
               onClick={onShowCustomLinks}
             />
             <CardSelection
               title="Most visited sites"
               description="Shortcuts are imported from your browser"
-              icon={<SitesIcon size="xlarge" secondary={isManual === false} />}
+              icon={
+                <SitesIcon
+                  size={IconSize.Large}
+                  secondary={isManual === false}
+                />
+              }
               isActive={isManual === false}
               onClick={onShowTopSitesClick}
             />

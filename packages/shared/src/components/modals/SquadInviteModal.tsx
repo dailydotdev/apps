@@ -1,6 +1,6 @@
 import React, { ReactElement, useRef } from 'react';
 import { useQuery } from 'react-query';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';

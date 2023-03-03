@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';

@@ -6,7 +6,7 @@ import { PostItem } from '../../graphql/posts';
 import XIcon from '../icons/Close';
 import MenuIcon from '../icons/Menu';
 import classed from '../../lib/classed';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import PostMetadata from '../cards/PostMetadata';
 import { ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
@@ -82,7 +82,7 @@ export default function PostItemCard({
         </div>
         {showButtons && onHide && (
           <Button
-            buttonSize="small"
+            buttonSize={ButtonSize.Small}
             className="hidden laptop:flex btn-tertiary"
             icon={<XIcon />}
             onClick={onHideClick}
@@ -97,7 +97,7 @@ export default function PostItemCard({
               event.stopPropagation();
               onContextMenu(event, postItem);
             }}
-            buttonSize="small"
+            buttonSize={ButtonSize.Small}
           />
         )}
       </article>

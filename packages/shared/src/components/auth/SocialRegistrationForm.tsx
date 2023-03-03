@@ -29,6 +29,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
+import { IconSize } from '../Icon';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -125,7 +126,7 @@ export const SocialRegistrationForm = ({
       });
     }
 
-    return <MailIcon size="medium" />;
+    return <MailIcon size={IconSize.Small} />;
   };
 
   if (!user?.email) {
@@ -166,7 +167,7 @@ export const SocialRegistrationForm = ({
         <TextField
           saveHintSpace
           className={{ container: 'w-full' }}
-          leftIcon={<UserIcon size="medium" />}
+          leftIcon={<UserIcon size={IconSize.Small} />}
           name="name"
           inputId="name"
           label="Full name"
@@ -185,7 +186,7 @@ export const SocialRegistrationForm = ({
         <TextField
           saveHintSpace
           className={{ container: 'w-full' }}
-          leftIcon={<AtIcon size="medium" secondary />}
+          leftIcon={<AtIcon size={IconSize.Small} secondary />}
           name="username"
           inputId="username"
           label="Enter a username"

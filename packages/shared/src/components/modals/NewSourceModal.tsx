@@ -8,7 +8,7 @@ import React, {
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { FormEvent, ReactElement, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthModalText } from './common';
 import {

@@ -41,7 +41,6 @@ function CompanionToggle({
         container={tooltipContainerProps}
       >
         <Button
-          buttonSize="medium"
           className={classNames(
             companionState
               ? 'btn-secondary'

@@ -16,7 +16,7 @@ import {
   EmptyMessage,
 } from './common';
 import { ownershipGuide } from '../../lib/constants';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import ActivitySection from './ActivitySection';
 import { smallPostImage } from '../../lib/image';
 import EyeIcon from '../icons/Eye';

@@ -2,8 +2,14 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '../icons/Plus';
 import BlockIcon from '../icons/Block';
-import { AllowedTags, Button, ButtonProps } from '../buttons/Button';
+import {
+  AllowedTags,
+  Button,
+  ButtonProps,
+  ButtonSize,
+} from '../buttons/Button';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
+import { IconSize } from '../Icon';
 
 const GenericTagButton = ({
   tag,
@@ -19,6 +25,7 @@ const GenericTagButton = ({
 }) => (
   <Button
     {...props}
+    buttonSize={ButtonSize.Small}
     className={classNames('font-bold typo-callout', className)}
     onClick={action}
     rightIcon={action ? icon : null}
@@ -59,7 +66,12 @@ const UnfollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-primary', className)}
-    icon={<PlusIcon className="ml-2 transition-transform rotate-45" />}
+    icon={
+      <PlusIcon
+        size={IconSize.XSmall}
+        className="ml-2 transition-transform rotate-45"
+      />
+    }
     action={action}
     tag={tag}
   />
@@ -78,7 +90,12 @@ const FollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-tag', className)}
-    icon={<PlusIcon className="ml-2 transition-transform rotate-0" />}
+    icon={
+      <PlusIcon
+        size={IconSize.XSmall}
+        className="ml-2 transition-transform rotate-0"
+      />
+    }
     action={action}
     tag={tag}
   />

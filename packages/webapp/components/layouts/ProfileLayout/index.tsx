@@ -43,6 +43,7 @@ import classNames from 'classnames';
 import DOMPurify from 'dompurify';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -150,7 +151,7 @@ export default function ProfileLayout({
           )}
         >
           <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
-            <ProfilePicture user={profile} size="xxxlarge" />
+            <ProfilePicture user={profile} size={IconSize.XXLarge} />
             <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
               <a
                 href={reputationGuide}

@@ -1,9 +1,13 @@
 import React, { ReactElement } from 'react';
 import { cookiePolicy } from '@dailydotdev/shared/src/lib/constants';
 import CookieIcon from '@dailydotdev/shared/src/components/icons/Cookie';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
 import classNames from 'classnames';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import styles from './CookieBanner.module.css';
 
 export interface CookieBannerProps {
@@ -26,7 +30,7 @@ export default function CookieBanner({
     >
       <ModalCloseButton onClick={close} />
       <CookieIcon
-        size="xxxlarge"
+        size={IconSize.XXLarge}
         className="hidden laptop:block mb-4 text-theme-label-primary"
       />
       <div>
@@ -45,7 +49,7 @@ export default function CookieBanner({
       <Button
         onClick={close}
         className="self-start laptop:self-stretch mt-4 btn-primary"
-        buttonSize="small"
+        buttonSize={ButtonSize.Small}
       >
         I like cookies
       </Button>

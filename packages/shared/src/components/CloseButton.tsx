@@ -1,12 +1,17 @@
 import classNames from 'classnames';
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import { Button, StyledButtonProps, ButtonProps } from './buttons/Button';
+import {
+  Button,
+  StyledButtonProps,
+  ButtonProps,
+  ButtonSize,
+} from './buttons/Button';
 import CloseIcon from './icons/Close';
 
 type CloseButtonProps = StyledButtonProps & ButtonProps<'button'>;
 
 function CloseButtonComponent(
-  { className, buttonSize = 'small', ...props }: CloseButtonProps,
+  { className, buttonSize = ButtonSize.Medium, ...props }: CloseButtonProps,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
   return (

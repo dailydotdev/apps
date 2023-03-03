@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import PostItemCard from '../post/PostItemCard';
 import { Post } from '../../graphql/posts';
 import CopyIcon from '../icons/Copy';

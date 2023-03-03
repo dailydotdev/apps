@@ -192,7 +192,6 @@ export default function CompanionMenu({
         container={tooltipContainerProps}
       >
         <Button
-          buttonSize="medium"
           icon={<UpvoteIcon secondary={post?.upvoted} />}
           pressed={post?.upvoted}
           onClick={toggleUpvote}
@@ -206,7 +205,6 @@ export default function CompanionMenu({
         container={tooltipContainerProps}
       >
         <Button
-          buttonSize="medium"
           className="btn-tertiary-blueCheese"
           pressed={post?.commented}
           icon={<CommentIcon />}
@@ -220,7 +218,6 @@ export default function CompanionMenu({
         container={tooltipContainerProps}
       >
         <Button
-          buttonSize="medium"
           className="btn-tertiary-cabbage"
           onClick={onShare}
           icon={<ShareIcon />}
@@ -233,7 +230,6 @@ export default function CompanionMenu({
         container={tooltipContainerProps}
       >
         <Button
-          buttonSize="medium"
           className="btn-tertiary"
           icon={<MenuIcon />}
           onClick={onContextOptions}

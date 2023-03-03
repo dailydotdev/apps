@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
 import { Justify } from '../utilities';

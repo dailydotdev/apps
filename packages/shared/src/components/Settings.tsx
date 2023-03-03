@@ -20,6 +20,7 @@ import AuthContext from '../contexts/AuthContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { AuthTriggers } from '../lib/auth';
+import { IconSize } from './Icon';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -116,7 +117,9 @@ export default function Settings({
         <CustomSwitch
           inputId="layout-switch"
           name="insaneMode"
-          leftContent={<CardIcon secondary={!insaneMode} />}
+          leftContent={
+            <CardIcon size={IconSize.XSmall} secondary={!insaneMode} />
+          }
           rightContent={<LineIcon secondary={insaneMode} />}
           checked={insaneMode}
           className="mx-1.5"

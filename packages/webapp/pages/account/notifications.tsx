@@ -16,6 +16,7 @@ import {
   NotificationCategory,
   NotificationChannel,
 } from '@dailydotdev/shared/src/lib/analytics';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -141,7 +142,7 @@ const AccountNotificationsPage = (): ReactElement => {
               alt="A sample browser notification"
             />
             <CloseButton
-              buttonSize="xsmall"
+              buttonSize={ButtonSize.XSmall}
               className="ml-auto laptopL:ml-32"
               onClick={() => onShouldShowSettingsAlert(false)}
             />

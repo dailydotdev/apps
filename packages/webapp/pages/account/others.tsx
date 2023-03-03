@@ -8,6 +8,7 @@ import {
 } from '@dailydotdev/shared/src/lib/timezones';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import React, { ReactElement, useContext, useState } from 'react';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -45,7 +46,7 @@ const AccountOthersPage = (): ReactElement => {
       >
         <Dropdown
           icon={<Icon />}
-          buttonSize="large"
+          buttonSize={ButtonSize.Large}
           className={{ container: 'mt-6 w-70', menu: 'menu-secondary' }}
           selectedIndex={timeZoneOptions.findIndex(
             (timeZone) => timeZone.value === userTimeZone,

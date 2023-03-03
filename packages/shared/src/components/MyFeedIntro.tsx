@@ -2,6 +2,7 @@ import React, { HTMLAttributes, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import UserIcon from './icons/User';
 import classed from '../lib/classed';
+import { IconSize } from './Icon';
 
 const tagsRows = [
   ['', '#docker', '', '#kubernetes', ''],
@@ -37,7 +38,7 @@ const TagPill = ({
 export const MyFeedIntro = (): ReactElement => {
   return (
     <div className="flex overflow-hidden absolute flex-col justify-center items-center p-6 mobileL:px-10 w-full h-full">
-      <UserIcon size="xxxxlarge" />
+      <UserIcon size={IconSize.XXXLarge} />
       <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
       <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
         Devs with a personal feed get 11.5x more relevant posts

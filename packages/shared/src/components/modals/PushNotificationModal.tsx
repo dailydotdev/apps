@@ -9,7 +9,7 @@ import {
 } from '../../hooks/useNotificationPermissionPopup';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import { cloudinary } from '../../lib/image';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 

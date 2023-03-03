@@ -4,6 +4,7 @@ import { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
 import FeatherIcon from '../icons/Feather';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { IconSize } from '../Icon';
 
 export interface CommentAuthorProps {
   postAuthorId: string | null;
@@ -30,7 +31,7 @@ export default function CommentAuthor({
         {author.name}
         {author.id === postAuthorId && (
           <span className="flex items-center ml-2 text-theme-status-help typo-footnote">
-            <FeatherIcon secondary className="mx-0.5" size="small" />
+            <FeatherIcon secondary className="mx-0.5" size={IconSize.XSmall} />
             Author
           </span>
         )}

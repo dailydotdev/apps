@@ -8,7 +8,7 @@ import {
   SET_KEYWORD_AS_SYNONYM_MUTATION,
 } from '../../graphql/keywords';
 import { graphqlUrl } from '../../lib/config';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
 
 export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;

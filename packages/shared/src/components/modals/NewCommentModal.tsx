@@ -11,7 +11,7 @@ import {
 import { graphqlUrl } from '../../lib/config';
 import Markdown from '../Markdown';
 import CommentBox, { CommentBoxProps } from './CommentBox';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { Post } from '../../graphql/posts';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { Modal, ModalProps } from './common/Modal';
@@ -217,7 +217,7 @@ export default function NewCommentModal({
       <Modal.Footer justify={Justify.Between} view={CommentTabs.Write}>
         <Button
           className="btn-tertiary"
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           icon={<AtIcon />}
           onClick={useUserMentionOptions.onInitializeMention}
         />

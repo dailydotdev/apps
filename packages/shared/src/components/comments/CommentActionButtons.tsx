@@ -14,7 +14,7 @@ import {
 } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
 import { graphqlUrl } from '../../lib/config';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
@@ -28,6 +28,7 @@ import { AuthTriggers } from '../../lib/auth';
 import PortalMenu from '../fields/PortalMenu';
 import classed from '../../lib/classed';
 import OptionsButton from '../buttons/OptionsButton';
+import { IconSize } from '../Icon';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
@@ -141,7 +142,7 @@ export default function CommentActionButtons({
       <SimpleTooltip content="Upvote">
         <Button
           id={`comment-${comment.id}-upvote-btn`}
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           pressed={upvoted}
           onClick={toggleUpvote}
           icon={<UpvoteIcon secondary={upvoted} />}
@@ -150,7 +151,7 @@ export default function CommentActionButtons({
       </SimpleTooltip>
       <SimpleTooltip content="Comment">
         <Button
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           onClick={() => onComment(comment, parentId)}
           icon={<CommentIcon />}
           className="mr-3 btn-tertiary-blueCheese"
@@ -158,7 +159,7 @@ export default function CommentActionButtons({
       </SimpleTooltip>
       <SimpleTooltip content="Share comment">
         <Button
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           onClick={() => onShare(comment)}
           icon={<ShareIcon />}
           className="mr-3 btn-tertiary-cabbage"
@@ -188,13 +189,13 @@ export default function CommentActionButtons({
       >
         <Item onClick={() => onEdit(comment)}>
           <ContextItem>
-            <EditIcon size="small" /> Edit
+            <EditIcon size={IconSize.XSmall} /> Edit
           </ContextItem>
         </Item>
         {(user?.id === comment.author.id || isModerator) && (
           <Item onClick={() => onDelete(comment, parentId)}>
             <ContextItem className="flex items-center w-full">
-              <TrashIcon size="small" /> Delete
+              <TrashIcon size={IconSize.XSmall} /> Delete
             </ContextItem>
           </Item>
         )}

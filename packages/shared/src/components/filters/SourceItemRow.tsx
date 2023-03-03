@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { FilterItem } from './common';
 import { Source } from '../../graphql/sources';
 import { LazyImage } from '../LazyImage';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import BlockIcon from '../icons/Block';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 

@@ -11,7 +11,7 @@ import {
 } from '../../graphql/squads';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
@@ -82,7 +82,7 @@ export function SquadMemberModal({
           return (
             <SimpleTooltip content="Member options">
               <Button
-                buttonSize="small"
+                buttonSize={ButtonSize.Small}
                 className="m-auto mr-0 btn-tertiary"
                 iconOnly
                 onClick={(e) => onReportClick(e, user.id)}

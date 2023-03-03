@@ -1,6 +1,6 @@
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import { Modal } from '../modals/common/Modal';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { ProfilePicture } from '../ProfilePicture';
 import { Justify } from '../utilities';
 import { Image } from '../image/Image';

@@ -1,7 +1,7 @@
 import React, { MutableRefObject, ReactElement } from 'react';
 import { useMutation } from 'react-query';
 import { BaseTooltip, BaseTooltipProps } from './BaseTooltip';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';

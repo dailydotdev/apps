@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { IFlags } from 'flagsmith';
 import PlusIcon from './icons/Plus';
-import { Button } from './buttons/Button';
+import { Button, ButtonSize } from './buttons/Button';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
@@ -64,7 +64,7 @@ export default function CreateMyFeedButton({
             'ml-0 mt-4 tablet:ml-8 tablet:mt-0',
             buttonColor.button,
           )}
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           icon={<PlusIcon />}
           onClick={onClick}
           data-testid="create_myfeed"

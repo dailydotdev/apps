@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { formToJson } from '../../lib/form';
 import { graphqlUrl } from '../../lib/config';
 import {

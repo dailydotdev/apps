@@ -4,6 +4,7 @@ import {
   NotificationIconType,
   notificationIconTypeTheme,
 } from './utils';
+import { IconSize } from '../Icon';
 
 const noBackgroundIcons = [
   NotificationIconType.DailyDev,
@@ -29,7 +30,7 @@ function NotificationItemIcon({
     return (
       <Icon
         secondary
-        size="xlarge"
+        size={IconSize.Large}
         data-testid={testId}
         data-testvalue={testValue}
       />
@@ -40,7 +41,12 @@ function NotificationItemIcon({
 
   return (
     <span className="overflow-hidden p-1 bg-theme-float rounded-8 typo-callout h-fit">
-      <Icon size="medium" secondary className={theme} data-testid={testId} />
+      <Icon
+        size={IconSize.Small}
+        secondary
+        className={theme}
+        data-testid={testId}
+      />
     </span>
   );
 }

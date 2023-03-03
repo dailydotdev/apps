@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import ArrowIcon from '../icons/Arrow';
+import { IconSize } from '../Icon';
 
 interface SquadPostPageNavigationProps {
   squadLink: string;
@@ -30,7 +31,7 @@ function SquadPostPageNavigation({
   return (
     <Link href={link}>
       <a className="flex -left-4 flex-row items-center mb-6 font-bold text-theme-label-tertiary typo-callout">
-        <ArrowIcon size="large" className="mr-2 -rotate-90" />
+        <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
         {isFromNavigation ? 'Notifications center' : "Back to Squad's page"}
       </a>
     </Link>

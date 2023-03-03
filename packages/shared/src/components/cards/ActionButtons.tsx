@@ -7,7 +7,7 @@ import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
-import { Button, ButtonProps } from '../buttons/Button';
+import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import OptionsButton from '../buttons/OptionsButton';
 import { ReadArticleButton } from './ReadArticleButton';
@@ -46,7 +46,7 @@ function LastActionButton(props: LastActionButtonProps) {
     <SimpleTooltip content="Share post">
       <Button
         icon={<ShareIcon />}
-        buttonSize="small"
+        buttonSize={ButtonSize.Small}
         onClick={onClickShare}
         className="btn-tertiary-cabbage"
       />
@@ -69,7 +69,7 @@ export default function ActionButtons({
   insaneMode,
 }: ActionButtonsProps): ReactElement {
   const upvoteCommentProps: ButtonProps<'button'> = {
-    buttonSize: 'small',
+    buttonSize: ButtonSize.Small,
   };
 
   const lastActionButton = LastActionButton({

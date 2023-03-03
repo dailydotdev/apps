@@ -11,7 +11,6 @@ function ModalCloseComponent(
   return (
     <CloseButton
       {...props}
-      buttonSize="medium"
       onClick={onClick}
       ref={ref}
       className={classNames('right-2 z-1', className)}

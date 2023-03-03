@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { Post } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
@@ -135,7 +135,7 @@ export default function BestDiscussions({
       >
         <Button
           className="self-start my-2 ml-2 btn-tertiary"
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}
           onClick={onLucky}

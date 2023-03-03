@@ -1,7 +1,8 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import LockIcon from '../icons/Lock';
 import { PageContainerCentered } from '../utilities';
+import { IconSize } from '../Icon';
 
 interface UnauthorizedProps {
   children?: ReactNode;
@@ -22,7 +23,7 @@ function Unauthorized({
       <LockIcon
         secondary
         className="self-center text-theme-label-secondary"
-        size="xxxlarge"
+        size={IconSize.XXLarge}
       />
       <h1 className="px-16 font-bold text-center break-words-overflow typo-title1">
         {title}
@@ -31,7 +32,7 @@ function Unauthorized({
         {description}
       </p>
       {children}
-      <Button className="mt-6 btn-primary w-fit" buttonSize="large">
+      <Button className="mt-6 btn-primary w-fit" buttonSize={ButtonSize.Large}>
         Back home
       </Button>
     </PageContainerCentered>
