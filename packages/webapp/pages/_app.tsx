@@ -39,6 +39,7 @@ import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -97,7 +98,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           content="initial-scale=1.0, width=device-width, viewport-fit=cover"
         />
         <meta name="theme-color" content="#151618" />
-        <meta name="msapplication-navbutton-color" content="#151618" />
+        <meta name="msapplication-nav" content="#151618" />
         <meta name="apple-mobile-web-app-status-bar-style" content="#151618" />
 
         <meta name="application-name" content="daily.dev" />
@@ -158,7 +159,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 }
 
 export default function App(props: AppProps): ReactElement {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () => new QueryClient(defaultQueryClientConfig),
+  );
   const version = useWebappVersion();
   const deviceId = useDeviceId();
   useError();

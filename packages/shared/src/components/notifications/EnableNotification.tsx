@@ -150,7 +150,7 @@ function EnableNotification({
       {!hasEnabled && (
         <Button
           buttonSize="small"
-          className="mt-4 text-white min-w-[7rem] btn-primary-cabbage"
+          className="mt-4 min-w-[7rem] btn-primary-cabbage"
           onClick={onEnable}
         >
           Enable notifications
