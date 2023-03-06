@@ -4,10 +4,14 @@ import React, {
   HTMLAttributes,
   ReactElement,
   useContext,
+  useEffect,
+  useMemo,
+  useRef,
   useState,
 } from 'react';
 import { SwipeEventData, useSwipeable } from 'react-swipeable';
 import { SwipeableProps } from 'react-swipeable/dist/types';
+import FeedContext from '../../contexts/FeedContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import { gridGaps, gapClass } from '../../lib/feed';
 import { Button } from '../buttons/Button';
@@ -21,7 +25,6 @@ type SliderCanSwipeFn = <TSliderItem extends { id: string }>(
 interface SliderProps<TSliderItem extends { id: string }>
   extends HTMLAttributes<HTMLDivElement> {
   items: TSliderItem[];
-  itemWidth: number;
   Item: FunctionComponent<TSliderItem>;
   canSlideRight?: SliderCanSwipeFn;
   canSlideLeft?: SliderCanSwipeFn;
@@ -38,6 +41,8 @@ const defaultCanSlideLeft: SliderCanSwipeFn = (index, items) =>
   index < items.length;
 
 type SliderControlPosition = 'left' | 'right';
+
+const defaultItemWidth = 20 * 16; // 320px or 20rem as per Feed.module.css
 
 const SliderControlButton = ({
   onClick,
@@ -81,7 +86,6 @@ const SliderControlButton = ({
 function Slider<TSliderItem extends { id: string }>({
   className,
   items,
-  itemWidth,
   Item,
   canSlideRight = defaultCanSlideRight,
   canSlideLeft = defaultCanSlideLeft,
@@ -90,6 +94,8 @@ function Slider<TSliderItem extends { id: string }>({
 }: SliderProps<TSliderItem>): ReactElement {
   const [index, setIndex] = useState(0);
   const { spaciness } = useContext(SettingsContext);
+  const feedSettings = useContext(FeedContext);
+  const numCards = feedSettings.numCards[spaciness ?? 'eco'];
 
   const onSwipedRight = (swipeEvent?: SwipeEventData) => {
     swipeEvent?.event.stopPropagation();
@@ -130,12 +136,50 @@ function Slider<TSliderItem extends { id: string }>({
     trackMouse: true,
   });
 
+  const [sliderWidth, setSliderWidth] = useState(defaultItemWidth);
+
+  const rootRef = useRef<HTMLElement>();
+
+  useEffect(() => {
+    if (!rootRef.current) {
+      return undefined;
+    }
+
+    setSliderWidth(rootRef.current.getBoundingClientRect().width);
+
+    const onResize: ResizeObserverCallback = (entries) => {
+      const entry = entries[0];
+
+      setSliderWidth(entry.contentRect.width);
+    };
+
+    const resizeObserver = new ResizeObserver(onResize);
+    resizeObserver.observe(rootRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   const itemGapPx = +(gridGaps[spaciness] ?? 'gap-8').replace('gap-', '') * 4;
-  const itemWidthWithGap = itemWidth + 1 * itemGapPx;
+
+  const { itemWidth, itemWidthWithGap } = useMemo(() => {
+    const gapValue = itemGapPx * (numCards - 1);
+    const widthValue = (sliderWidth - gapValue) / numCards;
+
+    return {
+      itemWidth: widthValue,
+      itemWidthWithGap: widthValue + 1 * itemGapPx,
+    };
+  }, [sliderWidth, itemGapPx, numCards]);
 
   return (
     <section
       {...swipeable}
+      ref={(ref) => {
+        rootRef.current = ref;
+        swipeable.ref(ref);
+      }}
       className={classNames(
         'box-border relative p-4 -mx-4 bg-gradient-to-l from-cabbage-40 to-onion-40 rounded-16',
         className,
@@ -152,7 +196,14 @@ function Slider<TSliderItem extends { id: string }>({
           }}
         >
           {items.map((item) => (
-            <Item key={item.id} {...item} />
+            <div
+              key={item.id}
+              style={{
+                maxWidth: `${itemWidth}px`,
+              }}
+            >
+              <Item {...item} />
+            </div>
           ))}
         </div>
       </div>

@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -386,11 +387,7 @@ export default function Feed<T>({
 
   // TODO WT-1109-personal-digest move to proper component
   const DigestPostItem = (props: Post) => {
-    return (
-      <div className="w-[320px] h-[376px]">
-        <ArticlePostCard post={props} />
-      </div>
-    );
+    return <ArticlePostCard post={props} />;
   };
 
   const isScrollableBreakpoint = useMedia(
@@ -425,9 +422,8 @@ export default function Feed<T>({
             // TODO WT-1109-personal-digest items from API
             items={items
               .slice(2, 8)
-              .filter(Boolean)
-              .map((item) => item.type === 'post' && item.post)}
-            itemWidth={320}
+              .map((item) => item.type === 'post' && item.post)
+              .filter(Boolean)}
             Item={DigestPostItem}
             canSlideLeft={(index, sliderItems) => {
               const visibleItems = numCards;
