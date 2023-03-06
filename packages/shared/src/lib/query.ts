@@ -1,4 +1,9 @@
-import { InfiniteData, QueryClient, QueryKey } from 'react-query';
+import {
+  InfiniteData,
+  QueryClient,
+  QueryClientConfig,
+  QueryKey,
+} from 'react-query';
 import { Connection } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
@@ -89,4 +94,12 @@ export const updateInfiniteCache = <
 
     return updated;
   });
+};
+
+export const defaultQueryClientConfig: QueryClientConfig = {
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
+    },
+  },
 };

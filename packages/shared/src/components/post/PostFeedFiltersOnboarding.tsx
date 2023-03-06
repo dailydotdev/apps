@@ -49,7 +49,7 @@ export function PostFeedFiltersOnboarding({
           Let&apos;s super-charge your feed with the content you actually read!
         </p>
         <Button
-          className="mt-4 text-white btn-primary-cabbage"
+          className="mt-4 btn-primary-cabbage"
           buttonSize="small"
           tabIndex={-1}
         >
