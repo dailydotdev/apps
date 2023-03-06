@@ -85,12 +85,6 @@ it('should return latest changelog post', async () => {
               {
                 node: { id: 'test1' },
               },
-              {
-                node: { id: 'test2' },
-              },
-              {
-                node: { id: 'test3' },
-              },
             ],
             pageInfo: {},
           },
@@ -98,7 +92,7 @@ it('should return latest changelog post', async () => {
       };
     },
   });
-  const result = await getLatestChangelogPost(false);
+  const result = await getLatestChangelogPost();
 
   expect(queryCalled).toBeTruthy();
   expect(result.id).toBe('test1');
