@@ -56,6 +56,7 @@ import { MainFeedPage } from './utilities';
 import Slider from './containers/Slider';
 import { ArticlePostCard } from './cards/ArticlePostCard';
 import useMedia from '../hooks/useMedia';
+import { Button } from './buttons/Button';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -385,8 +386,28 @@ export default function Feed<T>({
   const showPersonalDigest = feedName === MainFeedPage.Popular;
 
   // TODO WT-1109-personal-digest move to proper component
-  const DigestPostItem = (props: Post) => {
-    return <ArticlePostCard post={props} />;
+  const DigestPostItem = ({ item }: { item: Post; index: number }) => {
+    if (item.id === 'intro') {
+      return (
+        <article className="flex flex-col justify-center items-center p-5 w-full h-full text-center">
+          <p className="mb-4 typo-headline">
+            Your {'{timeframe}'} digest is ready!
+          </p>
+          <p className="mb-10 typo-body">
+            Here are {'{x}'} recommended articles we think you&apos;ll
+            appreciate!
+          </p>
+          <div className="flex flex-col w-full">
+            <Button className="mb-4 w-full btn-primary">Start Reading</Button>
+            <Button className="font-normal !underline !typo-body">
+              Hide for now
+            </Button>
+          </div>
+        </article>
+      );
+    }
+
+    return <ArticlePostCard post={item} />;
   };
 
   const isScrollableBreakpoint = useMedia(
@@ -419,10 +440,15 @@ export default function Feed<T>({
           <Slider
             className="mb-12"
             // TODO WT-1109-personal-digest items from API
-            items={items
-              .slice(2, 8)
-              .map((item) => item.type === 'post' && item.post)
-              .filter(Boolean)}
+            items={[
+              {
+                id: 'intro',
+              },
+              ...items
+                .slice(2, 8)
+                .map((item) => item.type === 'post' && item.post)
+                .filter(Boolean),
+            ]}
             Item={DigestPostItem}
             canSlideLeft={(index, sliderItems) => {
               const visibleItems = numCards;

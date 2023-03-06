@@ -17,15 +17,19 @@ import { gridGaps, gapClass } from '../../lib/feed';
 import { Button } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 
-type SliderCanSwipeFn = <TSliderItem extends { id: string }>(
+export interface SliderItem {
+  id: string;
+}
+
+export type SliderCanSwipeFn = <TSliderItem extends SliderItem>(
   index: number,
   items: TSliderItem[],
 ) => boolean;
 
-interface SliderProps<TSliderItem extends { id: string }>
+export interface SliderProps<TSliderItem extends SliderItem>
   extends HTMLAttributes<HTMLDivElement> {
   items: TSliderItem[];
-  Item: FunctionComponent<TSliderItem>;
+  Item: FunctionComponent<{ item: TSliderItem; index: number }>;
   canSlideRight?: SliderCanSwipeFn;
   canSlideLeft?: SliderCanSwipeFn;
   swipeEnabled?: boolean;
@@ -204,14 +208,15 @@ function Slider<TSliderItem extends { id: string }>({
             transform: `translateX(-${index * itemWidthWithGap}px)`,
           }}
         >
-          {items.map((item) => (
+          {items.map((item, itemIndex) => (
             <div
               key={item.id}
+              className="w-full"
               style={{
                 maxWidth: `${itemWidth}px`,
               }}
             >
-              <Item {...item} />
+              <Item item={item} index={itemIndex} />
             </div>
           ))}
         </div>
