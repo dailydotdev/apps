@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useRef,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';

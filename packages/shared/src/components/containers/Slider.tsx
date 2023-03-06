@@ -173,6 +173,15 @@ function Slider<TSliderItem extends { id: string }>({
     };
   }, [sliderWidth, itemGapPx, numCards]);
 
+  useEffect(() => {
+    if (!items.length) {
+      return;
+    }
+
+    // TODO WT-1109-personal-digest restore active item position after cards number change
+    setIndex(0);
+  }, [items.length, numCards]);
+
   return (
     <section
       {...swipeable}
