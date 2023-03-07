@@ -17,9 +17,9 @@ import { gridGaps, gapClass } from '../../lib/feed';
 import { Button } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 
-export interface FeedSliderItem {
+export type FeedSliderItem = {
   id: string;
-}
+};
 
 export type FeedSliderCanSwipeFn = <TFeedSliderItem extends FeedSliderItem>(
   index: number,

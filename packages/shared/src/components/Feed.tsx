@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -58,6 +59,7 @@ import useMedia from '../hooks/useMedia';
 import { Button } from './buttons/Button';
 import { ClickableText } from './buttons/ClickableText';
 import { tablet } from '../styles/media';
+import SourceButton from './cards/SourceButton';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -386,11 +388,38 @@ export default function Feed<T>({
   // TODO WT-1109-personal-digest proper condition, from API
   const showPersonalDigest = feedName === MainFeedPage.Popular;
 
+  // TODO WT-1109-personal-digest items from API
+  const personalDigestItems = useMemo(() => {
+    return [
+      {
+        id: 'intro',
+      },
+      ...items
+        .slice(2, 8)
+        .map((item) => item.type === 'post' && item.post)
+        .filter(Boolean),
+    ];
+  }, [items]);
+
   // TODO WT-1109-personal-digest move to proper component
   const DigestPostItem = ({ item, index }: { item: Post; index: number }) => {
     if (item.id === 'intro') {
       return (
         <article className="flex flex-col justify-center items-center p-4 w-full h-full text-center">
+          <div className="flex gap-2 mb-6">
+            {personalDigestItems.map((sourceItem) => {
+              if ('source' in sourceItem) {
+                return (
+                  <SourceButton
+                    key={sourceItem.id}
+                    source={sourceItem.source}
+                  />
+                );
+              }
+
+              return null;
+            })}
+          </div>
           <p className="mb-4 typo-headline">
             Your {'{timeframe}'} digest is ready!
           </p>
@@ -472,16 +501,7 @@ export default function Feed<T>({
         {showPersonalDigest && (
           <FeedSlider
             className="mb-12"
-            // TODO WT-1109-personal-digest items from API
-            items={[
-              {
-                id: 'intro',
-              },
-              ...items
-                .slice(2, 8)
-                .map((item) => item.type === 'post' && item.post)
-                .filter(Boolean),
-            ]}
+            items={personalDigestItems}
             Item={DigestPostItem}
             canSlideRight={(index, sliderItems) => {
               if (!isScrollableBreakpoint) {
