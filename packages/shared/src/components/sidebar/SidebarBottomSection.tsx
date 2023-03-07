@@ -8,7 +8,7 @@ import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
-import { AlertColor, AlertDot, AlertDotSize } from '../AlertDot';
+import { AlertColor, AlertDot } from '../AlertDot';
 import { useChangelog } from '../../hooks/useChangelog';
 import SettingsContext from '../../contexts/SettingsContext';
 
@@ -50,7 +50,6 @@ export function SidebarBottomSectionSection({
               <AlertDot
                 className={sidebarExpanded ? 'right-2' : 'right-1'}
                 color={AlertColor.Cabbage}
-                size={AlertDotSize.XSmall}
               />
             </div>
           )
