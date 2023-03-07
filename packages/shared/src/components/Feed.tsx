@@ -57,6 +57,7 @@ import Slider from './containers/Slider';
 import { ArticlePostCard } from './cards/ArticlePostCard';
 import useMedia from '../hooks/useMedia';
 import { Button } from './buttons/Button';
+import { ClickableText } from './buttons/ClickableText';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -389,7 +390,7 @@ export default function Feed<T>({
   const DigestPostItem = ({ item }: { item: Post; index: number }) => {
     if (item.id === 'intro') {
       return (
-        <article className="flex flex-col justify-center items-center p-5 w-full h-full text-center">
+        <article className="flex flex-col justify-center items-center p-4 w-full h-full text-center">
           <p className="mb-4 typo-headline">
             Your {'{timeframe}'} digest is ready!
           </p>
@@ -399,9 +400,12 @@ export default function Feed<T>({
           </p>
           <div className="flex flex-col w-full">
             <Button className="mb-4 w-full btn-primary">Start Reading</Button>
-            <Button className="font-normal !underline !typo-body">
+            <ClickableText
+              defaultTypo={false}
+              className="justify-center w-auto font-normal underline typo-body text-theme-label-primary"
+            >
               Hide for now
-            </Button>
+            </ClickableText>
           </div>
         </article>
       );
