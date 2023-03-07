@@ -185,6 +185,10 @@ function FeedSlider<TFeedSliderItem extends { id: string }>({
     setIndex(0);
   }, [items.length, numCards]);
 
+  if (items.length === 0) {
+    return null;
+  }
+
   return (
     <section
       {...swipeable}
