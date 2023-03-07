@@ -200,6 +200,7 @@ function FeedSlider<TFeedSliderItem extends { id: string }>({
         'box-border relative p-4 -mx-4 bg-gradient-to-l from-cabbage-40 to-onion-40 rounded-16',
         className,
       )}
+      data-testid="feedSlider"
     >
       <div className="overflow-hidden">
         <div
