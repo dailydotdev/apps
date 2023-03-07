@@ -17,6 +17,7 @@ import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getCompanionWrapper } from './common';
 
 interface CompanionContextMenuProps extends ShareBookmarkProps {
@@ -85,12 +86,13 @@ export default function CompanionContextMenu({
             className="flex items-center w-full"
             href={postData?.commentsPermalink}
           >
-            <CommentIcon size="medium" className="mr-2" /> View discussion
+            <CommentIcon size={IconSize.Small} className="mr-2" /> View
+            discussion
           </a>
         </Item>
         <Item onClick={onBookmark}>
           <BookmarkIcon
-            size="medium"
+            size={IconSize.Small}
             className={classNames(
               'mr-2',
               postData?.bookmarked && 'text-theme-color-bun',
@@ -100,7 +102,7 @@ export default function CompanionContextMenu({
           {postData?.bookmarked ? 'Remove from' : 'Save to'} bookmarks
         </Item>
         <Item onClick={() => setReportModal(true)}>
-          <FlagIcon size="medium" className="mr-2" /> Report
+          <FlagIcon size={IconSize.Small} className="mr-2" /> Report
         </Item>
         <Item>
           <a
@@ -108,11 +110,12 @@ export default function CompanionContextMenu({
             href={feedback}
             target="_blank"
           >
-            <FeedbackIcon size="medium" className="mr-2" /> Give us feedback
+            <FeedbackIcon size={IconSize.Small} className="mr-2" /> Give us
+            feedback
           </a>
         </Item>
         <Item onClick={() => disableModal()}>
-          <EyeIcon size="medium" className="mr-2" /> Disable widget
+          <EyeIcon size={IconSize.Small} className="mr-2" /> Disable widget
         </Item>
       </Menu>
       {reportModal && (

@@ -7,7 +7,7 @@ import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
 import ArrowIcon from '../icons/Arrow';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { usePrompt } from '../../hooks/usePrompt';
@@ -69,7 +69,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
         <Modal.Sidebar.Inner>
           <Modal.Header>
             <Button
-              buttonSize="small"
+              buttonSize={ButtonSize.Small}
               className="flex tablet:hidden mr-2 -rotate-90"
               icon={<ArrowIcon />}
               onClick={() => setIsNavOpen(true)}

@@ -19,6 +19,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
   ButtonProps,
+  ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   CustomFeedHeader,
@@ -74,7 +75,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   };
 
   const followButtonProps: ButtonProps<'button'> = {
-    buttonSize: 'small',
+    buttonSize: ButtonSize.Small,
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -90,7 +91,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   };
 
   const blockButtonProps: ButtonProps<'button'> = {
-    buttonSize: 'small',
+    buttonSize: ButtonSize.Small,
     icon: tagStatus === 'blocked' ? <XIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
       if (user) {

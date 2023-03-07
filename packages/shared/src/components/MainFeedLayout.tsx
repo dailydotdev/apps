@@ -34,6 +34,8 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import MyFeedHeading from './filters/MyFeedHeading';
 import SortIcon from './icons/Sort';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { ButtonSize } from './buttons/Button';
+import { IconSize } from './Icon';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -252,7 +254,7 @@ export default function MainFeedLayout({
         {isUpvoted && (
           <Dropdown
             className={{ container: 'w-44' }}
-            buttonSize="large"
+            buttonSize={ButtonSize.Large}
             icon={<CalendarIcon className="mr-2" />}
             selectedIndex={selectedPeriod}
             options={periodTexts}
@@ -270,10 +272,12 @@ export default function MainFeedLayout({
             }}
             dynamicMenuWidth
             shouldIndicateSelected
-            buttonSize="large"
+            buttonSize={ButtonSize.Large}
             selectedIndex={selectedAlgo}
             options={algorithmsList}
-            icon={<SortIcon size="medium" className="flex tablet:hidden" />}
+            icon={
+              <SortIcon size={IconSize.Small} className="flex tablet:hidden" />
+            }
             onChange={(_, index) => setSelectedAlgo(index)}
           />
         )}

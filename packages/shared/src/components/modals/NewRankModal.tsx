@@ -14,7 +14,7 @@ import { LoggedUser } from '../../lib/user';
 import { Checkbox } from '../fields/Checkbox';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
 import useDebounce from '../../hooks/useDebounce';
@@ -181,7 +181,7 @@ export default function NewRankModal({
             <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
             <Button
               className="btn-primary"
-              buttonSize="small"
+              buttonSize={ButtonSize.Small}
               onClick={closeModal}
             >
               Awesome!

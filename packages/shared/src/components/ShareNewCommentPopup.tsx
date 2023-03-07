@@ -12,12 +12,13 @@ import {
   getWhatsappShareLink,
 } from '../lib/share';
 import { Post } from '../graphql/posts';
-import { Button } from './buttons/Button';
+import { Button, ButtonSize } from './buttons/Button';
 import { ModalCloseButton } from './modals/ModalCloseButton';
 import classed from '../lib/classed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { useCopyLink } from '../hooks/useCopyLink';
 import { getCommentHash } from '../graphql/comments';
+import { IconSize } from './Icon';
 
 const ShareButton = classed(Button, 'text-white');
 interface ShareNewCommentPopupProps {
@@ -45,7 +46,7 @@ export default function ShareNewCommentPopup({
         className="absolute left-2 h-16"
         style={{ top: '-4.375rem', width: '6.25rem' }}
       />
-      <ShareIcon className="absolute -top-8 left-6" size="xxxxlarge" />
+      <ShareIcon className="absolute -top-8 left-6" size={IconSize.XXXLarge} />
       <h2 className="mt-2 typo-title3">
         That&apos;s a great comment, {user.name?.split(' ')[0]}!
       </h2>
@@ -62,7 +63,7 @@ export default function ShareNewCommentPopup({
             rel="noopener"
             icon={<TwitterIcon />}
             className="btn-primary-twitter"
-            buttonSize="small"
+            buttonSize={ButtonSize.Small}
           >
             Twitter
           </ShareButton>
@@ -75,7 +76,7 @@ export default function ShareNewCommentPopup({
             rel="noopener"
             icon={<WhatsappIcon />}
             className="btn-primary-whatsapp"
-            buttonSize="small"
+            buttonSize={ButtonSize.Small}
           >
             Whatsapp
           </ShareButton>
@@ -88,14 +89,14 @@ export default function ShareNewCommentPopup({
             rel="noopener"
             icon={<FacebookIcon />}
             className="btn-primary-facebook"
-            buttonSize="small"
+            buttonSize={ButtonSize.Small}
           >
             Facebook
           </ShareButton>
         </SimpleTooltip>
         <Button
           className="btn-primary"
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           onClick={() => copyLink()}
           icon={<CopyIcon />}
         >

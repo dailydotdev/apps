@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
-import { Button } from './buttons/Button';
+import { Button, ButtonSize } from './buttons/Button';
 import { ScrollOnboardingVersion } from '../lib/featureValues';
 import { cloudinary } from '../lib/image';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -106,7 +106,7 @@ export default function ScrollFeedFiltersOnboarding({
             'btn-primary-cabbage',
             versionToButtonClassName[version],
           )}
-          buttonSize="large"
+          buttonSize={ButtonSize.Large}
           tabIndex={-1}
         >
           {versionToButtonText[version]}

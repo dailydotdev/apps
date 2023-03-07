@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import CopyIcon from '../icons/Copy';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { Switch } from '../fields/Switch';
 import {
   BookmarksSharingData,
@@ -18,6 +18,7 @@ import GithubIcon from '../icons/GitHub';
 import { useCopyLink } from '../../hooks/useCopyLink';
 import { sharingBookmarks } from '../../lib/constants';
 import { Modal, ModalProps } from './common/Modal';
+import { IconSize } from '../Icon';
 
 export default function SharedBookmarksModal({
   ...props
@@ -82,7 +83,7 @@ export default function SharedBookmarksModal({
               fieldType="tertiary"
               actionButton={
                 <Button
-                  buttonSize="small"
+                  buttonSize={ButtonSize.Small}
                   className="btn-tertiary"
                   icon={<CopyIcon />}
                   onClick={() => copyRssUrl()}
@@ -102,7 +103,7 @@ export default function SharedBookmarksModal({
             <Button
               rel="noopener noreferrer"
               className="btn-secondary"
-              buttonSize="small"
+              buttonSize={ButtonSize.Small}
               href={sharingBookmarks}
               tag="a"
               target="_blank"
@@ -110,10 +111,10 @@ export default function SharedBookmarksModal({
               Explore tutorials
             </Button>
             <div className="flex gap-2 items-center h-8 text-2xl">
-              <DiscordIcon size="large" />
-              <TwitterIcon size="large" secondary />
-              <SlackIcon size="large" />
-              <GithubIcon size="large" />
+              <DiscordIcon size={IconSize.Medium} />
+              <TwitterIcon size={IconSize.Medium} secondary />
+              <SlackIcon size={IconSize.Medium} />
+              <GithubIcon size={IconSize.Medium} />
             </div>
           </div>
         </div>

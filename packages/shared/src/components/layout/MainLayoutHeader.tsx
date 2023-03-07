@@ -5,7 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
@@ -115,7 +115,7 @@ function MainLayoutHeader({
             >
               <Button
                 className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
-                buttonSize="small"
+                buttonSize={ButtonSize.Small}
                 iconOnly
                 onClick={onNavigateNotifications}
                 icon={

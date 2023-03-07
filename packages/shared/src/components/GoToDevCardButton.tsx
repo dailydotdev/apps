@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { Button } from './buttons/Button';
+import { Button, ButtonSize } from './buttons/Button';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 export type GoToDevCardButtonProps = {
@@ -19,7 +19,7 @@ export default function GoToDevCardButton({
         <Button
           className="btn-primary"
           tag="a"
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
           disabled={isLocked}
         >

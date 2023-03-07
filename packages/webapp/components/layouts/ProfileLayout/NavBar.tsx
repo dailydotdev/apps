@@ -6,7 +6,10 @@ import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '@dailydotdev/shared/src/lib/dynamicParent';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
 import styles from './NavBar.module.css';
 
@@ -62,7 +65,7 @@ export default function NavBar({
           <Link href={getTabHref(tab)} passHref>
             <Button
               tag="a"
-              buttonSize="large"
+              buttonSize={ButtonSize.Large}
               pressed={selectedTab === index}
               className="btn-tertiary"
             >

@@ -6,6 +6,7 @@ import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
 import AuthModalFooter from './AuthModalFooter';
 import AuthContainer from './AuthContainer';
+import { ButtonSize } from '../buttons/Button';
 
 interface AuthSignBackProps {
   children?: ReactNode;
@@ -50,7 +51,7 @@ export const AuthSignBack = ({
               <ProviderButton
                 key={provider}
                 provider={provider}
-                buttonSize="large"
+                buttonSize={ButtonSize.Large}
                 style={{ ...style, width: '3.875rem' }}
                 onClick={() => onProviderClick?.(provider)}
                 {...props}

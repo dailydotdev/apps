@@ -4,6 +4,7 @@ import { TextField, TextFieldProps } from './TextField';
 import EyeIcon from '../icons/Eye';
 import EyeCancelIcon from '../icons/EyeCancel';
 import LockIcon from '../icons/Lock';
+import { IconSize } from '../Icon';
 
 const passwordStrengthStates = {
   0: {
@@ -61,7 +62,7 @@ export function PasswordField({
       autoComplete="off"
       type={useType}
       valueChanged={onChange}
-      leftIcon={<LockIcon />}
+      leftIcon={<LockIcon size={IconSize.Small} />}
       hint={!!value && showStrength ? hint : props.hint}
       validityChanged={setIsValid}
       valid={isValid || !props.hint}

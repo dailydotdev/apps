@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import classed from '../../lib/classed';
 
 interface SocialShareIconProps extends HTMLAttributes<HTMLButtonElement> {
@@ -26,7 +26,7 @@ export const SocialShareIcon = ({
       <Button
         tag="a"
         data-testid={`social-share-${label}`}
-        buttonSize="large"
+        buttonSize={ButtonSize.Large}
         href={href}
         onClick={onClick}
         target="_blank"

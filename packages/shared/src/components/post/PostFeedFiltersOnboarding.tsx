@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { cloudinary } from '../../lib/image';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
@@ -50,7 +50,7 @@ export function PostFeedFiltersOnboarding({
         </p>
         <Button
           className="mt-4 btn-primary-cabbage"
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           tabIndex={-1}
         >
           Customize

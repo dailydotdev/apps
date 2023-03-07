@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import BookmarkIcon from './icons/Bookmark';
-import { Button } from './buttons/Button';
+import { Button, ButtonSize } from './buttons/Button';
 import { EmptyScreenIcon } from './EmptyScreen';
 
 export default function BookmarkEmptyScreen(): ReactElement {
@@ -22,7 +22,7 @@ export default function BookmarkEmptyScreen(): ReactElement {
         later. Each post you bookmark will be stored here.
       </p>
       <Link href="/" passHref>
-        <Button className="btn-primary" tag="a" buttonSize="large">
+        <Button className="btn-primary" tag="a" buttonSize={ButtonSize.Large}>
           Back to feed
         </Button>
       </Link>

@@ -14,7 +14,10 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Link from 'next/link';
 import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { ParsedUrlQuery } from 'querystring';
@@ -153,7 +156,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   const renderJoinButton = (className?: string) => (
     <Button
       className={classNames('btn-primary', className)}
-      buttonSize="large"
+      buttonSize={ButtonSize.Large}
       onClick={onJoinClick}
     >
       Join Squad

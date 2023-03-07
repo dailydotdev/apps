@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
@@ -33,7 +33,7 @@ export function MobileMenuIcon({
           sidebarExpanded &&
           'transition-opacity invisible group-hover:visible opacity-0 group-hover:opacity-100'
         }`}
-        buttonSize="xsmall"
+        buttonSize={ButtonSize.XSmall}
       >
         <ArrowIcon
           className={`typo-title3 ${

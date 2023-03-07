@@ -21,6 +21,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
   ButtonProps,
+  ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   CustomFeedHeader,
@@ -78,7 +79,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   };
 
   const buttonProps: ButtonProps<'button'> = {
-    buttonSize: 'small',
+    buttonSize: ButtonSize.Small,
     icon: unfollowingSource ? <PlusIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
       if (user) {

@@ -2,7 +2,12 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '../icons/Plus';
 import BlockIcon from '../icons/Block';
-import { AllowedTags, Button, ButtonProps } from '../buttons/Button';
+import {
+  AllowedTags,
+  Button,
+  ButtonProps,
+  ButtonSize,
+} from '../buttons/Button';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 
 const GenericTagButton = ({
@@ -19,6 +24,7 @@ const GenericTagButton = ({
 }) => (
   <Button
     {...props}
+    buttonSize={ButtonSize.Small}
     className={classNames('font-bold typo-callout', className)}
     onClick={action}
     rightIcon={action ? icon : null}

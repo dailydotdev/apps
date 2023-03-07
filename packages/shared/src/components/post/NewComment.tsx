@@ -19,8 +19,8 @@ interface NewCommentProps {
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
-  large: 'medium',
-  medium: 'small',
+  large: ButtonSize.Medium,
+  medium: ButtonSize.Small,
 };
 
 export function NewComment({
