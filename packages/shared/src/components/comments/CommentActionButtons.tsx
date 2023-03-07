@@ -28,7 +28,6 @@ import { AuthTriggers } from '../../lib/auth';
 import PortalMenu from '../fields/PortalMenu';
 import classed from '../../lib/classed';
 import OptionsButton from '../buttons/OptionsButton';
-import { IconSize } from '../Icon';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 

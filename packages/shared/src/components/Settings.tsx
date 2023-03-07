@@ -20,7 +20,6 @@ import AuthContext from '../contexts/AuthContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { AuthTriggers } from '../lib/auth';
-import { IconSize } from './Icon';
 
 const densities = [
   { label: 'Eco', value: 'eco' },

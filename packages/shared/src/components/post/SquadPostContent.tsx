@@ -29,7 +29,6 @@ import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import { sendViewPost } from '../../graphql/posts';
 import { IconSize } from '../Icon';
-import { ButtonSize } from '../buttons/Button';
 
 function SquadPostContent({
   post,

@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import ScoutIcon from '../icons/Scout';
-import { IconSize } from '../Icon';
 
 export default function ScoutBadge(): ReactElement {
   return (

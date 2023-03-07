@@ -9,7 +9,6 @@ import {
   ButtonSize,
 } from '../buttons/Button';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
-import { IconSize } from '../Icon';
 
 const GenericTagButton = ({
   tag,

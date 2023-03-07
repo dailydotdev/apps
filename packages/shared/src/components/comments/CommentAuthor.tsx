@@ -4,7 +4,6 @@ import { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
 import FeatherIcon from '../icons/Feather';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { IconSize } from '../Icon';
 
 export interface CommentAuthorProps {
   postAuthorId: string | null;
