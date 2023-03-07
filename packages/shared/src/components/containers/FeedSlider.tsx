@@ -39,9 +39,9 @@ export interface FeedSliderProps<TFeedSliderItem extends FeedSliderItem>
   >;
 }
 
-const defaultCanSlideRight: FeedSliderCanSwipeFn = (index) => index > 0;
+export const defaultCanSlideRight: FeedSliderCanSwipeFn = (index) => index > 0;
 
-const defaultCanSlideLeft: FeedSliderCanSwipeFn = (index, items) =>
+export const defaultCanSlideLeft: FeedSliderCanSwipeFn = (index, items) =>
   index < items.length;
 
 type FeedSliderControlPosition = 'left' | 'right';

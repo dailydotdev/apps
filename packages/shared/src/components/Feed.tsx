@@ -53,10 +53,11 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { MainFeedPage } from './utilities';
-import FeedSlider from './containers/FeedSlider';
+import FeedSlider, { defaultCanSlideRight } from './containers/FeedSlider';
 import useMedia from '../hooks/useMedia';
 import { Button } from './buttons/Button';
 import { ClickableText } from './buttons/ClickableText';
+import { tablet } from '../styles/media';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -443,7 +444,7 @@ export default function Feed<T>({
   };
 
   const isScrollableBreakpoint = useMedia(
-    ['(min-width: 600px) and (max-width: 1024px)'],
+    [tablet.replace('@media ', '')],
     [true],
     false,
   );
@@ -482,7 +483,18 @@ export default function Feed<T>({
                 .filter(Boolean),
             ]}
             Item={DigestPostItem}
+            canSlideRight={(index, sliderItems) => {
+              if (!isScrollableBreakpoint) {
+                return false;
+              }
+
+              return defaultCanSlideRight(index, sliderItems);
+            }}
             canSlideLeft={(index, sliderItems) => {
+              if (!isScrollableBreakpoint) {
+                return false;
+              }
+
               const visibleItems = numCards;
               const swipeableItems =
                 visibleItems > sliderItems.length
