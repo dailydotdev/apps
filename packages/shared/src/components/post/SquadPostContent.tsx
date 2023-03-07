@@ -165,7 +165,6 @@ function SquadPostContent({
                   size="small"
                 />
                 <ReadArticleButton
-                  buttonSize={ButtonSize.Medium}
                   className="mt-5 btn-secondary w-fit"
                   href={post.sharedPost.permalink}
                   openNewTab={openNewTab}

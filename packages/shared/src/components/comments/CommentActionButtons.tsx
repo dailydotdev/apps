@@ -189,13 +189,13 @@ export default function CommentActionButtons({
       >
         <Item onClick={() => onEdit(comment)}>
           <ContextItem>
-            <EditIcon size={IconSize.XSmall} /> Edit
+            <EditIcon /> Edit
           </ContextItem>
         </Item>
         {(user?.id === comment.author.id || isModerator) && (
           <Item onClick={() => onDelete(comment, parentId)}>
             <ContextItem className="flex items-center w-full">
-              <TrashIcon size={IconSize.XSmall} /> Delete
+              <TrashIcon /> Delete
             </ContextItem>
           </Item>
         )}

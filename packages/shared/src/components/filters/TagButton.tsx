@@ -66,12 +66,7 @@ const UnfollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-primary', className)}
-    icon={
-      <PlusIcon
-        size={IconSize.XSmall}
-        className="ml-2 transition-transform rotate-45"
-      />
-    }
+    icon={<PlusIcon className="ml-2 transition-transform rotate-45" />}
     action={action}
     tag={tag}
   />
@@ -90,12 +85,7 @@ const FollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-tag', className)}
-    icon={
-      <PlusIcon
-        size={IconSize.XSmall}
-        className="ml-2 transition-transform rotate-0"
-      />
-    }
+    icon={<PlusIcon className="ml-2 transition-transform rotate-0" />}
     action={action}
     tag={tag}
   />
