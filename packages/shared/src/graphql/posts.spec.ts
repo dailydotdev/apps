@@ -5,9 +5,10 @@ import {
   deletePost,
   Post,
   getLatestChangelogPost,
+  LATEST_CHANGELOG_POST_QUERY,
 } from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { RankingAlgorithm, SOURCE_FEED_QUERY } from './feed';
+import { RankingAlgorithm } from './feed';
 import { Connection } from './common';
 
 beforeEach(() => {
@@ -67,11 +68,10 @@ it('should return latest changelog post', async () => {
   let queryCalled = false;
   mockGraphQL<MockFeedData>({
     request: {
-      query: SOURCE_FEED_QUERY,
+      query: LATEST_CHANGELOG_POST_QUERY,
       variables: {
         source: 'daily_updates',
         first: 1,
-        loggedIn: false,
         ranking: RankingAlgorithm.Time,
       },
     },

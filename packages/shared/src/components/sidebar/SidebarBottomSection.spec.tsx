@@ -69,10 +69,7 @@ describe('SidebarBottomSection component', () => {
 
   it('should render changelog and badge if available', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() - 1);
@@ -89,10 +86,7 @@ describe('SidebarBottomSection component', () => {
 
   it('should NOT render changelog and badge if changelog NOT available', () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
     defaultAlerts.changelog = false;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
