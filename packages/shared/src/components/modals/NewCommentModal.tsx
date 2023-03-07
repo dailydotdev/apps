@@ -1,4 +1,10 @@
-import React, { ReactElement, useState, MouseEvent, useEffect } from 'react';
+import React, {
+  ReactElement,
+  useState,
+  MouseEvent,
+  useEffect,
+  useContext,
+} from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
@@ -21,6 +27,7 @@ import { useUserMention } from '../../hooks/useUserMention';
 import { markdownGuide } from '../../lib/constants';
 import { Justify } from '../utilities';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { ModalPropsContext } from './common/types';
 
 interface CommentVariables {
   id: string;
@@ -66,19 +73,14 @@ const promptOptions: PromptOptions = {
   },
 };
 
-export default function NewCommentModal({
-  onRequestClose,
-  editId,
-  onComment,
-  onInputChange,
-  replyTo,
-  editContent,
-  ...props
-}: NewCommentModalProps): ReactElement {
-  const [input, setInput] = useState<string>(editContent || replyTo);
-  const [sendingComment, setSendingComment] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>(null);
-  const { showPrompt } = usePrompt();
+interface PreviewTabProps {
+  input: string;
+  sourceId: string;
+  parentSelector: () => HTMLElement;
+}
+
+const PreviewTab = ({ input, sourceId, parentSelector }: PreviewTabProps) => {
+  const { activeView } = useContext(ModalPropsContext);
   const { requestMethod } = useRequestProtocol();
   const previewQueryKey = ['comment_preview', input];
   const { data: previewContent } = useQuery<{ preview: string }>(
@@ -87,11 +89,37 @@ export default function NewCommentModal({
       requestMethod(
         graphqlUrl,
         PREVIEW_COMMENT_MUTATION,
-        { content: input, sourceId: props.post.source.id },
+        { content: input, sourceId },
         { requestKey: JSON.stringify(previewQueryKey) },
       ),
-    { enabled: input?.length > 0 },
+    { enabled: input?.length > 0 && activeView === CommentTabs.Preview },
   );
+
+  return (
+    <Modal.Body view={CommentTabs.Preview}>
+      <Markdown
+        content={previewContent?.preview}
+        appendTooltipTo={parentSelector}
+      />
+    </Modal.Body>
+  );
+};
+
+export default function NewCommentModal({
+  onRequestClose,
+  editId,
+  onComment,
+  onInputChange,
+  replyTo,
+  editContent,
+  parentSelector,
+  ...props
+}: NewCommentModalProps): ReactElement {
+  const [input, setInput] = useState<string>(editContent || replyTo);
+  const [sendingComment, setSendingComment] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>(null);
+  const { showPrompt } = usePrompt();
+  const { requestMethod } = useRequestProtocol();
 
   const confirmClose = async (event: MouseEvent): Promise<void> => {
     if (
@@ -192,6 +220,7 @@ export default function NewCommentModal({
       kind={Modal.Kind.FlexibleTop}
       size={Modal.Size.Medium}
       tabs={Object.values(CommentTabs)}
+      parentSelector={parentSelector}
       {...props}
     >
       <Modal.Header.Tabs
@@ -208,12 +237,11 @@ export default function NewCommentModal({
           sendComment={sendComment}
         />
       </Modal.Body>
-      <Modal.Body view={CommentTabs.Preview}>
-        <Markdown
-          content={previewContent?.preview}
-          appendTooltipTo={props.parentSelector}
-        />
-      </Modal.Body>
+      <PreviewTab
+        input={input}
+        sourceId={props.post.source.id}
+        parentSelector={parentSelector}
+      />
       <Modal.Footer justify={Justify.Between} view={CommentTabs.Write}>
         <Button
           className="btn-tertiary"
