@@ -126,7 +126,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 data-testid="changelogImage"
               />
               <h3
-                className="mt-2.5 font-normal text-theme-label-primary typo-title3"
+                className="mt-3 font-normal text-theme-label-primary typo-title3"
                 data-testid="changelogTitle"
               >
                 {post.title}
@@ -140,22 +140,22 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               </time>
               {!!post.summary && (
                 <div
-                  className="mt-2.5 w text-theme-label-tertiary typo-callout"
+                  className="mt-2 w text-theme-label-tertiary typo-callout"
                   data-testid="changelogSummary"
                 >
                   {post.summary}
                 </div>
               )}
-              <div className="flex gap-4 py-1.5 px-2.5 mt-4 font-bold w text-theme-color-salt typo-footnote">
+              <div className="flex gap-4 py-2 px-3 mt-4 font-bold w text-theme-color-salt typo-footnote">
                 <span
-                  className="flex gap-1.5"
+                  className="flex gap-2"
                   data-testid="changelogUpvotesCounter"
                 >
                   <UpvoteIcon secondary />
                   <InteractionCounter value={post.numUpvotes} />
                 </span>
                 <span
-                  className="flex gap-1.5"
+                  className="flex gap-2"
                   data-testid="changelogCommentsCounter"
                 >
                   <CommentIcon secondary />
