@@ -17,21 +17,21 @@ import { gridGaps, gapClass } from '../../lib/feed';
 import { Button } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 
-export interface SliderItem {
+export interface FeedSliderItem {
   id: string;
 }
 
-export type SliderCanSwipeFn = <TSliderItem extends SliderItem>(
+export type FeedSliderCanSwipeFn = <TFeedSliderItem extends FeedSliderItem>(
   index: number,
-  items: TSliderItem[],
+  items: TFeedSliderItem[],
 ) => boolean;
 
-export interface SliderProps<TSliderItem extends SliderItem>
+export interface FeedSliderProps<TFeedSliderItem extends FeedSliderItem>
   extends HTMLAttributes<HTMLDivElement> {
-  items: TSliderItem[];
-  Item: FunctionComponent<{ item: TSliderItem; index: number }>;
-  canSlideRight?: SliderCanSwipeFn;
-  canSlideLeft?: SliderCanSwipeFn;
+  items: TFeedSliderItem[];
+  Item: FunctionComponent<{ item: TFeedSliderItem; index: number }>;
+  canSlideRight?: FeedSliderCanSwipeFn;
+  canSlideLeft?: FeedSliderCanSwipeFn;
   swipeEnabled?: boolean;
   swipeableProps?: Omit<
     SwipeableProps,
@@ -39,21 +39,21 @@ export interface SliderProps<TSliderItem extends SliderItem>
   >;
 }
 
-const defaultCanSlideRight: SliderCanSwipeFn = (index) => index > 0;
+const defaultCanSlideRight: FeedSliderCanSwipeFn = (index) => index > 0;
 
-const defaultCanSlideLeft: SliderCanSwipeFn = (index, items) =>
+const defaultCanSlideLeft: FeedSliderCanSwipeFn = (index, items) =>
   index < items.length;
 
-type SliderControlPosition = 'left' | 'right';
+type FeedSliderControlPosition = 'left' | 'right';
 
 const defaultItemWidth = 20 * 16; // 320px or 20rem as per Feed.module.css
 
-const SliderControlButton = ({
+const FeedSliderControlButton = ({
   onClick,
   position,
 }: {
   onClick: () => void;
-  position: SliderControlPosition;
+  position: FeedSliderControlPosition;
 }) => {
   return (
     <>
@@ -87,7 +87,7 @@ const SliderControlButton = ({
   );
 };
 
-function Slider<TSliderItem extends { id: string }>({
+function FeedSlider<TFeedSliderItem extends { id: string }>({
   className,
   items,
   Item,
@@ -95,7 +95,7 @@ function Slider<TSliderItem extends { id: string }>({
   canSlideLeft = defaultCanSlideLeft,
   swipeEnabled = true,
   swipeableProps,
-}: SliderProps<TSliderItem>): ReactElement {
+}: FeedSliderProps<TFeedSliderItem>): ReactElement {
   const [index, setIndex] = useState(0);
   const { spaciness } = useContext(SettingsContext);
   const feedSettings = useContext(FeedContext);
@@ -140,7 +140,7 @@ function Slider<TSliderItem extends { id: string }>({
     trackMouse: true,
   });
 
-  const [sliderWidth, setSliderWidth] = useState(defaultItemWidth);
+  const [sliderWidth, setFeedSliderWidth] = useState(defaultItemWidth);
 
   const rootRef = useRef<HTMLElement>();
 
@@ -149,12 +149,12 @@ function Slider<TSliderItem extends { id: string }>({
       return undefined;
     }
 
-    setSliderWidth(rootRef.current.getBoundingClientRect().width);
+    setFeedSliderWidth(rootRef.current.getBoundingClientRect().width);
 
     const onResize: ResizeObserverCallback = (entries) => {
       const entry = entries[0];
 
-      setSliderWidth(entry.contentRect.width);
+      setFeedSliderWidth(entry.contentRect.width);
     };
 
     const resizeObserver = new ResizeObserver(onResize);
@@ -182,7 +182,6 @@ function Slider<TSliderItem extends { id: string }>({
       return;
     }
 
-    // TODO WT-1109-personal-digest restore active item position after cards number change
     setIndex(0);
   }, [items.length, numCards]);
 
@@ -222,13 +221,13 @@ function Slider<TSliderItem extends { id: string }>({
         </div>
       </div>
       {canSlideRight(index, items) && (
-        <SliderControlButton position="left" onClick={onSwipedRight} />
+        <FeedSliderControlButton position="left" onClick={onSwipedRight} />
       )}
       {canSlideLeft(index, items) && (
-        <SliderControlButton position="right" onClick={onSwipedLeft} />
+        <FeedSliderControlButton position="right" onClick={onSwipedLeft} />
       )}
     </section>
   );
 }
 
-export default Slider;
+export default FeedSlider;

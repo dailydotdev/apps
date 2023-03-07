@@ -53,8 +53,7 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { MainFeedPage } from './utilities';
-import Slider from './containers/Slider';
-import { ArticlePostCard } from './cards/ArticlePostCard';
+import FeedSlider from './containers/FeedSlider';
 import useMedia from '../hooks/useMedia';
 import { Button } from './buttons/Button';
 import { ClickableText } from './buttons/ClickableText';
@@ -470,7 +469,7 @@ export default function Feed<T>({
         data-testid="posts-feed"
       >
         {showPersonalDigest && (
-          <Slider
+          <FeedSlider
             className="mb-12"
             // TODO WT-1109-personal-digest items from API
             items={[
