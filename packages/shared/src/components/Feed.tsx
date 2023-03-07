@@ -387,7 +387,7 @@ export default function Feed<T>({
   const showPersonalDigest = feedName === MainFeedPage.Popular;
 
   // TODO WT-1109-personal-digest move to proper component
-  const DigestPostItem = ({ item }: { item: Post; index: number }) => {
+  const DigestPostItem = ({ item, index }: { item: Post; index: number }) => {
     if (item.id === 'intro') {
       return (
         <article className="flex flex-col justify-center items-center p-4 w-full h-full text-center">
@@ -411,7 +411,36 @@ export default function Feed<T>({
       );
     }
 
-    return <ArticlePostCard post={item} />;
+    return (
+      <FeedItemComponent
+        items={items}
+        index={index}
+        row={calculateRow(index, virtualizedNumCards)}
+        column={calculateColumn(index, virtualizedNumCards)}
+        columns={virtualizedNumCards}
+        key={getFeedItemKey(items, index)}
+        useList={useList}
+        openNewTab={openNewTab}
+        insaneMode={insaneMode}
+        postMenuIndex={postMenuIndex}
+        showCommentPopupId={showCommentPopupId}
+        setShowCommentPopupId={setShowCommentPopupId}
+        isSendingComment={isSendingComment}
+        comment={comment}
+        user={user}
+        feedName={feedName}
+        ranking={ranking}
+        onUpvote={onUpvote}
+        onBookmark={onBookmark}
+        onPostClick={onPostCardClick}
+        onShare={onShareClick}
+        onMenuClick={onMenuClick}
+        onShareClick={onShareMenuClickTracked}
+        onCommentClick={onCommentClick}
+        onAdClick={onAdClick}
+        onReadArticleClick={onReadArticleClick}
+      />
+    );
   };
 
   const isScrollableBreakpoint = useMedia(
