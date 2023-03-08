@@ -36,6 +36,7 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
 import dynamic from 'next/dynamic';
+import SharePostBar from '@dailydotdev/shared/src/components/squads/SharePostBar';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -142,7 +143,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
-      <BaseFeedPage className="relative pt-2 mb-4 squad-background-fade">
+      <BaseFeedPage className="relative items-center pt-2 mb-4 squad-background-fade">
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
@@ -161,6 +162,12 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           variables={queryVariables}
           forceCardMode
           options={{ refetchOnMount: true }}
+          header={
+            <SharePostBar
+              className="mb-8 w-full laptop:w-[38.5rem]"
+              onNewSquadPost={onNewSquadPost}
+            />
+          }
         />
       </BaseFeedPage>
     </ProtectedPage>
