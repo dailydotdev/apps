@@ -28,6 +28,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import { sendViewPost } from '../../graphql/posts';
+import { IconSize } from '../Icon';
 
 function SquadPostContent({
   post,
@@ -127,7 +128,7 @@ function SquadPostContent({
             <ProfileTooltip user={post.author}>
               <ProfilePicture
                 user={post.author}
-                size="xxlarge"
+                size={IconSize.XLarge}
                 nativeLazyLoading
               />
             </ProfileTooltip>
@@ -163,7 +164,6 @@ function SquadPostContent({
                   size="small"
                 />
                 <ReadArticleButton
-                  buttonSize="medium"
                   className="mt-5 btn-secondary w-fit"
                   href={post.sharedPost.permalink}
                   openNewTab={openNewTab}

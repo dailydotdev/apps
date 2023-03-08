@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import { FilterItem } from './common';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import TagButton from './TagButton';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -33,7 +33,7 @@ export default function TagItemRow({
     <FilterItem className="relative pl-6 my-2">
       <TagButton
         className={!onFollowTags ? 'cursor-default' : ''}
-        buttonSize="small"
+        buttonSize={ButtonSize.Small}
         followedTags={followedTags}
         blockedTags={blockedTags}
         tagItem={tag}

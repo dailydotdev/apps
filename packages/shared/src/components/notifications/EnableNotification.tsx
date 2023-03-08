@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import NotificationsContext from '../../contexts/NotificationsContext';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
@@ -149,7 +149,7 @@ function EnableNotification({
       </p>
       {!hasEnabled && (
         <Button
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           className="mt-4 min-w-[7rem] btn-primary-cabbage"
           onClick={onEnable}
         >
@@ -169,7 +169,7 @@ function EnableNotification({
         alt="A sample browser notification"
       />
       <CloseButton
-        buttonSize="xsmall"
+        buttonSize={ButtonSize.XSmall}
         className="top-1 laptop:top-3 right-1 laptop:right-3"
         onClick={onDismiss}
         position="absolute"

@@ -19,6 +19,7 @@ import InfiniteScrolling, {
   checkFetchMore,
 } from '../containers/InfiniteScrolling';
 import ArrowIcon from '../icons/Arrow';
+import { IconSize } from '../Icon';
 
 export function SquadSelectArticle({
   form,
@@ -83,7 +84,7 @@ export function SquadSelectArticle({
                       clickable={false}
                     />
                     <ArrowIcon
-                      size="large"
+                      size={IconSize.Medium}
                       className="hidden group-hover:flex absolute top-1/2 right-3 rotate-90 -translate-y-1/2"
                     />
                   </button>

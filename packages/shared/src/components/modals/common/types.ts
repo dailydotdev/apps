@@ -15,7 +15,7 @@ export enum ModalKind {
 }
 
 export enum ModalSize {
-  XSmall = 'x-small',
+  XSmall = 'xsmall',
   Small = 'small',
   Medium = 'medium',
   Large = 'large',

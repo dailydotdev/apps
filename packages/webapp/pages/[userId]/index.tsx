@@ -41,6 +41,7 @@ import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { weeklyGoal } from '@dailydotdev/shared/src/lib/constants';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
 import {
   getLayout as getProfileLayout,
@@ -213,7 +214,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 selectedIndex={selectedHistoryYear}
                 options={dropdownOptions}
                 onChange={(val, index) => setSelectedHistoryYear(index)}
-                buttonSize="small"
+                buttonSize={ButtonSize.Small}
               />
             </ActivitySectionHeader>
             <div className="grid grid-cols-5 tablet:grid-cols-3 tablet:gap-2 gap-x-1 gap-y-3 tablet:max-w-full max-w-[17rem]">

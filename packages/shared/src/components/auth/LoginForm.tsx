@@ -8,6 +8,7 @@ import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import AuthForm from './AuthForm';
+import { IconSize } from '../Icon';
 
 interface LoginFormProps {
   onForgotPassword?: () => unknown;
@@ -61,7 +62,7 @@ function LoginForm({
       }}
     >
       <TextField
-        leftIcon={<MailIcon size="medium" />}
+        leftIcon={<MailIcon size={IconSize.Small} />}
         inputId="identifier"
         name="identifier"
         label="Email"

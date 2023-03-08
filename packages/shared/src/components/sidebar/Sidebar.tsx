@@ -22,7 +22,7 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
 import { SquadsList } from './SquadsList';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import PlusIcon from '../icons/Plus';
 import { ProfilePicture } from '../ProfilePicture';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -135,7 +135,7 @@ export default function Sidebar({
             {newSquadButtonVisible && (
               <div className="flex">
                 <Button
-                  buttonSize="small"
+                  buttonSize={ButtonSize.Small}
                   icon={<PlusIcon />}
                   iconOnly={!sidebarExpanded}
                   className={classNames(

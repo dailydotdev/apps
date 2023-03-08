@@ -6,7 +6,7 @@ import {
   TOAST_NOTIF_KEY,
 } from '../../hooks/useToastNotification';
 import classed from '../../lib/classed';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import styles from './Toast.module.css';
 import XIcon from '../icons/Close';
 import { isTouchDevice } from '../../lib/tooltip';
@@ -98,7 +98,7 @@ const Toast = ({
         {toast?.onUndo && (
           <Button
             className="ml-2 btn-primary"
-            buttonSize="xsmall"
+            buttonSize={ButtonSize.XSmall}
             onClick={undoAction}
             aria-label="Undo action"
           >
@@ -107,7 +107,7 @@ const Toast = ({
         )}
         <Button
           className="ml-2 btn-primary"
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           icon={<XIcon />}
           onClick={dismissToast}
           aria-label="Dismiss toast notification"

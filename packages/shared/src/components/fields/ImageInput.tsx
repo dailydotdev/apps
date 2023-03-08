@@ -9,6 +9,7 @@ import React, {
 import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
 import EditIcon from '../icons/Edit';
+import { IconSize } from '../Icon';
 
 type Size = 'medium' | 'large';
 
@@ -35,6 +36,10 @@ const TWO_MEGABYTES = 2 * 1024 * 1024;
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
   large: 'w-40 h-40 rounded-[2.5rem]',
+};
+const sizeToIconSize: Record<Size, IconSize> = {
+  medium: IconSize.Small,
+  large: IconSize.Medium,
 };
 
 function ImageInput({
@@ -117,7 +122,7 @@ function ImageInput({
           !viewOnly && 'mouse:group-hover:block absolute',
         )}
       >
-        {hoverIcon || <EditIcon size={size} secondary />}
+        {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
       </span>
       <span
         className={classNames('typo-footnote', error ? 'visible' : 'invisible')}

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 
 interface AccountDangerZoneProps {
   onDelete: () => void;
@@ -46,7 +46,7 @@ function AccountDangerZone({
       {children}
       <Button
         onClick={onDelete}
-        buttonSize="small"
+        buttonSize={ButtonSize.Small}
         className="self-start mt-6 btn-primary-ketchup text-theme-label-primary"
       >
         Delete account

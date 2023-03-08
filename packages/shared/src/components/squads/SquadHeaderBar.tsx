@@ -8,6 +8,7 @@ import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberShortList, {
   SquadMemberShortListProps,
 } from './SquadMemberShortList';
+import { IconSize } from '../Icon';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -41,7 +42,7 @@ export function SquadHeaderBar({
       <SimpleTooltip placement="top" content="Squad options">
         <Button
           className="tablet:order-2 btn btn-secondary"
-          icon={<MenuIcon size="medium" />}
+          icon={<MenuIcon size={IconSize.Small} />}
           onClick={onMenuClick}
           aria-label="Squad options"
         />

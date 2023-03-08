@@ -1,4 +1,7 @@
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import classNames from 'classnames';
@@ -39,7 +42,7 @@ export function CustomLinks({
           className="btn-tertiary"
           icon={<MenuIcon />}
           onClick={onOptions}
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
         />
       </SimpleTooltip>
     </div>

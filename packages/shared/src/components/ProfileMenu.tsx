@@ -7,6 +7,7 @@ import PowerIcon from './icons/Power';
 import UserIcon from './icons/User';
 import DevCardIcon from './icons/DevCard';
 import SettingsIcon from './icons/Settings';
+import { IconSize } from './Icon';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -32,7 +33,11 @@ export default function ProfileMenu(): ReactElement {
       <Item>
         <Link href={user.permalink} passHref prefetch={false}>
           <a className="flex items-center w-full">
-            <UserIcon size="medium" secondary={false} className="mr-2" />{' '}
+            <UserIcon
+              size={IconSize.Small}
+              secondary={false}
+              className="mr-2"
+            />{' '}
             Profile
           </a>
         </Link>
@@ -44,7 +49,11 @@ export default function ProfileMenu(): ReactElement {
           prefetch={false}
         >
           <a className="flex items-center w-full">
-            <SettingsIcon size="medium" secondary={false} className="mr-2" />{' '}
+            <SettingsIcon
+              size={IconSize.Small}
+              secondary={false}
+              className="mr-2"
+            />{' '}
             Account details
           </a>
         </Link>
@@ -56,12 +65,12 @@ export default function ProfileMenu(): ReactElement {
           prefetch={false}
         >
           <a className="flex items-center w-full">
-            <DevCardIcon size="medium" className="mr-2" /> Dev card
+            <DevCardIcon size={IconSize.Small} className="mr-2" /> Dev card
           </a>
         </Link>
       </Item>
       <Item onClick={logout}>
-        <PowerIcon size="medium" className="mr-2" /> Logout
+        <PowerIcon size={IconSize.Small} className="mr-2" /> Logout
       </Item>
     </PortalMenu>
   );

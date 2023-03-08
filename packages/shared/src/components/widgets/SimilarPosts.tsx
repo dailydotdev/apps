@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import BookmarkIcon from '../icons/Bookmark';
 import { Post } from '../../graphql/posts';
@@ -86,7 +86,7 @@ const ListItem = ({
       <Button
         className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
         pressed={post.bookmarked}
-        buttonSize="small"
+        buttonSize={ButtonSize.Small}
         icon={<BookmarkIcon secondary={post.bookmarked} />}
         onClick={() => onBookmark(post)}
       />
@@ -157,7 +157,7 @@ export default function SimilarPosts({
       <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL} passHref>
         <Button
           className="self-start my-2 ml-2 btn-tertiary"
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}
         >

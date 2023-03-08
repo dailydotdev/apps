@@ -4,6 +4,7 @@ import { ownershipGuide } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import FeatherIcon from '../icons/Feather';
 import styles from './AuthorOnboarding.module.css';
+import { IconSize } from '../Icon';
 
 interface AuthorOnboardingProps {
   onSignUp?: () => unknown;
@@ -26,7 +27,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
       >
         <FeatherIcon
           secondary
-          size="xxlarge"
+          size={IconSize.XLarge}
           className="text-theme-status-help icon"
         />
         <h3>Author</h3>

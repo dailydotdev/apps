@@ -100,7 +100,12 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
   notifications: {
     title: 'Notifications',
     href: '/notifications',
-    getIcon: ({ isActive }) => <BellIcon secondary={isActive} />,
+    getIcon: ({ isActive }) => (
+      <BellIcon
+        secondary={isActive}
+        className={!isActive && 'text-theme-label-secondary'}
+      />
+    ),
   },
   others: {
     title: 'Other Settings',

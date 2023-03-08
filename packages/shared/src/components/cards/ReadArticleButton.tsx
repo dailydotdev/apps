@@ -12,7 +12,7 @@ interface ReadArticleButtonProps {
 
 export const ReadArticleButton = ({
   openNewTab,
-  buttonSize = 'small',
+  buttonSize = ButtonSize.Small,
   ...props
 }: ReadArticleButtonProps): ReactElement => (
   <Button

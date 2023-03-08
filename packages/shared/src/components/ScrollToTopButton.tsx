@@ -1,5 +1,5 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
-import { Button, ButtonProps } from './buttons/Button';
+import { Button, ButtonProps, ButtonSize } from './buttons/Button';
 import ArrowIcon from './icons/Arrow';
 
 const baseStyle: CSSProperties = {
@@ -36,14 +36,14 @@ export default function ScrollToTopButton(): ReactElement {
         aria-label="scroll to top"
         {...props}
         className="laptop:hidden right-4 z-2 btn-primary"
-        buttonSize="large"
+        buttonSize={ButtonSize.Large}
         style={{ ...style, bottom: '4.5rem' }}
       />
       <Button
         aria-label="scroll to top"
         {...props}
         className="hidden laptop:flex right-8 bottom-8 z-2 btn-primary"
-        buttonSize="xlarge"
+        buttonSize={ButtonSize.XLarge}
         style={style}
       />
     </>

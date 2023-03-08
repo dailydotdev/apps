@@ -1,30 +1,31 @@
 import React, {
-  HTMLAttributes,
-  ReactNode,
-  ReactElement,
-  Ref,
   forwardRef,
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  Ref,
 } from 'react';
 import classNames from 'classnames';
-import { Size, IconProps } from '../Icon';
+import { IconProps, IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
 
-export type ButtonSize =
-  | 'xxsmall'
-  | 'xsmall'
-  | 'small'
-  | 'medium'
-  | 'large'
-  | 'xlarge';
+export enum ButtonSize {
+  XXSmall = 'xxsmall',
+  XSmall = 'xsmall',
+  Small = 'small',
+  Medium = 'medium',
+  Large = 'large',
+  XLarge = 'xlarge',
+}
 
-const IconSize: Record<ButtonSize, Size> = {
-  xxsmall: 'xsmall',
-  xsmall: 'small',
-  small: 'medium',
-  medium: 'large',
-  large: 'xlarge',
-  xlarge: 'xxlarge',
+const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
+  [ButtonSize.XXSmall]: IconSize.XXSmall,
+  [ButtonSize.XSmall]: IconSize.XSmall,
+  [ButtonSize.Small]: IconSize.Small,
+  [ButtonSize.Medium]: IconSize.Medium,
+  [ButtonSize.Large]: IconSize.Large,
+  [ButtonSize.XLarge]: IconSize.XLarge,
 };
 
 export interface StyledButtonProps {
@@ -50,7 +51,7 @@ export interface BaseButtonProps {
 const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
   return (icon: React.ReactElement<IconProps>) =>
     React.cloneElement(icon, {
-      size: IconSize[size],
+      size: icon.props?.size ?? buttonSizeToIconSize[size],
       className: classNames(icon.props.className, !iconOnly && 'icon'),
     });
 };
@@ -74,7 +75,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     pressed,
     icon,
     rightIcon,
-    buttonSize = 'medium',
+    buttonSize = ButtonSize.Medium,
     children,
     tag: Tag = 'button',
     className,
