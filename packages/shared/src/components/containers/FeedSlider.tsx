@@ -15,6 +15,7 @@ import FeedContext from '../../contexts/FeedContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import { gridGaps, gapClass } from '../../lib/feed';
 import { Button } from '../buttons/Button';
+import { IconSize } from '../Icon';
 import ArrowIcon from '../icons/Arrow';
 
 export type FeedSliderItem = {
@@ -80,7 +81,7 @@ const FeedSliderControlButton = ({
         >
           <ArrowIcon
             className={position === 'left' ? '-rotate-90' : 'rotate-90'}
-            size="xlarge"
+            size={IconSize.Large}
           />
         </Button>
       </div>
