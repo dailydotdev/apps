@@ -42,9 +42,9 @@ export interface FeedSliderProps<TFeedSliderItem extends FeedSliderItem>
 export const defaultCanSlideRight: FeedSliderCanSwipeFn = (index) => index > 0;
 
 export const defaultCanSlideLeft: FeedSliderCanSwipeFn = (index, items) =>
-  index < items.length;
+  index < items.length - 1;
 
-type FeedSliderControlPosition = 'left' | 'right';
+export type FeedSliderControlPosition = 'left' | 'right';
 
 const defaultItemWidth = 20 * 16; // 320px or 20rem as per Feed.module.css
 
@@ -76,6 +76,7 @@ const FeedSliderControlButton = ({
           onClick={() => {
             onClick();
           }}
+          data-testid={`feedSliderControl-${position}`}
         >
           <ArrowIcon
             className={position === 'left' ? '-rotate-90' : 'rotate-90'}
