@@ -204,13 +204,13 @@ function ChangelogTooltip<TRef extends HTMLElement>({
             <div
               {...arrowProps}
               className={classNames(
-                'flex items-center h-2',
+                'flex items-center h-2 -z-1',
                 sidebarExpanded ? '-left-14' : '-left-[2.65rem]',
               )}
             >
               <div
                 className={classNames(
-                  sidebarExpanded ? 'w-14' : 'w-[2.65rem]',
+                  sidebarExpanded ? 'w-16' : 'w-[4.65rem]',
                   'h-px bg-cabbage-40',
                 )}
               />
