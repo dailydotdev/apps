@@ -1,6 +1,6 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import { ButtonProps } from '../../buttons/Button';
+import { ButtonProps, ButtonSize } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
 
 function ModalCloseComponent(
@@ -8,7 +8,7 @@ function ModalCloseComponent(
     className,
     style,
     onClick,
-    buttonSize = 'medium',
+    buttonSize = ButtonSize.Medium,
     ...props
   }: ButtonProps<'button'>,
   ref: Ref<HTMLButtonElement>,

@@ -16,6 +16,7 @@ import { Modal } from '../modals/common/Modal';
 import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
+import { IconSize } from '../Icon';
 
 const squadImageId = 'squad_image_file';
 
@@ -107,7 +108,7 @@ export function SquadDetails({
               container: '!rounded-full border-0 my-1',
               img: 'object-cover',
             }}
-            hoverIcon={<CameraIcon size="xlarge" />}
+            hoverIcon={<CameraIcon size={IconSize.Large} />}
             alwayShowHover={!createMode && !imageChanged}
             onChange={() => setImageChanged(true)}
             size={createMode ? 'medium' : 'large'}

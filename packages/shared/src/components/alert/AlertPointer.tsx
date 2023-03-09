@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
 import classNames from 'classnames';
 import XIcon from '../icons/Close';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import {
   AlertPointerMessage,
   AlertPointerCopy,
@@ -123,7 +123,7 @@ export default function AlertPointer({
             data-testid="alert-close"
             onClick={onClose}
             icon={<XIcon />}
-            buttonSize="xsmall"
+            buttonSize={ButtonSize.XSmall}
             iconOnly
             style={{ position: 'absolute' }}
             className="top-2 right-2 btn-tertiary"

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import Link from 'next/link';
 import React, { ReactElement } from 'react';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { IconProps } from '../Icon';
+import { IconProps, IconSize } from '../Icon';
 
 export interface ContextMenuItemProps extends Omit<ItemProps, 'children'> {
   href?: string;
@@ -34,7 +34,7 @@ function ContextMenuItem({
         onClick={onClick}
       >
         <span className="flex items-center w-full">
-          <Icon size="medium" className="mr-2" />
+          <Icon size={IconSize.Small} className="mr-2" />
           {label}
         </span>
       </Item>

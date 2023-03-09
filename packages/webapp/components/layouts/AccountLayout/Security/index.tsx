@@ -1,5 +1,8 @@
 import { getProviderMapClone } from '@dailydotdev/shared/src/components/auth/common';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
@@ -217,7 +220,7 @@ function AccountSecurityDefault({
         )}
         {hasPassword && (
           <Button
-            buttonSize="small"
+            buttonSize={ButtonSize.Small}
             className="mt-6 w-fit btn-secondary"
             onClick={() => onSwitchDisplay(Display.ChangeEmail)}
           >
@@ -264,7 +267,7 @@ function AccountSecurityDefault({
           />
           <Button
             type="submit"
-            buttonSize="small"
+            buttonSize={ButtonSize.Small}
             className="mt-6 w-fit btn-secondary"
           >
             Set password

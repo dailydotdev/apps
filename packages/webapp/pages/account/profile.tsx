@@ -15,6 +15,7 @@ import useProfileForm, {
 import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -73,7 +74,7 @@ const AccountProfilePage = (): ReactElement => {
             id={id}
             className={{ container: 'mt-6', img: 'object-cover' }}
             initialValue={user.image}
-            hoverIcon={<CameraIcon size="xlarge" />}
+            hoverIcon={<CameraIcon size={IconSize.Large} />}
           />
         </AccountContentSection>
         <AccountContentSection title="Account Information">

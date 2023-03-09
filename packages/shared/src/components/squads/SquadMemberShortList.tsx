@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Squad, SquadMember } from '../../graphql/squads';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import AddUserIcon from '../icons/AddUser';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture } from '../ProfilePicture';
@@ -65,7 +65,7 @@ function SquadMemberShortList({
       </SimpleTooltip>
       <Button
         className="m-1 active:bg-theme-active btn-tertiary"
-        buttonSize="small"
+        buttonSize={ButtonSize.Small}
         onClick={openSquadInviteModal}
         icon={<AddUserIcon className="text-theme-label-secondary" />}
       >

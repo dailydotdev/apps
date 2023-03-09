@@ -8,7 +8,10 @@ import React, {
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { LoaderOverlay } from '@dailydotdev/shared/src/components/LoaderOverlay';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
@@ -71,7 +74,7 @@ const Step1 = ({
           (user ? (
             <Button
               className="btn-primary"
-              buttonSize="large"
+              buttonSize={ButtonSize.Large}
               onClick={() => onGenerateImage()}
               loading={isLoadingImage}
             >
@@ -80,7 +83,7 @@ const Step1 = ({
           ) : (
             <Button
               className="btn-secondary"
-              buttonSize="large"
+              buttonSize={ButtonSize.Large}
               onClick={() => showLogin(AuthTriggers.DevCard)}
             >
               Login to generate
@@ -183,7 +186,7 @@ const Step2 = ({
           <div className="grid grid-cols-2 gap-4 mx-2 mt-8">
             <Button
               className="btn-primary"
-              buttonSize="large"
+              buttonSize={ButtonSize.Large}
               onClick={downloadImage}
               loading={downloading}
             >
@@ -191,7 +194,7 @@ const Step2 = ({
             </Button>
             <Button
               className="btn-secondary"
-              buttonSize="large"
+              buttonSize={ButtonSize.Large}
               onClick={() => copyLink()}
             >
               {!copyingLink ? 'Copy link' : 'Copied!'}
@@ -268,7 +271,7 @@ const Step2 = ({
             </textarea>
             <Button
               className="mt-4 btn-secondary"
-              buttonSize="small"
+              buttonSize={ButtonSize.Small}
               onClick={() => copyEmbed()}
             >
               {!copyingEmbed ? 'Copy code' : 'Copied!'}

@@ -1,7 +1,10 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import {
   AccountPageContent,
@@ -42,14 +45,14 @@ export const AccountPageContainer = ({
         <Button
           className="flex tablet:hidden mr-2 btn-tertiary"
           icon={<ArrowIcon className="-rotate-90" />}
-          buttonSize="xsmall"
+          buttonSize={ButtonSize.XSmall}
           onClick={openSideNav}
         />
         {onBack && (
           <Button
             className="mr-2 btn-tertiary"
             icon={<ArrowIcon className="-rotate-90" />}
-            buttonSize="xsmall"
+            buttonSize={ButtonSize.XSmall}
             onClick={onBack}
           />
         )}

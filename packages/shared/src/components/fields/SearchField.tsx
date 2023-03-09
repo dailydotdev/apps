@@ -1,9 +1,9 @@
 import React, {
-  InputHTMLAttributes,
-  ReactElement,
-  MouseEvent,
-  forwardRef,
   ForwardedRef,
+  forwardRef,
+  InputHTMLAttributes,
+  MouseEvent,
+  ReactElement,
 } from 'react';
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
@@ -11,7 +11,7 @@ import { BaseField, FieldInput } from './common';
 import SearchIcon from '../icons/Search';
 import CloseIcon from '../icons/Close';
 import ArrowIcon from '../icons/Arrow';
-import { Button, ButtonProps } from '../buttons/Button';
+import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
 
 export interface SearchFieldProps
@@ -108,7 +108,7 @@ export const SearchField = forwardRef(function SearchField(
           <Button
             type="button"
             className="mr-2 btn-tertiary"
-            buttonSize="xsmall"
+            buttonSize={ButtonSize.XSmall}
             title="Clear query"
             onClick={onClearClick}
             icon={
@@ -157,7 +157,7 @@ export const SearchField = forwardRef(function SearchField(
         <Button
           {...rightButtonProps}
           className={isSecondary ? 'btn-primary' : 'btn-tertiary'}
-          buttonSize={rightButtonProps.buttonSize || 'xsmall'}
+          buttonSize={rightButtonProps.buttonSize || ButtonSize.XSmall}
           title={rightButtonProps.title || 'Clear query'}
           onClick={
             rightButtonProps.type !== 'submit'

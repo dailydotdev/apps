@@ -1,4 +1,7 @@
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { ReactElement, Ref, forwardRef, useContext } from 'react';
@@ -44,7 +47,7 @@ const CompanionPermissionComponent = (
         <Button
           className="mt-1 w-[12.5rem] btn btn-primary"
           onClick={requestContentScripts}
-          buttonSize="small"
+          buttonSize={ButtonSize.Small}
         >
           {button}
         </Button>

@@ -1,10 +1,11 @@
 import React, { ReactElement, useState } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import ArrowIcon from '../icons/Arrow';
 import MailIcon from '../icons/Mail';
 import AuthForm from './AuthForm';
 import { privacyPolicy, termsOfService } from '../../lib/constants';
+import { IconSize } from '../Icon';
 
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
@@ -20,7 +21,7 @@ function EmailSignupForm({
   return (
     <AuthForm className="gap-2" onSubmit={onSubmit}>
       <TextField
-        leftIcon={<MailIcon size="medium" />}
+        leftIcon={<MailIcon size={IconSize.Small} />}
         inputId="email"
         label="Email"
         type="email"
@@ -28,7 +29,7 @@ function EmailSignupForm({
         valueChanged={(value) => setEmail(value)}
         actionButton={
           <Button
-            buttonSize="small"
+            buttonSize={ButtonSize.Small}
             className="btn-primary"
             icon={<ArrowIcon className="rotate-90" />}
             type="submit"

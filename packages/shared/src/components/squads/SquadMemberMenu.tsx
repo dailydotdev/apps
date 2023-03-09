@@ -4,6 +4,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import AuthContext from '../../contexts/AuthContext';
 import FlagIcon from '../icons/Flag';
 import { reportSquadMember } from '../../lib/constants';
+import { IconSize } from '../Icon';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -36,8 +37,12 @@ export default function SquadMemberMenu({
           rel="noopener noreferrer"
         >
           <span className="flex items-center w-full typo-callout">
-            <FlagIcon size="medium" secondary={false} className="mr-2" /> Report
-            member
+            <FlagIcon
+              size={IconSize.Small}
+              secondary={false}
+              className="mr-2"
+            />{' '}
+            Report member
           </span>
         </a>
       </Item>

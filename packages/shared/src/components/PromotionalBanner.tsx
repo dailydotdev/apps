@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import XIcon from './icons/Close';
-import { Button } from './buttons/Button';
+import { Button, ButtonSize } from './buttons/Button';
 import { isTesting } from '../lib/constants';
 import { BannerCustomTheme, BannerData, BannerTheme } from '../graphql/banner';
 import { Theme } from './utilities';
@@ -97,13 +97,13 @@ export default function PromotionalBanner({
       <Button
         tag="a"
         href={banner.url}
-        buttonSize="xsmall"
+        buttonSize={ButtonSize.XSmall}
         className={classNames('mt-2 laptop:ml-4 laptop:mt-0', button)}
       >
         {banner.cta}
       </Button>
       <Button
-        buttonSize="xsmall"
+        buttonSize={ButtonSize.XSmall}
         className="laptop:inset-y-0 top-2 right-2 laptop:my-auto btn-tertiary"
         style={{ position: 'absolute' }}
         icon={<XIcon />}

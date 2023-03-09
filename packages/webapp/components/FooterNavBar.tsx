@@ -24,6 +24,7 @@ import {
   AnalyticsEvent,
   NotificationTarget,
 } from '@dailydotdev/shared/src/lib/analytics';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -40,20 +41,24 @@ export const tabs: Tab[] = [
   {
     path: '/',
     title: 'Home',
-    icon: (active: boolean) => <HomeIcon secondary={active} size="xxlarge" />,
+    icon: (active: boolean) => (
+      <HomeIcon secondary={active} size={IconSize.Medium} />
+    ),
   },
   {
     path: '/bookmarks',
     title: 'Bookmarks',
     icon: (active: boolean) => (
-      <BookmarkIcon secondary={active} size="xxlarge" />
+      <BookmarkIcon secondary={active} size={IconSize.Medium} />
     ),
     shouldShowLogin: true,
   },
   {
     path: '/search',
     title: 'Search',
-    icon: (active: boolean) => <SearchIcon secondary={active} size="xxlarge" />,
+    icon: (active: boolean) => (
+      <SearchIcon secondary={active} size={IconSize.Medium} />
+    ),
   },
   {
     requiresLogin: true,
@@ -67,14 +72,16 @@ export const tabs: Tab[] = [
             {getUnreadText(unreadCount)}
           </Bubble>
         ) : null}
-        <BellIcon secondary={active} size="xxlarge" />
+        <BellIcon secondary={active} size={IconSize.Medium} />
       </span>
     ),
   },
   {
     path: '/filters',
     title: 'Filters',
-    icon: (active: boolean) => <FilterIcon secondary={active} size="xxlarge" />,
+    icon: (active: boolean) => (
+      <FilterIcon secondary={active} size={IconSize.Medium} />
+    ),
   },
 ];
 
@@ -90,7 +97,7 @@ export default function FooterNavBar(): ReactElement {
   } = {
     className: 'btn-tertiary',
     style: { width: '100%' },
-    buttonSize: 'large',
+    buttonSize: ButtonSize.Large,
   };
 
   const onNavigateNotifications = () => {
