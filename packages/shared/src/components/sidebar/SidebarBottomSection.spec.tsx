@@ -67,7 +67,7 @@ describe('SidebarBottomSection component', () => {
     );
   };
 
-  it('should render changelog and badge if available', async () => {
+  it('should render changelog if available', async () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
@@ -78,13 +78,10 @@ describe('SidebarBottomSection component', () => {
     renderComponent({ client });
     const changelog = await screen.findByTestId('changelog');
 
-    const changelogBadge = await screen.findByTestId('changelogBadge');
-    expect(changelogBadge).toBeInTheDocument();
-
     expect(changelog).toBeInTheDocument();
   });
 
-  it('should NOT render changelog and badge if changelog NOT available', () => {
+  it('should NOT render changelog if changelog NOT available', () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'latest-post'], defaultPost);
     defaultAlerts.changelog = false;
@@ -93,9 +90,6 @@ describe('SidebarBottomSection component', () => {
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
     renderComponent({ client });
-
-    const changelogBadge = screen.queryByTestId('changelogBadge');
-    expect(changelogBadge).not.toBeInTheDocument();
 
     const changelog = screen.queryByTestId('changelog');
     expect(changelog).not.toBeInTheDocument();

@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useRef } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
@@ -8,9 +8,7 @@ import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
-import { AlertColor, AlertDot } from '../AlertDot';
 import { useChangelog } from '../../hooks/useChangelog';
-import SettingsContext from '../../contexts/SettingsContext';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -31,7 +29,6 @@ export function SidebarBottomSectionSection({
 }: SidebarBottomSectionProps): ReactElement {
   const changelog = useChangelog();
   const navItemRef = useRef<HTMLElement>();
-  const { sidebarExpanded } = useContext(SettingsContext);
 
   const bottomMenuItems: SidebarMenuItem[] = [
     {
@@ -44,16 +41,6 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      rightIcon: changelog.isAvailable
-        ? () => (
-            <div className="h-2" data-testid="changelogBadge">
-              <AlertDot
-                className={sidebarExpanded ? 'right-2' : 'right-1'}
-                color={AlertColor.Cabbage}
-              />
-            </div>
-          )
-        : undefined,
       navItemRef,
     },
     {

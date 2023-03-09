@@ -21,6 +21,7 @@ import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
 import InteractionCounter from '../InteractionCounter';
 import SettingsContext from '../../contexts/SettingsContext';
+import { AlertColor, AlertDot } from '../AlertDot';
 
 interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
   elementRef: MutableRefObject<TRef>;
@@ -98,7 +99,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       content={
         !!post && (
           <div
-            className="flex flex-col whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none w-[22.5rem] changelog bg-theme-bg-tertiary border-theme-color-cabbage"
+            className="flex flex-col whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none min-w-[22.5rem] changelog bg-theme-bg-tertiary border-theme-color-cabbage"
             data-testid="changelog"
           >
             <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
@@ -198,14 +199,27 @@ function ChangelogTooltip<TRef extends HTMLElement>({
         paddingClassName: 'p-0',
         roundedClassName: 'rounded-16',
         bgClassName: 'bg-cabbage-40',
-        arrowClassName: classNames(
-          sidebarExpanded ? 'bottom-[8.05rem]' : 'bottom-[3.05rem]',
-          sidebarExpanded ? 'before:!w-14' : 'before:!w-9',
-          'bg-cabbage-40 !left-0 !h-2.5 !w-0 flex items-center justify-end before:!w-14 before:!h-px before:!transform-none',
-        ),
+        ArrowComponent: ({ className, ...arrowProps }) => {
+          return (
+            <div
+              {...arrowProps}
+              className={classNames(
+                'flex items-center h-2',
+                sidebarExpanded ? '-left-14' : '-left-[2.65rem]',
+              )}
+            >
+              <div
+                className={classNames(
+                  sidebarExpanded ? 'w-14' : 'w-[2.65rem]',
+                  'h-px bg-cabbage-40',
+                )}
+              />
+              <AlertDot color={AlertColor.Cabbage} />
+            </div>
+          );
+        },
       }}
       reference={elementRef}
-      arrow
       placement="right-end"
       visible={!!post}
       zIndex={9}

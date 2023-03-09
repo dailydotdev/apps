@@ -1,6 +1,5 @@
 import React, { useState, ReactElement, Ref } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
-import classNames from 'classnames';
 import styles from './BaseTooltip.module.css';
 import { isTouchDevice } from '../../lib/tooltip';
 import { isTesting } from '../../lib/constants';
@@ -33,21 +32,26 @@ export interface TooltipProps
     | 'offset'
     | 'trigger'
     | 'disabled'
+    | 'showArrow'
   > {
-  container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
+  container?: Omit<
+    BaseTooltipContainerProps,
+    'placement' | 'children' | 'showArrow'
+  >;
   forceLoad?: boolean;
 }
 
-export interface BaseTooltipProps extends TippyProps {
-  container?: Omit<BaseTooltipContainerProps, 'children'>;
+export interface BaseTooltipProps extends Omit<TippyProps, 'arrow'> {
+  container?: Omit<BaseTooltipContainerProps, 'children' | 'showArrow'>;
   placement?: TooltipPosition;
   disabled?: boolean;
+  showArrow?: boolean;
 }
 
 export function BaseTooltip(
   {
     render,
-    arrow = true,
+    showArrow = true,
     placement = 'top',
     delay = DEFAULT_DELAY_MS,
     duration = DEFAULT_DURATION,
@@ -82,18 +86,15 @@ export function BaseTooltip(
       duration={duration}
       className={styles.tippyTooltip}
       allowHTML
+      arrow={false} // disable tippy arrow since we alway inject custom one through BaseTooltipContainer
       content={
         !content || disabled ? (
           <></>
         ) : (
           <BaseTooltipContainer
-            arrow={!!arrow}
             {...container}
+            showArrow={showArrow}
             placement={placement}
-            arrowClassName={classNames(
-              styles.tippyTooltipArrow,
-              container.arrowClassName,
-            )}
           >
             {mounted && content}
           </BaseTooltipContainer>
