@@ -56,6 +56,10 @@ const FeedSliderControlButton = ({
   onClick: () => void;
   position: FeedSliderControlPosition;
 }) => {
+  const handleClick = () => {
+    onClick();
+  };
+
   return (
     <>
       <div
@@ -74,9 +78,7 @@ const FeedSliderControlButton = ({
       >
         <Button
           className="w-12 h-12 btn-primary"
-          onClick={() => {
-            onClick();
-          }}
+          onClick={handleClick}
           data-testid={`feedSliderControl-${position}`}
         >
           <ArrowIcon
@@ -184,6 +186,8 @@ function FeedSlider<TFeedSliderItem extends { id: string }>({
       return;
     }
 
+    // reset slider to the first item when numCards change
+    // to prevent overflow
     setIndex(0);
   }, [items.length, numCards]);
 

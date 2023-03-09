@@ -54,7 +54,7 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { MainFeedPage } from './utilities';
-import FeedSlider, { defaultCanSlideRight } from './containers/FeedSlider';
+import { defaultCanSlideRight } from './containers/FeedSlider';
 import useMedia from '../hooks/useMedia';
 import { Button } from './buttons/Button';
 import { ClickableText } from './buttons/ClickableText';
@@ -96,6 +96,10 @@ const ScrollFeedFiltersOnboarding = dynamic(
     import(
       /* webpackChunkName: "scrollFeedFiltersOnboarding" */ './ScrollFeedFiltersOnboarding'
     ),
+);
+
+const FeedSlider = dynamic(
+  () => import(/* webpackChunkName: "FeedSlider" */ './containers/FeedSlider'),
 );
 
 const calculateRow = (index: number, numCards: number): number =>
