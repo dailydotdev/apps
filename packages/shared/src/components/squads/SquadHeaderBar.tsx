@@ -13,7 +13,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { squadFeedback } from '../../lib/constants';
 import FeedbackIcon from '../icons/Feedback';
 import { useAuthContext } from '../../contexts/AuthContext';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -29,7 +28,6 @@ export function SquadHeaderBar({
   ...props
 }: SquadHeaderBarProps): ReactElement {
   const { user } = useAuthContext();
-  const { sidebarRendered } = useSidebarRendered();
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
   const { openModal } = useLazyModal();
   const openSquadInviteModal = () =>
@@ -65,9 +63,7 @@ export function SquadHeaderBar({
           className="btn-secondary"
           icon={<FeedbackIcon aria-label="squad-feedback-icon" />}
           aria-label="squad-feedback"
-        >
-          {sidebarRendered ? 'Feedback' : ''}
-        </Button>
+        />
         <SimpleTooltip placement="top" content="Squad options">
           <Button
             className="btn-secondary"
