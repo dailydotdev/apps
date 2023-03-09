@@ -15,10 +15,8 @@ export function useChangelog(): UseChangelog {
   const { sidebarRendered } = useSidebarRendered();
 
   const { data: latestPost } = useQuery(
-    ['changelog', 'latest-post'] as const,
-    async () => {
-      return getLatestChangelogPost();
-    },
+    ['changelog', 'latest-post'],
+    getLatestChangelogPost,
     {
       enabled: sidebarRendered && !!alerts.changelog,
     },
