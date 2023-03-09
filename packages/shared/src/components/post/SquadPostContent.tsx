@@ -128,7 +128,7 @@ function SquadPostContent({
             <ProfileTooltip user={post.author}>
               <ProfilePicture
                 user={post.author}
-                size={IconSize.XLarge}
+                size="xxlarge"
                 nativeLazyLoading
               />
             </ProfileTooltip>
