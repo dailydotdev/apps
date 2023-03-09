@@ -6,6 +6,7 @@ import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { getPostByUrl, Post } from '../../graphql/posts';
+import { ApiError, ApiErrorResult } from '../../graphql/common';
 
 export interface NewSquadPostProps {
   post?: Post;
@@ -26,7 +27,10 @@ function SharePostBar({
     onSuccess: (post) => {
       onNewSquadPost({ post });
     },
-    onError: () => {
+    onError: (err: ApiErrorResult) => {
+      if (err?.response?.errors?.[0].extensions.code !== ApiError.NotFound)
+        return;
+
       onNewSquadPost({ url });
     },
   });
