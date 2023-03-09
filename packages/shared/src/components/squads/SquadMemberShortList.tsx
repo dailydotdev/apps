@@ -28,50 +28,33 @@ function SquadMemberShortList({
         placeholderAmount: squad?.membersCount,
       },
     });
-  const openSquadInviteModal = () =>
-    openModal({
-      type: LazyModal.SquadInvite,
-      props: {
-        initialSquad: squad,
-      },
-    });
 
   return (
-    <div className="flex overflow-hidden items-center rounded-14 border border-theme-divider-secondary">
-      <SimpleTooltip placement="top" content="Members list">
-        <button
-          type="button"
-          className="flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active border-r border-theme-divider-tertiary"
-          onClick={openMemberListModal}
-        >
-          <span
-            className="mr-1 ml-2 min-w-[1rem]"
-            aria-label="squad-members-count"
-          >
-            {memberCount}
-          </span>
-          {members?.map(({ user }, index) => (
-            <ProfilePicture
-              className={classNames(
-                '-ml-2 border-2 border-theme-bg-primary',
-                index > 2 && 'hidden tablet:flex',
-              )}
-              size="medium"
-              key={user.username}
-              user={user}
-            />
-          ))}
-        </button>
-      </SimpleTooltip>
-      <Button
-        className="m-1 active:bg-theme-active btn-tertiary"
-        buttonSize={ButtonSize.Small}
-        onClick={openSquadInviteModal}
-        icon={<AddUserIcon className="text-theme-label-secondary" />}
+    <SimpleTooltip placement="top" content="Members list">
+      <button
+        type="button"
+        className="flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active rounded-14 border border-theme-divider-secondary"
+        onClick={openMemberListModal}
       >
-        Invite
-      </Button>
-    </div>
+        <span
+          className="mr-1 ml-2 min-w-[1rem]"
+          aria-label="squad-members-count"
+        >
+          {memberCount}
+        </span>
+        {members?.map(({ user }, index) => (
+          <ProfilePicture
+            className={classNames(
+              '-ml-2 border-2 border-theme-bg-primary',
+              index > 2 && 'hidden tablet:flex',
+            )}
+            size="medium"
+            key={user.username}
+            user={user}
+          />
+        ))}
+      </button>
+    </SimpleTooltip>
   );
 }
 

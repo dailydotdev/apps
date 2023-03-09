@@ -24,25 +24,6 @@ export function SquadPageHeader({
 }: SquadPageHeaderProps): ReactElement {
   return (
     <section className="flex flex-col items-center px-6 pb-0 tablet:pb-10 mb-6 w-full tablet:border-b min-h-20 border-theme-divider-tertiary">
-      <Button
-        tag="a"
-        target="_blank"
-        rel="noopener noreferrer"
-        href={`${squadFeedback}#user_id=${userId}&squad_id=${squad.id}`}
-        className="top-5 right-4 btn btn-secondary"
-        position="absolute"
-        icon={
-          <FeedbackIcon
-            className="hidden tablet:flex"
-            size={IconSize.Small}
-            aria-label="squad-feedback-icon"
-          />
-        }
-        buttonSize={ButtonSize.Small}
-        aria-label="squad-feedback"
-      >
-        Feedback
-      </Button>
       <SquadImage
         className="mt-4 w-16 tablet:w-24 h-16 tablet:h-24"
         {...squad}
