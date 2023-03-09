@@ -8,7 +8,6 @@ import {
   LATEST_CHANGELOG_POST_QUERY,
 } from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { RankingAlgorithm } from './feed';
 import { Connection } from './common';
 
 beforeEach(() => {

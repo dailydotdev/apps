@@ -8,7 +8,7 @@ import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import { sticky } from 'tippy.js';
 import { BaseTooltip, BaseTooltipProps } from './BaseTooltip';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
@@ -114,7 +114,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 className="right-4"
                 onClick={onModalCloseClick}
                 data-testid="changelogModalClose"
-                buttonSize="xsmall"
+                buttonSize={ButtonSize.XSmall}
               />
             </header>
             <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
