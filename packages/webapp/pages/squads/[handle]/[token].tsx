@@ -166,7 +166,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
   );
 
   const seo: NextSeoProps = {
-    title: `Invitation to ${source.name}`,
+    title: `${user.name} invited you to ${source.name}`,
     description: source.description,
     openGraph: {
       images: [{ url: source?.image }],
