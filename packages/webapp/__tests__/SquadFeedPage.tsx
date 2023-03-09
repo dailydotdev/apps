@@ -338,7 +338,7 @@ describe('invitation modal', () => {
 
   it('should show invitation link on a textfield', async () => {
     await openedInvitationModal();
-    const input = await screen.findByRole('textbox');
+    const input = await screen.findByTestId('permalink');
     expect(input).toHaveValue(defaultInvitation);
   });
 
