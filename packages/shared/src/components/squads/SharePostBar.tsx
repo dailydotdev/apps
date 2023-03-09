@@ -1,24 +1,40 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
 import classNames from 'classnames';
+import { useMutation } from 'react-query';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { getPostByUrl, Post } from '../../graphql/posts';
+
+export interface NewSquadPostProps {
+  post?: Post;
+  url?: string;
+}
 
 interface SharePostBarProps {
   className?: string;
-  onNewSquadPost?: () => void;
+  onNewSquadPost?: (props?: NewSquadPostProps) => void;
 }
 
 function SharePostBar({
   className,
   onNewSquadPost,
 }: SharePostBarProps): ReactElement {
+  const [url, setUrl] = useState('');
+  const { mutateAsync: getPost } = useMutation(getPostByUrl, {
+    onSuccess: (post) => {
+      onNewSquadPost({ post });
+    },
+    onError: () => {
+      onNewSquadPost({ url });
+    },
+  });
   const { user } = useAuthContext();
   const { sidebarRendered } = useSidebarRendered();
-  const [url, setUrl] = useState('');
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    await getPost(url);
   };
 
   return (
@@ -42,11 +58,12 @@ function SharePostBar({
         className="flex-1 pl-1 outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
         placeholder="Enter link to share"
         onInput={(e) => setUrl(e.currentTarget.value)}
+        required
         value={url}
       />
       {(!url || !sidebarRendered) && (
         <Button
-          onClick={onNewSquadPost}
+          onClick={() => onNewSquadPost()}
           buttonSize={sidebarRendered ? ButtonSize.Small : ButtonSize.Medium}
           className={classNames(
             'btn-tertiary',

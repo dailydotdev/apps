@@ -4,16 +4,18 @@ import { LazyModalCommonProps, Modal } from './common/Modal';
 import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadComment } from '../squads/Comment';
 import { ModalHeaderKind, ModalStep } from './common/types';
-import { Post } from '../../graphql/posts';
+import { Post, submitExternalLink } from '../../graphql/posts';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
+import { isNullOrUndefined } from '../../lib/func';
 
 export interface PostToSquadModalProps extends LazyModalCommonProps {
   squad: Squad;
   post?: Post;
+  url?: string;
   onSharedSuccessfully?: (post: Post) => void;
 }
 
@@ -30,8 +32,11 @@ function PostToSquadModal({
   onRequestClose,
   isOpen,
   post,
+  url,
   squad,
 }: PostToSquadModalProps): ReactElement {
+  const isLink = !isNullOrUndefined(url);
+  const shouldSkipHistory = isLink || post;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
@@ -41,18 +46,25 @@ function PostToSquadModal({
     file: squad.image,
     handle: squad.handle,
     buttonText: 'Done',
+    url,
   });
 
+  const onPostSuccess = async (squadPost?: Post) => {
+    if (squadPost) onSharedSuccessfully?.(squadPost);
+
+    displayToast('This post has been shared to your squad');
+    await client.invalidateQueries(['sourceFeed', user.id]);
+    onRequestClose(null);
+  };
+
   const { mutateAsync: onPost, isLoading } = useMutation(addPostToSquad, {
-    onSuccess: async (squadPost) => {
-      if (squadPost) {
-        displayToast('This post has been shared to your squad');
-        await client.invalidateQueries(['sourceFeed', user.id]);
-        onSharedSuccessfully?.(squadPost);
-        onRequestClose(null);
-      }
-    },
+    onSuccess: onPostSuccess,
   });
+
+  const { mutateAsync: onSubmitLink, isLoading: isLinkLoading } = useMutation(
+    submitExternalLink,
+    { onSuccess: () => onPostSuccess() },
+  );
 
   const onSubmit = async (
     e?: React.MouseEvent | React.KeyboardEvent,
@@ -60,9 +72,13 @@ function PostToSquadModal({
   ) => {
     e?.preventDefault();
 
-    if (isLoading) return;
+    if (isLoading) return null;
 
-    onPost({
+    if (isLink) {
+      return onSubmitLink({ url, sourceId: squad.id, commentary });
+    }
+
+    return onPost({
       id: form.post.post.id,
       sourceId: squad.id,
       commentary: commentary ?? e?.target[0].value,
@@ -91,8 +107,12 @@ function PostToSquadModal({
       steps={post ? undefined : modalSteps}
     >
       <Modal.Header title="Share post" kind={ModalHeaderKind.Tertiary} />
-      {post ? (
-        <SquadComment form={form} onSubmit={onSubmit} isLoading={isLoading} />
+      {shouldSkipHistory ? (
+        <SquadComment
+          form={form}
+          onSubmit={onSubmit}
+          isLoading={isLoading || isLinkLoading}
+        />
       ) : (
         <>
           <SquadSelectArticle {...stateProps} />

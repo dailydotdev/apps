@@ -9,6 +9,9 @@ import AuthContext from '../../contexts/AuthContext';
 import OpenLinkIcon from '../icons/OpenLink';
 import { SquadForm } from '../../graphql/squads';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { isNullOrUndefined } from '../../lib/func';
+import { TextField } from '../fields/TextField';
+import LinkIcon from '../icons/Link';
 
 interface SquadCommentProps {
   onSubmit: React.EventHandler<FormEvent>;
@@ -21,9 +24,12 @@ export function SquadComment({
   form,
   isLoading,
 }: SquadCommentProps): ReactElement {
-  const { post } = form.post;
+  const { url, post: postItem } = form;
+  const [link, setLink] = useState(url);
+  const { post } = postItem;
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
+  const isLink = !isNullOrUndefined(url);
 
   return (
     <>
@@ -46,20 +52,35 @@ export function SquadComment({
             }}
           />
         </form>
-        <div className="flex gap-4 items-center py-2 px-4 w-full rounded-12 border border-theme-divider-tertiary">
-          <p className="flex-1 line-clamp-3 multi-truncate text-theme-label-secondary typo-caption1">
-            {post.title}
-          </p>
-          <Image
-            src={post.image}
-            className="object-cover w-16 laptop:w-24 h-16 rounded-16"
-            loading="lazy"
-            fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        {isLink && (
+          <TextField
+            leftIcon={<LinkIcon />}
+            label="Enter link to share"
+            fieldType="tertiary"
+            inputId="url"
+            name="url"
+            type="url"
+            value={link}
+            required
+            onChange={(e) => setLink(e.currentTarget.value)}
           />
-          <a href={post.permalink} target="_blank">
-            <OpenLinkIcon />
-          </a>
-        </div>
+        )}
+        {post && (
+          <div className="flex gap-4 items-center py-2 px-4 w-full rounded-12 border border-theme-divider-tertiary">
+            <p className="flex-1 line-clamp-3 multi-truncate text-theme-label-secondary typo-caption1">
+              {post.title}
+            </p>
+            <Image
+              src={post.image}
+              className="object-cover w-16 laptop:w-24 h-16 rounded-16"
+              loading="lazy"
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+            />
+            <a href={post.permalink} target="_blank">
+              <OpenLinkIcon />
+            </a>
+          </div>
+        )}
       </Modal.Body>
       <Modal.Footer justify={Justify.Between}>
         <div className="flex">

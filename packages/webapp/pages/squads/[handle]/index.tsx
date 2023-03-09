@@ -36,7 +36,9 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
 import dynamic from 'next/dynamic';
-import SharePostBar from '@dailydotdev/shared/src/components/squads/SharePostBar';
+import SharePostBar, {
+  NewSquadPostProps,
+} from '@dailydotdev/shared/src/components/squads/SharePostBar';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -128,11 +130,13 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad) return <Custom404 />;
 
-  const onNewSquadPost = () =>
+  const onNewSquadPost = ({ post, url }: NewSquadPostProps = {}) =>
     openModal({
       type: LazyModal.PostToSquad,
       props: {
         squad,
+        post,
+        url,
       },
     });
 
@@ -147,7 +151,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
-          onNewSquadPost={onNewSquadPost}
+          onNewSquadPost={() => onNewSquadPost()}
           userId={user?.id}
         />
         <Feed

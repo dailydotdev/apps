@@ -404,3 +404,35 @@ export const getLatestChangelogPost = async (
 
   return feedData?.page?.edges?.[0]?.node;
 };
+
+export const POST_BY_URL_QUERY = gql`
+  query PostByUrl($url: String!) {
+    postByUrl(url: $url) {
+      ...SharedPostInfo
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const getPostByUrl = async (url: string): Promise<Post> => {
+  const res = await request(graphqlUrl, POST_BY_URL_QUERY, { url });
+
+  return res.postByUrl;
+};
+
+export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
+  query SubmitExternalLink($sourceId: String!, $url: String!, commentary: String!) {
+    submitExternalLink(url: $url, sourceId: $sourceId, commentary: $commentary) {
+      _
+    }
+  }
+`;
+
+interface SubmitExternalLink {
+  url: string;
+  sourceId: string;
+  commentary: string;
+}
+
+export const submitExternalLink = (params: SubmitExternalLink): Promise<void> =>
+  request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
