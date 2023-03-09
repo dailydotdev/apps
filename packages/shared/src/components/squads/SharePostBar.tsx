@@ -58,11 +58,11 @@ function SharePostBar({
         className="flex-1 pl-1 outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
         placeholder="Enter link to share"
         onInput={(e) => setUrl(e.currentTarget.value)}
-        required
         value={url}
       />
       {(!url || !sidebarRendered) && (
         <Button
+          type="button"
           onClick={() => onNewSquadPost()}
           buttonSize={sidebarRendered ? ButtonSize.Small : ButtonSize.Medium}
           className={classNames(
