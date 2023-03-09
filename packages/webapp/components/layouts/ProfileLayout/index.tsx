@@ -43,7 +43,6 @@ import classNames from 'classnames';
 import DOMPurify from 'dompurify';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
