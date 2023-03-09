@@ -239,5 +239,5 @@ export function getStaticProps({
 }: GetStaticPropsContext<
   SquadReferralProps & ParsedUrlQuery
 >): GetStaticPropsResult<SquadReferralProps> {
-  return { props: { ...params } };
+  return { props: { ...params }, revalidate: 60 };
 }
