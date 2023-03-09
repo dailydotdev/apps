@@ -2,8 +2,6 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Squad, SquadMember } from '../../graphql/squads';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { Button, ButtonSize } from '../buttons/Button';
-import AddUserIcon from '../icons/AddUser';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';

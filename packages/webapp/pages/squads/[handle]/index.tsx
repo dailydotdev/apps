@@ -152,7 +152,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           squad={squad}
           members={squadMembers}
           onNewSquadPost={() => onNewSquadPost()}
-          userId={user?.id}
         />
         <Feed
           className="px-6 laptop:px-16"

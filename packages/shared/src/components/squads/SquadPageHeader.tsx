@@ -1,23 +1,17 @@
 import React, { ReactElement } from 'react';
 import { Squad, SquadMember } from '../../graphql/squads';
-import { Button, ButtonSize } from '../buttons/Button';
-import FeedbackIcon from '../icons/Feedback';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
-import { squadFeedback } from '../../lib/constants';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../hooks/useEnableNotification';
-import { IconSize } from '../Icon';
 
 type SquadPageHeaderProps = {
-  userId: string;
   squad: Squad;
   members: SquadMember[];
   onNewSquadPost: () => void;
 };
 
 export function SquadPageHeader({
-  userId,
   squad,
   members,
   onNewSquadPost,
