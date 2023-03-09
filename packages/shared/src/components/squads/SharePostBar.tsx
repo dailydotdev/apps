@@ -27,11 +27,13 @@ function SharePostBar({
     onSuccess: (post) => {
       onNewSquadPost({ post });
     },
-    onError: (err: ApiErrorResult) => {
-      if (err?.response?.errors?.[0].extensions.code !== ApiError.NotFound)
-        return;
-
-      onNewSquadPost({ url });
+    onError: (err: ApiErrorResult, link) => {
+      if (
+        link === '' ||
+        err?.response?.errors?.[0].extensions.code === ApiError.NotFound
+      ) {
+        onNewSquadPost({ url });
+      }
     },
   });
   const { user } = useAuthContext();
