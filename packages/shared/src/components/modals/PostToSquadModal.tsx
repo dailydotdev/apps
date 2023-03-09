@@ -11,6 +11,7 @@ import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
+import { formToJson } from '../../lib/form';
 
 export interface PostToSquadModalProps extends LazyModalCommonProps {
   squad: Squad;
@@ -67,7 +68,7 @@ function PostToSquadModal({
   );
 
   const onSubmit = async (
-    e?: React.MouseEvent | React.KeyboardEvent,
+    e?: React.FormEvent<HTMLFormElement>,
     commentary?: string,
   ) => {
     e?.preventDefault();
@@ -75,7 +76,8 @@ function PostToSquadModal({
     if (isLoading) return null;
 
     if (isLink) {
-      return onSubmitLink({ url, sourceId: squad.id, commentary });
+      const { url: postLink } = formToJson<{ url: string }>(e.currentTarget);
+      return onSubmitLink({ url: postLink, sourceId: squad.id, commentary });
     }
 
     return onPost({
@@ -115,6 +117,9 @@ function PostToSquadModal({
           form={form}
           onSubmit={onSubmit}
           isLoading={isLoading || isLinkLoading}
+          onUpdateForm={(postByUrl) =>
+            setForm((value) => ({ ...value, post: { post: postByUrl } }))
+          }
         />
       ) : (
         <>
