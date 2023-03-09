@@ -148,10 +148,6 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     return null;
   }
 
-  if (isFallback || !isFetched) {
-    return <></>;
-  }
-
   const { user, source } = member;
   const others = source.members.edges.filter(
     ({ node }) => node.user.id !== user.id,
@@ -178,6 +174,10 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
       images: [{ url: source?.image }],
     },
   };
+
+  if (isFallback || !isFetched) {
+    return <></>;
+  }
 
   return (
     <PageContainer className="overflow-hidden relative justify-center items-center pt-24">
