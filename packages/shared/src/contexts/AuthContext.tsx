@@ -5,13 +5,14 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { QueryObserverResult } from 'react-query';
 import {
   AnonymousUser,
   deleteAccount,
   LoggedUser,
   logout as dispatchLogout,
 } from '../lib/user';
-import { AccessToken, Visit } from '../lib/boot';
+import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 import { Squad } from '../graphql/squads';
@@ -44,7 +45,7 @@ export interface AuthContextData {
   visit?: Visit;
   isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
-  refetchBoot?: () => Promise<unknown>;
+  refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   accessToken?: AccessToken;
   squads?: Squad[];
 }
@@ -87,7 +88,7 @@ export type AuthContextProviderProps = {
   isFetched?: boolean;
   isLegacyLogout?: boolean;
   firstLoad?: boolean;
-  refetchBoot?: () => Promise<unknown>;
+  refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   children?: ReactNode;
 } & Pick<
   AuthContextData,
