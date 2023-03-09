@@ -54,22 +54,27 @@ const HighlightedText = classed('span', 'font-bold text-theme-label-primary');
 export interface SquadReferralProps {
   token: string;
   handle: string;
+  initialData: SquadMember;
 }
 
-const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
+const SquadReferral = ({
+  token,
+  handle,
+  initialData,
+}: SquadReferralProps): ReactElement => {
   const router = useRouter();
   const { isFallback } = router;
   const { trackEvent } = useContext(AnalyticsContext);
   const { addSquad } = useBoot();
   const { showLogin, user: loggedUser, squads } = useAuthContext();
   const [trackedImpression, setTrackedImpression] = useState(false);
-
   const { data: member, isFetched } = useQuery(
     ['squad_referral', token, loggedUser?.id],
     () => getSquadInvitation(token),
     {
       ...disabledRefetch,
       keepPreviousData: true,
+      initialData,
       retry: false,
       enabled: !!token,
       onSuccess: (response) => {
@@ -173,7 +178,7 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     },
   };
 
-  if (isFallback || !isFetched) {
+  if (!initialData && (isFallback || !isFetched)) {
     return <></>;
   }
 
@@ -234,10 +239,19 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: true };
 }
 
-export function getStaticProps({
+export async function getStaticProps({
   params,
-}: GetStaticPropsContext<
-  SquadReferralProps & ParsedUrlQuery
->): GetStaticPropsResult<SquadReferralProps> {
-  return { props: { ...params }, revalidate: 60 };
+}: GetStaticPropsContext<SquadReferralProps & ParsedUrlQuery>): Promise<
+  GetStaticPropsResult<SquadReferralProps>
+> {
+  const { handle, token } = params;
+  const initialData = await getSquadInvitation(token);
+  return {
+    props: {
+      handle,
+      token,
+      initialData,
+    },
+    revalidate: 60,
+  };
 }
