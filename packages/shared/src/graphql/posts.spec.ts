@@ -69,11 +69,6 @@ it('should return latest changelog post', async () => {
   mockGraphQL<MockFeedData>({
     request: {
       query: LATEST_CHANGELOG_POST_QUERY,
-      variables: {
-        source: 'daily_updates',
-        first: 1,
-        ranking: RankingAlgorithm.Time,
-      },
     },
     result: () => {
       queryCalled = true;
