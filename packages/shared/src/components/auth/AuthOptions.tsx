@@ -240,8 +240,18 @@ function AuthOptions({
 
         return displayToast('An error occurred, please refresh the page.');
       }
+      const bootResponse = await refetchBoot();
+      if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
+        trackEvent({
+          event_name: AuthEventNames.SubmitSignUpFormError,
+          extra: JSON.stringify({
+            error: 'Could not find email on social registration',
+          }),
+        });
+        return displayToast('An error occurred, please refresh and try again.');
+      }
+
       if (!e.data?.social_registration) {
-        await refetchBoot();
         return onSuccessfulLogin?.();
       }
 
@@ -250,7 +260,7 @@ function AuthOptions({
   );
 
   const onEmailRegistration = (emailAd: string) => {
-    // before displaying registration, ensure the email doesn't exists
+    // before displaying registration, ensure the email doesn't exist
     onSetActiveDisplay(AuthDisplay.Registration);
     setEmail(emailAd);
   };
