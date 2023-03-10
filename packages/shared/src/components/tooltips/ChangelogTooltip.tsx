@@ -99,7 +99,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
       content={
         !!post && (
           <div
-            className="flex flex-col whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none min-w-[22.5rem] changelog bg-theme-bg-tertiary border-theme-color-cabbage"
+            className="flex relative flex-col whitespace-normal break-words rounded-16 border shadow-2 focus:outline-none w-[24rem] changelog bg-theme-bg-tertiary border-theme-color-cabbage"
             data-testid="changelog"
           >
             <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
@@ -164,7 +164,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 </span>
               </div>
             </section>
-            <footer className="flex gap-3 items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">
+            <footer className="flex gap-3 justify-between items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">
               <Button
                 className="btn-tertiary"
                 onClick={dismissChangelog}

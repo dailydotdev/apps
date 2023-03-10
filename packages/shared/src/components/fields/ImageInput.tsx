@@ -10,6 +10,7 @@ import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
 import EditIcon from '../icons/Edit';
 import { IconSize } from '../Icon';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 type Size = 'medium' | 'large';
 
@@ -55,7 +56,7 @@ function ImageInput({
   fallbackImage = fallbackImages.avatar,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
-  const [error, setError] = useState('');
+  const toast = useToastNotification();
   const [image, setImage] = useState(initialValue || fallbackImage);
   const onClick = () => {
     inputRef.current.click();
@@ -71,12 +72,13 @@ function ImageInput({
     }
 
     if (file.size > TWO_MEGABYTES) {
-      setError('Maximum image size is 2 MB');
+      toast.displayToast('Maximum image size is 2 MB');
+
       return;
     }
 
     const base64 = await blobToBase64(file);
-    setError(null);
+    toast.dismissToast();
     setImage(base64);
     onChange?.(base64);
   };
@@ -123,11 +125,6 @@ function ImageInput({
         )}
       >
         {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
-      </span>
-      <span
-        className={classNames('typo-footnote', error ? 'visible' : 'invisible')}
-      >
-        {error}
       </span>
     </button>
   );
