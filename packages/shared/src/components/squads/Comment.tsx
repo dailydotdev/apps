@@ -41,7 +41,7 @@ interface SquadCommentProps {
 }
 
 enum LinkError {
-  Required = 'URL is required!',
+  Required = 'Please enter URL!',
   Invalid = 'URL is invalid!',
 }
 
