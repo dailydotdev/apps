@@ -31,6 +31,7 @@ import { NextSeo } from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SquadMember>[], total: number) => {
@@ -53,21 +54,27 @@ const HighlightedText = classed('span', 'font-bold text-theme-label-primary');
 export interface SquadReferralProps {
   token: string;
   handle: string;
+  initialData: SquadMember;
 }
 
-const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
+const SquadReferral = ({
+  token,
+  handle,
+  initialData,
+}: SquadReferralProps): ReactElement => {
   const router = useRouter();
+  const { isFallback } = router;
   const { trackEvent } = useContext(AnalyticsContext);
   const { addSquad } = useBoot();
   const { showLogin, user: loggedUser, squads } = useAuthContext();
   const [trackedImpression, setTrackedImpression] = useState(false);
-
-  const { data: member } = useQuery(
+  const { data: member, isFetched } = useQuery(
     ['squad_referral', token, loggedUser?.id],
     () => getSquadInvitation(token),
     {
       ...disabledRefetch,
       keepPreviousData: true,
+      initialData,
       retry: false,
       enabled: !!token,
       onSuccess: (response) => {
@@ -163,12 +170,21 @@ const SquadReferral = ({ token, handle }: SquadReferralProps): ReactElement => {
     </Button>
   );
 
+  const seo: NextSeoProps = {
+    title: `${user.name} invited you to ${source.name}`,
+    description: source.description,
+    openGraph: {
+      images: [{ url: source?.image }],
+    },
+  };
+
+  if (!initialData && (isFallback || !isFetched)) {
+    return <></>;
+  }
+
   return (
     <PageContainer className="overflow-hidden relative justify-center items-center pt-24">
-      <NextSeo
-        title={`Invitation to ${source.name}`}
-        titleTemplate="%s | daily.dev"
-      />
+      <NextSeo {...seo} />
       <div className="absolute -top-4 -right-20 -left-20 h-40 rounded-26 squad-background-fade" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
@@ -223,10 +239,19 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: true };
 }
 
-export function getStaticProps({
+export async function getStaticProps({
   params,
-}: GetStaticPropsContext<
-  SquadReferralProps & ParsedUrlQuery
->): GetStaticPropsResult<SquadReferralProps> {
-  return { props: { ...params } };
+}: GetStaticPropsContext<SquadReferralProps & ParsedUrlQuery>): Promise<
+  GetStaticPropsResult<SquadReferralProps>
+> {
+  const { handle, token } = params;
+  const initialData = await getSquadInvitation(token);
+  return {
+    props: {
+      handle,
+      token,
+      initialData,
+    },
+    revalidate: 60,
+  };
 }

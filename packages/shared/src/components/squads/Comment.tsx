@@ -64,7 +64,7 @@ export function SquadComment({
       <Modal.Footer justify={Justify.Between}>
         <div className="flex">
           <Image
-            className="mr-3 h-8 rounded-full"
+            className="object-cover mr-3 w-8 h-8 rounded-full"
             src={form.file ?? cloudinary.squads.imageFallback}
           />
           <div>

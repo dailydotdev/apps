@@ -28,7 +28,6 @@ import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import { sendViewPost } from '../../graphql/posts';
-import { IconSize } from '../Icon';
 
 function SquadPostContent({
   post,
@@ -128,7 +127,7 @@ function SquadPostContent({
             <ProfileTooltip user={post.author}>
               <ProfilePicture
                 user={post.author}
-                size={IconSize.XLarge}
+                size="xxlarge"
                 nativeLazyLoading
               />
             </ProfileTooltip>

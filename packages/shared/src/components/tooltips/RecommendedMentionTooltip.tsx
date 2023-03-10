@@ -53,7 +53,7 @@ export function RecommendedMentionTooltip({
         bgClassName: 'bg-theme-bg-tertiary',
       }}
       reference={elementRef}
-      arrow={false}
+      showArrow={false}
       placement="top-start"
       visible={typeof query !== 'undefined'}
     />
