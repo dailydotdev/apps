@@ -30,7 +30,7 @@ export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
   commentary?: string,
   url?: string,
-) => Promise<Post>;
+) => Promise<Post | void>;
 
 interface SquadCommentProps {
   onSubmit: SubmitSharePostFunc;
