@@ -27,8 +27,12 @@ function PostSourceInfo({
     >
       <SourceButton source={source} size={size} />
       <h3 className="ml-3">{source.handle}</h3>
-      <Separator />
-      <time dateTime={date}>{date}</time>
+      {!!date && (
+        <>
+          <Separator />
+          <time dateTime={date}>{date}</time>
+        </>
+      )}
     </span>
   );
 }
