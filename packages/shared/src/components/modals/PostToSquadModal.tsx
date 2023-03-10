@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
-import { SquadComment } from '../squads/Comment';
+import { SquadComment, SubmitSharePostFunc } from '../squads/Comment';
 import { ModalHeaderKind, ModalStep } from './common/types';
 import { Post, submitExternalLink } from '../../graphql/posts';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -11,7 +11,6 @@ import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
-import { formToJson } from '../../lib/form';
 
 export interface PostToSquadModalProps extends LazyModalCommonProps {
   squad: Squad;
@@ -67,16 +66,12 @@ function PostToSquadModal({
     { onSuccess: () => onPostSuccess() },
   );
 
-  const onSubmit = async (
-    e?: React.FormEvent<HTMLFormElement>,
-    commentary?: string,
-  ) => {
+  const onSubmit: SubmitSharePostFunc = async (e, commentary, postLink) => {
     e?.preventDefault();
 
     if (isLoading) return null;
 
     if (isLink) {
-      const { url: postLink } = formToJson<{ url: string }>(e.currentTarget);
       return onSubmitLink({ url: postLink, sourceId: squad.id, commentary });
     }
 

@@ -1,5 +1,6 @@
 import React, {
   FormEvent,
+  FormEventHandler,
   ReactElement,
   useContext,
   useEffect,
@@ -23,12 +24,24 @@ import LinkIcon from '../icons/Link';
 import { getPostByUrl, Post } from '../../graphql/posts';
 import { ApiError, ApiErrorResult } from '../../graphql/common';
 import useDebounce from '../../hooks/useDebounce';
+import { isValidHttpUrl } from '../../lib/links';
+
+export type SubmitSharePostFunc = (
+  e: React.FormEvent<HTMLFormElement>,
+  commentary?: string,
+  url?: string,
+) => Promise<Post>;
 
 interface SquadCommentProps {
-  onSubmit: React.EventHandler<FormEvent>;
+  onSubmit: SubmitSharePostFunc;
   form: Partial<SquadForm>;
   isLoading?: boolean;
   onUpdateForm?: (post: Post) => void;
+}
+
+enum LinkError {
+  Required = 'URL is required!',
+  Invalid = 'URL is invalid!',
 }
 
 export function SquadComment({
@@ -43,9 +56,11 @@ export function SquadComment({
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
   const isLink = !isNullOrUndefined(url);
-  const { mutateAsync: getPost } = useMutation(
+  const [link, setLink] = useState(url);
+  const [linkHint, setLinkHint] = useState(url);
+  const { mutateAsync: getPost, isLoading: isCheckingUrl } = useMutation(
     (param: string) => {
-      if (!param) return null;
+      if (!param || !isValidHttpUrl(param)) return null;
 
       return getPostByUrl(param);
     },
@@ -56,13 +71,33 @@ export function SquadComment({
         }
       },
       onError: (err: ApiErrorResult) => {
-        if (err?.response?.errors?.[0].extensions.code === ApiError.NotFound) {
+        if (
+          err?.response?.errors?.[0].extensions.code === ApiError.NotFound &&
+          !isNullOrUndefined(postItem)
+        ) {
           onUpdateForm(null);
         }
       },
     },
   );
   const [checkUrl] = useDebounce(getPost, 200);
+
+  const onInputChange: FormEventHandler<HTMLInputElement> = (e) => {
+    const text = e.currentTarget.value;
+    setLink(text);
+    checkUrl(text);
+    if (!text) return setLinkHint(LinkError.Required);
+
+    if (isValidHttpUrl(text)) {
+      if (linkHint) setLinkHint('');
+      return null;
+    }
+
+    if (!linkHint || linkHint === LinkError.Required)
+      return setLinkHint(LinkError.Invalid);
+
+    return null;
+  };
 
   useEffect(() => {
     textinput?.current?.focus?.();
@@ -72,7 +107,7 @@ export function SquadComment({
     <>
       <Modal.Body className="flex flex-col">
         <form
-          onSubmit={onSubmit}
+          onSubmit={(e) => onSubmit(e, commentary, link)}
           className="flex flex-col flex-1"
           id="squad-comment"
         >
@@ -95,8 +130,10 @@ export function SquadComment({
               name="url"
               type="url"
               required
-              defaultValue={url}
-              onInput={(e) => checkUrl(e.currentTarget.value)}
+              value={link}
+              onInput={onInputChange}
+              hint={linkHint}
+              saveHintSpace
             />
           )}
           {post && (
@@ -141,7 +178,7 @@ export function SquadComment({
               className="btn-primary-cabbage"
               type="submit"
               loading={isLoading}
-              disabled={!commentary || isLoading}
+              disabled={!commentary || isLoading || isCheckingUrl}
             >
               Done
             </Button>

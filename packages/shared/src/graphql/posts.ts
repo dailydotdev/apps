@@ -421,8 +421,16 @@ export const getPostByUrl = async (url: string): Promise<Post> => {
 };
 
 export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
-  query SubmitExternalLink($sourceId: String!, $url: String!, commentary: String!) {
-    submitExternalLink(url: $url, sourceId: $sourceId, commentary: $commentary) {
+  mutation SubmitExternalLink(
+    $sourceId: ID!
+    $url: String!
+    $commentary: String!
+  ) {
+    submitExternalLink(
+      url: $url
+      sourceId: $sourceId
+      commentary: $commentary
+    ) {
       _
     }
   }
@@ -434,5 +442,5 @@ interface SubmitExternalLink {
   commentary: string;
 }
 
-export const submitExternalLink = (params: SubmitExternalLink): Promise<void> =>
+export const submitExternalLink = (params: SubmitExternalLink): Promise<null> =>
   request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
