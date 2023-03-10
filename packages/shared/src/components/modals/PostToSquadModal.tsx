@@ -103,10 +103,7 @@ function PostToSquadModal({
       onRequestClose={onRequestClose}
       steps={post ? undefined : modalSteps}
     >
-      <Modal.Header
-        title={shouldSkipHistory ? 'Post article' : 'Share post'}
-        kind={ModalHeaderKind.Tertiary}
-      />
+      <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
       {shouldSkipHistory ? (
         <SquadComment
           form={form}
