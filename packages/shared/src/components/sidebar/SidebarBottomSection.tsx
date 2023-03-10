@@ -8,7 +8,6 @@ import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
-import { AlertColor, AlertDot } from '../AlertDot';
 import { useChangelog } from '../../hooks/useChangelog';
 
 const ChangelogTooltip = dynamic(
@@ -29,7 +28,6 @@ export function SidebarBottomSectionSection({
   ...props
 }: SidebarBottomSectionProps): ReactElement {
   const changelog = useChangelog();
-  const changelogBadgeRef = useRef<HTMLElement>();
   const navItemRef = useRef<HTMLElement>();
 
   const bottomMenuItems: SidebarMenuItem[] = [
@@ -43,17 +41,6 @@ export function SidebarBottomSectionSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      rightIcon: changelog.isAvailable
-        ? () => (
-            <div className="h-2" data-testid="changelogBadge">
-              <AlertDot
-                className="right-2"
-                ref={changelogBadgeRef}
-                color={AlertColor.Cabbage}
-              />
-            </div>
-          )
-        : undefined,
       navItemRef,
     },
     {
@@ -73,7 +60,7 @@ export function SidebarBottomSectionSection({
       )}
       {changelog.isAvailable && (
         <ChangelogTooltip
-          elementRef={changelogBadgeRef}
+          elementRef={navItemRef}
           appendTo={() => navItemRef.current}
         />
       )}

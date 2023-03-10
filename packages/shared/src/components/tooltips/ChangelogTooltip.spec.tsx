@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import React, { useRef } from 'react';
 import nock from 'nock';
 import { renderHook } from '@testing-library/react-hooks';
+import { createTestSettings } from '../../../__tests__/fixture/settings';
 import Post from '../../../__tests__/fixture/post';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import ChangelogTooltip from './ChangelogTooltip';
@@ -23,10 +24,16 @@ import {
   ToastNotification,
   TOAST_NOTIF_KEY,
 } from '../../hooks/useToastNotification';
+import SettingsContext from '../../contexts/SettingsContext';
 
 describe('ChangelogTooltip component', () => {
   const noop = jest.fn();
-  const defaultPost = Post;
+  const defaultPost = {
+    ...Post,
+    summary: 'Some post summary goes here for testing!',
+    numUpvotes: 69,
+    numComments: 42,
+  };
   const updateAlerts = jest.fn();
   const defaultAlerts: Alerts = {};
   let extensionUpdateStatus = 'update_available';
@@ -45,7 +52,7 @@ describe('ChangelogTooltip component', () => {
     client: QueryClient;
   }): RenderResult => {
     const {
-      result: { current: changelogBadgeRef },
+      result: { current: anchorRef },
     } = renderHook(() => useRef());
 
     return render(
@@ -57,14 +64,17 @@ describe('ChangelogTooltip component', () => {
           updateUser={noop}
           tokenRefreshed={false}
         >
-          <AlertContextProvider
-            alerts={defaultAlerts}
-            updateAlerts={updateAlerts}
-            loadedAlerts
-          >
-            <AlertDot ref={changelogBadgeRef} color={AlertColor.Cabbage} />
-            <ChangelogTooltip elementRef={changelogBadgeRef} />
-          </AlertContextProvider>
+          <SettingsContext.Provider value={createTestSettings()}>
+            <AlertContextProvider
+              alerts={defaultAlerts}
+              updateAlerts={updateAlerts}
+              loadedAlerts
+            >
+              <AlertDot color={AlertColor.Cabbage} />
+              <div ref={anchorRef} />
+              <ChangelogTooltip elementRef={anchorRef} />
+            </AlertContextProvider>
+          </SettingsContext.Provider>
         </AuthContextProvider>
       </QueryClientProvider>,
     );
@@ -72,10 +82,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should render', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     renderComponent({ client });
 
@@ -103,6 +110,26 @@ describe('ChangelogTooltip component', () => {
       postDateFormat(defaultPost.createdAt),
     );
 
+    const changelogSummary = await screen.findByTestId('changelogSummary');
+    expect(changelogSummary).toBeInTheDocument();
+    expect(changelogSummary).toHaveTextContent(defaultPost.summary);
+
+    const changelogUpvotesCounter = await screen.findByTestId(
+      'changelogUpvotesCounter',
+    );
+    expect(changelogUpvotesCounter).toBeInTheDocument();
+    expect(changelogUpvotesCounter).toHaveTextContent(
+      defaultPost.numUpvotes.toString(),
+    );
+
+    const changelogCommentsCounter = await screen.findByTestId(
+      'changelogCommentsCounter',
+    );
+    expect(changelogCommentsCounter).toBeInTheDocument();
+    expect(changelogCommentsCounter).toHaveTextContent(
+      defaultPost.numComments.toString(),
+    );
+
     const changelogReleaseNotesBtn = await screen.findByTestId(
       'changelogReleaseNotesBtn',
     );
@@ -118,10 +145,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should render update button when used inside extension', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
 
@@ -144,10 +168,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should request extension update on update button click', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
 
@@ -182,10 +203,7 @@ describe('ChangelogTooltip component', () => {
 
   it('update lastChangelog on release notes click', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     mockGraphQL({
       request: {
@@ -213,10 +231,7 @@ describe('ChangelogTooltip component', () => {
 
   it('update lastChangelog on close modal click', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     mockGraphQL({
       request: {
@@ -244,10 +259,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should link to blog post on firefox', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'firefox';
 
@@ -272,10 +284,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should show toast when no extension update available', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
 
@@ -309,10 +318,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should show toast when no extension update is throttled', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
 

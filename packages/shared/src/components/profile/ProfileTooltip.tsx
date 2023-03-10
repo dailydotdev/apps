@@ -60,13 +60,12 @@ export function ProfileTooltip({
     }
     scrollingContainer.removeEventListener('scroll', handler.current);
   };
-  const props = {
-    arrow: false,
+  const props: TooltipProps = {
+    showArrow: false,
     interactive: true,
     onShow,
     onHide,
     container: {
-      arrow: false,
       paddingClassName: profileTooltipClasses.padding,
       roundedClassName: profileTooltipClasses.roundness,
       bgClassName: profileTooltipClasses.background,

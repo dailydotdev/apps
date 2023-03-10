@@ -7,6 +7,8 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts } from '../../graphql/alerts';
 import { SidebarBottomSectionSection } from './SidebarBottomSection';
+import { createTestSettings } from '../../../__tests__/fixture/settings';
+import SettingsContext from '../../contexts/SettingsContext';
 
 describe('SidebarBottomSection component', () => {
   const noop = jest.fn();
@@ -44,31 +46,30 @@ describe('SidebarBottomSection component', () => {
           updateUser={noop}
           tokenRefreshed={false}
         >
-          <AlertContextProvider
-            alerts={defaultAlerts}
-            updateAlerts={updateAlerts}
-            loadedAlerts
-          >
-            <SidebarBottomSectionSection
-              optOutWeeklyGoal
-              showSettings={false}
-              sidebarExpanded={false}
-              sidebarRendered
-              activePage="/"
-              shouldShowLabel
-            />
-          </AlertContextProvider>
+          <SettingsContext.Provider value={createTestSettings()}>
+            <AlertContextProvider
+              alerts={defaultAlerts}
+              updateAlerts={updateAlerts}
+              loadedAlerts
+            >
+              <SidebarBottomSectionSection
+                optOutWeeklyGoal
+                showSettings={false}
+                sidebarExpanded={false}
+                sidebarRendered
+                activePage="/"
+                shouldShowLabel
+              />
+            </AlertContextProvider>
+          </SettingsContext.Provider>
         </AuthContextProvider>
       </QueryClientProvider>,
     );
   };
 
-  it('should render changelog and badge if available', async () => {
+  it('should render changelog if available', async () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() - 1);
@@ -77,27 +78,18 @@ describe('SidebarBottomSection component', () => {
     renderComponent({ client });
     const changelog = await screen.findByTestId('changelog');
 
-    const changelogBadge = await screen.findByTestId('changelogBadge');
-    expect(changelogBadge).toBeInTheDocument();
-
     expect(changelog).toBeInTheDocument();
   });
 
-  it('should NOT render changelog and badge if changelog NOT available', () => {
+  it('should NOT render changelog if changelog NOT available', () => {
     const client = new QueryClient();
-    client.setQueryData(
-      ['changelog', 'latest-post', { loggedIn: false }],
-      defaultPost,
-    );
+    client.setQueryData(['changelog', 'latest-post'], defaultPost);
     defaultAlerts.changelog = false;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
     renderComponent({ client });
-
-    const changelogBadge = screen.queryByTestId('changelogBadge');
-    expect(changelogBadge).not.toBeInTheDocument();
 
     const changelog = screen.queryByTestId('changelog');
     expect(changelog).not.toBeInTheDocument();

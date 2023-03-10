@@ -53,13 +53,13 @@ export const CompanionPopupButton = ({
     <SimpleTooltip
       content={<CompanionPermission />}
       placement="bottom-start"
+      showArrow={false}
       container={{
         paddingClassName: 'px-6 py-4',
         bgClassName: 'bg-theme-bg-primary',
         textClassName: 'text-theme-label-primary typo-callout',
         className:
           'border border-theme-status-cabbage w-[30.75rem] whitespace-pre-wrap shadow-2',
-        arrow: false,
       }}
       interactive
       visible={showCompanionPermission}
