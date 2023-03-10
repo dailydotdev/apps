@@ -1,5 +1,6 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { FunctionComponent, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
+import styles from './BaseTooltip.module.css';
 
 export type TooltipPosition =
   | 'top'
@@ -10,11 +11,16 @@ export type TooltipPosition =
   | 'bottom-start'
   | 'left';
 
+export type TooltipArrowProps = {
+  'data-popper-arrow': true;
+  className: string;
+};
+
 export interface BaseTooltipContainerProps {
-  arrow?: boolean;
+  showArrow?: boolean;
   children: ReactNode;
   className?: string;
-  arrowClassName?: string;
+  ArrowComponent?: FunctionComponent<TooltipArrowProps>;
   placement?: TooltipPosition;
   paddingClassName?: string;
   roundedClassName?: string;
@@ -22,10 +28,14 @@ export interface BaseTooltipContainerProps {
   bgClassName?: string;
 }
 
+const DefaultArrow = (arrowProps) => {
+  return <div {...arrowProps} />;
+};
+
 export function BaseTooltipContainer({
   className,
-  arrow = true,
-  arrowClassName,
+  showArrow = true,
+  ArrowComponent,
   placement = 'top',
   paddingClassName = 'py-1 px-3',
   roundedClassName = 'rounded-10',
@@ -33,6 +43,8 @@ export function BaseTooltipContainer({
   textClassName = 'text-theme-label-invert typo-subhead',
   children,
 }: BaseTooltipContainerProps): ReactElement {
+  const Arrow = ArrowComponent ?? DefaultArrow;
+
   return (
     <div
       data-popper-placement={placement}
@@ -46,10 +58,10 @@ export function BaseTooltipContainer({
       )}
     >
       {children}
-      {arrow && (
-        <div
+      {!!showArrow && (
+        <Arrow
           data-popper-arrow
-          className={classNames(arrowClassName, bgClassName)}
+          className={classNames(styles.tippyTooltipArrow, bgClassName)}
         />
       )}
     </div>

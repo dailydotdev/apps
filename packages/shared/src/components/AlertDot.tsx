@@ -1,8 +1,8 @@
-import React, { CSSProperties, forwardRef, ReactElement } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
 import classed from '../lib/classed';
 
-const Dot = classed('div', 'absolute w-2.5 h-2.5 rounded-full');
+const Dot = classed('div', 'absolute w-2 h-2 rounded-full');
 
 export enum AlertColor {
   BrightRed = 'bg-theme-status-error',
@@ -17,13 +17,10 @@ interface AlertDotProps {
   style?: CSSProperties;
 }
 
-export const AlertDot = forwardRef<HTMLElement, AlertDotProps>(
-  function AlertDot(
-    { color, className, ...props }: AlertDotProps,
-    ref,
-  ): ReactElement {
-    return (
-      <Dot ref={ref} {...props} className={classNames(color, className)} />
-    );
-  },
-);
+export const AlertDot = function AlertDot({
+  color,
+  className,
+  ...props
+}: AlertDotProps): ReactElement {
+  return <Dot {...props} className={classNames(color, className)} />;
+};

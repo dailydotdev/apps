@@ -5,9 +5,9 @@ import {
   deletePost,
   Post,
   getLatestChangelogPost,
+  LATEST_CHANGELOG_POST_QUERY,
 } from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { RankingAlgorithm, SOURCE_FEED_QUERY } from './feed';
 import { Connection } from './common';
 
 beforeEach(() => {
@@ -67,13 +67,7 @@ it('should return latest changelog post', async () => {
   let queryCalled = false;
   mockGraphQL<MockFeedData>({
     request: {
-      query: SOURCE_FEED_QUERY,
-      variables: {
-        source: 'daily_updates',
-        first: 1,
-        loggedIn: false,
-        ranking: RankingAlgorithm.Time,
-      },
+      query: LATEST_CHANGELOG_POST_QUERY,
     },
     result: () => {
       queryCalled = true;
@@ -85,12 +79,6 @@ it('should return latest changelog post', async () => {
               {
                 node: { id: 'test1' },
               },
-              {
-                node: { id: 'test2' },
-              },
-              {
-                node: { id: 'test3' },
-              },
             ],
             pageInfo: {},
           },
@@ -98,7 +86,7 @@ it('should return latest changelog post', async () => {
       };
     },
   });
-  const result = await getLatestChangelogPost(false);
+  const result = await getLatestChangelogPost();
 
   expect(queryCalled).toBeTruthy();
   expect(result.id).toBe('test1');

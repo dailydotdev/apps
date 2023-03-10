@@ -135,6 +135,7 @@ export const ItemInner = ({
   active,
 }: ItemInnerProps): ReactElement => {
   const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
+
   return (
     <>
       <Icon {...item} active={active} />
