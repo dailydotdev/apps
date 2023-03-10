@@ -144,7 +144,14 @@ function FeedSlider<TFeedSliderItem extends { id: string }>({
     trackMouse: true,
   });
 
-  const [sliderWidth, setFeedSliderWidth] = useState(defaultItemWidth);
+  const itemGapPx = +(gridGaps[spaciness] ?? 'gap-8').replace('gap-', '') * 4;
+
+  const [sliderWidth, setFeedSliderWidth] = useState(() => {
+    const itemsWidth = defaultItemWidth * numCards;
+    const gapWidth = itemGapPx * (numCards - 1);
+
+    return itemsWidth + gapWidth;
+  });
 
   const rootRef = useRef<HTMLElement>();
 
@@ -168,8 +175,6 @@ function FeedSlider<TFeedSliderItem extends { id: string }>({
       resizeObserver.disconnect();
     };
   }, []);
-
-  const itemGapPx = +(gridGaps[spaciness] ?? 'gap-8').replace('gap-', '') * 4;
 
   const { itemWidth, itemWidthWithGap } = useMemo(() => {
     const gapValue = itemGapPx * (numCards - 1);
