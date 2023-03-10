@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadComment, SubmitSharePostFunc } from '../squads/Comment';
-import { ModalHeaderKind, ModalStep } from './common/types';
+import { ModalStep } from './common/types';
 import { Post, submitExternalLink } from '../../graphql/posts';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { SquadSelectArticle } from '../squads/SelectArticle';
