@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { useMutation } from 'react-query';
+import classNames from 'classnames';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
 import { ProfilePicture } from '../ProfilePicture';
@@ -105,7 +106,9 @@ export function SquadComment({
 
   return (
     <>
-      <Modal.Body className="flex flex-col">
+      <Modal.Body
+        className={classNames('flex flex-col', isLink && !post && 'pb-2')}
+      >
         <form
           onSubmit={(e) => onSubmit(e, commentary, link)}
           className="flex flex-col flex-1"
