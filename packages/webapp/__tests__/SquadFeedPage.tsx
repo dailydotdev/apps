@@ -227,7 +227,7 @@ describe('squad page header', () => {
   it('should hide feedback label on tablet and less but keep the icon', async () => {
     renderComponent();
     await screen.findByLabelText('squad-feedback-icon');
-    const feedback = await screen.findByLabelText('squad-feedback');
+    const feedback = await screen.findByLabelText('Feedback');
     expect(feedback).toHaveTextContent('');
     expect(feedback).toHaveAttribute('href', feedbackLink);
   });

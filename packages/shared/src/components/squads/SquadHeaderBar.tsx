@@ -55,15 +55,16 @@ export function SquadHeaderBar({
         <Button className="btn-secondary" onClick={openSquadInviteModal}>
           Invite
         </Button>
-        <Button
-          tag="a"
-          target="_blank"
-          rel="noopener noreferrer"
-          href={`${squadFeedback}#user_id=${user.id}&squad_id=${squad.id}`}
-          className="btn-secondary"
-          icon={<FeedbackIcon aria-label="squad-feedback-icon" />}
-          aria-label="squad-feedback"
-        />
+        <SimpleTooltip placement="top" content="Feedback">
+          <Button
+            tag="a"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={`${squadFeedback}#user_id=${user.id}&squad_id=${squad.id}`}
+            className="btn-secondary"
+            icon={<FeedbackIcon aria-label="squad-feedback-icon" />}
+          />
+        </SimpleTooltip>
         <SimpleTooltip placement="top" content="Squad options">
           <Button
             className="btn-secondary"
