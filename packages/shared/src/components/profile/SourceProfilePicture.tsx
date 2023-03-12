@@ -3,6 +3,7 @@ import { Source } from '../../graphql/sources';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
 import { ProfileLink } from './ProfileLink';
+import { cloudinary } from '../../lib/image';
 
 interface SourceProfilePictureProps extends Omit<ProfilePictureProps, 'user'> {
   isLink?: boolean;
@@ -30,6 +31,7 @@ function SourceProfilePicture({
           image: source.image,
           username: source.handle,
         }}
+        fallbackSrc={cloudinary.squads.imageFallback}
       />
     </ConditionalWrapper>
   );
