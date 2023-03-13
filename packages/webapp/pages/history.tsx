@@ -9,6 +9,7 @@ import ReadingHistoryPlaceholder from '@dailydotdev/shared/src/components/histor
 import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
+import { useQueryClient } from 'react-query';
 import { getLayout } from '../components/layouts/MainLayout';
 import {
   READING_HISTORY_QUERY,
@@ -32,6 +33,7 @@ const History = (): ReactElement => {
   const { user } = useContext(AuthContext);
   const searchQuery = router.query?.q?.toString();
   const key = ['readHistory', user?.id];
+  const client = useQueryClient();
 
   const queryProps = useMemo(() => {
     if (searchQuery) {
@@ -48,14 +50,16 @@ const History = (): ReactElement => {
   }, [searchQuery, key]);
 
   const { hideReadHistory } = useReadingHistory(key);
-  const { data, isInitialLoading, isLoading, hasData, infiniteScrollRef } =
+  const { data, isInitialLoading, isLoading, infiniteScrollRef } =
     useInfiniteReadingHistory({ ...queryProps });
+
+  const hasReadingHistory = !!client.getQueryData(key) && !isLoading;
 
   return (
     <ProtectedPage
       seo={seo}
       fallback={<ReadingHistoryEmptyScreen />}
-      shouldFallback={!hasData && !isLoading}
+      shouldFallback={hasReadingHistory}
     >
       <ResponsivePageContainer
         className={isInitialLoading && 'h-screen overflow-hidden'}
