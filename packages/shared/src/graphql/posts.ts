@@ -461,5 +461,5 @@ interface SubmitExternalLink {
   commentary: string;
 }
 
-export const submitExternalLink = (params: SubmitExternalLink): Promise<null> =>
+export const submitExternalLink = (params: SubmitExternalLink): Promise<Post> =>
   request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);

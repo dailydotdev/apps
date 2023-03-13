@@ -63,7 +63,7 @@ function PostToSquadModal({
 
   const { mutateAsync: onSubmitLink, isLoading: isLinkLoading } = useMutation(
     submitExternalLink,
-    { onSuccess: () => onPostSuccess() },
+    { onSuccess: (submittedLinkPost) => onPostSuccess(submittedLinkPost) },
   );
 
   const onSubmit: SubmitSharePostFunc = async (e, commentary, postLink) => {
