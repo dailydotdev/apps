@@ -69,6 +69,7 @@ export function SquadComment({
       onSuccess: (postByUrl) => {
         if (postByUrl) {
           onUpdateForm(postByUrl);
+          textinput?.current?.focus();
         }
       },
       onError: (err: ApiErrorResult) => {
@@ -101,7 +102,9 @@ export function SquadComment({
   };
 
   useEffect(() => {
-    textinput?.current?.focus?.();
+    if (post) {
+      textinput?.current?.focus?.();
+    }
   }, []);
 
   return (
@@ -137,6 +140,11 @@ export function SquadComment({
               onInput={onInputChange}
               hint={linkHint}
               saveHintSpace
+              ref={(el: HTMLInputElement) => {
+                if (!isNullOrUndefined(el) && !el.value) {
+                  el.focus();
+                }
+              }}
             />
           )}
           {post && (
