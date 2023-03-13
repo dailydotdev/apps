@@ -158,7 +158,11 @@ function SquadPostContent({
                   {post.sharedPost.title}
                 </h2>
                 <PostSourceInfo
-                  date={`${post.sharedPost.readTime}m read time`}
+                  date={
+                    post.sharedPost.readTime
+                      ? `${post.sharedPost.readTime}m read time`
+                      : undefined
+                  }
                   source={post.sharedPost.source}
                   size="small"
                 />
