@@ -7,11 +7,12 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { getPostByUrl, Post } from '../../graphql/posts';
 import { ApiError, ApiErrorResult } from '../../graphql/common';
+import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 
-export interface NewSquadPostProps {
-  post?: Post;
-  url?: string;
-}
+export type NewSquadPostProps = Pick<
+  PostToSquadModalProps,
+  'url' | 'post' | 'onSharedSuccessfully'
+>;
 
 interface SharePostBarProps {
   className?: string;
@@ -23,16 +24,17 @@ function SharePostBar({
   onNewSquadPost,
 }: SharePostBarProps): ReactElement {
   const [url, setUrl] = useState('');
+  const onSharedSuccessfully = () => setUrl('');
   const { mutateAsync: getPost } = useMutation(getPostByUrl, {
     onSuccess: (post) => {
-      onNewSquadPost({ post });
+      onNewSquadPost({ post, onSharedSuccessfully });
     },
     onError: (err: ApiErrorResult, link) => {
       if (
         link === '' ||
         err?.response?.errors?.[0].extensions.code === ApiError.NotFound
       ) {
-        onNewSquadPost({ url });
+        onNewSquadPost({ url, onSharedSuccessfully });
       }
     },
   });
