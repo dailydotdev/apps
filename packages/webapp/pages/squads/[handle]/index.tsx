@@ -130,13 +130,12 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad) return <Custom404 />;
 
-  const onNewSquadPost = ({ post, url }: NewSquadPostProps = {}) =>
+  const onNewSquadPost = (props: NewSquadPostProps = {}) =>
     openModal({
       type: LazyModal.PostToSquad,
       props: {
+        ...props,
         squad,
-        post,
-        url,
       },
     });
 
