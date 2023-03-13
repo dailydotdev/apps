@@ -100,7 +100,7 @@ export default function ShareModal({
           value={link}
           readOnly
         />
-        <p className="py-2.5 font-bold typo-callout">Share via</p>
+        <p className="py-2.5 font-bold typo-callout">Share to</p>
         <SocialShare
           post={post}
           comment={comment}

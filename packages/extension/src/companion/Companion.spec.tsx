@@ -71,6 +71,7 @@ const renderComponent = (postdata, settings): RenderResult => {
       flags={{}}
       deviceId="123"
       accessToken={{ token: '', expiresIn: '' }}
+      squads={[]}
     />,
   );
 };
@@ -135,18 +136,14 @@ describe('companion app', () => {
   it('should show bookmark icon selected', async () => {
     renderComponent({}, {});
     await screen.findByTestId('companion');
-    const [menuBtn] = await screen.findAllByLabelText('More options');
-    menuBtn.click();
-    const el = await screen.findByText('Remove from bookmarks');
+    const el = await screen.findByLabelText('Remove from bookmarks');
     expect(el).toBeInTheDocument();
   });
 
   it('should show bookmark icon unselected', async () => {
     renderComponent({ bookmarked: false }, {});
     await screen.findByTestId('companion');
-    const [menuBtn] = await screen.findAllByLabelText('More options');
-    menuBtn.click();
-    const el = await screen.findByText('Save to bookmarks');
+    const el = await screen.findByLabelText('Save to bookmarks');
     expect(el).toBeInTheDocument();
   });
 
