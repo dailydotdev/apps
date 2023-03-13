@@ -141,7 +141,7 @@ export function SquadComment({
               hint={linkHint}
               saveHintSpace
               ref={(el: HTMLInputElement) => {
-                if (!isNullOrUndefined(el) && !el.value) {
+                if (el && link === '') {
                   el.focus();
                 }
               }}
