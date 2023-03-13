@@ -34,6 +34,7 @@ browser.runtime.onMessage.addListener(
     alerts,
     visit,
     accessToken,
+    squads,
   }) => {
     if (!settings || settings?.optOutCompanion) {
       return;
@@ -50,6 +51,7 @@ browser.runtime.onMessage.addListener(
         alerts,
         visit,
         accessToken,
+        squads,
       });
     } else {
       const container = getCompanionWrapper();

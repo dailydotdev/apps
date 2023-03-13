@@ -33,6 +33,7 @@ export type CompanionData = { url: string; deviceId: string } & Pick<
   | 'user'
   | 'visit'
   | 'accessToken'
+  | 'squads'
 >;
 
 const refreshTokenKey = 'refresh_token';
@@ -47,6 +48,7 @@ export default function App({
   alerts,
   visit,
   accessToken,
+  squads,
 }: CompanionData): ReactElement {
   useError();
   const [token, setToken] = useState(accessToken);
@@ -88,6 +90,7 @@ export default function App({
               tokenRefreshed
               getRedirectUri={() => browser.runtime.getURL('index.html')}
               updateUser={() => null}
+              squads={squads}
             >
               <SettingsContextProvider settings={settings}>
                 <AlertContextProvider alerts={alerts}>
