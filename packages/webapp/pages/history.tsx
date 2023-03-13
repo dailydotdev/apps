@@ -10,6 +10,7 @@ import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/histor
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { useQueryClient } from 'react-query';
+import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 import { getLayout } from '../components/layouts/MainLayout';
 import {
   READING_HISTORY_QUERY,
@@ -50,10 +51,11 @@ const History = (): ReactElement => {
   }, [searchQuery, key]);
 
   const { hideReadHistory } = useReadingHistory(key);
-  const { data, isInitialLoading, isLoading, infiniteScrollRef } =
+  const { data, isInitialLoading, isLoading, hasData, infiniteScrollRef } =
     useInfiniteReadingHistory({ ...queryProps });
 
   const hasReadingHistory = !!client.getQueryData(key) && !isLoading;
+  const shouldShowEmptyScreen = !hasData && !isLoading;
 
   return (
     <ProtectedPage
@@ -75,14 +77,17 @@ const History = (): ReactElement => {
             suggestionType="searchReadingHistorySuggestions"
           />
         </div>
-        <ReadingHistoryList
-          data={data}
-          onHide={hideReadHistory}
-          infiniteScrollRef={infiniteScrollRef}
-        />
+        {hasData && (
+          <ReadingHistoryList
+            data={data}
+            onHide={hideReadHistory}
+            infiniteScrollRef={infiniteScrollRef}
+          />
+        )}
         {isLoading && (
           <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
         )}
+        {shouldShowEmptyScreen && <SearchEmptyScreen />}
       </ResponsivePageContainer>
     </ProtectedPage>
   );
