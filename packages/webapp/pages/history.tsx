@@ -3,7 +3,9 @@ import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
-import useInfiniteReadingHistory from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
+import useInfiniteReadingHistory, {
+  ReadHistoryInfiniteData,
+} from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import ReadingHistoryList from '@dailydotdev/shared/src/components/history/ReadingHistoryList';
 import ReadingHistoryPlaceholder from '@dailydotdev/shared/src/components/history/ReadingHistoryPlaceholder';
 import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
@@ -54,14 +56,16 @@ const History = (): ReactElement => {
   const { data, isInitialLoading, isLoading, hasData, infiniteScrollRef } =
     useInfiniteReadingHistory({ ...queryProps });
 
-  const hasReadingHistory = !!client.getQueryData(key) && !isLoading;
+  const hasReadingHistory = client
+    .getQueryData<ReadHistoryInfiniteData>(key)
+    ?.pages?.some((page) => page.readHistory.edges.length > 0);
   const shouldShowEmptyScreen = !hasData && !isLoading;
 
   return (
     <ProtectedPage
       seo={seo}
       fallback={<ReadingHistoryEmptyScreen />}
-      shouldFallback={hasReadingHistory}
+      shouldFallback={!hasReadingHistory && !isLoading}
     >
       <ResponsivePageContainer
         className={isInitialLoading && 'h-screen overflow-hidden'}
