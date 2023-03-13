@@ -140,11 +140,6 @@ export function SquadComment({
               onInput={onInputChange}
               hint={linkHint}
               saveHintSpace
-              ref={(el: HTMLInputElement) => {
-                if (el && link === '') {
-                  el.focus();
-                }
-              }}
             />
           )}
           {post && (
