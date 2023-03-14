@@ -63,7 +63,7 @@ function SharePostBar({
       <input
         type="url"
         name="share-post-bar"
-        className="flex-1 pl-1 w-32 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
+        className="flex-1 pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
         placeholder="Enter link to share"
         onInput={(e) => setUrl(e.currentTarget.value)}
         value={url}
