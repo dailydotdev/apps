@@ -16,7 +16,8 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
-import usePostById, {
+import {
+  getPostByIdKey,
   updatePostCache,
 } from '@dailydotdev/shared/src/hooks/usePostById';
 import CompanionMenu from './CompanionMenu';
@@ -72,15 +73,15 @@ export default function Companion({
   const containerRef = useRef<HTMLDivElement>();
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
   const client = useQueryClient();
-  const { post } = usePostById({
-    id: postData.id,
-    options: {
-      initialData: () => ({
-        post: postData,
-      }),
-      staleTime: Infinity,
+  const { data: post } = useQuery(
+    getPostByIdKey(postData.id),
+    () => ({ post: postData }),
+    {
+      select: useCallback((data) => {
+        return data.post;
+      }, []),
     },
-  });
+  );
   const setPost = useCallback(
     (newPostData: PostBootData) => {
       updatePostCache(client, newPostData.id, newPostData);
