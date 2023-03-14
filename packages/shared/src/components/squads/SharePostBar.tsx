@@ -5,7 +5,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { getPostByUrl, Post } from '../../graphql/posts';
+import { getPostByUrl } from '../../graphql/posts';
 import { ApiError, ApiErrorResult } from '../../graphql/common';
 import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 
