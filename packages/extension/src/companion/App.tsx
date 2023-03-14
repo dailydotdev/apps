@@ -15,6 +15,7 @@ import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -118,6 +119,7 @@ export default function App({
               </SettingsContextProvider>
             </AuthContextProvider>
           </FeaturesContextProvider>
+          <ReactQueryDevtools />
         </QueryClientProvider>
       </RouterContext.Provider>
     </div>
