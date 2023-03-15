@@ -5,8 +5,9 @@ import React, {
   useRef,
   useState,
   LegacyRef,
+  useCallback,
 } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -15,6 +16,10 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
+import {
+  getPostByIdKey,
+  updatePostCache,
+} from '@dailydotdev/shared/src/hooks/usePostById';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { companionRequest } from './companionRequest';
@@ -67,7 +72,24 @@ export default function Companion({
 }: CompanionProps): ReactElement {
   const containerRef = useRef<HTMLDivElement>();
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
-  const [post, setPost] = useState<PostBootData>(postData);
+  const client = useQueryClient();
+  const { data: post } = useQuery(
+    getPostByIdKey(postData.id),
+    () => ({ post: postData }),
+    {
+      select: useCallback((data) => {
+        return data.post;
+      }, []),
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
+  const setPost = useCallback(
+    (newPostData: PostBootData) => {
+      updatePostCache(client, newPostData.id, newPostData);
+    },
+    [client],
+  );
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
   useQuery(REQUEST_PROTOCOL_KEY, () => ({
