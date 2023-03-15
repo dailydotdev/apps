@@ -80,6 +80,8 @@ export default function Companion({
       select: useCallback((data) => {
         return data.post;
       }, []),
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     },
   );
   const setPost = useCallback(
