@@ -91,6 +91,7 @@ export function SquadMemberModal({
             </SimpleTooltip>
           );
         }}
+        squad={squad}
       />
       <SquadMemberMenu squadId={squad?.id} memberId={memberId} />
     </>

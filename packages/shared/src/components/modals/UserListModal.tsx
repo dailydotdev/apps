@@ -4,6 +4,7 @@ import { Modal, ModalProps } from './common/Modal';
 import UserList, { UserListProps } from '../profile/UserList';
 import { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
 import { UserShortProfile } from '../../lib/user';
+import { Squad } from '../../graphql/squads';
 
 export interface UserListModalProps
   extends Omit<ModalProps, 'children'>,
@@ -12,6 +13,7 @@ export interface UserListModalProps
   placeholderAmount?: number;
   title: string;
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
+  squad?: Squad;
 }
 
 function UserListModal({
@@ -21,6 +23,7 @@ function UserListModal({
   placeholderAmount,
   additionalContent,
   size = Modal.Size.Medium,
+  squad,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -43,6 +46,7 @@ function UserListModal({
             appendTooltipTo={modalRef}
             placeholderAmount={placeholderAmount}
             additionalContent={additionalContent}
+            squad={squad}
           />
         ) : (
           <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
