@@ -30,9 +30,10 @@ interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
 
 const toastMessageMap = {
   error: 'Something went wrong, try again later',
-  throttled: 'There is no update available, try again later',
-  no_update: 'You are already on the latest available version',
-  update_available: 'Browser extension updated',
+  throttled: 'There is no extension update available, try again later',
+  no_update:
+    "Your extension is already the latest and greatest. You're awesome 🎉",
+  update_available: 'Browser extension updated 🎉',
 };
 
 function ChangelogTooltip<TRef extends HTMLElement>({
