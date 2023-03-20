@@ -24,7 +24,7 @@ const Search = (): ReactElement => {
       };
     }
     return {
-      title: 'daily.dev | Where Developers Grow Together',
+      title: 'daily.dev | Where developers grow together',
     };
   }, [query]);
 
