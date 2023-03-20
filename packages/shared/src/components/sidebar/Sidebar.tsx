@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
+import { sticky } from 'tippy.js';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -30,6 +31,7 @@ import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
 import { Origin } from '../../lib/analytics';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -76,6 +78,10 @@ export default function Sidebar({
   });
   const newSquadButtonVisible =
     sidebarRendered && hasSquadAccess && !squads?.length;
+  const newSquadTooltipOffset: [number, number] = sidebarExpanded
+    ? [0, 1.5 * 16]
+    : [0, 2 * 16];
+
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
@@ -133,22 +139,38 @@ export default function Sidebar({
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
             {newSquadButtonVisible && (
-              <div className="flex">
-                <Button
-                  buttonSize={ButtonSize.Small}
-                  icon={<PlusIcon />}
-                  iconOnly={!sidebarExpanded}
-                  className={classNames(
-                    'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage flex flex-1',
-                    sidebarExpanded ? 'mx-3' : 'mx-1.5',
-                  )}
-                  textPosition={
-                    sidebarExpanded ? 'justify-start' : 'justify-center'
+              <div className="flex mt-0 laptop:mt-2 mb-4">
+                <SimpleTooltip
+                  content={
+                    <>
+                      You can always
+                      <br /> open a squad here
+                    </>
                   }
-                  onClick={() => openSquadBetaModal({ origin: Origin.Sidebar })}
+                  placement="right"
+                  offset={newSquadTooltipOffset}
+                  sticky
+                  plugins={[sticky]}
+                  visible
                 >
-                  {sidebarExpanded && 'New Squad'}
-                </Button>
+                  <Button
+                    buttonSize={ButtonSize.Small}
+                    icon={<PlusIcon />}
+                    iconOnly={!sidebarExpanded}
+                    className={classNames(
+                      'btn-primary-cabbage flex flex-1',
+                      sidebarExpanded ? 'mx-3' : 'mx-1.5',
+                    )}
+                    textPosition={
+                      sidebarExpanded ? 'justify-start' : 'justify-center'
+                    }
+                    onClick={() =>
+                      openSquadBetaModal({ origin: Origin.Sidebar })
+                    }
+                  >
+                    {sidebarExpanded && 'New Squad'}
+                  </Button>
+                </SimpleTooltip>
               </div>
             )}
             {!alerts?.filter && (
