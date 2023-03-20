@@ -62,17 +62,14 @@ function ChangelogTooltip<TRef extends HTMLElement>({
         return;
       }
 
-      const sendMessage = globalThis?.browser?.runtime?.sendMessage;
+      const browser = await import('webextension-polyfill-ts').then(
+        (mod) => mod.browser,
+      );
 
-      if (typeof sendMessage !== 'function') {
-        toast.displayToast(toastMessageMap.error);
-
-        return;
-      }
-
-      const updateResponse: { status: string } = await sendMessage({
-        type: ExtensionMessageType.RequestUpdate,
-      });
+      const updateResponse: { status: string } =
+        await browser.runtime.sendMessage({
+          type: ExtensionMessageType.RequestUpdate,
+        });
 
       const toastMessage = toastMessageMap[updateResponse.status];
 
