@@ -1,4 +1,10 @@
-import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+import React, {
+  FormEvent,
+  KeyboardEvent,
+  ReactElement,
+  useContext,
+  useState,
+} from 'react';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
 import { ProfilePicture } from '../ProfilePicture';
@@ -9,9 +15,13 @@ import AuthContext from '../../contexts/AuthContext';
 import OpenLinkIcon from '../icons/OpenLink';
 import { SquadForm } from '../../graphql/squads';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { KeyboardCommand } from '../../lib/element';
 
 interface SquadCommentProps {
-  onSubmit: React.EventHandler<FormEvent>;
+  onSubmit: (
+    e?: React.MouseEvent | React.KeyboardEvent,
+    commentary?: string,
+  ) => unknown;
   form: Partial<SquadForm>;
   isLoading?: boolean;
 }
@@ -25,11 +35,22 @@ export function SquadComment({
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
 
+  const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const pressedSpecialkey = e.ctrlKey || e.metaKey;
+    if (
+      pressedSpecialkey &&
+      e.key === KeyboardCommand.Enter &&
+      commentary?.length
+    ) {
+      onSubmit(null, commentary);
+    }
+  };
+
   return (
     <>
       <Modal.Body className="flex flex-col">
         <form
-          onSubmit={onSubmit}
+          onSubmit={onSubmit as React.EventHandler<FormEvent>}
           className="flex flex-1 gap-4"
           id="squad-comment"
         >
@@ -38,6 +59,7 @@ export function SquadComment({
             placeholder="Share your thought and insights about the post…"
             className="flex-1 self-stretch w-full min-w-0 focus:placeholder-transparent bg-transparent focus:outline-none resize-none typo-body caret-theme-label-link text-theme-label-primary"
             value={commentary}
+            onKeyDown={handleKeydown}
             onChange={(event) => setCommentary(event.target.value)}
             ref={(el) => {
               if (!el) return;

@@ -15,11 +15,13 @@ import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
 import { version } from '../../package.json';
 import { useBackgroundRequest } from './useBackgroundRequest';
+import { getCompanionWrapper } from './common';
 
 const queryClient = new QueryClient(defaultQueryClientConfig);
 const router = new CustomRouter();
@@ -33,6 +35,7 @@ export type CompanionData = { url: string; deviceId: string } & Pick<
   | 'user'
   | 'visit'
   | 'accessToken'
+  | 'squads'
 >;
 
 const refreshTokenKey = 'refresh_token';
@@ -47,6 +50,7 @@ export default function App({
   alerts,
   visit,
   accessToken,
+  squads,
 }: CompanionData): ReactElement {
   useError();
   const [token, setToken] = useState(accessToken);
@@ -88,6 +92,7 @@ export default function App({
               tokenRefreshed
               getRedirectUri={() => browser.runtime.getURL('index.html')}
               updateUser={() => null}
+              squads={squads}
             >
               <SettingsContextProvider settings={settings}>
                 <AlertContextProvider alerts={alerts}>
@@ -105,6 +110,7 @@ export default function App({
                       companionExpanded={settings?.companionExpanded}
                       onOptOut={() => setIsOptOutCompanion(true)}
                     />
+                    <PromptElement parentSelector={getCompanionWrapper} />
                     <Toast
                       autoDismissNotifications={
                         settings?.autoDismissNotifications

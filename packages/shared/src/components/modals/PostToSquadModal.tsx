@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
+import request from 'graphql-request';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadComment } from '../squads/Comment';
@@ -15,6 +16,7 @@ export interface PostToSquadModalProps extends LazyModalCommonProps {
   squad: Squad;
   post?: Post;
   onSharedSuccessfully?: (post: Post) => void;
+  requestMethod?: typeof request;
 }
 
 const modalSteps: ModalStep[] = [
@@ -31,6 +33,8 @@ function PostToSquadModal({
   isOpen,
   post,
   squad,
+  requestMethod = request,
+  ...props
 }: PostToSquadModalProps): ReactElement {
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
@@ -43,16 +47,19 @@ function PostToSquadModal({
     buttonText: 'Done',
   });
 
-  const { mutateAsync: onPost, isLoading } = useMutation(addPostToSquad, {
-    onSuccess: async (squadPost) => {
-      if (squadPost) {
-        displayToast('This post has been shared to your squad');
-        await client.invalidateQueries(['sourceFeed', user.id]);
-        onSharedSuccessfully?.(squadPost);
-        onRequestClose(null);
-      }
+  const { mutateAsync: onPost, isLoading } = useMutation(
+    addPostToSquad(requestMethod),
+    {
+      onSuccess: async (squadPost) => {
+        if (squadPost || requestMethod !== request) {
+          displayToast('This post has been shared to your squad');
+          await client.invalidateQueries(['sourceFeed', user.id]);
+          onSharedSuccessfully?.(squadPost);
+          onRequestClose(null);
+        }
+      },
     },
-  });
+  );
 
   const onSubmit = async (
     e?: React.MouseEvent | React.KeyboardEvent,
@@ -62,7 +69,7 @@ function PostToSquadModal({
 
     if (isLoading) return;
 
-    onPost({
+    await onPost({
       id: form.post.post.id,
       sourceId: squad.id,
       commentary: commentary ?? e?.target[0].value,
@@ -89,6 +96,7 @@ function PostToSquadModal({
       size={Modal.Size.Small}
       onRequestClose={onRequestClose}
       steps={post ? undefined : modalSteps}
+      {...props}
     >
       <Modal.Header title="Share post" kind={ModalHeaderKind.Tertiary} />
       {post ? (
