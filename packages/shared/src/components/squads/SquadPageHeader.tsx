@@ -24,7 +24,6 @@ export function SquadPageHeader({
   onNewSquadPost,
   hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
-  console.log('onboarding', hasTriedOnboarding);
   return (
     <section className="flex flex-col items-center px-6 pb-0 tablet:pb-10 mb-6 w-full tablet:border-b min-h-20 border-theme-divider-tertiary">
       <Button
