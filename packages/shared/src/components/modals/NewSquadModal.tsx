@@ -18,6 +18,7 @@ import { useBoot } from '../../hooks/useBoot';
 import SquadAccessIntro from '../sidebar/SquadAccessIntro';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 
 export type NewSquadModalProps = {
   onRequestClose: () => void;
@@ -113,11 +114,25 @@ function NewSquadModal({
     },
   ].filter((step) => step);
 
+  const newSquadTutorial = useTutorial({
+    key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
+  });
+
+  const showNewSquadTooltip = () => {
+    if (!newSquadTutorial.isCompleted) {
+      newSquadTutorial.setState(true);
+      newSquadTutorial.complete();
+    }
+  };
+
   const handleClose = async () => {
     if (activeView === ModalState.Ready) return onRequestClose();
 
     const shouldQuit = await showPrompt(quitSquadModal);
-    if (shouldQuit) onRequestClose();
+    if (shouldQuit) {
+      onRequestClose();
+      showNewSquadTooltip();
+    }
     return null;
   };
 

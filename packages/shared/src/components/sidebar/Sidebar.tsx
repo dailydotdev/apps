@@ -32,6 +32,7 @@ import { Squad } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
 import { Origin } from '../../lib/analytics';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -81,6 +82,10 @@ export default function Sidebar({
   const newSquadTooltipOffset: [number, number] = sidebarExpanded
     ? [0, 1.5 * 16]
     : [0, 2 * 16];
+  const newSquadTooltipTutorial = useTutorial({
+    key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
+    defaultState: false,
+  });
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -151,7 +156,7 @@ export default function Sidebar({
                   offset={newSquadTooltipOffset}
                   sticky
                   plugins={[sticky]}
-                  visible
+                  visible={newSquadTooltipTutorial.state}
                 >
                   <Button
                     buttonSize={ButtonSize.Small}
@@ -164,9 +169,11 @@ export default function Sidebar({
                     textPosition={
                       sidebarExpanded ? 'justify-start' : 'justify-center'
                     }
-                    onClick={() =>
-                      openSquadBetaModal({ origin: Origin.Sidebar })
-                    }
+                    onClick={() => {
+                      newSquadTooltipTutorial.setState(false);
+
+                      openSquadBetaModal({ origin: Origin.Sidebar });
+                    }}
                   >
                     {sidebarExpanded && 'New Squad'}
                   </Button>
