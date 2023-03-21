@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
@@ -9,6 +9,11 @@ import SquadMemberShortList, {
   SquadMemberShortListProps,
 } from './SquadMemberShortList';
 import { IconSize } from '../Icon';
+import FeedbackIcon from '../icons/Feedback';
+import { squadFeedback } from '../../lib/constants';
+import AddUserIcon from '../icons/AddUser';
+import { useCopySquadInvitation } from '../../hooks/useCopySquadInvitation';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -24,35 +29,53 @@ export function SquadHeaderBar({
   onNewSquadPost,
   ...props
 }: SquadHeaderBarProps): ReactElement {
+  const [, copying, copyLink] = useCopySquadInvitation({ squad });
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
+  const { sidebarRendered } = useSidebarRendered();
 
   return (
     <div
       {...props}
-      className={classNames(
-        'flex flex-row flex-wrap justify-center items-center gap-4 w-full',
-        className,
-      )}
+      className={classNames('flex flex-row gap-4 h-fit', className)}
     >
-      <SquadMemberShortList
-        squad={squad}
-        members={members}
-        memberCount={memberCount}
-      />
-      <SimpleTooltip placement="top" content="Squad options">
-        <Button
-          className="tablet:order-2 btn btn-secondary"
-          icon={<MenuIcon size={IconSize.Small} />}
-          onClick={onMenuClick}
-          aria-label="Squad options"
-        />
-      </SimpleTooltip>
       <Button
         className="w-full mobileL:max-w-[18rem] tablet:w-fit btn btn-primary"
-        onClick={onNewSquadPost}
+        onClick={() => copyLink()}
+        icon={<AddUserIcon />}
+        disabled={copying}
       >
-        Create new post
+        Copy invitation link
       </Button>
+      {sidebarRendered && (
+        <SquadMemberShortList
+          squad={squad}
+          members={members}
+          memberCount={memberCount}
+        />
+      )}
+      <SimpleTooltip placement="top" content="Feedback">
+        <Button
+          tag="a"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`}
+          className="btn-secondary"
+          icon={
+            <FeedbackIcon
+              className="hidden tablet:flex"
+              size={IconSize.Small}
+              aria-label="squad-feedback-icon"
+            />
+          }
+        />
+      </SimpleTooltip>
+      <SimpleTooltip placement="top" content="Squad options">
+        <Button
+          className="btn-secondary"
+          icon={<MenuIcon size={IconSize.Small} />}
+          onClick={onMenuClick}
+        />
+      </SimpleTooltip>
       <SquadHeaderMenu squad={squad} />
     </div>
   );
