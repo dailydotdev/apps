@@ -19,6 +19,7 @@ module.exports = {
         rank: 'var(--rank-color)',
         bg: {
           inherit: 'inherit',
+          transparent: 'transparent',
           whatsapp: '#30B944',
           twitter: '#1D9BF0',
           facebook: '#4363B6',
