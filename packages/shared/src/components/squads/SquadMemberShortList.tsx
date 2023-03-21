@@ -2,8 +2,6 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Squad, SquadMember } from '../../graphql/squads';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { Button, ButtonSize } from '../buttons/Button';
-import AddUserIcon from '../icons/AddUser';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -26,13 +24,6 @@ function SquadMemberShortList({
       props: {
         squad,
         placeholderAmount: squad?.membersCount,
-      },
-    });
-  const openSquadInviteModal = () =>
-    openModal({
-      type: LazyModal.SquadInvite,
-      props: {
-        initialSquad: squad,
       },
     });
 
@@ -63,14 +54,6 @@ function SquadMemberShortList({
           ))}
         </button>
       </SimpleTooltip>
-      <Button
-        className="m-1 active:bg-theme-active btn-tertiary"
-        buttonSize={ButtonSize.Small}
-        onClick={openSquadInviteModal}
-        icon={<AddUserIcon className="text-theme-label-secondary" />}
-      >
-        Invite
-      </Button>
     </div>
   );
 }
