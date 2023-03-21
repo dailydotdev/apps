@@ -62,7 +62,7 @@ function UserList({
             trackEvent({
               event_name: AnalyticsEvent.ShareSquadInvitation,
               extra: JSON.stringify({
-                origin: Origin.SquadPage,
+                origin: Origin.SquadMembersList,
                 squad: squad.id,
               }),
             });
