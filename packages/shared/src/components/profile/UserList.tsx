@@ -12,7 +12,6 @@ import { IconSize } from '../Icon';
 import { useCopyLink } from '../../hooks/useCopyLink';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import AuthContext from '../../contexts/AuthContext';
 
 export interface UserListProps {
   scrollingContainer?: HTMLElement;
@@ -33,7 +32,6 @@ function UserList({
   ...props
 }: UserListProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { user: currentUser } = useContext(AuthContext);
   const [copying, copyLink] = useCopyLink(() => {
     const permalink = squad?.permalink;
     const token = squad?.currentMember?.referralToken;
@@ -64,9 +62,8 @@ function UserList({
             trackEvent({
               event_name: AnalyticsEvent.ShareSquadInvitation,
               extra: JSON.stringify({
-                origin: Origin.SquadMembers,
+                origin: Origin.SquadPage,
                 squad: squad.id,
-                squad_member: currentUser.id,
               }),
             });
 

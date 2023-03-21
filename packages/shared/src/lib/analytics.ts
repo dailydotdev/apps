@@ -18,7 +18,6 @@ export enum Origin {
   Sidebar = 'sidebar',
   Share = 'share',
   Notification = 'notification',
-  SquadMembers = 'squad members',
   // squads - end
 }
 
