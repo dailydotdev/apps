@@ -31,7 +31,7 @@ export interface ModalProps extends ReactModal.Props {
 
 export type LazyModalCommonProps = Pick<
   ModalProps,
-  'isOpen' | 'onRequestClose'
+  'isOpen' | 'onRequestClose' | 'parentSelector'
 > & { onRequestClose: (e?: React.MouseEvent | React.KeyboardEvent) => void };
 
 const modalKindToOverlayClassName: Record<ModalKind, string> = {

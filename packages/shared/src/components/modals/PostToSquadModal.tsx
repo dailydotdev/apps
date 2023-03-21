@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
+import request from 'graphql-request';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
 import { SquadComment, SubmitSharePostFunc } from '../squads/Comment';
@@ -17,6 +18,7 @@ export interface PostToSquadModalProps extends LazyModalCommonProps {
   post?: Post;
   url?: string;
   onSharedSuccessfully?: (post: Post) => void;
+  requestMethod?: typeof request;
 }
 
 const modalSteps: ModalStep[] = [
@@ -34,6 +36,8 @@ function PostToSquadModal({
   post,
   url,
   squad,
+  requestMethod = request,
+  ...props
 }: PostToSquadModalProps): ReactElement {
   const isLink = !isNullOrUndefined(url);
   const shouldSkipHistory = isLink || post;
@@ -57,9 +61,12 @@ function PostToSquadModal({
     onRequestClose(null);
   };
 
-  const { mutateAsync: onPost, isLoading } = useMutation(addPostToSquad, {
-    onSuccess: onPostSuccess,
-  });
+  const { mutateAsync: onPost, isLoading } = useMutation(
+    addPostToSquad(requestMethod),
+    {
+      onSuccess: onPostSuccess,
+    },
+  );
 
   const { mutateAsync: onSubmitLink, isLoading: isLinkLoading } = useMutation(
     submitExternalLink,
@@ -102,6 +109,7 @@ function PostToSquadModal({
       size={Modal.Size.Small}
       onRequestClose={onRequestClose}
       steps={post ? undefined : modalSteps}
+      {...props}
     >
       <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
       {shouldSkipHistory ? (

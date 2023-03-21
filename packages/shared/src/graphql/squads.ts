@@ -291,8 +291,10 @@ export const checkExistingHandle = async (handle: string): Promise<boolean> => {
   return req.sourceHandleExists;
 };
 
-export const addPostToSquad = (data: PostToSquadProps): Promise<Post> =>
-  request(graphqlUrl, ADD_POST_TO_SQUAD_MUTATION, data);
+export const addPostToSquad =
+  (requestMethod: typeof request) =>
+  (data: PostToSquadProps): Promise<Post> =>
+    requestMethod(graphqlUrl, ADD_POST_TO_SQUAD_MUTATION, data);
 
 export async function createSquad(form: SquadForm): Promise<Squad> {
   const inputData: CreateSquadInput = {

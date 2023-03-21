@@ -33,8 +33,7 @@ const AccountProfilePage = (): ReactElement => {
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     const values = formToJson<UpdateProfileParameters>(formRef.current);
-    const input = document.getElementById(id) as HTMLInputElement;
-    const file = input.files[0];
+
     const params = {
       name: values.name,
       username: values.username,
@@ -45,7 +44,6 @@ const AccountProfilePage = (): ReactElement => {
       github: values.github,
       hashnode: values.hashnode,
       portfolio: values.portfolio,
-      image: file,
     };
     updateUserProfile(params);
   };
@@ -75,6 +73,18 @@ const AccountProfilePage = (): ReactElement => {
             className={{ container: 'mt-6', img: 'object-cover' }}
             initialValue={user.image}
             hoverIcon={<CameraIcon size={IconSize.Large} />}
+            onChange={(imageBase64) => {
+              if (!imageBase64) {
+                return;
+              }
+
+              const input = document.getElementById(id) as HTMLInputElement;
+              const file = input.files[0];
+
+              updateUserProfile({
+                image: file,
+              });
+            }}
           />
         </AccountContentSection>
         <AccountContentSection title="Account Information">

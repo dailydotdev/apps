@@ -5,6 +5,7 @@ import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -19,12 +20,18 @@ import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboard
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import PostToSquadModal, {
+  PostToSquadModalProps,
+} from '@dailydotdev/shared/src/components/modals/PostToSquadModal';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
 import { useCompanionPostComment } from './useCompanionPostComment';
 import CompanionToggle from './CompanionToggle';
+import { companionRequest } from './companionRequest';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -49,6 +56,7 @@ export default function CompanionMenu({
   setCompanionState,
   onOpenComments,
 }: CompanionMenuProps): ReactElement {
+  const { modal, closeModal } = useLazyModal();
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
@@ -213,6 +221,19 @@ export default function CompanionMenu({
       </SimpleTooltip>
       <SimpleTooltip
         placement="left"
+        content={`${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`}
+        appendTo="parent"
+        container={tooltipContainerProps}
+      >
+        <Button
+          icon={<BookmarkIcon secondary={post?.bookmarked} />}
+          pressed={post?.bookmarked}
+          onClick={toggleBookmark}
+          className="btn-tertiary-bun"
+        />
+      </SimpleTooltip>
+      <SimpleTooltip
+        placement="left"
         content="Share post"
         appendTo="parent"
         container={tooltipContainerProps}
@@ -236,7 +257,6 @@ export default function CompanionMenu({
         />
       </SimpleTooltip>
       <CompanionContextMenu
-        onBookmark={toggleBookmark}
         onShare={onShare}
         postData={post}
         onReport={report}
@@ -259,6 +279,15 @@ export default function CompanionMenu({
           post={sharePost}
           origin={Origin.Companion}
           onRequestClose={closeSharePost}
+        />
+      )}
+      {modal?.type === LazyModal.PostToSquad && (
+        <PostToSquadModal
+          isOpen
+          parentSelector={getCompanionWrapper}
+          requestMethod={companionRequest}
+          onRequestClose={closeModal}
+          {...(modal.props as PostToSquadModalProps)}
         />
       )}
     </div>

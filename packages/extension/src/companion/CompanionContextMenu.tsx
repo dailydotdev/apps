@@ -9,10 +9,8 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { ShareBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
 import { feedback } from '@dailydotdev/shared/src/lib/constants';
-import classNames from 'classnames';
 import {
   PromptOptions,
   usePrompt,
@@ -20,7 +18,8 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getCompanionWrapper } from './common';
 
-interface CompanionContextMenuProps extends ShareBookmarkProps {
+interface CompanionContextMenuProps
+  extends Omit<ShareBookmarkProps, 'onBookmark'> {
   postData: PostBootData;
   onReport: (T) => void;
   onBlockSource: (T) => void;
@@ -32,7 +31,6 @@ export default function CompanionContextMenu({
   onReport,
   onBlockSource,
   onDisableCompanion,
-  onBookmark,
 }: CompanionContextMenuProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -89,17 +87,6 @@ export default function CompanionContextMenu({
             <CommentIcon size={IconSize.Small} className="mr-2" /> View
             discussion
           </a>
-        </Item>
-        <Item onClick={onBookmark}>
-          <BookmarkIcon
-            size={IconSize.Small}
-            className={classNames(
-              'mr-2',
-              postData?.bookmarked && 'text-theme-color-bun',
-            )}
-            secondary={postData?.bookmarked}
-          />
-          {postData?.bookmarked ? 'Remove from' : 'Save to'} bookmarks
         </Item>
         <Item onClick={() => setReportModal(true)}>
           <FlagIcon size={IconSize.Small} className="mr-2" /> Report

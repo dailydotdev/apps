@@ -1,5 +1,5 @@
 import React, {
-  FormEvent,
+  KeyboardEvent,
   FormEventHandler,
   ReactElement,
   useContext,
@@ -26,6 +26,7 @@ import { getPostByUrl, Post } from '../../graphql/posts';
 import { ApiError, ApiErrorResult } from '../../graphql/common';
 import useDebounce from '../../hooks/useDebounce';
 import { isValidHttpUrl } from '../../lib/links';
+import { KeyboardCommand } from '../../lib/element';
 
 export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
@@ -107,6 +108,17 @@ export function SquadComment({
     }
   }, []);
 
+  const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const pressedSpecialkey = e.ctrlKey || e.metaKey;
+    if (
+      pressedSpecialkey &&
+      e.key === KeyboardCommand.Enter &&
+      commentary?.length
+    ) {
+      onSubmit(null, commentary);
+    }
+  };
+
   return (
     <>
       <Modal.Body
@@ -123,6 +135,7 @@ export function SquadComment({
               placeholder="Share your thought and insights about the post…"
               className="flex-1 self-stretch w-full min-w-0 focus:placeholder-transparent bg-transparent focus:outline-none resize-none typo-body caret-theme-label-link text-theme-label-primary"
               value={commentary}
+              onKeyDown={handleKeydown}
               onChange={(event) => setCommentary(event.target.value)}
               ref={textinput}
             />
