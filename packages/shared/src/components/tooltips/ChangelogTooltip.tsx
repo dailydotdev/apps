@@ -52,32 +52,39 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   }, [sidebarExpanded]);
 
   const { mutateAsync: updateExtension, isLoading: isExtensionUpdating } =
-    useMutation(async () => {
-      if (isFirefoxExtension) {
-        return;
-      }
+    useMutation(
+      async () => {
+        if (isFirefoxExtension) {
+          return;
+        }
 
-      if (!isExtension) {
-        toast.displayToast(toastMessageMap.error);
+        if (!isExtension) {
+          throw new Error(
+            'updateExtension can only be used inside the extension runtime',
+          );
+        }
 
-        return;
-      }
+        const browser = await import('webextension-polyfill-ts').then(
+          (mod) => mod.browser,
+        );
 
-      const browser = await import('webextension-polyfill-ts').then(
-        (mod) => mod.browser,
-      );
+        const updateResponse: { status: string } =
+          await browser.runtime.sendMessage({
+            type: ExtensionMessageType.RequestUpdate,
+          });
 
-      const updateResponse: { status: string } =
-        await browser.runtime.sendMessage({
-          type: ExtensionMessageType.RequestUpdate,
-        });
+        const toastMessage = toastMessageMap[updateResponse.status];
 
-      const toastMessage = toastMessageMap[updateResponse.status];
-
-      if (toastMessage) {
-        toast.displayToast(toastMessage);
-      }
-    });
+        if (toastMessage) {
+          toast.displayToast(toastMessage);
+        }
+      },
+      {
+        onError: () => {
+          toast.displayToast(toastMessageMap.error);
+        },
+      },
+    );
 
   const onModalCloseClick = async (event) => {
     if (typeof onRequestClose === 'function') {
