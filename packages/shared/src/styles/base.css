@@ -32,7 +32,7 @@ body {
       padding-right: 0.5rem;
     }
   }
-  
+
   overflow-x: hidden;
 }
 
@@ -420,6 +420,6 @@ details.right-icon {
 .squad-background-fade {
   background: radial-gradient(ellipse, #c029f088 0%, #c029f000 400px);
   background-size: 1200px 500px;
-  background-position: center -270px;
+  background-position: center -250px;
   background-repeat: no-repeat;
 }

@@ -36,6 +36,8 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
 import dynamic from 'next/dynamic';
+import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
+import classNames from 'classnames';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -54,6 +56,7 @@ type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
+  const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = useRouter();
   const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
@@ -142,7 +145,13 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
-      <BaseFeedPage className="relative pt-8 mb-4 squad-background-fade">
+      <BaseFeedPage className="relative pt-8 mb-4">
+        <div
+          className={classNames(
+            'absolute top-0 w-full h-full squad-background-fade',
+            sidebarRendered && '-left-full translate-x-[60%]',
+          )}
+        />
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
