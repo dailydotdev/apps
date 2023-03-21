@@ -31,6 +31,14 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-3',
 };
 
+const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
+  [NotificationPromptSource.NotificationsPage]: false,
+  [NotificationPromptSource.NewComment]: false,
+  [NotificationPromptSource.CommunityPicks]: false,
+  [NotificationPromptSource.NewSourceModal]: false,
+  [NotificationPromptSource.SquadPage]: true,
+};
+
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
   contentName,
@@ -116,6 +124,7 @@ function EnableNotification({
   };
   const message = sourceToMessage[source];
   const classes = containerClassName[source];
+  const showTextCloseButton = sourceRenderTextCloseButton[source];
 
   return (
     <div
@@ -147,15 +156,26 @@ function EnableNotification({
           message
         )}
       </p>
-      {!hasEnabled && (
-        <Button
-          buttonSize={ButtonSize.Small}
-          className="mt-4 min-w-[7rem] btn-primary-cabbage"
-          onClick={onEnable}
-        >
-          Enable notifications
-        </Button>
-      )}
+      <div className="flex mt-4 align-center">
+        {!hasEnabled && (
+          <Button
+            buttonSize={ButtonSize.Small}
+            className="mr-4 min-w-[7rem] btn-primary-cabbage"
+            onClick={onEnable}
+          >
+            Enable notifications
+          </Button>
+        )}
+        {showTextCloseButton && (
+          <Button
+            buttonSize={ButtonSize.Small}
+            className="btn-tertiary"
+            onClick={onDismiss}
+          >
+            Dismiss
+          </Button>
+        )}
+      </div>
       <img
         className={classNames(
           'hidden tablet:flex absolute w-[7.5rem] -bottom-2',
@@ -168,12 +188,14 @@ function EnableNotification({
         }
         alt="A sample browser notification"
       />
-      <CloseButton
-        buttonSize={ButtonSize.XSmall}
-        className="top-1 laptop:top-3 right-1 laptop:right-3"
-        onClick={onDismiss}
-        position="absolute"
-      />
+      {!showTextCloseButton && (
+        <CloseButton
+          buttonSize={ButtonSize.XSmall}
+          className="top-1 laptop:top-3 right-1 laptop:right-3"
+          onClick={onDismiss}
+          position="absolute"
+        />
+      )}
     </div>
   );
 }

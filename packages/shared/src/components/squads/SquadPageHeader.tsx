@@ -14,6 +14,7 @@ type SquadPageHeaderProps = {
   squad: Squad;
   members: SquadMember[];
   onNewSquadPost: () => void;
+  hasTriedOnboarding?: boolean;
 };
 
 export function SquadPageHeader({
@@ -21,7 +22,9 @@ export function SquadPageHeader({
   squad,
   members,
   onNewSquadPost,
+  hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
+  console.log('onboarding', hasTriedOnboarding);
   return (
     <section className="flex flex-col items-center px-6 pb-0 tablet:pb-10 mb-6 w-full tablet:border-b min-h-20 border-theme-divider-tertiary">
       <Button
@@ -61,10 +64,12 @@ export function SquadPageHeader({
         memberCount={squad.membersCount}
         onNewSquadPost={onNewSquadPost}
       />
-      <EnableNotification
-        contentName={squad.name}
-        source={NotificationPromptSource.SquadPage}
-      />
+      {hasTriedOnboarding && (
+        <EnableNotification
+          contentName={squad.name}
+          source={NotificationPromptSource.SquadPage}
+        />
+      )}
     </section>
   );
 }
