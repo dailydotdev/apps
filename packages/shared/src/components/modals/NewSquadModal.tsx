@@ -118,20 +118,13 @@ function NewSquadModal({
     key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
   });
 
-  const showNewSquadTooltip = () => {
-    if (!newSquadTutorial.isCompleted) {
-      newSquadTutorial.setState(true);
-      newSquadTutorial.complete();
-    }
-  };
-
   const handleClose = async () => {
     if (activeView === ModalState.Ready) return onRequestClose();
 
     const shouldQuit = await showPrompt(quitSquadModal);
     if (shouldQuit) {
       onRequestClose();
-      showNewSquadTooltip();
+      newSquadTutorial.activate();
     }
     return null;
   };

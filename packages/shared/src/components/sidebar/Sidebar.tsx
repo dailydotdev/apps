@@ -84,7 +84,6 @@ export default function Sidebar({
     : [0, 2 * 16];
   const newSquadTooltipTutorial = useTutorial({
     key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
-    defaultState: false,
   });
 
   const feedName = getFeedName(activePageProp, {
@@ -156,7 +155,7 @@ export default function Sidebar({
                   offset={newSquadTooltipOffset}
                   sticky
                   plugins={[sticky]}
-                  visible={newSquadTooltipTutorial.state}
+                  visible={newSquadTooltipTutorial.isActive}
                 >
                   <Button
                     buttonSize={ButtonSize.Small}
@@ -170,7 +169,9 @@ export default function Sidebar({
                       sidebarExpanded ? 'justify-start' : 'justify-center'
                     }
                     onClick={() => {
-                      newSquadTooltipTutorial.setState(false);
+                      if (newSquadTooltipTutorial.isActive) {
+                        newSquadTooltipTutorial.complete();
+                      }
 
                       openSquadBetaModal({ origin: Origin.Sidebar });
                     }}

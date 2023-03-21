@@ -6,24 +6,24 @@ export enum TutorialKey {
   SEEN_NEW_SQUAD_TOOLTIP_KEY = 'seenNewSquadTooltip',
 }
 
-export type UseTutorialProps<T> = {
+export type UseTutorialProps = {
   key: TutorialKey;
-  defaultState?: T;
+  defaultState?: boolean;
 };
 
-export type UseTutorial<T> = {
-  state: T;
-  setState: (value: T) => void;
+export type UseTutorial = {
+  isActive: boolean;
+  activate: () => void;
   isCompleted: boolean;
-  complete: () => Promise<void>;
+  complete: (active?: boolean) => Promise<void>;
   reset: () => Promise<void>;
   isFetched: boolean;
 };
 
-export const useTutorial = <T = boolean>({
+export const useTutorial = ({
   key,
-  defaultState,
-}: UseTutorialProps<T>): UseTutorial<T> => {
+  defaultState = false,
+}: UseTutorialProps): UseTutorial => {
   const client = useQueryClient();
   const [isCompleted, setCompleted, isFetched] = usePersistentContext(
     `tutorial-${key}`,
@@ -32,18 +32,14 @@ export const useTutorial = <T = boolean>({
 
   const queryKey = ['tutorial', 'query', key];
 
-  const { data: state } = useQuery(queryKey, () => {
-    const current = client.getQueryData<T>(queryKey);
+  const { data: isActive } = useQuery(queryKey, () => {
+    const current = client.getQueryData(queryKey);
 
-    if (typeof current === 'undefined') {
-      return defaultState;
-    }
-
-    return current;
+    return !!current;
   });
 
-  const setState = useCallback(
-    (data: T) => {
+  const setActive = useCallback(
+    (data: boolean) => {
       client.setQueryData(queryKey, data);
     },
     [client, queryKey],
@@ -51,12 +47,26 @@ export const useTutorial = <T = boolean>({
 
   return useMemo(() => {
     return {
-      state,
-      setState,
+      isActive,
+      activate: () => {
+        if (isCompleted) {
+          return;
+        }
+
+        setActive(true);
+      },
       isCompleted,
-      complete: () => setCompleted(true),
-      reset: () => setCompleted(false),
+      complete: (active = false) => {
+        setActive(!!active);
+
+        return setCompleted(true);
+      },
+      reset: () => {
+        setActive(defaultState);
+
+        return setCompleted(false);
+      },
       isFetched,
     };
-  }, [state, setState, isCompleted, setCompleted]);
+  }, [isActive, setActive, isCompleted, setCompleted]);
 };
