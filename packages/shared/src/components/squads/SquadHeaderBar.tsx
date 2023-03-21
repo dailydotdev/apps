@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
@@ -39,7 +39,7 @@ export function SquadHeaderBar({
       className={classNames('flex flex-row gap-4 h-fit', className)}
     >
       <Button
-        className="w-full mobileL:max-w-[18rem] tablet:w-fit btn btn-primary"
+        className="btn-primary"
         onClick={() => copyLink()}
         icon={<AddUserIcon />}
         disabled={copying}
@@ -60,13 +60,7 @@ export function SquadHeaderBar({
           rel="noopener noreferrer"
           href={`${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`}
           className="btn-secondary"
-          icon={
-            <FeedbackIcon
-              className="hidden tablet:flex"
-              size={IconSize.Small}
-              aria-label="squad-feedback-icon"
-            />
-          }
+          icon={<FeedbackIcon size={IconSize.Small} />}
         />
       </SimpleTooltip>
       <SimpleTooltip placement="top" content="Squad options">

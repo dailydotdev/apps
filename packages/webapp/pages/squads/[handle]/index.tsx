@@ -142,12 +142,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
-      <BaseFeedPage className="relative pt-2 mb-4 squad-background-fade">
+      <BaseFeedPage className="relative pt-8 mb-4 squad-background-fade">
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
           onNewSquadPost={onNewSquadPost}
-          userId={user?.id}
         />
         <Feed
           className="px-6 laptop:px-16"

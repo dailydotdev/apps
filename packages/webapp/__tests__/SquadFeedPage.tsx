@@ -226,7 +226,7 @@ describe('squad page header', () => {
 
   it('should show feedback button on tablet and desktop', async () => {
     renderComponent();
-    const feedback = await screen.findByLabelText('squad-feedback');
+    const feedback = await screen.findByLabelText('Feedback');
     expect(feedback).toHaveAttribute('href', feedbackLink);
     const icon = await screen.findByLabelText('squad-feedback-icon');
     expect(icon).toHaveClass('hidden tablet:flex');
@@ -234,7 +234,7 @@ describe('squad page header', () => {
 
   it('should hide feedback icon on tablet and desktop but keep the label', async () => {
     renderComponent();
-    await screen.findByLabelText('squad-feedback');
+    await screen.findByLabelText('Feedback');
     const icon = await screen.findByLabelText('squad-feedback-icon');
     expect(icon).toHaveClass('hidden tablet:flex');
   });

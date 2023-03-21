@@ -2,16 +2,13 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
   ReactElement,
-  useContext,
   useImperativeHandle,
 } from 'react';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import CopyIcon from '../icons/Copy';
-import { useCopyLink } from '../../hooks/useCopyLink';
 import { Squad } from '../../graphql/squads';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/analytics';
 import { useCopySquadInvitation } from '../../hooks/useCopySquadInvitation';
 
 type InviteTextFieldProps = {
