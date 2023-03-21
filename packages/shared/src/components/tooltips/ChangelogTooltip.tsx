@@ -30,9 +30,10 @@ interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
 
 const toastMessageMap = {
   error: 'Something went wrong, try again later',
-  throttled: 'There is no update available, try again later',
-  no_update: 'You are already on the latest available version',
-  update_available: 'Browser extension updated',
+  throttled: 'There is no extension update available, try again later',
+  no_update:
+    "Your extension is already the latest and greatest. You're awesome 🎉",
+  update_available: 'Browser extension updated 🎉',
 };
 
 function ChangelogTooltip<TRef extends HTMLElement>({
@@ -51,35 +52,39 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   }, [sidebarExpanded]);
 
   const { mutateAsync: updateExtension, isLoading: isExtensionUpdating } =
-    useMutation(async () => {
-      if (isFirefoxExtension) {
-        return;
-      }
+    useMutation(
+      async () => {
+        if (isFirefoxExtension) {
+          return;
+        }
 
-      if (!isExtension) {
-        toast.displayToast(toastMessageMap.error);
+        if (!isExtension) {
+          throw new Error(
+            'updateExtension can only be used inside the extension runtime',
+          );
+        }
 
-        return;
-      }
+        const browser = await import('webextension-polyfill-ts').then(
+          (mod) => mod.browser,
+        );
 
-      const sendMessage = globalThis?.browser?.runtime?.sendMessage;
+        const updateResponse: { status: string } =
+          await browser.runtime.sendMessage({
+            type: ExtensionMessageType.RequestUpdate,
+          });
 
-      if (typeof sendMessage !== 'function') {
-        toast.displayToast(toastMessageMap.error);
+        const toastMessage = toastMessageMap[updateResponse.status];
 
-        return;
-      }
-
-      const updateResponse: { status: string } = await sendMessage({
-        type: ExtensionMessageType.RequestUpdate,
-      });
-
-      const toastMessage = toastMessageMap[updateResponse.status];
-
-      if (toastMessage) {
-        toast.displayToast(toastMessage);
-      }
-    });
+        if (toastMessage) {
+          toast.displayToast(toastMessage);
+        }
+      },
+      {
+        onError: () => {
+          toast.displayToast(toastMessageMap.error);
+        },
+      },
+    );
 
   const onModalCloseClick = async (event) => {
     if (typeof onRequestClose === 'function') {
@@ -119,7 +124,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
             </header>
             <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
               <Image
-                className="object-cover w-44 h-28 rounded-lg"
+                className="object-cover rounded-lg w-[207px] h-[108px]"
                 alt="Post Cover image"
                 src={post.image}
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}

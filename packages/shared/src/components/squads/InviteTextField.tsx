@@ -40,6 +40,7 @@ const InviteText: ForwardRefRenderFunction<
       className={{ container: 'w-full mt-7' }}
       name="permalink"
       inputId="permalink"
+      data-testid="permalink"
       label={invitation}
       type="url"
       fieldType="tertiary"

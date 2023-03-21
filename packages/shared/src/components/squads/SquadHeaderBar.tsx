@@ -26,7 +26,6 @@ export function SquadHeaderBar({
   members,
   memberCount,
   className,
-  onNewSquadPost,
   ...props
 }: SquadHeaderBarProps): ReactElement {
   const [, copying, copyLink] = useCopySquadInvitation({ squad });

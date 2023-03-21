@@ -38,6 +38,9 @@ import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboar
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
+import SharePostBar, {
+  NewSquadPostProps,
+} from '@dailydotdev/shared/src/components/squads/SharePostBar';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -130,10 +133,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad) return <Custom404 />;
 
-  const onNewSquadPost = () =>
+  const onNewSquadPost = (props: NewSquadPostProps = {}) =>
     openModal({
       type: LazyModal.PostToSquad,
       props: {
+        ...props,
         squad,
       },
     });
@@ -155,7 +159,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
-          onNewSquadPost={onNewSquadPost}
+          onNewSquadPost={() => onNewSquadPost()}
         />
         <Feed
           className="px-6 laptop:px-16"
@@ -169,6 +173,12 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           variables={queryVariables}
           forceCardMode
           options={{ refetchOnMount: true }}
+          header={
+            <SharePostBar
+              className="mb-8 w-full laptop:w-[38.5rem]"
+              onNewSquadPost={onNewSquadPost}
+            />
+          }
         />
       </BaseFeedPage>
     </ProtectedPage>

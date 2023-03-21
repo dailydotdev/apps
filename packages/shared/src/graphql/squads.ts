@@ -22,6 +22,7 @@ export type SquadForm = Pick<
   Squad,
   'name' | 'handle' | 'description' | 'image'
 > & {
+  url?: string;
   file?: string;
   commentary: string;
   post: PostItem;
