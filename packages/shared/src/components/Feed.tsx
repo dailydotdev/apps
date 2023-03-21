@@ -409,7 +409,7 @@ export default function Feed<T>({
   return (
     <div
       className={classNames(
-        'flex flex-col laptopL:mx-auto w-full',
+        'flex flex-col items-center laptopL:mx-auto w-full',
         styles.container,
         className,
       )}
