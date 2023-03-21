@@ -12,6 +12,7 @@ import { useCopyLink } from '../../hooks/useCopyLink';
 import { Squad } from '../../graphql/squads';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 
 type InviteTextFieldProps = {
   squad?: Squad;
@@ -28,8 +29,7 @@ const InviteText: ForwardRefRenderFunction<
   InviteTextFieldProps
 > = ({ squad, isLoading, origin }, ref): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const token = squad?.currentMember?.referralToken ?? '';
-  const invitation = `${squad?.permalink}/${token}`;
+  const invitation = useSquadInvitation({ squad });
   const [copying, copyLink] = useCopyLink(() => invitation);
 
   const trackAndCopyLink = () => {
