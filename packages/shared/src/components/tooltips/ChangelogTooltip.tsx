@@ -124,7 +124,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
             </header>
             <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
               <Image
-                className="object-cover w-44 h-28 rounded-lg"
+                className="object-cover rounded-lg w-[207px] h-[108px]"
                 alt="Post Cover image"
                 src={post.image}
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
