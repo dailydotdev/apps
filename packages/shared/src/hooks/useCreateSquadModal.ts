@@ -9,7 +9,6 @@ import usePersistentContext from './usePersistentContext';
 type ModalProps = Omit<NewSquadModalProps, 'onRequestClose' | 'isOpen'>;
 interface UseCreateSquadModal {
   openNewSquadModal: (props?: ModalProps) => void;
-  openSquadBetaModal: (props?: ModalProps) => void;
 }
 
 const SQUAD_ONBOARDING = 'hasTriedSquadOnboarding';
@@ -32,11 +31,6 @@ export const useCreateSquadModal = ({
 
   const openNewSquadModal = (props: ModalProps) =>
     openModal({ type: LazyModal.NewSquad, props });
-  const openSquadBetaModal = ({
-    origin = Origin.Sidebar,
-  }: {
-    origin?: Origin;
-  }) => openNewSquadModal({ shouldShowIntro: true, origin });
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
@@ -46,7 +40,7 @@ export const useCreateSquadModal = ({
     }
 
     const { origin, pathname } = window.location;
-    openSquadBetaModal({ origin: Origin.Notification });
+    openNewSquadModal({ origin: Origin.Notification });
     router.replace(origin + pathname);
   }, [router.pathname]);
 
@@ -61,12 +55,9 @@ export const useCreateSquadModal = ({
       return;
     }
 
-    openSquadBetaModal({ origin: Origin.Auto });
+    openNewSquadModal({ origin: Origin.Auto });
     setHasTriedOnboarding(true);
   }, [hasTriedOnboarding, isLoaded, hasSquads, hasAccess, isFlagsFetched]);
 
-  return useMemo(
-    () => ({ openNewSquadModal, openSquadBetaModal }),
-    [openNewSquadModal, openSquadBetaModal],
-  );
+  return useMemo(() => ({ openNewSquadModal }), [openNewSquadModal]);
 };

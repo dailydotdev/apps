@@ -4,10 +4,9 @@ import { ClientError } from 'graphql-request';
 import { useMutation } from 'react-query';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import UserIcon from '../icons/User';
 import AtIcon from '../icons/At';
 import Textarea from '../fields/Textarea';
-import { SquadTitle, SquadTitleColor } from './utils';
+import { SquadSubTitle, SquadTitle } from './utils';
 import ImageInput from '../fields/ImageInput';
 import { cloudinary } from '../../lib/image';
 import CameraIcon from '../icons/Camera';
@@ -17,13 +16,17 @@ import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
+import { Justify } from '../utilities';
+import SquadIcon from '../icons/Squad';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 const squadImageId = 'squad_image_file';
 
 interface SquadDetailsProps {
-  onSubmit: (e: FormEvent, formJson: SquadForm) => void;
+  onSubmit?: (e: FormEvent, formJson: SquadForm) => void;
   form: Partial<SquadForm>;
   createMode: boolean;
+  onRequestClose?: () => void;
 }
 
 const getFormData = async (
@@ -43,11 +46,13 @@ export function SquadDetails({
   onSubmit,
   form,
   createMode = true,
+  onRequestClose,
 }: SquadDetailsProps): ReactElement {
   const { name, handle, description } = form;
+  const [useHandle, setUseHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
-  const [canSubmit, setCanSubmit] = useState(!!name && !!handle);
+  const [canSubmit, setCanSubmit] = useState(!!name && !!useHandle);
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
       const clientError = err as ClientError;
@@ -83,7 +88,13 @@ export function SquadDetails({
   };
   const handleChange = (e: FormEvent<HTMLFormElement>) => {
     const formJson = formToJson<SquadForm>(e.currentTarget);
-    setCanSubmit(!!formJson.handle && !!formJson.name);
+
+    // Auto-populate the handle if name is provided and handle empty
+    if (formJson.name && !useHandle && !formJson.handle) {
+      setUseHandle(formJson.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''));
+    }
+
+    setCanSubmit(!!formJson.name);
   };
 
   return (
@@ -96,29 +107,35 @@ export function SquadDetails({
           id="squad-form"
         >
           {createMode && (
-            <SquadTitle>
-              Let&apos;s set up your <SquadTitleColor>Squad!</SquadTitleColor>
-            </SquadTitle>
+            <>
+              <SquadTitle>Squads early access!</SquadTitle>
+              <SquadSubTitle>
+                Creating a squad allows you to stay up-to-date and communicate
+                privately.
+              </SquadSubTitle>
+            </>
           )}
-          <ImageInput
-            initialValue={form.image ?? form.file}
-            id={squadImageId}
-            fallbackImage={cloudinary.squads.imageFallback}
-            className={{
-              container: '!rounded-full border-0 my-1',
-              img: 'object-cover',
-            }}
-            hoverIcon={<CameraIcon size={IconSize.Large} />}
-            alwayShowHover={!createMode && !imageChanged}
-            onChange={() => setImageChanged(true)}
-            size={createMode ? 'medium' : 'large'}
-          />
+          {!createMode && (
+            <ImageInput
+              initialValue={form.image ?? form.file}
+              id={squadImageId}
+              fallbackImage={cloudinary.squads.imageFallback}
+              className={{
+                container: '!rounded-full border-0 my-1',
+                img: 'object-cover',
+              }}
+              hoverIcon={<CameraIcon size={IconSize.Large} />}
+              alwayShowHover={!createMode && !imageChanged}
+              onChange={() => setImageChanged(true)}
+              size={createMode ? 'medium' : 'large'}
+            />
+          )}
           <TextField
             label="Squad name"
             inputId="name"
             name="name"
             valid={!!name}
-            leftIcon={<UserIcon />}
+            leftIcon={<SquadIcon />}
             value={name ?? ''}
             className={{
               container: 'w-full',
@@ -131,36 +148,45 @@ export function SquadDetails({
             valid={!handleHint}
             name="handle"
             leftIcon={<AtIcon />}
-            value={handle ?? ''}
+            value={useHandle ?? ''}
             onChange={() => !!handleHint && setHandleHint(null)}
             className={{
               hint: 'text-theme-status-error',
               container: classNames('w-full', !handleHint && 'mb-5'),
             }}
           />
-          <Textarea
-            label="Squad description"
-            inputId="description"
-            name="description"
-            hint="(optional)"
-            rows={4}
-            value={description ?? ''}
-            maxLength={250}
-            className={{
-              hint: '-mt-8 py-2 pl-4',
-              container: 'w-full',
-            }}
-          />
+          {!createMode && (
+            <Textarea
+              label="Squad description"
+              inputId="description"
+              name="description"
+              hint="(optional)"
+              rows={4}
+              value={description ?? ''}
+              maxLength={250}
+              className={{
+                hint: '-mt-8 py-2 pl-4',
+                container: 'w-full',
+              }}
+            />
+          )}
         </form>
       </Modal.Body>
-      <Modal.Footer className={!createMode && 'px-6'}>
+      <Modal.Footer className={!createMode && 'px-6'} justify={Justify.Between}>
+        {createMode && (
+          <SimpleTooltip placement="top" content="🔥 limited spot left !">
+            <Button onClick={onRequestClose} className="btn-tertiary">
+              Close
+            </Button>
+          </SimpleTooltip>
+        )}
         <Button
           className={createMode ? 'btn-primary-cabbage' : 'btn-primary w-full'}
           form="squad-form"
           type="submit"
           disabled={!canSubmit}
         >
-          {createMode ? 'Continue' : 'Save'}
+          {createMode ? 'Create Squad' : 'Save'}
         </Button>
       </Modal.Footer>
     </>
