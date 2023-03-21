@@ -63,9 +63,7 @@ function PostToSquadModal({
 
   const { mutateAsync: onPost, isLoading } = useMutation(
     addPostToSquad(requestMethod),
-    {
-      onSuccess: onPostSuccess,
-    },
+    { onSuccess: onPostSuccess },
   );
 
   const { mutateAsync: onSubmitLink, isLoading: isLinkLoading } = useMutation(

@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useRef,
   useState,
+  FormEvent,
 } from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
@@ -108,14 +109,18 @@ export function SquadComment({
     }
   }, []);
 
+  const onSubmitForm = (e?: FormEvent<HTMLFormElement>) =>
+    onSubmit(e, commentary, link);
+
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const pressedSpecialkey = e.ctrlKey || e.metaKey;
+
     if (
       pressedSpecialkey &&
       e.key === KeyboardCommand.Enter &&
       commentary?.length
     ) {
-      onSubmit(null, commentary);
+      onSubmitForm(null);
     }
   };
 
@@ -125,7 +130,7 @@ export function SquadComment({
         className={classNames('flex flex-col', isLink && !post && 'pb-2')}
       >
         <form
-          onSubmit={(e) => onSubmit(e, commentary, link)}
+          onSubmit={(e) => onSubmitForm(e)}
           className="flex flex-col flex-1"
           id="squad-comment"
         >
