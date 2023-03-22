@@ -12,7 +12,6 @@ export enum Origin {
   NonRealTime = 'nonrealtime',
   // squads - start
   SquadCreation = 'squad creation',
-  LockedSquad = 'locked squad',
   SquadPage = 'squad page',
   Auto = 'auto',
   Sidebar = 'sidebar',
