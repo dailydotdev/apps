@@ -2,17 +2,14 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
   ReactElement,
-  useContext,
   useImperativeHandle,
 } from 'react';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import CopyIcon from '../icons/Copy';
-import { useCopyLink } from '../../hooks/useCopyLink';
 import { Squad } from '../../graphql/squads';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import { Origin } from '../../lib/analytics';
+import { useCopySquadInvitation } from '../../hooks/useCopySquadInvitation';
 
 type InviteTextFieldProps = {
   squad?: Squad;
@@ -28,17 +25,10 @@ const InviteText: ForwardRefRenderFunction<
   InviteTextFieldHandle,
   InviteTextFieldProps
 > = ({ squad, isLoading, origin }, ref): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
-  const invitation = useSquadInvitation({ squad });
-  const [copying, copyLink] = useCopyLink(() => invitation);
-
-  const trackAndCopyLink = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ShareSquadInvitation,
-      extra: JSON.stringify({ origin, squad: squad?.id }),
-    });
-    return copyLink();
-  };
+  const [invitation, copying, trackAndCopyLink] = useCopySquadInvitation({
+    squad,
+    origin,
+  });
 
   useImperativeHandle(ref, () => ({
     copyLink: trackAndCopyLink,
@@ -58,7 +48,7 @@ const InviteText: ForwardRefRenderFunction<
       actionButton={
         <Button
           icon={<CopyIcon />}
-          onClick={trackAndCopyLink}
+          onClick={() => trackAndCopyLink()}
           disabled={copying}
           className="btn-tertiary"
           data-testid="textfield-action-icon"

@@ -35,9 +35,9 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
 import dynamic from 'next/dynamic';
-import SharePostBar, {
-  NewSquadPostProps,
-} from '@dailydotdev/shared/src/components/squads/SharePostBar';
+import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
+import classNames from 'classnames';
+import { NewSquadPostProps } from '@dailydotdev/shared/src/components/squads/SharePostBar';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -56,6 +56,7 @@ type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
+  const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = useRouter();
   const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
@@ -144,7 +145,13 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
-      <BaseFeedPage className="relative items-center pt-2 mb-4 squad-background-fade">
+      <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
+        <div
+          className={classNames(
+            'absolute top-0 w-full h-full squad-background-fade',
+            sidebarRendered && '-left-full translate-x-[60%]',
+          )}
+        />
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
@@ -152,7 +159,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           hasTriedOnboarding={hasTriedOnboarding}
         />
         <Feed
-          className="px-6 laptop:px-16"
+          className="px-6 laptop:px-0 pt-14 laptop:pt-10"
           feedName="source"
           feedQueryKey={[
             'sourceFeed',
@@ -163,12 +170,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           variables={queryVariables}
           forceCardMode
           options={{ refetchOnMount: true }}
-          header={
-            <SharePostBar
-              className="mb-8 w-full laptop:w-[38.5rem]"
-              onNewSquadPost={onNewSquadPost}
-            />
-          }
         />
       </BaseFeedPage>
     </ProtectedPage>

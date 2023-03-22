@@ -10,12 +10,14 @@ export interface SquadMemberShortListProps {
   squad: Squad;
   members: SquadMember[];
   memberCount: number;
+  className?: string;
 }
 
 function SquadMemberShortList({
   squad,
   members,
   memberCount,
+  className,
 }: SquadMemberShortListProps): ReactElement {
   const { openModal } = useLazyModal();
   const openMemberListModal = () =>
@@ -31,21 +33,18 @@ function SquadMemberShortList({
     <SimpleTooltip placement="top" content="Members list">
       <button
         type="button"
-        className="flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active rounded-14 border border-theme-divider-secondary"
+        className={classNames(
+          'flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active rounded-14 border border-theme-divider-secondary',
+          className,
+        )}
         onClick={openMemberListModal}
       >
-        <span
-          className="mr-1 ml-2 min-w-[1rem]"
-          aria-label="squad-members-count"
-        >
+        <span className="ml-2 min-w-[1rem]" aria-label="squad-members-count">
           {memberCount}
         </span>
-        {members?.map(({ user }, index) => (
+        {members?.map(({ user }) => (
           <ProfilePicture
-            className={classNames(
-              '-ml-2 border-2 border-theme-bg-primary',
-              index > 2 && 'hidden tablet:flex',
-            )}
+            className="-ml-2"
             size="medium"
             key={user.username}
             user={user}
