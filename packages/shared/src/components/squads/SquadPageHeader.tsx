@@ -40,7 +40,7 @@ export function SquadPageHeader({
       </div>
       <p
         className={classNames(
-          'mt-6 w-full text-center typo-body text-theme-label-tertiary',
+          'mt-6 w-full text-center laptop:text-left typo-body text-theme-label-tertiary',
           MAX_WIDTH,
         )}
       >
