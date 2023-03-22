@@ -68,7 +68,6 @@ export function SquadPageHeader({
           className={classNames('w-full', MAX_WIDTH)}
         />
       )}
-      
       <div
         className={classNames(
           'absolute bottom-0 w-full translate-y-1/2 px-6 laptop:px-0 bg-theme-bg-primary',
