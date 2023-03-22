@@ -42,9 +42,9 @@ function SquadMemberShortList({
         <span className="ml-2 min-w-[1rem]" aria-label="squad-members-count">
           {memberCount}
         </span>
-        {members?.map(({ user }, index) => (
+        {members?.slice(0, 5).map(({ user }) => (
           <ProfilePicture
-            className={classNames('-ml-2', index > 2 && 'hidden tablet:flex')}
+            className="-ml-2"
             size="medium"
             key={user.username}
             user={user}
