@@ -5,7 +5,7 @@ import { Squad } from '../graphql/squads';
 
 interface UseCopySquadInvitationProps {
   squad: Squad;
-  origin?: string;
+  origin: string;
 }
 
 export const useCopySquadInvitation = ({

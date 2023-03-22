@@ -14,6 +14,7 @@ import { squadFeedback } from '../../lib/constants';
 import AddUserIcon from '../icons/AddUser';
 import { useCopySquadInvitation } from '../../hooks/useCopySquadInvitation';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { Origin } from '../../lib/analytics';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -28,7 +29,10 @@ export function SquadHeaderBar({
   className,
   ...props
 }: SquadHeaderBarProps): ReactElement {
-  const [, copying, copyLink] = useCopySquadInvitation({ squad });
+  const [, copying, copyLink] = useCopySquadInvitation({
+    squad,
+    origin: Origin.SquadPageHeader,
+  });
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
   const { sidebarRendered } = useSidebarRendered();
 
