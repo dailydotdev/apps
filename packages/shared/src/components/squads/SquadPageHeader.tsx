@@ -66,7 +66,7 @@ export function SquadPageHeader({
       />
       <div
         className={classNames(
-          'absolute bottom-0 w-full translate-y-1/2 px-6 laptop:px-0 ',
+          'absolute bottom-0 w-full translate-y-1/2 px-6 laptop:px-0',
           MAX_WIDTH,
         )}
       >

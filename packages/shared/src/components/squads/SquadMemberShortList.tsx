@@ -39,7 +39,7 @@ function SquadMemberShortList({
         )}
         onClick={openMemberListModal}
       >
-        <span className=" ml-2 min-w-[1rem]" aria-label="squad-members-count">
+        <span className="ml-2 min-w-[1rem]" aria-label="squad-members-count">
           {memberCount}
         </span>
         {members?.map(({ user }, index) => (
