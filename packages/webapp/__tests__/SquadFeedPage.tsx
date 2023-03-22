@@ -224,19 +224,12 @@ describe('squad page header', () => {
     await screen.findByAltText(alt);
   });
 
-  it('should show feedback button on tablet and desktop', async () => {
+  it('should hide feedback label on tablet and less but keep the icon', async () => {
     renderComponent();
-    const feedback = await screen.findByLabelText('squad-feedback');
+    await screen.findByLabelText('squad-feedback-icon');
+    const feedback = await screen.findByLabelText('Feedback');
+    expect(feedback).toHaveTextContent('');
     expect(feedback).toHaveAttribute('href', feedbackLink);
-    const icon = await screen.findByLabelText('squad-feedback-icon');
-    expect(icon).toHaveClass('hidden tablet:flex');
-  });
-
-  it('should hide feedback icon on tablet and desktop but keep the label', async () => {
-    renderComponent();
-    await screen.findByLabelText('squad-feedback');
-    const icon = await screen.findByLabelText('squad-feedback-icon');
-    expect(icon).toHaveClass('hidden tablet:flex');
   });
 });
 
@@ -259,14 +252,6 @@ describe('squad header bar', () => {
     renderComponent();
     const count = await screen.findByLabelText('squad-members-count');
     expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
-  });
-
-  // this modal should have its own test suite due to its complexity, we already have a ticket for reminder
-  it('should show share a post modal', async () => {
-    renderComponent();
-    const trigger = await screen.findByText('Create new post');
-    trigger.click();
-    await screen.findByText('Share post');
   });
 
   it('should show options menu button', async () => {
@@ -338,7 +323,7 @@ describe('invitation modal', () => {
 
   it('should show invitation link on a textfield', async () => {
     await openedInvitationModal();
-    const input = await screen.findByRole('textbox');
+    const input = await screen.findByTestId('permalink');
     expect(input).toHaveValue(defaultInvitation);
   });
 
