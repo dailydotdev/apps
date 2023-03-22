@@ -49,10 +49,10 @@ export function SquadDetails({
   onRequestClose,
 }: SquadDetailsProps): ReactElement {
   const { name, handle, description } = form;
-  const [useHandle, setUseHandle] = useState(handle);
+  const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
-  const [canSubmit, setCanSubmit] = useState(!!name && !!useHandle);
+  const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
       const clientError = err as ClientError;
@@ -90,8 +90,8 @@ export function SquadDetails({
     const formJson = formToJson<SquadForm>(e.currentTarget);
 
     // Auto-populate the handle if name is provided and handle empty
-    if (formJson.name && !useHandle && !formJson.handle) {
-      setUseHandle(formJson.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''));
+    if (formJson.name && !activeHandle && !formJson.handle) {
+      setActiveHandle(formJson.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''));
     }
 
     setCanSubmit(!!formJson.name);
@@ -125,9 +125,9 @@ export function SquadDetails({
                 img: 'object-cover',
               }}
               hoverIcon={<CameraIcon size={IconSize.Large} />}
-              alwayShowHover={!createMode && !imageChanged}
+              alwayShowHover={!imageChanged}
               onChange={() => setImageChanged(true)}
-              size={createMode ? 'medium' : 'large'}
+              size="large"
             />
           )}
           <TextField
@@ -148,7 +148,7 @@ export function SquadDetails({
             valid={!handleHint}
             name="handle"
             leftIcon={<AtIcon />}
-            value={useHandle ?? ''}
+            value={activeHandle ?? ''}
             onChange={() => !!handleHint && setHandleHint(null)}
             className={{
               hint: 'text-theme-status-error',
