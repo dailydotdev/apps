@@ -79,13 +79,13 @@ function SharePostBar({
               'w-full order-4 border-t !rounded-none border-theme-divider-tertiary',
           )}
         >
-          Reading history
+          {sidebarRendered ? 'Reading history' : 'Choose from reading history'}
         </Button>
       )}
       <Button
         type="submit"
         buttonSize={ButtonSize.Medium}
-        className="mx-3 btn-primary"
+        className="mx-3 btn-primary-cabbage"
       >
         Post
       </Button>
