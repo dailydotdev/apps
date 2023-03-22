@@ -8,7 +8,6 @@ import React, { ReactElement, useContext, useMemo } from 'react';
 import HashtagIcon from '@dailydotdev/shared/src/components/icons/Hashtag';
 import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
 import BlockIcon from '@dailydotdev/shared/src/components/icons/Block';
-import XIcon from '@dailydotdev/shared/src/components/icons/Close';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -29,6 +28,7 @@ import {
 import classNames from 'classnames';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import XIcon from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
