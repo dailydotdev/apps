@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { sticky } from 'tippy.js';
@@ -81,6 +87,20 @@ export default function Sidebar({
   const newSquadTooltipTutorial = useTutorial({
     key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
   });
+
+  useEffect(() => {
+    if (!newSquadTooltipTutorial.isActive) {
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => {
+      newSquadTooltipTutorial.complete();
+    }, 4 * 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [newSquadTooltipTutorial.isActive]);
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
