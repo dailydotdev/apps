@@ -3,8 +3,8 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const CloseIcon = (props: IconProps): ReactElement => (
+const MiniCloseIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
 
-export default CloseIcon;
+export default MiniCloseIcon;

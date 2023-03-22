@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import CloseButton from '../CloseButton';
 import SquadTour from '../squads/SquadTour';
 import { Modal, ModalProps } from './common/Modal';
+import { ButtonSize } from '../buttons/Button';
 
 function SquadTourModal({
   onRequestClose,
@@ -17,6 +18,7 @@ function SquadTourModal({
     >
       <SquadTour onClose={onRequestClose} />
       <CloseButton
+        buttonSize={ButtonSize.Small}
         className="top-3 right-3 !absolute !btn-secondary"
         onClick={onRequestClose}
       />
