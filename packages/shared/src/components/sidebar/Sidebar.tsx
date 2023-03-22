@@ -77,7 +77,7 @@ export default function Sidebar({
     sidebarRendered && hasSquadAccess && !squads?.length;
   const newSquadTooltipOffset: [number, number] = sidebarExpanded
     ? [0, 1.5 * 16]
-    : [0, 2 * 16];
+    : [0, 1 * 16];
   const newSquadTooltipTutorial = useTutorial({
     key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
   });
