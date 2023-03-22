@@ -8,11 +8,13 @@ import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberShortList, {
   SquadMemberShortListProps,
 } from './SquadMemberShortList';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { squadFeedback } from '../../lib/constants';
+import { IconSize } from '../Icon';
 import FeedbackIcon from '../icons/Feedback';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { squadFeedback } from '../../lib/constants';
+import AddUserIcon from '../icons/AddUser';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { Origin } from '../../lib/analytics';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -27,53 +29,50 @@ export function SquadHeaderBar({
   className,
   ...props
 }: SquadHeaderBarProps): ReactElement {
-  const { user } = useAuthContext();
+  const { copying, trackAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadPage,
+  });
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
-  const { openModal } = useLazyModal();
-  const openSquadInviteModal = () =>
-    openModal({
-      type: LazyModal.SquadInvite,
-      props: {
-        initialSquad: squad,
-      },
-    });
+  const { sidebarRendered } = useSidebarRendered();
 
   return (
     <div
       {...props}
-      className={classNames(
-        'flex laptop:flex-row flex-col justify-center items-center gap-4 w-full',
-        className,
-      )}
+      className={classNames('flex flex-row gap-4 h-fit', className)}
     >
-      <SquadMemberShortList
-        squad={squad}
-        members={members}
-        memberCount={memberCount}
-      />
-      <span className="flex flex-row gap-4">
-        <Button className="btn-secondary" onClick={openSquadInviteModal}>
-          Invite
-        </Button>
-        <SimpleTooltip placement="top" content="Feedback">
-          <Button
-            tag="a"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={`${squadFeedback}#user_id=${user.id}&squad_id=${squad.id}`}
-            className="btn-secondary"
-            icon={<FeedbackIcon aria-label="squad-feedback-icon" />}
-          />
-        </SimpleTooltip>
-        <SimpleTooltip placement="top" content="Squad options">
-          <Button
-            className="btn-secondary"
-            icon={<MenuIcon />}
-            onClick={onMenuClick}
-            aria-label="Squad options"
-          />
-        </SimpleTooltip>
-      </span>
+      <Button
+        className="btn-primary"
+        onClick={() => trackAndCopyLink()}
+        icon={<AddUserIcon />}
+        disabled={copying}
+      >
+        Copy invitation link
+      </Button>
+      {sidebarRendered && (
+        <SquadMemberShortList
+          squad={squad}
+          members={members}
+          memberCount={memberCount}
+        />
+      )}
+      <SimpleTooltip placement="top" content="Feedback">
+        <Button
+          tag="a"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`}
+          className="btn-secondary"
+          icon={<FeedbackIcon size={IconSize.Small} />}
+        />
+      </SimpleTooltip>
+      <SimpleTooltip placement="top" content="Squad options">
+        <Button
+          className="btn-secondary"
+          icon={<MenuIcon size={IconSize.Small} />}
+          onClick={onMenuClick}
+        />
+      </SimpleTooltip>
       <SquadHeaderMenu squad={squad} />
     </div>
   );

@@ -169,6 +169,9 @@ export const generateTestSquad = (props: Partial<Squad> = {}): Squad => ({
   currentMember: {
     role: SquadMemberRole.Member,
     referralToken: '3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8',
+    user: {
+      id: 'u1',
+    },
   },
   ...props,
 });
