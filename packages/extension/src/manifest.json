@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "name": "daily.dev | Where developers grow together",
   "short_name": "daily.dev",
-  "description": "Get a feed of the hottest developer news personalized to you.",
+  "description": "daily.dev is a professional network for developers to learn, collaborate, and grow together.",
   "homepage_url": "https://daily.dev",
   "icons": {
     "16": "icons/16.png",
