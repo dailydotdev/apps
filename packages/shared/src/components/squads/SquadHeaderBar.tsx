@@ -12,7 +12,7 @@ import { IconSize } from '../Icon';
 import FeedbackIcon from '../icons/Feedback';
 import { squadFeedback } from '../../lib/constants';
 import AddUserIcon from '../icons/AddUser';
-import { useCopySquadInvitation } from '../../hooks/useCopySquadInvitation';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Origin } from '../../lib/analytics';
 
@@ -29,7 +29,7 @@ export function SquadHeaderBar({
   className,
   ...props
 }: SquadHeaderBarProps): ReactElement {
-  const [, copying, copyLink] = useCopySquadInvitation({
+  const { copying, trackAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
   });
@@ -43,7 +43,7 @@ export function SquadHeaderBar({
     >
       <Button
         className="btn-primary"
-        onClick={() => copyLink()}
+        onClick={() => trackAndCopyLink()}
         icon={<AddUserIcon />}
         disabled={copying}
       >
