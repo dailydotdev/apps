@@ -26,9 +26,6 @@ import { SquadsList } from './SquadsList';
 import { Button, ButtonSize } from '../buttons/Button';
 import PlusIcon from '../icons/Plus';
 import { ProfilePicture } from '../ProfilePicture';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { Squad } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
 import { Origin } from '../../lib/analytics';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -62,7 +59,6 @@ export default function Sidebar({
     loadedSettings,
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
-  const { openModal } = useLazyModal();
   const [showSettings, setShowSettings] = useState(false);
   const {
     hasSquadAccess,
@@ -96,13 +92,6 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
-
-  const openLockedSquadModal = (squad: Squad) => {
-    openModal({
-      type: LazyModal.LockedSquad,
-      props: { initialSquad: squad },
-    });
-  };
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -196,7 +185,6 @@ export default function Sidebar({
                 activePage={activePageProp}
                 squads={squads}
                 onNewSquad={() => openNewSquadModal({ origin: Origin.Sidebar })}
-                onOpenLockedSquad={openLockedSquadModal}
               />
             )}
             <DiscoverSection

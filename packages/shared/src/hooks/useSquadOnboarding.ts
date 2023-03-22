@@ -11,6 +11,7 @@ const SQUAD_ONBOARDING_KEY = generateStorageKey(StorageTopic.Squad, 'tour');
 interface UseSquadOnboarding {
   isPopupOpen: boolean;
   onClosePopup: () => void;
+  hasTriedOnboarding?: boolean;
 }
 
 export const useSquadOnboarding = (
@@ -56,7 +57,11 @@ export const useSquadOnboarding = (
   ]);
 
   return useMemo(
-    () => ({ isPopupOpen, onClosePopup: () => setIsPopupOpen(false) }),
-    [isPopupOpen],
+    () => ({
+      isPopupOpen,
+      onClosePopup: () => setIsPopupOpen(false),
+      hasTriedOnboarding,
+    }),
+    [isPopupOpen, hasTriedOnboarding],
   );
 };
