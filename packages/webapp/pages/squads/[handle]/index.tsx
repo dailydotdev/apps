@@ -147,7 +147,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
-      <BaseFeedPage className="relative pt-8 mb-4">
+      <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
         <div
           className={classNames(
             'absolute top-0 w-full h-full squad-background-fade',
