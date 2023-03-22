@@ -8,7 +8,6 @@ export enum TutorialKey {
 
 export type UseTutorialProps = {
   key: TutorialKey;
-  defaultState?: boolean;
 };
 
 export type UseTutorial = {
@@ -20,10 +19,7 @@ export type UseTutorial = {
   isFetched: boolean;
 };
 
-export const useTutorial = ({
-  key,
-  defaultState = false,
-}: UseTutorialProps): UseTutorial => {
+export const useTutorial = ({ key }: UseTutorialProps): UseTutorial => {
   const client = useQueryClient();
   const [isCompleted, setCompleted, isFetched] = usePersistentContext(
     `tutorial-${key}`,
@@ -32,11 +28,15 @@ export const useTutorial = ({
 
   const queryKey = ['tutorial', 'query', key];
 
-  const { data: isActive } = useQuery(queryKey, () => {
-    const current = client.getQueryData(queryKey);
+  const { data: isActive } = useQuery(
+    queryKey,
+    () => {
+      const current = client.getQueryData(queryKey);
 
-    return !!current;
-  });
+      return !!current;
+    },
+    { initialData: false },
+  );
 
   const setActive = useCallback(
     (data: boolean) => {
@@ -62,7 +62,7 @@ export const useTutorial = ({
         return setCompleted(true);
       },
       reset: () => {
-        setActive(defaultState);
+        setActive(false);
 
         return setCompleted(false);
       },
