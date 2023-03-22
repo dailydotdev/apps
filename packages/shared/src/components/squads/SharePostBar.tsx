@@ -85,7 +85,7 @@ function SharePostBar({
       <Button
         type="submit"
         buttonSize={ButtonSize.Medium}
-        className="mx-3 btn-primary"
+        className="mx-3 btn-primary-cabbage"
       >
         Post
       </Button>
