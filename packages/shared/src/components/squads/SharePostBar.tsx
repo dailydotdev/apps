@@ -50,7 +50,7 @@ function SharePostBar({
       onSubmit={onSubmit}
       className={classNames(
         'flex flex-wrap items-center rounded-16 typo-callout border overflow-hidden',
-        'focus-within:border-theme-divider-primary border-theme-divider-tertiary hover:border-theme-divider-primary',
+        'bg-theme-float focus-within:border-theme-divider-primary border-theme-divider-tertiary hover:border-theme-divider-primary',
         className,
       )}
     >

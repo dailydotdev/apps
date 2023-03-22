@@ -71,18 +71,11 @@ export function SquadPageHeader({
       
       <div
         className={classNames(
-          'absolute bottom-0 w-full translate-y-1/2 px-6 laptop:px-0',
+          'absolute bottom-0 w-full translate-y-1/2 px-6 laptop:px-0 bg-theme-bg-primary',
           MAX_WIDTH,
         )}
       >
-        <SharePostBar
-          className={classNames(
-            'w-full z-1 relative',
-            'before:bg-theme-bg-primary before:w-full before:h-full before:absolute before:inset-0 before:-z-2',
-            'after:bg-theme-float after:w-full after:h-full after:absolute after:inset-0 after:-z-1',
-          )}
-          onNewSquadPost={onNewSquadPost}
-        />
+        <SharePostBar className="w-full" onNewSquadPost={onNewSquadPost} />
       </div>
     </FlexCol>
   );
