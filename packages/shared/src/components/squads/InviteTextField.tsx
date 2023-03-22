@@ -9,7 +9,7 @@ import { TextField } from '../fields/TextField';
 import CopyIcon from '../icons/Copy';
 import { Squad } from '../../graphql/squads';
 import { Origin } from '../../lib/analytics';
-import { useCopySquadInvitation } from '../../hooks/useCopySquadInvitation';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 
 type InviteTextFieldProps = {
   squad?: Squad;
@@ -25,7 +25,7 @@ const InviteText: ForwardRefRenderFunction<
   InviteTextFieldHandle,
   InviteTextFieldProps
 > = ({ squad, isLoading, origin }, ref): ReactElement => {
-  const [invitation, copying, trackAndCopyLink] = useCopySquadInvitation({
+  const { invitation, copying, trackAndCopyLink } = useSquadInvitation({
     squad,
     origin,
   });
