@@ -31,7 +31,7 @@ export function SquadHeaderBar({
 }: SquadHeaderBarProps): ReactElement {
   const [, copying, copyLink] = useCopySquadInvitation({
     squad,
-    origin: Origin.SquadPageHeader,
+    origin: Origin.SquadPage,
   });
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
   const { sidebarRendered } = useSidebarRendered();

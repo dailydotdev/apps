@@ -14,7 +14,6 @@ export enum Origin {
   SquadCreation = 'squad creation',
   LockedSquad = 'locked squad',
   SquadPage = 'squad page',
-  SquadPageHeader = 'squad page header',
   Auto = 'auto',
   Sidebar = 'sidebar',
   Share = 'share',
