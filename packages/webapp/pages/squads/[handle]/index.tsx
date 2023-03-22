@@ -31,7 +31,6 @@ import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
@@ -107,18 +106,17 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  const isInactive = !isNullOrUndefined(squad) && !squad.active;
   const isFinishedLoading = isFetched && !isLoading && !!squad;
 
-  const { isPopupOpen, onClosePopup } = useSquadOnboarding(
-    isFinishedLoading && !isInactive && !isForbidden,
+  const { isPopupOpen, onClosePopup, hasTriedOnboarding } = useSquadOnboarding(
+    isFinishedLoading && !isForbidden,
   );
 
   if (isLoading && !isFetched && !squad) return <SquadLoading />;
 
   if (!isFetched) return <></>;
 
-  if (isFallback || isInactive || isForbidden) {
+  if (isFallback || isForbidden) {
     if (!trackedForbiddenImpression) {
       trackEvent({
         event_name: AnalyticsEvent.ViewSquadForbiddenPage,
@@ -157,7 +155,8 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
-          onNewSquadPost={() => onNewSquadPost()}
+          onNewSquadPost={onNewSquadPost}
+          hasTriedOnboarding={hasTriedOnboarding}
         />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
