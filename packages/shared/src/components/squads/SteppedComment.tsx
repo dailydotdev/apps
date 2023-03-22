@@ -1,7 +1,7 @@
 import React, { FormEventHandler, ReactElement } from 'react';
 import { Modal } from '../modals/common/Modal';
 import { ModalState, SquadStateProps } from './utils';
-import { SquadComment } from './Comment';
+import { SquadComment, SubmitSharePostFunc } from './Comment';
 import { createSquad, Squad, SquadForm } from '../../graphql/squads';
 import { useToastNotification } from '../../hooks/useToastNotification';
 
@@ -17,7 +17,7 @@ export function SteppedSquadComment({
   form,
 }: SteppedSquadCommentProps): ReactElement {
   const { displayToast } = useToastNotification();
-  const onSubmit = (nextStep: FormEventHandler): FormEventHandler => {
+  const onSubmit = (nextStep: FormEventHandler): SubmitSharePostFunc => {
     return async (e) => {
       e.preventDefault();
       const data = { ...form, commentary: e.target[0].value } as SquadForm;

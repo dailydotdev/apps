@@ -32,6 +32,7 @@ import BlockIcon from '@dailydotdev/shared/src/components/icons/Block';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -157,7 +158,7 @@ export async function getStaticProps({
       revalidate: 60,
     };
   } catch (err) {
-    if (err?.response?.errors?.[0].extensions.code === 'NOT_FOUND') {
+    if (err?.response?.errors?.[0].extensions.code === ApiError.NotFound) {
       return {
         props: {
           source: null,
