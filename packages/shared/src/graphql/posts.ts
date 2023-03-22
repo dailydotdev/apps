@@ -198,6 +198,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       createdAt
       readTime
       tags
+      private
       commentsPermalink
       numUpvotes
       numComments
