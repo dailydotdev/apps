@@ -22,11 +22,35 @@ import { Origin } from '../../lib/analytics';
 import { IconSize } from '../Icon';
 import LinkIcon from '../icons/Link';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import { FlexCentered } from '../utilities';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount?: number;
   squad: Squad;
 }
+
+const InitialItem = ({ squad }: { squad: Squad }) => {
+  const { copying, trackAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadMembersList,
+  });
+
+  return (
+    <button
+      type="button"
+      disabled={copying}
+      className="flex justify-start items-center py-3 px-6 hover:bg-theme-hover"
+      onClick={() => {
+        trackAndCopyLink();
+      }}
+    >
+      <FlexCentered className="mr-4 w-12 h-12 bg-theme-float rounded-10">
+        <LinkIcon size={IconSize.Large} className="text-salt-90" />
+      </FlexCentered>
+      <p className="text-salt-90 typo-callout">Copy invitation link</p>
+    </button>
+  );
+};
 
 export function SquadMemberModal({
   squad,
@@ -56,11 +80,6 @@ export function SquadMemberModal({
     setMemberId(userId);
     onMenuClick(e);
   };
-
-  const { copying, trackAndCopyLink } = useSquadInvitation({
-    squad,
-    origin: Origin.SquadMembersList,
-  });
 
   return (
     <>
@@ -100,21 +119,7 @@ export function SquadMemberModal({
             </SimpleTooltip>
           );
         }}
-        initialItem={
-          <button
-            type="button"
-            disabled={copying}
-            className="flex justify-start items-center py-3 px-6 hover:bg-theme-hover"
-            onClick={() => {
-              trackAndCopyLink();
-            }}
-          >
-            <div className="flex justify-center items-center mr-4 w-12 h-12 bg-theme-float rounded-10">
-              <LinkIcon size={IconSize.Large} />
-            </div>
-            <p className="text-salt-90 typo-callout">Copy invitation link</p>
-          </button>
-        }
+        initialItem={<InitialItem squad={squad} />}
       />
       <SquadMemberMenu squadId={squad?.id} memberId={memberId} />
     </>
