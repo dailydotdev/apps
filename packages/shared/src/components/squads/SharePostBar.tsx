@@ -79,7 +79,7 @@ function SharePostBar({
               'w-full order-4 border-t !rounded-none border-theme-divider-tertiary',
           )}
         >
-          Reading history
+          {sidebarRendered ? 'Reading history' : 'Choose from reading history'}
         </Button>
       )}
       <Button
