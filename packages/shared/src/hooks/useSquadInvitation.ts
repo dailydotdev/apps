@@ -1,14 +1,27 @@
 import { useMemo } from 'react';
+import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
+import { useAnalyticsContext } from '../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../lib/analytics';
 import { Squad } from '../graphql/squads';
 
-export type UseSquadInvitationProps = {
+export interface UseSquadInvitationProps {
   squad: Squad;
-};
+  origin: string;
+}
 
-export function useSquadInvitation({
+export interface UseSquadInvitation {
+  invitation: string;
+  copying: boolean;
+  trackAndCopyLink: CopyNotifyFunction;
+}
+
+export const useSquadInvitation = ({
   squad,
-}: UseSquadInvitationProps): string | undefined {
-  return useMemo(() => {
+  origin,
+}: UseSquadInvitationProps): UseSquadInvitation => {
+  const { trackEvent } = useAnalyticsContext();
+
+  const invitation = useMemo(() => {
     const permalink = squad?.permalink;
     const token = squad?.currentMember?.referralToken;
 
@@ -16,8 +29,22 @@ export function useSquadInvitation({
       return undefined;
     }
 
-    const invitation = `${permalink}/${token}`;
-
-    return invitation;
+    return `${permalink}/${token}`;
   }, [squad]);
-}
+  const [copying, copyLink] = useCopyLink(() => invitation);
+
+  const trackAndCopyLink = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ShareSquadInvitation,
+      extra: JSON.stringify({ origin, squad: squad?.id }),
+    });
+
+    return copyLink();
+  };
+
+  return {
+    invitation,
+    copying,
+    trackAndCopyLink,
+  };
+};

@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '../../lib/config';
@@ -18,12 +18,10 @@ import SquadMemberMenu from '../squads/SquadMemberMenu';
 import SquadIcon from '../icons/Squad';
 import { getSquadMembersUserRole } from '../squads/utils';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/analytics';
 import { IconSize } from '../Icon';
 import LinkIcon from '../icons/Link';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { useCopyLink } from '../../hooks/useCopyLink';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount?: number;
@@ -34,7 +32,6 @@ export function SquadMemberModal({
   squad,
   ...props
 }: UpvotedPopupModalProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
   const [memberId, setMemberId] = useState('');
   const { onMenuClick } = useContextMenu({ id: 'squad-member-menu-context' });
   const queryKey = ['squadMembers', squad?.id];
@@ -60,8 +57,10 @@ export function SquadMemberModal({
     onMenuClick(e);
   };
 
-  const squadInvitation = useSquadInvitation({ squad });
-  const [copying, copySquadInvite] = useCopyLink(() => squadInvitation);
+  const { copying, trackAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadMembersList,
+  });
 
   return (
     <>
@@ -107,15 +106,7 @@ export function SquadMemberModal({
             disabled={copying}
             className="flex justify-start items-center py-3 px-6 hover:bg-theme-hover"
             onClick={() => {
-              trackEvent({
-                event_name: AnalyticsEvent.ShareSquadInvitation,
-                extra: JSON.stringify({
-                  origin: Origin.SquadMembersList,
-                  squad: squad.id,
-                }),
-              });
-
-              copySquadInvite();
+              trackAndCopyLink();
             }}
           >
             <div className="flex justify-center items-center mr-4 w-12 h-12 bg-theme-float rounded-10">
