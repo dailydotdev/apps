@@ -3,12 +3,16 @@ import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
-import useInfiniteReadingHistory from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
+import useInfiniteReadingHistory, {
+  ReadHistoryInfiniteData,
+} from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import ReadingHistoryList from '@dailydotdev/shared/src/components/history/ReadingHistoryList';
 import ReadingHistoryPlaceholder from '@dailydotdev/shared/src/components/history/ReadingHistoryPlaceholder';
 import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
+import { useQueryClient } from 'react-query';
+import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 import { getLayout } from '../components/layouts/MainLayout';
 import {
   READING_HISTORY_QUERY,
@@ -32,6 +36,7 @@ const History = (): ReactElement => {
   const { user } = useContext(AuthContext);
   const searchQuery = router.query?.q?.toString();
   const key = ['readHistory', user?.id];
+  const client = useQueryClient();
 
   const queryProps = useMemo(() => {
     if (searchQuery) {
@@ -51,11 +56,16 @@ const History = (): ReactElement => {
   const { data, isInitialLoading, isLoading, hasData, infiniteScrollRef } =
     useInfiniteReadingHistory({ ...queryProps });
 
+  const hasReadingHistory = client
+    .getQueryData<ReadHistoryInfiniteData>(key)
+    ?.pages?.some((page) => page.readHistory.edges.length > 0);
+  const shouldShowEmptyScreen = !hasData && !isLoading;
+
   return (
     <ProtectedPage
       seo={seo}
       fallback={<ReadingHistoryEmptyScreen />}
-      shouldFallback={!hasData && !isLoading}
+      shouldFallback={!hasReadingHistory && !isLoading}
     >
       <ResponsivePageContainer
         className={isInitialLoading && 'h-screen overflow-hidden'}
@@ -71,14 +81,17 @@ const History = (): ReactElement => {
             suggestionType="searchReadingHistorySuggestions"
           />
         </div>
-        <ReadingHistoryList
-          data={data}
-          onHide={hideReadHistory}
-          infiniteScrollRef={infiniteScrollRef}
-        />
+        {hasData && (
+          <ReadingHistoryList
+            data={data}
+            onHide={hideReadHistory}
+            infiniteScrollRef={infiniteScrollRef}
+          />
+        )}
         {isLoading && (
           <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
         )}
+        {shouldShowEmptyScreen && <SearchEmptyScreen />}
       </ResponsivePageContainer>
     </ProtectedPage>
   );

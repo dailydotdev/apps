@@ -113,7 +113,7 @@ export function PostComments({
     );
   const { hash: commentHash } = window.location;
   const commentsCount = comments?.postComments?.edges?.length || 0;
-  const commentRef = useRef(null);
+  const commentRef = useRef<HTMLElement>(null);
   const { deleteCommentCache } = usePostComment(post);
   const deleteCommentPrompt = async (
     commentId: string,
@@ -137,7 +137,7 @@ export function PostComments({
   const [scrollToComment, setScrollToComment] = useState(!!commentHash);
   useEffect(() => {
     if (commentsCount > 0 && scrollToComment && commentRef.current) {
-      commentRef.current.scrollIntoView();
+      commentRef.current.scrollIntoView({ block: 'center', inline: 'nearest' });
       setScrollToComment(false);
     }
   }, [commentsCount, scrollToComment]);
