@@ -7,7 +7,7 @@ import { UserShortProfile } from '../../lib/user';
 
 export interface UserListModalProps
   extends Omit<ModalProps, 'children'>,
-    Pick<UserListProps, 'additionalContent'> {
+    Pick<UserListProps, 'additionalContent' | 'initialItem'> {
   users: UserShortProfile[];
   placeholderAmount?: number;
   title: string;
@@ -21,6 +21,7 @@ function UserListModal({
   placeholderAmount,
   additionalContent,
   size = Modal.Size.Medium,
+  initialItem,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -43,6 +44,7 @@ function UserListModal({
             appendTooltipTo={modalRef}
             placeholderAmount={placeholderAmount}
             additionalContent={additionalContent}
+            initialItem={initialItem}
           />
         ) : (
           <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />

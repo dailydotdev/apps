@@ -14,6 +14,7 @@ export interface UserListProps {
   users: UserShortProfile[];
   placeholderAmount?: number;
   additionalContent?: (user: UserShortProfile, index: number) => ReactNode;
+  initialItem?: ReactElement;
 }
 
 function UserList({
@@ -21,6 +22,7 @@ function UserList({
   scrollingProps,
   users,
   additionalContent,
+  initialItem,
   ...props
 }: UserListProps): ReactElement {
   return (
@@ -31,6 +33,7 @@ function UserList({
         <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
       }
     >
+      {!!initialItem && initialItem}
       {users.map((user, i) => (
         <Link key={user.username} href={user.permalink}>
           <UserShortInfo {...props} tag="a" href={user.permalink} user={user}>

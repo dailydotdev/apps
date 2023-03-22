@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import Link from 'next/link';
 import { HidePostItemCardProps } from '../../graphql/users';
 import { PostItem } from '../../graphql/posts';
-import XIcon from '../icons/Close';
+import XIcon from '../icons/MiniClose';
 import MenuIcon from '../icons/Menu';
 import classed from '../../lib/classed';
 import { Button, ButtonSize } from '../buttons/Button';
