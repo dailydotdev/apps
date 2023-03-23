@@ -28,7 +28,7 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mx-3 mb-3',
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.NewSourceModal]: '',
-  [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-3',
+  [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-6',
 };
 
 const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
