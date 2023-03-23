@@ -3,7 +3,7 @@ import {
   Button,
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import XIcon from '@dailydotdev/shared/src/components/icons/Close';
+import XIcon from '@dailydotdev/shared/src/components/icons/MiniClose';
 import DndContext from './DndContext';
 
 export default function DndBanner(): ReactElement {

@@ -6,7 +6,7 @@ import {
   ButtonProps,
   ButtonSize,
 } from './buttons/Button';
-import CloseIcon from './icons/Close';
+import CloseIcon from './icons/MiniClose';
 
 type CloseButtonProps = StyledButtonProps & ButtonProps<'button'>;
 
