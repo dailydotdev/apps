@@ -34,12 +34,15 @@ function SquadMemberShortList({
       <button
         type="button"
         className={classNames(
-          'flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active rounded-14 border border-theme-divider-secondary',
+          'flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active rounded-12 border border-theme-divider-secondary',
           className,
         )}
         onClick={openMemberListModal}
       >
-        <span className="ml-2 min-w-[1rem]" aria-label="squad-members-count">
+        <span
+          className="mr-1 ml-2 min-w-[1rem]"
+          aria-label="squad-members-count"
+        >
           {memberCount}
         </span>
         {members?.map(({ user }) => (

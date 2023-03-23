@@ -75,7 +75,7 @@ export default function Sidebar({
     popularFeedCopy,
     isFlagsFetched,
   } = useContext(FeaturesContext);
-  const { openNewSquadModal, openSquadBetaModal } = useCreateSquadModal({
+  const { openNewSquadModal } = useCreateSquadModal({
     hasSquads: !!squads?.length,
     hasAccess: hasSquadAccess,
     isFlagsFetched,
@@ -181,7 +181,7 @@ export default function Sidebar({
                         newSquadTooltipTutorial.complete();
                       }
 
-                      openSquadBetaModal({ origin: Origin.Sidebar });
+                      openNewSquadModal({ origin: Origin.Sidebar });
                     }}
                   >
                     {sidebarExpanded && 'New Squad'}

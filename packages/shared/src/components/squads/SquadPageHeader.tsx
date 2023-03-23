@@ -38,14 +38,16 @@ export function SquadPageHeader({
           </h4>
         </FlexCol>
       </div>
-      <p
-        className={classNames(
-          'mt-6 w-full typo-body text-theme-label-tertiary',
-          MAX_WIDTH,
-        )}
-      >
-        {squad.description}
-      </p>
+      {squad.description && (
+        <p
+          className={classNames(
+            'mt-6 w-full text-center laptop:text-left typo-body text-theme-label-tertiary',
+            MAX_WIDTH,
+          )}
+        >
+          {squad.description}
+        </p>
+      )}
       {!sidebarRendered && (
         <SquadMemberShortList
           squad={squad}
