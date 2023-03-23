@@ -15,6 +15,8 @@ import AddUserIcon from '../icons/AddUser';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Origin } from '../../lib/analytics';
+import { useTutorial, TutorialKey } from '../../hooks/useTutorial';
+import TutorialGuide from '../tutorial/TutorialGuide';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -36,19 +38,39 @@ export function SquadHeaderBar({
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
   const { sidebarRendered } = useSidebarRendered();
 
+  const copyLinkTutorial = useTutorial({
+    key: TutorialKey.COPY_SQUAD_LINK,
+  });
+
   return (
     <div
       {...props}
       className={classNames('flex flex-row gap-4 h-fit', className)}
     >
-      <Button
-        className="btn-primary"
-        onClick={() => trackAndCopyLink()}
-        icon={<AddUserIcon />}
-        disabled={copying}
+      <div
+        className={classNames(
+          'relative',
+          copyLinkTutorial.isActive && 'laptop:m-0 mb-14 tablet:mb-10',
+        )}
       >
-        Copy invitation link
-      </Button>
+        <Button
+          className="btn-primary"
+          onClick={() => {
+            trackAndCopyLink();
+
+            copyLinkTutorial.complete();
+          }}
+          icon={<AddUserIcon />}
+          disabled={copying}
+        >
+          Copy invitation link
+        </Button>
+        {copyLinkTutorial.isActive && (
+          <TutorialGuide className="absolute -bottom-16 left-22">
+            Invite your first members
+          </TutorialGuide>
+        )}
+      </div>
       {sidebarRendered && (
         <SquadMemberShortList
           squad={squad}

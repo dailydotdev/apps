@@ -21,7 +21,7 @@ const TutorialGuide = ({
   };
   const arrowMapClassName = {
     right: '-mt-6 -scale-x-100',
-    bottom: 'rotate-180',
+    bottom: 'mt-1 rotate-180',
     left: '-mt-6',
   };
 
@@ -38,9 +38,7 @@ const TutorialGuide = ({
         size={IconSize.Large}
       />
       {typeof children === 'string' ? (
-        <span className="py-2 typo-title2 text-theme-label-primary">
-          {children}
-        </span>
+        <span className="typo-title2 text-theme-label-primary">{children}</span>
       ) : (
         children
       )}
