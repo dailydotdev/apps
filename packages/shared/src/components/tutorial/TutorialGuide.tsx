@@ -9,22 +9,22 @@ type TutorialGuideProps = {
   children: ReactNode;
 };
 
+const positionMapClassName = {
+  top: 'flex-col',
+  right: 'flex-row-reverse',
+  bottom: 'flex-col-reverse',
+};
+const arrowMapClassName = {
+  right: '-mt-6 -scale-x-100',
+  bottom: 'mt-1 rotate-180',
+  left: '-mt-6',
+};
+
 const TutorialGuide = ({
   className,
   arrowPlacement = 'left',
   children,
 }: TutorialGuideProps): ReactElement => {
-  const positionMapClassName = {
-    top: 'flex-col',
-    right: 'flex-row-reverse',
-    bottom: 'flex-col-reverse',
-  };
-  const arrowMapClassName = {
-    right: '-mt-6 -scale-x-100',
-    bottom: 'mt-1 rotate-180',
-    left: '-mt-6',
-  };
-
   return (
     <div
       className={classNames(
