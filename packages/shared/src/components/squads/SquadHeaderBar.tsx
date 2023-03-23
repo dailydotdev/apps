@@ -66,7 +66,7 @@ export function SquadHeaderBar({
           Copy invitation link
         </Button>
         {copyLinkTutorial.isActive && (
-          <TutorialGuide className="absolute -bottom-16 left-22">
+          <TutorialGuide className="absolute -bottom-16 laptop:-bottom-14 left-22">
             Invite your first members
           </TutorialGuide>
         )}
