@@ -7,6 +7,7 @@ import { usePrompt } from '../../hooks/usePrompt';
 import { useBoot } from '../../hooks/useBoot';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 import { SquadDetails } from '../squads/Details';
 import { cloudinary } from '../../lib/image';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -56,11 +57,21 @@ function NewSquadModal({
     }
   };
 
+  const newSquadTutorial = useTutorial({
+    key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
+  });
+
   const handleClose = async () => {
     if (activeView === ModalState.Ready) return onRequestClose();
 
     const shouldQuit = await showPrompt(quitSquadModal);
-    if (shouldQuit) onRequestClose();
+    if (shouldQuit) {
+      onRequestClose();
+
+      if (!newSquadTutorial.isCompleted) {
+        newSquadTutorial.activate();
+      }
+    }
     return null;
   };
 
