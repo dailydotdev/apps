@@ -1,6 +1,6 @@
 import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
 import classNames from 'classnames';
-import XIcon from '../icons/Close';
+import XIcon from '../icons/MiniClose';
 import { Button, ButtonSize } from '../buttons/Button';
 import {
   AlertPointerMessage,

@@ -8,7 +8,7 @@ import {
 import classed from '../../lib/classed';
 import { Button, ButtonSize } from '../buttons/Button';
 import styles from './Toast.module.css';
-import XIcon from '../icons/Close';
+import XIcon from '../icons/MiniClose';
 import { isTouchDevice } from '../../lib/tooltip';
 import {
   NotifContainer,

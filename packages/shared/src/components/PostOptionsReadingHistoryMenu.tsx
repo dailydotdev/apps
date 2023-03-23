@@ -6,7 +6,7 @@ import { QueryClient, QueryKey, useQueryClient } from 'react-query';
 import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import BookmarkIcon from './icons/Bookmark';
-import XIcon from './icons/Close';
+import XIcon from './icons/MiniClose';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import {
