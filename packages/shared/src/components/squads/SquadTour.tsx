@@ -43,7 +43,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
   const items = [
     <SquadTourCard
       key="step1"
-      banner={cloudinary.squads.tour.banner1}
+      banner={cloudinary.squads.tour.banner1_v2}
       title="Share articles"
       description="Share articles, receive and give feedback!"
       badge="NEW"
@@ -64,7 +64,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
     />,
     <SquadTourCard
       key="step4"
-      banner={cloudinary.squads.tour.banner4}
+      banner={cloudinary.squads.tour.banner4_v2}
       title="Invite members"
       description="Invite friends and colleagues to your Squads"
       badge="NEW"

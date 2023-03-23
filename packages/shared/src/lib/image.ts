@@ -40,12 +40,16 @@ export const cloudinary = {
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour0',
       banner1:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour1',
+      banner1_v2:
+        'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour1_v2',
       banner2:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour2',
       banner3:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour3',
       banner4:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour4',
+      banner4_v2:
+        'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour4_v2',
     },
   },
 };
