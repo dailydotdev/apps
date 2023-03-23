@@ -95,7 +95,7 @@ export function SquadPageHeader({
         {sharePostTutorial.isActive && (
           <TutorialGuide
             className="absolute right-0 -bottom-24 laptop:-bottom-20 left-0"
-            arrowPosition={isDesktop ? 'left' : 'top'}
+            arrowPlacement={isDesktop ? 'left' : 'top'}
           >
             Let&apos;s share your first post 🥳
           </TutorialGuide>

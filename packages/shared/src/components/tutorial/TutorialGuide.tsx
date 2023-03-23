@@ -5,13 +5,13 @@ import DrawnArrowIcon from '../icons/DrawnArrow';
 
 type TutorialGuideProps = {
   className?: string;
-  arrowPosition?: 'top' | 'right' | 'bottom' | 'left';
+  arrowPlacement?: 'top' | 'right' | 'bottom' | 'left';
   children: ReactNode;
 };
 
 const TutorialGuide = ({
   className,
-  arrowPosition = 'left',
+  arrowPlacement = 'left',
   children,
 }: TutorialGuideProps): ReactElement => {
   const positionMapClassName = {
@@ -29,12 +29,12 @@ const TutorialGuide = ({
     <div
       className={classNames(
         'flex justify-center items-center',
-        positionMapClassName[arrowPosition],
+        positionMapClassName[arrowPlacement],
         className,
       )}
     >
       <DrawnArrowIcon
-        className={arrowMapClassName[arrowPosition]}
+        className={arrowMapClassName[arrowPlacement]}
         size={IconSize.Large}
       />
       {typeof children === 'string' ? (
