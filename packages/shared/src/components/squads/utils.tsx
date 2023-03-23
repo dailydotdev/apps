@@ -25,6 +25,10 @@ export const SquadTitle = classed(
   'h3',
   'text-center typo-large-title font-bold',
 );
+export const SquadSubTitle = classed(
+  'p',
+  'text-center typo-title3 mb-4 text-theme-label-tertiary',
+);
 export const SquadTitleColor = classed('span', 'text-theme-color-cabbage');
 
 export type SquadStateProps = {
