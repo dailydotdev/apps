@@ -55,7 +55,7 @@ function SharePostBar({
       )}
     >
       <ProfilePicture
-        className="m-3"
+        className="order-1 m-3"
         user={user}
         size="large"
         nativeLazyLoading
@@ -63,20 +63,19 @@ function SharePostBar({
       <input
         type="url"
         name="share-post-bar"
-        className="flex-1 pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
+        className="flex-1 order-2 pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
         placeholder="Enter link to share"
         onInput={(e) => setUrl(e.currentTarget.value)}
         value={url}
       />
-      {(!url || !sidebarRendered) && (
+      {!url && (
         <Button
           type="button"
           onClick={() => onNewSquadPost()}
           buttonSize={sidebarRendered ? ButtonSize.Small : ButtonSize.Medium}
           className={classNames(
             'btn-tertiary',
-            !sidebarRendered &&
-              'w-full order-4 border-t !rounded-none border-theme-divider-tertiary',
+            'w-full tablet:w-auto order-4 tablet:order-3 border-t rounded-none tablet:rounded-12 border-theme-divider-tertiary border tablet:border-0',
           )}
         >
           {sidebarRendered ? 'Reading history' : 'Choose from reading history'}
@@ -85,7 +84,7 @@ function SharePostBar({
       <Button
         type="submit"
         buttonSize={ButtonSize.Medium}
-        className="mx-3 btn-primary-cabbage"
+        className="order-3 tablet:order-4 mx-3 btn-primary-cabbage"
       >
         Post
       </Button>
