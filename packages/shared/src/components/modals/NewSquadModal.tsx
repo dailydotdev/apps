@@ -124,7 +124,10 @@ function NewSquadModal({
     const shouldQuit = await showPrompt(quitSquadModal);
     if (shouldQuit) {
       onRequestClose();
-      newSquadTutorial.activate();
+
+      if (!newSquadTutorial.isCompleted) {
+        newSquadTutorial.activate();
+      }
     }
     return null;
   };

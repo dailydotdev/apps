@@ -36,6 +36,7 @@ import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
 import { Origin } from '../../lib/analytics';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
+import useDebounce from '../../hooks/useDebounce';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -88,18 +89,16 @@ export default function Sidebar({
     key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
   });
 
+  const [completeTutorialWithDelay] = useDebounce(() => {
+    newSquadTooltipTutorial.complete();
+  }, 4 * 1000);
+
   useEffect(() => {
     if (!newSquadTooltipTutorial.isActive) {
-      return undefined;
+      return;
     }
 
-    const timeout = setTimeout(() => {
-      newSquadTooltipTutorial.complete();
-    }, 4 * 1000);
-
-    return () => {
-      clearTimeout(timeout);
-    };
+    completeTutorialWithDelay();
   }, [newSquadTooltipTutorial.isActive]);
 
   const feedName = getFeedName(activePageProp, {
