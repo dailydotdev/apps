@@ -183,7 +183,7 @@ const SquadReferral = ({
   }
 
   return (
-    <PageContainer className="overflow-hidden relative justify-center items-center pt-24">
+    <PageContainer className="relative justify-center items-center pt-24">
       <NextSeo {...seo} />
       <div className="absolute -top-4 -right-20 -left-20 h-40 rounded-26 squad-background-fade" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
