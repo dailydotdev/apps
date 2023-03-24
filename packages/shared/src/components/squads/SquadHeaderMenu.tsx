@@ -47,10 +47,6 @@ export default function SquadHeaderMenu({
   });
   const isSquadOwner = squad?.currentMember?.role === SquadMemberRole.Owner;
 
-  const sharePostTutorial = useTutorial({
-    key: TutorialKey.ShareSquadPost,
-  });
-
   const onEditSquad = () => {
     openModal({
       type: LazyModal.EditSquad,
