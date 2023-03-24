@@ -11,8 +11,6 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import SharePostBar from './SharePostBar';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
-import useMedia from '../../hooks/useMedia';
-import { laptop } from '../../styles/media';
 
 type SquadPageHeaderProps = {
   squad: Squad;
@@ -34,8 +32,6 @@ export function SquadPageHeader({
   const sharePostTutorial = useTutorial({
     key: TutorialKey.SHARE_SQUAD_POST,
   });
-
-  const isDesktop = useMedia([laptop.replace('@media ', '')], [true], false);
 
   return (
     <FlexCol
@@ -94,8 +90,8 @@ export function SquadPageHeader({
         <SharePostBar className="w-full" onNewSquadPost={onNewSquadPost} />
         {sharePostTutorial.isActive && (
           <TutorialGuide
-            className="absolute right-0 -bottom-24 laptop:-bottom-20 left-0"
-            arrowPlacement={isDesktop ? 'left' : 'top'}
+            className="absolute right-0 -bottom-22 tablet:-bottom-24 laptop:-bottom-20 left-0"
+            arrowPlacement={sidebarRendered ? 'left' : 'top'}
           >
             Let&apos;s share your first post 🥳
           </TutorialGuide>

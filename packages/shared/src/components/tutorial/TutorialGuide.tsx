@@ -9,12 +9,12 @@ type TutorialGuideProps = {
   children: ReactNode;
 };
 
-const positionMapClassName = {
+const positionToArrowClassName = {
   top: 'flex-col',
   right: 'flex-row-reverse',
   bottom: 'flex-col-reverse',
 };
-const arrowMapClassName = {
+const positionToContainerClassName = {
   right: '-mt-6 -scale-x-100',
   bottom: 'mt-1 rotate-180',
   left: '-mt-6',
@@ -29,16 +29,18 @@ const TutorialGuide = ({
     <div
       className={classNames(
         'flex justify-center items-center',
-        positionMapClassName[arrowPlacement],
+        positionToArrowClassName[arrowPlacement],
         className,
       )}
     >
       <DrawnArrowIcon
-        className={arrowMapClassName[arrowPlacement]}
+        className={positionToContainerClassName[arrowPlacement]}
         size={IconSize.Large}
       />
       {typeof children === 'string' ? (
-        <span className="typo-title2 text-theme-label-primary">{children}</span>
+        <span className="laptop:typo-title2 typo-title3 text-theme-label-primary">
+          {children}
+        </span>
       ) : (
         children
       )}
