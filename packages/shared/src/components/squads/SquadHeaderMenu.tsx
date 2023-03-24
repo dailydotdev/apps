@@ -58,7 +58,10 @@ export default function SquadHeaderMenu({
     const list: ContextMenuItemProps[] = [
       {
         Icon: TourIcon,
-        onClick: () => openModal({ type: LazyModal.SquadTour }),
+        onClick: () =>
+          openModal({
+            type: LazyModal.SquadTour,
+          }),
         label: 'Learn how Squads work',
       },
       isSquadOwner

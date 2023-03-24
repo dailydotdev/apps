@@ -35,17 +35,23 @@ export const cloudinary = {
   squads: {
     imageFallback:
       'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
+    createSquad:
+      'https://daily-now-res.cloudinary.com/image/upload/v1679320203/public/create_squad.png',
     tour: {
       banner0:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour0',
       banner1:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour1',
+      banner1_v2:
+        'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour1_v2',
       banner2:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour2',
       banner3:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour3',
       banner4:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour4',
+      banner4_v2:
+        'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour4_v2',
     },
   },
 };

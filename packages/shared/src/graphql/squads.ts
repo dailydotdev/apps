@@ -22,6 +22,7 @@ export type SquadForm = Pick<
   Squad,
   'name' | 'handle' | 'description' | 'image'
 > & {
+  url?: string;
   file?: string;
   commentary: string;
   post: PostItem;
@@ -51,10 +52,7 @@ type EditSquadInput = SharedSquadInput & {
   sourceId: string;
 };
 
-type CreateSquadInput = SharedSquadInput & {
-  postId: string;
-  commentary: string;
-};
+type CreateSquadInput = SharedSquadInput;
 
 type CreateSquadOutput = {
   createSquad: Squad;
@@ -91,16 +89,12 @@ export const CREATE_SQUAD_MUTATION = gql`
     $name: String!
     $handle: String!
     $description: String
-    $postId: ID!
-    $commentary: String!
     $image: Upload
   ) {
     createSquad(
       name: $name
       handle: $handle
       description: $description
-      postId: $postId
-      commentary: $commentary
       image: $image
     ) {
       ...SourceBaseInfo
@@ -297,11 +291,9 @@ export const addPostToSquad =
 
 export async function createSquad(form: SquadForm): Promise<Squad> {
   const inputData: CreateSquadInput = {
-    commentary: form.commentary,
-    description: form.description,
+    description: form?.description,
     handle: form.handle,
     name: form.name,
-    postId: form.post.post.id,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
   };
   const data = await request<CreateSquadOutput>(

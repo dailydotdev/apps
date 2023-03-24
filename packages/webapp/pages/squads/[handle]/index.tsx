@@ -31,11 +31,17 @@ import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
 import dynamic from 'next/dynamic';
+import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
+import classNames from 'classnames';
+import { NewSquadPostProps } from '@dailydotdev/shared/src/components/squads/SharePostBar';
+import {
+  useTutorial,
+  TutorialKey,
+} from '@dailydotdev/shared/src/hooks/useTutorial';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -54,6 +60,7 @@ type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
+  const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = useRouter();
   const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
@@ -103,18 +110,17 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  const isInactive = !isNullOrUndefined(squad) && !squad.active;
   const isFinishedLoading = isFetched && !isLoading && !!squad;
 
-  const { isPopupOpen, onClosePopup } = useSquadOnboarding(
-    isFinishedLoading && !isInactive && !isForbidden,
+  const { isPopupOpen, onClosePopup, hasTriedOnboarding } = useSquadOnboarding(
+    isFinishedLoading && !isForbidden,
   );
 
   if (isLoading && !isFetched && !squad) return <SquadLoading />;
 
   if (!isFetched) return <></>;
 
-  if (isFallback || isInactive || isForbidden) {
+  if (isFallback || isForbidden) {
     if (!trackedForbiddenImpression) {
       trackEvent({
         event_name: AnalyticsEvent.ViewSquadForbiddenPage,
@@ -127,11 +133,24 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad) return <Custom404 />;
 
-  const onNewSquadPost = () =>
+  const sharePostTutorial = useTutorial({
+    key: TutorialKey.ShareSquadPost,
+  });
+
+  const copyLinkTutorial = useTutorial({
+    key: TutorialKey.CopySquadLink,
+  });
+
+  const onNewSquadPost = (props: NewSquadPostProps = {}) =>
     openModal({
       type: LazyModal.PostToSquad,
       props: {
+        ...props,
         squad,
+        onAfterClose: () => {
+          sharePostTutorial.complete();
+          copyLinkTutorial.activate();
+        },
       },
     });
 
@@ -142,15 +161,21 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
       {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
-      <BaseFeedPage className="relative pt-2 mb-4 squad-background-fade">
+      <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
+        <div
+          className={classNames(
+            'absolute top-0 w-full h-full squad-background-fade',
+            sidebarRendered && '-left-full translate-x-[60%]',
+          )}
+        />
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
           onNewSquadPost={onNewSquadPost}
-          userId={user?.id}
+          hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
         />
         <Feed
-          className="px-6 laptop:px-16"
+          className="px-6 laptop:px-0 pt-14 laptop:pt-10"
           feedName="source"
           feedQueryKey={[
             'sourceFeed',
@@ -160,6 +185,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
+          emptyScreen={<></>}
           options={{ refetchOnMount: true }}
         />
       </BaseFeedPage>

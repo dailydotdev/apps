@@ -1,6 +1,13 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
+import { sticky } from 'tippy.js';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -25,11 +32,11 @@ import { SquadsList } from './SquadsList';
 import { Button, ButtonSize } from '../buttons/Button';
 import PlusIcon from '../icons/Plus';
 import { ProfilePicture } from '../ProfilePicture';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { Squad } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
 import { Origin } from '../../lib/analytics';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
+import useDebounce from '../../hooks/useDebounce';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -59,7 +66,6 @@ export default function Sidebar({
     loadedSettings,
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
-  const { openModal } = useLazyModal();
   const [showSettings, setShowSettings] = useState(false);
   const {
     hasSquadAccess,
@@ -69,13 +75,32 @@ export default function Sidebar({
     popularFeedCopy,
     isFlagsFetched,
   } = useContext(FeaturesContext);
-  const { openNewSquadModal, openSquadBetaModal } = useCreateSquadModal({
+  const { openNewSquadModal } = useCreateSquadModal({
     hasSquads: !!squads?.length,
     hasAccess: hasSquadAccess,
     isFlagsFetched,
   });
   const newSquadButtonVisible =
     sidebarRendered && hasSquadAccess && !squads?.length;
+  const newSquadTooltipOffset: [number, number] = sidebarExpanded
+    ? [0, 1.5 * 16]
+    : [0, 1 * 16];
+  const newSquadTooltipTutorial = useTutorial({
+    key: TutorialKey.SeenNewSquadTooltip,
+  });
+
+  const [completeTutorialWithDelay] = useDebounce(() => {
+    newSquadTooltipTutorial.complete();
+  }, 4 * 1000);
+
+  useEffect(() => {
+    if (!newSquadTooltipTutorial.isActive) {
+      return;
+    }
+
+    completeTutorialWithDelay();
+  }, [newSquadTooltipTutorial.isActive]);
+
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
@@ -86,13 +111,6 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
-
-  const openLockedSquadModal = (squad: Squad) => {
-    openModal({
-      type: LazyModal.LockedSquad,
-      props: { initialSquad: squad },
-    });
-  };
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -133,22 +151,42 @@ export default function Sidebar({
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
             {newSquadButtonVisible && (
-              <div className="flex">
-                <Button
-                  buttonSize={ButtonSize.Small}
-                  icon={<PlusIcon />}
-                  iconOnly={!sidebarExpanded}
-                  className={classNames(
-                    'mt-0 laptop:mt-2 mb-4 btn-primary-cabbage flex flex-1',
-                    sidebarExpanded ? 'mx-3' : 'mx-1.5',
-                  )}
-                  textPosition={
-                    sidebarExpanded ? 'justify-start' : 'justify-center'
+              <div className="flex mt-0 laptop:mt-2 mb-4">
+                <SimpleTooltip
+                  content={
+                    <>
+                      You can always
+                      <br /> open a squad here
+                    </>
                   }
-                  onClick={() => openSquadBetaModal({ origin: Origin.Sidebar })}
+                  placement="right"
+                  offset={newSquadTooltipOffset}
+                  sticky
+                  plugins={[sticky]}
+                  visible={newSquadTooltipTutorial.isActive}
                 >
-                  {sidebarExpanded && 'New Squad'}
-                </Button>
+                  <Button
+                    buttonSize={ButtonSize.Small}
+                    icon={<PlusIcon />}
+                    iconOnly={!sidebarExpanded}
+                    className={classNames(
+                      'btn-primary-cabbage flex flex-1',
+                      sidebarExpanded ? 'mx-3' : 'mx-1.5',
+                    )}
+                    textPosition={
+                      sidebarExpanded ? 'justify-start' : 'justify-center'
+                    }
+                    onClick={() => {
+                      if (newSquadTooltipTutorial.isActive) {
+                        newSquadTooltipTutorial.complete();
+                      }
+
+                      openNewSquadModal({ origin: Origin.Sidebar });
+                    }}
+                  >
+                    {sidebarExpanded && 'New Squad'}
+                  </Button>
+                </SimpleTooltip>
               </div>
             )}
             {!alerts?.filter && (
@@ -166,7 +204,6 @@ export default function Sidebar({
                 activePage={activePageProp}
                 squads={squads}
                 onNewSquad={() => openNewSquadModal({ origin: Origin.Sidebar })}
-                onOpenLockedSquad={openLockedSquadModal}
               />
             )}
             <DiscoverSection

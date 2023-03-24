@@ -16,13 +16,14 @@ interface ClassName {
   item?: string;
 }
 
-interface CarouselProps {
+export interface CarouselProps {
   items: ReactNode[];
   className?: ClassName;
   preSelectedIndex?: number;
   hasCustomIndicator?: boolean;
   onClose?: SwipeCallback;
   onEnd?: SwipeCallback;
+  onScreenIndexChange?: (index: number) => void;
   children?: (props: ChildProps, stepIndicator: ReactNode) => void;
 }
 
@@ -31,17 +32,24 @@ function Carousel({
   className = {},
   preSelectedIndex = 0,
   hasCustomIndicator = false,
+  onScreenIndexChange,
   onClose,
   onEnd,
   children,
 }: CarouselProps): ReactElement {
   const [index, setIndex] = useState(preSelectedIndex);
+
+  const onUpdateIndex = (increment: number) => {
+    onScreenIndexChange?.(index + increment);
+    return setIndex((state) => state + increment);
+  };
+
   const onSwipedRight: SwipeCallback = (e) => {
     e?.event?.stopPropagation?.();
 
     if (index === 0) return isNullOrUndefined(e?.dir) && onClose?.(e);
 
-    return setIndex((state) => state - 1);
+    return onUpdateIndex(-1);
   };
 
   const onSwipedLeft: SwipeCallback = (e) => {
@@ -50,13 +58,13 @@ function Carousel({
     const max = items.length - 1;
     if (index === max) return isNullOrUndefined(e?.dir) && onEnd?.(e);
 
-    return setIndex((state) => state + 1);
+    return onUpdateIndex(1);
   };
 
   const handlers = useSwipeable({ onSwipedLeft, onSwipedRight });
   const indicator = (
     <CarouselIndicator
-      onItemClick={setIndex}
+      onItemClick={onUpdateIndex}
       max={items.length}
       active={index}
       className={{
