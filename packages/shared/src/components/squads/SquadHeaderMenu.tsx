@@ -23,18 +23,12 @@ const PortalMenu = dynamic(
   },
 );
 
-export interface SquadTourIndexProps {
-  onTourIndexChange?: (index: number) => void;
-  tourIndex?: number;
-}
-
-interface SquadHeaderMenuProps extends SquadTourIndexProps {
+interface SquadHeaderMenuProps {
   squad: Squad;
 }
 
 export default function SquadHeaderMenu({
   squad,
-  onTourIndexChange,
 }: SquadHeaderMenuProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
@@ -73,7 +67,6 @@ export default function SquadHeaderMenu({
           openModal({
             type: LazyModal.SquadTour,
             props: {
-              onScreenIndexChange: onTourIndexChange,
               onAfterClose: () => {
                 sharePostTutorial.activate();
               },

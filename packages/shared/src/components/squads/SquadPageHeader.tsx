@@ -11,10 +11,10 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import SharePostBar from './SharePostBar';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
-import { SquadTourIndexProps } from './SquadHeaderMenu';
 import { TourScreenIndex } from './SquadTour';
+import { useSquadTour } from '../../hooks/useSquadTour';
 
-interface SquadPageHeaderProps extends SquadTourIndexProps {
+interface SquadPageHeaderProps {
   squad: Squad;
   members: SquadMember[];
   onNewSquadPost: () => void;
@@ -28,9 +28,8 @@ export function SquadPageHeader({
   members,
   onNewSquadPost,
   hasTriedOnboarding,
-  tourIndex,
-  onTourIndexChange,
 }: SquadPageHeaderProps): ReactElement {
+  const { tourIndex } = useSquadTour();
   const { sidebarRendered } = useSidebarRendered();
 
   const sharePostTutorial = useTutorial({
@@ -77,8 +76,6 @@ export function SquadPageHeader({
         memberCount={squad.membersCount}
         onNewSquadPost={onNewSquadPost}
         className={sidebarRendered && 'absolute top-0 right-[4.5rem]'}
-        tourIndex={tourIndex}
-        onTourIndexChange={onTourIndexChange}
       />
       {hasTriedOnboarding && (
         <EnableNotification

@@ -2,14 +2,13 @@ import React, { ReactElement, useState } from 'react';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
-import Carousel, { CarouselProps } from '../containers/Carousel';
+import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
+import { useSquadTour } from '../../hooks/useSquadTour';
 
-export type CarouselMinimalProps = Pick<CarouselProps, 'onScreenIndexChange'>;
-
-interface SquadTourProps extends CarouselMinimalProps {
+interface SquadTourProps {
   onClose: React.EventHandler<React.MouseEvent>;
 }
 
@@ -20,11 +19,9 @@ export enum TourScreenIndex {
   CopyInvitation = 3,
 }
 
-function SquadTour({
-  onClose,
-  onScreenIndexChange,
-}: SquadTourProps): ReactElement {
+function SquadTour({ onClose }: SquadTourProps): ReactElement {
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);
+  const { onTourIndexChange } = useSquadTour();
 
   if (!shouldShowCarousel) {
     return (
@@ -42,7 +39,7 @@ function SquadTour({
           <FooterButton
             className="ml-auto btn-primary-cabbage"
             onClick={() => {
-              onScreenIndexChange(0);
+              onTourIndexChange(0);
               setShouldShowCarousel(true);
             }}
           >
@@ -91,7 +88,7 @@ function SquadTour({
       className={{ wrapper: 'w-full' }}
       onClose={() => onClose?.(null)}
       onEnd={() => onClose?.(null)}
-      onScreenIndexChange={onScreenIndexChange}
+      onScreenIndexChange={onTourIndexChange}
     >
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <ModalFooter justify={Justify.Between}>

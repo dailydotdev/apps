@@ -3,7 +3,7 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import SquadHeaderMenu, { SquadTourIndexProps } from './SquadHeaderMenu';
+import SquadHeaderMenu from './SquadHeaderMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberShortList, {
   SquadMemberShortListProps,
@@ -18,10 +18,10 @@ import { Origin } from '../../lib/analytics';
 import { useTutorial, TutorialKey } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
 import { TourScreenIndex } from './SquadTour';
+import { useSquadTour } from '../../hooks/useSquadTour';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
-    SquadTourIndexProps,
     HTMLAttributes<HTMLDivElement> {
   onNewSquadPost: () => void;
 }
@@ -31,10 +31,9 @@ export function SquadHeaderBar({
   members,
   memberCount,
   className,
-  onTourIndexChange,
-  tourIndex,
   ...props
 }: SquadHeaderBarProps): ReactElement {
+  const { tourIndex } = useSquadTour();
   const { copying, trackAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
@@ -102,7 +101,7 @@ export function SquadHeaderBar({
           onClick={onMenuClick}
         />
       </SimpleTooltip>
-      <SquadHeaderMenu squad={squad} onTourIndexChange={onTourIndexChange} />
+      <SquadHeaderMenu squad={squad} />
     </div>
   );
 }

@@ -64,7 +64,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
-  const [tourIndex, setTourIndex] = useState(-1);
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const [trackedForbiddenImpression, setTrackedForbiddenImpression] =
@@ -162,12 +161,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
-      {isPopupOpen && (
-        <SquadTourPopup
-          onClose={onClosePopup}
-          onScreenIndexChange={setTourIndex}
-        />
-      )}
+      {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
       <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
         <div
           className={classNames(
@@ -180,8 +174,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           members={squadMembers}
           onNewSquadPost={onNewSquadPost}
           hasTriedOnboarding={hasTriedOnboarding}
-          onTourIndexChange={setTourIndex}
-          tourIndex={tourIndex}
         />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
