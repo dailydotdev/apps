@@ -27,6 +27,7 @@ interface Experiments {
   inAppNotificationPosition?: InAppNotificationPosition;
   scrollOnboardingVersion?: ScrollOnboardingVersion;
   hasSquadAccess?: boolean;
+  showHiring?: boolean;
 }
 
 export interface FeaturesData extends Experiments {
@@ -79,6 +80,7 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       flags,
     ),
     hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
+    showHiring: isFeaturedEnabled(Features.ShowHiring, flags),
   };
 };
 
