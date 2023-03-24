@@ -38,6 +38,10 @@ import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import { NewSquadPostProps } from '@dailydotdev/shared/src/components/squads/SharePostBar';
+import {
+  useTutorial,
+  TutorialKey,
+} from '@dailydotdev/shared/src/hooks/useTutorial';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -129,12 +133,25 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad) return <Custom404 />;
 
+  const sharePostTutorial = useTutorial({
+    key: TutorialKey.SHARE_SQUAD_POST,
+  });
+
+  const copyLinkTutorial = useTutorial({
+    key: TutorialKey.COPY_SQUAD_LINK,
+  });
+
   const onNewSquadPost = (props: NewSquadPostProps = {}) =>
     openModal({
       type: LazyModal.PostToSquad,
       props: {
         ...props,
         squad,
+        onAfterClose: () => {
+          sharePostTutorial.complete();
+
+          copyLinkTutorial.activate();
+        },
       },
     });
 
