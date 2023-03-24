@@ -4,7 +4,6 @@ import usePersistentContext from './usePersistentContext';
 
 export enum TutorialKey {
   SeenNewSquadTooltip = 'seenNewSquadTooltip',
-  SquadEnableNotifications = 'squadEnableNotifications',
   ShareSquadPost = 'shareSquadPost',
   CopySquadLink = 'copySquadLink',
 }

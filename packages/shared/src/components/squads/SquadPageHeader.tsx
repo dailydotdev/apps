@@ -16,6 +16,7 @@ type SquadPageHeaderProps = {
   squad: Squad;
   members: SquadMember[];
   onNewSquadPost: () => void;
+  hasTriedOnboarding?: boolean;
 };
 
 const MAX_WIDTH = 'laptop:max-w-[38.5rem]';
@@ -24,11 +25,9 @@ export function SquadPageHeader({
   squad,
   members,
   onNewSquadPost,
+  hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
-  const enableNotifications = useTutorial({
-    key: TutorialKey.SquadEnableNotifications,
-  });
 
   const sharePostTutorial = useTutorial({
     key: TutorialKey.ShareSquadPost,
@@ -75,7 +74,7 @@ export function SquadPageHeader({
         onNewSquadPost={onNewSquadPost}
         className={sidebarRendered && 'absolute top-0 right-[4.5rem]'}
       />
-      {enableNotifications.isCompleted && (
+      {hasTriedOnboarding && (
         <EnableNotification
           contentName={squad.name}
           source={NotificationPromptSource.SquadPage}
