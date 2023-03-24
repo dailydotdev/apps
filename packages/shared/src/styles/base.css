@@ -442,7 +442,7 @@ details.right-icon {
 
   100% {
     top: -1rem;
-    left: -1rem;
+    left: -1.25rem;
     width: calc(100% + 2.5rem);
     height: calc(100% + 2rem);
     opacity: 0;
@@ -456,6 +456,7 @@ details.right-icon {
   &::before {
     @apply border-theme-color-cabbage;
     content: '';
+    z-index: -1;
     position: absolute;
     opacity: 0;
     inset: 0;
