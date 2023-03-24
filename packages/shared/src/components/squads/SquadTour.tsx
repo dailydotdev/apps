@@ -2,19 +2,33 @@ import React, { ReactElement, useState } from 'react';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
-import Carousel from '../containers/Carousel';
+import Carousel, { CarouselProps } from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
 
-interface SquadTourProps {
+export type CarouselMinimalProps = Pick<CarouselProps, 'onScreenIndexChange'>;
+
+interface SquadTourProps extends CarouselMinimalProps {
   onClose: React.EventHandler<React.MouseEvent>;
 }
 
 const FooterButton = classed(Button, 'w-22');
 
-function SquadTour({ onClose }: SquadTourProps): ReactElement {
+export enum TourScreenIndex {
+  Post = 0,
+  CopyInvitation = 3,
+}
+
+function SquadTour({
+  onClose,
+  onScreenIndexChange,
+}: SquadTourProps): ReactElement {
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);
+  const onModalClose: typeof onClose = (param) => {
+    onScreenIndexChange?.(-1);
+    onClose(param);
+  };
 
   if (!shouldShowCarousel) {
     return (
@@ -26,7 +40,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
         <ModalFooter>
-          <FooterButton className="btn-tertiary" onClick={onClose}>
+          <FooterButton className="btn-tertiary" onClick={onModalClose}>
             Close
           </FooterButton>
           <FooterButton
@@ -76,8 +90,9 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       hasCustomIndicator
       items={items}
       className={{ wrapper: 'w-full' }}
-      onClose={() => onClose?.(null)}
-      onEnd={() => onClose?.(null)}
+      onClose={() => onModalClose?.(null)}
+      onEnd={() => onModalClose?.(null)}
+      onScreenIndexChange={onScreenIndexChange}
     >
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <ModalFooter justify={Justify.Between}>

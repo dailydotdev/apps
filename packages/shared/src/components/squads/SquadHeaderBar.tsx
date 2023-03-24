@@ -3,7 +3,7 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import SquadHeaderMenu from './SquadHeaderMenu';
+import SquadHeaderMenu, { SquadTourIndexProps } from './SquadHeaderMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberShortList, {
   SquadMemberShortListProps,
@@ -17,9 +17,11 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Origin } from '../../lib/analytics';
 import { useTutorial, TutorialKey } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
+import { TourScreenIndex } from './SquadTour';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
+    SquadTourIndexProps,
     HTMLAttributes<HTMLDivElement> {
   onNewSquadPost: () => void;
 }
@@ -29,6 +31,8 @@ export function SquadHeaderBar({
   members,
   memberCount,
   className,
+  onTourIndexChange,
+  tourIndex,
   ...props
 }: SquadHeaderBarProps): ReactElement {
   const { copying, trackAndCopyLink } = useSquadInvitation({
@@ -54,7 +58,10 @@ export function SquadHeaderBar({
         )}
       >
         <Button
-          className="btn-primary"
+          className={classNames(
+            'btn-primary',
+            tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
+          )}
           onClick={() => {
             trackAndCopyLink();
 
@@ -95,7 +102,7 @@ export function SquadHeaderBar({
           onClick={onMenuClick}
         />
       </SimpleTooltip>
-      <SquadHeaderMenu squad={squad} />
+      <SquadHeaderMenu squad={squad} onTourIndexChange={onTourIndexChange} />
     </div>
   );
 }

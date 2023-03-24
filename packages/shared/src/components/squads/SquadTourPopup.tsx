@@ -4,13 +4,16 @@ import CloseButton from '../CloseButton';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import SquadTour from './SquadTour';
+import SquadTour, { CarouselMinimalProps } from './SquadTour';
 
-interface SquadTourPopupProps {
+interface SquadTourPopupProps extends CarouselMinimalProps {
   onClose: React.EventHandler<MouseEvent>;
 }
 
-function SquadTourPopup({ onClose }: SquadTourPopupProps): ReactElement {
+function SquadTourPopup({
+  onClose,
+  onScreenIndexChange,
+}: SquadTourPopupProps): ReactElement {
   const sharePostTutorial = useTutorial({
     key: TutorialKey.SHARE_SQUAD_POST,
   });
@@ -26,7 +29,10 @@ function SquadTourPopup({ onClose }: SquadTourPopupProps): ReactElement {
       position={InteractivePopupPosition.RightEnd}
       className="border border-theme-color-cabbage w-[26rem]"
     >
-      <SquadTour onClose={onPopupClose} />
+      <SquadTour
+        onClose={onPopupClose}
+        onScreenIndexChange={onScreenIndexChange}
+      />
       <CloseButton
         className="top-3 right-3 !absolute !btn-secondary"
         onClick={onPopupClose}
