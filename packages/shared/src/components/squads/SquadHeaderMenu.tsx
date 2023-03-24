@@ -14,7 +14,6 @@ import { useLeaveSquad } from '../../hooks/useLeaveSquad';
 import ContextMenuItem, {
   ContextMenuItemProps,
 } from '../tooltips/ContextMenuItem';
-import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -47,10 +46,6 @@ export default function SquadHeaderMenu({
   });
   const isSquadOwner = squad?.currentMember?.role === SquadMemberRole.Owner;
 
-  const sharePostTutorial = useTutorial({
-    key: TutorialKey.SHARE_SQUAD_POST,
-  });
-
   const onEditSquad = () => {
     openModal({
       type: LazyModal.EditSquad,
@@ -66,11 +61,6 @@ export default function SquadHeaderMenu({
         onClick: () =>
           openModal({
             type: LazyModal.SquadTour,
-            props: {
-              onAfterClose: () => {
-                sharePostTutorial.activate();
-              },
-            },
           }),
         label: 'Learn how Squads work',
       },

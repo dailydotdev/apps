@@ -3,9 +3,9 @@ import { useQuery, useQueryClient } from 'react-query';
 import usePersistentContext from './usePersistentContext';
 
 export enum TutorialKey {
-  SEEN_NEW_SQUAD_TOOLTIP_KEY = 'seenNewSquadTooltip',
-  SHARE_SQUAD_POST = 'shareSquadPost',
-  COPY_SQUAD_LINK = 'copySquadLink',
+  SeenNewSquadTooltip = 'seenNewSquadTooltip',
+  ShareSquadPost = 'shareSquadPost',
+  CopySquadLink = 'copySquadLink',
 }
 
 export type UseTutorialProps = {

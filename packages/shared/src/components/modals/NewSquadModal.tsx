@@ -58,7 +58,7 @@ function NewSquadModal({
   };
 
   const newSquadTutorial = useTutorial({
-    key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
+    key: TutorialKey.SeenNewSquadTooltip,
   });
 
   const handleClose = async () => {

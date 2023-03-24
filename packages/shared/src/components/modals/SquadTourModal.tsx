@@ -3,15 +3,15 @@ import CloseButton from '../CloseButton';
 import SquadTour from '../squads/SquadTour';
 import { Modal, ModalProps } from './common/Modal';
 import { ButtonSize } from '../buttons/Button';
-import { useSquadTour } from '../../hooks/useSquadTour';
+import { useSquadTourClose } from '../../hooks/useSquadTourClose';
 
 function SquadTourModal({
   onRequestClose,
   ...props
 }: ModalProps): ReactElement {
-  const { onTourIndexChange } = useSquadTour();
+  const [onSquadTourClose] = useSquadTourClose();
   const onModalClose: typeof onRequestClose = (param) => {
-    onTourIndexChange(-1);
+    onSquadTourClose();
     onRequestClose(param);
   };
 

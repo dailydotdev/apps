@@ -33,7 +33,7 @@ export function SquadPageHeader({
   const { sidebarRendered } = useSidebarRendered();
 
   const sharePostTutorial = useTutorial({
-    key: TutorialKey.SHARE_SQUAD_POST,
+    key: TutorialKey.ShareSquadPost,
   });
 
   return (

@@ -42,7 +42,7 @@ export function SquadHeaderBar({
   const { sidebarRendered } = useSidebarRendered();
 
   const copyLinkTutorial = useTutorial({
-    key: TutorialKey.COPY_SQUAD_LINK,
+    key: TutorialKey.CopySquadLink,
   });
 
   return (
