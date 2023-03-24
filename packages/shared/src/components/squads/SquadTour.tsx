@@ -25,10 +25,6 @@ function SquadTour({
   onScreenIndexChange,
 }: SquadTourProps): ReactElement {
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);
-  const onModalClose: typeof onClose = (param) => {
-    onScreenIndexChange?.(-1);
-    onClose(param);
-  };
 
   if (!shouldShowCarousel) {
     return (
@@ -40,12 +36,15 @@ function SquadTour({
           className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
         <ModalFooter>
-          <FooterButton className="btn-tertiary" onClick={onModalClose}>
+          <FooterButton className="btn-tertiary" onClick={onClose}>
             Close
           </FooterButton>
           <FooterButton
             className="ml-auto btn-primary-cabbage"
-            onClick={() => setShouldShowCarousel(true)}
+            onClick={() => {
+              onScreenIndexChange(0);
+              setShouldShowCarousel(true);
+            }}
           >
             Start
           </FooterButton>
@@ -90,8 +89,8 @@ function SquadTour({
       hasCustomIndicator
       items={items}
       className={{ wrapper: 'w-full' }}
-      onClose={() => onModalClose?.(null)}
-      onEnd={() => onModalClose?.(null)}
+      onClose={() => onClose?.(null)}
+      onEnd={() => onClose?.(null)}
       onScreenIndexChange={onScreenIndexChange}
     >
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (

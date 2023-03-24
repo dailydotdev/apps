@@ -19,6 +19,7 @@ function SquadTourPopup({
   });
 
   const onPopupClose = (event: MouseEvent) => {
+    onScreenIndexChange?.(-1);
     onClose(event);
 
     sharePostTutorial.activate();

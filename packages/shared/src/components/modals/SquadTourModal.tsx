@@ -9,22 +9,27 @@ function SquadTourModal({
   onScreenIndexChange,
   ...props
 }: ModalProps & CarouselMinimalProps): ReactElement {
+  const onModalClose: typeof onRequestClose = (param) => {
+    onScreenIndexChange?.(-1);
+    onRequestClose(param);
+  };
+
   return (
     <Modal
       {...props}
-      onRequestClose={onRequestClose}
+      onRequestClose={onModalClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       className="overflow-hidden !border-theme-color-cabbage"
     >
       <SquadTour
-        onClose={onRequestClose}
+        onClose={onModalClose}
         onScreenIndexChange={onScreenIndexChange}
       />
       <CloseButton
         buttonSize={ButtonSize.Small}
         className="top-3 right-3 !absolute !btn-secondary"
-        onClick={onRequestClose}
+        onClick={onModalClose}
       />
     </Modal>
   );
