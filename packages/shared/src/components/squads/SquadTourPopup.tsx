@@ -14,14 +14,14 @@ function SquadTourPopup({ onClose }: SquadTourPopupProps): ReactElement {
   const sharePostTutorial = useTutorial({
     key: TutorialKey.SHARE_SQUAD_POST,
   });
-  const squadEnableNotifications = useTutorial({
-    key: TutorialKey.SQUAD_ENABLE_NOTIFICATIONS_KEY,
+  const enableNotifications = useTutorial({
+    key: TutorialKey.SQUAD_ENABLE_NOTIFICATIONS,
   });
 
   const onPopupClose = (event: MouseEvent) => {
     onClose(event);
     sharePostTutorial.activate();
-    squadEnableNotifications.activate();
+    enableNotifications.activate();
   };
 
   return (

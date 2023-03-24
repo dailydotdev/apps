@@ -26,7 +26,7 @@ describe('useTutorial hook', () => {
   }) => {
     return waitFor(() => {
       const value = client.getQueryData([
-        `tutorial-${TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY}`,
+        `tutorial-${TutorialKey.SEEN_NEW_SQUAD_TOOLTIP}`,
         false,
       ]);
 
@@ -42,7 +42,7 @@ describe('useTutorial hook', () => {
   it('should return the tutorial state', async () => {
     const client = new QueryClient();
     const { result } = renderHook(
-      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY }),
+      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP }),
       { wrapper: createWrapper({ client }) },
     );
 
@@ -53,7 +53,7 @@ describe('useTutorial hook', () => {
   it('should activate tutorial', async () => {
     const client = new QueryClient();
     const { result, rerender } = renderHook(
-      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY }),
+      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP }),
       { wrapper: createWrapper({ client }) },
     );
 
@@ -67,7 +67,7 @@ describe('useTutorial hook', () => {
   it('should complete tutorial', async () => {
     const client = new QueryClient();
     const { result } = renderHook(
-      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY }),
+      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP }),
       { wrapper: createWrapper({ client }) },
     );
 
@@ -82,7 +82,7 @@ describe('useTutorial hook', () => {
   it('should reset tutorial', async () => {
     const client = new QueryClient();
     const { result } = renderHook(
-      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY }),
+      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP }),
       { wrapper: createWrapper({ client }) },
     );
 
@@ -100,7 +100,7 @@ describe('useTutorial hook', () => {
   it('should not activate if tutorial is completed', async () => {
     const client = new QueryClient();
     const { result, rerender } = renderHook(
-      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY }),
+      () => useTutorial({ key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP }),
       { wrapper: createWrapper({ client }) },
     );
 

@@ -26,8 +26,8 @@ export function SquadPageHeader({
   onNewSquadPost,
 }: SquadPageHeaderProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
-  const squadEnableNotifications = useTutorial({
-    key: TutorialKey.SQUAD_ENABLE_NOTIFICATIONS_KEY,
+  const enableNotifications = useTutorial({
+    key: TutorialKey.SQUAD_ENABLE_NOTIFICATIONS,
   });
 
   const sharePostTutorial = useTutorial({
@@ -75,7 +75,7 @@ export function SquadPageHeader({
         onNewSquadPost={onNewSquadPost}
         className={sidebarRendered && 'absolute top-0 right-[4.5rem]'}
       />
-      {squadEnableNotifications.isActive && (
+      {enableNotifications.isActive && (
         <EnableNotification
           contentName={squad.name}
           source={NotificationPromptSource.SquadPage}
