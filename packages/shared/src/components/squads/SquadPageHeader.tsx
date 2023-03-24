@@ -10,6 +10,7 @@ import SquadMemberShortList from './SquadMemberShortList';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import SharePostBar from './SharePostBar';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
+import TutorialGuide from '../tutorial/TutorialGuide';
 
 type SquadPageHeaderProps = {
   squad: Squad;
@@ -29,8 +30,17 @@ export function SquadPageHeader({
     key: TutorialKey.SQUAD_ENABLE_NOTIFICATIONS_KEY,
   });
 
+  const sharePostTutorial = useTutorial({
+    key: TutorialKey.SHARE_SQUAD_POST,
+  });
+
   return (
-    <FlexCol className="relative items-center laptop:items-start px-6 pb-20 tablet:pb-20 laptop:pb-14 mb-6 w-full tablet:border-b laptop:px-[4.5rem] min-h-20 border-theme-divider-tertiary">
+    <FlexCol
+      className={classNames(
+        'relative items-center laptop:items-start px-6 pb-20 tablet:pb-20 laptop:pb-14 mb-6 w-full tablet:border-b laptop:px-[4.5rem] min-h-20 border-theme-divider-tertiary',
+        sharePostTutorial.isActive && 'laptop:mb-28 mb-28',
+      )}
+    >
       <div className="flex flex-col laptop:flex-row items-center">
         <SquadImage className="w-16 tablet:w-24 h-16 tablet:h-24" {...squad} />
         <FlexCol className="mt-4 laptop:mt-0 ml-6">
@@ -79,6 +89,14 @@ export function SquadPageHeader({
         )}
       >
         <SharePostBar className="w-full" onNewSquadPost={onNewSquadPost} />
+        {sharePostTutorial.isActive && (
+          <TutorialGuide
+            className="absolute right-0 -bottom-22 tablet:-bottom-24 laptop:-bottom-20 left-0"
+            arrowPlacement={sidebarRendered ? 'left' : 'top'}
+          >
+            Let&apos;s share your first post 🥳
+          </TutorialGuide>
+        )}
       </div>
     </FlexCol>
   );

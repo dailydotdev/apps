@@ -5,6 +5,8 @@ import usePersistentContext from './usePersistentContext';
 export enum TutorialKey {
   SEEN_NEW_SQUAD_TOOLTIP_KEY = 'seenNewSquadTooltip',
   SQUAD_ENABLE_NOTIFICATIONS_KEY = 'squadEnableNotifications',
+  SHARE_SQUAD_POST = 'shareSquadPost',
+  COPY_SQUAD_LINK = 'copySquadLink',
 }
 
 export type UseTutorialProps = {

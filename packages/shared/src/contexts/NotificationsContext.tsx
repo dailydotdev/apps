@@ -207,6 +207,7 @@ export const NotificationsContextProvider = ({
       currentUnreadCount,
       isInitialized,
       user,
+      isAlertShown,
       acceptedPermissionJustNow,
       hasPermissionCache,
     ],
