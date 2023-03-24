@@ -4,17 +4,17 @@ import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import SquadTour from './SquadTour';
-import { useSquadTourClose } from '../../hooks/useSquadTourClose';
+import { useSquadTour } from '../../hooks/useSquadTour';
 
 interface SquadTourPopupProps {
   onClose: React.EventHandler<MouseEvent>;
 }
 
 function SquadTourPopup({ onClose }: SquadTourPopupProps): ReactElement {
-  const [onSquadTourClose] = useSquadTourClose();
+  const { onCloseTour } = useSquadTour();
   const onPopupClose = (event: MouseEvent) => {
     onClose(event);
-    onSquadTourClose();
+    onCloseTour();
   };
 
   return (

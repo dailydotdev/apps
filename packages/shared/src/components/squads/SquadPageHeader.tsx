@@ -11,13 +11,15 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import SharePostBar from './SharePostBar';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
+import { TourScreenIndex } from './SquadTour';
+import { useSquadTour } from '../../hooks/useSquadTour';
 
-type SquadPageHeaderProps = {
+interface SquadPageHeaderProps {
   squad: Squad;
   members: SquadMember[];
   onNewSquadPost: () => void;
   hasTriedOnboarding?: boolean;
-};
+}
 
 const MAX_WIDTH = 'laptop:max-w-[38.5rem]';
 
@@ -27,6 +29,7 @@ export function SquadPageHeader({
   onNewSquadPost,
   hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
+  const { tourIndex } = useSquadTour();
   const { sidebarRendered } = useSidebarRendered();
 
   const sharePostTutorial = useTutorial({
@@ -84,6 +87,7 @@ export function SquadPageHeader({
       <div
         className={classNames(
           'absolute bottom-0 w-full translate-y-1/2 px-6 laptop:px-0 bg-theme-bg-primary',
+          tourIndex === TourScreenIndex.Post && 'highlight-pulse',
           MAX_WIDTH,
         )}
       >
