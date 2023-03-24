@@ -54,7 +54,10 @@ export function SquadHeaderBar({
         )}
       >
         <Button
-          className="btn-primary"
+          className={classNames(
+            'btn-primary',
+            copyLinkTutorial.isActive && 'highlight-pulse',
+          )}
           onClick={() => {
             trackAndCopyLink();
 
