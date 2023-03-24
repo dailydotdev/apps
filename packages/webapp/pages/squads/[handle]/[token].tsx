@@ -185,7 +185,7 @@ const SquadReferral = ({
   return (
     <PageContainer className="relative justify-center items-center pt-24">
       <NextSeo {...seo} />
-      <div className="absolute -top-4 -right-20 -left-20 h-40 rounded-26 max-w-[100vw] squad-background-fade" />
+      <div className="absolute -top-4 right-0 tablet:-right-20 left-0 tablet:-left-20 h-40 rounded-26 max-w-[100vw] squad-background-fade" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
         {source.name} is your place to stay up to date as a squad. You and your
