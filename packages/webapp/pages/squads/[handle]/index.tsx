@@ -134,11 +134,11 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   if (!squad) return <Custom404 />;
 
   const sharePostTutorial = useTutorial({
-    key: TutorialKey.SHARE_SQUAD_POST,
+    key: TutorialKey.ShareSquadPost,
   });
 
   const copyLinkTutorial = useTutorial({
-    key: TutorialKey.COPY_SQUAD_LINK,
+    key: TutorialKey.CopySquadLink,
   });
 
   const onNewSquadPost = (props: NewSquadPostProps = {}) =>
@@ -149,7 +149,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         squad,
         onAfterClose: () => {
           sharePostTutorial.complete();
-
           copyLinkTutorial.activate();
         },
       },
@@ -173,7 +172,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           squad={squad}
           members={squadMembers}
           onNewSquadPost={onNewSquadPost}
-          hasTriedOnboarding={hasTriedOnboarding}
+          hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
         />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"

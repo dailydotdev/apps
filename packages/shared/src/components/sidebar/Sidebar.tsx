@@ -86,7 +86,7 @@ export default function Sidebar({
     ? [0, 1.5 * 16]
     : [0, 1 * 16];
   const newSquadTooltipTutorial = useTutorial({
-    key: TutorialKey.SEEN_NEW_SQUAD_TOOLTIP_KEY,
+    key: TutorialKey.SeenNewSquadTooltip,
   });
 
   const [completeTutorialWithDelay] = useDebounce(() => {

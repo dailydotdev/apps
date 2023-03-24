@@ -6,6 +6,7 @@ import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
+import { useSquadTour } from '../../hooks/useSquadTour';
 
 interface SquadTourProps {
   onClose: React.EventHandler<React.MouseEvent>;
@@ -13,8 +14,14 @@ interface SquadTourProps {
 
 const FooterButton = classed(Button, 'w-22');
 
+export enum TourScreenIndex {
+  Post = 0,
+  CopyInvitation = 3,
+}
+
 function SquadTour({ onClose }: SquadTourProps): ReactElement {
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);
+  const { onTourIndexChange } = useSquadTour();
 
   if (!shouldShowCarousel) {
     return (
@@ -31,7 +38,10 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           </FooterButton>
           <FooterButton
             className="ml-auto btn-primary-cabbage"
-            onClick={() => setShouldShowCarousel(true)}
+            onClick={() => {
+              onTourIndexChange(0);
+              setShouldShowCarousel(true);
+            }}
           >
             Start
           </FooterButton>
@@ -78,6 +88,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       className={{ wrapper: 'w-full' }}
       onClose={() => onClose?.(null)}
       onEnd={() => onClose?.(null)}
+      onScreenIndexChange={onTourIndexChange}
     >
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <ModalFooter justify={Justify.Between}>

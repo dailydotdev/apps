@@ -17,6 +17,8 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Origin } from '../../lib/analytics';
 import { useTutorial, TutorialKey } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
+import { TourScreenIndex } from './SquadTour';
+import { useSquadTour } from '../../hooks/useSquadTour';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -31,6 +33,7 @@ export function SquadHeaderBar({
   className,
   ...props
 }: SquadHeaderBarProps): ReactElement {
+  const { tourIndex } = useSquadTour();
   const { copying, trackAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
@@ -39,7 +42,7 @@ export function SquadHeaderBar({
   const { sidebarRendered } = useSidebarRendered();
 
   const copyLinkTutorial = useTutorial({
-    key: TutorialKey.COPY_SQUAD_LINK,
+    key: TutorialKey.CopySquadLink,
   });
 
   return (
@@ -54,7 +57,10 @@ export function SquadHeaderBar({
         )}
       >
         <Button
-          className="btn-primary"
+          className={classNames(
+            'btn-primary',
+            tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
+          )}
           onClick={() => {
             trackAndCopyLink();
 
