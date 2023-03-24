@@ -48,7 +48,7 @@ export default function SquadHeaderMenu({
   const isSquadOwner = squad?.currentMember?.role === SquadMemberRole.Owner;
 
   const sharePostTutorial = useTutorial({
-    key: TutorialKey.SHARE_SQUAD_POST,
+    key: TutorialKey.ShareSquadPost,
   });
 
   const onEditSquad = () => {
@@ -66,11 +66,6 @@ export default function SquadHeaderMenu({
         onClick: () =>
           openModal({
             type: LazyModal.SquadTour,
-            props: {
-              onAfterClose: () => {
-                sharePostTutorial.activate();
-              },
-            },
           }),
         label: 'Learn how Squads work',
       },

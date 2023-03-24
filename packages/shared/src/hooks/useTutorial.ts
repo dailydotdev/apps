@@ -3,10 +3,10 @@ import { useQuery, useQueryClient } from 'react-query';
 import usePersistentContext from './usePersistentContext';
 
 export enum TutorialKey {
-  SEEN_NEW_SQUAD_TOOLTIP = 'seenNewSquadTooltip',
-  SQUAD_ENABLE_NOTIFICATIONS = 'squadEnableNotifications',
-  SHARE_SQUAD_POST = 'shareSquadPost',
-  COPY_SQUAD_LINK = 'copySquadLink',
+  SeenNewSquadTooltip = 'seenNewSquadTooltip',
+  SquadEnableNotifications = 'squadEnableNotifications',
+  ShareSquadPost = 'shareSquadPost',
+  CopySquadLink = 'copySquadLink',
 }
 
 export type UseTutorialProps = {
