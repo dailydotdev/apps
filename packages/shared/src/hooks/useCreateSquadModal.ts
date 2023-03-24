@@ -12,6 +12,7 @@ interface UseCreateSquadModal {
 }
 
 const SQUAD_ONBOARDING = 'hasTriedSquadOnboarding';
+const SQUAD_INVITE_PATHNAME = '/squads/[handle]/[token]';
 
 type UseCreateSquadModalProps = {
   hasSquads: boolean;
@@ -50,14 +51,22 @@ export const useCreateSquadModal = ({
       hasTriedOnboarding ||
       hasSquads ||
       !hasAccess ||
-      !isFlagsFetched
+      !isFlagsFetched ||
+      router.pathname === SQUAD_INVITE_PATHNAME
     ) {
       return;
     }
 
     openNewSquadModal({ origin: Origin.Auto });
     setHasTriedOnboarding(true);
-  }, [hasTriedOnboarding, isLoaded, hasSquads, hasAccess, isFlagsFetched]);
+  }, [
+    hasTriedOnboarding,
+    isLoaded,
+    hasSquads,
+    hasAccess,
+    isFlagsFetched,
+    router.pathname,
+  ]);
 
   return useMemo(() => ({ openNewSquadModal }), [openNewSquadModal]);
 };
