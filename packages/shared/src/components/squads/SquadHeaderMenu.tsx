@@ -14,7 +14,6 @@ import { useLeaveSquad } from '../../hooks/useLeaveSquad';
 import ContextMenuItem, {
   ContextMenuItemProps,
 } from '../tooltips/ContextMenuItem';
-import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
