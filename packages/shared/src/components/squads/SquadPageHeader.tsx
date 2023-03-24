@@ -9,12 +9,12 @@ import { FlexCol } from '../utilities';
 import SquadMemberShortList from './SquadMemberShortList';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import SharePostBar from './SharePostBar';
+import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 
 type SquadPageHeaderProps = {
   squad: Squad;
   members: SquadMember[];
   onNewSquadPost: () => void;
-  hasTriedOnboarding?: boolean;
 };
 
 const MAX_WIDTH = 'laptop:max-w-[38.5rem]';
@@ -23,9 +23,11 @@ export function SquadPageHeader({
   squad,
   members,
   onNewSquadPost,
-  hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
+  const squadEnableNotifications = useTutorial({
+    key: TutorialKey.SQUAD_ENABLE_NOTIFICATIONS_KEY,
+  });
 
   return (
     <FlexCol className="relative items-center laptop:items-start px-6 pb-20 tablet:pb-20 laptop:pb-14 mb-6 w-full tablet:border-b laptop:px-[4.5rem] min-h-20 border-theme-divider-tertiary">
@@ -63,7 +65,7 @@ export function SquadPageHeader({
         onNewSquadPost={onNewSquadPost}
         className={sidebarRendered && 'absolute top-0 right-[4.5rem]'}
       />
-      {hasTriedOnboarding && (
+      {squadEnableNotifications.isActive && (
         <EnableNotification
           contentName={squad.name}
           source={NotificationPromptSource.SquadPage}

@@ -108,7 +108,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   const isFinishedLoading = isFetched && !isLoading && !!squad;
 
-  const { isPopupOpen, onClosePopup, hasTriedOnboarding } = useSquadOnboarding(
+  const { isPopupOpen, onClosePopup } = useSquadOnboarding(
     isFinishedLoading && !isForbidden,
   );
 
@@ -156,7 +156,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           squad={squad}
           members={squadMembers}
           onNewSquadPost={onNewSquadPost}
-          hasTriedOnboarding={hasTriedOnboarding}
         />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
