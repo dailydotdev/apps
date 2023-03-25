@@ -87,12 +87,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     options: { initialData, retry: false },
   });
 
-  useEffect(() => {
-    if (!post?.private || !post?.permalink) return;
-
-    globalThis?.location.replace(post.permalink);
-  }, [post]);
-
   const seo: NextSeoProps = {
     title: getTemplatedTitle(post?.title),
     description: getSeoDescription(post),
