@@ -147,7 +147,7 @@ function SquadPostContent({
           <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
             <a
               href={
-                post.private
+                post.sharedPost.source.id === 'unknown'
                   ? post.sharedPost.permalink
                   : post.sharedPost.commentsPermalink
               }
