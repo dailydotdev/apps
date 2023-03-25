@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';

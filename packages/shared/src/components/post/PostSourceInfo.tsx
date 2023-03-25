@@ -18,6 +18,7 @@ function PostSourceInfo({
   size = 'medium',
   className,
 }: SourceInfoProps): ReactElement {
+  const isUnknown = source.id === 'unknown';
   return (
     <span
       className={classNames(
@@ -25,11 +26,15 @@ function PostSourceInfo({
         className,
       )}
     >
-      <SourceButton source={source} size={size} />
-      <h3 className="ml-3">{source.handle}</h3>
+      {!isUnknown && (
+        <>
+          <SourceButton source={source} size={size} />
+          <h3 className="ml-3">{source.handle}</h3>
+        </>
+      )}
       {!!date && (
         <>
-          <Separator />
+          {!isUnknown && <Separator />}
           <time dateTime={date}>{date}</time>
         </>
       )}
