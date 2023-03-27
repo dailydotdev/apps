@@ -56,7 +56,9 @@ function PostToSquadModal({
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
 
-    displayToast('This post has been shared to your squad');
+    displayToast(
+      'This post is being processed and will be shared with you Squad shortly',
+    );
     await client.invalidateQueries(['sourceFeed', user.id]);
     onRequestClose(null);
   };
@@ -68,7 +70,9 @@ function PostToSquadModal({
 
   const { mutateAsync: onSubmitLink, isLoading: isLinkLoading } = useMutation(
     submitExternalLink,
-    { onSuccess: (submittedLinkPost) => onPostSuccess(submittedLinkPost) },
+    {
+      onSuccess: (submittedLinkPost) => onPostSuccess(submittedLinkPost),
+    },
   );
 
   const onSubmit: SubmitSharePostFunc = async (e, commentary, postLink) => {
