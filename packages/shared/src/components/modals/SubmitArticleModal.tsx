@@ -220,12 +220,12 @@ export default function SubmitArticleModal({
             <TextField
               autoFocus
               type="url"
+              autoComplete="off"
               leftIcon={<LinkIcon />}
               fieldType="tertiary"
               name="articleUrl"
               inputId="article_url"
               label="Paste post url"
-              autoComplete="off"
               disabled={!isEnabled}
               hint={urlHint}
               valid={!urlHint}

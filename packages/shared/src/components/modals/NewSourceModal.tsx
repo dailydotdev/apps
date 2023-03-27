@@ -238,6 +238,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             name="url"
             placeholder="Paste blog / RSS URL"
             showIcon={false}
+            autoComplete="off"
             type="url"
             autoFocus
             aria-describedby={scrapeError && 'new-source-field-desc'}
