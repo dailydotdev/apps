@@ -35,6 +35,7 @@ export function useInputField<T extends ValidInputElement = HTMLInputElement>(
   useEffect(() => {
     if (value !== undefined) {
       setInput(value?.toString() || '');
+      setHasInput(!!inputRef?.current?.value?.length);
     }
   }, [value]);
 
