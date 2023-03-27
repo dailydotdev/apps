@@ -225,6 +225,7 @@ export default function SubmitArticleModal({
               name="articleUrl"
               inputId="article_url"
               label="Paste post url"
+              autoComplete="off"
               disabled={!isEnabled}
               hint={urlHint}
               valid={!urlHint}
