@@ -31,6 +31,7 @@ export type SquadForm = Pick<
 
 export enum SquadMemberRole {
   Member = 'member',
+  Moderator = 'moderator',
   Owner = 'owner',
 }
 
