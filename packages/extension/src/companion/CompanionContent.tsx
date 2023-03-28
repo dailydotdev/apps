@@ -19,6 +19,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
+import { getCompanionWrapper } from './common';
 
 type CompanionContentProps = {
   post: PostBootData;
@@ -32,7 +33,9 @@ export default function CompanionContent({
   const { trackEvent } = useContext(AnalyticsContext);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
-  const { queryKey, onShowUpvoted } = useUpvoteQuery();
+  const { queryKey, onShowUpvoted } = useUpvoteQuery({
+    appendModalTo: getCompanionWrapper,
+  });
   useBackgroundPaginatedRequest(queryKey);
 
   const trackAndCopyLink = () => {

@@ -4,12 +4,17 @@ import { LazyModal } from '../components/modals/common/types';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../graphql/comments';
 import { POST_UPVOTES_BY_ID_QUERY } from '../graphql/posts';
 import { useLazyModal } from './useLazyModal';
+import { ModalProps } from '../components/modals/common/Modal';
 
 type UpvoteType = 'post' | 'comment';
 
 interface UseUpvoteQuery {
   queryKey: QueryKey;
   onShowUpvoted: (id: string, upvotes: number, type?: UpvoteType) => unknown;
+}
+
+interface UseUpvoteQueryProps {
+  appendModalTo?: ModalProps['parentSelector'];
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -24,7 +29,9 @@ const QUERY_MAP = {
   comment: COMMENT_UPVOTES_BY_ID_QUERY,
 };
 
-export const useUpvoteQuery = (): UseUpvoteQuery => {
+export const useUpvoteQuery = ({
+  appendModalTo,
+}: UseUpvoteQueryProps = {}): UseUpvoteQuery => {
   const { modal, openModal } = useLazyModal<LazyModal.UpvotedPopup>();
   const onShowUpvoted = (
     id: string,
@@ -34,6 +41,7 @@ export const useUpvoteQuery = (): UseUpvoteQuery => {
     openModal({
       type: LazyModal.UpvotedPopup,
       props: {
+        parentSelector: appendModalTo,
         placeholderAmount: upvotes,
         requestQuery: {
           queryKey: [KEY_MAP[type], id],
@@ -46,6 +54,6 @@ export const useUpvoteQuery = (): UseUpvoteQuery => {
 
   return useMemo(
     () => ({ onShowUpvoted, queryKey: modal?.props?.requestQuery?.queryKey }),
-    [modal],
+    [modal, appendModalTo],
   );
 };

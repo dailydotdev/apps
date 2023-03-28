@@ -1,12 +1,18 @@
-import React, { ReactElement } from 'react';
+import React, { ComponentType, ReactElement } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyPropTypes, modals } from './common';
 
-export function LazyModalElement(): ReactElement {
+interface LazyModalElementProps {
+  modalSelection?: Record<string, ComponentType>;
+}
+
+export function LazyModalElement({
+  modalSelection = modals,
+}: LazyModalElementProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   if (!modal) return null;
 
   const { type, props } = modal;
-  const ActiveModal = modals[type] as React.FC<LazyPropTypes>;
+  const ActiveModal = modalSelection[type] as React.FC<LazyPropTypes>;
   return <ActiveModal isOpen onRequestClose={closeModal} {...props} />;
 }

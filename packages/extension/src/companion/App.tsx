@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ComponentType, ReactElement, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
 import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
@@ -17,6 +17,9 @@ import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -40,6 +43,10 @@ export type CompanionData = { url: string; deviceId: string } & Pick<
 >;
 
 const refreshTokenKey = 'refresh_token';
+
+const companionModals = {
+  [LazyModal.UpvotedPopup]: UpvotedPopupModal,
+};
 
 export default function App({
   deviceId,
@@ -111,6 +118,7 @@ export default function App({
                       companionExpanded={settings?.companionExpanded}
                       onOptOut={() => setIsOptOutCompanion(true)}
                     />
+                    <LazyModalElement modalSelection={companionModals} />
                     <PromptElement parentSelector={getCompanionWrapper} />
                     <Toast
                       autoDismissNotifications={

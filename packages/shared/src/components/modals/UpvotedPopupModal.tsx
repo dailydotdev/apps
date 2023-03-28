@@ -46,7 +46,8 @@ export function UpvotedPopupModal({
         fetchNextPage: queryResult.fetchNextPage,
       }}
       users={queryResult.data?.pages
-        .map((p) => p.upvotes.edges.map(({ node }) => node.user))
+        .filter((p) => !!p)
+        .map((p) => p?.upvotes.edges.map(({ node }) => node.user))
         .flat()}
     />
   );
