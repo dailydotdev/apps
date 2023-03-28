@@ -112,6 +112,7 @@ function CommentBox({
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}
           className="mt-3"
+          appendTooltipTo={appendTooltipTo}
         />
       </div>
     </article>

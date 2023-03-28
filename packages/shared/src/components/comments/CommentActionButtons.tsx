@@ -45,6 +45,7 @@ export interface Props extends CommentActionProps {
   origin: Origin;
   parentId: string | null;
   className?: string;
+  appendTooltipTo?: () => HTMLElement;
 }
 
 export default function CommentActionButtons({
@@ -58,6 +59,7 @@ export default function CommentActionButtons({
   onDelete,
   onEdit,
   onShowUpvotes,
+  appendTooltipTo,
 }: Props): ReactElement {
   const id = `comment-actions-menu-${comment.id}`;
   const { show } = useContextMenu({ id });
@@ -185,6 +187,7 @@ export default function CommentActionButtons({
         id={id}
         className="menu-primary typo-callout"
         animation="fade"
+        appendTo={appendTooltipTo}
       >
         <Item onClick={() => onEdit(comment)}>
           <ContextItem>
