@@ -3,7 +3,13 @@ import { SVGAttributes } from 'react';
 import DaytimeIcon from '../../icons/timezone_daytime.svg';
 import NighttimeIcon from '../../icons/timezone_nighttime.svg';
 
-const TIME_ZONES = [
+interface TimeZoneItem {
+  value: string;
+  label: string;
+  offset?: number;
+}
+
+const TIME_ZONES: TimeZoneItem[] = [
   {
     value: 'Pacific/Midway',
     label: 'Midway Island, American Samoa',
@@ -498,10 +504,7 @@ const TIME_ZONES = [
   },
 ];
 
-const timeZoneCurrentOffsetLabel = (timeZone: {
-  value: string;
-  label: string;
-}) => {
+const timeZoneCurrentOffsetLabel = (timeZone: TimeZoneItem) => {
   const date = new Date();
   date.setMilliseconds(0);
   const userOffset = (date.getTimezoneOffset() / 60) * -1;
@@ -512,15 +515,18 @@ const timeZoneCurrentOffsetLabel = (timeZone: {
   const diffHrs =
     (localTimeZoneDate.getTime() - date.getTime()) / 1000 / 60 / 60;
   const timeZoneOffset = userOffset + diffHrs;
-  return `(UTC ${timeZoneOffset > 0 ? '+' : ''}${timeZoneOffset}) ${
-    timeZone.label
-  }`;
+  const offset = timeZoneOffset >= 24 ? timeZoneOffset - 24 : timeZoneOffset;
+  return {
+    label: `(UTC ${timeZoneOffset > 0 ? '+' : ''}${offset}) ${timeZone.label}`,
+    offset,
+  };
 };
 
-export const getTimeZoneOptions = (): { value: string; label: string }[] => {
+export const getTimeZoneOptions = (): TimeZoneItem[] => {
   return TIME_ZONES.map((timeZone) => {
-    return { ...timeZone, label: timeZoneCurrentOffsetLabel(timeZone) };
-  });
+    const labelOffset = timeZoneCurrentOffsetLabel(timeZone);
+    return { ...timeZone, ...labelOffset };
+  }).sort((a, b) => a.offset - b.offset);
 };
 
 export const getUserDefaultTimezone = (): string => {
