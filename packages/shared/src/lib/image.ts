@@ -53,5 +53,7 @@ export const cloudinary = {
       banner4_v2:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour4_v2',
     },
+    emptySquad:
+      'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty-squad',
   },
 };

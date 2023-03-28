@@ -56,6 +56,13 @@ const SquadTourPopup = dynamic(
     ),
 );
 
+const SquadEmptyScreen = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "SquadEmptyScreen" */ '@dailydotdev/shared/src/components/squads/SquadEmptyScreen'
+    ),
+);
+
 type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
@@ -185,7 +192,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
-          emptyScreen={<></>}
+          emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
         />
       </BaseFeedPage>
