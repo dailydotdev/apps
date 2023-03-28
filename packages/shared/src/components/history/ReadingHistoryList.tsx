@@ -54,6 +54,8 @@ export default function ReadHistoryList({
 
   const renderList = useCallback(() => {
     let currentDate: Date;
+    let previousGroup: string;
+    const now = new Date();
 
     return data?.pages.map((page, pageIndex) =>
       page.readHistory.edges.reduce((dom, { node: history }, edgeIndex) => {
@@ -62,7 +64,12 @@ export default function ReadHistoryList({
 
         if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
           currentDate = date;
-          dom.push(getDateGroup(date));
+          const dateToGroup = currentDate > now ? now : date;
+          const group = getReadHistoryDateFormat(dateToGroup);
+          if (previousGroup !== group) {
+            previousGroup = group;
+            dom.push(getDateGroup(dateToGroup));
+          }
         }
 
         const indexes = { page: pageIndex, edge: edgeIndex };
