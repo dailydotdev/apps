@@ -80,6 +80,7 @@ export default function SharedBookmarksModal({
               inputId="rssUrl"
               label="Your unique RSS URL"
               type="url"
+              autoComplete="off"
               fieldType="tertiary"
               actionButton={
                 <Button

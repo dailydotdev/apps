@@ -43,6 +43,7 @@ const InviteText: ForwardRefRenderFunction<
       data-testid="permalink"
       label={invitation}
       type="url"
+      autoComplete="off"
       fieldType="tertiary"
       disabled
       actionButton={

@@ -33,6 +33,7 @@ export function LinksForm({
           // eslint-disable-next-line react/no-array-index-key
           key={i}
           type="url"
+          autoComplete="off"
           fieldType="tertiary"
           label="Add shortcuts"
           value={links[i]}
