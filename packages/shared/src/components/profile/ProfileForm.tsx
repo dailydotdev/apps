@@ -207,6 +207,7 @@ export default function ProfileForm({
         name="portfolio"
         label="Website"
         type="url"
+        autoComplete="off"
         value={user.portfolio}
       />
     </>

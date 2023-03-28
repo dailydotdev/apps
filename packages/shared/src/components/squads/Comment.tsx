@@ -153,6 +153,7 @@ export function SquadComment({
               inputId="url"
               name="url"
               type="url"
+              autoComplete="off"
               required
               value={link}
               onInput={onInputChange}

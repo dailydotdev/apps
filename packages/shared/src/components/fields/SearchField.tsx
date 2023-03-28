@@ -32,6 +32,7 @@ export interface SearchFieldProps
     | 'disabled'
     | 'readOnly'
     | 'aria-describedby'
+    | 'autoComplete'
   > {
   inputId: string;
   valueChanged?: (value: string) => void;

@@ -66,6 +66,7 @@ function SharePostBar({
       />
       <input
         type="url"
+        autoComplete="off"
         name="share-post-bar"
         className="flex-1 order-2 pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
         placeholder="Enter link to share"

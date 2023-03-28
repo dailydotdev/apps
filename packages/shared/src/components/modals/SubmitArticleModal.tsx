@@ -220,6 +220,7 @@ export default function SubmitArticleModal({
             <TextField
               autoFocus
               type="url"
+              autoComplete="off"
               leftIcon={<LinkIcon />}
               fieldType="tertiary"
               name="articleUrl"
