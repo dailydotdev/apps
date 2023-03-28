@@ -19,6 +19,8 @@ interface SharePostBarProps {
   onNewSquadPost?: (props?: NewSquadPostProps) => void;
 }
 
+const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
+
 function SharePostBar({
   className,
   onNewSquadPost,
@@ -32,7 +34,9 @@ function SharePostBar({
     onError: (err: ApiErrorResult, link) => {
       if (
         link === '' ||
-        err?.response?.errors?.[0].extensions.code === ApiError.NotFound
+        allowedSubmissionErrors.includes(
+          err?.response?.errors?.[0].extensions.code,
+        )
       ) {
         onNewSquadPost({ url, onSharedSuccessfully });
       }
