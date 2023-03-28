@@ -1,4 +1,4 @@
-import React, { ComponentType, ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
 import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
