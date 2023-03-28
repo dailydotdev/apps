@@ -28,6 +28,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import { sendViewPost } from '../../graphql/posts';
+import SquadMemberRoleBadge from '../squads/SquadMemberRoleBadge';
 
 function SquadPostContent({
   post,
@@ -136,7 +137,12 @@ function SquadPostContent({
               link={{ href: post.author.permalink }}
             >
               <a className="flex flex-col ml-4">
-                <span className="font-bold">{post.author.name}</span>
+                <div className="flex items-center">
+                  <span className="font-bold">{post.author.name}</span>
+                  {!!post.source.currentMember && (
+                    <SquadMemberRoleBadge member={post.source.currentMember} />
+                  )}
+                </div>
                 <span className="text-theme-label-tertiary">
                   @{post.author.username}
                 </span>
