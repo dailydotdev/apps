@@ -22,9 +22,8 @@ import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquad,
   getSquadMembers,
-  Squad,
-  SquadMember,
 } from '@dailydotdev/shared/src/graphql/squads';
+import { Squad, SourceMember } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from 'react-query';
@@ -102,7 +101,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     setTrackedImpression(true);
   }, [squadId, trackedImpression]);
 
-  const { data: squadMembers } = useQuery<SquadMember[]>(
+  const { data: squadMembers } = useQuery<SourceMember[]>(
     ['squadMembersInitial', handle],
     () => getSquadMembers(squadId),
     { enabled: isBootFetched && !!squadId },

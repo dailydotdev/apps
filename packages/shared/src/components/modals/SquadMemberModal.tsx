@@ -3,12 +3,8 @@ import { useInfiniteQuery } from 'react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '../../lib/config';
 import { ModalProps } from './common/Modal';
-import {
-  Squad,
-  SQUAD_MEMBERS_QUERY,
-  SquadEdgesData,
-  SquadMemberRole,
-} from '../../graphql/squads';
+import { SQUAD_MEMBERS_QUERY, SquadEdgesData } from '../../graphql/squads';
+import { Squad, SourceMemberRole } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -96,7 +92,7 @@ export function SquadMemberModal({
           .flat()}
         additionalContent={(user) => {
           const role = getSquadMembersUserRole(queryResult, user);
-          if (role === SquadMemberRole.Owner) {
+          if (role === SourceMemberRole.Owner) {
             return (
               <span
                 className="flex gap-1 items-center font-bold typo-footnote text-theme-color-cabbage"

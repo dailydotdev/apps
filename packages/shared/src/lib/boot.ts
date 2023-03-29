@@ -4,7 +4,7 @@ import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
-import { Squad } from '../graphql/squads';
+import { Squad } from '../graphql/sources';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;

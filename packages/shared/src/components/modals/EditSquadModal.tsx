@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
 import { useQueryClient } from 'react-query';
 import { LazyModalCommonProps, Modal } from './common/Modal';
-import { Squad, editSquad } from '../../graphql/squads';
+import { editSquad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import { SquadDetails } from '../squads/Details';
 import { ModalHeaderKind } from './common/types';
 import { useToastNotification } from '../../hooks/useToastNotification';

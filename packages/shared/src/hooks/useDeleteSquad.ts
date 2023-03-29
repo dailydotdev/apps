@@ -1,5 +1,6 @@
 import { useContext, useMemo } from 'react';
-import { deleteSquad, Squad } from '../graphql/squads';
+import { deleteSquad } from '../graphql/squads';
+import { Squad } from '../graphql/sources';
 import { PromptOptions, usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import AnalyticsContext from '../contexts/AnalyticsContext';

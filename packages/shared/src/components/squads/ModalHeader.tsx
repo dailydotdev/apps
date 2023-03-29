@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Squad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import { cloudinary } from '../../lib/image';
 import DailyCircle from '../DailyCircle';
 import { Image } from '../image/Image';
