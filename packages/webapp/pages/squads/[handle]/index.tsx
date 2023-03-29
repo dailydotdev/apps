@@ -22,9 +22,8 @@ import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquad,
   getSquadMembers,
-  Squad,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import { Squad, SourceMember } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from 'react-query';

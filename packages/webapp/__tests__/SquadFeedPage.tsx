@@ -32,13 +32,15 @@ import {
   generateMembersList,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
-  Squad,
   SquadData,
   SquadEdgesData,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  Squad,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { squadFeedback } from '@dailydotdev/shared/src/lib/constants';
