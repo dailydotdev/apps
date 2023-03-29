@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Squad } from '../../graphql/squads';
-import { SourceMember } from '../../graphql/sources';
+import { Squad, SourceMember } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';

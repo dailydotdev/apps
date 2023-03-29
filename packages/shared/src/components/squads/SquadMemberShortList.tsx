@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { Squad } from '../../graphql/squads';
-import { SourceMember } from '../../graphql/sources';
+import { Squad, SourceMember } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture } from '../ProfilePicture';

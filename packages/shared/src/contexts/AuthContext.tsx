@@ -15,7 +15,7 @@ import {
 import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
-import { Squad } from '../graphql/squads';
+import { Squad } from '../graphql/sources';
 
 export interface LoginState {
   trigger: AuthTriggersOrString;

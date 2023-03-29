@@ -11,13 +11,24 @@ export enum SourceMemberRole {
 export interface SourceMember {
   role: SourceMemberRole;
   user: UserShortProfile;
-  source: Source;
+  source: Squad;
   referralToken: string;
 }
 
 export enum SourceType {
   Machine = 'machine',
   Squad = 'squad',
+}
+
+export interface Squad extends Source {
+  active: boolean;
+  permalink: string;
+  public: boolean;
+  type: SourceType.Squad;
+  owners?: string[];
+  moderators?: string[];
+  membersCount: number;
+  description: string;
 }
 
 export interface Source {
@@ -28,8 +39,6 @@ export interface Source {
   handle: string;
   type: SourceType;
   permalink: string;
-  membersCount: number;
-  description?: string;
   members?: Connection<SourceMember>;
   currentMember?: SourceMember;
 }

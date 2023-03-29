@@ -2,18 +2,9 @@ import request, { gql } from 'graphql-request';
 import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
-import { Source, SourceType, SourceMember } from './sources';
+import { Source, SourceMember, Squad } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
-
-export interface Squad extends Source {
-  active: boolean;
-  permalink: string;
-  public: boolean;
-  type: SourceType.Squad;
-  owners?: string[];
-  moderators?: string[];
-}
 
 export type SquadForm = Pick<
   Squad,
