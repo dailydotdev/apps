@@ -4,6 +4,7 @@ import { Connection } from './common';
 
 export enum SourceMemberRole {
   Member = 'member',
+  Moderator = 'moderator',
   Owner = 'owner',
 }
 
