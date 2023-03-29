@@ -11,6 +11,8 @@ export interface Squad extends Source {
   permalink: string;
   public: boolean;
   type: SourceType.Squad;
+  owners?: string[];
+  moderators?: string[];
 }
 
 export type SquadForm = Pick<

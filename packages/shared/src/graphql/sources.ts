@@ -31,8 +31,6 @@ export interface Source {
   description?: string;
   members?: Connection<SourceMember>;
   currentMember?: SourceMember;
-  owners?: string[];
-  moderators?: string[];
 }
 
 export type SourceData = { source: Source };
