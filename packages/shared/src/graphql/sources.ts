@@ -27,6 +27,7 @@ export interface Squad extends Source {
   type: SourceType.Squad;
   owners?: string[];
   moderators?: string[];
+  members?: Connection<SourceMember>;
   membersCount: number;
   description: string;
 }
@@ -39,7 +40,6 @@ export interface Source {
   handle: string;
   type: SourceType;
   permalink: string;
-  members?: Connection<SourceMember>;
   currentMember?: SourceMember;
 }
 
