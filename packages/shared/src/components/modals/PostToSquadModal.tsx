@@ -57,8 +57,11 @@ function PostToSquadModal({
     if (squadPost) onSharedSuccessfully?.(squadPost);
 
     displayToast(
-      'This post is being processed and will be shared with your Squad shortly',
+      isLink
+        ? 'This post is being processed and will be shared with your Squad shortly'
+        : 'This post has been shared to your Squad',
     );
+
     await client.invalidateQueries(['sourceFeed', user.id]);
     onRequestClose(null);
   };
