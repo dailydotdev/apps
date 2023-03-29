@@ -5,7 +5,8 @@ import AuthContext from '../../contexts/AuthContext';
 import EditIcon from '../icons/Edit';
 import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
-import { Squad, SquadMemberRole } from '../../graphql/squads';
+import { Squad } from '../../graphql/squads';
+import { SourceMemberRole } from '../../graphql/sources';
 import TrashIcon from '../icons/Trash';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -44,7 +45,7 @@ export default function SquadHeaderMenu({
     squad,
     callback: () => router.replace('/'),
   });
-  const isSquadOwner = squad?.currentMember?.role === SquadMemberRole.Owner;
+  const isSquadOwner = squad?.currentMember?.role === SourceMemberRole.Owner;
 
   const onEditSquad = () => {
     openModal({

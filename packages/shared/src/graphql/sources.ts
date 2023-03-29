@@ -1,4 +1,17 @@
 import { gql } from 'graphql-request';
+import { UserShortProfile } from '../lib/user';
+
+export enum SourceMemberRole {
+  Member = 'member',
+  Owner = 'owner',
+}
+
+export interface SourceMember {
+  role: SourceMemberRole;
+  user: UserShortProfile;
+  source: Source;
+  referralToken: string;
+}
 
 export enum SourceType {
   Machine = 'machine',
@@ -13,6 +26,9 @@ export interface Source {
   handle: string;
   type: SourceType;
   permalink: string;
+  currentMember?: SourceMember;
+  owners?: string[];
+  moderators?: string[];
 }
 
 export type SourceData = { source: Source };
