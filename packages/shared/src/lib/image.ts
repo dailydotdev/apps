@@ -55,5 +55,7 @@ export const cloudinary = {
     },
     emptySquad:
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty-squad',
+    emptySquadLight:
+      'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty_squad_light',
   },
 };
