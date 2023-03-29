@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Squad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import DefaultSquadIcon from '../icons/DefaultSquad';
 import NewSquadIcon from '../icons/NewSquad';
 import { SquadImage } from '../squads/SquadImage';

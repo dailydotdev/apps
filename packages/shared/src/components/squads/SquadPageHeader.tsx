@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Squad, SquadMember } from '../../graphql/squads';
+import { Squad, SourceMember } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
@@ -16,7 +16,7 @@ import { useSquadTour } from '../../hooks/useSquadTour';
 
 interface SquadPageHeaderProps {
   squad: Squad;
-  members: SquadMember[];
+  members: SourceMember[];
   onNewSquadPost: () => void;
   hasTriedOnboarding?: boolean;
 }

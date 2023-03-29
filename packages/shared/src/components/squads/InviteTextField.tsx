@@ -7,7 +7,7 @@ import React, {
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import CopyIcon from '../icons/Copy';
-import { Squad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import { Origin } from '../../lib/analytics';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 

@@ -1,6 +1,6 @@
 import { useQueryClient } from 'react-query';
 import { BOOT_QUERY_KEY } from '../contexts/common';
-import { Squad } from '../graphql/squads';
+import { Squad } from '../graphql/sources';
 import { Boot } from '../lib/boot';
 
 type UseBoot = {

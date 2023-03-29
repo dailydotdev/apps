@@ -5,9 +5,9 @@ import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
   joinSquadInvitation,
-  SquadMember,
   validateSourceHandle,
 } from '@dailydotdev/shared/src/graphql/squads';
+import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
 import { Edge } from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -34,7 +34,7 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
-const getOthers = (others: Edge<SquadMember>[], total: number) => {
+const getOthers = (others: Edge<SourceMember>[], total: number) => {
   const { length } = others;
   if (length === 0) {
     return 'is';
@@ -54,7 +54,7 @@ const HighlightedText = classed('span', 'font-bold text-theme-label-primary');
 export interface SquadReferralProps {
   token: string;
   handle: string;
-  initialData: SquadMember;
+  initialData: SourceMember;
 }
 
 const SquadReferral = ({
