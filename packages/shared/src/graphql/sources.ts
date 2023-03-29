@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { UserShortProfile } from '../lib/user';
+import { Connection } from './common';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -26,6 +27,9 @@ export interface Source {
   handle: string;
   type: SourceType;
   permalink: string;
+  membersCount: number;
+  description?: string;
+  members?: Connection<SourceMember>;
   currentMember?: SourceMember;
   owners?: string[];
   moderators?: string[];

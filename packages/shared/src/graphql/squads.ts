@@ -11,9 +11,6 @@ export interface Squad extends Source {
   permalink: string;
   public: boolean;
   type: SourceType.Squad;
-  description?: string;
-  membersCount: number;
-  members?: Connection<SourceMember>;
 }
 
 export type SquadForm = Pick<
@@ -193,7 +190,7 @@ export const SQUAD_JOIN_MUTATION = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
-export const validateSourceHandle = (handle: string, source: Squad): boolean =>
+export const validateSourceHandle = (handle: string, source: Source): boolean =>
   source.handle === handle || source.handle === handle.toLowerCase();
 
 export type SquadData = {
