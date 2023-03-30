@@ -139,7 +139,7 @@ export default function CommentActionButtons({
   const canModifyComment =
     isAuthor ||
     user?.roles?.includes(Roles.Moderator) ||
-    post.source.currentMember?.permissions?.includes(
+    post?.source?.currentMember?.permissions?.includes(
       SourcePermissions.PostDelete,
     );
 
