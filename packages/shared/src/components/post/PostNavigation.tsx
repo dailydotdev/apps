@@ -14,6 +14,7 @@ type PostActions = Pick<
   | 'onBookmark'
   | 'onReadArticle'
   | 'inlineActions'
+  | 'onRemovePost'
 >;
 
 export interface PostNavigationClassName {

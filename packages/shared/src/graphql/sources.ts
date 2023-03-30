@@ -8,11 +8,26 @@ export enum SourceMemberRole {
   Owner = 'owner',
 }
 
+export enum SourcePermissions {
+  View = 'view',
+  Post = 'post',
+  PostLimit = 'post_limit',
+  PostDelete = 'post_delete',
+  MemberRemove = 'member_remove',
+  ModeratorAdd = 'moderator_add',
+  ModeratorRemove = 'moderator_remove',
+  InviteDisable = 'invite_disable',
+  Leave = 'leave',
+  Delete = 'delete',
+  Edit = 'edit',
+}
+
 export interface SourceMember {
   role: SourceMemberRole;
   user: UserShortProfile;
   source: Squad;
   referralToken: string;
+  permissions?: SourcePermissions[];
 }
 
 export enum SourceType {

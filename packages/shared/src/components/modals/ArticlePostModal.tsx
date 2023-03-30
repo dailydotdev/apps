@@ -1,19 +1,17 @@
 import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
-import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
-import { PostNavigationProps } from '../post/PostNavigation';
+import {
+  ONBOARDING_OFFSET,
+  PassedPostNavigationProps,
+  PostContent,
+} from '../post/PostContent';
 import { Origin } from '../../lib/analytics';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
 
-interface ArticlePostModalProps
-  extends ModalProps,
-    Pick<
-      PostNavigationProps,
-      'onPreviousPost' | 'onNextPost' | 'postPosition'
-    > {
+interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
   isFetchingNextPage?: boolean;
 }
@@ -26,6 +24,7 @@ export default function ArticlePostModal({
   onPreviousPost,
   onNextPost,
   postPosition,
+  onRemovePost,
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
@@ -57,6 +56,7 @@ export default function ArticlePostModal({
         onClose={onRequestClose}
         isLoading={isLoading}
         origin={Origin.ArticleModal}
+        onRemovePost={onRemovePost}
       />
     </BasePostModal>
   );
