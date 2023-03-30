@@ -11,7 +11,7 @@ function SquadEmptyScreen(): ReactElement {
   const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
 
   return (
-    <FlexCentered className="flex-col py-6 mt-12 w-full laptop:h-full text-center laptop:min-h-[calc(100vh-540px)] tablet:min-h-[calc(100vh-600px)] min-h-[calc(100vh-565px)]">
+    <FlexCentered className="flex-col p-6 mt-12 w-full laptop:h-full text-center laptop:min-h-[calc(100vh-540px)] tablet:min-h-[calc(100vh-600px)] min-h-[calc(100vh-565px)]">
       <Image
         className="mb-3 tablet:mb-8"
         width={isMobile ? 180 : 314}
@@ -22,8 +22,9 @@ function SquadEmptyScreen(): ReactElement {
             : cloudinary.squads.emptySquad
         }
       />
-      <span className="text-theme-label-primary tablet:typo-title1 typo-headline">
-        Nothing has been posted yet
+      <span className="max-w-lg text-theme-label-primary tablet:typo-title1 typo-headline">
+        Get started by sharing your first post and inviting other developers you
+        know and appreciate.
       </span>
     </FlexCentered>
   );
