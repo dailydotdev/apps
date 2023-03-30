@@ -9,6 +9,7 @@ export enum SourceMemberRole {
 }
 
 export enum SourcePermissions {
+  CommentDelete = 'comment_delete',
   View = 'view',
   Post = 'post',
   PostLimit = 'post_limit',
