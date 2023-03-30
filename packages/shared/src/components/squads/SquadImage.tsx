@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Squad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 

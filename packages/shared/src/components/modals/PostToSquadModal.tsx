@@ -2,7 +2,8 @@ import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { LazyModalCommonProps, Modal } from './common/Modal';
-import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
+import { addPostToSquad, SquadForm } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import { SquadComment, SubmitSharePostFunc } from '../squads/Comment';
 import { ModalStep } from './common/types';
 import { Post, submitExternalLink } from '../../graphql/posts';
@@ -57,8 +58,11 @@ function PostToSquadModal({
     if (squadPost) onSharedSuccessfully?.(squadPost);
 
     displayToast(
-      'This post is being processed and will be shared with you Squad shortly',
+      isLink
+        ? 'This post is being processed and will be shared with your Squad shortly'
+        : 'This post has been shared to your Squad',
     );
+
     await client.invalidateQueries(['sourceFeed', user.id]);
     onRequestClose(null);
   };

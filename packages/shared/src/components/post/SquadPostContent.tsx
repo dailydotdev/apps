@@ -45,6 +45,7 @@ function SquadPostContent({
   onPreviousPost,
   onNextPost,
   onClose,
+  onRemovePost,
 }: PostContentProps): ReactElement {
   if (isLoading)
     return (
@@ -71,6 +72,7 @@ function SquadPostContent({
     postPosition,
     onClose,
     inlineActions,
+    onRemovePost,
   };
 
   const tldrHeight = useMemo(() => {

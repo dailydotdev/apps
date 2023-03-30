@@ -1,22 +1,10 @@
 import request, { gql } from 'graphql-request';
 import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
-import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
-import { Source, SourceType } from './sources';
+import { Source, SourceMember, Squad } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
-
-export interface Squad extends Source {
-  active: boolean;
-  permalink: string;
-  public: boolean;
-  type: SourceType.Squad;
-  description?: string;
-  membersCount: number;
-  members?: Connection<SquadMember>;
-  currentMember?: SquadMember;
-}
 
 export type SquadForm = Pick<
   Squad,
@@ -27,19 +15,6 @@ export type SquadForm = Pick<
   commentary: string;
   post: PostItem;
   buttonText?: string;
-};
-
-export enum SquadMemberRole {
-  Member = 'member',
-  Moderator = 'moderator',
-  Owner = 'owner',
-}
-
-export type SquadMember = {
-  role: SquadMemberRole;
-  user: UserShortProfile;
-  source: Squad;
-  referralToken: string;
 };
 
 type SharedSquadInput = {
@@ -208,7 +183,7 @@ export const SQUAD_JOIN_MUTATION = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
-export const validateSourceHandle = (handle: string, source: Squad): boolean =>
+export const validateSourceHandle = (handle: string, source: Source): boolean =>
   source.handle === handle || source.handle === handle.toLowerCase();
 
 export type SquadData = {
@@ -216,7 +191,7 @@ export type SquadData = {
 };
 
 export interface SquadEdgesData {
-  sourceMembers: Connection<SquadMember>;
+  sourceMembers: Connection<SourceMember>;
 }
 
 export const leaveSquad = (sourceId: string): Promise<void> =>
@@ -236,7 +211,7 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export async function getSquadMembers(id: string): Promise<SquadMember[]> {
+export async function getSquadMembers(id: string): Promise<SourceMember[]> {
   const res = await request<SquadEdgesData>(graphqlUrl, SQUAD_MEMBERS_QUERY, {
     id,
     first: 5,
@@ -245,7 +220,7 @@ export async function getSquadMembers(id: string): Promise<SquadMember[]> {
 }
 
 export interface SquadInvitation {
-  member: SquadMember;
+  member: SourceMember;
 }
 
 export interface SquadInvitationProps {
@@ -255,7 +230,7 @@ export interface SquadInvitationProps {
 
 export const getSquadInvitation = async (
   token: string,
-): Promise<SquadMember> => {
+): Promise<SourceMember> => {
   try {
     const res = await request<SquadInvitation>(
       graphqlUrl,

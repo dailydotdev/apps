@@ -24,6 +24,7 @@ import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
+import { usePostMenuActions } from '../hooks/usePostMenuActions';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -32,13 +33,13 @@ const PortalMenu = dynamic(
   },
 );
 
-interface PostOptionsMenuProps extends ShareBookmarkProps {
+export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
   feedName?: string;
   onHidden?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
-  setShowDeletePost?: () => unknown;
+  canDeletePost?: boolean;
   setShowBanPost?: () => unknown;
   contextId?: string;
 }
@@ -58,8 +59,8 @@ export default function PostOptionsMenu({
   feedName,
   onHidden,
   onRemovePost,
-  setShowDeletePost,
   setShowBanPost,
+  canDeletePost,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
@@ -92,9 +93,17 @@ export default function PostOptionsMenu({
       await undo?.();
       client.invalidateQueries(generateQueryKey(feedName, user));
     };
-    displayToast(message, { subject: ToastSubject.Feed, onUndo });
+    displayToast(message, {
+      subject: ToastSubject.Feed,
+      onUndo: undo !== null ? onUndo : null,
+    });
     onRemovePost?.(_postIndex);
   };
+  const { onConfirmDeletePost } = usePostMenuActions({
+    post,
+    onPostDeleted: () =>
+      showMessageAndRemovePost('The post has been deleted', postIndex, null),
+  });
 
   const onReportPost: ReportPostAsync = async (
     reportPostIndex,
@@ -223,11 +232,11 @@ export default function PostOptionsMenu({
     text: 'Report',
     action: async () => setReportModal({ index: postIndex, post }),
   });
-  if (setShowDeletePost) {
+  if (canDeletePost) {
     postOptions.push({
       icon: <MenuIcon Icon={TrashIcon} />,
       text: 'Remove',
-      action: setShowDeletePost,
+      action: onConfirmDeletePost,
     });
   }
   if (setShowBanPost) {
