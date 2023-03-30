@@ -24,9 +24,14 @@ import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
 
+export type PassedPostNavigationProps = Pick<
+  PostNavigationProps,
+  'onNextPost' | 'onPreviousPost' | 'postPosition' | 'onRemovePost'
+>;
+
 export interface PostContentProps
   extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
-    Pick<PostNavigationProps, 'onNextPost' | 'onPreviousPost' | 'postPosition'>,
+    PassedPostNavigationProps,
     UsePostCommentOptionalProps {
   post?: Post;
   isFallback?: boolean;
@@ -61,6 +66,7 @@ export function PostContent({
   isLoading,
   isFallback,
   customNavigation,
+  onRemovePost,
 }: PostContentProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -89,6 +95,7 @@ export function PostContent({
     onClose,
     onShare,
     inlineActions,
+    onRemovePost,
   };
 
   if (isLoading) {
