@@ -33,6 +33,7 @@ import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SquadMember>[], total: number) => {
@@ -67,7 +68,9 @@ const SquadReferral = ({
   const { isFallback } = router;
   const { trackEvent } = useContext(AnalyticsContext);
   const { addSquad } = useBoot();
+  const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser, squads } = useAuthContext();
+  const [isBlockedUser, setIsBlockedUser] = useState(false);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { data: member, isFetched } = useQuery(
     ['squad_referral', token, loggedUser?.id],
@@ -93,6 +96,7 @@ const SquadReferral = ({
           if (role !== SquadMemberRole.Blocked) {
             return router.replace(squadsUrl);
           }
+          setIsBlockedUser(true);
         }
 
         return null;
@@ -137,6 +141,11 @@ const SquadReferral = ({
   );
 
   const onJoinClick = async () => {
+    if (isBlockedUser) {
+      displayToast('🚫 You no longer have access to this Squad.');
+      return null;
+    }
+
     trackEvent({
       event_name: AnalyticsEvent.ClickJoinSquad,
       extra: joinSquadAnalyticsExtra(),
