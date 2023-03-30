@@ -79,6 +79,7 @@ function CommentBox({
               postAuthorId={postAuthorId}
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
+              source={post.source}
             />
             {comment.author.id === postScoutId && <ScoutBadge />}
           </FlexRow>
