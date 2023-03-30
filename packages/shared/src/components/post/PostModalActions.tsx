@@ -11,7 +11,7 @@ import CloseIcon from '../icons/MiniClose';
 import OpenLinkIcon from '../icons/OpenLink';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { Post, banPost, deletePost } from '../../graphql/posts';
+import { banPost, deletePost, Post } from '../../graphql/posts';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -20,6 +20,7 @@ import PostOptionsMenu from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
+import { SourcePermissions, SourceType } from '../../graphql/sources';
 
 export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
@@ -58,7 +59,15 @@ export function PostModalActions({
     });
   };
 
-  const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
+  const isSharedPostAuthor =
+    post.source.type === SourceType.Squad && post.author?.id === user.id;
+  const isModerator = user?.roles?.includes(Roles.Moderator);
+  const canDelete =
+    isModerator ||
+    isSharedPostAuthor ||
+    post.source.currentMember?.permissions?.includes(
+      SourcePermissions.PostDelete,
+    );
 
   const banPostPrompt = async () => {
     const options: PromptOptions = {
@@ -130,7 +139,7 @@ export function PostModalActions({
         onShare={onShare}
         post={post}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
-        setShowDeletePost={isModerator ? () => deletePostPrompt() : null}
+        setShowDeletePost={canDelete ? () => deletePostPrompt() : null}
         contextId={contextMenuId}
       />
     </Container>
