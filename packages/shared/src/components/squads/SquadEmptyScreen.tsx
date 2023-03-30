@@ -11,7 +11,7 @@ function SquadEmptyScreen(): ReactElement {
   const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
 
   return (
-    <FlexCentered className="flex-col tablet:self-center py-14 w-full laptop:h-full text-center laptop:min-h-[calc(100vh-442px)]">
+    <FlexCentered className="flex-col py-6 mt-12 w-full laptop:h-full text-center laptop:min-h-[calc(100vh-540px)] tablet:min-h-[calc(100vh-600px)] min-h-[calc(100vh-565px)]">
       <Image
         className="mb-3 tablet:mb-8"
         width={isMobile ? 180 : 314}
