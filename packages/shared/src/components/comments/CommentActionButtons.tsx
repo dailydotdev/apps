@@ -140,7 +140,7 @@ export default function CommentActionButtons({
     isAuthor ||
     user?.roles?.includes(Roles.Moderator) ||
     post?.source?.currentMember?.permissions?.includes(
-      SourcePermissions.PostDelete,
+      SourcePermissions.CommentDelete,
     );
 
   return (
