@@ -256,7 +256,7 @@ describe('invalid token', () => {
     const owner = generateTestOwner();
     const member = generateTestMember(1);
     member.user.id = defaultUser.id;
-    owner.source.members.edges.push({ node: member });
+    owner.source.currentMember = member;
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
     expect(replaced).toEqual(`/squads/${owner.source.handle}`);
