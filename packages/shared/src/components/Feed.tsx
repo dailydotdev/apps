@@ -192,6 +192,7 @@ export default function Feed<T>({
     postPosition,
     selectedPost,
     isFetchingNextPage,
+    selectedPostIndex,
   } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
 
   useEffect(() => {
@@ -492,6 +493,7 @@ export default function Feed<T>({
             onNextPost={onNext}
             isFetchingNextPage={isFetchingNextPage}
             postPosition={postPosition}
+            onRemovePost={() => onRemovePost(selectedPostIndex)}
           />
         )}
         {sharePost && (
