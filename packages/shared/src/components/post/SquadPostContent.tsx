@@ -141,9 +141,10 @@ function SquadPostContent({
               <a className="flex flex-col ml-4">
                 <div className="flex items-center">
                   <span className="font-bold">{post.author.name}</span>
-                  {!!post.source.currentMember && (
-                    <SquadMemberRoleBadge member={post.source.currentMember} />
-                  )}
+                  <SquadMemberRoleBadge
+                    source={post.source}
+                    author={post.author}
+                  />
                 </div>
                 <span className="text-theme-label-tertiary">
                   @{post.author.username}

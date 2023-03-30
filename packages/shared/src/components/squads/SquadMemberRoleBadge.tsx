@@ -1,24 +1,32 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
-import { SquadMember, SquadMemberRole } from '../../graphql/squads';
+import React, { ReactElement, useMemo } from 'react';
+import { Author } from '../../graphql/comments';
+import { Source, SourceMemberRole } from '../../graphql/sources';
 import StarIcon from '../icons/Start';
 import UserIcon from '../icons/User';
 
 export type SquadMemberRoleBadgeProps = {
   className?: string;
-  member: SquadMember;
+  source?: Source;
+  author?: Author;
 };
 
 const RoleToIconMap = {
-  [SquadMemberRole.Moderator]: UserIcon,
-  [SquadMemberRole.Owner]: StarIcon,
+  [SourceMemberRole.Moderator]: UserIcon,
+  [SourceMemberRole.Owner]: StarIcon,
 };
 
 const SquadMemberRoleBadge = ({
   className,
-  member,
+  author,
+  source,
 }: SquadMemberRoleBadgeProps): ReactElement => {
-  const RoleIcon = RoleToIconMap[member.role];
+  const role = useMemo(() => {
+    return source?.privilegedMembers?.find(
+      (member) => member.user.id === author?.id,
+    )?.role;
+  }, [author, source]);
+  const RoleIcon = RoleToIconMap[role];
 
   if (!RoleIcon) {
     return null;
@@ -32,7 +40,7 @@ const SquadMemberRoleBadge = ({
       )}
     >
       <RoleIcon secondary className="mx-0.5" />
-      {member.role}
+      {role}
     </span>
   );
 };
