@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { ReactElement, useMemo } from 'react';
 import { Author } from '../../graphql/comments';
 import { Source, SourceMemberRole } from '../../graphql/sources';
-import StarIcon from '../icons/Start';
+import StarIcon from '../icons/Star';
 import UserIcon from '../icons/User';
 
 export type SquadMemberRoleBadgeProps = {
