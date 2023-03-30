@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
-import { Squad } from '../graphql/squads';
+import { Squad } from '../graphql/sources';
 
 export interface UseSquadInvitationProps {
   squad: Squad;

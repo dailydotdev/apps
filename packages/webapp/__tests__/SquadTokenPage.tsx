@@ -23,10 +23,10 @@ import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContex
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   SquadInvitation,
-  SquadMember,
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
 } from '@dailydotdev/shared/src/graphql/squads';
+import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
 import SquadPage, {
   SquadReferralProps,
@@ -56,7 +56,7 @@ let client: QueryClient;
 
 const createInvitationMock = (
   token: string = defaultSquadToken,
-  member: SquadMember = generateTestOwner(),
+  member: SourceMember = generateTestOwner(),
 ): MockedGraphQLResponse<SquadInvitation> => ({
   request: {
     query: SQUAD_INVITATION_QUERY,

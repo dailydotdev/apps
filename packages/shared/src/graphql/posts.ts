@@ -1,7 +1,7 @@
 import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
-import { Source } from './sources';
+import { Source, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
@@ -37,7 +37,7 @@ export interface Post {
   createdAt?: string;
   readTime?: number;
   tags?: string[];
-  source?: Source;
+  source?: Source | Squad;
   upvoted?: boolean;
   commented?: boolean;
   commentsPermalink: string;
