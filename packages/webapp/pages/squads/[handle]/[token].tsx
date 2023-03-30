@@ -6,6 +6,7 @@ import {
   getSquadInvitation,
   joinSquadInvitation,
   SquadMember,
+  SquadMemberRole,
   validateSourceHandle,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { Edge } from '@dailydotdev/shared/src/graphql/common';
@@ -86,10 +87,13 @@ const SquadReferral = ({
 
         if (!isValid) return router.replace(webappUrl);
 
-        const isMember = response.source.members.edges.some(
-          ({ node }) => node.user.id === loggedUser.id,
-        );
-        if (isMember) return router.replace(squadsUrl);
+        const { currentMember } = response.source;
+        if (currentMember) {
+          const { role } = currentMember;
+          if (role !== SquadMemberRole.Blocked) {
+            return router.replace(squadsUrl);
+          }
+        }
 
         return null;
       },
