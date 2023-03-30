@@ -58,7 +58,7 @@ const SquadTourPopup = dynamic(
 const SquadEmptyScreen = dynamic(
   () =>
     import(
-      /* webpackChunkName: "SquadEmptyScreen" */ '@dailydotdev/shared/src/components/squads/SquadEmptyScreen'
+      /* webpackChunkName: "squadEmptyScreen" */ '@dailydotdev/shared/src/components/squads/SquadEmptyScreen'
     ),
 );
 
