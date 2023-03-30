@@ -11,8 +11,6 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
   }
 `;
 
-// TODO WT-1201 check how to organize, maybe
-// move this to another fragment
 export const SOURCE_SHORT_INFO_FRAGMENT = gql`
   fragment SourceShortInfo on Source {
     id
@@ -23,10 +21,6 @@ export const SOURCE_SHORT_INFO_FRAGMENT = gql`
     image
     type
     active
-    currentMember {
-      role
-      permissions
-    }
   }
 `;
 
