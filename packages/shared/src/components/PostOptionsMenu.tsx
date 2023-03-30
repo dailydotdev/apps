@@ -232,7 +232,7 @@ export default function PostOptionsMenu({
     text: 'Report',
     action: async () => setReportModal({ index: postIndex, post }),
   });
-  if (canDeletePost && !post.deleted) {
+  if (canDeletePost) {
     postOptions.push({
       icon: <MenuIcon Icon={TrashIcon} />,
       text: 'Remove',
