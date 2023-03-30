@@ -196,13 +196,13 @@ export default function CommentActionButtons({
         {isAuthor && (
           <Item onClick={() => onEdit(comment)}>
             <ContextItem>
-              <EditIcon /> Edit
+              <EditIcon /> Edit comment
             </ContextItem>
           </Item>
         )}
         <Item onClick={() => onDelete(comment, parentId)}>
           <ContextItem className="flex items-center w-full">
-            <TrashIcon /> Delete
+            <TrashIcon /> Delete comment
           </ContextItem>
         </Item>
       </PortalMenu>
