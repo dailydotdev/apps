@@ -28,6 +28,7 @@ import { AuthTriggers } from '../../lib/auth';
 import PortalMenu from '../fields/PortalMenu';
 import classed from '../../lib/classed';
 import OptionsButton from '../buttons/OptionsButton';
+import { SourcePermissions } from '../../graphql/sources';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
@@ -134,7 +135,13 @@ export default function CommentActionButtons({
     return undefined;
   };
 
-  const isModerator = user?.roles?.includes(Roles.Moderator);
+  const isAuthor = user?.id === comment.author.id;
+  const canModifyComment =
+    isAuthor ||
+    user?.roles?.includes(Roles.Moderator) ||
+    post.source.currentMember?.permissions?.includes(
+      SourcePermissions.PostDelete,
+    );
 
   return (
     <div className={classNames('flex flex-row items-center', className)}>
@@ -164,7 +171,7 @@ export default function CommentActionButtons({
           className="mr-3 btn-tertiary-cabbage"
         />
       </SimpleTooltip>
-      {(user?.id === comment.author.id || isModerator) && (
+      {canModifyComment && (
         <OptionsButton
           tooltipPlacement="top"
           onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
@@ -186,18 +193,18 @@ export default function CommentActionButtons({
         className="menu-primary typo-callout"
         animation="fade"
       >
-        <Item onClick={() => onEdit(comment)}>
-          <ContextItem>
-            <EditIcon /> Edit
-          </ContextItem>
-        </Item>
-        {(user?.id === comment.author.id || isModerator) && (
-          <Item onClick={() => onDelete(comment, parentId)}>
-            <ContextItem className="flex items-center w-full">
-              <TrashIcon /> Delete
+        {isAuthor && (
+          <Item onClick={() => onEdit(comment)}>
+            <ContextItem>
+              <EditIcon /> Edit
             </ContextItem>
           </Item>
         )}
+        <Item onClick={() => onDelete(comment, parentId)}>
+          <ContextItem className="flex items-center w-full">
+            <TrashIcon /> Delete
+          </ContextItem>
+        </Item>
       </PortalMenu>
     </div>
   );

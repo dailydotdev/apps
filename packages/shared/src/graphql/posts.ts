@@ -149,6 +149,10 @@ export const POST_BY_ID_QUERY = gql`
       }
       source {
         ...SourceShortInfo
+        currentMember {
+          permissions
+          role
+        }
       }
       scout {
         ...UserShortInfo
