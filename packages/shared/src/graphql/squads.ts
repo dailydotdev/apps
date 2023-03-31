@@ -203,14 +203,14 @@ export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
 
-interface UpdateSquadMemberRoleArgs {
+interface UpdateSquadMemberRoleProps {
   sourceId: string;
   memberId: string;
   role: SourceMemberRole;
 }
 
 export const updateSquadMemberRole = (
-  args: UpdateSquadMemberRoleArgs,
+  args: UpdateSquadMemberRoleProps,
 ): Promise<EmptyResponse> =>
   request(graphqlUrl, UPDATE_MEMBER_ROLE_MUTATION, args);
 
