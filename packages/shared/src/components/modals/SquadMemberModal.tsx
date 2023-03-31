@@ -1,9 +1,5 @@
-import React, { ReactElement, useMemo, useState } from 'react';
-import { useInfiniteQuery } from 'react-query';
-import request from 'graphql-request';
-import { graphqlUrl } from '../../lib/config';
+import React, { ReactElement, useState } from 'react';
 import { ModalProps } from './common/Modal';
-import { SQUAD_MEMBERS_QUERY, SquadEdgesData } from '../../graphql/squads';
 import { Squad, SourceMemberRole, SourceMember } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
@@ -61,6 +57,7 @@ export function SquadMemberModal({
     members,
     membersQueryResult: queryResult,
     onUpdateRole,
+    verifyPermission,
   } = useSquadActions({
     squad,
     membersQueryEnabled: true,
@@ -115,6 +112,7 @@ export function SquadMemberModal({
         squad={squad}
         member={member}
         onUpdateRole={onUpdateRole}
+        verifyPermission={verifyPermission}
       />
     </>
   );
