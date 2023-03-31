@@ -2,7 +2,12 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import {
+  findByText,
+  render,
+  RenderResult,
+  screen,
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import { NextRouter } from 'next/router';
@@ -22,12 +27,14 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
-  SquadInvitation,
-  SquadMember,
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
+  SquadInvitation,
+  SquadMember,
+  SquadMemberRole,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import SquadPage, {
   SquadReferralProps,
 } from '../pages/squads/[handle]/[token]';
@@ -100,6 +107,7 @@ const renderComponent = (
               onShouldUpdateFilters: jest.fn(),
             }}
           >
+            <Toast autoDismissNotifications={false} />
             <SquadPage {...props} />
           </OnboardingContext.Provider>
         </SettingsContext.Provider>
@@ -260,5 +268,18 @@ describe('invalid token', () => {
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
     expect(replaced).toEqual(`/squads/${owner.source.handle}`);
+  });
+
+  it('should show toast is blocked user tries to join', async () => {
+    const owner = generateTestOwner();
+    const member = generateTestMember(1);
+    member.role = SquadMemberRole.Blocked;
+    member.user.id = defaultUser.id;
+    owner.source.currentMember = member;
+    renderComponent([createInvitationMock(defaultToken, owner)]);
+    await waitForNock();
+    const [desktop] = await screen.findAllByText('Join Squad');
+    desktop.click();
+    await screen.findByText('🚫 You no longer have access to this Squad.');
   });
 });

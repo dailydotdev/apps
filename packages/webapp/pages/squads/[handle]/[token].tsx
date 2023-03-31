@@ -70,7 +70,6 @@ const SquadReferral = ({
   const { addSquad } = useBoot();
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser, squads } = useAuthContext();
-  const [isBlockedUser, setIsBlockedUser] = useState(false);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { data: member, isFetched } = useQuery(
     ['squad_referral', token, loggedUser?.id],
@@ -96,7 +95,6 @@ const SquadReferral = ({
           if (role !== SquadMemberRole.Blocked) {
             return router.replace(squadsUrl);
           }
-          setIsBlockedUser(true);
         }
 
         return null;
@@ -141,7 +139,7 @@ const SquadReferral = ({
   );
 
   const onJoinClick = async () => {
-    if (isBlockedUser) {
+    if (member.source?.currentMember?.role === SquadMemberRole.Blocked) {
       displayToast('🚫 You no longer have access to this Squad.');
       return null;
     }
