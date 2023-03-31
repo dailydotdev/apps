@@ -3,6 +3,7 @@ import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
 
 export enum SourceMemberRole {
+  Blocked = 'blocked',
   Member = 'member',
   Moderator = 'moderator',
   Owner = 'owner',
@@ -14,9 +15,8 @@ export enum SourcePermissions {
   Post = 'post',
   PostLimit = 'post_limit',
   PostDelete = 'post_delete',
+  MemberRoleUpdate = 'member_role_update',
   MemberRemove = 'member_remove',
-  ModeratorAdd = 'moderator_add',
-  ModeratorRemove = 'moderator_remove',
   InviteDisable = 'invite_disable',
   Leave = 'leave',
   Delete = 'delete',

@@ -2,9 +2,10 @@ import request, { gql } from 'graphql-request';
 import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
-import { Source, SourceMember, Squad } from './sources';
+import { Source, SourceMember, SourceMemberRole, Squad } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
+import { EmptyResponse } from './emptyResponse';
 
 export type SquadForm = Pick<
   Squad,
@@ -43,6 +44,14 @@ type PostToSquadProps = {
   sourceId: string;
   commentary: string;
 };
+
+export const UPDATE_MEMBER_ROLE_MUTATION = gql`
+  mutation UpdateMemberRole($sourceId: ID!, $memberId: ID!, $role: String!) {
+    updateMemberRole(sourceId: $sourceId, memberId: $memberId, role: $role) {
+      _
+    }
+  }
+`;
 
 export const LEAVE_SQUAD_MUTATION = gql`
   mutation LeaveSource($sourceId: ID!) {
@@ -193,6 +202,17 @@ export type SquadData = {
 export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
+
+interface UpdateSquadMemberRoleArgs {
+  sourceId: string;
+  memberId: string;
+  role: SourceMemberRole;
+}
+
+export const updateSquadMemberRole = (
+  args: UpdateSquadMemberRoleArgs,
+): Promise<EmptyResponse> =>
+  request(graphqlUrl, UPDATE_MEMBER_ROLE_MUTATION, args);
 
 export const leaveSquad = (sourceId: string): Promise<void> =>
   request(graphqlUrl, LEAVE_SQUAD_MUTATION, {

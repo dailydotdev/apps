@@ -6,6 +6,7 @@ import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
   SHARED_POST_INFO_FRAGMENT,
+  SOURCE_BASE_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
@@ -148,11 +149,7 @@ export const POST_BY_ID_QUERY = gql`
         ...SharedPostInfo
       }
       source {
-        ...SourceShortInfo
-        currentMember {
-          permissions
-          role
-        }
+        ...SourceBaseInfo
       }
       scout {
         ...UserShortInfo
@@ -169,6 +166,7 @@ export const POST_BY_ID_QUERY = gql`
       type
     }
   }
+  ${SOURCE_BASE_FRAGMENT}
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 
