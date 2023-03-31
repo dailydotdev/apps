@@ -32,13 +32,15 @@ import {
   generateMembersList,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
-  Squad,
   SquadData,
   SquadEdgesData,
-  SquadMemberRole,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
 } from '@dailydotdev/shared/src/graphql/squads';
+import {
+  Squad,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { squadFeedback } from '@dailydotdev/shared/src/lib/constants';
@@ -288,7 +290,7 @@ describe('squad members modal', () => {
   it('should show the owner on top of the list', async () => {
     const fullMembers = await openedMembersModal();
     const [first] = fullMembers;
-    expect(first.node.role).toEqual(SquadMemberRole.Owner);
+    expect(first.node.role).toEqual(SourceMemberRole.Owner);
     const owner = await screen.findByText('Owner');
     expect(owner).toHaveAttribute('data-testvalue', first.node.user.username);
   });

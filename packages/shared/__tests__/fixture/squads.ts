@@ -1,19 +1,17 @@
 import { GraphQLResult } from '../helpers/graphql';
 import { Edge } from '../../src/graphql/common';
-import { SourceType } from '../../src/graphql/sources';
 import {
-  Squad,
-  SquadData,
-  SquadEdgesData,
-  SquadMember,
-  SquadMemberRole,
-} from '../../src/graphql/squads';
+  SourceType,
+  SourceMember,
+  SourceMemberRole,
+} from '../../src/graphql/sources';
+import { Squad, SquadData, SquadEdgesData } from '../../src/graphql/squads';
 
 export const defaultSquadToken = 'ki3YLcxvSZ2Q6KgMBZvMbly1gnrZ6JnIrhTpUML-Hua';
 
 export const generateTestOwner = (
-  members: Edge<SquadMember>[] = [],
-): SquadMember => ({
+  members: Edge<SourceMember>[] = [],
+): SourceMember => ({
   user: {
     id: 'Se4LmwLU0q6aVDpX1MkqX',
     name: 'Lee Hansel Solevilla',
@@ -47,7 +45,7 @@ export const generateTestOwner = (
             },
             source: null,
             referralToken: defaultSquadToken,
-            role: SquadMemberRole.Owner,
+            role: SourceMemberRole.Owner,
           },
         },
         ...members,
@@ -55,11 +53,11 @@ export const generateTestOwner = (
     },
   },
   referralToken: defaultSquadToken,
-  role: SquadMemberRole.Owner,
+  role: SourceMemberRole.Owner,
 });
 
 export const generateMembersResult = (
-  members: Edge<SquadMember>[] = [
+  members: Edge<SourceMember>[] = [
     {
       node: {
         role: 'owner',
@@ -141,7 +139,7 @@ export const generateMembersResult = (
 export const generateTestMember = (
   i: string | number,
   token = defaultSquadToken,
-): SquadMember => ({
+): SourceMember => ({
   user: {
     id: `Se4LmwLU0q6aVDpX1MkqX${i}`,
     name: `Lee Hansel Solevilla - ${i}`,
@@ -151,7 +149,7 @@ export const generateTestMember = (
   },
   source: null,
   referralToken: `${token}${i}`,
-  role: SquadMemberRole.Member,
+  role: SourceMemberRole.Member,
 });
 
 export const generateTestSquad = (props: Partial<Squad> = {}): Squad => ({
@@ -167,7 +165,7 @@ export const generateTestSquad = (props: Partial<Squad> = {}): Squad => ({
     'https://daily-now-res.cloudinary.com/image/upload/v1675848308/squads/343f82f0-85f0-4f10-a666-aa331d8d7a1b.png',
   membersCount: 12,
   currentMember: {
-    role: SquadMemberRole.Member,
+    role: SourceMemberRole.Member,
     referralToken: '3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8',
     user: {
       id: 'u1',
@@ -201,8 +199,8 @@ export const generateNotFoundSquadResult = (): GraphQLResult<SquadData> => ({
 });
 
 export const generateMembersList = (
-  members: Edge<SquadMember>[] = [],
-): Edge<SquadMember>[] => [
+  members: Edge<SourceMember>[] = [],
+): Edge<SourceMember>[] => [
   {
     node: {
       role: 'owner',

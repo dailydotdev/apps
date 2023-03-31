@@ -2,12 +2,7 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
-import {
-  findByText,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/preact';
+import { render, RenderResult, screen } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import { NextRouter } from 'next/router';
@@ -30,9 +25,9 @@ import {
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
   SquadInvitation,
-  SquadMember,
   SquadMemberRole,
 } from '@dailydotdev/shared/src/graphql/squads';
+import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import SquadPage, {
@@ -63,7 +58,7 @@ let client: QueryClient;
 
 const createInvitationMock = (
   token: string = defaultSquadToken,
-  member: SquadMember = generateTestOwner(),
+  member: SourceMember = generateTestOwner(),
 ): MockedGraphQLResponse<SquadInvitation> => ({
   request: {
     query: SQUAD_INVITATION_QUERY,

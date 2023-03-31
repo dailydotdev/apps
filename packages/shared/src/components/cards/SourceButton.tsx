@@ -6,7 +6,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { Source } from '../../graphql/sources';
 
 interface SourceButtonProps {
-  source: Omit<Source, 'type'>;
+  source: Pick<Source, 'id' | 'name' | 'handle' | 'image' | 'permalink'>;
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;

@@ -4,7 +4,8 @@ import { Button } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
-import { getSquad, Squad } from '../../graphql/squads';
+import { getSquad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import {
   InviteTextField,
   InviteTextFieldHandle,
