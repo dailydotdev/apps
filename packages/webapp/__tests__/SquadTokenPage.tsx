@@ -22,12 +22,16 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
-  SquadInvitation,
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
+  SquadInvitation,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import SquadPage, {
   SquadReferralProps,
 } from '../pages/squads/[handle]/[token]';
@@ -100,6 +104,7 @@ const renderComponent = (
               onShouldUpdateFilters: jest.fn(),
             }}
           >
+            <Toast autoDismissNotifications={false} />
             <SquadPage {...props} />
           </OnboardingContext.Provider>
         </SettingsContext.Provider>
@@ -256,9 +261,22 @@ describe('invalid token', () => {
     const owner = generateTestOwner();
     const member = generateTestMember(1);
     member.user.id = defaultUser.id;
-    owner.source.members.edges.push({ node: member });
+    owner.source.currentMember = member;
     renderComponent([createInvitationMock(defaultToken, owner)]);
     await waitForNock();
     expect(replaced).toEqual(`/squads/${owner.source.handle}`);
+  });
+
+  it('should show toast is blocked user tries to join', async () => {
+    const owner = generateTestOwner();
+    const member = generateTestMember(1);
+    member.role = SourceMemberRole.Blocked;
+    member.user.id = defaultUser.id;
+    owner.source.currentMember = member;
+    renderComponent([createInvitationMock(defaultToken, owner)]);
+    await waitForNock();
+    const [desktop] = await screen.findAllByText('Join Squad');
+    desktop.click();
+    await screen.findByText('🚫 You no longer have access to this Squad.');
   });
 });
