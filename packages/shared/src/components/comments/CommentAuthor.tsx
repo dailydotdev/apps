@@ -9,7 +9,7 @@ export interface CommentAuthorProps {
   author: Author;
   className?: string;
   appendTooltipTo?: () => HTMLElement;
-  badges: ReactElement<UserBadgeProps>[];
+  badges?: ReactElement<UserBadgeProps>[];
 }
 
 export default function CommentAuthor({
