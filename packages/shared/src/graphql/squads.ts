@@ -1,5 +1,4 @@
 import request, { gql } from 'graphql-request';
-import { sq } from 'date-fns/locale';
 import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
