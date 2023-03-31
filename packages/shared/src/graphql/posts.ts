@@ -60,6 +60,7 @@ export interface Post {
   sharedPost?: SharedPost;
   type: PostType;
   private?: boolean;
+  feedMeta?: string;
 }
 
 export interface Ad {
