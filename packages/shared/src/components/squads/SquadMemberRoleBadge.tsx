@@ -1,6 +1,7 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
 import { Source, SourceMemberRole } from '../../graphql/sources';
+import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import StarIcon from '../icons/Star';
 import UserIcon from '../icons/User';
 import UserBadge from '../UserBadge';
@@ -19,11 +20,7 @@ const SquadMemberRoleBadge = ({
   author,
   source,
 }: SquadMemberRoleBadgeProps): ReactElement => {
-  const role = useMemo(() => {
-    return source?.privilegedMembers?.find(
-      (member) => member.user.id === author?.id,
-    )?.role;
-  }, [author, source]);
+  const { role } = useMemberRoleForSource({ source, user: author });
   const RoleIcon = RoleToIconMap[role];
 
   if (!RoleIcon) {

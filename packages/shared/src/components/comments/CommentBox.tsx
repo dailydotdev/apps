@@ -85,7 +85,7 @@ function CommentBox({
                 <SquadMemberRoleBadge
                   key="squadMemberRole"
                   source={post.source}
-                  author={post.author}
+                  author={comment.author}
                 />,
                 comment.author.id === postAuthorId && (
                   <UserBadge
