@@ -1,8 +1,15 @@
 import request, { gql } from 'graphql-request';
+import { sq } from 'date-fns/locale';
 import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
-import { Source, SourceMember, SourceMemberRole, Squad } from './sources';
+import {
+  Source,
+  SourceMember,
+  SourceMemberRole,
+  SourcePermissions,
+  Squad,
+} from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
@@ -323,3 +330,8 @@ export async function editSquad(
   );
   return data.editSquad;
 }
+
+export const verifyPermission = (
+  squad: Squad,
+  permission: SourcePermissions,
+): boolean => squad?.currentMember?.permissions?.includes(permission);

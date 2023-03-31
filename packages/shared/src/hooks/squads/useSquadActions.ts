@@ -10,14 +10,16 @@ import {
   SQUAD_MEMBERS_QUERY,
   SquadEdgesData,
   updateSquadMemberRole,
+  verifyPermission,
 } from '../../graphql/squads';
 import { graphqlUrl } from '../../lib/config';
-import { SourceMember, Squad } from '../../graphql/sources';
+import { SourceMember, SourcePermissions, Squad } from '../../graphql/sources';
 
-interface UseSquadActions {
+export interface UseSquadActions {
   onUpdateRole?: typeof updateSquadMemberRole;
   membersQueryResult?: UseInfiniteQueryResult<SquadEdgesData>;
   members?: SourceMember[];
+  verifyPermission: (permission: SourcePermissions) => boolean;
 }
 
 interface UseSquadActionsProps {
@@ -61,8 +63,16 @@ export const useSquadActions = ({
     [membersQueryResult],
   );
 
+  const checkHasPermission = (permission: SourcePermissions) =>
+    verifyPermission(squad, permission);
+
   return useMemo(
-    () => ({ onUpdateRole, membersQueryResult, members }),
+    () => ({
+      onUpdateRole,
+      membersQueryResult,
+      members,
+      verifyPermission: checkHasPermission,
+    }),
     [onUpdateRole, membersQueryResult, squad, membersQueryEnabled],
   );
 };

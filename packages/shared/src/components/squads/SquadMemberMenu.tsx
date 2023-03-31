@@ -13,17 +13,16 @@ import BlockIcon from '../icons/Block';
 import StarIcon from '../icons/Star';
 import UserIcon from '../icons/User';
 import SquadIcon from '../icons/Squad';
-import { useSquadActions } from '../../hooks/squads/useSquadActions';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
 import { ContextMenu, ContextMenuItemProps } from '../fields/PortalMenu';
-import { updateSquadMemberRole } from '../../graphql/squads';
+import { UseSquadActions } from '../../hooks/squads/useSquadActions';
 
-interface SquadMemberMenuProps {
+interface SquadMemberMenuProps
+  extends Pick<UseSquadActions, 'onUpdateRole' | 'verifyPermission'> {
   squad: Squad;
   member: SourceMember;
-  onUpdateRole?: typeof updateSquadMemberRole;
 }
 
 enum MenuItemTitle {
@@ -52,6 +51,7 @@ export default function SquadMemberMenu({
   squad,
   member,
   onUpdateRole,
+  verifyPermission,
 }: SquadMemberMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
@@ -114,9 +114,7 @@ export default function SquadMemberMenu({
       ),
     };
 
-    const canUpdateRole = squad.currentMember?.permissions.includes(
-      SourcePermissions.MemberRoleUpdate,
-    );
+    const canUpdateRole = verifyPermission(SourcePermissions.MemberRoleUpdate);
     if (canUpdateRole) {
       if (member.role === SourceMemberRole.Owner) {
         menu.push(demoteToModerator, demoteToMember);
@@ -143,8 +141,7 @@ export default function SquadMemberMenu({
     });
 
     const canRemoveMember =
-      canUpdateRole ||
-      squad.currentMember?.permissions.includes(SourcePermissions.MemberRemove);
+      canUpdateRole || verifyPermission(SourcePermissions.MemberRemove);
 
     if (canRemoveMember) {
       menu.push({
