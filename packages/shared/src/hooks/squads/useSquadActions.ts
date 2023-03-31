@@ -13,5 +13,5 @@ export const useSquadActions = (): UseSquadActions => {
       client.invalidateQueries(['squadMembers', sourceId]),
   });
 
-  return useMemo(() => ({ onUpdateRole }), []);
+  return useMemo(() => ({ onUpdateRole }), [onUpdateRole]);
 };
