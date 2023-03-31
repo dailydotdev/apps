@@ -1,12 +1,11 @@
-import classNames from 'classnames';
 import React, { ReactElement, useMemo } from 'react';
 import { Author } from '../../graphql/comments';
 import { Source, SourceMemberRole } from '../../graphql/sources';
 import StarIcon from '../icons/Star';
 import UserIcon from '../icons/User';
+import UserBadge from '../UserBadge';
 
 export type SquadMemberRoleBadgeProps = {
-  className?: string;
   source?: Source;
   author?: Author;
 };
@@ -17,7 +16,6 @@ const RoleToIconMap = {
 };
 
 const SquadMemberRoleBadge = ({
-  className,
   author,
   source,
 }: SquadMemberRoleBadgeProps): ReactElement => {
@@ -33,15 +31,11 @@ const SquadMemberRoleBadge = ({
   }
 
   return (
-    <span
-      className={classNames(
-        'flex items-center ml-2 text-cabbage-40 typo-footnote font-bold capitalize',
-        className,
-      )}
-    >
-      <RoleIcon secondary className="mx-0.5" />
-      {role}
-    </span>
+    <UserBadge
+      className="text-cabbage-40"
+      content={role}
+      icon={<RoleIcon secondary className="mx-0.5" />}
+    />
   );
 };
 

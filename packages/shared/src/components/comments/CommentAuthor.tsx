@@ -2,25 +2,21 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
-import FeatherIcon from '../icons/Feather';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { Source } from '../../graphql/sources';
-import SquadMemberRoleBadge from '../squads/SquadMemberRoleBadge';
+import { UserBadgeProps } from '../UserBadge';
 
 export interface CommentAuthorProps {
-  postAuthorId: string | null;
   author: Author;
   className?: string;
   appendTooltipTo?: () => HTMLElement;
-  source?: Source;
+  badges: ReactElement<UserBadgeProps>[];
 }
 
 export default function CommentAuthor({
-  postAuthorId,
   author,
   className,
   appendTooltipTo,
-  source,
+  badges,
 }: CommentAuthorProps): ReactElement {
   return (
     <ProfileTooltip user={author} tooltip={{ appendTo: appendTooltipTo }}>
@@ -32,13 +28,7 @@ export default function CommentAuthor({
         )}
       >
         {author.name}
-        {!!source && <SquadMemberRoleBadge source={source} author={author} />}
-        {author.id === postAuthorId && (
-          <span className="flex items-center ml-2 text-theme-status-help typo-footnote">
-            <FeatherIcon secondary className="mx-0.5" />
-            Author
-          </span>
-        )}
+        {badges}
       </ProfileLink>
     </ProfileTooltip>
   );
