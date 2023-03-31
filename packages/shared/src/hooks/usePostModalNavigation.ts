@@ -22,6 +22,7 @@ interface UsePostModalNavigation {
   onCloseModal: (fromPopState?: boolean) => void;
   isFetchingNextPage?: boolean;
   selectedPost: Post | null;
+  selectedPostIndex: number;
 }
 
 export const usePostModalNavigation = (
@@ -184,6 +185,7 @@ export const usePostModalNavigation = (
         onChangeSelected(index);
       },
       selectedPost: getPost(openedPostIndex),
+      selectedPostIndex: openedPostIndex,
     }),
     [items, openedPostIndex, isFetchingNextPage],
   );

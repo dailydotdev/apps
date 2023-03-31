@@ -25,7 +25,7 @@ import { Comment, getCommentHash } from '../../graphql/comments';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { Squad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 
 interface SocialShareProps {

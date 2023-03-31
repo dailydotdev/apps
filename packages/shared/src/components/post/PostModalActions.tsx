@@ -11,15 +11,16 @@ import CloseIcon from '../icons/MiniClose';
 import OpenLinkIcon from '../icons/OpenLink';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { Post, banPost, deletePost } from '../../graphql/posts';
+import { banPost, Post } from '../../graphql/posts';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
-import PostOptionsMenu from '../PostOptionsMenu';
+import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
+import { SourcePermissions, SourceType } from '../../graphql/sources';
 
 export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
@@ -30,6 +31,7 @@ export interface PostModalActionsProps extends ShareBookmarkProps {
   inlineActions?: boolean;
   notificactionClassName?: string;
   contextMenuId: string;
+  onRemovePost?: PostOptionsMenuProps['onRemovePost'];
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -44,6 +46,7 @@ export function PostModalActions({
   className,
   notificactionClassName,
   contextMenuId,
+  onRemovePost,
   ...props
 }: PostModalActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
@@ -58,7 +61,15 @@ export function PostModalActions({
     });
   };
 
-  const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
+  const isSharedPostAuthor =
+    post.source.type === SourceType.Squad && post.author?.id === user.id;
+  const isModerator = user?.roles?.includes(Roles.Moderator);
+  const canDelete =
+    isModerator ||
+    isSharedPostAuthor ||
+    post.source.currentMember?.permissions?.includes(
+      SourcePermissions.PostDelete,
+    );
 
   const banPostPrompt = async () => {
     const options: PromptOptions = {
@@ -71,21 +82,6 @@ export function PostModalActions({
     };
     if (await showPrompt(options)) {
       await banPost(post.id);
-    }
-  };
-
-  const deletePostPrompt = async () => {
-    const options: PromptOptions = {
-      title: 'Delete post 🚫',
-      description:
-        'Are you sure you want to delete this post? This action cannot be undone.',
-      okButton: {
-        title: 'Delete',
-        className: 'btn-primary-ketchup',
-      },
-    };
-    if (await showPrompt(options)) {
-      await deletePost(post.id);
     }
   };
 
@@ -129,8 +125,9 @@ export function PostModalActions({
         onBookmark={onBookmark}
         onShare={onShare}
         post={post}
+        onRemovePost={onRemovePost}
+        canDeletePost={canDelete}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
-        setShowDeletePost={isModerator ? () => deletePostPrompt() : null}
         contextId={contextMenuId}
       />
     </Container>

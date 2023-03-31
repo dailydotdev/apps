@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useRef } from 'react';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
 import LinkIcon from '../icons/Link';
-import { Squad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import SquadReadySvg from '../../svg/SquadReady';
 import Alert, { AlertType } from '../widgets/Alert';
 import {

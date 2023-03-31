@@ -5,9 +5,12 @@ import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
   joinSquadInvitation,
-  SquadMember,
   validateSourceHandle,
 } from '@dailydotdev/shared/src/graphql/squads';
+import {
+  SourceMember,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { Edge } from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -32,9 +35,10 @@ import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
-const getOthers = (others: Edge<SquadMember>[], total: number) => {
+const getOthers = (others: Edge<SourceMember>[], total: number) => {
   const { length } = others;
   if (length === 0) {
     return 'is';
@@ -54,7 +58,7 @@ const HighlightedText = classed('span', 'font-bold text-theme-label-primary');
 export interface SquadReferralProps {
   token: string;
   handle: string;
-  initialData: SquadMember;
+  initialData: SourceMember;
 }
 
 const SquadReferral = ({
@@ -66,6 +70,7 @@ const SquadReferral = ({
   const { isFallback } = router;
   const { trackEvent } = useContext(AnalyticsContext);
   const { addSquad } = useBoot();
+  const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser, squads } = useAuthContext();
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { data: member, isFetched } = useQuery(
@@ -86,10 +91,13 @@ const SquadReferral = ({
 
         if (!isValid) return router.replace(webappUrl);
 
-        const isMember = response.source.members.edges.some(
-          ({ node }) => node.user.id === loggedUser.id,
-        );
-        if (isMember) return router.replace(squadsUrl);
+        const { currentMember } = response.source;
+        if (currentMember) {
+          const { role } = currentMember;
+          if (role !== SourceMemberRole.Blocked) {
+            return router.replace(squadsUrl);
+          }
+        }
 
         return null;
       },
@@ -133,6 +141,11 @@ const SquadReferral = ({
   );
 
   const onJoinClick = async () => {
+    if (member.source?.currentMember?.role === SourceMemberRole.Blocked) {
+      displayToast('🚫 You no longer have access to this Squad.');
+      return null;
+    }
+
     trackEvent({
       event_name: AnalyticsEvent.ClickJoinSquad,
       extra: joinSquadAnalyticsExtra(),

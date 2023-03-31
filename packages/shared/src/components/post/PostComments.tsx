@@ -23,6 +23,7 @@ import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UsePostComment, usePostComment } from '../../hooks/usePostComment';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 export interface ParentComment {
   authorName: string;
@@ -93,6 +94,7 @@ export function PostComments({
   const { id } = post;
   const container = useRef<HTMLDivElement>();
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
   const { showPrompt } = usePrompt();
   const queryKey = ['post_comments', id];
@@ -130,6 +132,7 @@ export function PostComments({
     };
     if (await showPrompt(options)) {
       await deleteComment(commentId, requestMethod);
+      displayToast('The comment has been deleted');
       deleteCommentCache(commentId, parentId);
     }
   };
