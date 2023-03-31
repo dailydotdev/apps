@@ -20,6 +20,7 @@ import LinkIcon from '../icons/Link';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSquadActions } from '../../hooks/squads/useSquadActions';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount?: number;
@@ -56,38 +57,19 @@ export function SquadMemberModal({
   const { user: loggedUser } = useAuthContext();
   const [member, setMember] = useState<SourceMember>(null);
   const { onMenuClick } = useContextMenu({ id: 'squad-member-menu-context' });
-  const queryKey = ['squadMembers', squad?.id];
-  const queryResult = useInfiniteQuery<SquadEdgesData>(
-    queryKey,
-    ({ pageParam }) =>
-      request(
-        graphqlUrl,
-        SQUAD_MEMBERS_QUERY,
-        { id: squad?.id, after: pageParam },
-        { requestKey: JSON.stringify(queryKey) },
-      ),
-    {
-      enabled: !!squad?.id,
-      getNextPageParam: (lastPage) =>
-        lastPage?.sourceMembers?.pageInfo?.hasNextPage &&
-        lastPage?.sourceMembers?.pageInfo?.endCursor,
-    },
-  );
+  const {
+    members,
+    membersQueryResult: queryResult,
+    onUpdateRole,
+  } = useSquadActions({
+    squad,
+    membersQueryEnabled: true,
+  });
 
   const onReportClick = (e: React.MouseEvent, clickedMember: SourceMember) => {
     setMember(clickedMember);
     onMenuClick(e);
   };
-
-  const members = useMemo(
-    () =>
-      queryResult.data?.pages
-        .map((page) =>
-          page.sourceMembers.edges.map(({ node }) => ({ ...node, page })),
-        )
-        .flat() ?? [],
-    [queryResult.data],
-  );
 
   return (
     <>
@@ -129,7 +111,11 @@ export function SquadMemberModal({
         }}
         initialItem={<InitialItem squad={squad} />}
       />
-      <SquadMemberMenu squad={squad} member={member} />
+      <SquadMemberMenu
+        squad={squad}
+        member={member}
+        onUpdateRole={onUpdateRole}
+      />
     </>
   );
 }

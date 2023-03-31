@@ -18,10 +18,12 @@ import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
 import { ContextMenu, ContextMenuItemProps } from '../fields/PortalMenu';
+import { updateSquadMemberRole } from '../../graphql/squads';
 
 interface SquadMemberMenuProps {
   squad: Squad;
   member: SourceMember;
+  onUpdateRole?: typeof updateSquadMemberRole;
 }
 
 enum MenuItemTitle {
@@ -49,9 +51,9 @@ const promptDescription: Record<
 export default function SquadMemberMenu({
   squad,
   member,
+  onUpdateRole,
 }: SquadMemberMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { onUpdateRole } = useSquadActions();
   const { showPrompt } = usePrompt();
   const onUpdateMember = async (
     role: SourceMemberRole,
@@ -67,7 +69,11 @@ export default function SquadMemberMenu({
     });
 
     if (hasConfirmed) {
-      onUpdateRole({ sourceId: squad.id, memberId: member.user.id, role });
+      await onUpdateRole({
+        sourceId: squad.id,
+        memberId: member.user.id,
+        role,
+      });
     }
   };
 
