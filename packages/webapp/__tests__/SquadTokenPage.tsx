@@ -25,9 +25,11 @@ import {
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
   SquadInvitation,
-  SquadMemberRole,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import SquadPage, {
@@ -268,7 +270,7 @@ describe('invalid token', () => {
   it('should show toast is blocked user tries to join', async () => {
     const owner = generateTestOwner();
     const member = generateTestMember(1);
-    member.role = SquadMemberRole.Blocked;
+    member.role = SourceMemberRole.Blocked;
     member.user.id = defaultUser.id;
     owner.source.currentMember = member;
     renderComponent([createInvitationMock(defaultToken, owner)]);

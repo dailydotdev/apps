@@ -5,10 +5,12 @@ import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
   joinSquadInvitation,
-  SquadMemberRole,
   validateSourceHandle,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { Edge } from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -92,7 +94,7 @@ const SquadReferral = ({
         const { currentMember } = response.source;
         if (currentMember) {
           const { role } = currentMember;
-          if (role !== SquadMemberRole.Blocked) {
+          if (role !== SourceMemberRole.Blocked) {
             return router.replace(squadsUrl);
           }
         }
@@ -139,7 +141,7 @@ const SquadReferral = ({
   );
 
   const onJoinClick = async () => {
-    if (member.source?.currentMember?.role === SquadMemberRole.Blocked) {
+    if (member.source?.currentMember?.role === SourceMemberRole.Blocked) {
       displayToast('🚫 You no longer have access to this Squad.');
       return null;
     }

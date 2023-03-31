@@ -17,19 +17,6 @@ export type SquadForm = Pick<
   buttonText?: string;
 };
 
-export enum SquadMemberRole {
-  Member = 'member',
-  Owner = 'owner',
-  Blocked = 'blocked',
-}
-
-export type SquadMember = {
-  role: SquadMemberRole;
-  user: UserShortProfile;
-  source: Squad;
-  referralToken: string;
-};
-
 type SharedSquadInput = {
   name: string;
   handle: string;
