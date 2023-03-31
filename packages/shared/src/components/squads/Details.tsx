@@ -34,13 +34,21 @@ const getFormData = async (
   current: SquadForm,
   imageChanged: boolean,
 ): Promise<SquadForm> => {
-  if (!imageChanged) return current;
+  const { allowMemberPostingValue, ...restFormData } = current;
+  const formData = {
+    ...restFormData,
+    allowMemberPosting: allowMemberPostingValue === 'true',
+  };
 
-  const input = document.getElementById(squadImageId) as HTMLInputElement;
-  const file = input.files[0];
-  const base64 = await blobToBase64(file);
+  if (imageChanged) {
+    const input = document.getElementById(squadImageId) as HTMLInputElement;
+    const file = input.files[0];
+    const base64 = await blobToBase64(file);
 
-  return { ...current, file: base64 };
+    formData.file = base64;
+  }
+
+  return formData;
 };
 
 export function SquadDetails({
@@ -49,11 +57,21 @@ export function SquadDetails({
   createMode = true,
   onRequestClose,
 }: SquadDetailsProps): ReactElement {
-  const { name, handle, description } = form;
+  const {
+    name,
+    handle,
+    description,
+    allowMemberPosting: initialAllowMemberPosting,
+  } = form;
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
+  const [allowMemberPosting, setAllowMemberPosting] = useState(() =>
+    typeof initialAllowMemberPosting === 'boolean'
+      ? initialAllowMemberPosting
+      : true,
+  );
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
       const clientError = err as ClientError;
@@ -94,6 +112,8 @@ export function SquadDetails({
     if (formJson.name && !activeHandle && !formJson.handle) {
       setActiveHandle(formJson.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''));
     }
+
+    setAllowMemberPosting(formJson.allowMemberPostingValue === 'true');
 
     setCanSubmit(!!formJson.name);
   };
@@ -175,22 +195,22 @@ export function SquadDetails({
             <h4 className="mb-2 font-bold typo-headline text-theme-label-primary">
               Post permissions
             </h4>
-            <p className="mb-6 text-salt-90 typo-callout">
+            <p className="mb-4 text-theme-label-tertiary typo-callout">
               Choose who is allowed to post new content in this Squad.
             </p>
             <RadioItem
-              name="permissionLevel"
-              value="all-members"
-              checked={false}
+              name="allowMemberPostingValue"
+              value="true"
+              checked={allowMemberPosting}
             >
               All members
             </RadioItem>
             <RadioItem
-              name="permissionLevel"
-              value="only-moderators"
-              checked={false}
+              name="allowMemberPostingValue"
+              value="false"
+              checked={!allowMemberPosting}
             >
-              Only Moderators
+              Only moderators
             </RadioItem>
           </div>
         </form>

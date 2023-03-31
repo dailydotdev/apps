@@ -8,13 +8,14 @@ import { base64ToFile } from '../lib/base64';
 
 export type SquadForm = Pick<
   Squad,
-  'name' | 'handle' | 'description' | 'image'
+  'name' | 'handle' | 'description' | 'image' | 'allowMemberPosting'
 > & {
   url?: string;
   file?: string;
   commentary: string;
   post: PostItem;
   buttonText?: string;
+  allowMemberPostingValue?: string;
 };
 
 type SharedSquadInput = {
@@ -22,6 +23,7 @@ type SharedSquadInput = {
   handle: string;
   description: string;
   image?: File;
+  allowMemberPosting?: boolean;
 };
 
 type EditSquadInput = SharedSquadInput & {
@@ -66,12 +68,14 @@ export const CREATE_SQUAD_MUTATION = gql`
     $handle: String!
     $description: String
     $image: Upload
+    $allowMemberPosting: Boolean
   ) {
     createSquad(
       name: $name
       handle: $handle
       description: $description
       image: $image
+      allowMemberPosting: $allowMemberPosting
     ) {
       ...SourceBaseInfo
       members {
@@ -271,6 +275,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     handle: form.handle,
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
+    allowMemberPosting: form.allowMemberPosting,
   };
   const data = await request<CreateSquadOutput>(
     graphqlUrl,
