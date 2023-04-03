@@ -49,6 +49,59 @@ const promptDescription: Record<
     `${memberName} will be a Blocked members and will no longer have access to ${squadName}. They will not be able to rejoin unless you unblock them.`,
 };
 
+type UpdateRoleFn = (
+  role: SourceMemberRole,
+  title: MenuItemTitle,
+) => Promise<void>;
+
+const getUpdateRoleOptions = (
+  member: SourceMember,
+  getUpdateRoleFn: (
+    role: SourceMemberRole,
+    title: MenuItemTitle,
+  ) => UpdateRoleFn,
+): ContextMenuItemProps[] => {
+  const promoteToOwner = {
+    text: MenuItemTitle.AddAsOwner,
+    icon: <StarIcon size={IconSize.Small} />,
+    action: getUpdateRoleFn(SourceMemberRole.Owner, MenuItemTitle.AddAsOwner),
+  };
+  const promoteToModerator = {
+    text: MenuItemTitle.DemoteToModerator,
+    icon: <UserIcon size={IconSize.Small} />,
+    action: getUpdateRoleFn(
+      SourceMemberRole.Moderator,
+      MenuItemTitle.PromoteToModerator,
+    ),
+  };
+  const demoteToModerator = {
+    text: MenuItemTitle.DemoteToModerator,
+    icon: <BlockIcon size={IconSize.Small} />,
+    action: getUpdateRoleFn(
+      SourceMemberRole.Moderator,
+      MenuItemTitle.DemoteToModerator,
+    ),
+  };
+  const demoteToMember = {
+    text: MenuItemTitle.DemoteToMember,
+    icon: <SquadIcon size={IconSize.Small} />,
+    action: getUpdateRoleFn(
+      SourceMemberRole.Member,
+      MenuItemTitle.DemoteToMember,
+    ),
+  };
+
+  if (member.role === SourceMemberRole.Owner) {
+    return [demoteToModerator, demoteToMember];
+  }
+
+  if (member.role === SourceMemberRole.Moderator) {
+    return [promoteToOwner, demoteToMember];
+  }
+
+  return [promoteToOwner, promoteToModerator];
+};
+
 export default function SquadMemberMenu({
   squad,
   member,
@@ -86,49 +139,11 @@ export default function SquadMemberMenu({
       (role: SourceMemberRole, title: MenuItemTitle) => () =>
         onUpdateMember(role, title);
     const menu: ContextMenuItemProps[] = [];
-    const promoteToOwner = {
-      text: MenuItemTitle.AddAsOwner,
-      icon: <StarIcon size={IconSize.Small} />,
-      action: getUpdateRoleFn(SourceMemberRole.Owner, MenuItemTitle.AddAsOwner),
-    };
-    const promoteToModerator = {
-      text: MenuItemTitle.DemoteToModerator,
-      icon: <UserIcon size={IconSize.Small} />,
-      action: getUpdateRoleFn(
-        SourceMemberRole.Moderator,
-        MenuItemTitle.PromoteToModerator,
-      ),
-    };
-    const demoteToModerator = {
-      text: MenuItemTitle.DemoteToModerator,
-      icon: <BlockIcon size={IconSize.Small} />,
-      action: getUpdateRoleFn(
-        SourceMemberRole.Moderator,
-        MenuItemTitle.DemoteToModerator,
-      ),
-    };
-    const demoteToMember = {
-      text: MenuItemTitle.DemoteToMember,
-      icon: <SquadIcon size={IconSize.Small} />,
-      action: getUpdateRoleFn(
-        SourceMemberRole.Member,
-        MenuItemTitle.DemoteToMember,
-      ),
-    };
-
     const canUpdateRole = verifyPermission(SourcePermissions.MemberRoleUpdate);
+
     if (canUpdateRole) {
-      if (member.role === SourceMemberRole.Owner) {
-        menu.push(demoteToModerator, demoteToMember);
-      }
-
-      if (member.role === SourceMemberRole.Moderator) {
-        menu.push(promoteToOwner, demoteToMember);
-      }
-
-      if (member.role === SourceMemberRole.Member) {
-        menu.push(promoteToOwner, promoteToModerator);
-      }
+      const memberOptions = getUpdateRoleOptions(member, getUpdateRoleFn);
+      menu.push(...memberOptions);
     }
 
     menu.push({

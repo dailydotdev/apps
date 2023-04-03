@@ -11,10 +11,12 @@ export default function PortalMenu(props: MenuProps): ReactElement {
   );
 }
 
-export interface ContextMenuItemProps {
+export interface ContextMenuItemProps<
+  TArgs extends Array<unknown> = Array<unknown>,
+> {
   icon: ReactElement;
   text: string;
-  action?: () => unknown;
+  action?: (...args: TArgs) => Promise<void>;
   anchorProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
 }
 
