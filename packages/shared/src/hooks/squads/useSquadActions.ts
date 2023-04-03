@@ -9,6 +9,7 @@ import request from 'graphql-request';
 import {
   SQUAD_MEMBERS_QUERY,
   SquadEdgesData,
+  unblockSquadMember,
   updateSquadMemberRole,
   verifyPermission,
 } from '../../graphql/squads';
@@ -21,6 +22,7 @@ import {
 } from '../../graphql/sources';
 
 export interface UseSquadActions {
+  onUnblock?: typeof unblockSquadMember;
   onUpdateRole?: typeof updateSquadMemberRole;
   membersQueryResult?: UseInfiniteQueryResult<SquadEdgesData>;
   members?: SourceMember[];
@@ -43,12 +45,14 @@ export const useSquadActions = ({
   membersQueryEnabled,
 }: UseSquadActionsProps): UseSquadActions => {
   const client = useQueryClient();
+  const membersQueryKey = ['squadMembers', squad?.id, membersQueryParams];
   const { mutateAsync: onUpdateRole } = useMutation(updateSquadMemberRole, {
-    onSuccess: (_, { sourceId }) =>
-      client.invalidateQueries(['squadMembers', sourceId]),
+    onSuccess: () => client.invalidateQueries(membersQueryKey),
+  });
+  const { mutateAsync: onUnblock } = useMutation(unblockSquadMember, {
+    onSuccess: () => client.invalidateQueries(membersQueryKey),
   });
 
-  const membersQueryKey = ['squadMembers', squad?.id, membersQueryParams];
   const membersQueryResult = useInfiniteQuery<SquadEdgesData>(
     membersQueryKey,
     ({ pageParam }) =>
@@ -80,11 +84,12 @@ export const useSquadActions = ({
 
   return useMemo(
     () => ({
+      onUnblock,
       onUpdateRole,
       membersQueryResult,
       members,
       verifyPermission: checkHasPermission,
     }),
-    [onUpdateRole, membersQueryResult, squad, membersQueryEnabled],
+    [onUnblock, onUpdateRole, membersQueryResult, squad, membersQueryEnabled],
   );
 };

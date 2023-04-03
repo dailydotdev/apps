@@ -8,7 +8,6 @@ import MenuIcon from '../icons/Menu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
 import SquadIcon from '../icons/Squad';
-import { getSquadMembersUserRole } from '../squads/utils';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Origin } from '../../lib/analytics';
 import { IconSize } from '../Icon';
@@ -17,6 +16,7 @@ import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSquadActions } from '../../hooks/squads/useSquadActions';
+import BlockIcon from '../icons/Block';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -62,6 +62,7 @@ export function SquadMemberModal({
   const {
     members,
     membersQueryResult: queryResult,
+    onUnblock,
     onUpdateRole,
     verifyPermission,
   } = useSquadActions({
@@ -101,7 +102,20 @@ export function SquadMemberModal({
         }}
         users={members?.map(({ user }) => user)}
         additionalContent={(user, index) => {
-          const role = getSquadMembersUserRole(queryResult, user);
+          const { role, user: userItem } = members[index];
+
+          if (role === SourceMemberRole.Blocked) {
+            return (
+              <Button
+                className="btn-tertiary"
+                icon={<BlockIcon />}
+                onClick={() =>
+                  onUnblock({ sourceId: squad.id, memberId: userItem.id })
+                }
+              />
+            );
+          }
+
           if (role === SourceMemberRole.Owner) {
             return (
               <span

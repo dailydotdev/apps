@@ -50,14 +50,3 @@ export const quitSquadModal: PromptOptions = {
     className: 'btn-secondary',
   },
 };
-
-export const getSquadMembersUserRole = (
-  input: UseInfiniteQueryResult<SquadEdgesData>,
-  user: UserShortProfile,
-): SourceMemberRole => {
-  return input.data?.pages
-    .map((page) =>
-      page.sourceMembers.edges.filter(({ node }) => node.user.id === user.id),
-    )
-    .flat()[0].node.role;
-};
