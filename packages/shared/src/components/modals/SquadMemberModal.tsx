@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
-import { ModalProps } from './common/Modal';
-import { Squad, SourceMemberRole, SourceMember } from '../../graphql/sources';
+import { Modal, ModalProps } from './common/Modal';
+import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -18,7 +18,12 @@ import { FlexCentered } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSquadActions } from '../../hooks/squads/useSquadActions';
 
-export interface UpvotedPopupModalProps extends ModalProps {
+enum SquadMemberTab {
+  AllMembers = 'Squad members',
+  BlockedMembers = 'Blocked members',
+}
+
+export interface SquadMemberModalProps extends ModalProps {
   placeholderAmount?: number;
   squad: Squad;
 }
@@ -49,7 +54,8 @@ const InitialItem = ({ squad }: { squad: Squad }) => {
 export function SquadMemberModal({
   squad,
   ...props
-}: UpvotedPopupModalProps): ReactElement {
+}: SquadMemberModalProps): ReactElement {
+  const [roleFilter, setRoleFilter] = useState<SourceMemberRole>(null);
   const { user: loggedUser } = useAuthContext();
   const [member, setMember] = useState<SourceMember>(null);
   const { onMenuClick } = useContextMenu({ id: 'squad-member-menu-context' });
@@ -60,6 +66,7 @@ export function SquadMemberModal({
     verifyPermission,
   } = useSquadActions({
     squad,
+    membersQueryParams: { role: roleFilter },
     membersQueryEnabled: true,
   });
 
@@ -73,6 +80,18 @@ export function SquadMemberModal({
       <UserListModal
         {...props}
         title="Squad members"
+        tabs={Object.values(SquadMemberTab)}
+        header={
+          <Modal.Header.Tabs
+            onTabClick={(tab) =>
+              setRoleFilter(
+                tab === SquadMemberTab.BlockedMembers
+                  ? SourceMemberRole.Blocked
+                  : null,
+              )
+            }
+          />
+        }
         scrollingProps={{
           isFetchingNextPage: queryResult.isFetchingNextPage,
           canFetchMore: checkFetchMore(queryResult),

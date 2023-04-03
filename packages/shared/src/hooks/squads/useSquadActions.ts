@@ -13,7 +13,12 @@ import {
   verifyPermission,
 } from '../../graphql/squads';
 import { graphqlUrl } from '../../lib/config';
-import { SourceMember, SourcePermissions, Squad } from '../../graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+  SourcePermissions,
+  Squad,
+} from '../../graphql/sources';
 
 export interface UseSquadActions {
   onUpdateRole?: typeof updateSquadMemberRole;
@@ -22,13 +27,19 @@ export interface UseSquadActions {
   verifyPermission: (permission: SourcePermissions) => boolean;
 }
 
+interface MembersQueryParams {
+  role?: SourceMemberRole;
+}
+
 interface UseSquadActionsProps {
   squad: Squad;
+  membersQueryParams?: MembersQueryParams;
   membersQueryEnabled?: boolean;
 }
 
 export const useSquadActions = ({
   squad,
+  membersQueryParams = {},
   membersQueryEnabled,
 }: UseSquadActionsProps): UseSquadActions => {
   const client = useQueryClient();
@@ -37,13 +48,14 @@ export const useSquadActions = ({
       client.invalidateQueries(['squadMembers', sourceId]),
   });
 
-  const membersQueryKey = ['squadMembers', squad?.id];
+  const membersQueryKey = ['squadMembers', squad?.id, membersQueryParams];
   const membersQueryResult = useInfiniteQuery<SquadEdgesData>(
     membersQueryKey,
     ({ pageParam }) =>
       request(graphqlUrl, SQUAD_MEMBERS_QUERY, {
         id: squad?.id,
         after: pageParam,
+        ...membersQueryParams,
       }),
     {
       enabled: !!squad?.id && membersQueryEnabled,

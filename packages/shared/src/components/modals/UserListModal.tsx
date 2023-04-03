@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement, ReactNode, useRef, useState } from 'react';
 import { UserShortInfoPlaceholder } from '../profile/UserShortInfoPlaceholder';
 import { Modal, ModalProps } from './common/Modal';
 import UserList, { UserListProps } from '../profile/UserList';
@@ -11,12 +11,14 @@ export interface UserListModalProps
   users: UserShortProfile[];
   placeholderAmount?: number;
   title: string;
+  header?: ReactNode;
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
 }
 
 function UserListModal({
   users,
   title,
+  header,
   scrollingProps,
   placeholderAmount,
   additionalContent,
@@ -34,7 +36,7 @@ function UserListModal({
       size={size}
       {...props}
     >
-      <Modal.Header title={title} />
+      {header ?? <Modal.Header title={title} />}
       <Modal.Body className="py-2 px-0" ref={container}>
         {users?.length ? (
           <UserList
