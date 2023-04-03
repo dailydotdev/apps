@@ -3,7 +3,6 @@ import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
 
 export enum SourceMemberRole {
-  Blocked = 'blocked',
   Member = 'member',
   Moderator = 'moderator',
   Owner = 'owner',
