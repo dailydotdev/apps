@@ -3,13 +3,12 @@ import classNames from 'classnames';
 import { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { UserBadgeProps } from '../UserBadge';
 
 export interface CommentAuthorProps {
   author: Author;
   className?: string;
   appendTooltipTo?: () => HTMLElement;
-  badges?: ReactElement<UserBadgeProps>[];
+  badges?: ReactElement[];
 }
 
 export default function CommentAuthor({
