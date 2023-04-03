@@ -1,4 +1,5 @@
 import React, { FunctionComponent, ReactElement } from 'react';
+import classNames from 'classnames';
 import { Author } from '../../graphql/comments';
 import { Source, SourceMemberRole } from '../../graphql/sources';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
@@ -8,8 +9,10 @@ import UserBadge from '../UserBadge';
 import { IconProps } from '../Icon';
 
 export type SquadMemberRoleBadgeProps = {
+  className?: string;
   source?: Source;
   author?: Author;
+  iconProps?: IconProps;
 };
 
 const RoleToIconMap: Partial<
@@ -20,8 +23,10 @@ const RoleToIconMap: Partial<
 };
 
 const SquadMemberRoleBadge = ({
+  className,
   author,
   source,
+  iconProps,
 }: SquadMemberRoleBadgeProps): ReactElement => {
   const { role } = useMemberRoleForSource({ source, user: author });
   const RoleIcon = RoleToIconMap[role];
@@ -30,11 +35,16 @@ const SquadMemberRoleBadge = ({
     return null;
   }
 
+  const Icon = (props: IconProps) => {
+    return <RoleIcon secondary {...props} />;
+  };
+
   return (
     <UserBadge
-      className="text-cabbage-40"
+      className={classNames('text-cabbage-40', className)}
       content={role}
-      icon={<RoleIcon secondary className="mx-0.5" />}
+      Icon={Icon}
+      iconProps={iconProps}
     />
   );
 };

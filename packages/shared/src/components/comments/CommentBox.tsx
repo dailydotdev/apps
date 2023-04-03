@@ -92,7 +92,10 @@ function CommentBox({
                     key="author"
                     className="text-theme-status-help"
                     content="Author"
-                    icon={<FeatherIcon secondary className="mx-0.5" />}
+                    Icon={FeatherIcon}
+                    iconProps={{
+                      secondary: true,
+                    }}
                   />
                 ),
                 comment.author.id === postScoutId && (
@@ -100,7 +103,10 @@ function CommentBox({
                     key="scout"
                     className="text-theme-color-bun"
                     content="Scout"
-                    icon={<ScoutIcon className="mr-0.5" />}
+                    Icon={ScoutIcon}
+                    iconProps={{
+                      secondary: true,
+                    }}
                   />
                 ),
               ].filter(Boolean)}
