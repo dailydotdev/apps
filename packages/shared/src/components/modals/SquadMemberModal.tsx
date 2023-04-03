@@ -82,15 +82,17 @@ export function SquadMemberModal({
         title="Squad members"
         tabs={Object.values(SquadMemberTab)}
         header={
-          <Modal.Header.Tabs
-            onTabClick={(tab) =>
-              setRoleFilter(
-                tab === SquadMemberTab.BlockedMembers
-                  ? SourceMemberRole.Blocked
-                  : null,
-              )
-            }
-          />
+          squad?.currentMember?.roleRank > 0 ? (
+            <Modal.Header.Tabs
+              onTabClick={(tab) =>
+                setRoleFilter(
+                  tab === SquadMemberTab.BlockedMembers
+                    ? SourceMemberRole.Blocked
+                    : null,
+                )
+              }
+            />
+          ) : null
         }
         scrollingProps={{
           isFetchingNextPage: queryResult.isFetchingNextPage,

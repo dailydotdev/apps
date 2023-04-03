@@ -25,6 +25,7 @@ export enum SourcePermissions {
 
 export interface SourceMember {
   role: SourceMemberRole;
+  roleRank: number;
   user: UserShortProfile;
   source: Squad;
   referralToken: string;
