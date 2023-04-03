@@ -7,8 +7,6 @@ import { Button, ButtonSize } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
-import SquadIcon from '../icons/Squad';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Origin } from '../../lib/analytics';
 import { IconSize } from '../Icon';
 import LinkIcon from '../icons/Link';
@@ -16,7 +14,7 @@ import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSquadActions } from '../../hooks/squads/useSquadActions';
-import BlockIcon from '../icons/Block';
+import SquadMemberActions from '../squads/SquadMemberActions';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -56,7 +54,6 @@ export function SquadMemberModal({
   ...props
 }: SquadMemberModalProps): ReactElement {
   const [roleFilter, setRoleFilter] = useState<SourceMemberRole>(null);
-  const { user: loggedUser } = useAuthContext();
   const [member, setMember] = useState<SourceMember>(null);
   const { onMenuClick } = useContextMenu({ id: 'squad-member-menu-context' });
   const {
@@ -71,7 +68,7 @@ export function SquadMemberModal({
     membersQueryEnabled: true,
   });
 
-  const onReportClick = (e: React.MouseEvent, clickedMember: SourceMember) => {
+  const onOptionsClick = (e: React.MouseEvent, clickedMember: SourceMember) => {
     setMember(clickedMember);
     onMenuClick(e);
   };
@@ -101,46 +98,15 @@ export function SquadMemberModal({
           fetchNextPage: queryResult.fetchNextPage,
         }}
         users={members?.map(({ user }) => user)}
-        additionalContent={(user, index) => {
-          const { role, user: userItem } = members[index];
-
-          if (role === SourceMemberRole.Blocked) {
-            return (
-              <Button
-                className="btn-tertiary"
-                icon={<BlockIcon />}
-                onClick={() =>
-                  onUnblock({ sourceId: squad.id, memberId: userItem.id })
-                }
-              />
-            );
-          }
-
-          if (role === SourceMemberRole.Owner) {
-            return (
-              <span
-                className="flex gap-1 items-center font-bold typo-footnote text-theme-color-cabbage"
-                data-testvalue={user.username}
-              >
-                <SquadIcon secondary /> Owner
-              </span>
-            );
-          }
-
-          if (loggedUser.id === user.id) return null;
-
-          return (
-            <SimpleTooltip content="Member options">
-              <Button
-                buttonSize={ButtonSize.Small}
-                className="m-auto mr-0 btn-tertiary"
-                iconOnly
-                onClick={(e) => onReportClick(e, members[index])}
-                icon={<MenuIcon />}
-              />
-            </SimpleTooltip>
-          );
-        }}
+        additionalContent={(user, index) => (
+          <SquadMemberActions
+            member={members[index]}
+            onUnblockClick={() =>
+              onUnblock({ sourceId: squad.id, memberId: user.id })
+            }
+            onOptionsClick={(e) => onOptionsClick(e, members[index])}
+          />
+        )}
         initialItem={<InitialItem squad={squad} />}
       />
       <SquadMemberMenu
