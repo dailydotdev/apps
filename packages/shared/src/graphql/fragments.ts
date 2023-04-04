@@ -66,6 +66,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     currentMember {
       role
       referralToken
+      permissions
     }
   }
 `;
