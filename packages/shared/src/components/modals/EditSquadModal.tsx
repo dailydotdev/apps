@@ -28,6 +28,7 @@ function EditSquadModal({
       description: form.description,
       handle: form.handle,
       file: form.file,
+      memberPostingRole: form.memberPostingRole,
     };
     const editedSquad = await editSquad(squad.id, formJson);
     if (editedSquad) {

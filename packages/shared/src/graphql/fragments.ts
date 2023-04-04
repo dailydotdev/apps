@@ -68,6 +68,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
       referralToken
       permissions
     }
+    memberPostingRole
   }
 `;
 

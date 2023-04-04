@@ -112,6 +112,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $handle: String!
     $description: String
     $image: Upload
+    $memberPostingRole: String
   ) {
     editSquad(
       sourceId: $sourceId
@@ -119,6 +120,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       handle: $handle
       description: $description
       image: $image
+      memberPostingRole: $memberPostingRole
     ) {
       ...SourceBaseInfo
     }
@@ -314,7 +316,9 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
 type EditSquadForm = Pick<
   SquadForm,
   'name' | 'description' | 'handle' | 'file'
->;
+> & {
+  memberPostingRole?: SourceMemberRole;
+};
 
 export async function editSquad(
   id: string,
@@ -326,6 +330,7 @@ export async function editSquad(
     handle: form.handle,
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
+    memberPostingRole: form.memberPostingRole,
   };
   const data = await request<EditSquadOutput>(
     graphqlUrl,
