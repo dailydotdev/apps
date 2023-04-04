@@ -53,16 +53,6 @@ export const useSquadActions = ({
     },
   );
 
-  const members = useMemo(
-    () =>
-      membersQueryResult.data?.pages
-        .map((page) =>
-          page.sourceMembers.edges.map(({ node }) => ({ ...node, page })),
-        )
-        .flat() ?? [],
-    [membersQueryResult],
-  );
-
   const checkHasPermission = (permission: SourcePermissions) =>
     verifyPermission(squad, permission);
 
@@ -70,7 +60,12 @@ export const useSquadActions = ({
     () => ({
       onUpdateRole,
       membersQueryResult,
-      members,
+      members:
+        membersQueryResult.data?.pages
+          .map((page) =>
+            page.sourceMembers.edges.map(({ node }) => ({ ...node, page })),
+          )
+          .flat() ?? [],
       verifyPermission: checkHasPermission,
     }),
     [onUpdateRole, membersQueryResult, squad],
