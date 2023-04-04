@@ -121,7 +121,7 @@ export function SquadDetails({
           {createMode && (
             <>
               <SquadTitle>Squads early access!</SquadTitle>
-              <SquadSubTitle>
+              <SquadSubTitle className="mb-0">
                 Create a group where you can learn and interact privately with
                 other developers around topics that matter to you
               </SquadSubTitle>
@@ -164,7 +164,7 @@ export function SquadDetails({
             onChange={() => !!handleHint && setHandleHint(null)}
             className={{
               hint: 'text-theme-status-error',
-              container: classNames('w-full', !handleHint && 'mb-5'),
+              container: classNames('w-full', !handleHint && 'mb-1'),
             }}
           />
           {!createMode && (
