@@ -11,7 +11,6 @@ import {
   SquadEdgesData,
   unblockSquadMember,
   updateSquadMemberRole,
-  verifyPermission,
 } from '../../graphql/squads';
 import { graphqlUrl } from '../../lib/config';
 import {
@@ -26,7 +25,6 @@ export interface UseSquadActions {
   onUpdateRole?: typeof updateSquadMemberRole;
   membersQueryResult?: UseInfiniteQueryResult<SquadEdgesData>;
   members?: SourceMember[];
-  verifyPermission: (permission: SourcePermissions) => boolean;
 }
 
 interface MembersQueryParams {
@@ -69,27 +67,16 @@ export const useSquadActions = ({
     },
   );
 
-  const members = useMemo(
-    () =>
-      membersQueryResult.data?.pages
-        .map((page) =>
-          page.sourceMembers.edges.map(({ node }) => ({ ...node, page })),
-        )
-        .flat() ?? [],
-    [membersQueryResult],
-  );
-
-  const checkHasPermission = (permission: SourcePermissions) =>
-    verifyPermission(squad, permission);
-
   return useMemo(
     () => ({
       onUnblock,
       onUpdateRole,
       membersQueryResult,
-      members,
-      verifyPermission: checkHasPermission,
+      members:
+        membersQueryResult.data?.pages
+          .map((page) => page.sourceMembers.edges.map(({ node }) => node))
+          .flat() ?? [],
     }),
-    [onUnblock, onUpdateRole, membersQueryResult, squad, membersQueryEnabled],
+    [onUnblock, onUpdateRole, membersQueryResult],
   );
 };

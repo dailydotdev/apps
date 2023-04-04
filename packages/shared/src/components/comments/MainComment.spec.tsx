@@ -6,6 +6,7 @@ import { LoggedUser } from '../../lib/user';
 import MainComment, { MainCommentProps } from './MainComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
+import post from '../../../__tests__/fixture/post';
 
 const onComment = jest.fn();
 const onDelete = jest.fn();
@@ -20,6 +21,7 @@ const renderLayout = (
   user: LoggedUser = null,
 ): RenderResult => {
   const defaultProps: MainCommentProps = {
+    post,
     comment,
     onComment,
     onDelete,

@@ -7,6 +7,7 @@ import SubComment, { SubCommentProps } from './SubComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import { Origin } from '../../lib/analytics';
+import post from '../../../__tests__/fixture/post';
 
 const onComment = jest.fn();
 const onDelete = jest.fn();
@@ -28,7 +29,7 @@ const renderLayout = (
     onEdit,
     postAuthorId: null,
     postScoutId: null,
-    post: undefined,
+    post,
     origin: Origin.ArticleModal,
     onShare: jest.fn(),
     onShowUpvotes: jest.fn(),
