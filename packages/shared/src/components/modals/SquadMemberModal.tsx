@@ -1,10 +1,6 @@
 import React, { ReactElement, useState } from 'react';
-import { useInfiniteQuery } from 'react-query';
-import request from 'graphql-request';
-import { graphqlUrl } from '../../lib/config';
 import { ModalProps } from './common/Modal';
-import { SQUAD_MEMBERS_QUERY, SquadEdgesData } from '../../graphql/squads';
-import { Squad, SourceMemberRole } from '../../graphql/sources';
+import { Squad, SourceMemberRole, SourceMember } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -19,6 +15,8 @@ import { IconSize } from '../Icon';
 import LinkIcon from '../icons/Link';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useSquadActions } from '../../hooks/squads/useSquadActions';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount?: number;
@@ -52,28 +50,20 @@ export function SquadMemberModal({
   squad,
   ...props
 }: UpvotedPopupModalProps): ReactElement {
-  const [memberId, setMemberId] = useState('');
+  const { user: loggedUser } = useAuthContext();
+  const [member, setMember] = useState<SourceMember>(null);
   const { onMenuClick } = useContextMenu({ id: 'squad-member-menu-context' });
-  const queryKey = ['squadMembers', squad?.id];
-  const queryResult = useInfiniteQuery<SquadEdgesData>(
-    queryKey,
-    ({ pageParam }) =>
-      request(
-        graphqlUrl,
-        SQUAD_MEMBERS_QUERY,
-        { id: squad?.id, after: pageParam },
-        { requestKey: JSON.stringify(queryKey) },
-      ),
-    {
-      enabled: !!squad?.id,
-      getNextPageParam: (lastPage) =>
-        lastPage?.sourceMembers?.pageInfo?.hasNextPage &&
-        lastPage?.sourceMembers?.pageInfo?.endCursor,
-    },
-  );
+  const {
+    members,
+    membersQueryResult: queryResult,
+    onUpdateRole,
+  } = useSquadActions({
+    squad,
+    membersQueryEnabled: true,
+  });
 
-  const onReportClick = (e, userId) => {
-    setMemberId(userId);
+  const onReportClick = (e: React.MouseEvent, clickedMember: SourceMember) => {
+    setMember(clickedMember);
     onMenuClick(e);
   };
 
@@ -87,10 +77,8 @@ export function SquadMemberModal({
           canFetchMore: checkFetchMore(queryResult),
           fetchNextPage: queryResult.fetchNextPage,
         }}
-        users={queryResult.data?.pages
-          .map((page) => page.sourceMembers.edges.map(({ node }) => node.user))
-          .flat()}
-        additionalContent={(user) => {
+        users={members?.map(({ user }) => user)}
+        additionalContent={(user, index) => {
           const role = getSquadMembersUserRole(queryResult, user);
           if (role === SourceMemberRole.Owner) {
             return (
@@ -103,13 +91,15 @@ export function SquadMemberModal({
             );
           }
 
+          if (loggedUser.id === user.id) return null;
+
           return (
             <SimpleTooltip content="Member options">
               <Button
                 buttonSize={ButtonSize.Small}
                 className="m-auto mr-0 btn-tertiary"
                 iconOnly
-                onClick={(e) => onReportClick(e, user.id)}
+                onClick={(e) => onReportClick(e, members[index])}
                 icon={<MenuIcon />}
               />
             </SimpleTooltip>
@@ -117,7 +107,11 @@ export function SquadMemberModal({
         }}
         initialItem={<InitialItem squad={squad} />}
       />
-      <SquadMemberMenu squadId={squad?.id} memberId={memberId} />
+      <SquadMemberMenu
+        squad={squad}
+        member={member}
+        onUpdateRole={onUpdateRole}
+      />
     </>
   );
 }
