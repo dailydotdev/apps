@@ -22,6 +22,7 @@ export type SquadForm = Pick<
   commentary: string;
   post: PostItem;
   buttonText?: string;
+  memberPostingRole?: SourceMemberRole;
 };
 
 type SharedSquadInput = {
@@ -29,6 +30,7 @@ type SharedSquadInput = {
   handle: string;
   description: string;
   image?: File;
+  memberPostingRole?: SourceMemberRole;
 };
 
 type EditSquadInput = SharedSquadInput & {
@@ -89,12 +91,14 @@ export const CREATE_SQUAD_MUTATION = gql`
     $handle: String!
     $description: String
     $image: Upload
+    $memberPostingRole: String
   ) {
     createSquad(
       name: $name
       handle: $handle
       description: $description
       image: $image
+      memberPostingRole: $memberPostingRole
     ) {
       ...SourceBaseInfo
       members {
@@ -312,6 +316,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     handle: form.handle,
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
+    memberPostingRole: form.memberPostingRole,
   };
   const data = await request<CreateSquadOutput>(
     graphqlUrl,
