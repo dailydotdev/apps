@@ -14,7 +14,7 @@ interface SquadMemberBadgeProps {
   iconProps?: IconProps;
 }
 
-export interface SquadMemberRoleBadgeProps
+export interface SquadMemberAuthorBadgeProps
   extends Pick<SquadMemberBadgeProps, 'className' | 'iconProps'> {
   source?: Source;
   author?: Author;
@@ -52,14 +52,14 @@ export const SquadMemberBadge = ({
   );
 };
 
-const SquadMemberRoleBadge = ({
+const SquadMemberAuthorBadge = ({
   author,
   source,
   ...props
-}: SquadMemberRoleBadgeProps): ReactElement => {
+}: SquadMemberAuthorBadgeProps): ReactElement => {
   const { role } = useMemberRoleForSource({ source, user: author });
 
   return <SquadMemberBadge role={role} {...props} />;
 };
 
-export default SquadMemberRoleBadge;
+export default SquadMemberAuthorBadge;

@@ -5,7 +5,7 @@ import BlockIcon from '../icons/Block';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { SquadMemberBadge } from './SquadMemberRoleBadge';
+import { SquadMemberBadge } from './SquadMemberAuthorBadge';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';

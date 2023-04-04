@@ -9,7 +9,7 @@ import Markdown from '../Markdown';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import SquadMemberRoleBadge from '../squads/SquadMemberRoleBadge';
+import SquadMemberAuthorBadge from '../squads/SquadMemberAuthorBadge';
 import UserBadge from '../UserBadge';
 import { FlexRow } from '../utilities';
 import CommentActionButtons, {
@@ -82,7 +82,7 @@ function CommentBox({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
               badges={[
-                <SquadMemberRoleBadge
+                <SquadMemberAuthorBadge
                   key="squadMemberRole"
                   source={post.source}
                   author={comment.author}

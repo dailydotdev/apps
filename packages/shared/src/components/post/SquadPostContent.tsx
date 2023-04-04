@@ -28,7 +28,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import { sendViewPost } from '../../graphql/posts';
-import SquadMemberRoleBadge from '../squads/SquadMemberRoleBadge';
+import SquadMemberAuthorBadge from '../squads/SquadMemberAuthorBadge';
 
 function SquadPostContent({
   post,
@@ -141,7 +141,7 @@ function SquadPostContent({
               <a className="flex flex-col ml-4">
                 <div className="flex items-center">
                   <span className="font-bold">{post.author.name}</span>
-                  <SquadMemberRoleBadge
+                  <SquadMemberAuthorBadge
                     source={post.source}
                     author={post.author}
                   />
