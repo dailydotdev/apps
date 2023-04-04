@@ -50,6 +50,10 @@ export interface Squad extends Source {
   allowMemberPosting: boolean;
 }
 
+export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
+  user: Pick<UserShortProfile, 'id'>;
+}
+
 export interface Source {
   __typename?: string;
   id?: string;
@@ -59,6 +63,7 @@ export interface Source {
   type: SourceType;
   permalink: string;
   currentMember?: SourceMember;
+  privilegedMembers?: SourcePrivilegedMembers[];
 }
 
 export type SourceData = { source: Source };
