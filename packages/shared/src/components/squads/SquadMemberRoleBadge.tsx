@@ -8,12 +8,17 @@ import UserIcon from '../icons/User';
 import UserBadge from '../UserBadge';
 import { IconProps } from '../Icon';
 
-export type SquadMemberRoleBadgeProps = {
+interface SquadMemberBadgeProps {
+  role: SourceMemberRole;
   className?: string;
+  iconProps?: IconProps;
+}
+
+export interface SquadMemberRoleBadgeProps
+  extends Pick<SquadMemberBadgeProps, 'className' | 'iconProps'> {
   source?: Source;
   author?: Author;
-  iconProps?: IconProps;
-};
+}
 
 const RoleToIconMap: Partial<
   Record<SourceMemberRole, FunctionComponent<IconProps>>
@@ -22,13 +27,11 @@ const RoleToIconMap: Partial<
   [SourceMemberRole.Owner]: StarIcon,
 };
 
-const SquadMemberRoleBadge = ({
+export const SquadMemberBadge = ({
+  role,
   className,
-  author,
-  source,
   iconProps,
-}: SquadMemberRoleBadgeProps): ReactElement => {
-  const { role } = useMemberRoleForSource({ source, user: author });
+}: SquadMemberBadgeProps): ReactElement => {
   const RoleIcon = RoleToIconMap[role];
 
   if (!RoleIcon) {
@@ -41,12 +44,22 @@ const SquadMemberRoleBadge = ({
 
   return (
     <UserBadge
-      className={classNames('text-cabbage-40', className)}
+      className={classNames('text-theme-color-cabbage', className)}
       content={role}
       Icon={Icon}
       iconProps={iconProps}
     />
   );
+};
+
+const SquadMemberRoleBadge = ({
+  author,
+  source,
+  ...props
+}: SquadMemberRoleBadgeProps): ReactElement => {
+  const { role } = useMemberRoleForSource({ source, user: author });
+
+  return <SquadMemberBadge role={role} {...props} />;
 };
 
 export default SquadMemberRoleBadge;

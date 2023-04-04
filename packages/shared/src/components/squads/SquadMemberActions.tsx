@@ -2,11 +2,10 @@ import React, { ReactElement } from 'react';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
 import { Button, ButtonSize } from '../buttons/Button';
 import BlockIcon from '../icons/Block';
-import SquadIcon from '../icons/Squad';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { capitalize } from '../../lib/strings';
+import { SquadMemberBadge } from './SquadMemberRoleBadge';
 
 interface SquadMemberActionsProps {
   member: SourceMember;
@@ -51,12 +50,10 @@ function SquadMemberActions({
   if (role !== SourceMemberRole.Member) {
     return (
       <>
-        <span
-          className="flex gap-1 items-center mr-2 font-bold typo-footnote text-theme-color-cabbage"
-          data-testvalue={user.username}
-        >
-          <SquadIcon secondary /> {capitalize(role)}
-        </span>
+        <SquadMemberBadge
+          className={!isLoggedUser && 'mr-2'}
+          role={member.role}
+        />
         {isLoggedUser ? null : option}
       </>
     );
