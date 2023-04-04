@@ -1,10 +1,7 @@
 import React from 'react';
-import { UseInfiniteQueryResult } from 'react-query';
 import classed from '../../lib/classed';
 import { PromptOptions } from '../../hooks/usePrompt';
-import { SquadEdgesData, SquadForm } from '../../graphql/squads';
-import { SourceMemberRole } from '../../graphql/sources';
-import { UserShortProfile } from '../../lib/user';
+import { SquadForm } from '../../graphql/squads';
 
 export enum ModalState {
   Details = 'Squad details',

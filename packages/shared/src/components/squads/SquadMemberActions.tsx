@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
+import { SourceMember, SourceMemberRole } from '../../graphql/sources';
 import { Button, ButtonSize } from '../buttons/Button';
 import BlockIcon from '../icons/Block';
 import SquadIcon from '../icons/Squad';

@@ -3,8 +3,6 @@ import { Modal, ModalProps } from './common/Modal';
 import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
-import { Button, ButtonSize } from '../buttons/Button';
-import MenuIcon from '../icons/Menu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
 import { Origin } from '../../lib/analytics';
@@ -12,7 +10,6 @@ import { IconSize } from '../Icon';
 import LinkIcon from '../icons/Link';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { useSquadActions } from '../../hooks/squads/useSquadActions';
 import SquadMemberActions from '../squads/SquadMemberActions';
 
