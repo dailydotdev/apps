@@ -18,9 +18,9 @@ import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
 import { ContextMenu, ContextMenuItemProps } from '../fields/PortalMenu';
 import { UseSquadActions } from '../../hooks/squads/useSquadActions';
-import { verifyPermission } from '../../graphql/squads';
 
-interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
+interface SquadMemberMenuProps
+  extends Pick<UseSquadActions, 'onUpdateRole' | 'verifyPermission'> {
   squad: Squad;
   member: SourceMember;
 }
@@ -106,6 +106,7 @@ export default function SquadMemberMenu({
   squad,
   member,
   onUpdateRole,
+  verifyPermission,
 }: SquadMemberMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
@@ -138,10 +139,7 @@ export default function SquadMemberMenu({
       (role: SourceMemberRole, title: MenuItemTitle) => () =>
         onUpdateMember(role, title);
     const menu: ContextMenuItemProps[] = [];
-    const canUpdateRole = verifyPermission(
-      squad,
-      SourcePermissions.MemberRoleUpdate,
-    );
+    const canUpdateRole = verifyPermission(SourcePermissions.MemberRoleUpdate);
 
     if (canUpdateRole) {
       const memberOptions = getUpdateRoleOptions(member, getUpdateRoleFn);
@@ -160,7 +158,7 @@ export default function SquadMemberMenu({
     });
 
     const canRemoveMember =
-      canUpdateRole || verifyPermission(squad, SourcePermissions.MemberRemove);
+      canUpdateRole || verifyPermission(SourcePermissions.MemberRemove);
 
     if (canRemoveMember) {
       menu.push({
