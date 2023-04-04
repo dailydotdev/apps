@@ -58,7 +58,6 @@ export function SquadMemberModal({
     membersQueryResult: queryResult,
     onUnblock,
     onUpdateRole,
-    verifyPermission,
   } = useSquadActions({
     squad,
     membersQueryParams: { role: roleFilter },
@@ -110,7 +109,6 @@ export function SquadMemberModal({
         squad={squad}
         member={member}
         onUpdateRole={onUpdateRole}
-        verifyPermission={verifyPermission}
       />
     </>
   );
