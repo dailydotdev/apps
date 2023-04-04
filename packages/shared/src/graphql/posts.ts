@@ -154,6 +154,12 @@ export const POST_BY_ID_QUERY = gql`
           permissions
           role
         }
+        privilegedMembers {
+          user {
+            id
+          }
+          role
+        }
       }
       scout {
         ...UserShortInfo
