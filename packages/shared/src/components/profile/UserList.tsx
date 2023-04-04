@@ -33,7 +33,7 @@ function UserList({
     <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
   );
 
-  if (users.length) {
+  if (users?.length) {
     return (
       <InfiniteScrolling
         {...scrollingProps}
