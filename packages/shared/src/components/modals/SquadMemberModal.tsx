@@ -57,7 +57,6 @@ export function SquadMemberModal({
     members,
     membersQueryResult: queryResult,
     onUpdateRole,
-    verifyPermission,
   } = useSquadActions({
     squad,
     membersQueryEnabled: true,
@@ -112,7 +111,6 @@ export function SquadMemberModal({
         squad={squad}
         member={member}
         onUpdateRole={onUpdateRole}
-        verifyPermission={verifyPermission}
       />
     </>
   );
