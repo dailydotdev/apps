@@ -62,9 +62,7 @@ export const useSquadActions = ({
       membersQueryResult,
       members:
         membersQueryResult.data?.pages
-          .map((page) =>
-            page.sourceMembers.edges.map(({ node }) => ({ ...node, page })),
-          )
+          .map((page) => page.sourceMembers.edges.map(({ node }) => node))
           .flat() ?? [],
       verifyPermission: checkHasPermission,
     }),
