@@ -25,7 +25,7 @@ function SquadMemberActions({
     return (
       <SimpleTooltip content="Unblock">
         <Button
-          className="btn-tertiary"
+          className="my-auto btn-tertiary"
           icon={<BlockIcon />}
           onClick={onUnblockClick}
         />
@@ -51,7 +51,7 @@ function SquadMemberActions({
     return (
       <>
         <SquadMemberBadge
-          className={!isLoggedUser && 'mr-2'}
+          className={!isLoggedUser && 'my-auto mr-2'}
           role={member.role}
         />
         {isLoggedUser ? null : option}
