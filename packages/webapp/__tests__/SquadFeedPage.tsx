@@ -338,7 +338,8 @@ describe('squad members modal', () => {
     mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id, role }));
     const blocked = await screen.findByText('Blocked members');
     blocked.click();
-    await waitForNock();
+    const unblocks = await screen.findAllByLabelText('Unblock');
+    expect(unblocks.length).toEqual(members.length);
   });
 
   it('should show options button to all members', async () => {
