@@ -2,20 +2,20 @@ import request, { gql } from 'graphql-request';
 import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
-import { Source, SourceMember, Squad } from './sources';
+import { Source, SourceMember, SourceMemberRole, Squad } from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
 
 export type SquadForm = Pick<
   Squad,
-  'name' | 'handle' | 'description' | 'image' | 'allowMemberPosting'
+  'name' | 'handle' | 'description' | 'image'
 > & {
   url?: string;
   file?: string;
   commentary: string;
   post: PostItem;
   buttonText?: string;
-  allowMemberPostingValue?: string;
+  memberPostingRole?: SourceMemberRole;
 };
 
 type SharedSquadInput = {
@@ -23,7 +23,7 @@ type SharedSquadInput = {
   handle: string;
   description: string;
   image?: File;
-  allowMemberPosting?: boolean;
+  memberPostingRole?: SourceMemberRole;
 };
 
 type EditSquadInput = SharedSquadInput & {
@@ -68,14 +68,14 @@ export const CREATE_SQUAD_MUTATION = gql`
     $handle: String!
     $description: String
     $image: Upload
-    $allowMemberPosting: Boolean
+    $memberPostingRole: String
   ) {
     createSquad(
       name: $name
       handle: $handle
       description: $description
       image: $image
-      allowMemberPosting: $allowMemberPosting
+      memberPostingRole: $memberPostingRole
     ) {
       ...SourceBaseInfo
       members {
@@ -275,7 +275,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     handle: form.handle,
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
-    allowMemberPosting: form.allowMemberPosting,
+    memberPostingRole: form.memberPostingRole,
   };
   const data = await request<CreateSquadOutput>(
     graphqlUrl,

@@ -20,6 +20,7 @@ import { Justify } from '../utilities';
 import SquadIcon from '../icons/Squad';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { RadioItem } from '../fields/RadioItem';
+import { SourceMemberRole } from '../../graphql/sources';
 
 const squadImageId = 'squad_image_file';
 
@@ -34,21 +35,13 @@ const getFormData = async (
   current: SquadForm,
   imageChanged: boolean,
 ): Promise<SquadForm> => {
-  const { allowMemberPostingValue, ...restFormData } = current;
-  const formData = {
-    ...restFormData,
-    allowMemberPosting: allowMemberPostingValue === 'true',
-  };
+  if (!imageChanged) return current;
 
-  if (imageChanged) {
-    const input = document.getElementById(squadImageId) as HTMLInputElement;
-    const file = input.files[0];
-    const base64 = await blobToBase64(file);
+  const input = document.getElementById(squadImageId) as HTMLInputElement;
+  const file = input.files[0];
+  const base64 = await blobToBase64(file);
 
-    formData.file = base64;
-  }
-
-  return formData;
+  return { ...current, file: base64 };
 };
 
 export function SquadDetails({
@@ -61,16 +54,14 @@ export function SquadDetails({
     name,
     handle,
     description,
-    allowMemberPosting: initialAllowMemberPosting,
+    memberPostingRole: initialMemberPostingRole,
   } = form;
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
-  const [allowMemberPosting, setAllowMemberPosting] = useState(() =>
-    typeof initialAllowMemberPosting === 'boolean'
-      ? initialAllowMemberPosting
-      : true,
+  const [memberPostingRole, setMemberPostingRole] = useState(
+    () => initialMemberPostingRole || SourceMemberRole.Member,
   );
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
@@ -113,7 +104,7 @@ export function SquadDetails({
       setActiveHandle(formJson.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''));
     }
 
-    setAllowMemberPosting(formJson.allowMemberPostingValue === 'true');
+    setMemberPostingRole(formJson.memberPostingRole);
 
     setCanSubmit(!!formJson.name);
   };
@@ -199,16 +190,16 @@ export function SquadDetails({
               Choose who is allowed to post new content in this Squad.
             </p>
             <RadioItem
-              name="allowMemberPostingValue"
-              value="true"
-              checked={allowMemberPosting}
+              name="memberPostingRole"
+              value={SourceMemberRole.Member}
+              checked={memberPostingRole === SourceMemberRole.Member}
             >
               All members
             </RadioItem>
             <RadioItem
-              name="allowMemberPostingValue"
-              value="false"
-              checked={!allowMemberPosting}
+              name="memberPostingRole"
+              value={SourceMemberRole.Moderator}
+              checked={memberPostingRole === SourceMemberRole.Moderator}
             >
               Only moderators
             </RadioItem>
