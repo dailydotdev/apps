@@ -32,7 +32,7 @@ function SquadMemberActions({
       title: 'Unblock member?',
       description: `${member.user.name} will now have access to join your Squad and can then post, upvote and comment`,
       okButton: { title: 'Unblock', className: 'btn-primary-cabbage' },
-      content: <UserShortInfo user={member.user} />,
+      content: <UserShortInfo user={user} />,
       promptSize: ModalSize.Small,
       className: { buttons: 'mt-6' },
     });
