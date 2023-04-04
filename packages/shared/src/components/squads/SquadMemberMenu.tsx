@@ -67,7 +67,7 @@ const getUpdateRoleOptions = (
     action: getUpdateRoleFn(SourceMemberRole.Owner, MenuItemTitle.AddAsOwner),
   };
   const promoteToModerator = {
-    text: MenuItemTitle.DemoteToModerator,
+    text: MenuItemTitle.PromoteToModerator,
     icon: <UserIcon size={IconSize.Small} />,
     action: getUpdateRoleFn(
       SourceMemberRole.Moderator,
