@@ -24,11 +24,13 @@ function SquadMemberActions({
 
   if (role === SourceMemberRole.Blocked) {
     return (
-      <Button
-        className="btn-tertiary"
-        icon={<BlockIcon />}
-        onClick={onUnblockClick}
-      />
+      <SimpleTooltip content="Unblock">
+        <Button
+          className="btn-tertiary"
+          icon={<BlockIcon />}
+          onClick={onUnblockClick}
+        />
+      </SimpleTooltip>
     );
   }
 
