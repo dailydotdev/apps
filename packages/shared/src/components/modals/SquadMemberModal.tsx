@@ -106,7 +106,7 @@ export function SquadMemberModal({
             />
           ),
           emptyPlaceholder: (
-            <FlexCentered className="flex-col pb-10 h-full">
+            <FlexCentered className="flex-col h-full">
               <BlockIcon secondary size={IconSize.XXXLarge} />
               <p className="text-theme-label-secondary typo-body">
                 No blocked members found

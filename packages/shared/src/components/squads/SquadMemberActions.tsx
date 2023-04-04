@@ -6,7 +6,7 @@ import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SquadMemberBadge } from './SquadMemberRoleBadge';
-import { usePrompt } from '../../hooks/usePrompt';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
 
@@ -28,16 +28,16 @@ function SquadMemberActions({
   const onConfirmUnblock = async (e: React.MouseEvent) => {
     e.preventDefault();
 
-    const hasUnblocked = await showPrompt({
+    const options: PromptOptions = {
       title: 'Unblock member?',
       description: `${user.name} will now have access to join your Squad and can then post, upvote and comment`,
       okButton: { title: 'Unblock', className: 'btn-primary-cabbage' },
       content: <UserShortInfo user={user} />,
       promptSize: ModalSize.Small,
       className: { buttons: 'mt-6' },
-    });
+    };
 
-    if (hasUnblocked) {
+    if (await showPrompt(options)) {
       onUnblock(e);
     }
   };
