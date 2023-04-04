@@ -122,8 +122,8 @@ export function SquadDetails({
             <>
               <SquadTitle>Squads early access!</SquadTitle>
               <SquadSubTitle>
-                Creating a squad allows you to stay up-to-date and communicate
-                privately.
+                Create a group where you can learn and interact privately with
+                other developers around topics that matter to you
               </SquadSubTitle>
             </>
           )}
@@ -143,7 +143,7 @@ export function SquadDetails({
             />
           )}
           <TextField
-            label="Squad name"
+            label="Name your squad"
             inputId="name"
             name="name"
             valid={!!name}
