@@ -6,20 +6,41 @@ import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SquadMemberBadge } from './SquadMemberRoleBadge';
+import { usePrompt } from '../../hooks/usePrompt';
+import { UserShortInfo } from '../profile/UserShortInfo';
+import { ModalSize } from '../modals/common/types';
 
 interface SquadMemberActionsProps {
   member: SourceMember;
-  onUnblockClick: React.MouseEventHandler;
+  onUnblock: React.MouseEventHandler;
   onOptionsClick: React.MouseEventHandler;
 }
 
 function SquadMemberActions({
   member,
-  onUnblockClick,
+  onUnblock,
   onOptionsClick,
 }: SquadMemberActionsProps): ReactElement {
+  const { showPrompt } = usePrompt();
   const { user: loggedUser } = useAuthContext();
   const { role, user } = member;
+
+  const onConfirmUnblock = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    const hasUnblocked = await showPrompt({
+      title: 'Unblock member?',
+      description: `${member.user.name} will now have access to join your Squad and can then post, upvote and comment`,
+      okButton: { title: 'Unblock', className: 'btn-primary-cabbage' },
+      content: <UserShortInfo user={member.user} />,
+      promptSize: ModalSize.Small,
+      className: { buttons: 'mt-6' },
+    });
+
+    if (hasUnblocked) {
+      onUnblock(e);
+    }
+  };
 
   if (role === SourceMemberRole.Blocked) {
     return (
@@ -27,7 +48,7 @@ function SquadMemberActions({
         <Button
           className="my-auto btn-tertiary"
           icon={<BlockIcon />}
-          onClick={onUnblockClick}
+          onClick={onConfirmUnblock}
         />
       </SimpleTooltip>
     );

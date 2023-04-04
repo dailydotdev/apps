@@ -99,7 +99,7 @@ export function SquadMemberModal({
           additionalContent: (user, index) => (
             <SquadMemberActions
               member={members[index]}
-              onUnblockClick={() =>
+              onUnblock={() =>
                 onUnblock({ sourceId: squad.id, memberId: user.id })
               }
               onOptionsClick={(e) => onOptionsClick(e, members[index])}
