@@ -16,7 +16,7 @@ interface SquadMemberActionsProps {
   onOptionsClick: React.MouseEventHandler;
 }
 
-function SquadMemberActions({
+function SquadMemberItemAdditionalContent({
   member,
   onUnblock,
   onOptionsClick,
@@ -85,4 +85,4 @@ function SquadMemberActions({
   return option;
 }
 
-export default SquadMemberActions;
+export default SquadMemberItemAdditionalContent;

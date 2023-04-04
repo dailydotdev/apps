@@ -11,7 +11,7 @@ import LinkIcon from '../icons/Link';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks/squads/useSquadActions';
-import SquadMemberActions from '../squads/SquadMemberActions';
+import SquadMemberItemAdditionalContent from '../squads/SquadMemberItemAdditionalContent';
 import BlockIcon from '../icons/Block';
 
 enum SquadMemberTab {
@@ -97,7 +97,7 @@ export function SquadMemberModal({
         }}
         userListProps={{
           additionalContent: (user, index) => (
-            <SquadMemberActions
+            <SquadMemberItemAdditionalContent
               member={members[index]}
               onUnblock={() =>
                 onUnblock({ sourceId: squad.id, memberId: user.id })
