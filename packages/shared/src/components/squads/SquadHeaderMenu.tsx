@@ -5,7 +5,11 @@ import AuthContext from '../../contexts/AuthContext';
 import EditIcon from '../icons/Edit';
 import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
-import { Squad, SourceMemberRole } from '../../graphql/sources';
+import {
+  Squad,
+  SourceMemberRole,
+  SourcePermissions,
+} from '../../graphql/sources';
 import TrashIcon from '../icons/Trash';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -14,6 +18,7 @@ import { useLeaveSquad } from '../../hooks/useLeaveSquad';
 import ContextMenuItem, {
   ContextMenuItemProps,
 } from '../tooltips/ContextMenuItem';
+import { verifyPermission } from '../../graphql/squads';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -44,7 +49,8 @@ export default function SquadHeaderMenu({
     squad,
     callback: () => router.replace('/'),
   });
-  const isSquadOwner = squad?.currentMember?.role === SourceMemberRole.Owner;
+  const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
+  const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
   const onEditSquad = () => {
     openModal({
@@ -64,12 +70,12 @@ export default function SquadHeaderMenu({
           }),
         label: 'Learn how Squads work',
       },
-      isSquadOwner
+      canDeleteSquad
         ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }
         : { Icon: ExitIcon, onClick: onLeaveSquad, label: 'Leave Squad' },
     ];
 
-    if (isSquadOwner) {
+    if (canEditSquad) {
       list.unshift({
         Icon: EditIcon,
         onClick: onEditSquad,
@@ -78,7 +84,7 @@ export default function SquadHeaderMenu({
     }
 
     return list;
-  }, [isSquadOwner, squad, user, onDeleteSquad, onLeaveSquad]);
+  }, [canEditSquad, canDeleteSquad, squad, user, onDeleteSquad, onLeaveSquad]);
 
   return (
     <PortalMenu
