@@ -30,7 +30,7 @@ function SquadMemberActions({
 
     const hasUnblocked = await showPrompt({
       title: 'Unblock member?',
-      description: `${member.user.name} will now have access to join your Squad and can then post, upvote and comment`,
+      description: `${user.name} will now have access to join your Squad and can then post, upvote and comment`,
       okButton: { title: 'Unblock', className: 'btn-primary-cabbage' },
       content: <UserShortInfo user={user} />,
       promptSize: ModalSize.Small,
