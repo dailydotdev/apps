@@ -73,6 +73,6 @@ export const useSquadActions = ({
       members,
       verifyPermission: checkHasPermission,
     }),
-    [onUpdateRole, membersQueryResult, squad, membersQueryEnabled],
+    [onUpdateRole, membersQueryResult, squad],
   );
 };
