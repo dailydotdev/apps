@@ -19,8 +19,8 @@ import { IconSize } from '../Icon';
 import { Justify } from '../utilities';
 import SquadIcon from '../icons/Squad';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { RadioItem } from '../fields/RadioItem';
 import { SourceMemberRole } from '../../graphql/sources';
+import { Radio } from '../fields/Radio';
 
 const squadImageId = 'squad_image_file';
 
@@ -43,6 +43,17 @@ const getFormData = async (
 
   return { ...current, file: base64 };
 };
+
+const memberPostingRoleOptions = [
+  {
+    label: 'All members',
+    value: SourceMemberRole.Member,
+  },
+  {
+    label: 'Only moderators',
+    value: SourceMemberRole.Moderator,
+  },
+];
 
 export function SquadDetails({
   onSubmit,
@@ -103,8 +114,6 @@ export function SquadDetails({
     if (formJson.name && !activeHandle && !formJson.handle) {
       setActiveHandle(formJson.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''));
     }
-
-    setMemberPostingRole(formJson.memberPostingRole);
 
     setCanSubmit(!!formJson.name);
   };
@@ -190,20 +199,14 @@ export function SquadDetails({
               <p className="mb-4 text-theme-label-tertiary typo-callout">
                 Choose who is allowed to post new content in this Squad.
               </p>
-              <RadioItem
+              <Radio
                 name="memberPostingRole"
-                value={SourceMemberRole.Member}
-                checked={memberPostingRole === SourceMemberRole.Member}
-              >
-                All members
-              </RadioItem>
-              <RadioItem
-                name="memberPostingRole"
-                value={SourceMemberRole.Moderator}
-                checked={memberPostingRole === SourceMemberRole.Moderator}
-              >
-                Only moderators
-              </RadioItem>
+                options={memberPostingRoleOptions}
+                value={memberPostingRole}
+                onChange={(value) =>
+                  setMemberPostingRole(value as SourceMemberRole)
+                }
+              />
             </div>
           )}
         </form>
