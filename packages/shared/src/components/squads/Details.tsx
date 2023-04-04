@@ -182,28 +182,30 @@ export function SquadDetails({
               }}
             />
           )}
-          <div className="flex flex-col justify-start">
-            <h4 className="mb-2 font-bold typo-headline text-theme-label-primary">
-              Post permissions
-            </h4>
-            <p className="mb-4 text-theme-label-tertiary typo-callout">
-              Choose who is allowed to post new content in this Squad.
-            </p>
-            <RadioItem
-              name="memberPostingRole"
-              value={SourceMemberRole.Member}
-              checked={memberPostingRole === SourceMemberRole.Member}
-            >
-              All members
-            </RadioItem>
-            <RadioItem
-              name="memberPostingRole"
-              value={SourceMemberRole.Moderator}
-              checked={memberPostingRole === SourceMemberRole.Moderator}
-            >
-              Only moderators
-            </RadioItem>
-          </div>
+          {createMode && (
+            <div className="flex flex-col justify-start">
+              <h4 className="mb-2 font-bold typo-headline text-theme-label-primary">
+                Post permissions
+              </h4>
+              <p className="mb-4 text-theme-label-tertiary typo-callout">
+                Choose who is allowed to post new content in this Squad.
+              </p>
+              <RadioItem
+                name="memberPostingRole"
+                value={SourceMemberRole.Member}
+                checked={memberPostingRole === SourceMemberRole.Member}
+              >
+                All members
+              </RadioItem>
+              <RadioItem
+                name="memberPostingRole"
+                value={SourceMemberRole.Moderator}
+                checked={memberPostingRole === SourceMemberRole.Moderator}
+              >
+                Only moderators
+              </RadioItem>
+            </div>
+          )}
         </form>
       </Modal.Body>
       <Modal.Footer className={!createMode && 'px-6'} justify={Justify.Between}>
