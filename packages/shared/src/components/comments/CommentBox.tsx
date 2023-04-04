@@ -109,7 +109,7 @@ function CommentBox({
                     }}
                   />
                 ),
-              ].filter(Boolean)}
+              ]}
             />
           </FlexRow>
           <FlexRow className="items-center text-theme-label-quaternary">
