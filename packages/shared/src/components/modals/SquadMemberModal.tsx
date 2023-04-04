@@ -1,7 +1,5 @@
 import React, { ReactElement, useState } from 'react';
 import { Modal, ModalProps } from './common/Modal';
-import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
-import { Modal, ModalProps } from './common/Modal';
 import { Squad, SourceMemberRole, SourceMember } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
@@ -13,7 +11,6 @@ import LinkIcon from '../icons/Link';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks/squads/useSquadActions';
-import { useAuthContext } from '../../contexts/AuthContext';
 import SquadMemberActions from '../squads/SquadMemberActions';
 
 enum SquadMemberTab {
@@ -54,7 +51,6 @@ export function SquadMemberModal({
   ...props
 }: SquadMemberModalProps): ReactElement {
   const [roleFilter, setRoleFilter] = useState<SourceMemberRole>(null);
-  const { user: loggedUser } = useAuthContext();
   const [member, setMember] = useState<SourceMember>(null);
   const { onMenuClick } = useContextMenu({ id: 'squad-member-menu-context' });
   const {
