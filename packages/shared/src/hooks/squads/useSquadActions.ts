@@ -60,6 +60,6 @@ export const useSquadActions = ({
           .map((page) => page.sourceMembers.edges.map(({ node }) => node))
           .flat() ?? [],
     }),
-    [onUpdateRole, membersQueryResult, squad],
+    [onUpdateRole, membersQueryResult],
   );
 };
