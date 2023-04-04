@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { Modal, ModalProps } from './common/Modal';
-import { Squad, SourceMemberRole, SourceMember } from '../../graphql/sources';
+import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import useContextMenu from '../../hooks/useContextMenu';
@@ -12,6 +12,7 @@ import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks/squads/useSquadActions';
 import SquadMemberActions from '../squads/SquadMemberActions';
+import BlockIcon from '../icons/Block';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -93,17 +94,28 @@ export function SquadMemberModal({
           canFetchMore: checkFetchMore(queryResult),
           fetchNextPage: queryResult.fetchNextPage,
         }}
+        userListProps={{
+          additionalContent: (user, index) => (
+            <SquadMemberActions
+              member={members[index]}
+              onUnblockClick={() =>
+                onUnblock({ sourceId: squad.id, memberId: user.id })
+              }
+              onOptionsClick={(e) => onOptionsClick(e, members[index])}
+            />
+          ),
+          emptyPlaceholder: (
+            <FlexCentered className="flex-col flex-1">
+              <BlockIcon secondary size={IconSize.XXXLarge} />
+              <p className="text-theme-label-secondary typo-body">
+                No blocked members found
+              </p>
+            </FlexCentered>
+          ),
+          isLoading: queryResult.isLoading,
+          initialItem: <InitialItem squad={squad} />,
+        }}
         users={members?.map(({ user }) => user)}
-        additionalContent={(user, index) => (
-          <SquadMemberActions
-            member={members[index]}
-            onUnblockClick={() =>
-              onUnblock({ sourceId: squad.id, memberId: user.id })
-            }
-            onOptionsClick={(e) => onOptionsClick(e, members[index])}
-          />
-        )}
-        initialItem={<InitialItem squad={squad} />}
       />
       <SquadMemberMenu
         squad={squad}
