@@ -74,6 +74,7 @@ export function SquadMemberModal({
     <>
       <UserListModal
         {...props}
+        kind={Modal.Kind.FixedCenter}
         title="Squad members"
         tabs={Object.values(SquadMemberTab)}
         header={
@@ -105,7 +106,7 @@ export function SquadMemberModal({
             />
           ),
           emptyPlaceholder: (
-            <FlexCentered className="flex-col flex-1">
+            <FlexCentered className="flex-col pb-10 h-full">
               <BlockIcon secondary size={IconSize.XXXLarge} />
               <p className="text-theme-label-secondary typo-body">
                 No blocked members found
