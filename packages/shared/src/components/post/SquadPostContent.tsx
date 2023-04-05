@@ -28,7 +28,8 @@ import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import { sendViewPost } from '../../graphql/posts';
-import SquadMemberRoleBadge from '../squads/SquadMemberRoleBadge';
+import SquadMemberBadge from '../squads/SquadMemberBadge';
+import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 
 function SquadPostContent({
   post,
@@ -62,6 +63,10 @@ function SquadPostContent({
   const [shoudShowSummary, setShouldShowSummary] = useState(true);
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onSharePost, onToggleBookmark } = engagementActions;
+  const { role } = useMemberRoleForSource({
+    source: post.source,
+    user: post.author,
+  });
 
   const navigationProps: PostNavigationProps = {
     post,
@@ -141,10 +146,7 @@ function SquadPostContent({
               <a className="flex flex-col ml-4">
                 <div className="flex items-center">
                   <span className="font-bold">{post.author.name}</span>
-                  <SquadMemberRoleBadge
-                    source={post.source}
-                    author={post.author}
-                  />
+                  <SquadMemberBadge key="squadMemberRole" role={role} />
                 </div>
                 <span className="text-theme-label-tertiary">
                   @{post.author.username}

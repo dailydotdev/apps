@@ -1,10 +1,7 @@
 import React from 'react';
-import { UseInfiniteQueryResult } from 'react-query';
 import classed from '../../lib/classed';
 import { PromptOptions } from '../../hooks/usePrompt';
-import { SquadEdgesData, SquadForm } from '../../graphql/squads';
-import { SourceMemberRole } from '../../graphql/sources';
-import { UserShortProfile } from '../../lib/user';
+import { SquadForm } from '../../graphql/squads';
 
 export enum ModalState {
   Details = 'Squad details',
@@ -49,15 +46,4 @@ export const quitSquadModal: PromptOptions = {
     title: 'Close',
     className: 'btn-secondary',
   },
-};
-
-export const getSquadMembersUserRole = (
-  input: UseInfiniteQueryResult<SquadEdgesData>,
-  user: UserShortProfile,
-): SourceMemberRole => {
-  return input.data?.pages
-    .map((page) =>
-      page.sourceMembers.edges.filter(({ node }) => node.user.id === user.id),
-    )
-    .flat()[0].node.role;
 };
