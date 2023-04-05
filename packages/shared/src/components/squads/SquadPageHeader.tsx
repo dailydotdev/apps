@@ -93,7 +93,11 @@ export function SquadPageHeader({
           MAX_WIDTH,
         )}
       >
-        <SharePostBar className="w-full" onNewSquadPost={onNewSquadPost} />
+        <SharePostBar
+          className="w-full"
+          onNewSquadPost={onNewSquadPost}
+          squad={squad}
+        />
         {sharePostTutorial.isActive && (
           <TutorialGuide
             className="absolute right-0 -bottom-22 tablet:-bottom-24 laptop:-bottom-20 left-0"

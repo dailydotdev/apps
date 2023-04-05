@@ -353,4 +353,22 @@ export async function editSquad(
 export const verifyPermission = (
   squad: Squad,
   permission: SourcePermissions,
-): boolean => squad?.currentMember?.permissions?.includes(permission);
+): boolean => {
+  const hasPermission =
+    !!squad?.currentMember?.permissions?.includes(permission);
+
+  // TODO WT-1224 find better way to do this
+  if (hasPermission && permission === SourcePermissions.Post) {
+    const membersCanPost = squad.memberPostingRole === SourceMemberRole.Member;
+
+    if (membersCanPost) {
+      return true;
+    }
+
+    return [SourceMemberRole.Owner, SourceMemberRole.Moderator].includes(
+      squad.currentMember.role,
+    );
+  }
+
+  return hasPermission;
+};
