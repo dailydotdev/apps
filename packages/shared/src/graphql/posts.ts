@@ -158,9 +158,6 @@ export const POST_BY_ID_QUERY = gql`
           }
           role
         }
-        currentMember {
-          ...CurrentMember
-        }
       }
       scout {
         ...UserShortInfo
