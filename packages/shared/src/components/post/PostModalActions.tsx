@@ -20,7 +20,6 @@ import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
-import { SourcePermissions, SourceType } from '../../graphql/sources';
 
 export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
