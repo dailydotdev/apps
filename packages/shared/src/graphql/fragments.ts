@@ -65,7 +65,6 @@ export const SOURCE_BASE_FRAGMENT = gql`
     membersCount
     currentMember {
       role
-      roleRank
       referralToken
       permissions
     }

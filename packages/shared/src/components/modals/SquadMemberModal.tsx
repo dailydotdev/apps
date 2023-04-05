@@ -1,6 +1,11 @@
 import React, { ReactElement, useState } from 'react';
 import { Modal, ModalProps } from './common/Modal';
-import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+  SourcePermissions,
+  Squad,
+} from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import useContextMenu from '../../hooks/useContextMenu';
@@ -13,6 +18,7 @@ import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks/squads/useSquadActions';
 import SquadMemberItemAdditionalContent from '../squads/SquadMemberItemAdditionalContent';
 import BlockIcon from '../icons/Block';
+import { verifyPermission } from '../../graphql/squads';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -78,7 +84,7 @@ export function SquadMemberModal({
         title="Squad members"
         tabs={Object.values(SquadMemberTab)}
         header={
-          squad?.currentMember?.roleRank > 0 ? (
+          verifyPermission(squad, SourcePermissions.ViewBlockedMembers) ? (
             <Modal.Header.Tabs
               onTabClick={(tab) =>
                 setRoleFilter(

@@ -39,6 +39,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
   SourceMemberRole,
+  SourcePermissions,
   Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
@@ -321,7 +322,7 @@ describe('squad members modal', () => {
   it('should show all blocked members of the squad when privileged', async () => {
     requestedSquad.currentMember = {
       role: SourceMemberRole.Owner,
-      roleRank: 10,
+      permissions: [SourcePermissions.ViewBlockedMembers],
     };
     await openedMembersModal();
     const list = await screen.findByLabelText('users-list');
