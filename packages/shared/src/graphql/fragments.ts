@@ -24,33 +24,6 @@ export const SOURCE_SHORT_INFO_FRAGMENT = gql`
   }
 `;
 
-export const SHARED_POST_INFO_FRAGMENT = gql`
-  fragment SharedPostInfo on Post {
-    id
-    title
-    image
-    readTime
-    permalink
-    commentsPermalink
-    summary
-    createdAt
-    private
-    scout {
-      ...UserShortInfo
-    }
-    author {
-      ...UserShortInfo
-    }
-    type
-    tags
-    source {
-      ...SourceShortInfo
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
-  ${USER_SHORT_INFO_FRAGMENT}
-`;
-
 export const SOURCE_BASE_FRAGMENT = gql`
   fragment SourceBaseInfo on Source {
     id
@@ -66,8 +39,41 @@ export const SOURCE_BASE_FRAGMENT = gql`
     currentMember {
       role
       referralToken
+      permissions
     }
   }
+`;
+
+export const SHARED_POST_INFO_FRAGMENT = gql`
+  fragment SharedPostInfo on Post {
+    id
+    title
+    image
+    readTime
+    permalink
+    commentsPermalink
+    summary
+    createdAt
+    private
+    upvoted
+    commented
+    bookmarked
+    numUpvotes
+    numComments
+    scout {
+      ...UserShortInfo
+    }
+    author {
+      ...UserShortInfo
+    }
+    type
+    tags
+    source {
+      ...SourceBaseInfo
+    }
+  }
+  ${SOURCE_BASE_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const COMMENT_FRAGMENT = gql`
