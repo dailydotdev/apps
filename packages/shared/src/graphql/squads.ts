@@ -2,9 +2,16 @@ import request, { gql } from 'graphql-request';
 import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
-import { Source, SourceMember, Squad } from './sources';
+import {
+  Source,
+  SourceMember,
+  SourceMemberRole,
+  SourcePermissions,
+  Squad,
+} from './sources';
 import { Post, PostItem } from './posts';
 import { base64ToFile } from '../lib/base64';
+import { EmptyResponse } from './emptyResponse';
 
 export type SquadForm = Pick<
   Squad,
@@ -15,6 +22,7 @@ export type SquadForm = Pick<
   commentary: string;
   post: PostItem;
   buttonText?: string;
+  memberPostingRole?: SourceMemberRole;
 };
 
 type SharedSquadInput = {
@@ -22,6 +30,7 @@ type SharedSquadInput = {
   handle: string;
   description: string;
   image?: File;
+  memberPostingRole?: SourceMemberRole;
 };
 
 type EditSquadInput = SharedSquadInput & {
@@ -43,6 +52,14 @@ type PostToSquadProps = {
   sourceId: string;
   commentary: string;
 };
+
+export const UPDATE_MEMBER_ROLE_MUTATION = gql`
+  mutation UpdateMemberRole($sourceId: ID!, $memberId: ID!, $role: String!) {
+    updateMemberRole(sourceId: $sourceId, memberId: $memberId, role: $role) {
+      _
+    }
+  }
+`;
 
 export const LEAVE_SQUAD_MUTATION = gql`
   mutation LeaveSource($sourceId: ID!) {
@@ -66,12 +83,14 @@ export const CREATE_SQUAD_MUTATION = gql`
     $handle: String!
     $description: String
     $image: Upload
+    $memberPostingRole: String
   ) {
     createSquad(
       name: $name
       handle: $handle
       description: $description
       image: $image
+      memberPostingRole: $memberPostingRole
     ) {
       ...SourceBaseInfo
       members {
@@ -214,6 +233,17 @@ export const checkUserMembership = async (
   return res.member;
 };
 
+interface UpdateSquadMemberRoleProps {
+  sourceId: string;
+  memberId: string;
+  role: SourceMemberRole;
+}
+
+export const updateSquadMemberRole = (
+  args: UpdateSquadMemberRoleProps,
+): Promise<EmptyResponse> =>
+  request(graphqlUrl, UPDATE_MEMBER_ROLE_MUTATION, args);
+
 export const leaveSquad = (sourceId: string): Promise<void> =>
   request(graphqlUrl, LEAVE_SQUAD_MUTATION, {
     sourceId,
@@ -291,6 +321,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     handle: form.handle,
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
+    memberPostingRole: form.memberPostingRole,
   };
   const data = await request<CreateSquadOutput>(
     graphqlUrl,
@@ -323,3 +354,8 @@ export async function editSquad(
   );
   return data.editSquad;
 }
+
+export const verifyPermission = (
+  squad: Squad,
+  permission: SourcePermissions,
+): boolean => squad?.currentMember?.permissions?.includes(permission);

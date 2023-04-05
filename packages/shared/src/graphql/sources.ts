@@ -15,9 +15,8 @@ export enum SourcePermissions {
   Post = 'post',
   PostLimit = 'post_limit',
   PostDelete = 'post_delete',
+  MemberRoleUpdate = 'member_role_update',
   MemberRemove = 'member_remove',
-  ModeratorAdd = 'moderator_add',
-  ModeratorRemove = 'moderator_remove',
   InviteDisable = 'invite_disable',
   Leave = 'leave',
   Delete = 'delete',
@@ -47,6 +46,11 @@ export interface Squad extends Source {
   members?: Connection<SourceMember>;
   membersCount: number;
   description: string;
+  memberPostingRank: number;
+}
+
+export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
+  user: Pick<UserShortProfile, 'id'>;
 }
 
 export interface Source {
@@ -58,6 +62,7 @@ export interface Source {
   type: SourceType;
   permalink: string;
   currentMember?: SourceMember;
+  privilegedMembers?: SourcePrivilegedMembers[];
 }
 
 export type SourceData = { source: Source };

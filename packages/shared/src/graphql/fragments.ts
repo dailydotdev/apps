@@ -1,5 +1,16 @@
 import { gql } from 'graphql-request';
 
+export const CURRENT_MEMBER_FRAGMENT = gql`
+  fragment CurrentMember on SourceMember {
+    user {
+      id
+    }
+    permissions
+    role
+    referralToken
+  }
+`;
+
 export const USER_SHORT_INFO_FRAGMENT = gql`
   fragment UserShortInfo on User {
     id
@@ -64,10 +75,10 @@ export const SOURCE_BASE_FRAGMENT = gql`
     image
     membersCount
     currentMember {
-      role
-      referralToken
+      ...CurrentMember
     }
   }
+  ${CURRENT_MEMBER_FRAGMENT}
 `;
 
 export const COMMENT_FRAGMENT = gql`
