@@ -184,8 +184,8 @@ export const SQUAD_JOIN_MUTATION = gql`
 `;
 
 export const CHECK_USER_MEMBERSHIP = gql`
-  query CheckUserMembership($userId: ID!, $sourceId: ID!) {
-    member: checkUserMembership(userId: $userId, sourceId: $sourceId) {
+  query CheckUserMembership($memberId: ID!, $sourceId: ID!) {
+    member: checkUserMembership(memberId: $memberId, sourceId: $sourceId) {
       role
     }
   }
