@@ -73,10 +73,11 @@ export function CompanionDiscussion({
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
+          parentComment={parentComment}
           parentSelector={getCompanionWrapper}
           onRequestClose={closeNewComment}
           onInputChange={onInput}
-          {...parentComment}
+          post={post}
         />
       )}
       {shareComment && (
