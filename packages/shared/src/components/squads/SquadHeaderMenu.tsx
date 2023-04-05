@@ -5,11 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import EditIcon from '../icons/Edit';
 import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
-import {
-  Squad,
-  SourceMemberRole,
-  SourcePermissions,
-} from '../../graphql/sources';
+import { Squad, SourcePermissions } from '../../graphql/sources';
 import TrashIcon from '../icons/Trash';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
