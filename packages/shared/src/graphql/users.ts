@@ -166,35 +166,14 @@ export const USER_READING_HISTORY_QUERY = gql`
 `;
 
 const READING_HISTORY_FRAGMENT = gql`
-  fragment ReadingHistoryFrament on ReadingHistory {
+  fragment ReadingHistoryFragment on ReadingHistory {
     timestamp
     timestampDb
     post {
-      id
-      title
-      image
-      permalink
-      commentsPermalink
-      trending
-      tags
-      readTime
-      numUpvotes
-      bookmarked
-      numComments
-      private
+      ...SharedPostInfo
       sharedPost {
         ...SharedPostInfo
       }
-      source {
-        ...SourceShortInfo
-      }
-      scout {
-        ...UserShortInfo
-      }
-      author {
-        ...UserShortInfo
-      }
-      type
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -209,7 +188,7 @@ const READING_HISTORY_CONNECTION_FRAGMENT = gql`
     }
     edges {
       node {
-        ...ReadingHistoryFrament
+        ...ReadingHistoryFragment
       }
     }
   }

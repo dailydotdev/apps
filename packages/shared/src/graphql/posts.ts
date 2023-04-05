@@ -129,22 +129,8 @@ export interface PostUpvote extends Upvote {
 export const POST_BY_ID_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
-      id
-      title
-      permalink
-      image
-      placeholder
-      createdAt
-      readTime
-      tags
-      bookmarked
+      ...SharedPostInfo
       trending
-      upvoted
-      commented
-      private
-      commentsPermalink
-      numUpvotes
-      numComments
       views
       sharedPost {
         ...SharedPostInfo
@@ -158,22 +144,14 @@ export const POST_BY_ID_QUERY = gql`
           role
         }
       }
-      scout {
-        ...UserShortInfo
-      }
-      author {
-        ...UserShortInfo
-      }
       description
       summary
       toc {
         text
         id
       }
-      type
     }
   }
-  ${SOURCE_BASE_FRAGMENT}
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 

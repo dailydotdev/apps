@@ -39,7 +39,6 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   feedName?: string;
   onHidden?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
-  canDeletePost?: boolean;
   setShowBanPost?: () => unknown;
   contextId?: string;
 }
@@ -60,7 +59,6 @@ export default function PostOptionsMenu({
   onHidden,
   onRemovePost,
   setShowBanPost,
-  canDeletePost,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
@@ -101,8 +99,9 @@ export default function PostOptionsMenu({
   };
   const { onConfirmDeletePost } = usePostMenuActions({
     post,
-    onPostDeleted: () =>
-      showMessageAndRemovePost('The post has been deleted', postIndex, null),
+    postIndex,
+    onPostDeleted: ({ index }) =>
+      showMessageAndRemovePost('The post has been deleted', index, null),
   });
 
   const onReportPost: ReportPostAsync = async (
@@ -232,7 +231,7 @@ export default function PostOptionsMenu({
     text: 'Report',
     action: async () => setReportModal({ index: postIndex, post }),
   });
-  if (canDeletePost) {
+  if (onConfirmDeletePost) {
     postOptions.push({
       icon: <MenuIcon Icon={TrashIcon} />,
       text: 'Remove',
