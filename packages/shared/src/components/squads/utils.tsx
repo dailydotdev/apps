@@ -4,7 +4,7 @@ import { PromptOptions } from '../../hooks/usePrompt';
 import { SquadForm } from '../../graphql/squads';
 
 export enum ModalState {
-  Details = 'Squad details',
+  Details = 'Squad settings',
   SelectArticle = 'Pick a post',
   WriteComment = 'Share post',
   Ready = 'Almost there!',

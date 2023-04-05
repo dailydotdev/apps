@@ -2,7 +2,6 @@ import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
-import EditIcon from '../icons/Edit';
 import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
 import { Squad, SourcePermissions } from '../../graphql/sources';
@@ -15,6 +14,7 @@ import ContextMenuItem, {
   ContextMenuItemProps,
 } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
+import SettingsIcon from '../icons/Settings';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -73,9 +73,9 @@ export default function SquadHeaderMenu({
 
     if (canEditSquad) {
       list.unshift({
-        Icon: EditIcon,
+        Icon: SettingsIcon,
         onClick: onEditSquad,
-        label: 'Edit Squad details',
+        label: 'Squad settings',
       });
     }
 

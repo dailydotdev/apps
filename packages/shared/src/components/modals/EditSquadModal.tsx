@@ -47,7 +47,7 @@ function EditSquadModal({
       size={Modal.Size.Small}
       onRequestClose={onRequestClose}
     >
-      <Modal.Header title="Squad details" kind={ModalHeaderKind.Tertiary} />
+      <Modal.Header title="Squad settings" kind={ModalHeaderKind.Primary} />
       <SquadDetails form={squad} onSubmit={onSubmit} createMode={false} />
     </Modal>
   );

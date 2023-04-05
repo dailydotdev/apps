@@ -152,7 +152,7 @@ export function SquadDetails({
             />
           )}
           <TextField
-            label="Name your squad"
+            label={createMode ? 'Name your squad' : 'Squad name'}
             inputId="name"
             name="name"
             valid={!!name}
