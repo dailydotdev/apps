@@ -48,9 +48,10 @@ export const SOURCE_BASE_FRAGMENT = gql`
     image
     membersCount
     currentMember {
-       ...CurrentMember
+      ...CurrentMember
     }
   }
+  ${CURRENT_MEMBER_FRAGMENT}
 `;
 
 export const SHARED_POST_INFO_FRAGMENT = gql`
