@@ -5,7 +5,6 @@ import { Source, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
-  CURRENT_MEMBER_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_BASE_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
@@ -176,7 +175,6 @@ export const POST_BY_ID_QUERY = gql`
   }
   ${SOURCE_BASE_FRAGMENT}
   ${SHARED_POST_INFO_FRAGMENT}
-  ${CURRENT_MEMBER_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
