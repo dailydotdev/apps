@@ -2,7 +2,6 @@ import React, { FunctionComponent, ReactElement } from 'react';
 import classNames from 'classnames';
 import { Author } from '../../graphql/comments';
 import { Source, SourceMemberRole } from '../../graphql/sources';
-import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import StarIcon from '../icons/Star';
 import UserIcon from '../icons/User';
 import UserBadge from '../UserBadge';
