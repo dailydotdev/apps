@@ -27,7 +27,7 @@ const RoleToIconMap: Partial<
   [SourceMemberRole.Owner]: StarIcon,
 };
 
-export const SquadMemberBadge = ({
+const SquadMemberBadge = ({
   role,
   className,
   iconProps,
@@ -52,14 +52,4 @@ export const SquadMemberBadge = ({
   );
 };
 
-const SquadMemberAuthorBadge = ({
-  author,
-  source,
-  ...props
-}: SquadMemberAuthorBadgeProps): ReactElement => {
-  const { role } = useMemberRoleForSource({ source, user: author });
-
-  return <SquadMemberBadge role={role} {...props} />;
-};
-
-export default SquadMemberAuthorBadge;
+export default SquadMemberBadge;

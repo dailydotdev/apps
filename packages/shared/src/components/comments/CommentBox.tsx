@@ -9,7 +9,7 @@ import Markdown from '../Markdown';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import SquadMemberAuthorBadge from '../squads/SquadMemberAuthorBadge';
+import SquadMemberBadge from '../squads/SquadMemberBadge';
 import UserBadge from '../UserBadge';
 import { FlexRow } from '../utilities';
 import CommentActionButtons, {
@@ -17,6 +17,7 @@ import CommentActionButtons, {
 } from './CommentActionButtons';
 import CommentAuthor from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
+import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 
 interface ClassName {
   container?: string;
@@ -56,6 +57,11 @@ function CommentBox({
   children,
 }: CommentBoxProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
+  const { role } = useMemberRoleForSource({
+    source: post.source,
+    user: comment.author,
+  });
+
   return (
     <article
       ref={isCommentReferenced ? commentRef : null}
@@ -82,11 +88,7 @@ function CommentBox({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
               badges={[
-                <SquadMemberAuthorBadge
-                  key="squadMemberRole"
-                  source={post.source}
-                  author={comment.author}
-                />,
+                <SquadMemberBadge key="squadMemberRole" role={role} />,
                 comment.author.id === postAuthorId && (
                   <UserBadge
                     key="author"
