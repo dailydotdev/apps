@@ -20,7 +20,6 @@ import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
-import { SourcePermissions, SourceType } from '../../graphql/sources';
 
 export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
@@ -61,15 +60,7 @@ export function PostModalActions({
     });
   };
 
-  const isSharedPostAuthor =
-    post.source.type === SourceType.Squad && post.author?.id === user.id;
   const isModerator = user?.roles?.includes(Roles.Moderator);
-  const canDelete =
-    isModerator ||
-    isSharedPostAuthor ||
-    post.source.currentMember?.permissions?.includes(
-      SourcePermissions.PostDelete,
-    );
 
   const banPostPrompt = async () => {
     const options: PromptOptions = {
@@ -126,7 +117,6 @@ export function PostModalActions({
         onShare={onShare}
         post={post}
         onRemovePost={onRemovePost}
-        canDeletePost={canDelete}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         contextId={contextMenuId}
       />

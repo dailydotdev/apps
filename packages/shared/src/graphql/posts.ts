@@ -5,7 +5,6 @@ import { Source, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
-  CURRENT_MEMBER_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
@@ -129,37 +128,11 @@ export interface PostUpvote extends Upvote {
 export const POST_BY_ID_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
-      id
-      title
-      permalink
-      image
-      placeholder
-      createdAt
-      readTime
-      tags
-      bookmarked
+      ...SharedPostInfo
       trending
-      upvoted
-      commented
-      private
-      commentsPermalink
-      numUpvotes
-      numComments
       views
       sharedPost {
         ...SharedPostInfo
-      }
-      source {
-        ...SourceShortInfo
-        currentMember {
-          ...CurrentMember
-        }
-      }
-      scout {
-        ...UserShortInfo
-      }
-      author {
-        ...UserShortInfo
       }
       description
       summary
@@ -167,11 +140,9 @@ export const POST_BY_ID_QUERY = gql`
         text
         id
       }
-      type
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
-  ${CURRENT_MEMBER_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
