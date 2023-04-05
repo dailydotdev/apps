@@ -46,8 +46,10 @@ export function SquadPageHeader({
       <div className="flex flex-col laptop:flex-row items-center">
         <SquadImage className="w-16 tablet:w-24 h-16 tablet:h-24" {...squad} />
         <FlexCol className="mt-4 laptop:mt-0 ml-6">
-          <h3 className="font-bold typo-title2">{squad.name}</h3>
-          <h4 className="mt-1 tablet:mt-2 typo-body text-theme-label-tertiary">
+          <h3 className="font-bold text-center laptop:text-left typo-title2">
+            {squad.name}
+          </h3>
+          <h4 className="mt-1 tablet:mt-2 text-center laptop:text-left typo-body text-theme-label-tertiary">
             @{squad.handle}
           </h4>
         </FlexCol>
