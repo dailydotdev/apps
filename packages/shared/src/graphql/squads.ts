@@ -61,6 +61,14 @@ export const UPDATE_MEMBER_ROLE_MUTATION = gql`
   }
 `;
 
+export const UNBLOCK_MEMBER_MUTATION = gql`
+  mutation UnblockMember($sourceId: ID!, $memberId: ID!) {
+    unblockMember(sourceId: $sourceId, memberId: $memberId) {
+      _
+    }
+  }
+`;
+
 export const LEAVE_SQUAD_MUTATION = gql`
   mutation LeaveSource($sourceId: ID!) {
     leaveSource(sourceId: $sourceId) {
@@ -150,8 +158,8 @@ export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
 `;
 
 export const SQUAD_MEMBERS_QUERY = gql`
-  query SourceMembers($id: ID!, $after: String, $first: Int) {
-    sourceMembers(sourceId: $id, after: $after, first: $first) {
+  query SourceMembers($id: ID!, $after: String, $first: Int, $role: String) {
+    sourceMembers(sourceId: $id, after: $after, first: $first, role: $role) {
       pageInfo {
         endCursor
         hasNextPage
@@ -213,9 +221,12 @@ export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
 
-interface UpdateSquadMemberRoleProps {
+interface SquadMemberMutationProps {
   sourceId: string;
   memberId: string;
+}
+
+interface UpdateSquadMemberRoleProps extends SquadMemberMutationProps {
   role: SourceMemberRole;
 }
 
@@ -223,6 +234,10 @@ export const updateSquadMemberRole = (
   args: UpdateSquadMemberRoleProps,
 ): Promise<EmptyResponse> =>
   request(graphqlUrl, UPDATE_MEMBER_ROLE_MUTATION, args);
+
+export const unblockSquadMember = (
+  args: SquadMemberMutationProps,
+): Promise<EmptyResponse> => request(graphqlUrl, UNBLOCK_MEMBER_MUTATION, args);
 
 export const leaveSquad = (sourceId: string): Promise<void> =>
   request(graphqlUrl, LEAVE_SQUAD_MUTATION, {
