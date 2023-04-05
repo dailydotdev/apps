@@ -14,7 +14,7 @@ import {
   PostCommentsData,
   deleteComment,
 } from '../../graphql/comments';
-import { Post } from '../../graphql/posts';
+import { ParentComment, Post } from '../../graphql/posts';
 import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
@@ -24,18 +24,6 @@ import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UsePostComment, usePostComment } from '../../hooks/usePostComment';
 import { useToastNotification } from '../../hooks/useToastNotification';
-
-export interface ParentComment {
-  authorName: string;
-  authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
-  post: Post;
-  editContent?: string;
-  editId?: string;
-}
 
 interface PostCommentsProps {
   post: Post;
@@ -56,9 +44,10 @@ const getParentComment = (
   post: Post,
   comment?: Comment,
   shared: SharedData = {},
-) => {
+): ParentComment => {
   if (comment) {
     return {
+      username: comment.author.username,
       authorName: comment.author.name,
       authorImage: comment.author.image,
       content: comment.content,

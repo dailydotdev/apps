@@ -82,6 +82,7 @@ export const usePostComment = (
       );
       setLastScroll(window.scrollY);
       setParentComment({
+        username: post.author?.username,
         authorName: post.source.name,
         authorImage: post.source.image,
         content: post.title,
