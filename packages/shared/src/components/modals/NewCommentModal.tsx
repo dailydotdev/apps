@@ -114,7 +114,8 @@ export default function NewCommentModal({
   post,
   ...props
 }: NewCommentModalProps): ReactElement {
-  const { username, commentId, editId, editContent, replyTo } = parentComment;
+  const { handle, commentId, editId, editContent, replyTo, authorId } =
+    parentComment;
   const [input, setInput] = useState<string>(editContent || replyTo);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>(null);
@@ -122,8 +123,8 @@ export default function NewCommentModal({
   const { requestMethod } = useRequestProtocol();
   const { data: member, isFetched: isMembershipFetched } = useQuery(
     generateQueryKey(RequestKey.PostComments),
-    () => checkUserMembership(post.source.id, username),
-    { enabled: !!username && post.source.type === SourceType.Squad },
+    () => checkUserMembership(post.source.id, authorId),
+    { enabled: !!authorId && post.source.type === SourceType.Squad },
   );
 
   const confirmClose = async (event: MouseEvent): Promise<void> => {
@@ -243,7 +244,7 @@ export default function NewCommentModal({
           (!member || member.role === SourceMemberRole.Blocked) ? (
             <Alert
               type={AlertType.Info}
-              title={`${username} is no longer part of the squad and will not be able to see or reply to your comment.`}
+              title={`${handle} is no longer part of the squad and will not be able to see or reply to your comment.`}
             />
           ) : null}
         </CommentBox>

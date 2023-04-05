@@ -184,7 +184,7 @@ export const SQUAD_JOIN_MUTATION = gql`
 `;
 
 export const CHECK_USER_MEMBERSHIP = gql`
-  query CheckUserMembership($userId: String!, $sourceId: String!) {
+  query CheckUserMembership($userId: ID!, $sourceId: ID!) {
     member: checkUserMembership(userId: $userId, sourceId: $sourceId) {
       role
     }
@@ -204,11 +204,11 @@ export interface SquadEdgesData {
 
 export const checkUserMembership = async (
   sourceId: string,
-  userId: string,
+  memberId: string,
 ): Promise<SourceMember> => {
   const res = await request(graphqlUrl, CHECK_USER_MEMBERSHIP, {
     sourceId,
-    userId,
+    memberId,
   });
 
   return res.member;

@@ -14,7 +14,7 @@ import {
   PostCommentsData,
   deleteComment,
 } from '../../graphql/comments';
-import { ParentComment, Post } from '../../graphql/posts';
+import { Post } from '../../graphql/posts';
 import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
@@ -22,7 +22,11 @@ import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { UsePostComment, usePostComment } from '../../hooks/usePostComment';
+import {
+  getParentComment,
+  UsePostComment,
+  usePostComment,
+} from '../../hooks/usePostComment';
 import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface PostCommentsProps {
@@ -34,42 +38,6 @@ interface PostCommentsProps {
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
 }
-
-interface SharedData {
-  editContent?: string;
-  editId?: string;
-}
-
-const getParentComment = (
-  post: Post,
-  comment?: Comment,
-  shared: SharedData = {},
-): ParentComment => {
-  if (comment) {
-    return {
-      username: comment.author.username,
-      authorName: comment.author.name,
-      authorImage: comment.author.image,
-      content: comment.content,
-      contentHtml: comment.contentHtml,
-      publishDate: comment.lastUpdatedAt || comment.createdAt,
-      commentId: comment.id,
-      post,
-      ...shared,
-    };
-  }
-
-  return {
-    authorName: post.source.name,
-    authorImage: post.source.image,
-    content: post.title,
-    contentHtml: post.title,
-    publishDate: post.createdAt,
-    commentId: null,
-    post,
-    ...shared,
-  };
-};
 
 export function PostComments({
   post,
