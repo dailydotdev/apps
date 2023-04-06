@@ -47,7 +47,7 @@ export interface Squad extends Source {
   members?: Connection<SourceMember>;
   membersCount: number;
   description: string;
-  memberPostingRank: number;
+  memberPostingRole: SourceMemberRole;
 }
 
 export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
