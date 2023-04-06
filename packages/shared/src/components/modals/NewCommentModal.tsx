@@ -123,7 +123,7 @@ export default function NewCommentModal({
   const { showPrompt } = usePrompt();
   const { requestMethod } = useRequestProtocol();
   const { data: member, isFetched: isMembershipFetched } = useQuery(
-    generateQueryKey(RequestKey.PostComments),
+    generateQueryKey(RequestKey.PostComments, null, authorId),
     () => checkUserMembership(post.source.id, authorId),
     {
       enabled: !!authorId && post.source.type === SourceType.Squad,
