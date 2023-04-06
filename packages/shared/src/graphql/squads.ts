@@ -120,6 +120,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $handle: String!
     $description: String
     $image: Upload
+    $memberPostingRole: String
   ) {
     editSquad(
       sourceId: $sourceId
@@ -127,6 +128,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       handle: $handle
       description: $description
       image: $image
+      memberPostingRole: $memberPostingRole
     ) {
       ...SourceBaseInfo
     }
@@ -210,6 +212,14 @@ export const SQUAD_JOIN_MUTATION = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
+export const CHECK_USER_MEMBERSHIP = gql`
+  query CheckUserMembership($memberId: ID!, $sourceId: ID!) {
+    member: checkUserMembership(memberId: $memberId, sourceId: $sourceId) {
+      role
+    }
+  }
+`;
+
 export const validateSourceHandle = (handle: string, source: Source): boolean =>
   source.handle === handle || source.handle === handle.toLowerCase();
 
@@ -220,6 +230,18 @@ export type SquadData = {
 export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
+
+export const checkUserMembership = async (
+  sourceId: string,
+  memberId: string,
+): Promise<SourceMember> => {
+  const res = await request(graphqlUrl, CHECK_USER_MEMBERSHIP, {
+    sourceId,
+    memberId,
+  });
+
+  return res.member;
+};
 
 interface SquadMemberMutationProps {
   sourceId: string;
@@ -329,7 +351,9 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
 type EditSquadForm = Pick<
   SquadForm,
   'name' | 'description' | 'handle' | 'file'
->;
+> & {
+  memberPostingRole?: SourceMemberRole;
+};
 
 export async function editSquad(
   id: string,
@@ -341,6 +365,7 @@ export async function editSquad(
     handle: form.handle,
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
+    memberPostingRole: form.memberPostingRole,
   };
   const data = await request<EditSquadOutput>(
     graphqlUrl,

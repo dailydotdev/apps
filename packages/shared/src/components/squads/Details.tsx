@@ -152,7 +152,7 @@ export function SquadDetails({
             />
           )}
           <TextField
-            label="Name your squad"
+            label={createMode ? 'Name your squad' : 'Squad name'}
             inputId="name"
             name="name"
             valid={!!name}
@@ -191,24 +191,20 @@ export function SquadDetails({
               }}
             />
           )}
-          {createMode && (
-            <div className="flex flex-col justify-start">
-              <h4 className="mb-2 font-bold typo-headline text-theme-label-primary">
-                Post permissions
-              </h4>
-              <p className="mb-4 text-theme-label-tertiary typo-callout">
-                Choose who is allowed to post new content in this Squad.
-              </p>
-              <Radio
-                name="memberPostingRole"
-                options={memberPostingRoleOptions}
-                value={memberPostingRole}
-                onChange={(value) =>
-                  setMemberPostingRole(value as SourceMemberRole)
-                }
-              />
-            </div>
-          )}
+          <div className="flex flex-col">
+            <h4 className="mb-2 typo-headline">Post permissions</h4>
+            <p className="mb-4 text-theme-label-tertiary typo-callout">
+              Choose who is allowed to post new content in this Squad.
+            </p>
+            <Radio
+              name="memberPostingRole"
+              options={memberPostingRoleOptions}
+              value={memberPostingRole}
+              onChange={(value) =>
+                setMemberPostingRole(value as SourceMemberRole)
+              }
+            />
+          </div>
         </form>
       </Modal.Body>
       <Modal.Footer className={!createMode && 'px-6'} justify={Justify.Between}>
