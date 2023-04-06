@@ -33,6 +33,7 @@ import { checkUserMembership } from '../../graphql/squads';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
 import Alert, { AlertType } from '../widgets/Alert';
 import { disabledRefetch } from '../../lib/func';
+import source from '../icons/Source';
 
 interface CommentVariables {
   id: string;
@@ -123,7 +124,10 @@ export default function NewCommentModal({
   const { showPrompt } = usePrompt();
   const { requestMethod } = useRequestProtocol();
   const { data: member, isFetched: isMembershipFetched } = useQuery(
-    generateQueryKey(RequestKey.PostComments, null, authorId),
+    generateQueryKey(RequestKey.PostComments, null, {
+      authorId,
+      sourceId: post.source.id,
+    }),
     () => checkUserMembership(post.source.id, authorId),
     {
       enabled: !!authorId && post.source.type === SourceType.Squad,
