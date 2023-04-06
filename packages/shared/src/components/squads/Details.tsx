@@ -191,10 +191,8 @@ export function SquadDetails({
               }}
             />
           )}
-          <div className="flex flex-col justify-start">
-            <h4 className="mb-2 font-bold typo-headline text-theme-label-primary">
-              Post permissions
-            </h4>
+          <div className="flex flex-col">
+            <h4 className="mb-2 typo-headline">Post permissions</h4>
             <p className="mb-4 text-theme-label-tertiary typo-callout">
               Choose who is allowed to post new content in this Squad.
             </p>

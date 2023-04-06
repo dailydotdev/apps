@@ -10,7 +10,7 @@ export enum ModalState {
   Ready = 'Almost there!',
 }
 export const modalStateToScreenValue: Record<ModalState, string> = {
-  [ModalState.Details]: 'squad details',
+  [ModalState.Details]: 'squad settings',
   [ModalState.SelectArticle]: 'share article',
   [ModalState.WriteComment]: 'comment',
   [ModalState.Ready]: 'invitation',
