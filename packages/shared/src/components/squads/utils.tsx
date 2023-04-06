@@ -4,13 +4,13 @@ import { PromptOptions } from '../../hooks/usePrompt';
 import { SquadForm } from '../../graphql/squads';
 
 export enum ModalState {
-  Details = 'Squad details',
+  Details = 'Squad settings',
   SelectArticle = 'Pick a post',
   WriteComment = 'Share post',
   Ready = 'Almost there!',
 }
 export const modalStateToScreenValue: Record<ModalState, string> = {
-  [ModalState.Details]: 'squad details',
+  [ModalState.Details]: 'squad settings',
   [ModalState.SelectArticle]: 'share article',
   [ModalState.WriteComment]: 'comment',
   [ModalState.Ready]: 'invitation',
