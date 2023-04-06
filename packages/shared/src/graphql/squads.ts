@@ -212,6 +212,14 @@ export const SQUAD_JOIN_MUTATION = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
+export const CHECK_USER_MEMBERSHIP = gql`
+  query CheckUserMembership($memberId: ID!, $sourceId: ID!) {
+    member: checkUserMembership(memberId: $memberId, sourceId: $sourceId) {
+      role
+    }
+  }
+`;
+
 export const validateSourceHandle = (handle: string, source: Source): boolean =>
   source.handle === handle || source.handle === handle.toLowerCase();
 
@@ -222,6 +230,18 @@ export type SquadData = {
 export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
+
+export const checkUserMembership = async (
+  sourceId: string,
+  memberId: string,
+): Promise<SourceMember> => {
+  const res = await request(graphqlUrl, CHECK_USER_MEMBERSHIP, {
+    sourceId,
+    memberId,
+  });
+
+  return res.member;
+};
 
 interface SquadMemberMutationProps {
   sourceId: string;

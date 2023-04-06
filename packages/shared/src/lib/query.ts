@@ -20,6 +20,7 @@ export const generateQueryKey = (
 
 export enum RequestKey {
   Bookmarks = 'bookmarks',
+  PostComments = 'post_comments',
 }
 
 export type HasConnection<

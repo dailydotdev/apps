@@ -77,6 +77,8 @@ export interface Ad {
 }
 
 export interface ParentComment {
+  handle?: string;
+  authorId?: string;
   authorName: string;
   authorImage: string;
   publishDate: Date | string;
