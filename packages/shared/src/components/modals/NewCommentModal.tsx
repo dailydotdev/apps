@@ -33,7 +33,6 @@ import { checkUserMembership } from '../../graphql/squads';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
 import Alert, { AlertType } from '../widgets/Alert';
 import { disabledRefetch } from '../../lib/func';
-import source from '../icons/Source';
 
 interface CommentVariables {
   id: string;
