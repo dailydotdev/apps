@@ -25,7 +25,20 @@ export function useCopyLink(
     const link = getLink();
 
     if (link) {
-      await navigator.clipboard.writeText(link);
+      if (
+        process.env.NODE_ENV === 'development' &&
+        !window.location.origin.includes('localhost')
+      ) {
+        // since we are using custom domain in dev, we can't use the clipboard API
+        // this is a workaround to not crash the app in development and still be able
+        // to test other stuff while working with clipboard
+        // more info here https://web.dev/async-clipboard
+        // eslint-disable-next-line no-alert
+        alert(`Dev copied: ${link}`);
+      } else {
+        await navigator.clipboard.writeText(link);
+      }
+
       displayToast(props.message || defaultMessage, props);
     } else {
       displayToast(noLinkErrorMessage, props);
