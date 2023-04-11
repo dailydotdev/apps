@@ -48,13 +48,6 @@ function SquadPostContent({
   onClose,
   onRemovePost,
 }: PostContentProps): ReactElement {
-  if (isLoading)
-    return (
-      <PostContentContainer hasNavigation>
-        <PostLoadingPlaceholder shouldShowWidgets={false} />
-      </PostContentContainer>
-    );
-
   const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
   const { openNewTab } = useContext(SettingsContext);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -87,11 +80,25 @@ function SquadPostContent({
   }, [shoudShowSummary, height]);
 
   useEffect(() => {
+    if (!post?.id) {
+      return;
+    }
+
     onSendViewPost(post.id);
-  }, [post.id]);
+  }, [post?.id]);
 
   const containerClass =
     sidebarRendered && modalSizeToClassName[ModalSize.Large];
+
+  if (isLoading)
+    return (
+      <PostContentContainer
+        className={classNames(containerClass, 'm-auto')}
+        hasNavigation
+      >
+        <PostLoadingPlaceholder shouldShowWidgets={false} />
+      </PostContentContainer>
+    );
 
   return (
     <>
