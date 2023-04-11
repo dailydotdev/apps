@@ -74,8 +74,12 @@ function SquadPostContent({
   }, [shoudShowSummary, height]);
 
   useEffect(() => {
+    if (!post?.id) {
+      return;
+    }
+
     onSendViewPost(post.id);
-  }, [post.id]);
+  }, [post?.id]);
 
   const containerClass =
     sidebarRendered && modalSizeToClassName[ModalSize.Large];
