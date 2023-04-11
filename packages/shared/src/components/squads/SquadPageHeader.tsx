@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Squad, SourceMember } from '../../graphql/sources';
+import { Squad, SourceMember, SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
@@ -13,6 +13,7 @@ import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
 import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
+import { verifyPermission } from '../../graphql/squads';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -96,7 +97,7 @@ export function SquadPageHeader({
         <SharePostBar
           className="w-full"
           onNewSquadPost={onNewSquadPost}
-          squad={squad}
+          disabled={!verifyPermission(squad, SourcePermissions.Post)}
         />
         {sharePostTutorial.isActive && (
           <TutorialGuide

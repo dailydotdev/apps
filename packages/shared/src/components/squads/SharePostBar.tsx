@@ -8,8 +8,6 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { getPostByUrl } from '../../graphql/posts';
 import { ApiError, ApiErrorResult } from '../../graphql/common';
 import { PostToSquadModalProps } from '../modals/PostToSquadModal';
-import { SourcePermissions, Squad } from '../../graphql/sources';
-import { verifyPermission } from '../../graphql/squads';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
@@ -22,7 +20,7 @@ export type NewSquadPostProps = Pick<
 interface SharePostBarProps {
   className?: string;
   onNewSquadPost?: (props?: NewSquadPostProps) => void;
-  squad: Squad;
+  disabled?: boolean;
 }
 
 const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
@@ -30,7 +28,7 @@ const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
 function SharePostBar({
   className,
   onNewSquadPost,
-  squad,
+  disabled = false,
 }: SharePostBarProps): ReactElement {
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
@@ -56,9 +54,7 @@ function SharePostBar({
     await getPost(url);
   };
 
-  const canPostToSquad = verifyPermission(squad, SourcePermissions.Post);
-
-  if (!canPostToSquad) {
+  if (disabled) {
     return (
       <Card className="flex gap-1.5 items-center py-5 px-3 !flex-row hover:border-theme-divider-tertiary text-theme-label-tertiary">
         <LockIcon className="opacity-32" size={IconSize.Small} />
