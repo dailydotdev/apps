@@ -35,7 +35,6 @@ export interface PostContentClassName {
 export interface BasePostContentProps extends UsePostContentProps {
   post: Post;
   children: ReactNode;
-  isLoading?: boolean;
   isFallback?: boolean;
   className?: PostContentClassName;
   navigationProps?: PostNavigationProps;
@@ -51,7 +50,6 @@ export const ONBOARDING_OFFSET = 120;
 export function BasePostContent({
   post,
   isFallback,
-  isLoading,
   origin,
   children,
   className = {},
@@ -63,29 +61,12 @@ export function BasePostContent({
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
 
-  if (!id && !isFallback && !isLoading) return <Custom404 />;
+  if (!id && !isFallback) return <Custom404 />;
 
   const { onCloseShare, sharePost, onSharePost, onToggleBookmark } =
     engagementProps;
-  const { onPreviousPost, onNextPost } = navigationProps ?? {};
   const { onStartArticleOnboarding, showArticleOnboarding } =
     useContext(OnboardingContext);
-  const hasNavigation = !!onPreviousPost || !!onNextPost;
-  const containerClass = classNames(
-    'tablet:pb-0 tablet:flex-row',
-    className?.container,
-  );
-
-  if (isLoading) {
-    return (
-      <PostContentContainer
-        hasNavigation={hasNavigation}
-        className={containerClass}
-      >
-        <PostLoadingPlaceholder />
-      </PostContentContainer>
-    );
-  }
 
   return (
     <>

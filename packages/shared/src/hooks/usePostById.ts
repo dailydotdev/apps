@@ -5,6 +5,7 @@ import {
   QueryKey,
   QueryObserverOptions,
   useQuery,
+  UseQueryResult,
 } from 'react-query';
 import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -12,14 +13,12 @@ import { Post, PostData, POST_BY_ID_QUERY } from '../graphql/posts';
 
 interface UsePostByIdProps {
   id: string;
-  isFetchingNextPage?: boolean;
   options?: QueryObserverOptions<PostData>;
 }
 
 interface UsePostById {
   post: Post;
-  isLoading: boolean;
-  isFetched: boolean;
+  query: UseQueryResult;
 }
 
 const POST_KEY = 'post';
@@ -38,18 +37,10 @@ export const updatePostCache = (
     },
   }));
 
-const usePostById = ({
-  id,
-  isFetchingNextPage,
-  options = {},
-}: UsePostByIdProps): UsePostById => {
+const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const { tokenRefreshed } = useAuthContext();
   const key = getPostByIdKey(id);
-  const {
-    data: postById,
-    isLoading,
-    isFetched,
-  } = useQuery<PostData>(
+  const query = useQuery<PostData>(
     key,
     () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
     {
@@ -57,17 +48,10 @@ const usePostById = ({
       enabled: !!id && tokenRefreshed,
     },
   );
-
+  const { data: postById } = query;
   const post = postById || (options?.initialData as PostData);
 
-  return useMemo(
-    () => ({
-      post: post?.post,
-      isFetched,
-      isLoading: isLoading || isFetchingNextPage,
-    }),
-    [id, postById, isLoading, options, isFetched, isFetchingNextPage],
-  );
+  return useMemo(() => ({ post: post?.post, query }), [query]);
 };
 
 export default usePostById;

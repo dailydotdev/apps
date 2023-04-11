@@ -10,6 +10,7 @@ import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
+import { PostType } from '../../graphql/posts';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -28,15 +29,26 @@ export default function ArticlePostModal({
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { post, isLoading } = usePostById({ id, isFetchingNextPage });
+  const {
+    post,
+    query: { isLoading, isFetching },
+  } = usePostById({ id });
+  const isPostLoading = isLoading || isFetchingNextPage || isFetching;
   const position = usePostNavigationPosition({
-    isLoading,
+    isLoading: isPostLoading,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
+  const containerClass = 'border border-theme-divider-tertiary rounded-16';
 
   return (
-    <BasePostModal {...props} onRequestClose={onRequestClose}>
+    <BasePostModal
+      {...props}
+      onRequestClose={onRequestClose}
+      loadingClassName={containerClass}
+      postType={PostType.Article}
+      isLoading={isPostLoading}
+    >
       <PostContent
         position={position}
         post={post}
@@ -46,7 +58,7 @@ export default function ArticlePostModal({
         inlineActions
         className={{
           onboarding: 'mt-8',
-          container: 'border border-theme-divider-tertiary rounded-16',
+          container: containerClass,
           navigation: { actions: 'tablet:hidden ml-auto' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.XLarge],
@@ -54,7 +66,6 @@ export default function ArticlePostModal({
           },
         }}
         onClose={onRequestClose}
-        isLoading={isLoading}
         origin={Origin.ArticleModal}
         onRemovePost={onRemovePost}
       />

@@ -19,7 +19,6 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import usePostContent from '../../hooks/usePostContent';
 import FixedPostNavigation from './FixedPostNavigation';
 import { BasePostContent, PostContentClassName } from './BasePostContent';
-import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
@@ -38,7 +37,6 @@ export interface PostContentProps
   className?: PostContentClassName;
   origin: PostOrigin;
   shouldOnboardAuthor?: boolean;
-  isLoading?: boolean;
   customNavigation?: ReactNode;
   position?: CSSProperties['position'];
 }
@@ -63,7 +61,6 @@ export function PostContent({
   onNextPost,
   onClose,
   postPosition,
-  isLoading,
   isFallback,
   customNavigation,
   onRemovePost,
@@ -98,17 +95,6 @@ export function PostContent({
     onRemovePost,
   };
 
-  if (isLoading) {
-    return (
-      <PostContentContainer
-        hasNavigation={hasNavigation}
-        className={containerClass}
-      >
-        <PostLoadingPlaceholder className="tablet:border-r tablet:border-theme-divider-tertiary" />
-      </PostContentContainer>
-    );
-  }
-
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -130,7 +116,6 @@ export function PostContent({
               container: classNames('pt-6', className?.navigation?.container),
             },
           }}
-          isLoading={isLoading}
           isFallback={isFallback}
           customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}

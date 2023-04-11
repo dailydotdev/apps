@@ -7,12 +7,10 @@ import React, {
 } from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
-import { modalSizeToClassName } from '../modals/common/Modal';
 import { PostNavigationProps } from './PostNavigation';
 import { postDateFormat } from '../../lib/dateFormat';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
-import { ModalSize } from '../modals/common/types';
 import FixedPostNavigation from './FixedPostNavigation';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
@@ -21,12 +19,10 @@ import ArrowIcon from '../icons/Arrow';
 import PostSourceInfo from './PostSourceInfo';
 import { PostContentProps } from './PostContent';
 import { BasePostContent } from './BasePostContent';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { cloudinary } from '../../lib/image';
 import SettingsContext from '../../contexts/SettingsContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import { sendViewPost } from '../../graphql/posts';
 
 function SquadPostContent({
@@ -34,7 +30,6 @@ function SquadPostContent({
   isFallback,
   shouldOnboardAuthor,
   enableShowShareNewComment,
-  isLoading,
   origin,
   position,
   postPosition,
@@ -50,8 +45,7 @@ function SquadPostContent({
   const { openNewTab } = useContext(SettingsContext);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const [height, setHeight] = useState<number>(null);
-  const { sidebarRendered } = useSidebarRendered();
-  const [shoudShowSummary, setShouldShowSummary] = useState(true);
+  const [shouldShowSummary, setShouldShowSummary] = useState(true);
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onSharePost, onToggleBookmark } = engagementActions;
 
@@ -70,8 +64,8 @@ function SquadPostContent({
   const tldrHeight = useMemo(() => {
     if (height === null) return 'auto';
 
-    return shoudShowSummary ? height : 0;
-  }, [shoudShowSummary, height]);
+    return shouldShowSummary ? height : 0;
+  }, [shouldShowSummary, height]);
 
   useEffect(() => {
     if (!post?.id) {
@@ -80,19 +74,6 @@ function SquadPostContent({
 
     onSendViewPost(post.id);
   }, [post?.id]);
-
-  const containerClass =
-    sidebarRendered && modalSizeToClassName[ModalSize.Large];
-
-  if (isLoading)
-    return (
-      <PostContentContainer
-        className={classNames(containerClass, 'm-auto')}
-        hasNavigation
-      >
-        <PostLoadingPlaceholder shouldShowWidgets={false} />
-      </PostContentContainer>
-    );
 
   return (
     <>
@@ -106,7 +87,6 @@ function SquadPostContent({
       <PostContentContainer
         className={classNames(
           'relative py-8 px-6 post-content',
-          containerClass,
           className?.container,
         )}
         hasNavigation={hasNavigation}
@@ -117,7 +97,6 @@ function SquadPostContent({
             onboarding: 'mb-6',
             navigation: { actions: 'ml-auto', container: 'mb-6' },
           }}
-          isLoading={isLoading}
           isFallback={isFallback}
           customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}
@@ -207,20 +186,20 @@ function SquadPostContent({
                   style={{ height: tldrHeight }}
                   className={classNames(
                     'mx-4 transition-all duration-300 ease-in-out',
-                    shoudShowSummary && 'mb-4',
+                    shouldShowSummary && 'mb-4',
                   )}
                   summary={post.sharedPost.summary}
                 />
                 <button
                   type="button"
                   className="flex flex-row justify-center py-2 w-full font-bold hover:underline border-t border-theme-divider-tertiary typo-callout"
-                  onClick={() => setShouldShowSummary(!shoudShowSummary)}
+                  onClick={() => setShouldShowSummary(!shouldShowSummary)}
                 >
-                  {shoudShowSummary ? 'Hide' : 'Show'} TLDR{' '}
+                  {shouldShowSummary ? 'Hide' : 'Show'} TLDR{' '}
                   <ArrowIcon
                     className={classNames(
                       'ml-2 transition-transform ease-in-out duration-300',
-                      !shoudShowSummary && 'rotate-180',
+                      !shouldShowSummary && 'rotate-180',
                     )}
                   />
                 </button>
