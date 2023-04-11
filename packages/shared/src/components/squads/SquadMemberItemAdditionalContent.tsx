@@ -32,7 +32,13 @@ function SquadMemberItemAdditionalContent({
       title: 'Unblock member?',
       description: `${user.name} will now have access to join your Squad and can then post, upvote and comment`,
       okButton: { title: 'Unblock', className: 'btn-primary-cabbage' },
-      content: <UserShortInfo user={user} />,
+      content: (
+        <UserShortInfo
+          disableTooltip
+          user={user}
+          className={{ container: 'py-3 px-6 justify-center' }}
+        />
+      ),
       promptSize: ModalSize.Small,
       className: { buttons: 'mt-6' },
     };

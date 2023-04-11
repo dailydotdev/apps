@@ -117,7 +117,13 @@ export default function SquadMemberMenu({
       title: `${title}?`,
       description: promptDescription[title](member.user.name, squad.name),
       okButton: { title, className: 'btn-primary-cabbage' },
-      content: <UserShortInfo user={member.user} />,
+      content: (
+        <UserShortInfo
+          user={member.user}
+          disableTooltip
+          className={{ container: 'py-3 px-6 justify-center' }}
+        />
+      ),
       promptSize: ModalSize.Small,
       className: { buttons: 'mt-6' },
     });
