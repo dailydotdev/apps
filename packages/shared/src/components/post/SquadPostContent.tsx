@@ -57,8 +57,8 @@ function SquadPostContent({
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onSharePost, onToggleBookmark } = engagementActions;
   const { role } = useMemberRoleForSource({
-    source: post.source,
-    user: post.author,
+    source: post?.source,
+    user: post?.author,
   });
 
   const navigationProps: PostNavigationProps = {
