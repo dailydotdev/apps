@@ -3,6 +3,7 @@ import {
   NotifyOptionalProps,
   useToastNotification,
 } from './useToastNotification';
+import { isDevelopment } from '../lib/constants';
 
 type CopyNotifyFunctionProps = NotifyOptionalProps & {
   message?: string;
@@ -25,10 +26,7 @@ export function useCopyLink(
     const link = getLink();
 
     if (link) {
-      if (
-        process.env.NODE_ENV === 'development' &&
-        !window.location.origin.includes('localhost')
-      ) {
+      if (isDevelopment) {
         // since we are using custom domain in dev, we can't use the clipboard API
         // this is a workaround to not crash the app in development and still be able
         // to test other stuff while working with clipboard
