@@ -378,4 +378,4 @@ export async function editSquad(
 export const verifyPermission = (
   squad: Squad,
   permission: SourcePermissions,
-): boolean => squad?.currentMember?.permissions?.includes(permission);
+): boolean => !!squad?.currentMember?.permissions?.includes(permission);

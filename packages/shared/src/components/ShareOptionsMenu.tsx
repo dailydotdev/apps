@@ -19,6 +19,8 @@ import { SquadImage } from './squads/SquadImage';
 import DefaultSquadIcon from './icons/DefaultSquad';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
+import { verifyPermission } from '../graphql/squads';
+import { SourcePermissions } from '../graphql/sources';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -102,6 +104,7 @@ export default function ShareOptionsMenu({
     squads?.map(
       (squad) =>
         squad.active &&
+        verifyPermission(squad, SourcePermissions.Post) &&
         shareOptions.push({
           icon: squad.image ? (
             <SquadImage className="mr-2.5 w-6 h-6" {...squad} />

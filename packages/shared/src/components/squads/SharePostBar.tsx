@@ -8,6 +8,9 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { getPostByUrl } from '../../graphql/posts';
 import { ApiError, ApiErrorResult } from '../../graphql/common';
 import { PostToSquadModalProps } from '../modals/PostToSquadModal';
+import LockIcon from '../icons/Lock';
+import { Card } from '../cards/Card';
+import { IconSize } from '../Icon';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
@@ -17,6 +20,7 @@ export type NewSquadPostProps = Pick<
 interface SharePostBarProps {
   className?: string;
   onNewSquadPost?: (props?: NewSquadPostProps) => void;
+  disabled?: boolean;
 }
 
 const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
@@ -24,6 +28,7 @@ const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
 function SharePostBar({
   className,
   onNewSquadPost,
+  disabled = false,
 }: SharePostBarProps): ReactElement {
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
@@ -48,6 +53,17 @@ function SharePostBar({
     e.preventDefault();
     await getPost(url);
   };
+
+  if (disabled) {
+    return (
+      <Card className="flex gap-1.5 items-center py-5 px-3 !flex-row hover:border-theme-divider-tertiary text-theme-label-tertiary">
+        <LockIcon className="opacity-32" size={IconSize.Small} />
+        <p className="opacity-32 typo-callout">
+          Only admins and moderators can post
+        </p>
+      </Card>
+    );
+  }
 
   return (
     <form
