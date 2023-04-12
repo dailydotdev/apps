@@ -5,7 +5,7 @@ import { Connection } from './common';
 export enum SourceMemberRole {
   Member = 'member',
   Moderator = 'moderator',
-  Owner = 'owner',
+  Admin = 'admin',
   Blocked = 'blocked',
 }
 
@@ -42,7 +42,7 @@ export interface Squad extends Source {
   permalink: string;
   public: boolean;
   type: SourceType.Squad;
-  owners?: string[];
+  admins?: string[];
   moderators?: string[];
   members?: Connection<SourceMember>;
   membersCount: number;
