@@ -234,7 +234,7 @@ export default function PostOptionsMenu({
   if (onConfirmDeletePost) {
     postOptions.push({
       icon: <MenuIcon Icon={TrashIcon} />,
-      text: 'Remove',
+      text: 'Delete post',
       action: onConfirmDeletePost,
     });
   }
