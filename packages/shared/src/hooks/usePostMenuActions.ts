@@ -23,7 +23,8 @@ interface UsePostMenuActionsProps {
 
 const deletePromptOptions: PromptOptions = {
   title: 'Delete post?',
-  description: 'Are you sure you want to delete this post?',
+  description:
+    'Are you sure you want to delete this post? This action cannot be undone.',
   okButton: {
     title: 'Delete',
     className: 'btn-primary-cabbage',
