@@ -74,12 +74,6 @@ function SquadMemberItemAdditionalContent({
       />
     </SimpleTooltip>
   );
-  const emptyOption = (
-    <Button
-      buttonSize={ButtonSize.Small}
-      className="invisible m-auto mr-2 btn-tertiary"
-    />
-  );
 
   const isLoggedUser = loggedUser.id === user.id;
 
@@ -90,7 +84,7 @@ function SquadMemberItemAdditionalContent({
           className={!isLoggedUser && 'my-auto mr-2'}
           role={member.role}
         />
-        {isLoggedUser ? emptyOption : option}
+        {isLoggedUser ? null : option}
       </>
     );
   }
