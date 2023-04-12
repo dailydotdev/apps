@@ -2,7 +2,7 @@ import React, { ReactElement, ReactNode } from 'react';
 import classed from '../../lib/classed';
 
 interface PostContentContainerProps {
-  hasNavigation: boolean;
+  hasNavigation?: boolean;
   className?: string;
   children: ReactNode;
 }
