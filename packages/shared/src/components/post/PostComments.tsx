@@ -122,12 +122,12 @@ export function PostComments({
     parentId: string | null,
   ) => {
     const options: PromptOptions = {
-      title: 'Delete comment',
+      title: 'Delete comment?',
       description:
         'Are you sure you want to delete your comment? This action cannot be undone.',
       okButton: {
         title: 'Delete',
-        className: 'btn-primary-ketchup',
+        className: 'btn-primary-cabbage',
       },
     };
     if (await showPrompt(options)) {
