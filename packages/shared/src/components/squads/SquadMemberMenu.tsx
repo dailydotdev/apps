@@ -41,7 +41,7 @@ const promptDescription: Record<
   [MenuItemTitle.AddAsOwner]: (memberName, squadName) =>
     `${memberName} will get the same permissions as you have. Adding as co-owner will not replace you as the owner of ${squadName}.`,
   [MenuItemTitle.PromoteToModerator]: (memberName) =>
-    `${memberName} will now get moderator permissions and be able to remove posts and members form your Squad. You can reverse this decision later.`,
+    `${memberName} will now get moderator permissions and be able to remove posts and members from your Squad. You can reverse this decision later.`,
   [MenuItemTitle.DemoteToModerator]: (memberName) =>
     `${memberName} will no longer have owner permissions. You can always reverse this decision later.`,
   [MenuItemTitle.DemoteToMember]: (memberName) =>
