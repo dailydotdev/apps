@@ -12,13 +12,11 @@ import { PostType } from '../../graphql/posts';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
-  isFetchingNextPage?: boolean;
 }
 
 export default function PostModal({
   id,
   className,
-  isFetchingNextPage,
   onRequestClose,
   onPreviousPost,
   onNextPost,

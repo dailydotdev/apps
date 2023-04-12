@@ -491,7 +491,6 @@ export default function Feed<T>({
             onRequestClose={() => onCloseModal(false)}
             onPreviousPost={onPrevious}
             onNextPost={onNext}
-            isFetchingNextPage={isFetchingNextPage}
             postPosition={postPosition}
             onRemovePost={() => onRemovePost(selectedPostIndex)}
           />

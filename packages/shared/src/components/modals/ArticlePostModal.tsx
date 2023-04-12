@@ -14,7 +14,6 @@ import { PostType } from '../../graphql/posts';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
-  isFetchingNextPage?: boolean;
 }
 
 const containerClass = 'border border-theme-divider-tertiary rounded-16';
@@ -22,7 +21,6 @@ const containerClass = 'border border-theme-divider-tertiary rounded-16';
 export default function ArticlePostModal({
   id,
   className,
-  isFetchingNextPage,
   onRequestClose,
   onPreviousPost,
   onNextPost,
