@@ -9,6 +9,7 @@ import SquadMemberBadge from './SquadMemberBadge';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface SquadMemberActionsProps {
   member: SourceMember;
@@ -22,6 +23,7 @@ function SquadMemberItemAdditionalContent({
   onOptionsClick,
 }: SquadMemberActionsProps): ReactElement {
   const { showPrompt } = usePrompt();
+  const { displayToast } = useToastNotification();
   const { user: loggedUser } = useAuthContext();
   const { role, user } = member;
 
@@ -45,6 +47,7 @@ function SquadMemberItemAdditionalContent({
 
     if (await showPrompt(options)) {
       onUnblock(e);
+      displayToast('Member is now unblocked');
     }
   };
 
