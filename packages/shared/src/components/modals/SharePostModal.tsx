@@ -27,13 +27,9 @@ export default function PostModal({
   ...props
 }: PostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const {
-    post,
-    query: { isLoading, isFetching },
-  } = usePostById({ id });
-  const isPostLoading = isLoading || isFetchingNextPage || isFetching;
+  const { post, isPostLoadingOrFetching } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: isPostLoading,
+    isLoading: isPostLoadingOrFetching,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
@@ -45,7 +41,7 @@ export default function PostModal({
       size={Modal.Size.Large}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
-      isLoading={isPostLoading}
+      isLoading={isPostLoadingOrFetching}
       loadingClassName={containerClass}
     >
       <SquadPostContent

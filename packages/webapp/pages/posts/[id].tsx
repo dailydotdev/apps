@@ -87,7 +87,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     false,
   );
 
-  const { post, query } = usePostById({
+  const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
   });
@@ -97,8 +97,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       sidebarRendered &&
       modalSizeToClassName[ModalSize.Large],
   );
-  const { isLoading, isFetching, isFetched, isError } = query;
-  const isPostLoading = isFetching || isLoading;
   const seo: NextSeoProps = {
     title: getTemplatedTitle(post?.title),
     description: getSeoDescription(post),
@@ -117,7 +115,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (isPostLoading) {
+  if (isPostLoadingOrFetching) {
     return <PostLoadingSkeleton className={containerClass} type={post?.type} />;
   }
 

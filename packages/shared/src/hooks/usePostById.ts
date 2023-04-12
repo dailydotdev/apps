@@ -16,9 +16,9 @@ interface UsePostByIdProps {
   options?: QueryObserverOptions<PostData>;
 }
 
-interface UsePostById {
+interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isFetched'> {
   post: Post;
-  query: UseQueryResult;
+  isPostLoadingOrFetching?: boolean;
 }
 
 const POST_KEY = 'post';
@@ -40,7 +40,13 @@ export const updatePostCache = (
 const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const { tokenRefreshed } = useAuthContext();
   const key = getPostByIdKey(id);
-  const query = useQuery<PostData>(
+  const {
+    data: postById,
+    isError,
+    isFetched,
+    isLoading,
+    isFetching,
+  } = useQuery<PostData>(
     key,
     () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
     {
@@ -48,10 +54,17 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       enabled: !!id && tokenRefreshed,
     },
   );
-  const { data: postById } = query;
   const post = postById || (options?.initialData as PostData);
 
-  return useMemo(() => ({ post: post?.post, query }), [query]);
+  return useMemo(
+    () => ({
+      post: post?.post,
+      isError,
+      isFetched,
+      isPostLoadingOrFetching: isLoading || isFetching,
+    }),
+    [post?.post, isError, isFetched, isLoading, isFetching],
+  );
 };
 
 export default usePostById;

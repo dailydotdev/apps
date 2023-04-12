@@ -31,13 +31,9 @@ export default function ArticlePostModal({
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const {
-    post,
-    query: { isLoading, isFetching },
-  } = usePostById({ id });
-  const isPostLoading = isLoading || isFetchingNextPage || isFetching;
+  const { post, isPostLoadingOrFetching } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: isPostLoading,
+    isLoading: isPostLoadingOrFetching,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
@@ -48,7 +44,7 @@ export default function ArticlePostModal({
       onRequestClose={onRequestClose}
       loadingClassName={containerClass}
       postType={PostType.Article}
-      isLoading={isPostLoading}
+      isLoading={isPostLoadingOrFetching}
     >
       <PostContent
         position={position}
