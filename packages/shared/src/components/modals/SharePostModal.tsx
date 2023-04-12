@@ -8,7 +8,6 @@ import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 import { PassedPostNavigationProps } from '../post/PostContent';
-import PostLoadingSkeleton from '../post/PostLoadingSkeleton';
 import { PostType } from '../../graphql/posts';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {

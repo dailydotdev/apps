@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import { Post } from '../../graphql/posts';
@@ -6,10 +5,8 @@ import PostNavigation, {
   PostNavigationClassName,
   PostNavigationProps,
 } from './PostNavigation';
-import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
 import PostEngagements from './PostEngagements';
-import PostContentContainer from './PostContentContainer';
 import {
   UsePostContent,
   UsePostContentProps,
