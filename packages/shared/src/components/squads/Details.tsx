@@ -46,7 +46,7 @@ const getFormData = async (
 
 const memberPostingRoleOptions = [
   {
-    label: 'All members',
+    label: 'All members (recommended)',
     value: SourceMemberRole.Member,
   },
   {
