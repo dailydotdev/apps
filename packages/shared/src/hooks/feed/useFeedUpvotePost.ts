@@ -68,11 +68,6 @@ export default function useFeedUpvotePost(
     });
 
   useEffect(() => {
-    const matchedMutations = [
-      upvotePostMutationKey,
-      cancelUpvotePostMutationKey,
-    ].map((item) => item.toString());
-
     const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
       if (event.state.status !== 'success') {
         return;
@@ -80,35 +75,29 @@ export default function useFeedUpvotePost(
 
       const mutationKey = event.options.mutationKey?.toString();
 
-      if (matchedMutations.includes(mutationKey)) {
-        const { id, index: indexFromEvent } = event.options
-          .variables as unknown as UseFeedUpvotePostVariables;
-        const mutationFromFeedHook = typeof indexFromEvent !== 'undefined';
+      const mutationHandler = mutationHandlers[mutationKey];
 
-        if (mutationFromFeedHook) {
-          return;
-        }
-
-        const index = items.findIndex(
-          (item) => item.type === 'post' && item.post.id === id,
-        );
-
-        if (index === -1) {
-          return;
-        }
-
-        const mutationHandler = mutationHandlers[mutationKey];
-
-        if (!mutationHandler) {
-          return;
-        }
-
-        optimisticPostUpdateInFeed(
-          items,
-          updatePost,
-          mutationHandler,
-        )({ index });
+      if (!mutationHandler) {
+        return;
       }
+
+      const { id, index: indexFromEvent } = event.options
+        .variables as unknown as UseFeedUpvotePostVariables;
+      const mutationFromFeedHook = typeof indexFromEvent !== 'undefined';
+
+      if (mutationFromFeedHook) {
+        return;
+      }
+
+      const index = items.findIndex(
+        (item) => item.type === 'post' && item.post.id === id,
+      );
+
+      if (index === -1) {
+        return;
+      }
+
+      optimisticPostUpdateInFeed(items, updatePost, mutationHandler)({ index });
     });
 
     return () => {
