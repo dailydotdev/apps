@@ -30,7 +30,7 @@ enum MenuItemTitle {
   PromoteToModerator = 'Promote to moderator',
   DemoteToModerator = 'Demote to moderator',
   DemoteToMember = 'Demote to member',
-  RemoveMember = 'Remove member',
+  BlockMember = 'Block member',
 }
 
 const promptDescription: Record<
@@ -45,7 +45,7 @@ const promptDescription: Record<
     `${memberName} will no longer have owner permissions. You can always reverse this decision later.`,
   [MenuItemTitle.DemoteToMember]: (memberName) =>
     `${memberName} will lose the moderator permissions and become a regular member.`,
-  [MenuItemTitle.RemoveMember]: (memberName, squadName) =>
+  [MenuItemTitle.BlockMember]: (memberName, squadName) =>
     `${memberName} will be a Blocked members and will no longer have access to ${squadName}. They will not be able to rejoin unless you unblock them.`,
 };
 
@@ -170,11 +170,11 @@ export default function SquadMemberMenu({
 
     if (canRemoveMember) {
       menu.push({
-        text: MenuItemTitle.RemoveMember,
+        text: MenuItemTitle.BlockMember,
         icon: <BlockIcon size={IconSize.Small} />,
         action: getUpdateRoleFn(
           SourceMemberRole.Blocked,
-          MenuItemTitle.RemoveMember,
+          MenuItemTitle.BlockMember,
         ),
       });
     }
