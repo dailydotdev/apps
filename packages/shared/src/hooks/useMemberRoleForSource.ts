@@ -3,7 +3,7 @@ import { Source, SourceMemberRole } from '../graphql/sources';
 import { PublicProfile } from '../lib/user';
 
 export type UseMemberRoleForSourceProps = {
-  source: Source;
+  source?: Source;
   user?: Pick<PublicProfile, 'id'>;
 };
 
