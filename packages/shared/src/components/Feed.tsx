@@ -191,7 +191,6 @@ export default function Feed<T>({
     onNext,
     postPosition,
     selectedPost,
-    isFetchingNextPage,
     selectedPostIndex,
   } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
 
