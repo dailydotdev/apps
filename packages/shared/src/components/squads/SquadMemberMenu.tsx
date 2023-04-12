@@ -174,7 +174,9 @@ export default function SquadMemberMenu({
     });
 
     const canRemoveMember =
-      canUpdateRole || verifyPermission(squad, SourcePermissions.MemberRemove);
+      canUpdateRole ||
+      (verifyPermission(squad, SourcePermissions.MemberRemove) &&
+        member.role === SourceMemberRole.Member);
 
     if (canRemoveMember) {
       menu.push({
