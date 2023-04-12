@@ -19,6 +19,7 @@ import { ModalSize } from '../modals/common/types';
 import { ContextMenu, ContextMenuItemProps } from '../fields/PortalMenu';
 import { UseSquadActions } from '../../hooks/squads/useSquadActions';
 import { verifyPermission } from '../../graphql/squads';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
@@ -46,7 +47,11 @@ const promptDescription: Record<
   [MenuItemTitle.DemoteToMember]: (memberName) =>
     `${memberName} will lose the moderator permissions and become a regular member.`,
   [MenuItemTitle.BlockMember]: (memberName, squadName) =>
-    `${memberName} will be a Blocked members and will no longer have access to ${squadName}. They will not be able to rejoin unless you unblock them.`,
+    `${memberName} will be blocked and will no longer have access to ${squadName}. They will not be able to rejoin unless you unblock them.`,
+};
+
+const toastDescription: Partial<Record<MenuItemTitle, string>> = {
+  [MenuItemTitle.BlockMember]: 'Member has been blocked',
 };
 
 type UpdateRoleFn = (
@@ -109,6 +114,7 @@ export default function SquadMemberMenu({
 }: SquadMemberMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
+  const { displayToast } = useToastNotification();
   const onUpdateMember = async (
     role: SourceMemberRole,
     title: MenuItemTitle,
@@ -128,13 +134,15 @@ export default function SquadMemberMenu({
       className: { buttons: 'mt-6' },
     });
 
-    if (hasConfirmed) {
-      await onUpdateRole({
-        sourceId: squad.id,
-        memberId: member.user.id,
-        role,
-      });
-    }
+    if (!hasConfirmed) return;
+
+    await onUpdateRole({
+      sourceId: squad.id,
+      memberId: member.user.id,
+      role,
+    });
+
+    if (toastDescription[title]) displayToast(toastDescription[title]);
   };
 
   const options: ContextMenuItemProps[] = useMemo(() => {
