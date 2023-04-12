@@ -16,7 +16,7 @@ export const useMemberRoleForSource = ({
   user,
 }: UseMemberRoleForSourceProps): UseMemberRoleForSourceResult => {
   return useMemo(() => {
-    const role = source.privilegedMembers?.find(
+    const role = source?.privilegedMembers?.find(
       (member) => member.user.id === user?.id,
     )?.role;
 
