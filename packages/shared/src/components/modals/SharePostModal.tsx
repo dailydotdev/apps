@@ -8,16 +8,15 @@ import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 import { PassedPostNavigationProps } from '../post/PostContent';
+import { PostType } from '../../graphql/posts';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
-  isFetchingNextPage?: boolean;
 }
 
 export default function PostModal({
   id,
   className,
-  isFetchingNextPage,
   onRequestClose,
   onPreviousPost,
   onNextPost,
@@ -26,18 +25,22 @@ export default function PostModal({
   ...props
 }: PostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { post, isLoading } = usePostById({ id, isFetchingNextPage });
+  const { post, isPostLoadingOrFetching } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading,
+    isLoading: isPostLoadingOrFetching,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
+  const containerClass = 'post-content';
 
   return (
     <BasePostModal
       {...props}
       size={Modal.Size.Large}
       onRequestClose={onRequestClose}
+      postType={PostType.Share}
+      isLoading={isPostLoadingOrFetching}
+      loadingClassName={containerClass}
     >
       <SquadPostContent
         position={position}
@@ -47,11 +50,10 @@ export default function PostModal({
         postPosition={postPosition}
         inlineActions
         onClose={onRequestClose}
-        isLoading={isLoading}
         origin={Origin.ArticleModal}
         onRemovePost={onRemovePost}
         className={{
-          container: 'post-content',
+          container: containerClass,
           fixedNavigation: { container: 'w-[inherit]', actions: 'ml-auto' },
           navigation: { actions: 'tablet:hidden ml-auto' },
         }}

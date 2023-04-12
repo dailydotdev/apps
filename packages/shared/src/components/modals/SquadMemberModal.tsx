@@ -120,7 +120,10 @@ export function SquadMemberModal({
             </FlexCentered>
           ),
           isLoading: queryResult.isLoading,
-          initialItem: <InitialItem squad={squad} />,
+          initialItem:
+            roleFilter === SourceMemberRole.Blocked ? undefined : (
+              <InitialItem squad={squad} />
+            ),
         }}
         users={members?.map(({ user }) => user)}
       />
