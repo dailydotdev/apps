@@ -3,7 +3,7 @@ import { Source, SourceMemberRole } from '../graphql/sources';
 import { PublicProfile } from '../lib/user';
 
 export type UseMemberRoleForSourceProps = {
-  source: Source;
+  source?: Source;
   user?: Pick<PublicProfile, 'id'>;
 };
 
@@ -16,7 +16,7 @@ export const useMemberRoleForSource = ({
   user,
 }: UseMemberRoleForSourceProps): UseMemberRoleForSourceResult => {
   return useMemo(() => {
-    const role = source.privilegedMembers?.find(
+    const role = source?.privilegedMembers?.find(
       (member) => member.user.id === user?.id,
     )?.role;
 
