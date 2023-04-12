@@ -17,6 +17,8 @@ interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   isFetchingNextPage?: boolean;
 }
 
+const containerClass = 'border border-theme-divider-tertiary rounded-16';
+
 export default function ArticlePostModal({
   id,
   className,
@@ -39,7 +41,6 @@ export default function ArticlePostModal({
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
-  const containerClass = 'border border-theme-divider-tertiary rounded-16';
 
   return (
     <BasePostModal
