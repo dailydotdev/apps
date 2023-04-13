@@ -96,6 +96,7 @@ export function SquadPageHeader({
       >
         <SharePostBar
           className="w-full"
+          sourceId={squad.id}
           onNewSquadPost={onNewSquadPost}
           disabled={!verifyPermission(squad, SourcePermissions.Post)}
         />

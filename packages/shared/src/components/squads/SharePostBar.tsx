@@ -21,19 +21,21 @@ interface SharePostBarProps {
   className?: string;
   onNewSquadPost?: (props?: NewSquadPostProps) => void;
   disabled?: boolean;
+  sourceId: string;
 }
 
 const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
 
 function SharePostBar({
   className,
+  sourceId,
   onNewSquadPost,
   disabled = false,
 }: SharePostBarProps): ReactElement {
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
   const { mutateAsync: getPrivateLink } = useMutation(getExternalLinkPreview, {
-    onSuccess: (preview, link) => {
+    onSuccess: (preview, { url: link }) => {
       const privateLink = { url: link, ...preview };
       onNewSquadPost({ privateLink, onSharedSuccessfully });
     },
@@ -53,7 +55,7 @@ function SharePostBar({
           err?.response?.errors?.[0].extensions.code,
         )
       ) {
-        getPrivateLink(url);
+        getPrivateLink({ url, sourceId });
       }
     },
   });

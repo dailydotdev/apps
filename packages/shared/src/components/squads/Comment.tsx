@@ -45,6 +45,7 @@ interface SquadCommentProps {
   onSubmit: SubmitSharePostFunc;
   form: Partial<SquadForm>;
   isLoading?: boolean;
+  sourceId: string;
   onUpdateForm?: (form: Partial<SquadForm>) => void;
 }
 
@@ -56,6 +57,7 @@ enum LinkError {
 export function SquadComment({
   onSubmit,
   form,
+  sourceId,
   isLoading,
   onUpdateForm,
 }: SquadCommentProps): ReactElement {
@@ -67,7 +69,7 @@ export function SquadComment({
   const [link, setLink] = useState(privateLink?.url);
   const [linkHint, setLinkHint] = useState(privateLink?.url);
   const { mutateAsync: getPrivateLink } = useMutation(getExternalLinkPreview, {
-    onSuccess: (preview, url) => {
+    onSuccess: (preview, { url }) => {
       onUpdateForm({ privateLink: { url, ...preview } });
     },
   });
@@ -90,7 +92,7 @@ export function SquadComment({
           !isNullOrUndefined(postItem)
         ) {
           onUpdateForm({ post: { post: null } });
-          getPrivateLink(url);
+          getPrivateLink({ url, sourceId });
         }
       },
     },
