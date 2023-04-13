@@ -6,6 +6,7 @@ export enum SourceMemberRole {
   Member = 'member',
   Moderator = 'moderator',
   Owner = 'owner',
+  Admin = 'admin',
 }
 
 export enum SourcePermissions {

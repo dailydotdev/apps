@@ -44,7 +44,10 @@ export default function SquadHeaderMenu({
     squad,
     callback: () => router.replace('/'),
   });
-  const isSquadOwner = squad?.currentMember?.role === SourceMemberRole.Owner;
+  const isSquadOwner = [
+    SourceMemberRole.Owner,
+    SourceMemberRole.Admin,
+  ].includes(squad?.currentMember?.role);
 
   const onEditSquad = () => {
     openModal({
