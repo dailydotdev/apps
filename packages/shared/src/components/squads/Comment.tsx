@@ -45,7 +45,7 @@ interface SquadCommentProps {
   onSubmit: SubmitSharePostFunc;
   form: Partial<SquadForm>;
   isLoading?: boolean;
-  sourceId: string;
+  sourceId?: string;
   onUpdateForm?: (form: Partial<SquadForm>) => void;
 }
 
