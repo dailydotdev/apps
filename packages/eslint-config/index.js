@@ -8,8 +8,9 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'plugin:prettier/recommended',
+    'plugin:react-hooks/recommended',
   ],
-  plugins: ['prettier', 'tailwindcss', '@dailydotdev/daily-dev-eslint-rules'],
+  plugins: ['prettier', 'tailwindcss', '@dailydotdev/daily-dev-eslint-rules', 'react-hooks'],
   parserOptions: {
     project: './tsconfig.eslint.json',
     ecmaVersion: 2020,
