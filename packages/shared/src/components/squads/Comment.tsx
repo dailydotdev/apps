@@ -17,17 +17,23 @@ import { Justify } from '../utilities';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 import AuthContext from '../../contexts/AuthContext';
-import OpenLinkIcon from '../icons/OpenLink';
 import { SquadForm } from '../../graphql/squads';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { isNullOrUndefined } from '../../lib/func';
 import { TextField } from '../fields/TextField';
 import LinkIcon from '../icons/Link';
-import { getPostByUrl, Post } from '../../graphql/posts';
+import {
+  ExternalLink,
+  getExternalLinkPreview,
+  getPostByUrl,
+  Post,
+} from '../../graphql/posts';
 import { ApiError, ApiErrorResult } from '../../graphql/common';
 import useDebounce from '../../hooks/useDebounce';
 import { isValidHttpUrl } from '../../lib/links';
 import { KeyboardCommand } from '../../lib/element';
+import PostPreview from '../post/PostPreview';
+import { Loader } from '../Loader';
 
 export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
@@ -39,7 +45,7 @@ interface SquadCommentProps {
   onSubmit: SubmitSharePostFunc;
   form: Partial<SquadForm>;
   isLoading?: boolean;
-  onUpdateForm?: (post: Post) => void;
+  onUpdateForm?: (form: Partial<SquadForm>) => void;
 }
 
 enum LinkError {
@@ -54,13 +60,17 @@ export function SquadComment({
   onUpdateForm,
 }: SquadCommentProps): ReactElement {
   const textinput = useRef<HTMLTextAreaElement>();
-  const { url, post: postItem } = form;
+  const { privateLink, post: postItem } = form;
   const { post } = postItem;
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
-  const isLink = !isNullOrUndefined(url);
-  const [link, setLink] = useState(url);
-  const [linkHint, setLinkHint] = useState(url);
+  const [link, setLink] = useState(privateLink?.url);
+  const [linkHint, setLinkHint] = useState(privateLink?.url);
+  const { mutateAsync: getPrivateLink } = useMutation(getExternalLinkPreview, {
+    onSuccess: (preview, url) => {
+      onUpdateForm({ privateLink: { url, ...preview } });
+    },
+  });
   const { mutateAsync: getPost, isLoading: isCheckingUrl } = useMutation(
     (param: string) => {
       if (!param || !isValidHttpUrl(param)) return null;
@@ -70,21 +80,22 @@ export function SquadComment({
     {
       onSuccess: (postByUrl) => {
         if (postByUrl) {
-          onUpdateForm(postByUrl);
+          onUpdateForm({ post: { post: postByUrl } });
           textinput?.current?.focus();
         }
       },
-      onError: (err: ApiErrorResult) => {
+      onError: (err: ApiErrorResult, url) => {
         if (
           err?.response?.errors?.[0].extensions.code === ApiError.NotFound &&
           !isNullOrUndefined(postItem)
         ) {
-          onUpdateForm(null);
+          onUpdateForm({ post: { post: null } });
+          getPrivateLink(url);
         }
       },
     },
   );
-  const [checkUrl] = useDebounce(getPost, 200);
+  const [checkUrl] = useDebounce(getPost, 1000);
 
   const onInputChange: FormEventHandler<HTMLInputElement> = (e) => {
     const text = e.currentTarget.value;
@@ -124,10 +135,22 @@ export function SquadComment({
     }
   };
 
+  const preview: ExternalLink = (() => {
+    if (post) {
+      return { url: post.permalink, title: post.title, image: post.image };
+    }
+
+    if (privateLink?.title && privateLink?.image) {
+      return privateLink;
+    }
+
+    return null;
+  })();
+
   return (
     <>
       <Modal.Body
-        className={classNames('flex flex-col', isLink && !post && 'pb-2')}
+        className={classNames('flex flex-col', privateLink && !post && 'pb-2')}
       >
         <form
           onSubmit={(e) => onSubmitForm(e)}
@@ -145,9 +168,16 @@ export function SquadComment({
               ref={textinput}
             />
           </span>
-          {isLink && !post && (
+          {preview && (
+            <PostPreview
+              className="mb-4"
+              preview={preview}
+              isLoading={isCheckingUrl}
+            />
+          )}
+          {privateLink && !post && (
             <TextField
-              leftIcon={<LinkIcon />}
+              leftIcon={isCheckingUrl ? <Loader /> : <LinkIcon />}
               label="Enter link to share"
               fieldType="tertiary"
               inputId="url"
@@ -159,23 +189,8 @@ export function SquadComment({
               onInput={onInputChange}
               hint={linkHint}
               saveHintSpace
+              disabled={isCheckingUrl}
             />
-          )}
-          {post && (
-            <div className="flex gap-4 items-center py-2 px-4 w-full rounded-12 border border-theme-divider-tertiary">
-              <p className="flex-1 line-clamp-3 multi-truncate text-theme-label-secondary typo-caption1">
-                {post.title}
-              </p>
-              <Image
-                src={post.image}
-                className="object-cover w-16 laptop:w-24 h-16 rounded-16"
-                loading="lazy"
-                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              />
-              <a href={post.permalink} target="_blank">
-                <OpenLinkIcon />
-              </a>
-            </div>
           )}
         </form>
       </Modal.Body>

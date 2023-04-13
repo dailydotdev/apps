@@ -432,10 +432,14 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   mutation SubmitExternalLink(
     $sourceId: ID!
     $url: String!
+    $title: String!
+    $image: String!
     $commentary: String!
   ) {
     submitExternalLink(
       url: $url
+      title: $title
+      image: $image
       sourceId: $sourceId
       commentary: $commentary
     ) {
@@ -444,8 +448,39 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   }
 `;
 
-interface SubmitExternalLink {
+export interface ExternalLinkPreview {
+  title: string;
+  image: string;
+}
+
+export interface ExternalLink extends Partial<ExternalLinkPreview> {
   url: string;
+}
+
+export const getExternalLinkPreview = async (
+  url: string,
+): Promise<ExternalLinkPreview> => {
+  // const res = await fetch(
+  //   'http://post-scraper-one-ai-server.content.svc.cluster.local/preview',
+  //   {
+  //     body: JSON.stringify({ url }),
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json; charset=utf-8',
+  //     },
+  //   },
+  // );
+
+  // return res.json();
+
+  return Promise.resolve({
+    title: 'We updated our RSA SSH host key',
+    image:
+      'https://github.blog/wp-content/uploads/2021/12/github-security_orange-banner.png',
+  });
+};
+
+interface SubmitExternalLink extends ExternalLink {
   sourceId: string;
   commentary: string;
 }

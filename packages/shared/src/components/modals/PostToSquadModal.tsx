@@ -12,36 +12,31 @@ import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
-import { isNullOrUndefined } from '../../lib/func';
 
-export interface PostToSquadModalProps extends LazyModalCommonProps {
+export interface PostToSquadModalProps
+  extends LazyModalCommonProps,
+    Partial<Pick<SquadForm, 'privateLink'>> {
   squad: Squad;
   post?: Post;
-  url?: string;
   onSharedSuccessfully?: (post: Post) => void;
   requestMethod?: typeof request;
 }
 
 const modalSteps: ModalStep[] = [
-  {
-    key: ModalState.SelectArticle,
-  },
-  {
-    key: ModalState.WriteComment,
-  },
+  { key: ModalState.SelectArticle },
+  { key: ModalState.WriteComment },
 ];
 function PostToSquadModal({
   onSharedSuccessfully,
   onRequestClose,
   isOpen,
   post,
-  url,
+  privateLink,
   squad,
   requestMethod = request,
   ...props
 }: PostToSquadModalProps): ReactElement {
-  const isLink = !isNullOrUndefined(url);
-  const shouldSkipHistory = isLink || post;
+  const shouldSkipHistory = !!privateLink || !!post;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
@@ -51,14 +46,14 @@ function PostToSquadModal({
     file: squad.image,
     handle: squad.handle,
     buttonText: 'Done',
-    url,
+    privateLink,
   });
 
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
 
     displayToast(
-      isLink
+      privateLink
         ? 'This post is being processed and will be shared with your Squad shortly'
         : 'This post has been shared to your Squad',
     );
@@ -84,8 +79,15 @@ function PostToSquadModal({
 
     if (isLoading) return null;
 
-    if (isLink) {
-      return onSubmitLink({ url: postLink, sourceId: squad.id, commentary });
+    if (privateLink) {
+      const { title, image } = privateLink;
+      return onSubmitLink({
+        url: postLink,
+        title,
+        image,
+        sourceId: squad.id,
+        commentary,
+      });
     }
 
     return onPost({
@@ -123,8 +125,8 @@ function PostToSquadModal({
           form={form}
           onSubmit={onSubmit}
           isLoading={isLoading || isLinkLoading}
-          onUpdateForm={(postByUrl) =>
-            setForm((value) => ({ ...value, post: { post: postByUrl } }))
+          onUpdateForm={(updatedForm) =>
+            setForm((value) => ({ ...value, ...updatedForm }))
           }
         />
       ) : (

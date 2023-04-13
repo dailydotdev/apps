@@ -9,7 +9,7 @@ import {
   SourcePermissions,
   Squad,
 } from './sources';
-import { Post, PostItem } from './posts';
+import { Post, PostItem, ExternalLink } from './posts';
 import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
 
@@ -17,7 +17,7 @@ export type SquadForm = Pick<
   Squad,
   'name' | 'handle' | 'description' | 'image'
 > & {
-  url?: string;
+  privateLink?: ExternalLink;
   file?: string;
   commentary: string;
   post: PostItem;

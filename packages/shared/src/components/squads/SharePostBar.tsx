@@ -5,7 +5,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { getPostByUrl } from '../../graphql/posts';
+import { getPostByUrl, getExternalLinkPreview } from '../../graphql/posts';
 import { ApiError, ApiErrorResult } from '../../graphql/common';
 import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 import LockIcon from '../icons/Lock';
@@ -14,7 +14,7 @@ import { IconSize } from '../Icon';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
-  'url' | 'post' | 'onSharedSuccessfully'
+  'privateLink' | 'post' | 'onSharedSuccessfully'
 >;
 
 interface SharePostBarProps {
@@ -32,18 +32,28 @@ function SharePostBar({
 }: SharePostBarProps): ReactElement {
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
+  const { mutateAsync: getPrivateLink } = useMutation(getExternalLinkPreview, {
+    onSuccess: (preview, link) => {
+      const privateLink = { url: link, ...preview };
+      onNewSquadPost({ privateLink, onSharedSuccessfully });
+    },
+  });
   const { mutateAsync: getPost } = useMutation(getPostByUrl, {
     onSuccess: (post) => {
       onNewSquadPost({ post, onSharedSuccessfully });
     },
     onError: (err: ApiErrorResult, link) => {
+      if (link === '') {
+        onNewSquadPost({ privateLink: { url: link } });
+        return;
+      }
+
       if (
-        link === '' ||
         allowedSubmissionErrors.includes(
           err?.response?.errors?.[0].extensions.code,
         )
       ) {
-        onNewSquadPost({ url, onSharedSuccessfully });
+        getPrivateLink(url);
       }
     },
   });
