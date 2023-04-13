@@ -457,27 +457,26 @@ export interface ExternalLink extends Partial<ExternalLinkPreview> {
   url: string;
 }
 
+export const PREVIEW_LINK_MUTATION = gql`
+  mutation CheckLinkPreview($id: ID!) {
+    checkLinkPreview(id: $id) {
+      title
+      image
+    }
+  }
+`;
+
+interface ExternalLinkPreviewProps {
+  url: string;
+  sourceId: string;
+}
+
 export const getExternalLinkPreview = async (
-  url: string,
+  params: ExternalLinkPreviewProps,
 ): Promise<ExternalLinkPreview> => {
-  // const res = await fetch(
-  //   'http://post-scraper-one-ai-server.content.svc.cluster.local/preview',
-  //   {
-  //     body: JSON.stringify({ url }),
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json; charset=utf-8',
-  //     },
-  //   },
-  // );
+  const res = await request(graphqlUrl, PREVIEW_LINK_MUTATION, params);
 
-  // return res.json();
-
-  return Promise.resolve({
-    title: 'We updated our RSA SSH host key',
-    image:
-      'https://github.blog/wp-content/uploads/2021/12/github-security_orange-banner.png',
-  });
+  return res.checkLinkPreview;
 };
 
 interface SubmitExternalLink extends ExternalLink {
