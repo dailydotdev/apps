@@ -18,7 +18,7 @@ function ModalBodyComponent({
 }: ModalBodyProps): ReactElement {
   const { activeView, kind, size } = useContext(ModalPropsContext);
   const sectionClassName = classNames(
-    'overflow-auto relative w-full h-full shrink max-h-full p-6',
+    'overflow-auto relative w-full h-full shrink max-h-full p-6 flex flex-col',
     kind === ModalKind.FlexibleTop && bigModals.includes(size) && 'mobileL:p-8',
     className,
   );
