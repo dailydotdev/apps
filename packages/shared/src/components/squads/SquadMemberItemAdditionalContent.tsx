@@ -81,7 +81,7 @@ function SquadMemberItemAdditionalContent({
     return (
       <>
         <SquadMemberBadge
-          className={!isLoggedUser && 'my-auto mr-2'}
+          className={isLoggedUser ? 'mr-10' : 'mr-2'}
           role={member.role}
         />
         {isLoggedUser ? null : option}
