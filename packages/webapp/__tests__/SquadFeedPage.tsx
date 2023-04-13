@@ -295,10 +295,10 @@ describe('squad members modal', () => {
     return members;
   };
 
-  it('should show the owner on top of the list', async () => {
+  it('should show the admin on top of the list', async () => {
     const fullMembers = await openedMembersModal();
     const [first] = fullMembers;
-    expect(first.node.role).toEqual(SourceMemberRole.Owner);
+    expect(first.node.role).toEqual(SourceMemberRole.Admin);
   });
 
   it('should show all members of the squad', async () => {
@@ -321,7 +321,7 @@ describe('squad members modal', () => {
 
   it('should show all blocked members of the squad when privileged', async () => {
     requestedSquad.currentMember = {
-      role: SourceMemberRole.Owner,
+      role: SourceMemberRole.Admin,
       permissions: [SourcePermissions.ViewBlockedMembers],
     };
     await openedMembersModal();
