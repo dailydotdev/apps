@@ -46,6 +46,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     isFetched,
     isLoading,
     isFetching,
+    isRefetching,
   } = useQuery<PostData>(
     key,
     () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
@@ -61,7 +62,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       post: post?.post,
       isError,
       isFetched,
-      isPostLoadingOrFetching: isLoading || isFetching,
+      isPostLoadingOrFetching: (isLoading || isFetching) && !isRefetching,
     }),
     [post?.post, isError, isFetched, isLoading, isFetching],
   );
