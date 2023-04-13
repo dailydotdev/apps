@@ -92,7 +92,7 @@ export function SquadMemberModal({
           .flat()}
         additionalContent={(user) => {
           const role = getSquadMembersUserRole(queryResult, user);
-          if (role === SourceMemberRole.Owner) {
+          if ([SourceMemberRole.Owner, SourceMemberRole.Admin].includes(role)) {
             return (
               <span
                 className="flex gap-1 items-center font-bold typo-footnote text-theme-color-cabbage"
