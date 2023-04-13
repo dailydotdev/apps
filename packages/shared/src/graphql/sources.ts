@@ -42,8 +42,6 @@ export interface Squad extends Source {
   permalink: string;
   public: boolean;
   type: SourceType.Squad;
-  admins?: string[];
-  moderators?: string[];
   members?: Connection<SourceMember>;
   membersCount: number;
   description: string;
