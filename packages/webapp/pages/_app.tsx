@@ -80,11 +80,27 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useTrackPageView();
   useInAppNotification();
-  useLazyModal();
+  const { modal, closeModal } = useLazyModal();
   usePrompt();
   useEffect(() => {
     updateCookieBanner(user);
   }, [user]);
+
+  useEffect(() => {
+    if (!modal) {
+      return undefined;
+    }
+
+    const onBeforeHistoryChange = () => {
+      closeModal();
+    };
+
+    router.events.on('beforeHistoryChange', onBeforeHistoryChange);
+
+    return () => {
+      router.events.off('beforeHistoryChange', onBeforeHistoryChange);
+    };
+  }, [modal, closeModal, router.events]);
 
   const getLayout =
     (Component as ComponentGetLayout).getLayout || ((page) => page);
