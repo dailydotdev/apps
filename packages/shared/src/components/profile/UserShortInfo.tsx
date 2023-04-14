@@ -20,7 +20,10 @@ type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
 interface UserShortInfoProps<Tag extends AnyTag> {
   user: Author;
   imageSize?: ProfileImageSize;
-  className?: string;
+  className?: {
+    container?: string;
+    textWrapper?: string;
+  };
   tag?: Tag;
   disableTooltip?: boolean;
   scrollingContainer?: HTMLElement;
@@ -34,7 +37,10 @@ export function UserShortInfo<Tag extends AnyTag>({
   imageSize = 'xlarge',
   tag,
   user,
-  className = 'py-3 px-6 hover:bg-theme-hover',
+  className = {
+    container: 'py-3 px-6 hover:bg-theme-hover',
+    textWrapper: 'flex-1',
+  },
   disableTooltip,
   scrollingContainer,
   appendTooltipTo,
@@ -49,7 +55,10 @@ export function UserShortInfo<Tag extends AnyTag>({
   };
 
   return (
-    <Element {...props} className={classNames('flex flex-row', className)}>
+    <Element
+      {...props}
+      className={classNames('flex flex-row', className.container)}
+    >
       <ProfileTooltip
         user={user}
         tooltip={tooltipProps}
@@ -62,7 +71,12 @@ export function UserShortInfo<Tag extends AnyTag>({
         tooltip={tooltipProps}
         scrollingContainer={scrollingContainer}
       >
-        <div className="flex overflow-hidden flex-col flex-1 ml-4 typo-callout">
+        <div
+          className={classNames(
+            'flex overflow-hidden flex-col ml-4 typo-callout',
+            className.textWrapper,
+          )}
+        >
           <TextEllipsis className="font-bold">{name}</TextEllipsis>
           <TextEllipsis className="text-theme-label-secondary">
             @{username}

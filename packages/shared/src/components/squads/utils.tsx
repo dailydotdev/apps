@@ -1,19 +1,16 @@
 import React from 'react';
-import { UseInfiniteQueryResult } from 'react-query';
 import classed from '../../lib/classed';
 import { PromptOptions } from '../../hooks/usePrompt';
-import { SquadEdgesData, SquadForm } from '../../graphql/squads';
-import { SourceMemberRole } from '../../graphql/sources';
-import { UserShortProfile } from '../../lib/user';
+import { SquadForm } from '../../graphql/squads';
 
 export enum ModalState {
-  Details = 'Squad details',
+  Details = 'Squad settings',
   SelectArticle = 'Pick a post',
   WriteComment = 'Share post',
   Ready = 'Almost there!',
 }
 export const modalStateToScreenValue: Record<ModalState, string> = {
-  [ModalState.Details]: 'squad details',
+  [ModalState.Details]: 'squad settings',
   [ModalState.SelectArticle]: 'share article',
   [ModalState.WriteComment]: 'comment',
   [ModalState.Ready]: 'invitation',
@@ -24,7 +21,7 @@ export const SquadTitle = classed(
 );
 export const SquadSubTitle = classed(
   'p',
-  'text-center typo-title3 mb-4 text-theme-label-tertiary',
+  'text-center typo-title3 text-theme-label-tertiary',
 );
 export const SquadTitleColor = classed('span', 'text-theme-color-cabbage');
 
@@ -49,15 +46,4 @@ export const quitSquadModal: PromptOptions = {
     title: 'Close',
     className: 'btn-secondary',
   },
-};
-
-export const getSquadMembersUserRole = (
-  input: UseInfiniteQueryResult<SquadEdgesData>,
-  user: UserShortProfile,
-): SourceMemberRole => {
-  return input.data?.pages
-    .map((page) =>
-      page.sourceMembers.edges.filter(({ node }) => node.user.id === user.id),
-    )
-    .flat()[0].node.role;
 };

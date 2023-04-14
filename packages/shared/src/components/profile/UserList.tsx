@@ -15,6 +15,8 @@ export interface UserListProps {
   placeholderAmount?: number;
   additionalContent?: (user: UserShortProfile, index: number) => ReactNode;
   initialItem?: ReactElement;
+  isLoading?: boolean;
+  emptyPlaceholder?: JSX.Element;
 }
 
 function UserList({
@@ -23,26 +25,36 @@ function UserList({
   users,
   additionalContent,
   initialItem,
+  isLoading,
+  emptyPlaceholder,
   ...props
 }: UserListProps): ReactElement {
-  return (
-    <InfiniteScrolling
-      {...scrollingProps}
-      aria-label="users-list"
-      placeholder={
-        <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
-      }
-    >
-      {!!initialItem && initialItem}
-      {users.map((user, i) => (
-        <Link key={user.username} href={user.permalink}>
-          <UserShortInfo {...props} tag="a" href={user.permalink} user={user}>
-            {additionalContent?.(user, i)}
-          </UserShortInfo>
-        </Link>
-      ))}
-    </InfiniteScrolling>
+  const loader = (
+    <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
   );
+
+  if (users?.length) {
+    return (
+      <InfiniteScrolling
+        {...scrollingProps}
+        aria-label="users-list"
+        placeholder={loader}
+      >
+        {!!initialItem && initialItem}
+        {users.map((user, i) => (
+          <Link key={user.username} href={user.permalink}>
+            <UserShortInfo {...props} tag="a" href={user.permalink} user={user}>
+              {additionalContent?.(user, i)}
+            </UserShortInfo>
+          </Link>
+        ))}
+      </InfiniteScrolling>
+    );
+  }
+
+  if (isLoading) return loader;
+
+  return emptyPlaceholder ?? loader;
 }
 
 export default UserList;

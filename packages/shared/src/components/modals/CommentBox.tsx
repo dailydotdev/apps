@@ -6,6 +6,7 @@ import React, {
   MouseEvent,
   KeyboardEvent,
   CompositionEvent,
+  ReactNode,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -15,7 +16,6 @@ import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 import { fixHeight, UseUserMentionOptions } from '../../hooks/useUserMention';
-import { Post } from '../../graphql/posts';
 import { cleanupEmptySpaces } from '../../lib/strings';
 import {
   ArrowKey,
@@ -24,39 +24,35 @@ import {
   KeyboardCommand,
   Y_AXIS_KEYS,
 } from '../../lib/element';
+import { ParentComment } from '../../graphql/posts';
 
 type TextareaInputEvent = CompositionEvent<HTMLTextAreaElement> &
   BaseInputEvent;
 
 export interface CommentBoxProps {
-  authorName: string;
-  authorImage: string;
-  publishDate: Date | string;
-  contentHtml: string;
-  editContent?: string;
+  parentComment: ParentComment;
   input?: string;
+  children?: ReactNode;
   errorMessage?: string;
   sendingComment?: boolean;
   parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
   useUserMentionOptions: UseUserMentionOptions;
-  post: Post;
 }
 
 function CommentBox({
-  authorImage,
-  authorName,
-  publishDate,
-  contentHtml,
-  editContent,
+  parentComment,
   input,
+  children,
   errorMessage,
   onInput,
   sendComment,
   parentSelector,
   useUserMentionOptions,
 }: CommentBoxProps): ReactElement {
+  const { authorImage, authorName, publishDate, contentHtml, editContent } =
+    parentComment;
   const { user } = useContext(AuthContext);
   const {
     onMentionClick,
@@ -193,6 +189,7 @@ function CommentBox({
       >
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
+      {children}
     </>
   );
 }

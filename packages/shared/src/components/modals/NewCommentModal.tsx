@@ -1,16 +1,16 @@
 import React, {
-  ReactElement,
-  useState,
   MouseEvent,
-  useEffect,
+  ReactElement,
   useContext,
+  useEffect,
+  useState,
 } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
-  CommentOnData,
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
+  CommentOnData,
   EDIT_COMMENT_MUTATION,
   PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
@@ -28,6 +28,11 @@ import { markdownGuide } from '../../lib/constants';
 import { Justify } from '../utilities';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { ModalPropsContext } from './common/types';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { checkUserMembership } from '../../graphql/squads';
+import { SourceMemberRole, SourceType } from '../../graphql/sources';
+import Alert, { AlertType } from '../widgets/Alert';
+import { disabledRefetch } from '../../lib/func';
 
 interface CommentVariables {
   id: string;
@@ -48,12 +53,8 @@ type CommentProps = Omit<
 
 export interface NewCommentModalProps extends ModalProps, CommentProps {
   post: Post;
-  commentId: string;
   onComment?: (comment: Comment, isNew?: boolean) => void;
-  editContent?: string;
-  editId?: string;
   onInputChange?: (value: string) => void;
-  replyTo?: string;
 }
 
 enum CommentTabs {
@@ -107,19 +108,32 @@ const PreviewTab = ({ input, sourceId, parentSelector }: PreviewTabProps) => {
 
 export default function NewCommentModal({
   onRequestClose,
-  editId,
   onComment,
   onInputChange,
-  replyTo,
-  editContent,
   parentSelector,
+  parentComment,
+  post,
   ...props
 }: NewCommentModalProps): ReactElement {
+  const { handle, commentId, editId, editContent, replyTo, authorId } =
+    parentComment;
   const [input, setInput] = useState<string>(editContent || replyTo);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const { showPrompt } = usePrompt();
   const { requestMethod } = useRequestProtocol();
+  const { data: member, isFetched: isMembershipFetched } = useQuery(
+    generateQueryKey(RequestKey.PostComments, null, {
+      authorId,
+      sourceId: post.source.id,
+    }),
+    () => checkUserMembership(post.source.id, authorId),
+    {
+      enabled: !!authorId && post.source.type === SourceType.Squad,
+      retry: false,
+      ...disabledRefetch,
+    },
+  );
 
   const confirmClose = async (event: MouseEvent): Promise<void> => {
     if (
@@ -132,7 +146,7 @@ export default function NewCommentModal({
     onRequestClose(event);
   };
 
-  const key = ['post_comments_mutations', props.post.id];
+  const key = ['post_comments_mutations', post.id];
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
     unknown,
@@ -141,9 +155,7 @@ export default function NewCommentModal({
     (variables) =>
       requestMethod(
         graphqlUrl,
-        props.commentId
-          ? COMMENT_ON_COMMENT_MUTATION
-          : COMMENT_ON_POST_MUTATION,
+        commentId ? COMMENT_ON_COMMENT_MUTATION : COMMENT_ON_POST_MUTATION,
         variables,
         { requestKey: JSON.stringify(key) },
       ),
@@ -183,7 +195,7 @@ export default function NewCommentModal({
         });
       } else {
         await comment({
-          id: props.commentId || props.post.id,
+          id: commentId || post.id,
           content: input,
         });
       }
@@ -193,8 +205,8 @@ export default function NewCommentModal({
     }
   };
   const useUserMentionOptions = useUserMention({
-    postId: props.post.id,
-    sourceId: props.post.source.id,
+    postId: post.id,
+    sourceId: post.source.id,
     onInput: setInput,
   });
 
@@ -229,17 +241,25 @@ export default function NewCommentModal({
       <Modal.Body view={CommentTabs.Write}>
         <CommentBox
           {...props}
-          editContent={editContent}
+          parentComment={parentComment}
           useUserMentionOptions={useUserMentionOptions}
           onInput={setInput}
           input={input}
           errorMessage={errorMessage}
           sendComment={sendComment}
-        />
+        >
+          {isMembershipFetched &&
+          (!member || member.role === SourceMemberRole.Blocked) ? (
+            <Alert
+              type={AlertType.Info}
+              title={`${handle} is no longer part of the squad and will not be able to see or reply to your comment.`}
+            />
+          ) : null}
+        </CommentBox>
       </Modal.Body>
       <PreviewTab
         input={input}
-        sourceId={props.post.source.id}
+        sourceId={post.source.id}
         parentSelector={parentSelector}
       />
       <Modal.Footer justify={Justify.Between} view={CommentTabs.Write}>

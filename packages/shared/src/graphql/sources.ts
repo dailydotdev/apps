@@ -5,19 +5,19 @@ import { Connection } from './common';
 export enum SourceMemberRole {
   Member = 'member',
   Moderator = 'moderator',
-  Owner = 'owner',
   Admin = 'admin',
+  Blocked = 'blocked',
 }
 
 export enum SourcePermissions {
   CommentDelete = 'comment_delete',
   View = 'view',
+  ViewBlockedMembers = 'view_blocked_members',
   Post = 'post',
   PostLimit = 'post_limit',
   PostDelete = 'post_delete',
+  MemberRoleUpdate = 'member_role_update',
   MemberRemove = 'member_remove',
-  ModeratorAdd = 'moderator_add',
-  ModeratorRemove = 'moderator_remove',
   InviteDisable = 'invite_disable',
   Leave = 'leave',
   Delete = 'delete',
@@ -42,11 +42,14 @@ export interface Squad extends Source {
   permalink: string;
   public: boolean;
   type: SourceType.Squad;
-  owners?: string[];
-  moderators?: string[];
   members?: Connection<SourceMember>;
   membersCount: number;
   description: string;
+  memberPostingRole: SourceMemberRole;
+}
+
+export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
+  user: Pick<UserShortProfile, 'id'>;
 }
 
 export interface Source {
@@ -58,6 +61,7 @@ export interface Source {
   type: SourceType;
   permalink: string;
   currentMember?: SourceMember;
+  privilegedMembers?: SourcePrivilegedMembers[];
 }
 
 export type SourceData = { source: Source };

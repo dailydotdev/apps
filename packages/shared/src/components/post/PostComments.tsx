@@ -22,20 +22,12 @@ import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { UsePostComment, usePostComment } from '../../hooks/usePostComment';
+import {
+  getParentComment,
+  UsePostComment,
+  usePostComment,
+} from '../../hooks/usePostComment';
 import { useToastNotification } from '../../hooks/useToastNotification';
-
-export interface ParentComment {
-  authorName: string;
-  authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
-  post: Post;
-  editContent?: string;
-  editId?: string;
-}
 
 interface PostCommentsProps {
   post: Post;
@@ -46,41 +38,6 @@ interface PostCommentsProps {
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
 }
-
-interface SharedData {
-  editContent?: string;
-  editId?: string;
-}
-
-const getParentComment = (
-  post: Post,
-  comment?: Comment,
-  shared: SharedData = {},
-) => {
-  if (comment) {
-    return {
-      authorName: comment.author.name,
-      authorImage: comment.author.image,
-      content: comment.content,
-      contentHtml: comment.contentHtml,
-      publishDate: comment.lastUpdatedAt || comment.createdAt,
-      commentId: comment.id,
-      post,
-      ...shared,
-    };
-  }
-
-  return {
-    authorName: post.source.name,
-    authorImage: post.source.image,
-    content: post.title,
-    contentHtml: post.title,
-    publishDate: post.createdAt,
-    commentId: null,
-    post,
-    ...shared,
-  };
-};
 
 export function PostComments({
   post,
