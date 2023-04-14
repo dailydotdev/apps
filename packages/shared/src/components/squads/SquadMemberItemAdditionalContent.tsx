@@ -38,7 +38,10 @@ function SquadMemberItemAdditionalContent({
         <UserShortInfo
           disableTooltip
           user={user}
-          className={{ container: 'py-3 px-6 justify-center' }}
+          className={{
+            container: 'py-3 px-6 justify-center',
+            textWrapper: 'max-w-fit',
+          }}
         />
       ),
       promptSize: ModalSize.Small,
