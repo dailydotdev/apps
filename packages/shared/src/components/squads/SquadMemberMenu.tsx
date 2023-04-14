@@ -39,7 +39,7 @@ const promptDescription: Record<
   (memberName: string, squadName: string) => string
 > = {
   [MenuItemTitle.PromoteToAdmin]: (memberName, squadName) =>
-    `${memberName} will get the same permissions as you have. Adding as admin will not replace you as the admin of ${squadName}.`,
+    `${memberName} will get the same permissions as you have. Making someone an admin will not replace you as the admin of ${squadName}. You can reverse this decision later.`,
   [MenuItemTitle.PromoteToModerator]: (memberName) =>
     `${memberName} will now get moderator permissions and be able to remove posts and members from your Squad. You can reverse this decision later.`,
   [MenuItemTitle.DemoteToModerator]: (memberName) =>
