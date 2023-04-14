@@ -130,7 +130,8 @@ export function SquadDetails({
           {createMode && (
             <>
               <SquadTitle>Squads early access!</SquadTitle>
-              <SquadSubTitle className="mb-0">
+
+              <SquadSubTitle>
                 Create a group where you can learn and interact privately with
                 other developers around topics that matter to you
               </SquadSubTitle>
