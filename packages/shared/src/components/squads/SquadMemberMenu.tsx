@@ -27,7 +27,7 @@ interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
 }
 
 enum MenuItemTitle {
-  AddAsOwner = 'Add as co-owner',
+  AddAsAdmin = 'Add as admin',
   PromoteToModerator = 'Promote to moderator',
   DemoteToModerator = 'Demote to moderator',
   DemoteToMember = 'Demote to member',
@@ -38,12 +38,12 @@ const promptDescription: Record<
   MenuItemTitle,
   (memberName: string, squadName: string) => string
 > = {
-  [MenuItemTitle.AddAsOwner]: (memberName, squadName) =>
-    `${memberName} will get the same permissions as you have. Adding as co-owner will not replace you as the owner of ${squadName}.`,
+  [MenuItemTitle.AddAsAdmin]: (memberName, squadName) =>
+    `${memberName} will get the same permissions as you have. Adding as admin will not replace you as the admin of ${squadName}.`,
   [MenuItemTitle.PromoteToModerator]: (memberName) =>
     `${memberName} will now get moderator permissions and be able to remove posts and members from your Squad. You can reverse this decision later.`,
   [MenuItemTitle.DemoteToModerator]: (memberName) =>
-    `${memberName} will no longer have owner permissions. You can always reverse this decision later.`,
+    `${memberName} will no longer have admin permissions. You can always reverse this decision later.`,
   [MenuItemTitle.DemoteToMember]: (memberName) =>
     `${memberName} will lose the moderator permissions and become a regular member.`,
   [MenuItemTitle.BlockMember]: (memberName, squadName) =>
@@ -66,10 +66,10 @@ const getUpdateRoleOptions = (
     title: MenuItemTitle,
   ) => UpdateRoleFn,
 ): ContextMenuItemProps[] => {
-  const promoteToOwner = {
-    text: MenuItemTitle.AddAsOwner,
+  const promoteToAdmin = {
+    text: MenuItemTitle.AddAsAdmin,
     icon: <StarIcon size={IconSize.Small} />,
-    action: getUpdateRoleFn(SourceMemberRole.Owner, MenuItemTitle.AddAsOwner),
+    action: getUpdateRoleFn(SourceMemberRole.Admin, MenuItemTitle.AddAsAdmin),
   };
   const promoteToModerator = {
     text: MenuItemTitle.PromoteToModerator,
@@ -96,15 +96,15 @@ const getUpdateRoleOptions = (
     ),
   };
 
-  if (member.role === SourceMemberRole.Owner) {
+  if (member.role === SourceMemberRole.Admin) {
     return [demoteToModerator, demoteToMember];
   }
 
   if (member.role === SourceMemberRole.Moderator) {
-    return [promoteToOwner, demoteToMember];
+    return [promoteToAdmin, demoteToMember];
   }
 
-  return [promoteToOwner, promoteToModerator];
+  return [promoteToAdmin, promoteToModerator];
 };
 
 export default function SquadMemberMenu({

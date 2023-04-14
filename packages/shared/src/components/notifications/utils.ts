@@ -33,7 +33,7 @@ export enum NotificationType {
   SquadPostAdded = 'squad_post_added',
   SquadMemberJoined = 'squad_member_joined',
   SquadBlocked = 'squad_blocked',
-  PromotedToOwner = 'promoted_to_owner',
+  PromotedToAdmin = 'promoted_to_admin',
   PromotedToModerator = 'promoted_to_moderator',
   DemotedToMember = 'demoted_to_member',
 }
@@ -84,7 +84,7 @@ export const notificationTypeTheme: Record<NotificationType, string> = {
   [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
   [NotificationType.DemotedToMember]: 'text-theme-color-cabbage',
   [NotificationType.PromotedToModerator]: 'text-theme-color-cabbage',
-  [NotificationType.PromotedToOwner]: 'text-theme-color-cabbage',
+  [NotificationType.PromotedToAdmin]: 'text-theme-color-cabbage',
   [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
 };
 

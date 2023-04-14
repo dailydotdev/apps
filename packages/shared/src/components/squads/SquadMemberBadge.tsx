@@ -23,7 +23,7 @@ const RoleToIconMap: Partial<
   Record<SourceMemberRole, FunctionComponent<IconProps>>
 > = {
   [SourceMemberRole.Moderator]: UserIcon,
-  [SourceMemberRole.Owner]: StarIcon,
+  [SourceMemberRole.Admin]: StarIcon,
 };
 
 const SquadMemberBadge = ({
