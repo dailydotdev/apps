@@ -8,6 +8,11 @@ html, #daily-companion-wrapper {
   --balloon-color: var(--theme-label-primary);
   --balloon-text-color: var(--theme-label-invert);
 }
+
+.ReactModal__Overlay {
+  overscroll-behavior-y: none;
+}
+
 body {
   min-width: 20rem;
   overflow-y: scroll;
@@ -15,22 +20,9 @@ body {
   /* mobile viewport bug fix */
   min-height: stretch;
 
-  &.ReactModal__Body--open .ReactModal__Content,
-  &.ReactModal__Body--open .ReactModal__Content > * {
-    overscroll-behavior-y: none;
-  }
-
   &.companion {
     min-width: auto;
     overflow: hidden;
-  }
-
-  &.hidden-scrollbar {
-    overflow: hidden;
-
-    @screen laptop {
-      padding-right: 0.5rem;
-    }
   }
 
   overflow-x: hidden;

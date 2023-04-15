@@ -274,7 +274,6 @@ export default function Feed<T>({
   );
 
   const onPostModalOpen = (index: number, callback?: () => unknown) => {
-    document.body.classList.add('hidden-scrollbar');
     callback?.();
     onOpenModal(index);
   };
@@ -371,17 +370,6 @@ export default function Feed<T>({
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
 
-  useEffect(() => {
-    return () => {
-      document.body.classList.remove('hidden-scrollbar');
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedPost) {
-      document.body.classList.remove('hidden-scrollbar');
-    }
-  }, [selectedPost]);
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
