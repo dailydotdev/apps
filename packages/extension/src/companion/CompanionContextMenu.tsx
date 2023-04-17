@@ -4,7 +4,7 @@ import FlagIcon from '@dailydotdev/shared/src/components/icons/Flag';
 import FeedbackIcon from '@dailydotdev/shared/src/components/icons/Feedback';
 import EyeIcon from '@dailydotdev/shared/src/components/icons/Eye';
 import { Item, Menu } from '@dailydotdev/react-contexify';
-import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
+import ReportPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -106,7 +106,7 @@ export default function CompanionContextMenu({
         </Item>
       </Menu>
       {reportModal && (
-        <RepostPostModal
+        <ReportPostModal
           className="z-rank"
           post={postData}
           parentSelector={getCompanionWrapper}

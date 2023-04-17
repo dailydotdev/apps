@@ -27,7 +27,7 @@ interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
 }
 
 enum MenuItemTitle {
-  AddAsAdmin = 'Add as admin',
+  PromoteToAdmin = 'Make admin',
   PromoteToModerator = 'Promote to moderator',
   DemoteToModerator = 'Demote to moderator',
   DemoteToMember = 'Demote to member',
@@ -38,8 +38,8 @@ const promptDescription: Record<
   MenuItemTitle,
   (memberName: string, squadName: string) => string
 > = {
-  [MenuItemTitle.AddAsAdmin]: (memberName, squadName) =>
-    `${memberName} will get the same permissions as you have. Adding as admin will not replace you as the admin of ${squadName}.`,
+  [MenuItemTitle.PromoteToAdmin]: (memberName, squadName) =>
+    `${memberName} will get the same permissions as you have. Making someone an admin will not replace you as the admin of ${squadName}. You can reverse this decision later.`,
   [MenuItemTitle.PromoteToModerator]: (memberName) =>
     `${memberName} will now get moderator permissions and be able to remove posts and members from your Squad. You can reverse this decision later.`,
   [MenuItemTitle.DemoteToModerator]: (memberName) =>
@@ -67,9 +67,12 @@ const getUpdateRoleOptions = (
   ) => UpdateRoleFn,
 ): ContextMenuItemProps[] => {
   const promoteToAdmin = {
-    text: MenuItemTitle.AddAsAdmin,
+    text: MenuItemTitle.PromoteToAdmin,
     icon: <StarIcon size={IconSize.Small} />,
-    action: getUpdateRoleFn(SourceMemberRole.Admin, MenuItemTitle.AddAsAdmin),
+    action: getUpdateRoleFn(
+      SourceMemberRole.Admin,
+      MenuItemTitle.PromoteToAdmin,
+    ),
   };
   const promoteToModerator = {
     text: MenuItemTitle.PromoteToModerator,
@@ -127,7 +130,10 @@ export default function SquadMemberMenu({
         <UserShortInfo
           user={member.user}
           disableTooltip
-          className={{ container: 'py-3 px-6 justify-center' }}
+          className={{
+            container: 'py-3 px-6 justify-center',
+            textWrapper: 'max-w-fit',
+          }}
         />
       ),
       promptSize: ModalSize.Small,
