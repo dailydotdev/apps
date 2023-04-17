@@ -46,7 +46,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   appendTooltipTo,
   children,
   ...props
-}: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
+}: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
   const tooltipProps: TooltipProps = {
