@@ -25,6 +25,14 @@ body {
     overflow: hidden;
   }
 
+  &.ReactModal__Body--open {
+    overflow: hidden;
+
+    @screen laptop {
+      padding-right: 0.5rem;
+    }
+  }
+
   overflow-x: hidden;
 }
 

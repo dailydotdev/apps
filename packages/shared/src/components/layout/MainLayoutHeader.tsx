@@ -82,7 +82,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'flex relative laptop:fixed laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary',
+        'flex relative laptop:fixed laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-screen h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary',
         hasBanner ? 'laptop:top-8' : 'laptop:top-0',
       )}
     >
