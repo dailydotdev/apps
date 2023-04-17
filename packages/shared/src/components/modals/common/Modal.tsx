@@ -96,7 +96,7 @@ export function Modal({
     setView(view);
   };
   const modalOverlayClassName = classNames(
-    'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-[10] w-[100vw]',
+    'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-[10] w-screen',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
     overlayClassName,
