@@ -199,6 +199,7 @@ export function SquadDetails({
             <h4 className="mb-2 typo-headline">Post permissions</h4>
             <p className="mb-4 text-theme-label-tertiary typo-callout">
               Choose who is allowed to post new content in this Squad.
+              {createMode && ' You can always change this setting later.'}
             </p>
             <Radio
               name="memberPostingRole"
@@ -213,6 +214,7 @@ export function SquadDetails({
             <h4 className="mb-2 typo-headline">Invitation permissions</h4>
             <p className="mb-4 text-theme-label-tertiary typo-callout">
               Choose who is allowed to invite new members to this squad.
+              {createMode && ' You can always change this setting later.'}
             </p>
             <Radio
               name="memberInviteRole"
