@@ -44,7 +44,7 @@ const getFormData = async (
   return { ...current, file: base64 };
 };
 
-const memberPostingRoleOptions = [
+const memberRoleOptions = [
   {
     label: 'All members (recommended)',
     value: SourceMemberRole.Member,
@@ -66,6 +66,7 @@ export function SquadDetails({
     handle,
     description,
     memberPostingRole: initialMemberPostingRole,
+    memberInviteRole: initialMemberInviteRole,
   } = form;
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
@@ -73,6 +74,9 @@ export function SquadDetails({
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
   const [memberPostingRole, setMemberPostingRole] = useState(
     () => initialMemberPostingRole || SourceMemberRole.Member,
+  );
+  const [memberInviteRole, setMemberInviteRole] = useState(
+    () => initialMemberInviteRole || SourceMemberRole.Member,
   );
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
@@ -198,10 +202,24 @@ export function SquadDetails({
             </p>
             <Radio
               name="memberPostingRole"
-              options={memberPostingRoleOptions}
+              options={memberRoleOptions}
               value={memberPostingRole}
               onChange={(value) =>
                 setMemberPostingRole(value as SourceMemberRole)
+              }
+            />
+          </div>
+          <div className="flex flex-col">
+            <h4 className="mb-2 typo-headline">Invitation permissions</h4>
+            <p className="mb-4 text-theme-label-tertiary typo-callout">
+              Choose who is allowed to invite new members to this squad.
+            </p>
+            <Radio
+              name="memberInviteRole"
+              options={memberRoleOptions}
+              value={memberInviteRole}
+              onChange={(value) =>
+                setMemberInviteRole(value as SourceMemberRole)
               }
             />
           </div>
