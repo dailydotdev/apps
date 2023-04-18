@@ -8,6 +8,8 @@ import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import React, { useEffect } from 'react';
 import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { useRouter } from 'next/router';
+import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/analytics';
 
 const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
@@ -22,8 +24,10 @@ const iconClasses = 'flex flex-grow mt-2';
 const Description = classed('p', 'typo-callout text-theme-label-tertiary');
 
 function Enable(): React.ReactElement {
+  const router = useRouter();
   const { isSubscribed, isInitialized, onTogglePermission } =
     useNotificationContext();
+  const { source } = router.query;
 
   useEffect(() => {
     if (!isInitialized || globalThis.Notification?.permission === 'denied') {
@@ -39,7 +43,9 @@ function Enable(): React.ReactElement {
         return;
       }
 
-      const permission = await onTogglePermission();
+      const permission = await onTogglePermission(
+        source as NotificationPromptSource,
+      );
       postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { permission });
 
       if (permission === 'granted') {
