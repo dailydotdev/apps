@@ -70,6 +70,9 @@ export function SquadComment({
     onSuccess: (preview, url) => {
       onUpdateForm({ privateLink: { url, ...preview } });
     },
+    onError: (_, url) => {
+      onUpdateForm({ privateLink: { url } });
+    },
   });
   const { mutateAsync: getPost, isLoading: isCheckingUrl } = useMutation(
     (param: string) => {
