@@ -20,7 +20,7 @@ const reportReasons: { value: string; label: string }[] = [
   { value: 'OTHER', label: 'Other' },
 ];
 
-export default function RepostPostModal({
+export default function ReportPostModal({
   postIndex,
   post,
   onReport,

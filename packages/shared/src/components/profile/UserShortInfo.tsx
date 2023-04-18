@@ -33,20 +33,22 @@ interface UserShortInfoProps<Tag extends AnyTag> {
 
 const TextEllipsis = getTextEllipsis();
 
+const defaultClassName = {
+  container: 'py-3 px-6 hover:bg-theme-hover',
+  textWrapper: 'flex-1',
+};
+
 export function UserShortInfo<Tag extends AnyTag>({
   imageSize = 'xlarge',
   tag,
   user,
-  className = {
-    container: 'py-3 px-6 hover:bg-theme-hover',
-    textWrapper: 'flex-1',
-  },
+  className = {},
   disableTooltip,
   scrollingContainer,
   appendTooltipTo,
   children,
   ...props
-}: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
+}: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
   const tooltipProps: TooltipProps = {
@@ -57,7 +59,10 @@ export function UserShortInfo<Tag extends AnyTag>({
   return (
     <Element
       {...props}
-      className={classNames('flex flex-row', className.container)}
+      className={classNames(
+        'flex flex-row',
+        className.container ?? defaultClassName.container,
+      )}
     >
       <ProfileTooltip
         user={user}
@@ -74,7 +79,7 @@ export function UserShortInfo<Tag extends AnyTag>({
         <div
           className={classNames(
             'flex overflow-hidden flex-col ml-4 typo-callout',
-            className.textWrapper,
+            className.textWrapper ?? defaultClassName.textWrapper,
           )}
         >
           <TextEllipsis className="font-bold">{name}</TextEllipsis>

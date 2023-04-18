@@ -10,7 +10,7 @@ import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import RepostPostModal from './modals/ReportPostModal';
+import ReportPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -263,7 +263,7 @@ export default function PostOptionsMenu({
         ))}
       </PortalMenu>
       {reportModal && (
-        <RepostPostModal
+        <ReportPostModal
           isOpen={!!reportModal}
           postIndex={reportModal.index}
           post={reportModal.post}
