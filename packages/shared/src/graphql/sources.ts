@@ -18,7 +18,7 @@ export enum SourcePermissions {
   PostDelete = 'post_delete',
   MemberRoleUpdate = 'member_role_update',
   MemberRemove = 'member_remove',
-  InviteDisable = 'invite_disable',
+  Invite = 'invite',
   Leave = 'leave',
   Delete = 'delete',
   Edit = 'edit',
