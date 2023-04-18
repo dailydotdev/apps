@@ -32,34 +32,38 @@ function SharePostBar({
 }: SharePostBarProps): ReactElement {
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
-  const { mutateAsync: getPrivateLink } = useMutation(getExternalLinkPreview, {
-    onSuccess: (preview, link) => {
-      const privateLink = { url: link, ...preview };
-      onNewSquadPost({ privateLink, onSharedSuccessfully });
-    },
-    onError: (_, link) => {
-      onNewSquadPost({ privateLink: { url: link }, onSharedSuccessfully });
-    },
-  });
-  const { mutateAsync: getPost } = useMutation(getPostByUrl, {
-    onSuccess: (post) => {
-      onNewSquadPost({ post, onSharedSuccessfully });
-    },
-    onError: (err: ApiErrorResult, link) => {
-      if (link === '') {
-        onNewSquadPost({ privateLink: { url: link } });
-        return;
-      }
+  const { mutateAsync: getPrivateLink, isLoading: isLoadingPreview } =
+    useMutation(getExternalLinkPreview, {
+      onSuccess: (preview, link) => {
+        const privateLink = { url: link, ...preview };
+        onNewSquadPost({ privateLink, onSharedSuccessfully });
+      },
+      onError: (_, link) => {
+        onNewSquadPost({ privateLink: { url: link }, onSharedSuccessfully });
+      },
+    });
+  const { mutateAsync: getPost, isLoading: isCheckingUrl } = useMutation(
+    getPostByUrl,
+    {
+      onSuccess: (post) => {
+        onNewSquadPost({ post, onSharedSuccessfully });
+      },
+      onError: (err: ApiErrorResult, link) => {
+        if (link === '') {
+          onNewSquadPost({ privateLink: { url: link } });
+          return;
+        }
 
-      if (
-        allowedSubmissionErrors.includes(
-          err?.response?.errors?.[0].extensions.code,
-        )
-      ) {
-        getPrivateLink(url);
-      }
+        if (
+          allowedSubmissionErrors.includes(
+            err?.response?.errors?.[0].extensions.code,
+          )
+        ) {
+          getPrivateLink(url);
+        }
+      },
     },
-  });
+  );
   const { user } = useAuthContext();
   const { sidebarRendered } = useSidebarRendered();
   const onSubmit = async (e: FormEvent) => {
@@ -77,6 +81,8 @@ function SharePostBar({
       </Card>
     );
   }
+
+  const isLoading = isLoadingPreview || isCheckingUrl;
 
   return (
     <form
@@ -119,6 +125,8 @@ function SharePostBar({
         type="submit"
         buttonSize={ButtonSize.Medium}
         className="order-3 tablet:order-4 mx-3 btn-primary-cabbage"
+        disabled={isLoading}
+        loading={isLoading}
       >
         Post
       </Button>
