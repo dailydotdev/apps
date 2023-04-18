@@ -458,23 +458,18 @@ export interface ExternalLink extends Partial<ExternalLinkPreview> {
 }
 
 export const PREVIEW_LINK_MUTATION = gql`
-  mutation CheckLinkPreview($id: ID!) {
-    checkLinkPreview(id: $id) {
+  mutation CheckLinkPreview($url: String!) {
+    checkLinkPreview(url: $url) {
       title
       image
     }
   }
 `;
 
-interface ExternalLinkPreviewProps {
-  url: string;
-  sourceId: string;
-}
-
 export const getExternalLinkPreview = async (
-  params: ExternalLinkPreviewProps,
+  url: string,
 ): Promise<ExternalLinkPreview> => {
-  const res = await request(graphqlUrl, PREVIEW_LINK_MUTATION, params);
+  const res = await request(graphqlUrl, PREVIEW_LINK_MUTATION, { url });
 
   return res.checkLinkPreview;
 };

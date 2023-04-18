@@ -124,7 +124,6 @@ function PostToSquadModal({
         <SquadComment
           form={form}
           onSubmit={onSubmit}
-          sourceId={squad.id}
           isLoading={isLoading || isLinkLoading}
           onUpdateForm={(updatedForm) =>
             setForm((value) => ({ ...value, ...updatedForm }))
