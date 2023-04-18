@@ -37,6 +37,9 @@ function SharePostBar({
       const privateLink = { url: link, ...preview };
       onNewSquadPost({ privateLink, onSharedSuccessfully });
     },
+    onError: (_, link) => {
+      onNewSquadPost({ privateLink: { url: link }, onSharedSuccessfully });
+    },
   });
   const { mutateAsync: getPost } = useMutation(getPostByUrl, {
     onSuccess: (post) => {
