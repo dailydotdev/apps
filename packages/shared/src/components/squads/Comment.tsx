@@ -76,7 +76,9 @@ export function SquadComment({
   });
   const { mutateAsync: getPost, isLoading: isCheckingUrl } = useMutation(
     (param: string) => {
-      if (!param || !isValidHttpUrl(param)) return null;
+      if (!param || !isValidHttpUrl(param) || param === form.privateLink?.url) {
+        return null;
+      }
 
       return getPostByUrl(param);
     },
