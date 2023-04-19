@@ -4,8 +4,8 @@ import { Button } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
 import Alert, { AlertType } from '../widgets/Alert';
 import LinkIcon from '../icons/Link';
-import { getSquad } from '../../graphql/squads';
-import { Squad } from '../../graphql/sources';
+import { getSquad, verifyPermission } from '../../graphql/squads';
+import { SourcePermissions, Squad } from '../../graphql/sources';
 import {
   InviteTextField,
   InviteTextFieldHandle,
@@ -50,15 +50,17 @@ function SquadInviteModal({
           title={`Invite more members to ${squad.name} to stay up to date together and collaborate.`}
         />
       </Modal.Body>
-      <Modal.Footer>
-        <Button
-          icon={<LinkIcon />}
-          className="flex-1 mx-4 btn-primary-cabbage"
-          onClick={() => inviteTextRef.current?.copyLink()}
-        >
-          Copy invitation link
-        </Button>
-      </Modal.Footer>
+      {verifyPermission(squad, SourcePermissions.Invite) && (
+        <Modal.Footer>
+          <Button
+            icon={<LinkIcon />}
+            className="flex-1 mx-4 btn-primary-cabbage"
+            onClick={() => inviteTextRef.current?.copyLink()}
+          >
+            Copy invitation link
+          </Button>
+        </Modal.Footer>
+      )}
     </Modal>
   );
 }
