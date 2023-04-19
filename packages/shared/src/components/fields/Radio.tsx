@@ -39,7 +39,7 @@ export function Radio({
         <RadioItem
           key={option.value}
           name={name}
-          id={option.id || option.value}
+          id={`${name}-${option.id || option.value}`}
           value={option.value}
           checked={value === option.value}
           onChange={() => onChange(option.value)}

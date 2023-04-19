@@ -23,6 +23,7 @@ export type SquadForm = Pick<
   post: PostItem;
   buttonText?: string;
   memberPostingRole?: SourceMemberRole;
+  memberInviteRole?: SourceMemberRole;
 };
 
 type SharedSquadInput = {
@@ -31,6 +32,7 @@ type SharedSquadInput = {
   description: string;
   image?: File;
   memberPostingRole?: SourceMemberRole;
+  memberInviteRole?: SourceMemberRole;
 };
 
 type EditSquadInput = SharedSquadInput & {
@@ -92,6 +94,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $description: String
     $image: Upload
     $memberPostingRole: String
+    $memberInviteRole: String
   ) {
     createSquad(
       name: $name
@@ -99,6 +102,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       description: $description
       image: $image
       memberPostingRole: $memberPostingRole
+      memberInviteRole: $memberInviteRole
     ) {
       ...SourceBaseInfo
       members {
@@ -121,6 +125,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $description: String
     $image: Upload
     $memberPostingRole: String
+    $memberInviteRole: String
   ) {
     editSquad(
       sourceId: $sourceId
@@ -129,6 +134,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       description: $description
       image: $image
       memberPostingRole: $memberPostingRole
+      memberInviteRole: $memberInviteRole
     ) {
       ...SourceBaseInfo
     }
@@ -339,6 +345,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
     memberPostingRole: form.memberPostingRole,
+    memberInviteRole: form.memberInviteRole,
   };
   const data = await request<CreateSquadOutput>(
     graphqlUrl,
@@ -353,6 +360,7 @@ type EditSquadForm = Pick<
   'name' | 'description' | 'handle' | 'file'
 > & {
   memberPostingRole?: SourceMemberRole;
+  memberInviteRole?: SourceMemberRole;
 };
 
 export async function editSquad(
@@ -366,6 +374,7 @@ export async function editSquad(
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
     memberPostingRole: form.memberPostingRole,
+    memberInviteRole: form.memberInviteRole,
   };
   const data = await request<EditSquadOutput>(
     graphqlUrl,
