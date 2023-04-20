@@ -15,7 +15,7 @@ export type NewSquadPostProps = Pick<
   'externalLink' | 'post' | 'onSharedSuccessfully'
 >;
 
-interface SharePostBarProps {
+export interface SharePostBarProps {
   className?: string;
   onNewSquadPost?: (props?: NewSquadPostProps) => Promise<null>;
   disabled?: boolean;

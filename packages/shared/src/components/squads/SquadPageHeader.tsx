@@ -8,7 +8,7 @@ import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 import { FlexCol } from '../utilities';
 import SquadMemberShortList from './SquadMemberShortList';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import SharePostBar from './SharePostBar';
+import SharePostBar, { SharePostBarProps } from './SharePostBar';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
 import { TourScreenIndex } from './SquadTour';
@@ -18,7 +18,7 @@ import { verifyPermission } from '../../graphql/squads';
 interface SquadPageHeaderProps {
   squad: Squad;
   members: SourceMember[];
-  onNewSquadPost: () => void;
+  onNewSquadPost: SharePostBarProps['onNewSquadPost'];
   hasTriedOnboarding?: boolean;
 }
 
