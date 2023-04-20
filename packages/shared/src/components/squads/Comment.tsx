@@ -45,6 +45,8 @@ enum LinkError {
   Invalid = 'URL is invalid!',
 }
 
+const DEFAULT_ERROR = 'An error occurred, please try again';
+
 export function SquadComment({
   onSubmit,
   form,
@@ -59,6 +61,7 @@ export function SquadComment({
   const [link, setLink] = useState(externalLink?.url);
   const [linkHint, setLinkHint] = useState(externalLink?.url);
   const { getPost, isLoadingPreview, isCheckingPost } = usePostToSquad({
+    previewDefaultErrorMessage: DEFAULT_ERROR,
     previewCallback: {
       onSuccess: (preview, url) => {
         onUpdateForm({ externalLink: { url, ...preview } });

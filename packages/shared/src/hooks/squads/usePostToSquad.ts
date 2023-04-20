@@ -25,6 +25,7 @@ interface UsePostToSquad {
 }
 
 interface UsePostToSquadProps {
+  previewDefaultErrorMessage?: string;
   onEmptyUrl?: (url: string) => Promise<null>;
   previewCallback?: Pick<
     UseMutationOptions<ExternalLinkPreview, ApiErrorResult, string>,
@@ -37,12 +38,12 @@ interface UsePostToSquadProps {
 }
 
 const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
-const DEFAULT_ERROR = 'An error occurred, please try again';
 
 export const usePostToSquad = ({
   onEmptyUrl,
   previewCallback,
   postCallback,
+  previewDefaultErrorMessage,
 }: UsePostToSquadProps): UsePostToSquad => {
   const { displayToast } = useToastNotification();
   const { mutateAsync: getPrivateLink, isLoading: isLoadingPreview } =
@@ -50,8 +51,9 @@ export const usePostToSquad = ({
       onSuccess: previewCallback?.onSuccess,
       onError: (err: ApiErrorResult, link, ...params) => {
         const rateLimited = getApiError(err, ApiError.RateLimited);
+        const message = rateLimited?.message ?? previewDefaultErrorMessage;
 
-        displayToast(rateLimited?.message ?? DEFAULT_ERROR);
+        if (message.length) displayToast(message);
 
         previewCallback?.onError?.(err, link, ...params);
       },
