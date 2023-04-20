@@ -26,7 +26,7 @@ interface UsePostToSquad {
 
 interface UsePostToSquadProps {
   previewDefaultErrorMessage?: string;
-  onEmptyUrl?: (url: string) => Promise<null>;
+  onEmptyUrl?: () => Promise<null>;
   previewCallback?: Pick<
     UseMutationOptions<ExternalLinkPreview, ApiErrorResult, string>,
     'onSuccess' | 'onError'
@@ -79,7 +79,7 @@ export const usePostToSquad = ({
       isCheckingPost,
       getPreview: getPrivateLink,
       getPost: (url) => {
-        if (url === '') return onEmptyUrl(url);
+        if (url === '') return onEmptyUrl();
 
         return getPost(url);
       },

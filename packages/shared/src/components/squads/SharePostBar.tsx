@@ -29,7 +29,7 @@ function SharePostBar({
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
   const { getPost, isLoadingPreview, isCheckingPost } = usePostToSquad({
-    onEmptyUrl: (link) => onNewSquadPost({ externalLink: { url: link } }),
+    onEmptyUrl: () => onNewSquadPost({ externalLink: { url: '' } }),
     postCallback: {
       onSuccess: (post) => onNewSquadPost({ post, onSharedSuccessfully }),
     },
