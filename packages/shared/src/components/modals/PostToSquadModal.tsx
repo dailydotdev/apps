@@ -50,18 +50,10 @@ function PostToSquadModal({
   });
 
   const onPostSuccess = async (squadPost?: Post) => {
-    const syncSubmission = !!form?.externalLink?.title || !!form?.post?.post;
-
     if (squadPost) onSharedSuccessfully?.(squadPost);
 
-    displayToast(
-      !syncSubmission
-        ? 'This post is being processed and will be shared with your Squad shortly'
-        : 'This post has been shared to your Squad',
-    );
-
-    if (syncSubmission) await client.invalidateQueries(['sourceFeed', user.id]);
-
+    displayToast('This post has been shared to your Squad');
+    await client.invalidateQueries(['sourceFeed', user.id]);
     onRequestClose(null);
   };
 
@@ -82,21 +74,26 @@ function PostToSquadModal({
 
     if (isLoading) return null;
 
-    if (form?.externalLink) {
-      const { title, image, url } = form.externalLink;
-      return onSubmitLink({
-        url,
-        title,
-        image,
+    if (form?.post?.post) {
+      return onPost({
+        id: form.post.post.id,
         sourceId: squad.id,
-        commentary,
+        commentary: commentary ?? e?.target[0].value,
       });
     }
 
-    return onPost({
-      id: form.post.post.id,
+    if (!form?.externalLink?.title) {
+      return displayToast('Invalid link');
+    }
+
+    const { title, image, url } = form.externalLink;
+
+    return onSubmitLink({
+      url,
+      title,
+      image,
       sourceId: squad.id,
-      commentary: commentary ?? e?.target[0].value,
+      commentary,
     });
   };
 
