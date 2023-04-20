@@ -208,8 +208,7 @@ export function SquadComment({
                 !commentary ||
                 isLoading ||
                 isPreviewLoading ||
-                !form?.post?.post ||
-                !form?.externalLink?.title
+                (!form?.post?.post && !form?.externalLink?.title)
               }
             >
               Done
