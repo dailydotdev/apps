@@ -8,7 +8,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
@@ -19,22 +18,15 @@ import { cloudinary } from '../../lib/image';
 import AuthContext from '../../contexts/AuthContext';
 import { SquadForm } from '../../graphql/squads';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { isNullOrUndefined } from '../../lib/func';
 import { TextField } from '../fields/TextField';
 import LinkIcon from '../icons/Link';
-import {
-  ExternalLink,
-  getExternalLinkPreview,
-  getPostByUrl,
-  Post,
-} from '../../graphql/posts';
-import { ApiError, ApiErrorResult, hasApiError } from '../../graphql/common';
+import { ExternalLink, Post } from '../../graphql/posts';
 import useDebounce from '../../hooks/useDebounce';
 import { isValidHttpUrl } from '../../lib/links';
 import { KeyboardCommand } from '../../lib/element';
 import PostPreview from '../post/PostPreview';
 import { Loader } from '../Loader';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
 
 export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
@@ -59,56 +51,37 @@ export function SquadComment({
   isLoading,
   onUpdateForm,
 }: SquadCommentProps): ReactElement {
-  const { displayToast } = useToastNotification();
   const textinput = useRef<HTMLTextAreaElement>();
-  const { privateLink, post: postItem } = form;
+  const { externalLink, post: postItem } = form;
   const { post } = postItem;
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
-  const [link, setLink] = useState(privateLink?.url);
-  const [linkHint, setLinkHint] = useState(privateLink?.url);
-  const { mutateAsync: getPrivateLink, isLoading: isLinkLoading } = useMutation(
-    getExternalLinkPreview,
-    {
+  const [link, setLink] = useState(externalLink?.url);
+  const [linkHint, setLinkHint] = useState(externalLink?.url);
+  const { getPost, isLoadingPreview, isCheckingPost } = usePostToSquad({
+    previewCallback: {
       onSuccess: (preview, url) => {
-        onUpdateForm({ privateLink: { url, ...preview } });
+        onUpdateForm({ externalLink: { url, ...preview } });
+        textinput?.current?.focus();
       },
-      onError: (err: ApiErrorResult, url) => {
-        const rateLimited = hasApiError(err, ApiError.RateLimited);
-        if (rateLimited) {
-          displayToast(rateLimited.message);
-        }
-        onUpdateForm({ privateLink: { url } });
-      },
+      onError: (_, url) => onUpdateForm({ externalLink: { url } }),
     },
-  );
-  const { mutateAsync: getPost, isLoading: isCheckingUrl } = useMutation(
-    (param: string) => {
-      if (!param || !isValidHttpUrl(param) || param === form.privateLink?.url) {
-        return null;
-      }
-
-      return getPostByUrl(param);
-    },
-    {
+    postCallback: {
       onSuccess: (postByUrl) => {
-        if (postByUrl) {
-          onUpdateForm({ post: { post: postByUrl } });
-          textinput?.current?.focus();
-        }
+        if (!postByUrl) return;
+
+        onUpdateForm({ post: { post: postByUrl } });
+        textinput?.current?.focus();
       },
-      onError: (err: ApiErrorResult, url) => {
-        if (
-          hasApiError(err, ApiError.NotFound) &&
-          !isNullOrUndefined(postItem)
-        ) {
-          onUpdateForm({ post: { post: null } });
-          getPrivateLink(url);
-        }
-      },
+      onError: () => onUpdateForm({ post: { post: null } }),
     },
-  );
-  const [checkUrl] = useDebounce(getPost, 1000);
+  });
+
+  const [checkUrl] = useDebounce((url: string) => {
+    if (!isValidHttpUrl(url) || url === form.externalLink?.url) return null;
+
+    return getPost(url);
+  }, 1000);
 
   const onInputChange: FormEventHandler<HTMLInputElement> = (e) => {
     const text = e.currentTarget.value;
@@ -153,19 +126,19 @@ export function SquadComment({
       return { url: post.permalink, title: post.title, image: post.image };
     }
 
-    if (privateLink?.title && privateLink?.image) {
-      return privateLink;
+    if (externalLink?.title && externalLink?.image) {
+      return externalLink;
     }
 
     return null;
   })();
 
-  const isPreviewLoading = isLinkLoading || isCheckingUrl;
+  const isPreviewLoading = isLoadingPreview || isCheckingPost;
 
   return (
     <>
       <Modal.Body
-        className={classNames('flex flex-col', privateLink && !post && 'pb-2')}
+        className={classNames('flex flex-col', externalLink && !post && 'pb-2')}
       >
         <form
           onSubmit={(e) => onSubmitForm(e)}
@@ -188,7 +161,7 @@ export function SquadComment({
             preview={preview}
             isLoading={isPreviewLoading}
           />
-          {privateLink && !post && (
+          {externalLink && !post && (
             <TextField
               leftIcon={isPreviewLoading ? <Loader /> : <LinkIcon />}
               label="Enter link to share"

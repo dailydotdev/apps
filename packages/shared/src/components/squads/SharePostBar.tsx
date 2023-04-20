@@ -1,72 +1,48 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { useMutation } from 'react-query';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { getExternalLinkPreview, getPostByUrl } from '../../graphql/posts';
-import { ApiError, ApiErrorResult, hasApiError } from '../../graphql/common';
 import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
-  'privateLink' | 'post' | 'onSharedSuccessfully'
+  'externalLink' | 'post' | 'onSharedSuccessfully'
 >;
 
 interface SharePostBarProps {
   className?: string;
-  onNewSquadPost?: (props?: NewSquadPostProps) => void;
+  onNewSquadPost?: (props?: NewSquadPostProps) => Promise<null>;
   disabled?: boolean;
 }
-
-const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
 
 function SharePostBar({
   className,
   onNewSquadPost,
   disabled = false,
 }: SharePostBarProps): ReactElement {
-  const { displayToast } = useToastNotification();
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
-  const { mutateAsync: getPrivateLink, isLoading: isLoadingPreview } =
-    useMutation(getExternalLinkPreview, {
-      onSuccess: (preview, link) => {
-        const privateLink = { url: link, ...preview };
-        onNewSquadPost({ privateLink, onSharedSuccessfully });
-      },
-      onError: (err: ApiErrorResult, link) => {
-        const rateLimited = hasApiError(err, ApiError.RateLimited);
-        if (rateLimited) {
-          displayToast(rateLimited.message);
-        }
-
-        onNewSquadPost({ privateLink: { url: link }, onSharedSuccessfully });
-      },
-    });
-  const { mutateAsync: getPost, isLoading: isCheckingUrl } = useMutation(
-    getPostByUrl,
-    {
-      onSuccess: (post) => {
-        onNewSquadPost({ post, onSharedSuccessfully });
-      },
-      onError: (err: ApiErrorResult, link) => {
-        if (link === '') {
-          onNewSquadPost({ privateLink: { url: link } });
-          return;
-        }
-
-        if (allowedSubmissionErrors.some((code) => hasApiError(err, code))) {
-          getPrivateLink(url);
-        }
-      },
+  const { getPost, isLoadingPreview, isCheckingPost } = usePostToSquad({
+    onEmptyUrl: (link) => onNewSquadPost({ externalLink: { url: link } }),
+    postCallback: {
+      onSuccess: (post) => onNewSquadPost({ post, onSharedSuccessfully }),
     },
-  );
+    previewCallback: {
+      onSuccess: (preview, link) => {
+        const externalLink = { url: link, ...preview };
+        onNewSquadPost({ externalLink, onSharedSuccessfully });
+      },
+      onError: (error, link) =>
+        onNewSquadPost({ externalLink: { url: link }, onSharedSuccessfully }),
+    },
+  });
+
   const { user } = useAuthContext();
   const { sidebarRendered } = useSidebarRendered();
   const onSubmit = async (e: FormEvent) => {
@@ -83,7 +59,7 @@ function SharePostBar({
     );
   }
 
-  const isLoading = isLoadingPreview || isCheckingUrl;
+  const isLoading = isLoadingPreview || isCheckingPost;
 
   return (
     <form

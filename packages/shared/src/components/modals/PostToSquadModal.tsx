@@ -15,7 +15,7 @@ import AuthContext from '../../contexts/AuthContext';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
-    Partial<Pick<SquadForm, 'privateLink'>> {
+    Partial<Pick<SquadForm, 'externalLink'>> {
   squad: Squad;
   post?: Post;
   onSharedSuccessfully?: (post: Post) => void;
@@ -31,12 +31,12 @@ function PostToSquadModal({
   onRequestClose,
   isOpen,
   post,
-  privateLink,
+  externalLink,
   squad,
   requestMethod = request,
   ...props
 }: PostToSquadModalProps): ReactElement {
-  const shouldSkipHistory = !!privateLink || !!post;
+  const shouldSkipHistory = !!externalLink || !!post;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
@@ -46,11 +46,11 @@ function PostToSquadModal({
     file: squad.image,
     handle: squad.handle,
     buttonText: 'Done',
-    privateLink,
+    externalLink,
   });
 
   const onPostSuccess = async (squadPost?: Post) => {
-    const syncSubmission = !!form?.privateLink?.title || !!form?.post?.post;
+    const syncSubmission = !!form?.externalLink?.title || !!form?.post?.post;
 
     if (squadPost) onSharedSuccessfully?.(squadPost);
 
@@ -82,8 +82,8 @@ function PostToSquadModal({
 
     if (isLoading) return null;
 
-    if (form?.privateLink) {
-      const { title, image, url } = form.privateLink;
+    if (form?.externalLink) {
+      const { title, image, url } = form.externalLink;
       return onSubmitLink({
         url,
         title,

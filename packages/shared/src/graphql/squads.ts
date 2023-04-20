@@ -17,7 +17,7 @@ export type SquadForm = Pick<
   Squad,
   'name' | 'handle' | 'description' | 'image'
 > & {
-  privateLink?: ExternalLink;
+  externalLink?: ExternalLink;
   file?: string;
   commentary: string;
   post: PostItem;

@@ -85,7 +85,7 @@ export enum ApiError {
   RateLimited = 'RATE_LIMITED',
 }
 
-export const hasApiError = (
+export const getApiError = (
   error: ApiErrorResult,
   code: ApiError,
 ): ApiResponseError =>
