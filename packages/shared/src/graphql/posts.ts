@@ -432,8 +432,8 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   mutation SubmitExternalLink(
     $sourceId: ID!
     $url: String!
-    $title: String!
-    $image: String!
+    $title: String
+    $image: String
     $commentary: String!
   ) {
     submitExternalLink(
