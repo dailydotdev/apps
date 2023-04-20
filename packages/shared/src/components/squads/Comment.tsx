@@ -1,12 +1,12 @@
 import React, {
-  KeyboardEvent,
+  FormEvent,
   FormEventHandler,
+  KeyboardEvent,
   ReactElement,
   useContext,
   useEffect,
   useRef,
   useState,
-  FormEvent,
 } from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
@@ -28,12 +28,13 @@ import {
   getPostByUrl,
   Post,
 } from '../../graphql/posts';
-import { ApiError, ApiErrorResult } from '../../graphql/common';
+import { ApiError, ApiErrorResult, hasApiError } from '../../graphql/common';
 import useDebounce from '../../hooks/useDebounce';
 import { isValidHttpUrl } from '../../lib/links';
 import { KeyboardCommand } from '../../lib/element';
 import PostPreview from '../post/PostPreview';
 import { Loader } from '../Loader';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
@@ -59,6 +60,7 @@ export function SquadComment({
   isLoading,
   onUpdateForm,
 }: SquadCommentProps): ReactElement {
+  const { displayToast } = useToastNotification();
   const textinput = useRef<HTMLTextAreaElement>();
   const { privateLink, post: postItem } = form;
   const { post } = postItem;
@@ -72,7 +74,11 @@ export function SquadComment({
       onSuccess: (preview, url) => {
         onUpdateForm({ privateLink: { url, ...preview } });
       },
-      onError: (_, url) => {
+      onError: (err: ApiErrorResult, url) => {
+        const rateLimited = hasApiError(err, ApiError.RateLimited);
+        if (rateLimited) {
+          displayToast(rateLimited.message);
+        }
         onUpdateForm({ privateLink: { url } });
       },
     },
@@ -94,7 +100,7 @@ export function SquadComment({
       },
       onError: (err: ApiErrorResult, url) => {
         if (
-          err?.response?.errors?.[0].extensions.code === ApiError.NotFound &&
+          hasApiError(err, ApiError.NotFound) &&
           !isNullOrUndefined(postItem)
         ) {
           onUpdateForm({ post: { post: null } });

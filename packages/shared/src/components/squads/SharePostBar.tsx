@@ -5,12 +5,13 @@ import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { getPostByUrl, getExternalLinkPreview } from '../../graphql/posts';
-import { ApiError, ApiErrorResult } from '../../graphql/common';
+import { getExternalLinkPreview, getPostByUrl } from '../../graphql/posts';
+import { ApiError, ApiErrorResult, hasApiError } from '../../graphql/common';
 import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
@@ -30,6 +31,7 @@ function SharePostBar({
   onNewSquadPost,
   disabled = false,
 }: SharePostBarProps): ReactElement {
+  const { displayToast } = useToastNotification();
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
   const { mutateAsync: getPrivateLink, isLoading: isLoadingPreview } =
@@ -38,7 +40,12 @@ function SharePostBar({
         const privateLink = { url: link, ...preview };
         onNewSquadPost({ privateLink, onSharedSuccessfully });
       },
-      onError: (_, link) => {
+      onError: (err: ApiErrorResult, link) => {
+        const rateLimited = hasApiError(err, ApiError.RateLimited);
+        if (rateLimited) {
+          displayToast(rateLimited.message);
+        }
+
         onNewSquadPost({ privateLink: { url: link }, onSharedSuccessfully });
       },
     });
@@ -54,11 +61,7 @@ function SharePostBar({
           return;
         }
 
-        if (
-          allowedSubmissionErrors.includes(
-            err?.response?.errors?.[0].extensions.code,
-          )
-        ) {
+        if (allowedSubmissionErrors.some((code) => hasApiError(err, code))) {
           getPrivateLink(url);
         }
       },
