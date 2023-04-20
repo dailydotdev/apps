@@ -39,7 +39,6 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
   commentary?: string,
-  url?: string,
 ) => Promise<Post | void>;
 
 interface SquadCommentProps {
@@ -135,7 +134,7 @@ export function SquadComment({
   }, []);
 
   const onSubmitForm = (e?: FormEvent<HTMLFormElement>) =>
-    onSubmit(e, commentary, link);
+    onSubmit(e, commentary);
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const pressedSpecialkey = e.ctrlKey || e.metaKey;
@@ -203,6 +202,7 @@ export function SquadComment({
               onInput={onInputChange}
               hint={linkHint}
               saveHintSpace
+              disabled={isLoading}
             />
           )}
         </form>

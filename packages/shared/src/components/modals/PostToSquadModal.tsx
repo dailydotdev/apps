@@ -74,15 +74,15 @@ function PostToSquadModal({
     },
   );
 
-  const onSubmit: SubmitSharePostFunc = async (e, commentary, postLink) => {
+  const onSubmit: SubmitSharePostFunc = async (e, commentary) => {
     e?.preventDefault();
 
     if (isLoading) return null;
 
-    if (privateLink) {
-      const { title, image } = privateLink;
+    if (form?.privateLink) {
+      const { title, image, url } = form.privateLink;
       return onSubmitLink({
-        url: postLink,
+        url,
         title,
         image,
         sourceId: squad.id,
