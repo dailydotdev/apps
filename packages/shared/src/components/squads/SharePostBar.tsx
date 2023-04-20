@@ -76,11 +76,9 @@ function SharePostBar({
 
   if (disabled) {
     return (
-      <Card className="flex gap-1.5 items-center py-5 px-3 !flex-row hover:border-theme-divider-tertiary text-theme-label-tertiary">
-        <LockIcon className="opacity-32" size={IconSize.Small} />
-        <p className="opacity-32 typo-callout">
-          Only admins and moderators can post
-        </p>
+      <Card className="flex gap-1.5 items-center py-5 px-3 !flex-row hover:border-theme-divider-tertiary text-theme-label-quaternary">
+        <LockIcon size={IconSize.Small} />
+        <p className="typo-callout">Only admins and moderators can post</p>
       </Card>
     );
   }
