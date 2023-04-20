@@ -204,7 +204,13 @@ export function SquadComment({
               className="btn-primary-cabbage"
               type="submit"
               loading={isLoading}
-              disabled={!commentary || isLoading || isPreviewLoading}
+              disabled={
+                !commentary ||
+                isLoading ||
+                isPreviewLoading ||
+                !form?.post?.post ||
+                !form?.externalLink?.title
+              }
             >
               Done
             </Button>
