@@ -137,6 +137,7 @@ export function SquadComment({
   })();
 
   const isPreviewLoading = isLoadingPreview || isCheckingPost;
+  const isInvalidPost = !form?.post?.post && !form?.externalLink?.title;
 
   return (
     <>
@@ -208,10 +209,7 @@ export function SquadComment({
               type="submit"
               loading={isLoading}
               disabled={
-                !commentary ||
-                isLoading ||
-                isPreviewLoading ||
-                (!form?.post?.post && !form?.externalLink?.title)
+                !commentary || isLoading || isPreviewLoading || isInvalidPost
               }
             >
               Done
