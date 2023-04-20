@@ -50,15 +50,18 @@ function PostToSquadModal({
   });
 
   const onPostSuccess = async (squadPost?: Post) => {
+    const syncSubmission = !!form?.privateLink?.title || !!form?.post?.post;
+
     if (squadPost) onSharedSuccessfully?.(squadPost);
 
     displayToast(
-      !form?.privateLink?.title
+      !syncSubmission
         ? 'This post is being processed and will be shared with your Squad shortly'
         : 'This post has been shared to your Squad',
     );
 
-    await client.invalidateQueries(['sourceFeed', user.id]);
+    if (syncSubmission) await client.invalidateQueries(['sourceFeed', user.id]);
+
     onRequestClose(null);
   };
 
