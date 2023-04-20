@@ -26,8 +26,10 @@ function PostPreview({
   className,
   isLoading,
 }: PostPreviewProps): ReactElement {
-  const { url, title, image } = preview;
+  const { url, title, image } = preview ?? {};
   const imageClassName = 'w-16 laptop:w-24 h-16 rounded-16';
+
+  if (!isLoading && !preview) return null;
 
   return (
     <div
@@ -60,7 +62,7 @@ function PostPreview({
       <a href={url} target="_blank">
         <OpenLinkIcon
           size={IconSize.Medium}
-          className={true && 'text-theme-label-disabled'}
+          className={isLoading && 'text-theme-label-disabled'}
         />
       </a>
     </div>

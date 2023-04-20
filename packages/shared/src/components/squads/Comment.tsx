@@ -66,14 +66,17 @@ export function SquadComment({
   const [commentary, setCommentary] = useState(form.commentary);
   const [link, setLink] = useState(privateLink?.url);
   const [linkHint, setLinkHint] = useState(privateLink?.url);
-  const { mutateAsync: getPrivateLink } = useMutation(getExternalLinkPreview, {
-    onSuccess: (preview, url) => {
-      onUpdateForm({ privateLink: { url, ...preview } });
+  const { mutateAsync: getPrivateLink, isLoading: isLinkLoading } = useMutation(
+    getExternalLinkPreview,
+    {
+      onSuccess: (preview, url) => {
+        onUpdateForm({ privateLink: { url, ...preview } });
+      },
+      onError: (_, url) => {
+        onUpdateForm({ privateLink: { url } });
+      },
     },
-    onError: (_, url) => {
-      onUpdateForm({ privateLink: { url } });
-    },
-  });
+  );
   const { mutateAsync: getPost, isLoading: isCheckingUrl } = useMutation(
     (param: string) => {
       if (!param || !isValidHttpUrl(param) || param === form.privateLink?.url) {
@@ -152,6 +155,8 @@ export function SquadComment({
     return null;
   })();
 
+  const isPreviewLoading = isLinkLoading || isCheckingUrl;
+
   return (
     <>
       <Modal.Body
@@ -173,16 +178,14 @@ export function SquadComment({
               ref={textinput}
             />
           </span>
-          {preview && (
-            <PostPreview
-              className="mb-4"
-              preview={preview}
-              isLoading={isCheckingUrl}
-            />
-          )}
+          <PostPreview
+            className="mb-4"
+            preview={preview}
+            isLoading={isPreviewLoading}
+          />
           {privateLink && !post && (
             <TextField
-              leftIcon={isCheckingUrl ? <Loader /> : <LinkIcon />}
+              leftIcon={isPreviewLoading ? <Loader /> : <LinkIcon />}
               label="Enter link to share"
               fieldType="tertiary"
               inputId="url"
@@ -194,7 +197,6 @@ export function SquadComment({
               onInput={onInputChange}
               hint={linkHint}
               saveHintSpace
-              disabled={isCheckingUrl}
             />
           )}
         </form>
@@ -223,7 +225,7 @@ export function SquadComment({
               className="btn-primary-cabbage"
               type="submit"
               loading={isLoading}
-              disabled={!commentary || isLoading || isCheckingUrl}
+              disabled={!commentary || isLoading || isPreviewLoading}
             >
               Done
             </Button>
