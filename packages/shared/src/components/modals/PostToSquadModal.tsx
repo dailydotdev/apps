@@ -53,7 +53,7 @@ function PostToSquadModal({
     if (squadPost) onSharedSuccessfully?.(squadPost);
 
     displayToast(
-      !privateLink?.title
+      !form?.privateLink?.title
         ? 'This post is being processed and will be shared with your Squad shortly'
         : 'This post has been shared to your Squad',
     );
