@@ -126,7 +126,7 @@ export function SquadComment({
 
   const preview: ExternalLink = (() => {
     if (post) {
-      return { url: post.permalink, title: post.title, image: post.image };
+      return { url: link, title: post.title, image: post.image };
     }
 
     if (externalLink?.title && externalLink?.image) {
