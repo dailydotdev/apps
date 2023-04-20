@@ -115,12 +115,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (isPostLoadingOrFetching || isFallback) {
+  if (isPostLoadingOrFetching || isFallback || !isFetched) {
     return <PostLoadingSkeleton className={containerClass} type={post?.type} />;
-  }
-
-  if (!isFetched) {
-    return <></>;
   }
 
   const Content = CONTENT_MAP[post?.type];
