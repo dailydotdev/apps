@@ -17,7 +17,7 @@ export type NewSquadPostProps = Pick<
 
 export interface SharePostBarProps {
   className?: string;
-  onNewSquadPost?: (props?: NewSquadPostProps) => Promise<unknown>;
+  onNewSquadPost?: (props?: NewSquadPostProps) => Promise<null>;
   disabled?: boolean;
 }
 
