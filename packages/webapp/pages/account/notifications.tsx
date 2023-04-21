@@ -15,6 +15,7 @@ import {
   AnalyticsEvent,
   NotificationCategory,
   NotificationChannel,
+  NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/analytics';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
@@ -75,7 +76,7 @@ const AccountNotificationsPage = (): ReactElement => {
       NotificationChannel.Web,
       NotificationCategory.Product,
     );
-    onTogglePermission();
+    onTogglePermission(NotificationPromptSource.NotificationsPage);
   };
 
   const onToggleEmailNotification = () => {

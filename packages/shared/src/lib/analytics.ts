@@ -82,3 +82,11 @@ export enum NotificationTarget {
   Footer = 'footer',
   Icon = 'notifications icon',
 }
+
+export enum NotificationPromptSource {
+  NotificationsPage = 'notifications page',
+  NewComment = 'new comment',
+  CommunityPicks = 'community picks modal',
+  NewSourceModal = 'new source modal',
+  SquadPage = 'squad page',
+}
