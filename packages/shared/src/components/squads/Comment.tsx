@@ -138,7 +138,7 @@ export function SquadComment({
             preview={preview}
             isLoading={isLoadingPreview}
           />
-          {preview && !postExists && (
+          {!postExists && (
             <TextField
               leftIcon={isLoadingPreview ? <Loader /> : <LinkIcon />}
               label="Enter link to share"
@@ -182,10 +182,7 @@ export function SquadComment({
               type="submit"
               loading={isLoading}
               disabled={
-                !commentary ||
-                isLoading ||
-                isLoadingPreview ||
-                !form.preview.title
+                !commentary || isLoading || isLoadingPreview || !preview.title
               }
             >
               Done
