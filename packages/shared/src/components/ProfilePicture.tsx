@@ -84,6 +84,8 @@ function ProfilePictureComponent(
     className,
   );
 
+  if (!user) return null;
+
   if (nativeLazyLoading) {
     return (
       <img
