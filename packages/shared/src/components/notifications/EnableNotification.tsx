@@ -8,11 +8,11 @@ import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 import {
+  AnalyticsEvent,
   NotificationPromptSource,
-  useEnableNotification,
-} from '../../hooks/useEnableNotification';
+  TargetType,
+} from '../../lib/analytics';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
@@ -45,7 +45,6 @@ function EnableNotification({
   className,
 }: EnableNotificationProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
-  const onTogglePermission = useEnableNotification(source);
   const {
     isInitialized,
     isSubscribed,
@@ -53,6 +52,7 @@ function EnableNotification({
     hasPermissionCache,
     acceptedPermissionJustNow: isEnabled,
     onAcceptedPermissionJustNow,
+    onTogglePermission,
   } = useContext(NotificationsContext);
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
@@ -67,7 +67,7 @@ function EnableNotification({
   };
 
   const onEnable = async () => {
-    const permission = await onTogglePermission();
+    const permission = await onTogglePermission(source);
 
     if (permission === null) {
       return;

@@ -19,6 +19,8 @@ import { useTutorial, TutorialKey } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
 import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
+import { verifyPermission } from '../../graphql/squads';
+import { SourcePermissions } from '../../graphql/sources';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -56,21 +58,23 @@ export function SquadHeaderBar({
           copyLinkTutorial.isActive && 'laptop:m-0 mb-14 tablet:mb-10',
         )}
       >
-        <Button
-          className={classNames(
-            'btn-primary',
-            tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
-          )}
-          onClick={() => {
-            trackAndCopyLink();
+        {verifyPermission(squad, SourcePermissions.Invite) && (
+          <Button
+            className={classNames(
+              'btn-primary',
+              tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
+            )}
+            onClick={() => {
+              trackAndCopyLink();
 
-            copyLinkTutorial.complete();
-          }}
-          icon={<AddUserIcon />}
-          disabled={copying}
-        >
-          Copy invitation link
-        </Button>
+              copyLinkTutorial.complete();
+            }}
+            icon={<AddUserIcon />}
+            disabled={copying}
+          >
+            Copy invitation link
+          </Button>
+        )}
         {copyLinkTutorial.isActive && (
           <TutorialGuide className="absolute -bottom-16 laptop:-bottom-14 left-22">
             Invite your first members
