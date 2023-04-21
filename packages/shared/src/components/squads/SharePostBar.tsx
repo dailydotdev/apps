@@ -12,7 +12,7 @@ import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
-  'externalLink' | 'post' | 'onSharedSuccessfully'
+  'preview' | 'onSharedSuccessfully'
 >;
 
 export interface SharePostBarProps {
@@ -28,18 +28,14 @@ function SharePostBar({
 }: SharePostBarProps): ReactElement {
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
-  const { getPost, isLoadingPreview, isCheckingPost } = usePostToSquad({
-    onEmptyUrl: () => onNewSquadPost({ externalLink: { url: '' } }),
-    postCallback: {
-      onSuccess: (post) => onNewSquadPost({ post, onSharedSuccessfully }),
-    },
-    previewCallback: {
-      onSuccess: (preview, link) => {
-        const externalLink = { url: link, ...preview };
-        onNewSquadPost({ externalLink, onSharedSuccessfully });
-      },
-      onError: (error, link) =>
-        onNewSquadPost({ externalLink: { url: link }, onSharedSuccessfully }),
+  const { getLinkPreview, isLoadingPreview } = usePostToSquad({
+    onEmptyUrl: () => onNewSquadPost({ preview: { url: '' } }),
+    callback: {
+      onSuccess: (preview, link) =>
+        onNewSquadPost({
+          preview: { ...preview, url: link },
+          onSharedSuccessfully,
+        }),
     },
   });
 
@@ -47,7 +43,7 @@ function SharePostBar({
   const { sidebarRendered } = useSidebarRendered();
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await getPost(url);
+    await getLinkPreview(url);
   };
 
   if (disabled) {
@@ -58,8 +54,6 @@ function SharePostBar({
       </Card>
     );
   }
-
-  const isLoading = isLoadingPreview || isCheckingPost;
 
   return (
     <form
@@ -102,8 +96,8 @@ function SharePostBar({
         type="submit"
         buttonSize={ButtonSize.Medium}
         className="order-3 tablet:order-4 mx-3 btn-primary-cabbage"
-        disabled={isLoading}
-        loading={isLoading}
+        disabled={isLoadingPreview}
+        loading={isLoadingPreview}
       >
         Post
       </Button>

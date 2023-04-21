@@ -1,15 +1,15 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ExternalLink } from '../../graphql/posts';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 import OpenLinkIcon from '../icons/OpenLink';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { IconSize } from '../Icon';
+import { ExternalLinkPreview } from '../../graphql/posts';
 
 interface PostPreviewProps {
-  preview: ExternalLink;
+  preview: Partial<ExternalLinkPreview>;
   className?: string;
   isLoading?: boolean;
 }
@@ -29,7 +29,7 @@ function PostPreview({
   const { url, title, image } = preview ?? {};
   const imageClassName = 'w-16 laptop:w-24 h-16 rounded-16';
 
-  if (!isLoading && !preview) return null;
+  if (!isLoading && !title && !image) return null;
 
   return (
     <div

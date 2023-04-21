@@ -449,17 +449,16 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
 `;
 
 export interface ExternalLinkPreview {
+  url?: string;
+  id?: string;
   title: string;
   image: string;
-}
-
-export interface ExternalLink extends Partial<ExternalLinkPreview> {
-  url: string;
 }
 
 export const PREVIEW_LINK_MUTATION = gql`
   mutation CheckLinkPreview($url: String!) {
     checkLinkPreview(url: $url) {
+      id
       title
       image
     }
@@ -474,7 +473,8 @@ export const getExternalLinkPreview = async (
   return res.checkLinkPreview;
 };
 
-interface SubmitExternalLink extends ExternalLink {
+interface SubmitExternalLink
+  extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
   sourceId: string;
   commentary: string;
 }

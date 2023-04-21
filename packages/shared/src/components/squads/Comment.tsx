@@ -20,7 +20,7 @@ import { SquadForm } from '../../graphql/squads';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TextField } from '../fields/TextField';
 import LinkIcon from '../icons/Link';
-import { ExternalLink, Post } from '../../graphql/posts';
+import { Post } from '../../graphql/posts';
 import useDebounce from '../../hooks/useDebounce';
 import { isValidHttpUrl } from '../../lib/links';
 import { KeyboardCommand } from '../../lib/element';
@@ -45,8 +45,6 @@ enum LinkError {
   Invalid = 'URL is invalid!',
 }
 
-const DEFAULT_ERROR = 'An error occurred, please try again';
-
 export function SquadComment({
   onSubmit,
   form,
@@ -54,36 +52,26 @@ export function SquadComment({
   onUpdateForm,
 }: SquadCommentProps): ReactElement {
   const textinput = useRef<HTMLTextAreaElement>();
-  const { externalLink, post: postItem } = form;
-  const { post } = postItem;
+  const { preview, handle, file, name } = form;
+  const postExists = !!preview.id;
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
-  const [link, setLink] = useState(externalLink?.url);
-  const [linkHint, setLinkHint] = useState(externalLink?.url);
-  const { getPost, isLoadingPreview, isCheckingPost } = usePostToSquad({
-    previewDefaultErrorMessage: DEFAULT_ERROR,
-    previewCallback: {
-      onSuccess: (preview, url) => {
-        onUpdateForm({ externalLink: { url, ...preview } });
+  const [link, setLink] = useState(preview.url);
+  const [linkHint, setLinkHint] = useState(preview.url);
+  const { getLinkPreview, isLoadingPreview } = usePostToSquad({
+    callback: {
+      onSuccess: (linkPreview, url) => {
+        onUpdateForm({ preview: { url, ...linkPreview } });
         textinput?.current?.focus();
       },
-      onError: (_, url) => onUpdateForm({ externalLink: { url } }),
-    },
-    postCallback: {
-      onSuccess: (postByUrl) => {
-        if (!postByUrl) return;
-
-        onUpdateForm({ post: { post: postByUrl } });
-        textinput?.current?.focus();
-      },
-      onError: () => onUpdateForm({ post: { post: null } }),
+      onError: (_, url) => onUpdateForm({ preview: { url } }),
     },
   });
 
   const [checkUrl] = useDebounce((url: string) => {
-    if (!isValidHttpUrl(url) || url === form.externalLink?.url) return null;
+    if (!isValidHttpUrl(url) || url === preview.url) return null;
 
-    return getPost(url);
+    return getLinkPreview(url);
   }, 1000);
 
   const onInputChange: FormEventHandler<HTMLInputElement> = (e) => {
@@ -104,7 +92,7 @@ export function SquadComment({
   };
 
   useEffect(() => {
-    if (post) {
+    if (preview.title) {
       textinput?.current?.focus?.();
     }
   }, []);
@@ -124,25 +112,10 @@ export function SquadComment({
     }
   };
 
-  const preview: ExternalLink = (() => {
-    if (post) {
-      return { url: link, title: post.title, image: post.image };
-    }
-
-    if (externalLink?.title && externalLink?.image) {
-      return externalLink;
-    }
-
-    return null;
-  })();
-
-  const isPreviewLoading = isLoadingPreview || isCheckingPost;
-  const isInvalidPost = !form?.post?.post && !form?.externalLink?.title;
-
   return (
     <>
       <Modal.Body
-        className={classNames('flex flex-col', externalLink && !post && 'pb-2')}
+        className={classNames('flex flex-col', !postExists && 'pb-2')}
       >
         <form
           onSubmit={(e) => onSubmitForm(e)}
@@ -163,11 +136,11 @@ export function SquadComment({
           <PostPreview
             className="mb-4"
             preview={preview}
-            isLoading={isPreviewLoading}
+            isLoading={isLoadingPreview}
           />
-          {externalLink && !post && (
+          {preview && !postExists && (
             <TextField
-              leftIcon={isPreviewLoading ? <Loader /> : <LinkIcon />}
+              leftIcon={isLoadingPreview ? <Loader /> : <LinkIcon />}
               label="Enter link to share"
               fieldType="tertiary"
               inputId="url"
@@ -188,12 +161,12 @@ export function SquadComment({
         <div className="flex">
           <Image
             className="object-cover mr-3 w-8 h-8 rounded-full"
-            src={form.file ?? cloudinary.squads.imageFallback}
+            src={file ?? cloudinary.squads.imageFallback}
           />
           <div>
-            <h5 className="font-bold typo-caption1">{form.name}</h5>
+            <h5 className="font-bold typo-caption1">{name}</h5>
             <h6 className="typo-caption1 text-theme-label-tertiary">
-              @{form.handle}
+              @{handle}
             </h6>
           </div>
         </div>
@@ -209,7 +182,10 @@ export function SquadComment({
               type="submit"
               loading={isLoading}
               disabled={
-                !commentary || isLoading || isPreviewLoading || isInvalidPost
+                !commentary ||
+                isLoading ||
+                isLoadingPreview ||
+                !form.preview.title
               }
             >
               Done

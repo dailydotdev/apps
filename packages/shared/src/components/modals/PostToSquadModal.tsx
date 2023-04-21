@@ -15,9 +15,8 @@ import AuthContext from '../../contexts/AuthContext';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
-    Partial<Pick<SquadForm, 'externalLink'>> {
+    Partial<Pick<SquadForm, 'preview'>> {
   squad: Squad;
-  post?: Post;
   onSharedSuccessfully?: (post: Post) => void;
   requestMethod?: typeof request;
 }
@@ -30,23 +29,21 @@ function PostToSquadModal({
   onSharedSuccessfully,
   onRequestClose,
   isOpen,
-  post,
-  externalLink,
+  preview,
   squad,
   requestMethod = request,
   ...props
 }: PostToSquadModalProps): ReactElement {
-  const shouldSkipHistory = !!externalLink || !!post;
+  const shouldSkipHistory = !!preview;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const [form, setForm] = useState<Partial<SquadForm>>({
-    post: { post },
     name: squad.name,
     file: squad.image,
     handle: squad.handle,
     buttonText: 'Done',
-    externalLink,
+    preview,
   });
 
   const onPostSuccess = async (squadPost?: Post) => {
@@ -74,19 +71,19 @@ function PostToSquadModal({
 
     if (isLoading) return null;
 
-    if (form?.post?.post) {
+    if (form.preview.id) {
       return onPost({
-        id: form.post.post.id,
+        id: form.preview.id,
         sourceId: squad.id,
         commentary: commentary ?? e?.target[0].value,
       });
     }
 
-    if (!form?.externalLink?.title) {
+    const { title, image, url } = form.preview;
+
+    if (!title) {
       return displayToast('Invalid link');
     }
-
-    const { title, image, url } = form.externalLink;
 
     return onSubmitLink({
       url,
@@ -116,7 +113,7 @@ function PostToSquadModal({
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
       onRequestClose={onRequestClose}
-      steps={post ? undefined : modalSteps}
+      steps={preview.id ? undefined : modalSteps}
       {...props}
     >
       <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
