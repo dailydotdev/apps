@@ -84,11 +84,16 @@ export enum ApiError {
   NotFound = 'NOT_FOUND',
 }
 
+export enum ApiErrorMessage {
+  SOURCE_INVITE_NOT_VALID = 'Access denied! Invite is no longer valid!',
+}
+
 interface ApiResponseErrorExtension {
   code: ApiError;
 }
 
 interface ApiResponseError {
+  message: ApiErrorMessage;
   extensions: ApiResponseErrorExtension;
 }
 

@@ -11,7 +11,11 @@ import {
   SourceMember,
   SourceMemberRole,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { Edge } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ApiErrorMessage,
+  ApiErrorResult,
+  Edge,
+} from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -136,6 +140,15 @@ const SquadReferral = ({
 
         addSquad(data);
         return router.replace(data.permalink);
+      },
+      onError: (error: ApiErrorResult) => {
+        const errorMessage = error?.response?.errors?.[0]?.message;
+
+        if (errorMessage === ApiErrorMessage.SOURCE_INVITE_NOT_VALID) {
+          displayToast('🚫 This invitation is no longer valid.');
+        } else {
+          displayToast('🚫 Something went wrong, please try again.');
+        }
       },
     },
   );
