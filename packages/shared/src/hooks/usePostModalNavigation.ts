@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post, PostType } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -37,6 +37,7 @@ export const usePostModalNavigation = (
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const { trackEvent } = useContext(AnalyticsContext);
   const router = useRouter();
+  const scrollPositionOnFeed = useRef(0);
 
   const changeHistory = (data: unknown, title: string, url: string) => {
     if (!isExtension) {
@@ -67,6 +68,8 @@ export const usePostModalNavigation = (
 
   const onOpenModal = (index: number, fromPopState = false) => {
     if (!currentPage) {
+      scrollPositionOnFeed.current = window.scrollY;
+
       setCurrentPage(window.location.pathname);
     }
     onChangeSelected(index, fromPopState);
@@ -76,8 +79,12 @@ export const usePostModalNavigation = (
     setOpenedPostIndex(null);
     setCurrentPage(undefined);
     if (!fromPopState) {
+      window.scrollTo(0, scrollPositionOnFeed.current);
+
       changeHistory({}, `Feed`, currentPage);
     }
+
+    scrollPositionOnFeed.current = 0;
   };
 
   useEffect(() => {
