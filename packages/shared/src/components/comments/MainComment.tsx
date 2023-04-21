@@ -1,9 +1,9 @@
 import React, { ReactElement, useContext } from 'react';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../hooks/useEnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
 import AuthContext from '../../contexts/AuthContext';
+import { NotificationPromptSource } from '../../lib/analytics';
 
 export interface MainCommentProps extends CommentBoxProps {
   permissionNotificationCommentId?: string;
