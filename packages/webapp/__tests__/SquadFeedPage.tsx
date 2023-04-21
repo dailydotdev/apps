@@ -271,6 +271,10 @@ describe('squad header bar', () => {
   });
 
   it('should copy invitation link', async () => {
+    requestedSquad.currentMember = {
+      ...defaultSquad.currentMember,
+      permissions: [SourcePermissions.Invite],
+    };
     renderComponent();
     const invite = await screen.findByText('Copy invitation link');
     invite.click();
@@ -278,6 +282,18 @@ describe('squad header bar', () => {
     await waitFor(() =>
       expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
     );
+  });
+
+  it('should not copy invitation link when member does not have invite permission', async () => {
+    requestedSquad.currentMember = {
+      ...defaultSquad.currentMember,
+      permissions: [],
+    };
+    renderComponent();
+
+    await expect(async () => {
+      await screen.findByText('Copy invitation link');
+    }).rejects.toThrow();
   });
 });
 
