@@ -85,7 +85,7 @@ export enum ApiError {
 }
 
 export enum ApiErrorMessage {
-  SOURCE_INVITE_NOT_VALID = 'Access denied! Invite is no longer valid!',
+  SourcePermissionInviteInvalid = 'SOURCE_PERMISSION_INVITE_INVALID',
 }
 
 interface ApiResponseErrorExtension {

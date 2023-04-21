@@ -144,7 +144,7 @@ const SquadReferral = ({
       onError: (error: ApiErrorResult) => {
         const errorMessage = error?.response?.errors?.[0]?.message;
 
-        if (errorMessage === ApiErrorMessage.SOURCE_INVITE_NOT_VALID) {
+        if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
           displayToast('🚫 This invitation is no longer valid.');
         } else {
           displayToast('🚫 Something went wrong, please try again.');
