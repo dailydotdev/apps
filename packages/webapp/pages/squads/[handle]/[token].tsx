@@ -145,7 +145,9 @@ const SquadReferral = ({
         const errorMessage = error?.response?.errors?.[0]?.message;
 
         if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
-          displayToast('🚫 This invitation is no longer valid.');
+          displayToast(
+            '🚫 The invitation is no longer valid, please check with the person who shared this invite (or the Squad admin) for further information.',
+          );
         } else {
           displayToast('🚫 Something went wrong, please try again.');
         }
