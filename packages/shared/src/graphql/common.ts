@@ -84,11 +84,16 @@ export enum ApiError {
   NotFound = 'NOT_FOUND',
 }
 
+export enum ApiErrorMessage {
+  SourcePermissionInviteInvalid = 'SOURCE_PERMISSION_INVITE_INVALID',
+}
+
 interface ApiResponseErrorExtension {
   code: ApiError;
 }
 
 interface ApiResponseError {
+  message: ApiErrorMessage;
   extensions: ApiResponseErrorExtension;
 }
 
