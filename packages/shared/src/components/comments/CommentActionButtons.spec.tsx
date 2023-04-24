@@ -156,7 +156,7 @@ it('should allow delete for moderators', async () => {
   renderComponent({}, user);
   const el = await screen.findByLabelText('Options');
   el.click();
-  const [, remove] = await screen.findAllByRole('menuitem');
+  const [remove] = await screen.findAllByRole('menuitem');
   remove.click();
   expect(onDelete).toBeCalledWith(comment, 'c1');
 });

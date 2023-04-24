@@ -19,21 +19,24 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import usePostContent from '../../hooks/usePostContent';
 import FixedPostNavigation from './FixedPostNavigation';
 import { BasePostContent, PostContentClassName } from './BasePostContent';
-import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
 
+export type PassedPostNavigationProps = Pick<
+  PostNavigationProps,
+  'onNextPost' | 'onPreviousPost' | 'postPosition' | 'onRemovePost'
+>;
+
 export interface PostContentProps
   extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
-    Pick<PostNavigationProps, 'onNextPost' | 'onPreviousPost' | 'postPosition'>,
+    PassedPostNavigationProps,
     UsePostCommentOptionalProps {
   post?: Post;
   isFallback?: boolean;
   className?: PostContentClassName;
   origin: PostOrigin;
   shouldOnboardAuthor?: boolean;
-  isLoading?: boolean;
   customNavigation?: ReactNode;
   position?: CSSProperties['position'];
 }
@@ -58,9 +61,9 @@ export function PostContent({
   onNextPost,
   onClose,
   postPosition,
-  isLoading,
   isFallback,
   customNavigation,
+  onRemovePost,
 }: PostContentProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -89,18 +92,8 @@ export function PostContent({
     onClose,
     onShare,
     inlineActions,
+    onRemovePost,
   };
-
-  if (isLoading) {
-    return (
-      <PostContentContainer
-        hasNavigation={hasNavigation}
-        className={containerClass}
-      >
-        <PostLoadingPlaceholder className="tablet:border-r tablet:border-theme-divider-tertiary" />
-      </PostContentContainer>
-    );
-  }
 
   return (
     <PostContentContainer
@@ -123,7 +116,6 @@ export function PostContent({
               container: classNames('pt-6', className?.navigation?.container),
             },
           }}
-          isLoading={isLoading}
           isFallback={isFallback}
           customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}

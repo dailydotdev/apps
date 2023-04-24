@@ -37,13 +37,27 @@ describe('ChangelogTooltip component', () => {
   const updateAlerts = jest.fn();
   const defaultAlerts: Alerts = {};
   let extensionUpdateStatus = 'update_available';
-  const sendMessageFn = jest.fn(() => ({
+  const mockSendMessageFn = jest.fn(() => ({
     status: extensionUpdateStatus,
   }));
+
+  beforeAll(() => {
+    jest.mock('webextension-polyfill-ts', () => ({
+      browser: {
+        runtime: {
+          sendMessage: mockSendMessageFn,
+        },
+      },
+    }));
+  });
 
   beforeEach(async () => {
     nock.cleanAll();
     jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    jest.unmock('webextension-polyfill-ts');
   });
 
   const renderComponent = ({
@@ -172,12 +186,6 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'chrome';
 
-    global.browser = {
-      runtime: {
-        sendMessage: sendMessageFn,
-      },
-    };
-
     renderComponent({ client });
     await screen.findByTestId('changelog');
 
@@ -192,13 +200,12 @@ describe('ChangelogTooltip component', () => {
     expect(
       client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY),
     ).toBeDefined();
-    expect(sendMessageFn).toHaveBeenCalledTimes(1);
-    expect(sendMessageFn).toHaveBeenCalledWith({
+    expect(mockSendMessageFn).toHaveBeenCalledTimes(1);
+    expect(mockSendMessageFn).toHaveBeenCalledWith({
       type: ExtensionMessageType.RequestUpdate,
     });
 
     delete process.env.TARGET_BROWSER;
-    delete global.browser;
   });
 
   it('update lastChangelog on release notes click', async () => {
@@ -275,7 +282,7 @@ describe('ChangelogTooltip component', () => {
       await new Promise(process.nextTick);
     });
 
-    expect(sendMessageFn).not.toHaveBeenCalled();
+    expect(mockSendMessageFn).not.toHaveBeenCalled();
     expect(changelogExtensionBtn.tagName.toLowerCase()).toBe('a');
     expect(changelogExtensionBtn.getAttribute('href')).toBeTruthy();
 
@@ -287,12 +294,6 @@ describe('ChangelogTooltip component', () => {
     client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
-
-    global.browser = {
-      runtime: {
-        sendMessage: sendMessageFn,
-      },
-    };
 
     renderComponent({ client });
     await screen.findByTestId('changelog');
@@ -313,7 +314,6 @@ describe('ChangelogTooltip component', () => {
     ).toBeDefined();
 
     delete process.env.TARGET_BROWSER;
-    delete global.browser;
   });
 
   it('should show toast when no extension update is throttled', async () => {
@@ -321,12 +321,6 @@ describe('ChangelogTooltip component', () => {
     client.setQueryData(['changelog', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
-
-    global.browser = {
-      runtime: {
-        sendMessage: sendMessageFn,
-      },
-    };
 
     renderComponent({ client });
     await screen.findByTestId('changelog');
@@ -347,6 +341,5 @@ describe('ChangelogTooltip component', () => {
     ).toBeDefined();
 
     delete process.env.TARGET_BROWSER;
-    delete global.browser;
   });
 });

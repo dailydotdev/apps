@@ -15,6 +15,8 @@ import { BootApp } from '../lib/boot';
 import { isDevelopment, isTesting } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import AuthContext from './AuthContext';
+import { AnalyticsEvent, NotificationPromptSource } from '../lib/analytics';
+import { useAnalyticsContext } from './AnalyticsContext';
 
 export interface NotificationsContextData
   extends UseNotificationPermissionPopup {
@@ -27,7 +29,9 @@ export interface NotificationsContextData
   onShouldShowSettingsAlert?: (state: boolean) => Promise<void>;
   clearUnreadCount: () => void;
   incrementUnreadCount: () => void;
-  onTogglePermission: () => Promise<NotificationPermission>;
+  onTogglePermission: (
+    source: NotificationPromptSource,
+  ) => Promise<NotificationPermission>;
 }
 
 const NotificationsContext =
@@ -51,8 +55,9 @@ export const NotificationsContextProvider = ({
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
   const isExtension = checkIsExtension();
-  const [OneSignal, setOneSignal] = useState(null);
+  const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
+  const [OneSignal, setOneSignal] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -112,13 +117,15 @@ export const NotificationsContextProvider = ({
     onPermissionCache(allowedPush ? 'granted' : 'default');
   };
 
-  const onTogglePermission = async (): Promise<NotificationPermission> => {
+  const onTogglePermission = async (
+    source: NotificationPromptSource,
+  ): Promise<NotificationPermission> => {
     if (!user) return 'default';
 
     const { permission } = globalThis.Notification ?? {};
 
     if (app === BootApp.Extension || permission === 'denied') {
-      onOpenPopup();
+      onOpenPopup(source);
       return null;
     }
 
@@ -128,6 +135,10 @@ export const NotificationsContextProvider = ({
     }
 
     const result = await globalThis.window?.Notification?.requestPermission();
+    trackEvent({
+      event_name: AnalyticsEvent.ClickEnableNotification,
+      extra: JSON.stringify({ origin: source, permission: result }),
+    });
     await onUpdatePermission(result);
 
     return result;
@@ -207,6 +218,7 @@ export const NotificationsContextProvider = ({
       currentUnreadCount,
       isInitialized,
       user,
+      isAlertShown,
       acceptedPermissionJustNow,
       hasPermissionCache,
     ],

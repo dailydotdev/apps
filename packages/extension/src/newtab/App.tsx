@@ -13,7 +13,6 @@ import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/c
 import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
@@ -166,18 +165,14 @@ export default function App({
             app={BootApp.Extension}
             getRedirectUri={getRedirectUri}
             localBootData={localBootData}
+            version={version}
+            getPage={() => pageRef.current}
+            deviceId={deviceId}
           >
             <SubscriptionContextProvider>
-              <AnalyticsContextProvider
-                app={BootApp.Extension}
-                version={version}
-                getPage={() => pageRef.current}
-                deviceId={deviceId}
-              >
-                <OnboardingContextProvider>
-                  <InternalApp pageRef={pageRef} />
-                </OnboardingContextProvider>
-              </AnalyticsContextProvider>
+              <OnboardingContextProvider>
+                <InternalApp pageRef={pageRef} />
+              </OnboardingContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>
         </QueryClientProvider>

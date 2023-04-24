@@ -16,9 +16,9 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
+  Post,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
-  Post,
   PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -38,8 +38,13 @@ import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { modalSizeToClassName } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/types';
+import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
+import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
+import classNames from 'classnames';
 import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
 
@@ -73,6 +78,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
+  const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
   useWindowEvents(
     'popstate',
@@ -81,11 +87,16 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     false,
   );
 
-  const { post, isFetched } = usePostById({
+  const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
   });
-
+  const containerClass = classNames(
+    'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
+    post?.type === PostType.Share &&
+      sidebarRendered &&
+      modalSizeToClassName[ModalSize.Large],
+  );
   const seo: NextSeoProps = {
     title: getTemplatedTitle(post?.title),
     description: getSeoDescription(post),
@@ -97,6 +108,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       },
     },
   };
+
+  const seoComponent = <NextSeo {...seo} />;
+
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
     onUnderOffset: () => position !== 'relative' && setPosition('relative'),
@@ -104,8 +118,13 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (!initialData && (isFallback || !isFetched)) {
-    return <></>;
+  if (isPostLoadingOrFetching || isFallback || !isFetched) {
+    return (
+      <>
+        {seoComponent}
+        <PostLoadingSkeleton className={containerClass} type={post?.type} />
+      </>
+    );
   }
 
   const Content = CONTENT_MAP[post?.type];
@@ -119,26 +138,24 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
-  if (!Content && (!isFallback || isFetched)) return <Custom404 />;
+  if (!Content || isError) return <Custom404 />;
 
   return (
     <>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
-      <NextSeo {...seo} />
+      {seoComponent}
       <Content
         position={position}
         post={post}
         isFallback={isFallback}
-        isLoading={!isFetched}
         customNavigation={customNavigation}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
         origin={Origin.ArticlePage}
         className={{
-          container:
-            'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
+          container: containerClass,
           fixedNavigation: { container: 'flex laptop:hidden' },
           navigation: {
             container: 'flex tablet:hidden',

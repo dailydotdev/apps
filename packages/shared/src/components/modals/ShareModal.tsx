@@ -88,6 +88,7 @@ export default function ShareModal({
           inputId="postUrl"
           label="Copy URL"
           type="url"
+          autoComplete="off"
           fieldType="tertiary"
           actionButton={
             <Button

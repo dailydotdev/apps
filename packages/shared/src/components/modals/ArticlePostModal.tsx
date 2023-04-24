@@ -1,43 +1,49 @@
 import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
-import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
-import { PostNavigationProps } from '../post/PostNavigation';
+import {
+  ONBOARDING_OFFSET,
+  PassedPostNavigationProps,
+  PostContent,
+} from '../post/PostContent';
 import { Origin } from '../../lib/analytics';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
+import { PostType } from '../../graphql/posts';
 
-interface ArticlePostModalProps
-  extends ModalProps,
-    Pick<
-      PostNavigationProps,
-      'onPreviousPost' | 'onNextPost' | 'postPosition'
-    > {
+interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
-  isFetchingNextPage?: boolean;
 }
+
+const containerClass = 'border border-theme-divider-tertiary rounded-16';
 
 export default function ArticlePostModal({
   id,
   className,
-  isFetchingNextPage,
   onRequestClose,
   onPreviousPost,
   onNextPost,
   postPosition,
+  onRemovePost,
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { post, isLoading } = usePostById({ id, isFetchingNextPage });
+  const { post, isPostLoadingOrFetching } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading,
+    isLoading: isPostLoadingOrFetching,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
 
   return (
-    <BasePostModal {...props} onRequestClose={onRequestClose}>
+    <BasePostModal
+      {...props}
+      onRequestClose={onRequestClose}
+      loadingClassName={containerClass}
+      postType={PostType.Article}
+      isLoading={isPostLoadingOrFetching}
+    >
       <PostContent
         position={position}
         post={post}
@@ -47,7 +53,7 @@ export default function ArticlePostModal({
         inlineActions
         className={{
           onboarding: 'mt-8',
-          container: 'border border-theme-divider-tertiary rounded-16',
+          container: containerClass,
           navigation: { actions: 'tablet:hidden ml-auto' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.XLarge],
@@ -55,8 +61,8 @@ export default function ArticlePostModal({
           },
         }}
         onClose={onRequestClose}
-        isLoading={isLoading}
         origin={Origin.ArticleModal}
+        onRemovePost={onRemovePost}
       />
     </BasePostModal>
   );

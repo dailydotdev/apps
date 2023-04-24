@@ -40,6 +40,45 @@ const getParentAndCurrentIndex = (
   return [parent, current];
 };
 
+interface SharedData {
+  editContent?: string;
+  editId?: string;
+}
+
+export const getParentComment = (
+  post: Post,
+  comment?: Comment,
+  shared: SharedData = {},
+): ParentComment => {
+  if (comment) {
+    return {
+      handle: comment.author.username,
+      authorId: comment.author.id,
+      authorName: comment.author.name,
+      authorImage: comment.author.image,
+      content: comment.content,
+      contentHtml: comment.contentHtml,
+      publishDate: comment.lastUpdatedAt || comment.createdAt,
+      commentId: comment.id,
+      post,
+      ...shared,
+    };
+  }
+
+  return {
+    handle: post.author?.username,
+    authorId: post.author?.id,
+    authorName: post.source.name,
+    authorImage: post.source.image,
+    content: post.title,
+    contentHtml: post.title,
+    publishDate: post.createdAt,
+    commentId: null,
+    post,
+    ...shared,
+  };
+};
+
 export const usePostComment = (
   post: Post,
   { enableShowShareNewComment }: UsePostCommentOptionalProps = {},
@@ -81,15 +120,7 @@ export const usePostComment = (
         }),
       );
       setLastScroll(window.scrollY);
-      setParentComment({
-        authorName: post.source.name,
-        authorImage: post.source.image,
-        content: post.title,
-        contentHtml: post.title,
-        publishDate: post.createdAt,
-        commentId: null,
-        post,
-      });
+      setParentComment(getParentComment(post));
     } else {
       showLogin(AuthTriggers.Comment);
     }

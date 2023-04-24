@@ -33,6 +33,8 @@ export interface TooltipProps
     | 'trigger'
     | 'disabled'
     | 'showArrow'
+    | 'sticky'
+    | 'plugins'
   > {
   container?: Omit<
     BaseTooltipContainerProps,

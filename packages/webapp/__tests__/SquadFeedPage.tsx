@@ -25,20 +25,23 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import {
-  generateTestSquad,
   generateForbiddenSquadResult,
-  generateNotFoundSquadResult,
-  generateMembersResult,
   generateMembersList,
+  generateMembersResult,
+  generateNotFoundSquadResult,
+  generateTestSquad,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
-  Squad,
-  SquadData,
-  SquadEdgesData,
-  SquadMemberRole,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
+  SquadData,
+  SquadEdgesData,
 } from '@dailydotdev/shared/src/graphql/squads';
+import {
+  SourceMemberRole,
+  SourcePermissions,
+  Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { squadFeedback } from '@dailydotdev/shared/src/lib/constants';
@@ -46,6 +49,7 @@ import SquadPage from '../pages/squads/[handle]';
 
 const showLogin = jest.fn();
 const defaultSquad = generateTestSquad();
+let requestedSquad: Partial<Squad> = {};
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
@@ -61,6 +65,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  requestedSquad = {};
 });
 
 const createFeedMock = (
@@ -88,7 +93,9 @@ const createSourceMock = (
   handle = 'sample',
   request: Partial<Squad> = {},
   result: GraphQLResult<SquadData> = {
-    data: { source: generateTestSquad({ ...request, handle }) },
+    data: {
+      source: generateTestSquad({ ...request, ...requestedSquad, handle }),
+    },
   },
 ): MockedGraphQLResponse<SquadData> => ({
   request: {
@@ -224,20 +231,17 @@ describe('squad page header', () => {
     await screen.findByAltText(alt);
   });
 
-  it('should show feedback button on tablet and desktop', async () => {
+  it('should show feedback icon', async () => {
     renderComponent();
-    const feedback = await screen.findByLabelText('squad-feedback');
+    const feedback = await screen.findByLabelText('Feedback');
     expect(feedback).toHaveAttribute('href', feedbackLink);
-    const icon = await screen.findByLabelText('squad-feedback-icon');
-    expect(icon).toHaveClass('hidden tablet:flex');
   });
+});
 
-  it('should hide feedback icon on tablet and desktop but keep the label', async () => {
-    renderComponent();
-    await screen.findByLabelText('squad-feedback');
-    const icon = await screen.findByLabelText('squad-feedback-icon');
-    expect(icon).toHaveClass('hidden tablet:flex');
-  });
+Object.assign(navigator, {
+  clipboard: {
+    writeText: jest.fn(),
+  },
 });
 
 describe('squad header bar', () => {
@@ -261,106 +265,87 @@ describe('squad header bar', () => {
     expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
   });
 
-  // this modal should have its own test suite due to its complexity, we already have a ticket for reminder
-  it('should show share a post modal', async () => {
-    renderComponent();
-    const trigger = await screen.findByText('Create new post');
-    trigger.click();
-    await screen.findByText('Share post');
-  });
-
   it('should show options menu button', async () => {
     renderComponent();
     await screen.findByLabelText('Squad options');
   });
+
+  it('should copy invitation link', async () => {
+    renderComponent();
+    const invite = await screen.findByText('Copy invitation link');
+    invite.click();
+    const invitation = `https://app.daily.dev/squads/webteam/3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8`;
+    await waitFor(() =>
+      expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
+    );
+  });
 });
 
 describe('squad members modal', () => {
+  const COPY_ITEM = 1;
   const openedMembersModal = async (members = generateMembersList()) => {
     renderComponent();
     const result = generateMembersResult(members);
-    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id }));
+    mockGraphQL(
+      createSourceMembersMock(result, { id: defaultSquad.id, role: null }),
+    );
     const trigger = await screen.findByLabelText('Members list');
     trigger.click();
     await screen.findByText('Squad members');
     return members;
   };
 
-  it('should show the owner on top of the list', async () => {
+  it('should show the admin on top of the list', async () => {
     const fullMembers = await openedMembersModal();
     const [first] = fullMembers;
-    expect(first.node.role).toEqual(SquadMemberRole.Owner);
-    const owner = await screen.findByText('Owner');
-    expect(owner).toHaveAttribute('data-testvalue', first.node.user.username);
+    expect(first.node.role).toEqual(SourceMemberRole.Admin);
   });
 
   it('should show all members of the squad', async () => {
     await openedMembersModal();
     const list = await screen.findByLabelText('users-list');
-    expect(list.childNodes.length).toBeGreaterThan(defaultSquad.membersCount);
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+  });
+
+  it('should show not show blocked members tab when only a member', async () => {
+    await openedMembersModal();
+    const list = await screen.findByLabelText('users-list');
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+    const blocked = screen.queryByText('Blocked members');
+    expect(blocked).not.toBeInTheDocument();
+  });
+
+  it('should show all blocked members of the squad when privileged', async () => {
+    requestedSquad.currentMember = {
+      role: SourceMemberRole.Admin,
+      permissions: [SourcePermissions.ViewBlockedMembers],
+    };
+    await openedMembersModal();
+    const list = await screen.findByLabelText('users-list');
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+    const members = generateMembersList();
+    const role = SourceMemberRole.Blocked;
+    members.forEach((member) => {
+      // eslint-disable-next-line no-param-reassign
+      member.node.role = role;
+    });
+    const result = generateMembersResult(members);
+    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id, role }));
+    const blocked = await screen.findByText('Blocked members');
+    blocked.click();
+    const unblocks = await screen.findAllByLabelText('Unblock');
+    expect(unblocks.length).toEqual(members.length);
   });
 
   it('should show options button to all members', async () => {
     await openedMembersModal();
     const options = await screen.findAllByLabelText('Member options');
-    expect(options.length).toEqual(defaultSquad.membersCount);
-  });
-});
-
-describe('invitation modal', () => {
-  const token = defaultSquad.currentMember.referralToken;
-  const defaultInvitation = `${defaultSquad?.permalink}/${token}`;
-  const openedInvitationModal = async () => {
-    renderComponent();
-    const trigger = await screen.findByText('Invite');
-    trigger.click();
-    await screen.findByText('Invite more members to join');
-  };
-
-  it('should show squad name', async () => {
-    await openedInvitationModal();
-    const result = await screen.findAllByText(defaultSquad.name);
-    expect(result.length).toEqual(2);
-  });
-
-  it('should show squad handle', async () => {
-    await openedInvitationModal();
-    const result = await screen.findAllByText(`@${defaultSquad.handle}`);
-    expect(result.length).toEqual(2);
-  });
-
-  it('should show squad image', async () => {
-    await openedInvitationModal();
-    const alt = `${defaultSquad.handle}'s logo`;
-    const result = await screen.findAllByAltText(alt);
-    expect(result.length).toEqual(2);
-  });
-
-  it('should show invitation link on a textfield', async () => {
-    await openedInvitationModal();
-    const input = await screen.findByRole('textbox');
-    expect(input).toHaveValue(defaultInvitation);
-  });
-
-  it('should allow textfield icon to copy link', async () => {
-    await openedInvitationModal();
-    const copy = await screen.findByTestId('textfield-action-icon');
-    copy.click();
-    expect(copyToClipboard).toHaveBeenCalledWith(defaultInvitation);
-  });
-
-  it('should allow footer button to copy link', async () => {
-    await openedInvitationModal();
-    const copy = await screen.findByText('Copy invitation link');
-    copy.click();
-    expect(copyToClipboard).toHaveBeenCalledWith(defaultInvitation);
-  });
-
-  it('should close the modal when close button is clicked', async () => {
-    await openedInvitationModal();
-    const close = await screen.findByTitle('Close');
-    close.click();
-    const header = screen.queryByText('Invite more members to join');
-    await waitFor(() => expect(header).not.toBeInTheDocument());
+    expect(options.length).toEqual(defaultSquad.membersCount + COPY_ITEM);
   });
 });

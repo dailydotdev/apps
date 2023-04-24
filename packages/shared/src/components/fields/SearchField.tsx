@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import SearchIcon from '../icons/Search';
-import CloseIcon from '../icons/Close';
+import CloseIcon from '../icons/MiniClose';
 import ArrowIcon from '../icons/Arrow';
 import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
@@ -32,6 +32,7 @@ export interface SearchFieldProps
     | 'disabled'
     | 'readOnly'
     | 'aria-describedby'
+    | 'autoComplete'
   > {
   inputId: string;
   valueChanged?: (value: string) => void;

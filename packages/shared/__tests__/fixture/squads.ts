@@ -1,19 +1,17 @@
 import { GraphQLResult } from '../helpers/graphql';
 import { Edge } from '../../src/graphql/common';
-import { SourceType } from '../../src/graphql/sources';
 import {
-  Squad,
-  SquadData,
-  SquadEdgesData,
-  SquadMember,
-  SquadMemberRole,
-} from '../../src/graphql/squads';
+  SourceMember,
+  SourceMemberRole,
+  SourceType,
+} from '../../src/graphql/sources';
+import { Squad, SquadData, SquadEdgesData } from '../../src/graphql/squads';
 
 export const defaultSquadToken = 'ki3YLcxvSZ2Q6KgMBZvMbly1gnrZ6JnIrhTpUML-Hua';
 
-export const generateTestOwner = (
-  members: Edge<SquadMember>[] = [],
-): SquadMember => ({
+export const generateTestAdmin = (
+  members: Edge<SourceMember>[] = [],
+): SourceMember => ({
   user: {
     id: 'Se4LmwLU0q6aVDpX1MkqX',
     name: 'Lee Hansel Solevilla',
@@ -47,7 +45,7 @@ export const generateTestOwner = (
             },
             source: null,
             referralToken: defaultSquadToken,
-            role: SquadMemberRole.Owner,
+            role: SourceMemberRole.Admin,
           },
         },
         ...members,
@@ -55,14 +53,14 @@ export const generateTestOwner = (
     },
   },
   referralToken: defaultSquadToken,
-  role: SquadMemberRole.Owner,
+  role: SourceMemberRole.Admin,
 });
 
 export const generateMembersResult = (
-  members: Edge<SquadMember>[] = [
+  members: Edge<SourceMember>[] = [
     {
       node: {
-        role: 'owner',
+        role: SourceMemberRole.Admin,
         user: {
           id: 'F8G694HAObSoebZRzeKKa',
           name: 'Eliz Kılıç',
@@ -76,7 +74,7 @@ export const generateMembersResult = (
     },
     {
       node: {
-        role: 'member',
+        role: SourceMemberRole.Member,
         user: {
           id: 'LJSkpBexOSCWc8INyu3Eu',
           name: 'Ante Barić',
@@ -90,7 +88,7 @@ export const generateMembersResult = (
     },
     {
       node: {
-        role: 'member',
+        role: SourceMemberRole.Member,
         user: {
           id: 'QgTYreBqt',
           name: 'Francesco Ciulla',
@@ -104,7 +102,7 @@ export const generateMembersResult = (
     },
     {
       node: {
-        role: 'member',
+        role: SourceMemberRole.Member,
         user: {
           id: 'twmsvOCVr4s9JjlwIKGqI',
           name: 'Vas N',
@@ -118,7 +116,7 @@ export const generateMembersResult = (
     },
     {
       node: {
-        role: 'member',
+        role: SourceMemberRole.Member,
         user: {
           id: 'vqsMiP21barzohGfVjLFx',
           name: 'Hanzel',
@@ -141,7 +139,7 @@ export const generateMembersResult = (
 export const generateTestMember = (
   i: string | number,
   token = defaultSquadToken,
-): SquadMember => ({
+): SourceMember => ({
   user: {
     id: `Se4LmwLU0q6aVDpX1MkqX${i}`,
     name: `Lee Hansel Solevilla - ${i}`,
@@ -151,7 +149,7 @@ export const generateTestMember = (
   },
   source: null,
   referralToken: `${token}${i}`,
-  role: SquadMemberRole.Member,
+  role: SourceMemberRole.Member,
 });
 
 export const generateTestSquad = (props: Partial<Squad> = {}): Squad => ({
@@ -167,8 +165,11 @@ export const generateTestSquad = (props: Partial<Squad> = {}): Squad => ({
     'https://daily-now-res.cloudinary.com/image/upload/v1675848308/squads/343f82f0-85f0-4f10-a666-aa331d8d7a1b.png',
   membersCount: 12,
   currentMember: {
-    role: SquadMemberRole.Member,
+    role: SourceMemberRole.Member,
     referralToken: '3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8',
+    user: {
+      id: 'u1',
+    },
   },
   ...props,
 });
@@ -198,11 +199,11 @@ export const generateNotFoundSquadResult = (): GraphQLResult<SquadData> => ({
 });
 
 export const generateMembersList = (
-  members: Edge<SquadMember>[] = [],
-): Edge<SquadMember>[] => [
+  members: Edge<SourceMember>[] = [],
+): Edge<SourceMember>[] => [
   {
     node: {
-      role: 'owner',
+      role: SourceMemberRole.Admin,
       user: {
         id: 'F8G694HAObSoebZRzeKKa',
         name: 'Eliz Kılıç',
@@ -216,7 +217,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'LJSkpBexOSCWc8INyu3Eu',
         name: 'Ante Barić',
@@ -230,7 +231,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'QgTYreBqt',
         name: 'Francesco Ciulla',
@@ -244,7 +245,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'twmsvOCVr4s9JjlwIKGqI',
         name: 'Vas N',
@@ -258,7 +259,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'vqsMiP21barzohGfVjLFx',
         name: 'Hanzel',
@@ -272,7 +273,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'EEO0c1ol7u5IpOuykRZ1K',
         name: 'Sab',
@@ -286,7 +287,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'yRuVFf6IbfTylBjx9Dzvt',
         name: 'Denis Bolkovskis',
@@ -300,7 +301,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'IfGXaLUgpCHFaqiGEQQtp',
         name: 'Sabarinath Selvam',
@@ -314,7 +315,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'k7eIkWOKPsTKc2SLpUB6v',
         name: 'Deniz Gunsav',
@@ -328,7 +329,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'ab02e61b958d49d88c8420b431a4d91c',
         name: 'Lee Hansel Solevilla Jr',
@@ -342,7 +343,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: '5e0af68445e04c02b0656c3530664aff',
         name: 'Tsahi Matsliah',
@@ -356,7 +357,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: '28849d86070e4c099c877ab6837c61f0',
         name: 'Ido Shamun',
@@ -370,7 +371,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'JUNiIGCV-',
         name: 'Chris Bongers',

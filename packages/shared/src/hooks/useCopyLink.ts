@@ -9,6 +9,7 @@ type CopyNotifyFunctionProps = NotifyOptionalProps & {
 };
 
 const defaultMessage = '✅ Copied link to clipboard';
+const noLinkErrorMessage = '❌ Could not copy, link is missing';
 
 export type CopyNotifyFunction =
   | ((props?: CopyNotifyFunctionProps) => void)
@@ -21,9 +22,16 @@ export function useCopyLink(
   const { displayToast } = useToastNotification();
 
   const copy: CopyNotifyFunction = async (props = {}) => {
-    await navigator.clipboard.writeText(getLink());
+    const link = getLink();
+
+    if (link) {
+      await navigator.clipboard.writeText(link);
+      displayToast(props.message || defaultMessage, props);
+    } else {
+      displayToast(noLinkErrorMessage, props);
+    }
+
     setCopying(true);
-    displayToast(props.message || defaultMessage, props);
     setTimeout(() => {
       setCopying(false);
     }, 1000);

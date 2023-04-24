@@ -269,7 +269,8 @@ export default function CompanionMenu({
           parentSelector={getCompanionWrapper}
           onRequestClose={closeNewComment}
           onInputChange={onInput}
-          {...parentComment}
+          parentComment={parentComment}
+          post={post}
         />
       )}
       {sharePost && (

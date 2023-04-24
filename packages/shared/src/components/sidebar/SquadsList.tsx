@@ -1,25 +1,21 @@
 import React, { ReactElement } from 'react';
-import { Squad } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
 import DefaultSquadIcon from '../icons/DefaultSquad';
 import NewSquadIcon from '../icons/NewSquad';
 import { SquadImage } from '../squads/SquadImage';
 import { ClickableNavItem } from './ClickableNavItem';
 import { ItemInner, NavItem, SidebarMenuItem } from './common';
-import TimerIcon from '../icons/Timer';
 import { SectionCommonProps } from './Section';
 
 interface SquadsListProps extends SectionCommonProps {
   squads: Squad[];
   onNewSquad: () => void;
-  onOpenLockedSquad: (squad: Squad) => void;
 }
 
 export function SquadsList({
   activePage,
   squads,
   onNewSquad,
-  onOpenLockedSquad,
-  sidebarExpanded,
   shouldShowLabel,
 }: SquadsListProps): ReactElement {
   const newSquadMenuItem: SidebarMenuItem = {
@@ -31,7 +27,7 @@ export function SquadsList({
   return (
     <>
       {squads.map((squad) => {
-        const { handle, name, permalink, image, active } = squad;
+        const { handle, name, permalink, image } = squad;
         const menuItem: SidebarMenuItem = {
           icon: () =>
             image ? (
@@ -39,11 +35,8 @@ export function SquadsList({
             ) : (
               <DefaultSquadIcon />
             ),
-          rightIcon: () => sidebarExpanded && !active && <TimerIcon />,
           title: name,
-          ...(!active
-            ? { action: () => onOpenLockedSquad(squad) }
-            : { path: squad.permalink }),
+          path: squad.permalink,
         };
         const isActive = permalink.endsWith(activePage);
         return (

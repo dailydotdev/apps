@@ -15,31 +15,12 @@ export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["article", "share"
 
 export const FEED_POST_FRAGMENT = gql`
   fragment FeedPost on Post {
-    id
-    title
-    createdAt
-    image
-    readTime
-    source {
-      ...SourceShortInfo
-    }
+    ...SharedPostInfo
     sharedPost {
       ...SharedPostInfo
     }
-    permalink
-    numComments
-    numUpvotes
-    commentsPermalink
-    scout {
-      ...UserShortInfo
-    }
-    author {
-      ...UserShortInfo
-    }
     trending
-    tags
-    type
-    private
+    feedMeta
   }
   ${SHARED_POST_INFO_FRAGMENT}
 `;

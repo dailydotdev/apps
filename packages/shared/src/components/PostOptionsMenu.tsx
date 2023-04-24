@@ -10,7 +10,7 @@ import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import RepostPostModal from './modals/ReportPostModal';
+import ReportPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -24,6 +24,7 @@ import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
+import { usePostMenuActions } from '../hooks/usePostMenuActions';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -32,13 +33,12 @@ const PortalMenu = dynamic(
   },
 );
 
-interface PostOptionsMenuProps extends ShareBookmarkProps {
+export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
   feedName?: string;
   onHidden?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
-  setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
   contextId?: string;
 }
@@ -58,7 +58,6 @@ export default function PostOptionsMenu({
   feedName,
   onHidden,
   onRemovePost,
-  setShowDeletePost,
   setShowBanPost,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
@@ -92,9 +91,18 @@ export default function PostOptionsMenu({
       await undo?.();
       client.invalidateQueries(generateQueryKey(feedName, user));
     };
-    displayToast(message, { subject: ToastSubject.Feed, onUndo });
+    displayToast(message, {
+      subject: ToastSubject.Feed,
+      onUndo: undo !== null ? onUndo : null,
+    });
     onRemovePost?.(_postIndex);
   };
+  const { onConfirmDeletePost } = usePostMenuActions({
+    post,
+    postIndex,
+    onPostDeleted: ({ index }) =>
+      showMessageAndRemovePost('The post has been deleted', index, null),
+  });
 
   const onReportPost: ReportPostAsync = async (
     reportPostIndex,
@@ -223,11 +231,11 @@ export default function PostOptionsMenu({
     text: 'Report',
     action: async () => setReportModal({ index: postIndex, post }),
   });
-  if (setShowDeletePost) {
+  if (onConfirmDeletePost) {
     postOptions.push({
       icon: <MenuIcon Icon={TrashIcon} />,
-      text: 'Remove',
-      action: setShowDeletePost,
+      text: 'Delete post',
+      action: onConfirmDeletePost,
     });
   }
   if (setShowBanPost) {
@@ -255,7 +263,7 @@ export default function PostOptionsMenu({
         ))}
       </PortalMenu>
       {reportModal && (
-        <RepostPostModal
+        <ReportPostModal
           isOpen={!!reportModal}
           postIndex={reportModal.index}
           post={reportModal.post}

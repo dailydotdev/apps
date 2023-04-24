@@ -9,6 +9,16 @@ import SquadMemberShortList, {
   SquadMemberShortListProps,
 } from './SquadMemberShortList';
 import { IconSize } from '../Icon';
+import FeedbackIcon from '../icons/Feedback';
+import { squadFeedback } from '../../lib/constants';
+import AddUserIcon from '../icons/AddUser';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { Origin } from '../../lib/analytics';
+import { useTutorial, TutorialKey } from '../../hooks/useTutorial';
+import TutorialGuide from '../tutorial/TutorialGuide';
+import { TourScreenIndex } from './SquadTour';
+import { useSquadTour } from '../../hooks/useSquadTour';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -21,38 +31,76 @@ export function SquadHeaderBar({
   members,
   memberCount,
   className,
-  onNewSquadPost,
   ...props
 }: SquadHeaderBarProps): ReactElement {
+  const { tourIndex } = useSquadTour();
+  const { copying, trackAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadPage,
+  });
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
+  const { sidebarRendered } = useSidebarRendered();
+
+  const copyLinkTutorial = useTutorial({
+    key: TutorialKey.CopySquadLink,
+  });
 
   return (
     <div
       {...props}
-      className={classNames(
-        'flex flex-row flex-wrap justify-center items-center gap-4 w-full',
-        className,
-      )}
+      className={classNames('flex flex-row gap-4 h-fit', className)}
     >
-      <SquadMemberShortList
-        squad={squad}
-        members={members}
-        memberCount={memberCount}
-      />
-      <SimpleTooltip placement="top" content="Squad options">
+      <div
+        className={classNames(
+          'relative',
+          copyLinkTutorial.isActive && 'laptop:m-0 mb-14 tablet:mb-10',
+        )}
+      >
         <Button
-          className="tablet:order-2 btn btn-secondary"
-          icon={<MenuIcon size={IconSize.Small} />}
-          onClick={onMenuClick}
-          aria-label="Squad options"
+          className={classNames(
+            'btn-primary',
+            tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
+          )}
+          onClick={() => {
+            trackAndCopyLink();
+
+            copyLinkTutorial.complete();
+          }}
+          icon={<AddUserIcon />}
+          disabled={copying}
+        >
+          Copy invitation link
+        </Button>
+        {copyLinkTutorial.isActive && (
+          <TutorialGuide className="absolute -bottom-16 laptop:-bottom-14 left-22">
+            Invite your first members
+          </TutorialGuide>
+        )}
+      </div>
+      {sidebarRendered && (
+        <SquadMemberShortList
+          squad={squad}
+          members={members}
+          memberCount={memberCount}
+        />
+      )}
+      <SimpleTooltip placement="top" content="Feedback">
+        <Button
+          tag="a"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`}
+          className="btn-secondary"
+          icon={<FeedbackIcon size={IconSize.Small} />}
         />
       </SimpleTooltip>
-      <Button
-        className="w-full mobileL:max-w-[18rem] tablet:w-fit btn btn-primary"
-        onClick={onNewSquadPost}
-      >
-        Create new post
-      </Button>
+      <SimpleTooltip placement="top" content="Squad options">
+        <Button
+          className="btn-secondary"
+          icon={<MenuIcon size={IconSize.Small} />}
+          onClick={onMenuClick}
+        />
+      </SimpleTooltip>
       <SquadHeaderMenu squad={squad} />
     </div>
   );

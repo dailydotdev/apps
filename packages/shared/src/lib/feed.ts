@@ -26,6 +26,7 @@ interface FeedItemAnalyticsEvent extends AnalyticsEvent {
   feed_grid_columns?: number;
   feed_item_grid_column?: number;
   feed_item_grid_row?: number;
+  feed_item_meta?: string;
   feed_item_image: string;
   feed_item_target_url: string;
   feed_item_title: string;
@@ -101,6 +102,7 @@ export function postAnalyticsEvent(
     feed_item_image: post.image,
     feed_item_target_url: post.permalink,
     feed_item_title: post.title,
+    feed_item_meta: (post as Post).feedMeta,
     post_author_id: post.author?.id,
     post_scout_id: post.scout?.id,
     post_created_at: post.createdAt,

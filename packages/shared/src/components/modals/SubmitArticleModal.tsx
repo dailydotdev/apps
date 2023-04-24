@@ -23,7 +23,7 @@ import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../hooks/useEnableNotification';
+import { NotificationPromptSource } from '../../lib/analytics';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -220,6 +220,7 @@ export default function SubmitArticleModal({
             <TextField
               autoFocus
               type="url"
+              autoComplete="off"
               leftIcon={<LinkIcon />}
               fieldType="tertiary"
               name="articleUrl"

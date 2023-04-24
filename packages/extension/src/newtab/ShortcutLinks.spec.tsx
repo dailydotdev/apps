@@ -119,7 +119,13 @@ const renderComponent = (bootData = defaultBootData): RenderResult => {
   mocked(getBootData).mockResolvedValue(getBootMock(bootData));
   return render(
     <QueryClientProvider client={queryClient}>
-      <BootDataProvider app={app} getRedirectUri={jest.fn()}>
+      <BootDataProvider
+        app={app}
+        getRedirectUri={jest.fn()}
+        version="pwa"
+        deviceId="123"
+        getPage={jest.fn()}
+      >
         <ShortcutLinks />
       </BootDataProvider>
     </QueryClientProvider>,

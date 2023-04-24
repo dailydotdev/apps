@@ -1,7 +1,7 @@
 import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
-import { Source } from './sources';
+import { Source, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
@@ -37,7 +37,7 @@ export interface Post {
   createdAt?: string;
   readTime?: number;
   tags?: string[];
-  source?: Source;
+  source?: Source | Squad;
   upvoted?: boolean;
   commented?: boolean;
   commentsPermalink: string;
@@ -60,6 +60,7 @@ export interface Post {
   sharedPost?: SharedPost;
   type: PostType;
   private?: boolean;
+  feedMeta?: string;
 }
 
 export interface Ad {
@@ -76,6 +77,8 @@ export interface Ad {
 }
 
 export interface ParentComment {
+  handle?: string;
+  authorId?: string;
   authorName: string;
   authorImage: string;
   publishDate: Date | string;
@@ -127,34 +130,20 @@ export interface PostUpvote extends Upvote {
 export const POST_BY_ID_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
-      id
-      title
-      permalink
-      image
-      placeholder
-      createdAt
-      readTime
-      tags
-      bookmarked
+      ...SharedPostInfo
       trending
-      upvoted
-      commented
-      private
-      commentsPermalink
-      numUpvotes
-      numComments
       views
       sharedPost {
         ...SharedPostInfo
       }
       source {
-        ...SourceShortInfo
-      }
-      scout {
-        ...UserShortInfo
-      }
-      author {
-        ...UserShortInfo
+        ...SourceBaseInfo
+        privilegedMembers {
+          user {
+            id
+          }
+          role
+        }
       }
       description
       summary
@@ -162,7 +151,6 @@ export const POST_BY_ID_QUERY = gql`
         text
         id
       }
-      type
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -198,6 +186,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       createdAt
       readTime
       tags
+      private
       commentsPermalink
       numUpvotes
       numComments
@@ -423,3 +412,43 @@ export const getLatestChangelogPost = async (): Promise<Post> => {
 
   return feedData?.page?.edges?.[0]?.node;
 };
+
+export const POST_BY_URL_QUERY = gql`
+  query PostByUrl($url: String!) {
+    postByUrl(url: $url) {
+      ...SharedPostInfo
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const getPostByUrl = async (url: string): Promise<Post> => {
+  const res = await request(graphqlUrl, POST_BY_URL_QUERY, { url });
+
+  return res.postByUrl;
+};
+
+export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
+  mutation SubmitExternalLink(
+    $sourceId: ID!
+    $url: String!
+    $commentary: String!
+  ) {
+    submitExternalLink(
+      url: $url
+      sourceId: $sourceId
+      commentary: $commentary
+    ) {
+      _
+    }
+  }
+`;
+
+interface SubmitExternalLink {
+  url: string;
+  sourceId: string;
+  commentary: string;
+}
+
+export const submitExternalLink = (params: SubmitExternalLink): Promise<Post> =>
+  request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);

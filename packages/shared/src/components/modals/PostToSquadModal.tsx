@@ -2,19 +2,22 @@ import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { LazyModalCommonProps, Modal } from './common/Modal';
-import { addPostToSquad, Squad, SquadForm } from '../../graphql/squads';
-import { SquadComment } from '../squads/Comment';
-import { ModalHeaderKind, ModalStep } from './common/types';
-import { Post } from '../../graphql/posts';
+import { addPostToSquad, SquadForm } from '../../graphql/squads';
+import { Squad } from '../../graphql/sources';
+import { SquadComment, SubmitSharePostFunc } from '../squads/Comment';
+import { ModalStep } from './common/types';
+import { Post, submitExternalLink } from '../../graphql/posts';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
+import { isNullOrUndefined } from '../../lib/func';
 
 export interface PostToSquadModalProps extends LazyModalCommonProps {
   squad: Squad;
   post?: Post;
+  url?: string;
   onSharedSuccessfully?: (post: Post) => void;
   requestMethod?: typeof request;
 }
@@ -32,10 +35,13 @@ function PostToSquadModal({
   onRequestClose,
   isOpen,
   post,
+  url,
   squad,
   requestMethod = request,
   ...props
 }: PostToSquadModalProps): ReactElement {
+  const isLink = !isNullOrUndefined(url);
+  const shouldSkipHistory = isLink || post;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
@@ -45,31 +51,44 @@ function PostToSquadModal({
     file: squad.image,
     handle: squad.handle,
     buttonText: 'Done',
+    url,
   });
+
+  const onPostSuccess = async (squadPost?: Post) => {
+    if (squadPost) onSharedSuccessfully?.(squadPost);
+
+    displayToast(
+      isLink
+        ? 'This post is being processed and will be shared with your Squad shortly'
+        : 'This post has been shared to your Squad',
+    );
+
+    await client.invalidateQueries(['sourceFeed', user.id]);
+    onRequestClose(null);
+  };
 
   const { mutateAsync: onPost, isLoading } = useMutation(
     addPostToSquad(requestMethod),
+    { onSuccess: onPostSuccess },
+  );
+
+  const { mutateAsync: onSubmitLink, isLoading: isLinkLoading } = useMutation(
+    submitExternalLink,
     {
-      onSuccess: async (squadPost) => {
-        if (squadPost || requestMethod !== request) {
-          displayToast('This post has been shared to your squad');
-          await client.invalidateQueries(['sourceFeed', user.id]);
-          onSharedSuccessfully?.(squadPost);
-          onRequestClose(null);
-        }
-      },
+      onSuccess: (submittedLinkPost) => onPostSuccess(submittedLinkPost),
     },
   );
 
-  const onSubmit = async (
-    e?: React.MouseEvent | React.KeyboardEvent,
-    commentary?: string,
-  ) => {
+  const onSubmit: SubmitSharePostFunc = async (e, commentary, postLink) => {
     e?.preventDefault();
 
-    if (isLoading) return;
+    if (isLoading) return null;
 
-    await onPost({
+    if (isLink) {
+      return onSubmitLink({ url: postLink, sourceId: squad.id, commentary });
+    }
+
+    return onPost({
       id: form.post.post.id,
       sourceId: squad.id,
       commentary: commentary ?? e?.target[0].value,
@@ -98,9 +117,16 @@ function PostToSquadModal({
       steps={post ? undefined : modalSteps}
       {...props}
     >
-      <Modal.Header title="Share post" kind={ModalHeaderKind.Tertiary} />
-      {post ? (
-        <SquadComment form={form} onSubmit={onSubmit} isLoading={isLoading} />
+      <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
+      {shouldSkipHistory ? (
+        <SquadComment
+          form={form}
+          onSubmit={onSubmit}
+          isLoading={isLoading || isLinkLoading}
+          onUpdateForm={(postByUrl) =>
+            setForm((value) => ({ ...value, post: { post: postByUrl } }))
+          }
+        />
       ) : (
         <>
           <SquadSelectArticle {...stateProps} />

@@ -12,12 +12,12 @@ export enum Origin {
   NonRealTime = 'nonrealtime',
   // squads - start
   SquadCreation = 'squad creation',
-  LockedSquad = 'locked squad',
   SquadPage = 'squad page',
   Auto = 'auto',
   Sidebar = 'sidebar',
   Share = 'share',
   Notification = 'notification',
+  SquadMembersList = 'squad members list',
   // squads - end
 }
 
@@ -54,8 +54,6 @@ export enum AnalyticsEvent {
   ViewSquadPage = 'view squad page',
   ViewSquadForbiddenPage = 'view squad forbidden',
   CompleteSquadCreation = 'complete squad creation',
-  ClickSquadCreationNext = 'click squad creation next',
-  ClickSquadCreationBack = 'click squad creation back',
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
   // squads - end
@@ -83,4 +81,12 @@ export enum NotificationTarget {
   Header = 'header',
   Footer = 'footer',
   Icon = 'notifications icon',
+}
+
+export enum NotificationPromptSource {
+  NotificationsPage = 'notifications page',
+  NewComment = 'new comment',
+  CommunityPicks = 'community picks modal',
+  NewSourceModal = 'new source modal',
+  SquadPage = 'squad page',
 }
