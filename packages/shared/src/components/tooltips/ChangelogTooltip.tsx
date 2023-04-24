@@ -109,7 +109,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
           >
             <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
               <h3
-                className="ml-2 font-bold typo-title3 text-theme-label-primary"
+                className="font-bold typo-title3 text-theme-label-primary"
                 data-testid="changelogNewReleaseTag"
               >
                 New release
