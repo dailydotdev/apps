@@ -119,9 +119,10 @@ function PostEngagements({
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
+          parentComment={parentComment}
           onRequestClose={closeNewComment}
-          {...parentComment}
           onComment={onComment}
+          post={post}
         />
       )}
       {showShareNewComment && (

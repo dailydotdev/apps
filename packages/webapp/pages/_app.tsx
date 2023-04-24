@@ -25,7 +25,6 @@ import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/Onbo
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
@@ -80,11 +79,27 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useTrackPageView();
   useInAppNotification();
-  useLazyModal();
+  const { modal, closeModal } = useLazyModal();
   usePrompt();
   useEffect(() => {
     updateCookieBanner(user);
   }, [user]);
+
+  useEffect(() => {
+    if (!modal) {
+      return undefined;
+    }
+
+    const onBeforeHistoryChange = () => {
+      closeModal();
+    };
+
+    router.events.on('beforeHistoryChange', onBeforeHistoryChange);
+
+    return () => {
+      router.events.off('beforeHistoryChange', onBeforeHistoryChange);
+    };
+  }, [modal, closeModal, router.events]);
 
   const getLayout =
     (Component as ComponentGetLayout).getLayout || ((page) => page);
@@ -169,18 +184,17 @@ export default function App(props: AppProps): ReactElement {
   return (
     <ProgressiveEnhancementContextProvider>
       <QueryClientProvider client={queryClient}>
-        <BootDataProvider app={BootApp.Webapp} getRedirectUri={getRedirectUri}>
+        <BootDataProvider
+          app={BootApp.Webapp}
+          getRedirectUri={getRedirectUri}
+          getPage={getPage}
+          version={version}
+          deviceId={deviceId}
+        >
           <SubscriptionContextProvider>
-            <AnalyticsContextProvider
-              app={BootApp.Webapp}
-              version={version}
-              getPage={getPage}
-              deviceId={deviceId}
-            >
-              <OnboardingContextProvider>
-                <InternalApp {...props} />
-              </OnboardingContextProvider>
-            </AnalyticsContextProvider>
+            <OnboardingContextProvider>
+              <InternalApp {...props} />
+            </OnboardingContextProvider>
           </SubscriptionContextProvider>
         </BootDataProvider>
         <ReactQueryDevtools />

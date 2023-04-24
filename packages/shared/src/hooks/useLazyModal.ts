@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { LazyModalType, ModalsType } from '../components/modals/common';
 
@@ -18,8 +18,14 @@ export function useLazyModal<
   const { data: modal } = useQuery<T>(MODAL_KEY, () =>
     client.getQueryData<T>(MODAL_KEY),
   );
-  const openModal = (data: T) => client.setQueryData(MODAL_KEY, data);
-  const closeModal = () => client.setQueryData(MODAL_KEY, null);
+  const openModal = useCallback(
+    (data: T) => client.setQueryData(MODAL_KEY, data),
+    [client],
+  );
+  const closeModal = useCallback(
+    () => client.setQueryData(MODAL_KEY, null),
+    [client],
+  );
 
   return useMemo(
     () => ({
@@ -27,6 +33,6 @@ export function useLazyModal<
       closeModal,
       modal,
     }),
-    [modal],
+    [openModal, closeModal, modal],
   );
 }

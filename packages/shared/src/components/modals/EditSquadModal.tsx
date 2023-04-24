@@ -4,7 +4,6 @@ import { LazyModalCommonProps, Modal } from './common/Modal';
 import { editSquad } from '../../graphql/squads';
 import { Squad } from '../../graphql/sources';
 import { SquadDetails } from '../squads/Details';
-import { ModalHeaderKind } from './common/types';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useBoot } from '../../hooks/useBoot';
 
@@ -28,6 +27,7 @@ function EditSquadModal({
       description: form.description,
       handle: form.handle,
       file: form.file,
+      memberPostingRole: form.memberPostingRole,
     };
     const editedSquad = await editSquad(squad.id, formJson);
     if (editedSquad) {
@@ -46,7 +46,7 @@ function EditSquadModal({
       size={Modal.Size.Small}
       onRequestClose={onRequestClose}
     >
-      <Modal.Header title="Squad details" kind={ModalHeaderKind.Tertiary} />
+      <Modal.Header title="Squad settings" />
       <SquadDetails form={squad} onSubmit={onSubmit} createMode={false} />
     </Modal>
   );

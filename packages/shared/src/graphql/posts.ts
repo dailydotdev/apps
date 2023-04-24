@@ -77,6 +77,8 @@ export interface Ad {
 }
 
 export interface ParentComment {
+  handle?: string;
+  authorId?: string;
   authorName: string;
   authorImage: string;
   publishDate: Date | string;
@@ -133,6 +135,15 @@ export const POST_BY_ID_QUERY = gql`
       views
       sharedPost {
         ...SharedPostInfo
+      }
+      source {
+        ...SourceBaseInfo
+        privilegedMembers {
+          user {
+            id
+          }
+          role
+        }
       }
       description
       summary

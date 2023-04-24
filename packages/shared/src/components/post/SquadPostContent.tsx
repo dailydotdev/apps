@@ -24,6 +24,8 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { sendViewPost } from '../../graphql/posts';
+import SquadMemberBadge from '../squads/SquadMemberBadge';
+import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 
 function SquadPostContent({
   post,
@@ -48,6 +50,10 @@ function SquadPostContent({
   const [shouldShowSummary, setShouldShowSummary] = useState(true);
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onSharePost, onToggleBookmark } = engagementActions;
+  const { role } = useMemberRoleForSource({
+    source: post?.source,
+    user: post?.author,
+  });
 
   const navigationProps: PostNavigationProps = {
     post,
@@ -124,7 +130,10 @@ function SquadPostContent({
               link={{ href: post.author.permalink }}
             >
               <a className="flex flex-col ml-4">
-                <span className="font-bold">{post.author.name}</span>
+                <div className="flex items-center">
+                  <span className="font-bold">{post.author.name}</span>
+                  <SquadMemberBadge key="squadMemberRole" role={role} />
+                </div>
                 <span className="text-theme-label-tertiary">
                   @{post.author.username}
                 </span>

@@ -25,21 +25,22 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import {
-  generateTestSquad,
   generateForbiddenSquadResult,
-  generateNotFoundSquadResult,
-  generateMembersResult,
   generateMembersList,
+  generateMembersResult,
+  generateNotFoundSquadResult,
+  generateTestSquad,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
-  SquadData,
-  SquadEdgesData,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
+  SquadData,
+  SquadEdgesData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
-  Squad,
   SourceMemberRole,
+  SourcePermissions,
+  Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
@@ -48,6 +49,7 @@ import SquadPage from '../pages/squads/[handle]';
 
 const showLogin = jest.fn();
 const defaultSquad = generateTestSquad();
+let requestedSquad: Partial<Squad> = {};
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
@@ -63,6 +65,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  requestedSquad = {};
 });
 
 const createFeedMock = (
@@ -90,7 +93,9 @@ const createSourceMock = (
   handle = 'sample',
   request: Partial<Squad> = {},
   result: GraphQLResult<SquadData> = {
-    data: { source: generateTestSquad({ ...request, handle }) },
+    data: {
+      source: generateTestSquad({ ...request, ...requestedSquad, handle }),
+    },
   },
 ): MockedGraphQLResponse<SquadData> => ({
   request: {
@@ -277,33 +282,70 @@ describe('squad header bar', () => {
 });
 
 describe('squad members modal', () => {
+  const COPY_ITEM = 1;
   const openedMembersModal = async (members = generateMembersList()) => {
     renderComponent();
     const result = generateMembersResult(members);
-    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id }));
+    mockGraphQL(
+      createSourceMembersMock(result, { id: defaultSquad.id, role: null }),
+    );
     const trigger = await screen.findByLabelText('Members list');
     trigger.click();
     await screen.findByText('Squad members');
     return members;
   };
 
-  it('should show the owner on top of the list', async () => {
+  it('should show the admin on top of the list', async () => {
     const fullMembers = await openedMembersModal();
     const [first] = fullMembers;
-    expect(first.node.role).toEqual(SourceMemberRole.Owner);
-    const owner = await screen.findByText('Owner');
-    expect(owner).toHaveAttribute('data-testvalue', first.node.user.username);
+    expect(first.node.role).toEqual(SourceMemberRole.Admin);
   });
 
   it('should show all members of the squad', async () => {
     await openedMembersModal();
     const list = await screen.findByLabelText('users-list');
-    expect(list.childNodes.length).toBeGreaterThan(defaultSquad.membersCount);
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+  });
+
+  it('should show not show blocked members tab when only a member', async () => {
+    await openedMembersModal();
+    const list = await screen.findByLabelText('users-list');
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+    const blocked = screen.queryByText('Blocked members');
+    expect(blocked).not.toBeInTheDocument();
+  });
+
+  it('should show all blocked members of the squad when privileged', async () => {
+    requestedSquad.currentMember = {
+      role: SourceMemberRole.Admin,
+      permissions: [SourcePermissions.ViewBlockedMembers],
+    };
+    await openedMembersModal();
+    const list = await screen.findByLabelText('users-list');
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+    const members = generateMembersList();
+    const role = SourceMemberRole.Blocked;
+    members.forEach((member) => {
+      // eslint-disable-next-line no-param-reassign
+      member.node.role = role;
+    });
+    const result = generateMembersResult(members);
+    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id, role }));
+    const blocked = await screen.findByText('Blocked members');
+    blocked.click();
+    const unblocks = await screen.findAllByLabelText('Unblock');
+    expect(unblocks.length).toEqual(members.length);
   });
 
   it('should show options button to all members', async () => {
     await openedMembersModal();
     const options = await screen.findAllByLabelText('Member options');
-    expect(options.length).toEqual(defaultSquad.membersCount);
+    expect(options.length).toEqual(defaultSquad.membersCount + COPY_ITEM);
   });
 });
