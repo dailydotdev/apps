@@ -29,7 +29,6 @@ export function useInputField<T extends ValidInputElement = HTMLInputElement>(
 
   const setInput = (newValue: string): void => {
     inputRef.current.value = newValue;
-    inputRef.current.dispatchEvent(new Event('input', { bubbles: true }));
   };
 
   useEffect(() => {
