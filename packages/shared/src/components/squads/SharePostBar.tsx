@@ -1,29 +1,25 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { useMutation } from 'react-query';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { getPostByUrl } from '../../graphql/posts';
-import { ApiError, ApiErrorResult } from '../../graphql/common';
 import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
+import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
-  'url' | 'post' | 'onSharedSuccessfully'
+  'preview' | 'onSharedSuccessfully'
 >;
 
-interface SharePostBarProps {
+export interface SharePostBarProps {
   className?: string;
-  onNewSquadPost?: (props?: NewSquadPostProps) => void;
+  onNewSquadPost?: (props?: NewSquadPostProps) => Promise<null>;
   disabled?: boolean;
 }
-
-const allowedSubmissionErrors = [ApiError.NotFound, ApiError.Forbidden];
 
 function SharePostBar({
   className,
@@ -32,26 +28,22 @@ function SharePostBar({
 }: SharePostBarProps): ReactElement {
   const [url, setUrl] = useState('');
   const onSharedSuccessfully = () => setUrl('');
-  const { mutateAsync: getPost } = useMutation(getPostByUrl, {
-    onSuccess: (post) => {
-      onNewSquadPost({ post, onSharedSuccessfully });
-    },
-    onError: (err: ApiErrorResult, link) => {
-      if (
-        link === '' ||
-        allowedSubmissionErrors.includes(
-          err?.response?.errors?.[0].extensions.code,
-        )
-      ) {
-        onNewSquadPost({ url, onSharedSuccessfully });
-      }
+  const { getLinkPreview, isLoadingPreview } = usePostToSquad({
+    onEmptyUrl: () => onNewSquadPost({ preview: { url: '' } }),
+    callback: {
+      onSuccess: (preview, link) =>
+        onNewSquadPost({
+          preview: { ...preview, url: link },
+          onSharedSuccessfully,
+        }),
     },
   });
+
   const { user } = useAuthContext();
   const { sidebarRendered } = useSidebarRendered();
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await getPost(url);
+    await getLinkPreview(url);
   };
 
   if (disabled) {
@@ -104,6 +96,8 @@ function SharePostBar({
         type="submit"
         buttonSize={ButtonSize.Medium}
         className="order-3 tablet:order-4 mx-3 btn-primary-cabbage"
+        disabled={isLoadingPreview}
+        loading={isLoadingPreview}
       >
         Post
       </Button>
