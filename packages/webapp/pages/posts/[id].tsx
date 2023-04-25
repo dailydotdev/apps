@@ -109,7 +109,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     },
   };
 
-  console.log(initialData, post);
   const seoComponent = <NextSeo {...seo} />;
 
   useScrollTopOffset(() => globalThis.window, {
