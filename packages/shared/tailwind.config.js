@@ -40,6 +40,7 @@ module.exports = {
             primary: 'var(--theme-mention)',
             hover: 'var(--theme-mention-hover)',
           },
+          'cabbage-opacity-24': 'var(--theme-background-cabbage-opacity-24)',
         },
         label: {
           primary: 'var(--theme-label-primary)',

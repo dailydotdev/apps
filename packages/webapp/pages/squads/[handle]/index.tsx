@@ -37,6 +37,7 @@ import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import { NewSquadPostProps } from '@dailydotdev/shared/src/components/squads/SharePostBar';
+import { ChecklistCard } from '@dailydotdev/shared/src/components/ChecklistCard';
 import {
   useTutorial,
   TutorialKey,
@@ -179,6 +180,38 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           members={squadMembers}
           onNewSquadPost={onNewSquadPost}
           hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
+        />
+        <ChecklistCard
+          className="fixed right-5 bottom-5 z-3"
+          steps={[
+            {
+              action: {
+                userId: '1',
+                id: 'action1',
+                dateCompleted: new Date(),
+              },
+              title: 'Create a squad',
+              description: 'Create a squad to share posts with your friends',
+            },
+            {
+              action: {
+                userId: '1',
+                id: 'action2',
+                dateCompleted: null,
+              },
+              title: 'Invite your friends',
+              description: 'Invite your friends to join your squad',
+            },
+            {
+              action: {
+                userId: '1',
+                id: 'action3',
+                dateCompleted: null,
+              },
+              title: 'Share your first post',
+              description: 'Share your first post with your squad',
+            },
+          ]}
         />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"

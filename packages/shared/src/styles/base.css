@@ -52,6 +52,7 @@ body {
   --theme-background-bun: theme('colors.bun.80');
   --theme-background-onion: theme('colors.onion.80');
   --theme-background-pepper: theme('colors.pepper.20');
+  --theme-background-cabbage-opacity-24: theme('colors.cabbage.50')24;
 
   --theme-label-primary: #ffffff;
   --theme-label-secondary: theme('colors.salt.50');
@@ -166,6 +167,7 @@ body {
   --theme-background-bun: theme('colors.bun.20');
   --theme-background-onion: theme('colors.onion.20');
   --theme-background-pepper: theme('colors.pepper.20');
+  --theme-background-cabbage-opacity-24: theme('colors.cabbage.50')24;
 
   --theme-label-primary: theme('colors.pepper.90');
   --theme-label-secondary: theme('colors.pepper.50');
