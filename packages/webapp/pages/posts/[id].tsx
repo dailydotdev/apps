@@ -42,7 +42,6 @@ import { modalSizeToClassName } from '@dailydotdev/shared/src/components/modals/
 import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/types';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import classNames from 'classnames';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
@@ -123,7 +122,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   if (isPostLoadingOrFetching || isFallback || !isFetched) {
     return (
       <>
-        {!isNullOrUndefined(post?.title) && seoComponent}
+        {post?.title?.length && seoComponent}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
     );
