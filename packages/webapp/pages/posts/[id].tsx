@@ -42,6 +42,7 @@ import { modalSizeToClassName } from '@dailydotdev/shared/src/components/modals/
 import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/types';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import classNames from 'classnames';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
@@ -109,6 +110,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     },
   };
 
+  console.log(initialData, post);
   const seoComponent = <NextSeo {...seo} />;
 
   useScrollTopOffset(() => globalThis.window, {
@@ -121,7 +123,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   if (isPostLoadingOrFetching || isFallback || !isFetched) {
     return (
       <>
-        {seoComponent}
+        {!isNullOrUndefined(post?.title) && seoComponent}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
     );
