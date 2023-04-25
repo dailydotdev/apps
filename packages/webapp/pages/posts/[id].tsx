@@ -121,7 +121,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   if (isPostLoadingOrFetching || isFallback || !isFetched) {
     return (
       <>
-        {seoComponent}
+        {post?.title?.length && seoComponent}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
     );
