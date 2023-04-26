@@ -2,13 +2,14 @@ import { useMemo, useState } from 'react';
 import { webappUrl } from '../lib/constants';
 import usePersistentContext from './usePersistentContext';
 import useWindowEvents, { MessageEventData } from './useWindowEvents';
+import { NotificationPromptSource } from '../lib/analytics';
 
 export interface PermissionEvent extends MessageEventData {
   permission: NotificationPermission;
 }
 
 export interface UseNotificationPermissionPopup {
-  onOpenPopup?: () => void;
+  onOpenPopup?: (source: NotificationPromptSource) => void;
   onPermissionCache?: (permission: NotificationPermission) => void;
   onAcceptedPermissionJustNow: (state: boolean) => void;
   acceptedPermissionJustNow: boolean;
@@ -33,10 +34,10 @@ export const useNotificationPermissionPopup = ({
       'default',
     );
 
-  const onOpenPopup = () => {
+  const onOpenPopup = (source: NotificationPromptSource) => {
     const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=728,height=756,left=100,top=100`;
     window.open(
-      `${webappUrl}popup/notifications/enable`,
+      `${webappUrl}popup/notifications/enable?source=${source}`,
       'Enable notifications popup',
       params,
     );

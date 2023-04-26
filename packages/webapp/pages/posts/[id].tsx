@@ -108,6 +108,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       },
     },
   };
+
+  const seoComponent = <NextSeo {...seo} />;
+
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
     onUnderOffset: () => position !== 'relative' && setPosition('relative'),
@@ -115,12 +118,13 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (isPostLoadingOrFetching) {
-    return <PostLoadingSkeleton className={containerClass} type={post?.type} />;
-  }
-
-  if (isFallback || !isFetched) {
-    return <></>;
+  if (isPostLoadingOrFetching || isFallback || !isFetched) {
+    return (
+      <>
+        {post?.title?.length && seoComponent}
+        <PostLoadingSkeleton className={containerClass} type={post?.type} />
+      </>
+    );
   }
 
   const Content = CONTENT_MAP[post?.type];
@@ -141,7 +145,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
-      <NextSeo {...seo} />
+      {seoComponent}
       <Content
         position={position}
         post={post}

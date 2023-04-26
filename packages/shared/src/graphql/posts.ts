@@ -432,10 +432,14 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   mutation SubmitExternalLink(
     $sourceId: ID!
     $url: String!
+    $title: String
+    $image: String
     $commentary: String!
   ) {
     submitExternalLink(
       url: $url
+      title: $title
+      image: $image
       sourceId: $sourceId
       commentary: $commentary
     ) {
@@ -444,8 +448,33 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   }
 `;
 
-interface SubmitExternalLink {
-  url: string;
+export interface ExternalLinkPreview {
+  url?: string;
+  id?: string;
+  title: string;
+  image: string;
+}
+
+export const PREVIEW_LINK_MUTATION = gql`
+  mutation CheckLinkPreview($url: String!) {
+    checkLinkPreview(url: $url) {
+      id
+      title
+      image
+    }
+  }
+`;
+
+export const getExternalLinkPreview = async (
+  url: string,
+): Promise<ExternalLinkPreview> => {
+  const res = await request(graphqlUrl, PREVIEW_LINK_MUTATION, { url });
+
+  return res.checkLinkPreview;
+};
+
+interface SubmitExternalLink
+  extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
   sourceId: string;
   commentary: string;
 }

@@ -9,7 +9,7 @@ import {
   SourcePermissions,
   Squad,
 } from './sources';
-import { Post, PostItem } from './posts';
+import { Post, ExternalLinkPreview } from './posts';
 import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
 
@@ -17,10 +17,9 @@ export type SquadForm = Pick<
   Squad,
   'name' | 'handle' | 'description' | 'image'
 > & {
-  url?: string;
+  preview?: Partial<ExternalLinkPreview>;
   file?: string;
   commentary: string;
-  post: PostItem;
   buttonText?: string;
   memberPostingRole?: SourceMemberRole;
 };

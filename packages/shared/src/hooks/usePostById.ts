@@ -64,7 +64,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       isFetched,
       isPostLoadingOrFetching: (isLoading || isFetching) && !isRefetching,
     }),
-    [post?.post, isError, isFetched, isLoading, isFetching],
+    [post?.post, isError, isFetched, isLoading, isFetching, isRefetching],
   );
 };
 
