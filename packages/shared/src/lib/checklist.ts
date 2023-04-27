@@ -2,6 +2,8 @@ import { ReactElement } from 'react';
 
 export type ChecklistCardProps = {
   className?: string;
+  title: string;
+  description: string;
   steps: ChecklistStep[];
   onRequestClose?: () => void;
 };

@@ -8,6 +8,8 @@ import { ChecklistAction, ChecklistCardProps } from '../lib/checklist';
 
 const ChecklistCard = ({
   className,
+  title,
+  description,
   steps,
   onRequestClose,
 }: ChecklistCardProps): ReactElement => {
@@ -36,9 +38,9 @@ const ChecklistCard = ({
       <Card className="p-0 rounded-14 border-cabbage-40 hover:!border-cabbage-40 w-[340px] h-[458px]">
         <div className="p-4 rounded-t-14 bg-theme-bg-cabbage-opacity-24">
           <p className="mb-1 font-bold typo-body text-theme-label-primary">
-            Test
+            {title}
           </p>
-          <p className="text-salt-90 typo-callout">Description</p>
+          <p className="text-salt-90 typo-callout">{description}</p>
           <button
             className="absolute top-4 right-4 text-salt-90"
             type="button"

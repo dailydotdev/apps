@@ -183,6 +183,8 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         />
         <ChecklistCard
           className="fixed right-5 bottom-5 z-3"
+          title="Squads v5"
+          description="Use all of the new features"
           steps={[
             {
               action: {
