@@ -31,7 +31,8 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.NewSourceModal]: '',
   [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-6',
-  [NotificationPromptSource.SquadPostModal]: '',
+  [NotificationPromptSource.SquadPostModal]:
+    'laptop:rounded-16 laptop:rounded-bl-[0] laptop:rounded-br-[0]',
 };
 
 const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
@@ -134,7 +135,12 @@ function EnableNotification({
 
   if (source === NotificationPromptSource.SquadPostModal)
     return (
-      <span className="flex relative flex-row items-center p-3 w-full font-bold bg-gradient-to-r from-theme-color-water to-theme-color-onion typo-body">
+      <span
+        className={classNames(
+          'flex relative flex-row items-center p-3 w-full font-bold bg-gradient-to-r from-theme-color-water to-theme-color-onion typo-body',
+          containerClassName[source],
+        )}
+      >
         <BellNotifyIcon secondary className="mr-2" /> Never miss new posts from{' '}
         {label}
         <Button

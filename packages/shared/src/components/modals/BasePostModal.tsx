@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Modal, ModalProps } from './common/Modal';
 import styles from './BasePostModal.module.css';
@@ -29,7 +29,7 @@ function BasePostModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         className,
-        'mx-auto focus:outline-none overflow-hidden border border-theme-divider-secondary rounded-16 bg-theme-bg-primary',
+        'mx-auto focus:outline-none border border-theme-divider-secondary rounded-16 bg-theme-bg-primary',
       )}
     >
       {isLoading ? (
