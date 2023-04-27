@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 export type ChecklistCardProps = {
   className?: string;
@@ -26,6 +26,7 @@ export type ChecklistStepProps = {
   checked: boolean;
   active: boolean;
   onToggle: (action: ChecklistAction) => void;
+  children?: ReactNode;
 };
 
 export type ChecklistAction = {

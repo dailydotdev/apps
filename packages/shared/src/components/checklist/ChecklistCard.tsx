@@ -35,7 +35,7 @@ const ChecklistCard = ({
 
   return (
     <div className={className}>
-      <Card className="p-0 rounded-14 border-cabbage-40 hover:!border-cabbage-40 w-[340px] h-[458px]">
+      <Card className="p-0 rounded-14 border-cabbage-40 hover:!border-cabbage-40 w-[340px]">
         <div className="p-4 rounded-t-14 bg-theme-bg-cabbage-opacity-24">
           <p className="mb-1 font-bold typo-body text-theme-label-primary">
             {title}

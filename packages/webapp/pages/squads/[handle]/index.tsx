@@ -37,7 +37,7 @@ import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import { NewSquadPostProps } from '@dailydotdev/shared/src/components/squads/SharePostBar';
-import { ChecklistCard } from '@dailydotdev/shared/src/components/checklist/ChecklistCard';
+import { NewSquadAndSiteMemberChecklistCard } from '@dailydotdev/shared/src/components/checklist/NewSquadAndSiteMemberChecklistCard';
 import {
   useTutorial,
   TutorialKey,
@@ -181,43 +181,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           onNewSquadPost={onNewSquadPost}
           hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
         />
-        <ChecklistCard
-          className="fixed right-5 bottom-5 z-3"
-          title="Squads v5"
-          description="Use all of the new features"
-          steps={[
-            {
-              action: {
-                userId: '1',
-                type: 'action1',
-                dateCompleted: new Date(),
-              },
-              title: 'Create a squad',
-              description: 'Create a squad to share posts with your friends',
-            },
-            {
-              action: {
-                userId: '1',
-                type: 'action2',
-                dateCompleted: null,
-              },
-              title: 'Invite your friends',
-              description: 'Invite your friends to join your squad',
-            },
-            {
-              action: {
-                userId: '1',
-                type: 'action3',
-                dateCompleted: null,
-              },
-              title: 'Share your first post',
-              description: 'Share your first post with your squad',
-            },
-          ]}
-          onRequestClose={() => {
-            // hide this somehow
-          }}
-        />
+        <NewSquadAndSiteMemberChecklistCard squad={squad} />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
           feedName="source"

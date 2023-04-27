@@ -12,6 +12,7 @@ const ChecklistStep = ({
   checked = false,
   active = false,
   onToggle,
+  children,
 }: ChecklistStepProps): ReactElement => {
   const isCompleted = !!step.action.dateCompleted;
   const isOpen = !isCompleted && checked;
@@ -83,6 +84,7 @@ const ChecklistStep = ({
           >
             {step.description}
           </p>
+          {!!children && <div className="mt-4">{children}</div>}
         </div>
       )}
     </div>
