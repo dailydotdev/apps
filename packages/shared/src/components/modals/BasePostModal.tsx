@@ -19,7 +19,6 @@ function BasePostModal({
   loadingClassName,
   ...props
 }: BasePostModalProps): ReactElement {
-  console.log(className);
   return (
     <Modal
       size={Modal.Size.XLarge}
