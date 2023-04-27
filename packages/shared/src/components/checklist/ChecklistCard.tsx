@@ -1,10 +1,10 @@
 import React, { ReactElement, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { Card } from './cards/Card';
-import MiniCloseIcon from './icons/MiniClose';
-import { IconSize } from './Icon';
+import { Card } from '../cards/Card';
+import MiniCloseIcon from '../icons/MiniClose';
+import { IconSize } from '../Icon';
 import { ChecklistStep } from './ChecklistStep';
-import { ChecklistAction, ChecklistCardProps } from '../lib/checklist';
+import { ChecklistAction, ChecklistCardProps } from '../../lib/checklist';
 
 const ChecklistCard = ({
   className,

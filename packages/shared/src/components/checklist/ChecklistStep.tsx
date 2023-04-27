@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { IconSize } from './Icon';
-import ArrowIcon from './icons/Arrow';
-import { ChecklistStepProps } from '../lib/checklist';
-import { QuaternaryButton } from './buttons/QuaternaryButton';
-import ChecklistAIcon from './icons/ChecklistA';
+import { IconSize } from '../Icon';
+import ArrowIcon from '../icons/Arrow';
+import { ChecklistStepProps } from '../../lib/checklist';
+import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import ChecklistAIcon from '../icons/ChecklistA';
 
 const ChecklistStep = ({
   className = {},

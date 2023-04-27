@@ -37,7 +37,7 @@ import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import { NewSquadPostProps } from '@dailydotdev/shared/src/components/squads/SharePostBar';
-import { ChecklistCard } from '@dailydotdev/shared/src/components/ChecklistCard';
+import { ChecklistCard } from '@dailydotdev/shared/src/components/checklist/ChecklistCard';
 import {
   useTutorial,
   TutorialKey,
