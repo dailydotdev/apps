@@ -11,18 +11,10 @@
     z-index: 10;
   }
 
-  & :global(.post-modal) {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    border: none;
-  }
-
   & :global(.post-content) {
     @apply bg-theme-bg-primary;
 
     display: flex;
-    flex-direction: col;
     border: none;
     border-radius: 0;
     max-width: 100%;
@@ -35,7 +27,6 @@
     @screen laptop {
       height: unset;
       border-radius: 1rem;
-      border: 1px solid var(--theme-divider-secondary);
     }
   }
 }
