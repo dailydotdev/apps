@@ -41,13 +41,15 @@ const ChecklistCard = ({
             {title}
           </p>
           <p className="text-salt-90 typo-callout">{description}</p>
-          <button
-            className="absolute top-4 right-4 text-salt-90"
-            type="button"
-            onClick={onRequestClose}
-          >
-            <MiniCloseIcon size={IconSize.Small} />
-          </button>
+          {typeof onRequestClose === 'function' && (
+            <button
+              className="absolute top-4 right-4 text-salt-90"
+              type="button"
+              onClick={onRequestClose}
+            >
+              <MiniCloseIcon size={IconSize.Small} />
+            </button>
+          )}
           <div className="flex gap-2 mt-6">
             {steps.map((step) => {
               return (

@@ -214,6 +214,9 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
               description: 'Share your first post with your squad',
             },
           ]}
+          onRequestClose={() => {
+            // hide this somehow
+          }}
         />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
