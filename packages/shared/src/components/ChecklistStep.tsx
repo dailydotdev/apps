@@ -37,11 +37,17 @@ const ChecklistStep = ({
             id={step.action.type}
             disabled={isStepCompleted}
             icon={
-              <ChecklistAIcon
-                className={classNames(active && 'text-cabbage-40')}
-                size={IconSize.Small}
-                secondary={!isStepCompleted}
-              />
+              <div
+                className={classNames(
+                  active && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
+                )}
+              >
+                <ChecklistAIcon
+                  className={classNames(active && 'text-cabbage-40')}
+                  size={IconSize.Small}
+                  secondary={!isStepCompleted}
+                />
+              </div>
             }
           >
             <p
