@@ -187,7 +187,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
             {
               action: {
                 userId: '1',
-                id: 'action1',
+                type: 'action1',
                 dateCompleted: new Date(),
               },
               title: 'Create a squad',
@@ -196,7 +196,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
             {
               action: {
                 userId: '1',
-                id: 'action2',
+                type: 'action2',
                 dateCompleted: null,
               },
               title: 'Invite your friends',
@@ -205,7 +205,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
             {
               action: {
                 userId: '1',
-                id: 'action3',
+                type: 'action3',
                 dateCompleted: null,
               },
               title: 'Share your first post',

@@ -16,11 +16,12 @@ export type ChecklistStepProps = {
   className?: string;
   step: ChecklistStep;
   checked: boolean;
+  active: boolean;
   onToggle: (action: ChecklistAction) => void;
 };
 
 export type ChecklistAction = {
   userId: string;
-  id: string;
+  type: string;
   dateCompleted: Date | null;
 };

@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Card } from './cards/Card';
 import MiniCloseIcon from './icons/MiniClose';
@@ -10,22 +10,26 @@ const ChecklistCard = ({
   className,
   steps,
 }: ChecklistCardProps): ReactElement => {
-  const [activeStep, setActiveStep] = useState<string>(undefined);
+  const activeStep = useMemo(
+    () => steps.find((item) => !item.action.dateCompleted)?.action.type,
+    [steps],
+  );
+  const [checkedStep, setCheckedStep] = useState<string>(activeStep);
 
   const onToggleStep = (action: ChecklistAction) => {
-    setActiveStep((currentActiveStep) => {
-      if (currentActiveStep === action.id) {
+    setCheckedStep((currentCheckedStep) => {
+      if (currentCheckedStep === action.type) {
         return undefined;
       }
 
-      return action.id;
+      return action.type;
     });
   };
 
   return (
     <div className={className}>
-      <Card className="rounded-14 border-cabbage-40 hover:!border-cabbage-40 w-[340px] h-[458px]">
-        <div className="p-4 -m-2 rounded-t-14 bg-theme-bg-cabbage-opacity-24">
+      <Card className="p-0 rounded-14 border-cabbage-40 hover:!border-cabbage-40 w-[340px] h-[458px]">
+        <div className="p-4 rounded-t-14 bg-theme-bg-cabbage-opacity-24">
           <p className="mb-1 font-bold typo-body text-theme-label-primary">
             Test
           </p>
@@ -38,7 +42,7 @@ const ChecklistCard = ({
             {steps.map((step) => {
               return (
                 <div
-                  key={step.action.id}
+                  key={step.action.type}
                   className={classNames(
                     'w-12 h-2 bg-white rounded-6',
                     !step.action.dateCompleted && 'opacity-24',
@@ -48,15 +52,16 @@ const ChecklistCard = ({
             })}
           </div>
         </div>
-        <div className="flex flex-col gap-4 p-4 mt-2">
+        <div className="flex flex-col gap-2 p-4">
           {steps.map((step) => {
             const StepComponent = step.component || ChecklistStep;
 
             return (
               <StepComponent
-                key={step.action.id}
+                key={step.action.type}
                 step={step}
-                checked={activeStep === step.action.id}
+                checked={checkedStep === step.action.type}
+                active={activeStep === step.action.type}
                 onToggle={onToggleStep}
               />
             );

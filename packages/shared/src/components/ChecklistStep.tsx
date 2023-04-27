@@ -1,14 +1,16 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { IconSize } from './Icon';
-import { Checkbox } from './fields/Checkbox';
 import ArrowIcon from './icons/Arrow';
 import { ChecklistStepProps } from '../lib/checklist';
+import { QuaternaryButton } from './buttons/QuaternaryButton';
+import ChecklistAIcon from './icons/ChecklistA';
 
 const ChecklistStep = ({
   className,
   step,
   checked = false,
+  active = false,
   onToggle,
 }: ChecklistStepProps): ReactElement => {
   const isStepCompleted = !!step.action.dateCompleted;
@@ -27,21 +29,31 @@ const ChecklistStep = ({
         }}
       >
         <div className="flex items-center flex-start">
-          <Checkbox
-            checked={isStepCompleted}
-            className="text-theme-label-primary"
+          <QuaternaryButton
+            className={classNames(
+              '-ml-2 text-salt-90',
+              isStepCompleted && 'text-pepper-10',
+            )}
+            id={step.action.type}
             disabled={isStepCompleted}
-            name={`checklist-action-${step.action}`}
+            icon={
+              <ChecklistAIcon
+                className={classNames(active && 'text-cabbage-40')}
+                size={IconSize.Small}
+                secondary={!isStepCompleted}
+              />
+            }
           >
             <p
               className={classNames(
                 'typo-callout',
-                isStepOpen ? 'font-bold' : 'font-normal',
+                active ? 'font-bold text-theme-label-primary' : 'font-normal',
+                isStepCompleted && 'text-pepper-10',
               )}
             >
               {step.title}
             </p>
-          </Checkbox>
+          </QuaternaryButton>
         </div>
         <ArrowIcon
           className={classNames(
@@ -52,7 +64,7 @@ const ChecklistStep = ({
         />
       </button>
       {isStepOpen && (
-        <div className="mt-2 ml-9">
+        <div className="my-2 ml-9">
           <p className="text-salt-90 typo-callout">{step.description}</p>
         </div>
       )}
