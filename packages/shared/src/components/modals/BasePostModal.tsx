@@ -19,6 +19,7 @@ function BasePostModal({
   loadingClassName,
   ...props
 }: BasePostModalProps): ReactElement {
+  console.log(className);
   return (
     <Modal
       size={Modal.Size.XLarge}
@@ -29,7 +30,7 @@ function BasePostModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         className,
-        'mx-auto focus:outline-none border border-theme-divider-secondary rounded-16 bg-theme-bg-primary',
+        'mx-auto focus:outline-none bg-theme-bg-primary',
       )}
     >
       {isLoading ? (
