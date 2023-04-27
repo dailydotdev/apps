@@ -9,6 +9,7 @@ import { ChecklistAction, ChecklistCardProps } from '../lib/checklist';
 const ChecklistCard = ({
   className,
   steps,
+  onRequestClose,
 }: ChecklistCardProps): ReactElement => {
   const activeStep = useMemo(
     () => steps.find((item) => !item.action.dateCompleted)?.action.type,
@@ -34,10 +35,13 @@ const ChecklistCard = ({
             Test
           </p>
           <p className="text-salt-90 typo-callout">Description</p>
-          <MiniCloseIcon
+          <button
             className="absolute top-4 right-4 text-salt-90"
-            size={IconSize.Small}
-          />
+            type="button"
+            onClick={onRequestClose}
+          >
+            <MiniCloseIcon size={IconSize.Small} />
+          </button>
           <div className="flex gap-2 mt-6">
             {steps.map((step) => {
               return (
