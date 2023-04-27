@@ -92,6 +92,7 @@ function EnableNotification({
     !isInitialized,
     !isNotificationSupported,
     (isSubscribed || hasPermissionCache) && !isEnabled,
+    hasEnabled && source === NotificationPromptSource.SquadPostModal,
   ];
   const shouldNotDisplay = conditions.some((passed) => passed);
 
