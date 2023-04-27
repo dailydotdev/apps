@@ -14,7 +14,12 @@ export type ChecklistStep = {
 };
 
 export type ChecklistStepProps = {
-  className?: string;
+  className?: Partial<{
+    root: string;
+    checkmark: string;
+    title: string;
+    description: string;
+  }>;
   step: ChecklistStep;
   checked: boolean;
   active: boolean;

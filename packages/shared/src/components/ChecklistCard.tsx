@@ -16,6 +16,10 @@ const ChecklistCard = ({
     [steps],
   );
   const [checkedStep, setCheckedStep] = useState<string>(activeStep);
+  const isDone = useMemo(
+    () => steps.every((item) => !!item.action.dateCompleted),
+    [steps],
+  );
 
   const onToggleStep = (action: ChecklistAction) => {
     setCheckedStep((currentCheckedStep) => {
@@ -67,6 +71,9 @@ const ChecklistCard = ({
                 checked={checkedStep === step.action.type}
                 active={activeStep === step.action.type}
                 onToggle={onToggleStep}
+                className={{
+                  checkmark: isDone && 'text-cabbage-40',
+                }}
               />
             );
           })}

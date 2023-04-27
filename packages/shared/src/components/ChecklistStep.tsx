@@ -7,20 +7,20 @@ import { QuaternaryButton } from './buttons/QuaternaryButton';
 import ChecklistAIcon from './icons/ChecklistA';
 
 const ChecklistStep = ({
-  className,
+  className = {},
   step,
   checked = false,
   active = false,
   onToggle,
 }: ChecklistStepProps): ReactElement => {
-  const isStepCompleted = !!step.action.dateCompleted;
-  const isStepOpen = !isStepCompleted && checked;
+  const isCompleted = !!step.action.dateCompleted;
+  const isOpen = !isCompleted && checked;
 
   return (
-    <div className={className}>
+    <div className={className.root}>
       <button
         type="button"
-        disabled={isStepCompleted}
+        disabled={isCompleted}
         className="flex justify-between items-center w-full"
         onClick={(event) => {
           event.preventDefault();
@@ -32,10 +32,10 @@ const ChecklistStep = ({
           <QuaternaryButton
             className={classNames(
               '-ml-2 text-salt-90',
-              isStepCompleted && 'text-pepper-10',
+              isCompleted && 'text-pepper-10',
             )}
             id={step.action.type}
-            disabled={isStepCompleted}
+            disabled={isCompleted}
             icon={
               <div
                 className={classNames(
@@ -43,9 +43,12 @@ const ChecklistStep = ({
                 )}
               >
                 <ChecklistAIcon
-                  className={classNames(active && 'text-cabbage-40')}
+                  className={classNames(
+                    active && 'text-cabbage-40',
+                    className.checkmark,
+                  )}
                   size={IconSize.Small}
-                  secondary={!isStepCompleted}
+                  secondary={!isCompleted}
                 />
               </div>
             }
@@ -54,7 +57,8 @@ const ChecklistStep = ({
               className={classNames(
                 'typo-callout',
                 active ? 'font-bold text-theme-label-primary' : 'font-normal',
-                isStepCompleted && 'text-pepper-10',
+                isCompleted && 'text-pepper-10',
+                className.title,
               )}
             >
               {step.title}
@@ -63,15 +67,22 @@ const ChecklistStep = ({
         </div>
         <ArrowIcon
           className={classNames(
-            !isStepOpen && 'rotate-180 text-salt-90',
-            isStepCompleted && 'opacity-32',
+            !isOpen && 'rotate-180 text-salt-90',
+            isCompleted && 'opacity-32',
           )}
           size={IconSize.Small}
         />
       </button>
-      {isStepOpen && (
+      {isOpen && (
         <div className="my-2 ml-9">
-          <p className="text-salt-90 typo-callout">{step.description}</p>
+          <p
+            className={classNames(
+              'text-salt-90 typo-callout',
+              className.description,
+            )}
+          >
+            {step.description}
+          </p>
         </div>
       )}
     </div>
