@@ -81,8 +81,15 @@ export default function useFeedUpvotePost(
         return;
       }
 
-      const { id, index: indexFromEvent } = event.options
+      const variables = event.options
         .variables as unknown as UseFeedUpvotePostVariables;
+
+      if (!variables) {
+        return;
+      }
+
+      const { id, index: indexFromEvent } = variables;
+
       const mutationFromFeedHook = typeof indexFromEvent !== 'undefined';
 
       if (mutationFromFeedHook) {
