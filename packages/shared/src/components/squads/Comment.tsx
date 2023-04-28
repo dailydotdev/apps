@@ -41,6 +41,7 @@ export interface SquadCommentProps
   onSubmit: SubmitSharePostFunc;
   isLoading?: boolean;
   notificationState: [boolean, Dispatch<SetStateAction<boolean>>];
+  shouldShowToggle: boolean;
 }
 
 enum LinkError {
@@ -51,6 +52,7 @@ enum LinkError {
 export function SquadComment({
   onSubmit,
   form,
+  shouldShowToggle,
   isLoading,
   onUpdateForm,
   notificationState,
@@ -60,7 +62,6 @@ export function SquadComment({
   const postExists = !!preview.id;
   const [enableNotification, setEnableNotification] = notificationState;
   const { user } = useContext(AuthContext);
-  const { isSubscribed } = useNotificationContext();
   const [commentary, setCommentary] = useState(form.commentary);
   const [link, setLink] = useState(preview.url);
   const [linkHint, setLinkHint] = useState(preview.url);
@@ -170,10 +171,10 @@ export function SquadComment({
       <Modal.Footer
         className={classNames(
           'flex flex-col justify-center',
-          !isSubscribed && 'h-[unset]',
+          shouldShowToggle && 'h-[unset]',
         )}
       >
-        {!isSubscribed && (
+        {shouldShowToggle && (
           <Switch
             data-testId="push_notification-switch"
             inputId="push_notification-switch"

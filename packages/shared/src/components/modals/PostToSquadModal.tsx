@@ -14,6 +14,8 @@ import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { NotificationPromptSource } from '../../lib/analytics';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
@@ -43,6 +45,11 @@ function PostToSquadModal({
   const { user } = useContext(AuthContext);
   const { onTogglePermission } = useNotificationContext();
   const { displayToast } = useToastNotification();
+  const { isSubscribed } = useNotificationContext();
+  const [isDismissed, setIsDismissed] = usePersistentContext(
+    DISMISS_PERMISSION_BANNER,
+    false,
+  );
   const [form, setForm] = useState<Partial<SquadForm>>({
     name: squad.name,
     file: squad.image,
@@ -51,10 +58,15 @@ function PostToSquadModal({
     preview,
   });
 
+  const shouldShowToggle = !isDismissed && !isSubscribed;
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
-    if (shouldEnableNotification) {
-      onTogglePermission(NotificationPromptSource.SquadPostCommentary);
+    if (shouldShowToggle) {
+      if (shouldEnableNotification) {
+        onTogglePermission(NotificationPromptSource.SquadPostCommentary);
+      } else {
+        setIsDismissed(true);
+      }
     }
 
     displayToast('This post has been shared to your Squad');
@@ -114,6 +126,11 @@ function PostToSquadModal({
     onNext,
     onRequestClose,
   };
+  const commentCommonProps = {
+    ...stateProps,
+    notificationState,
+    shouldShowToggle,
+  };
 
   return (
     <Modal
@@ -127,19 +144,14 @@ function PostToSquadModal({
       <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
       {shouldSkipHistory ? (
         <SquadComment
-          {...stateProps}
+          {...commentCommonProps}
           onSubmit={onSubmit}
-          notificationState={notificationState}
           isLoading={isLoading || isLinkLoading}
         />
       ) : (
         <>
           <SquadSelectArticle {...stateProps} />
-          <SteppedSquadComment
-            {...stateProps}
-            isLoading={isLoading}
-            notificationState={notificationState}
-          />
+          <SteppedSquadComment {...commentCommonProps} isLoading={isLoading} />
         </>
       )}
     </Modal>
