@@ -13,6 +13,7 @@ import {
   NotificationPromptSource,
   TargetType,
 } from '../../lib/analytics';
+import BellNotifyIcon from '../icons/Bell/Notify';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
@@ -20,6 +21,7 @@ type EnableNotificationProps = {
   source?: NotificationPromptSource;
   contentName?: string;
   className?: string;
+  label?: string;
 };
 
 const containerClassName: Record<NotificationPromptSource, string> = {
@@ -29,6 +31,8 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.NewSourceModal]: '',
   [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-6',
+  [NotificationPromptSource.SquadPostModal]:
+    'laptop:rounded-16 laptop:rounded-bl-[0] laptop:rounded-br-[0]',
 };
 
 const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
@@ -37,12 +41,14 @@ const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
   [NotificationPromptSource.CommunityPicks]: false,
   [NotificationPromptSource.NewSourceModal]: false,
   [NotificationPromptSource.SquadPage]: true,
+  [NotificationPromptSource.SquadPostModal]: false,
 };
 
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
   contentName,
   className,
+  label,
 }: EnableNotificationProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const {
@@ -86,6 +92,7 @@ function EnableNotification({
     !isInitialized,
     !isNotificationSupported,
     (isSubscribed || hasPermissionCache) && !isEnabled,
+    hasEnabled && source === NotificationPromptSource.SquadPostModal,
   ];
   const shouldNotDisplay = conditions.some((passed) => passed);
 
@@ -112,6 +119,7 @@ function EnableNotification({
   }
 
   const sourceToMessage: Record<NotificationPromptSource, string> = {
+    [NotificationPromptSource.SquadPostModal]: '',
     [NotificationPromptSource.NewComment]: `Want to get notified when ${
       contentName ?? 'someone'
     } responds so you can continue the conversation?`,
@@ -125,6 +133,31 @@ function EnableNotification({
   const message = sourceToMessage[source];
   const classes = containerClassName[source];
   const showTextCloseButton = sourceRenderTextCloseButton[source];
+
+  if (source === NotificationPromptSource.SquadPostModal)
+    return (
+      <span
+        className={classNames(
+          'flex relative flex-row items-center p-3 w-full font-bold bg-gradient-to-r from-theme-color-water to-theme-color-onion typo-body',
+          containerClassName[source],
+        )}
+      >
+        <BellNotifyIcon secondary className="mr-2" /> Never miss new posts from{' '}
+        {label}
+        <Button
+          className="mr-14 ml-auto btn-secondary"
+          buttonSize={ButtonSize.XSmall}
+          onClick={onEnable}
+        >
+          Subscribe
+        </Button>
+        <CloseButton
+          className="right-3"
+          position="absolute"
+          onClick={onDismiss}
+        />
+      </span>
+    );
 
   return (
     <div

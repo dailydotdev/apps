@@ -16,8 +16,6 @@ interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
 }
 
-const containerClass = 'border border-theme-divider-tertiary rounded-16';
-
 export default function ArticlePostModal({
   id,
   className,
@@ -40,7 +38,6 @@ export default function ArticlePostModal({
     <BasePostModal
       {...props}
       onRequestClose={onRequestClose}
-      loadingClassName={containerClass}
       postType={PostType.Article}
       isLoading={isPostLoadingOrFetching}
     >
@@ -53,7 +50,6 @@ export default function ArticlePostModal({
         inlineActions
         className={{
           onboarding: 'mt-8',
-          container: containerClass,
           navigation: { actions: 'tablet:hidden ml-auto' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.XLarge],
