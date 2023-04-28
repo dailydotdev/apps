@@ -30,7 +30,7 @@ export const useActions = (): UseActions => {
           actions,
         );
     },
-    onError: (_, __, rollback) => {
+    onError: (_, __, rollback: () => void) => {
       rollback?.();
     },
   });
