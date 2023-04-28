@@ -56,7 +56,7 @@ const ChecklistCard = ({
                 <div
                   key={step.action.type}
                   className={classNames(
-                    'w-12 h-2 bg-white rounded-6',
+                    'w-12 h-3 bg-white rounded-6',
                     !step.action.dateCompleted && 'opacity-24',
                   )}
                 />
