@@ -28,7 +28,6 @@ import PostPreview from '../post/PostPreview';
 import { Loader } from '../Loader';
 import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
 import { Switch } from '../fields/Switch';
-import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { SquadStateProps } from './utils';
 
 export type SubmitSharePostFunc = (
