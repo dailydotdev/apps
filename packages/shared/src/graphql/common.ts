@@ -100,9 +100,8 @@ interface ApiResponseErrorExtension {
 }
 
 interface ApiResponseError {
-  message: ApiErrorMessage;
+  message: ApiErrorMessage | string;
   extensions: ApiResponseErrorExtension;
-  message: string;
 }
 
 interface ApiResponse {
