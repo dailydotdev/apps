@@ -90,4 +90,5 @@ export enum NotificationPromptSource {
   NewSourceModal = 'new source modal',
   SquadPage = 'squad page',
   SquadPostCommentary = 'squad post commentary',
+  SquadPostModal = 'squad post modal',
 }

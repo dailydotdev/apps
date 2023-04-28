@@ -26,8 +26,11 @@ function BasePostModal({
       portalClassName={styles.postModal}
       id="post-modal"
       {...props}
-      className={classNames(className, 'post-modal focus:outline-none')}
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
+      className={classNames(
+        className,
+        'mx-auto focus:outline-none bg-theme-bg-primary',
+      )}
     >
       {isLoading ? (
         <PostLoadingSkeleton

@@ -85,6 +85,10 @@ export enum ApiError {
   RateLimited = 'RATE_LIMITED',
 }
 
+export enum ApiErrorMessage {
+  SourcePermissionInviteInvalid = 'SOURCE_PERMISSION_INVITE_INVALID',
+}
+
 export const getApiError = (
   error: ApiErrorResult,
   code: ApiError,
@@ -96,8 +100,8 @@ interface ApiResponseErrorExtension {
 }
 
 interface ApiResponseError {
+  message: ApiErrorMessage | string;
   extensions: ApiResponseErrorExtension;
-  message: string;
 }
 
 interface ApiResponse {

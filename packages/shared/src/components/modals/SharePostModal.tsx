@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import BasePostModal from './BasePostModal';
-import { Origin } from '../../lib/analytics';
+import { NotificationPromptSource, Origin } from '../../lib/analytics';
 import usePostById from '../../hooks/usePostById';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import SquadPostContent from '../post/SquadPostContent';
@@ -9,6 +9,7 @@ import OnboardingContext from '../../contexts/OnboardingContext';
 import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 import { PassedPostNavigationProps } from '../post/PostContent';
 import { PostType } from '../../graphql/posts';
+import EnableNotification from '../notifications/EnableNotification';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -42,6 +43,10 @@ export default function PostModal({
       isLoading={isPostLoadingOrFetching}
       loadingClassName={containerClass}
     >
+      <EnableNotification
+        source={NotificationPromptSource.SquadPostModal}
+        label={post?.source?.handle}
+      />
       <SquadPostContent
         position={position}
         post={post}
