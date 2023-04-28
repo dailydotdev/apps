@@ -11,7 +11,11 @@ import { SquadForm } from '../../graphql/squads';
 type SteppedSquadCommentProps = Pick<SquadStateProps, 'onNext'> &
   Pick<
     SquadCommentProps,
-    'form' | 'isLoading' | 'notificationState' | 'onUpdateForm'
+    | 'form'
+    | 'isLoading'
+    | 'notificationState'
+    | 'onUpdateForm'
+    | 'shouldShowToggle'
   >;
 
 export function SteppedSquadComment({
