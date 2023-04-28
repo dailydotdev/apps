@@ -56,7 +56,7 @@
 
   &:global(.checked) {
     & .checkmark {
-      background: theme('colors.water.40');
+      background: theme('colors.cabbage.40');
       border-color: transparent;
     }
 
@@ -69,38 +69,38 @@
     &:hover,
     &:focus-within {
       & .checkmark {
-        background: theme('colors.water.20');
+        background: theme('colors.cabbage.20');
 
         &:before {
-          background: theme('colors.overlay.quaternary.water');
+          background: theme('colors.overlay.quaternary.cabbage');
         }
       }
     }
 
     &:active {
       & .checkmark:before {
-        background: theme('colors.overlay.tertiary.water');
+        background: theme('colors.overlay.tertiary.cabbage');
       }
     }
   }
 }
 
 :global(.light) .label:global(.checked) .checkmark {
-  background: theme('colors.water.60');
+  background: theme('colors.cabbage.60');
 }
 
 :global(.light) .label:global(.checked):hover .checkmark,
 :global(.light) .label:global(.checked):focus-within .checkmark {
-  background: theme('colors.water.80');
+  background: theme('colors.cabbage.80');
 }
 
 @media (prefers-color-scheme: light) {
   :global(.auto) .label:global(.checked) .checkmark {
-    background: theme('colors.water.60');
+    background: theme('colors.cabbage.60');
   }
 
   :global(.auto) .label:global(.checked):hover .checkmark,
   :global(.auto) .label:global(.checked):focus-within .checkmark {
-    background: theme('colors.water.80');
+    background: theme('colors.cabbage.80');
   }
 }
