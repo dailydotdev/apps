@@ -12,6 +12,8 @@ import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { NotificationPromptSource } from '../../lib/analytics';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
@@ -34,9 +36,12 @@ function PostToSquadModal({
   requestMethod = request,
   ...props
 }: PostToSquadModalProps): ReactElement {
+  const notificationState = useState(true);
+  const [shouldEnableNotification] = notificationState;
   const shouldSkipHistory = !!preview;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
+  const { onTogglePermission } = useNotificationContext();
   const { displayToast } = useToastNotification();
   const [form, setForm] = useState<Partial<SquadForm>>({
     name: squad.name,
@@ -48,6 +53,9 @@ function PostToSquadModal({
 
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
+    if (shouldEnableNotification) {
+      onTogglePermission(NotificationPromptSource.SquadPostCommentary);
+    }
 
     displayToast('This post has been shared to your Squad');
     await client.invalidateQueries(['sourceFeed', user.id]);
@@ -102,7 +110,7 @@ function PostToSquadModal({
 
   const stateProps: SquadStateProps = {
     form,
-    setForm,
+    onUpdateForm: setForm,
     onNext,
     onRequestClose,
   };
@@ -119,17 +127,19 @@ function PostToSquadModal({
       <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
       {shouldSkipHistory ? (
         <SquadComment
-          form={form}
+          {...stateProps}
           onSubmit={onSubmit}
+          notificationState={notificationState}
           isLoading={isLoading || isLinkLoading}
-          onUpdateForm={(updatedForm) =>
-            setForm((value) => ({ ...value, ...updatedForm }))
-          }
         />
       ) : (
         <>
           <SquadSelectArticle {...stateProps} />
-          <SteppedSquadComment {...stateProps} />
+          <SteppedSquadComment
+            {...stateProps}
+            isLoading={isLoading}
+            notificationState={notificationState}
+          />
         </>
       )}
     </Modal>

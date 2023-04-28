@@ -29,6 +29,7 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.NewSourceModal]: '',
   [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-6',
+  [NotificationPromptSource.SquadPostCommentary]: '',
 };
 
 const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
@@ -37,6 +38,7 @@ const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
   [NotificationPromptSource.CommunityPicks]: false,
   [NotificationPromptSource.NewSourceModal]: false,
   [NotificationPromptSource.SquadPage]: true,
+  [NotificationPromptSource.SquadPostCommentary]: false,
 };
 
 function EnableNotification({
@@ -120,6 +122,7 @@ function EnableNotification({
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',
+    [NotificationPromptSource.SquadPostCommentary]: '',
     [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on ${contentName}.`,
   };
   const message = sourceToMessage[source];

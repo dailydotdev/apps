@@ -1,8 +1,10 @@
 import React, {
+  Dispatch,
   FormEvent,
   FormEventHandler,
   KeyboardEvent,
   ReactElement,
+  SetStateAction,
   useContext,
   useEffect,
   useRef,
@@ -12,11 +14,9 @@ import classNames from 'classnames';
 import { Modal } from '../modals/common/Modal';
 import { Button } from '../buttons/Button';
 import { ProfilePicture } from '../ProfilePicture';
-import { Justify } from '../utilities';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 import AuthContext from '../../contexts/AuthContext';
-import { SquadForm } from '../../graphql/squads';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TextField } from '../fields/TextField';
 import LinkIcon from '../icons/Link';
@@ -27,17 +27,20 @@ import { KeyboardCommand } from '../../lib/element';
 import PostPreview from '../post/PostPreview';
 import { Loader } from '../Loader';
 import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
+import { Switch } from '../fields/Switch';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { SquadStateProps } from './utils';
 
 export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
   commentary?: string,
 ) => Promise<Post | void>;
 
-interface SquadCommentProps {
+export interface SquadCommentProps
+  extends Pick<SquadStateProps, 'form' | 'onUpdateForm'> {
   onSubmit: SubmitSharePostFunc;
-  form: Partial<SquadForm>;
   isLoading?: boolean;
-  onUpdateForm?: (form: Partial<SquadForm>) => void;
+  notificationState: [boolean, Dispatch<SetStateAction<boolean>>];
 }
 
 enum LinkError {
@@ -50,21 +53,28 @@ export function SquadComment({
   form,
   isLoading,
   onUpdateForm,
+  notificationState,
 }: SquadCommentProps): ReactElement {
   const textinput = useRef<HTMLTextAreaElement>();
   const { preview, handle, file, name } = form;
   const postExists = !!preview.id;
+  const [enableNotification, setEnableNotification] = notificationState;
   const { user } = useContext(AuthContext);
+  const { isSubscribed } = useNotificationContext();
   const [commentary, setCommentary] = useState(form.commentary);
   const [link, setLink] = useState(preview.url);
   const [linkHint, setLinkHint] = useState(preview.url);
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
     callback: {
       onSuccess: (linkPreview, url) => {
-        onUpdateForm({ preview: { url, ...linkPreview } });
+        onUpdateForm((state) => ({
+          ...state,
+          preview: { url, ...linkPreview },
+        }));
         textinput?.current?.focus();
       },
-      onError: (_, url) => onUpdateForm({ preview: { url } }),
+      onError: (_, url) =>
+        onUpdateForm((state) => ({ ...state, preview: { url } })),
     },
   });
 
@@ -157,38 +167,59 @@ export function SquadComment({
           )}
         </form>
       </Modal.Body>
-      <Modal.Footer justify={Justify.Between}>
-        <div className="flex">
-          <Image
-            className="object-cover mr-3 w-8 h-8 rounded-full"
-            src={file ?? cloudinary.squads.imageFallback}
-          />
-          <div>
-            <h5 className="font-bold typo-caption1">{name}</h5>
-            <h6 className="typo-caption1 text-theme-label-tertiary">
-              @{handle}
-            </h6>
+      <Modal.Footer
+        className={classNames(
+          'flex flex-col justify-center',
+          !isSubscribed && 'h-[unset]',
+        )}
+      >
+        {!isSubscribed && (
+          <Switch
+            data-testId="push_notification-switch"
+            inputId="push_notification-switch"
+            name="push_notification"
+            labelClassName="flex-1 font-normal"
+            className="py-3 w-full max-w-full"
+            compact={false}
+            checked={enableNotification}
+            onToggle={() => setEnableNotification(!enableNotification)}
+          >
+            Receive updates whenever your Squad members engage with your post
+          </Switch>
+        )}
+        <span className="flex justify-between w-full">
+          <div className="flex">
+            <Image
+              className="object-cover mr-3 w-8 h-8 rounded-full"
+              src={file ?? cloudinary.squads.imageFallback}
+            />
+            <div>
+              <h5 className="font-bold typo-caption1">{name}</h5>
+              <h6 className="typo-caption1 text-theme-label-tertiary">
+                @{handle}
+              </h6>
+            </div>
           </div>
-        </div>
-        <SimpleTooltip
-          placement="left"
-          disabled={!!commentary}
-          content="Please add a comment before proceeding"
-        >
-          <div>
-            <Button
-              form="squad-comment"
-              className="btn-primary-cabbage"
-              type="submit"
-              loading={isLoading}
-              disabled={
-                !commentary || isLoading || isLoadingPreview || !preview.title
-              }
-            >
-              Done
-            </Button>
-          </div>
-        </SimpleTooltip>
+          <SimpleTooltip
+            placement="left"
+            disabled={!!commentary}
+            content="Please add a comment before proceeding"
+          >
+            <div>
+              <Button
+                form="squad-comment"
+                className="btn-primary-cabbage"
+                type="submit"
+                loading={isLoading}
+                disabled={
+                  !commentary || isLoading || isLoadingPreview || !preview.title
+                }
+              >
+                Done
+              </Button>
+            </div>
+          </SimpleTooltip>
+        </span>
       </Modal.Footer>
     </>
   );
