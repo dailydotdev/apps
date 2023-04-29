@@ -37,7 +37,7 @@ import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import { NewSquadPostProps } from '@dailydotdev/shared/src/components/squads/SharePostBar';
-import { NewSquadAndSiteMemberChecklistCard } from '@dailydotdev/shared/src/components/checklist/NewSquadAndSiteMemberChecklistCard';
+import { SquadChecklistCard } from '@dailydotdev/shared/src/components/checklist/SquadChecklistCard';
 import {
   useTutorial,
   TutorialKey,
@@ -181,7 +181,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           onNewSquadPost={onNewSquadPost}
           hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
         />
-        <NewSquadAndSiteMemberChecklistCard squad={squad} />
+        <SquadChecklistCard squad={squad} />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
           feedName="source"
