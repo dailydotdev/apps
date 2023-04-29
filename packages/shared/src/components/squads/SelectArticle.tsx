@@ -44,7 +44,7 @@ export function SquadSelectArticle({
     nextStep: MouseEventHandler,
   ): MouseEventHandler => {
     return (e) => {
-      onNext({ ...(form as SquadForm), post });
+      onNext({ ...(form as SquadForm), preview: post.post });
       nextStep(e);
     };
   };

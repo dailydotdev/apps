@@ -148,7 +148,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     key: TutorialKey.CopySquadLink,
   });
 
-  const onNewSquadPost = (props: NewSquadPostProps = {}) =>
+  const onNewSquadPost = async (props: NewSquadPostProps = {}) => {
     openModal({
       type: LazyModal.PostToSquad,
       props: {
@@ -160,6 +160,9 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         },
       },
     });
+
+    return null;
+  };
 
   const seo = (
     <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
