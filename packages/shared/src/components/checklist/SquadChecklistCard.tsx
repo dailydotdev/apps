@@ -12,6 +12,8 @@ import { SharePostChecklistStep } from './SharePostChecklistStep';
 import { NotificationChecklistStep } from './NotificationChecklistStep';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
+  // TODO WT-1293-checklist-components verify copy for steps
+  // create this from actions from useActions hook
   const stepsMap = useMemo<
     Partial<Record<ActionType, ChecklistStepType>>
   >(() => {
