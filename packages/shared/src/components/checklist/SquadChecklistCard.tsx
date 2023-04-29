@@ -2,16 +2,14 @@ import React, { ReactElement, useMemo } from 'react';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { ChecklistCard } from './ChecklistCard';
 import { InstallExtensionChecklistStep } from './InstallExtensionChecklistStep';
-import { ChecklistStep } from './ChecklistStep';
-import { Button } from '../buttons/Button';
 import {
   ActionType,
-  ChecklistStepProps,
   ChecklistStepType,
   actionsPerRoleMap,
 } from '../../lib/checklist';
-import BellIcon from '../icons/Bell';
-import { FlexRow } from '../utilities';
+import { SquadWelcomeChecklistStep } from './SquadWelcomeChecklistStep';
+import { SharePostChecklistStep } from './SharePostChecklistStep';
+import { NotificationChecklistStep } from './NotificationChecklistStep';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const stepsMap = useMemo<
@@ -55,13 +53,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         },
         title: "Let people know you're here",
         description: `Welcome to the ${squad.name} squad. Start your journey by saying hi.`,
-        component: (props: ChecklistStepProps) => {
-          return (
-            <ChecklistStep {...props}>
-              <Button className="btn-primary">Say hi 👋 </Button>
-            </ChecklistStep>
-          );
-        },
+        component: SquadWelcomeChecklistStep,
       },
       [ActionType.SharePost]: {
         action: {
@@ -72,16 +64,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         title: 'Share your first post',
         description:
           'Share your first post to help other squad members discover content you found interesting.',
-        component: (props: ChecklistStepProps) => {
-          return (
-            <ChecklistStep {...props}>
-              <FlexRow className="gap-4">
-                <Button className="btn-secondary">Create a post</Button>
-                <Button className="btn-primary">Explore</Button>
-              </FlexRow>
-            </ChecklistStep>
-          );
-        },
+        component: SharePostChecklistStep,
       },
       [ActionType.InviteMember]: {
         action: {
@@ -112,15 +95,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         },
         title: 'Subscribe for updates',
         description: `One last thing! To get the best out of squads stay tuned about the most important activity on ${squad.name}. No spam, we promise!`,
-        component: (props: ChecklistStepProps) => {
-          return (
-            <ChecklistStep {...props}>
-              <Button icon={<BellIcon />} className="btn-primary">
-                Subscribe
-              </Button>
-            </ChecklistStep>
-          );
-        },
+        component: NotificationChecklistStep,
       },
     };
   }, [squad]);

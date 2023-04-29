@@ -36,7 +36,7 @@ export type ChecklistAction = {
   dateCompleted: Date | null;
 };
 
-// TODO merge with other PR that contains useActions hook implementation
+// TODO WT-1293-checklist-components merge with other PR that contains useActions hook implementation
 export enum ActionType {
   CreateSquad = 'createSquad',
   JoinSquad = 'joinSquad',
