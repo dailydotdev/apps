@@ -212,6 +212,8 @@ export default function NewCommentModal({
 
   useEffect(() => {
     onInputChange?.(input);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input]);
   const disabled = !input?.trim().length;
   const updateButton = (

@@ -15,7 +15,11 @@ export function useRefreshToken(
 
   useEffect(() => {
     if (accessToken) {
+      // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       useRefresh();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, refresh]);
 }

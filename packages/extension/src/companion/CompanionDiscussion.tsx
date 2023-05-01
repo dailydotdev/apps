@@ -29,6 +29,8 @@ export function CompanionDiscussion({
     return null;
   }
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { user } = useContext(AuthContext);
   const {
     closeNewComment,
@@ -36,11 +38,17 @@ export function CompanionDiscussion({
     onCommentClick,
     onInput,
     parentComment,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCompanionPostComment(post);
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { shareComment, openShareComment, closeShareComment } = useShareComment(
     Origin.Companion,
   );
   const postCommentsQueryKey = ['post_comments', post?.id];
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useBackgroundRequest(postCommentsQueryKey);
 
   return (

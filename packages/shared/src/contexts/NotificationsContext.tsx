@@ -190,6 +190,8 @@ export const NotificationsContextProvider = ({
         OneSignalReact.setExternalUserId(user.id);
       }
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, isInitializing, user]);
 
   const data: NotificationsContextData = useMemo(
@@ -211,6 +213,8 @@ export const NotificationsContextProvider = ({
         return !!globalThis.window?.Notification;
       },
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isNotificationsReady,
       isSubscribed,

@@ -96,6 +96,8 @@ export const usePostComment = (
   const [showShareNewComment, setShowShareNewComment] = useState(null);
   const [showNewComment] = useDebounce((id) => setShowShareNewComment(id), 700);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const closeNewComment = () => {
     setParentComment(null);
     document.documentElement.scrollTop = lastScroll;
@@ -107,11 +109,15 @@ export const usePostComment = (
     }
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onCommentClick = (parent: ParentComment, replyTo: string) => {
     setLastScroll(window.scrollY);
     setParentComment({ ...parent, replyTo });
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const openNewComment = (origin: string) => {
     if (user) {
       trackEvent(
@@ -154,6 +160,8 @@ export const usePostComment = (
     return { ...current, node: { ...current.node, ...comment } };
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const deleteCommentCache = async (commentId: string, parentId?: string) => {
     const queryKey = ['post_comments', post.id];
     await client.cancelQueries(queryKey);
@@ -221,6 +229,8 @@ export const usePostComment = (
     return client.setQueryData(key, cached);
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const updatePostComments = (comment: Comment, isNew = true) => {
     if (!comment) {
       return;
@@ -245,6 +255,8 @@ export const usePostComment = (
     if (enableShowShareNewComment) {
       showNewComment();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enableShowShareNewComment]);
 
   return useMemo(

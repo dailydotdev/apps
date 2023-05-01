@@ -95,6 +95,8 @@ export function SquadComment({
     if (preview.title) {
       textinput?.current?.focus?.();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSubmitForm = (e?: FormEvent<HTMLFormElement>) =>

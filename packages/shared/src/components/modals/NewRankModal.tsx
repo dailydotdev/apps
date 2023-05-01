@@ -95,6 +95,8 @@ export default function NewRankModal({
         document.removeEventListener('visibilitychange', visibilityRef.current);
       }
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [onRankAnimationFinish] = useDebounce(

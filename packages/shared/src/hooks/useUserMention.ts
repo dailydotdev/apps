@@ -279,6 +279,8 @@ export function useUserMention({
       onMentionKeypress: onKeypress,
       onInitializeMention: onInitializeMentionButtonClick,
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [commentRef, offset, selected, mentions, query],
   );
 }
