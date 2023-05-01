@@ -13,11 +13,16 @@ import CloseButton from '../CloseButton';
 import { InAppNotificationItem } from './InAppNotificationItem';
 import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import {
+  AnalyticsEvent,
+  NotificationPromptSource,
+  Origin,
+} from '../../lib/analytics';
 import { NotificationType } from './utils';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { InAppNotificationPosition } from '../../lib/featureValues';
 import { ButtonSize } from '../buttons/Button';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
 
 const Container = classed(
   'div',
@@ -35,6 +40,7 @@ export function InAppNotificationElement(): ReactElement {
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
+  const { onTogglePermission, isSubscribed } = useNotificationContext();
   const [isExit, setIsExit] = useState(false);
   const closeNotification = () => {
     setIsExit(true);
@@ -79,15 +85,26 @@ export function InAppNotificationElement(): ReactElement {
     };
   }, [payload]);
 
-  const onNotificationClick = (id: string, type: NotificationType) => {
+  const onNotificationClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    id: string,
+    type: NotificationType,
+  ) => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotification,
       target_id: id,
       extra: JSON.stringify({ origin: Origin.RealTime, type }),
     });
+
+    if (type === NotificationType.DemotedToMember) {
+      e.preventDefault();
+      onTogglePermission(NotificationPromptSource.NotificationItem);
+    }
   };
 
-  if (!payload?.notification) {
+  const isNotifTypeSubscribe =
+    payload?.notification?.type === NotificationType.SquadSubscribeNotification;
+  if (!payload?.notification || (isSubscribed && isNotifTypeSubscribe)) {
     return null;
   }
 
@@ -113,8 +130,9 @@ export function InAppNotificationElement(): ReactElement {
       />
       <InAppNotificationItem
         {...payload.notification}
-        onClick={() =>
+        onClick={(e) =>
           onNotificationClick(
+            e,
             payload.notification.id,
             payload.notification.type,
           )
