@@ -42,10 +42,7 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import {
-  ExperimentWinner,
-  ScrollOnboardingVersion,
-} from '../lib/featureValues';
+import { ExperimentWinner } from '../lib/featureValues';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -151,7 +148,6 @@ export default function Feed<T>({
   options,
 }: FeedProps<T>): ReactElement {
   const { showCommentPopover } = useContext(FeaturesContext);
-  const { scrollOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -205,23 +201,17 @@ export default function Feed<T>({
     feedName === MainFeedPage.Popular &&
     !isLoading &&
     alerts?.filter &&
-    !user?.id &&
-    Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
-  const shouldScrollBlock =
-    showScrollOnboardingVersion &&
-    [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2].includes(
-      scrollOnboardingVersion,
-    );
+    !user?.id;
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
-    canFetchMore: canFetchMore && !shouldScrollBlock,
+    canFetchMore: canFetchMore && !showScrollOnboardingVersion,
   });
 
   const onInitializeOnboardingClick = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickScrollBlock,
-      target_id: scrollOnboardingVersion,
+      target_id: ExperimentWinner.ScrollOnboardingVersion,
     });
     onInitializeOnboarding(undefined, true);
   };
@@ -467,7 +457,6 @@ export default function Feed<T>({
         </div>
         {showScrollOnboardingVersion && (
           <ScrollFeedFiltersOnboarding
-            version={scrollOnboardingVersion}
             onInitializeOnboarding={onInitializeOnboardingClick}
           />
         )}
