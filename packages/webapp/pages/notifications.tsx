@@ -86,7 +86,7 @@ const Notifications = (): ReactElement => {
       extra: JSON.stringify({ origin: Origin.NonRealTime, type }),
     });
 
-    if (type === NotificationType.DemotedToMember) {
+    if (type === NotificationType.SquadSubscribeNotification) {
       e.preventDefault();
       onTogglePermission(NotificationPromptSource.NotificationItem);
     }
