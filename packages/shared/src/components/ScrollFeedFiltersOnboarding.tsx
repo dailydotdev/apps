@@ -4,7 +4,13 @@ import { ExperimentWinner } from '../lib/featureValues';
 import { cloudinary } from '../lib/image';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
+import SuperchargeIcon from '../../icons/supercharge.svg';
 
+const GaussianBlur = (): ReactElement => {
+  return (
+    <div className="absolute w-48 h-48 rounded-full blur-2xl opacity-[0.2] bg-theme-color-cabbage" />
+  );
+};
 interface ScrollFeedFiltersOnboardingProps {
   onInitializeOnboarding: () => void;
 }
@@ -39,6 +45,10 @@ export default function ScrollFeedFiltersOnboarding({
       }}
     >
       <div className="flex flex-col items-center">
+        <div className="flex relative justify-center items-center mb-10">
+          <GaussianBlur />
+          <SuperchargeIcon className="w-[4.625rem] h-[4.625rem]" />
+        </div>
         <h2 className="mb-6 font-bold typo-title2">
           Supercharge your feed with
           <br /> content you&apos;ll love reading!
