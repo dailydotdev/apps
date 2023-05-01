@@ -96,7 +96,7 @@ export function InAppNotificationElement(): ReactElement {
       extra: JSON.stringify({ origin: Origin.RealTime, type }),
     });
 
-    if (type === NotificationType.DemotedToMember) {
+    if (type === NotificationType.SquadSubscribeNotification) {
       e.preventDefault();
       onTogglePermission(NotificationPromptSource.NotificationItem);
     }
