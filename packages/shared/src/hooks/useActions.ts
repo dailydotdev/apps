@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAuthContext } from '../contexts/AuthContext';
-import { Action, ActionType, completeUserAction } from '../graphql/actions';
+import {
+  Action,
+  ActionType,
+  completeUserAction,
+  getUserActions,
+} from '../graphql/actions';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
 interface UseActions {
@@ -12,7 +17,12 @@ interface UseActions {
 
 export const useActions = (): UseActions => {
   const client = useQueryClient();
-  const { actions, user } = useAuthContext();
+  const { user } = useAuthContext();
+  const { data: actions } = useQuery(
+    generateQueryKey(RequestKey.Actions, user),
+    getUserActions,
+    { enabled: !!user },
+  );
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {
       client.setQueryData<Action[]>(

@@ -50,7 +50,6 @@ export interface AuthContextData {
   refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   accessToken?: AccessToken;
   squads?: Squad[];
-  actions?: Action[];
 }
 const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -124,11 +123,6 @@ export const AuthContextProvider = ({
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referrer;
-  const { data: actions } = useQuery(
-    generateQueryKey(RequestKey.Actions, endUser),
-    getUserActions,
-    { enabled: !!endUser?.id },
-  );
 
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout();
@@ -141,7 +135,6 @@ export const AuthContextProvider = ({
   const authContext: AuthContextData = useMemo(
     () => ({
       user: endUser,
-      actions,
       referral: loginState?.referral ?? referral,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
@@ -173,7 +166,6 @@ export const AuthContextProvider = ({
     }),
     [
       user,
-      actions,
       loginState,
       isFetched,
       loadingUser,
