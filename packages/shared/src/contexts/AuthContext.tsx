@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { QueryObserverResult, useQuery } from 'react-query';
+import { QueryObserverResult } from 'react-query';
 import {
   AnonymousUser,
   deleteAccount,
@@ -16,8 +16,6 @@ import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 import { Squad } from '../graphql/sources';
-import { Action, getUserActions } from '../graphql/actions';
-import { generateQueryKey, RequestKey } from '../lib/query';
 
 export interface LoginState {
   trigger: AuthTriggersOrString;
