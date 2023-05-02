@@ -12,6 +12,10 @@ import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { NotificationPromptSource } from '../../lib/analytics';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
@@ -34,10 +38,18 @@ function PostToSquadModal({
   requestMethod = request,
   ...props
 }: PostToSquadModalProps): ReactElement {
+  const notificationState = useState(true);
+  const [shouldEnableNotification] = notificationState;
   const shouldSkipHistory = !!preview;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
+  const { onTogglePermission } = useNotificationContext();
   const { displayToast } = useToastNotification();
+  const { isSubscribed } = useNotificationContext();
+  const [isDismissed, setIsDismissed] = usePersistentContext(
+    DISMISS_PERMISSION_BANNER,
+    false,
+  );
   const [form, setForm] = useState<Partial<SquadForm>>({
     name: squad.name,
     file: squad.image,
@@ -46,8 +58,16 @@ function PostToSquadModal({
     preview,
   });
 
+  const shouldShowToggle = !isDismissed && !isSubscribed;
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
+    if (shouldShowToggle) {
+      if (shouldEnableNotification) {
+        onTogglePermission(NotificationPromptSource.SquadPostCommentary);
+      } else {
+        setIsDismissed(true);
+      }
+    }
 
     displayToast('This post has been shared to your Squad');
     await client.invalidateQueries(['sourceFeed', user.id]);
@@ -102,9 +122,14 @@ function PostToSquadModal({
 
   const stateProps: SquadStateProps = {
     form,
-    setForm,
+    onUpdateForm: setForm,
     onNext,
     onRequestClose,
+  };
+  const commentCommonProps = {
+    ...stateProps,
+    notificationState,
+    shouldShowToggle,
   };
 
   return (
@@ -119,17 +144,14 @@ function PostToSquadModal({
       <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
       {shouldSkipHistory ? (
         <SquadComment
-          form={form}
+          {...commentCommonProps}
           onSubmit={onSubmit}
           isLoading={isLoading || isLinkLoading}
-          onUpdateForm={(updatedForm) =>
-            setForm((value) => ({ ...value, ...updatedForm }))
-          }
         />
       ) : (
         <>
           <SquadSelectArticle {...stateProps} />
-          <SteppedSquadComment {...stateProps} />
+          <SteppedSquadComment {...commentCommonProps} isLoading={isLoading} />
         </>
       )}
     </Modal>
