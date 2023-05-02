@@ -29,7 +29,7 @@ const ChecklistStep = ({
           onToggle(step.action);
         }}
       >
-        <div className="flex items-center flex-start">
+        <div className="flex flex-1 gap-1 items-center flex-start">
           <QuaternaryButton
             className={classNames(
               '-ml-2 text-theme-label-tertiary',
@@ -53,18 +53,19 @@ const ChecklistStep = ({
                 />
               </div>
             }
+          />
+          <p
+            className={classNames(
+              'typo-callout flex-1 text-left',
+              active ? 'font-bold text-theme-label-primary' : 'font-normal',
+              isCompleted
+                ? 'text-theme-label-quaternary'
+                : 'text-theme-label-tertiary',
+              className.title,
+            )}
           >
-            <p
-              className={classNames(
-                'typo-callout',
-                active ? 'font-bold text-theme-label-primary' : 'font-normal',
-                isCompleted && 'text-theme-label-quaternary',
-                className.title,
-              )}
-            >
-              {step.title}
-            </p>
-          </QuaternaryButton>
+            {step.title}
+          </p>
         </div>
         <ArrowIcon
           className={classNames(
