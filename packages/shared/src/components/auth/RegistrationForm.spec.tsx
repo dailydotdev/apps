@@ -24,7 +24,6 @@ import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import SettingsContext from '../../contexts/SettingsContext';
-import userEvent from '@testing-library/user-event';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 
@@ -99,7 +98,12 @@ const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
   el.value += key;
 };
 
-const renderRegistration = async (email = 'sshanzel@yahoo.com', existing = false, name = 'Lee Solevilla', username = 'leesolevilla') => {
+const renderRegistration = async (
+  email = 'sshanzel@yahoo.com',
+  existing = false,
+  name = 'Lee Solevilla',
+  username = 'leesolevilla',
+) => {
   renderComponent();
   await waitForNock();
   mockEmailCheck(email, existing);
@@ -115,7 +119,7 @@ const renderRegistration = async (email = 'sshanzel@yahoo.com', existing = false
   mockGraphQL({
     request: {
       query: GET_USERNAME_SUGGESTION,
-      variables: { name: name },
+      variables: { name },
     },
     result: () => {
       queryCalled = true;
@@ -204,5 +208,4 @@ describe('testing username auto generation', () => {
       expect(usernameEl).toHaveValue(username);
     });
   });
-
 });

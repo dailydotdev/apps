@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { useQuery } from 'react-query';
 import {
   AuthEventNames,
   AuthTriggers,
@@ -29,7 +30,6 @@ import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
-import { useQuery } from 'react-query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 import { graphqlUrl } from '../../lib/config';
@@ -67,7 +67,9 @@ export const RegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { requestMethod } = useRequestProtocol();
   const usernameQueryKey = ['generateUsername', name];
-  const { data: generatedUsername } = useQuery<{ generateUniqueUsername: string }>(
+  const { data: generatedUsername } = useQuery<{
+    generateUniqueUsername: string;
+  }>(
     usernameQueryKey,
     () =>
       requestMethod(
@@ -86,7 +88,7 @@ export const RegistrationForm = ({
   }, []);
 
   useEffect(() => {
-    if (!!username.length) return;
+    if (username.length) return;
 
     if (generatedUsername?.generateUniqueUsername) {
       setUsername(generatedUsername.generateUniqueUsername);

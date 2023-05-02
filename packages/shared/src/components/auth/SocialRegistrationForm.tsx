@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { useQuery } from 'react-query';
 import {
   AuthEventNames,
   AuthTriggers,
@@ -30,7 +31,6 @@ import AuthForm from './AuthForm';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
-import { useQuery } from 'react-query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 import { graphqlUrl } from '../../lib/config';
@@ -68,12 +68,13 @@ export const SocialRegistrationForm = ({
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
-  const [username, setUsername] = useState<string>('');
   const [name, setName] = useState<string>('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { requestMethod } = useRequestProtocol();
   const usernameQueryKey = ['generateUsername', name];
-  const { data: generatedUsername } = useQuery<{ generateUniqueUsername: string }>(
+  const { data: generatedUsername } = useQuery<{
+    generateUniqueUsername: string;
+  }>(
     usernameQueryKey,
     () =>
       requestMethod(
@@ -95,11 +96,10 @@ export const SocialRegistrationForm = ({
     if (!!user?.username || !!user?.username?.length) return;
 
     if (generatedUsername?.generateUniqueUsername) {
-      setUsername(generatedUsername.generateUniqueUsername);
       updateUser({
         ...user,
         username: generatedUsername.generateUniqueUsername,
-      })
+      });
     }
   }, [generatedUsername]);
 
