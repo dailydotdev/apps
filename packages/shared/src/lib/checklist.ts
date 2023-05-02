@@ -49,3 +49,25 @@ export const actionsPerRoleMap: Partial<
     ActionType.Notification,
   ],
 };
+
+export type CreateChecklistStepProps = {
+  step: Omit<ChecklistStepType, 'action'>;
+  actions: Action[];
+  type: ActionType;
+};
+
+export const createChecklistStep = ({
+  step,
+  actions,
+  type,
+}: CreateChecklistStepProps): ChecklistStepType => {
+  const action = actions.find((item) => item.type === type) || {
+    type,
+    completedAt: null,
+  };
+
+  return {
+    action,
+    ...step,
+  };
+};
