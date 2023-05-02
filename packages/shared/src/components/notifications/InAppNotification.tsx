@@ -13,11 +13,7 @@ import CloseButton from '../CloseButton';
 import { InAppNotificationItem } from './InAppNotificationItem';
 import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import {
-  AnalyticsEvent,
-  NotificationPromptSource,
-  Origin,
-} from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { NotificationType } from './utils';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { InAppNotificationPosition } from '../../lib/featureValues';
@@ -40,7 +36,7 @@ export function InAppNotificationElement(): ReactElement {
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
-  const { onTogglePermission, isSubscribed } = useNotificationContext();
+  const { isSubscribed } = useNotificationContext();
   const [isExit, setIsExit] = useState(false);
   const closeNotification = () => {
     setIsExit(true);
