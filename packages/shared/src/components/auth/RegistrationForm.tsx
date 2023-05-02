@@ -29,6 +29,10 @@ import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
+import { useQuery } from 'react-query';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
+import { graphqlUrl } from '../../lib/config';
 
 export interface RegistrationFormProps {
   email: string;
@@ -58,13 +62,36 @@ export const RegistrationForm = ({
 }: RegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>('');
+  const [name, setName] = useState<string>('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
+  const { requestMethod } = useRequestProtocol();
+  const usernameQueryKey = ['generateUsername', name];
+  const { data: generatedUsername } = useQuery<{ generateUniqueUsername: string }>(
+    usernameQueryKey,
+    () =>
+      requestMethod(
+        graphqlUrl,
+        GET_USERNAME_SUGGESTION,
+        { name },
+        { requestKey: JSON.stringify(usernameQueryKey) },
+      ),
+    { enabled: !!name.length },
+  );
 
   useEffect(() => {
     trackEvent({
       event_name: AuthEventNames.StartSignUpForm,
     });
   }, []);
+
+  useEffect(() => {
+    if (!!username.length) return;
+
+    if (generatedUsername?.generateUniqueUsername) {
+      setUsername(generatedUsername.generateUniqueUsername);
+    }
+  }, [generatedUsername]);
 
   useEffect(() => {
     if (Object.keys(hints).length) {
@@ -145,6 +172,8 @@ export const RegistrationForm = ({
           inputId="traits.name"
           label="Full name"
           hint={hints?.['traits.name']}
+          value={name}
+          onBlur={(e) => setName(e.target.value)}
           valueChanged={() =>
             hints?.['traits.name'] &&
             onUpdateHints({ ...hints, 'traits.name': '' })
@@ -170,6 +199,7 @@ export const RegistrationForm = ({
           name="traits.username"
           inputId="traits.username"
           label="Enter a username"
+          value={username}
           hint={hints?.['traits.username']}
           valueChanged={() =>
             hints?.['traits.username'] &&

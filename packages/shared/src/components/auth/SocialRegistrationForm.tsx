@@ -30,6 +30,10 @@ import AuthForm from './AuthForm';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
+import { useQuery } from 'react-query';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
+import { graphqlUrl } from '../../lib/config';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -60,17 +64,44 @@ export const SocialRegistrationForm = ({
   isLoading,
 }: SocialRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { user } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
+  const [username, setUsername] = useState<string>('');
+  const [name, setName] = useState<string>('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
+  const { requestMethod } = useRequestProtocol();
+  const usernameQueryKey = ['generateUsername', name];
+  const { data: generatedUsername } = useQuery<{ generateUniqueUsername: string }>(
+    usernameQueryKey,
+    () =>
+      requestMethod(
+        graphqlUrl,
+        GET_USERNAME_SUGGESTION,
+        { name: user?.name },
+        { requestKey: JSON.stringify(usernameQueryKey) },
+      ),
+    { enabled: !!user?.name.length },
+  );
 
   useEffect(() => {
     trackEvent({
       event_name: AuthEventNames.StartSignUpForm,
     });
   }, []);
+
+  useEffect(() => {
+    if (!!user?.username || !!user?.username?.length) return;
+
+    if (generatedUsername?.generateUniqueUsername) {
+      setUsername(generatedUsername.generateUniqueUsername);
+      updateUser({
+        ...user,
+        username: generatedUsername.generateUniqueUsername,
+      })
+    }
+  }, [generatedUsername]);
 
   const trackError = (error) => {
     trackEvent({
@@ -174,6 +205,8 @@ export const SocialRegistrationForm = ({
           value={user?.name}
           valid={!nameHint && !hints?.name}
           hint={hints?.name || nameHint}
+          // value={name}
+          onBlur={(e) => setName(e.target.value)}
           valueChanged={() => {
             if (hints?.name) {
               onUpdateHints?.({ ...hints, name: '' });

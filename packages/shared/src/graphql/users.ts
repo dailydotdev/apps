@@ -257,3 +257,9 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
     }
   }
 `;
+
+export const GET_USERNAME_SUGGESTION = gql`
+  query GenerateUniqueUsername($name: String!) {
+    generateUniqueUsername(name: $name)
+  }
+`;
