@@ -47,8 +47,7 @@ const Notifications = (): ReactElement => {
     />
   );
   const { trackEvent } = useAnalyticsContext();
-  const { clearUnreadCount, onTogglePermission, isSubscribed } =
-    useNotificationContext();
+  const { clearUnreadCount, isSubscribed } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
     () => request(graphqlUrl, READ_NOTIFICATIONS_MUTATION),
     { onSuccess: clearUnreadCount },
@@ -76,7 +75,7 @@ const Notifications = (): ReactElement => {
   const length = queryResult?.data?.pages?.length ?? 0;
 
   const onNotificationClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
+    _: React.MouseEvent<HTMLAnchorElement>,
     id: string,
     type: NotificationType,
   ) => {
@@ -85,11 +84,6 @@ const Notifications = (): ReactElement => {
       target_id: id,
       extra: JSON.stringify({ origin: Origin.NonRealTime, type }),
     });
-
-    if (type === NotificationType.SquadSubscribeNotification) {
-      e.preventDefault();
-      onTogglePermission(NotificationPromptSource.NotificationItem);
-    }
   };
 
   useEffect(() => {

@@ -86,7 +86,7 @@ export function InAppNotificationElement(): ReactElement {
   }, [payload]);
 
   const onNotificationClick = (
-    event: React.MouseEvent<HTMLAnchorElement>,
+    _: React.MouseEvent<HTMLAnchorElement>,
     id: string,
     type: NotificationType,
   ) => {
@@ -95,11 +95,6 @@ export function InAppNotificationElement(): ReactElement {
       target_id: id,
       extra: JSON.stringify({ origin: Origin.RealTime, type }),
     });
-
-    if (type === NotificationType.SquadSubscribeNotification) {
-      event.preventDefault();
-      onTogglePermission(NotificationPromptSource.NotificationItem);
-    }
   };
 
   const isNotifTypeSubscribe =

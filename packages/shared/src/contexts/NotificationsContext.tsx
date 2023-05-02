@@ -1,11 +1,13 @@
 import React, {
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
+import { useRouter } from 'next/router';
 import {
   UseNotificationPermissionPopup,
   useNotificationPermissionPopup,
@@ -57,6 +59,7 @@ export const NotificationsContextProvider = ({
   const isExtension = checkIsExtension();
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
+  const router = useRouter();
   const [OneSignal, setOneSignal] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -68,38 +71,50 @@ export const NotificationsContextProvider = ({
     true,
   );
 
-  const getRegistrationId = async (isGranted: boolean) => {
-    if (!isGranted) {
-      return '';
-    }
+  const getRegistrationId = useCallback(
+    async (isGranted: boolean) => {
+      if (!isGranted) {
+        return '';
+      }
 
-    if (registrationId) {
-      return registrationId;
-    }
+      if (registrationId) {
+        return registrationId;
+      }
 
-    await globalThis.OneSignal?.registerForPushNotifications?.();
-    const id = await globalThis.OneSignal?.getRegistrationId();
-    setRegistrationId(id);
-    await OneSignal?.setExternalUserId?.(user.id);
+      await globalThis.OneSignal?.registerForPushNotifications?.();
+      const id = await globalThis.OneSignal?.getRegistrationId();
+      setRegistrationId(id);
+      await OneSignal?.setExternalUserId?.(user.id);
 
-    return id;
-  };
+      return id;
+    },
+    [OneSignal, registrationId, setRegistrationId],
+  );
 
-  const onUpdatePush = async (permission: NotificationPermission) => {
-    const isGranted = permission === 'granted';
-    const id = await getRegistrationId(isGranted);
-    const isRegistered = !!id;
-    const allowedPush = isGranted && isRegistered;
+  const onUpdatePush = useCallback(
+    async (permission: NotificationPermission) => {
+      const isGranted = permission === 'granted';
+      const id = await getRegistrationId(isGranted);
+      const isRegistered = !!id;
+      const allowedPush = isGranted && isRegistered;
 
-    await OneSignal?.setSubscription?.(allowedPush);
-    setIsSubscribed(allowedPush);
+      await OneSignal?.setSubscription?.(allowedPush);
+      setIsSubscribed(allowedPush);
 
-    if (isAlertShown && allowedPush) {
-      setIsAlertShown(false);
-    }
+      if (isAlertShown && allowedPush) {
+        setIsAlertShown(false);
+      }
 
-    return allowedPush;
-  };
+      return allowedPush;
+    },
+    [
+      OneSignal,
+      getRegistrationId,
+      isAlertShown,
+      setIsSubscribed,
+      setIsAlertShown,
+    ],
+  );
 
   const {
     onOpenPopup,
@@ -111,38 +126,44 @@ export const NotificationsContextProvider = ({
     onSuccess: !isExtension && onUpdatePush,
   });
 
-  const onUpdatePermission = async (permission: NotificationPermission) => {
-    const allowedPush = await onUpdatePush(permission);
+  const onUpdatePermission = useCallback(
+    async (permission: NotificationPermission) => {
+      const allowedPush = await onUpdatePush(permission);
 
-    onPermissionCache(allowedPush ? 'granted' : 'default');
-  };
+      onPermissionCache(allowedPush ? 'granted' : 'default');
+    },
+    [onPermissionCache, onUpdatePush],
+  );
 
-  const onTogglePermission = async (
-    source: NotificationPromptSource,
-  ): Promise<NotificationPermission> => {
-    if (!user) return 'default';
+  const onTogglePermission = useCallback(
+    async (
+      source: NotificationPromptSource,
+    ): Promise<NotificationPermission> => {
+      if (!user) return 'default';
 
-    const { permission } = globalThis.Notification ?? {};
+      const { permission } = globalThis.Notification ?? {};
 
-    if (app === BootApp.Extension || permission === 'denied') {
-      onOpenPopup(source);
-      return null;
-    }
+      if (app === BootApp.Extension || permission === 'denied') {
+        onOpenPopup(source);
+        return null;
+      }
 
-    if (isSubscribed) {
-      await onUpdatePermission('denied');
-      return 'denied';
-    }
+      if (isSubscribed) {
+        await onUpdatePermission('denied');
+        return 'denied';
+      }
 
-    const result = await globalThis.window?.Notification?.requestPermission();
-    trackEvent({
-      event_name: AnalyticsEvent.ClickEnableNotification,
-      extra: JSON.stringify({ origin: source, permission: result }),
-    });
-    await onUpdatePermission(result);
+      const result = await globalThis.window?.Notification?.requestPermission();
+      trackEvent({
+        event_name: AnalyticsEvent.ClickEnableNotification,
+        extra: JSON.stringify({ origin: source, permission: result }),
+      });
+      await onUpdatePermission(result);
 
-    return result;
-  };
+      return result;
+    },
+    [app, user, isSubscribed, trackEvent, onOpenPopup, onUpdatePermission],
+  );
 
   useEffect(() => {
     setCurrentUnreadCount(unreadCount);
@@ -191,6 +212,12 @@ export const NotificationsContextProvider = ({
       }
     });
   }, [isInitialized, isInitializing, user]);
+
+  useEffect(() => {
+    if (isSubscribed || !router?.query.notify) return;
+
+    onTogglePermission(NotificationPromptSource.NotificationItem);
+  }, [onTogglePermission, isSubscribed, router]);
 
   const data: NotificationsContextData = useMemo(
     () => ({
