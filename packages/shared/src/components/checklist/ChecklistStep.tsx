@@ -32,8 +32,8 @@ const ChecklistStep = ({
         <div className="flex items-center flex-start">
           <QuaternaryButton
             className={classNames(
-              '-ml-2 text-salt-90',
-              isCompleted && 'text-pepper-10',
+              '-ml-2 text-theme-label-tertiary',
+              isCompleted && 'text-theme-label-quaternary',
             )}
             id={step.action.type}
             disabled={isCompleted}
@@ -45,7 +45,7 @@ const ChecklistStep = ({
               >
                 <ChecklistAIcon
                   className={classNames(
-                    active && 'text-cabbage-40',
+                    active && 'text-theme-color-cabbage',
                     className.checkmark,
                   )}
                   size={IconSize.Small}
@@ -58,7 +58,7 @@ const ChecklistStep = ({
               className={classNames(
                 'typo-callout',
                 active ? 'font-bold text-theme-label-primary' : 'font-normal',
-                isCompleted && 'text-pepper-10',
+                isCompleted && 'text-theme-label-quaternary',
                 className.title,
               )}
             >
@@ -68,7 +68,8 @@ const ChecklistStep = ({
         </div>
         <ArrowIcon
           className={classNames(
-            !isOpen && 'rotate-180 text-salt-90',
+            active ? 'text-theme-label-primary' : 'text-theme-label-tertiary',
+            !isOpen && 'rotate-180',
             isCompleted && 'opacity-32',
           )}
           size={IconSize.Small}
@@ -78,7 +79,7 @@ const ChecklistStep = ({
         <div className="my-2 ml-9">
           <p
             className={classNames(
-              'text-salt-90 typo-callout',
+              'text-theme-label-tertiary typo-callout',
               className.description,
             )}
           >

@@ -40,10 +40,12 @@ const ChecklistCard = ({
           <p className="mb-1 font-bold typo-body text-theme-label-primary">
             {title}
           </p>
-          <p className="text-salt-90 typo-callout">{description}</p>
+          <p className="text-theme-label-tertiary typo-callout">
+            {description}
+          </p>
           {typeof onRequestClose === 'function' && (
             <button
-              className="absolute top-4 right-4 text-salt-90"
+              className="absolute top-4 right-4 text-theme-label-tertiary"
               type="button"
               onClick={onRequestClose}
             >
@@ -76,7 +78,7 @@ const ChecklistCard = ({
                 active={activeStep === step.action.type}
                 onToggle={onToggleStep}
                 className={{
-                  checkmark: isDone && 'text-cabbage-40',
+                  checkmark: isDone && 'text-theme-color-cabbage',
                 }}
               />
             );
