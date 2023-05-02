@@ -4,7 +4,8 @@ import { Card } from '../cards/Card';
 import MiniCloseIcon from '../icons/MiniClose';
 import { IconSize } from '../Icon';
 import { ChecklistStep } from './ChecklistStep';
-import { ChecklistAction, ChecklistCardProps } from '../../lib/checklist';
+import { ChecklistCardProps } from '../../lib/checklist';
+import { Action } from '../../graphql/actions';
 
 const ChecklistCard = ({
   className,
@@ -14,16 +15,16 @@ const ChecklistCard = ({
   onRequestClose,
 }: ChecklistCardProps): ReactElement => {
   const activeStep = useMemo(
-    () => steps.find((item) => !item.action.dateCompleted)?.action.type,
+    () => steps.find((item) => !item.action.completedAt)?.action.type,
     [steps],
   );
   const [checkedStep, setCheckedStep] = useState<string>(activeStep);
   const isDone = useMemo(
-    () => steps.every((item) => !!item.action.dateCompleted),
+    () => steps.every((item) => !!item.action.completedAt),
     [steps],
   );
 
-  const onToggleStep = (action: ChecklistAction) => {
+  const onToggleStep = (action: Action) => {
     setCheckedStep((currentCheckedStep) => {
       if (currentCheckedStep === action.type) {
         return undefined;
@@ -59,7 +60,7 @@ const ChecklistCard = ({
                   key={step.action.type}
                   className={classNames(
                     'w-12 h-3 bg-white rounded-6',
-                    !step.action.dateCompleted && 'opacity-24',
+                    !step.action.completedAt && 'opacity-24',
                   )}
                 />
               );

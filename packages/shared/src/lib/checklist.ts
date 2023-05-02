@@ -1,5 +1,6 @@
 import { ReactElement, ReactNode } from 'react';
 import { SourceMemberRole } from '../graphql/sources';
+import { Action, ActionType } from '../graphql/actions';
 
 export type ChecklistCardProps = {
   className?: string;
@@ -10,7 +11,7 @@ export type ChecklistCardProps = {
 };
 
 export type ChecklistStepType = {
-  action: ChecklistAction;
+  action: Action;
   title: string;
   description: string;
   component?: (props: ChecklistStepProps) => ReactElement;
@@ -26,27 +27,9 @@ export type ChecklistStepProps = {
   step: ChecklistStepType;
   checked: boolean;
   active: boolean;
-  onToggle: (action: ChecklistAction) => void;
+  onToggle: (action: Action) => void;
   children?: ReactNode;
 };
-
-export type ChecklistAction = {
-  userId: string;
-  type: string;
-  dateCompleted: Date | null;
-};
-
-// TODO WT-1293-checklist-components merge with other PR that contains useActions hook implementation
-export enum ActionType {
-  CreateSquad = 'createSquad',
-  JoinSquad = 'joinSquad',
-  EditWelcomePost = 'editWelcomePost',
-  CommentOnWelcomePost = 'commentOnWelcomePost',
-  SharePost = 'sharePost',
-  InviteMember = 'inviteMember',
-  InstallExtension = 'installExtension',
-  Notification = 'notification',
-}
 
 export const actionsPerRoleMap: Partial<
   Record<SourceMemberRole, ActionType[]>

@@ -2,14 +2,11 @@ import React, { ReactElement, useMemo } from 'react';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { ChecklistCard } from './ChecklistCard';
 import { InstallExtensionChecklistStep } from './InstallExtensionChecklistStep';
-import {
-  ActionType,
-  ChecklistStepType,
-  actionsPerRoleMap,
-} from '../../lib/checklist';
+import { ChecklistStepType, actionsPerRoleMap } from '../../lib/checklist';
 import { SquadWelcomeChecklistStep } from './SquadWelcomeChecklistStep';
 import { SharePostChecklistStep } from './SharePostChecklistStep';
 import { NotificationChecklistStep } from './NotificationChecklistStep';
+import { ActionType } from '../../graphql/actions';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   // TODO WT-1293-checklist-components verify copy for steps
@@ -22,7 +19,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         action: {
           userId: '1',
           type: ActionType.CreateSquad,
-          dateCompleted: new Date(),
+          completedAt: new Date(),
         },
         title: 'Create a squad',
         description:
@@ -32,7 +29,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         action: {
           userId: '1',
           type: ActionType.JoinSquad,
-          dateCompleted: new Date(),
+          completedAt: new Date(),
         },
         title: 'Join a squad',
         description:
@@ -42,7 +39,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         action: {
           userId: '1',
           type: ActionType.EditWelcomePost,
-          dateCompleted: null,
+          completedAt: null,
         },
         title: 'Customize the welcome post',
         description: `The welcome post is where your new squad members will start their journey. You can welcome them and explain the behavior and rules that are expected.`,
@@ -51,7 +48,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         action: {
           userId: '1',
           type: ActionType.CommentOnWelcomePost,
-          dateCompleted: null,
+          completedAt: null,
         },
         title: "Let people know you're here",
         description: `Welcome to the ${squad.name} squad. Start your journey by saying hi.`,
@@ -61,7 +58,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         action: {
           userId: '1',
           type: ActionType.SharePost,
-          dateCompleted: null,
+          completedAt: null,
         },
         title: 'Share your first post',
         description:
@@ -72,7 +69,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         action: {
           userId: '1',
           type: ActionType.InviteMember,
-          dateCompleted: null,
+          completedAt: null,
         },
         title: 'Invite a member',
         description:
@@ -82,7 +79,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         action: {
           userId: '1',
           type: ActionType.InstallExtension,
-          dateCompleted: null,
+          completedAt: null,
         },
         title: 'Download browser extension',
         description:
@@ -93,7 +90,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         action: {
           userId: '1',
           type: ActionType.Notification,
-          dateCompleted: null,
+          completedAt: null,
         },
         title: 'Subscribe for updates',
         description: `One last thing! To get the best out of squads stay tuned about the most important activity on ${squad.name}. No spam, we promise!`,
@@ -103,11 +100,11 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   }, [squad]);
 
   const steps = useMemo(() => {
-    const actions =
+    const actionsForRole =
       actionsPerRoleMap[squad.currentMember.role] ||
       actionsPerRoleMap[SourceMemberRole.Member];
 
-    return actions
+    return actionsForRole
       .map((actionType) => {
         return stepsMap[actionType];
       })

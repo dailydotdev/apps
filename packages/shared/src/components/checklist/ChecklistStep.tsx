@@ -14,7 +14,7 @@ const ChecklistStep = ({
   onToggle,
   children,
 }: ChecklistStepProps): ReactElement => {
-  const isCompleted = !!step.action.dateCompleted;
+  const isCompleted = !!step.action.completedAt;
   const isOpen = !isCompleted && checked;
 
   return (

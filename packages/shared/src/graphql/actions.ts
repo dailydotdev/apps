@@ -2,6 +2,13 @@ import request, { gql } from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
 
 export enum ActionType {
+  CreateSquad = 'createSquad',
+  JoinSquad = 'joinSquad',
+  EditWelcomePost = 'editWelcomePost',
+  CommentOnWelcomePost = 'commentOnWelcomePost',
+  SharePost = 'sharePost',
+  InviteMember = 'inviteMember',
+  InstallExtension = 'installExtension',
   Notification = 'notification',
 }
 
