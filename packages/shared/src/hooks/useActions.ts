@@ -41,7 +41,7 @@ export const useActions = (): UseActions => {
         );
     },
     onError: (_, __, rollback: () => void) => {
-      rollback?.();
+      if (rollback) rollback();
     },
   });
 
