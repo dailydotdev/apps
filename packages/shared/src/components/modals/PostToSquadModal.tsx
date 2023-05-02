@@ -113,7 +113,7 @@ function PostToSquadModal({
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
       onRequestClose={onRequestClose}
-      steps={preview.id ? undefined : modalSteps}
+      steps={preview?.id ? undefined : modalSteps}
       {...props}
     >
       <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />

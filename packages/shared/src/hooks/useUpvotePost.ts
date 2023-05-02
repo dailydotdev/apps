@@ -13,6 +13,9 @@ type UseUpvotePostRet<T> = {
   cancelPostUpvote: (variables: T) => Promise<void>;
 };
 
+export const upvotePostMutationKey = ['post', 'mutation', 'upvote'];
+export const cancelUpvotePostMutationKey = ['post', 'mutation', 'cancelUpvote'];
+
 export default function useUpvotePost<
   T extends { id: string } = { id: string },
 >({
@@ -30,6 +33,7 @@ export default function useUpvotePost<
         id,
       }),
     {
+      mutationKey: upvotePostMutationKey,
       onMutate: onUpvotePostMutate,
       onError: (err, _, rollback) => rollback?.(),
     },
@@ -46,6 +50,7 @@ export default function useUpvotePost<
         id,
       }),
     {
+      mutationKey: cancelUpvotePostMutationKey,
       onMutate: onCancelPostUpvoteMutate,
       onError: (err, _, rollback) => rollback?.(),
     },
