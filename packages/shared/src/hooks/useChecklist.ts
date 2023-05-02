@@ -1,17 +1,15 @@
 import { useMemo } from 'react';
 import { ChecklistStepType } from '../lib/checklist';
 
-export type UseChecklistDoneProps = {
+export type UseChecklistProps = {
   steps: Pick<ChecklistStepType, 'action'>[];
 };
 
-export type UseChecklistDone = {
+export type UseChecklist = {
   isDone: boolean;
 };
 
-const useChecklistDone = ({
-  steps,
-}: UseChecklistDoneProps): UseChecklistDone => {
+const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
   return useMemo(() => {
     return {
       isDone: steps.every((item) => !!item.action.completedAt),
@@ -19,4 +17,4 @@ const useChecklistDone = ({
   }, [steps]);
 };
 
-export { useChecklistDone };
+export { useChecklist };

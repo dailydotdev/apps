@@ -94,7 +94,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         actions,
       }),
     };
-  }, [squad]);
+  }, [squad, actions]);
 
   const steps = useMemo(() => {
     const actionsForRole =
@@ -106,7 +106,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         return stepsMap[actionType];
       })
       .filter(Boolean);
-  }, [squad.currentMember]);
+  }, [squad.currentMember, stepsMap]);
 
   return (
     <ChecklistCard
