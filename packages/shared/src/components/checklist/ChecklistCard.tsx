@@ -6,6 +6,7 @@ import { IconSize } from '../Icon';
 import { ChecklistStep } from './ChecklistStep';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { Action } from '../../graphql/actions';
+import { useChecklistDone } from '../../hooks/useChecklistDone';
 
 const ChecklistCard = ({
   className,
@@ -19,10 +20,7 @@ const ChecklistCard = ({
     [steps],
   );
   const [checkedStep, setCheckedStep] = useState<string>(activeStep);
-  const isDone = useMemo(
-    () => steps.every((item) => !!item.action.completedAt),
-    [steps],
-  );
+  const { isDone } = useChecklistDone({ steps });
 
   const onToggleStep = (action: Action) => {
     setCheckedStep((currentCheckedStep) => {
