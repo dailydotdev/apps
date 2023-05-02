@@ -17,6 +17,8 @@ import { checkIsExtension } from '../lib/func';
 import AuthContext from './AuthContext';
 import { AnalyticsEvent, NotificationPromptSource } from '../lib/analytics';
 import { useAnalyticsContext } from './AnalyticsContext';
+import { useActions } from '../hooks/useActions';
+import { ActionType } from '../graphql/actions';
 
 export interface NotificationsContextData
   extends UseNotificationPermissionPopup {
@@ -57,6 +59,7 @@ export const NotificationsContextProvider = ({
   const isExtension = checkIsExtension();
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
+  const { actions, completeAction, checkHasCompleted } = useActions();
   const [OneSignal, setOneSignal] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -191,6 +194,16 @@ export const NotificationsContextProvider = ({
       }
     });
   }, [isInitialized, isInitializing, user]);
+
+  // we could have make this trigger when the permission is once accepted
+  // but did this instead so we won't have to do retroactive checks in the BE
+  useEffect(() => {
+    if (!actions || !isSubscribed) return;
+
+    if (checkHasCompleted(ActionType.Notification)) return;
+
+    completeAction(ActionType.Notification);
+  }, [actions, isSubscribed, completeAction, checkHasCompleted]);
 
   const data: NotificationsContextData = useMemo(
     () => ({
