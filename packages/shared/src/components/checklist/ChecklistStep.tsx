@@ -5,6 +5,9 @@ import ArrowIcon from '../icons/Arrow';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import ChecklistAIcon from '../icons/ChecklistA';
+import classed from '../../lib/classed';
+
+const Container = classed('div', '');
 
 const ChecklistStep = ({
   className = {},
@@ -18,7 +21,7 @@ const ChecklistStep = ({
   const isOpen = !isCompleted && checked;
 
   return (
-    <div className={className.root}>
+    <Container className={className.root}>
       <button
         type="button"
         disabled={isCompleted}
@@ -89,7 +92,7 @@ const ChecklistStep = ({
           {!!children && <div className="mt-4">{children}</div>}
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 
