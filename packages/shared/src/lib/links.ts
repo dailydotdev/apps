@@ -35,7 +35,7 @@ export function isValidHttpUrl(link: string): boolean {
   }
 }
 
-export const stripLinkParameters = (link: string) => {
+export const stripLinkParameters = (link: string): string => {
   const { origin, pathname } = new URL(link);
 
   return origin + pathname;
