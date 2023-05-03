@@ -231,10 +231,10 @@ describe('squad page header', () => {
     await screen.findByAltText(alt);
   });
 
-  it('should show feedback icon', async () => {
+  it('should show checklist icon', async () => {
     renderComponent();
-    const feedback = await screen.findByLabelText('Feedback');
-    expect(feedback).toHaveAttribute('href', feedbackLink);
+    const checklist = await screen.findByTestId('squad-checklist-button');
+    expect(checklist).toBeInTheDocument();
   });
 });
 

@@ -120,6 +120,7 @@ export function SquadHeaderBar({
       >
         <Button
           tag="a"
+          data-testid="squad-checklist-button"
           className="btn-secondary"
           icon={<ChecklistBIcon secondary size={IconSize.Small} />}
           onClick={() => {
