@@ -44,7 +44,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
-import { squadFeedback } from '@dailydotdev/shared/src/lib/constants';
 import SquadPage from '../pages/squads/[handle]';
 
 const showLogin = jest.fn();
@@ -105,7 +104,6 @@ const createSourceMock = (
   result,
 });
 
-const feedbackLink = `${squadFeedback}#user_id=${defaultUser.id}&squad_id=${defaultSquad.id}`;
 const copyToClipboard = jest.fn();
 Object.assign(navigator, {
   clipboard: {
