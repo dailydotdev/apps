@@ -25,7 +25,7 @@ import { useNotificationContext } from '../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
-import { usePageParams } from '../hooks/usePageParams';
+import { useNotificationParams } from '../hooks/useNotificationParams';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -75,7 +75,7 @@ export default function MainLayout({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
-  usePageParams();
+  useNotificationParams();
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,

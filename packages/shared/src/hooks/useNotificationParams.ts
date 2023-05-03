@@ -4,7 +4,7 @@ import { NotificationPromptSource } from '../lib/analytics';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { stripLinkParameters } from '../lib/links';
 
-export const usePageParams = (): void => {
+export const useNotificationParams = (): void => {
   const router = useRouter();
   const { isSubscribed, onTogglePermission } = useNotificationContext();
 
