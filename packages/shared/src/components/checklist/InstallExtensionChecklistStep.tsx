@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { ChecklistStep } from './ChecklistStep';
 import { Button } from '../buttons/Button';
-import BrowsersIcon from '../icons/Browsers';
+import BrowsersIcon from '../../../icons/browsers.svg';
 import { FlexCentered } from '../utilities';
 
 const InstallExtensionChecklistStep = (
@@ -14,8 +14,12 @@ const InstallExtensionChecklistStep = (
     <ChecklistStep {...props}>
       <Button className="btn-primary">
         <FlexCentered className="gap-2">
-          <BrowsersIcon className="text-theme-label-primary !w-12" /> Add to
-          browser - it&apos;s free!
+          <BrowsersIcon
+            width="50px"
+            height="23px"
+            className="text-theme-label-primary"
+          />
+          Add to browser - it&apos;s free!
         </FlexCentered>
       </Button>
     </ChecklistStep>
