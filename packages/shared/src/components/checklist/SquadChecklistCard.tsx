@@ -46,8 +46,8 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         },
         actions,
       }),
-      [ActionType.CommentOnWelcomePost]: createChecklistStep({
-        type: ActionType.CommentOnWelcomePost,
+      [ActionType.SquadFirstComment]: createChecklistStep({
+        type: ActionType.SquadFirstComment,
         step: {
           title: "Let people know you're here",
           description: `Welcome to the ${squad.name} squad. Start your journey by saying hi.`,
@@ -55,8 +55,8 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         },
         actions,
       }),
-      [ActionType.SharePost]: createChecklistStep({
-        type: ActionType.SharePost,
+      [ActionType.SquadFirstPost]: createChecklistStep({
+        type: ActionType.SquadFirstPost,
         step: {
           title: 'Share your first post',
           description:
@@ -65,8 +65,8 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         },
         actions,
       }),
-      [ActionType.InviteMember]: createChecklistStep({
-        type: ActionType.InviteMember,
+      [ActionType.SquadInvite]: createChecklistStep({
+        type: ActionType.SquadInvite,
         step: {
           title: 'Invite a member',
           description:
@@ -74,8 +74,8 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         },
         actions,
       }),
-      [ActionType.InstallExtension]: createChecklistStep({
-        type: ActionType.InstallExtension,
+      [ActionType.BrowserExtension]: createChecklistStep({
+        type: ActionType.BrowserExtension,
         step: {
           title: 'Download browser extension',
           description:

@@ -37,15 +37,16 @@ export const actionsPerRoleMap: Partial<
   [SourceMemberRole.Admin]: [
     ActionType.CreateSquad,
     ActionType.EditWelcomePost,
-    ActionType.SharePost,
-    ActionType.InviteMember,
+    ActionType.SquadFirstPost,
+    ActionType.SquadInvite,
     ActionType.Notification,
   ],
   [SourceMemberRole.Member]: [
     ActionType.JoinSquad,
-    ActionType.CommentOnWelcomePost,
-    ActionType.SharePost,
-    ActionType.InstallExtension,
+    ActionType.SquadFirstComment,
+    ActionType.SquadFirstPost,
+    ActionType.MyFeed,
+    ActionType.BrowserExtension,
     ActionType.Notification,
   ],
 };
