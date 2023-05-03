@@ -23,6 +23,8 @@ export default function ScrollFeedFiltersOnboarding({
       event_name: AnalyticsEvent.EligibleScrollBlock,
       target_id: ExperimentWinner.ScrollOnboardingVersion,
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
