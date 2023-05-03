@@ -6,7 +6,6 @@
   border-color: var(--button-border-color, var(--button-default-border-color, transparent));
   color: var(--button-color, var(--button-default-color));
   --loader-color: var(--button-color, var(--button-default-color));
-
   & .icon {
     width: 1em;
     height: 1em;
@@ -135,6 +134,7 @@
       --button-border-color: var(--button-hover-border-color);
       --button-color: var(--button-hover-color);
       --button-box-shadow: var(--button-hover-box-shadow);
+      transition: all 0.2s ease-in-out;
     }
   }
 
@@ -176,6 +176,7 @@
 
   & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
     color: var(--button-hover-color);
+    transition: all 0.2s ease-in-out;
   }
 
   & :active ~ label {
@@ -229,10 +230,12 @@
   &[aria-pressed="true"] {
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
+    transition: all 0.2s ease-in-out;
   }
 
   &:hover, &.hover, &:focus:focus-visible {
     --button-icon: var(--button-hover-icon);
+    transition: all 0.2s ease-in-out;
   }
 
   &:active {
@@ -252,6 +255,7 @@
 
   &:hover, &.hover, &:focus:focus-visible {
     --button-icon: var(--button-hover-icon);
+    transition: all 0.2s ease-in-out;
   }
 
   &:active {
