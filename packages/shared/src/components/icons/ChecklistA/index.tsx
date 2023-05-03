@@ -3,7 +3,7 @@ import Icon, { IconProps } from '../../Icon';
 import FilledIcon from './filled.svg';
 import OutlinedIcon from './outlined.svg';
 
-const ChecklistIcon = ({ size, ...rest }: IconProps): ReactElement => (
+const ChecklistAIcon = ({ size, ...rest }: IconProps): ReactElement => (
   <Icon
     {...rest}
     size={size}
@@ -12,4 +12,4 @@ const ChecklistIcon = ({ size, ...rest }: IconProps): ReactElement => (
   />
 );
 
-export default ChecklistIcon;
+export default ChecklistAIcon;

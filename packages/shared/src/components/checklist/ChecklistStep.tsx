@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { IconSize } from '../Icon';
 import ArrowIcon from '../icons/Arrow';
 import { ChecklistStepProps } from '../../lib/checklist';
-import ChecklistIcon from '../icons/Checklist';
+import ChecklistAIcon from '../icons/ChecklistA';
 import classed from '../../lib/classed';
 
 const Container = classed('div', '');
@@ -43,7 +43,7 @@ const ChecklistStep = ({
                 isActive && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
               )}
             >
-              <ChecklistIcon
+              <ChecklistAIcon
                 className={classNames(
                   isActive && 'text-theme-color-cabbage',
                   className.checkmark,
