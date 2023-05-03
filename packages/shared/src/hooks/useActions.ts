@@ -21,7 +21,7 @@ export const useActions = (): UseActions => {
   const { data: actions } = useQuery(
     generateQueryKey(RequestKey.Actions, user),
     getUserActions,
-    { enabled: !!user },
+    { enabled: !!user?.id },
   );
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {
