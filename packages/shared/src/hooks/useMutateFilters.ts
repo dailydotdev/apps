@@ -140,6 +140,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
   const shouldFilterLocally = !user;
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateFeedFilters = ({
     advancedSettings,
     ...filters
@@ -160,6 +162,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     });
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onAdvancedSettingsUpdate = ({
     advancedSettings,
   }: AdvancedSettingsMutationProps) =>
@@ -197,6 +201,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onFollowTags = ({ tags }: TagsMutationProps) =>
     onMutateTagsSettings(
       tags,
@@ -227,6 +233,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onBlockTags = ({ tags }: TagsMutationProps) =>
     onMutateTagsSettings(
       tags,
@@ -263,6 +271,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onUnfollowTags = ({ tags }: TagsMutationProps) =>
     onMutateTagsSettings(
       tags,
@@ -295,6 +305,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onUnblockTags = ({ tags }: TagsMutationProps) =>
     onMutateTagsSettings(
       tags,
@@ -327,6 +339,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onFollowSource = ({ source }: SourceMutationProps) =>
     onMutateSourcesSettings(
       source,
@@ -362,6 +376,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onUnfollowSource = ({ source }: SourceMutationProps) =>
     onMutateSourcesSettings(
       source,

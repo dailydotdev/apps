@@ -42,6 +42,8 @@ export default function useFeedOnPostClick(
         const item = items[index] as PostItem;
         updatePost(item.page, item.index, { ...post, read: true });
       },
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [items, updatePost, columns, feedName, ranking],
   );
 }

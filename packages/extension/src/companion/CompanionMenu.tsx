@@ -112,6 +112,8 @@ export default function CompanionMenu({
     };
     window.addEventListener('beforeunload', cleanup);
     return () => cleanup();
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleCompanion = () => {

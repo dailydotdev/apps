@@ -12,6 +12,8 @@ export type UseTopSitesRet = {
 export default function useTopSites(): UseTopSitesRet {
   const [topSites, setTopSites] = useState<TopSite[] | undefined>([]);
   const [hasCheckedPermission, setHasCheckedPermission] = useState(false);
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const revokePermission = async () => {
     await browser.permissions.remove({
       permissions: ['topSites'],
@@ -29,6 +31,8 @@ export default function useTopSites(): UseTopSitesRet {
     setHasCheckedPermission(true);
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const askTopSitesPermission = async (): Promise<boolean> => {
     const granted = await browser.permissions.request({
       permissions: ['topSites'],

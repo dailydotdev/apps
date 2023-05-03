@@ -66,6 +66,8 @@ export default function PostsSearch({
     if (!initialQuery) {
       setInitialQuery(initialQueryProp);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQueryProp]);
 
   const hideMenu = () => setMenuPosition(null);
@@ -88,6 +90,8 @@ export default function PostsSearch({
         searchResults?.[suggestionType]?.hits.map((hit) => hit.title) ?? [],
       );
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchResults, isLoading]);
 
   const submitQuery = async (item?: string) => {

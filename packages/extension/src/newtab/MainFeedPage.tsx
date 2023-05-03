@@ -70,6 +70,8 @@ export default function MainFeedPage({
     });
 
     return `/${feed}`;
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSearchOn, feedName]);
 
   const onLogoClick = (e: React.MouseEvent): void => {

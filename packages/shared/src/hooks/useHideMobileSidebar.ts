@@ -20,5 +20,7 @@ export default function useHideMobileSidebar({
         router?.events?.off('routeChangeStart', action);
       };
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 }
