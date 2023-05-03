@@ -4,7 +4,7 @@ import { IconSize } from '../Icon';
 import ArrowIcon from '../icons/Arrow';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import ChecklistAIcon from '../icons/ChecklistA';
+import ChecklistIcon from '../icons/Checklist';
 import classed from '../../lib/classed';
 
 const Container = classed('div', '');
@@ -45,7 +45,7 @@ const ChecklistStep = ({
                   isActive && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
                 )}
               >
-                <ChecklistAIcon
+                <ChecklistIcon
                   className={classNames(
                     isActive && 'text-theme-color-cabbage',
                     className.checkmark,
