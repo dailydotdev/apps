@@ -16,6 +16,7 @@ import { verifyPermission } from '../../graphql/squads';
 import SettingsIcon from '../icons/Settings';
 import { squadFeedback } from '../../lib/constants';
 import FeedbackIcon from '../icons/Feedback';
+import TourIcon from '../icons/Tour';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -65,6 +66,14 @@ export default function SquadHeaderMenu({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const items = useMemo(() => {
     const list: ContextMenuItemProps[] = [
+      {
+        Icon: TourIcon,
+        onClick: () =>
+          openModal({
+            type: LazyModal.SquadTour,
+          }),
+        label: 'Learn how Squads work',
+      },
       {
         Icon: FeedbackIcon,
         href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
