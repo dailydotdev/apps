@@ -25,6 +25,8 @@ export default function useFeedInfiniteScroll({
     if (inView && canFetchMore) {
       fetchPage();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, canFetchMore]);
 
   return infiniteScrollRef;

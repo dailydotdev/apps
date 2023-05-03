@@ -38,6 +38,8 @@ function NewSquadModal({
       target_type: TargetType.CreateSquadPopup,
       extra: JSON.stringify({ origin }),
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onCreate = async (e, newSquadForm: SquadForm) => {

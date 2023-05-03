@@ -132,6 +132,8 @@ export default function CalendarHeatmap<T extends { date: string }>({
         };
         return acc;
       }, {}),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [values, valueToCount, startDate, endDate, bins],
   );
 

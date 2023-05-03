@@ -30,6 +30,8 @@ export const useCreateSquadModal = ({
   const [hasTriedOnboarding, setHasTriedOnboarding, isLoaded] =
     usePersistentContext<boolean>(SQUAD_ONBOARDING, hasSquads);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const openNewSquadModal = (props: ModalProps) =>
     openModal({ type: LazyModal.NewSquad, props });
 
@@ -43,6 +45,8 @@ export const useCreateSquadModal = ({
     const { origin, pathname } = window.location;
     openNewSquadModal({ origin: Origin.Notification });
     router.replace(origin + pathname);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.pathname]);
 
   useEffect(() => {
@@ -59,6 +63,8 @@ export const useCreateSquadModal = ({
 
     openNewSquadModal({ origin: Origin.Auto });
     setHasTriedOnboarding(true);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     hasTriedOnboarding,
     isLoaded,

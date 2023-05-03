@@ -103,6 +103,8 @@ export const OnboardingContextProvider = ({
       setIsRegisteringFilters(false);
       setSkipIntro(false);
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, shouldUpdateFilters, isRegisteringFilters]);
 
   useEffect(() => {
@@ -122,6 +124,8 @@ export const OnboardingContextProvider = ({
     setHasTriedOnboarding(false);
     setOnboardingMode(OnboardingMode.Auto);
     setIsOnboarding(true);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasOnboardingLoaded, user, pathname, loadedAlerts]);
 
   const onCloseOnboardingModal = () => {
@@ -152,6 +156,8 @@ export const OnboardingContextProvider = ({
       onInitializeOnboarding,
       shouldSkipIntro,
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isOnboarding,
       user,

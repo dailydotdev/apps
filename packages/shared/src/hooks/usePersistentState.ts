@@ -38,6 +38,8 @@ export default function usePersistentState<T>(
         }
         setLoaded(true);
       });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return [value, setValueAndPersist, loaded];

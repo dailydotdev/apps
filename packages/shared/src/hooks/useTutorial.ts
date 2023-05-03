@@ -28,6 +28,8 @@ export const useTutorial = ({ key }: UseTutorialProps): UseTutorial => {
     false,
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryKey = ['tutorial', 'query', key];
 
   const { data: isActive } = useQuery(
@@ -70,5 +72,7 @@ export const useTutorial = ({ key }: UseTutorialProps): UseTutorial => {
       },
       isFetched,
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, setActive, isCompleted, setCompleted]);
 };

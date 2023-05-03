@@ -83,6 +83,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   useWindowEvents(
     'popstate',
     CHECK_POPSTATE,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useCallback(() => router.reload(), []),
     false,
   );
