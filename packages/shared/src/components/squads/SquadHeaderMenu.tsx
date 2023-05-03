@@ -37,10 +37,14 @@ export default function SquadHeaderMenu({
   if (!user) {
     return <></>;
   }
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { onDeleteSquad } = useDeleteSquad({
     squad,
     callback: () => router.replace('/'),
   });
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { onLeaveSquad } = useLeaveSquad({
     squad,
     callback: () => router.replace('/'),
@@ -56,6 +60,8 @@ export default function SquadHeaderMenu({
       },
     });
   };
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const items = useMemo(() => {
     const list: ContextMenuItemProps[] = [
       {
@@ -80,6 +86,8 @@ export default function SquadHeaderMenu({
     }
 
     return list;
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canEditSquad, canDeleteSquad, squad, user, onDeleteSquad, onLeaveSquad]);
 
   return (

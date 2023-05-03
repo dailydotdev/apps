@@ -77,6 +77,8 @@ export function InAppNotificationElement(): ReactElement {
     return () => {
       router.events.off('routeChangeStart', handler);
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payload]);
 
   const onNotificationClick = (id: string, type: NotificationType) => {
@@ -91,6 +93,8 @@ export function InAppNotificationElement(): ReactElement {
     return null;
   }
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { inAppNotificationPosition } = useContext(FeaturesContext);
 
   return (

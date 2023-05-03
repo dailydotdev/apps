@@ -194,6 +194,8 @@ export default function Feed<T>({
     if (emptyFeed) {
       onEmptyFeed?.();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emptyFeed]);
 
   const showScrollOnboardingVersion =
@@ -229,8 +231,12 @@ export default function Feed<T>({
     setShowCommentPopupId,
     comment,
     isSendingComment,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCommentPopup(feedName);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onUpvote = useFeedUpvotePost(
     items,
     updatePost,
@@ -239,6 +245,8 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onBookmark = useFeedBookmarkPost(
     items,
     updatePost,
@@ -246,6 +254,8 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onPostClick = useFeedOnPostClick(
     items,
     updatePost,
@@ -254,6 +264,8 @@ export default function Feed<T>({
     ranking,
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onReadArticleClick = useFeedOnPostClick(
     items,
     updatePost,
@@ -282,6 +294,8 @@ export default function Feed<T>({
     postMenuIndex,
     postMenuLocation,
     setPostMenuIndex,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useFeedContextMenu();
   let lastShareMenuCloseTrackEvent = () => {};
   const onShareMenuClickTracked = (
@@ -357,16 +371,22 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useSharePost(Origin.Feed);
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     return () => {
       document.body.classList.remove('hidden-scrollbar');
     };
   }, []);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!selectedPost) {
       document.body.classList.remove('hidden-scrollbar');

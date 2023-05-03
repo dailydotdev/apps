@@ -43,6 +43,8 @@ export const useCompanionSettings = (origin: string): UseCompanionSettings => {
         toggleOptOutCompanion();
       }
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placement, optOutCompanion, loadedSettings]);
 
   return useMemo(() => ({ placement }), [placement]);

@@ -152,6 +152,8 @@ export function RankProgress({
       return RANKS[rank].steps;
     }
     return 0;
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showRankAnimation, showCurrentRankSteps, shownRank, progress, rank]);
 
   const animateRank = () => {
@@ -260,6 +262,8 @@ export function RankProgress({
     if (!showRankAnimation) {
       setShownRank(rank);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rank]);
 
   useEffect(() => {
@@ -274,6 +278,8 @@ export function RankProgress({
       setAnimatingProgress(true);
     }
     setPrevProgress(progress);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress]);
 
   return (

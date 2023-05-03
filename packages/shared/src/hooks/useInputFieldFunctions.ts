@@ -64,12 +64,16 @@ function useInputFieldFunctions<
     if (validInput !== undefined) {
       validityChanged?.(validInput);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validInput]);
 
   useEffect(() => {
     if (validInput !== undefined && valid !== undefined) {
       setValidInput(valid);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [valid]);
 
   const onBlur = () => {

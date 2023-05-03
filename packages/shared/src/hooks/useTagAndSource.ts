@@ -50,6 +50,8 @@ export default function useTagAndSource({
     unfollowSource,
   } = useMutateFilters(user);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onFollowTags = async ({
     tags,
     category,
@@ -72,6 +74,8 @@ export default function useTagAndSource({
     return { successful: true };
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onUnfollowTags = async ({
     tags,
     category,
@@ -91,6 +95,8 @@ export default function useTagAndSource({
     return { successful: true };
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onBlockTags = async ({ tags, requireLogin }: TagActionArguments) => {
     if (shouldShowLogin(requireLogin)) {
       showLogin(origin);
@@ -107,6 +113,8 @@ export default function useTagAndSource({
     return { successful: true };
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onUnblockTags = async ({ tags, requireLogin }: TagActionArguments) => {
     if (shouldShowLogin(requireLogin)) {
       showLogin(origin);
@@ -122,6 +130,8 @@ export default function useTagAndSource({
     return { successful: true };
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onFollowSource = async ({
     source,
     requireLogin,
@@ -140,6 +150,8 @@ export default function useTagAndSource({
     return { successful: true };
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onUnfollowSource = async ({
     source,
     requireLogin,
