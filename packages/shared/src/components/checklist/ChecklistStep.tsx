@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { IconSize } from '../Icon';
 import ArrowIcon from '../icons/Arrow';
 import { ChecklistStepProps } from '../../lib/checklist';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import ChecklistIcon from '../icons/Checklist';
 import classed from '../../lib/classed';
 
@@ -32,30 +31,28 @@ const ChecklistStep = ({
         }}
       >
         <div className="flex flex-1 gap-1 items-center flex-start">
-          <QuaternaryButton
+          <div
             className={classNames(
-              '-ml-2 text-theme-label-tertiary',
+              'w-10 h-10 flex justify-center items-center -ml-2 text-theme-label-tertiary',
               isCompleted && 'text-theme-label-quaternary',
             )}
             id={step.action.type}
-            disabled={isCompleted}
-            icon={
-              <div
+          >
+            <div
+              className={classNames(
+                isActive && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
+              )}
+            >
+              <ChecklistIcon
                 className={classNames(
-                  isActive && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
+                  isActive && 'text-theme-color-cabbage',
+                  className.checkmark,
                 )}
-              >
-                <ChecklistIcon
-                  className={classNames(
-                    isActive && 'text-theme-color-cabbage',
-                    className.checkmark,
-                  )}
-                  size={IconSize.Small}
-                  secondary={!isCompleted}
-                />
-              </div>
-            }
-          />
+                size={IconSize.Small}
+                secondary={!isCompleted}
+              />
+            </div>
+          </div>
           <p
             className={classNames(
               'typo-callout flex-1 text-left',
