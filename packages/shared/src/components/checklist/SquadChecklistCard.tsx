@@ -37,7 +37,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   if (!sidebarRendered) {
     return (
       <Modal
-        className="border-none !bg-transparent shadow-none"
+        className="border-none shadow-none !bg-transparent"
         isOpen={isChecklistVisible}
         kind={ModalKind.FlexibleCenter}
       >
