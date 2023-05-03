@@ -20,7 +20,7 @@ export type ChecklistStepType = {
 
 export type ChecklistStepProps = {
   className?: Partial<{
-    root: string;
+    container: string;
     checkmark: string;
     title: string;
     description: string;

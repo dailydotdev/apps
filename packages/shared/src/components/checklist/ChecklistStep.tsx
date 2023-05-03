@@ -4,9 +4,6 @@ import { IconSize } from '../Icon';
 import ArrowIcon from '../icons/Arrow';
 import { ChecklistStepProps } from '../../lib/checklist';
 import ChecklistAIcon from '../icons/ChecklistA';
-import classed from '../../lib/classed';
-
-const Container = classed('div', '');
 
 const ChecklistStep = ({
   className = {},
@@ -19,7 +16,7 @@ const ChecklistStep = ({
   const isCompleted = !!step.action.completedAt;
 
   return (
-    <Container className={className.root}>
+    <div className={className.container}>
       <button
         type="button"
         disabled={isCompleted}
@@ -88,7 +85,7 @@ const ChecklistStep = ({
           {!!children && <div className="mt-4">{children}</div>}
         </div>
       )}
-    </Container>
+    </div>
   );
 };
 
