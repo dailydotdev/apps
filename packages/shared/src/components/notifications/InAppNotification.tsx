@@ -81,11 +81,7 @@ export function InAppNotificationElement(): ReactElement {
     };
   }, [payload]);
 
-  const onNotificationClick = (
-    _: React.MouseEvent<HTMLAnchorElement>,
-    id: string,
-    type: NotificationType,
-  ) => {
+  const onNotificationClick = (id: string, type: NotificationType) => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotification,
       target_id: id,
@@ -121,9 +117,8 @@ export function InAppNotificationElement(): ReactElement {
       />
       <InAppNotificationItem
         {...payload.notification}
-        onClick={(event) =>
+        onClick={() =>
           onNotificationClick(
-            event,
             payload.notification.id,
             payload.notification.type,
           )
