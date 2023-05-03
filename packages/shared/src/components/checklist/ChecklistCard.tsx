@@ -1,11 +1,10 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Card } from '../cards/Card';
 import MiniCloseIcon from '../icons/MiniClose';
 import { IconSize } from '../Icon';
 import { ChecklistStep } from './ChecklistStep';
 import { ChecklistCardProps } from '../../lib/checklist';
-import { Action } from '../../graphql/actions';
 import { useChecklist } from '../../hooks/useChecklist';
 
 const ChecklistCard = ({
@@ -15,22 +14,9 @@ const ChecklistCard = ({
   steps,
   onRequestClose,
 }: ChecklistCardProps): ReactElement => {
-  const activeStep = useMemo(
-    () => steps.find((item) => !item.action.completedAt)?.action.type,
-    [steps],
-  );
-  const [checkedStep, setCheckedStep] = useState<string>(activeStep);
-  const { isDone } = useChecklist({ steps });
-
-  const onToggleStep = (action: Action) => {
-    setCheckedStep((currentCheckedStep) => {
-      if (currentCheckedStep === action.type) {
-        return undefined;
-      }
-
-      return action.type;
-    });
-  };
+  const { isDone, openStep, onToggleStep, activeStep } = useChecklist({
+    steps,
+  });
 
   return (
     <div className={className}>
@@ -73,8 +59,8 @@ const ChecklistCard = ({
               <StepComponent
                 key={step.action.type}
                 step={step}
-                checked={checkedStep === step.action.type}
-                active={activeStep === step.action.type}
+                isOpen={openStep === step.action.type}
+                isActive={activeStep === step.action.type}
                 onToggle={onToggleStep}
                 className={{
                   checkmark: isDone && 'text-theme-color-cabbage',

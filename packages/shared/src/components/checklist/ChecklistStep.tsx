@@ -12,13 +12,12 @@ const Container = classed('div', '');
 const ChecklistStep = ({
   className = {},
   step,
-  checked = false,
-  active = false,
+  isOpen = false,
+  isActive = false,
   onToggle,
   children,
 }: ChecklistStepProps): ReactElement => {
   const isCompleted = !!step.action.completedAt;
-  const isOpen = !isCompleted && checked;
 
   return (
     <Container className={className.root}>
@@ -43,12 +42,12 @@ const ChecklistStep = ({
             icon={
               <div
                 className={classNames(
-                  active && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
+                  isActive && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
                 )}
               >
                 <ChecklistAIcon
                   className={classNames(
-                    active && 'text-theme-color-cabbage',
+                    isActive && 'text-theme-color-cabbage',
                     className.checkmark,
                   )}
                   size={IconSize.Small}
@@ -60,7 +59,7 @@ const ChecklistStep = ({
           <p
             className={classNames(
               'typo-callout flex-1 text-left',
-              active ? 'font-bold text-theme-label-primary' : 'font-normal',
+              isActive ? 'font-bold text-theme-label-primary' : 'font-normal',
               isCompleted
                 ? 'text-theme-label-quaternary'
                 : 'text-theme-label-tertiary',
@@ -72,7 +71,7 @@ const ChecklistStep = ({
         </div>
         <ArrowIcon
           className={classNames(
-            active ? 'text-theme-label-primary' : 'text-theme-label-tertiary',
+            isActive ? 'text-theme-label-primary' : 'text-theme-label-tertiary',
             !isOpen && 'rotate-180',
             isCompleted && 'opacity-32',
           )}

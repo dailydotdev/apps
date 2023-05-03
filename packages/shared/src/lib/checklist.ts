@@ -25,8 +25,8 @@ export type ChecklistStepProps = {
     description: string;
   }>;
   step: ChecklistStepType;
-  checked: boolean;
-  active: boolean;
+  isOpen: boolean;
+  isActive: boolean;
   onToggle: (action: Action) => void;
   children?: ReactNode;
 };
