@@ -21,11 +21,7 @@ import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import {
-  AnalyticsEvent,
-  NotificationPromptSource,
-  Origin,
-} from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
