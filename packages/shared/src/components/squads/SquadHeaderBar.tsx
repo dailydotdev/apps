@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement, useMemo } from 'react';
 import { Button } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -9,8 +9,6 @@ import SquadMemberShortList, {
   SquadMemberShortListProps,
 } from './SquadMemberShortList';
 import { IconSize } from '../Icon';
-import FeedbackIcon from '../icons/Feedback';
-import { squadFeedback } from '../../lib/constants';
 import AddUserIcon from '../icons/AddUser';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
@@ -21,6 +19,9 @@ import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
+import ChecklistBIcon from '../icons/ChecklistB';
+import { BaseTooltip } from '../tooltips/BaseTooltip';
+import { useSquadChecklistSteps } from '../../hooks/useSquadChecklistSteps';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -46,6 +47,21 @@ export function SquadHeaderBar({
   const copyLinkTutorial = useTutorial({
     key: TutorialKey.CopySquadLink,
   });
+
+  const { steps } = useSquadChecklistSteps({ squad });
+
+  const checklistTooltipText = useMemo(() => {
+    const completedStepsCount = steps.filter(
+      (step) => !!step.action.completedAt,
+    ).length;
+    const totalStepsCount = steps.length;
+
+    if (completedStepsCount === totalStepsCount) {
+      return '';
+    }
+
+    return `${completedStepsCount}/${totalStepsCount}`;
+  }, [steps]);
 
   return (
     <div
@@ -88,16 +104,23 @@ export function SquadHeaderBar({
           memberCount={memberCount}
         />
       )}
-      <SimpleTooltip placement="top" content="Feedback">
+      <BaseTooltip
+        visible={!!checklistTooltipText}
+        container={{
+          className: '-mb-4 bg-theme-color-onion !text-theme-label-primary',
+        }}
+        placement="top"
+        content={checklistTooltipText}
+      >
         <Button
           tag="a"
-          target="_blank"
-          rel="noopener noreferrer"
-          href={`${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`}
           className="btn-secondary"
-          icon={<FeedbackIcon size={IconSize.Small} />}
+          icon={<ChecklistBIcon secondary size={IconSize.Small} />}
+          onClick={() => {
+            // TODO WT-1293-checklist-components open checklist
+          }}
         />
-      </SimpleTooltip>
+      </BaseTooltip>
       <SimpleTooltip placement="top" content="Squad options">
         <Button
           className="btn-secondary"

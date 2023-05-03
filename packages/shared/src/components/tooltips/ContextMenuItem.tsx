@@ -1,7 +1,7 @@
 import { Item, ItemProps } from '@dailydotdev/react-contexify';
 import classNames from 'classnames';
 import Link from 'next/link';
-import React, { ReactElement } from 'react';
+import React, { HTMLAttributeAnchorTarget, ReactElement } from 'react';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { IconProps, IconSize } from '../Icon';
 
@@ -9,6 +9,7 @@ export interface ContextMenuItemProps extends Omit<ItemProps, 'children'> {
   href?: string;
   label: string;
   Icon: React.ComponentType<IconProps>;
+  target?: HTMLAttributeAnchorTarget;
 }
 
 function ContextMenuItem({
@@ -17,6 +18,7 @@ function ContextMenuItem({
   onClick,
   Icon,
   className,
+  target,
   ...props
 }: ContextMenuItemProps): ReactElement {
   return (
@@ -24,7 +26,9 @@ function ContextMenuItem({
       condition={!!href}
       wrapper={(children) => (
         <Link href={href}>
-          <a href={href}>{children}</a>
+          <a href={href} target={target}>
+            {children}
+          </a>
         </Link>
       )}
     >

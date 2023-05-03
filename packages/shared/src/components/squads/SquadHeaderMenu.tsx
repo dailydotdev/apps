@@ -2,7 +2,6 @@ import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
-import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
 import { Squad, SourcePermissions } from '../../graphql/sources';
 import TrashIcon from '../icons/Trash';
@@ -15,6 +14,8 @@ import ContextMenuItem, {
 } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
 import SettingsIcon from '../icons/Settings';
+import { squadFeedback } from '../../lib/constants';
+import FeedbackIcon from '../icons/Feedback';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -59,12 +60,10 @@ export default function SquadHeaderMenu({
   const items = useMemo(() => {
     const list: ContextMenuItemProps[] = [
       {
-        Icon: TourIcon,
-        onClick: () =>
-          openModal({
-            type: LazyModal.SquadTour,
-          }),
-        label: 'Learn how Squads work',
+        Icon: FeedbackIcon,
+        href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
+        target: '_blank',
+        label: 'Feedback',
       },
       canDeleteSquad
         ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }
