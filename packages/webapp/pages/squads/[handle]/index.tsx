@@ -107,6 +107,8 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
       extra: JSON.stringify({ squad: squadId }),
     });
     setTrackedImpression(true);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squadId, trackedImpression]);
 
   const { data: squadMembers } = useQuery<SourceMember[]>(
@@ -147,10 +149,14 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad) return <Custom404 />;
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const sharePostTutorial = useTutorial({
     key: TutorialKey.ShareSquadPost,
   });
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const copyLinkTutorial = useTutorial({
     key: TutorialKey.CopySquadLink,
   });

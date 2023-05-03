@@ -113,6 +113,8 @@ export const BootDataProvider = ({
     }
   }, []);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const setBootData = (
     updatedBootData: Partial<BootCacheData>,
     update = true,
@@ -144,6 +146,8 @@ export const BootDataProvider = ({
 
       setBootData(bootRemoteData, false);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bootRemoteData]);
 
   useRefreshToken(bootRemoteData?.accessToken, refetch);

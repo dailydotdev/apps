@@ -21,6 +21,8 @@ export function LinkWithTooltip({
           typeof tooltip.content === 'string' ? tooltip.content : undefined,
         ref: (el: Element) => setElement(el),
       }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [children],
   );
 

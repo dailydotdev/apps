@@ -110,6 +110,8 @@ export default function useFeedUpvotePost(
     return () => {
       unsubscribe();
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, updatePost]);
 
   return async (post, index, row, column, upvoted): Promise<void> => {

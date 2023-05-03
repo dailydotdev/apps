@@ -160,6 +160,8 @@ export default function useFeed<T>(
     ) {
       adsQuery.fetchNextPage();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adsQuery.data, feedQuery.data, adsQuery.isFetching]);
 
   const items = useMemo(() => {
@@ -193,6 +195,8 @@ export default function useFeed<T>(
       );
     }
     return newItems;
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     feedQuery.data,
     feedQuery.isFetching,

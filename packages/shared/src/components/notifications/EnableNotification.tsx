@@ -108,12 +108,16 @@ function EnableNotification({
       target_type: TargetType.EnableNotifications,
       extra: JSON.stringify({ origin: source }),
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldNotDisplay]);
 
   useEffect(() => {
     return () => {
       onAcceptedPermissionJustNow?.(false);
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (shouldNotDisplay) {

@@ -84,6 +84,8 @@ export const useExtensionPermission = ({
 
   return useMemo(
     () => ({ contentScriptGranted, requestContentScripts, isFetched }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [contentScriptGranted, isFetched],
   );
 };

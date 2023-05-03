@@ -224,6 +224,8 @@ export const SettingsContextProvider = ({
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [settings, loadedSettings, userId],
   );
 

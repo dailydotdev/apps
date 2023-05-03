@@ -63,6 +63,8 @@ export default function useShortcutLinks(): UseShortcutLinks {
     if (hasCheckedPermission) {
       resetSelected();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasCheckedPermission]);
 
   const onRevokePermission = async () => {
@@ -109,6 +111,8 @@ export default function useShortcutLinks(): UseShortcutLinks {
       // eslint-disable-next-line no-param-reassign
       input.value = formLinks?.[i]?.trim() || '';
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isManual, hasCustomLinks]);
 
   return useMemo(
@@ -127,6 +131,8 @@ export default function useShortcutLinks(): UseShortcutLinks {
       onIsManual: setIsManual,
       revokePermission: onRevokePermission,
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       formRef,
       isManual,

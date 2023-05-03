@@ -123,6 +123,8 @@ const SquadReferral = ({
       extra: joinSquadAnalyticsExtra(),
     });
     setTrackedImpression(true);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member, trackedImpression]);
 
   const sourceId = member?.source?.id;
