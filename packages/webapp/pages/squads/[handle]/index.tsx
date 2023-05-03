@@ -62,13 +62,12 @@ const SquadEmptyScreen = dynamic(
     ),
 );
 
-const SquadChecklistCard = dynamic(async () => {
-  const module = await import(
-    /* webpackChunkName: "squadChecklistCard" */ '@dailydotdev/shared/src/components/checklist/SquadChecklistCard'
-  );
-
-  return module.SquadChecklistCard;
-});
+const SquadChecklistCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadChecklistCard" */ '@dailydotdev/shared/src/components/checklist/SquadChecklistCard'
+    ),
+);
 
 type SourcePageProps = { handle: string };
 

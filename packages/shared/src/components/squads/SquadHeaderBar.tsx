@@ -20,7 +20,6 @@ import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
 import ChecklistBIcon from '../icons/ChecklistB';
-import { BaseTooltip } from '../tooltips/BaseTooltip';
 import { useSquadChecklistSteps } from '../../hooks/useSquadChecklistSteps';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_CHECKLIST_VISIBLE_KEY } from '../../lib/checklist';
@@ -111,7 +110,7 @@ export function SquadHeaderBar({
           memberCount={memberCount}
         />
       )}
-      <BaseTooltip
+      <SimpleTooltip
         visible={!!checklistTooltipText}
         container={{
           className: '-mb-4 bg-theme-color-onion !text-theme-label-primary',
@@ -127,7 +126,7 @@ export function SquadHeaderBar({
             setChecklistVisible(!isChecklistVisible);
           }}
         />
-      </BaseTooltip>
+      </SimpleTooltip>
       <SimpleTooltip placement="top" content="Squad options">
         <Button
           className="btn-secondary"

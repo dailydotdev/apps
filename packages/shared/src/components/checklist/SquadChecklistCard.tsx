@@ -56,4 +56,4 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   );
 };
 
-export { SquadChecklistCard };
+export default SquadChecklistCard;
