@@ -1,6 +1,7 @@
 import { ReactElement, ReactNode } from 'react';
 import { SourceMemberRole } from '../graphql/sources';
 import { Action, ActionType } from '../graphql/actions';
+import { StorageTopic, generateStorageKey } from './storage';
 
 export type ChecklistCardProps = {
   className?: string;
@@ -72,3 +73,8 @@ export const createChecklistStep = ({
     ...step,
   };
 };
+
+export const SQUAD_CHECKLIST_VISIBLE_KEY = generateStorageKey(
+  StorageTopic.Squad,
+  'checklistVisible',
+);

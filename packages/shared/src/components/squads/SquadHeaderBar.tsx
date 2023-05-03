@@ -22,6 +22,8 @@ import { SourcePermissions } from '../../graphql/sources';
 import ChecklistBIcon from '../icons/ChecklistB';
 import { BaseTooltip } from '../tooltips/BaseTooltip';
 import { useSquadChecklistSteps } from '../../hooks/useSquadChecklistSteps';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { SQUAD_CHECKLIST_VISIBLE_KEY } from '../../lib/checklist';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -62,6 +64,11 @@ export function SquadHeaderBar({
 
     return `${completedStepsCount}/${totalStepsCount}`;
   }, [steps]);
+
+  const [isChecklistVisible, setChecklistVisible] = usePersistentContext(
+    SQUAD_CHECKLIST_VISIBLE_KEY,
+    false,
+  );
 
   return (
     <div
@@ -117,7 +124,7 @@ export function SquadHeaderBar({
           className="btn-secondary"
           icon={<ChecklistBIcon secondary size={IconSize.Small} />}
           onClick={() => {
-            // TODO WT-1293-checklist-components open checklist
+            setChecklistVisible(!isChecklistVisible);
           }}
         />
       </BaseTooltip>
