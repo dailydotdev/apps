@@ -18,6 +18,7 @@ import { NotificationType } from './utils';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { InAppNotificationPosition } from '../../lib/featureValues';
 import { ButtonSize } from '../buttons/Button';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
 
 const Container = classed(
   'div',
@@ -35,6 +36,7 @@ export function InAppNotificationElement(): ReactElement {
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
+  const { isSubscribed } = useNotificationContext();
   const [isExit, setIsExit] = useState(false);
   const closeNotification = () => {
     setIsExit(true);
@@ -89,7 +91,9 @@ export function InAppNotificationElement(): ReactElement {
     });
   };
 
-  if (!payload?.notification) {
+  const isNotifTypeSubscribe =
+    payload?.notification?.type === NotificationType.SquadSubscribeNotification;
+  if (!payload?.notification || (isSubscribed && isNotifTypeSubscribe)) {
     return null;
   }
 

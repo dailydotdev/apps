@@ -21,7 +21,7 @@ const NotificationText = classed(
 );
 
 interface InAppNotificationItemProps extends NewNotification {
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export function InAppNotificationItem({
