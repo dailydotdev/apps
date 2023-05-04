@@ -72,7 +72,7 @@ export const SocialRegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { requestMethod } = useRequestProtocol();
   const usernameQueryKey = ['generateUsername', name];
-  const { data: generatedUsername } = useQuery<{
+  useQuery<{
     generateUniqueUsername: string;
   }>(
     usernameQueryKey,
@@ -83,7 +83,20 @@ export const SocialRegistrationForm = ({
         { name: user?.name },
         { requestKey: JSON.stringify(usernameQueryKey) },
       ),
-    { enabled: !!user?.name.length },
+    {
+      enabled: !!user?.name.length,
+      onSuccess: (data) => {
+        if (!data.generateUniqueUsername.length || !!user?.username?.length)
+          return;
+
+        if (data?.generateUniqueUsername) {
+          updateUser({
+            ...user,
+            username: data.generateUniqueUsername,
+          });
+        }
+      },
+    },
   );
 
   useEffect(() => {
@@ -93,17 +106,6 @@ export const SocialRegistrationForm = ({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (!!user?.username || !!user?.username?.length) return;
-
-    if (generatedUsername?.generateUniqueUsername) {
-      updateUser({
-        ...user,
-        username: generatedUsername.generateUniqueUsername,
-      });
-    }
-  }, [generatedUsername]);
 
   const trackError = (error) => {
     trackEvent({
