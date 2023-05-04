@@ -43,6 +43,8 @@ export const CompanionPopupButton = ({
       target_type: 'companion permission',
       target_id: placement,
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentScriptGranted, isFetched]);
 
   if (contentScriptGranted || !isFetched) {

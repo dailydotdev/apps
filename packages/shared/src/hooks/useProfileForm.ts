@@ -78,6 +78,8 @@ const useProfileForm = ({
 
   return useMemo(
     () => ({ hint, isLoading, onUpdateHint: setHint, updateUserProfile }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [user, hint, isLoading],
   );
 };

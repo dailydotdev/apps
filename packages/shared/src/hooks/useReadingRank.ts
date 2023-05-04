@@ -144,12 +144,16 @@ export default function useReadingRank(
     } else {
       setLevelUp(true);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cachedRank, remoteRank]);
 
   useEffect(() => {
     if (!disableNewRankPopup) {
       setShowRankPopup(levelUp);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [levelUp]);
 
   // Cleanup effect to set the unmounting and remove active listeners.
@@ -190,6 +194,8 @@ export default function useReadingRank(
         displayProgress();
       }
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteRank, loadedCache]);
 
   // For anonymous users
@@ -217,6 +223,8 @@ export default function useReadingRank(
         queryClient.setQueryData<MyRankData>(queryKey, rank);
       }
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tokenRefreshed, loadedUserFromCache, loadedCache]);
 
   return useMemo(
@@ -248,6 +256,8 @@ export default function useReadingRank(
         return cacheRank(rank, newNeverShowRankModal);
       },
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [cachedRank, remoteRank, levelUp, shouldShowRankModal, user, queryKey],
   );
 }

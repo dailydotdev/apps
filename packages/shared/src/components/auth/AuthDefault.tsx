@@ -76,6 +76,8 @@ const AuthDefault = ({
       extra: JSON.stringify({ trigger }),
       target_id: targetId || ExperimentWinner.AuthVersion,
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
 
   const onEmailSignup = async (e: React.FormEvent) => {

@@ -121,6 +121,8 @@ export const usePostModalNavigation = (
     return () => {
       window.removeEventListener('popstate', onPopState);
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   const getPostPosition = () => {
@@ -194,6 +196,8 @@ export const usePostModalNavigation = (
       selectedPost: getPost(openedPostIndex),
       selectedPostIndex: openedPostIndex,
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [items, openedPostIndex, isFetchingNextPage],
   );
 
@@ -214,6 +218,8 @@ export const usePostModalNavigation = (
     if (openedPostIndex !== null && isFetchingNextPage) {
       ret.onNext();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, openedPostIndex, isFetchingNextPage]);
 
   return ret;

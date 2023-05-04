@@ -62,6 +62,8 @@ export default function ShareModal({
     baseTrackingEvent('open share');
 
     return () => baseTrackingEvent('close share');
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

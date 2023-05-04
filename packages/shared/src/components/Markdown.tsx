@@ -73,6 +73,8 @@ export default function Markdown({
         element.removeEventListener('mouseleave', clearUser);
       });
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, userId]);
 
   useEffect(() => {
@@ -80,6 +82,8 @@ export default function Markdown({
       return;
     }
     fetchInfo();
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   return (

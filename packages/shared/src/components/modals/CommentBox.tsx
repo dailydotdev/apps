@@ -79,6 +79,8 @@ function CommentBox({
     }
 
     element.setAttribute('data-min-height', element.offsetHeight.toString());
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onPaste = (event: ClipboardEvent): void => {
@@ -121,6 +123,8 @@ function CommentBox({
 
   useEffect(() => {
     if (!mentions?.length) commentRef?.current?.focus();
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mentions]);
 
   return (

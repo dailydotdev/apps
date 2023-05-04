@@ -94,6 +94,8 @@ export const RegistrationForm = ({
     trackEvent({
       event_name: AuthEventNames.StartSignUpForm,
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -103,6 +105,8 @@ export const RegistrationForm = ({
         extra: JSON.stringify({ error: hints }),
       });
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hints]);
 
   const onSubmit = (e: React.FormEvent) => {

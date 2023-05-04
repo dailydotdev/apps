@@ -33,6 +33,8 @@ export const ProgressiveEnhancementContextProvider = ({
   const [asyncImageSupport] = useState(false);
   const contextData = useMemo<ProgressiveEnhancementContextData>(
     () => ({ windowLoaded, asyncImageSupport, nativeShareSupport }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [windowLoaded, asyncImageSupport],
   );
 
