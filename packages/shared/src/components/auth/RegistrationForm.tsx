@@ -67,7 +67,7 @@ export const RegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { requestMethod } = useRequestProtocol();
   const usernameQueryKey = ['generateUsername', name];
-  const { data: generatedUsername } = useQuery<{
+  useQuery<{
     generateUniqueUsername: string;
   }>(
     usernameQueryKey,
@@ -78,7 +78,16 @@ export const RegistrationForm = ({
         { name },
         { requestKey: JSON.stringify(usernameQueryKey) },
       ),
-    { enabled: !!name.length },
+    {
+      enabled: !!name.length,
+      onSuccess: (data) => {
+        if (!data.generateUniqueUsername.length || !!username.length) return;
+
+        if (data?.generateUniqueUsername) {
+          setUsername(data.generateUniqueUsername);
+        }
+      },
+    },
   );
 
   useEffect(() => {
@@ -86,14 +95,6 @@ export const RegistrationForm = ({
       event_name: AuthEventNames.StartSignUpForm,
     });
   }, []);
-
-  useEffect(() => {
-    if (username.length) return;
-
-    if (generatedUsername?.generateUniqueUsername) {
-      setUsername(generatedUsername.generateUniqueUsername);
-    }
-  }, [generatedUsername]);
 
   useEffect(() => {
     if (Object.keys(hints).length) {
@@ -202,6 +203,7 @@ export const RegistrationForm = ({
           inputId="traits.username"
           label="Enter a username"
           value={username}
+          onBlur={(e) => setUsername(e.target.value)}
           hint={hints?.['traits.username']}
           valueChanged={() =>
             hints?.['traits.username'] &&

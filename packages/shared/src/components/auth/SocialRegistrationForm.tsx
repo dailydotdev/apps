@@ -205,7 +205,6 @@ export const SocialRegistrationForm = ({
           value={user?.name}
           valid={!nameHint && !hints?.name}
           hint={hints?.name || nameHint}
-          // value={name}
           onBlur={(e) => setName(e.target.value)}
           valueChanged={() => {
             if (hints?.name) {
