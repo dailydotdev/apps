@@ -77,7 +77,9 @@ export default function SquadHeaderMenu({
       {
         Icon: FeedbackIcon,
         href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
-        target: '_blank',
+        anchorProps: {
+          target: '_blank',
+        },
         label: 'Feedback',
       },
       canDeleteSquad
