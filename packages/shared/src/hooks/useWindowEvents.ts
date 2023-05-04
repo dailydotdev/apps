@@ -24,6 +24,8 @@ const useWindowEvents = <T extends MessageEventData = MessageEventData>(
 
     globalThis?.window.addEventListener(event, handler);
     return () => globalThis?.window.removeEventListener(event, handler);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event, func]);
 };
 

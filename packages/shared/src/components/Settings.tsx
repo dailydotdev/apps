@@ -107,6 +107,8 @@ export default function Settings({
       const updatedThemes = themes.filter((theme) => theme.value !== 'auto');
       setThemes(updatedThemes);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

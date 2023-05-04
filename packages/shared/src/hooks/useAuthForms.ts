@@ -58,6 +58,8 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
       container,
       formRef,
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [formRef?.current, container, onDiscard],
   );
 };

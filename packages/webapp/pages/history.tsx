@@ -35,6 +35,8 @@ const History = (): ReactElement => {
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const searchQuery = router.query?.q?.toString();
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const key = ['readHistory', user?.id];
   const client = useQueryClient();
 

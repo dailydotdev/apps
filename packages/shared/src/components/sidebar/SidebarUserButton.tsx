@@ -10,6 +10,8 @@ import UserIcon from '../icons/User';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
 
+// @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const { onMenuClick } = useProfileMenu();
 
 const ProfileMenu = dynamic(

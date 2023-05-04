@@ -78,6 +78,8 @@ export default function FilterMenu({
     () =>
       directlyOpenedTab &&
       menuItems.find((item) => item.title === directlyOpenedTab),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [directlyOpenedTab],
   );
 

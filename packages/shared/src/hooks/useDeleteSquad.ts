@@ -23,6 +23,8 @@ export const useDeleteSquad = ({
   const { showPrompt } = usePrompt();
   const { deleteSquad: deleteCachedSquad } = useBoot();
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onDeleteSquad = async () => {
     const options: PromptOptions = {
       title: `Delete ${squad.name}`,

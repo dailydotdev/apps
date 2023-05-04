@@ -63,16 +63,24 @@ export default function App({
     return <></>;
   }
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const memoizedFlags = useMemo(() => flags, [flags]);
   const refetchData = async () =>
     browser.runtime.sendMessage({ type: ExtensionMessageType.ContentLoaded });
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useRefreshToken(token, refetchData);
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useBackgroundRequest(refreshTokenKey, {
     queryClient,
     callback: ({ res }) => setToken(res.accessToken),
   });
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useWindowEvents('message', AuthEvent.Login, async (e) => {
     if (e.data?.eventKey === AuthEvent.Login) {
       await refetchData();

@@ -67,6 +67,8 @@ export default function useTrackImpression(
         item.ad.impressionStatus = TRACKED;
       }
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView]);
 
   useEffect(() => {
@@ -87,6 +89,8 @@ export default function useTrackImpression(
         item.post.impressionStatus = TRACKED;
       }
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return inViewRef;

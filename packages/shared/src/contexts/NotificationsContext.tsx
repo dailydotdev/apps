@@ -193,6 +193,8 @@ export const NotificationsContextProvider = ({
         OneSignalReact.setExternalUserId(user.id);
       }
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, isInitializing, user]);
 
   // we could have make this trigger when the permission is once accepted
@@ -224,6 +226,8 @@ export const NotificationsContextProvider = ({
         return !!globalThis.window?.Notification;
       },
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isNotificationsReady,
       isSubscribed,

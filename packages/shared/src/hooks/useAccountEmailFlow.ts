@@ -117,6 +117,8 @@ function useAccountEmailFlow({
       isLoading,
       flow: emailFlow?.id,
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [emailFlow, isLoading, timer],
   );
 }
