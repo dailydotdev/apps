@@ -202,9 +202,9 @@ export const NotificationsContextProvider = ({
   useEffect(() => {
     if (!actions || !isSubscribed) return;
 
-    if (checkHasCompleted(ActionType.Notification)) return;
+    if (checkHasCompleted(ActionType.EnableNotification)) return;
 
-    completeAction(ActionType.Notification);
+    completeAction(ActionType.EnableNotification);
   }, [actions, isSubscribed, completeAction, checkHasCompleted]);
 
   const data: NotificationsContextData = useMemo(

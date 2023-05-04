@@ -97,8 +97,8 @@ const useSquadChecklist = ({
         },
         actions,
       }),
-      [ActionType.Notification]: createChecklistStep({
-        type: ActionType.Notification,
+      [ActionType.EnableNotification]: createChecklistStep({
+        type: ActionType.EnableNotification,
         step: {
           title: 'Subscribe for updates',
           description: `One last thing! To get the best out of squads stay tuned about the most important activity on ${squad.name}. No spam, we promise!`,

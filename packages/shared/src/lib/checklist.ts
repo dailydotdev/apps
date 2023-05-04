@@ -40,7 +40,7 @@ export const actionsPerRoleMap: Partial<
     ActionType.EditWelcomePost,
     ActionType.SquadFirstPost,
     ActionType.SquadInvite,
-    ActionType.Notification,
+    ActionType.EnableNotification,
   ],
   [SourceMemberRole.Member]: [
     ActionType.JoinSquad,
@@ -48,7 +48,7 @@ export const actionsPerRoleMap: Partial<
     ActionType.SquadFirstPost,
     ActionType.MyFeed,
     ActionType.BrowserExtension,
-    ActionType.Notification,
+    ActionType.EnableNotification,
   ],
 };
 

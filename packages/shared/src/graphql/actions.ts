@@ -10,7 +10,7 @@ export enum ActionType {
   MyFeed = 'my_feed',
   SquadInvite = 'squad_invite',
   BrowserExtension = 'browser_extension',
-  Notification = 'notification',
+  EnableNotification = 'enable_notification',
 }
 
 export interface Action {
