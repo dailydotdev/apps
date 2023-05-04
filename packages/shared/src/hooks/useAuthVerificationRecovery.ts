@@ -12,6 +12,7 @@ import { useToastNotification } from './useToastNotification';
 import { disabledRefetch } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
+import { stripLinkParameters } from '../lib/links';
 
 export function useAuthVerificationRecovery(): void {
   const router = useRouter();
@@ -20,8 +21,8 @@ export function useAuthVerificationRecovery(): void {
   const { displayToast } = useToastNotification();
 
   const displayErrorMessage = (text: string) => {
-    const { origin, pathname } = new URL(window.location.href);
-    router.replace(origin + pathname);
+    const link = stripLinkParameters(window.location.href);
+    router.replace(link);
     setTimeout(() => displayToast(text), 100);
   };
 
