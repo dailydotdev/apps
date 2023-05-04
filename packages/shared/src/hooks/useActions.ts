@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import {
@@ -45,10 +45,13 @@ export const useActions = (): UseActions => {
     },
   });
 
-  return useMemo<UseActions>(() => {
-    const checkHasCompleted = (type: ActionType) =>
-      actions?.some((action) => action.type === type && !!action.completedAt);
+  const checkHasCompleted = useCallback(
+    (type: ActionType) =>
+      actions?.some((action) => action.type === type && !!action.completedAt),
+    [actions],
+  );
 
+  return useMemo<UseActions>(() => {
     return {
       actions,
       completeAction: (type: ActionType) => {
@@ -60,5 +63,5 @@ export const useActions = (): UseActions => {
       },
       checkHasCompleted,
     };
-  }, [actions, completeAction]);
+  }, [actions, completeAction, checkHasCompleted]);
 };
