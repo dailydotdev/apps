@@ -10,6 +10,7 @@ import InteractivePopup, {
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Modal } from '../modals/common/Modal';
 import { ModalKind } from '../modals/common/types';
+import { useChecklist } from '../../hooks/useChecklist';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const { steps } = useSquadChecklistSteps({ squad });
@@ -18,19 +19,22 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     false,
   );
   const { sidebarRendered } = useSidebarRendered();
+  const { isDone } = useChecklist({ steps });
 
   if (!isChecklistVisible) {
     return null;
   }
 
+  const onRequestClose = () => {
+    setChecklistVisible(false);
+  };
+
   const checklistElement = (
     <ChecklistCard
-      title="Squads v5"
-      description="Use all of the new features"
+      title={isDone ? 'Good job! you nailed it. 🥳' : 'Get started with squads'}
+      description="5 simple steps to squad greatness!"
       steps={steps}
-      onRequestClose={() => {
-        setChecklistVisible(false);
-      }}
+      onRequestClose={onRequestClose}
     />
   );
 
@@ -40,6 +44,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         className="!w-auto"
         isOpen={isChecklistVisible}
         kind={ModalKind.FlexibleCenter}
+        onRequestClose={onRequestClose}
       >
         {checklistElement}
       </Modal>
@@ -49,7 +54,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   return (
     <InteractivePopup
       position={InteractivePopupPosition.RightEnd}
-      className="rounded-none"
+      className="rounded-none !bg-transparent"
     >
       {checklistElement}
     </InteractivePopup>

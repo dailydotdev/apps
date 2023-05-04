@@ -113,10 +113,11 @@ export function SquadHeaderBar({
       <SimpleTooltip
         visible={!!checklistTooltipText}
         container={{
-          className: '-mb-4 bg-theme-color-onion !text-theme-label-primary',
+          className: '-mb-4 bg-theme-color-onion !text-white',
         }}
         placement="top"
         content={checklistTooltipText}
+        zIndex={3}
       >
         <Button
           tag="a"

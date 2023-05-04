@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Card } from '../cards/Card';
-import MiniCloseIcon from '../icons/MiniClose';
-import { IconSize } from '../Icon';
 import { ChecklistStep } from './ChecklistStep';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { useChecklist } from '../../hooks/useChecklist';
+import { ButtonSize } from '../buttons/Button';
+import CloseButton from '../CloseButton';
+import { RankConfetti } from '../../svg/RankConfetti';
 
 const ChecklistCard = ({
   className,
@@ -20,22 +21,19 @@ const ChecklistCard = ({
 
   return (
     <div className={className}>
-      <Card className="p-0 rounded-14 !border-theme-color-cabbage hover:!border-theme-color-cabbage w-[340px]">
-        <div className="p-4 rounded-t-14 bg-theme-bg-cabbage-opacity-24">
-          <p className="mb-1 font-bold typo-body text-theme-label-primary">
-            {title}
-          </p>
-          <p className="text-theme-label-tertiary typo-callout">
-            {description}
-          </p>
+      <Card className="p-0 bg-transparent rounded-14 !border-theme-color-cabbage hover:!border-theme-color-cabbage w-[340px]">
+        <div className="overflow-hidden relative p-4 bg-gradient-to-t from-cabbage-90 to-cabbage-50 rounded-t-12">
+          {isDone && (
+            <RankConfetti className="absolute top-0 right-0 bottom-0 left-0 opacity-40" />
+          )}
+          <p className="mb-1 font-bold text-white typo-body">{title}</p>
+          <p className="text-white typo-callout">{description}</p>
           {typeof onRequestClose === 'function' && (
-            <button
-              className="absolute top-4 right-4 text-theme-label-tertiary"
-              type="button"
+            <CloseButton
+              buttonSize={ButtonSize.Small}
+              className="top-3 right-3 text-white border-white !absolute btn-secondary"
               onClick={onRequestClose}
-            >
-              <MiniCloseIcon size={IconSize.Small} />
-            </button>
+            />
           )}
           <div className="flex gap-2 mt-6">
             {steps.map((step) => {

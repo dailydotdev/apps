@@ -35,6 +35,7 @@ export interface TooltipProps
     | 'showArrow'
     | 'sticky'
     | 'plugins'
+    | 'zIndex'
   > {
   container?: Omit<
     BaseTooltipContainerProps,
