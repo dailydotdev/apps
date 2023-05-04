@@ -28,7 +28,7 @@ export const useActions = (): UseActions => {
       client.setQueryData<Action[]>(
         generateQueryKey(RequestKey.Actions, user),
         (data) => {
-          if (!data?.length) return [];
+          if (!Array.isArray(data)) return [];
 
           return [...data, { userId: user.id, type, completedAt: new Date() }];
         },
