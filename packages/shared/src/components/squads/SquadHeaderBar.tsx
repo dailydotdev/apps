@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { HTMLAttributes, ReactElement, useMemo } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -20,9 +20,7 @@ import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
 import ChecklistBIcon from '../icons/ChecklistB';
-import { useSquadChecklistSteps } from '../../hooks/useSquadChecklistSteps';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import { SQUAD_CHECKLIST_VISIBLE_KEY } from '../../lib/checklist';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -49,25 +47,12 @@ export function SquadHeaderBar({
     key: TutorialKey.CopySquadLink,
   });
 
-  const { steps } = useSquadChecklistSteps({ squad });
+  const { steps, completedSteps, isChecklistVisible, setChecklistVisible } =
+    useSquadChecklist({ squad });
 
-  const checklistTooltipText = useMemo(() => {
-    const completedStepsCount = steps.filter(
-      (step) => !!step.action.completedAt,
-    ).length;
-    const totalStepsCount = steps.length;
-
-    if (completedStepsCount === totalStepsCount) {
-      return '';
-    }
-
-    return `${completedStepsCount}/${totalStepsCount}`;
-  }, [steps]);
-
-  const [isChecklistVisible, setChecklistVisible] = usePersistentContext(
-    SQUAD_CHECKLIST_VISIBLE_KEY,
-    false,
-  );
+  const completedStepsCount = completedSteps.length;
+  const totalStepsCount = steps.length;
+  const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
 
   return (
     <div
@@ -111,7 +96,7 @@ export function SquadHeaderBar({
         />
       )}
       <SimpleTooltip
-        visible={!!checklistTooltipText}
+        visible={completedStepsCount < totalStepsCount}
         container={{
           className: '-mb-4 bg-theme-color-onion !text-white',
         }}

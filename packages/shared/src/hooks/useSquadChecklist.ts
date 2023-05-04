@@ -9,20 +9,24 @@ import {
   ChecklistStepType,
   createChecklistStep,
   actionsPerRoleMap,
+  SQUAD_CHECKLIST_VISIBLE_KEY,
 } from '../lib/checklist';
 import { useActions } from './useActions';
+import { UseChecklist, useChecklist } from './useChecklist';
+import usePersistentContext from './usePersistentContext';
 
-type UseSquadChecklistStepsProps = {
+type UseSquadChecklistProps = {
   squad: Squad;
 };
 
-type UseSquadChecklistSteps = {
-  steps: ChecklistStepType[];
+type UseSquadChecklist = UseChecklist & {
+  isChecklistVisible: boolean;
+  setChecklistVisible: (value: boolean) => void;
 };
 
-const useSquadChecklistSteps = ({
+const useSquadChecklist = ({
   squad,
-}: UseSquadChecklistStepsProps): UseSquadChecklistSteps => {
+}: UseSquadChecklistProps): UseSquadChecklist => {
   const { actions } = useActions();
 
   const stepsMap = useMemo<
@@ -117,7 +121,20 @@ const useSquadChecklistSteps = ({
       .filter(Boolean);
   }, [squad.currentMember, stepsMap]);
 
-  return { steps };
+  const checklist = useChecklist({ steps });
+
+  const [isChecklistVisible, setChecklistVisible] = usePersistentContext(
+    SQUAD_CHECKLIST_VISIBLE_KEY,
+    true,
+  );
+
+  return useMemo(() => {
+    return {
+      ...checklist,
+      isChecklistVisible,
+      setChecklistVisible,
+    };
+  }, [checklist, isChecklistVisible, setChecklistVisible]);
 };
 
-export { useSquadChecklistSteps };
+export { useSquadChecklist };

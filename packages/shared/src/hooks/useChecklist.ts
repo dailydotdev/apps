@@ -3,14 +3,16 @@ import { ChecklistStepType } from '../lib/checklist';
 import { Action, ActionType } from '../graphql/actions';
 
 export type UseChecklistProps = {
-  steps: Pick<ChecklistStepType, 'action'>[];
+  steps: ChecklistStepType[];
 };
 
 export type UseChecklist = {
+  steps: ChecklistStepType[];
   openStep: string | undefined;
   onToggleStep: (action: Action) => void;
   isDone: boolean;
   activeStep: ActionType | undefined;
+  completedSteps: ChecklistStepType[];
 };
 
 const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
@@ -38,14 +40,20 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
     return steps.every((item) => !!item.action.completedAt);
   }, [steps]);
 
+  const completedSteps = useMemo(() => {
+    return steps.filter((step) => !!step.action.completedAt);
+  }, [steps]);
+
   return useMemo(() => {
     return {
+      steps,
       openStep,
       onToggleStep,
       isDone,
       activeStep,
+      completedSteps,
     };
-  }, [openStep, onToggleStep, isDone, activeStep]);
+  }, [steps, openStep, onToggleStep, isDone, activeStep, completedSteps]);
 };
 
 export { useChecklist };

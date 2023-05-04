@@ -1,9 +1,7 @@
 import React, { ReactElement } from 'react';
 import { ChecklistCard } from './ChecklistCard';
-import { useSquadChecklistSteps } from '../../hooks/useSquadChecklistSteps';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { Squad } from '../../graphql/sources';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import { SQUAD_CHECKLIST_VISIBLE_KEY } from '../../lib/checklist';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
@@ -13,11 +11,9 @@ import { ModalKind } from '../modals/common/types';
 import { useChecklist } from '../../hooks/useChecklist';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
-  const { steps } = useSquadChecklistSteps({ squad });
-  const [isChecklistVisible, setChecklistVisible] = usePersistentContext(
-    SQUAD_CHECKLIST_VISIBLE_KEY,
-    false,
-  );
+  const { steps, isChecklistVisible, setChecklistVisible } = useSquadChecklist({
+    squad,
+  });
   const { sidebarRendered } = useSidebarRendered();
   const { isDone } = useChecklist({ steps });
 
