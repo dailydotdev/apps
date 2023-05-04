@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import {
@@ -28,9 +28,17 @@ export const useActions = (): UseActions => {
       client.setQueryData<Action[]>(
         generateQueryKey(RequestKey.Actions, user),
         (data) => {
-          if (!data?.length) return [];
+          const optimisticAction = {
+            userId: user.id,
+            type,
+            completedAt: new Date(),
+          };
 
-          return [...data, { userId: user.id, type, completedAt: new Date() }];
+          if (!Array.isArray(data)) {
+            return [optimisticAction];
+          }
+
+          return [...data, optimisticAction];
         },
       );
 
@@ -45,13 +53,23 @@ export const useActions = (): UseActions => {
     },
   });
 
-  return useMemo<UseActions>(
-    () => ({
-      actions,
-      completeAction,
-      checkHasCompleted: (type) =>
-        actions?.some((action) => action.type === type),
-    }),
-    [actions, completeAction],
+  const checkHasCompleted = useCallback(
+    (type: ActionType) =>
+      actions?.some((action) => action.type === type && !!action.completedAt),
+    [actions],
   );
+
+  return useMemo<UseActions>(() => {
+    return {
+      actions,
+      completeAction: (type: ActionType) => {
+        if (checkHasCompleted(type)) {
+          return undefined;
+        }
+
+        return completeAction(type);
+      },
+      checkHasCompleted,
+    };
+  }, [actions, completeAction, checkHasCompleted]);
 };
