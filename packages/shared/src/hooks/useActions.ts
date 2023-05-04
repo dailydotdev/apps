@@ -45,13 +45,20 @@ export const useActions = (): UseActions => {
     },
   });
 
-  return useMemo<UseActions>(
-    () => ({
+  return useMemo<UseActions>(() => {
+    const checkHasCompleted = (type: ActionType) =>
+      actions?.some((action) => action.type === type && !!action.completedAt);
+
+    return {
       actions,
-      completeAction,
-      checkHasCompleted: (type) =>
-        actions?.some((action) => action.type === type),
-    }),
-    [actions, completeAction],
-  );
+      completeAction: (type: ActionType) => {
+        if (checkHasCompleted(type)) {
+          return undefined;
+        }
+
+        return completeAction(type);
+      },
+      checkHasCompleted,
+    };
+  }, [actions, completeAction]);
 };
