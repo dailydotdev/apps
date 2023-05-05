@@ -62,6 +62,13 @@ const SquadEmptyScreen = dynamic(
     ),
 );
 
+const SquadChecklistCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadChecklistCard" */ '@dailydotdev/shared/src/components/checklist/SquadChecklistCard'
+    ),
+);
+
 type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
@@ -189,6 +196,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           onNewSquadPost={onNewSquadPost}
           hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
         />
+        <SquadChecklistCard squad={squad} />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
           feedName="source"

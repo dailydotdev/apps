@@ -9,8 +9,6 @@ import SquadMemberShortList, {
   SquadMemberShortListProps,
 } from './SquadMemberShortList';
 import { IconSize } from '../Icon';
-import FeedbackIcon from '../icons/Feedback';
-import { squadFeedback } from '../../lib/constants';
 import AddUserIcon from '../icons/AddUser';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
@@ -21,6 +19,8 @@ import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
+import ChecklistBIcon from '../icons/ChecklistB';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -46,6 +46,13 @@ export function SquadHeaderBar({
   const copyLinkTutorial = useTutorial({
     key: TutorialKey.CopySquadLink,
   });
+
+  const { steps, completedSteps, isChecklistVisible, setChecklistVisible } =
+    useSquadChecklist({ squad });
+
+  const completedStepsCount = completedSteps.length;
+  const totalStepsCount = steps.length;
+  const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
 
   return (
     <div
@@ -88,14 +95,23 @@ export function SquadHeaderBar({
           memberCount={memberCount}
         />
       )}
-      <SimpleTooltip placement="top" content="Feedback">
+      <SimpleTooltip
+        visible={completedStepsCount < totalStepsCount}
+        container={{
+          className: '-mb-4 bg-theme-color-onion !text-white',
+        }}
+        placement="top"
+        content={checklistTooltipText}
+        zIndex={3}
+      >
         <Button
           tag="a"
-          target="_blank"
-          rel="noopener noreferrer"
-          href={`${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`}
+          data-testid="squad-checklist-button"
           className="btn-secondary"
-          icon={<FeedbackIcon size={IconSize.Small} />}
+          icon={<ChecklistBIcon secondary size={IconSize.Small} />}
+          onClick={() => {
+            setChecklistVisible(!isChecklistVisible);
+          }}
         />
       </SimpleTooltip>
       <SimpleTooltip placement="top" content="Squad options">

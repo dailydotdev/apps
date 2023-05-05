@@ -2,7 +2,15 @@ import request, { gql } from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
 
 export enum ActionType {
-  Notification = 'notification',
+  CreateSquad = 'create_squad',
+  JoinSquad = 'join_squad',
+  EditWelcomePost = 'edit_welcome_post',
+  SquadFirstComment = 'squad_first_comment',
+  SquadFirstPost = 'squad_first_post',
+  MyFeed = 'my_feed',
+  SquadInvite = 'squad_invite',
+  BrowserExtension = 'browser_extension',
+  EnableNotification = 'enable_notification',
 }
 
 export interface Action {
