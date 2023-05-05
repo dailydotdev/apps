@@ -6,8 +6,6 @@ import { FlexRow } from '../utilities';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
-import { useActions } from '../../hooks/useActions';
-import { ActionType } from '../../graphql/actions';
 import OnboardingContext from '../../contexts/OnboardingContext';
 
 const SharePostChecklistStep = ({
@@ -15,7 +13,6 @@ const SharePostChecklistStep = ({
   ...props
 }: ChecklistStepProps & { squad: Squad }): ReactElement => {
   const { openModal } = useLazyModal();
-  const { completeAction } = useActions();
   const { onInitializeOnboarding, showArticleOnboarding } =
     useContext(OnboardingContext);
 
@@ -31,9 +28,6 @@ const SharePostChecklistStep = ({
                 ...props,
                 squad,
                 preview: { url: '' },
-                onSharedSuccessfully: () => {
-                  completeAction(ActionType.SquadFirstPost);
-                },
               },
             });
           }}
