@@ -4,15 +4,26 @@ import { ChecklistStep } from './ChecklistStep';
 import { Button } from '../buttons/Button';
 import BrowsersIcon from '../../../icons/browsers.svg';
 import { FlexCentered } from '../utilities';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
+import { downloadBrowserExtension } from '../../lib/constants';
 
 const InstallExtensionChecklistStep = (
   props: ChecklistStepProps,
 ): ReactElement => {
-  // TODO WT-1293-checklist-components add business logic
+  const { completeAction } = useActions();
 
   return (
     <ChecklistStep {...props}>
-      <Button className="btn-primary">
+      <Button
+        className="btn-primary"
+        tag="a"
+        href={downloadBrowserExtension}
+        onClick={() => {
+          completeAction(ActionType.BrowserExtension);
+        }}
+        target="_blank"
+      >
         <FlexCentered className="gap-2">
           <BrowsersIcon
             width="50px"
