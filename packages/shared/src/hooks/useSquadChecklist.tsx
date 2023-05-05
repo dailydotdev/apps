@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
 import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
 import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
@@ -74,7 +74,9 @@ const useSquadChecklist = ({
           title: 'Share your first post',
           description:
             'Share your first post to help other squad members discover content you found interesting.',
-          component: SharePostChecklistStep,
+          component: (props) => (
+            <SharePostChecklistStep {...props} squad={squad} />
+          ),
         },
         actions,
       }),
