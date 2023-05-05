@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { Button } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
@@ -8,6 +8,7 @@ import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
+import OnboardingContext from '../../contexts/OnboardingContext';
 
 const SharePostChecklistStep = ({
   squad,
@@ -15,6 +16,8 @@ const SharePostChecklistStep = ({
 }: ChecklistStepProps & { squad: Squad }): ReactElement => {
   const { openModal } = useLazyModal();
   const { completeAction } = useActions();
+  const { onInitializeOnboarding, showArticleOnboarding } =
+    useContext(OnboardingContext);
 
   return (
     <ChecklistStep {...props}>
@@ -37,7 +40,16 @@ const SharePostChecklistStep = ({
         >
           Create a post
         </Button>
-        <Button className="btn-primary">Explore</Button>
+        {showArticleOnboarding && (
+          <Button
+            className="btn-primary"
+            onClick={() => {
+              onInitializeOnboarding();
+            }}
+          >
+            Explore
+          </Button>
+        )}
       </FlexRow>
     </ChecklistStep>
   );
