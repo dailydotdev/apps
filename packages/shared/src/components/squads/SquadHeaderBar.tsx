@@ -96,6 +96,7 @@ export function SquadHeaderBar({
         />
       )}
       <SimpleTooltip
+        forceLoad
         visible={completedStepsCount < totalStepsCount}
         container={{
           className: '-mb-4 bg-theme-color-onion !text-white',
