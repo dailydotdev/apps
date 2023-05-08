@@ -44,6 +44,10 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import {
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+} from '@dailydotdev/shared/src/graphql/actions';
 import SquadPage from '../pages/squads/[handle]';
 
 const showLogin = jest.fn();
@@ -275,7 +279,17 @@ describe('squad header bar', () => {
     };
     renderComponent();
     const invite = await screen.findByText('Copy invitation link');
+
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SquadInvite },
+      },
+      result: { data: { _: true } },
+    });
     invite.click();
+    await waitForNock();
+
     const invitation = `https://app.daily.dev/squads/webteam/3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8`;
     await waitFor(() =>
       expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
