@@ -21,6 +21,7 @@ import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
 import ChecklistBIcon from '../icons/ChecklistB';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+import { isTesting } from '../../lib/constants';
 
 interface SquadHeaderBarProps
   extends SquadMemberShortListProps,
@@ -96,7 +97,7 @@ export function SquadHeaderBar({
         />
       )}
       <SimpleTooltip
-        forceLoad
+        forceLoad={!isTesting}
         visible={completedStepsCount < totalStepsCount}
         container={{
           className: '-mb-4 bg-theme-color-onion !text-white',
