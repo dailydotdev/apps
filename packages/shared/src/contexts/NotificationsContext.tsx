@@ -202,8 +202,6 @@ export const NotificationsContextProvider = ({
   useEffect(() => {
     if (!actions || !isSubscribed) return;
 
-    if (checkHasCompleted(ActionType.EnableNotification)) return;
-
     completeAction(ActionType.EnableNotification);
   }, [actions, isSubscribed, completeAction, checkHasCompleted]);
 
