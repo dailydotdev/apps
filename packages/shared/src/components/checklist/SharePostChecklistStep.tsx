@@ -20,7 +20,7 @@ const SharePostChecklistStep = ({
     <ChecklistStep {...props}>
       <FlexRow className="gap-4">
         <Button
-          className="btn-secondary"
+          className={showArticleOnboarding ? 'btn-secondary' : 'btn-primary'}
           onClick={() => {
             openModal({
               type: LazyModal.PostToSquad,

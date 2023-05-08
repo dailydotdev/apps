@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
 import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
 import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
@@ -16,6 +16,7 @@ import { UseChecklist, useChecklist } from './useChecklist';
 import usePersistentContext from './usePersistentContext';
 import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
 import { verifyPermission } from '../graphql/squads';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -30,6 +31,7 @@ const useSquadChecklist = ({
   squad,
 }: UseSquadChecklistProps): UseSquadChecklist => {
   const { actions } = useActions();
+  const { showArticleOnboarding } = useContext(OnboardingContext);
 
   const stepsMap = useMemo<
     Partial<Record<ActionType, ChecklistStepType>>
@@ -76,8 +78,9 @@ const useSquadChecklist = ({
           type: ActionType.SquadFirstPost,
           step: {
             title: 'Share your first post',
-            description:
-              'Share your first post to help other squad members discover content you found interesting.',
+            description: showArticleOnboarding
+              ? 'Share your first post to help other squad members discover content you found interesting. New here? Click explore.'
+              : 'Share your first post to help other squad members discover content you found interesting.',
             component: (props) => (
               <SharePostChecklistStep {...props} squad={squad} />
             ),
@@ -116,7 +119,7 @@ const useSquadChecklist = ({
         actions,
       }),
     };
-  }, [squad, actions]);
+  }, [squad, actions, showArticleOnboarding]);
 
   const steps = useMemo(() => {
     const actionsForRole =
