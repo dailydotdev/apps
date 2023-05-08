@@ -45,8 +45,20 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
   }, [steps]);
 
   return useMemo(() => {
+    const sortedStepsByCompletion = [...steps].sort((a, b) => {
+      if (a.action.completedAt && !b.action.completedAt) {
+        return -1;
+      }
+
+      if (!a.action.completedAt && b.action.completedAt) {
+        return 1;
+      }
+
+      return 0;
+    });
+
     return {
-      steps,
+      steps: sortedStepsByCompletion,
       openStep,
       onToggleStep,
       isDone,
