@@ -14,6 +14,7 @@ import {
 import { useActions } from './useActions';
 import { UseChecklist, useChecklist } from './useChecklist';
 import usePersistentContext from './usePersistentContext';
+import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -83,9 +84,12 @@ const useSquadChecklist = ({
       [ActionType.SquadInvite]: createChecklistStep({
         type: ActionType.SquadInvite,
         step: {
-          title: 'Invite a member',
+          title: 'Send invitations',
           description:
-            'Invite a member to your squad and start sharing posts with them.',
+            'To unleash the power of squads invite developers you know and appreciate to join you.',
+          component: (props) => (
+            <InviteMemberChecklistStep {...props} squad={squad} />
+          ),
         },
         actions,
       }),

@@ -14,6 +14,7 @@ const ChecklistStep = ({
   children,
 }: ChecklistStepProps): ReactElement => {
   const isCompleted = !!step.action.completedAt;
+  const shouldBeOpen = !isCompleted && isOpen;
 
   return (
     <div className={className.container}>
@@ -66,13 +67,13 @@ const ChecklistStep = ({
         <ArrowIcon
           className={classNames(
             isActive ? 'text-theme-label-primary' : 'text-theme-label-tertiary',
-            !isOpen && 'rotate-180',
+            !shouldBeOpen && 'rotate-180',
             isCompleted && 'opacity-32',
           )}
           size={IconSize.Small}
         />
       </button>
-      {isOpen && (
+      {shouldBeOpen && (
         <div className="my-2 ml-9">
           <p
             className={classNames(
