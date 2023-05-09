@@ -3,7 +3,7 @@ import { useChecklist } from './useChecklist';
 import { ActionType } from '../graphql/actions';
 import { ChecklistStepType } from '../lib/checklist';
 
-const updateStep = (
+export const updateStep = (
   steps: ChecklistStepType[],
   index: number,
   update: Omit<Partial<ChecklistStepType>, 'action'> & {
@@ -26,7 +26,7 @@ const updateStep = (
   return updatedSteps;
 };
 
-const defaultSteps = [
+export const defaultSteps = [
   {
     title: 'Step 1',
     description: 'Step 1 description',

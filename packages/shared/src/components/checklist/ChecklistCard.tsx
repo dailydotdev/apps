@@ -26,12 +26,23 @@ const ChecklistCard = ({
           {isDone && (
             <RankConfetti className="absolute top-0 right-0 bottom-0 left-0 opacity-40" />
           )}
-          <p className="mb-1 font-bold text-white typo-body">{title}</p>
-          <p className="text-white typo-callout">{description}</p>
+          <p
+            className="mb-1 font-bold text-white typo-body"
+            data-testid="checklist-card-title"
+          >
+            {title}
+          </p>
+          <p
+            className="text-white typo-callout"
+            data-testid="checklist-card-description"
+          >
+            {description}
+          </p>
           {typeof onRequestClose === 'function' && (
             <CloseButton
               buttonSize={ButtonSize.Small}
               className="top-3 right-3 text-white border-white !absolute btn-secondary"
+              data-testid="checklist-card-close-button"
               onClick={onRequestClose}
             />
           )}
@@ -44,6 +55,11 @@ const ChecklistCard = ({
                     'w-12 h-3 bg-white rounded-6',
                     !step.action.completedAt && 'opacity-24',
                   )}
+                  data-testid={
+                    step.action.completedAt
+                      ? 'checklist-card-progress'
+                      : undefined
+                  }
                 />
               );
             })}
