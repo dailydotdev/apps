@@ -6,7 +6,13 @@ import {
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter } from 'next/router';
@@ -44,6 +50,10 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import {
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+} from '@dailydotdev/shared/src/graphql/actions';
 import SquadPage from '../pages/squads/[handle]';
 
 const showLogin = jest.fn();
@@ -275,7 +285,17 @@ describe('squad header bar', () => {
     };
     renderComponent();
     const invite = await screen.findByText('Copy invitation link');
-    invite.click();
+
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SquadInvite },
+      },
+      result: { data: { _: true } },
+    });
+    fireEvent.click(invite);
+    await new Promise(process.nextTick);
+
     const invitation = `https://app.daily.dev/squads/webteam/3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8`;
     await waitFor(() =>
       expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
