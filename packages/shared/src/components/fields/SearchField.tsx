@@ -43,11 +43,7 @@ export interface SearchFieldProps
 }
 
 const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
-  isPrimary ? (
-    <CloseIcon className="text-lg icon group-hover:text-theme-label-primary" />
-  ) : (
-    <ArrowIcon className="rotate-90" />
-  );
+  isPrimary ? <CloseIcon /> : <ArrowIcon className="rotate-90" />;
 
 export const SearchField = forwardRef(function SearchField(
   {
