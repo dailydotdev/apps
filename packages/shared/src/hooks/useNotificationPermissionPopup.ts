@@ -55,7 +55,9 @@ export const useNotificationPermissionPopup = ({
 
       setAcceptedPermissionJustNow(permission === 'granted');
       setPermissionCache(permission);
-      onSuccess?.(permission);
+      if (onSuccess) {
+        onSuccess(permission);
+      }
     },
   );
 
