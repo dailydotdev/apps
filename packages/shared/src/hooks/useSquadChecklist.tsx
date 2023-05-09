@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
 import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
 import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
 import { SquadWelcomeChecklistStep } from '../components/checklist/SquadWelcomeChecklistStep';
 import { ActionType } from '../graphql/actions';
-import { SourceMemberRole, Squad } from '../graphql/sources';
+import { SourceMemberRole, SourcePermissions, Squad } from '../graphql/sources';
 import {
   ChecklistStepType,
   createChecklistStep,
@@ -15,6 +15,8 @@ import { useActions } from './useActions';
 import { UseChecklist, useChecklist } from './useChecklist';
 import usePersistentContext from './usePersistentContext';
 import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
+import { verifyPermission } from '../graphql/squads';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -29,6 +31,7 @@ const useSquadChecklist = ({
   squad,
 }: UseSquadChecklistProps): UseSquadChecklist => {
   const { actions } = useActions();
+  const { showArticleOnboarding } = useContext(OnboardingContext);
 
   const stepsMap = useMemo<
     Partial<Record<ActionType, ChecklistStepType>>
@@ -69,16 +72,21 @@ const useSquadChecklist = ({
         },
         actions,
       }),
-      [ActionType.SquadFirstPost]: createChecklistStep({
-        type: ActionType.SquadFirstPost,
-        step: {
-          title: 'Share your first post',
-          description:
-            'Share your first post to help other squad members discover content you found interesting.',
-          component: SharePostChecklistStep,
-        },
-        actions,
-      }),
+      [ActionType.SquadFirstPost]:
+        verifyPermission(squad, SourcePermissions.Post) &&
+        createChecklistStep({
+          type: ActionType.SquadFirstPost,
+          step: {
+            title: 'Share your first post',
+            description: showArticleOnboarding
+              ? 'Share your first post to help other squad members discover content you found interesting. New here? Click explore.'
+              : 'Share your first post to help other squad members discover content you found interesting.',
+            component: (props) => (
+              <SharePostChecklistStep {...props} squad={squad} />
+            ),
+          },
+          actions,
+        }),
       [ActionType.SquadInvite]: createChecklistStep({
         type: ActionType.SquadInvite,
         step: {
@@ -111,7 +119,7 @@ const useSquadChecklist = ({
         actions,
       }),
     };
-  }, [squad, actions]);
+  }, [squad, actions, showArticleOnboarding]);
 
   const steps = useMemo(() => {
     const actionsForRole =
