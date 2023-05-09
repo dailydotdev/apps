@@ -16,6 +16,7 @@ import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { NotificationPromptSource } from '../../lib/analytics';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
+import { RequestKey, generateQueryKey } from '../../lib/query';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
@@ -70,7 +71,10 @@ function PostToSquadModal({
     }
 
     displayToast('This post has been shared to your Squad');
-    await client.invalidateQueries(['sourceFeed', user.id]);
+    await Promise.allSettled([
+      client.invalidateQueries(['sourceFeed', user.id]),
+      client.invalidateQueries(generateQueryKey(RequestKey.Actions, user)),
+    ]);
     onRequestClose(null);
   };
 
