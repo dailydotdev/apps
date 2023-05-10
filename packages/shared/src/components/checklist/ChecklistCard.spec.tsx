@@ -29,10 +29,10 @@ describe('ChecklistCard component', () => {
       description: 'Card description',
     });
 
-    const title = await screen.findByTestId('checklist-card-title');
+    const title = await screen.findByText('Card title');
     expect(title).toBeInTheDocument();
 
-    const description = await screen.findByTestId('checklist-card-description');
+    const description = await screen.findByText('Card description');
     expect(description).toBeInTheDocument();
 
     const progress = await screen.findAllByTestId('checklist-card-progress');

@@ -63,7 +63,6 @@ const ChecklistStep = ({
                 : 'text-theme-label-tertiary',
               className.title,
             )}
-            data-testid="checklist-step-title"
           >
             {step.title}
           </p>
@@ -85,7 +84,6 @@ const ChecklistStep = ({
               'text-theme-label-tertiary typo-callout',
               className.description,
             )}
-            data-testid="checklist-step-description"
           >
             {step.description}
           </p>

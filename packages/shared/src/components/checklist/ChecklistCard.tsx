@@ -26,18 +26,8 @@ const ChecklistCard = ({
           {isDone && (
             <RankConfetti className="absolute top-0 right-0 bottom-0 left-0 opacity-40" />
           )}
-          <p
-            className="mb-1 font-bold text-white typo-body"
-            data-testid="checklist-card-title"
-          >
-            {title}
-          </p>
-          <p
-            className="text-white typo-callout"
-            data-testid="checklist-card-description"
-          >
-            {description}
-          </p>
+          <p className="mb-1 font-bold text-white typo-body">{title}</p>
+          <p className="text-white typo-callout">{description}</p>
           {typeof onRequestClose === 'function' && (
             <CloseButton
               buttonSize={ButtonSize.Small}

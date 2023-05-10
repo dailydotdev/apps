@@ -40,7 +40,7 @@ describe('ChecklistStep component', () => {
       children: customChildren,
     });
 
-    const title = await screen.findByTestId('checklist-step-title');
+    const title = await screen.findByText(step.title);
     expect(title).toBeInTheDocument();
 
     const closed = await screen.findByTestId('checklist-step-closed');
@@ -52,7 +52,7 @@ describe('ChecklistStep component', () => {
     const incomplete = await screen.findByTestId('checklist-step-incomplete');
     expect(incomplete).toBeInTheDocument();
 
-    const description = screen.queryByTestId('checklist-step-description');
+    const description = screen.queryByText(step.description);
     expect(description).not.toBeInTheDocument();
 
     const customComponent = screen.queryByTestId(
@@ -70,10 +70,10 @@ describe('ChecklistStep component', () => {
       children: customChildren,
     });
 
-    const title = await screen.findByTestId('checklist-step-title');
+    const title = await screen.findByText(step.title);
     expect(title).toBeInTheDocument();
 
-    const description = await screen.findByTestId('checklist-step-description');
+    const description = await screen.findByText(step.description);
     expect(description).toBeInTheDocument();
 
     const open = await screen.findByTestId('checklist-step-open');
@@ -94,10 +94,10 @@ describe('ChecklistStep component', () => {
       children: customChildren,
     });
 
-    const title = await screen.findByTestId('checklist-step-title');
+    const title = await screen.findByText(step.title);
     expect(title).toBeInTheDocument();
 
-    const description = screen.queryByTestId('checklist-step-description');
+    const description = screen.queryByText(step.description);
     expect(description).not.toBeInTheDocument();
 
     const active = await screen.findByTestId('checklist-step-active');
@@ -124,10 +124,10 @@ describe('ChecklistStep component', () => {
       children: customChildren,
     });
 
-    const title = await screen.findByTestId('checklist-step-title');
+    const title = await screen.findByText(step.title);
     expect(title).toBeInTheDocument();
 
-    const description = screen.queryByTestId('checklist-step-description');
+    const description = screen.queryByText(step.description);
     expect(description).not.toBeInTheDocument();
 
     const completed = await screen.findByTestId('checklist-step-completed');
