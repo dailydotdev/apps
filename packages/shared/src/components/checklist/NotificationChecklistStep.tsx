@@ -15,7 +15,7 @@ const NotificationChecklistStep = (props: ChecklistStepProps): ReactElement => {
         icon={<BellIcon />}
         className="btn-primary"
         onClick={() => {
-          onTogglePermission(NotificationPromptSource.SquadPage);
+          onTogglePermission(NotificationPromptSource.SquadChecklist);
         }}
       >
         Subscribe

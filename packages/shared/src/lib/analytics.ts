@@ -92,4 +92,5 @@ export enum NotificationPromptSource {
   NotificationItem = 'notification item',
   SquadPostCommentary = 'squad post commentary',
   SquadPostModal = 'squad post modal',
+  SquadChecklist = 'squad checklist',
 }
