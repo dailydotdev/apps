@@ -6,7 +6,6 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useQuery } from 'react-query';
 import {
   AuthEventNames,
   AuthTriggers,
@@ -31,9 +30,7 @@ import AuthForm from './AuthForm';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
-import { graphqlUrl } from '../../lib/config';
+import { useGenerateUsername } from '../../hooks';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -68,36 +65,22 @@ export const SocialRegistrationForm = ({
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
-  const [name, setName] = useState<string>('');
+  const [name, setName] = useState<string>(user?.name);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
-  const { requestMethod } = useRequestProtocol();
-  const usernameQueryKey = ['generateUsername', name];
-  useQuery<{
-    generateUniqueUsername: string;
-  }>(
-    usernameQueryKey,
-    () =>
-      requestMethod(
-        graphqlUrl,
-        GET_USERNAME_SUGGESTION,
-        { name: user?.name },
-        { requestKey: JSON.stringify(usernameQueryKey) },
-      ),
-    {
-      enabled: !!user?.name.length,
-      onSuccess: (data) => {
-        if (!data.generateUniqueUsername.length || !!user?.username?.length)
-          return;
+  const { data: usernameData, isLoading: usernameDataIsLoading } =
+    useGenerateUsername(name);
 
-        if (data?.generateUniqueUsername) {
-          updateUser({
-            ...user,
-            username: data.generateUniqueUsername,
-          });
-        }
-      },
-    },
-  );
+  useEffect(() => {
+    if (!!user?.username || !!user?.username?.length || usernameDataIsLoading)
+      return;
+
+    if (usernameData?.generateUniqueUsername) {
+      updateUser({
+        ...user,
+        username: usernameData.generateUniqueUsername,
+      });
+    }
+  }, [usernameData, usernameDataIsLoading, user, updateUser]);
 
   useEffect(() => {
     trackEvent({

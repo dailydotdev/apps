@@ -6,7 +6,6 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useQuery } from 'react-query';
 import {
   AuthEventNames,
   AuthTriggers,
@@ -30,9 +29,7 @@ import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
-import { graphqlUrl } from '../../lib/config';
+import { useGenerateUsername } from '../../hooks';
 
 export interface RegistrationFormProps {
   email: string;
@@ -65,30 +62,15 @@ export const RegistrationForm = ({
   const [username, setUsername] = useState<string>('');
   const [name, setName] = useState<string>('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
-  const { requestMethod } = useRequestProtocol();
-  const usernameQueryKey = ['generateUsername', name];
-  useQuery<{
-    generateUniqueUsername: string;
-  }>(
-    usernameQueryKey,
-    () =>
-      requestMethod(
-        graphqlUrl,
-        GET_USERNAME_SUGGESTION,
-        { name },
-        { requestKey: JSON.stringify(usernameQueryKey) },
-      ),
-    {
-      enabled: !!name.length,
-      onSuccess: (data) => {
-        if (!data.generateUniqueUsername.length || !!username.length) return;
+  const { data: usernameData, isLoading } = useGenerateUsername(name);
 
-        if (data?.generateUniqueUsername) {
-          setUsername(data.generateUniqueUsername);
-        }
-      },
-    },
-  );
+  useEffect(() => {
+    if (username.length || isLoading) return;
+
+    if (usernameData?.generateUniqueUsername) {
+      setUsername(usernameData.generateUniqueUsername);
+    }
+  }, [usernameData, isLoading, username, setUsername]);
 
   useEffect(() => {
     trackEvent({
