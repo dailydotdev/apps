@@ -38,7 +38,7 @@ describe('ChecklistCard component', () => {
     const progress = await screen.findAllByTestId('checklist-card-progress');
     expect(progress).toHaveLength(3);
 
-    const closeButton = screen.queryByTestId('checklist-card-close-button');
+    const closeButton = screen.queryByTitle('Close');
     expect(closeButton).not.toBeInTheDocument();
 
     const stepElements = await screen.findAllByTestId('checklist-step');
@@ -72,9 +72,7 @@ describe('ChecklistCard component', () => {
       onRequestClose: noop,
     });
 
-    const closeButton = await screen.findByTestId(
-      'checklist-card-close-button',
-    );
+    const closeButton = await screen.findByTitle('Close');
     expect(closeButton).toBeInTheDocument();
   });
 
@@ -88,9 +86,7 @@ describe('ChecklistCard component', () => {
       onRequestClose: noop,
     });
 
-    const closeButton = await screen.findByTestId(
-      'checklist-card-close-button',
-    );
+    const closeButton = await screen.findByTitle('Close');
     expect(closeButton).toBeInTheDocument();
 
     fireEvent.click(closeButton);

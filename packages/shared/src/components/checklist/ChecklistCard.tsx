@@ -32,7 +32,6 @@ const ChecklistCard = ({
             <CloseButton
               buttonSize={ButtonSize.Small}
               className="top-3 right-3 text-white border-white !absolute btn-secondary"
-              data-testid="checklist-card-close-button"
               onClick={onRequestClose}
             />
           )}
