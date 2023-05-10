@@ -16,7 +16,8 @@ import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { NotificationPromptSource } from '../../lib/analytics';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
-import { RequestKey, generateQueryKey } from '../../lib/query';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
@@ -58,6 +59,7 @@ function PostToSquadModal({
     buttonText: 'Done',
     preview,
   });
+  const { completeAction } = useActions();
 
   const shouldShowToggle = !isDismissed && !isSubscribed;
   const onPostSuccess = async (squadPost?: Post) => {
@@ -71,10 +73,14 @@ function PostToSquadModal({
     }
 
     displayToast('This post has been shared to your Squad');
-    await Promise.allSettled([
-      client.invalidateQueries(['sourceFeed', user.id]),
-      client.invalidateQueries(generateQueryKey(RequestKey.Actions, user)),
-    ]);
+    await client.invalidateQueries(['sourceFeed', user.id]);
+
+    // this optimistically updates the action from the client
+    // to make sure correct action state is shown to the user immediately
+    // this is also done on the API side in postAdded worker to catch
+    // all other cases of post being created by user
+    completeAction(ActionType.SquadFirstPost);
+
     onRequestClose(null);
   };
 
