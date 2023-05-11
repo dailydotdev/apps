@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
 import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
 import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
-import { SquadWelcomeChecklistStep } from '../components/checklist/SquadWelcomeChecklistStep';
+import { SquadFirstCommentChecklistStep } from '../components/checklist/SquadFirstCommentChecklistStep';
 import { ActionType } from '../graphql/actions';
 import { SourceMemberRole, SourcePermissions, Squad } from '../graphql/sources';
 import {
@@ -68,7 +68,7 @@ const useSquadChecklist = ({
         step: {
           title: "Let people know you're here",
           description: `Welcome to the ${squad.name} squad. Start your journey by saying hi.`,
-          component: SquadWelcomeChecklistStep,
+          component: SquadFirstCommentChecklistStep,
         },
         actions,
       }),

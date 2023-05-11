@@ -3,7 +3,9 @@ import { ChecklistStepProps } from '../../lib/checklist';
 import { Button } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 
-const SquadWelcomeChecklistStep = (props: ChecklistStepProps): ReactElement => {
+const SquadFirstCommentChecklistStep = (
+  props: ChecklistStepProps,
+): ReactElement => {
   // TODO WT-1293-checklist-components add business logic
 
   return (
@@ -13,4 +15,4 @@ const SquadWelcomeChecklistStep = (props: ChecklistStepProps): ReactElement => {
   );
 };
 
-export { SquadWelcomeChecklistStep };
+export { SquadFirstCommentChecklistStep };
