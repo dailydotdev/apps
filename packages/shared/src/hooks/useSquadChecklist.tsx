@@ -17,6 +17,7 @@ import usePersistentContext from './usePersistentContext';
 import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
 import { verifyPermission } from '../graphql/squads';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { SquadEditWelcomePostChecklistStep } from '../components/checklist/SquadEditWelcomePostChecklistStep';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -60,6 +61,7 @@ const useSquadChecklist = ({
         step: {
           title: 'Customize the welcome post',
           description: `The welcome post is where your new squad members will start their journey. You can welcome them and explain the behavior and rules that are expected.`,
+          component: SquadEditWelcomePostChecklistStep,
         },
         actions,
       }),
