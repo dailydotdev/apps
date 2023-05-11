@@ -20,6 +20,7 @@ const ChecklistStep = ({
       <button
         type="button"
         className="flex justify-between items-center w-full"
+        data-testid="checklist-step"
         onClick={(event) => {
           event.preventDefault();
 
@@ -38,12 +39,16 @@ const ChecklistStep = ({
               className={classNames(
                 isActive && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
               )}
+              data-testid={`checklist-step-${isActive ? 'active' : 'inactive'}`}
             >
               <ChecklistAIcon
                 className={classNames(
                   isActive && 'text-theme-color-cabbage',
                   className.checkmark,
                 )}
+                data-testid={`checklist-step-${
+                  isCompleted ? 'completed' : 'incomplete'
+                }`}
                 size={IconSize.Small}
                 secondary={!isCompleted}
               />
@@ -68,6 +73,7 @@ const ChecklistStep = ({
             !isOpen && 'rotate-180',
             isCompleted && 'opacity-32',
           )}
+          data-testid={`checklist-step-${isOpen ? 'open' : 'closed'}`}
           size={IconSize.Small}
         />
       </button>
