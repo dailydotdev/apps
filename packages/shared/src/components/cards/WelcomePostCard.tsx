@@ -1,6 +1,12 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { Card, CardButton, CardSpace, getPostClassNames } from './Card';
+import {
+  Card,
+  CardButton,
+  CardSpace,
+  CardTitle,
+  getPostClassNames,
+} from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
@@ -48,7 +54,9 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         source={post.source}
         createdAt={post.createdAt}
       />
-      <p className="px-2 font-bold line-clamp-3 typo-title3">{post.title}</p>
+      <CardTitle className="px-2 font-bold line-clamp-3 !text-theme-label-primary typo-title3">
+        {post.title}
+      </CardTitle>
       <CardSpace />
       <Container ref={containerRef}>
         <WelcomePostCardFooter post={post} />
