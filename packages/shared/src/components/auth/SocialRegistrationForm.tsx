@@ -61,26 +61,23 @@ export const SocialRegistrationForm = ({
   isLoading,
 }: SocialRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { user, updateUser } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
-  const [name, setName] = useState<string>(user?.name);
+  const [name, setName] = useState(user?.name);
+  const [username, setUsername] = useState(user?.username);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { data: usernameData, isLoading: usernameDataIsLoading } =
     useGenerateUsername(name);
 
   useEffect(() => {
-    if (!!user?.username || !!user?.username?.length || usernameDataIsLoading)
-      return;
+    if (!!username || !!username?.length || usernameDataIsLoading) return;
 
     if (usernameData?.generateUniqueUsername) {
-      updateUser({
-        ...user,
-        username: usernameData.generateUniqueUsername,
-      });
+      setUsername(usernameData.generateUniqueUsername);
     }
-  }, [usernameData, usernameDataIsLoading, user, updateUser]);
+  }, [usernameData, usernameDataIsLoading, username, setUsername]);
 
   useEffect(() => {
     trackEvent({
@@ -191,7 +188,7 @@ export const SocialRegistrationForm = ({
           name="name"
           inputId="name"
           label="Full name"
-          value={user?.name}
+          value={name}
           valid={!nameHint && !hints?.name}
           hint={hints?.name || nameHint}
           onBlur={(e) => setName(e.target.value)}
@@ -211,11 +208,12 @@ export const SocialRegistrationForm = ({
           name="username"
           inputId="username"
           label="Enter a username"
-          value={user?.username}
+          value={username}
           minLength={1}
           valid={!usernameHint && !hints?.username}
           hint={hints?.username || usernameHint}
-          valueChanged={() => {
+          valueChanged={(value: string) => {
+            setUsername(value);
             if (hints?.username) {
               onUpdateHints?.({ ...hints, username: '' });
             }

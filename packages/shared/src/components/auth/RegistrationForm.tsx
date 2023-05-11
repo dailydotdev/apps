@@ -59,8 +59,8 @@ export const RegistrationForm = ({
 }: RegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>('');
-  const [name, setName] = useState<string>('');
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { data: usernameData, isLoading } = useGenerateUsername(name);
 
