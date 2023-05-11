@@ -485,3 +485,45 @@ interface SubmitExternalLink
 
 export const submitExternalLink = (params: SubmitExternalLink): Promise<Post> =>
   request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
+
+export const EDIT_POST_MUTATION = gql`
+  mutation EditPost(
+    $id: ID!
+    $title: String
+    $content: String
+    $image: Upload
+  ) {
+    editPost(id: $id, title: $title, content: $content, image: $image) {
+      ...SharedPostInfo
+      trending
+      views
+      content
+      contentHtml
+      source {
+        ...SourceBaseInfo
+      }
+      description
+      summary
+      toc {
+        text
+        id
+      }
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+interface EditPostProps {
+  id: string;
+  title: string;
+  content: string;
+  image: File;
+}
+
+export const editPost = async (
+  variables: Partial<EditPostProps>,
+): Promise<Post> => {
+  const res = await request(graphqlUrl, EDIT_POST_MUTATION, variables);
+
+  return res.editPost;
+};

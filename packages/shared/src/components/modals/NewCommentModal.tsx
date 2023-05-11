@@ -1,10 +1,4 @@
-import React, {
-  MouseEvent,
-  ReactElement,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { MouseEvent, ReactElement, useEffect, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
@@ -12,10 +6,8 @@ import {
   COMMENT_ON_POST_MUTATION,
   CommentOnData,
   EDIT_COMMENT_MUTATION,
-  PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { graphqlUrl } from '../../lib/config';
-import Markdown from '../Markdown';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button, ButtonSize } from '../buttons/Button';
 import { Post } from '../../graphql/posts';
@@ -27,12 +19,12 @@ import { useUserMention } from '../../hooks/useUserMention';
 import { markdownGuide } from '../../lib/constants';
 import { Justify } from '../utilities';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { ModalPropsContext } from './common/types';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { checkUserMembership } from '../../graphql/squads';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
 import Alert, { AlertType } from '../widgets/Alert';
 import { disabledRefetch } from '../../lib/func';
+import PreviewTab from './PreviewTab';
 
 interface CommentVariables {
   id: string;
@@ -72,38 +64,6 @@ const promptOptions: PromptOptions = {
   cancelButton: {
     title: 'Stay',
   },
-};
-
-interface PreviewTabProps {
-  input: string;
-  sourceId: string;
-  parentSelector: () => HTMLElement;
-}
-
-const PreviewTab = ({ input, sourceId, parentSelector }: PreviewTabProps) => {
-  const { activeView } = useContext(ModalPropsContext);
-  const { requestMethod } = useRequestProtocol();
-  const previewQueryKey = ['comment_preview', input];
-  const { data: previewContent } = useQuery<{ preview: string }>(
-    previewQueryKey,
-    () =>
-      requestMethod(
-        graphqlUrl,
-        PREVIEW_COMMENT_MUTATION,
-        { content: input, sourceId },
-        { requestKey: JSON.stringify(previewQueryKey) },
-      ),
-    { enabled: input?.length > 0 && activeView === CommentTabs.Preview },
-  );
-
-  return (
-    <Modal.Body view={CommentTabs.Preview}>
-      <Markdown
-        content={previewContent?.preview}
-        appendTooltipTo={parentSelector}
-      />
-    </Modal.Body>
-  );
 };
 
 export default function NewCommentModal({
@@ -263,7 +223,10 @@ export default function NewCommentModal({
         input={input}
         sourceId={post.source.id}
         parentSelector={parentSelector}
-      />
+        tabName={CommentTabs.Preview}
+      >
+        {updateButton}
+      </PreviewTab>
       <Modal.Footer justify={Justify.Between} view={CommentTabs.Write}>
         <Button
           className="btn-tertiary"
@@ -283,7 +246,6 @@ export default function NewCommentModal({
         </ClickableText>
         {updateButton}
       </Modal.Footer>
-      <Modal.Footer view={CommentTabs.Preview}>{updateButton}</Modal.Footer>
     </Modal>
   );
 }

@@ -45,7 +45,6 @@ const renderComponent = (
     publishDate: new Date(2017, 1, 10, 0, 0),
     contentHtml: '<p>This is the main comment</p>',
     commentId: null,
-    content: '',
     post: {
       id: 'p1',
       title: 'Title',
