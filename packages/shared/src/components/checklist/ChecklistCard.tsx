@@ -44,6 +44,11 @@ const ChecklistCard = ({
                     'w-12 h-3 bg-white rounded-6',
                     !step.action.completedAt && 'opacity-24',
                   )}
+                  data-testid={
+                    step.action.completedAt
+                      ? 'checklist-card-progress'
+                      : undefined
+                  }
                 />
               );
             })}
