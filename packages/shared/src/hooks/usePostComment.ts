@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
 import AuthContext from '../contexts/AuthContext';
@@ -114,21 +114,22 @@ export const usePostComment = (
     setParentComment({ ...parent, replyTo });
   };
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const openNewComment = (origin: string) => {
-    if (user) {
-      trackEvent(
-        postAnalyticsEvent('open comment modal', post, {
-          extra: { origin },
-        }),
-      );
-      setLastScroll(window.scrollY);
-      setParentComment(getParentComment(post));
-    } else {
-      showLogin(AuthTriggers.Comment);
-    }
-  };
+  const openNewComment = useCallback(
+    (origin: string) => {
+      if (user) {
+        trackEvent(
+          postAnalyticsEvent('open comment modal', post, {
+            extra: { origin },
+          }),
+        );
+        setLastScroll(window.scrollY);
+        setParentComment(getParentComment(post));
+      } else {
+        showLogin(AuthTriggers.Comment);
+      }
+    },
+    [post, showLogin, trackEvent, user],
+  );
 
   const updatePostCommentsCount = (increment: number) =>
     updatePostCache(client, post.id, {

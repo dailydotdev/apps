@@ -70,7 +70,9 @@ const useSquadChecklist = ({
         step: {
           title: "Let people know you're here",
           description: `Welcome to the ${squad.name} squad. Start your journey by saying hi.`,
-          component: SquadFirstCommentChecklistStep,
+          component: (props) => (
+            <SquadFirstCommentChecklistStep {...props} squad={squad} />
+          ),
         },
         actions,
       }),

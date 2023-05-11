@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
 import React, { ReactElement, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Comment } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
@@ -49,6 +50,7 @@ function PostEngagements({
   shouldOnboardAuthor,
   enableShowShareNewComment,
 }: PostEngagementsProps): ReactElement {
+  const router = useRouter();
   const postQueryKey = ['post', post.id];
   const { user, showLogin } = useAuthContext();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
@@ -81,6 +83,31 @@ function PostEngagements({
       setAuthorOnboarding(true);
     }
   }, [shouldOnboardAuthor]);
+
+  const hasCommentToggleQueryParam =
+    typeof router.query.comment !== 'undefined';
+
+  useEffect(() => {
+    if (!hasCommentToggleQueryParam || parentComment) {
+      return;
+    }
+
+    const { comment, ...queryWithoutComment } = router.query;
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: queryWithoutComment,
+      },
+      undefined,
+      {
+        shallow: true,
+      },
+    );
+
+    // TODO WT-1313-squad-welcome-post-checklist-steps correct origin
+    openNewComment('squad checklist');
+  }, [hasCommentToggleQueryParam, openNewComment, parentComment, router]);
 
   return (
     <>
