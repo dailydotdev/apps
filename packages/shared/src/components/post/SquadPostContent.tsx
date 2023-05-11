@@ -105,7 +105,6 @@ function SquadPostContent({
             className="!typo-body"
           />
           <SquadPostAuthor author={post.author} role={role} />
-          <p className="mt-6 whitespace-pre-line typo-title3">{post.title}</p>
           <Content post={post} onReadArticle={onReadArticle} />
         </BasePostContent>
       </PostContentContainer>
