@@ -147,7 +147,7 @@ export const SOURCE_FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
-    ${SUPPORTED_TYPES}
+    $supportedTypes: [String!]
   ) {
     page: sourceFeed(
       source: $source

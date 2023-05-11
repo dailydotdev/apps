@@ -95,6 +95,7 @@ export function getFeedItemKey(items: FeedItem[], index: number): string {
 const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Article]: ArticlePostCard,
   [PostType.Share]: SharePostCard,
+  [PostType.Welcome]: ArticlePostCard,
 };
 
 export default function FeedItemComponent({

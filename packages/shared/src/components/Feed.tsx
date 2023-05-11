@@ -133,6 +133,7 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
 const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
+  [PostType.Welcome]: SharePostModal,
 };
 
 export default function Feed<T>({

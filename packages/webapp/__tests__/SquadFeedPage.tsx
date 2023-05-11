@@ -1,4 +1,4 @@
-import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import { FeedData, PostType } from '@dailydotdev/shared/src/graphql/posts';
 import {
   OnboardingMode,
   SOURCE_FEED_QUERY,
@@ -85,6 +85,7 @@ const createFeedMock = (
     loggedIn: true,
     source: defaultSquad.id,
     ranking: 'TIME',
+    supportedTypes: [PostType.Article, PostType.Share, PostType.Welcome],
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {

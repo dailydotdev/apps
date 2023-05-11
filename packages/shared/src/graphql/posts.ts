@@ -26,6 +26,7 @@ export interface SharedPost extends Post {
 export enum PostType {
   Article = 'article',
   Share = 'share',
+  Welcome = 'welcome',
 }
 
 export interface Post {
@@ -34,6 +35,8 @@ export interface Post {
   title: string;
   permalink?: string;
   image: string;
+  content?: string;
+  contentHtml?: string;
   createdAt?: string;
   readTime?: number;
   tags?: string[];
@@ -81,10 +84,9 @@ export interface ParentComment {
   authorId?: string;
   authorName: string;
   authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
+  publishDate?: Date | string;
+  contentHtml?: string;
+  commentId?: string;
   post: Post;
   editContent?: string;
   editId?: string;
@@ -133,6 +135,8 @@ export const POST_BY_ID_QUERY = gql`
       ...SharedPostInfo
       trending
       views
+      content
+      contentHtml
       sharedPost {
         ...SharedPostInfo
       }
