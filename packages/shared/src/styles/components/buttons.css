@@ -163,6 +163,25 @@
     pointer-events: none;
     cursor: default;
   }
+
+  &:hover, &.hover, &:focus:focus-visible {
+    --button-icon: var(--button-hover-icon);
+    transition: background-color 0.2s ease-in-out;
+  }
+  &[aria-pressed="true"] {
+    --button-background: var(--button-pressed-background);
+    --button-icon: var(--button-hover-icon);
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  &:hover, &.hover, &:focus:focus-visible {
+    --button-icon: var(--button-hover-icon);
+    transition: background-color 0.2s ease-in-out;
+  }
+  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
+    color: var(--button-hover-color);
+    transition: background-color 0.2s ease-in-out;
+  }
 }
 
 .btn-quaternary {
@@ -172,12 +191,7 @@
 
   & [aria-pressed="true"] ~ label {
     color: var(--button-pressed-color);
-  }
-
-  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
-    color: var(--button-hover-color);
-    transition: background-color 0.2s ease-in-out;
-  }
+  }  
 
   & :active ~ label {
     color: var(--button-active-color);
@@ -225,18 +239,7 @@
   color: var(--button-color, var(--button-default-color));
   & .icon {
     color: var(--button-icon, var(--button-default-icon, none));
-  }
-
-  &[aria-pressed="true"] {
-    --button-background: var(--button-pressed-background);
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
-
-  &:hover, &.hover, &:focus:focus-visible {
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
+  }  
 
   &:active {
     --button-background: var(--button-pressed-background);
@@ -252,12 +255,6 @@
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
   }
-
-  &:hover, &.hover, &:focus:focus-visible {
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
-
   &:active {
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
