@@ -6,7 +6,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { act, Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
@@ -24,6 +24,8 @@ import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import SettingsContext from '../../contexts/SettingsContext';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -90,28 +92,54 @@ const renderComponent = (
   );
 };
 
-const renderRegistration = async (email: string, existing = false) => {
+const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
+  Simulate.blur(el);
+  // eslint-disable-next-line no-param-reassign
+  el.value += key;
+};
+
+const renderRegistration = async (
+  email = 'sshanzel@yahoo.com',
+  existing = false,
+  name = 'Lee Solevilla',
+  username = 'leesolevilla',
+) => {
   renderComponent();
   await waitForNock();
   mockEmailCheck(email, existing);
-  fireEvent.input(screen.getByPlaceholderText('Email'), {
-    target: { value: email },
-  });
   await act(async () => {
+    fireEvent.input(screen.getByPlaceholderText('Email'), {
+      target: { value: email },
+    });
     const submit = await screen.findByTestId('email_signup_submit');
     fireEvent.click(submit);
     await waitForNock();
   });
-  await waitFor(() => expect(screen.getByText('Sign up to daily.dev')));
-  fireEvent.input(screen.getByPlaceholderText('Full name'), {
-    target: { value: 'Lee Solevilla' },
+  let queryCalled = false;
+  mockGraphQL({
+    request: {
+      query: GET_USERNAME_SUGGESTION,
+      variables: { name },
+    },
+    result: () => {
+      queryCalled = true;
+      return { data: { generateUniqueUsername: username } };
+    },
   });
+  await waitFor(() => expect(screen.getByText('Sign up to daily.dev')));
+  const nameInput = screen.getByPlaceholderText('Full name');
+  fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
+    target: { value: username },
+  });
+  fireEvent.input(screen.getByPlaceholderText('Full name'), {
+    target: { value: name },
+  });
+  simulateTextboxInput(nameInput as HTMLTextAreaElement, name);
   fireEvent.input(screen.getByPlaceholderText('Create a password'), {
     target: { value: '#123xAbc' },
   });
-  fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
-    target: { value: 'sshanzel' },
-  });
+
+  await waitFor(() => expect(queryCalled).toBeTruthy());
 };
 
 it('should post registration', async () => {
@@ -159,5 +187,25 @@ it('should show login if email exists', async () => {
   await waitFor(() => {
     const text = screen.queryByText('Enter your password to login');
     expect(text).toBeInTheDocument();
+  });
+});
+
+describe('testing username auto generation', () => {
+  it('should suggest a valid option', async () => {
+    const email = 'sshanzel@yahoo.com';
+    const name = 'John Doe';
+    const username = 'johndoe';
+
+    await renderRegistration(email, false, name, username);
+    const form = await screen.findByTestId('registration_form');
+    const params = formToJson(form as HTMLFormElement);
+    mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      const usernameEl = screen.getByPlaceholderText('Enter a username');
+      expect(usernameEl).toBeInTheDocument();
+      expect(usernameEl).toHaveValue(username);
+    });
   });
 });

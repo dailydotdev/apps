@@ -48,6 +48,7 @@ function TextFieldComponent(
     disabled,
     rightIcon,
     required,
+    onBlur: onExternalBlur,
     ...props
   }: TextFieldProps,
   ref?: MutableRefObject<HTMLDivElement>,
@@ -153,7 +154,12 @@ function TextFieldComponent(
           id={inputId}
           ref={inputRef}
           onFocus={onFocus}
-          onBlur={onBlur}
+          onBlur={(e) => {
+            if (onExternalBlur) {
+              onExternalBlur(e);
+            }
+            onBlur();
+          }}
           onInput={onInput}
           maxLength={maxLength}
           readOnly={readOnly}
