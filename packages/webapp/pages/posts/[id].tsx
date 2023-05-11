@@ -65,6 +65,7 @@ export interface Props {
 const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   article: PostContent,
   share: SquadPostContent,
+  welcome: SquadPostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -130,13 +131,15 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   }
 
   const Content = CONTENT_MAP[post?.type];
+  const shareNavigation = !post?.source ? (
+    <></>
+  ) : (
+    <SquadPostPageNavigation squadLink={post.source.permalink} />
+  );
   const navigation: Record<PostType, ReactNode> = {
     article: null,
-    share: !post?.source ? (
-      <></>
-    ) : (
-      <SquadPostPageNavigation squadLink={post.source.permalink} />
-    ),
+    share: shareNavigation,
+    welcome: shareNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 

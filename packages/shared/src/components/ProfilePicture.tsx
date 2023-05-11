@@ -11,7 +11,8 @@ export type ProfileImageSize =
   | 'large'
   | 'xlarge'
   | 'xxlarge'
-  | 'xxxlarge';
+  | 'xxxlarge'
+  | 'profile';
 
 type ProfileImageRoundSize = ProfileImageSize | 'full';
 type UserImageProps = Pick<PublicProfile, 'image'> &
@@ -26,23 +27,25 @@ export interface ProfilePictureProps
   nativeLazyLoading?: boolean;
 }
 
-const sizeClasses = {
+const sizeClasses: Record<ProfileImageSize, string> = {
   xsmall: 'w-5 h-5',
   small: 'w-6 h-6',
   medium: 'w-8 h-8',
   large: 'w-10 h-10',
   xlarge: 'w-12 h-12',
   xxlarge: 'w-14 h-14',
-  xxxlarge: 'w-24 h-24',
+  xxxlarge: 'w-16 h-16',
+  profile: 'w-24 h-24',
 };
-const roundClasses = {
+const roundClasses: Record<ProfileImageSize | 'full', string> = {
   xsmall: 'rounded-6',
   small: 'rounded-8',
   medium: 'rounded-10',
   large: 'rounded-12',
   xlarge: 'rounded-14',
   xxlarge: 'rounded-16',
-  xxxlarge: 'rounded-26',
+  xxxlarge: 'rounded-16',
+  profile: 'rounded-26',
   full: 'rounded-full',
 };
 
