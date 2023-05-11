@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRequestProtocol } from './useRequestProtocol';
 import { GET_USERNAME_SUGGESTION } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
@@ -37,11 +37,8 @@ export const useGenerateUsername = (name: string): UseGenerateUsername => {
     }
   }, [data, isLoading, username]);
 
-  return useMemo(
-    () => ({
-      username,
-      setUsername,
-    }),
-    [username, setUsername],
-  );
+  return {
+    username,
+    setUsername,
+  };
 };
