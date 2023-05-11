@@ -66,18 +66,8 @@ export const SocialRegistrationForm = ({
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
   const [name, setName] = useState(user?.name);
-  const [username, setUsername] = useState(user?.username);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
-  const { data: usernameData, isLoading: usernameDataIsLoading } =
-    useGenerateUsername(name);
-
-  useEffect(() => {
-    if (!!username || !!username?.length || usernameDataIsLoading) return;
-
-    if (usernameData?.generateUniqueUsername) {
-      setUsername(usernameData.generateUniqueUsername);
-    }
-  }, [usernameData, usernameDataIsLoading, username, setUsername]);
+  const { username, setUsername } = useGenerateUsername(name);
 
   useEffect(() => {
     trackEvent({

@@ -1,19 +1,16 @@
 import { useQuery } from 'react-query';
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRequestProtocol } from './useRequestProtocol';
 import { GET_USERNAME_SUGGESTION } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 
-interface UseGenerateUsernameData {
-  generateUniqueUsername: string;
-}
-
 interface UseGenerateUsername {
-  data?: UseGenerateUsernameData;
-  isLoading: boolean;
+  username?: string;
+  setUsername: (value: string) => void;
 }
 
 export const useGenerateUsername = (name: string): UseGenerateUsername => {
+  const [username, setUsername] = useState('');
   const { requestMethod } = useRequestProtocol();
   const usernameQueryKey = ['generateUsername', name];
   const { data, isLoading } = useQuery<{
@@ -31,11 +28,20 @@ export const useGenerateUsername = (name: string): UseGenerateUsername => {
       enabled: !!name.length,
     },
   );
+
+  useEffect(() => {
+    if (username.length || isLoading) return;
+
+    if (data?.generateUniqueUsername) {
+      setUsername(data.generateUniqueUsername);
+    }
+  }, [data, isLoading, username]);
+
   return useMemo(
     () => ({
-      data,
-      isLoading,
+      username,
+      setUsername,
     }),
-    [data, isLoading],
+    [username, setUsername],
   );
 };
