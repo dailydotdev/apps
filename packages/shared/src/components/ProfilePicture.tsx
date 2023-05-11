@@ -12,7 +12,7 @@ export type ProfileImageSize =
   | 'xlarge'
   | 'xxlarge'
   | 'xxxlarge'
-  | 'profile';
+  | 'xxxxlarge';
 
 type ProfileImageRoundSize = ProfileImageSize | 'full';
 type UserImageProps = Pick<PublicProfile, 'image'> &
@@ -35,7 +35,7 @@ const sizeClasses: Record<ProfileImageSize, string> = {
   xlarge: 'w-12 h-12',
   xxlarge: 'w-14 h-14',
   xxxlarge: 'w-16 h-16',
-  profile: 'w-24 h-24',
+  xxxxlarge: 'w-24 h-24',
 };
 const roundClasses: Record<ProfileImageSize | 'full', string> = {
   xsmall: 'rounded-6',
@@ -44,8 +44,8 @@ const roundClasses: Record<ProfileImageSize | 'full', string> = {
   large: 'rounded-12',
   xlarge: 'rounded-14',
   xxlarge: 'rounded-16',
-  xxxlarge: 'rounded-16',
-  profile: 'rounded-26',
+  xxxlarge: 'rounded-[18px]',
+  xxxxlarge: 'rounded-26',
   full: 'rounded-full',
 };
 
