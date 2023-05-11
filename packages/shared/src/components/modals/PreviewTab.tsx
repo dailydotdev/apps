@@ -16,7 +16,6 @@ const PreviewTab = ({
   ...props
 }: PreviewTabProps): ReactElement => {
   const { activeView } = useContext(ModalPropsContext);
-  console.log(activeView, tabName);
 
   return (
     <>

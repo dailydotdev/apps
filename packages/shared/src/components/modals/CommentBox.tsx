@@ -132,7 +132,7 @@ function CommentBox({
 
   useEffect(() => {
     if (!mentions?.length) commentRef?.current?.focus();
-  }, [mentions, commentRef?.current]);
+  }, [mentions, commentRef]);
 
   const date = publishDate ?? post.createdAt;
 
