@@ -44,8 +44,8 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
     return steps.filter((step) => !!step.action.completedAt);
   }, [steps]);
 
-  return useMemo(() => {
-    const sortedStepsByCompletion = [...steps].sort((a, b) => {
+  const sortedStepsByCompletion = useMemo(() => {
+    return [...steps].sort((a, b) => {
       if (a.action.completedAt && !b.action.completedAt) {
         return -1;
       }
@@ -56,16 +56,16 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
 
       return 0;
     });
+  }, [steps]);
 
-    return {
-      steps: sortedStepsByCompletion,
-      openStep,
-      onToggleStep,
-      isDone,
-      activeStep,
-      completedSteps,
-    };
-  }, [steps, openStep, onToggleStep, isDone, activeStep, completedSteps]);
+  return {
+    steps: sortedStepsByCompletion,
+    openStep,
+    onToggleStep,
+    isDone,
+    activeStep,
+    completedSteps,
+  };
 };
 
 export { useChecklist };
