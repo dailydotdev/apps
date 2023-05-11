@@ -29,6 +29,7 @@ import { Checkbox } from '../fields/Checkbox';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
+import { useGenerateUsername } from '../../hooks';
 
 export interface RegistrationFormProps {
   email: string;
@@ -58,7 +59,9 @@ export const RegistrationForm = ({
 }: RegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
+  const { username, setUsername } = useGenerateUsername(name);
 
   useEffect(() => {
     trackEvent({
@@ -149,6 +152,8 @@ export const RegistrationForm = ({
           inputId="traits.name"
           label="Full name"
           hint={hints?.['traits.name']}
+          value={name}
+          onBlur={(e) => setName(e.target.value)}
           valueChanged={() =>
             hints?.['traits.name'] &&
             onUpdateHints({ ...hints, 'traits.name': '' })
@@ -174,6 +179,8 @@ export const RegistrationForm = ({
           name="traits.username"
           inputId="traits.username"
           label="Enter a username"
+          value={username}
+          onBlur={(e) => setUsername(e.target.value)}
           hint={hints?.['traits.username']}
           valueChanged={() =>
             hints?.['traits.username'] &&
