@@ -142,7 +142,7 @@ function SquadPostContent({
               </a>
             </ProfileTooltip>
           </span>
-          <p className="mt-6 typo-title3">{post.title}</p>
+          <p className="mt-6 whitespace-pre-line typo-title3">{post.title}</p>
           <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
             <a
               href={
