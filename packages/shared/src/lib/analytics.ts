@@ -56,6 +56,8 @@ export enum AnalyticsEvent {
   CompleteSquadCreation = 'complete squad creation',
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
+  DeletePost = 'delete post',
+  DeleteComment = 'delete comment',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
 }
