@@ -15,7 +15,7 @@ import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
 import ShareIcon from './icons/Share';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { PostType } from '../graphql/posts';
+import { supportedTypesForPrivateSources } from '../graphql/posts';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -48,7 +48,7 @@ export default function BookmarkFeedLayout({
         query: SEARCH_BOOKMARKS_QUERY,
         variables: {
           query: searchQuery,
-          supportedTypes: [PostType.Article, PostType.Share, PostType.Welcome],
+          supportedTypes: supportedTypesForPrivateSources,
         },
         emptyScreen: <SearchEmptyScreen />,
       };
@@ -58,7 +58,7 @@ export default function BookmarkFeedLayout({
       feedQueryKey: defaultKey,
       query: BOOKMARKS_FEED_QUERY,
       variables: {
-        supportedTypes: [PostType.Article, PostType.Share, PostType.Welcome],
+        supportedTypes: supportedTypesForPrivateSources,
       },
       onEmptyFeed: () => setShowEmptyScreen(true),
       options: { refetchOnMount: true },

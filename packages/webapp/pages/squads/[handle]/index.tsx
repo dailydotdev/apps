@@ -41,7 +41,7 @@ import {
   useTutorial,
   TutorialKey,
 } from '@dailydotdev/shared/src/hooks/useTutorial';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -122,7 +122,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     () => ({
       source: squadId,
       ranking: 'TIME',
-      supportedTypes: [PostType.Article, PostType.Share, PostType.Welcome],
+      supportedTypes: supportedTypesForPrivateSources,
     }),
     [squadId],
   );

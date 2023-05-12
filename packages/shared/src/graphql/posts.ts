@@ -29,6 +29,12 @@ export enum PostType {
   Welcome = 'welcome',
 }
 
+export const supportedTypesForPrivateSources = [
+  PostType.Article,
+  PostType.Share,
+  PostType.Welcome,
+];
+
 export interface Post {
   __typename?: string;
   id: string;
