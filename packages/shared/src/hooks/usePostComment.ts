@@ -116,7 +116,6 @@ export const usePostComment = (
     setParentComment({
       ...parent,
       replyTo,
-      editContent: router.query.comment as string,
     });
   };
 
@@ -266,6 +265,30 @@ export const usePostComment = (
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enableShowShareNewComment]);
+
+  const hasCommentToggleQueryParam = typeof router.query.comment === 'string';
+
+  useEffect(() => {
+    if (!hasCommentToggleQueryParam || parentComment) {
+      return;
+    }
+
+    const { comment, ...queryWithoutComment } = router.query;
+
+    // TODO WT-1313-squad-welcome-post-checklist-steps correct origin
+    openNewComment('squad checklist');
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: queryWithoutComment,
+      },
+      undefined,
+      {
+        shallow: true,
+      },
+    );
+  }, [hasCommentToggleQueryParam, openNewComment, parentComment, router]);
 
   return useMemo(
     () => ({
