@@ -23,7 +23,7 @@ function MarkdownPreview({
   enabled = true,
 }: MarkdownPreviewProps): ReactElement {
   const { requestMethod, isCompanion } = useRequestProtocol();
-  const query = ['markdown_preview', input.replace('\n', '')];
+  const query = ['markdown_preview', input];
   const { data: previewContent } = useQuery<QueryResult>(
     query,
     () =>
