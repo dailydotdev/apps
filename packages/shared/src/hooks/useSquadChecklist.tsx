@@ -140,13 +140,11 @@ const useSquadChecklist = ({
     true,
   );
 
-  return useMemo(() => {
-    return {
-      ...checklist,
-      isChecklistVisible,
-      setChecklistVisible,
-    };
-  }, [checklist, isChecklistVisible, setChecklistVisible]);
+  return {
+    ...checklist,
+    isChecklistVisible,
+    setChecklistVisible,
+  };
 };
 
 export { useSquadChecklist };

@@ -30,6 +30,7 @@ import AuthForm from './AuthForm';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
+import { useGenerateUsername } from '../../hooks';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -64,7 +65,9 @@ export const SocialRegistrationForm = ({
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
+  const [name, setName] = useState(user?.name);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
+  const { username, setUsername } = useGenerateUsername(name);
 
   useEffect(() => {
     trackEvent({
@@ -175,9 +178,10 @@ export const SocialRegistrationForm = ({
           name="name"
           inputId="name"
           label="Full name"
-          value={user?.name}
+          value={name}
           valid={!nameHint && !hints?.name}
           hint={hints?.name || nameHint}
+          onBlur={(e) => setName(e.target.value)}
           valueChanged={() => {
             if (hints?.name) {
               onUpdateHints?.({ ...hints, name: '' });
@@ -194,11 +198,12 @@ export const SocialRegistrationForm = ({
           name="username"
           inputId="username"
           label="Enter a username"
-          value={user?.username}
+          value={username}
           minLength={1}
           valid={!usernameHint && !hints?.username}
           hint={hints?.username || usernameHint}
-          valueChanged={() => {
+          valueChanged={(value: string) => {
+            setUsername(value);
             if (hints?.username) {
               onUpdateHints?.({ ...hints, username: '' });
             }
