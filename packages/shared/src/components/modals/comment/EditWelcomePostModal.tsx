@@ -5,7 +5,7 @@ import { Button } from '../../buttons/Button';
 import { NewCommentModalProps } from './NewCommentModal';
 import { PromptOptions, usePrompt } from '../../../hooks/usePrompt';
 import PreviewTab from '../tabs/PreviewTab';
-import { editPost, PostData } from '../../../graphql/posts';
+import { editPost, PostData, PostType } from '../../../graphql/posts';
 import ContentWriteTab from '../tabs/ContentWriteTab';
 import { getPostByIdKey } from '../../../hooks/usePostById';
 import { useToastNotification } from '../../../hooks/useToastNotification';
@@ -51,7 +51,11 @@ function EditWelcomePostModal({
           : { post: { ...data.post, ...updatedPost } },
       );
       displayToast('Post updated successfully!');
-      completeAction(ActionType.EditWelcomePost);
+
+      if (post.type === PostType.Welcome) {
+        completeAction(ActionType.EditWelcomePost);
+      }
+
       onRequestClose(null);
     },
     onError: () => setErrorMessage('Something went wrong, try again'),
