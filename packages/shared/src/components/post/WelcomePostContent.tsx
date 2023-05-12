@@ -11,6 +11,9 @@ interface WelcomePostContentProps {
 function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
   return (
     <>
+      <h1 className="my-6 font-bold whitespace-pre-line typo-title2">
+        {post.title}
+      </h1>
       <Markdown content={post.contentHtml} />
       <div className="block overflow-hidden mt-8 w-96 rounded-2xl cursor-pointer h-fit">
         <LazyImage

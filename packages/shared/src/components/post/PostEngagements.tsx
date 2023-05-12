@@ -19,7 +19,7 @@ const AuthorOnboarding = dynamic(
 const NewCommentModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "newCommentModal" */ '../modals/NewCommentModal'
+      /* webpackChunkName: "newCommentModal" */ '../modals/comment/NewCommentModal'
     ),
 );
 const ShareNewCommentPopup = dynamic(

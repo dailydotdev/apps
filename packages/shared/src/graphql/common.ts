@@ -57,6 +57,7 @@ export const REQUEST_PROTOCOL_KEY = 'request-protocol';
 export interface RequestProtocol {
   requestMethod?: typeof request;
   fetchMethod?: typeof fetch;
+  isCompanion?: boolean;
 }
 
 export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
