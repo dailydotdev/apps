@@ -1,9 +1,9 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import MarkdownPreview, {
   MarkdownPreviewProps,
-} from '../fields/MarkdownPreview';
-import { ModalPropsContext } from './common/types';
-import { Modal } from './common/Modal';
+} from '../../fields/MarkdownPreview';
+import { ModalPropsContext } from '../common/types';
+import { Modal } from '../common/Modal';
 
 interface PreviewTabProps extends Omit<MarkdownPreviewProps, 'enabled'> {
   tabName: string;

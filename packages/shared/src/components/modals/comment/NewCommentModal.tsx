@@ -6,25 +6,21 @@ import {
   COMMENT_ON_POST_MUTATION,
   CommentOnData,
   EDIT_COMMENT_MUTATION,
-} from '../../graphql/comments';
-import { graphqlUrl } from '../../lib/config';
-import CommentBox, { CommentBoxProps } from './CommentBox';
-import { Button, ButtonSize } from '../buttons/Button';
-import { Post } from '../../graphql/posts';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { Modal, ModalProps } from './common/Modal';
-import AtIcon from '../icons/At';
-import { ClickableText } from '../buttons/ClickableText';
-import { useUserMention } from '../../hooks/useUserMention';
-import { markdownGuide } from '../../lib/constants';
-import { Justify } from '../utilities';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { checkUserMembership } from '../../graphql/squads';
-import { SourceMemberRole, SourceType } from '../../graphql/sources';
-import Alert, { AlertType } from '../widgets/Alert';
-import { disabledRefetch } from '../../lib/func';
-import PreviewTab from './PreviewTab';
+} from '../../../graphql/comments';
+import { graphqlUrl } from '../../../lib/config';
+import { CommentBoxProps } from '../CommentBox';
+import { Button } from '../../buttons/Button';
+import { Post } from '../../../graphql/posts';
+import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
+import { Modal, ModalProps } from '../common/Modal';
+import { PromptOptions, usePrompt } from '../../../hooks/usePrompt';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { checkUserMembership } from '../../../graphql/squads';
+import { SourceMemberRole, SourceType } from '../../../graphql/sources';
+import Alert, { AlertType } from '../../widgets/Alert';
+import { disabledRefetch } from '../../../lib/func';
+import PreviewTab from '../tabs/PreviewTab';
+import ContentWriteTab from '../tabs/ContentWriteTab';
 
 interface CommentVariables {
   id: string;
@@ -164,11 +160,6 @@ export default function NewCommentModal({
       setSendingComment(false);
     }
   };
-  const useUserMentionOptions = useUserMention({
-    postId: post.id,
-    sourceId: post.source.id,
-    onInput: setInput,
-  });
 
   useEffect(() => {
     onInputChange?.(input);
@@ -200,25 +191,25 @@ export default function NewCommentModal({
       <Modal.Header.Tabs
         disabledTab={(tab) => tab === CommentTabs.Preview && disabled}
       />
-      <Modal.Body view={CommentTabs.Write}>
-        <CommentBox
-          {...props}
-          parentComment={parentComment}
-          useUserMentionOptions={useUserMentionOptions}
-          onInput={setInput}
-          input={input}
-          errorMessage={errorMessage}
-          sendComment={sendComment}
-        >
-          {isMembershipFetched &&
-          (!member || member.role === SourceMemberRole.Blocked) ? (
-            <Alert
-              type={AlertType.Info}
-              title={`${handle} is no longer part of the squad and will not be able to see or reply to your comment.`}
-            />
-          ) : null}
-        </CommentBox>
-      </Modal.Body>
+      <ContentWriteTab
+        {...props}
+        parentComment={parentComment}
+        onInput={setInput}
+        input={input}
+        errorMessage={errorMessage}
+        sendComment={sendComment}
+        sendingComment={sendingComment}
+        submitAction={updateButton}
+        tabName={CommentTabs.Write}
+      >
+        {isMembershipFetched &&
+        (!member || member.role === SourceMemberRole.Blocked) ? (
+          <Alert
+            type={AlertType.Info}
+            title={`${handle} is no longer part of the squad and will not be able to see or reply to your comment.`}
+          />
+        ) : null}
+      </ContentWriteTab>
       <PreviewTab
         input={input}
         sourceId={post.source.id}
@@ -227,25 +218,6 @@ export default function NewCommentModal({
       >
         {updateButton}
       </PreviewTab>
-      <Modal.Footer justify={Justify.Between} view={CommentTabs.Write}>
-        <Button
-          className="btn-tertiary"
-          buttonSize={ButtonSize.Small}
-          icon={<AtIcon />}
-          onClick={useUserMentionOptions.onInitializeMention}
-        />
-        <div className="-ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
-        <ClickableText
-          tag="a"
-          href={markdownGuide}
-          className="typo-caption1"
-          defaultTypo={false}
-          target="_blank"
-        >
-          Markdown supported
-        </ClickableText>
-        {updateButton}
-      </Modal.Footer>
     </Modal>
   );
 }

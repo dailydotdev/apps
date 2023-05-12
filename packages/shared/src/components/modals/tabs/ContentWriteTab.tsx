@@ -1,26 +1,26 @@
-import React, { ReactElement } from 'react';
-import { Modal } from './common/Modal';
-import CommentBox, { CommentBoxProps } from './CommentBox';
-import { Justify } from '../utilities';
-import { Button, ButtonSize } from '../buttons/Button';
-import AtIcon from '../icons/At';
-import { ClickableText } from '../buttons/ClickableText';
-import { markdownGuide } from '../../lib/constants';
-import { useUserMention } from '../../hooks/useUserMention';
-import { Post } from '../../graphql/posts';
+import React, { ReactElement, ReactNode } from 'react';
+import { Modal } from '../common/Modal';
+import CommentBox, { CommentBoxProps } from '../CommentBox';
+import { Justify } from '../../utilities';
+import { Button, ButtonSize } from '../../buttons/Button';
+import AtIcon from '../../icons/At';
+import { ClickableText } from '../../buttons/ClickableText';
+import { markdownGuide } from '../../../lib/constants';
+import { useUserMention } from '../../../hooks/useUserMention';
 
 interface ContentWriteTabProps
   extends Omit<CommentBoxProps, 'useUserMentionOptions'> {
-  post: Post;
   tabName: string;
+  submitAction: ReactNode;
 }
 
 function ContentWriteTab({
-  post,
   tabName,
   children,
+  submitAction,
   ...props
 }: ContentWriteTabProps): ReactElement {
+  const { post } = props.parentComment;
   const userMentionData = useUserMention({
     postId: post.id,
     sourceId: post.source.id,
@@ -30,7 +30,9 @@ function ContentWriteTab({
   return (
     <>
       <Modal.Body view={tabName}>
-        <CommentBox {...props} useUserMentionOptions={userMentionData} />
+        <CommentBox {...props} useUserMentionOptions={userMentionData}>
+          {children}
+        </CommentBox>
       </Modal.Body>
       <Modal.Footer justify={Justify.Between} view={tabName}>
         <Button
@@ -49,7 +51,7 @@ function ContentWriteTab({
         >
           Markdown supported
         </ClickableText>
-        {children}
+        {submitAction}
       </Modal.Footer>
     </>
   );

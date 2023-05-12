@@ -28,7 +28,9 @@ const SquadTourModal = dynamic(
 
 const EditWelcomePostModal = dynamic(
   () =>
-    import(/* webpackChunkName: "squadTourModal" */ './EditWelcomePostModal'),
+    import(
+      /* webpackChunkName: "editWelcomePostModal" */ './comment/EditWelcomePostModal'
+    ),
 );
 
 export const modals = {

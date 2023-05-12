@@ -1,14 +1,14 @@
 import React, { MouseEvent, ReactElement, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { Modal } from './common/Modal';
-import { Button } from '../buttons/Button';
+import { Modal } from '../common/Modal';
+import { Button } from '../../buttons/Button';
 import { NewCommentModalProps } from './NewCommentModal';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import PreviewTab from './PreviewTab';
-import { editPost, PostData } from '../../graphql/posts';
-import ContentWriteTab from './ContentWriteTab';
-import { getPostByIdKey } from '../../hooks/usePostById';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { PromptOptions, usePrompt } from '../../../hooks/usePrompt';
+import PreviewTab from '../tabs/PreviewTab';
+import { editPost, PostData } from '../../../graphql/posts';
+import ContentWriteTab from '../tabs/ContentWriteTab';
+import { getPostByIdKey } from '../../../hooks/usePostById';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 
 enum EditPostTab {
   Write = 'Write',
@@ -95,7 +95,6 @@ function EditWelcomePostModal({
       />
       <ContentWriteTab
         {...props}
-        post={post}
         tabName={EditPostTab.Write}
         parentComment={{
           authorName: post.author.name,
@@ -108,9 +107,8 @@ function EditWelcomePostModal({
         input={input}
         onInput={setInput}
         isComment={false}
-      >
-        {updateButton}
-      </ContentWriteTab>
+        submitAction={updateButton}
+      />
       <PreviewTab
         input={input}
         sourceId={post.source.id}
