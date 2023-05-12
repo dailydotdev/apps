@@ -18,7 +18,7 @@ import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
-import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
+import NewCommentModal from '@dailydotdev/shared/src/components/modals/comment/NewCommentModal';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import PostToSquadModal, {

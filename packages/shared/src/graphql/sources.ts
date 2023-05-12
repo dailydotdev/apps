@@ -22,6 +22,7 @@ export enum SourcePermissions {
   Leave = 'leave',
   Delete = 'delete',
   Edit = 'edit',
+  WelcomePostEdit = 'welcome_post_edit',
 }
 
 export interface SourceMember {

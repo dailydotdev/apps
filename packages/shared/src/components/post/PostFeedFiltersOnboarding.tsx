@@ -31,7 +31,7 @@ export function PostFeedFiltersOnboarding({
   return (
     <div
       className={classNames(
-        'flex relative rounded-16 border border-theme-color-cabbage',
+        'flex relative rounded-16 border border-theme-color-cabbage items-center',
         className,
       )}
       onClick={onInitializeOnboarding}

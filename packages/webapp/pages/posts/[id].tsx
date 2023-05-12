@@ -96,7 +96,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   });
   const containerClass = classNames(
     'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
-    post?.type === PostType.Share &&
+    [PostType.Share, PostType.Welcome].includes(post?.type) &&
       sidebarRendered &&
       modalSizeToClassName[ModalSize.Large],
   );

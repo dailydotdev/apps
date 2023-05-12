@@ -4,27 +4,27 @@ import { Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../contexts/AuthContext';
 import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
   RECOMMEND_MENTIONS_QUERY,
   PREVIEW_COMMENT_MUTATION,
-} from '../../graphql/comments';
+} from '../../../graphql/comments';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { RecommendedMention } from '../RecommendedMention';
-import comment from '../../../__tests__/fixture/comment';
-import user from '../../../__tests__/fixture/loggedUser';
-import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
-import { ParentComment, PostType } from '../../graphql/posts';
-import { UserShortProfile } from '../../lib/user';
-import { SourceType } from '../../graphql/sources';
-import { BootApp } from '../../lib/boot';
+} from '../../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { RecommendedMention } from '../../RecommendedMention';
+import comment from '../../../../__tests__/fixture/comment';
+import user from '../../../../__tests__/fixture/loggedUser';
+import { NotificationsContextProvider } from '../../../contexts/NotificationsContext';
+import { ParentComment, PostType } from '../../../graphql/posts';
+import { UserShortProfile } from '../../../lib/user';
+import { SourceType } from '../../../graphql/sources';
+import { BootApp } from '../../../lib/boot';
 
 const onRequestClose = jest.fn();
 const onComment = jest.fn();
@@ -45,7 +45,6 @@ const renderComponent = (
     publishDate: new Date(2017, 1, 10, 0, 0),
     contentHtml: '<p>This is the main comment</p>',
     commentId: null,
-    content: '',
     post: {
       id: 'p1',
       title: 'Title',
