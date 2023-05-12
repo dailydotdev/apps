@@ -95,6 +95,7 @@ export default function Companion({
   useQuery(REQUEST_PROTOCOL_KEY, () => ({
     requestMethod: companionRequest,
     fetchMethod: companionFetch,
+    isCompanion: true,
   }));
   const [assetsLoadedDebounce] = useDebounce(() => setAssetsLoaded(true), 10);
   const routeChangedCallbackRef = useTrackPageView();
