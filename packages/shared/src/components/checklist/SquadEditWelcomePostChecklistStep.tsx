@@ -26,8 +26,7 @@ const SquadEditWelcomePostChecklistStep = ({
         disabled={!welcomePost}
         icon={<EditIcon />}
         onClick={() => {
-          // TODO WT-1313-squad-welcome-post-checklist-steps we might need to open article
-          // modal here first
+          // TODO WT-1313-squad-welcome-post-checklist-steps we might need to open article modal here
 
           openModal({
             type: LazyModal.EditWelcomePost,

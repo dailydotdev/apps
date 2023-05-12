@@ -19,6 +19,7 @@ const SquadFirstCommentChecklistStep = ({
         className="btn-primary"
         disabled={!welcomePost}
         onClick={() => {
+          // TODO WT-1313-squad-welcome-post-checklist-steps we might need to open article modal here
           router.push(`/posts/${welcomePost.id}?comment`);
         }}
       >
