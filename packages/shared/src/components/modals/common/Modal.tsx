@@ -58,7 +58,8 @@ const modalKindAndSizeToClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
-    [ModalSize.Medium]: 'h-full mobileL:h-auto min-h-[25rem]',
+    [ModalSize.Medium]:
+      'h-full mobileL:h-auto min-h-[25rem] max-h-[calc(100vh-10rem)]',
     [ModalSize.Large]: 'laptop:mt-14 laptop:mb-10',
     [ModalSize.XLarge]: 'laptop:mt-14 laptop:mb-10',
   },
