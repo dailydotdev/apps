@@ -29,7 +29,6 @@ import {
 } from '../../hooks/usePostComment';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { ExperimentWinner } from '../../lib/featureValues';
 import { postAnalyticsEvent } from '../../lib/feed';
 
 interface PostCommentsProps {
