@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
+import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
 import { ParentComment, Post } from '../graphql/posts';
 import { Comment, PostCommentsData } from '../graphql/comments';
@@ -81,6 +82,7 @@ export const usePostComment = (
   post: Post,
   { enableShowShareNewComment }: UsePostCommentOptionalProps = {},
 ): UsePostComment => {
+  const router = useRouter();
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
@@ -111,7 +113,11 @@ export const usePostComment = (
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onCommentClick = (parent: ParentComment, replyTo: string) => {
     setLastScroll(window.scrollY);
-    setParentComment({ ...parent, replyTo });
+    setParentComment({
+      ...parent,
+      replyTo,
+      editContent: router.query.comment as string,
+    });
   };
 
   const openNewComment = useCallback(
@@ -123,12 +129,15 @@ export const usePostComment = (
           }),
         );
         setLastScroll(window.scrollY);
-        setParentComment(getParentComment(post));
+        setParentComment({
+          ...getParentComment(post),
+          editContent: router.query.comment as string,
+        });
       } else {
         showLogin(AuthTriggers.Comment);
       }
     },
-    [post, showLogin, trackEvent, user],
+    [post, showLogin, trackEvent, user, router.query.comment],
   );
 
   const updatePostCommentsCount = (increment: number) =>

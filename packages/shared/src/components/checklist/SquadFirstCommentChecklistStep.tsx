@@ -20,7 +20,7 @@ const SquadFirstCommentChecklistStep = ({
         disabled={!welcomePost}
         onClick={() => {
           // TODO WT-1313-squad-welcome-post-checklist-steps we might need to open article modal here
-          router.push(`/posts/${welcomePost.id}?comment`);
+          router.push(`/posts/${welcomePost.id}?comment=Say hi 👋`);
         }}
       >
         Say hi 👋
