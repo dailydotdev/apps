@@ -56,6 +56,7 @@ export enum AnalyticsEvent {
   CompleteSquadCreation = 'complete squad creation',
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
+  ChecklistClose = 'checklist close',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
 }
@@ -65,6 +66,7 @@ export enum TargetType {
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
   CreateSquadPopup = 'create squad popup',
+  OnboardingChecklist = 'onboarding checklist',
 }
 
 export enum NotificationChannel {
