@@ -128,10 +128,12 @@ export const usePostComment = (
           }),
         );
         setLastScroll(window.scrollY);
-        setParentComment({
-          ...getParentComment(post),
-          editContent: router.query.comment as string,
-        });
+        const parent = getParentComment(post);
+        if (router.query.comment) {
+          parent.editContent = router.query.comment as string;
+        }
+
+        setParentComment(parent);
       } else {
         showLogin(AuthTriggers.Comment);
       }

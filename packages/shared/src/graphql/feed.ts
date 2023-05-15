@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { SHARED_POST_INFO_FRAGMENT } from './fragments';
+import { PostType } from './posts';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',
@@ -10,6 +11,8 @@ export enum OnboardingMode {
   Manual = 'manual',
   Auto = 'auto',
 }
+
+export const baseFeedSupportedTypes = [PostType.Article, PostType.Share];
 
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["article", "share"]`;
 
