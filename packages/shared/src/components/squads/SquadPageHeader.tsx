@@ -39,11 +39,11 @@ export function SquadPageHeader({
     key: TutorialKey.ShareSquadPost,
   });
 
-  const { activeStep, isChecklistVisible } = useSquadChecklist({ squad });
+  const { openStep, isChecklistVisible } = useSquadChecklist({ squad });
 
   const shouldShowHighlightPulse =
     tourIndex === TourScreenIndex.Post ||
-    (isChecklistVisible && activeStep === ActionType.SquadFirstPost);
+    (isChecklistVisible && openStep === ActionType.SquadFirstPost);
 
   return (
     <FlexCol

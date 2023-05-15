@@ -38,12 +38,15 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
 
-  const { activeStep, isChecklistVisible } = useSquadChecklist({
+  const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
   });
 
   const shouldShowHighlightPulse =
-    isChecklistVisible && activeStep === ActionType.SquadFirstComment;
+    isChecklistVisible &&
+    [ActionType.SquadFirstComment, ActionType.EditWelcomePost].includes(
+      openStep,
+    );
 
   return (
     <Card
