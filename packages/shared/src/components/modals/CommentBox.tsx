@@ -142,7 +142,6 @@ function CommentBox({
         <header className="flex items-center mb-2">
           <ProfilePicture
             size="large"
-            rounded="full"
             user={{ image: authorImage, username: authorName }}
             nativeLazyLoading
           />
