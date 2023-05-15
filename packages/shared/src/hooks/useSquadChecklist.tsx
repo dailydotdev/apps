@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
 import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
 import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
-import { SquadWelcomeChecklistStep } from '../components/checklist/SquadWelcomeChecklistStep';
+import { SquadFirstCommentChecklistStep } from '../components/checklist/SquadFirstCommentChecklistStep';
 import { ActionType } from '../graphql/actions';
 import { SourceMemberRole, SourcePermissions, Squad } from '../graphql/sources';
 import {
@@ -17,6 +17,7 @@ import usePersistentContext from './usePersistentContext';
 import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
 import { verifyPermission } from '../graphql/squads';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { SquadEditWelcomePostChecklistStep } from '../components/checklist/SquadEditWelcomePostChecklistStep';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -60,6 +61,9 @@ const useSquadChecklist = ({
         step: {
           title: 'Customize the welcome post',
           description: `The welcome post is where your new squad members will start their journey. You can welcome them and explain the behavior and rules that are expected.`,
+          component: (props) => (
+            <SquadEditWelcomePostChecklistStep {...props} squad={squad} />
+          ),
         },
         actions,
       }),
@@ -68,7 +72,9 @@ const useSquadChecklist = ({
         step: {
           title: "Let people know you're here",
           description: `Welcome to the ${squad.name} squad. Start your journey by saying hi.`,
-          component: SquadWelcomeChecklistStep,
+          component: (props) => (
+            <SquadFirstCommentChecklistStep {...props} squad={squad} />
+          ),
         },
         actions,
       }),

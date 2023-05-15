@@ -9,7 +9,6 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { SUPPORTED_TYPES } from './feed';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -266,69 +265,6 @@ export const REMOVE_BOOKMARK_MUTATION = gql`
 export interface FeedData {
   page: Connection<Post>;
 }
-
-export const AUTHOR_FEED_QUERY = gql`
-  query AuthorFeed(
-    $userId: ID!,
-    $after: String,
-    $first: Int
-    ${SUPPORTED_TYPES}
-   ) {
-    page: authorFeed(
-      author: $userId
-      after: $after
-      first: $first
-      ranking: TIME
-      supportedTypes: $supportedTypes
-    ) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-          source {
-            ...SourceShortInfo
-          }
-          numUpvotes
-          numComments
-          views
-          isAuthor
-          isScout
-        }
-      }
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
-`;
-
-export const KEYWORD_FEED_QUERY = gql`
-  query KeywordFeed(
-    $keyword: String!,
-    $after: String,
-    $first: Int
-    ${SUPPORTED_TYPES}
-   ) {
-    page: keywordFeed(keyword: $keyword, after: $after, first: $first, supportedTypes: $supportedTypes) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-        }
-      }
-    }
-  }
-`;
 
 export interface PostsEngaged {
   postsEngaged: { id: string; numComments: number; numUpvotes: number };
