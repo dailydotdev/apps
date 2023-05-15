@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { ChecklistStepType } from '../lib/checklist';
 import { Action, ActionType } from '../graphql/actions';
