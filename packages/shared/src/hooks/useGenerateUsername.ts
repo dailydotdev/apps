@@ -9,7 +9,9 @@ interface UseGenerateUsername {
   setUsername: (value: string) => void;
 }
 
-export const useGenerateUsername = (name: string): UseGenerateUsername => {
+export const useGenerateUsername = (
+  name: string | undefined,
+): UseGenerateUsername => {
   const [username, setUsername] = useState('');
   const { requestMethod } = useRequestProtocol();
   const usernameQueryKey = ['generateUsername', name];
@@ -25,12 +27,12 @@ export const useGenerateUsername = (name: string): UseGenerateUsername => {
         { requestKey: JSON.stringify(usernameQueryKey) },
       ),
     {
-      enabled: !!name.length,
+      enabled: !!name?.length,
     },
   );
 
   useEffect(() => {
-    if (username.length || isLoading) return;
+    if (username?.length || isLoading) return;
 
     if (data?.generateUniqueUsername) {
       setUsername(data.generateUniqueUsername);

@@ -12,6 +12,9 @@ import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 import { WelcomePostCardHeader } from './WelcomePostCardHeader';
 import { WelcomePostCardFooter } from './WelcomePostCardFooter';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+import { Squad } from '../../graphql/sources';
+import { ActionType } from '../../graphql/actions';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -35,10 +38,22 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
 
+  const { activeStep, isChecklistVisible } = useSquadChecklist({
+    squad: post.source as Squad,
+  });
+
+  const shouldShowHighlightPulse =
+    isChecklistVisible && activeStep === ActionType.SquadFirstComment;
+
   return (
     <Card
       {...props}
-      className={getPostClassNames(post, className, 'min-h-[22.5rem]')}
+      className={getPostClassNames(
+        post,
+        className,
+        'min-h-[22.5rem]',
+        shouldShowHighlightPulse && 'highlight-pulse',
+      )}
       style={style}
       ref={ref}
     >
