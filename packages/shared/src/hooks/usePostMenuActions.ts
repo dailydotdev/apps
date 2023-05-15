@@ -11,6 +11,7 @@ interface UsePostMenuActions {
 }
 
 interface DeletePostProps {
+  post: Post;
   id: string;
   index?: number;
 }
@@ -43,7 +44,7 @@ export const usePostMenuActions = ({
     { onSuccess: (_, vars) => onPostDeleted(vars) },
   );
   const deletePostPrompt = async () => {
-    const param = { id: post.id, index: postIndex };
+    const param = { id: post.id, index: postIndex, post };
 
     if (await showPrompt(deletePromptOptions)) {
       await onDeletePost(param);

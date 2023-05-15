@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import { ChecklistCard } from './ChecklistCard';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { Squad } from '../../graphql/sources';
@@ -9,6 +9,8 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Modal } from '../modals/common/Modal';
 import { ModalKind } from '../modals/common/types';
 import { useChecklist } from '../../hooks/useChecklist';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const { steps, isChecklistVisible, setChecklistVisible } = useSquadChecklist({
@@ -16,12 +18,27 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   });
   const { sidebarRendered } = useSidebarRendered();
   const { isDone } = useChecklist({ steps });
+  const { trackEvent } = useContext(AnalyticsContext);
+
+  useEffect(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.OnboardingChecklist,
+      extra: JSON.stringify({ squad: squad.id }),
+    });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!isChecklistVisible) {
     return null;
   }
 
   const onRequestClose = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.ChecklistClose,
+      extra: JSON.stringify({ squad: squad.id }),
+    });
     setChecklistVisible(false);
   };
 
