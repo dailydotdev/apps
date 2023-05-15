@@ -19,7 +19,7 @@ import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import {
@@ -28,6 +28,8 @@ import {
   usePostComment,
 } from '../../hooks/usePostComment';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
 
 interface PostCommentsProps {
   post: Post;
@@ -51,6 +53,7 @@ export function PostComments({
   const { id } = post;
   const container = useRef<HTMLDivElement>();
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
   const { showPrompt } = usePrompt();
@@ -88,6 +91,7 @@ export function PostComments({
       },
     };
     if (await showPrompt(options)) {
+      trackEvent(postAnalyticsEvent(AnalyticsEvent.DeleteComment, post));
       await deleteComment(commentId, requestMethod);
       displayToast('The comment has been deleted');
       deleteCommentCache(commentId, parentId);

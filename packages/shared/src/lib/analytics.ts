@@ -57,6 +57,8 @@ export enum AnalyticsEvent {
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
   ChecklistClose = 'checklist close',
+  DeletePost = 'delete post',
+  DeleteComment = 'delete comment',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
 }
