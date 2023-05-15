@@ -23,7 +23,7 @@ import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
-import { Origin } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
 
 const PortalMenu = dynamic(
@@ -41,6 +41,7 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   contextId?: string;
+  origin: Origin;
 }
 
 type ReportPostAsync = (
@@ -59,6 +60,7 @@ export default function PostOptionsMenu({
   onHidden,
   onRemovePost,
   setShowBanPost,
+  origin,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
@@ -100,8 +102,14 @@ export default function PostOptionsMenu({
   const { onConfirmDeletePost } = usePostMenuActions({
     post,
     postIndex,
-    onPostDeleted: ({ index }) =>
-      showMessageAndRemovePost('The post has been deleted', index, null),
+    onPostDeleted: ({ index, post: deletedPost }) => {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
+          extra: { origin },
+        }),
+      );
+      return showMessageAndRemovePost('The post has been deleted', index, null);
+    },
   });
 
   const onReportPost: ReportPostAsync = async (
