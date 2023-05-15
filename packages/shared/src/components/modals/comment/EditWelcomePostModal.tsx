@@ -5,10 +5,12 @@ import { Button } from '../../buttons/Button';
 import { NewCommentModalProps } from './NewCommentModal';
 import { PromptOptions, usePrompt } from '../../../hooks/usePrompt';
 import PreviewTab from '../tabs/PreviewTab';
-import { editPost, PostData } from '../../../graphql/posts';
+import { editPost, PostData, PostType } from '../../../graphql/posts';
 import ContentWriteTab from '../tabs/ContentWriteTab';
 import { getPostByIdKey } from '../../../hooks/usePostById';
 import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useActions } from '../../../hooks/useActions';
+import { ActionType } from '../../../graphql/actions';
 
 enum EditPostTab {
   Write = 'Write',
@@ -37,6 +39,7 @@ function EditWelcomePostModal({
   const { displayToast } = useToastNotification();
   const [input, setInput] = useState<string>(post.content);
   const [errorMessage, setErrorMessage] = useState<string>(null);
+  const { completeAction } = useActions();
   const { mutateAsync: updatePost, isLoading } = useMutation(editPost, {
     onSuccess: (updatedPost) => {
       if (!updatedPost) return;
@@ -48,6 +51,11 @@ function EditWelcomePostModal({
           : { post: { ...data.post, ...updatedPost } },
       );
       displayToast('Post updated successfully!');
+
+      if (post.type === PostType.Welcome) {
+        completeAction(ActionType.EditWelcomePost);
+      }
+
       onRequestClose(null);
     },
     onError: () => setErrorMessage('Something went wrong, try again'),

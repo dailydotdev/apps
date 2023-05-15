@@ -21,6 +21,8 @@ import Alert, { AlertType } from '../../widgets/Alert';
 import { disabledRefetch } from '../../../lib/func';
 import PreviewTab from '../tabs/PreviewTab';
 import ContentWriteTab from '../tabs/ContentWriteTab';
+import { useActions } from '../../../hooks/useActions';
+import { ActionType } from '../../../graphql/actions';
 
 interface CommentVariables {
   id: string;
@@ -90,6 +92,7 @@ export default function NewCommentModal({
       ...disabledRefetch,
     },
   );
+  const { completeAction } = useActions();
 
   const confirmClose = async (event: MouseEvent): Promise<void> => {
     if (
@@ -115,7 +118,17 @@ export default function NewCommentModal({
         variables,
         { requestKey: JSON.stringify(key) },
       ),
-    { onSuccess: (data) => data && onComment(data.comment, true) },
+    {
+      onSuccess: (data) => {
+        if (data) {
+          onComment(data.comment, true);
+
+          if (post.source.type === SourceType.Squad) {
+            completeAction(ActionType.SquadFirstComment);
+          }
+        }
+      },
+    },
   );
 
   const { mutateAsync: editComment } = useMutation<
