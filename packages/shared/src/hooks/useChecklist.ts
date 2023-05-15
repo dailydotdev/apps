@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { ChecklistStepType } from '../lib/checklist';
 import { Action, ActionType } from '../graphql/actions';
+import { disabledRefetch } from '../lib/func';
 
 const CHECKLIST_OPEN_STEP_KEY = 'checklistOpenStepKey';
 
@@ -24,11 +25,10 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
     () => steps.find((item) => !item.action.completedAt)?.action.type,
     [steps],
   );
-  // const [openStep, setOpenStep] = useState<ActionType>(activeStep);
   const { data: openStep } = useQuery<ActionType | undefined>(
     CHECKLIST_OPEN_STEP_KEY,
     () => client.getQueryData(CHECKLIST_OPEN_STEP_KEY),
-    { initialData: undefined },
+    { initialData: undefined, ...disabledRefetch },
   );
 
   useEffect(() => {
