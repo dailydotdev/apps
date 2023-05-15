@@ -488,6 +488,7 @@ export default function Feed<T>({
           postIndex={postMenuIndex}
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
+          origin={Origin.Feed}
         />
         <ShareOptionsMenu
           {...commonMenuItems}

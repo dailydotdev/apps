@@ -20,6 +20,7 @@ import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
+import { Origin } from '../../lib/analytics';
 
 export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
@@ -119,6 +120,7 @@ export function PostModalActions({
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         contextId={contextMenuId}
+        origin={Origin.ArticleModal}
       />
     </Container>
   );
