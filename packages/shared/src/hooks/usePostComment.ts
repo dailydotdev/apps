@@ -277,7 +277,6 @@ export const usePostComment = (
 
     const { comment, ...queryWithoutComment } = router.query;
 
-    // TODO WT-1313-squad-welcome-post-checklist-steps correct origin
     openNewComment('squad checklist');
 
     router.replace(
