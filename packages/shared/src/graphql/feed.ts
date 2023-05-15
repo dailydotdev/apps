@@ -1,6 +1,10 @@
 import { gql } from 'graphql-request';
-import { SHARED_POST_INFO_FRAGMENT } from './fragments';
-import { PostType } from './posts';
+import {
+  SHARED_POST_INFO_FRAGMENT,
+  SOURCE_SHORT_INFO_FRAGMENT,
+} from './fragments';
+import { Post, PostType } from './posts';
+import { Connection } from './common';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',
@@ -15,6 +19,10 @@ export enum OnboardingMode {
 export const baseFeedSupportedTypes = [PostType.Article, PostType.Share];
 
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["article", "share"]`;
+
+export interface FeedData {
+  page: Connection<Post>;
+}
 
 export const FEED_POST_FRAGMENT = gql`
   fragment FeedPost on Post {
@@ -226,4 +234,67 @@ export const SEARCH_POSTS_QUERY = gql`
     }
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const AUTHOR_FEED_QUERY = gql`
+  query AuthorFeed(
+    $userId: ID!,
+    $after: String,
+    $first: Int
+    ${SUPPORTED_TYPES}
+   ) {
+    page: authorFeed(
+      author: $userId
+      after: $after
+      first: $first
+      ranking: TIME
+      supportedTypes: $supportedTypes
+    ) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          title
+          commentsPermalink
+          image
+          source {
+            ...SourceShortInfo
+          }
+          numUpvotes
+          numComments
+          views
+          isAuthor
+          isScout
+        }
+      }
+    }
+  }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
+`;
+
+export const KEYWORD_FEED_QUERY = gql`
+  query KeywordFeed(
+    $keyword: String!,
+    $after: String,
+    $first: Int
+    ${SUPPORTED_TYPES}
+   ) {
+    page: keywordFeed(keyword: $keyword, after: $after, first: $first, supportedTypes: $supportedTypes) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          title
+          commentsPermalink
+          image
+        }
+      }
+    }
+  }
 `;
