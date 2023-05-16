@@ -5,6 +5,7 @@ import {
   RenderResult,
   screen,
 } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { ChecklistCard } from './ChecklistCard';
 import { defaultSteps, updateStep } from '../../hooks/useChecklist.spec';
@@ -17,7 +18,12 @@ describe('ChecklistCard component', () => {
   });
 
   const renderComponent = (props: ChecklistCardProps): RenderResult => {
-    return render(<ChecklistCard {...props} />);
+    const client = new QueryClient();
+    return render(
+      <QueryClientProvider client={client}>
+        <ChecklistCard {...props} />
+      </QueryClientProvider>,
+    );
   };
 
   it('should render', async () => {
