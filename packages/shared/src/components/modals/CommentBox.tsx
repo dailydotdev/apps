@@ -140,20 +140,12 @@ function CommentBox({
     <>
       <article className="flex flex-col items-stretch rounded-8 break-words-overflow typo-callout">
         <header className="flex items-center mb-2">
-          {isComment ? (
-            <ProfilePicture
-              size="large"
-              rounded="full"
-              user={{ image: authorImage, username: authorName }}
-              nativeLazyLoading
-            />
-          ) : (
-            <ProfilePicture
-              size="large"
-              user={{ image: authorImage, username: authorName }}
-              nativeLazyLoading
-            />
-          )}
+          <ProfilePicture
+            size="large"
+            rounded={isComment ? 'full' : undefined}
+            user={{ image: authorImage, username: authorName }}
+            nativeLazyLoading
+          />
           <div className="flex flex-col ml-2">
             <div className="truncate typo-callout">{authorName}</div>
             <time
