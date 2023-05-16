@@ -7,6 +7,8 @@ import {
   NotificationPromptSource,
   TargetType,
 } from '../lib/analytics';
+import { useActions } from './useActions';
+import { ActionType } from '../graphql/actions';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
@@ -25,6 +27,7 @@ interface UseEnableNotification {
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
 }: UseEnableNotificationProps): UseEnableNotification => {
+  const { completeAction } = useActions();
   const { trackEvent } = useAnalyticsContext();
   const {
     isInitialized,
@@ -57,6 +60,8 @@ export const useEnableNotification = ({
     const isGranted = permission === 'granted';
 
     onAcceptedPermissionJustNow?.(isGranted);
+
+    if (isGranted) completeAction(ActionType.EnableNotification);
   };
 
   const hasEnabled = (isSubscribed || hasPermissionCache) && isEnabled;
