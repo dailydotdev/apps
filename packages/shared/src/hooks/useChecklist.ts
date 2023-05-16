@@ -28,7 +28,7 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
   const { data: openStep } = useQuery<ActionType | undefined>(
     CHECKLIST_OPEN_STEP_KEY,
     () => client.getQueryData(CHECKLIST_OPEN_STEP_KEY),
-    { initialData: undefined },
+    { initialData: undefined, ...disabledRefetch },
   );
   const setOpenStep = useCallback(
     (step: ActionType) => {
