@@ -12,12 +12,10 @@ import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
-import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { NotificationPromptSource } from '../../lib/analytics';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
+import { useEnableNotification } from '../../hooks/useEnableNotification';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
@@ -45,13 +43,10 @@ function PostToSquadModal({
   const shouldSkipHistory = !!preview;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
-  const { onTogglePermission } = useNotificationContext();
   const { displayToast } = useToastNotification();
-  const { isSubscribed } = useNotificationContext();
-  const [isDismissed, setIsDismissed] = usePersistentContext(
-    DISMISS_PERMISSION_BANNER,
-    false,
-  );
+  const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
+    source: NotificationPromptSource.SquadPostCommentary,
+  });
   const [form, setForm] = useState<Partial<SquadForm>>({
     name: squad.name,
     file: squad.image,
@@ -61,15 +56,11 @@ function PostToSquadModal({
   });
   const { completeAction } = useActions();
 
-  const shouldShowToggle = !isDismissed && !isSubscribed;
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
-    if (shouldShowToggle) {
-      if (shouldEnableNotification) {
-        onTogglePermission(NotificationPromptSource.SquadPostCommentary);
-      } else {
-        setIsDismissed(true);
-      }
+    if (shouldShowCta) {
+      const command = shouldEnableNotification ? onEnable : onDismiss;
+      command();
     }
 
     displayToast('This post has been shared to your Squad');
@@ -139,7 +130,7 @@ function PostToSquadModal({
   const commentCommonProps = {
     ...stateProps,
     notificationState,
-    shouldShowToggle,
+    shouldShowToggle: shouldShowCta,
   };
 
   return (

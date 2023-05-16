@@ -1,21 +1,13 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import usePersistentContext from '../../hooks/usePersistentContext';
 import { Button, ButtonSize } from '../buttons/Button';
-import NotificationsContext from '../../contexts/NotificationsContext';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import {
-  AnalyticsEvent,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/analytics';
+import { NotificationPromptSource } from '../../lib/analytics';
 import BellNotifyIcon from '../icons/Bell/Notify';
-
-export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
+import { useEnableNotification } from '../../hooks/useEnableNotification';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
@@ -56,75 +48,12 @@ function EnableNotification({
   className,
   label,
 }: EnableNotificationProps): ReactElement {
-  const { trackEvent } = useAnalyticsContext();
-  const {
-    isInitialized,
-    isSubscribed,
-    isNotificationSupported,
-    hasPermissionCache,
-    acceptedPermissionJustNow: isEnabled,
-    onAcceptedPermissionJustNow,
-    onTogglePermission,
-  } = useContext(NotificationsContext);
-  const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
-    DISMISS_PERMISSION_BANNER,
-    false,
-  );
-  const onDismiss = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ClickNotificationDismiss,
-      extra: JSON.stringify({ origin: source }),
+  const { shouldShowCta, onEnable, onDismiss, isEnabled, hasEnabled } =
+    useEnableNotification({
+      source,
     });
-    setIsDismissed(true);
-  };
 
-  const onEnable = async () => {
-    const permission = await onTogglePermission(source);
-
-    if (permission === null) {
-      return;
-    }
-
-    const isGranted = permission === 'granted';
-
-    onAcceptedPermissionJustNow?.(isGranted);
-  };
-
-  const hasEnabled = (isSubscribed || hasPermissionCache) && isEnabled;
-
-  const conditions = [
-    !isLoaded,
-    isDismissed,
-    !isInitialized,
-    !isNotificationSupported,
-    (isSubscribed || hasPermissionCache) && !isEnabled,
-    hasEnabled && source === NotificationPromptSource.SquadPostModal,
-  ];
-  const shouldNotDisplay = conditions.some((passed) => passed);
-
-  useEffect(() => {
-    if (shouldNotDisplay) {
-      return;
-    }
-
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      target_type: TargetType.EnableNotifications,
-      extra: JSON.stringify({ origin: source }),
-    });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldNotDisplay]);
-
-  useEffect(() => {
-    return () => {
-      onAcceptedPermissionJustNow?.(false);
-    };
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (shouldNotDisplay) {
+  if (!shouldShowCta) {
     return null;
   }
 
