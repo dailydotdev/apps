@@ -28,30 +28,29 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
   const { data: openStep } = useQuery<ActionType | undefined>(
     CHECKLIST_OPEN_STEP_KEY,
     () => client.getQueryData(CHECKLIST_OPEN_STEP_KEY),
-    { initialData: undefined, ...disabledRefetch },
+    { initialData: undefined },
+  );
+  const setOpenStep = useCallback(
+    (step: ActionType) => {
+      client.setQueryData<ActionType | undefined>(
+        CHECKLIST_OPEN_STEP_KEY,
+        () => step,
+      );
+      client.invalidateQueries(CHECKLIST_OPEN_STEP_KEY);
+    },
+    [client],
   );
 
   useEffect(() => {
-    client.setQueryData<ActionType | undefined>(
-      CHECKLIST_OPEN_STEP_KEY,
-      activeStep,
-    );
-  }, [client, activeStep]);
+    setOpenStep(activeStep);
+  }, [client, setOpenStep, activeStep]);
 
   const onToggleStep = useCallback(
     (action: Action) => {
-      client.setQueryData<ActionType | undefined>(
-        CHECKLIST_OPEN_STEP_KEY,
-        (currentCheckedStep) => {
-          if (currentCheckedStep === action.type) {
-            return undefined;
-          }
-
-          return action.type;
-        },
-      );
+      const step = openStep === action.type ? undefined : action.type;
+      setOpenStep(step);
     },
-    [client],
+    [openStep, setOpenStep],
   );
 
   const isDone = useMemo(() => {
