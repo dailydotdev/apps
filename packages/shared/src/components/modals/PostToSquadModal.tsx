@@ -12,6 +12,10 @@ import { SquadSelectArticle } from '../squads/SelectArticle';
 import { SteppedSquadComment } from '../squads/SteppedComment';
 import { ModalState, SquadStateProps } from '../squads/utils';
 import AuthContext from '../../contexts/AuthContext';
+import { NotificationPromptSource } from '../../lib/analytics';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
+import { useEnableNotification } from '../../hooks/useEnableNotification';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
@@ -34,10 +38,15 @@ function PostToSquadModal({
   requestMethod = request,
   ...props
 }: PostToSquadModalProps): ReactElement {
+  const notificationState = useState(true);
+  const [shouldEnableNotification] = notificationState;
   const shouldSkipHistory = !!preview;
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
+  const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
+    source: NotificationPromptSource.SquadPostCommentary,
+  });
   const [form, setForm] = useState<Partial<SquadForm>>({
     name: squad.name,
     file: squad.image,
@@ -45,12 +54,24 @@ function PostToSquadModal({
     buttonText: 'Done',
     preview,
   });
+  const { completeAction } = useActions();
 
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
+    if (shouldShowCta) {
+      const command = shouldEnableNotification ? onEnable : onDismiss;
+      command();
+    }
 
     displayToast('This post has been shared to your Squad');
     await client.invalidateQueries(['sourceFeed', user.id]);
+
+    // this optimistically updates the action from the client
+    // to make sure correct action state is shown to the user immediately
+    // this is also done on the API side in postAdded worker to catch
+    // all other cases of post being created by user
+    completeAction(ActionType.SquadFirstPost);
+
     onRequestClose(null);
   };
 
@@ -102,9 +123,14 @@ function PostToSquadModal({
 
   const stateProps: SquadStateProps = {
     form,
-    setForm,
+    onUpdateForm: setForm,
     onNext,
     onRequestClose,
+  };
+  const commentCommonProps = {
+    ...stateProps,
+    notificationState,
+    shouldShowToggle: shouldShowCta,
   };
 
   return (
@@ -119,17 +145,14 @@ function PostToSquadModal({
       <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
       {shouldSkipHistory ? (
         <SquadComment
-          form={form}
+          {...commentCommonProps}
           onSubmit={onSubmit}
           isLoading={isLoading || isLinkLoading}
-          onUpdateForm={(updatedForm) =>
-            setForm((value) => ({ ...value, ...updatedForm }))
-          }
         />
       ) : (
         <>
           <SquadSelectArticle {...stateProps} />
-          <SteppedSquadComment {...stateProps} />
+          <SteppedSquadComment {...commentCommonProps} isLoading={isLoading} />
         </>
       )}
     </Modal>

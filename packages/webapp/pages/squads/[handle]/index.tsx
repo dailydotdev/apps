@@ -41,6 +41,7 @@ import {
   useTutorial,
   TutorialKey,
 } from '@dailydotdev/shared/src/hooks/useTutorial';
+import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -59,6 +60,13 @@ const SquadEmptyScreen = dynamic(
   () =>
     import(
       /* webpackChunkName: "squadEmptyScreen" */ '@dailydotdev/shared/src/components/squads/SquadEmptyScreen'
+    ),
+);
+
+const SquadChecklistCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadChecklistCard" */ '@dailydotdev/shared/src/components/checklist/SquadChecklistCard'
     ),
 );
 
@@ -114,6 +122,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     () => ({
       source: squadId,
       ranking: 'TIME',
+      supportedTypes: supportedTypesForPrivateSources,
     }),
     [squadId],
   );
@@ -189,6 +198,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           onNewSquadPost={onNewSquadPost}
           hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
         />
+        <SquadChecklistCard squad={squad} />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
           feedName="source"

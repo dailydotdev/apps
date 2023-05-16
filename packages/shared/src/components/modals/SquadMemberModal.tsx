@@ -36,6 +36,10 @@ const InitialItem = ({ squad }: { squad: Squad }) => {
     origin: Origin.SquadMembersList,
   });
 
+  if (!verifyPermission(squad, SourcePermissions.Invite)) {
+    return null;
+  }
+
   return (
     <button
       type="button"

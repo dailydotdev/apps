@@ -36,8 +36,8 @@ export function InAppNotificationElement(): ReactElement {
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
-  const [isExit, setIsExit] = useState(false);
   const { isSubscribed } = useNotificationContext();
+  const [isExit, setIsExit] = useState(false);
   const closeNotification = () => {
     setIsExit(true);
     setTimeout(() => {
@@ -93,7 +93,6 @@ export function InAppNotificationElement(): ReactElement {
 
   const isNotifTypeSubscribe =
     payload?.notification?.type === NotificationType.SquadSubscribeNotification;
-
   if (!payload?.notification || (isSubscribed && isNotifTypeSubscribe)) {
     return null;
   }

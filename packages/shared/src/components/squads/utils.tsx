@@ -25,12 +25,12 @@ export const SquadSubTitle = classed(
 );
 export const SquadTitleColor = classed('span', 'text-theme-color-cabbage');
 
-export type SquadStateProps = {
+export interface SquadStateProps {
   onNext: (squad?: SquadForm) => void;
   form: Partial<SquadForm>;
-  setForm: React.Dispatch<React.SetStateAction<Partial<SquadForm>>>;
+  onUpdateForm: React.Dispatch<React.SetStateAction<Partial<SquadForm>>>;
   onRequestClose?: () => void;
-};
+}
 
 export const quitSquadModal: PromptOptions = {
   title: 'Are you sure?',

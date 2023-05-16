@@ -36,9 +36,10 @@ export interface CommentBoxProps {
   errorMessage?: string;
   sendingComment?: boolean;
   parentSelector?: () => HTMLElement;
-  sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
+  sendComment: (event: MouseEvent | KeyboardEvent) => Promise<unknown>;
   onInput?: (value: string) => unknown;
   useUserMentionOptions: UseUserMentionOptions;
+  isComment?: boolean;
 }
 
 function CommentBox({
@@ -50,9 +51,16 @@ function CommentBox({
   sendComment,
   parentSelector,
   useUserMentionOptions,
+  isComment = true,
 }: CommentBoxProps): ReactElement {
-  const { authorImage, authorName, publishDate, contentHtml, editContent } =
-    parentComment;
+  const {
+    authorImage,
+    authorName,
+    publishDate,
+    contentHtml,
+    editContent,
+    post,
+  } = parentComment;
   const { user } = useContext(AuthContext);
   const {
     onMentionClick,
@@ -79,7 +87,8 @@ function CommentBox({
     }
 
     element.setAttribute('data-min-height', element.offsetHeight.toString());
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    fixHeight(element);
+    // needs to happen on load
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -123,9 +132,9 @@ function CommentBox({
 
   useEffect(() => {
     if (!mentions?.length) commentRef?.current?.focus();
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mentions]);
+  }, [mentions, commentRef]);
+
+  const date = publishDate ?? post.createdAt;
 
   return (
     <>
@@ -133,37 +142,47 @@ function CommentBox({
         <header className="flex items-center mb-2">
           <ProfilePicture
             size="large"
-            rounded="full"
+            rounded={isComment ? 'full' : undefined}
             user={{ image: authorImage, username: authorName }}
             nativeLazyLoading
           />
           <div className="flex flex-col ml-2">
             <div className="truncate typo-callout">{authorName}</div>
             <time
-              dateTime={publishDate.toString()}
+              dateTime={date.toString()}
               className="text-theme-label-tertiary typo-callout"
             >
-              {commentDateFormat(publishDate)}
+              {commentDateFormat(date)}
             </time>
           </div>
         </header>
-        <Markdown content={contentHtml} />
+        {isComment && <Markdown content={contentHtml} />}
       </article>
-      <div className="flex items-center px-2 h-11">
-        <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
-        <div className="ml-6 text-theme-label-secondary typo-caption1">
-          Reply to{' '}
-          <strong className="font-bold text-theme-label-primary">
-            {authorName}
-          </strong>
+      {isComment && (
+        <div className="flex items-center px-2 h-11">
+          <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
+          <div className="ml-6 text-theme-label-secondary typo-caption1">
+            Reply to{' '}
+            <strong className="font-bold text-theme-label-primary">
+              {authorName}
+            </strong>
+          </div>
         </div>
-      </div>
-      <div className="flex relative flex-1 pl-2">
-        <ProfilePicture user={user} size="small" nativeLazyLoading />
+      )}
+      <div
+        className={classNames(
+          'flex relative flex-1',
+          isComment ? 'pl-2' : 'mt-3',
+        )}
+      >
+        {isComment && (
+          <ProfilePicture user={user} size="small" nativeLazyLoading />
+        )}
         <textarea
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
+            'flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
             styles.textarea,
+            isComment && 'ml-3',
           )}
           defaultValue={input}
           ref={commentRef}

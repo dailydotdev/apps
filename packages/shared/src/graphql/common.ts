@@ -57,6 +57,7 @@ export const REQUEST_PROTOCOL_KEY = 'request-protocol';
 export interface RequestProtocol {
   requestMethod?: typeof request;
   fetchMethod?: typeof fetch;
+  isCompanion?: boolean;
 }
 
 export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
@@ -85,6 +86,10 @@ export enum ApiError {
   RateLimited = 'RATE_LIMITED',
 }
 
+export enum ApiErrorMessage {
+  SourcePermissionInviteInvalid = 'SOURCE_PERMISSION_INVITE_INVALID',
+}
+
 export const getApiError = (
   error: ApiErrorResult,
   code: ApiError,
@@ -96,8 +101,8 @@ interface ApiResponseErrorExtension {
 }
 
 interface ApiResponseError {
+  message: ApiErrorMessage | string;
   extensions: ApiResponseErrorExtension;
-  message: string;
 }
 
 interface ApiResponse {

@@ -14,6 +14,8 @@ import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/analytics';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+import { ActionType } from '../../graphql/actions';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -36,6 +38,12 @@ export function SquadPageHeader({
   const sharePostTutorial = useTutorial({
     key: TutorialKey.ShareSquadPost,
   });
+
+  const { openStep, isChecklistVisible } = useSquadChecklist({ squad });
+
+  const shouldShowHighlightPulse =
+    tourIndex === TourScreenIndex.Post ||
+    (isChecklistVisible && openStep === ActionType.SquadFirstPost);
 
   return (
     <FlexCol
@@ -90,7 +98,7 @@ export function SquadPageHeader({
       <div
         className={classNames(
           'absolute bottom-0 w-full translate-y-1/2 px-6 laptop:px-0 bg-theme-bg-primary',
-          tourIndex === TourScreenIndex.Post && 'highlight-pulse',
+          shouldShowHighlightPulse && 'highlight-pulse',
           MAX_WIDTH,
         )}
       >

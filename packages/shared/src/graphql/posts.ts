@@ -9,7 +9,6 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { SUPPORTED_TYPES } from './feed';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -26,7 +25,14 @@ export interface SharedPost extends Post {
 export enum PostType {
   Article = 'article',
   Share = 'share',
+  Welcome = 'welcome',
 }
+
+export const supportedTypesForPrivateSources = [
+  PostType.Article,
+  PostType.Share,
+  PostType.Welcome,
+];
 
 export interface Post {
   __typename?: string;
@@ -34,6 +40,8 @@ export interface Post {
   title: string;
   permalink?: string;
   image: string;
+  content?: string;
+  contentHtml?: string;
   createdAt?: string;
   readTime?: number;
   tags?: string[];
@@ -81,10 +89,9 @@ export interface ParentComment {
   authorId?: string;
   authorName: string;
   authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
+  publishDate?: Date | string;
+  contentHtml?: string;
+  commentId?: string;
   post: Post;
   editContent?: string;
   editId?: string;
@@ -133,6 +140,8 @@ export const POST_BY_ID_QUERY = gql`
       ...SharedPostInfo
       trending
       views
+      content
+      contentHtml
       sharedPost {
         ...SharedPostInfo
       }
@@ -256,69 +265,6 @@ export const REMOVE_BOOKMARK_MUTATION = gql`
 export interface FeedData {
   page: Connection<Post>;
 }
-
-export const AUTHOR_FEED_QUERY = gql`
-  query AuthorFeed(
-    $userId: ID!,
-    $after: String,
-    $first: Int
-    ${SUPPORTED_TYPES}
-   ) {
-    page: authorFeed(
-      author: $userId
-      after: $after
-      first: $first
-      ranking: TIME
-      supportedTypes: $supportedTypes
-    ) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-          source {
-            ...SourceShortInfo
-          }
-          numUpvotes
-          numComments
-          views
-          isAuthor
-          isScout
-        }
-      }
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
-`;
-
-export const KEYWORD_FEED_QUERY = gql`
-  query KeywordFeed(
-    $keyword: String!,
-    $after: String,
-    $first: Int
-    ${SUPPORTED_TYPES}
-   ) {
-    page: keywordFeed(keyword: $keyword, after: $after, first: $first, supportedTypes: $supportedTypes) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-        }
-      }
-    }
-  }
-`;
 
 export interface PostsEngaged {
   postsEngaged: { id: string; numComments: number; numUpvotes: number };
@@ -481,3 +427,45 @@ interface SubmitExternalLink
 
 export const submitExternalLink = (params: SubmitExternalLink): Promise<Post> =>
   request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
+
+export const EDIT_POST_MUTATION = gql`
+  mutation EditPost(
+    $id: ID!
+    $title: String
+    $content: String
+    $image: Upload
+  ) {
+    editPost(id: $id, title: $title, content: $content, image: $image) {
+      ...SharedPostInfo
+      trending
+      views
+      content
+      contentHtml
+      source {
+        ...SourceBaseInfo
+      }
+      description
+      summary
+      toc {
+        text
+        id
+      }
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+interface EditPostProps {
+  id: string;
+  title: string;
+  content: string;
+  image: File;
+}
+
+export const editPost = async (
+  variables: Partial<EditPostProps>,
+): Promise<Post> => {
+  const res = await request(graphqlUrl, EDIT_POST_MUTATION, variables);
+
+  return res.editPost;
+};
