@@ -165,13 +165,17 @@ export const NotificationsContextProvider = ({
     setIsInitializing(true);
     import('react-onesignal').then(async (mod) => {
       const OneSignalReact = mod.default;
-      OneSignalReact.on('subscriptionChange', (value) => {
-        console.log('subscription on change', value);
-      });
 
-      OneSignalReact.on('notificationPermissionChange', (value) => {
-        console.log('on change', value);
-      });
+      /**
+       * Temporary logs for testing purposes, need to stay comment out until we recreate this subscribe
+       *
+       * OneSignalReact.on('subscriptionChange', (value) => {
+       *   console.log('subscription on change', value);
+       * });
+       * OneSignalReact.on('notificationPermissionChange', (value) => {
+       *   console.log('on change', value);
+       * });
+       */
 
       await OneSignalReact.init({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
