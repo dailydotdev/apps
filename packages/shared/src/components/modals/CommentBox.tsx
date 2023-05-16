@@ -142,7 +142,7 @@ function CommentBox({
         <header className="flex items-center mb-2">
           <ProfilePicture
             size="large"
-            rounded="full"
+            rounded={isComment ? 'full' : undefined}
             user={{ image: authorImage, username: authorName }}
             nativeLazyLoading
           />
