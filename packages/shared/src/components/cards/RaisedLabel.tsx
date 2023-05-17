@@ -3,16 +3,27 @@ import classNames from 'classnames';
 import styles from './Card.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-export function RaisedLabel({
-  trending,
-  listMode,
-  type,
-}: {
-  trending: number;
+export enum RaisedLabelType {
+  hot = 'Hot',
+  pinned = 'Pinned',
+}
+
+const typeToClassName: Record<RaisedLabelType, string> = {
+  [RaisedLabelType.hot]: 'bg-theme-status-error',
+  [RaisedLabelType.pinned]: 'bg-theme-bg-bun',
+};
+
+interface RaisedLabelProps {
   listMode?: boolean;
-  type: 'hot' | 'pinned';
-}): ReactElement {
-  const description = `${trending} devs read it last hour`;
+  type: RaisedLabelType;
+  description?: string;
+}
+
+export function RaisedLabel({
+  listMode,
+  type = RaisedLabelType.hot,
+  description,
+}: RaisedLabelProps): ReactElement {
   return (
     <div
       className={classNames(
@@ -25,18 +36,18 @@ export function RaisedLabel({
           className={classNames(
             'flex items-center px-1',
             styles.flag,
-            type === 'hot' ? 'bg-theme-status-error' : 'bg-theme-bg-bun',
+            typeToClassName[type],
             listMode
               ? 'h-5 w-full justify-center mouse:translate-x-9 rounded-l'
               : 'h-full flex-col mouse:translate-y-4 rounded-t',
           )}
         >
           <span className="font-bold text-white uppercase typo-caption2">
-            {type === 'hot' ? 'Hot' : 'Pinned'}
+            {type}
           </span>
         </div>
       </SimpleTooltip>
-      {!listMode && (
+      {!listMode && description && (
         <span className="mouse:hidden ml-2 typo-footnote text-theme-label-tertiary">
           {description}
         </span>

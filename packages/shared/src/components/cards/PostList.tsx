@@ -14,7 +14,7 @@ import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import styles from './Card.module.css';
 import PostAuthor from './PostAuthor';
-import { RaisedLabel } from '.';
+import { RaisedLabel, RaisedLabelType } from '.';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -84,7 +84,10 @@ export const PostList = forwardRef(function PostList(
     return (
       <div className={`relative ${styles.cardContainer}`}>
         {card}
-        <RaisedLabel trending={trending} listMode type="hot" />
+        <RaisedLabel
+          type={RaisedLabelType.hot}
+          description={`${trending} devs read it last hour`}
+        />
       </div>
     );
   }
