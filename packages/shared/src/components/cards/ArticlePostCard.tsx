@@ -9,12 +9,12 @@ import {
   getPostClassNames,
 } from './Card';
 import styles from './Card.module.css';
-import TrendingFlag from './TrendingFlag';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
 import { Container, PostCardProps } from './common';
+import { RaisedLabel } from '.';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -100,7 +100,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     return (
       <div className={`relative ${styles.cardContainer}`}>
         {card}
-        <TrendingFlag trending={trending} />
+        <RaisedLabel trending={trending} type="hot" />
       </div>
     );
   }
