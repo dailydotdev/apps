@@ -46,6 +46,7 @@ export function RecommendedMention({
           aria-selected={index === selected}
           role="option"
           disableTooltip
+          showDescription={false}
         />
       ))}
     </ul>
