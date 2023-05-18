@@ -25,7 +25,7 @@ import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import PinIcon from './icons/Pin';
+import { PinIcon } from './icons';
 import { getPostByIdKey } from '../hooks/usePostById';
 
 const PortalMenu = dynamic(
