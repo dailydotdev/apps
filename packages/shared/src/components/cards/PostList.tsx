@@ -12,9 +12,9 @@ import {
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
-import styles from './Card.module.css';
 import PostAuthor from './PostAuthor';
-import { TrendingFlag } from '.';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { getTrendingFlag } from './FlaggedContainer';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -39,54 +39,52 @@ export const PostList = forwardRef(function PostList(
   const onPostCardClick = () => onPostClick(post);
   const { trending } = post;
 
-  const card = (
-    <ListCard
-      {...props}
-      className={getPostClassNames(post, className)}
-      ref={ref}
+  return (
+    <ConditionalWrapper
+      condition={!!trending}
+      wrapper={(component) => getTrendingFlag(component, trending, true)}
     >
-      <CardButton title={post.title} onClick={onPostCardClick} />
-      <ListCardAside className="w-14">
-        <SourceButton
-          source={post?.source}
-          className="pb-2"
-          tooltipPosition="top"
-        />
-      </ListCardAside>
-      <ListCardDivider className="mb-1" />
-      <ListCardMain>
-        <ListCardTitle>{post.title}</ListCardTitle>
-        <PostMetadata
-          createdAt={post.createdAt}
-          readTime={post.readTime}
-          className="my-1"
-        >
-          {post.author && <PostAuthor author={post.author} className="ml-2" />}
-        </PostMetadata>
-        <ActionButtons
-          post={post}
-          openNewTab={openNewTab}
-          onUpvoteClick={onUpvoteClick}
-          onCommentClick={onCommentClick}
-          onBookmarkClick={onBookmarkClick}
-          onReadArticleClick={onReadArticleClick}
-          onShare={onShare}
-          onShareClick={onShareClick}
-          className="relative self-stretch mt-1"
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          insaneMode
-        />
-      </ListCardMain>
-      {children}
-    </ListCard>
+      <ListCard
+        {...props}
+        className={getPostClassNames(post, className)}
+        ref={ref}
+      >
+        <CardButton title={post.title} onClick={onPostCardClick} />
+        <ListCardAside className="w-14">
+          <SourceButton
+            source={post?.source}
+            className="pb-2"
+            tooltipPosition="top"
+          />
+        </ListCardAside>
+        <ListCardDivider className="mb-1" />
+        <ListCardMain>
+          <ListCardTitle>{post.title}</ListCardTitle>
+          <PostMetadata
+            createdAt={post.createdAt}
+            readTime={post.readTime}
+            className="my-1"
+          >
+            {post.author && (
+              <PostAuthor author={post.author} className="ml-2" />
+            )}
+          </PostMetadata>
+          <ActionButtons
+            post={post}
+            openNewTab={openNewTab}
+            onUpvoteClick={onUpvoteClick}
+            onCommentClick={onCommentClick}
+            onBookmarkClick={onBookmarkClick}
+            onReadArticleClick={onReadArticleClick}
+            onShare={onShare}
+            onShareClick={onShareClick}
+            className="relative self-stretch mt-1"
+            onMenuClick={(event) => onMenuClick?.(event, post)}
+            insaneMode
+          />
+        </ListCardMain>
+        {children}
+      </ListCard>
+    </ConditionalWrapper>
   );
-  if (trending) {
-    return (
-      <div className={`relative ${styles.cardContainer}`}>
-        {card}
-        <TrendingFlag trending={trending} listMode />
-      </div>
-    );
-  }
-  return card;
 });
