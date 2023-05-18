@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { RaisedLabel, RaisedLabelType } from '.';
+import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 
 export function TrendingFlag({ trending }: { trending: number }): ReactElement {
   return (
