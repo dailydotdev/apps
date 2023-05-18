@@ -21,7 +21,7 @@ export const getTrendingFlag = (
   children: ReactNode,
   trending: number,
   listMode?: boolean,
-) =>
+): ReactElement =>
   getFlaggedContainer(children, {
     listMode,
     type: RaisedLabelType.hot,
