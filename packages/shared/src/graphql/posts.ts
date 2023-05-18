@@ -43,6 +43,7 @@ export interface Post {
   content?: string;
   contentHtml?: string;
   createdAt?: string;
+  pinnedAt?: string;
   readTime?: number;
   tags?: string[];
   source?: Source | Squad;

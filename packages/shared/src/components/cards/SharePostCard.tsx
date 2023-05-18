@@ -6,6 +6,8 @@ import { SharedPostText } from './SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { getFlaggedContainer } from './FlaggedContainer';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -38,48 +40,54 @@ export const SharePostCard = forwardRef(function SharePostCard(
     }
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
+
   return (
-    <Card
-      {...props}
-      className={getPostClassNames(post, className, 'min-h-[22.5rem]')}
-      style={style}
-      ref={ref}
+    <ConditionalWrapper
+      condition={!!post.pinnedAt}
+      wrapper={getFlaggedContainer}
     >
-      <CardButton title={post.title} onClick={onPostCardClick} />
-      <OptionsButton
-        className="group-hover:flex laptop:hidden top-2 right-2"
-        onClick={(event) => onMenuClick?.(event, post)}
-        tooltipPlacement="top"
-        position="absolute"
-      />
-      <SharedPostCardHeader
-        author={post.author}
-        source={post.source}
-        createdAt={post.createdAt}
-      />
-      <SharedPostText
-        title={post.title}
-        onHeightChange={onSharedPostTextHeightChange}
-      />
-      <Container ref={containerRef}>
-        <SharedPostCardFooter
-          sharedPost={post.sharedPost}
-          isShort={isSharedPostShort}
+      <Card
+        {...props}
+        className={getPostClassNames(post, className, 'min-h-[22.5rem]')}
+        style={style}
+        ref={ref}
+      >
+        <CardButton title={post.title} onClick={onPostCardClick} />
+        <OptionsButton
+          className="group-hover:flex laptop:hidden top-2 right-2"
+          onClick={(event) => onMenuClick?.(event, post)}
+          tooltipPlacement="top"
+          position="absolute"
         />
-        <ActionButtons
-          openNewTab={openNewTab}
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onCommentClick={onCommentClick}
-          onBookmarkClick={onBookmarkClick}
-          onShare={onShare}
-          onShareClick={onShareClick}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          onReadArticleClick={onReadArticleClick}
-          className="justify-between mx-4"
+        <SharedPostCardHeader
+          author={post.author}
+          source={post.source}
+          createdAt={post.createdAt}
         />
-      </Container>
-      {children}
-    </Card>
+        <SharedPostText
+          title={post.title}
+          onHeightChange={onSharedPostTextHeightChange}
+        />
+        <Container ref={containerRef}>
+          <SharedPostCardFooter
+            sharedPost={post.sharedPost}
+            isShort={isSharedPostShort}
+          />
+          <ActionButtons
+            openNewTab={openNewTab}
+            post={post}
+            onUpvoteClick={onUpvoteClick}
+            onCommentClick={onCommentClick}
+            onBookmarkClick={onBookmarkClick}
+            onShare={onShare}
+            onShareClick={onShareClick}
+            onMenuClick={(event) => onMenuClick?.(event, post)}
+            onReadArticleClick={onReadArticleClick}
+            className="justify-between mx-4"
+          />
+        </Container>
+        {children}
+      </Card>
+    </ConditionalWrapper>
   );
 });
