@@ -13,7 +13,7 @@ export const getFlaggedContainer = (
 ): ReactElement => (
   <div className={`relative ${styles.cardContainer}`}>
     {children}
-    <RaisedLabel type={RaisedLabelType.pinned} {...props} />
+    <RaisedLabel type={RaisedLabelType.Pinned} {...props} />
   </div>
 );
 
@@ -24,7 +24,7 @@ export const getTrendingFlag = (
 ): ReactElement =>
   getFlaggedContainer(children, {
     listMode,
-    type: RaisedLabelType.hot,
+    type: RaisedLabelType.Hot,
     description: `${trending} devs read it last hour`,
   });
 
