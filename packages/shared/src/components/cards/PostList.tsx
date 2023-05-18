@@ -14,7 +14,7 @@ import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import styles from './Card.module.css';
 import PostAuthor from './PostAuthor';
-import { RaisedLabel, RaisedLabelType } from '.';
+import { TrendingFlag } from '.';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -84,9 +84,8 @@ export const PostList = forwardRef(function PostList(
     return (
       <div className={`relative ${styles.cardContainer}`}>
         {card}
-        <RaisedLabel
-          type={RaisedLabelType.hot}
-          description={`${trending} devs read it last hour`}
+        <TrendingFlag
+          trending={trending}
         />
       </div>
     );

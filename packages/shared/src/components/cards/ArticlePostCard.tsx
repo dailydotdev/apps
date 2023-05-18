@@ -14,7 +14,7 @@ import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
 import { Container, PostCardProps } from './common';
-import { RaisedLabel, RaisedLabelType } from '.';
+import { TrendingFlag } from '.';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -100,9 +100,8 @@ export const ArticlePostCard = forwardRef(function PostCard(
     return (
       <div className={`relative ${styles.cardContainer}`}>
         {card}
-        <RaisedLabel
-          type={RaisedLabelType.hot}
-          description={`${trending} devs read it last hour`}
+        <TrendingFlag
+          trending={trending}
         />
       </div>
     );
