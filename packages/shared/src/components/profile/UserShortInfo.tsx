@@ -88,7 +88,9 @@ export function UserShortInfo<Tag extends AnyTag>({
           <TextEllipsis className="text-theme-label-secondary">
             @{username}
           </TextEllipsis>
-          {bio && showDescription && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
+          {bio && showDescription && (
+            <span className="mt-1 text-theme-label-tertiary">{bio}</span>
+          )}
         </div>
       </ProfileTooltip>
       {children}
