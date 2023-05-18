@@ -43,7 +43,7 @@ export interface Post {
   content?: string;
   contentHtml?: string;
   createdAt?: string;
-  pinnedAt?: string;
+  pinnedAt?: Date | string;
   readTime?: number;
   tags?: string[];
   source?: Source | Squad;
@@ -470,3 +470,20 @@ export const editPost = async (
 
   return res.editPost;
 };
+
+export const PIN_POST_MUTATION = gql`
+  mutation UpdatePinPost($id: ID!, $pinned: Boolean!) {
+    updatePinPost(id: $id, pinned: $pinned) {
+      _
+    }
+  }
+`;
+
+interface UpdatePinnedProps {
+  id: string;
+  pinned: boolean;
+}
+
+export const updatePinnedPost = async (
+  variables: UpdatePinnedProps,
+): Promise<void> => request(graphqlUrl, PIN_POST_MUTATION, variables);

@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from 'react-query';
+import { QueryKey, useQueryClient } from 'react-query';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, ReportReason } from '../graphql/posts';
@@ -25,6 +25,8 @@ import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
+import PinIcon from './icons/Pin';
+import { getPostByIdKey } from '../hooks/usePostById';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -33,11 +35,18 @@ const PortalMenu = dynamic(
   },
 );
 
+interface PostOptions {
+  icon: ReactElement;
+  text: string;
+  action: () => unknown;
+}
+
 export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
   feedName?: string;
   onHidden?: () => unknown;
+  feedQueryKey?: QueryKey;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   contextId?: string;
@@ -60,6 +69,7 @@ export default function PostOptionsMenu({
   onHidden,
   onRemovePost,
   setShowBanPost,
+  feedQueryKey,
   origin,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
@@ -99,9 +109,26 @@ export default function PostOptionsMenu({
     });
     onRemovePost?.(_postIndex);
   };
-  const { onConfirmDeletePost } = usePostMenuActions({
+  const { onConfirmDeletePost, onPinPost } = usePostMenuActions({
     post,
     postIndex,
+    onPinSuccessful: async () => {
+      const key = getPostByIdKey(post.id);
+      const cached = client.getQueryData(key);
+      if (cached) {
+        client.setQueryData<Post>(key, (data) => ({
+          ...data,
+          pinnedAt: post.pinnedAt ? null : new Date(),
+        }));
+      }
+
+      await client.invalidateQueries(feedQueryKey);
+      displayToast(
+        post.pinnedAt
+          ? 'Your post has been unpinned'
+          : '📌 Your post has been pinned',
+      );
+    },
     onPostDeleted: ({ index, post: deletedPost }) => {
       trackEvent(
         postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
@@ -196,11 +223,7 @@ export default function PostOptionsMenu({
     );
   };
 
-  const postOptions: {
-    icon: ReactElement;
-    text: string;
-    action: () => unknown;
-  }[] = [
+  const postOptions: PostOptions[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
       text: 'Hide',
@@ -244,6 +267,13 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={TrashIcon} />,
       text: 'Delete post',
       action: onConfirmDeletePost,
+    });
+  }
+  if (onPinPost) {
+    postOptions.unshift({
+      icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
+      text: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
+      action: onPinPost,
     });
   }
   if (setShowBanPost) {
