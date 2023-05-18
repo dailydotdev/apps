@@ -21,7 +21,7 @@ interface RaisedLabelProps {
 
 export function RaisedLabel({
   listMode,
-  type = RaisedLabelType.hot,
+  type = RaisedLabelType.Hot,
   description,
 }: RaisedLabelProps): ReactElement {
   return (
