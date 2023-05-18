@@ -4,13 +4,13 @@ import styles from './Card.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export enum RaisedLabelType {
-  hot = 'Hot',
-  pinned = 'Pinned',
+  Hot = 'Hot',
+  Pinned = 'Pinned',
 }
 
 const typeToClassName: Record<RaisedLabelType, string> = {
-  [RaisedLabelType.hot]: 'bg-theme-status-error',
-  [RaisedLabelType.pinned]: 'bg-theme-bg-bun',
+  [RaisedLabelType.Hot]: 'bg-theme-status-error',
+  [RaisedLabelType.Pinned]: 'bg-theme-bg-bun',
 };
 
 export interface RaisedLabelProps {
@@ -21,7 +21,7 @@ export interface RaisedLabelProps {
 
 export function RaisedLabel({
   listMode,
-  type = RaisedLabelType.hot,
+  type = RaisedLabelType.Hot,
   description,
 }: RaisedLabelProps): ReactElement {
   return (
