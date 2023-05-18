@@ -100,9 +100,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     return (
       <div className={`relative ${styles.cardContainer}`}>
         {card}
-        <TrendingFlag
-          trending={trending}
-        />
+        <TrendingFlag trending={trending} />
       </div>
     );
   }

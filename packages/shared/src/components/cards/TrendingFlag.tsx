@@ -1,12 +1,7 @@
 import React, { ReactElement } from 'react';
 import { RaisedLabel, RaisedLabelType } from '.';
 
-export function TrendingFlag({
-  trending,
-}: {
-  trending: number;
-}): ReactElement {
-  console.log('trending', trending)
+export function TrendingFlag({ trending }: { trending: number }): ReactElement {
   return (
     <RaisedLabel
       type={RaisedLabelType.hot}
