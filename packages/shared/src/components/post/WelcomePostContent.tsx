@@ -15,7 +15,7 @@ function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
         {post.title}
       </h1>
       <Markdown content={post.contentHtml} />
-      <div className="block overflow-hidden mt-8 w-96 rounded-2xl cursor-pointer h-fit">
+      <div className="block overflow-hidden mt-8 max-w-sm rounded-2xl cursor-pointer h-fit">
         <LazyImage
           imgSrc={post.image}
           imgAlt="Post cover image"
