@@ -13,8 +13,8 @@ import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import styles from './Card.module.css';
-import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
+import { TrendingFlag } from '.';
 
 export const PostList = forwardRef(function PostList(
   {

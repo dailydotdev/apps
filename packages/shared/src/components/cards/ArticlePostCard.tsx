@@ -9,12 +9,12 @@ import {
   getPostClassNames,
 } from './Card';
 import styles from './Card.module.css';
-import TrendingFlag from './TrendingFlag';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
 import { Container, PostCardProps } from './common';
+import { TrendingFlag } from '.';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
