@@ -1,29 +1,13 @@
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  Ref,
-} from 'react';
+import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import { Post } from '../../graphql/posts';
 import { Card, ListCard } from './Card';
-import { RaisedLabel, RaisedLabelProps, RaisedLabelType } from './RaisedLabel';
+import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import ConditionalWrapper from '../ConditionalWrapper';
 import styles from './Card.module.css';
 
 interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
 }
-
-const getFlaggedContainer = (
-  children: ReactNode,
-  props: Partial<RaisedLabelProps> = {},
-): ReactElement => (
-  <div className={`relative ${styles.cardContainer}`}>
-    {children}
-    <RaisedLabel type={RaisedLabelType.Pinned} {...props} />
-  </div>
-);
 
 interface FeedItemContainerProps extends HTMLAttributes<HTMLDivElement> {
   flagProps: FlagProps;
@@ -44,9 +28,16 @@ function FeedItemContainer(
   return (
     <ConditionalWrapper
       condition={!!pinnedAt || !!trending}
-      wrapper={(children) =>
-        getFlaggedContainer(children, { listMode, type, description })
-      }
+      wrapper={(children) => (
+        <div className={`relative ${styles.cardContainer}`}>
+          {children}
+          <RaisedLabel
+            type={type}
+            listMode={listMode}
+            description={description}
+          />
+        </div>
+      )}
     >
       <Component {...props} ref={ref} />
     </ConditionalWrapper>
