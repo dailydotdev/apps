@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
 import { useRouter } from 'next/router';
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/analytics';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 
 const InstructionContainer = classed(
   'div',
@@ -22,6 +23,7 @@ function Enable(): React.ReactElement {
   const router = useRouter();
   const { isSubscribed, isInitialized, onTogglePermission } =
     useNotificationContext();
+  const { sendBeacon } = useAnalyticsContext();
   const { source } = router.query;
 
   useEffect(() => {
@@ -44,7 +46,10 @@ function Enable(): React.ReactElement {
       postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { permission });
 
       if (permission === 'granted') {
-        setTimeout(window.close, 2000);
+        setTimeout(() => {
+          sendBeacon();
+          window.close();
+        }, 2000);
       }
     };
 
