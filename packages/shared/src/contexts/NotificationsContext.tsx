@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -67,6 +68,8 @@ export const NotificationsContextProvider = ({
     ALERT_PUSH_KEY,
     true,
   );
+  const subscriptionCallbackRef = useRef<(isSubscribed: boolean) => unknown>();
+  const notificationSourceRef = useRef<string>();
 
   const getRegistrationId = async (isGranted: boolean) => {
     if (!isGranted) {
@@ -134,15 +137,26 @@ export const NotificationsContextProvider = ({
       return 'denied';
     }
 
+    notificationSourceRef.current = source;
     const result = await globalThis.window?.Notification?.requestPermission();
-    trackEvent({
-      event_name: AnalyticsEvent.ClickEnableNotification,
-      extra: JSON.stringify({ origin: source, permission: result }),
-    });
     await onUpdatePermission(result);
 
     return result;
   };
+
+  useEffect(() => {
+    subscriptionCallbackRef.current = (isSubscribedNew) => {
+      if (isSubscribedNew) {
+        trackEvent({
+          event_name: AnalyticsEvent.ClickEnableNotification,
+          extra: JSON.stringify({
+            origin: notificationSourceRef.current,
+            permission: 'granted',
+          }),
+        });
+      }
+    };
+  }, [trackEvent, notificationSourceRef]);
 
   useEffect(() => {
     setCurrentUnreadCount(unreadCount);
@@ -163,16 +177,9 @@ export const NotificationsContextProvider = ({
     import('react-onesignal').then(async (mod) => {
       const OneSignalReact = mod.default;
 
-      /**
-       * Temporary logs for testing purposes, need to stay comment out until we recreate this subscribe
-       *
-       * OneSignalReact.on('subscriptionChange', (value) => {
-       *   console.log('subscription on change', value);
-       * });
-       * OneSignalReact.on('notificationPermissionChange', (value) => {
-       *   console.log('on change', value);
-       * });
-       */
+      OneSignalReact.on('subscriptionChange', (value) =>
+        subscriptionCallbackRef.current?.(value),
+      );
 
       await OneSignalReact.init({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
