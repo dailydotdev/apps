@@ -29,6 +29,7 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   scrollingContainer?: HTMLElement;
   appendTooltipTo?: HTMLElement;
   children?: ReactNode;
+  showDescription?: boolean;
 }
 
 const TextEllipsis = getTextEllipsis();
@@ -47,6 +48,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   scrollingContainer,
   appendTooltipTo,
   children,
+  showDescription = true,
   ...props
 }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
@@ -86,7 +88,9 @@ export function UserShortInfo<Tag extends AnyTag>({
           <TextEllipsis className="text-theme-label-secondary">
             @{username}
           </TextEllipsis>
-          {bio && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
+          {bio && showDescription && (
+            <span className="mt-1 text-theme-label-tertiary">{bio}</span>
+          )}
         </div>
       </ProfileTooltip>
       {children}
