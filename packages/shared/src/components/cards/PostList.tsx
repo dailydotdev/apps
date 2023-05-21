@@ -2,7 +2,6 @@ import React, { forwardRef, ReactElement, Ref } from 'react';
 import { PostCardProps } from './common';
 import {
   getPostClassNames,
-  ListCard,
   ListCardTitle,
   ListCardDivider,
   ListCardAside,
@@ -13,8 +12,7 @@ import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { getTrendingFlag } from './FlaggedContainer';
+import FeedItemContainer from './FeedItemContainer';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -37,54 +35,48 @@ export const PostList = forwardRef(function PostList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const onPostCardClick = () => onPostClick(post);
-  const { trending } = post;
+  const { trending, pinnedAt } = post;
 
   return (
-    <ConditionalWrapper
-      condition={!!trending}
-      wrapper={(component) => getTrendingFlag(component, trending, true)}
+    <FeedItemContainer
+      {...props}
+      className={getPostClassNames(post, className)}
+      ref={ref}
+      flagProps={{ listMode: true, pinnedAt, trending }}
     >
-      <ListCard
-        {...props}
-        className={getPostClassNames(post, className)}
-        ref={ref}
-      >
-        <CardButton title={post.title} onClick={onPostCardClick} />
-        <ListCardAside className="w-14">
-          <SourceButton
-            source={post?.source}
-            className="pb-2"
-            tooltipPosition="top"
-          />
-        </ListCardAside>
-        <ListCardDivider className="mb-1" />
-        <ListCardMain>
-          <ListCardTitle>{post.title}</ListCardTitle>
-          <PostMetadata
-            createdAt={post.createdAt}
-            readTime={post.readTime}
-            className="my-1"
-          >
-            {post.author && (
-              <PostAuthor author={post.author} className="ml-2" />
-            )}
-          </PostMetadata>
-          <ActionButtons
-            post={post}
-            openNewTab={openNewTab}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onBookmarkClick={onBookmarkClick}
-            onReadArticleClick={onReadArticleClick}
-            onShare={onShare}
-            onShareClick={onShareClick}
-            className="relative self-stretch mt-1"
-            onMenuClick={(event) => onMenuClick?.(event, post)}
-            insaneMode
-          />
-        </ListCardMain>
-        {children}
-      </ListCard>
-    </ConditionalWrapper>
+      <CardButton title={post.title} onClick={onPostCardClick} />
+      <ListCardAside className="w-14">
+        <SourceButton
+          source={post?.source}
+          className="pb-2"
+          tooltipPosition="top"
+        />
+      </ListCardAside>
+      <ListCardDivider className="mb-1" />
+      <ListCardMain>
+        <ListCardTitle>{post.title}</ListCardTitle>
+        <PostMetadata
+          createdAt={post.createdAt}
+          readTime={post.readTime}
+          className="my-1"
+        >
+          {post.author && <PostAuthor author={post.author} className="ml-2" />}
+        </PostMetadata>
+        <ActionButtons
+          post={post}
+          openNewTab={openNewTab}
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onBookmarkClick={onBookmarkClick}
+          onReadArticleClick={onReadArticleClick}
+          onShare={onShare}
+          onShareClick={onShareClick}
+          className="relative self-stretch mt-1"
+          onMenuClick={(event) => onMenuClick?.(event, post)}
+          insaneMode
+        />
+      </ListCardMain>
+      {children}
+    </FeedItemContainer>
   );
 });
