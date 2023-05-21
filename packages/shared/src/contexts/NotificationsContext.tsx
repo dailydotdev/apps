@@ -33,6 +33,7 @@ export interface NotificationsContextData
   onTogglePermission: (
     source: NotificationPromptSource,
   ) => Promise<NotificationPermission>;
+  trackPermissionGranted: () => void;
 }
 
 const NotificationsContext =
@@ -231,6 +232,7 @@ export const NotificationsContextProvider = ({
       get isNotificationSupported() {
         return !!globalThis.window?.Notification;
       },
+      trackPermissionGranted: () => subscriptionCallbackRef.current?.(true),
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -244,6 +246,7 @@ export const NotificationsContextProvider = ({
       isAlertShown,
       acceptedPermissionJustNow,
       hasPermissionCache,
+      subscriptionCallbackRef,
     ],
   );
 
