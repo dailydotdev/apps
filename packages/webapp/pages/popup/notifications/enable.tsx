@@ -21,8 +21,12 @@ const Description = classed('p', 'typo-callout text-theme-label-tertiary');
 
 function Enable(): React.ReactElement {
   const router = useRouter();
-  const { isSubscribed, isInitialized, onTogglePermission } =
-    useNotificationContext();
+  const {
+    isSubscribed,
+    isInitialized,
+    onTogglePermission,
+    trackPermissionGranted,
+  } = useNotificationContext();
   const { sendBeacon } = useAnalyticsContext();
   const { source } = router.query;
 
@@ -32,11 +36,17 @@ function Enable(): React.ReactElement {
     }
 
     const checkPermission = async () => {
+      const closeWindow = () => {
+        sendBeacon();
+        window.close();
+      };
+
       if (isSubscribed) {
         postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
           permission: 'granted',
         });
-        window.close();
+        trackPermissionGranted();
+        closeWindow();
         return;
       }
 
@@ -46,10 +56,7 @@ function Enable(): React.ReactElement {
       postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { permission });
 
       if (permission === 'granted') {
-        setTimeout(() => {
-          sendBeacon();
-          window.close();
-        }, 2000);
+        setTimeout(closeWindow, 1000);
       }
     };
 
