@@ -8,10 +8,10 @@ import { usePostComment } from '../../hooks/usePostComment';
 import { useShareComment } from '../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
 import { AuthTriggers } from '../../lib/auth';
-import { NewComment } from './NewComment';
 import { PostActions, ShareBookmarkProps } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
+import MarkdownInput from '../fields/MarkdownInput';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -97,11 +97,12 @@ function PostEngagements({
         actionsClassName="hidden laptop:flex"
         origin={analyticsOrigin}
       />
-      <NewComment
-        user={user}
-        className="my-6"
-        isCommenting={!!parentComment}
-        onNewComment={() => openNewComment('start discussion button')}
+      {/* TODO:: Revert this after testing phase */}
+      <MarkdownInput
+        className="mt-4"
+        postId={post.id}
+        sourceId={post.source.id}
+        onSubmit={() => console.log('submitted')}
       />
       <PostComments
         post={post}
