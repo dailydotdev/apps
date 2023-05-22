@@ -226,6 +226,8 @@ export const useMarkdownInput = ({
     if (mention && e.key === KeyboardCommand.Enter) {
       await onApplyMention(mention.username);
     }
+
+    return null;
   };
 
   const onBlur: FocusEventHandler<HTMLTextAreaElement> = (e) =>
