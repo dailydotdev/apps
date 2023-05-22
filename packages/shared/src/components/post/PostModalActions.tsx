@@ -79,7 +79,7 @@ export function PostModalActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {onReadArticle && (
+      {onReadArticle && post?.type !== 'welcome' && (
         <SimpleTooltip
           placement="bottom"
           content="Read post"
