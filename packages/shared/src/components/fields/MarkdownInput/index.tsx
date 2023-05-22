@@ -31,7 +31,7 @@ const splitString = (value: string, [start, end]: number[]) => {
   return [left, right];
 };
 
-const getReplacedResult = (
+const concatReplacement = (
   textarea: HTMLTextAreaElement,
   selected: number[],
   replace: string,
@@ -77,6 +77,134 @@ const getCloseWord = (
 const urlText = 'url';
 const getUrlText = (content = '') => `[${content}](${urlText})`;
 
+/**
+ * Enum to describe the current cursor's state.
+ * The character `|` denotes the cursor
+ * @enum CursorType
+ * Isolated: when the cursor is in-between spaces (ex. " | ").
+ * Adjacent: when the cursor is beside any character (ex. "Test |word" or "Test| word").
+ * Highlighted: when the cursor is highlighting any string (ex. "|Tes|t" or "|Test|").
+ */
+enum CursorType {
+  Isolated = 'isolated',
+  Adjacent = 'adjacent',
+  Highlighted = 'highlighted',
+}
+
+const getCursorType = (textarea: HTMLTextAreaElement, selection: number[]) => {
+  const [highlighted, before] = getSelectedString(textarea, selection);
+  const [start, end] = selection;
+
+  if (isFalsyOrSpace(highlighted) && isFalsyOrSpace(before)) {
+    return CursorType.Isolated;
+  }
+
+  return start !== end ? CursorType.Highlighted : CursorType.Adjacent;
+};
+
+interface GetReplacement {
+  addSpaceBeforeHighlighted?: boolean;
+  offset?: number[];
+  replacement: string;
+}
+
+interface GetReplacementOptionalProps {
+  word?: string;
+  characterBeforeHighlight?: string;
+}
+
+type GetReplacementFn = (
+  type: CursorType,
+  word?: GetReplacementOptionalProps,
+) => GetReplacement;
+
+const charsToBrackets = 1;
+const getLinkReplacement: GetReplacementFn = (type, { word } = {}) => {
+  const replacement = getUrlText(word);
+
+  if (type === CursorType.Highlighted) {
+    return { replacement };
+  }
+
+  if (type === CursorType.Adjacent) {
+    return { replacement, offset: [urlText.length, 1] };
+  }
+
+  const offset = replacement.length - charsToBrackets;
+
+  return { replacement, offset: [offset] };
+};
+
+const getMentionReplacement: GetReplacementFn = (
+  type,
+  { word = '', characterBeforeHighlight } = {},
+) => {
+  const replacement = `@${word}`;
+
+  if (type === CursorType.Isolated) return { replacement };
+
+  if (type === CursorType.Adjacent) {
+    if (word.charAt(0) === '@') return { replacement: `${word} @` };
+
+    return { replacement };
+  }
+
+  const hasValidCharacter = isFalsyOrSpace(characterBeforeHighlight);
+
+  if (hasValidCharacter) {
+    return { replacement };
+  }
+
+  return { replacement: ` ${replacement}` };
+};
+
+const replaceWord = async (
+  textarea: HTMLTextAreaElement,
+  selection: number[],
+  getReplacement: GetReplacementFn,
+  onReplaced: (result: string) => void,
+) => {
+  const [highlighted, before] = getSelectedString(textarea, selection);
+  const [start, end] = selection;
+  const type = getCursorType(textarea, selection);
+
+  if (type === CursorType.Isolated) {
+    const { replacement, offset: [startOffset] = [0] } = getReplacement(
+      CursorType.Isolated,
+    );
+    const result = concatReplacement(textarea, selection, replacement);
+    const offset = replacement.length - startOffset;
+    const index = start + offset;
+    onReplaced(result);
+    await focusInput(textarea, [index, index]);
+    return result;
+  }
+
+  if (type === CursorType.Highlighted) {
+    const { replacement } = getReplacement(CursorType.Highlighted, {
+      word: highlighted,
+      characterBeforeHighlight: before,
+    });
+    const offset = replacement.length - highlighted.length - 1;
+    const position = [start + offset, end + offset];
+    const result = concatReplacement(textarea, selection, replacement);
+    onReplaced(result);
+    await focusInput(textarea, position);
+    return result;
+  }
+
+  const [word, startIndex] = getCloseWord(textarea, selection);
+  const position = [startIndex, startIndex + word.length];
+  const { replacement, offset: [startOffset = 0, endOffset = 0] = [] } =
+    getReplacement(CursorType.Adjacent, { word });
+  const result = concatReplacement(textarea, position, replacement);
+  const focusEnd = startIndex + replacement.length - endOffset;
+  const focusStart = focusEnd - startOffset;
+  onReplaced(result);
+  await focusInput(textarea, [focusStart, focusEnd]);
+  return result;
+};
+
 function MarkdownInput({ className }: MarkdownInputProps): ReactElement {
   const [selection, setSelection] = useState([0, 0]);
   const textareaRef = useRef<HTMLTextAreaElement>();
@@ -84,37 +212,19 @@ function MarkdownInput({ className }: MarkdownInputProps): ReactElement {
   const [input, setInput] = useState('');
 
   const onLinkClick = async () => {
-    const [highlighted, before] = getSelectedString(textarea, selection);
-    const [start, end] = selection;
-
-    if (isFalsyOrSpace(highlighted) && isFalsyOrSpace(before)) {
-      const text = getUrlText();
-      const result = getReplacedResult(textarea, selection, text);
-      const index = start + 1;
-      setInput(result);
-      return focusInput(textarea, [index, index]);
-    }
-
-    if (start !== end) {
-      const text = getUrlText(highlighted);
-      const offset = highlighted.length + urlText.length;
-      const position = [start + offset, end + offset];
-      const result = getReplacedResult(textarea, selection, text);
-      setInput(result);
-      return focusInput(textarea, position);
-    }
-
-    const [word, startIndex] = getCloseWord(textarea, selection);
-    const replacePosition = [startIndex, startIndex + word.length];
-    const replaceValue = getUrlText(word);
-    const result = getReplacedResult(textarea, replacePosition, replaceValue);
-    const focusEnd = startIndex + replaceValue.length - 1;
-    const focusStart = focusEnd - urlText.length;
-    setInput(result);
-    return focusInput(textarea, [focusStart, focusEnd]);
+    await replaceWord(textarea, selection, getLinkReplacement, setInput);
   };
 
-  const onMentionClick = () => {};
+  const onMentionClick = async () => {
+    const replaced = await replaceWord(
+      textarea,
+      selection,
+      getMentionReplacement,
+      setInput,
+    );
+
+    // TODO: use the replaced value to initialize user mentions
+  };
 
   const onInput: FormEventHandler<HTMLTextAreaElement> = (e) => {
     const target = e.currentTarget;
