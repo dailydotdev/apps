@@ -186,16 +186,6 @@ export const useMarkdownInput = ({
   const onKeyUp: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     if (!arrowKeys.includes(e.key as ArrowKey)) return;
 
-    const arrowKey = e.key as ArrowKey;
-
-    if (Y_AXIS_KEYS.includes(e.key as ArrowKey)) {
-      if (arrowKey === ArrowKey.Up) {
-        if (selected > 0) setSelected(selected - 1);
-      } else if (selected < mentions.length - 1) {
-        setSelected(selected + 1);
-      }
-    }
-
     const [start, end] = selection;
     const { selectionStart, selectionEnd } = e.currentTarget;
 
@@ -221,6 +211,16 @@ export const useMarkdownInput = ({
     }
 
     e.preventDefault();
+
+    const arrowKey = e.key as ArrowKey;
+
+    if (Y_AXIS_KEYS.includes(e.key as ArrowKey)) {
+      if (arrowKey === ArrowKey.Up) {
+        if (selected > 0) setSelected(selected - 1);
+      } else if (selected < mentions.length - 1) {
+        setSelected(selected + 1);
+      }
+    }
 
     const mention = mentions[selected];
     if (mention && e.key === KeyboardCommand.Enter) {
