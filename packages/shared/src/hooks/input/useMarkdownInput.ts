@@ -110,7 +110,7 @@ export const useMarkdownInput = ({
   const [input, setInput] = useState('');
   const [query, setQuery] = useState<string>(undefined);
   const [offset, setOffset] = useState([0, 0]);
-  const [selected, setSelected] = useState(0);
+  const [mentionIndex, setMentionIndex] = useState(0);
   const { requestMethod } = useRequestProtocol();
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
@@ -216,13 +216,13 @@ export const useMarkdownInput = ({
 
     if (Y_AXIS_KEYS.includes(e.key as ArrowKey)) {
       if (arrowKey === ArrowKey.Up) {
-        if (selected > 0) setSelected(selected - 1);
-      } else if (selected < mentions.length - 1) {
-        setSelected(selected + 1);
+        if (mentionIndex > 0) setMentionIndex(mentionIndex - 1);
+      } else if (mentionIndex < mentions.length - 1) {
+        setMentionIndex(mentionIndex + 1);
       }
     }
 
-    const mention = mentions[selected];
+    const mention = mentions[mentionIndex];
     if (mention && e.key === KeyboardCommand.Enter) {
       await onApplyMention(mention.username);
     }
@@ -250,7 +250,7 @@ export const useMarkdownInput = ({
     input,
     query,
     offset,
-    selected,
+    selected: mentionIndex,
     onBlur,
     onKeyUp,
     onKeyDown,
