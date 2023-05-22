@@ -1,1 +1,1 @@
-export * from './TrendingFlag';
+export * from './FlaggedContainer';

@@ -17,17 +17,6 @@ export const getFlaggedContainer = (
   </div>
 );
 
-export const getTrendingFlag = (
-  children: ReactNode,
-  trending: number,
-  listMode?: boolean,
-): ReactElement =>
-  getFlaggedContainer(children, {
-    listMode,
-    type: RaisedLabelType.Hot,
-    description: `${trending} devs read it last hour`,
-  });
-
 const FlaggedContainer = ({
   children,
   labelProps,
