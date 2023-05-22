@@ -1,4 +1,32 @@
 .btn {
+  &:hover, &.hover, &:focus:focus-visible {
+    --button-icon: var(--button-hover-icon);
+    transition: background-color 0.2s ease-in-out;
+  }
+  &[aria-pressed="true"] {
+    --button-background: var(--button-pressed-background);
+    --button-icon: var(--button-hover-icon);
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  &:hover, &.hover, &:focus:focus-visible {
+    --button-icon: var(--button-hover-icon);
+    transition: background-color 0.2s ease-in-out;
+  }
+  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
+    color: var(--button-hover-color);
+    transition: background-color 0.2s ease-in-out;
+  }
+  &:not(.readOnly) {
+    &:hover, &.hover, &:focus:focus-visible {
+      --button-background: var(--button-hover-background);
+      --button-border-color: var(--button-hover-border-color);
+      --button-color: var(--button-hover-color);
+      --button-box-shadow: var(--button-hover-box-shadow);
+      transition: background-color 0.2s ease-in-out;
+    }
+  }
+
   height: 2.5rem;
   padding: 0 1.4375rem;
   border-radius: 0.75rem;
@@ -128,16 +156,7 @@
     --button-box-shadow: var(--button-pressed-box-shadow);
   }
 
-  &:not(.readOnly) {
-    &:hover, &.hover, &:focus:focus-visible {
-      --button-background: var(--button-hover-background);
-      --button-border-color: var(--button-hover-border-color);
-      --button-color: var(--button-hover-color);
-      --button-box-shadow: var(--button-hover-box-shadow);
-      transition: background-color 0.2s ease-in-out;
-    }
-  }
-
+ 
 
   &:active {
     --button-background: var(--button-active-background);
@@ -164,24 +183,6 @@
     cursor: default;
   }
 
-  &:hover, &.hover, &:focus:focus-visible {
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
-  &[aria-pressed="true"] {
-    --button-background: var(--button-pressed-background);
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
-
-  &:hover, &.hover, &:focus:focus-visible {
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
-  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
-    color: var(--button-hover-color);
-    transition: background-color 0.2s ease-in-out;
-  }
 }
 
 .btn-quaternary {
