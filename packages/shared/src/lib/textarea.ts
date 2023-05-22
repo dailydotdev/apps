@@ -60,7 +60,7 @@ export const getCloseWord = (
     return false;
   });
 
-  return [closeWord ?? '', lastIndex];
+  return [closeWord?.trimEnd() ?? '', lastIndex];
 };
 
 /**
