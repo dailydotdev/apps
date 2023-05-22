@@ -20,6 +20,7 @@ const AnalyticsContext = createContext<AnalyticsContextData>({
   trackEvent: () => {},
   trackEventStart: () => {},
   trackEventEnd: () => {},
+  sendBeacon: () => {},
 });
 export default AnalyticsContext;
 
@@ -57,6 +58,7 @@ export const AnalyticsContextProvider = ({
     sharedPropsRef,
     getPage,
     durationEventsQueue,
+    sendBeacon,
   );
   useBackfillPendingEvents(
     sharedPropsRef,
