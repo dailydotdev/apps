@@ -1,14 +1,34 @@
 import React, { FormEventHandler, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { useQuery } from 'react-query';
 import ImageIcon from '../../icons/Image';
 import { Button, ButtonSize } from '../../buttons/Button';
 import LinkIcon from '../../icons/Link';
 import AtIcon from '../../icons/At';
 import MarkdownIcon from '../../icons/Markdown';
-import { nextTick } from '../../../lib/func';
+import { isNullOrUndefined, nextTick } from '../../../lib/func';
+import {
+  RECOMMEND_MENTIONS_QUERY,
+  RecommendedMentionsData,
+} from '../../../graphql/comments';
+import { graphqlUrl } from '../../../lib/config';
+import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import {
+  ArrowKey,
+  arrowKeys,
+  CaretOffset,
+  getCaretOffset,
+  KeyboardCommand,
+  Y_AXIS_KEYS,
+} from '../../../lib/element';
+import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
 
 interface MarkdownInputProps {
+  onSubmit: React.KeyboardEventHandler<HTMLTextAreaElement>;
   className?: string;
+  sourceId?: string;
+  postId: string; // in the future, it would be ideal without the need of post id to be reusable
 }
 
 const isFalsyOrSpace = (value: string) => !value || value === ' ';
@@ -71,7 +91,7 @@ const getCloseWord = (
     return false;
   });
 
-  return [closeWord, lastIndex];
+  return [closeWord ?? '', lastIndex];
 };
 
 const urlText = 'url';
@@ -205,17 +225,45 @@ const replaceWord = async (
   return result;
 };
 
-function MarkdownInput({ className }: MarkdownInputProps): ReactElement {
+function MarkdownInput({
+  className,
+  postId,
+  sourceId,
+  onSubmit,
+}: MarkdownInputProps): ReactElement {
   const [selection, setSelection] = useState([0, 0]);
   const textareaRef = useRef<HTMLTextAreaElement>();
   const textarea = textareaRef?.current;
   const [input, setInput] = useState('');
+  const [query, setQuery] = useState<string>(undefined);
+  const [offset, setOffset] = useState([0, 0]);
+  const [selected, setSelected] = useState(0);
+  const { requestMethod } = useRequestProtocol();
+  const key = ['user', query, postId, sourceId];
+  const { user } = useAuthContext();
+  const { data = { recommendedMentions: [] } } =
+    useQuery<RecommendedMentionsData>(
+      key,
+      () =>
+        requestMethod(
+          graphqlUrl,
+          RECOMMEND_MENTIONS_QUERY,
+          { postId, query, sourceId },
+          { requestKey: JSON.stringify(key) },
+        ),
+      {
+        enabled: !!user && typeof query !== 'undefined',
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+      },
+    );
+  const mentions = data.recommendedMentions;
 
   const onLinkClick = async () => {
     await replaceWord(textarea, selection, getLinkReplacement, setInput);
   };
 
-  const onMentionClick = async () => {
+  const onMentionCommand = async () => {
     const replaced = await replaceWord(
       textarea,
       selection,
@@ -223,7 +271,86 @@ function MarkdownInput({ className }: MarkdownInputProps): ReactElement {
       setInput,
     );
 
-    // TODO: use the replaced value to initialize user mentions
+    const mention = replaced.trim().substring(1);
+    setQuery(mention);
+  };
+
+  const updateQuery = (value: string) => {
+    if (value === query) return;
+
+    if (isNullOrUndefined(query) && !isNullOrUndefined(value)) {
+      setOffset(getCaretOffset(textarea));
+    }
+
+    setQuery(value);
+  };
+
+  const onApplyMention = async (username: string) => {
+    const getUsernameReplacement = () => ({
+      type: CursorType.Adjacent,
+      replacement: `@${username} `,
+    });
+    await replaceWord(textarea, selection, getUsernameReplacement, setInput);
+    updateQuery(undefined);
+  };
+
+  const checkMention = (position?: number[]) => {
+    const placement = position ?? selection;
+    const [word] = getCloseWord(textarea, placement);
+
+    if (isNullOrUndefined(query)) {
+      if (word.charAt(0) === '@') updateQuery(word.substring(1) ?? '');
+      return;
+    }
+
+    const handleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
+    const mention = word.substring(1);
+    const isValid = word.charAt(0) === '@' && handleRegex.test(mention);
+    updateQuery(isValid ? mention : undefined);
+  };
+
+  const onKeyUp: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+    if (!arrowKeys.includes(e.key as ArrowKey)) return;
+
+    const arrowKey = e.key as ArrowKey;
+
+    if (Y_AXIS_KEYS.includes(e.key as ArrowKey)) {
+      if (arrowKey === ArrowKey.Up) {
+        if (selected > 0) setSelected(selected - 1);
+      } else if (selected < mentions.length - 1) {
+        setSelected(selected + 1);
+      }
+    }
+
+    const { selectionStart, selectionEnd } = e.currentTarget;
+    const position = [selectionStart, selectionEnd];
+    checkMention(position);
+    setSelection(position);
+  };
+
+  const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = async (
+    e,
+  ) => {
+    const isSpecialKey = e.ctrlKey || e.metaKey;
+    if (isSpecialKey && e.key === KeyboardCommand.Enter && input?.length) {
+      return onSubmit(e);
+    }
+
+    const isNavigatingPopup =
+      e.key === KeyboardCommand.Enter ||
+      Y_AXIS_KEYS.includes(e.key as ArrowKey);
+
+    if (!isNavigatingPopup) {
+      return e.stopPropagation(); // to stop app navigation
+    }
+
+    const mention = mentions[selected];
+
+    if (mention && e.key === KeyboardCommand.Enter) {
+      await onApplyMention(mention.username);
+    }
+
+    return e.preventDefault(); // to stop the cursor from moving if mention popup is shown
   };
 
   const onInput: FormEventHandler<HTMLTextAreaElement> = (e) => {
@@ -231,8 +358,11 @@ function MarkdownInput({ className }: MarkdownInputProps): ReactElement {
 
     if (!target) return;
 
+    const { selectionStart, selectionEnd } = target;
+    const position = [selectionStart, selectionEnd];
     setInput(target.value);
-    setSelection([target.selectionStart, target.selectionEnd]);
+    setSelection(position);
+    checkMention(position);
   };
 
   return (
@@ -248,10 +378,20 @@ function MarkdownInput({ className }: MarkdownInputProps): ReactElement {
         placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
         value={input}
         onInput={onInput}
+        onKeyUp={onKeyUp}
+        onKeyDown={onKeyDown}
         onBlur={(e) =>
           setSelection([e.target.selectionStart, e.target.selectionEnd])
         }
         rows={10}
+      />
+      <RecommendedMentionTooltip
+        elementRef={textareaRef}
+        offset={offset as CaretOffset}
+        mentions={data?.recommendedMentions}
+        selected={selected}
+        query={query}
+        onMentionClick={onApplyMention}
       />
       <span className="flex flex-row items-center p-3 px-4 border-t border-theme-divider-tertiary">
         <label
@@ -275,7 +415,7 @@ function MarkdownInput({ className }: MarkdownInputProps): ReactElement {
           <Button
             buttonSize={ButtonSize.Small}
             icon={<AtIcon />}
-            onClick={onMentionClick}
+            onClick={onMentionCommand}
           />
           <Button buttonSize={ButtonSize.Small} icon={<MarkdownIcon />} />
         </span>
