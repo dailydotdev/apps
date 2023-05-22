@@ -196,7 +196,11 @@ export const useMarkdownInput = ({
       }
     }
 
+    const [start, end] = selection;
     const { selectionStart, selectionEnd } = e.currentTarget;
+
+    if (selectionStart === start && selectionEnd === end) return;
+
     const position = [selectionStart, selectionEnd];
     checkMention(position);
     setSelection(position);
@@ -216,13 +220,12 @@ export const useMarkdownInput = ({
       return e.stopPropagation(); // to stop app navigation
     }
 
-    const mention = mentions[selected];
+    e.preventDefault();
 
+    const mention = mentions[selected];
     if (mention && e.key === KeyboardCommand.Enter) {
       await onApplyMention(mention.username);
     }
-
-    return e.preventDefault(); // to stop the cursor from moving if mention popup is shown
   };
 
   const onBlur: FocusEventHandler<HTMLTextAreaElement> = (e) =>
