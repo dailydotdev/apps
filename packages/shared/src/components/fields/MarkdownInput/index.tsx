@@ -32,7 +32,6 @@ function MarkdownInput({
     query,
     offset,
     selected,
-    onBlur,
     onKeyUp,
     onKeyDown,
     onLinkCommand,
@@ -56,7 +55,6 @@ function MarkdownInput({
         onInput={onInput}
         onKeyUp={onKeyUp}
         onKeyDown={onKeyDown}
-        onBlur={onBlur}
         rows={10}
       />
       <RecommendedMentionTooltip

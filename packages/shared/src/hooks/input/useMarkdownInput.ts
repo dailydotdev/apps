@@ -43,7 +43,7 @@ export interface UseMarkdownInputProps
 interface UseMarkdownInput
   extends Pick<
     HTMLAttributes<HTMLTextAreaElement>,
-    'onSubmit' | 'onKeyDown' | 'onKeyUp' | 'onBlur'
+    'onSubmit' | 'onKeyDown' | 'onKeyUp'
   > {
   input: string;
   query: string;
@@ -53,6 +53,7 @@ interface UseMarkdownInput
   onLinkCommand: () => Promise<void>;
   onMentionCommand: () => Promise<void>;
   onApplyMention: (username: string) => Promise<void>;
+  checkMention: (position?: number[]) => void;
   mentions: UserShortProfile[];
 }
 
@@ -111,12 +112,11 @@ export const useMarkdownInput = ({
   sourceId,
   onSubmit,
 }: UseMarkdownInputProps): UseMarkdownInput => {
-  const [selection, setSelection] = useState([0, 0]);
   const textarea = textareaRef?.current;
   const [input, setInput] = useState('');
   const [query, setQuery] = useState<string>(undefined);
   const [offset, setOffset] = useState([0, 0]);
-  const [mentionIndex, setMentionIndex] = useState(0);
+  const [selected, setSelected] = useState(0);
   const { requestMethod } = useRequestProtocol();
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
@@ -154,18 +154,17 @@ export const useMarkdownInput = ({
       type: CursorType.Adjacent,
       replacement: `@${username} `,
     });
-    await replaceWord(textarea, selection, getUsernameReplacement, setInput);
+    await replaceWord(textarea, getUsernameReplacement, setInput);
     updateQuery(undefined);
   };
 
   const onLinkCommand = async () => {
-    await replaceWord(textarea, selection, getLinkReplacement, setInput);
+    await replaceWord(textarea, getLinkReplacement, setInput);
   };
 
   const onMentionCommand = async () => {
     const replaced = await replaceWord(
       textarea,
-      selection,
       getMentionReplacement,
       setInput,
     );
@@ -175,8 +174,9 @@ export const useMarkdownInput = ({
   };
 
   const checkMention = (position?: number[]) => {
-    const placement = position ?? selection;
-    const [word] = getCloseWord(textarea, placement);
+    const current = [textarea.selectionStart, textarea.selectionEnd];
+    const selection = position ?? current;
+    const [word] = getCloseWord(textarea, selection);
 
     if (isNullOrUndefined(query)) {
       if (word.charAt(0) === '@') updateQuery(word.substring(1) ?? '');
@@ -192,6 +192,7 @@ export const useMarkdownInput = ({
   const onKeyUp: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     if (!arrowKeys.includes(e.key as ArrowKey)) return;
 
+    const selection = [textarea.selectionStart, textarea.selectionEnd];
     const [start, end] = selection;
     const { selectionStart, selectionEnd } = e.currentTarget;
 
@@ -199,7 +200,6 @@ export const useMarkdownInput = ({
 
     const position = [selectionStart, selectionEnd];
     checkMention(position);
-    setSelection(position);
   };
 
   const onKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = async (e) => {
@@ -222,13 +222,13 @@ export const useMarkdownInput = ({
 
     if (Y_AXIS_KEYS.includes(e.key as ArrowKey)) {
       if (arrowKey === ArrowKey.Up) {
-        if (mentionIndex > 0) setMentionIndex(mentionIndex - 1);
-      } else if (mentionIndex < mentions.length - 1) {
-        setMentionIndex(mentionIndex + 1);
+        if (selected > 0) setSelected(selected - 1);
+      } else if (selected < mentions.length - 1) {
+        setSelected(selected + 1);
       }
     }
 
-    const mention = mentions[mentionIndex];
+    const mention = mentions[selected];
     if (mention && e.key === KeyboardCommand.Enter) {
       await onApplyMention(mention.username);
     }
@@ -236,19 +236,13 @@ export const useMarkdownInput = ({
     return null;
   };
 
-  const onBlur: FocusEventHandler<HTMLTextAreaElement> = (e) =>
-    setSelection([e.target.selectionStart, e.target.selectionEnd]);
-
   const onInput: FormEventHandler<HTMLTextAreaElement> = (e) => {
     const target = e.currentTarget;
 
     if (!target) return;
 
-    const { selectionStart, selectionEnd } = target;
-    const position = [selectionStart, selectionEnd];
     setInput(target.value);
-    setSelection(position);
-    checkMention(position);
+    checkMention();
   };
 
   return {
@@ -256,8 +250,8 @@ export const useMarkdownInput = ({
     input,
     query,
     offset,
-    selected: mentionIndex,
-    onBlur,
+    selected,
+    checkMention,
     onKeyUp,
     onKeyDown,
     onLinkCommand,

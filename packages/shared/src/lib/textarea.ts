@@ -3,10 +3,8 @@ import { isNullOrUndefined, nextTick } from './func';
 export const isFalsyOrSpace = (value: string): boolean =>
   !value || value === ' ';
 
-const getSelectedString = (
-  textarea: HTMLTextAreaElement,
-  [start, end]: number[],
-) => {
+const getSelectedString = (textarea: HTMLTextAreaElement) => {
+  const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
   const last = start === end ? start + 1 : end;
   const text = textarea.value.substring(start, last);
   const before = textarea.value[start - 1];
@@ -77,9 +75,9 @@ export enum CursorType {
   Highlighted = 'highlighted',
 }
 
-const getCursorType = (textarea: HTMLTextAreaElement, selection: number[]) => {
-  const [highlighted, before] = getSelectedString(textarea, selection);
-  const [start, end] = selection;
+const getCursorType = (textarea: HTMLTextAreaElement) => {
+  const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
+  const [highlighted, before] = getSelectedString(textarea);
 
   if (isFalsyOrSpace(highlighted) && isFalsyOrSpace(before)) {
     return CursorType.Isolated;
@@ -106,13 +104,13 @@ export type GetReplacementFn = (
 
 export const replaceWord = async (
   textarea: HTMLTextAreaElement,
-  selection: number[],
   getReplacement: GetReplacementFn,
   onReplaced: (result: string) => void,
 ): Promise<string> => {
-  const [highlighted, before] = getSelectedString(textarea, selection);
+  const selection = [textarea.selectionStart, textarea.selectionEnd];
+  const [highlighted, before] = getSelectedString(textarea);
   const [start, end] = selection;
-  const type = getCursorType(textarea, selection);
+  const type = getCursorType(textarea);
 
   if (type === CursorType.Isolated) {
     const { replacement, offset: [startOffset] = [0] } = getReplacement(
