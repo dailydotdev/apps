@@ -1,10 +1,9 @@
 import React, { ReactElement, useRef } from 'react';
 import classNames from 'classnames';
-import ImageIcon from '../../icons/Image';
+import { ImageIcon, MarkdownIcon } from '../../icons';
 import { Button, ButtonSize } from '../../buttons/Button';
 import LinkIcon from '../../icons/Link';
 import AtIcon from '../../icons/At';
-import MarkdownIcon from '../../icons/Markdown';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
 import {
   useMarkdownInput,
