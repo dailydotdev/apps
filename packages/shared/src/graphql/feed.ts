@@ -45,7 +45,7 @@ export const USER_POST_FRAGMENT = gql`
   }
 `;
 
-export const FEED_POST_CONNECTION_FRAGMENT = gql`
+const getFeedPostFragment = (fields = '') => gql`
   fragment FeedPostConnection on PostConnection {
     pageInfo {
       hasNextPage
@@ -54,6 +54,7 @@ export const FEED_POST_CONNECTION_FRAGMENT = gql`
     edges {
       node {
         ...FeedPost
+        ${fields}
         ...UserPost @include(if: $loggedIn)
       }
     }
@@ -61,6 +62,8 @@ export const FEED_POST_CONNECTION_FRAGMENT = gql`
   ${FEED_POST_FRAGMENT}
   ${USER_POST_FRAGMENT}
 `;
+
+export const FEED_POST_CONNECTION_FRAGMENT = getFeedPostFragment();
 
 export const ANONYMOUS_FEED_QUERY = gql`
   query AnonymousFeed(
@@ -170,7 +173,7 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${FEED_POST_CONNECTION_FRAGMENT}
+  ${getFeedPostFragment('pinnedAt')}
 `;
 
 export const BOOKMARKS_FEED_QUERY = gql`

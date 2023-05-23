@@ -2,7 +2,6 @@ import React, { forwardRef, ReactElement, Ref } from 'react';
 import { PostCardProps } from './common';
 import {
   getPostClassNames,
-  ListCard,
   ListCardTitle,
   ListCardDivider,
   ListCardAside,
@@ -12,9 +11,8 @@ import {
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
-import styles from './Card.module.css';
 import PostAuthor from './PostAuthor';
-import { TrendingFlag } from '.';
+import FeedItemContainer from './FeedItemContainer';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -37,13 +35,14 @@ export const PostList = forwardRef(function PostList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const onPostCardClick = () => onPostClick(post);
-  const { trending } = post;
+  const { trending, pinnedAt } = post;
 
-  const card = (
-    <ListCard
+  return (
+    <FeedItemContainer
       {...props}
       className={getPostClassNames(post, className)}
       ref={ref}
+      flagProps={{ listMode: true, pinnedAt, trending }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
       <ListCardAside className="w-14">
@@ -78,15 +77,6 @@ export const PostList = forwardRef(function PostList(
         />
       </ListCardMain>
       {children}
-    </ListCard>
+    </FeedItemContainer>
   );
-  if (trending) {
-    return (
-      <div className={`relative ${styles.cardContainer}`}>
-        {card}
-        <TrendingFlag trending={trending} listMode />
-      </div>
-    );
-  }
-  return card;
 });
