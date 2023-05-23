@@ -6,13 +6,7 @@ import {
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
-import {
-  CursorType,
-  getCloseWord,
-  GetReplacementFn,
-  isFalsyOrSpace,
-  replaceWord,
-} from '../../lib/textarea';
+import { CursorType, getCloseWord, replaceWord } from '../../lib/textarea';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
@@ -29,6 +23,7 @@ import {
   Y_AXIS_KEYS,
 } from '../../lib/element';
 import { UserShortProfile } from '../../lib/user';
+import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
@@ -54,55 +49,6 @@ interface UseMarkdownInput
   checkMention: (position?: number[]) => void;
   mentions: UserShortProfile[];
 }
-
-const urlText = 'url';
-const getUrlText = (content = '') => `[${content}](${urlText})`;
-
-const charsToBrackets = 1;
-const getLinkReplacement: GetReplacementFn = (type, { word } = {}) => {
-  const replacement = getUrlText(word);
-
-  if (type === CursorType.Highlighted) {
-    const base = replacement.length - 1;
-    const start = base - urlText.length;
-    const offset = [start, base];
-    return { replacement, offset };
-  }
-
-  if (type === CursorType.Adjacent) {
-    return { replacement, offset: [urlText.length, 1] };
-  }
-
-  const offset = replacement.length - charsToBrackets;
-
-  return { replacement, offset: [offset] };
-};
-
-const getMentionReplacement: GetReplacementFn = (
-  type,
-  { word = '', characterBeforeHighlight } = {},
-) => {
-  const replacement = `@${word}`;
-
-  if (type === CursorType.Isolated) return { replacement };
-
-  if (type === CursorType.Adjacent) {
-    if (word.charAt(0) === '@') return { replacement: `${word} @` };
-
-    return { replacement };
-  }
-
-  const hasValidCharacter = isFalsyOrSpace(characterBeforeHighlight);
-  const offset = hasValidCharacter
-    ? [1, replacement.length]
-    : [2, replacement.length + 1];
-
-  if (hasValidCharacter) {
-    return { replacement, offset };
-  }
-
-  return { replacement: ` ${replacement}`, offset };
-};
 
 export const useMarkdownInput = ({
   textareaRef,
