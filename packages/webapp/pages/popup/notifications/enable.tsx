@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
 import { useRouter } from 'next/router';
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/analytics';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 
 const InstructionContainer = classed(
   'div',
@@ -20,8 +21,13 @@ const Description = classed('p', 'typo-callout text-theme-label-tertiary');
 
 function Enable(): React.ReactElement {
   const router = useRouter();
-  const { isSubscribed, isInitialized, onTogglePermission } =
-    useNotificationContext();
+  const {
+    isSubscribed,
+    isInitialized,
+    onTogglePermission,
+    trackPermissionGranted,
+  } = useNotificationContext();
+  const { sendBeacon } = useAnalyticsContext();
   const { source } = router.query;
 
   useEffect(() => {
@@ -30,11 +36,17 @@ function Enable(): React.ReactElement {
     }
 
     const checkPermission = async () => {
+      const closeWindow = () => {
+        sendBeacon();
+        window.close();
+      };
+
       if (isSubscribed) {
         postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
           permission: 'granted',
         });
-        window.close();
+        trackPermissionGranted();
+        closeWindow();
         return;
       }
 
@@ -44,7 +56,7 @@ function Enable(): React.ReactElement {
       postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { permission });
 
       if (permission === 'granted') {
-        setTimeout(window.close, 2000);
+        setTimeout(closeWindow, 1000);
       }
     };
 

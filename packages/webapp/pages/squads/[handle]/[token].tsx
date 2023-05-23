@@ -242,7 +242,7 @@ const SquadReferral = ({
           {renderJoinButton('hidden tablet:flex ml-auto')}
         </span>
         {source.description && (
-          <BodyParagraph className="mt-4 ml-[4.5rem]">
+          <BodyParagraph className="mt-4 break-words ml-[4.5rem]">
             {source.description}
           </BodyParagraph>
         )}

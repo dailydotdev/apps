@@ -1,12 +1,6 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import {
-  Card,
-  CardButton,
-  CardSpace,
-  CardTitle,
-  getPostClassNames,
-} from './Card';
+import { CardButton, CardSpace, CardTitle, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
@@ -15,6 +9,7 @@ import { WelcomePostCardFooter } from './WelcomePostCardFooter';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { Squad } from '../../graphql/sources';
 import { ActionType } from '../../graphql/actions';
+import FeedItemContainer from './FeedItemContainer';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -35,6 +30,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { pinnedAt } = post;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
 
@@ -49,7 +45,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     );
 
   return (
-    <Card
+    <FeedItemContainer
       {...props}
       className={getPostClassNames(
         post,
@@ -59,6 +55,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       )}
       style={style}
       ref={ref}
+      flagProps={{ pinnedAt }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
       <OptionsButton
@@ -92,6 +89,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         />
       </Container>
       {children}
-    </Card>
+    </FeedItemContainer>
   );
 });

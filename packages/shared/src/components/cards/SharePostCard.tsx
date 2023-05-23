@@ -1,11 +1,12 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
-import { Card, CardButton, getPostClassNames } from './Card';
+import { CardButton, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
 import { SharedPostCardHeader } from './SharedPostCardHeader';
 import { SharedPostText } from './SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
+import FeedItemContainer from './FeedItemContainer';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -29,6 +30,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const [isSharedPostShort, setSharedPostShort] = useState(true);
   const containerRef = useRef<HTMLDivElement>();
@@ -38,12 +40,14 @@ export const SharePostCard = forwardRef(function SharePostCard(
     }
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
+
   return (
-    <Card
+    <FeedItemContainer
       {...props}
       className={getPostClassNames(post, className, 'min-h-[22.5rem]')}
       style={style}
       ref={ref}
+      flagProps={{ pinnedAt, trending }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
       <OptionsButton
@@ -80,6 +84,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
         />
       </Container>
       {children}
-    </Card>
+    </FeedItemContainer>
   );
 });

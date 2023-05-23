@@ -1,13 +1,14 @@
 import { useMutation } from 'react-query';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { PromptOptions, usePrompt } from './usePrompt';
-import { deletePost, Post } from '../graphql/posts';
+import { deletePost, Post, updatePinnedPost } from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
+  onPinPost: () => Promise<void>;
 }
 
 interface DeletePostProps {
@@ -19,6 +20,7 @@ interface DeletePostProps {
 interface UsePostMenuActionsProps {
   post: Post;
   postIndex?: number;
+  onPinSuccessful?: () => Promise<unknown>;
   onPostDeleted?: (args: DeletePostProps) => void;
 }
 
@@ -36,6 +38,7 @@ export const usePostMenuActions = ({
   post,
   postIndex,
   onPostDeleted,
+  onPinSuccessful,
 }: UsePostMenuActionsProps): UsePostMenuActions => {
   const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
@@ -43,13 +46,13 @@ export const usePostMenuActions = ({
     ({ id }: DeletePostProps) => deletePost(id),
     { onSuccess: (_, vars) => onPostDeleted(vars) },
   );
-  const deletePostPrompt = async () => {
+  const deletePostPrompt = useCallback(async () => {
     const param = { id: post.id, index: postIndex, post };
 
     if (await showPrompt(deletePromptOptions)) {
       await onDeletePost(param);
     }
-  };
+  }, [post, postIndex, onDeletePost, showPrompt]);
 
   const isSharedPostAuthor =
     post?.source.type === SourceType.Squad && post?.author?.id === user.id;
@@ -61,10 +64,20 @@ export const usePostMenuActions = ({
       SourcePermissions.PostDelete,
     );
 
+  const canPin = post?.source.currentMember?.permissions?.includes(
+    SourcePermissions.PostPin,
+  );
+
+  const { mutateAsync: onPinPost } = useMutation(
+    () => updatePinnedPost({ id: post.id, pinned: !post.pinnedAt }),
+    { onSuccess: onPinSuccessful },
+  );
+
   return useMemo(
-    () => ({ onConfirmDeletePost: canDelete ? deletePostPrompt : null }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onDeletePost, canDelete],
+    () => ({
+      onConfirmDeletePost: canDelete ? deletePostPrompt : null,
+      onPinPost: canPin ? onPinPost : null,
+    }),
+    [deletePostPrompt, canDelete, onPinPost, canPin],
   );
 };
