@@ -64,7 +64,10 @@ const getLinkReplacement: GetReplacementFn = (type, { word } = {}) => {
   const replacement = getUrlText(word);
 
   if (type === CursorType.Highlighted) {
-    return { replacement };
+    const base = replacement.length - 1;
+    const start = base - urlText.length;
+    const offset = [start, base];
+    return { replacement, offset };
   }
 
   if (type === CursorType.Adjacent) {
@@ -91,12 +94,15 @@ const getMentionReplacement: GetReplacementFn = (
   }
 
   const hasValidCharacter = isFalsyOrSpace(characterBeforeHighlight);
+  const offset = hasValidCharacter
+    ? [1, replacement.length]
+    : [2, replacement.length + 1];
 
   if (hasValidCharacter) {
-    return { replacement };
+    return { replacement, offset };
   }
 
-  return { replacement: ` ${replacement}` };
+  return { replacement: ` ${replacement}`, offset };
 };
 
 export const useMarkdownInput = ({

@@ -1,4 +1,4 @@
-import { nextTick } from './func';
+import { isNullOrUndefined, nextTick } from './func';
 
 export const isFalsyOrSpace = (value: string): boolean =>
   !value || value === ' ';
@@ -127,12 +127,19 @@ export const replaceWord = async (
   }
 
   if (type === CursorType.Highlighted) {
-    const { replacement } = getReplacement(CursorType.Highlighted, {
-      word: highlighted,
-      characterBeforeHighlight: before,
-    });
+    const { replacement, offset: placement } = getReplacement(
+      CursorType.Highlighted,
+      {
+        word: highlighted,
+        characterBeforeHighlight: before,
+      },
+    );
     const offset = replacement.length - highlighted.length - 1;
-    const position = [start + offset, end + offset];
+    const startOffset = start + (placement?.[0] ?? offset);
+    const endOffset = !isNullOrUndefined(placement?.[1])
+      ? start + placement[1]
+      : end + offset;
+    const position = [startOffset, endOffset];
     const result = concatReplacement(textarea, selection, replacement);
     onReplaced(result);
     await focusInput(textarea, position);
