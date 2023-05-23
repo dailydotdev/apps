@@ -28,7 +28,7 @@ import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
-  postId: string;
+  postId?: string;
   sourceId?: string;
   initialContent?: string;
 }

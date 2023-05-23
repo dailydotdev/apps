@@ -12,10 +12,7 @@ import {
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
-  onSubmit: React.KeyboardEventHandler<HTMLTextAreaElement>;
   className?: string;
-  sourceId?: string;
-  postId: string; // in the future, it would be ideal without the need of post id (possible but would require additional BE work).
 }
 
 function MarkdownInput({
