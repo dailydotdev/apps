@@ -94,6 +94,7 @@ export function SquadHeaderBar({
           squad={squad}
           members={members}
           memberCount={memberCount}
+          className="hidden laptopL:flex"
         />
       )}
       <SimpleTooltip
