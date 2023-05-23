@@ -16,7 +16,7 @@ interface MarkdownInputProps
   onSubmit: React.KeyboardEventHandler<HTMLTextAreaElement>;
   className?: string;
   sourceId?: string;
-  postId: string; // in the future, it would be ideal without the need of post id to be reusable
+  postId: string; // in the future, it would be ideal without the need of post id (possible but would require additional BE work).
 }
 
 function MarkdownInput({
@@ -24,6 +24,7 @@ function MarkdownInput({
   postId,
   sourceId,
   onSubmit,
+  initialContent,
 }: MarkdownInputProps): ReactElement {
   const textareaRef = useRef<HTMLTextAreaElement>();
   const {
@@ -38,7 +39,13 @@ function MarkdownInput({
     onMentionCommand,
     onApplyMention,
     mentions,
-  } = useMarkdownInput({ postId, sourceId, onSubmit, textareaRef });
+  } = useMarkdownInput({
+    postId,
+    sourceId,
+    initialContent,
+    onSubmit,
+    textareaRef,
+  });
 
   return (
     <div

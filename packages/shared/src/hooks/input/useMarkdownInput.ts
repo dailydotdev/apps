@@ -38,6 +38,7 @@ export interface UseMarkdownInputProps
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
   postId: string;
   sourceId?: string;
+  initialContent?: string;
 }
 
 interface UseMarkdownInput
