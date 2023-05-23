@@ -81,10 +81,10 @@ function MarkdownInput({
           <ImageIcon className="mr-2" />
           Attach images by dragging & dropping
         </label>
-        <span className="grid grid-cols-3 gap-3 ml-auto text-theme-label-secondary">
+        <span className="grid grid-cols-3 gap-3 ml-auto text-theme-label-tertiary">
           <Button
             buttonSize={ButtonSize.Small}
-            icon={<LinkIcon />}
+            icon={<LinkIcon secondary />}
             onClick={onLinkCommand}
           />
           <Button

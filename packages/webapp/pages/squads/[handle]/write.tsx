@@ -1,17 +1,20 @@
 import React, { ReactElement } from 'react';
-import {
-  BasePageContainer,
-  pageBorders,
-} from '@dailydotdev/shared/src/components/utilities';
-import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
-import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
 import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
 import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import MarkdownInput from '@dailydotdev/shared/src/components/fields/MarkdownInput';
+import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
+import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
+import {
+  WriteFreeFormSkeleton,
+  WritePageContainer,
+  WritePageMain,
+  WritePostHeader,
+} from '@dailydotdev/shared/src/components/post/freeform';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 function WritePost(): ReactElement {
@@ -20,35 +23,23 @@ function WritePost(): ReactElement {
   const { squad, isForbidden, isLoading, isFetched } = useSquad({
     handle: query?.handle as string,
   });
-  console.log('writing');
 
-  // if (isForbidden || verifyPermission(squad, SourcePermissions.Post)) {
-  //   return <Unauthorized />;
-  // }
+  if (isLoading || !isReady || !isFetched) return <WriteFreeFormSkeleton />;
+
+  if (isForbidden || !verifyPermission(squad, SourcePermissions.Post)) {
+    return <Unauthorized />;
+  }
 
   if (isLoading || !isReady || !squad || (isFetched && !squad)) return <></>;
 
-  console.log(squad);
-
   return (
-    <BasePageContainer
-      className={classNames('!p-0 laptop:min-h-page h-full', pageBorders)}
-    >
-      <header className="flex flex-row items-center py-4 px-6 border-b border-theme-divider-tertiary">
-        <h1 className="font-bold typo-title3">{post ? 'Edit' : 'New'} post</h1>
-        <div className="flex flex-col ml-auto text-right">
-          <span className="font-bold text typo-subhead">{squad.name}</span>
-          <span className="typo-caption1 text-theme-label-tertiary">
-            @{squad.handle}
-          </span>
-        </div>
-        <SourceButton className="ml-1.5" source={squad} />
-      </header>
-      <main className="flex flex-col py-6 px-4">
+    <WritePageContainer>
+      <WritePostHeader squad={squad} isEdit={!!post} />
+      <WritePageMain>
         <ImageInput
           className={{
             container:
-              'w-[11.5rem] border-none bg-theme-bg-tertiary text-theme-label-tertiary',
+              '!w-[11.5rem] border-none bg-theme-bg-tertiary text-theme-label-tertiary',
           }}
           enableHover={false}
           fallbackImage={null}
@@ -67,12 +58,12 @@ function WritePost(): ReactElement {
         />
         <MarkdownInput
           className="mt-4"
-          onSubmit={() => console.log('test')}
+          onSubmit={() => {}}
           postId={post?.id}
           sourceId={squad.id}
         />
-      </main>
-    </BasePageContainer>
+      </WritePageMain>
+    </WritePageContainer>
   );
 }
 
