@@ -102,7 +102,7 @@ function PostEngagements({
         className="mt-4"
         postId={post.id}
         sourceId={post.source.id}
-        onSubmit={() => console.log('submitted')}
+        onSubmit={() => {}}
       />
       <PostComments
         post={post}

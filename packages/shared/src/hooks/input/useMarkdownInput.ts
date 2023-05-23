@@ -1,11 +1,8 @@
-import React, {
-  FocusEventHandler,
+import {
   FormEventHandler,
   HTMLAttributes,
   KeyboardEventHandler,
   MutableRefObject,
-  Ref,
-  useRef,
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
