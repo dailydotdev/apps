@@ -125,19 +125,18 @@ export const replaceWord = async (
   }
 
   if (type === CursorType.Highlighted) {
-    const { replacement, offset: placement } = getReplacement(
+    const { replacement, offset: customOffset } = getReplacement(
       CursorType.Highlighted,
       { word: highlighted, trailingChar: before },
     );
     const offset = replacement.length - highlighted.length - 1;
-    const startOffset = start + (placement?.[0] ?? offset);
-    const endOffset = !isNullOrUndefined(placement?.[1])
-      ? start + placement[1]
+    const startOffset = start + (customOffset?.[0] ?? offset);
+    const endOffset = !isNullOrUndefined(customOffset?.[1])
+      ? start + customOffset[1]
       : end + offset;
-    const position = [startOffset, endOffset];
     const result = concatReplacement(textarea, selection, replacement);
     onReplaced(result);
-    await focusInput(textarea, position);
+    await focusInput(textarea, [startOffset, endOffset]);
     return result;
   }
 
