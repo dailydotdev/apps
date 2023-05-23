@@ -19,17 +19,13 @@ import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
-import {
-  getSquad,
-  getSquadMembers,
-} from '@dailydotdev/shared/src/graphql/squads';
-import { Squad, SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import { getSquadMembers } from '@dailydotdev/shared/src/graphql/squads';
+import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from 'react-query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
@@ -42,6 +38,7 @@ import {
   TutorialKey,
 } from '@dailydotdev/shared/src/hooks/useTutorial';
 import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
+import { useSquad } from '@dailydotdev/shared/src/hooks';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -76,26 +73,10 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = useRouter();
-  const [isForbidden, setIsForbidden] = useState(false);
   const { openModal } = useLazyModal();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
-  const [trackedForbiddenImpression, setTrackedForbiddenImpression] =
-    useState(false);
-  const queryKey = ['squad', handle];
-  const {
-    data: squad,
-    isLoading,
-    isFetched,
-  } = useQuery<Squad, ClientError>(queryKey, () => getSquad(handle), {
-    enabled: isBootFetched && !!handle && !isForbidden,
-    retry: false,
-    onError: (err) => {
-      const isErrorForbidden =
-        err?.response?.errors?.[0]?.extensions?.code === ApiError.Forbidden;
-      if (!isForbidden && isErrorForbidden) setIsForbidden(true);
-    },
-  });
+  const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
 
   const squadId = squad?.id;
 
@@ -133,20 +114,20 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     isFinishedLoading && !isForbidden,
   );
 
-  if (isLoading && !isFetched && !squad) return <SquadLoading />;
+  useEffect(() => {
+    if (!isForbidden) return;
+
+    trackEvent({
+      event_name: AnalyticsEvent.ViewSquadForbiddenPage,
+      extra: JSON.stringify({ squad: squadId ?? handle }),
+    });
+  }, [isForbidden, squadId, handle, trackEvent]);
+
+  if ((isFallback || isLoading) && !isFetched) return <SquadLoading />;
 
   if (!isFetched) return <></>;
 
-  if (isFallback || isForbidden) {
-    if (!trackedForbiddenImpression) {
-      trackEvent({
-        event_name: AnalyticsEvent.ViewSquadForbiddenPage,
-        extra: JSON.stringify({ squad: squadId ?? handle }),
-      });
-      setTrackedForbiddenImpression(true);
-    }
-    return <Unauthorized />;
-  }
+  if (isForbidden) return <Unauthorized />;
 
   if (!squad) return <Custom404 />;
 

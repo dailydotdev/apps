@@ -29,7 +29,9 @@ interface ImageInputProps {
   viewOnly?: boolean;
   fallbackImage?: string;
   hoverIcon?: ReactNode;
-  alwayShowHover?: boolean;
+  enableHover?: boolean;
+  alwaysShowHover?: boolean;
+  children?: ReactNode;
 }
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
@@ -52,7 +54,9 @@ function ImageInput({
   size = 'medium',
   viewOnly,
   hoverIcon,
-  alwayShowHover,
+  children,
+  enableHover = true,
+  alwaysShowHover,
   fallbackImage = fallbackImages.avatar,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
@@ -107,25 +111,31 @@ function ImageInput({
           onChange={onFileChange}
         />
       )}
-      <img
-        className={classNames(
-          'w-full h-full',
-          className?.img,
-          alwayShowHover && 'opacity-[0.8]',
-          !viewOnly && 'mouse:group-hover:opacity-64',
-        )}
-        src={image}
-        alt="File upload preview"
-        onError={onError}
-      />
-      <span
-        className={classNames(
-          !alwayShowHover && 'hidden',
-          !viewOnly && 'mouse:group-hover:block absolute',
-        )}
-      >
-        {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
-      </span>
+      {image ? (
+        <img
+          className={classNames(
+            'w-full h-full',
+            className?.img,
+            alwaysShowHover && 'opacity-[0.8]',
+            !viewOnly && 'mouse:group-hover:opacity-64',
+          )}
+          src={image}
+          alt="File upload preview"
+          onError={onError}
+        />
+      ) : (
+        children
+      )}
+      {enableHover && (
+        <span
+          className={classNames(
+            !alwaysShowHover && 'hidden',
+            !viewOnly && 'mouse:group-hover:block absolute',
+          )}
+        >
+          {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
+        </span>
+      )}
     </button>
   );
 }

@@ -150,7 +150,7 @@ export function SquadDetails({
                 img: 'object-cover',
               }}
               hoverIcon={<CameraIcon size={IconSize.Large} />}
-              alwayShowHover={!imageChanged}
+              alwaysShowHover={!imageChanged}
               onChange={() => setImageChanged(true)}
               size="large"
             />
