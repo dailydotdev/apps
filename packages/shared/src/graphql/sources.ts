@@ -15,6 +15,7 @@ export enum SourcePermissions {
   ViewBlockedMembers = 'view_blocked_members',
   Post = 'post',
   PostLimit = 'post_limit',
+  PostPin = 'post_pin',
   PostDelete = 'post_delete',
   MemberRoleUpdate = 'member_role_update',
   MemberRemove = 'member_remove',

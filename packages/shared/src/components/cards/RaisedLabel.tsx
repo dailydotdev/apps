@@ -13,7 +13,7 @@ const typeToClassName: Record<RaisedLabelType, string> = {
   [RaisedLabelType.Pinned]: 'bg-theme-bg-bun',
 };
 
-interface RaisedLabelProps {
+export interface RaisedLabelProps {
   listMode?: boolean;
   type: RaisedLabelType;
   description?: string;
