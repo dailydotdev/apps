@@ -43,6 +43,7 @@ function WritePost(): ReactElement {
           }}
           enableHover={false}
           fallbackImage={null}
+          closeable
         >
           <CameraIcon secondary />
           <span className="flex flex-row ml-1.5 font-bold typo-callout">

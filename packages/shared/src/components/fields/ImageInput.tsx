@@ -11,6 +11,8 @@ import { fallbackImages } from '../../lib/config';
 import EditIcon from '../icons/Edit';
 import { IconSize } from '../Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { Button, ButtonSize } from '../buttons/Button';
+import MiniCloseIcon from '../icons/MiniClose';
 
 type Size = 'medium' | 'large';
 
@@ -30,6 +32,7 @@ interface ImageInputProps {
   fallbackImage?: string;
   hoverIcon?: ReactNode;
   enableHover?: boolean;
+  closeable?: boolean;
   alwaysShowHover?: boolean;
   children?: ReactNode;
 }
@@ -58,6 +61,7 @@ function ImageInput({
   enableHover = true,
   alwaysShowHover,
   fallbackImage = fallbackImages.avatar,
+  closeable,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   const toast = useToastNotification();
@@ -90,53 +94,65 @@ function ImageInput({
   const onError = () => setImage(fallbackImage);
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={classNames(
-        'relative flex justify-center items-center group overflow-hidden border border-theme-divider-primary',
-        componentSize[size],
-        className?.container,
-      )}
-      disabled={viewOnly}
-    >
-      {!viewOnly && (
-        <input
-          id={id}
-          ref={inputRef}
-          type="file"
-          name={name}
-          accept="image/png,image/jpeg"
-          className="hidden"
-          onChange={onFileChange}
+    <div className="flex relative w-min">
+      <button
+        type="button"
+        onClick={onClick}
+        className={classNames(
+          'relative flex justify-center items-center group overflow-hidden border border-theme-divider-primary',
+          componentSize[size],
+          className?.container,
+        )}
+        disabled={viewOnly}
+      >
+        {!viewOnly && (
+          <input
+            id={id}
+            ref={inputRef}
+            type="file"
+            name={name}
+            accept="image/png,image/jpeg"
+            className="hidden"
+            onChange={onFileChange}
+          />
+        )}
+        {image ? (
+          <img
+            className={classNames(
+              'w-full h-full',
+              className?.img,
+              alwaysShowHover && 'opacity-[0.8]',
+              !viewOnly && 'mouse:group-hover:opacity-64',
+            )}
+            src={image}
+            alt="File upload preview"
+            onError={onError}
+          />
+        ) : (
+          children
+        )}
+        {enableHover && (
+          <span
+            className={classNames(
+              !alwaysShowHover && 'hidden',
+              !viewOnly && 'mouse:group-hover:block absolute',
+            )}
+          >
+            {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
+          </span>
+        )}
+      </button>
+      {image && closeable && (
+        <Button
+          type="button"
+          buttonSize={ButtonSize.Small}
+          position="absolute"
+          className="absolute -top-2 -right-2 !shadow-2 btn-primary"
+          onClick={() => setImage(null)}
+          icon={<MiniCloseIcon />}
         />
       )}
-      {image ? (
-        <img
-          className={classNames(
-            'w-full h-full',
-            className?.img,
-            alwaysShowHover && 'opacity-[0.8]',
-            !viewOnly && 'mouse:group-hover:opacity-64',
-          )}
-          src={image}
-          alt="File upload preview"
-          onError={onError}
-        />
-      ) : (
-        children
-      )}
-      {enableHover && (
-        <span
-          className={classNames(
-            !alwaysShowHover && 'hidden',
-            !viewOnly && 'mouse:group-hover:block absolute',
-          )}
-        >
-          {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
-        </span>
-      )}
-    </button>
+    </div>
   );
 }
 
