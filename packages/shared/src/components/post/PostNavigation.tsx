@@ -88,6 +88,7 @@ function PostNavigation({
         notificactionClassName="ml-4"
         contextMenuId="post-navigation-context"
         onReadArticle={onReadArticle}
+        post={post}
       />
     </div>
   );
