@@ -25,7 +25,7 @@ export const getLinkReplacement: GetReplacementFn = (type, { word } = {}) => {
 
 export const getMentionReplacement: GetReplacementFn = (
   type,
-  { word = '', characterBeforeHighlight } = {},
+  { word = '', trailingChar } = {},
 ) => {
   const replacement = `@${word}`;
 
@@ -37,7 +37,7 @@ export const getMentionReplacement: GetReplacementFn = (
     return { replacement };
   }
 
-  const hasValidCharacter = isFalsyOrSpace(characterBeforeHighlight);
+  const hasValidCharacter = isFalsyOrSpace(trailingChar);
   const offset = hasValidCharacter
     ? [1, replacement.length]
     : [2, replacement.length + 1];

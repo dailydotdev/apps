@@ -94,7 +94,7 @@ export interface GetReplacement {
 
 interface GetReplacementOptionalProps {
   word?: string;
-  characterBeforeHighlight?: string;
+  trailingChar?: string;
 }
 
 export type GetReplacementFn = (
@@ -127,10 +127,7 @@ export const replaceWord = async (
   if (type === CursorType.Highlighted) {
     const { replacement, offset: placement } = getReplacement(
       CursorType.Highlighted,
-      {
-        word: highlighted,
-        characterBeforeHighlight: before,
-      },
+      { word: highlighted, trailingChar: before },
     );
     const offset = replacement.length - highlighted.length - 1;
     const startOffset = start + (placement?.[0] ?? offset);
