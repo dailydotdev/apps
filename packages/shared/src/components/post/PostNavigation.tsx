@@ -42,13 +42,6 @@ function PostNavigation({
   post,
   ...props
 }: PostNavigationProps): ReactElement {
-  const disallowedReadTypes = ['welcome'];
-  let showReadArticle = true;
-
-  if (disallowedReadTypes.includes(post.type)) {
-    showReadArticle = false;
-  }
-
   return (
     <div
       className={classNames(
@@ -87,7 +80,6 @@ function PostNavigation({
         className={classNames('flex', className?.actions)}
         notificactionClassName="ml-4"
         contextMenuId="post-navigation-context"
-        onReadArticle={showReadArticle ? props.onReadArticle : undefined}
         post={post}
       />
     </div>
