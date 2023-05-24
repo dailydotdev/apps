@@ -28,6 +28,8 @@ export enum PostType {
   Welcome = 'welcome',
 }
 
+export const internalReadTypes: PostType[] = [PostType.Welcome];
+
 export const supportedTypesForPrivateSources = [
   PostType.Article,
   PostType.Share,
