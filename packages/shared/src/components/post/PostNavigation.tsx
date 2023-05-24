@@ -5,7 +5,6 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../icons/Arrow';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
-import { Post } from '../../graphql/posts';
 
 type PostActions = Pick<
   PostModalActionsProps,
@@ -30,7 +29,6 @@ export interface PostNavigationProps extends PostActions {
   onNextPost?: () => unknown;
   className?: PostNavigationClassName;
   children?: ReactNode;
-  post: Post;
 }
 
 function PostNavigation({
@@ -80,7 +78,6 @@ function PostNavigation({
         className={classNames('flex', className?.actions)}
         notificactionClassName="ml-4"
         contextMenuId="post-navigation-context"
-        post={post}
       />
     </div>
   );
