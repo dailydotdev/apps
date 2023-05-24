@@ -37,7 +37,6 @@ function PostNavigation({
   onNextPost,
   className = {},
   children,
-  post,
   ...props
 }: PostNavigationProps): ReactElement {
   return (
