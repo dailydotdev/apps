@@ -11,13 +11,7 @@ import CloseIcon from '../icons/MiniClose';
 import OpenLinkIcon from '../icons/OpenLink';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  banPost,
-  InternalReadType,
-  internalReadTypes,
-  Post,
-  PostType,
-} from '../../graphql/posts';
+import { banPost, internalReadTypes, Post } from '../../graphql/posts';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
