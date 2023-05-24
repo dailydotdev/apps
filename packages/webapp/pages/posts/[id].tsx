@@ -66,6 +66,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   article: PostContent,
   share: SquadPostContent,
   welcome: SquadPostContent,
+  freeform: SquadPostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -96,7 +97,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   });
   const containerClass = classNames(
     'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
-    [PostType.Share, PostType.Welcome].includes(post?.type) &&
+    [PostType.Share, PostType.Welcome, PostType.Freeform].includes(
+      post?.type,
+    ) &&
       sidebarRendered &&
       modalSizeToClassName[ModalSize.Large],
   );
@@ -140,6 +143,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     article: null,
     share: shareNavigation,
     welcome: shareNavigation,
+    freeform: shareNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 

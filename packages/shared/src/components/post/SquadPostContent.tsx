@@ -23,6 +23,7 @@ import { SourcePermissions, Squad } from '../../graphql/sources';
 import EditIcon from '../icons/Edit';
 
 const ContentMap = {
+  [PostType.Freeform]: WelcomePostContent,
   [PostType.Welcome]: WelcomePostContent,
   [PostType.Share]: SharePostContent,
 };
