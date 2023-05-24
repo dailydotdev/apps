@@ -23,7 +23,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { Origin } from '../../lib/analytics';
 
 export interface PostModalActionsProps extends ShareBookmarkProps {
-  post?: Post;
+  post: Post;
   onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;

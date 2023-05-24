@@ -28,8 +28,7 @@ export enum PostType {
   Welcome = 'welcome',
 }
 
-export type InternalReadType = PostType[];
-export const internalReadTypes: InternalReadType = [PostType.Welcome];
+export const internalReadTypes: PostType[] = [PostType.Welcome];
 
 export const supportedTypesForPrivateSources = [
   PostType.Article,
