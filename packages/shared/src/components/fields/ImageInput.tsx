@@ -24,7 +24,7 @@ interface ClassName {
 interface ImageInputProps {
   className?: ClassName;
   initialValue?: string;
-  onChange?: (base64: string) => void;
+  onChange?: (base64: string, raw?: File) => void;
   name?: string;
   size?: Size;
   id?: string;
@@ -88,7 +88,13 @@ function ImageInput({
     const base64 = await blobToBase64(file);
     toast.dismissToast();
     setImage(base64);
-    onChange?.(base64);
+    onChange?.(base64, file);
+  };
+
+  const onClose = () => {
+    setImage(null);
+    onChange?.(null, null);
+    inputRef.current.value = '';
   };
 
   const onError = () => setImage(fallbackImage);
@@ -148,7 +154,7 @@ function ImageInput({
           buttonSize={ButtonSize.Small}
           position="absolute"
           className="absolute -top-2 -right-2 !shadow-2 btn-primary"
-          onClick={() => setImage(null)}
+          onClick={onClose}
           icon={<MiniCloseIcon />}
         />
       )}

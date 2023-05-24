@@ -6,7 +6,7 @@ interface UseNotificationToggle {
   shouldShowCta: boolean;
   isEnabled: boolean;
   onToggle: () => void;
-  onSubmitted: () => void;
+  onSubmitted: () => Promise<void>;
 }
 
 export const useNotificationToggle = (): UseNotificationToggle => {
@@ -15,11 +15,11 @@ export const useNotificationToggle = (): UseNotificationToggle => {
     source: NotificationPromptSource.SquadPostCommentary,
   });
 
-  const onSubmitted = () => {
+  const onSubmitted = async () => {
     if (!shouldShowCta) return;
 
     const command = isEnabled ? onEnable : onDismiss;
-    command();
+    await command();
   };
 
   return {

@@ -1,6 +1,5 @@
-import React, { ReactElement, useState } from 'react';
+import React, { FormEventHandler, ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
@@ -18,19 +17,39 @@ import {
 } from '@dailydotdev/shared/src/components/post/freeform';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { useNotificationToggle } from '@dailydotdev/shared/src/hooks/notifications';
+import { useMutation } from 'react-query';
+import {
+  createPost,
+  EditPostProps,
+} from '@dailydotdev/shared/src/graphql/posts';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 function WritePost(): ReactElement {
-  const { query, isReady } = useRouter();
+  const { query, isReady, push } = useRouter();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const { post } = usePostById({ id: query.pid as string });
   const { squad, isForbidden, isLoading, isFetched } = useSquad({
     handle: query?.handle as string,
   });
+  const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
+    createPost,
+    {
+      onSuccess: async (post) => {
+        await onSubmitted();
+        await push(post.commentsPermalink);
+      },
+    },
+  );
 
-  const onCreatePost = () => {
-    onSubmitted();
+  const onClickSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+
+    if (isPosting) return null;
+
+    const data = formToJson<EditPostProps>(e.currentTarget);
+
+    return onCreatePost({ ...data, id: squad.id });
   };
 
   if (isLoading || !isReady || !isFetched) return <WriteFreeFormSkeleton />;
@@ -43,8 +62,8 @@ function WritePost(): ReactElement {
 
   return (
     <WritePageContainer>
-      <WritePostHeader squad={squad} isEdit={!!post} />
-      <WritePageMain>
+      <WritePostHeader squad={squad} />
+      <WritePageMain onSubmit={onClickSubmit}>
         <ImageInput
           className={{
             container:
@@ -53,6 +72,7 @@ function WritePost(): ReactElement {
           enableHover={false}
           fallbackImage={null}
           closeable
+          name="image"
         >
           <CameraIcon secondary />
           <span className="flex flex-row ml-1.5 font-bold typo-callout">
@@ -69,29 +89,33 @@ function WritePost(): ReactElement {
         <MarkdownInput
           className="mt-4"
           onSubmit={() => {}}
-          postId={post?.id}
           sourceId={squad.id}
+          textareaProps={{ name: 'content' }}
         />
-      </WritePageMain>
-      <span className="flex flex-row items-center px-4">
-        {shouldShowCta && (
-          <Switch
-            data-testId="push_notification-switch"
-            inputId="push_notification-switch"
-            name="push_notification"
-            labelClassName="flex-1 font-normal"
-            className="py-3 w-full max-w-full"
-            compact={false}
-            checked={isEnabled}
-            onToggle={onToggle}
+        <span className="flex flex-row items-center mt-4">
+          {shouldShowCta && (
+            <Switch
+              data-testId="push_notification-switch"
+              inputId="push_notification-switch"
+              name="push_notification"
+              labelClassName="flex-1 font-normal"
+              className="py-3 w-full max-w-full"
+              compact={false}
+              checked={isEnabled}
+              onToggle={onToggle}
+            >
+              Receive updates whenever your Squad members engage with your post
+            </Switch>
+          )}
+          <Button
+            type="submit"
+            className="ml-auto btn-primary-cabbage"
+            disabled={isPosting}
           >
-            Receive updates whenever your Squad members engage with your post
-          </Switch>
-        )}
-        <Button type="submit" className="ml-auto btn-primary-cabbage">
-          Submit
-        </Button>
-      </span>
+            Post
+          </Button>
+        </span>
+      </WritePageMain>
     </WritePageContainer>
   );
 }
