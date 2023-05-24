@@ -13,7 +13,8 @@ type SteppedSquadCommentProps = Pick<SquadStateProps, 'onNext'> &
     SquadCommentProps,
     | 'form'
     | 'isLoading'
-    | 'notificationState'
+    | 'isNotificationEnabled'
+    | 'onToggleNotification'
     | 'onUpdateForm'
     | 'shouldShowToggle'
   >;
