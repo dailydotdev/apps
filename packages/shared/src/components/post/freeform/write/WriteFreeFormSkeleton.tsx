@@ -3,10 +3,16 @@ import { WritePageContainer, WritePageMain } from './common';
 import { WritePostHeader } from './WritePostHeader';
 import { ElementPlaceholder } from '../../../ElementPlaceholder';
 
-export function WriteFreeFormSkeleton(): ReactElement {
+interface WriteFreeFormSkeletonProps {
+  isEdit?: boolean;
+}
+
+export function WriteFreeFormSkeleton({
+  isEdit,
+}: WriteFreeFormSkeletonProps): ReactElement {
   return (
     <WritePageContainer>
-      <WritePostHeader squad={null} />
+      <WritePostHeader squad={null} isEdit={isEdit} />
       <WritePageMain>
         <ElementPlaceholder className="w-40 h-24 rounded-16" />
         <ElementPlaceholder className="mt-6 h-12 rounded-12" />

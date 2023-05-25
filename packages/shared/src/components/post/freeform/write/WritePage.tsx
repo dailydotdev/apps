@@ -27,14 +27,11 @@ export function WritePage({
   isForbidden,
   post,
 }: WritePageProps): ReactElement {
-  const { isReady } = useRouter();
   const isVerified = verifyPermission(squad, SourcePermissions.Post);
 
-  if (isLoading) return <WriteFreeFormSkeleton />;
+  if (isLoading) return <WriteFreeFormSkeleton isEdit={isEdit} />;
 
-  if (isForbidden || !isVerified) return <Unauthorized />;
-
-  if (!isReady || !squad) return <></>;
+  if (isForbidden || !isVerified || !squad) return <Unauthorized />;
 
   return (
     <WritePageContainer>

@@ -47,6 +47,8 @@ function EditPost(): ReactElement {
 
   return (
     <WritePage
+      isEdit
+      isPosting={isPosting}
       onSubmitForm={onClickSubmit}
       isLoading={!isReady || !isFetched}
       isForbidden={post?.author.id !== user?.id}
