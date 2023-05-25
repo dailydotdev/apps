@@ -22,9 +22,7 @@ function CreatePost(): ReactElement {
   const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
     createPost,
     {
-      onSuccess: async (post) => {
-        await push(post.commentsPermalink);
-      },
+      onSuccess: (post) => push(post.commentsPermalink),
       onError: (data: ApiErrorResult) => {
         if (data?.response?.errors?.[0]) {
           displayToast(data?.response?.errors?.[0].message);
