@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement, TextareaHTMLAttributes, useRef } from 'react';
 import classNames from 'classnames';
 import { ImageIcon, MarkdownIcon } from '../../icons';
 import { Button, ButtonSize } from '../../buttons/Button';
@@ -13,6 +13,10 @@ import {
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
   className?: string;
+  textareaProps?: Omit<
+    TextareaHTMLAttributes<HTMLTextAreaElement>,
+    'className'
+  >;
 }
 
 function MarkdownInput({
@@ -21,6 +25,7 @@ function MarkdownInput({
   sourceId,
   onSubmit,
   initialContent,
+  textareaProps = {},
 }: MarkdownInputProps): ReactElement {
   const textareaRef = useRef<HTMLTextAreaElement>();
   const {
@@ -51,6 +56,7 @@ function MarkdownInput({
       )}
     >
       <textarea
+        {...textareaProps}
         ref={textareaRef}
         className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
         placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
@@ -69,22 +75,17 @@ function MarkdownInput({
         onMentionClick={onApplyMention}
       />
       <span className="flex flex-row items-center p-3 px-4 border-t border-theme-divider-tertiary">
-        <label
-          htmlFor="upload"
+        <button
+          type="button"
           className="flex relative flex-row typo-callout text-theme-label-quaternary"
         >
-          <input
-            className="hidden absolute inset-0"
-            type="file"
-            name="upload"
-          />
           <ImageIcon className="mr-2" />
           Attach images by dragging & dropping
-        </label>
-        <span className="grid grid-cols-3 gap-3 ml-auto text-theme-label-secondary">
+        </button>
+        <span className="grid grid-cols-3 gap-3 ml-auto text-theme-label-tertiary">
           <Button
             buttonSize={ButtonSize.Small}
-            icon={<LinkIcon />}
+            icon={<LinkIcon secondary />}
             onClick={onLinkCommand}
           />
           <Button

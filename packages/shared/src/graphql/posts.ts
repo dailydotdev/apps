@@ -26,6 +26,7 @@ export enum PostType {
   Article = 'article',
   Share = 'share',
   Welcome = 'welcome',
+  Freeform = 'freeform',
 }
 
 export const supportedTypesForPrivateSources = [
@@ -456,11 +457,16 @@ export const EDIT_POST_MUTATION = gql`
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 
-interface EditPostProps {
+export interface EditPostProps {
   id: string;
   title: string;
   content: string;
   image: File;
+}
+
+export interface CreatePostProps
+  extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
+  sourceId: string;
 }
 
 export const editPost = async (
@@ -487,3 +493,37 @@ interface UpdatePinnedProps {
 export const updatePinnedPost = async (
   variables: UpdatePinnedProps,
 ): Promise<void> => request(graphqlUrl, PIN_POST_MUTATION, variables);
+
+export const CREATE_POST_MUTATION = gql`
+  mutation CreatePost(
+    $sourceId: ID!
+    $title: String!
+    $content: String!
+    $image: Upload
+  ) {
+    createFreeformPost(
+      sourceId: $sourceId
+      title: $title
+      content: $content
+      image: $image
+    ) {
+      ...SharedPostInfo
+      content
+      contentHtml
+      source {
+        ...SourceBaseInfo
+      }
+      description
+      summary
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const createPost = async (
+  variables: Partial<CreatePostProps>,
+): Promise<Post> => {
+  const res = await request(graphqlUrl, CREATE_POST_MUTATION, variables);
+
+  return res.createFreeformPost;
+};

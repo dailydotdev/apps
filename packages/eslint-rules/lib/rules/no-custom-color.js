@@ -5,6 +5,7 @@ const alwaysValidClasses = [
   'text-center',
   'text-2xl',
   'text-left',
+  'text-right',
   'text-lg',
   'text-xl',
   'text-ellipsis',
