@@ -41,8 +41,7 @@ export const useSyncUploader = ({
         }
 
         setUploadedCount(uploadedCount + 1);
-        const upload = filesRef.current.pop();
-        uploadImage(upload);
+        uploadImage(filesRef.current.pop());
       });
   };
 
@@ -51,10 +50,7 @@ export const useSyncUploader = ({
 
     setQueueCount(filesRef.current.length);
 
-    if (!queueCount) {
-      const file = filesRef.current.pop();
-      uploadImage(file);
-    }
+    if (!queueCount) uploadImage(filesRef.current.pop());
   };
 
   const pushUpload = (file: File) => {

@@ -39,6 +39,7 @@ import {
   MEGABYTE,
 } from '../../components/fields/ImageInput';
 import { UploadState, useSyncUploader } from './useSyncUploader';
+import { useToastNotification } from '../useToastNotification';
 
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
@@ -90,6 +91,7 @@ export const useMarkdownInput = ({
   const { requestMethod } = useRequestProtocol();
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
   const { uploadedCount, queueCount, pushUpload, startUploading } =
     useSyncUploader({
       onStarted: async (file) => {
@@ -100,9 +102,13 @@ export const useMarkdownInput = ({
         await command.replaceWord(replace, setInput, CursorType.Isolated);
       },
       onFinish: async (status, file, url) => {
-        if (status === UploadState.Failed) return; // toast?
+        if (status === UploadState.Failed) {
+          return displayToast(
+            'File type is not allowed or the size exceeded the limit',
+          );
+        }
 
-        setInput(command.onReplaceUpload(url, file.name));
+        return setInput(command.onReplaceUpload(url, file.name));
       },
     });
 
