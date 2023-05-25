@@ -24,6 +24,7 @@ import {
 } from '../../lib/element';
 import { UserShortProfile } from '../../lib/user';
 import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
+import { handleRegex } from '../../graphql/users';
 
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
@@ -122,7 +123,6 @@ export const useMarkdownInput = ({
       return;
     }
 
-    const handleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
     const mention = word.substring(1);
     const isValid = word.charAt(0) === '@' && handleRegex.test(mention);
     updateQuery(isValid ? mention : undefined);
