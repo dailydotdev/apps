@@ -43,10 +43,12 @@ import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/type
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import { getTemplatedTitle } from '../../components/layouts/utils';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
-const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
+const Custom404 = dynamic(
+  () => import(/* webpackChunkName: "404" */ '../../404'),
+);
 
 export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {

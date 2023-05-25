@@ -531,5 +531,5 @@ export const createPost = async (
 ): Promise<Post> => {
   const res = await request(graphqlUrl, CREATE_POST_MUTATION, variables);
 
-  return res.createPost;
+  return res.createFreeformPost;
 };
