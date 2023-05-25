@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import { WritePageContainer } from './common';
 import { WritePostHeader } from './WritePostHeader';
 import {
