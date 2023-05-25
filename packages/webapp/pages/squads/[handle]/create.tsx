@@ -20,15 +20,18 @@ import { useNotificationToggle } from '@dailydotdev/shared/src/hooks/notificatio
 import { useMutation } from 'react-query';
 import {
   createPost,
-  EditPostProps,
+  CreatePostProps,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 function WritePost(): ReactElement {
   const { query, isReady, push } = useRouter();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
+  const { displayToast } = useToastNotification();
   const { squad, isForbidden, isLoading, isFetched } = useSquad({
     handle: query?.handle as string,
   });
@@ -39,6 +42,11 @@ function WritePost(): ReactElement {
         await onSubmitted();
         await push(post.commentsPermalink);
       },
+      onError: (data: ApiErrorResult) => {
+        if (data?.response?.errors?.[0]) {
+          displayToast(data?.response?.errors?.[0].message);
+        }
+      },
     },
   );
 
@@ -47,9 +55,9 @@ function WritePost(): ReactElement {
 
     if (isPosting) return null;
 
-    const data = formToJson<EditPostProps>(e.currentTarget);
+    const data = formToJson<CreatePostProps>(e.currentTarget);
 
-    return onCreatePost({ ...data, id: squad.id });
+    return onCreatePost({ ...data, sourceId: squad.id });
   };
 
   if (isLoading || !isReady || !isFetched) return <WriteFreeFormSkeleton />;
@@ -85,12 +93,13 @@ function WritePost(): ReactElement {
           name="title"
           label="Post Title*"
           placeholder="Give your post a title"
+          required
         />
         <MarkdownInput
           className="mt-4"
           onSubmit={() => {}}
           sourceId={squad.id}
-          textareaProps={{ name: 'content' }}
+          textareaProps={{ name: 'content', required: true }}
         />
         <span className="flex flex-row items-center mt-4">
           {shouldShowCta && (

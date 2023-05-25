@@ -464,6 +464,11 @@ export interface EditPostProps {
   image: File;
 }
 
+export interface CreatePostProps
+  extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
+  sourceId: string;
+}
+
 export const editPost = async (
   variables: Partial<EditPostProps>,
 ): Promise<Post> => {
@@ -491,12 +496,17 @@ export const updatePinnedPost = async (
 
 export const CREATE_POST_MUTATION = gql`
   mutation CreatePost(
-    $id: ID!
+    $sourceId: ID!
     $title: String!
     $content: String!
     $image: Upload
   ) {
-    createPost(id: $id, title: $title, content: $content, image: $image) {
+    createFreeformPost(
+      sourceId: $sourceId
+      title: $title
+      content: $content
+      image: $image
+    ) {
       ...SharedPostInfo
       trending
       views
@@ -517,7 +527,7 @@ export const CREATE_POST_MUTATION = gql`
 `;
 
 export const createPost = async (
-  variables: Partial<EditPostProps>,
+  variables: Partial<CreatePostProps>,
 ): Promise<Post> => {
   const res = await request(graphqlUrl, CREATE_POST_MUTATION, variables);
 
