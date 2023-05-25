@@ -48,7 +48,7 @@ const sizeToIconSize: Record<Size, IconSize> = {
   medium: IconSize.Small,
   large: IconSize.Medium,
 };
-const ACCEPTED_TYPES = 'image/png,image/jpeg';
+export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
 
 function ImageInput({

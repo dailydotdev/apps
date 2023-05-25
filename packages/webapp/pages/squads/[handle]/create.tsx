@@ -36,9 +36,9 @@ function CreatePost(): ReactElement {
 
     if (isPosting) return null;
 
-    const data = formToJson<CreatePostProps>(e.currentTarget);
+    const { title, content, image } = formToJson(e.currentTarget);
 
-    return onCreatePost({ ...data, sourceId: squad.id });
+    return onCreatePost({ title, content, image, sourceId: squad.id });
   };
 
   return (

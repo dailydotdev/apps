@@ -50,8 +50,11 @@ export const useSyncUploader = ({
     if (!filesRef.current.length) return;
 
     setQueueCount(filesRef.current.length);
-    const file = filesRef.current.pop();
-    uploadImage(file);
+
+    if (!queueCount) {
+      const file = filesRef.current.pop();
+      uploadImage(file);
+    }
   };
 
   const pushUpload = (file: File) => {

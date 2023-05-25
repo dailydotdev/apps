@@ -61,6 +61,7 @@ interface UseMarkdownInput {
   selected: number;
   onLinkCommand: () => Promise<unknown>;
   onMentionCommand: () => Promise<void>;
+  onUploadCommand: (files: FileList) => void;
   onApplyMention: (username: string) => Promise<void>;
   checkMention: (position?: number[]) => void;
   mentions: UserShortProfile[];
@@ -70,6 +71,7 @@ interface UseMarkdownInput {
 }
 
 const imageSizeLimitMB = 5;
+const maxSize = imageSizeLimitMB * MEGABYTE;
 
 export const useMarkdownInput = ({
   textareaRef,
@@ -225,19 +227,25 @@ export const useMarkdownInput = ({
     checkMention();
   };
 
+  const verifyFile = (file: File) => {
+    if (file.size > maxSize || !acceptedTypesList.includes(file.type)) return;
+
+    pushUpload(file);
+  };
+
   const onDrop: DragEventHandler<HTMLTextAreaElement> = async (e) => {
     e.preventDefault();
     const items = e.dataTransfer.files;
 
     if (!items.length || !enableUpload) return;
 
-    const maxSize = imageSizeLimitMB * MEGABYTE;
+    Array.from(items).forEach(verifyFile);
 
-    Array.from(items).forEach((file) => {
-      if (file.size > maxSize || !acceptedTypesList.includes(file.type)) return;
+    startUploading();
+  };
 
-      pushUpload(file);
-    });
+  const onUploadCommand = (files: FileList) => {
+    Array.from(files).forEach(verifyFile);
 
     startUploading();
   };
@@ -251,6 +259,7 @@ export const useMarkdownInput = ({
     uploadingCount: queueCount,
     checkMention,
     onLinkCommand,
+    onUploadCommand,
     onMentionCommand,
     onApplyMention,
     callbacks: {

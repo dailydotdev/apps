@@ -1,4 +1,9 @@
-import React, { ReactElement, TextareaHTMLAttributes, useRef } from 'react';
+import React, {
+  ChangeEventHandler,
+  ReactElement,
+  TextareaHTMLAttributes,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import { ImageIcon, MarkdownIcon } from '../../icons';
 import { Button, ButtonSize } from '../../buttons/Button';
@@ -7,6 +12,7 @@ import AtIcon from '../../icons/At';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
 import { useMarkdownInput, UseMarkdownInputProps } from '../../../hooks/input';
 import { Loader } from '../../Loader';
+import { ACCEPTED_TYPES } from '../ImageInput';
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
@@ -27,6 +33,7 @@ function MarkdownInput({
   textareaProps = {},
 }: MarkdownInputProps): ReactElement {
   const textareaRef = useRef<HTMLTextAreaElement>();
+  const uploadRef = useRef<HTMLInputElement>();
   const {
     input,
     query,
@@ -36,6 +43,7 @@ function MarkdownInput({
     uploadingCount,
     uploadedCount,
     onLinkCommand,
+    onUploadCommand,
     onMentionCommand,
     onApplyMention,
     mentions,
@@ -83,6 +91,9 @@ function MarkdownInput({
     );
   })();
 
+  const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
+    onUploadCommand(e.currentTarget.files);
+
   return (
     <div
       className={classNames(
@@ -117,8 +128,17 @@ function MarkdownInput({
                 ? 'text-theme-color-cabbage'
                 : 'text-theme-label-quaternary',
             )}
+            onClick={() => uploadRef?.current?.click()}
           >
             {footerLabel}
+            <input
+              type="file"
+              className="hidden"
+              name="content_upload"
+              ref={uploadRef}
+              accept={ACCEPTED_TYPES}
+              onInput={onUpload}
+            />
           </button>
         )}
         <span className="grid grid-cols-3 gap-3 ml-auto text-theme-label-tertiary">
