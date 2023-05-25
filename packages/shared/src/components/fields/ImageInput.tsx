@@ -35,9 +35,10 @@ interface ImageInputProps {
   closeable?: boolean;
   alwaysShowHover?: boolean;
   children?: ReactNode;
+  fileSizeLimitMB?: number;
 }
 
-const TWO_MEGABYTES = 2 * 1024 * 1024;
+const MEGABYTE = 2 * 1024 * 1024;
 
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
@@ -47,6 +48,7 @@ const sizeToIconSize: Record<Size, IconSize> = {
   medium: IconSize.Small,
   large: IconSize.Medium,
 };
+const ACCEPTED_TYPES = 'image/png,image/jpeg';
 
 function ImageInput({
   initialValue,
@@ -62,6 +64,7 @@ function ImageInput({
   alwaysShowHover,
   fallbackImage = fallbackImages.avatar,
   closeable,
+  fileSizeLimitMB = 2,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   const toast = useToastNotification();
@@ -79,9 +82,13 @@ function ImageInput({
       return;
     }
 
-    if (file.size > TWO_MEGABYTES) {
-      toast.displayToast('Maximum image size is 2 MB');
+    if (file.size > fileSizeLimitMB * MEGABYTE) {
+      toast.displayToast(`Maximum image size is ${fileSizeLimitMB} MB`);
+      return;
+    }
 
+    if (!ACCEPTED_TYPES.split(',').includes(file.type)) {
+      toast.displayToast(`File type is not allowed`);
       return;
     }
 
@@ -117,7 +124,7 @@ function ImageInput({
             ref={inputRef}
             type="file"
             name={name}
-            accept="image/png,image/jpeg"
+            accept={ACCEPTED_TYPES}
             className="hidden"
             onChange={onFileChange}
           />

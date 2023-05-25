@@ -80,6 +80,7 @@ function WritePost(): ReactElement {
           enableHover={false}
           fallbackImage={null}
           closeable
+          fileSizeLimitMB={5}
           name="image"
         >
           <CameraIcon secondary />
