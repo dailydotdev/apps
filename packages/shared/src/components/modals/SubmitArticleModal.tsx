@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
-import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { formToJson } from '../../lib/form';
 import { graphqlUrl } from '../../lib/config';
@@ -25,6 +24,7 @@ import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/analytics';
+import { Justify } from '../utilities';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -262,7 +262,7 @@ export default function SubmitArticleModal({
           <PostItemCard postItem={existingArticle} showButtons={false} />
         </div>
       )}
-      <Modal.Footer className={classNames(isSubmitted && 'justify-center')}>
+      <Modal.Footer justify={isSubmitted ? Justify.Center : Justify.End}>
         {(!isSubmitted || !!existingArticle) && (
           <Button
             className="btn-primary"
