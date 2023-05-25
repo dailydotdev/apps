@@ -2,14 +2,13 @@ import React, { MutableRefObject, ReactElement } from 'react';
 import { BaseTooltip } from './BaseTooltip';
 import { RecommendedMention } from '../RecommendedMention';
 import { UserShortProfile } from '../../lib/user';
-import { CaretOffset } from '../../lib/element';
 import { isTesting } from '../../lib/constants';
 
 interface RecommendedMentionTooltipProps {
   query?: string;
   selected?: number;
   mentions?: UserShortProfile[];
-  offset?: CaretOffset;
+  offset?: number[];
   onMentionClick?: (username: string) => unknown;
   appendTo?: () => HTMLElement;
   elementRef: MutableRefObject<HTMLElement>;

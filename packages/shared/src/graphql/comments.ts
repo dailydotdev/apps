@@ -57,7 +57,7 @@ export const COMMENT_WITH_CHILDREN_FRAGMENT = gql`
 
 export const RECOMMEND_MENTIONS_QUERY = gql`
   query RecommendedMentions(
-    $postId: String!
+    $postId: String
     $query: String
     $sourceId: String
   ) {
