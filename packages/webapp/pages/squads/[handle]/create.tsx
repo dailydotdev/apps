@@ -2,10 +2,7 @@ import React, { FormEventHandler, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { WritePage } from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from 'react-query';
-import {
-  createPost,
-  CreatePostProps,
-} from '@dailydotdev/shared/src/graphql/posts';
+import { createPost } from '@dailydotdev/shared/src/graphql/posts';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
