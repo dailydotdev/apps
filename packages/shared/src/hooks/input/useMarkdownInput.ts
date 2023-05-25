@@ -3,6 +3,7 @@ import {
   HTMLAttributes,
   KeyboardEventHandler,
   MutableRefObject,
+  useMemo,
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
@@ -196,6 +197,6 @@ export const useMarkdownInput = ({
     onLinkCommand,
     onMentionCommand,
     onApplyMention,
-    mentions: mentions ?? [],
+    mentions: useMemo(() => data?.recommendedMentions ?? [], [data]),
   };
 };
