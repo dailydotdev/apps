@@ -93,7 +93,8 @@ export interface GetReplacement {
 }
 
 interface GetReplacementOptionalProps {
-  word?: string;
+  word: string;
+  selection: number[];
   trailingChar?: string;
 }
 
@@ -103,7 +104,7 @@ type TypeReplacementFn = (
 
 export type GetReplacementFn = (
   type: CursorType,
-  word?: GetReplacementOptionalProps,
+  props: GetReplacementOptionalProps,
 ) => GetReplacement;
 
 export class TextareaCommand {
@@ -119,7 +120,10 @@ export class TextareaCommand {
   private getIsolatedReplacement: TypeReplacementFn = (getReplacement) => {
     const start = this.textarea.selectionStart;
     const selection = [start, this.textarea.selectionEnd];
-    const { replacement, offset } = getReplacement(CursorType.Isolated);
+    const { replacement, offset } = getReplacement(CursorType.Isolated, {
+      word: '',
+      selection,
+    });
     const result = concatReplacement(this.textarea, selection, replacement);
     const index = start + replacement.length;
     return [result, offset ?? [index, index]];
@@ -128,13 +132,15 @@ export class TextareaCommand {
   private getAdjacentReplacement: TypeReplacementFn = (
     getReplacement,
   ): [string, number[]] => {
-    const [word, startIndex] = getCloseWord(this.textarea, [
+    const selection = [
       this.textarea.selectionStart,
       this.textarea.selectionEnd,
-    ]);
+    ];
+    const [word, startIndex] = getCloseWord(this.textarea, selection);
     const position = [startIndex, startIndex + word.length];
     const { replacement, offset } = getReplacement(CursorType.Adjacent, {
       word,
+      selection: [startIndex, startIndex + word.length],
     });
     const defaultOffset = startIndex + replacement.length;
     const result = concatReplacement(this.textarea, position, replacement);
@@ -148,9 +154,11 @@ export class TextareaCommand {
     const { replacement, offset } = getReplacement(CursorType.Highlighted, {
       word: highlighted,
       trailingChar: before,
+      selection,
     });
     const result = concatReplacement(this.textarea, selection, replacement);
-    return [result, offset ?? [start, start + replacement.length]];
+    const end = start + replacement.length;
+    return [result, offset ?? [end, end]];
   };
 
   async replaceWord(
