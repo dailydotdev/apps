@@ -3,31 +3,26 @@ import { CursorType, GetReplacementFn, isFalsyOrSpace } from './textarea';
 const urlText = 'url';
 const getUrlText = (content = '') => `[${content}](${urlText})`;
 
-const charsToBrackets = 1;
-export const getLinkReplacement: GetReplacementFn = (type, { word } = {}) => {
+export const getLinkReplacement: GetReplacementFn = (
+  type,
+  { word, selection: [start] },
+) => {
   const replacement = getUrlText(word);
 
-  if (type === CursorType.Highlighted) {
-    const base = replacement.length - 1;
-    const start = base - urlText.length;
-    const offset = [start, base];
-    return { replacement, offset };
+  if (type === CursorType.Isolated) {
+    const offset = start + 1;
+    return { replacement, offset: [offset, offset] };
   }
 
-  if (type === CursorType.Adjacent) {
-    return { replacement, offset: [urlText.length, 1] };
-  }
-
-  const offset = replacement.length - charsToBrackets;
-
-  return { replacement, offset: [offset] };
+  const end = start + replacement.length - 1;
+  return { replacement, offset: [end - urlText.length, end] };
 };
 
 export const getMentionReplacement: GetReplacementFn = (
   type,
-  { word = '', trailingChar } = {},
+  { word, trailingChar, leadingChar, selection: [start] },
 ) => {
-  const replacement = `@${word}`;
+  const replacement = `@${word.trim()}`;
 
   if (type === CursorType.Isolated) return { replacement };
 
@@ -37,14 +32,14 @@ export const getMentionReplacement: GetReplacementFn = (
     return { replacement };
   }
 
-  const hasValidCharacter = isFalsyOrSpace(trailingChar);
-  const offset = hasValidCharacter
-    ? [1, replacement.length]
-    : [2, replacement.length + 1];
+  const hasValidTrail = isFalsyOrSpace(trailingChar);
+  const hasValidLead = isFalsyOrSpace(leadingChar);
+  const startOffset = start + (hasValidTrail ? 1 : 2);
+  const endOffset = startOffset + replacement.length - (hasValidLead ? 0 : 1);
+  const offset = [startOffset, endOffset];
+  const left = hasValidTrail ? '' : ' ';
+  const right = hasValidLead ? '' : ' ';
+  const complete = `${left}${replacement}${right}`;
 
-  if (hasValidCharacter) {
-    return { replacement, offset };
-  }
-
-  return { replacement: ` ${replacement}`, offset };
+  return { replacement: complete, offset };
 };

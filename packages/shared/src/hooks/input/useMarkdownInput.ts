@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
-import { CursorType, getCloseWord, replaceWord } from '../../lib/textarea';
+import { CursorType, getCloseWord, TextareaCommand } from '../../lib/textarea';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
@@ -24,6 +24,7 @@ import {
 } from '../../lib/element';
 import { UserShortProfile } from '../../lib/user';
 import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
+import { handleRegex } from '../../graphql/users';
 
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
@@ -43,7 +44,7 @@ interface UseMarkdownInput
   onInput: FormEventHandler<HTMLTextAreaElement>;
   offset: number[];
   selected: number;
-  onLinkCommand: () => Promise<void>;
+  onLinkCommand: () => Promise<unknown>;
   onMentionCommand: () => Promise<void>;
   onApplyMention: (username: string) => Promise<void>;
   checkMention: (position?: number[]) => void;
@@ -94,25 +95,20 @@ export const useMarkdownInput = ({
   };
 
   const onApplyMention = async (username: string) => {
-    const getUsernameReplacement = () => ({
-      type: CursorType.Adjacent,
-      replacement: `@${username} `,
-    });
-    await replaceWord(textarea, getUsernameReplacement, setInput);
+    const command = new TextareaCommand(textarea, CursorType.Adjacent);
+    const getUsernameReplacement = () => ({ replacement: `@${username} ` });
+    await command.replaceWord(getUsernameReplacement, setInput);
     updateQuery(undefined);
   };
 
   const onLinkCommand = async () => {
-    await replaceWord(textarea, getLinkReplacement, setInput);
+    const command = new TextareaCommand(textarea);
+    await command.replaceWord(getLinkReplacement, setInput);
   };
 
   const onMentionCommand = async () => {
-    const replaced = await replaceWord(
-      textarea,
-      getMentionReplacement,
-      setInput,
-    );
-
+    const command = new TextareaCommand(textarea);
+    const replaced = await command.replaceWord(getMentionReplacement, setInput);
     const mention = replaced.trim().substring(1);
     setQuery(mention);
   };
@@ -127,7 +123,6 @@ export const useMarkdownInput = ({
       return;
     }
 
-    const handleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
     const mention = word.substring(1);
     const isValid = word.charAt(0) === '@' && handleRegex.test(mention);
     updateQuery(isValid ? mention : undefined);
