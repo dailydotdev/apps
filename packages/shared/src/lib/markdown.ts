@@ -36,12 +36,10 @@ export const getMentionReplacement: GetReplacementFn = (
   const hasValidLead = isFalsyOrSpace(leadingChar);
   const startOffset = start + (hasValidTrail ? 1 : 2);
   const endOffset = startOffset + replacement.length - (hasValidLead ? 0 : 1);
-  const updated = `${replacement}${hasValidLead ? '' : ' '}`;
   const offset = [startOffset, endOffset];
+  const left = hasValidTrail ? '' : ' ';
+  const right = hasValidLead ? '' : ' ';
+  const complete = `${left}${replacement}${right}`;
 
-  if (hasValidTrail) {
-    return { replacement: updated, offset };
-  }
-
-  return { replacement: ` ${updated}`, offset };
+  return { replacement: complete, offset };
 };
