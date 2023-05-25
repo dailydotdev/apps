@@ -102,9 +102,7 @@ export const useMarkdownInput = ({
     updateQuery(undefined);
   };
 
-  const onLinkCommand = async () => {
-    await replaceWord(textarea, getLinkReplacement, setInput);
-  };
+  const onLinkCommand = () => replaceWord(textarea, getLinkReplacement, setInput);
 
   const onMentionCommand = async () => {
     const replaced = await replaceWord(
