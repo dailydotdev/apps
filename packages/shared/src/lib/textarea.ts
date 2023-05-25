@@ -166,25 +166,23 @@ export class TextareaCommand {
     return [result, offset ?? [end, end]];
   };
 
+  private getResult(getReplacement: GetReplacementFn) {
+    if (this.type === CursorType.Isolated) {
+      return this.getIsolatedReplacement(getReplacement);
+    }
+
+    if (this.type === CursorType.Highlighted) {
+      return this.getHighlightedReplacement(getReplacement);
+    }
+
+    return this.getAdjacentReplacement(getReplacement);
+  }
+
   async replaceWord(
     getReplacement: GetReplacementFn,
     onReplaced: (result: string) => void,
   ): Promise<string> {
-    if (this.type === CursorType.Isolated) {
-      const [result, position] = this.getIsolatedReplacement(getReplacement);
-      onReplaced(result);
-      await focusInput(this.textarea, position);
-      return result;
-    }
-
-    if (this.type === CursorType.Highlighted) {
-      const [result, position] = this.getHighlightedReplacement(getReplacement);
-      onReplaced(result);
-      await focusInput(this.textarea, position);
-      return result;
-    }
-
-    const [result, position] = this.getAdjacentReplacement(getReplacement);
+    const [result, position] = this.getResult(getReplacement);
     onReplaced(result);
     await focusInput(this.textarea, position);
     return result;
