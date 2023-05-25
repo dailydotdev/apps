@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
+import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { formToJson } from '../../lib/form';
 import { graphqlUrl } from '../../lib/config';
@@ -261,8 +262,8 @@ export default function SubmitArticleModal({
           <PostItemCard postItem={existingArticle} showButtons={false} />
         </div>
       )}
-      {(!isSubmitted || !!existingArticle) && (
-        <Modal.Footer>
+      <Modal.Footer className={classNames(isSubmitted && 'justify-center')}>
+        {(!isSubmitted || !!existingArticle) && (
           <Button
             className="btn-primary"
             type="submit"
@@ -275,8 +276,17 @@ export default function SubmitArticleModal({
               {submitArticleModalButton}
             </span>
           </Button>
-        </Modal.Footer>
-      )}
+        )}
+        {isSubmitted && (
+          <Button
+            className="flex-1 btn-primary max-w-[22.5rem]"
+            aria-label="Close submit article modal"
+            onClick={onRequestClose}
+          >
+            Close
+          </Button>
+        )}
+      </Modal.Footer>
     </Modal>
   );
 }
