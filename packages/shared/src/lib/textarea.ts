@@ -211,42 +211,4 @@ export class TextareaCommand {
 
     return concatReplacement(this.textarea, position, replacement);
   }
-
-  // private async uploadImage(
-  //   file: File,
-  //   onUploading: ReplacedFn,
-  //   onFinish: (state: UploadImage) => void,
-  // ): Promise<void> {
-  //   const temporary = `![${file.name}]()`;
-  //
-  //   const replace: GetReplacementFn = (_, { trailingChar }) => ({
-  //     replacement: `${!trailingChar ? '' : '\n\n'}${temporary}\n\n`,
-  //   });
-  //
-  //   uploadContentImage(file, () => this.replaceWord(replace, onUploading))
-  //     .then((url) => {
-  //       const result = this.onReplaceUpload(url, file.name);
-  //       onFinish({ status: UploadState.Ok, result });
-  //     })
-  //     .catch(() => {
-  //       onFinish({ status: UploadState.Failed });
-  //     })
-  //     .finally(async () => {
-  //       await nextTick();
-  //       if (this.files.length) {
-  //         const upload = this.files.pop();
-  //         this.uploadImage(upload, onUploading, onFinish);
-  //       }
-  //     });
-  // }
-  //
-  // initializeUpload(
-  //   onUploading: ReplacedFn,
-  //   onFinish: (state: UploadImage) => void,
-  // ): void {
-  //   if (!this.files.length) return;
-  //
-  //   const file = this.files.pop();
-  //   this.uploadImage(file, onUploading, onFinish);
-  // }
 }
