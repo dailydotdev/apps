@@ -508,8 +508,6 @@ export const CREATE_POST_MUTATION = gql`
       image: $image
     ) {
       ...SharedPostInfo
-      trending
-      views
       content
       contentHtml
       source {
@@ -517,10 +515,6 @@ export const CREATE_POST_MUTATION = gql`
       }
       description
       summary
-      toc {
-        text
-        id
-      }
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
