@@ -20,9 +20,9 @@ export const getLinkReplacement: GetReplacementFn = (
 
 export const getMentionReplacement: GetReplacementFn = (
   type,
-  { word, trailingChar, selection: [start] },
+  { word, trailingChar, leadingChar, selection: [start] },
 ) => {
-  const replacement = `@${word}`;
+  const replacement = `@${word.trim()}`;
 
   if (type === CursorType.Isolated) return { replacement };
 
@@ -32,14 +32,16 @@ export const getMentionReplacement: GetReplacementFn = (
     return { replacement };
   }
 
-  const hasValidCharacter = isFalsyOrSpace(trailingChar);
-  const startOffset = start + (hasValidCharacter ? 1 : 2);
-  const endOffset = startOffset + replacement.length;
+  const hasValidTrail = isFalsyOrSpace(trailingChar);
+  const hasValidLead = isFalsyOrSpace(leadingChar);
+  const startOffset = start + (hasValidTrail ? 1 : 2);
+  const endOffset = startOffset + replacement.length - (hasValidLead ? 0 : 1);
+  const updated = `${replacement}${hasValidLead ? '' : ' '}`;
   const offset = [startOffset, endOffset];
 
-  if (hasValidCharacter) {
-    return { replacement, offset };
+  if (hasValidTrail) {
+    return { replacement: updated, offset };
   }
 
-  return { replacement: ` ${replacement}`, offset };
+  return { replacement: ` ${updated}`, offset };
 };

@@ -7,9 +7,10 @@ const getSelectedString = (textarea: HTMLTextAreaElement) => {
   const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
   const last = start === end ? start + 1 : end;
   const text = textarea.value.substring(start, last);
-  const before = textarea.value[start - 1];
+  const trailing = textarea.value[start - 1];
+  const leading = textarea.value[start - 1];
 
-  return [text, before];
+  return [text, trailing, leading];
 };
 
 const splitString = (value: string, [start, end]: number[]) => {
@@ -77,9 +78,9 @@ export enum CursorType {
 
 const getCursorType = (textarea: HTMLTextAreaElement) => {
   const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
-  const [highlighted, before] = getSelectedString(textarea);
+  const [highlighted, trailing] = getSelectedString(textarea);
 
-  if (isFalsyOrSpace(highlighted) && isFalsyOrSpace(before)) {
+  if (isFalsyOrSpace(highlighted) && isFalsyOrSpace(trailing)) {
     return CursorType.Isolated;
   }
 
@@ -96,6 +97,7 @@ interface GetReplacementOptionalProps {
   word: string;
   selection: number[];
   trailingChar?: string;
+  leadingChar?: string;
 }
 
 type TypeReplacementFn = (
@@ -150,10 +152,13 @@ export class TextareaCommand {
   private getHighlightedReplacement: TypeReplacementFn = (getReplacement) => {
     const start = this.textarea.selectionStart;
     const selection = [start, this.textarea.selectionEnd];
-    const [highlighted, before] = getSelectedString(this.textarea);
+    const [highlighted, trailingChar, leadingChar] = getSelectedString(
+      this.textarea,
+    );
     const { replacement, offset } = getReplacement(CursorType.Highlighted, {
       word: highlighted,
-      trailingChar: before,
+      trailingChar,
+      leadingChar,
       selection,
     });
     const result = concatReplacement(this.textarea, selection, replacement);
