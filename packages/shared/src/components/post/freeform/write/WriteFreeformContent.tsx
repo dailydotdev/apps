@@ -1,4 +1,4 @@
-import React, { FormEventHandler, ReactElement, ReactNode } from 'react';
+import React, { FormEventHandler, ReactElement } from 'react';
 import ImageInput from '../../../fields/ImageInput';
 import CameraIcon from '../../../icons/Camera';
 import { TextField } from '../../../fields/TextField';
