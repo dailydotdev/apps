@@ -132,7 +132,7 @@ function ImageInput({
         {image ? (
           <img
             className={classNames(
-              'w-full h-full',
+              'w-full h-full object-cover',
               className?.img,
               alwaysShowHover && 'opacity-[0.8]',
               !viewOnly && 'mouse:group-hover:opacity-64',

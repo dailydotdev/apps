@@ -56,9 +56,10 @@ export const useMarkdownInput = ({
   postId,
   sourceId,
   onSubmit,
+  initialContent = '',
 }: UseMarkdownInputProps): UseMarkdownInput => {
   const textarea = textareaRef?.current;
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(initialContent);
   const [query, setQuery] = useState<string>(undefined);
   const [offset, setOffset] = useState([0, 0]);
   const [selected, setSelected] = useState(0);

@@ -7,17 +7,20 @@ import { Switch } from '../../../fields/Switch';
 import { Button } from '../../../buttons/Button';
 import { WritePageMain } from './common';
 import { useNotificationToggle } from '../../../../hooks/notifications';
+import { Post } from '../../../../graphql/posts';
 
 export interface WriteFreeformContentProps {
   onSubmitForm: FormEventHandler<HTMLFormElement>;
   isPosting?: boolean;
   squadId: string;
+  post?: Post;
 }
 
 export function WriteFreeformContent({
   onSubmitForm,
   isPosting,
   squadId,
+  post,
 }: WriteFreeformContentProps): ReactElement {
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
@@ -38,6 +41,7 @@ export function WriteFreeformContent({
         closeable
         fileSizeLimitMB={5}
         name="image"
+        initialValue={post?.image}
       >
         <CameraIcon secondary />
         <span className="flex flex-row ml-1.5 font-bold typo-callout">
@@ -51,11 +55,13 @@ export function WriteFreeformContent({
         label="Post Title*"
         placeholder="Give your post a title"
         required
+        defaultValue={post?.title}
       />
       <MarkdownInput
         className="mt-4"
         onSubmit={() => {}}
         sourceId={squadId}
+        initialContent={post?.content}
         textareaProps={{ name: 'content', required: true }}
       />
       <span className="flex flex-row items-center mt-4">

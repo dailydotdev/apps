@@ -25,6 +25,7 @@ export function WritePage({
   squad,
   isLoading,
   isForbidden,
+  post,
 }: WritePageProps): ReactElement {
   const { isReady } = useRouter();
   const isVerified = verifyPermission(squad, SourcePermissions.Post);
@@ -42,6 +43,7 @@ export function WritePage({
         onSubmitForm={onSubmitForm}
         isPosting={isPosting}
         squadId={squad.id}
+        post={post}
       />
     </WritePageContainer>
   );
