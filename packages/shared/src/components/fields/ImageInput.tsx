@@ -38,7 +38,7 @@ interface ImageInputProps {
   fileSizeLimitMB?: number;
 }
 
-const MEGABYTE = 2 * 1024 * 1024;
+const MEGABYTE = 1024 * 1024;
 
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
