@@ -51,6 +51,7 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   setShowBanPost?: () => unknown;
   contextId?: string;
   origin: Origin;
+  allowPin?: boolean;
 }
 
 type ReportPostAsync = (
@@ -71,6 +72,7 @@ export default function PostOptionsMenu({
   setShowBanPost,
   feedQueryKey,
   origin,
+  allowPin,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
@@ -269,7 +271,7 @@ export default function PostOptionsMenu({
       action: onConfirmDeletePost,
     });
   }
-  if (onPinPost) {
+  if (allowPin && onPinPost) {
     postOptions.unshift({
       icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
       text: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
