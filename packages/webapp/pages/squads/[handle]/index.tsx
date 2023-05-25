@@ -3,7 +3,6 @@ import {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ClientError } from 'graphql-request';
 import { ParsedUrlQuery } from 'querystring';
 import React, {
   ReactElement,
