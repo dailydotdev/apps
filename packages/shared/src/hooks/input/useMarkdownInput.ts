@@ -1,13 +1,21 @@
 import {
+  DragEventHandler,
   FormEventHandler,
   HTMLAttributes,
   KeyboardEventHandler,
   MutableRefObject,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
-import { CursorType, getCloseWord, TextareaCommand } from '../../lib/textarea';
+import {
+  CursorType,
+  getCloseWord,
+  GetReplacementFn,
+  getTemporaryUploadString,
+  TextareaCommand,
+} from '../../lib/textarea';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
@@ -26,23 +34,29 @@ import {
 import { UserShortProfile } from '../../lib/user';
 import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
+import {
+  acceptedTypesList,
+  MEGABYTE,
+} from '../../components/fields/ImageInput';
+import { UploadState, useSyncUploader } from './useSyncUploader';
 
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
   postId?: string;
   sourceId?: string;
+  enableUpload?: boolean;
   initialContent?: string;
 }
 
-interface UseMarkdownInput
-  extends Pick<
-    HTMLAttributes<HTMLTextAreaElement>,
-    'onSubmit' | 'onKeyDown' | 'onKeyUp'
-  > {
+type InputCallbacks = Pick<
+  HTMLAttributes<HTMLTextAreaElement>,
+  'onSubmit' | 'onKeyDown' | 'onKeyUp' | 'onDrop' | 'onInput'
+>;
+
+interface UseMarkdownInput {
   input: string;
   query: string;
-  onInput: FormEventHandler<HTMLTextAreaElement>;
   offset: number[];
   selected: number;
   onLinkCommand: () => Promise<unknown>;
@@ -50,16 +64,23 @@ interface UseMarkdownInput
   onApplyMention: (username: string) => Promise<void>;
   checkMention: (position?: number[]) => void;
   mentions: UserShortProfile[];
+  callbacks: InputCallbacks;
+  uploadingCount: number;
+  uploadedCount: number;
 }
+
+const imageSizeLimitMB = 5;
 
 export const useMarkdownInput = ({
   textareaRef,
   postId,
   sourceId,
   onSubmit,
+  enableUpload,
   initialContent = '',
 }: UseMarkdownInputProps): UseMarkdownInput => {
   const textarea = textareaRef?.current;
+  const [command, setCommand] = useState<TextareaCommand>();
   const [input, setInput] = useState(initialContent);
   const [query, setQuery] = useState<string>(undefined);
   const [offset, setOffset] = useState([0, 0]);
@@ -67,6 +88,27 @@ export const useMarkdownInput = ({
   const { requestMethod } = useRequestProtocol();
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
+  const { uploadedCount, queueCount, pushUpload, startUploading } =
+    useSyncUploader({
+      onStarted: async (file) => {
+        const temporary = getTemporaryUploadString(file.name);
+        const replace: GetReplacementFn = (_, { trailingChar }) => ({
+          replacement: `${!trailingChar ? '' : '\n\n'}${temporary}\n\n`,
+        });
+        await command.replaceWord(replace, setInput, CursorType.Isolated);
+      },
+      onFinish: async (status, file, url) => {
+        if (status === UploadState.Failed) return; // toast?
+
+        setInput(command.onReplaceUpload(url, file.name));
+      },
+    });
+
+  useEffect(() => {
+    if (!textareaRef?.current) return;
+
+    setCommand(new TextareaCommand(textareaRef));
+  }, [setCommand, textareaRef]);
 
   const { data = { recommendedMentions: [] } } =
     useQuery<RecommendedMentionsData>(
@@ -97,19 +139,16 @@ export const useMarkdownInput = ({
   };
 
   const onApplyMention = async (username: string) => {
-    const command = new TextareaCommand(textarea, CursorType.Adjacent);
-    const getUsernameReplacement = () => ({ replacement: `@${username} ` });
-    await command.replaceWord(getUsernameReplacement, setInput);
+    const getReplacement = () => ({ replacement: `@${username} ` });
+    await command.replaceWord(getReplacement, setInput, CursorType.Adjacent);
     updateQuery(undefined);
   };
 
   const onLinkCommand = async () => {
-    const command = new TextareaCommand(textarea);
     await command.replaceWord(getLinkReplacement, setInput);
   };
 
   const onMentionCommand = async () => {
-    const command = new TextareaCommand(textarea);
     const replaced = await command.replaceWord(getMentionReplacement, setInput);
     const mention = replaced.trim().substring(1);
     setQuery(mention);
@@ -186,18 +225,40 @@ export const useMarkdownInput = ({
     checkMention();
   };
 
+  const onDrop: DragEventHandler<HTMLTextAreaElement> = async (e) => {
+    e.preventDefault();
+    const items = e.dataTransfer.files;
+
+    if (!items.length || !enableUpload) return;
+
+    const maxSize = imageSizeLimitMB * MEGABYTE;
+
+    Array.from(items).forEach((file) => {
+      if (file.size > maxSize || !acceptedTypesList.includes(file.type)) return;
+
+      pushUpload(file);
+    });
+
+    startUploading();
+  };
+
   return {
-    onInput,
     input,
     query,
     offset,
     selected,
+    uploadedCount,
+    uploadingCount: queueCount,
     checkMention,
-    onKeyUp,
-    onKeyDown,
     onLinkCommand,
     onMentionCommand,
     onApplyMention,
+    callbacks: {
+      onInput,
+      onKeyUp,
+      onKeyDown,
+      onDrop: enableUpload && onDrop,
+    },
     mentions: useMemo(() => data?.recommendedMentions ?? [], [data]),
   };
 };

@@ -1,4 +1,4 @@
-import React, { FormEventHandler, ReactElement } from 'react';
+import React, { FormEventHandler, ReactElement, ReactNode } from 'react';
 import ImageInput from '../../../fields/ImageInput';
 import CameraIcon from '../../../icons/Camera';
 import { TextField } from '../../../fields/TextField';
@@ -14,6 +14,7 @@ export interface WriteFreeformContentProps {
   isPosting?: boolean;
   squadId: string;
   post?: Post;
+  enableUpload?: boolean;
 }
 
 export function WriteFreeformContent({
@@ -62,7 +63,11 @@ export function WriteFreeformContent({
         onSubmit={() => {}}
         sourceId={squadId}
         initialContent={post?.content}
-        textareaProps={{ name: 'content', required: true }}
+        enableUpload
+        textareaProps={{
+          name: 'content',
+          required: true,
+        }}
       />
       <span className="flex flex-row items-center mt-4">
         {shouldShowCta && (
