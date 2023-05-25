@@ -97,6 +97,53 @@ interface GetReplacementOptionalProps {
   trailingChar?: string;
 }
 
+type TypeReplacementFn = (
+  textarea: HTMLTextAreaElement,
+  getReplacement: GetReplacementFn,
+) => [string, number[]];
+
+const getAdjacentReplacement: TypeReplacementFn = (
+  textarea,
+  getReplacement,
+): [string, number[]] => {
+  const [word, startIndex] = getCloseWord(textarea, [
+    textarea.selectionStart,
+    textarea.selectionEnd,
+  ]);
+  const position = [startIndex, startIndex + word.length];
+  const { replacement, offset } = getReplacement(CursorType.Adjacent, { word });
+  const defaultOffset = startIndex + replacement.length;
+  const result = concatReplacement(textarea, position, replacement);
+  return [result, offset ?? [defaultOffset, defaultOffset]];
+};
+
+const getHighlightedReplacement: TypeReplacementFn = (
+  textarea,
+  getReplacement,
+) => {
+  const start = textarea.selectionStart;
+  const selection = [start, textarea.selectionEnd];
+  const [highlighted, before] = getSelectedString(textarea);
+  const { replacement, offset } = getReplacement(CursorType.Highlighted, {
+    word: highlighted,
+    trailingChar: before,
+  });
+  const result = concatReplacement(textarea, selection, replacement);
+  return [result, offset ?? [start, start + replacement.length]];
+};
+
+const getIsolatedReplacement: TypeReplacementFn = (
+  textarea,
+  getReplacement,
+) => {
+  const start = textarea.selectionStart;
+  const selection = [start, textarea.selectionEnd];
+  const { replacement, offset } = getReplacement(CursorType.Isolated);
+  const result = concatReplacement(textarea, selection, replacement);
+  const index = start + replacement.length;
+  return [result, offset ?? [index, index]];
+};
+
 export type GetReplacementFn = (
   type: CursorType,
   word?: GetReplacementOptionalProps,
@@ -107,47 +154,27 @@ export const replaceWord = async (
   getReplacement: GetReplacementFn,
   onReplaced: (result: string) => void,
 ): Promise<string> => {
-  const selection = [textarea.selectionStart, textarea.selectionEnd];
-  const [highlighted, before] = getSelectedString(textarea);
-  const [start, end] = selection;
   const type = getCursorType(textarea);
 
   if (type === CursorType.Isolated) {
-    const { replacement, offset: [startOffset] = [0] } = getReplacement(
-      CursorType.Isolated,
-    );
-    const result = concatReplacement(textarea, selection, replacement);
-    const offset = replacement.length - startOffset;
-    const index = start + offset;
+    const [result, position] = getIsolatedReplacement(textarea, getReplacement);
     onReplaced(result);
-    await focusInput(textarea, [index, index]);
+    await focusInput(textarea, position);
     return result;
   }
 
   if (type === CursorType.Highlighted) {
-    const { replacement, offset: customOffset } = getReplacement(
-      CursorType.Highlighted,
-      { word: highlighted, trailingChar: before },
+    const [result, position] = getHighlightedReplacement(
+      textarea,
+      getReplacement,
     );
-    const offset = replacement.length - highlighted.length - 1;
-    const startOffset = start + (customOffset?.[0] ?? offset);
-    const endOffset = !isNullOrUndefined(customOffset?.[1])
-      ? start + customOffset[1]
-      : end + offset;
-    const result = concatReplacement(textarea, selection, replacement);
     onReplaced(result);
-    await focusInput(textarea, [startOffset, endOffset]);
+    await focusInput(textarea, position);
     return result;
   }
 
-  const [word, startIndex] = getCloseWord(textarea, selection);
-  const position = [startIndex, startIndex + word.length];
-  const { replacement, offset: [startOffset = 0, endOffset = 0] = [] } =
-    getReplacement(CursorType.Adjacent, { word });
-  const result = concatReplacement(textarea, position, replacement);
-  const focusEnd = startIndex + replacement.length - endOffset;
-  const focusStart = focusEnd - startOffset;
+  const [result, position] = getAdjacentReplacement(textarea, getReplacement);
   onReplaced(result);
-  await focusInput(textarea, [focusStart, focusEnd]);
+  await focusInput(textarea, position);
   return result;
 };

@@ -43,7 +43,7 @@ interface UseMarkdownInput
   onInput: FormEventHandler<HTMLTextAreaElement>;
   offset: number[];
   selected: number;
-  onLinkCommand: () => Promise<void>;
+  onLinkCommand: () => Promise<unknown>;
   onMentionCommand: () => Promise<void>;
   onApplyMention: (username: string) => Promise<void>;
   checkMention: (position?: number[]) => void;
@@ -102,7 +102,8 @@ export const useMarkdownInput = ({
     updateQuery(undefined);
   };
 
-  const onLinkCommand = () => replaceWord(textarea, getLinkReplacement, setInput);
+  const onLinkCommand = () =>
+    replaceWord(textarea, getLinkReplacement, setInput);
 
   const onMentionCommand = async () => {
     const replaced = await replaceWord(
