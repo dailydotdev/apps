@@ -1,4 +1,5 @@
 import {
+  ClipboardEventHandler,
   DragEventHandler,
   FormEventHandler,
   HTMLAttributes,
@@ -50,7 +51,7 @@ export interface UseMarkdownInputProps
 
 type InputCallbacks = Pick<
   HTMLAttributes<HTMLTextAreaElement>,
-  'onSubmit' | 'onKeyDown' | 'onKeyUp' | 'onDrop' | 'onInput'
+  'onSubmit' | 'onKeyDown' | 'onKeyUp' | 'onDrop' | 'onInput' | 'onPaste'
 >;
 
 interface UseMarkdownInput {
@@ -253,6 +254,14 @@ export const useMarkdownInput = ({
     startUploading();
   };
 
+  const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
+    e.preventDefault();
+
+    Array.from(e.clipboardData.files).forEach(verifyFile);
+
+    startUploading();
+  };
+
   return {
     input,
     query,
@@ -269,6 +278,7 @@ export const useMarkdownInput = ({
       onInput,
       onKeyUp,
       onKeyDown,
+      onPaste,
       onDrop: enableUpload && onDrop,
     },
     mentions: useMemo(() => data?.recommendedMentions ?? [], [data]),
