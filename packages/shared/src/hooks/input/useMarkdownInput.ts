@@ -33,6 +33,7 @@ export interface UseMarkdownInputProps
   postId?: string;
   sourceId?: string;
   initialContent?: string;
+  onValueUpdate?: (value: string) => void;
 }
 
 interface UseMarkdownInput
@@ -57,6 +58,7 @@ export const useMarkdownInput = ({
   postId,
   sourceId,
   onSubmit,
+  onValueUpdate,
   initialContent = '',
 }: UseMarkdownInputProps): UseMarkdownInput => {
   const textarea = textareaRef?.current;
@@ -67,6 +69,11 @@ export const useMarkdownInput = ({
   const { requestMethod } = useRequestProtocol();
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
+
+  const onUpdate = (value: string) => {
+    setInput(value);
+    if (onValueUpdate) onValueUpdate(value);
+  };
 
   const { data = { recommendedMentions: [] } } =
     useQuery<RecommendedMentionsData>(
@@ -99,18 +106,18 @@ export const useMarkdownInput = ({
   const onApplyMention = async (username: string) => {
     const command = new TextareaCommand(textarea, CursorType.Adjacent);
     const getUsernameReplacement = () => ({ replacement: `@${username} ` });
-    await command.replaceWord(getUsernameReplacement, setInput);
+    await command.replaceWord(getUsernameReplacement, onUpdate);
     updateQuery(undefined);
   };
 
   const onLinkCommand = async () => {
     const command = new TextareaCommand(textarea);
-    await command.replaceWord(getLinkReplacement, setInput);
+    await command.replaceWord(getLinkReplacement, onUpdate);
   };
 
   const onMentionCommand = async () => {
     const command = new TextareaCommand(textarea);
-    const replaced = await command.replaceWord(getMentionReplacement, setInput);
+    const replaced = await command.replaceWord(getMentionReplacement, onUpdate);
     const mention = replaced.trim().substring(1);
     setQuery(mention);
   };
@@ -182,7 +189,7 @@ export const useMarkdownInput = ({
 
     if (!target) return;
 
-    setInput(target.value);
+    onUpdate(target.value);
     checkMention();
   };
 

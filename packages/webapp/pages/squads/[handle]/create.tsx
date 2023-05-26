@@ -1,4 +1,4 @@
-import React, { FormEventHandler, ReactElement } from 'react';
+import React, { FormEventHandler, ReactElement, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { WritePage } from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from 'react-query';

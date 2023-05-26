@@ -24,6 +24,7 @@ function MarkdownInput({
   postId,
   sourceId,
   onSubmit,
+  onValueUpdate,
   initialContent,
   textareaProps = {},
 }: MarkdownInputProps): ReactElement {
@@ -46,6 +47,7 @@ function MarkdownInput({
     initialContent,
     onSubmit,
     textareaRef,
+    onValueUpdate,
   });
 
   return (

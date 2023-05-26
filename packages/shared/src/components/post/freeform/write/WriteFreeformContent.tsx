@@ -1,4 +1,4 @@
-import React, { FormEventHandler, ReactElement } from 'react';
+import React, { FormEventHandler, ReactElement, useRef } from 'react';
 import ImageInput from '../../../fields/ImageInput';
 import CameraIcon from '../../../icons/Camera';
 import { TextField } from '../../../fields/TextField';
@@ -8,6 +8,9 @@ import { Button } from '../../../buttons/Button';
 import { WritePageMain } from './common';
 import { useNotificationToggle } from '../../../../hooks/notifications';
 import { Post } from '../../../../graphql/posts';
+import usePersistentContext from '../../../../hooks/usePersistentContext';
+import { formToJson } from '../../../../lib/form';
+import useDebounce from '../../../../hooks/useDebounce';
 
 export interface WriteFreeformContentProps {
   onSubmitForm: FormEventHandler<HTMLFormElement>;
@@ -16,21 +19,44 @@ export interface WriteFreeformContentProps {
   post?: Post;
 }
 
+interface WriteForm {
+  title: string;
+  content: string;
+  image: string;
+}
+
+export const generateWritePostKey = (reference = 'create') =>
+  `write:post:${reference}`;
+
 export function WriteFreeformContent({
   onSubmitForm,
   isPosting,
   squadId,
   post,
 }: WriteFreeformContentProps): ReactElement {
+  const formRef = useRef<HTMLFormElement>();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
+  const key = generateWritePostKey(post?.id);
+  const [draft, updateDraft] = usePersistentContext<Partial<WriteForm>>(
+    key,
+    {},
+  );
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     await onSubmitted();
     await onSubmitForm(e);
   };
+
+  const onUpdate = async () => {
+    const { title, content } = formToJson(formRef.current);
+    await updateDraft({ title, content, image: draft.image });
+  };
+
+  const [onFormUpdate] = useDebounce(onUpdate, 3000);
+
   return (
-    <WritePageMain onSubmit={handleSubmit}>
+    <WritePageMain onSubmit={handleSubmit} ref={formRef}>
       <ImageInput
         className={{
           container:
@@ -41,7 +67,8 @@ export function WriteFreeformContent({
         closeable
         fileSizeLimitMB={5}
         name="image"
-        initialValue={post?.image}
+        initialValue={draft?.image ?? post?.image}
+        onChange={(base64) => updateDraft({ ...draft, image: base64 })}
       >
         <CameraIcon secondary />
         <span className="flex flex-row ml-1.5 font-bold typo-callout">
@@ -55,13 +82,14 @@ export function WriteFreeformContent({
         label="Post Title*"
         placeholder="Give your post a title"
         required
-        defaultValue={post?.title}
+        defaultValue={draft?.title ?? post?.title}
+        onInput={onFormUpdate}
       />
       <MarkdownInput
         className="mt-4"
-        onSubmit={() => {}}
         sourceId={squadId}
-        initialContent={post?.content}
+        onValueUpdate={onFormUpdate}
+        initialContent={draft?.content ?? post?.content}
         textareaProps={{ name: 'content', required: true }}
       />
       <span className="flex flex-row items-center mt-4">
