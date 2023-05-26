@@ -8,6 +8,10 @@ import { Button } from '../../../buttons/Button';
 import { WritePageMain } from './common';
 import { useNotificationToggle } from '../../../../hooks/notifications';
 import { Post } from '../../../../graphql/posts';
+import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
+import { useActions } from '../../../../hooks/useActions';
+import { ActionType } from '../../../../graphql/actions';
+import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 
 export interface WriteFreeformContentProps {
   onSubmitForm: FormEventHandler<HTMLFormElement>;
@@ -23,13 +27,17 @@ export function WriteFreeformContent({
   squadId,
   post,
 }: WriteFreeformContentProps): ReactElement {
+  const { isFetched, checkHasCompleted, completeAction } = useActions();
+  const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+    completeAction(ActionType.WritePost);
     await onSubmitted();
     await onSubmitForm(e);
   };
+
   return (
     <WritePageMain onSubmit={handleSubmit}>
       <ImageInput
@@ -49,15 +57,37 @@ export function WriteFreeformContent({
           Cover image
         </span>
       </ImageInput>
-      <TextField
-        className={{ container: 'mt-6' }}
-        inputId="title"
-        name="title"
-        label="Post Title*"
-        placeholder="Give your post a title"
-        required
-        defaultValue={post?.title}
-      />
+      <AlertPointer
+        className={{ container: 'bg-theme-bg-primary' }}
+        offset={[4, -14]}
+        message={
+          <div className="flex flex-col w-64">
+            <h3 className="font-bold typo-headline">First time? 👋</h3>
+            <p className="mt-1 typo-subhead">
+              It looks like this is your first time sharing a post with the
+              squad! This is a community we build together. Please be welcoming
+              and open-minded.
+            </p>
+          </div>
+        }
+        isAlertDisabled={
+          !isFetched ||
+          !sidebarRendered ||
+          checkHasCompleted(ActionType.WritePost)
+        }
+        onClose={() => completeAction(ActionType.WritePost)}
+        placement={AlertPlacement.Right}
+      >
+        <TextField
+          className={{ container: 'mt-6 w-full' }}
+          inputId="title"
+          name="title"
+          label="Post Title*"
+          placeholder="Give your post a title"
+          required
+          defaultValue={post?.title}
+        />
+      </AlertPointer>
       <MarkdownInput
         className="mt-4"
         onSubmit={() => {}}

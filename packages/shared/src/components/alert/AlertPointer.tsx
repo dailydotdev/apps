@@ -49,10 +49,10 @@ const alertContainerClasses: Record<AlertPlacement, string> = {
 const getContainerStyle = (
   [xOffset = 0, yOffset = 0]: OffsetXY = [0, 0],
 ): Record<AlertPlacement, CSSProperties> => ({
-  left: { left: xOffset },
-  right: { right: xOffset },
+  left: { left: xOffset, top: yOffset },
+  right: { right: xOffset, top: yOffset },
   bottom: { bottom: yOffset, left: xOffset },
-  top: { top: yOffset },
+  top: { top: yOffset, left: xOffset },
 });
 
 export interface AlertPointerProps {
