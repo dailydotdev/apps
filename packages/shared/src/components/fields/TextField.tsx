@@ -73,6 +73,7 @@ function TextFieldComponent(
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
   const invalid = validInput === false || (required && inputLength === 0);
+  const hasValue = hasInput || !!inputRef?.current?.value?.length;
 
   return (
     <BaseFieldContainer
@@ -125,16 +126,17 @@ function TextFieldComponent(
           actionButton && 'mr-2',
         )}
       >
-        {isPrimaryField && (focused || hasInput) && (
+        {isPrimaryField && (focused || hasValue) && (
           <label
             className={classNames(
               'typo-caption1',
               getFieldLabelColor({
                 readOnly,
                 isLocked,
-                hasInput,
+                hasInput: hasValue,
                 focused,
                 disabled,
+                isPrimaryField: true,
               }),
             )}
             htmlFor={inputId}
@@ -169,7 +171,7 @@ function TextFieldComponent(
             getFieldFontColor({
               readOnly,
               disabled,
-              hasInput,
+              hasInput: hasValue,
               focused,
               hasActionIcon: !!rightIcon,
             }),
