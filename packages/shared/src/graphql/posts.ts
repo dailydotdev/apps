@@ -536,17 +536,18 @@ export const UPLOAD_IMAGE_MUTATION = gql`
 `;
 
 const imageSizeLimitMB = 5;
-const maxSize = imageSizeLimitMB * MEGABYTE;
+export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
+export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
 
 export const uploadContentImage = async (
   image: File,
   onProcessing?: (file: File) => void,
 ): Promise<string> => {
-  if (image.size > maxSize) {
+  if (image.size > allowedFileSize) {
     throw new Error('File size exceeds the limit');
   }
 
-  if (!acceptedTypesList.includes(image.type)) {
+  if (!allowedContentImage.includes(image.type)) {
     throw new Error('File type is not allowed');
   }
 

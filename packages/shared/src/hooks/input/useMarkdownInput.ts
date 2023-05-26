@@ -34,12 +34,10 @@ import {
 import { UserShortProfile } from '../../lib/user';
 import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
-import {
-  acceptedTypesList,
-  MEGABYTE,
-} from '../../components/fields/ImageInput';
+import { MEGABYTE } from '../../components/fields/ImageInput';
 import { UploadState, useSyncUploader } from './useSyncUploader';
 import { useToastNotification } from '../useToastNotification';
+import { allowedContentImage, allowedFileSize } from '../../graphql/posts';
 
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
@@ -70,9 +68,6 @@ interface UseMarkdownInput {
   uploadingCount: number;
   uploadedCount: number;
 }
-
-const imageSizeLimitMB = 5;
-const maxSize = imageSizeLimitMB * MEGABYTE;
 
 export const useMarkdownInput = ({
   textareaRef,
@@ -234,7 +229,9 @@ export const useMarkdownInput = ({
   };
 
   const verifyFile = (file: File) => {
-    if (file.size > maxSize || !acceptedTypesList.includes(file.type)) return;
+    const isValidType = allowedContentImage.includes(file.type);
+
+    if (file.size > allowedFileSize || !isValidType) return;
 
     pushUpload(file);
   };
