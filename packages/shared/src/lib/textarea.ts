@@ -2,7 +2,7 @@ import { MutableRefObject } from 'react';
 import { nextTick } from './func';
 
 export const isFalsyOrSpace = (value: string): boolean =>
-  !value || value === ' ';
+  !value || value === ' ' || value === '\n';
 
 const getSelectedString = (textarea: HTMLTextAreaElement) => {
   const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
