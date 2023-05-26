@@ -13,6 +13,7 @@ import { useQuery } from 'react-query';
 import {
   CursorType,
   getCloseWord,
+  getCursorType,
   GetReplacementFn,
   getTemporaryUploadString,
   TextareaCommand,
@@ -35,7 +36,6 @@ import {
 import { UserShortProfile } from '../../lib/user';
 import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
-import { MEGABYTE } from '../../components/fields/ImageInput';
 import { UploadState, useSyncUploader } from './useSyncUploader';
 import { useToastNotification } from '../useToastNotification';
 import { allowedContentImage, allowedFileSize } from '../../graphql/posts';
@@ -95,7 +95,10 @@ export const useMarkdownInput = ({
         const replace: GetReplacementFn = (_, { trailingChar }) => ({
           replacement: `${!trailingChar ? '' : '\n\n'}${temporary}\n\n`,
         });
-        await command.replaceWord(replace, setInput, CursorType.Isolated);
+        const type = getCursorType(textarea);
+        const allowedType =
+          type === CursorType.Adjacent ? CursorType.Isolated : type;
+        await command.replaceWord(replace, setInput, allowedType);
       },
       onFinish: async (status, file, url) => {
         if (status === UploadState.Failed) {

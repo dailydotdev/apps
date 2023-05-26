@@ -73,6 +73,7 @@ function MarkdownInput({
         className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
         placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
         value={input}
+        onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
         rows={10}
       />
       <RecommendedMentionTooltip

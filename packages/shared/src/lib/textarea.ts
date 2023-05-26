@@ -77,7 +77,7 @@ export enum CursorType {
   Highlighted = 'highlighted',
 }
 
-const getCursorType = (textarea: HTMLTextAreaElement) => {
+export const getCursorType = (textarea: HTMLTextAreaElement): CursorType => {
   const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
   const [highlighted, trailing] = getSelectedString(textarea);
 
