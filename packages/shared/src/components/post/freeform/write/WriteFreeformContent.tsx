@@ -11,6 +11,7 @@ import { Post } from '../../../../graphql/posts';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
 import { useActions } from '../../../../hooks/useActions';
 import { ActionType } from '../../../../graphql/actions';
+import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 
 export interface WriteFreeformContentProps {
   onSubmitForm: FormEventHandler<HTMLFormElement>;
@@ -26,6 +27,7 @@ export function WriteFreeformContent({
   post,
 }: WriteFreeformContentProps): ReactElement {
   const { isFetched, checkHasCompleted, completeAction } = useActions();
+  const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
 
@@ -55,6 +57,8 @@ export function WriteFreeformContent({
         </span>
       </ImageInput>
       <AlertPointer
+        className={{ container: 'bg-theme-bg-primary' }}
+        offset={[4, -14]}
         message={
           <div className="flex flex-col w-64">
             <h3 className="font-bold typo-headline">First time? 👋</h3>
@@ -65,7 +69,11 @@ export function WriteFreeformContent({
             </p>
           </div>
         }
-        isAlertDisabled={!isFetched || checkHasCompleted(ActionType.WritePost)}
+        isAlertDisabled={
+          !isFetched ||
+          !sidebarRendered ||
+          checkHasCompleted(ActionType.WritePost)
+        }
         onClose={() => completeAction(ActionType.WritePost)}
         placement={AlertPlacement.Right}
       >
