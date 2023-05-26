@@ -5,14 +5,14 @@ import React, {
   useRef,
 } from 'react';
 import classNames from 'classnames';
-import { ImageIcon, MarkdownIcon } from '../../icons';
+import { MarkdownIcon } from '../../icons';
 import { Button, ButtonSize } from '../../buttons/Button';
 import LinkIcon from '../../icons/Link';
 import AtIcon from '../../icons/At';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
 import { useMarkdownInput, UseMarkdownInputProps } from '../../../hooks/input';
-import { Loader } from '../../Loader';
 import { ACCEPTED_TYPES } from '../ImageInput';
+import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
@@ -56,41 +56,6 @@ function MarkdownInput({
     enableUpload,
   });
 
-  const footerLabel = (() => {
-    if (uploadingCount === 0) {
-      return (
-        <>
-          <ImageIcon className="mr-2" />
-          Attach images by dragging & dropping
-        </>
-      );
-    }
-
-    const content = 'Uploading in progress';
-    const loader = (
-      <Loader
-        className="mr-2 btn-loader"
-        innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage"
-      />
-    );
-
-    if (uploadingCount === 1) {
-      return (
-        <>
-          {loader}
-          {content}
-        </>
-      );
-    }
-
-    return (
-      <>
-        {loader}
-        {`${content} (${uploadedCount}/${uploadingCount})`}
-      </>
-    );
-  })();
-
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
     onUploadCommand(e.currentTarget.files);
 
@@ -130,7 +95,10 @@ function MarkdownInput({
             )}
             onClick={() => uploadRef?.current?.click()}
           >
-            {footerLabel}
+            <MarkdownUploadLabel
+              uploadingCount={uploadingCount}
+              uploadedCount={uploadedCount}
+            />
             <input
               type="file"
               className="hidden"
