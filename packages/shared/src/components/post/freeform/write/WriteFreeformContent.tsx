@@ -25,7 +25,7 @@ interface WriteForm {
   image: string;
 }
 
-export const generateWritePostKey = (reference = 'create') =>
+export const generateWritePostKey = (reference = 'create'): string =>
   `write:post:${reference}`;
 
 export function WriteFreeformContent({
