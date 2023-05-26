@@ -26,12 +26,13 @@ type UseSquadChecklistProps = {
 type UseSquadChecklist = UseChecklist & {
   isChecklistVisible: boolean;
   setChecklistVisible: (value: boolean) => void;
+  isChecklistReady: boolean;
 };
 
 const useSquadChecklist = ({
   squad,
 }: UseSquadChecklistProps): UseSquadChecklist => {
-  const { actions } = useActions();
+  const { actions, isActionsFetched: isChecklistReady } = useActions();
   const { showArticleOnboarding } = useContext(OnboardingContext);
 
   const stepsMap = useMemo<
@@ -150,6 +151,7 @@ const useSquadChecklist = ({
     ...checklist,
     isChecklistVisible,
     setChecklistVisible,
+    isChecklistReady,
   };
 };
 
