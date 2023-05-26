@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
+import classNames from 'classnames';
 import { ChecklistCard } from './ChecklistCard';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { Squad } from '../../graphql/sources';
@@ -13,9 +14,10 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
-  const { steps, isChecklistVisible, setChecklistVisible } = useSquadChecklist({
-    squad,
-  });
+  const { steps, isChecklistVisible, setChecklistVisible, isChecklistReady } =
+    useSquadChecklist({
+      squad,
+    });
   const { sidebarRendered } = useSidebarRendered();
   const { isDone } = useChecklist({ steps });
   const { trackEvent } = useContext(AnalyticsContext);
@@ -48,6 +50,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
       description="5 simple steps to squad greatness!"
       steps={steps}
       onRequestClose={onRequestClose}
+      className={classNames(isChecklistReady ? 'flex' : 'hidden')}
     />
   );
 
