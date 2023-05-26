@@ -48,8 +48,13 @@ export function SquadHeaderBar({
     key: TutorialKey.CopySquadLink,
   });
 
-  const { steps, completedSteps, isChecklistVisible, setChecklistVisible } =
-    useSquadChecklist({ squad });
+  const {
+    steps,
+    completedSteps,
+    isChecklistVisible,
+    setChecklistVisible,
+    isChecklistReady,
+  } = useSquadChecklist({ squad });
 
   const completedStepsCount = completedSteps.length;
   const totalStepsCount = steps.length;
@@ -99,7 +104,7 @@ export function SquadHeaderBar({
       )}
       <SimpleTooltip
         forceLoad={!isTesting}
-        visible={completedStepsCount < totalStepsCount}
+        visible={isChecklistReady && completedStepsCount < totalStepsCount}
         container={{
           className: '-mb-4 bg-theme-color-onion !text-white',
         }}
