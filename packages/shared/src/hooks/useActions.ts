@@ -11,6 +11,7 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 
 interface UseActions {
   actions: Action[];
+  isFetched: boolean;
   checkHasCompleted: (type: ActionType) => boolean;
   completeAction: (type: ActionType) => Promise<void>;
 }
@@ -18,7 +19,7 @@ interface UseActions {
 export const useActions = (): UseActions => {
   const client = useQueryClient();
   const { user } = useAuthContext();
-  const { data: actions } = useQuery(
+  const { data: actions, isFetched } = useQuery(
     generateQueryKey(RequestKey.Actions, user),
     getUserActions,
     { enabled: !!user },
@@ -62,6 +63,7 @@ export const useActions = (): UseActions => {
   return useMemo<UseActions>(() => {
     return {
       actions,
+      isFetched,
       completeAction: (type: ActionType) => {
         if (checkHasCompleted(type)) {
           return undefined;
@@ -71,5 +73,5 @@ export const useActions = (): UseActions => {
       },
       checkHasCompleted,
     };
-  }, [actions, completeAction, checkHasCompleted]);
+  }, [actions, isFetched, completeAction, checkHasCompleted]);
 };
