@@ -73,5 +73,5 @@ export const useActions = (): UseActions => {
       },
       checkHasCompleted,
     };
-  }, [actions, completeAction, checkHasCompleted]);
+  }, [actions, isFetched, completeAction, checkHasCompleted]);
 };
