@@ -27,7 +27,7 @@ export function MarkdownUploadLabel({
         innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage"
       />
       Uploading in progress
-      {uploadedCount > 1 ? ` (${uploadedCount}/${uploadingCount})` : ''}
+      {uploadingCount > 1 ? ` (${uploadedCount}/${uploadingCount})` : ''}
     </>
   );
 }
