@@ -90,12 +90,12 @@ export const useMarkdownInput = ({
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
-  
+
   const onUpdate = (value: string) => {
     setInput(value);
     if (onValueUpdate) onValueUpdate(value);
   };
-  
+
   const { uploadedCount, queueCount, pushUpload, startUploading } =
     useSyncUploader({
       onStarted: async (file) => {
@@ -159,7 +159,7 @@ export const useMarkdownInput = ({
     updateQuery(undefined);
   };
 
-  const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate)
+  const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate);
 
   const onMentionCommand = async () => {
     const replaced = await command.replaceWord(getMentionReplacement, onUpdate);
