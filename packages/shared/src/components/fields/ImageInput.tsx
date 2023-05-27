@@ -38,7 +38,7 @@ interface ImageInputProps {
   fileSizeLimitMB?: number;
 }
 
-const MEGABYTE = 1024 * 1024;
+export const MEGABYTE = 1024 * 1024;
 
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
@@ -48,7 +48,8 @@ const sizeToIconSize: Record<Size, IconSize> = {
   medium: IconSize.Small,
   large: IconSize.Medium,
 };
-const ACCEPTED_TYPES = 'image/png,image/jpeg';
+export const ACCEPTED_TYPES = 'image/png,image/jpeg';
+export const acceptedTypesList = ACCEPTED_TYPES.split(',');
 
 function ImageInput({
   initialValue,
@@ -87,7 +88,7 @@ function ImageInput({
       return;
     }
 
-    if (!ACCEPTED_TYPES.split(',').includes(file.type)) {
+    if (!acceptedTypesList.includes(file.type)) {
       toast.displayToast(`File type is not allowed`);
       return;
     }

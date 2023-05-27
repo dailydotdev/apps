@@ -9,6 +9,7 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
+import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -526,4 +527,33 @@ export const createPost = async (
   const res = await request(graphqlUrl, CREATE_POST_MUTATION, variables);
 
   return res.createFreeformPost;
+};
+
+export const UPLOAD_IMAGE_MUTATION = gql`
+  mutation UploadContentImage($image: Upload!) {
+    uploadContentImage(image: $image)
+  }
+`;
+
+const imageSizeLimitMB = 5;
+export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
+export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
+
+export const uploadContentImage = async (
+  image: File,
+  onProcessing?: (file: File) => void,
+): Promise<string> => {
+  if (image.size > allowedFileSize) {
+    throw new Error('File size exceeds the limit');
+  }
+
+  if (!allowedContentImage.includes(image.type)) {
+    throw new Error('File type is not allowed');
+  }
+
+  if (onProcessing) onProcessing(image);
+
+  const res = await request(graphqlUrl, UPLOAD_IMAGE_MUTATION, { image });
+
+  return res.uploadContentImage;
 };
