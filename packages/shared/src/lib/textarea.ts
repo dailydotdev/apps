@@ -1,7 +1,8 @@
+import { MutableRefObject } from 'react';
 import { nextTick } from './func';
 
 export const isFalsyOrSpace = (value: string): boolean =>
-  !value || value === ' ';
+  !value || value === ' ' || value === '\n';
 
 const getSelectedString = (textarea: HTMLTextAreaElement) => {
   const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
@@ -76,7 +77,7 @@ export enum CursorType {
   Highlighted = 'highlighted',
 }
 
-const getCursorType = (textarea: HTMLTextAreaElement) => {
+export const getCursorType = (textarea: HTMLTextAreaElement): CursorType => {
   const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
   const [highlighted, trailing] = getSelectedString(textarea);
 
@@ -104,27 +105,35 @@ type TypeReplacementFn = (
   getReplacement: GetReplacementFn,
 ) => [string, number[]];
 
+type ReplacedFn = (result: string) => void;
+
 export type GetReplacementFn = (
   type: CursorType,
   props: GetReplacementOptionalProps,
 ) => GetReplacement;
 
+export const getTemporaryUploadString = (filename: string): string =>
+  `![${filename}]()`;
+
 export class TextareaCommand {
-  private type: CursorType;
+  private textareaRef: MutableRefObject<HTMLTextAreaElement>;
 
-  private textarea: HTMLTextAreaElement;
+  constructor(textareaRef: MutableRefObject<HTMLTextAreaElement>) {
+    this.textareaRef = textareaRef;
+  }
 
-  constructor(textarea: HTMLTextAreaElement, type?: CursorType) {
-    this.type = type ?? getCursorType(textarea);
-    this.textarea = textarea;
+  get textarea(): HTMLTextAreaElement {
+    return this.textareaRef.current;
   }
 
   private getIsolatedReplacement: TypeReplacementFn = (getReplacement) => {
     const start = this.textarea.selectionStart;
-    const selection = [start, this.textarea.selectionEnd];
+    const selection = [start, start];
     const { replacement, offset } = getReplacement(CursorType.Isolated, {
       word: '',
       selection,
+      trailingChar: this.textarea.value[start - 1],
+      leadingChar: this.textarea.value[start + 1],
     });
     const result = concatReplacement(this.textarea, selection, replacement);
     const index = start + replacement.length;
@@ -166,12 +175,14 @@ export class TextareaCommand {
     return [result, offset ?? [end, end]];
   };
 
-  private getResult(getReplacement: GetReplacementFn) {
-    if (this.type === CursorType.Isolated) {
+  private getResult(getReplacement: GetReplacementFn, forcedType?: CursorType) {
+    const type = forcedType ?? getCursorType(this.textarea);
+
+    if (type === CursorType.Isolated) {
       return this.getIsolatedReplacement(getReplacement);
     }
 
-    if (this.type === CursorType.Highlighted) {
+    if (type === CursorType.Highlighted) {
       return this.getHighlightedReplacement(getReplacement);
     }
 
@@ -180,11 +191,24 @@ export class TextareaCommand {
 
   async replaceWord(
     getReplacement: GetReplacementFn,
-    onReplaced: (result: string) => void,
+    onReplaced: ReplacedFn,
+    forcedType?: CursorType,
   ): Promise<string> {
-    const [result, position] = this.getResult(getReplacement);
+    const [result, position] = this.getResult(getReplacement, forcedType);
     onReplaced(result);
     await focusInput(this.textarea, position);
     return result;
+  }
+
+  onReplaceUpload(url: string, filename: string): string {
+    const temporary = getTemporaryUploadString(filename);
+    const start = this.textarea.value.indexOf(temporary);
+    const file = filename.split('.');
+    file.pop();
+    const position = [start, start + temporary.length];
+    const alt = file.join('.');
+    const replacement = `![${alt}](${url})`;
+
+    return concatReplacement(this.textarea, position, replacement);
   }
 }

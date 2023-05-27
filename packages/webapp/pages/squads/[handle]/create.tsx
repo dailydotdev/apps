@@ -6,10 +6,7 @@ import {
   WritePage,
 } from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from 'react-query';
-import {
-  createPost,
-  CreatePostProps,
-} from '@dailydotdev/shared/src/graphql/posts';
+import { createPost } from '@dailydotdev/shared/src/graphql/posts';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
@@ -44,9 +41,9 @@ function CreatePost(): ReactElement {
 
     if (isPosting) return null;
 
-    const data = formToJson<CreatePostProps>(e.currentTarget);
+    const { title, content, image } = formToJson(e.currentTarget);
 
-    return onCreatePost({ ...data, sourceId: squad.id });
+    return onCreatePost({ title, content, image, sourceId: squad.id });
   };
 
   return (

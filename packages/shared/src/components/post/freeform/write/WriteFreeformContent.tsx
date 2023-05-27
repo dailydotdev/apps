@@ -21,6 +21,7 @@ export interface WriteFreeformContentProps {
   isPosting?: boolean;
   squadId: string;
   post?: Post;
+  enableUpload?: boolean;
 }
 
 interface WriteForm {
@@ -120,6 +121,7 @@ export function WriteFreeformContent({
         onValueUpdate={onFormUpdate}
         initialContent={draft?.content ?? post?.content}
         textareaProps={{ name: 'content', required: true }}
+        enableUpload
       />
       <span className="flex flex-row items-center mt-4">
         {shouldShowCta && (

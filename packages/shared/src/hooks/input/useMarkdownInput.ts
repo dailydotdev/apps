@@ -1,13 +1,23 @@
 import {
+  ClipboardEventHandler,
+  DragEventHandler,
   FormEventHandler,
   HTMLAttributes,
   KeyboardEventHandler,
   MutableRefObject,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
-import { CursorType, getCloseWord, TextareaCommand } from '../../lib/textarea';
+import {
+  CursorType,
+  getCloseWord,
+  getCursorType,
+  GetReplacementFn,
+  getTemporaryUploadString,
+  TextareaCommand,
+} from '../../lib/textarea';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
@@ -26,31 +36,39 @@ import {
 import { UserShortProfile } from '../../lib/user';
 import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
+import { UploadState, useSyncUploader } from './useSyncUploader';
+import { useToastNotification } from '../useToastNotification';
+import { allowedContentImage, allowedFileSize } from '../../graphql/posts';
 
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
   postId?: string;
   sourceId?: string;
+  enableUpload?: boolean;
   initialContent?: string;
   onValueUpdate?: (value: string) => void;
 }
 
-interface UseMarkdownInput
-  extends Pick<
-    HTMLAttributes<HTMLTextAreaElement>,
-    'onSubmit' | 'onKeyDown' | 'onKeyUp'
-  > {
+type InputCallbacks = Pick<
+  HTMLAttributes<HTMLTextAreaElement>,
+  'onSubmit' | 'onKeyDown' | 'onKeyUp' | 'onDrop' | 'onInput' | 'onPaste'
+>;
+
+interface UseMarkdownInput {
   input: string;
   query: string;
-  onInput: FormEventHandler<HTMLTextAreaElement>;
   offset: number[];
   selected: number;
   onLinkCommand: () => Promise<unknown>;
   onMentionCommand: () => Promise<void>;
+  onUploadCommand: (files: FileList) => void;
   onApplyMention: (username: string) => Promise<void>;
   checkMention: (position?: number[]) => void;
   mentions: UserShortProfile[];
+  callbacks: InputCallbacks;
+  uploadingCount: number;
+  uploadedCount: number;
 }
 
 export const useMarkdownInput = ({
@@ -59,9 +77,11 @@ export const useMarkdownInput = ({
   sourceId,
   onSubmit,
   onValueUpdate,
+  enableUpload,
   initialContent = '',
 }: UseMarkdownInputProps): UseMarkdownInput => {
   const textarea = textareaRef?.current;
+  const [command, setCommand] = useState<TextareaCommand>();
   const [input, setInput] = useState(initialContent);
   const [query, setQuery] = useState<string>(undefined);
   const [offset, setOffset] = useState([0, 0]);
@@ -69,11 +89,41 @@ export const useMarkdownInput = ({
   const { requestMethod } = useRequestProtocol();
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
-
+  const { displayToast } = useToastNotification();
+  
   const onUpdate = (value: string) => {
     setInput(value);
     if (onValueUpdate) onValueUpdate(value);
   };
+  
+  const { uploadedCount, queueCount, pushUpload, startUploading } =
+    useSyncUploader({
+      onStarted: async (file) => {
+        const temporary = getTemporaryUploadString(file.name);
+        const replace: GetReplacementFn = (_, { trailingChar }) => ({
+          replacement: `${!trailingChar ? '' : '\n\n'}${temporary}\n\n`,
+        });
+        const type = getCursorType(textarea);
+        const allowedType =
+          type === CursorType.Adjacent ? CursorType.Isolated : type;
+        await command.replaceWord(replace, onUpdate, allowedType);
+      },
+      onFinish: async (status, file, url) => {
+        if (status === UploadState.Failed) {
+          return displayToast(
+            'File type is not allowed or the size exceeded the limit',
+          );
+        }
+
+        return onUpdate(command.onReplaceUpload(url, file.name));
+      },
+    });
+
+  useEffect(() => {
+    if (!textareaRef?.current) return;
+
+    setCommand(new TextareaCommand(textareaRef));
+  }, [setCommand, textareaRef]);
 
   const { data = { recommendedMentions: [] } } =
     useQuery<RecommendedMentionsData>(
@@ -104,19 +154,14 @@ export const useMarkdownInput = ({
   };
 
   const onApplyMention = async (username: string) => {
-    const command = new TextareaCommand(textarea, CursorType.Adjacent);
-    const getUsernameReplacement = () => ({ replacement: `@${username} ` });
-    await command.replaceWord(getUsernameReplacement, onUpdate);
+    const getReplacement = () => ({ replacement: `@${username} ` });
+    await command.replaceWord(getReplacement, onUpdate, CursorType.Adjacent);
     updateQuery(undefined);
   };
 
-  const onLinkCommand = async () => {
-    const command = new TextareaCommand(textarea);
-    await command.replaceWord(getLinkReplacement, onUpdate);
-  };
+  const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate)
 
   const onMentionCommand = async () => {
-    const command = new TextareaCommand(textarea);
     const replaced = await command.replaceWord(getMentionReplacement, onUpdate);
     const mention = replaced.trim().substring(1);
     setQuery(mention);
@@ -193,18 +238,60 @@ export const useMarkdownInput = ({
     checkMention();
   };
 
+  const verifyFile = (file: File) => {
+    const isValidType = allowedContentImage.includes(file.type);
+
+    if (file.size > allowedFileSize || !isValidType) return;
+
+    pushUpload(file);
+  };
+
+  const onDrop: DragEventHandler<HTMLTextAreaElement> = async (e) => {
+    e.preventDefault();
+    const items = e.dataTransfer.files;
+
+    if (!items.length || !enableUpload) return;
+
+    Array.from(items).forEach(verifyFile);
+
+    startUploading();
+  };
+
+  const onUploadCommand = (files: FileList) => {
+    Array.from(files).forEach(verifyFile);
+
+    startUploading();
+  };
+
+  const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
+    if (!e.clipboardData.files?.length || !enableUpload) return;
+
+    e.preventDefault();
+
+    Array.from(e.clipboardData.files).forEach(verifyFile);
+
+    startUploading();
+  };
+
   return {
-    onInput,
     input,
     query,
     offset,
     selected,
+    uploadedCount,
+    uploadingCount: queueCount,
     checkMention,
-    onKeyUp,
-    onKeyDown,
     onLinkCommand,
+    onUploadCommand,
     onMentionCommand,
     onApplyMention,
+    callbacks: {
+      onInput,
+      onKeyUp,
+      onKeyDown,
+      onPaste,
+      onDrop: enableUpload && onDrop,
+    },
     mentions: useMemo(() => data?.recommendedMentions ?? [], [data]),
   };
 };
