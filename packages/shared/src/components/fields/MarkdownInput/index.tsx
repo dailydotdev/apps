@@ -28,6 +28,7 @@ function MarkdownInput({
   postId,
   sourceId,
   onSubmit,
+  onValueUpdate,
   enableUpload,
   initialContent,
   textareaProps = {},
@@ -53,6 +54,7 @@ function MarkdownInput({
     initialContent,
     onSubmit,
     textareaRef,
+    onValueUpdate,
     enableUpload,
   });
 

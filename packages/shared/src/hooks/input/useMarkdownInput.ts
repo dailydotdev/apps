@@ -47,6 +47,7 @@ export interface UseMarkdownInputProps
   sourceId?: string;
   enableUpload?: boolean;
   initialContent?: string;
+  onValueUpdate?: (value: string) => void;
 }
 
 type InputCallbacks = Pick<
@@ -75,6 +76,7 @@ export const useMarkdownInput = ({
   postId,
   sourceId,
   onSubmit,
+  onValueUpdate,
   enableUpload,
   initialContent = '',
 }: UseMarkdownInputProps): UseMarkdownInput => {
@@ -88,6 +90,12 @@ export const useMarkdownInput = ({
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
+
+  const onUpdate = (value: string) => {
+    setInput(value);
+    if (onValueUpdate) onValueUpdate(value);
+  };
+
   const { uploadedCount, queueCount, pushUpload, startUploading } =
     useSyncUploader({
       onStarted: async (file) => {
@@ -98,7 +106,7 @@ export const useMarkdownInput = ({
         const type = getCursorType(textarea);
         const allowedType =
           type === CursorType.Adjacent ? CursorType.Isolated : type;
-        await command.replaceWord(replace, setInput, allowedType);
+        await command.replaceWord(replace, onUpdate, allowedType);
       },
       onFinish: async (status, file, url) => {
         if (status === UploadState.Failed) {
@@ -107,7 +115,7 @@ export const useMarkdownInput = ({
           );
         }
 
-        return setInput(command.onReplaceUpload(url, file.name));
+        return onUpdate(command.onReplaceUpload(url, file.name));
       },
     });
 
@@ -147,16 +155,14 @@ export const useMarkdownInput = ({
 
   const onApplyMention = async (username: string) => {
     const getReplacement = () => ({ replacement: `@${username} ` });
-    await command.replaceWord(getReplacement, setInput, CursorType.Adjacent);
+    await command.replaceWord(getReplacement, onUpdate, CursorType.Adjacent);
     updateQuery(undefined);
   };
 
-  const onLinkCommand = async () => {
-    await command.replaceWord(getLinkReplacement, setInput);
-  };
+  const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate);
 
   const onMentionCommand = async () => {
-    const replaced = await command.replaceWord(getMentionReplacement, setInput);
+    const replaced = await command.replaceWord(getMentionReplacement, onUpdate);
     const mention = replaced.trim().substring(1);
     setQuery(mention);
   };
@@ -228,7 +234,7 @@ export const useMarkdownInput = ({
 
     if (!target) return;
 
-    setInput(target.value);
+    onUpdate(target.value);
     checkMention();
   };
 
@@ -258,7 +264,7 @@ export const useMarkdownInput = ({
   };
 
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!e.clipboardData.files?.length) return;
+    if (!e.clipboardData.files?.length || !enableUpload) return;
 
     e.preventDefault();
 

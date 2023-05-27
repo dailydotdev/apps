@@ -1,6 +1,10 @@
 import React, { FormEventHandler, ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { WritePage } from '@dailydotdev/shared/src/components/post/freeform';
+import { del as deleteCache } from 'idb-keyval';
+import {
+  generateWritePostKey,
+  WritePage,
+} from '@dailydotdev/shared/src/components/post/freeform';
 import {
   CreatePostProps,
   editPost,
@@ -25,6 +29,8 @@ function EditPost(): ReactElement {
     editPost,
     {
       onSuccess: async () => {
+        const key = generateWritePostKey(post.id);
+        await deleteCache(key);
         await push(post.commentsPermalink);
       },
       onError: (data: ApiErrorResult) => {

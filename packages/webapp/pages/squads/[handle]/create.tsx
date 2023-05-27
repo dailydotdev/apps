@@ -1,6 +1,10 @@
 import React, { FormEventHandler, ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { WritePage } from '@dailydotdev/shared/src/components/post/freeform';
+import { del as deleteCache } from 'idb-keyval';
+import {
+  generateWritePostKey,
+  WritePage,
+} from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from 'react-query';
 import { createPost } from '@dailydotdev/shared/src/graphql/posts';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
@@ -19,7 +23,11 @@ function CreatePost(): ReactElement {
   const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
     createPost,
     {
-      onSuccess: (post) => push(post.commentsPermalink),
+      onSuccess: async (post) => {
+        const key = generateWritePostKey();
+        await deleteCache(key);
+        await push(post.commentsPermalink);
+      },
       onError: (data: ApiErrorResult) => {
         if (data?.response?.errors?.[0]) {
           displayToast(data?.response?.errors?.[0].message);

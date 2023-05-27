@@ -19,12 +19,10 @@ interface WritePageProps extends Omit<WriteFreeformContentProps, 'squadId'> {
 
 export function WritePage({
   isEdit,
-  isPosting,
-  onSubmitForm,
   squad,
   isLoading,
   isForbidden,
-  post,
+  ...props
 }: WritePageProps): ReactElement {
   const isVerified = verifyPermission(squad, SourcePermissions.Post);
 
@@ -35,12 +33,7 @@ export function WritePage({
   return (
     <WritePageContainer>
       <WritePostHeader squad={squad} isEdit={isEdit} />
-      <WriteFreeformContent
-        onSubmitForm={onSubmitForm}
-        isPosting={isPosting}
-        squadId={squad.id}
-        post={post}
-      />
+      <WriteFreeformContent {...props} squadId={squad.id} />
     </WritePageContainer>
   );
 }
