@@ -258,6 +258,8 @@ export const useMarkdownInput = ({
   };
 
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
+    if (!e.clipboardData.files?.length) return;
+
     e.preventDefault();
 
     Array.from(e.clipboardData.files).forEach(verifyFile);
