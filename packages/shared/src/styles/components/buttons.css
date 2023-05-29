@@ -200,7 +200,11 @@
 
   & [aria-pressed="true"] ~ label {
     color: var(--button-pressed-color);
-  }  
+  }
+  
+  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
+    color: var(--button-hover-color);
+  }
 
   & :active ~ label {
     color: var(--button-active-color);
