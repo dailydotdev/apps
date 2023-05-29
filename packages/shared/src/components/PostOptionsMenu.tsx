@@ -265,7 +265,7 @@ export default function PostOptionsMenu({
     text: 'Report',
     action: async () => setReportModal({ index: postIndex, post }),
   });
-  if (post?.author?.id === user.id) {
+  if (post?.author?.id === user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={EditIcon} />,
       text: 'Edit post',
