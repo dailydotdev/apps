@@ -91,7 +91,7 @@ function SharePostBar({
         />
         {url === undefined && (
           <ClickableText
-            className="hidden tablet:flex ml-1 font-bold reading-history group-hover:text-theme-label-primary"
+            className="hidden tablet:flex ml-1 font-bold reading-history hover:text-theme-label-primary"
             inverseUnderline
             onClick={() => onNewSquadPost()}
           >
