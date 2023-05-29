@@ -26,7 +26,7 @@ function EditPost(): ReactElement {
     [id, handle].includes(post?.source?.id),
   );
   const { displayToast } = useToastNotification();
-  const { onAskConfirmation } = useDiscardPost({ post });
+  const { onAskConfirmation, formRef } = useDiscardPost({ post });
   const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
     editPost,
     {
@@ -60,6 +60,7 @@ function EditPost(): ReactElement {
   return (
     <WritePage
       isEdit
+      formRef={formRef}
       isPosting={isPosting}
       onSubmitForm={onClickSubmit}
       isLoading={!isReady || !isFetched}
