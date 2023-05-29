@@ -156,7 +156,15 @@
     --button-box-shadow: var(--button-pressed-box-shadow);
   }
 
- 
+ &:not(.readOnly) {
+    &:hover, &.hover, &:focus:focus-visible {
+      --button-background: var(--button-hover-background);
+      --button-border-color: var(--button-hover-border-color);
+      --button-color: var(--button-hover-color);
+      --button-box-shadow: var(--button-hover-box-shadow);
+    }
+  }
+  
 
   &:active {
     --button-background: var(--button-active-background);
