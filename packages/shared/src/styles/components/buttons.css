@@ -273,6 +273,11 @@
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
   }
+  
+  &:hover, &.hover, &:focus:focus-visible {
+    --button-icon: var(--button-hover-icon);
+  }
+  
   &:active {
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
