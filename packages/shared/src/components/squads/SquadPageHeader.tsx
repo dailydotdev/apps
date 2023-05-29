@@ -4,7 +4,7 @@ import { Squad, SourceMember, SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
-import { FlexCol } from '../utilities';
+import { FlexCentered, FlexCol } from '../utilities';
 import SquadMemberShortList from './SquadMemberShortList';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import SharePostBar, { SharePostBarProps } from './SharePostBar';
@@ -16,6 +16,8 @@ import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
+import { Button } from '../buttons/Button';
+import classed from '../../lib/classed';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -25,6 +27,7 @@ interface SquadPageHeaderProps {
 }
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
+const Divider = classed('span', 'flex flex-1 h-px bg-theme-divider-tertiary');
 
 export function SquadPageHeader({
   squad,
@@ -48,7 +51,7 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative items-center laptopL:items-start px-6 pb-20 tablet:pb-20 laptopL:pb-14 mb-6 w-full tablet:border-b laptopL:px-[4.5rem] min-h-20 border-theme-divider-tertiary',
+        'relative items-center laptopL:items-start px-6 tablet:pb-20 laptopL:pb-14 tablet:mb-6 w-full tablet:border-b laptopL:px-[4.5rem] min-h-20 border-theme-divider-tertiary',
         sharePostTutorial.isActive && 'laptopL:mb-28 mb-28',
       )}
     >
@@ -95,16 +98,28 @@ export function SquadPageHeader({
       )}
       <div
         className={classNames(
-          'absolute bottom-0 w-full translate-y-1/2 px-6 laptopL:px-0 bg-theme-bg-primary',
+          'relative tablet:absolute flex flex-col tablet:flex-row justify-center items-center pt-8 tablet:p-0 bottom-0 w-full tablet:translate-y-1/2 laptopL:px-0 bg-theme-bg-primary laptop:max-w-[41.5rem]',
           shouldShowHighlightPulse && 'highlight-pulse',
-          MAX_WIDTH,
         )}
       >
+        <Divider />
         <SharePostBar
-          className="w-full"
+          className="w-full max-w-[30.25rem]"
           onNewSquadPost={onNewSquadPost}
           disabled={!verifyPermission(squad, SourcePermissions.Post)}
         />
+        <FlexCentered className="relative my-2 mx-2 w-full tablet:w-auto text-theme-label-tertiary typo-callout">
+          <span className="flex tablet:hidden absolute -left-6 h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary" />
+          <span className="z-0 px-4 bg-theme-bg-primary">or</span>
+        </FlexCentered>
+        <Button
+          tag="a"
+          href={`${squad.permalink}/create`}
+          className="w-full tablet:w-auto btn-primary-cabbage"
+        >
+          New post
+        </Button>
+        <Divider />
         {sharePostTutorial.isActive && (
           <TutorialGuide
             className="absolute right-0 -bottom-22 tablet:-bottom-24 laptopL:-bottom-20 left-0"

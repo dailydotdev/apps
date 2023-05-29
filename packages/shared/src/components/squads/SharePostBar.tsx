@@ -1,14 +1,22 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
+import React, {
+  FormEvent,
+  MouseEventHandler,
+  ReactElement,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
-import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
+import { usePostToSquad } from '../../hooks';
+import { ClickableText } from '../buttons/ClickableText';
+import useMedia from '../../hooks/useMedia';
+import { mobileL } from '../../styles/media';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
@@ -26,7 +34,9 @@ function SharePostBar({
   onNewSquadPost,
   disabled = false,
 }: SharePostBarProps): ReactElement {
-  const [url, setUrl] = useState('');
+  const urlRef = useRef<HTMLInputElement>();
+  const [url, setUrl] = useState<string>(undefined);
+  const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const onSharedSuccessfully = () => setUrl('');
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
     onEmptyUrl: () => onNewSquadPost({ preview: { url: '' } }),
@@ -40,10 +50,18 @@ function SharePostBar({
   });
 
   const { user } = useAuthContext();
-  const { sidebarRendered } = useSidebarRendered();
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     await getLinkPreview(url);
+  };
+
+  const onPlaceholderClick: MouseEventHandler = (e) => {
+    const el = e.target as HTMLElement;
+
+    if (el.classList.contains('reading-history')) return e.preventDefault();
+
+    setUrl('');
+    return urlRef.current.focus();
   };
 
   if (disabled) {
@@ -59,48 +77,66 @@ function SharePostBar({
     <form
       onSubmit={onSubmit}
       className={classNames(
-        'flex flex-wrap items-center rounded-16 typo-callout border overflow-hidden',
+        'flex flex-col tablet:flex-row items-center rounded-16 typo-callout border overflow-hidden',
         'bg-theme-float focus-within:border-theme-divider-primary border-theme-divider-tertiary hover:border-theme-divider-primary',
         className,
       )}
     >
-      <ProfilePicture
-        className="order-1 m-3"
-        user={user}
-        size="large"
-        nativeLazyLoading
-      />
-      <input
-        type="url"
-        autoComplete="off"
-        name="share-post-bar"
-        className="flex-1 order-2 pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
-        placeholder="Enter link to share"
-        onInput={(e) => setUrl(e.currentTarget.value)}
-        value={url}
-      />
-      {!url && (
-        <Button
-          type="button"
-          onClick={() => onNewSquadPost()}
-          buttonSize={sidebarRendered ? ButtonSize.Small : ButtonSize.Medium}
-          className={classNames(
-            'btn-tertiary',
-            'w-full tablet:w-auto order-4 tablet:order-3 border-t rounded-none tablet:rounded-12 border-theme-divider-tertiary border tablet:border-0',
+      <span className="flex flex-row items-center w-full">
+        <ProfilePicture
+          className="m-3"
+          user={user}
+          size="large"
+          nativeLazyLoading
+        />
+        <div className="group flex relative flex-1">
+          {url === undefined && (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+            <span
+              onClick={onPlaceholderClick}
+              tabIndex={0}
+              className="flex absolute inset-0 flex-row text-theme-label-tertiary hover:text-theme-label-primary"
+              role="button"
+            >
+              {`Enter URL${isMobile ? '' : '/ Choose from'}`}
+              <ClickableText
+                className="hidden tablet:flex ml-1 font-bold reading-history group-hover:text-theme-label-primary"
+                inverseUnderline
+                onClick={() => onNewSquadPost()}
+              >
+                reading history
+              </ClickableText>
+            </span>
           )}
+          <input
+            ref={urlRef}
+            type="url"
+            autoComplete="off"
+            name="share-post-bar"
+            className="flex-1 pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
+            placeholder={url !== undefined ? 'Enter URL' : ''}
+            onInput={(e) => setUrl(e.currentTarget.value)}
+            value={url}
+            onBlur={() => !url?.length && setUrl(undefined)}
+          />
+        </div>
+        <Button
+          type="submit"
+          buttonSize={ButtonSize.Medium}
+          className="mx-3 btn-primary-cabbage"
+          disabled={isLoadingPreview || !url}
+          loading={isLoadingPreview}
         >
-          {sidebarRendered ? 'Reading history' : 'Choose from reading history'}
+          Post
         </Button>
-      )}
-      <Button
-        type="submit"
-        buttonSize={ButtonSize.Medium}
-        className="order-3 tablet:order-4 mx-3 btn-primary-cabbage"
-        disabled={isLoadingPreview}
-        loading={isLoadingPreview}
+      </span>
+      <button
+        className="flex tablet:hidden justify-center items-center py-5 w-full font-bold border-t text-theme-label-tertiary typo-callout border-theme-divider-tertiary"
+        type="button"
+        onClick={() => onNewSquadPost()}
       >
-        Post
-      </Button>
+        Choose from reading history
+      </button>
     </form>
   );
 }
