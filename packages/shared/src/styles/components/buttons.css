@@ -1,31 +1,6 @@
 .btn {
-  &:hover, &.hover, &:focus:focus-visible {
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
-  &[aria-pressed="true"] {
-    --button-background: var(--button-pressed-background);
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
-
-  &:hover, &.hover, &:focus:focus-visible {
-    --button-icon: var(--button-hover-icon);
-    transition: background-color 0.2s ease-in-out;
-  }
-  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
-    color: var(--button-hover-color);
-    transition: background-color 0.2s ease-in-out;
-  }
-  &:not(.readOnly) {
-    &:hover, &.hover, &:focus:focus-visible {
-      --button-background: var(--button-hover-background);
-      --button-border-color: var(--button-hover-border-color);
-      --button-color: var(--button-hover-color);
-      --button-box-shadow: var(--button-hover-box-shadow);
-      transition: background-color 0.2s ease-in-out;
-    }
-  }
+  transition: 0.2s ease-in-out;
+  transition-property: border, background, box-shadow;
 
   height: 2.5rem;
   padding: 0 1.4375rem;
