@@ -2,6 +2,7 @@ import React, { ReactElement, useContext, useState } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryKey, useQueryClient } from 'react-query';
+import { useRouter } from 'next/router';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, ReportReason } from '../graphql/posts';
@@ -27,6 +28,7 @@ import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import { PinIcon } from './icons';
 import { getPostByIdKey } from '../hooks/usePostById';
+import EditIcon from './icons/Edit';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -74,6 +76,7 @@ export default function PostOptionsMenu({
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
+  const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const { feedSettings } = useFeedSettings();
@@ -262,6 +265,13 @@ export default function PostOptionsMenu({
     text: 'Report',
     action: async () => setReportModal({ index: postIndex, post }),
   });
+  if (post?.author?.id === user.id) {
+    postOptions.push({
+      icon: <MenuIcon Icon={EditIcon} />,
+      text: 'Edit post',
+      action: () => router.push(`${post.commentsPermalink}/edit`),
+    });
+  }
   if (onConfirmDeletePost) {
     postOptions.push({
       icon: <MenuIcon Icon={TrashIcon} />,
