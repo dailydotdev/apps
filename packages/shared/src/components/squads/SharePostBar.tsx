@@ -1,10 +1,4 @@
-import React, {
-  FormEvent,
-  MouseEventHandler,
-  ReactElement,
-  useRef,
-  useState,
-} from 'react';
+import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -55,15 +49,6 @@ function SharePostBar({
     await getLinkPreview(url);
   };
 
-  const onPlaceholderClick: MouseEventHandler = (e) => {
-    const el = e.target as HTMLElement;
-
-    if (el.classList.contains('reading-history')) return e.preventDefault();
-
-    setUrl('');
-    return urlRef.current.focus();
-  };
-
   if (disabled) {
     return (
       <Card className="flex gap-1.5 items-center py-5 px-3 !flex-row hover:border-theme-divider-tertiary text-theme-label-quaternary">
@@ -82,48 +67,41 @@ function SharePostBar({
         className,
       )}
     >
-      <span className="flex flex-row items-center w-full">
+      <span className="flex relative flex-row items-center w-full">
         <ProfilePicture
           className="m-3"
           user={user}
           size="large"
           nativeLazyLoading
         />
-        <div className="group flex relative flex-1">
-          {url === undefined && (
-            // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-            <span
-              onClick={onPlaceholderClick}
-              tabIndex={0}
-              className="flex absolute inset-0 flex-row text-theme-label-tertiary hover:text-theme-label-primary"
-              role="button"
-            >
-              {`Enter URL${isMobile ? '' : '/ Choose from'}`}
-              <ClickableText
-                className="hidden tablet:flex ml-1 font-bold reading-history group-hover:text-theme-label-primary"
-                inverseUnderline
-                onClick={() => onNewSquadPost()}
-              >
-                reading history
-              </ClickableText>
-            </span>
+        <input
+          ref={urlRef}
+          type="url"
+          autoComplete="off"
+          name="share-post-bar"
+          placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
+          className={classNames(
+            'pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout',
+            url !== undefined && 'flex-1 pr-2',
           )}
-          <input
-            ref={urlRef}
-            type="url"
-            autoComplete="off"
-            name="share-post-bar"
-            className="flex-1 pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout"
-            placeholder={url !== undefined ? 'Enter URL' : ''}
-            onInput={(e) => setUrl(e.currentTarget.value)}
-            value={url}
-            onBlur={() => !url?.length && setUrl(undefined)}
-          />
-        </div>
+          onInput={(e) => setUrl(e.currentTarget.value)}
+          value={url}
+          onBlur={() => !url?.length && setUrl(undefined)}
+          onFocus={() => !url?.length && setUrl('')}
+        />
+        {url === undefined && (
+          <ClickableText
+            className="hidden tablet:flex ml-1 font-bold reading-history group-hover:text-theme-label-primary"
+            inverseUnderline
+            onClick={() => onNewSquadPost()}
+          >
+            reading history
+          </ClickableText>
+        )}
         <Button
           type="submit"
           buttonSize={ButtonSize.Medium}
-          className="mx-3 btn-primary-cabbage"
+          className="mx-3 ml-auto btn-primary-cabbage"
           disabled={isLoadingPreview || !url}
           loading={isLoadingPreview}
         >
