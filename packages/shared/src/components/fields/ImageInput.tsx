@@ -11,6 +11,8 @@ import { fallbackImages } from '../../lib/config';
 import EditIcon from '../icons/Edit';
 import { IconSize } from '../Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { Button, ButtonSize } from '../buttons/Button';
+import MiniCloseIcon from '../icons/MiniClose';
 
 type Size = 'medium' | 'large';
 
@@ -22,17 +24,21 @@ interface ClassName {
 interface ImageInputProps {
   className?: ClassName;
   initialValue?: string;
-  onChange?: (base64: string) => void;
+  onChange?: (base64: string, raw?: File) => void;
   name?: string;
   size?: Size;
   id?: string;
   viewOnly?: boolean;
   fallbackImage?: string;
   hoverIcon?: ReactNode;
-  alwayShowHover?: boolean;
+  enableHover?: boolean;
+  closeable?: boolean;
+  alwaysShowHover?: boolean;
+  children?: ReactNode;
+  fileSizeLimitMB?: number;
 }
 
-const TWO_MEGABYTES = 2 * 1024 * 1024;
+export const MEGABYTE = 1024 * 1024;
 
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
@@ -42,6 +48,8 @@ const sizeToIconSize: Record<Size, IconSize> = {
   medium: IconSize.Small,
   large: IconSize.Medium,
 };
+export const ACCEPTED_TYPES = 'image/png,image/jpeg';
+export const acceptedTypesList = ACCEPTED_TYPES.split(',');
 
 function ImageInput({
   initialValue,
@@ -52,8 +60,12 @@ function ImageInput({
   size = 'medium',
   viewOnly,
   hoverIcon,
-  alwayShowHover,
+  children,
+  enableHover = true,
+  alwaysShowHover,
   fallbackImage = fallbackImages.avatar,
+  closeable,
+  fileSizeLimitMB = 2,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   const toast = useToastNotification();
@@ -71,62 +83,90 @@ function ImageInput({
       return;
     }
 
-    if (file.size > TWO_MEGABYTES) {
-      toast.displayToast('Maximum image size is 2 MB');
+    if (file.size > fileSizeLimitMB * MEGABYTE) {
+      toast.displayToast(`Maximum image size is ${fileSizeLimitMB} MB`);
+      return;
+    }
 
+    if (!acceptedTypesList.includes(file.type)) {
+      toast.displayToast(`File type is not allowed`);
       return;
     }
 
     const base64 = await blobToBase64(file);
     toast.dismissToast();
     setImage(base64);
-    onChange?.(base64);
+    onChange?.(base64, file);
+  };
+
+  const onClose = () => {
+    setImage(null);
+    onChange?.(null, null);
+    inputRef.current.value = '';
   };
 
   const onError = () => setImage(fallbackImage);
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={classNames(
-        'relative flex justify-center items-center group overflow-hidden border border-theme-divider-primary',
-        componentSize[size],
-        className?.container,
-      )}
-      disabled={viewOnly}
-    >
-      {!viewOnly && (
-        <input
-          id={id}
-          ref={inputRef}
-          type="file"
-          name={name}
-          accept="image/png,image/jpeg"
-          className="hidden"
-          onChange={onFileChange}
+    <div className="flex relative w-min">
+      <button
+        type="button"
+        onClick={onClick}
+        className={classNames(
+          'relative flex justify-center items-center group overflow-hidden border border-theme-divider-primary',
+          componentSize[size],
+          className?.container,
+        )}
+        disabled={viewOnly}
+      >
+        {!viewOnly && (
+          <input
+            id={id}
+            ref={inputRef}
+            type="file"
+            name={name}
+            accept={ACCEPTED_TYPES}
+            className="hidden"
+            onChange={onFileChange}
+          />
+        )}
+        {image ? (
+          <img
+            className={classNames(
+              'w-full h-full object-cover',
+              className?.img,
+              alwaysShowHover && 'opacity-[0.8]',
+              !viewOnly && 'mouse:group-hover:opacity-64',
+            )}
+            src={image}
+            alt="File upload preview"
+            onError={onError}
+          />
+        ) : (
+          children
+        )}
+        {enableHover && (
+          <span
+            className={classNames(
+              !alwaysShowHover && 'hidden',
+              !viewOnly && 'mouse:group-hover:block absolute',
+            )}
+          >
+            {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
+          </span>
+        )}
+      </button>
+      {image && closeable && (
+        <Button
+          type="button"
+          buttonSize={ButtonSize.Small}
+          position="absolute"
+          className="absolute -top-2 -right-2 !shadow-2 btn-primary"
+          onClick={onClose}
+          icon={<MiniCloseIcon />}
         />
       )}
-      <img
-        className={classNames(
-          'w-full h-full',
-          className?.img,
-          alwayShowHover && 'opacity-[0.8]',
-          !viewOnly && 'mouse:group-hover:opacity-64',
-        )}
-        src={image}
-        alt="File upload preview"
-        onError={onError}
-      />
-      <span
-        className={classNames(
-          !alwayShowHover && 'hidden',
-          !viewOnly && 'mouse:group-hover:block absolute',
-        )}
-      >
-        {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
-      </span>
-    </button>
+    </div>
   );
 }
 

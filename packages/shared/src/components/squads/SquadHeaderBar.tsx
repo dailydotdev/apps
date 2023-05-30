@@ -74,7 +74,7 @@ export function SquadHeaderBar({
         {verifyPermission(squad, SourcePermissions.Invite) && (
           <Button
             className={classNames(
-              'btn-primary',
+              'btn-secondary',
               tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
             )}
             onClick={() => {

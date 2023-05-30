@@ -4,11 +4,13 @@ import styles from './Loader.module.css';
 
 export interface LoaderProps extends HTMLAttributes<HTMLDivElement> {
   invertColor?: boolean;
+  innerClassName?: string;
 }
 
 export function Loader({
   className,
   invertColor,
+  innerClassName,
   ...props
 }: LoaderProps): ReactElement {
   return (
@@ -22,7 +24,11 @@ export function Loader({
       )}
     >
       <span
-        className={classNames(styles.inner, invertColor && styles.invert)}
+        className={classNames(
+          styles.inner,
+          invertColor && styles.invert,
+          innerClassName,
+        )}
       />
     </div>
   );

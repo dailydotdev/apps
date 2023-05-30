@@ -199,6 +199,17 @@ module.exports = {
         'logo-big': '2.0625rem',
       },
     },
+    lineClamp: {
+      1: '1',
+      2: '2',
+      3: '3',
+      4: '4',
+      5: '5',
+      6: '6',
+      7: '7',
+      8: '8',
+      9: '9',
+    },
   },
   // eslint-disable-next-line global-require
   plugins: [caret, typography, buttons, require('@tailwindcss/line-clamp')],

@@ -11,6 +11,7 @@ export enum ActionType {
   SquadInvite = 'squad_invite',
   BrowserExtension = 'browser_extension',
   EnableNotification = 'enable_notification',
+  WritePost = 'write_post',
 }
 
 export interface Action {

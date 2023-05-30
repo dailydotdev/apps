@@ -3,6 +3,7 @@ import React, {
   MutableRefObject,
   ReactElement,
   ReactNode,
+  SyntheticEvent,
 } from 'react';
 import classNames from 'classnames';
 import { FieldInput } from './common';
@@ -73,6 +74,7 @@ function TextFieldComponent(
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
   const invalid = validInput === false || (required && inputLength === 0);
+  const hasValue = hasInput || !!inputRef?.current?.value?.length;
 
   return (
     <BaseFieldContainer
@@ -125,16 +127,17 @@ function TextFieldComponent(
           actionButton && 'mr-2',
         )}
       >
-        {isPrimaryField && (focused || hasInput) && (
+        {isPrimaryField && (focused || hasValue) && (
           <label
             className={classNames(
               'typo-caption1',
               getFieldLabelColor({
                 readOnly,
                 isLocked,
-                hasInput,
+                hasInput: hasValue,
                 focused,
                 disabled,
+                isPrimaryField: true,
               }),
             )}
             htmlFor={inputId}
@@ -160,7 +163,6 @@ function TextFieldComponent(
             }
             onBlur();
           }}
-          onInput={onInput}
           maxLength={maxLength}
           readOnly={readOnly}
           size={1}
@@ -169,7 +171,7 @@ function TextFieldComponent(
             getFieldFontColor({
               readOnly,
               disabled,
-              hasInput,
+              hasInput: hasValue,
               focused,
               hasActionIcon: !!rightIcon,
             }),
@@ -177,6 +179,10 @@ function TextFieldComponent(
           disabled={disabled}
           required={required}
           {...props}
+          onInput={(e: SyntheticEvent<HTMLInputElement, InputEvent>) => {
+            onInput(e);
+            if (props.onInput) props.onInput(e);
+          }}
         />
         {progress && (
           <div

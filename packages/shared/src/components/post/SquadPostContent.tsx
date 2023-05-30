@@ -13,7 +13,7 @@ import { PostType, sendViewPost } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
-import WelcomePostContent from './WelcomePostContent';
+import MarkdownPostContent from './MarkdownPostContent';
 import { Button } from '../buttons/Button';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -23,7 +23,8 @@ import { SourcePermissions, Squad } from '../../graphql/sources';
 import EditIcon from '../icons/Edit';
 
 const ContentMap = {
-  [PostType.Welcome]: WelcomePostContent,
+  [PostType.Freeform]: MarkdownPostContent,
+  [PostType.Welcome]: MarkdownPostContent,
   [PostType.Share]: SharePostContent,
 };
 

@@ -1,10 +1,8 @@
 import React, {
-  Dispatch,
   FormEvent,
   FormEventHandler,
   KeyboardEvent,
   ReactElement,
-  SetStateAction,
   useContext,
   useEffect,
   useRef,
@@ -39,7 +37,8 @@ export interface SquadCommentProps
   extends Pick<SquadStateProps, 'form' | 'onUpdateForm'> {
   onSubmit: SubmitSharePostFunc;
   isLoading?: boolean;
-  notificationState: [boolean, Dispatch<SetStateAction<boolean>>];
+  isNotificationEnabled: boolean;
+  onToggleNotification: () => void;
   shouldShowToggle: boolean;
 }
 
@@ -54,12 +53,12 @@ export function SquadComment({
   shouldShowToggle,
   isLoading,
   onUpdateForm,
-  notificationState,
+  isNotificationEnabled,
+  onToggleNotification,
 }: SquadCommentProps): ReactElement {
   const textinput = useRef<HTMLTextAreaElement>();
   const { preview, handle, file, name } = form;
   const postExists = !!preview.id;
-  const [enableNotification, setEnableNotification] = notificationState;
   const { user } = useContext(AuthContext);
   const [commentary, setCommentary] = useState(form.commentary);
   const [link, setLink] = useState(preview.url);
@@ -183,8 +182,8 @@ export function SquadComment({
             labelClassName="flex-1 font-normal"
             className="py-3 w-full max-w-full"
             compact={false}
-            checked={enableNotification}
-            onToggle={() => setEnableNotification(!enableNotification)}
+            checked={isNotificationEnabled}
+            onToggle={onToggleNotification}
           >
             Receive updates whenever your Squad members engage with your post
           </Switch>
