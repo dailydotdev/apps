@@ -3,6 +3,7 @@ import React, {
   MutableRefObject,
   ReactElement,
   ReactNode,
+  SyntheticEvent,
 } from 'react';
 import classNames from 'classnames';
 import { FieldInput } from './common';
@@ -162,7 +163,6 @@ function TextFieldComponent(
             }
             onBlur();
           }}
-          onInput={onInput}
           maxLength={maxLength}
           readOnly={readOnly}
           size={1}
@@ -179,6 +179,10 @@ function TextFieldComponent(
           disabled={disabled}
           required={required}
           {...props}
+          onInput={(e: SyntheticEvent<HTMLInputElement, InputEvent>) => {
+            onInput(e);
+            if (props.onInput) props.onInput(e);
+          }}
         />
         {progress && (
           <div
