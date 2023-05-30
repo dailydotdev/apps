@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface ExitProps {
   message?: string;
@@ -17,19 +17,28 @@ export function useExitConfirmation({
   const confirmRef = useRef(true);
   const router = useRouter();
 
+  const checkShouldAskConfirmation = useCallback(
+    () => !confirmRef.current || onValidateAction(),
+    [onValidateAction],
+  );
+
   useEffect(() => {
     if (!router.isReady) return null;
 
     const closeHandler = (e: BeforeUnloadEvent) => {
-      if (!confirmRef.current || onValidateAction()) return;
+      const shouldAskConfirmation = checkShouldAskConfirmation();
+
+      if (shouldAskConfirmation) return;
 
       e.preventDefault();
       e.returnValue = message;
     };
 
     const routeHandler = () => {
+      const shouldAskConfirmation = checkShouldAskConfirmation();
+
       // eslint-disable-next-line no-restricted-globals,no-alert
-      if (!confirmRef.current || onValidateAction() || confirm(message)) return;
+      if (shouldAskConfirmation || confirm(message)) return;
 
       router.events.emit('routeChangeError');
       throw new Error('Cancelling navigation');
@@ -42,7 +51,7 @@ export function useExitConfirmation({
       window.removeEventListener('beforeunload', closeHandler);
       router.events.off('routeChangeStart', routeHandler);
     };
-  }, [confirmRef, onValidateAction, message, router]);
+  }, [checkShouldAskConfirmation, message, router]);
 
   return {
     onAskConfirmation: (value) => {
