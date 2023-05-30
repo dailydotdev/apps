@@ -9,6 +9,7 @@ export interface BaseClickableTextProps {
   tag?: React.ElementType & AvailableTags;
   defaultTypo?: boolean;
   textClassName?: string;
+  inverseUnderline?: boolean;
 }
 
 export type ClickableTextProps<Tag extends AvailableTags> =
@@ -23,6 +24,7 @@ function ClickableTextComponent<Tag extends AvailableTags>(
     tag: Tag = 'button',
     defaultTypo = true,
     textClassName,
+    inverseUnderline,
     className,
     ...props
   }: ClickableTextProps<Tag>,
@@ -37,6 +39,9 @@ function ClickableTextComponent<Tag extends AvailableTags>(
       ref={ref}
       className={classNames(
         'flex flex-row items-center text-theme-label-tertiary cursor-pointer hover:underline focus:underline',
+        inverseUnderline
+          ? 'underline hover:no-underline focus:no-underline'
+          : 'hover:underline focus:underline',
         defaultTypo && 'typo-callout',
         pressed && 'text-theme-label-primary',
         isLink && (textClassName || 'text-theme-label-link'),
