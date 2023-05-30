@@ -34,6 +34,7 @@ export const supportedTypesForPrivateSources = [
   PostType.Article,
   PostType.Share,
   PostType.Welcome,
+  PostType.Freeform,
 ];
 
 export interface Post {
