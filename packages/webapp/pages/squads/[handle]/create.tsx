@@ -31,25 +31,26 @@ function CreatePost(): ReactElement {
   const { displayToast } = useToastNotification();
   const { onAskConfirmation, draft, updateDraft, isDraftReady, formRef } =
     useDiscardPost();
-  const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
-    createPost,
-    {
-      onMutate: () => {
-        onAskConfirmation(false);
-      },
-      onSuccess: async (post) => {
-        const key = generateWritePostKey();
-        await deleteCache(key);
-        await push(post.commentsPermalink);
-      },
-      onError: (data: ApiErrorResult) => {
-        if (data?.response?.errors?.[0]) {
-          displayToast(data?.response?.errors?.[0].message);
-        }
-        onAskConfirmation(true);
-      },
+  const {
+    mutateAsync: onCreatePost,
+    isLoading: isPosting,
+    isSuccess,
+  } = useMutation(createPost, {
+    onMutate: () => {
+      onAskConfirmation(false);
     },
-  );
+    onSuccess: async (post) => {
+      const key = generateWritePostKey();
+      await deleteCache(key);
+      await push(post.commentsPermalink);
+    },
+    onError: (data: ApiErrorResult) => {
+      if (data?.response?.errors?.[0]) {
+        displayToast(data?.response?.errors?.[0].message);
+      }
+      onAskConfirmation(true);
+    },
+  });
 
   const onClickSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -68,7 +69,7 @@ function CreatePost(): ReactElement {
       <WritePage
         onSubmitForm={onClickSubmit}
         isLoading={!isReady || !isDraftReady}
-        isPosting={isPosting}
+        isPosting={isPosting || isSuccess}
         formRef={formRef}
         squad={squad}
         draft={draft}

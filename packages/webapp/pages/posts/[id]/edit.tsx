@@ -30,25 +30,26 @@ function EditPost(): ReactElement {
   const { displayToast } = useToastNotification();
   const { onAskConfirmation, draft, updateDraft, isDraftReady, formRef } =
     useDiscardPost({ post });
-  const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
-    editPost,
-    {
-      onMutate: () => {
-        onAskConfirmation(false);
-      },
-      onSuccess: async () => {
-        const key = generateWritePostKey(post.id);
-        await deleteCache(key);
-        await push(post.commentsPermalink);
-      },
-      onError: (data: ApiErrorResult) => {
-        if (data?.response?.errors?.[0]) {
-          displayToast(data?.response?.errors?.[0].message);
-        }
-        onAskConfirmation(true);
-      },
+  const {
+    mutateAsync: onCreatePost,
+    isLoading: isPosting,
+    isSuccess,
+  } = useMutation(editPost, {
+    onMutate: () => {
+      onAskConfirmation(false);
     },
-  );
+    onSuccess: async () => {
+      const key = generateWritePostKey(post.id);
+      await deleteCache(key);
+      await push(post.commentsPermalink);
+    },
+    onError: (data: ApiErrorResult) => {
+      if (data?.response?.errors?.[0]) {
+        displayToast(data?.response?.errors?.[0].message);
+      }
+      onAskConfirmation(true);
+    },
+  });
 
   const onClickSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -76,7 +77,7 @@ function EditPost(): ReactElement {
       <WritePage
         isEdit
         formRef={formRef}
-        isPosting={isPosting}
+        isPosting={isPosting || isSuccess}
         onSubmitForm={onClickSubmit}
         isLoading={!isReady || !isFetched || !isDraftReady}
         isForbidden={post?.author.id !== user?.id}
