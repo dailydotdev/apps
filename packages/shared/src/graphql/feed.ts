@@ -16,9 +16,14 @@ export enum OnboardingMode {
   Auto = 'auto',
 }
 
-export const baseFeedSupportedTypes = [PostType.Article, PostType.Share];
+export const baseFeedSupportedTypes = [
+  PostType.Article,
+  PostType.Share,
+  PostType.Freeform,
+];
 
-export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["article", "share"]`;
+const joinedTypes = baseFeedSupportedTypes.join('","');
+export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 
 export interface FeedData {
   page: Connection<Post>;
