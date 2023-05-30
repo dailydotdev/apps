@@ -15,6 +15,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMutation } from 'react-query';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 function EditPost(): ReactElement {
@@ -25,9 +26,13 @@ function EditPost(): ReactElement {
     [id, handle].includes(post?.source?.id),
   );
   const { displayToast } = useToastNotification();
+  const { onAskConfirmation, formRef } = useDiscardPost({ post });
   const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
     editPost,
     {
+      onMutate: () => {
+        onAskConfirmation(false);
+      },
       onSuccess: async () => {
         const key = generateWritePostKey(post.id);
         await deleteCache(key);
@@ -37,6 +42,7 @@ function EditPost(): ReactElement {
         if (data?.response?.errors?.[0]) {
           displayToast(data?.response?.errors?.[0].message);
         }
+        onAskConfirmation(true);
       },
     },
   );
@@ -54,6 +60,7 @@ function EditPost(): ReactElement {
   return (
     <WritePage
       isEdit
+      formRef={formRef}
       isPosting={isPosting}
       onSubmitForm={onClickSubmit}
       isLoading={!isReady || !isFetched}
