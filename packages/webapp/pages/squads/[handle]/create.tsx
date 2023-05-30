@@ -1,4 +1,4 @@
-import React, { FormEventHandler, ReactElement } from 'react';
+import React, { FormEvent, ReactElement } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { del as deleteCache } from 'idb-keyval';
@@ -8,7 +8,6 @@ import {
 } from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from 'react-query';
 import { createPost } from '@dailydotdev/shared/src/graphql/posts';
-import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -52,15 +51,12 @@ function CreatePost(): ReactElement {
     },
   });
 
-  const onClickSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
     e.preventDefault();
 
-    if (isPosting) return null;
+    if (isPosting || isSuccess) return null;
 
-    const { title, content, image: files } = formToJson(e.currentTarget);
-    const image = files ? files[0] : null;
-
-    return onCreatePost({ title, content, image, sourceId: squad.id });
+    return onCreatePost({ ...params, sourceId: squad.id });
   };
 
   return (

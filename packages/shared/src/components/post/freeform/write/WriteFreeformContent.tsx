@@ -1,4 +1,5 @@
 import React, {
+  FormEvent,
   FormEventHandler,
   MutableRefObject,
   ReactElement,
@@ -20,9 +21,13 @@ import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
 import { useActions } from '../../../../hooks/useActions';
 import { ActionType } from '../../../../graphql/actions';
 import useSidebarRendered from '../../../../hooks/useSidebarRendered';
+import { base64ToFile } from '../../../../lib/base64';
 
 export interface WriteFreeformContentProps {
-  onSubmitForm: FormEventHandler<HTMLFormElement>;
+  onSubmitForm: (
+    e: FormEvent<HTMLFormElement>,
+    prop: WriteForm,
+  ) => Promise<Post>;
   isPosting?: boolean;
   squadId: string;
   post?: Post;
@@ -65,10 +70,18 @@ export function WriteFreeformContent({
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
 
+  const getImage = () => {
+    if (!draft.image) return null;
+
+    return base64ToFile(draft.image, 'thumbnail.png');
+  };
+
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     completeAction(ActionType.WritePost);
     await onSubmitted();
-    await onSubmitForm(e);
+    const { title, content, image: files } = formToJson(e.currentTarget);
+    const image = files?.[0] ?? (await getImage());
+    await onSubmitForm(e, { title, content, image });
   };
 
   const onUpdate = async () => {
