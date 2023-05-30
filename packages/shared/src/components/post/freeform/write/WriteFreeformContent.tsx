@@ -14,7 +14,6 @@ import { Button } from '../../../buttons/Button';
 import { WritePageMain } from './common';
 import { useNotificationToggle } from '../../../../hooks/notifications';
 import { EditPostProps, Post } from '../../../../graphql/posts';
-import usePersistentContext from '../../../../hooks/usePersistentContext';
 import { formToJson } from '../../../../lib/form';
 import useDebounce from '../../../../hooks/useDebounce';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
