@@ -1,5 +1,5 @@
 import { useMutation } from 'react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { PromptOptions, usePrompt } from './usePrompt';
 import { deletePost, Post, updatePinnedPost } from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
