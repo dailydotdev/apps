@@ -178,7 +178,7 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('pinnedAt')}
+  ${getFeedPostFragment('pinnedAt content')}
 `;
 
 export const BOOKMARKS_FEED_QUERY = gql`
