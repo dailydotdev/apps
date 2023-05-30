@@ -36,7 +36,7 @@ export const useDiscardPost = ({
     const isTitleSaved = checkSavedProperty('title', form, draft, post);
     const isContentSaved = checkSavedProperty('content', form, draft, post);
     return isTitleSaved && isContentSaved;
-  }, [post, draft, formRef]);
+  }, [post, draft]);
 
   const { onAskConfirmation } = useExitConfirmation({ onValidateAction });
 

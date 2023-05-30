@@ -1,4 +1,5 @@
-import React, { FormEventHandler, ReactElement, useRef } from 'react';
+import React, { FormEventHandler, ReactElement } from 'react';
+import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { del as deleteCache } from 'idb-keyval';
 import {
@@ -13,16 +14,22 @@ import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
+import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+
+const seo: NextSeoProps = {
+  title: 'Create post',
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
+};
 
 function CreatePost(): ReactElement {
-  const formRef = useRef<HTMLFormElement>();
   const { query, isReady, push } = useRouter();
   const { squads } = useAuthContext();
   const squad = squads?.find(({ id, handle }) =>
     [id, handle].includes(query?.handle as string),
   );
   const { displayToast } = useToastNotification();
-  const { onAskConfirmation, draft, updateDraft, isDraftReady } =
+  const { onAskConfirmation, draft, updateDraft, isDraftReady, formRef } =
     useDiscardPost();
   const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
     createPost,
@@ -55,14 +62,17 @@ function CreatePost(): ReactElement {
   };
 
   return (
-    <WritePage
-      onSubmitForm={onClickSubmit}
-      isLoading={!isReady || !isDraftReady}
-      formRef={formRef}
-      squad={squad}
-      draft={draft}
-      updateDraft={updateDraft}
-    />
+    <>
+      <NextSeo {...seo} titleTemplate="%s | daily.dev" />
+      <WritePage
+        onSubmitForm={onClickSubmit}
+        isLoading={!isReady || !isDraftReady}
+        formRef={formRef}
+        squad={squad}
+        draft={draft}
+        updateDraft={updateDraft}
+      />
+    </>
   );
 }
 

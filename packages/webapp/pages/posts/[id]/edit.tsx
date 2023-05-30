@@ -16,7 +16,9 @@ import { useMutation } from 'react-query';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
+import { NextSeo, NextSeoProps } from 'next-seo';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
+import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
 function EditPost(): ReactElement {
   const { query, isReady, push } = useRouter();
@@ -58,19 +60,29 @@ function EditPost(): ReactElement {
     return onCreatePost({ ...data, id: post.id });
   };
 
+  const seo: NextSeoProps = {
+    title: `Edit - ${post?.title ?? ''} | ${post?.source?.name}`,
+    openGraph: { ...defaultOpenGraph },
+    titleTemplate: '%s | daily.dev',
+    ...defaultSeo,
+  };
+
   return (
-    <WritePage
-      isEdit
-      formRef={formRef}
-      isPosting={isPosting}
-      onSubmitForm={onClickSubmit}
-      isLoading={!isReady || !isFetched || !isDraftReady}
-      isForbidden={post?.author.id !== user?.id}
-      squad={squad}
-      post={post}
-      draft={draft}
-      updateDraft={updateDraft}
-    />
+    <>
+      <NextSeo {...seo} />
+      <WritePage
+        isEdit
+        formRef={formRef}
+        isPosting={isPosting}
+        onSubmitForm={onClickSubmit}
+        isLoading={!isReady || !isFetched || !isDraftReady}
+        isForbidden={post?.author.id !== user?.id}
+        squad={squad}
+        post={post}
+        draft={draft}
+        updateDraft={updateDraft}
+      />
+    </>
   );
 }
 
