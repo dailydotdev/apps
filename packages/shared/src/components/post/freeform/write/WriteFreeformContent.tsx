@@ -14,7 +14,6 @@ import { Button } from '../../../buttons/Button';
 import { WritePageMain } from './common';
 import { useNotificationToggle } from '../../../../hooks/notifications';
 import { EditPostProps, Post } from '../../../../graphql/posts';
-import usePersistentContext from '../../../../hooks/usePersistentContext';
 import { formToJson } from '../../../../lib/form';
 import useDebounce from '../../../../hooks/useDebounce';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
@@ -29,6 +28,8 @@ export interface WriteFreeformContentProps {
   post?: Post;
   enableUpload?: boolean;
   formRef?: MutableRefObject<HTMLFormElement>;
+  draft?: Partial<WriteForm>;
+  updateDraft?: (props: Partial<WriteForm>) => Promise<void>;
 }
 
 export interface WriteForm {
@@ -53,6 +54,8 @@ export function WriteFreeformContent({
   isPosting,
   squadId,
   post,
+  draft,
+  updateDraft,
   formRef: propRef,
 }: WriteFreeformContentProps): ReactElement {
   const formRef = useRef<HTMLFormElement>();
@@ -61,11 +64,6 @@ export function WriteFreeformContent({
   const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const key = generateWritePostKey(post?.id);
-  const [draft, updateDraft] = usePersistentContext<Partial<WriteForm>>(
-    key,
-    {},
-  );
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     completeAction(ActionType.WritePost);
@@ -97,7 +95,7 @@ export function WriteFreeformContent({
       >
         <CameraIcon secondary />
         <span className="flex flex-row ml-1.5 font-bold typo-callout">
-          Cover image
+          Thumbnail
         </span>
       </ImageInput>
       <AlertPointer
