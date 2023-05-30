@@ -96,7 +96,7 @@ export function WriteFreeformContent({
       >
         <CameraIcon secondary />
         <span className="flex flex-row ml-1.5 font-bold typo-callout">
-          Cover image
+          Thumbnail
         </span>
       </ImageInput>
       <AlertPointer
