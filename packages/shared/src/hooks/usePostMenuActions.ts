@@ -73,11 +73,8 @@ export const usePostMenuActions = ({
     { onSuccess: onPinSuccessful },
   );
 
-  return useMemo(
-    () => ({
-      onConfirmDeletePost: canDelete ? deletePostPrompt : null,
-      onPinPost: canPin ? onPinPost : null,
-    }),
-    [deletePostPrompt, canDelete, onPinPost, canPin],
-  );
+  return {
+    onConfirmDeletePost: canDelete ? deletePostPrompt : null,
+    onPinPost: canPin ? onPinPost : null,
+  };
 };
