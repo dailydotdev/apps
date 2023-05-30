@@ -52,8 +52,6 @@ function CreatePost(): ReactElement {
   });
 
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
-    e.preventDefault();
-
     if (isPosting || isSuccess) return null;
 
     return onCreatePost({ ...params, sourceId: squad.id });

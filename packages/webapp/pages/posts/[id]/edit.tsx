@@ -48,8 +48,6 @@ function EditPost(): ReactElement {
   });
 
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
-    e.preventDefault();
-
     if (isPosting || isSuccess) return null;
 
     return onUpdatePost({ ...params, id: post.id });

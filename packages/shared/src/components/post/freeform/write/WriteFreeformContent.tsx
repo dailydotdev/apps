@@ -41,6 +41,7 @@ export interface WriteForm {
   title: string;
   content: string;
   image: string;
+  filename?: string;
 }
 
 export const generateWritePostKey = (reference = 'create'): string =>
@@ -53,6 +54,8 @@ export const checkSavedProperty = (
   post?: Post,
 ): boolean =>
   !form[prop] || (form[prop] === draft?.[prop] && form[prop] !== post?.[prop]);
+
+const defaultFilename = 'thumbnail.png';
 
 export function WriteFreeformContent({
   onSubmitForm,
@@ -70,17 +73,18 @@ export function WriteFreeformContent({
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
 
-  const getImage = () => {
+  const getDraftImage = () => {
     if (!draft.image) return null;
 
-    return base64ToFile(draft.image, 'thumbnail.png');
+    return base64ToFile(draft.image, draft.filename ?? defaultFilename);
   };
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
     completeAction(ActionType.WritePost);
     await onSubmitted();
     const { title, content, image: files } = formToJson(e.currentTarget);
-    const image = files?.[0] ?? (await getImage());
+    const image = files?.[0] ?? (await getDraftImage());
     await onSubmitForm(e, { title, content, image });
   };
 
@@ -104,7 +108,13 @@ export function WriteFreeformContent({
         fileSizeLimitMB={5}
         name="image"
         initialValue={draft?.image ?? post?.image}
-        onChange={(base64) => updateDraft({ ...draft, image: base64 })}
+        onChange={(base64, file) =>
+          updateDraft({
+            ...draft,
+            image: base64,
+            filename: file?.name ?? defaultFilename,
+          })
+        }
       >
         <CameraIcon secondary />
         <span className="flex flex-row ml-1.5 font-bold typo-callout">
