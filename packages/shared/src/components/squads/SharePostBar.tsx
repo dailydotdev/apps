@@ -50,7 +50,12 @@ function SharePostBar({
 
   if (disabled) {
     return (
-      <Card className="flex gap-1.5 items-center py-5 px-3 !flex-row hover:border-theme-divider-tertiary text-theme-label-quaternary">
+      <Card
+        className={classNames(
+          'flex gap-1.5 items-center py-5 px-3 !flex-row hover:border-theme-divider-tertiary text-theme-label-quaternary',
+          className,
+        )}
+      >
         <LockIcon size={IconSize.Small} />
         <p className="typo-callout">Only admins and moderators can post</p>
       </Card>
@@ -79,7 +84,7 @@ function SharePostBar({
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
           className={classNames(
-            'pl-1 w-24 mobileL:w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout',
+            'pl-1 tablet:min-w-[11rem] w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-callout',
             url !== undefined && 'flex-1 pr-2',
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}

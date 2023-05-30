@@ -103,7 +103,7 @@ export function SquadPageHeader({
           shouldShowHighlightPulse && 'highlight-pulse',
           allowedToPost
             ? 'justify-center items-center laptop:max-w-[41.5rem]'
-            : 'laptop:max-w-[19.25rem]',
+            : 'laptop:max-w-[38.25rem]',
         )}
       >
         <ConditionalWrapper
@@ -128,7 +128,10 @@ export function SquadPageHeader({
           )}
         >
           <SharePostBar
-            className="w-full max-w-[30.25rem]"
+            className={classNames(
+              'w-full',
+              allowedToPost && 'max-w-[30.25rem]',
+            )}
             onNewSquadPost={onNewSquadPost}
             disabled={!allowedToPost}
           />
