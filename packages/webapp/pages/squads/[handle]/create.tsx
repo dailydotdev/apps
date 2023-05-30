@@ -1,4 +1,4 @@
-import React, { FormEventHandler, ReactElement, useRef } from 'react';
+import React, { FormEventHandler, ReactElement } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { del as deleteCache } from 'idb-keyval';
