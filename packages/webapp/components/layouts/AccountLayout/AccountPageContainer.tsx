@@ -63,8 +63,8 @@ export const AccountPageContainer = ({
         className={classNames(
           'h-full overflow-y-scroll',
           footer
-            ? 'min-h-[calc(100vh-11.25rem)] max-h-[calc(100vh-11.25rem)]'
-            : 'min-h-[calc(100vh-7.25rem)] max-h-[calc(100vh-7.25rem)]',
+            ? '!min-h-[calc(100dvh-11.25rem)] !max-h-[calc(100dvh-11.25rem)] min-h-[calc(100vh-11.25rem)] max-h-[calc(100vh-11.25rem)]'
+            : '!min-h-[calc(100dvh-7.25rem)] !max-h-[calc(100dvh-7.25rem)] min-h-[calc(100vh-7.25rem)] max-h-[calc(100vh-7.25rem)]',
           className.section,
         )}
       >

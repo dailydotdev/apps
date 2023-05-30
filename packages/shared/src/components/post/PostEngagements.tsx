@@ -19,7 +19,7 @@ const AuthorOnboarding = dynamic(
 const NewCommentModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "newCommentModal" */ '../modals/NewCommentModal'
+      /* webpackChunkName: "newCommentModal" */ '../modals/comment/NewCommentModal'
     ),
 );
 const ShareNewCommentPopup = dynamic(
@@ -119,9 +119,10 @@ function PostEngagements({
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
+          parentComment={parentComment}
           onRequestClose={closeNewComment}
-          {...parentComment}
           onComment={onComment}
+          post={post}
         />
       )}
       {showShareNewComment && (

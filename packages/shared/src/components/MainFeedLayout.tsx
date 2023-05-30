@@ -330,10 +330,16 @@ export default function MainFeedLayout({
       ),
       header: !isSearchOn && header,
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     isSearchOn && searchQuery,
     query.query,
     query.variables,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     isUpvoted && selectedPeriod,
   ]);
 
@@ -341,6 +347,8 @@ export default function MainFeedLayout({
     if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
       setSelectedAlgo(0);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   return (

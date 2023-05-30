@@ -51,6 +51,8 @@ export function CustomSwitch({
     setLeftWidth(left);
     const { width: right } = rightRef.current.getBoundingClientRect();
     setRightWidth(right);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leftRef?.current, rightRef?.current]);
 
   const leftClasses = classNames(

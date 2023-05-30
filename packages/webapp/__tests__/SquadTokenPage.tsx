@@ -12,7 +12,7 @@ import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   defaultSquadToken,
   generateTestMember,
-  generateTestOwner,
+  generateTestAdmin,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
   MockedGraphQLResponse,
@@ -22,12 +22,16 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
-  SquadInvitation,
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
+  SquadInvitation,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import SquadPage, {
   SquadReferralProps,
 } from '../pages/squads/[handle]/[token]';
@@ -56,7 +60,7 @@ let client: QueryClient;
 
 const createInvitationMock = (
   token: string = defaultSquadToken,
-  member: SourceMember = generateTestOwner(),
+  member: SourceMember = generateTestAdmin(),
 ): MockedGraphQLResponse<SquadInvitation> => ({
   request: {
     query: SQUAD_INVITATION_QUERY,
@@ -100,6 +104,7 @@ const renderComponent = (
               onShouldUpdateFilters: jest.fn(),
             }}
           >
+            <Toast autoDismissNotifications={false} />
             <SquadPage {...props} />
           </OnboardingContext.Provider>
         </SettingsContext.Provider>
@@ -109,7 +114,7 @@ const renderComponent = (
 };
 
 describe('inviter', () => {
-  const member = generateTestOwner();
+  const member = generateTestAdmin();
   it('should show profile image', async () => {
     renderComponent();
     await waitForNock();
@@ -131,7 +136,7 @@ describe('inviter', () => {
 });
 
 describe('squad details', () => {
-  const member = generateTestOwner();
+  const member = generateTestAdmin();
   it('should show page heading that includes squad name', async () => {
     renderComponent();
     await waitForNock();
@@ -161,24 +166,24 @@ describe('squad details', () => {
   });
 
   it('should show accurate waiting label when there is 2 members', async () => {
-    const owner = generateTestOwner();
+    const admin = generateTestAdmin();
     const newMember = generateTestMember('u1');
-    owner.source.members.edges.push({ node: newMember });
-    renderComponent([createInvitationMock(defaultToken, owner)]);
+    admin.source.members.edges.push({ node: newMember });
+    renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
-    const label = `${owner.user.name} and ${newMember.user.name} are waiting for you inside. Join them now`;
+    const label = `${admin.user.name} and ${newMember.user.name} are waiting for you inside. Join them now`;
     const text = await screen.findByTestId('waiting-users');
     expect(text).toHaveTextContent(label);
   });
 
   it('should show accurate waiting label when there is 3 or more members', async () => {
-    const owner = generateTestOwner();
+    const admin = generateTestAdmin();
     const members = [generateTestMember('u1'), generateTestMember('u2')];
-    owner.source.members.edges.push({ node: members[0] }, { node: members[1] });
-    owner.source.membersCount = 3;
-    renderComponent([createInvitationMock(defaultToken, owner)]);
+    admin.source.members.edges.push({ node: members[0] }, { node: members[1] });
+    admin.source.membersCount = 3;
+    renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
-    const label = `${owner.user.name} and 2 others are waiting for you inside. Join them now`;
+    const label = `${admin.user.name} and 2 others are waiting for you inside. Join them now`;
     const text = await screen.findByTestId('waiting-users');
     expect(text).toHaveTextContent(label);
     const result = await Promise.all(
@@ -191,44 +196,44 @@ describe('squad details', () => {
 
   it('should join squad on the first button', async () => {
     client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
-    const owner = generateTestOwner();
-    renderComponent([createInvitationMock(defaultToken, owner)]);
+    const admin = generateTestAdmin();
+    renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
     mockGraphQL({
       request: {
         query: SQUAD_JOIN_MUTATION,
-        variables: { token: owner.referralToken, sourceId: owner.source.id },
+        variables: { token: admin.referralToken, sourceId: admin.source.id },
       },
-      result: () => ({ data: { source: owner.source } }),
+      result: () => ({ data: { source: admin.source } }),
     });
     const [desktop] = await screen.findAllByText('Join Squad');
     desktop.click();
     await waitForNock();
-    expect(replaced).toEqual(owner.source.permalink);
+    expect(replaced).toEqual(admin.source.permalink);
   });
 
   it('should join squad on the second button', async () => {
     client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
-    const owner = generateTestOwner();
-    renderComponent([createInvitationMock(defaultToken, owner)]);
+    const admin = generateTestAdmin();
+    renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
     mockGraphQL({
       request: {
         query: SQUAD_JOIN_MUTATION,
-        variables: { token: owner.referralToken, sourceId: owner.source.id },
+        variables: { token: admin.referralToken, sourceId: admin.source.id },
       },
-      result: () => ({ data: { source: owner.source } }),
+      result: () => ({ data: { source: admin.source } }),
     });
     const [, mobile] = await screen.findAllByText('Join Squad');
     mobile.click();
     await waitForNock();
-    expect(replaced).toEqual(owner.source.permalink);
+    expect(replaced).toEqual(admin.source.permalink);
   });
 
   it('should have two join squad one is displayed on desktop and one on mobile', async () => {
     client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
-    const owner = generateTestOwner();
-    renderComponent([createInvitationMock(defaultToken, owner)]);
+    const admin = generateTestAdmin();
+    renderComponent([createInvitationMock(defaultToken, admin)]);
     const [desktop, mobile] = await screen.findAllByRole('button');
     expect(desktop).toHaveClass('hidden tablet:flex');
     expect(mobile).toHaveClass('flex tablet:hidden');
@@ -243,8 +248,8 @@ describe('invalid token', () => {
   });
 
   it('should redirect to home page when invitation source id does not match route squad id', async () => {
-    const owner = generateTestOwner();
-    renderComponent([createInvitationMock(defaultToken, owner)], {
+    const admin = generateTestAdmin();
+    renderComponent([createInvitationMock(defaultToken, admin)], {
       handle: 'not your squad',
       token: defaultToken,
     });
@@ -253,12 +258,25 @@ describe('invalid token', () => {
   });
 
   it('should redirect to squads page when member is already part of the squad', async () => {
-    const owner = generateTestOwner();
+    const admin = generateTestAdmin();
     const member = generateTestMember(1);
     member.user.id = defaultUser.id;
-    owner.source.members.edges.push({ node: member });
-    renderComponent([createInvitationMock(defaultToken, owner)]);
+    admin.source.currentMember = member;
+    renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
-    expect(replaced).toEqual(`/squads/${owner.source.handle}`);
+    expect(replaced).toEqual(`/squads/${admin.source.handle}`);
+  });
+
+  it('should show toast is blocked user tries to join', async () => {
+    const admin = generateTestAdmin();
+    const member = generateTestMember(1);
+    member.role = SourceMemberRole.Blocked;
+    member.user.id = defaultUser.id;
+    admin.source.currentMember = member;
+    renderComponent([createInvitationMock(defaultToken, admin)]);
+    await waitForNock();
+    const [desktop] = await screen.findAllByText('Join Squad');
+    desktop.click();
+    await screen.findByText('🚫 You no longer have access to this Squad.');
   });
 });

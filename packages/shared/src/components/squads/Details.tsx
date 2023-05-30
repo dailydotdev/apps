@@ -19,6 +19,8 @@ import { IconSize } from '../Icon';
 import { Justify } from '../utilities';
 import SquadIcon from '../icons/Squad';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { SourceMemberRole } from '../../graphql/sources';
+import { Radio } from '../fields/Radio';
 
 const squadImageId = 'squad_image_file';
 
@@ -42,17 +44,40 @@ const getFormData = async (
   return { ...current, file: base64 };
 };
 
+const memberRoleOptions = [
+  {
+    label: 'All members (recommended)',
+    value: SourceMemberRole.Member,
+  },
+  {
+    label: 'Only moderators',
+    value: SourceMemberRole.Moderator,
+  },
+];
+
 export function SquadDetails({
   onSubmit,
   form,
   createMode = true,
   onRequestClose,
 }: SquadDetailsProps): ReactElement {
-  const { name, handle, description } = form;
+  const {
+    name,
+    handle,
+    description,
+    memberPostingRole: initialMemberPostingRole,
+    memberInviteRole: initialMemberInviteRole,
+  } = form;
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
+  const [memberPostingRole, setMemberPostingRole] = useState(
+    () => initialMemberPostingRole || SourceMemberRole.Member,
+  );
+  const [memberInviteRole, setMemberInviteRole] = useState(
+    () => initialMemberInviteRole || SourceMemberRole.Member,
+  );
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
       const clientError = err as ClientError;
@@ -110,8 +135,8 @@ export function SquadDetails({
             <>
               <SquadTitle>Squads early access!</SquadTitle>
               <SquadSubTitle>
-                Creating a squad allows you to stay up-to-date and communicate
-                privately.
+                Create a group where you can learn and interact privately with
+                other developers around topics that matter to you
               </SquadSubTitle>
             </>
           )}
@@ -131,7 +156,7 @@ export function SquadDetails({
             />
           )}
           <TextField
-            label="Squad name"
+            label={createMode ? 'Name your squad' : 'Squad name'}
             inputId="name"
             name="name"
             valid={!!name}
@@ -152,7 +177,7 @@ export function SquadDetails({
             onChange={() => !!handleHint && setHandleHint(null)}
             className={{
               hint: 'text-theme-status-error',
-              container: classNames('w-full', !handleHint && 'mb-5'),
+              container: classNames('w-full', !handleHint && 'mb-1'),
             }}
           />
           {!createMode && (
@@ -170,6 +195,36 @@ export function SquadDetails({
               }}
             />
           )}
+          <div className="flex flex-col">
+            <h4 className="mb-2 typo-headline">Post permissions</h4>
+            <p className="mb-4 text-theme-label-tertiary typo-callout">
+              Choose who is allowed to post new content in this Squad.
+              {createMode && ' You can always change this setting later.'}
+            </p>
+            <Radio
+              name="memberPostingRole"
+              options={memberRoleOptions}
+              value={memberPostingRole}
+              onChange={(value) =>
+                setMemberPostingRole(value as SourceMemberRole)
+              }
+            />
+          </div>
+          <div className="flex flex-col">
+            <h4 className="mb-2 typo-headline">Invitation permissions</h4>
+            <p className="mb-4 text-theme-label-tertiary typo-callout">
+              Choose who is allowed to invite new members to this squad.
+              {createMode && ' You can always change this setting later.'}
+            </p>
+            <Radio
+              name="memberInviteRole"
+              options={memberRoleOptions}
+              value={memberInviteRole}
+              onChange={(value) =>
+                setMemberInviteRole(value as SourceMemberRole)
+              }
+            />
+          </div>
         </form>
       </Modal.Body>
       <Modal.Footer className={!createMode && 'px-6'} justify={Justify.Between}>

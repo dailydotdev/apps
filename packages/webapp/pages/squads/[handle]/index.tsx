@@ -41,6 +41,7 @@ import {
   useTutorial,
   TutorialKey,
 } from '@dailydotdev/shared/src/hooks/useTutorial';
+import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -59,6 +60,13 @@ const SquadEmptyScreen = dynamic(
   () =>
     import(
       /* webpackChunkName: "squadEmptyScreen" */ '@dailydotdev/shared/src/components/squads/SquadEmptyScreen'
+    ),
+);
+
+const SquadChecklistCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadChecklistCard" */ '@dailydotdev/shared/src/components/checklist/SquadChecklistCard'
     ),
 );
 
@@ -99,6 +107,8 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
       extra: JSON.stringify({ squad: squadId }),
     });
     setTrackedImpression(true);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squadId, trackedImpression]);
 
   const { data: squadMembers } = useQuery<SourceMember[]>(
@@ -112,6 +122,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     () => ({
       source: squadId,
       ranking: 'TIME',
+      supportedTypes: supportedTypesForPrivateSources,
     }),
     [squadId],
   );
@@ -139,15 +150,19 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad) return <Custom404 />;
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const sharePostTutorial = useTutorial({
     key: TutorialKey.ShareSquadPost,
   });
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const copyLinkTutorial = useTutorial({
     key: TutorialKey.CopySquadLink,
   });
 
-  const onNewSquadPost = (props: NewSquadPostProps = {}) =>
+  const onNewSquadPost = async (props: NewSquadPostProps = {}) => {
     openModal({
       type: LazyModal.PostToSquad,
       props: {
@@ -159,6 +174,9 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         },
       },
     });
+
+    return null;
+  };
 
   const seo = (
     <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
@@ -180,6 +198,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           onNewSquadPost={onNewSquadPost}
           hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
         />
+        <SquadChecklistCard squad={squad} />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
           feedName="source"
@@ -193,6 +212,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           forceCardMode
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
+          allowPin
         />
       </BaseFeedPage>
     </ProtectedPage>

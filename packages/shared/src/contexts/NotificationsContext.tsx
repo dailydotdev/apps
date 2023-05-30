@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -15,6 +16,8 @@ import { BootApp } from '../lib/boot';
 import { isDevelopment, isTesting } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import AuthContext from './AuthContext';
+import { AnalyticsEvent, NotificationPromptSource } from '../lib/analytics';
+import { useAnalyticsContext } from './AnalyticsContext';
 
 export interface NotificationsContextData
   extends UseNotificationPermissionPopup {
@@ -27,7 +30,10 @@ export interface NotificationsContextData
   onShouldShowSettingsAlert?: (state: boolean) => Promise<void>;
   clearUnreadCount: () => void;
   incrementUnreadCount: () => void;
-  onTogglePermission: () => Promise<NotificationPermission>;
+  onTogglePermission: (
+    source: NotificationPromptSource,
+  ) => Promise<NotificationPermission>;
+  trackPermissionGranted: () => void;
 }
 
 const NotificationsContext =
@@ -51,8 +57,9 @@ export const NotificationsContextProvider = ({
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
   const isExtension = checkIsExtension();
-  const [OneSignal, setOneSignal] = useState(null);
+  const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
+  const [OneSignal, setOneSignal] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -62,6 +69,8 @@ export const NotificationsContextProvider = ({
     ALERT_PUSH_KEY,
     true,
   );
+  const subscriptionCallbackRef = useRef<(isSubscribed: boolean) => unknown>();
+  const notificationSourceRef = useRef<string>();
 
   const getRegistrationId = async (isGranted: boolean) => {
     if (!isGranted) {
@@ -112,13 +121,15 @@ export const NotificationsContextProvider = ({
     onPermissionCache(allowedPush ? 'granted' : 'default');
   };
 
-  const onTogglePermission = async (): Promise<NotificationPermission> => {
+  const onTogglePermission = async (
+    source: NotificationPromptSource,
+  ): Promise<NotificationPermission> => {
     if (!user) return 'default';
 
     const { permission } = globalThis.Notification ?? {};
 
     if (app === BootApp.Extension || permission === 'denied') {
-      onOpenPopup();
+      onOpenPopup(source);
       return null;
     }
 
@@ -127,11 +138,26 @@ export const NotificationsContextProvider = ({
       return 'denied';
     }
 
+    notificationSourceRef.current = source;
     const result = await globalThis.window?.Notification?.requestPermission();
     await onUpdatePermission(result);
 
     return result;
   };
+
+  useEffect(() => {
+    subscriptionCallbackRef.current = (isSubscribedNew) => {
+      if (isSubscribedNew) {
+        trackEvent({
+          event_name: AnalyticsEvent.ClickEnableNotification,
+          extra: JSON.stringify({
+            origin: notificationSourceRef.current,
+            permission: 'granted',
+          }),
+        });
+      }
+    };
+  }, [trackEvent, notificationSourceRef]);
 
   useEffect(() => {
     setCurrentUnreadCount(unreadCount);
@@ -151,6 +177,11 @@ export const NotificationsContextProvider = ({
     setIsInitializing(true);
     import('react-onesignal').then(async (mod) => {
       const OneSignalReact = mod.default;
+
+      OneSignalReact.on('subscriptionChange', (value) =>
+        subscriptionCallbackRef.current?.(value),
+      );
+
       await OneSignalReact.init({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
         allowLocalhostAsSecureOrigin: isDevelopment,
@@ -179,6 +210,8 @@ export const NotificationsContextProvider = ({
         OneSignalReact.setExternalUserId(user.id);
       }
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, isInitializing, user]);
 
   const data: NotificationsContextData = useMemo(
@@ -199,7 +232,10 @@ export const NotificationsContextProvider = ({
       get isNotificationSupported() {
         return !!globalThis.window?.Notification;
       },
+      trackPermissionGranted: () => subscriptionCallbackRef.current?.(true),
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isNotificationsReady,
       isSubscribed,
@@ -210,6 +246,7 @@ export const NotificationsContextProvider = ({
       isAlertShown,
       acceptedPermissionJustNow,
       hasPermissionCache,
+      subscriptionCallbackRef,
     ],
   );
 

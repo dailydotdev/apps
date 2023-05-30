@@ -95,6 +95,7 @@ export default function Companion({
   useQuery(REQUEST_PROTOCOL_KEY, () => ({
     requestMethod: companionRequest,
     fetchMethod: companionFetch,
+    isCompanion: true,
   }));
   const [assetsLoadedDebounce] = useDebounce(() => setAssetsLoaded(true), 10);
   const routeChangedCallbackRef = useTrackPageView();
@@ -121,6 +122,8 @@ export default function Companion({
 
     checkAssets();
     routeChangedCallbackRef.current();
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerRef]);
 
   return (

@@ -46,6 +46,8 @@ export const useUpvoteQuery = (): UseUpvoteQuery => {
 
   return useMemo(
     () => ({ onShowUpvoted, queryKey: modal?.props?.requestQuery?.queryKey }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [modal],
   );
 };

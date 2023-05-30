@@ -1,9 +1,5 @@
 import React, { ReactElement } from 'react';
 import {
-  NotificationPromptSource,
-  useEnableNotification,
-} from '../../hooks/useEnableNotification';
-import {
   ENABLE_NOTIFICATION_WINDOW_KEY,
   PermissionEvent,
 } from '../../hooks/useNotificationPermissionPopup';
@@ -12,14 +8,17 @@ import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { NotificationPromptSource } from '../../lib/analytics';
 
 function PushNotificationModal(modalProps: ModalProps): ReactElement {
   const { onRequestClose } = modalProps;
-  const onTogglePermission = useEnableNotification(
-    NotificationPromptSource.NewSourceModal,
-  );
+  const { onTogglePermission } = useNotificationContext();
+
   const enableNotifications = async () => {
-    const permission = await onTogglePermission();
+    const permission = await onTogglePermission(
+      NotificationPromptSource.NewSourceModal,
+    );
 
     if (permission === 'granted') {
       onRequestClose?.(null);

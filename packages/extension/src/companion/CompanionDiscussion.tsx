@@ -4,7 +4,7 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
+import NewCommentModal from '@dailydotdev/shared/src/components/modals/comment/NewCommentModal';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
@@ -29,6 +29,8 @@ export function CompanionDiscussion({
     return null;
   }
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { user } = useContext(AuthContext);
   const {
     closeNewComment,
@@ -36,11 +38,17 @@ export function CompanionDiscussion({
     onCommentClick,
     onInput,
     parentComment,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCompanionPostComment(post);
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { shareComment, openShareComment, closeShareComment } = useShareComment(
     Origin.Companion,
   );
   const postCommentsQueryKey = ['post_comments', post?.id];
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useBackgroundRequest(postCommentsQueryKey);
 
   return (
@@ -73,10 +81,11 @@ export function CompanionDiscussion({
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
+          parentComment={parentComment}
           parentSelector={getCompanionWrapper}
           onRequestClose={closeNewComment}
           onInputChange={onInput}
-          {...parentComment}
+          post={post}
         />
       )}
       {shareComment && (

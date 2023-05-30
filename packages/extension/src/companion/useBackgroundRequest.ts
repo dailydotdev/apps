@@ -16,6 +16,8 @@ export const useBackgroundRequest = (
     enabled = true,
   }: UseBackgroundRequestOptionalProps = {},
 ): void => {
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const client = queryClient || useQueryClient();
   useRawBackgroundRequest(({ key, ...args }) => {
     if (!enabled || !isQueryKeySame(key, queryKey)) {

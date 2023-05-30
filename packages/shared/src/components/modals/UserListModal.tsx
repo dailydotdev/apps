@@ -1,27 +1,29 @@
-import React, { ReactElement, useRef, useState } from 'react';
-import { UserShortInfoPlaceholder } from '../profile/UserShortInfoPlaceholder';
+import React, { ReactElement, ReactNode, useRef, useState } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import UserList, { UserListProps } from '../profile/UserList';
 import { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
 import { UserShortProfile } from '../../lib/user';
 
-export interface UserListModalProps
-  extends Omit<ModalProps, 'children'>,
-    Pick<UserListProps, 'additionalContent' | 'initialItem'> {
+export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   users: UserShortProfile[];
   placeholderAmount?: number;
   title: string;
+  header?: ReactNode;
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
+  userListProps?: Pick<
+    UserListProps,
+    'additionalContent' | 'initialItem' | 'isLoading' | 'emptyPlaceholder'
+  >;
 }
 
 function UserListModal({
   users,
   title,
+  header,
   scrollingProps,
   placeholderAmount,
-  additionalContent,
   size = Modal.Size.Medium,
-  initialItem,
+  userListProps,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -34,21 +36,16 @@ function UserListModal({
       size={size}
       {...props}
     >
-      <Modal.Header title={title} />
+      {header ?? <Modal.Header title={title} />}
       <Modal.Body className="py-2 px-0" ref={container}>
-        {users?.length ? (
-          <UserList
-            users={users}
-            scrollingProps={scrollingProps}
-            scrollingContainer={container.current}
-            appendTooltipTo={modalRef}
-            placeholderAmount={placeholderAmount}
-            additionalContent={additionalContent}
-            initialItem={initialItem}
-          />
-        ) : (
-          <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
-        )}
+        <UserList
+          {...userListProps}
+          users={users}
+          scrollingProps={scrollingProps}
+          scrollingContainer={container.current}
+          appendTooltipTo={modalRef}
+          placeholderAmount={placeholderAmount}
+        />
       </Modal.Body>
     </Modal>
   );

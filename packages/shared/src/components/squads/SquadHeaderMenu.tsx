@@ -2,10 +2,8 @@ import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
-import EditIcon from '../icons/Edit';
-import TourIcon from '../icons/Tour';
 import ExitIcon from '../icons/Exit';
-import { Squad, SourceMemberRole } from '../../graphql/sources';
+import { Squad, SourcePermissions } from '../../graphql/sources';
 import TrashIcon from '../icons/Trash';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -14,6 +12,11 @@ import { useLeaveSquad } from '../../hooks/useLeaveSquad';
 import ContextMenuItem, {
   ContextMenuItemProps,
 } from '../tooltips/ContextMenuItem';
+import { verifyPermission } from '../../graphql/squads';
+import SettingsIcon from '../icons/Settings';
+import { squadFeedback } from '../../lib/constants';
+import FeedbackIcon from '../icons/Feedback';
+import TourIcon from '../icons/Tour';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -36,18 +39,20 @@ export default function SquadHeaderMenu({
   if (!user) {
     return <></>;
   }
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { onDeleteSquad } = useDeleteSquad({
     squad,
     callback: () => router.replace('/'),
   });
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { onLeaveSquad } = useLeaveSquad({
     squad,
     callback: () => router.replace('/'),
   });
-  const isSquadOwner = [
-    SourceMemberRole.Owner,
-    SourceMemberRole.Admin,
-  ].includes(squad?.currentMember?.role);
+  const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
+  const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
   const onEditSquad = () => {
     openModal({
@@ -57,6 +62,8 @@ export default function SquadHeaderMenu({
       },
     });
   };
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const items = useMemo(() => {
     const list: ContextMenuItemProps[] = [
       {
@@ -67,21 +74,31 @@ export default function SquadHeaderMenu({
           }),
         label: 'Learn how Squads work',
       },
-      isSquadOwner
+      {
+        Icon: FeedbackIcon,
+        href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
+        anchorProps: {
+          target: '_blank',
+        },
+        label: 'Feedback',
+      },
+      canDeleteSquad
         ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }
         : { Icon: ExitIcon, onClick: onLeaveSquad, label: 'Leave Squad' },
     ];
 
-    if (isSquadOwner) {
+    if (canEditSquad) {
       list.unshift({
-        Icon: EditIcon,
+        Icon: SettingsIcon,
         onClick: onEditSquad,
-        label: 'Edit Squad details',
+        label: 'Squad settings',
       });
     }
 
     return list;
-  }, [isSquadOwner, squad, user, onDeleteSquad, onLeaveSquad]);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canEditSquad, canDeleteSquad, squad, user, onDeleteSquad, onLeaveSquad]);
 
   return (
     <PortalMenu

@@ -3,17 +3,21 @@ import React, { ReactElement, ReactNode } from 'react';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import { Origin } from '../../lib/analytics';
+import FeatherIcon from '../icons/Feather';
+import ScoutIcon from '../icons/Scout';
 import Markdown from '../Markdown';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import SquadMemberBadge from '../squads/SquadMemberBadge';
+import UserBadge from '../UserBadge';
 import { FlexRow } from '../utilities';
 import CommentActionButtons, {
   CommentActionProps,
 } from './CommentActionButtons';
 import CommentAuthor from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
-import ScoutBadge from './ScoutBadge';
+import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 
 interface ClassName {
   container?: string;
@@ -53,6 +57,11 @@ function CommentBox({
   children,
 }: CommentBoxProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
+  const { role } = useMemberRoleForSource({
+    source: post.source,
+    user: comment.author,
+  });
+
   return (
     <article
       ref={isCommentReferenced ? commentRef : null}
@@ -76,11 +85,34 @@ function CommentBox({
         <div className="flex flex-col ml-3 typo-callout">
           <FlexRow>
             <CommentAuthor
-              postAuthorId={postAuthorId}
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
+              badges={[
+                <SquadMemberBadge key="squadMemberRole" role={role} />,
+                comment.author.id === postAuthorId && (
+                  <UserBadge
+                    key="author"
+                    className="text-theme-status-help"
+                    content="Author"
+                    Icon={FeatherIcon}
+                    iconProps={{
+                      secondary: true,
+                    }}
+                  />
+                ),
+                comment.author.id === postScoutId && (
+                  <UserBadge
+                    key="scout"
+                    className="text-theme-color-bun"
+                    content="Scout"
+                    Icon={ScoutIcon}
+                    iconProps={{
+                      secondary: true,
+                    }}
+                  />
+                ),
+              ]}
             />
-            {comment.author.id === postScoutId && <ScoutBadge />}
           </FlexRow>
           <FlexRow className="items-center text-theme-label-quaternary">
             <ProfileLink href={comment.author.permalink}>

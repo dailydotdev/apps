@@ -26,10 +26,10 @@ import { Modal, ModalProps } from './common/Modal';
 import NotificationsContext from '../../contexts/NotificationsContext';
 import PushNotificationModal from './PushNotificationModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import { DISMISS_PERMISSION_BANNER } from '../notifications/EnableNotification';
 import Alert, { AlertType } from '../widgets/Alert';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import OpenLinkIcon from '../icons/OpenLink';
+import { DISMISS_PERMISSION_BANNER } from '../../hooks/useEnableNotification';
 
 interface RSS {
   url: string;

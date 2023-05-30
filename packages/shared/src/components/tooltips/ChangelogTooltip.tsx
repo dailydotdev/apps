@@ -108,13 +108,12 @@ function ChangelogTooltip<TRef extends HTMLElement>({
             data-testid="changelog"
           >
             <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
-              <Button
-                disabled
-                className="font-normal text-white bg-theme-color-water btn-primary small"
+              <h3
+                className="font-bold typo-title3 text-theme-label-primary"
                 data-testid="changelogNewReleaseTag"
               >
                 New release
-              </Button>
+              </h3>
               <ModalClose
                 className="right-4"
                 onClick={onModalCloseClick}

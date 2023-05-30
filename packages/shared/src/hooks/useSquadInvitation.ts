@@ -3,6 +3,8 @@ import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
 import { Squad } from '../graphql/sources';
+import { useActions } from './useActions';
+import { ActionType } from '../graphql/actions';
 
 export interface UseSquadInvitationProps {
   squad: Squad;
@@ -20,6 +22,7 @@ export const useSquadInvitation = ({
   origin,
 }: UseSquadInvitationProps): UseSquadInvitation => {
   const { trackEvent } = useAnalyticsContext();
+  const { completeAction } = useActions();
 
   const invitation = useMemo(() => {
     const permalink = squad?.permalink;
@@ -38,6 +41,8 @@ export const useSquadInvitation = ({
       event_name: AnalyticsEvent.ShareSquadInvitation,
       extra: JSON.stringify({ origin, squad: squad?.id }),
     });
+
+    completeAction(ActionType.SquadInvite);
 
     return copyLink();
   };

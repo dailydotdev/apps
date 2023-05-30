@@ -10,8 +10,8 @@ import {
 import {
   FeedData,
   KEYWORD_FEED_QUERY,
-  Post,
-} from '@dailydotdev/shared/src/graphql/posts';
+} from '@dailydotdev/shared/src/graphql/feed';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import {
   MockedGraphQLResponse,

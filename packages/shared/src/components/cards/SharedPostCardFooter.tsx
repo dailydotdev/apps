@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
+import { cloudinary } from '../../lib/image';
 
 type SharedPostCardFooterProps = {
   isShort: boolean;
@@ -30,7 +31,9 @@ export const SharedPostCardFooter = ({
           'rounded-xl',
           isShort ? 'h-full aspect-square' : 'flex-1',
         )}
-        style={{ background: `url(${sharedPost.image}) center center / cover` }}
+        style={{
+          background: `url(${sharedPost.image}) center center / cover, url(${cloudinary.post.imageCoverPlaceholder}) center center / cover`,
+        }}
       />
     </div>
   );

@@ -1,33 +1,28 @@
-import React, {
-  ReactElement,
-  useState,
-  MouseEvent,
-  useEffect,
-  useContext,
-} from 'react';
+import React, { MouseEvent, ReactElement, useEffect, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
-  CommentOnData,
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
+  CommentOnData,
   EDIT_COMMENT_MUTATION,
-  PREVIEW_COMMENT_MUTATION,
-} from '../../graphql/comments';
-import { graphqlUrl } from '../../lib/config';
-import Markdown from '../Markdown';
-import CommentBox, { CommentBoxProps } from './CommentBox';
-import { Button, ButtonSize } from '../buttons/Button';
-import { Post } from '../../graphql/posts';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { Modal, ModalProps } from './common/Modal';
-import AtIcon from '../icons/At';
-import { ClickableText } from '../buttons/ClickableText';
-import { useUserMention } from '../../hooks/useUserMention';
-import { markdownGuide } from '../../lib/constants';
-import { Justify } from '../utilities';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { ModalPropsContext } from './common/types';
+} from '../../../graphql/comments';
+import { graphqlUrl } from '../../../lib/config';
+import { CommentBoxProps } from '../CommentBox';
+import { Button } from '../../buttons/Button';
+import { Post } from '../../../graphql/posts';
+import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
+import { Modal, ModalProps } from '../common/Modal';
+import { PromptOptions, usePrompt } from '../../../hooks/usePrompt';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { checkUserMembership } from '../../../graphql/squads';
+import { SourceMemberRole, SourceType } from '../../../graphql/sources';
+import Alert, { AlertType } from '../../widgets/Alert';
+import { disabledRefetch } from '../../../lib/func';
+import PreviewTab from '../tabs/PreviewTab';
+import ContentWriteTab from '../tabs/ContentWriteTab';
+import { useActions } from '../../../hooks/useActions';
+import { ActionType } from '../../../graphql/actions';
 
 interface CommentVariables {
   id: string;
@@ -48,12 +43,8 @@ type CommentProps = Omit<
 
 export interface NewCommentModalProps extends ModalProps, CommentProps {
   post: Post;
-  commentId: string;
   onComment?: (comment: Comment, isNew?: boolean) => void;
-  editContent?: string;
-  editId?: string;
   onInputChange?: (value: string) => void;
-  replyTo?: string;
 }
 
 enum CommentTabs {
@@ -73,53 +64,35 @@ const promptOptions: PromptOptions = {
   },
 };
 
-interface PreviewTabProps {
-  input: string;
-  sourceId: string;
-  parentSelector: () => HTMLElement;
-}
-
-const PreviewTab = ({ input, sourceId, parentSelector }: PreviewTabProps) => {
-  const { activeView } = useContext(ModalPropsContext);
-  const { requestMethod } = useRequestProtocol();
-  const previewQueryKey = ['comment_preview', input];
-  const { data: previewContent } = useQuery<{ preview: string }>(
-    previewQueryKey,
-    () =>
-      requestMethod(
-        graphqlUrl,
-        PREVIEW_COMMENT_MUTATION,
-        { content: input, sourceId },
-        { requestKey: JSON.stringify(previewQueryKey) },
-      ),
-    { enabled: input?.length > 0 && activeView === CommentTabs.Preview },
-  );
-
-  return (
-    <Modal.Body view={CommentTabs.Preview}>
-      <Markdown
-        content={previewContent?.preview}
-        appendTooltipTo={parentSelector}
-      />
-    </Modal.Body>
-  );
-};
-
 export default function NewCommentModal({
   onRequestClose,
-  editId,
   onComment,
   onInputChange,
-  replyTo,
-  editContent,
   parentSelector,
+  parentComment,
+  post,
   ...props
 }: NewCommentModalProps): ReactElement {
+  const { handle, commentId, editId, editContent, replyTo, authorId } =
+    parentComment;
   const [input, setInput] = useState<string>(editContent || replyTo);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const { showPrompt } = usePrompt();
   const { requestMethod } = useRequestProtocol();
+  const { data: member, isFetched: isMembershipFetched } = useQuery(
+    generateQueryKey(RequestKey.PostComments, null, {
+      authorId,
+      sourceId: post.source.id,
+    }),
+    () => checkUserMembership(post.source.id, authorId),
+    {
+      enabled: !!authorId && post.source.type === SourceType.Squad,
+      retry: false,
+      ...disabledRefetch,
+    },
+  );
+  const { completeAction } = useActions();
 
   const confirmClose = async (event: MouseEvent): Promise<void> => {
     if (
@@ -132,7 +105,7 @@ export default function NewCommentModal({
     onRequestClose(event);
   };
 
-  const key = ['post_comments_mutations', props.post.id];
+  const key = ['post_comments_mutations', post.id];
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
     unknown,
@@ -141,13 +114,21 @@ export default function NewCommentModal({
     (variables) =>
       requestMethod(
         graphqlUrl,
-        props.commentId
-          ? COMMENT_ON_COMMENT_MUTATION
-          : COMMENT_ON_POST_MUTATION,
+        commentId ? COMMENT_ON_COMMENT_MUTATION : COMMENT_ON_POST_MUTATION,
         variables,
         { requestKey: JSON.stringify(key) },
       ),
-    { onSuccess: (data) => data && onComment(data.comment, true) },
+    {
+      onSuccess: (data) => {
+        if (data) {
+          onComment(data.comment, true);
+
+          if (post.source.type === SourceType.Squad) {
+            completeAction(ActionType.SquadFirstComment);
+          }
+        }
+      },
+    },
   );
 
   const { mutateAsync: editComment } = useMutation<
@@ -183,7 +164,7 @@ export default function NewCommentModal({
         });
       } else {
         await comment({
-          id: props.commentId || props.post.id,
+          id: commentId || post.id,
           content: input,
         });
       }
@@ -192,14 +173,11 @@ export default function NewCommentModal({
       setSendingComment(false);
     }
   };
-  const useUserMentionOptions = useUserMention({
-    postId: props.post.id,
-    sourceId: props.post.source.id,
-    onInput: setInput,
-  });
 
   useEffect(() => {
     onInputChange?.(input);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input]);
   const disabled = !input?.trim().length;
   const updateButton = (
@@ -226,42 +204,33 @@ export default function NewCommentModal({
       <Modal.Header.Tabs
         disabledTab={(tab) => tab === CommentTabs.Preview && disabled}
       />
-      <Modal.Body view={CommentTabs.Write}>
-        <CommentBox
-          {...props}
-          editContent={editContent}
-          useUserMentionOptions={useUserMentionOptions}
-          onInput={setInput}
-          input={input}
-          errorMessage={errorMessage}
-          sendComment={sendComment}
-        />
-      </Modal.Body>
+      <ContentWriteTab
+        {...props}
+        parentComment={parentComment}
+        onInput={setInput}
+        input={input}
+        errorMessage={errorMessage}
+        sendComment={sendComment}
+        sendingComment={sendingComment}
+        submitAction={updateButton}
+        tabName={CommentTabs.Write}
+      >
+        {isMembershipFetched &&
+        (!member || member.role === SourceMemberRole.Blocked) ? (
+          <Alert
+            type={AlertType.Info}
+            title={`${handle} is no longer part of the squad and will not be able to see or reply to your comment.`}
+          />
+        ) : null}
+      </ContentWriteTab>
       <PreviewTab
         input={input}
-        sourceId={props.post.source.id}
+        sourceId={post.source.id}
         parentSelector={parentSelector}
-      />
-      <Modal.Footer justify={Justify.Between} view={CommentTabs.Write}>
-        <Button
-          className="btn-tertiary"
-          buttonSize={ButtonSize.Small}
-          icon={<AtIcon />}
-          onClick={useUserMentionOptions.onInitializeMention}
-        />
-        <div className="-ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
-        <ClickableText
-          tag="a"
-          href={markdownGuide}
-          className="typo-caption1"
-          defaultTypo={false}
-          target="_blank"
-        >
-          Markdown supported
-        </ClickableText>
+        tabName={CommentTabs.Preview}
+      >
         {updateButton}
-      </Modal.Footer>
-      <Modal.Footer view={CommentTabs.Preview}>{updateButton}</Modal.Footer>
+      </PreviewTab>
     </Modal>
   );
 }

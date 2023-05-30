@@ -21,6 +21,7 @@ import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
 import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
+import { AnalyticsContextProvider } from './AnalyticsContext';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -34,7 +35,10 @@ function filteredProps<T extends Record<string, unknown>>(
 export type BootDataProviderProps = {
   children?: ReactNode;
   app: BootApp;
+  version: string;
+  deviceId: string;
   localBootData?: BootCacheData;
+  getPage: () => string;
   getRedirectUri: () => string;
 };
 
@@ -70,8 +74,11 @@ const updateLocalBootData = (
 export const BootDataProvider = ({
   children,
   app,
+  version,
+  deviceId,
   localBootData,
   getRedirectUri,
+  getPage,
 }: BootDataProviderProps): ReactElement => {
   const queryClient = useQueryClient();
   const [cachedBootData, setCachedBootData] =
@@ -106,6 +113,8 @@ export const BootDataProvider = ({
     }
   }, []);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const setBootData = (
     updatedBootData: Partial<BootCacheData>,
     update = true,
@@ -137,6 +146,8 @@ export const BootDataProvider = ({
 
       setBootData(bootRemoteData, false);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bootRemoteData]);
 
   useRefreshToken(bootRemoteData?.accessToken, refetch);
@@ -193,13 +204,20 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            <NotificationsContextProvider
+            <AnalyticsContextProvider
               app={app}
-              isNotificationsReady={initialLoad}
-              unreadCount={notifications?.unreadNotificationsCount}
+              version={version}
+              getPage={getPage}
+              deviceId={deviceId}
             >
-              {children}
-            </NotificationsContextProvider>
+              <NotificationsContextProvider
+                app={app}
+                isNotificationsReady={initialLoad}
+                unreadCount={notifications?.unreadNotificationsCount}
+              >
+                {children}
+              </NotificationsContextProvider>
+            </AnalyticsContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>

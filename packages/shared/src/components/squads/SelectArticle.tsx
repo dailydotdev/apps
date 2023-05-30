@@ -28,6 +28,8 @@ export function SquadSelectArticle({
 }: SquadStateProps): ReactElement {
   const { activeView } = useContext(ModalPropsContext);
   if (ModalState.SelectArticle !== activeView) return null;
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { user } = useContext(AuthContext);
   const key = ['readHistory', user?.id];
   const queryProps = {
@@ -38,13 +40,15 @@ export function SquadSelectArticle({
     },
   };
   const { hasData, data, isInitialLoading, isLoading, queryResult } =
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useInfiniteReadingHistory(queryProps);
   const goNext = (
     post: PostItem,
     nextStep: MouseEventHandler,
   ): MouseEventHandler => {
     return (e) => {
-      onNext({ ...(form as SquadForm), post });
+      onNext({ ...(form as SquadForm), preview: post.post });
       nextStep(e);
     };
   };

@@ -21,6 +21,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       bio
       twitter
       github
+      hashnode
       timezone
       portfolio
       reputation
@@ -255,5 +256,11 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       infoConfirmed
       timezone
     }
+  }
+`;
+
+export const GET_USERNAME_SUGGESTION = gql`
+  query GenerateUniqueUsername($name: String!) {
+    generateUniqueUsername(name: $name)
   }
 `;

@@ -39,6 +39,8 @@ export const useSquadTour = (): UseSquadTour => {
 
   return useMemo(
     () => ({ ...data, onCloseTour: onClose, onTourIndexChange }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [data, sharePostTutorial],
   );
 };

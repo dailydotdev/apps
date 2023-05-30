@@ -73,10 +73,14 @@ export default function ProfileLayout({
     return <Custom404 />;
   }
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
   const queryKey = ['profile', initialProfile?.id];
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { data: fetchedProfile } = useQuery<PublicProfile>(
     queryKey,
     () => getProfile(initialProfile.id),
@@ -90,6 +94,8 @@ export default function ProfileLayout({
   const profile = fetchedProfile ?? initialProfile;
 
   const userRankQueryKey = ['userRank', initialProfile?.id];
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { data: userRank } = useQuery<UserReadingRankData>(
     userRankQueryKey,
     () =>
@@ -117,11 +123,21 @@ export default function ProfileLayout({
       }
     : {};
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [twitterHandle, setTwitterHandle] = useState<string>();
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [githubHandle, setGithubHandle] = useState<string>();
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [hashnodeHandle, setHashnodeHandle] = useState<string>();
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [portfolioLink, setPortfolioLink] = useState<string>();
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (profile) {
       const purify = DOMPurify(window);
@@ -150,7 +166,7 @@ export default function ProfileLayout({
           )}
         >
           <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
-            <ProfilePicture user={profile} size="xxxlarge" />
+            <ProfilePicture user={profile} size="xxxxlarge" />
             <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
               <a
                 href={reputationGuide}

@@ -1,4 +1,7 @@
-import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  FeedData,
+  supportedTypesForPrivateSources,
+} from '@dailydotdev/shared/src/graphql/posts';
 import {
   OnboardingMode,
   SOURCE_FEED_QUERY,
@@ -6,7 +9,13 @@ import {
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter } from 'next/router';
@@ -25,29 +34,34 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import {
-  generateTestSquad,
   generateForbiddenSquadResult,
-  generateNotFoundSquadResult,
-  generateMembersResult,
   generateMembersList,
+  generateMembersResult,
+  generateNotFoundSquadResult,
+  generateTestSquad,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
-  SquadData,
-  SquadEdgesData,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
+  SquadData,
+  SquadEdgesData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
-  Squad,
   SourceMemberRole,
+  SourcePermissions,
+  Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
-import { squadFeedback } from '@dailydotdev/shared/src/lib/constants';
+import {
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+} from '@dailydotdev/shared/src/graphql/actions';
 import SquadPage from '../pages/squads/[handle]';
 
 const showLogin = jest.fn();
 const defaultSquad = generateTestSquad();
+let requestedSquad: Partial<Squad> = {};
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
@@ -63,6 +77,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  requestedSquad = {};
 });
 
 const createFeedMock = (
@@ -73,6 +88,7 @@ const createFeedMock = (
     loggedIn: true,
     source: defaultSquad.id,
     ranking: 'TIME',
+    supportedTypes: supportedTypesForPrivateSources,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -90,7 +106,9 @@ const createSourceMock = (
   handle = 'sample',
   request: Partial<Squad> = {},
   result: GraphQLResult<SquadData> = {
-    data: { source: generateTestSquad({ ...request, handle }) },
+    data: {
+      source: generateTestSquad({ ...request, ...requestedSquad, handle }),
+    },
   },
 ): MockedGraphQLResponse<SquadData> => ({
   request: {
@@ -100,7 +118,6 @@ const createSourceMock = (
   result,
 });
 
-const feedbackLink = `${squadFeedback}#user_id=${defaultUser.id}&squad_id=${defaultSquad.id}`;
 const copyToClipboard = jest.fn();
 Object.assign(navigator, {
   clipboard: {
@@ -226,10 +243,10 @@ describe('squad page header', () => {
     await screen.findByAltText(alt);
   });
 
-  it('should show feedback icon', async () => {
+  it('should show checklist icon', async () => {
     renderComponent();
-    const feedback = await screen.findByLabelText('Feedback');
-    expect(feedback).toHaveAttribute('href', feedbackLink);
+    const checklist = await screen.findByTestId('squad-checklist-button');
+    expect(checklist).toBeInTheDocument();
   });
 });
 
@@ -266,44 +283,107 @@ describe('squad header bar', () => {
   });
 
   it('should copy invitation link', async () => {
+    requestedSquad.currentMember = {
+      ...defaultSquad.currentMember,
+      permissions: [SourcePermissions.Invite],
+    };
     renderComponent();
     const invite = await screen.findByText('Copy invitation link');
-    invite.click();
+
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SquadInvite },
+      },
+      result: { data: { _: true } },
+    });
+    fireEvent.click(invite);
+    await new Promise(process.nextTick);
+
     const invitation = `https://app.daily.dev/squads/webteam/3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8`;
     await waitFor(() =>
       expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
     );
   });
+
+  it('should not copy invitation link when member does not have invite permission', async () => {
+    requestedSquad.currentMember = {
+      ...defaultSquad.currentMember,
+      permissions: [],
+    };
+    renderComponent();
+
+    await expect(async () => {
+      await screen.findByText('Copy invitation link');
+    }).rejects.toThrow();
+  });
 });
 
 describe('squad members modal', () => {
+  const COPY_ITEM = 1;
   const openedMembersModal = async (members = generateMembersList()) => {
     renderComponent();
     const result = generateMembersResult(members);
-    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id }));
+    mockGraphQL(
+      createSourceMembersMock(result, { id: defaultSquad.id, role: null }),
+    );
     const trigger = await screen.findByLabelText('Members list');
     trigger.click();
     await screen.findByText('Squad members');
     return members;
   };
 
-  it('should show the owner on top of the list', async () => {
+  it('should show the admin on top of the list', async () => {
     const fullMembers = await openedMembersModal();
     const [first] = fullMembers;
-    expect(first.node.role).toEqual(SourceMemberRole.Owner);
-    const owner = await screen.findByText('Owner');
-    expect(owner).toHaveAttribute('data-testvalue', first.node.user.username);
+    expect(first.node.role).toEqual(SourceMemberRole.Admin);
   });
 
   it('should show all members of the squad', async () => {
     await openedMembersModal();
     const list = await screen.findByLabelText('users-list');
-    expect(list.childNodes.length).toBeGreaterThan(defaultSquad.membersCount);
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+  });
+
+  it('should show not show blocked members tab when only a member', async () => {
+    await openedMembersModal();
+    const list = await screen.findByLabelText('users-list');
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+    const blocked = screen.queryByText('Blocked members');
+    expect(blocked).not.toBeInTheDocument();
+  });
+
+  it('should show all blocked members of the squad when privileged', async () => {
+    requestedSquad.currentMember = {
+      role: SourceMemberRole.Admin,
+      permissions: [SourcePermissions.ViewBlockedMembers],
+    };
+    await openedMembersModal();
+    const list = await screen.findByLabelText('users-list');
+    expect(list.childNodes.length).toBeGreaterThan(
+      defaultSquad.membersCount + COPY_ITEM,
+    );
+    const members = generateMembersList();
+    const role = SourceMemberRole.Blocked;
+    members.forEach((member) => {
+      // eslint-disable-next-line no-param-reassign
+      member.node.role = role;
+    });
+    const result = generateMembersResult(members);
+    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id, role }));
+    const blocked = await screen.findByText('Blocked members');
+    blocked.click();
+    const unblocks = await screen.findAllByLabelText('Unblock');
+    expect(unblocks.length).toEqual(members.length);
   });
 
   it('should show options button to all members', async () => {
     await openedMembersModal();
     const options = await screen.findAllByLabelText('Member options');
-    expect(options.length).toEqual(defaultSquad.membersCount);
+    expect(options.length).toEqual(defaultSquad.membersCount + COPY_ITEM);
   });
 });

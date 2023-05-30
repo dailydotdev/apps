@@ -1,6 +1,7 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
+import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
 import { ParentComment, Post } from '../graphql/posts';
 import { Comment, PostCommentsData } from '../graphql/comments';
@@ -40,10 +41,48 @@ const getParentAndCurrentIndex = (
   return [parent, current];
 };
 
+interface SharedData {
+  editContent?: string;
+  editId?: string;
+}
+
+export const getParentComment = (
+  post: Post,
+  comment?: Comment,
+  shared: SharedData = {},
+): ParentComment => {
+  if (comment) {
+    return {
+      handle: comment.author.username,
+      authorId: comment.author.id,
+      authorName: comment.author.name,
+      authorImage: comment.author.image,
+      contentHtml: comment.contentHtml,
+      publishDate: comment.lastUpdatedAt || comment.createdAt,
+      commentId: comment.id,
+      post,
+      ...shared,
+    };
+  }
+
+  return {
+    handle: post.author?.username,
+    authorId: post.author?.id,
+    authorName: post.source.name,
+    authorImage: post.source.image,
+    contentHtml: post.title,
+    publishDate: post.createdAt,
+    commentId: null,
+    post,
+    ...shared,
+  };
+};
+
 export const usePostComment = (
   post: Post,
   { enableShowShareNewComment }: UsePostCommentOptionalProps = {},
 ): UsePostComment => {
+  const router = useRouter();
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
@@ -57,6 +96,8 @@ export const usePostComment = (
   const [showShareNewComment, setShowShareNewComment] = useState(null);
   const [showNewComment] = useDebounce((id) => setShowShareNewComment(id), 700);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const closeNewComment = () => {
     setParentComment(null);
     document.documentElement.scrollTop = lastScroll;
@@ -68,32 +109,37 @@ export const usePostComment = (
     }
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onCommentClick = (parent: ParentComment, replyTo: string) => {
     setLastScroll(window.scrollY);
-    setParentComment({ ...parent, replyTo });
+    setParentComment({
+      ...parent,
+      replyTo,
+    });
   };
 
-  const openNewComment = (origin: string) => {
-    if (user) {
-      trackEvent(
-        postAnalyticsEvent('open comment modal', post, {
-          extra: { origin },
-        }),
-      );
-      setLastScroll(window.scrollY);
-      setParentComment({
-        authorName: post.source.name,
-        authorImage: post.source.image,
-        content: post.title,
-        contentHtml: post.title,
-        publishDate: post.createdAt,
-        commentId: null,
-        post,
-      });
-    } else {
-      showLogin(AuthTriggers.Comment);
-    }
-  };
+  const openNewComment = useCallback(
+    (origin: string) => {
+      if (user) {
+        trackEvent(
+          postAnalyticsEvent('open comment modal', post, {
+            extra: { origin },
+          }),
+        );
+        setLastScroll(window.scrollY);
+        const parent = getParentComment(post);
+        if (router.query.comment) {
+          parent.editContent = router.query.comment as string;
+        }
+
+        setParentComment(parent);
+      } else {
+        showLogin(AuthTriggers.Comment);
+      }
+    },
+    [post, showLogin, trackEvent, user, router.query.comment],
+  );
 
   const updatePostCommentsCount = (increment: number) =>
     updatePostCache(client, post.id, {
@@ -123,6 +169,8 @@ export const usePostComment = (
     return { ...current, node: { ...current.node, ...comment } };
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const deleteCommentCache = async (commentId: string, parentId?: string) => {
     const queryKey = ['post_comments', post.id];
     await client.cancelQueries(queryKey);
@@ -190,6 +238,8 @@ export const usePostComment = (
     return client.setQueryData(key, cached);
   };
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const updatePostComments = (comment: Comment, isNew = true) => {
     if (!comment) {
       return;
@@ -214,7 +264,32 @@ export const usePostComment = (
     if (enableShowShareNewComment) {
       showNewComment();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enableShowShareNewComment]);
+
+  const hasCommentToggleQueryParam = typeof router.query.comment === 'string';
+
+  useEffect(() => {
+    if (!hasCommentToggleQueryParam || parentComment) {
+      return;
+    }
+
+    const { comment, ...queryWithoutComment } = router.query;
+
+    openNewComment('squad checklist');
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: queryWithoutComment,
+      },
+      undefined,
+      {
+        shallow: true,
+      },
+    );
+  }, [hasCommentToggleQueryParam, openNewComment, parentComment, router]);
 
   return useMemo(
     () => ({

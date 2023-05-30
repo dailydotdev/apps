@@ -21,6 +21,8 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
     options: {
       title,
       description,
+      content,
+      promptSize = Modal.Size.XSmall,
       cancelButton = {},
       okButton = {},
       className = {},
@@ -30,7 +32,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
     <Modal
       isOpen
       kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.XSmall}
+      size={promptSize}
       onRequestClose={onFail}
       className={className.modal}
       overlayClassName="!z-[100]"
@@ -43,6 +45,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
             {description}
           </Description>
         )}
+        {content}
         <Buttons className={className.buttons}>
           {cancelButton !== null && (
             <Button

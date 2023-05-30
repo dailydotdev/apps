@@ -4,10 +4,19 @@ import { ModalPropsContext, ModalTabItem, modalTabTitle } from './types';
 
 export type ModalTabsProps = {
   disabledTab?: (tab: string) => boolean;
+  onTabClick?: (tab: string) => void;
 };
 
-export function ModalTabs({ disabledTab }: ModalTabsProps): ReactElement {
+export function ModalTabs({
+  disabledTab,
+  onTabClick,
+}: ModalTabsProps): ReactElement {
   const { activeView, setActiveView, tabs } = useContext(ModalPropsContext);
+  const onClick = (tab: string) => {
+    setActiveView(tab);
+    onTabClick?.(tab);
+  };
+
   return (
     <ul className="flex flex-row gap-4">
       {tabs.map((tab: string | ModalTabItem) => {
@@ -24,7 +33,7 @@ export function ModalTabs({ disabledTab }: ModalTabsProps): ReactElement {
                 ? 'bg-theme-active font-bold'
                 : 'text-theme-label-tertiary',
             )}
-            onClick={() => setActiveView(tabTitle)}
+            onClick={() => onClick(tabTitle)}
             type="button"
             role="menuitem"
           >

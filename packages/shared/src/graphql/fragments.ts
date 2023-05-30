@@ -50,6 +50,8 @@ export const SOURCE_BASE_FRAGMENT = gql`
     currentMember {
       ...CurrentMember
     }
+    memberPostingRole
+    memberInviteRole
   }
   ${CURRENT_MEMBER_FRAGMENT}
 `;

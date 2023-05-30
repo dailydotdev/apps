@@ -23,7 +23,8 @@ import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../hooks/useEnableNotification';
+import { NotificationPromptSource } from '../../lib/analytics';
+import { Justify } from '../utilities';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -261,8 +262,8 @@ export default function SubmitArticleModal({
           <PostItemCard postItem={existingArticle} showButtons={false} />
         </div>
       )}
-      {(!isSubmitted || !!existingArticle) && (
-        <Modal.Footer>
+      <Modal.Footer justify={isSubmitted ? Justify.Center : Justify.End}>
+        {(!isSubmitted || !!existingArticle) && (
           <Button
             className="btn-primary"
             type="submit"
@@ -275,8 +276,17 @@ export default function SubmitArticleModal({
               {submitArticleModalButton}
             </span>
           </Button>
-        </Modal.Footer>
-      )}
+        )}
+        {isSubmitted && (
+          <Button
+            className="flex-1 btn-primary max-w-[22.5rem]"
+            aria-label="Close submit article modal"
+            onClick={onRequestClose}
+          >
+            Close
+          </Button>
+        )}
+      </Modal.Footer>
     </Modal>
   );
 }

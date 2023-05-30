@@ -4,27 +4,27 @@ import { Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../contexts/AuthContext';
 import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
   RECOMMEND_MENTIONS_QUERY,
   PREVIEW_COMMENT_MUTATION,
-} from '../../graphql/comments';
+} from '../../../graphql/comments';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { RecommendedMention } from '../RecommendedMention';
-import comment from '../../../__tests__/fixture/comment';
-import user from '../../../__tests__/fixture/loggedUser';
-import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
-import { PostType } from '../../graphql/posts';
-import { UserShortProfile } from '../../lib/user';
-import { SourceType } from '../../graphql/sources';
-import { BootApp } from '../../lib/boot';
+} from '../../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { RecommendedMention } from '../../RecommendedMention';
+import comment from '../../../../__tests__/fixture/comment';
+import user from '../../../../__tests__/fixture/loggedUser';
+import { NotificationsContextProvider } from '../../../contexts/NotificationsContext';
+import { ParentComment, PostType } from '../../../graphql/posts';
+import { UserShortProfile } from '../../../lib/user';
+import { SourceType } from '../../../graphql/sources';
+import { BootApp } from '../../../lib/boot';
 
 const onRequestClose = jest.fn();
 const onComment = jest.fn();
@@ -36,9 +36,10 @@ beforeEach(() => {
 
 const renderComponent = (
   props: Partial<NewCommentModalProps> = {},
+  partial: Partial<ParentComment> = {},
   mocks: MockedGraphQLResponse[] = [],
 ): RenderResult => {
-  const defaultProps: NewCommentModalProps = {
+  const parentComment: ParentComment = {
     authorImage: 'https://daily.dev/nimrod.png',
     authorName: 'Nimrod',
     publishDate: new Date(2017, 1, 10, 0, 0),
@@ -60,10 +61,16 @@ const renderComponent = (
         permalink: '',
       },
     },
+    ...partial,
+  };
+  const defaultProps: NewCommentModalProps = {
+    ...props,
     isOpen: true,
     ariaHideApp: false,
     onRequestClose,
     onComment,
+    parentComment,
+    post: parentComment.post,
   };
 
   const client = new QueryClient();
@@ -143,7 +150,7 @@ it('should send commentOnPost mutation', async () => {
     createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
     permalink: 'https://daily.dev',
   };
-  renderComponent({}, [
+  renderComponent({}, {}, [
     {
       request: {
         query: COMMENT_ON_POST_MUTATION,
@@ -177,7 +184,7 @@ it('should send commentOnComment mutation', async () => {
     createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
     permalink: 'https://daily.dev',
   };
-  renderComponent({ commentId: 'c1' }, [
+  renderComponent({}, { commentId: 'c1' }, [
     {
       request: {
         query: COMMENT_ON_COMMENT_MUTATION,
@@ -211,7 +218,7 @@ it('should not send comment if the input is spaces only', async () => {
     createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
     permalink: 'https://daily.dev',
   };
-  renderComponent({ commentId: 'c1' }, [
+  renderComponent({}, { commentId: 'c1' }, [
     {
       request: {
         query: COMMENT_ON_COMMENT_MUTATION,
@@ -238,7 +245,7 @@ it('should not send comment if the input is spaces only', async () => {
 
 it('should show alert in case of an error', async () => {
   let mutationCalled = false;
-  renderComponent({ commentId: 'c1' }, [
+  renderComponent({}, { commentId: 'c1' }, [
     {
       request: {
         query: COMMENT_ON_COMMENT_MUTATION,
@@ -262,7 +269,7 @@ it('should show alert in case of an error', async () => {
 
 it('should send editComment mutation', async () => {
   let mutationCalled = false;
-  renderComponent({ editId: 'c1', editContent: 'My comment to edit' }, [
+  renderComponent({}, { editId: 'c1', editContent: 'My comment to edit' }, [
     {
       request: {
         query: EDIT_COMMENT_MUTATION,
@@ -289,7 +296,7 @@ it('should send editComment mutation', async () => {
 
 it('should pre-populate comment box with the author username when', async () => {
   const replyTo = '@sshanzel ';
-  renderComponent({ commentId: 'c1', replyTo });
+  renderComponent({}, { commentId: 'c1', replyTo });
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   expect(input).toHaveValue(replyTo);
 });
@@ -322,7 +329,7 @@ const createMentionMock = (
 
 it('should recommend users previously mentioned', async () => {
   let queryPreviouslyMentioned = false;
-  renderComponent({}, [
+  renderComponent({}, {}, [
     createMentionMock(defaultMention, () => {
       queryPreviouslyMentioned = true;
     }),
@@ -336,7 +343,7 @@ it('should recommend users previously mentioned', async () => {
 it('should recommend users based on query', async () => {
   let queryPreviouslyMentioned = false;
   let queryMatchingNameOrUsername = false;
-  renderComponent({}, [
+  renderComponent({}, {}, [
     createMentionMock(
       [{ name: 'Ido', username: 'idoshamun', image: 'sample.image.com' }],
       () => {

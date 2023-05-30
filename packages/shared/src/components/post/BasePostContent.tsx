@@ -63,6 +63,8 @@ export function BasePostContent({
   const { onCloseShare, sharePost, onSharePost, onToggleBookmark } =
     engagementProps;
   const { onStartArticleOnboarding, showArticleOnboarding } =
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useContext(OnboardingContext);
 
   return (

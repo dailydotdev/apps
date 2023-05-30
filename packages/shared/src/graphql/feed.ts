@@ -1,5 +1,10 @@
 import { gql } from 'graphql-request';
-import { SHARED_POST_INFO_FRAGMENT } from './fragments';
+import {
+  SHARED_POST_INFO_FRAGMENT,
+  SOURCE_SHORT_INFO_FRAGMENT,
+} from './fragments';
+import { Post, PostType } from './posts';
+import { Connection } from './common';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',
@@ -11,7 +16,13 @@ export enum OnboardingMode {
   Auto = 'auto',
 }
 
+export const baseFeedSupportedTypes = [PostType.Article, PostType.Share];
+
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["article", "share"]`;
+
+export interface FeedData {
+  page: Connection<Post>;
+}
 
 export const FEED_POST_FRAGMENT = gql`
   fragment FeedPost on Post {
@@ -34,7 +45,7 @@ export const USER_POST_FRAGMENT = gql`
   }
 `;
 
-export const FEED_POST_CONNECTION_FRAGMENT = gql`
+const getFeedPostFragment = (fields = '') => gql`
   fragment FeedPostConnection on PostConnection {
     pageInfo {
       hasNextPage
@@ -43,6 +54,7 @@ export const FEED_POST_CONNECTION_FRAGMENT = gql`
     edges {
       node {
         ...FeedPost
+        ${fields}
         ...UserPost @include(if: $loggedIn)
       }
     }
@@ -50,6 +62,8 @@ export const FEED_POST_CONNECTION_FRAGMENT = gql`
   ${FEED_POST_FRAGMENT}
   ${USER_POST_FRAGMENT}
 `;
+
+export const FEED_POST_CONNECTION_FRAGMENT = getFeedPostFragment();
 
 export const ANONYMOUS_FEED_QUERY = gql`
   query AnonymousFeed(
@@ -147,7 +161,7 @@ export const SOURCE_FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
-    ${SUPPORTED_TYPES}
+    $supportedTypes: [String!]
   ) {
     page: sourceFeed(
       source: $source
@@ -159,7 +173,7 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${FEED_POST_CONNECTION_FRAGMENT}
+  ${getFeedPostFragment('pinnedAt')}
 `;
 
 export const BOOKMARKS_FEED_QUERY = gql`
@@ -167,7 +181,7 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
-    ${SUPPORTED_TYPES}
+    $supportedTypes: [String!]
   ) {
     page: bookmarksFeed(
       first: $first
@@ -186,9 +200,14 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
     $first: Int
     $after: String
     $query: String!
-    ${SUPPORTED_TYPES}
+    $supportedTypes: [String!]
   ) {
-    page: searchBookmarks(first: $first, after: $after, query: $query, supportedTypes: $supportedTypes) {
+    page: searchBookmarks(
+      first: $first
+      after: $after
+      query: $query
+      supportedTypes: $supportedTypes
+    ) {
       ...FeedPostConnection
     }
   }
@@ -218,4 +237,67 @@ export const SEARCH_POSTS_QUERY = gql`
     }
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const AUTHOR_FEED_QUERY = gql`
+  query AuthorFeed(
+    $userId: ID!,
+    $after: String,
+    $first: Int
+    ${SUPPORTED_TYPES}
+   ) {
+    page: authorFeed(
+      author: $userId
+      after: $after
+      first: $first
+      ranking: TIME
+      supportedTypes: $supportedTypes
+    ) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          title
+          commentsPermalink
+          image
+          source {
+            ...SourceShortInfo
+          }
+          numUpvotes
+          numComments
+          views
+          isAuthor
+          isScout
+        }
+      }
+    }
+  }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
+`;
+
+export const KEYWORD_FEED_QUERY = gql`
+  query KeywordFeed(
+    $keyword: String!,
+    $after: String,
+    $first: Int
+    ${SUPPORTED_TYPES}
+   ) {
+    page: keywordFeed(keyword: $keyword, after: $after, first: $first, supportedTypes: $supportedTypes) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          title
+          commentsPermalink
+          image
+        }
+      }
+    }
+  }
 `;

@@ -25,8 +25,9 @@ import { Comment, getCommentHash } from '../../graphql/comments';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { Squad } from '../../graphql/sources';
+import { SourcePermissions, Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
+import { verifyPermission } from '../../graphql/squads';
 
 interface SocialShareProps {
   origin: Origin;
@@ -67,7 +68,7 @@ export const SocialShare = ({
       type: LazyModal.PostToSquad,
       props: {
         squad,
-        post,
+        preview: post,
         onSharedSuccessfully: () => {
           trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
           return onSquadShare;
@@ -81,7 +82,11 @@ export const SocialShare = ({
       {!isComment &&
         !post.private &&
         squads
-          ?.filter(({ active }) => active)
+          ?.filter(
+            (squadItem) =>
+              squadItem.active &&
+              verifyPermission(squadItem, SourcePermissions.Post),
+          )
           ?.map((squad) => (
             <button
               type="button"

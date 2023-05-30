@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from 'react-query';
 import { ReactNode, useMemo } from 'react';
 import { ButtonProps, StyledButtonProps } from '../components/buttons/Button';
+import { ModalSize } from '../components/modals/common/types';
 
 export const PROMPT_KEY = 'prompt';
 
@@ -14,6 +15,8 @@ export type PromptOptions = {
   description?: string | ReactNode;
   okButton?: PromptButtonProps;
   cancelButton?: PromptButtonProps;
+  content?: ReactNode;
+  promptSize?: ModalSize.XSmall | ModalSize.Small;
   className?: {
     modal?: string;
     title?: string;
@@ -61,6 +64,8 @@ export function usePrompt(): UsePromptRet {
       showPrompt,
       prompt,
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [prompt],
   );
 }

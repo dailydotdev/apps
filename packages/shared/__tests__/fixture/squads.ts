@@ -1,15 +1,15 @@
 import { GraphQLResult } from '../helpers/graphql';
 import { Edge } from '../../src/graphql/common';
 import {
-  SourceType,
   SourceMember,
   SourceMemberRole,
+  SourceType,
 } from '../../src/graphql/sources';
 import { Squad, SquadData, SquadEdgesData } from '../../src/graphql/squads';
 
 export const defaultSquadToken = 'ki3YLcxvSZ2Q6KgMBZvMbly1gnrZ6JnIrhTpUML-Hua';
 
-export const generateTestOwner = (
+export const generateTestAdmin = (
   members: Edge<SourceMember>[] = [],
 ): SourceMember => ({
   user: {
@@ -45,7 +45,7 @@ export const generateTestOwner = (
             },
             source: null,
             referralToken: defaultSquadToken,
-            role: SourceMemberRole.Owner,
+            role: SourceMemberRole.Admin,
           },
         },
         ...members,
@@ -53,14 +53,14 @@ export const generateTestOwner = (
     },
   },
   referralToken: defaultSquadToken,
-  role: SourceMemberRole.Owner,
+  role: SourceMemberRole.Admin,
 });
 
 export const generateMembersResult = (
   members: Edge<SourceMember>[] = [
     {
       node: {
-        role: 'owner',
+        role: SourceMemberRole.Admin,
         user: {
           id: 'F8G694HAObSoebZRzeKKa',
           name: 'Eliz Kılıç',
@@ -74,7 +74,7 @@ export const generateMembersResult = (
     },
     {
       node: {
-        role: 'member',
+        role: SourceMemberRole.Member,
         user: {
           id: 'LJSkpBexOSCWc8INyu3Eu',
           name: 'Ante Barić',
@@ -88,7 +88,7 @@ export const generateMembersResult = (
     },
     {
       node: {
-        role: 'member',
+        role: SourceMemberRole.Member,
         user: {
           id: 'QgTYreBqt',
           name: 'Francesco Ciulla',
@@ -102,7 +102,7 @@ export const generateMembersResult = (
     },
     {
       node: {
-        role: 'member',
+        role: SourceMemberRole.Member,
         user: {
           id: 'twmsvOCVr4s9JjlwIKGqI',
           name: 'Vas N',
@@ -116,7 +116,7 @@ export const generateMembersResult = (
     },
     {
       node: {
-        role: 'member',
+        role: SourceMemberRole.Member,
         user: {
           id: 'vqsMiP21barzohGfVjLFx',
           name: 'Hanzel',
@@ -203,7 +203,7 @@ export const generateMembersList = (
 ): Edge<SourceMember>[] => [
   {
     node: {
-      role: 'owner',
+      role: SourceMemberRole.Admin,
       user: {
         id: 'F8G694HAObSoebZRzeKKa',
         name: 'Eliz Kılıç',
@@ -217,7 +217,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'LJSkpBexOSCWc8INyu3Eu',
         name: 'Ante Barić',
@@ -231,7 +231,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'QgTYreBqt',
         name: 'Francesco Ciulla',
@@ -245,7 +245,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'twmsvOCVr4s9JjlwIKGqI',
         name: 'Vas N',
@@ -259,7 +259,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'vqsMiP21barzohGfVjLFx',
         name: 'Hanzel',
@@ -273,7 +273,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'EEO0c1ol7u5IpOuykRZ1K',
         name: 'Sab',
@@ -287,7 +287,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'yRuVFf6IbfTylBjx9Dzvt',
         name: 'Denis Bolkovskis',
@@ -301,7 +301,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'IfGXaLUgpCHFaqiGEQQtp',
         name: 'Sabarinath Selvam',
@@ -315,7 +315,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'k7eIkWOKPsTKc2SLpUB6v',
         name: 'Deniz Gunsav',
@@ -329,7 +329,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'ab02e61b958d49d88c8420b431a4d91c',
         name: 'Lee Hansel Solevilla Jr',
@@ -343,7 +343,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: '5e0af68445e04c02b0656c3530664aff',
         name: 'Tsahi Matsliah',
@@ -357,7 +357,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: '28849d86070e4c099c877ab6837c61f0',
         name: 'Ido Shamun',
@@ -371,7 +371,7 @@ export const generateMembersList = (
   },
   {
     node: {
-      role: 'member',
+      role: SourceMemberRole.Member,
       user: {
         id: 'JUNiIGCV-',
         name: 'Chris Bongers',

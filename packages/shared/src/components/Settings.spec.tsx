@@ -21,7 +21,7 @@ import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { BootDataProvider } from '../contexts/BootProvider';
 import { apiUrl } from '../lib/config';
-import { BootCacheData } from '../lib/boot';
+import { BootApp, BootCacheData } from '../lib/boot';
 import { BOOT_LOCAL_KEY } from '../contexts/common';
 
 beforeEach(() => {
@@ -128,12 +128,18 @@ const renderBootProvider = (
   bootData: Partial<BootCacheData> = defaultBootData,
 ) => {
   const queryClient = new QueryClient();
-  const app = 'extension';
+  const app = BootApp.Extension;
   nock(apiUrl).get('/boot', { headers: { app } }).reply(200, bootData);
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <BootDataProvider app={app} getRedirectUri={jest.fn()}>
+      <BootDataProvider
+        app={app}
+        getRedirectUri={jest.fn()}
+        version="pwa"
+        deviceId="123"
+        getPage={jest.fn()}
+      >
         <Settings />
       </BootDataProvider>
     </QueryClientProvider>,

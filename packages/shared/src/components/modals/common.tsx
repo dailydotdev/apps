@@ -15,9 +15,6 @@ const PostToSquadModal = dynamic(
 const NewSquadModal = dynamic(
   () => import(/* webpackChunkName: "newSquadModal" */ './NewSquadModal'),
 );
-const SquadInviteModal = dynamic(
-  () => import(/* webpackChunkName: "squadInviteModal" */ './SquadInviteModal'),
-);
 const SquadMemberModal = dynamic(
   () => import(/* webpackChunkName: "squadMemberModal" */ './SquadMemberModal'),
 );
@@ -29,14 +26,21 @@ const SquadTourModal = dynamic(
   () => import(/* webpackChunkName: "squadTourModal" */ './SquadTourModal'),
 );
 
+const EditWelcomePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "editWelcomePostModal" */ './comment/EditWelcomePostModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.EditSquad]: EditSquadModal,
   [LazyModal.PostToSquad]: PostToSquadModal,
-  [LazyModal.SquadInvite]: SquadInviteModal,
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.SquadTour]: SquadTourModal,
+  [LazyModal.EditWelcomePost]: EditWelcomePostModal,
 };
 
 type GetComponentProps<T> = T extends

@@ -34,16 +34,19 @@ export function RecommendedMention({
         <UserShortInfo
           key={user.username}
           user={user}
-          className={classNames(
-            'p-3 cursor-pointer',
-            index === selected && 'bg-theme-active',
-          )}
+          className={{
+            container: classNames(
+              'p-3 cursor-pointer',
+              index === selected && 'bg-theme-active',
+            ),
+          }}
           imageSize="large"
           tag="li"
           onClick={() => onClick(user.username)}
           aria-selected={index === selected}
           role="option"
           disableTooltip
+          showDescription={false}
         />
       ))}
     </ul>

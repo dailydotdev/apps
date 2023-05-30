@@ -9,7 +9,6 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { SUPPORTED_TYPES } from './feed';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -26,7 +25,16 @@ export interface SharedPost extends Post {
 export enum PostType {
   Article = 'article',
   Share = 'share',
+  Welcome = 'welcome',
 }
+
+export const internalReadTypes: PostType[] = [PostType.Welcome];
+
+export const supportedTypesForPrivateSources = [
+  PostType.Article,
+  PostType.Share,
+  PostType.Welcome,
+];
 
 export interface Post {
   __typename?: string;
@@ -34,7 +42,10 @@ export interface Post {
   title: string;
   permalink?: string;
   image: string;
+  content?: string;
+  contentHtml?: string;
   createdAt?: string;
+  pinnedAt?: Date | string;
   readTime?: number;
   tags?: string[];
   source?: Source | Squad;
@@ -77,12 +88,13 @@ export interface Ad {
 }
 
 export interface ParentComment {
+  handle?: string;
+  authorId?: string;
   authorName: string;
   authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
+  publishDate?: Date | string;
+  contentHtml?: string;
+  commentId?: string;
   post: Post;
   editContent?: string;
   editId?: string;
@@ -131,8 +143,19 @@ export const POST_BY_ID_QUERY = gql`
       ...SharedPostInfo
       trending
       views
+      content
+      contentHtml
       sharedPost {
         ...SharedPostInfo
+      }
+      source {
+        ...SourceBaseInfo
+        privilegedMembers {
+          user {
+            id
+          }
+          role
+        }
       }
       description
       summary
@@ -246,69 +269,6 @@ export interface FeedData {
   page: Connection<Post>;
 }
 
-export const AUTHOR_FEED_QUERY = gql`
-  query AuthorFeed(
-    $userId: ID!,
-    $after: String,
-    $first: Int
-    ${SUPPORTED_TYPES}
-   ) {
-    page: authorFeed(
-      author: $userId
-      after: $after
-      first: $first
-      ranking: TIME
-      supportedTypes: $supportedTypes
-    ) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-          source {
-            ...SourceShortInfo
-          }
-          numUpvotes
-          numComments
-          views
-          isAuthor
-          isScout
-        }
-      }
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
-`;
-
-export const KEYWORD_FEED_QUERY = gql`
-  query KeywordFeed(
-    $keyword: String!,
-    $after: String,
-    $first: Int
-    ${SUPPORTED_TYPES}
-   ) {
-    page: keywordFeed(keyword: $keyword, after: $after, first: $first, supportedTypes: $supportedTypes) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-        }
-      }
-    }
-  }
-`;
-
 export interface PostsEngaged {
   postsEngaged: { id: string; numComments: number; numUpvotes: number };
 }
@@ -421,10 +381,14 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   mutation SubmitExternalLink(
     $sourceId: ID!
     $url: String!
+    $title: String
+    $image: String
     $commentary: String!
   ) {
     submitExternalLink(
       url: $url
+      title: $title
+      image: $image
       sourceId: $sourceId
       commentary: $commentary
     ) {
@@ -433,11 +397,95 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   }
 `;
 
-interface SubmitExternalLink {
-  url: string;
+export interface ExternalLinkPreview {
+  url?: string;
+  id?: string;
+  title: string;
+  image: string;
+}
+
+export const PREVIEW_LINK_MUTATION = gql`
+  mutation CheckLinkPreview($url: String!) {
+    checkLinkPreview(url: $url) {
+      id
+      title
+      image
+    }
+  }
+`;
+
+export const getExternalLinkPreview = async (
+  url: string,
+): Promise<ExternalLinkPreview> => {
+  const res = await request(graphqlUrl, PREVIEW_LINK_MUTATION, { url });
+
+  return res.checkLinkPreview;
+};
+
+interface SubmitExternalLink
+  extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
   sourceId: string;
   commentary: string;
 }
 
 export const submitExternalLink = (params: SubmitExternalLink): Promise<Post> =>
   request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
+
+export const EDIT_POST_MUTATION = gql`
+  mutation EditPost(
+    $id: ID!
+    $title: String
+    $content: String
+    $image: Upload
+  ) {
+    editPost(id: $id, title: $title, content: $content, image: $image) {
+      ...SharedPostInfo
+      trending
+      views
+      content
+      contentHtml
+      source {
+        ...SourceBaseInfo
+      }
+      description
+      summary
+      toc {
+        text
+        id
+      }
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+interface EditPostProps {
+  id: string;
+  title: string;
+  content: string;
+  image: File;
+}
+
+export const editPost = async (
+  variables: Partial<EditPostProps>,
+): Promise<Post> => {
+  const res = await request(graphqlUrl, EDIT_POST_MUTATION, variables);
+
+  return res.editPost;
+};
+
+export const PIN_POST_MUTATION = gql`
+  mutation UpdatePinPost($id: ID!, $pinned: Boolean!) {
+    updatePinPost(id: $id, pinned: $pinned) {
+      _
+    }
+  }
+`;
+
+interface UpdatePinnedProps {
+  id: string;
+  pinned: boolean;
+}
+
+export const updatePinnedPost = async (
+  variables: UpdatePinnedProps,
+): Promise<void> => request(graphqlUrl, PIN_POST_MUTATION, variables);

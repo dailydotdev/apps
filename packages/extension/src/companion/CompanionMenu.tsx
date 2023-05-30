@@ -18,7 +18,7 @@ import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
-import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
+import NewCommentModal from '@dailydotdev/shared/src/components/modals/comment/NewCommentModal';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import PostToSquadModal, {
@@ -112,6 +112,8 @@ export default function CompanionMenu({
     };
     window.addEventListener('beforeunload', cleanup);
     return () => cleanup();
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleCompanion = () => {
@@ -269,7 +271,8 @@ export default function CompanionMenu({
           parentSelector={getCompanionWrapper}
           onRequestClose={closeNewComment}
           onInputChange={onInput}
-          {...parentComment}
+          parentComment={parentComment}
+          post={post}
         />
       )}
       {sharePost && (

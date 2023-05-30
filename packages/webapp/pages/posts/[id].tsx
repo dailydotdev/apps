@@ -65,6 +65,7 @@ export interface Props {
 const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   article: PostContent,
   share: SquadPostContent,
+  welcome: SquadPostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -83,6 +84,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   useWindowEvents(
     'popstate',
     CHECK_POPSTATE,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useCallback(() => router.reload(), []),
     false,
   );
@@ -93,7 +96,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   });
   const containerClass = classNames(
     'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
-    post?.type === PostType.Share &&
+    [PostType.Share, PostType.Welcome].includes(post?.type) &&
       sidebarRendered &&
       modalSizeToClassName[ModalSize.Large],
   );
@@ -108,6 +111,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       },
     },
   };
+
+  const seoComponent = <NextSeo {...seo} />;
+
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
     onUnderOffset: () => position !== 'relative' && setPosition('relative'),
@@ -115,22 +121,25 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (isPostLoadingOrFetching) {
-    return <PostLoadingSkeleton className={containerClass} type={post?.type} />;
-  }
-
-  if (isFallback || !isFetched) {
-    return <></>;
+  if (isPostLoadingOrFetching || isFallback || !isFetched) {
+    return (
+      <>
+        {post?.title?.length && seoComponent}
+        <PostLoadingSkeleton className={containerClass} type={post?.type} />
+      </>
+    );
   }
 
   const Content = CONTENT_MAP[post?.type];
+  const shareNavigation = !post?.source ? (
+    <></>
+  ) : (
+    <SquadPostPageNavigation squadLink={post.source.permalink} />
+  );
   const navigation: Record<PostType, ReactNode> = {
     article: null,
-    share: !post?.source ? (
-      <></>
-    ) : (
-      <SquadPostPageNavigation squadLink={post.source.permalink} />
-    ),
+    share: shareNavigation,
+    welcome: shareNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
@@ -141,7 +150,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
-      <NextSeo {...seo} />
+      {seoComponent}
       <Content
         position={position}
         post={post}

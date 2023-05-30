@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from 'react-query';
+import { QueryKey, useQueryClient } from 'react-query';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, ReportReason } from '../graphql/posts';
@@ -10,7 +10,7 @@ import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import RepostPostModal from './modals/ReportPostModal';
+import ReportPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -23,8 +23,10 @@ import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
-import { Origin } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
+import { PinIcon } from './icons';
+import { getPostByIdKey } from '../hooks/usePostById';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -33,14 +35,23 @@ const PortalMenu = dynamic(
   },
 );
 
+interface PostOptions {
+  icon: ReactElement;
+  text: string;
+  action: () => unknown;
+}
+
 export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
   feedName?: string;
   onHidden?: () => unknown;
+  feedQueryKey?: QueryKey;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   contextId?: string;
+  origin: Origin;
+  allowPin?: boolean;
 }
 
 type ReportPostAsync = (
@@ -59,6 +70,9 @@ export default function PostOptionsMenu({
   onHidden,
   onRemovePost,
   setShowBanPost,
+  feedQueryKey,
+  origin,
+  allowPin,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
@@ -97,11 +111,34 @@ export default function PostOptionsMenu({
     });
     onRemovePost?.(_postIndex);
   };
-  const { onConfirmDeletePost } = usePostMenuActions({
+  const { onConfirmDeletePost, onPinPost } = usePostMenuActions({
     post,
     postIndex,
-    onPostDeleted: ({ index }) =>
-      showMessageAndRemovePost('The post has been deleted', index, null),
+    onPinSuccessful: async () => {
+      const key = getPostByIdKey(post.id);
+      const cached = client.getQueryData(key);
+      if (cached) {
+        client.setQueryData<Post>(key, (data) => ({
+          ...data,
+          pinnedAt: post.pinnedAt ? null : new Date(),
+        }));
+      }
+
+      await client.invalidateQueries(feedQueryKey);
+      displayToast(
+        post.pinnedAt
+          ? 'Your post has been unpinned'
+          : '📌 Your post has been pinned',
+      );
+    },
+    onPostDeleted: ({ index, post: deletedPost }) => {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
+          extra: { origin },
+        }),
+      );
+      return showMessageAndRemovePost('The post has been deleted', index, null);
+    },
   });
 
   const onReportPost: ReportPostAsync = async (
@@ -188,11 +225,7 @@ export default function PostOptionsMenu({
     );
   };
 
-  const postOptions: {
-    icon: ReactElement;
-    text: string;
-    action: () => unknown;
-  }[] = [
+  const postOptions: PostOptions[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
       text: 'Hide',
@@ -238,6 +271,13 @@ export default function PostOptionsMenu({
       action: onConfirmDeletePost,
     });
   }
+  if (allowPin && onPinPost) {
+    postOptions.unshift({
+      icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
+      text: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
+      action: onPinPost,
+    });
+  }
   if (setShowBanPost) {
     postOptions.push({
       icon: <MenuIcon Icon={HammerIcon} />,
@@ -263,7 +303,7 @@ export default function PostOptionsMenu({
         ))}
       </PortalMenu>
       {reportModal && (
-        <RepostPostModal
+        <ReportPostModal
           isOpen={!!reportModal}
           postIndex={reportModal.index}
           post={reportModal.post}

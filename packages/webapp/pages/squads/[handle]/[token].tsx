@@ -7,8 +7,15 @@ import {
   joinSquadInvitation,
   validateSourceHandle,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
-import { Edge } from '@dailydotdev/shared/src/graphql/common';
+import {
+  SourceMember,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
+import {
+  ApiErrorMessage,
+  ApiErrorResult,
+  Edge,
+} from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -32,6 +39,7 @@ import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
@@ -66,6 +74,7 @@ const SquadReferral = ({
   const { isFallback } = router;
   const { trackEvent } = useContext(AnalyticsContext);
   const { addSquad } = useBoot();
+  const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser, squads } = useAuthContext();
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { data: member, isFetched } = useQuery(
@@ -86,10 +95,13 @@ const SquadReferral = ({
 
         if (!isValid) return router.replace(webappUrl);
 
-        const isMember = response.source.members.edges.some(
-          ({ node }) => node.user.id === loggedUser.id,
-        );
-        if (isMember) return router.replace(squadsUrl);
+        const { currentMember } = response.source;
+        if (currentMember) {
+          const { role } = currentMember;
+          if (role !== SourceMemberRole.Blocked) {
+            return router.replace(squadsUrl);
+          }
+        }
 
         return null;
       },
@@ -111,6 +123,8 @@ const SquadReferral = ({
       extra: joinSquadAnalyticsExtra(),
     });
     setTrackedImpression(true);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member, trackedImpression]);
 
   const sourceId = member?.source?.id;
@@ -129,10 +143,26 @@ const SquadReferral = ({
         addSquad(data);
         return router.replace(data.permalink);
       },
+      onError: (error: ApiErrorResult) => {
+        const errorMessage = error?.response?.errors?.[0]?.message;
+
+        if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
+          displayToast(
+            '🚫 The invitation is no longer valid, please check with the person who shared this invite (or the Squad admin) for further information.',
+          );
+        } else {
+          displayToast('🚫 Something went wrong, please try again.');
+        }
+      },
     },
   );
 
   const onJoinClick = async () => {
+    if (member.source?.currentMember?.role === SourceMemberRole.Blocked) {
+      displayToast('🚫 You no longer have access to this Squad.');
+      return null;
+    }
+
     trackEvent({
       event_name: AnalyticsEvent.ClickJoinSquad,
       extra: joinSquadAnalyticsExtra(),
@@ -212,7 +242,7 @@ const SquadReferral = ({
           {renderJoinButton('hidden tablet:flex ml-auto')}
         </span>
         {source.description && (
-          <BodyParagraph className="mt-4 ml-[4.5rem]">
+          <BodyParagraph className="mt-4 break-words ml-[4.5rem]">
             {source.description}
           </BodyParagraph>
         )}

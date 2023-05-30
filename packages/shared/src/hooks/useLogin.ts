@@ -176,6 +176,8 @@ const useLogin = ({
       onSocialLogin: onSubmitSocialLogin,
       onPasswordLogin: onSubmitPasswordLogin,
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [session, queryEnabled, queryParams, hint, login, isLoading],
   );
 };

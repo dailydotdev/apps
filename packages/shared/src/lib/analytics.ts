@@ -56,6 +56,9 @@ export enum AnalyticsEvent {
   CompleteSquadCreation = 'complete squad creation',
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
+  ChecklistClose = 'checklist close',
+  DeletePost = 'delete post',
+  DeleteComment = 'delete comment',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
 }
@@ -65,6 +68,7 @@ export enum TargetType {
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
   CreateSquadPopup = 'create squad popup',
+  OnboardingChecklist = 'onboarding checklist',
 }
 
 export enum NotificationChannel {
@@ -81,4 +85,16 @@ export enum NotificationTarget {
   Header = 'header',
   Footer = 'footer',
   Icon = 'notifications icon',
+}
+
+export enum NotificationPromptSource {
+  NotificationsPage = 'notifications page',
+  NewComment = 'new comment',
+  CommunityPicks = 'community picks modal',
+  NewSourceModal = 'new source modal',
+  SquadPage = 'squad page',
+  NotificationItem = 'notification item',
+  SquadPostCommentary = 'squad post commentary',
+  SquadPostModal = 'squad post modal',
+  SquadChecklist = 'squad checklist',
 }

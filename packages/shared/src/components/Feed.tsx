@@ -42,10 +42,7 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import {
-  ExperimentWinner,
-  ScrollOnboardingVersion,
-} from '../lib/featureValues';
+import { ExperimentWinner } from '../lib/featureValues';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -62,6 +59,7 @@ export interface FeedProps<T>
   emptyScreen?: ReactNode;
   header?: ReactNode;
   forceCardMode?: boolean;
+  allowPin?: boolean;
 }
 
 interface RankVariables {
@@ -136,6 +134,7 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
 const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
+  [PostType.Welcome]: SharePostModal,
 };
 
 export default function Feed<T>({
@@ -149,9 +148,9 @@ export default function Feed<T>({
   emptyScreen,
   forceCardMode,
   options,
+  allowPin,
 }: FeedProps<T>): ReactElement {
   const { showCommentPopover } = useContext(FeaturesContext);
-  const { scrollOnboardingVersion } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -198,6 +197,8 @@ export default function Feed<T>({
     if (emptyFeed) {
       onEmptyFeed?.();
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emptyFeed]);
 
   const showScrollOnboardingVersion =
@@ -205,23 +206,17 @@ export default function Feed<T>({
     feedName === MainFeedPage.Popular &&
     !isLoading &&
     alerts?.filter &&
-    !user?.id &&
-    Object.values(ScrollOnboardingVersion).includes(scrollOnboardingVersion);
-  const shouldScrollBlock =
-    showScrollOnboardingVersion &&
-    [ScrollOnboardingVersion.V1, ScrollOnboardingVersion.V2].includes(
-      scrollOnboardingVersion,
-    );
+    !user?.id;
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
-    canFetchMore: canFetchMore && !shouldScrollBlock,
+    canFetchMore: canFetchMore && !showScrollOnboardingVersion,
   });
 
   const onInitializeOnboardingClick = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickScrollBlock,
-      target_id: scrollOnboardingVersion,
+      target_id: ExperimentWinner.ScrollOnboardingVersion,
     });
     onInitializeOnboarding(undefined, true);
   };
@@ -239,8 +234,12 @@ export default function Feed<T>({
     setShowCommentPopupId,
     comment,
     isSendingComment,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCommentPopup(feedName);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onUpvote = useFeedUpvotePost(
     items,
     updatePost,
@@ -249,6 +248,8 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onBookmark = useFeedBookmarkPost(
     items,
     updatePost,
@@ -256,6 +257,8 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onPostClick = useFeedOnPostClick(
     items,
     updatePost,
@@ -264,6 +267,8 @@ export default function Feed<T>({
     ranking,
   );
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onReadArticleClick = useFeedOnPostClick(
     items,
     updatePost,
@@ -292,6 +297,8 @@ export default function Feed<T>({
     postMenuIndex,
     postMenuLocation,
     setPostMenuIndex,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useFeedContextMenu();
   let lastShareMenuCloseTrackEvent = () => {};
   const onShareMenuClickTracked = (
@@ -367,16 +374,22 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useSharePost(Origin.Feed);
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     return () => {
       document.body.classList.remove('hidden-scrollbar');
     };
   }, []);
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!selectedPost) {
       document.body.classList.remove('hidden-scrollbar');
@@ -467,7 +480,6 @@ export default function Feed<T>({
         </div>
         {showScrollOnboardingVersion && (
           <ScrollFeedFiltersOnboarding
-            version={scrollOnboardingVersion}
             onInitializeOnboarding={onInitializeOnboardingClick}
           />
         )}
@@ -475,9 +487,12 @@ export default function Feed<T>({
         <PostOptionsMenu
           {...commonMenuItems}
           feedName={feedName}
+          feedQueryKey={feedQueryKey}
           postIndex={postMenuIndex}
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
+          origin={Origin.Feed}
+          allowPin={allowPin}
         />
         <ShareOptionsMenu
           {...commonMenuItems}
