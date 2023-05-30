@@ -67,6 +67,7 @@ function CreatePost(): ReactElement {
       <WritePage
         onSubmitForm={onClickSubmit}
         isLoading={!isReady || !isDraftReady}
+        isPosting={isPosting}
         formRef={formRef}
         squad={squad}
         draft={draft}

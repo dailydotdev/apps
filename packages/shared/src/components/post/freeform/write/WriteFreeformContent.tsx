@@ -157,6 +157,7 @@ export function WriteFreeformContent({
           type="submit"
           className="ml-auto btn-primary-cabbage"
           disabled={isPosting}
+          loading={isPosting}
         >
           Post
         </Button>

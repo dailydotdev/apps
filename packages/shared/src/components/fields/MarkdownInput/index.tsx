@@ -13,6 +13,7 @@ import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTool
 import { useMarkdownInput, UseMarkdownInputProps } from '../../../hooks/input';
 import { ACCEPTED_TYPES } from '../ImageInput';
 import { MarkdownUploadLabel } from './MarkdownUploadLabel';
+import { markdownGuide } from '../../../lib/constants';
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
@@ -129,6 +130,10 @@ function MarkdownInput({
             type="button"
             buttonSize={ButtonSize.Small}
             icon={<MarkdownIcon />}
+            tag="a"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={markdownGuide}
           />
         </span>
       </span>

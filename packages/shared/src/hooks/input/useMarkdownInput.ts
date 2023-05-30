@@ -287,7 +287,7 @@ export const useMarkdownInput = ({
       onKeyUp,
       onKeyDown,
       onPaste,
-      onDrop: enableUpload && onDrop,
+      onDrop: enableUpload ? onDrop : undefined,
     },
     mentions: useMemo(() => data?.recommendedMentions ?? [], [data]),
   };
