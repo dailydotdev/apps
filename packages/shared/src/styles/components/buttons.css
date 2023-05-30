@@ -1,7 +1,6 @@
 .btn {
   transition: 0.2s ease-in-out;
   transition-property: border, background, box-shadow;
-
   height: 2.5rem;
   padding: 0 1.4375rem;
   border-radius: 0.75rem;
@@ -9,6 +8,7 @@
   border-color: var(--button-border-color, var(--button-default-border-color, transparent));
   color: var(--button-color, var(--button-default-color));
   --loader-color: var(--button-color, var(--button-default-color));
+
   & .icon {
     width: 1em;
     height: 1em;
@@ -131,7 +131,7 @@
     --button-box-shadow: var(--button-pressed-box-shadow);
   }
 
- &:not(.readOnly) {
+  &:not(.readOnly) {
     &:hover, &.hover, &:focus:focus-visible {
       --button-background: var(--button-hover-background);
       --button-border-color: var(--button-hover-border-color);
@@ -139,7 +139,7 @@
       --button-box-shadow: var(--button-hover-box-shadow);
     }
   }
-  
+
 
   &:active {
     --button-background: var(--button-active-background);
@@ -165,7 +165,6 @@
     pointer-events: none;
     cursor: default;
   }
-
 }
 
 .btn-quaternary {
@@ -176,7 +175,7 @@
   & [aria-pressed="true"] ~ label {
     color: var(--button-pressed-color);
   }
-  
+
   & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
     color: var(--button-hover-color);
   }
@@ -228,7 +227,7 @@
   & .icon {
     color: var(--button-icon, var(--button-default-icon, none));
   }
-  
+
   &[aria-pressed="true"] {
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
@@ -252,11 +251,11 @@
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
   }
-  
+
   &:hover, &.hover, &:focus:focus-visible {
     --button-icon: var(--button-hover-icon);
   }
-  
+
   &:active {
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
