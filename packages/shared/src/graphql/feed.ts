@@ -111,7 +111,7 @@ export const FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${FEED_POST_CONNECTION_FRAGMENT}
+  ${getFeedPostFragment('content')}
 `;
 
 export const MOST_UPVOTED_FEED_QUERY = gql`
