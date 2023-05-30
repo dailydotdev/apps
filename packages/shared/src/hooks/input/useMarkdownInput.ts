@@ -162,9 +162,12 @@ export const useMarkdownInput = ({
   const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate);
 
   const onMentionCommand = async () => {
-    const replaced = await command.replaceWord(getMentionReplacement, onUpdate);
-    const mention = replaced.trim().substring(1);
-    setQuery(mention);
+    const { replacement } = await command.replaceWord(
+      getMentionReplacement,
+      onUpdate,
+    );
+    const mention = replacement.trim().substring(1);
+    updateQuery(mention);
   };
 
   const checkMention = (position?: number[]) => {

@@ -49,16 +49,23 @@ export const getCloseWord = (
   const [, end] = selected;
 
   let lastIndex = 0;
-  const words = textarea.value.split(' ');
-  const closeWord = words.find((word) => {
-    const current = lastIndex + word.length + 1;
+  const lines = textarea.value.split('\n');
+  const closeWord = lines.reduce((query, line) => {
+    if (lastIndex + line.length < end) {
+      lastIndex += line.length + 1;
+      return query;
+    }
 
-    if (current > end) return true;
+    return line.split(' ').find((word) => {
+      const current = lastIndex + word.length;
 
-    lastIndex = current;
+      if (current >= end) return true;
 
-    return false;
-  });
+      lastIndex = current + 1;
+
+      return false;
+    });
+  }, '');
 
   return [closeWord?.trimEnd() ?? '', lastIndex];
 };
@@ -101,9 +108,13 @@ interface GetReplacementOptionalProps {
   leadingChar?: string;
 }
 
-type TypeReplacementFn = (
-  getReplacement: GetReplacementFn,
-) => [string, number[]];
+interface Replacement {
+  result: string;
+  position: number[];
+  replacement: string;
+}
+
+type TypeReplacementFn = (getReplacement: GetReplacementFn) => Replacement;
 
 type ReplacedFn = (result: string) => void;
 
@@ -137,12 +148,10 @@ export class TextareaCommand {
     });
     const result = concatReplacement(this.textarea, selection, replacement);
     const index = start + replacement.length;
-    return [result, offset ?? [index, index]];
+    return { result, position: offset ?? [index, index], replacement };
   };
 
-  private getAdjacentReplacement: TypeReplacementFn = (
-    getReplacement,
-  ): [string, number[]] => {
+  private getAdjacentReplacement: TypeReplacementFn = (getReplacement) => {
     const selection = [
       this.textarea.selectionStart,
       this.textarea.selectionEnd,
@@ -155,7 +164,8 @@ export class TextareaCommand {
     });
     const defaultOffset = startIndex + replacement.length;
     const result = concatReplacement(this.textarea, position, replacement);
-    return [result, offset ?? [defaultOffset, defaultOffset]];
+    const finalPosition = offset ?? [defaultOffset, defaultOffset];
+    return { result, position: finalPosition, replacement };
   };
 
   private getHighlightedReplacement: TypeReplacementFn = (getReplacement) => {
@@ -172,7 +182,7 @@ export class TextareaCommand {
     });
     const result = concatReplacement(this.textarea, selection, replacement);
     const end = start + replacement.length;
-    return [result, offset ?? [end, end]];
+    return { result, position: offset ?? [end, end], replacement };
   };
 
   private getResult(getReplacement: GetReplacementFn, forcedType?: CursorType) {
@@ -193,11 +203,14 @@ export class TextareaCommand {
     getReplacement: GetReplacementFn,
     onReplaced: ReplacedFn,
     forcedType?: CursorType,
-  ): Promise<string> {
-    const [result, position] = this.getResult(getReplacement, forcedType);
+  ): Promise<Replacement> {
+    const { result, position, replacement } = this.getResult(
+      getReplacement,
+      forcedType,
+    );
     onReplaced(result);
     await focusInput(this.textarea, position);
-    return result;
+    return { result, position, replacement };
   }
 
   onReplaceUpload(url: string, filename: string): string {
