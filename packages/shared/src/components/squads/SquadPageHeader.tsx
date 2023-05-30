@@ -18,6 +18,7 @@ import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
 import { Button } from '../buttons/Button';
 import classed from '../../lib/classed';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -43,7 +44,7 @@ export function SquadPageHeader({
   });
 
   const { openStep, isChecklistVisible } = useSquadChecklist({ squad });
-
+  const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
   const shouldShowHighlightPulse =
     tourIndex === TourScreenIndex.Post ||
     (isChecklistVisible && openStep === ActionType.SquadFirstPost);
@@ -98,28 +99,40 @@ export function SquadPageHeader({
       )}
       <div
         className={classNames(
-          'relative tablet:absolute flex flex-col tablet:flex-row justify-center items-center pt-8 tablet:p-0 bottom-0 w-full tablet:translate-y-1/2 laptopL:px-0 bg-theme-bg-primary laptop:max-w-[41.5rem]',
+          'relative tablet:absolute flex flex-col tablet:flex-row pt-8 tablet:p-0 bottom-0 w-full tablet:translate-y-1/2 laptopL:px-0 bg-theme-bg-primary',
           shouldShowHighlightPulse && 'highlight-pulse',
+          allowedToPost
+            ? 'justify-center items-center laptop:max-w-[41.5rem]'
+            : 'laptop:max-w-[19.25rem]',
         )}
       >
-        <Divider />
-        <SharePostBar
-          className="w-full max-w-[30.25rem]"
-          onNewSquadPost={onNewSquadPost}
-          disabled={!verifyPermission(squad, SourcePermissions.Post)}
-        />
-        <FlexCentered className="relative my-2 mx-2 w-full tablet:w-auto text-theme-label-tertiary typo-callout">
-          <span className="flex tablet:hidden absolute -left-6 h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary" />
-          <span className="z-0 px-4 bg-theme-bg-primary">or</span>
-        </FlexCentered>
-        <Button
-          tag="a"
-          href={`${squad.permalink}/create`}
-          className="w-full tablet:w-auto btn-primary-cabbage"
+        <ConditionalWrapper
+          condition={allowedToPost}
+          wrapper={(children) => (
+            <>
+              <Divider />
+              {children}
+              <FlexCentered className="relative my-2 mx-2 w-full tablet:w-auto text-theme-label-tertiary typo-callout">
+                <span className="flex tablet:hidden absolute -left-6 h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary" />
+                <span className="z-0 px-4 bg-theme-bg-primary">or</span>
+              </FlexCentered>
+              <Button
+                tag="a"
+                href={`${squad.permalink}/create`}
+                className="w-full tablet:w-auto btn-primary-cabbage"
+              >
+                New post
+              </Button>
+              <Divider />
+            </>
+          )}
         >
-          New post
-        </Button>
-        <Divider />
+          <SharePostBar
+            className="w-full max-w-[30.25rem]"
+            onNewSquadPost={onNewSquadPost}
+            disabled={!allowedToPost}
+          />
+        </ConditionalWrapper>
         {sharePostTutorial.isActive && (
           <TutorialGuide
             className="absolute right-0 -bottom-22 tablet:-bottom-24 laptopL:-bottom-20 left-0"
