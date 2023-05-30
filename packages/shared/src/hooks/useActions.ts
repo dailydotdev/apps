@@ -11,7 +11,6 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 
 interface UseActions {
   actions: Action[];
-  isFetched: boolean;
   checkHasCompleted: (type: ActionType) => boolean;
   completeAction: (type: ActionType) => Promise<void>;
   isActionsFetched: boolean;
@@ -64,7 +63,6 @@ export const useActions = (): UseActions => {
   return useMemo<UseActions>(() => {
     return {
       actions,
-      isFetched,
       completeAction: (type: ActionType) => {
         if (checkHasCompleted(type)) {
           return undefined;

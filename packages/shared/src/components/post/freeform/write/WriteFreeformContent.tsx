@@ -60,7 +60,7 @@ export function WriteFreeformContent({
 }: WriteFreeformContentProps): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   useImperativeHandle(propRef, () => formRef?.current);
-  const { isFetched, checkHasCompleted, completeAction } = useActions();
+  const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
@@ -112,7 +112,7 @@ export function WriteFreeformContent({
           </div>
         }
         isAlertDisabled={
-          !isFetched ||
+          !isActionsFetched ||
           !sidebarRendered ||
           checkHasCompleted(ActionType.WritePost)
         }
