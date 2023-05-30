@@ -15,7 +15,7 @@ function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
       <h1 className="my-6 font-bold whitespace-pre-line typo-title2">
         {post.title}
       </h1>
-      {post.type === PostType.Freeform && (
+      {post.type === PostType.Freeform && post.image && (
         <Image
           src={post.image}
           alt="Post cover image"
@@ -24,7 +24,7 @@ function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
         />
       )}
       <Markdown content={post.contentHtml} />
-      {post.type === PostType.Welcome && (
+      {post.type === PostType.Welcome && post.image && (
         <div className="block overflow-hidden mt-8 max-w-sm rounded-2xl cursor-pointer h-fit">
           <LazyImage
             imgSrc={post.image}
