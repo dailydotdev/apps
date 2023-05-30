@@ -59,6 +59,7 @@ export interface FeedProps<T>
   emptyScreen?: ReactNode;
   header?: ReactNode;
   forceCardMode?: boolean;
+  allowPin?: boolean;
 }
 
 interface RankVariables {
@@ -148,6 +149,7 @@ export default function Feed<T>({
   emptyScreen,
   forceCardMode,
   options,
+  allowPin,
 }: FeedProps<T>): ReactElement {
   const { showCommentPopover } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
@@ -491,6 +493,7 @@ export default function Feed<T>({
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
           origin={Origin.Feed}
+          allowPin={allowPin}
         />
         <ShareOptionsMenu
           {...commonMenuItems}

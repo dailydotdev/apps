@@ -192,6 +192,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           forceCardMode
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
+          allowPin
         />
       </BaseFeedPage>
     </ProtectedPage>

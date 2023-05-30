@@ -14,12 +14,13 @@ interface UseActions {
   isFetched: boolean;
   checkHasCompleted: (type: ActionType) => boolean;
   completeAction: (type: ActionType) => Promise<void>;
+  isActionsFetched: boolean;
 }
 
 export const useActions = (): UseActions => {
   const client = useQueryClient();
   const { user } = useAuthContext();
-  const { data: actions, isFetched } = useQuery(
+  const { data: actions, isFetched: isActionsFetched } = useQuery(
     generateQueryKey(RequestKey.Actions, user),
     getUserActions,
     { enabled: !!user },
@@ -72,6 +73,7 @@ export const useActions = (): UseActions => {
         return completeAction(type);
       },
       checkHasCompleted,
+      isActionsFetched,
     };
-  }, [actions, isFetched, completeAction, checkHasCompleted]);
+  }, [actions, completeAction, checkHasCompleted, isActionsFetched]);
 };

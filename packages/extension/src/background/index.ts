@@ -7,7 +7,7 @@ import request from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
-import { uninstall } from '@dailydotdev/shared/src/lib/constants';
+import { install, uninstall } from '@dailydotdev/shared/src/lib/constants';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
@@ -173,6 +173,10 @@ browser.runtime.onInstalled.addListener(async (details) => {
 
   if (details.reason === 'update') {
     await getContentScriptPermissionAndRegister();
+  }
+
+  if (details.reason === 'install') {
+    browser.tabs.create({ url: install, active: true });
   }
 });
 
