@@ -502,7 +502,7 @@ export const CREATE_POST_MUTATION = gql`
   mutation CreatePost(
     $sourceId: ID!
     $title: String!
-    $content: String!
+    $content: String
     $image: Upload
   ) {
     createFreeformPost(

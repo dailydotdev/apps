@@ -1,4 +1,10 @@
-import React, { FormEventHandler, ReactElement, useRef } from 'react';
+import React, {
+  FormEventHandler,
+  MutableRefObject,
+  ReactElement,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import ImageInput from '../../../fields/ImageInput';
 import CameraIcon from '../../../icons/Camera';
 import { TextField } from '../../../fields/TextField';
@@ -7,7 +13,7 @@ import { Switch } from '../../../fields/Switch';
 import { Button } from '../../../buttons/Button';
 import { WritePageMain } from './common';
 import { useNotificationToggle } from '../../../../hooks/notifications';
-import { Post } from '../../../../graphql/posts';
+import { EditPostProps, Post } from '../../../../graphql/posts';
 import usePersistentContext from '../../../../hooks/usePersistentContext';
 import { formToJson } from '../../../../lib/form';
 import useDebounce from '../../../../hooks/useDebounce';
@@ -22,9 +28,10 @@ export interface WriteFreeformContentProps {
   squadId: string;
   post?: Post;
   enableUpload?: boolean;
+  formRef?: MutableRefObject<HTMLFormElement>;
 }
 
-interface WriteForm {
+export interface WriteForm {
   title: string;
   content: string;
   image: string;
@@ -33,13 +40,23 @@ interface WriteForm {
 export const generateWritePostKey = (reference = 'create'): string =>
   `write:post:${reference}`;
 
+export const checkSavedProperty = (
+  prop: keyof WriteForm,
+  form: EditPostProps,
+  draft: Partial<WriteForm>,
+  post?: Post,
+): boolean =>
+  !form[prop] || (form[prop] === draft?.[prop] && form[prop] !== post?.[prop]);
+
 export function WriteFreeformContent({
   onSubmitForm,
   isPosting,
   squadId,
   post,
+  formRef: propRef,
 }: WriteFreeformContentProps): ReactElement {
   const formRef = useRef<HTMLFormElement>();
+  useImperativeHandle(propRef, () => formRef?.current);
   const { isFetched, checkHasCompleted, completeAction } = useActions();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
@@ -120,7 +137,7 @@ export function WriteFreeformContent({
         sourceId={squadId}
         onValueUpdate={onFormUpdate}
         initialContent={draft?.content ?? post?.content}
-        textareaProps={{ name: 'content', required: true }}
+        textareaProps={{ name: 'content' }}
         enableUpload
       />
       <span className="flex flex-row items-center mt-4">
