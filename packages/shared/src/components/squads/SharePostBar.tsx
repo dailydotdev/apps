@@ -1,4 +1,4 @@
-import React, { FormEvent, ReactElement, useRef, useState } from 'react';
+import React, { FormEvent, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -28,7 +28,6 @@ function SharePostBar({
   onNewSquadPost,
   disabled = false,
 }: SharePostBarProps): ReactElement {
-  const urlRef = useRef<HTMLInputElement>();
   const [url, setUrl] = useState<string>(undefined);
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const onSharedSuccessfully = () => setUrl('');
@@ -75,7 +74,6 @@ function SharePostBar({
           nativeLazyLoading
         />
         <input
-          ref={urlRef}
           type="url"
           autoComplete="off"
           name="share-post-bar"
