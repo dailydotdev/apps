@@ -55,9 +55,12 @@ function EditPost(): ReactElement {
 
     if (isPosting) return null;
 
-    const data = formToJson<CreatePostProps>(e.currentTarget);
+    const data = formToJson<CreatePostProps & { image: File[] }>(
+      e.currentTarget,
+    );
+    const image = data.image ? data.image[0] : null;
 
-    return onCreatePost({ ...data, id: post.id });
+    return onCreatePost({ ...data, image, id: post.id });
   };
 
   const seo: NextSeoProps = {

@@ -56,7 +56,8 @@ function CreatePost(): ReactElement {
 
     if (isPosting) return null;
 
-    const { title, content, image } = formToJson(e.currentTarget);
+    const { title, content, image: files } = formToJson(e.currentTarget);
+    const image = files ? files[0] : null;
 
     return onCreatePost({ title, content, image, sourceId: squad.id });
   };
