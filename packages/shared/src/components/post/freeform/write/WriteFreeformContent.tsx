@@ -29,6 +29,8 @@ export interface WriteFreeformContentProps {
   post?: Post;
   enableUpload?: boolean;
   formRef?: MutableRefObject<HTMLFormElement>;
+  draft?: Partial<WriteForm>;
+  updateDraft?: (props: Partial<WriteForm>) => Promise<void>;
 }
 
 export interface WriteForm {
@@ -53,6 +55,8 @@ export function WriteFreeformContent({
   isPosting,
   squadId,
   post,
+  draft,
+  updateDraft,
   formRef: propRef,
 }: WriteFreeformContentProps): ReactElement {
   const formRef = useRef<HTMLFormElement>();
@@ -61,11 +65,6 @@ export function WriteFreeformContent({
   const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const key = generateWritePostKey(post?.id);
-  const [draft, updateDraft] = usePersistentContext<Partial<WriteForm>>(
-    key,
-    {},
-  );
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     completeAction(ActionType.WritePost);

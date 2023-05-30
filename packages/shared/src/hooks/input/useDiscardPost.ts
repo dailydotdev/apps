@@ -5,6 +5,7 @@ import {
   checkSavedProperty,
   generateWritePostKey,
   WriteForm,
+  WriteFreeformContentProps,
 } from '../../components/post/freeform';
 import {
   UseExitConfirmation,
@@ -16,8 +17,11 @@ interface UseDiscardPostProps {
   post?: Post;
 }
 
-interface UseDiscardPost extends UseExitConfirmation {
+interface UseDiscardPost
+  extends UseExitConfirmation,
+    Pick<WriteFreeformContentProps, 'draft' | 'updateDraft'> {
   formRef: MutableRefObject<HTMLFormElement>;
+  isDraftReady: boolean;
 }
 
 export const useDiscardPost = ({
@@ -25,7 +29,8 @@ export const useDiscardPost = ({
 }: UseDiscardPostProps = {}): UseDiscardPost => {
   const formRef = useRef<HTMLFormElement>();
   const draftKey = generateWritePostKey();
-  const [draft] = usePersistentContext<WriteForm>(draftKey);
+  const [draft, updateDraft, isDraftReady] =
+    usePersistentContext<WriteForm>(draftKey);
   const onValidateAction = useCallback(() => {
     const form = formToJson<EditPostProps>(formRef.current);
     const isTitleSaved = checkSavedProperty('title', form, draft, post);
@@ -35,5 +40,5 @@ export const useDiscardPost = ({
 
   const { onAskConfirmation } = useExitConfirmation({ onValidateAction });
 
-  return { onAskConfirmation, formRef };
+  return { onAskConfirmation, draft, updateDraft, isDraftReady, formRef };
 };

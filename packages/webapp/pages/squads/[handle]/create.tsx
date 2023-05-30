@@ -22,7 +22,8 @@ function CreatePost(): ReactElement {
     [id, handle].includes(query?.handle as string),
   );
   const { displayToast } = useToastNotification();
-  const { onAskConfirmation } = useDiscardPost();
+  const { onAskConfirmation, draft, updateDraft, isDraftReady } =
+    useDiscardPost();
   const { mutateAsync: onCreatePost, isLoading: isPosting } = useMutation(
     createPost,
     {
@@ -56,9 +57,11 @@ function CreatePost(): ReactElement {
   return (
     <WritePage
       onSubmitForm={onClickSubmit}
-      isLoading={!isReady}
+      isLoading={!isReady || !isDraftReady}
       formRef={formRef}
       squad={squad}
+      draft={draft}
+      updateDraft={updateDraft}
     />
   );
 }
