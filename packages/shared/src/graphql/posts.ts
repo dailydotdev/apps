@@ -30,6 +30,8 @@ export enum PostType {
   Freeform = 'freeform',
 }
 
+export const internalReadTypes: PostType[] = [PostType.Welcome];
+
 export const supportedTypesForPrivateSources = [
   PostType.Article,
   PostType.Share,
