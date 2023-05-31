@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { sanitize } from 'dompurify';
 import { CardImage } from './Card';
 import { Post } from '../../graphql/posts';
@@ -11,7 +11,10 @@ type WelcomePostCardFooterProps = {
 export const WelcomePostCardFooter = ({
   post,
 }: WelcomePostCardFooterProps): ReactElement => {
-  const contentRef = useRef<HTMLDivElement>();
+  const content = useMemo(
+    () => sanitize(post.contentHtml, { ALLOWED_TAGS: [] }),
+    [post?.contentHtml],
+  );
 
   if (post.image) {
     return (
@@ -26,18 +29,7 @@ export const WelcomePostCardFooter = ({
   }
   if (post.content) {
     return (
-      <>
-        <p className="px-2 break-words line-clamp-6 typo-callout">
-          {contentRef?.current?.textContent}
-        </p>
-        <div
-          ref={contentRef}
-          className="hidden"
-          dangerouslySetInnerHTML={{
-            __html: sanitize(post.contentHtml, { ADD_ATTR: ['target'] }),
-          }}
-        />
-      </>
+      <p className="px-2 break-words line-clamp-6 typo-callout">{content}</p>
     );
   }
 
