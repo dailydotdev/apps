@@ -39,7 +39,7 @@ function CreatePost(): ReactElement {
       onAskConfirmation(false);
     },
     onSuccess: async (post) => {
-      const key = generateWritePostKey();
+      const key = generateWritePostKey(squad?.id);
       await deleteCache(key);
       await push(post.commentsPermalink);
     },
