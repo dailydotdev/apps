@@ -29,7 +29,7 @@ function CreatePost(): ReactElement {
   );
   const { displayToast } = useToastNotification();
   const { onAskConfirmation, draft, updateDraft, isDraftReady, formRef } =
-    useDiscardPost();
+    useDiscardPost({ draftIdentifier: squad?.id });
   const {
     mutateAsync: onCreatePost,
     isLoading: isPosting,
