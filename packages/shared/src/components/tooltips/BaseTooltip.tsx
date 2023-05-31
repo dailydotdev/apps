@@ -36,6 +36,7 @@ export interface TooltipProps
     | 'sticky'
     | 'plugins'
     | 'zIndex'
+    | 'onClickOutside'
   > {
   container?: Omit<
     BaseTooltipContainerProps,
