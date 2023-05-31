@@ -48,6 +48,8 @@ function MarkdownInput({
     onUploadCommand,
     onMentionCommand,
     onApplyMention,
+    onCloseMention,
+    checkMention,
     mentions,
   } = useMarkdownInput({
     postId,
@@ -76,6 +78,7 @@ function MarkdownInput({
         className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
         placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
         value={input}
+        onClick={() => checkMention()}
         onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
         rows={10}
       />
@@ -86,6 +89,7 @@ function MarkdownInput({
         selected={selected}
         query={query}
         onMentionClick={onApplyMention}
+        onClickOutside={onCloseMention}
       />
       <span className="flex flex-row items-center p-3 px-4 border-t border-theme-divider-tertiary">
         {enableUpload && (

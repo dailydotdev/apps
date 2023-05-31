@@ -5,6 +5,7 @@ import {
   HTMLAttributes,
   KeyboardEventHandler,
   MutableRefObject,
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -65,6 +66,7 @@ interface UseMarkdownInput {
   onUploadCommand: (files: FileList) => void;
   onApplyMention: (username: string) => Promise<void>;
   checkMention: (position?: number[]) => void;
+  onCloseMention: () => void;
   mentions: UserShortProfile[];
   callbacks: InputCallbacks;
   uploadingCount: number;
@@ -270,6 +272,8 @@ export const useMarkdownInput = ({
     startUploading();
   };
 
+  const onCloseMention = useCallback(() => setQuery(undefined), [setQuery]);
+
   return {
     input,
     query,
@@ -278,6 +282,7 @@ export const useMarkdownInput = ({
     uploadedCount,
     uploadingCount: queueCount,
     checkMention,
+    onCloseMention,
     onLinkCommand,
     onUploadCommand,
     onMentionCommand,

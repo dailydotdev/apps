@@ -10,6 +10,7 @@ interface RecommendedMentionTooltipProps {
   mentions?: UserShortProfile[];
   offset?: number[];
   onMentionClick?: (username: string) => unknown;
+  onClickOutside?: () => void;
   appendTo?: () => HTMLElement;
   elementRef: MutableRefObject<HTMLElement>;
 }
@@ -25,6 +26,7 @@ export function RecommendedMentionTooltip({
   onMentionClick,
   appendTo,
   elementRef,
+  onClickOutside,
 }: RecommendedMentionTooltipProps): ReactElement {
   if (isTesting) {
     return null;
@@ -44,6 +46,7 @@ export function RecommendedMentionTooltip({
         />
       }
       offset={[offsetX, (offsetY + lines + EXTRA_SPACES) * -1]}
+      onClickOutside={onClickOutside}
       interactive
       container={{
         className: 'shadow',
