@@ -14,8 +14,10 @@ export function MarkdownUploadLabel({
   if (uploadingCount === 0) {
     return (
       <>
-        <ImageIcon className="mr-2" />
-        Attach images by dragging & dropping
+        <ImageIcon />
+        <span className="hidden laptop:flex">
+          Attach images by dragging & dropping
+        </span>
       </>
     );
   }
@@ -23,7 +25,7 @@ export function MarkdownUploadLabel({
   return (
     <>
       <Loader
-        className="mr-2 btn-loader"
+        className="btn-loader"
         innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage"
       />
       Uploading in progress
