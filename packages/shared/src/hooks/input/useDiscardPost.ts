@@ -29,8 +29,9 @@ export const useDiscardPost = ({
 }: UseDiscardPostProps = {}): UseDiscardPost => {
   const formRef = useRef<HTMLFormElement>();
   const draftKey = generateWritePostKey();
-  const [draft, updateDraft, isDraftReady] =
-    usePersistentContext<WriteForm>(draftKey);
+  const [draft, updateDraft, isDraftReady] = usePersistentContext<
+    Partial<WriteForm>
+  >(draftKey, {});
   const onValidateAction = useCallback(() => {
     const form = formToJson<EditPostProps>(formRef.current);
     const isTitleSaved = checkSavedProperty('title', form, draft, post);
