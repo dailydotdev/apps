@@ -12,7 +12,8 @@ export const WelcomePostCardFooter = ({
   post,
 }: WelcomePostCardFooterProps): ReactElement => {
   const content = useMemo(
-    () => sanitize(post.contentHtml, { ALLOWED_TAGS: [] }),
+    () =>
+      post?.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
     [post?.contentHtml],
   );
 
