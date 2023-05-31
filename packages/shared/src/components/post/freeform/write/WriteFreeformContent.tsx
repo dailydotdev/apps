@@ -74,7 +74,7 @@ export function WriteFreeformContent({
     useNotificationToggle();
 
   const getDraftImage = () => {
-    if (!draft.image) return null;
+    if (!draft?.image) return null;
 
     return base64ToFile(draft.image, draft.filename ?? defaultFilename);
   };
@@ -90,7 +90,7 @@ export function WriteFreeformContent({
 
   const onUpdate = async () => {
     const { title, content } = formToJson(formRef.current);
-    await updateDraft({ title, content, image: draft.image });
+    await updateDraft({ title, content, image: draft?.image });
   };
 
   const [onFormUpdate] = useDebounce(onUpdate, 3000);
