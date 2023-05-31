@@ -50,7 +50,6 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
       description="5 simple steps to squad greatness!"
       steps={steps}
       onRequestClose={onRequestClose}
-      className={classNames(isChecklistReady ? 'flex' : 'hidden')}
     />
   );
 
