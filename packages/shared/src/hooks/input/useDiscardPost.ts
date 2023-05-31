@@ -28,7 +28,7 @@ export const useDiscardPost = ({
   post,
 }: UseDiscardPostProps = {}): UseDiscardPost => {
   const formRef = useRef<HTMLFormElement>();
-  const draftKey = generateWritePostKey();
+  const draftKey = generateWritePostKey(post?.id);
   const [draft, updateDraft, isDraftReady] = usePersistentContext<
     Partial<WriteForm>
   >(draftKey, {});
