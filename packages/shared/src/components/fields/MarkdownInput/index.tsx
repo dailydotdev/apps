@@ -14,6 +14,8 @@ import { useMarkdownInput, UseMarkdownInputProps } from '../../../hooks/input';
 import { ACCEPTED_TYPES } from '../ImageInput';
 import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 import { markdownGuide } from '../../../lib/constants';
+import useSidebarRendered from '../../../hooks/useSidebarRendered';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
@@ -34,6 +36,7 @@ function MarkdownInput({
   initialContent,
   textareaProps = {},
 }: MarkdownInputProps): ReactElement {
+  const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
   const uploadRef = useRef<HTMLInputElement>();
   const {
@@ -91,15 +94,13 @@ function MarkdownInput({
         onMentionClick={onApplyMention}
         onClickOutside={onCloseMention}
       />
-      <span className="flex flex-row items-center p-3 px-4 border-t border-theme-divider-tertiary">
+      <span className="flex flex-row gap-3 items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
         {enableUpload && (
           <button
             type="button"
             className={classNames(
-              'flex relative flex-row typo-callout',
-              uploadingCount
-                ? 'text-theme-color-cabbage'
-                : 'text-theme-label-quaternary',
+              'flex relative flex-row gap-2 typo-callout',
+              uploadingCount && 'text-theme-color-cabbage',
             )}
             onClick={() => uploadRef?.current?.click()}
           >
@@ -117,29 +118,34 @@ function MarkdownInput({
             />
           </button>
         )}
-        <span className="grid grid-cols-3 gap-3 ml-auto text-theme-label-tertiary">
+        <ConditionalWrapper
+          condition={sidebarRendered}
+          wrapper={(children) => (
+            <span className="grid grid-cols-3 gap-3 ml-auto">{children}</span>
+          )}
+        >
           <Button
             type="button"
-            buttonSize={ButtonSize.Small}
+            buttonSize={ButtonSize.XSmall}
             icon={<LinkIcon secondary />}
             onClick={onLinkCommand}
           />
           <Button
             type="button"
-            buttonSize={ButtonSize.Small}
+            buttonSize={ButtonSize.XSmall}
             icon={<AtIcon />}
             onClick={onMentionCommand}
           />
           <Button
             type="button"
-            buttonSize={ButtonSize.Small}
+            buttonSize={ButtonSize.XSmall}
             icon={<MarkdownIcon />}
             tag="a"
             target="_blank"
             rel="noopener noreferrer"
             href={markdownGuide}
           />
-        </span>
+        </ConditionalWrapper>
       </span>
     </div>
   );

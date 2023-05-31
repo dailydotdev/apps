@@ -6,6 +6,7 @@ import React, {
   useImperativeHandle,
   useRef,
 } from 'react';
+import classNames from 'classnames';
 import ImageInput from '../../../fields/ImageInput';
 import CameraIcon from '../../../icons/Camera';
 import { TextField } from '../../../fields/TextField';
@@ -161,14 +162,19 @@ export function WriteFreeformContent({
         textareaProps={{ name: 'content' }}
         enableUpload
       />
-      <span className="flex flex-row items-center mt-4">
+      <span
+        className={classNames(
+          'relative flex flex-col tablet:flex-row items-center mt-1',
+          !sidebarRendered && 'justify-center',
+        )}
+      >
         {shouldShowCta && (
           <Switch
             data-testId="push_notification-switch"
             inputId="push_notification-switch"
             name="push_notification"
             labelClassName="flex-1 font-normal"
-            className="py-3 w-full max-w-full"
+            className="py-3"
             compact={false}
             checked={isEnabled}
             onToggle={onToggle}
@@ -176,9 +182,10 @@ export function WriteFreeformContent({
             Receive updates whenever your Squad members engage with your post
           </Switch>
         )}
+        <div className="tablet:hidden absolute -left-4 mt-1 h-px w-[calc(100%+2rem)] bg-theme-divider-tertiary" />
         <Button
           type="submit"
-          className="ml-auto btn-primary-cabbage"
+          className="mt-6 tablet:mt-0 ml-auto w-full tablet:w-auto btn-primary-cabbage"
           disabled={isPosting}
           loading={isPosting}
         >
