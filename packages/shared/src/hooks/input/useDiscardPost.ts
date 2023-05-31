@@ -1,4 +1,5 @@
 import { MutableRefObject, useCallback, useRef } from 'react';
+import { del as deleteCache } from 'idb-keyval';
 import { formToJson } from '../../lib/form';
 import { EditPostProps, Post } from '../../graphql/posts';
 import {
@@ -23,6 +24,7 @@ interface UseDiscardPost
     Pick<WriteFreeformContentProps, 'draft' | 'updateDraft'> {
   formRef: MutableRefObject<HTMLFormElement>;
   isDraftReady: boolean;
+  clearDraft: () => void;
 }
 
 export const useDiscardPost = ({
@@ -43,5 +45,16 @@ export const useDiscardPost = ({
 
   const { onAskConfirmation } = useExitConfirmation({ onValidateAction });
 
-  return { onAskConfirmation, draft, updateDraft, isDraftReady, formRef };
+  const clearDraft = useCallback(async () => {
+    await deleteCache(draftKey);
+  }, [draftKey]);
+
+  return {
+    onAskConfirmation,
+    draft,
+    updateDraft,
+    isDraftReady,
+    formRef,
+    clearDraft,
+  };
 };

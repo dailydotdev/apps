@@ -1,11 +1,7 @@
 import React, { FormEvent, ReactElement } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
-import { del as deleteCache } from 'idb-keyval';
-import {
-  generateWritePostKey,
-  WritePage,
-} from '@dailydotdev/shared/src/components/post/freeform';
+import { WritePage } from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from 'react-query';
 import { createPost } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
@@ -28,8 +24,14 @@ function CreatePost(): ReactElement {
     [id, handle].includes(query?.handle as string),
   );
   const { displayToast } = useToastNotification();
-  const { onAskConfirmation, draft, updateDraft, isDraftReady, formRef } =
-    useDiscardPost({ draftIdentifier: squad?.id });
+  const {
+    onAskConfirmation,
+    draft,
+    updateDraft,
+    isDraftReady,
+    formRef,
+    clearDraft,
+  } = useDiscardPost({ draftIdentifier: squad?.id });
   const {
     mutateAsync: onCreatePost,
     isLoading: isPosting,
@@ -39,8 +41,7 @@ function CreatePost(): ReactElement {
       onAskConfirmation(false);
     },
     onSuccess: async (post) => {
-      const key = generateWritePostKey(squad?.id);
-      await deleteCache(key);
+      clearDraft();
       await push(post.commentsPermalink);
     },
     onError: (data: ApiErrorResult) => {
