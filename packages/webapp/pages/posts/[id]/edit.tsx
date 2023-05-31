@@ -1,15 +1,11 @@
-import React, { FormEventHandler, ReactElement } from 'react';
+import React, { FormEvent, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { del as deleteCache } from 'idb-keyval';
 import {
   generateWritePostKey,
   WritePage,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import {
-  CreatePostProps,
-  editPost,
-} from '@dailydotdev/shared/src/graphql/posts';
-import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import { editPost } from '@dailydotdev/shared/src/graphql/posts';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMutation } from 'react-query';
@@ -31,7 +27,7 @@ function EditPost(): ReactElement {
   const { onAskConfirmation, draft, updateDraft, isDraftReady, formRef } =
     useDiscardPost({ post });
   const {
-    mutateAsync: onCreatePost,
+    mutateAsync: onUpdatePost,
     isLoading: isPosting,
     isSuccess,
   } = useMutation(editPost, {
@@ -51,17 +47,10 @@ function EditPost(): ReactElement {
     },
   });
 
-  const onClickSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
+  const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
+    if (isPosting || isSuccess) return null;
 
-    if (isPosting) return null;
-
-    const data = formToJson<CreatePostProps & { image: File[] }>(
-      e.currentTarget,
-    );
-    const image = data.image ? data.image[0] : null;
-
-    return onCreatePost({ ...data, image, id: post.id });
+    return onUpdatePost({ ...params, id: post.id });
   };
 
   const seo: NextSeoProps = {

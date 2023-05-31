@@ -15,6 +15,7 @@ import usePersistentContext from '../usePersistentContext';
 
 interface UseDiscardPostProps {
   post?: Post;
+  draftIdentifier?: string;
 }
 
 interface UseDiscardPost
@@ -26,9 +27,10 @@ interface UseDiscardPost
 
 export const useDiscardPost = ({
   post,
+  draftIdentifier,
 }: UseDiscardPostProps = {}): UseDiscardPost => {
   const formRef = useRef<HTMLFormElement>();
-  const draftKey = generateWritePostKey();
+  const draftKey = generateWritePostKey(draftIdentifier ?? post?.id);
   const [draft, updateDraft, isDraftReady] = usePersistentContext<
     Partial<WriteForm>
   >(draftKey, {});
