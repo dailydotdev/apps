@@ -272,7 +272,7 @@ export const useMarkdownInput = ({
     startUploading();
   };
 
-  const onCloseMention = useCallback(() => setQuery(undefined), [setQuery]);
+  const onCloseMention = useCallback(() => setQuery(undefined), []);
 
   return {
     input,
