@@ -24,7 +24,6 @@ export const WelcomePostCardFooter = ({
       />
     );
   }
-
   if (post.content) {
     return (
       <>
