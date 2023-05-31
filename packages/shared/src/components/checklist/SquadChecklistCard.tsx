@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import classNames from 'classnames';
 import { ChecklistCard } from './ChecklistCard';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { Squad } from '../../graphql/sources';
