@@ -32,7 +32,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isChecklistVisible) {
+  if (!isChecklistVisible || !isChecklistReady) {
     return null;
   }
 
