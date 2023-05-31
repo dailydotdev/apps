@@ -1,10 +1,6 @@
 import React, { FormEvent, ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { del as deleteCache } from 'idb-keyval';
-import {
-  generateWritePostKey,
-  WritePage,
-} from '@dailydotdev/shared/src/components/post/freeform';
+import { WritePage } from '@dailydotdev/shared/src/components/post/freeform';
 import { editPost } from '@dailydotdev/shared/src/graphql/posts';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -24,8 +20,14 @@ function EditPost(): ReactElement {
     [id, handle].includes(post?.source?.id),
   );
   const { displayToast } = useToastNotification();
-  const { onAskConfirmation, draft, updateDraft, isDraftReady, formRef } =
-    useDiscardPost({ post });
+  const {
+    onAskConfirmation,
+    draft,
+    updateDraft,
+    isDraftReady,
+    formRef,
+    clearDraft,
+  } = useDiscardPost({ post });
   const {
     mutateAsync: onUpdatePost,
     isLoading: isPosting,
@@ -35,8 +37,7 @@ function EditPost(): ReactElement {
       onAskConfirmation(false);
     },
     onSuccess: async () => {
-      const key = generateWritePostKey(post.id);
-      await deleteCache(key);
+      clearDraft();
       await push(post.commentsPermalink);
     },
     onError: (data: ApiErrorResult) => {
