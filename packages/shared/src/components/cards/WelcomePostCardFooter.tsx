@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useRef } from 'react';
+import { sanitize } from 'dompurify';
 import { CardImage } from './Card';
 import { Post } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
@@ -10,6 +11,8 @@ type WelcomePostCardFooterProps = {
 export const WelcomePostCardFooter = ({
   post,
 }: WelcomePostCardFooterProps): ReactElement => {
+  const contentRef = useRef<HTMLDivElement>();
+
   if (post.image) {
     return (
       <CardImage
@@ -24,9 +27,18 @@ export const WelcomePostCardFooter = ({
 
   if (post.content) {
     return (
-      <p className="px-2 break-words line-clamp-6 typo-callout">
-        {post.content}
-      </p>
+      <>
+        <p className="px-2 break-words line-clamp-6 typo-callout">
+          {contentRef?.current?.textContent}
+        </p>
+        <div
+          ref={contentRef}
+          className="hidden"
+          dangerouslySetInnerHTML={{
+            __html: sanitize(post.contentHtml, { ADD_ATTR: ['target'] }),
+          }}
+        />
+      </>
     );
   }
 
