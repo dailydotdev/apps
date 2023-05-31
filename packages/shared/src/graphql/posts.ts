@@ -9,6 +9,7 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
+import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -26,6 +27,7 @@ export enum PostType {
   Article = 'article',
   Share = 'share',
   Welcome = 'welcome',
+  Freeform = 'freeform',
 }
 
 export const internalReadTypes: PostType[] = [PostType.Welcome];
@@ -34,6 +36,7 @@ export const supportedTypesForPrivateSources = [
   PostType.Article,
   PostType.Share,
   PostType.Welcome,
+  PostType.Freeform,
 ];
 
 export interface Post {
@@ -458,11 +461,16 @@ export const EDIT_POST_MUTATION = gql`
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 
-interface EditPostProps {
+export interface EditPostProps {
   id: string;
   title: string;
   content: string;
   image: File;
+}
+
+export interface CreatePostProps
+  extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
+  sourceId: string;
 }
 
 export const editPost = async (
@@ -489,3 +497,66 @@ interface UpdatePinnedProps {
 export const updatePinnedPost = async (
   variables: UpdatePinnedProps,
 ): Promise<void> => request(graphqlUrl, PIN_POST_MUTATION, variables);
+
+export const CREATE_POST_MUTATION = gql`
+  mutation CreatePost(
+    $sourceId: ID!
+    $title: String!
+    $content: String
+    $image: Upload
+  ) {
+    createFreeformPost(
+      sourceId: $sourceId
+      title: $title
+      content: $content
+      image: $image
+    ) {
+      ...SharedPostInfo
+      content
+      contentHtml
+      source {
+        ...SourceBaseInfo
+      }
+      description
+      summary
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const createPost = async (
+  variables: Partial<CreatePostProps>,
+): Promise<Post> => {
+  const res = await request(graphqlUrl, CREATE_POST_MUTATION, variables);
+
+  return res.createFreeformPost;
+};
+
+export const UPLOAD_IMAGE_MUTATION = gql`
+  mutation UploadContentImage($image: Upload!) {
+    uploadContentImage(image: $image)
+  }
+`;
+
+const imageSizeLimitMB = 5;
+export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
+export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
+
+export const uploadContentImage = async (
+  image: File,
+  onProcessing?: (file: File) => void,
+): Promise<string> => {
+  if (image.size > allowedFileSize) {
+    throw new Error('File size exceeds the limit');
+  }
+
+  if (!allowedContentImage.includes(image.type)) {
+    throw new Error('File type is not allowed');
+  }
+
+  if (onProcessing) onProcessing(image);
+
+  const res = await request(graphqlUrl, UPLOAD_IMAGE_MUTATION, { image });
+
+  return res.uploadContentImage;
+};

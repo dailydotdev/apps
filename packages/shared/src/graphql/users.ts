@@ -264,3 +264,5 @@ export const GET_USERNAME_SUGGESTION = gql`
     generateUniqueUsername(name: $name)
   }
 `;
+
+export const handleRegex = new RegExp(/^@?([\w-]){1,39}$/i);

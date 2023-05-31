@@ -1,6 +1,11 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { CardButton, CardSpace, CardTitle, getPostClassNames } from './Card';
+import {
+  CardButton,
+  CardSpace,
+  FreeformCardTitle,
+  getPostClassNames,
+} from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
@@ -44,6 +49,12 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       openStep,
     );
 
+  const clamp = (() => {
+    if (post.image) return 'line-clamp-3';
+
+    return post.content ? 'line-clamp-4' : 'line-clamp-9';
+  })();
+
   return (
     <FeedItemContainer
       {...props}
@@ -69,10 +80,15 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         source={post.source}
         createdAt={post.createdAt}
       />
-      <CardTitle className="px-2 font-bold line-clamp-3 !text-theme-label-primary typo-title3">
+      <FreeformCardTitle
+        className={classNames(
+          clamp,
+          'px-2 font-bold !text-theme-label-primary typo-title3',
+        )}
+      >
         {post.title}
-      </CardTitle>
-      <CardSpace />
+      </FreeformCardTitle>
+      {post.image && <CardSpace />}
       <Container ref={containerRef}>
         <WelcomePostCardFooter post={post} />
         <ActionButtons
@@ -85,7 +101,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          className={classNames('mx-4 justify-between')}
+          className={classNames('mx-4 mt-auto justify-between')}
         />
       </Container>
       {children}

@@ -2,15 +2,15 @@ import React, { MutableRefObject, ReactElement } from 'react';
 import { BaseTooltip } from './BaseTooltip';
 import { RecommendedMention } from '../RecommendedMention';
 import { UserShortProfile } from '../../lib/user';
-import { CaretOffset } from '../../lib/element';
 import { isTesting } from '../../lib/constants';
 
 interface RecommendedMentionTooltipProps {
   query?: string;
   selected?: number;
   mentions?: UserShortProfile[];
-  offset?: CaretOffset;
+  offset?: number[];
   onMentionClick?: (username: string) => unknown;
+  onClickOutside?: () => void;
   appendTo?: () => HTMLElement;
   elementRef: MutableRefObject<HTMLElement>;
 }
@@ -26,6 +26,7 @@ export function RecommendedMentionTooltip({
   onMentionClick,
   appendTo,
   elementRef,
+  onClickOutside,
 }: RecommendedMentionTooltipProps): ReactElement {
   if (isTesting) {
     return null;
@@ -45,6 +46,7 @@ export function RecommendedMentionTooltip({
         />
       }
       offset={[offsetX, (offsetY + lines + EXTRA_SPACES) * -1]}
+      onClickOutside={onClickOutside}
       interactive
       container={{
         className: 'shadow',

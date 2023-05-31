@@ -1,5 +1,5 @@
 import { useMutation } from 'react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { PromptOptions, usePrompt } from './usePrompt';
 import { deletePost, Post, updatePinnedPost } from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
@@ -73,11 +73,8 @@ export const usePostMenuActions = ({
     { onSuccess: onPinSuccessful },
   );
 
-  return useMemo(
-    () => ({
-      onConfirmDeletePost: canDelete ? deletePostPrompt : null,
-      onPinPost: canPin ? onPinPost : null,
-    }),
-    [deletePostPrompt, canDelete, onPinPost, canPin],
-  );
+  return {
+    onConfirmDeletePost: canDelete ? deletePostPrompt : null,
+    onPinPost: canPin ? onPinPost : null,
+  };
 };
