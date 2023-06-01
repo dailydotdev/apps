@@ -10,12 +10,12 @@ import SettingsIcon from './icons/Settings';
 import { IconSize } from './Icon';
 import TimerIcon from './icons/Timer';
 import { Image } from './image/Image';
-import { useActions } from '../hooks/useActions';
-import { ActionType } from '../graphql/actions';
 import { cloudinary } from '../lib/image';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { ReferralCampaignKey } from '../hooks';
+import usePersistentContext from '../hooks/usePersistentContext';
+import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY } from '../lib/storage';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -26,7 +26,10 @@ const PortalMenu = dynamic(
 
 export default function ProfileMenu(): ReactElement {
   const { user, logout } = useContext(AuthContext);
-  const { checkHasCompleted } = useActions();
+  const [isHiddenFromHeader] = usePersistentContext(
+    LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY,
+    false,
+  );
   const { openModal } = useLazyModal();
 
   if (!user) {
@@ -68,7 +71,7 @@ export default function ProfileMenu(): ReactElement {
           </a>
         </Link>
       </Item>
-      {checkHasCompleted(ActionType.LegoMay2023Hide) && (
+      {isHiddenFromHeader && (
         <Item>
           <button
             type="button"

@@ -6,13 +6,13 @@ import { FlexCol, FlexRow } from '../utilities';
 import { Image } from '../image/Image';
 import { referralToC } from '../../lib/constants';
 import { Checkbox } from '../fields/Checkbox';
-import { useActions } from '../../hooks/useActions';
-import { ActionType } from '../../graphql/actions';
 import { FieldInput } from '../fields/common';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useCopyLink } from '../../hooks/useCopyLink';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY } from '../../lib/storage';
 
 type LegoReferralCampaignModalProps = {
   campaignKey: ReferralCampaignKey;
@@ -32,7 +32,10 @@ function LegoReferralCampaignModal({
   } = useReferralCampaign({
     campaignKey,
   });
-  const { checkHasCompleted, completeAction } = useActions();
+  const [isHiddenFromHeader, setHiddenFromHeader] = usePersistentContext(
+    LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY,
+    false,
+  );
   const [, copyReferralLink] = useCopyLink(() => referralUrl);
 
   if (!isReady) {
@@ -98,9 +101,9 @@ function LegoReferralCampaignModal({
             <FlexRow className="justify-center items-center">
               <Checkbox
                 name="lego-referral-hide"
-                checked={checkHasCompleted(ActionType.LegoMay2023Hide)}
+                checked={isHiddenFromHeader}
                 onToggle={() => {
-                  completeAction(ActionType.LegoMay2023Hide);
+                  setHiddenFromHeader(!isHiddenFromHeader);
                 }}
               >
                 <p className="font-normal text-salt-90 typo-footnote">

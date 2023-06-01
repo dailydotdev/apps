@@ -3,11 +3,11 @@ import classNames from 'classnames';
 import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
 import { Image } from './image/Image';
 import { FlexRow } from './utilities';
-import { useActions } from '../hooks/useActions';
-import { ActionType } from '../graphql/actions';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { cloudinary } from '../lib/image';
+import usePersistentContext from '../hooks/usePersistentContext';
+import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY } from '../lib/storage';
 
 type LegoReferralBadgeProps = {
   className?: string;
@@ -18,14 +18,17 @@ const LegoReferralBadge = ({
   className,
   campaignKey,
 }: LegoReferralBadgeProps): ReactElement => {
-  const { checkHasCompleted } = useActions();
   const { isReady, referralCurrentCount, referralTargetCount } =
     useReferralCampaign({
       campaignKey,
     });
   const { openModal } = useLazyModal();
+  const [isHiddenFromHeader = true] = usePersistentContext(
+    LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY,
+    false,
+  );
 
-  if (checkHasCompleted(ActionType.LegoMay2023Hide)) {
+  if (isHiddenFromHeader) {
     return null;
   }
 
