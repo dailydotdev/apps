@@ -33,6 +33,13 @@ const EditWelcomePostModal = dynamic(
     ),
 );
 
+const ReadingHistoryModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "editWelcomePostModal" */ './post/ReadingHistoryModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.EditSquad]: EditSquadModal,
@@ -41,6 +48,7 @@ export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.EditWelcomePost]: EditWelcomePostModal,
+  [LazyModal.ReadingHistory]: ReadingHistoryModal,
 };
 
 type GetComponentProps<T> = T extends

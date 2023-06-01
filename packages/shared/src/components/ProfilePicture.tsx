@@ -27,7 +27,7 @@ export interface ProfilePictureProps
   nativeLazyLoading?: boolean;
 }
 
-const sizeClasses: Record<ProfileImageSize, string> = {
+export const sizeClasses: Record<ProfileImageSize, string> = {
   xsmall: 'w-5 h-5',
   small: 'w-6 h-6',
   medium: 'w-8 h-8',

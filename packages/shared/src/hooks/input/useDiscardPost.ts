@@ -5,14 +5,13 @@ import { EditPostProps, Post } from '../../graphql/posts';
 import {
   checkSavedProperty,
   generateWritePostKey,
-  WriteForm,
-  WriteFreeformContentProps,
 } from '../../components/post/freeform';
 import {
   UseExitConfirmation,
   useExitConfirmation,
 } from '../useExitConfirmation';
 import usePersistentContext from '../usePersistentContext';
+import { WriteForm, WritePostProps } from '../../contexts';
 
 interface UseDiscardPostProps {
   post?: Post;
@@ -21,7 +20,7 @@ interface UseDiscardPostProps {
 
 interface UseDiscardPost
   extends UseExitConfirmation,
-    Pick<WriteFreeformContentProps, 'draft' | 'updateDraft'> {
+    Pick<WritePostProps, 'draft' | 'updateDraft'> {
   formRef: MutableRefObject<HTMLFormElement>;
   isDraftReady: boolean;
   clearDraft: () => void;
@@ -37,6 +36,8 @@ export const useDiscardPost = ({
     Partial<WriteForm>
   >(draftKey, {});
   const onValidateAction = useCallback(() => {
+    if (!formRef.current) return true;
+
     const form = formToJson<EditPostProps>(formRef.current);
     const isTitleSaved = checkSavedProperty('title', form, draft, post);
     const isContentSaved = checkSavedProperty('content', form, draft, post);

@@ -8,8 +8,8 @@ import { IconSize } from '../../Icon';
 interface SelectHistoryItemProps {
   onArticleClick: (e: MouseEvent<HTMLButtonElement>, post: PostItem) => void;
   data: PostItem[];
-  canFetchMore?: boolean;
-  isFetchingNextPage?: boolean;
+  canFetchMore: boolean;
+  isFetchingNextPage: boolean;
   fetchNextPage: () => Promise<unknown>;
 }
 
