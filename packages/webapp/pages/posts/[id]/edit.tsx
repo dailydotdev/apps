@@ -98,7 +98,7 @@ function EditPost(): ReactElement {
         isForbidden={!isVerified || !squad || !canEdit}
       >
         <WritePostHeader isEdit />
-        <WriteFreeformContent />
+        <WriteFreeformContent className="py-6 px-4" />
       </WritePage>
     </WritePostContext.Provider>
   );

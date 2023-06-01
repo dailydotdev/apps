@@ -2,7 +2,7 @@ import React, { FormEvent, ReactElement, useState } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
-  WritePage,
+  WriteFreeformContent,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from 'react-query';
@@ -17,7 +17,10 @@ import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import { ShareLink } from '@dailydotdev/shared/src/components/post/write';
+import {
+  ShareLink,
+  SquadsDropdown,
+} from '@dailydotdev/shared/src/components/post/write';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -33,22 +36,16 @@ enum WriteFormTab {
 }
 
 function CreatePost(): ReactElement {
-  const { query, isReady, push } = useRouter();
+  const { query, push } = useRouter();
   const { squads } = useAuthContext();
+  const [selected, setSelected] = useState(-1);
   const squad = squads?.find(({ id, handle }) =>
     [id, handle].includes(query?.handle as string),
   );
   const [display, setDisplay] = useState(WriteFormTab.Share);
-  const isVerified = verifyPermission(squad, SourcePermissions.Post);
   const { displayToast } = useToastNotification();
-  const {
-    onAskConfirmation,
-    draft,
-    updateDraft,
-    isDraftReady,
-    formRef,
-    clearDraft,
-  } = useDiscardPost({ draftIdentifier: squad?.id });
+  const { onAskConfirmation, draft, updateDraft, formRef, clearDraft } =
+    useDiscardPost({ draftIdentifier: squad?.id });
   const {
     mutateAsync: onCreatePost,
     isLoading: isPosting,
@@ -95,15 +92,12 @@ function CreatePost(): ReactElement {
           shouldMountInactive
         >
           <Tab label={WriteFormTab.Share} className="px-6">
-            <ShareLink squad={squad} />
+            <SquadsDropdown onSelect={setSelected} selected={selected} />
+            <ShareLink squad={squad} className="mt-4" />
           </Tab>
-          <Tab label={WriteFormTab.NewPost}>
-            <WritePage
-              isLoading={!isReady || !isDraftReady}
-              isForbidden={!isVerified || !squad}
-            >
-              Test
-            </WritePage>
+          <Tab label={WriteFormTab.NewPost} className="px-6">
+            <SquadsDropdown onSelect={setSelected} selected={selected} />
+            <WriteFreeformContent className="mt-6" />
           </Tab>
         </TabContainer>
       </WritePageContainer>

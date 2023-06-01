@@ -7,4 +7,4 @@ export const WritePageContainer = classed(
   pageBorders,
 );
 
-export const WritePageMain = classed('form', 'flex flex-col py-6 px-4');
+export const WritePageMain = classed('form', 'flex flex-col');

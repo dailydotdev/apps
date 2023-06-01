@@ -34,7 +34,13 @@ export const checkSavedProperty = (
 
 const defaultFilename = 'thumbnail.png';
 
-export function WriteFreeformContent(): ReactElement {
+interface WriteFreeformContentProps {
+  className?: string;
+}
+
+export function WriteFreeformContent({
+  className,
+}: WriteFreeformContentProps): ReactElement {
   const {
     onSubmitForm,
     isPosting,
@@ -71,7 +77,7 @@ export function WriteFreeformContent(): ReactElement {
   const [onFormUpdate] = useDebounce(onUpdate, 3000);
 
   return (
-    <WritePageMain onSubmit={handleSubmit} ref={formRef}>
+    <WritePageMain className={className} onSubmit={handleSubmit} ref={formRef}>
       <ImageInput
         className={{
           container:
