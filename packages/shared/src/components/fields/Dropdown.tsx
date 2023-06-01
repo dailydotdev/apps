@@ -36,6 +36,7 @@ export interface DropdownProps {
   onChange: (value: string, index: number) => unknown;
   buttonSize?: 'small' | 'medium' | 'large' | 'select';
   scrollable?: boolean;
+  renderItem?: (value: string, index: number) => ReactNode;
 }
 
 const getButtonSizeClass = (buttonSize: string): string => {
@@ -61,6 +62,7 @@ export function Dropdown({
   shouldIndicateSelected,
   buttonSize = 'large',
   scrollable = false,
+  renderItem,
   ...props
 }: DropdownProps): ReactElement {
   const [id] = useState(`dropdown-${Math.random().toString(36).substring(7)}`);
@@ -156,8 +158,9 @@ export function Dropdown({
             key={option}
             onClick={handleChange}
             data={{ value: option, index }}
+            className={styles.item}
           >
-            {option}
+            {renderItem ? renderItem(option, index) : option}
             {shouldIndicateSelected && selectedIndex === index && (
               <VIcon
                 className={classNames('ml-auto', className.indicator)}
