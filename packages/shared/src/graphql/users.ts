@@ -275,8 +275,3 @@ export const REFERRAL_CAMPAIGN_QUERY = gql`
     }
   }
 `;
-
-export enum ReferralOriginKey {
-  Squad = 'squad',
-  LegoMay2023 = 'lego-0523',
-}

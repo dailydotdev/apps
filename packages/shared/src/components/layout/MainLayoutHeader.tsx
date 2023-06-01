@@ -19,6 +19,7 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 import LegoReferralBadge from '../LegoReferralBadge';
+import { ReferralCampaignKey } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -111,7 +112,10 @@ function MainLayoutHeader({
           </div>
           {!hideButton && user && (
             <>
-              <LegoReferralBadge className="mr-3" referralTargetCount={5} />
+              <LegoReferralBadge
+                className="mr-3"
+                campaignKey={ReferralCampaignKey.LegoMay2023}
+              />
               <LinkWithTooltip
                 tooltip={{ placement: 'left', content: 'Notifications' }}
                 href={`${webappUrl}notifications`}

@@ -1,35 +1,32 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ReferralOriginKey } from '../graphql/users';
-import { useReferralCampaign } from '../hooks';
+import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
 import { Image } from './image/Image';
 import { FlexRow } from './utilities';
 import { useActions } from '../hooks/useActions';
 import { ActionType } from '../graphql/actions';
+import { cloudinary } from '../lib/image';
 
 type LegoReferralBadgeProps = {
   className?: string;
-  referralTargetCount: number;
+  campaignKey: ReferralCampaignKey;
 };
 
 const LegoReferralBadge = ({
   className,
-  referralTargetCount,
+  campaignKey,
 }: LegoReferralBadgeProps): ReactElement => {
   const { checkHasCompleted } = useActions();
-  const { referredUsersCount, isLoading } = useReferralCampaign({
-    referralOrigin: ReferralOriginKey.LegoMay2023,
-  });
-  const referralCurrentCount =
-    referredUsersCount > referralTargetCount
-      ? referralTargetCount
-      : referredUsersCount;
+  const { isReady, referralCurrentCount, referralTargetCount } =
+    useReferralCampaign({
+      campaignKey,
+    });
 
   if (checkHasCompleted(ActionType.LegoMay2023Hide)) {
     return null;
   }
 
-  if (isLoading) {
+  if (!isReady) {
     return null;
   }
 
@@ -43,8 +40,11 @@ const LegoReferralBadge = ({
     >
       <FlexRow className="gap-1.5 justify-center items-center py-1 px-3 font-bold rounded-10 bg-theme-bg-primary typo-callout text-theme-label-tertiary">
         {referralCurrentCount}/{referralTargetCount}
-        {/* TODO WT-1415-referral-cta-in-header upload to cloudinary and remove file from public */}
-        <Image width={33} height={29} src="/lego-piece.svg" />
+        <Image
+          width={33}
+          height={29}
+          src={cloudinary.referralCampaign.legoPiece}
+        />
       </FlexRow>
     </button>
   );

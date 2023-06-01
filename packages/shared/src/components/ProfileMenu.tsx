@@ -12,6 +12,7 @@ import TimerIcon from './icons/Timer';
 import { Image } from './image/Image';
 import { useActions } from '../hooks/useActions';
 import { ActionType } from '../graphql/actions';
+import { cloudinary } from '../lib/image';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -66,12 +67,11 @@ export default function ProfileMenu(): ReactElement {
       {checkHasCompleted(ActionType.LegoMay2023Hide) && (
         <Item>
           <button type="button" className="flex items-center min-w-[12.5rem]">
-            {/* TODO WT-1415-referral-cta-in-header upload to cloudinary and remove file from public */}
             <Image
               className="mr-2"
               width={24}
               height={24}
-              src="/lego-piece.svg"
+              src={cloudinary.referralCampaign.legoPiece}
             />
             Referral campagin
             <TimerIcon className="ml-auto" size={IconSize.Small} />
