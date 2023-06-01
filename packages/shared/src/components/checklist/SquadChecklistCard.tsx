@@ -13,9 +13,10 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
-  const { steps, isChecklistVisible, setChecklistVisible } = useSquadChecklist({
-    squad,
-  });
+  const { steps, isChecklistVisible, setChecklistVisible, isChecklistReady } =
+    useSquadChecklist({
+      squad,
+    });
   const { sidebarRendered } = useSidebarRendered();
   const { isDone } = useChecklist({ steps });
   const { trackEvent } = useContext(AnalyticsContext);
@@ -30,7 +31,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isChecklistVisible) {
+  if (!isChecklistVisible || !isChecklistReady) {
     return null;
   }
 
