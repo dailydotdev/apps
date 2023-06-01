@@ -50,14 +50,8 @@ export function SubmitExternalLink(): ReactElement {
           label="URL"
           inputId="preview_url"
           fieldType="tertiary"
-          className={{
-            container: 'w-full',
-            input:
-              (preview?.id || isLoadingPreview) &&
-              '!text-theme-label-quaternary',
-          }}
+          className={{ container: 'w-full' }}
           value={preview?.url ?? preview?.permalink ?? url}
-          readOnly={!!preview?.id}
         />
         <div className="flex relative flex-row gap-3 items-center py-5 px-4">
           {isLoadingPreview && (
