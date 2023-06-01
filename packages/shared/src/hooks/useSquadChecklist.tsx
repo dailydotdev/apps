@@ -38,6 +38,10 @@ const useSquadChecklist = ({
   const stepsMap = useMemo<
     Partial<Record<ActionType, ChecklistStepType>>
   >(() => {
+    if (!isChecklistReady) {
+      return {};
+    }
+
     return {
       [ActionType.CreateSquad]: createChecklistStep({
         type: ActionType.CreateSquad,
@@ -126,7 +130,7 @@ const useSquadChecklist = ({
         actions,
       }),
     };
-  }, [squad, actions, showArticleOnboarding]);
+  }, [squad, actions, showArticleOnboarding, isChecklistReady]);
 
   const steps = useMemo(() => {
     const actionsForRole =
