@@ -5,7 +5,7 @@ import { LazyModalCommonProps, Modal } from './common/Modal';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import { FlexCol, FlexRow } from '../utilities';
 import { Image } from '../image/Image';
-import { referralToC } from '../../lib/constants';
+import { referralToC, twitter } from '../../lib/constants';
 import { Checkbox } from '../fields/Checkbox';
 import { FieldInput } from '../fields/common';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -146,7 +146,7 @@ function LegoReferralCampaignModal({
                 tag="a"
                 target="_blank"
                 rel="noopener"
-                href="https://twitter.com/dailydotdev"
+                href={twitter}
                 className="mx-auto mb-6 text-white bg-theme-bg-twitter max-w-[13.75rem]"
                 icon={<TwitterIcon />}
                 buttonSize={ButtonSize.Large}
