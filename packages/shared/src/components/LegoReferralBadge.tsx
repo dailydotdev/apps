@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ReferralOriginKey } from '../graphql/users';
 import { useReferralCampaign } from '../hooks';
-import { Button } from './buttons/Button';
 import { Image } from './image/Image';
 import { FlexRow } from './utilities';
 import { useActions } from '../hooks/useActions';
@@ -35,19 +34,19 @@ const LegoReferralBadge = ({
   }
 
   return (
-    <Button
+    <button
+      type="button"
       className={classNames(
         className,
-        // TODO WT-1415-referral-cta-in-header correct border color
-        'border-theme-color-lettuce border-[3px] rounded-12 px-3 typo-callout text-theme-label-tertiary',
+        'rounded-12 p-[3px] bg-gradient-to-br from-[#6DE8BE] via-[#DD3DFC] to-[#F9DD53]',
       )}
     >
-      <FlexRow className="gap-1.5 justify-center items-center">
+      <FlexRow className="gap-1.5 justify-center items-center py-1 px-3 font-bold rounded-10 bg-theme-bg-primary typo-callout text-theme-label-tertiary">
         {referralCurrentCount}/{referralTargetCount}
         {/* TODO WT-1415-referral-cta-in-header upload to cloudinary and remove file from public */}
         <Image width={33} height={29} src="/lego-piece.svg" />
       </FlexRow>
-    </Button>
+    </button>
   );
 };
 
