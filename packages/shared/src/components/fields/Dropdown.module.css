@@ -19,6 +19,6 @@
   }
 }
 
-.item > * {
+.item:global(.h-auto) > * {
   height: auto !important;
 }
