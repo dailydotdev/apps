@@ -1,20 +1,14 @@
 import React, {
-  FormEvent,
   FormEventHandler,
-  MutableRefObject,
   ReactElement,
   useImperativeHandle,
   useRef,
 } from 'react';
-import classNames from 'classnames';
 import ImageInput from '../../../fields/ImageInput';
 import CameraIcon from '../../../icons/Camera';
 import { TextField } from '../../../fields/TextField';
 import MarkdownInput from '../../../fields/MarkdownInput';
-import { Switch } from '../../../fields/Switch';
-import { Button } from '../../../buttons/Button';
 import { WritePageMain } from './common';
-import { useNotificationToggle } from '../../../../hooks/notifications';
 import { EditPostProps, Post } from '../../../../graphql/posts';
 import { formToJson } from '../../../../lib/form';
 import useDebounce from '../../../../hooks/useDebounce';
@@ -23,27 +17,9 @@ import { useActions } from '../../../../hooks/useActions';
 import { ActionType } from '../../../../graphql/actions';
 import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 import { base64ToFile } from '../../../../lib/base64';
-
-export interface WriteFreeformContentProps {
-  onSubmitForm: (
-    e: FormEvent<HTMLFormElement>,
-    prop: WriteForm,
-  ) => Promise<Post>;
-  isPosting?: boolean;
-  squadId: string;
-  post?: Post;
-  enableUpload?: boolean;
-  formRef?: MutableRefObject<HTMLFormElement>;
-  draft?: Partial<WriteForm>;
-  updateDraft?: (props: Partial<WriteForm>) => Promise<void>;
-}
-
-export interface WriteForm {
-  title: string;
-  content: string;
-  image: string;
-  filename?: string;
-}
+import { useWritePostContext, WriteForm } from '../../../../contexts';
+import { defaultMarkdownCommands } from '../../../../hooks/input';
+import { WriteFooter } from '../../write';
 
 export const generateWritePostKey = (reference = 'create'): string =>
   `write:post:${reference}`;
@@ -58,21 +34,20 @@ export const checkSavedProperty = (
 
 const defaultFilename = 'thumbnail.png';
 
-export function WriteFreeformContent({
-  onSubmitForm,
-  isPosting,
-  squadId,
-  post,
-  draft,
-  updateDraft,
-  formRef: propRef,
-}: WriteFreeformContentProps): ReactElement {
+export function WriteFreeformContent(): ReactElement {
+  const {
+    onSubmitForm,
+    isPosting,
+    squad,
+    post,
+    draft,
+    updateDraft,
+    formRef: propRef,
+  } = useWritePostContext();
   const formRef = useRef<HTMLFormElement>();
   useImperativeHandle(propRef, () => formRef?.current);
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const { sidebarRendered } = useSidebarRendered();
-  const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
-    useNotificationToggle();
 
   const getDraftImage = () => {
     if (!draft?.image) return null;
@@ -83,7 +58,6 @@ export function WriteFreeformContent({
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     completeAction(ActionType.WritePost);
-    await onSubmitted();
     const { title, content, image: files } = formToJson(e.currentTarget);
     const image = files?.[0] ?? (await getDraftImage());
     await onSubmitForm(e, { title, content, image });
@@ -156,42 +130,13 @@ export function WriteFreeformContent({
       </AlertPointer>
       <MarkdownInput
         className="mt-4"
-        sourceId={squadId}
+        sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
         initialContent={draft?.content ?? post?.content}
         textareaProps={{ name: 'content' }}
-        enableUpload
+        enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
       />
-      <span
-        className={classNames(
-          'relative flex flex-col tablet:flex-row items-center mt-1',
-          !sidebarRendered && 'justify-center',
-        )}
-      >
-        {shouldShowCta && (
-          <Switch
-            data-testId="push_notification-switch"
-            inputId="push_notification-switch"
-            name="push_notification"
-            labelClassName="flex-1 font-normal"
-            className="py-3"
-            compact={false}
-            checked={isEnabled}
-            onToggle={onToggle}
-          >
-            Receive updates whenever your Squad members engage with your post
-          </Switch>
-        )}
-        <div className="tablet:hidden absolute -left-4 mt-1 h-px w-[calc(100%+2rem)] bg-theme-divider-tertiary" />
-        <Button
-          type="submit"
-          className="mt-6 tablet:mt-0 ml-auto w-full tablet:w-auto btn-primary-cabbage"
-          disabled={isPosting}
-          loading={isPosting}
-        >
-          Post
-        </Button>
-      </span>
+      <WriteFooter isLoading={isPosting} />
     </WritePageMain>
   );
 }

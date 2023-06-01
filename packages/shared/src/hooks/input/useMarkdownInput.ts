@@ -41,14 +41,20 @@ import { UploadState, useSyncUploader } from './useSyncUploader';
 import { useToastNotification } from '../useToastNotification';
 import { allowedContentImage, allowedFileSize } from '../../graphql/posts';
 
+export enum MarkdownCommand {
+  Upload = 'upload',
+  Link = 'link',
+  Mention = 'mention',
+}
+
 export interface UseMarkdownInputProps
   extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
   postId?: string;
   sourceId?: string;
-  enableUpload?: boolean;
   initialContent?: string;
   onValueUpdate?: (value: string) => void;
+  enabledCommand?: Partial<Record<MarkdownCommand, boolean>>;
 }
 
 type InputCallbacks = Pick<
@@ -58,20 +64,25 @@ type InputCallbacks = Pick<
 
 interface UseMarkdownInput {
   input: string;
-  query: string;
-  offset: number[];
-  selected: number;
-  onLinkCommand: () => Promise<unknown>;
-  onMentionCommand: () => Promise<void>;
-  onUploadCommand: (files: FileList) => void;
-  onApplyMention: (username: string) => Promise<void>;
-  checkMention: (position?: number[]) => void;
-  onCloseMention: () => void;
-  mentions: UserShortProfile[];
+  query?: string;
+  offset?: number[];
+  selected?: number;
+  onLinkCommand?: () => Promise<unknown>;
+  onMentionCommand?: () => Promise<void>;
+  onUploadCommand?: (files: FileList) => void;
+  onApplyMention?: (username: string) => Promise<void>;
+  checkMention?: (position?: number[]) => void;
+  onCloseMention?: () => void;
+  mentions?: UserShortProfile[];
   callbacks: InputCallbacks;
   uploadingCount: number;
   uploadedCount: number;
 }
+
+export const defaultMarkdownCommands = {
+  link: true,
+  mention: true,
+};
 
 export const useMarkdownInput = ({
   textareaRef,
@@ -79,10 +90,13 @@ export const useMarkdownInput = ({
   sourceId,
   onSubmit,
   onValueUpdate,
-  enableUpload,
   initialContent = '',
+  enabledCommand = {},
 }: UseMarkdownInputProps): UseMarkdownInput => {
   const textarea = textareaRef?.current;
+  const isLinkEnabled = enabledCommand[MarkdownCommand.Link];
+  const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
+  const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const [command, setCommand] = useState<TextareaCommand>();
   const [input, setInput] = useState(initialContent);
   const [query, setQuery] = useState<string>(undefined);
@@ -146,7 +160,7 @@ export const useMarkdownInput = ({
   const mentions = data?.recommendedMentions;
 
   const updateQuery = (value: string) => {
-    if (value === query) return;
+    if (!isMentionEnabled || value === query) return;
 
     if (isNullOrUndefined(query) && !isNullOrUndefined(value)) {
       setOffset(getCaretOffset(textarea));
@@ -249,7 +263,7 @@ export const useMarkdownInput = ({
     e.preventDefault();
     const items = e.dataTransfer.files;
 
-    if (!items.length || !enableUpload) return;
+    if (!items.length || !isUploadEnabled) return;
 
     Array.from(items).forEach(verifyFile);
 
@@ -263,7 +277,7 @@ export const useMarkdownInput = ({
   };
 
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!e.clipboardData.files?.length || !enableUpload) return;
+    if (!e.clipboardData.files?.length || !isUploadEnabled) return;
 
     e.preventDefault();
 
@@ -273,27 +287,35 @@ export const useMarkdownInput = ({
   };
 
   const onCloseMention = useCallback(() => setQuery(undefined), []);
+  const uploadCommands = isUploadEnabled ? { onDrop, onPaste } : {};
+  const uploadProps = isUploadEnabled
+    ? { uploadedCount, uploadingCount: queueCount, onUploadCommand }
+    : { uploadedCount: 0, uploadingCount: 0 };
+
+  const queryMentions = useMemo(() => data?.recommendedMentions ?? [], [data]);
+  const mentionProps = isMentionEnabled
+    ? {
+        query,
+        offset,
+        selected,
+        checkMention,
+        onCloseMention,
+        onMentionCommand,
+        onApplyMention,
+        mentions: queryMentions,
+      }
+    : {};
 
   return {
+    ...uploadProps,
+    ...mentionProps,
     input,
-    query,
-    offset,
-    selected,
-    uploadedCount,
-    uploadingCount: queueCount,
-    checkMention,
-    onCloseMention,
-    onLinkCommand,
-    onUploadCommand,
-    onMentionCommand,
-    onApplyMention,
+    onLinkCommand: isLinkEnabled ? onLinkCommand : null,
     callbacks: {
       onInput,
       onKeyUp,
       onKeyDown,
-      onPaste,
-      onDrop: enableUpload ? onDrop : undefined,
+      ...uploadCommands,
     },
-    mentions: useMemo(() => data?.recommendedMentions ?? [], [data]),
   };
 };

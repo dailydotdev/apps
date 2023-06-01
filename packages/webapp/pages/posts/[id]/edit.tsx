@@ -1,7 +1,11 @@
 import React, { FormEvent, ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { WritePage } from '@dailydotdev/shared/src/components/post/freeform';
-import { editPost } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  WriteFreeformContent,
+  WritePage,
+  WritePostHeader,
+} from '@dailydotdev/shared/src/components/post/freeform';
+import { editPost, PostType } from '@dailydotdev/shared/src/graphql/posts';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMutation } from 'react-query';
@@ -9,6 +13,9 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import { NextSeo, NextSeoProps } from 'next-seo';
+import { WritePostContext } from '@dailydotdev/shared/src/contexts';
+import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -19,6 +26,7 @@ function EditPost(): ReactElement {
   const squad = squads?.find(({ id, handle }) =>
     [id, handle].includes(post?.source?.id),
   );
+  const isVerified = verifyPermission(squad, SourcePermissions.Post);
   const { displayToast } = useToastNotification();
   const {
     onAskConfirmation,
@@ -61,22 +69,38 @@ function EditPost(): ReactElement {
     ...defaultSeo,
   };
 
+  const isAuthor = post?.author.id === user?.id;
+
+  const canEdit = (() => {
+    if (isAuthor) return true;
+
+    if (post?.type !== PostType.Welcome) return false;
+
+    return verifyPermission(squad, SourcePermissions.WelcomePostEdit);
+  })();
+
   return (
-    <>
+    <WritePostContext.Provider
+      value={{
+        updateDraft,
+        onSubmitForm: onClickSubmit,
+        formRef,
+        draft,
+        squad,
+        post,
+        isPosting: isPosting || isSuccess,
+        enableUpload: true,
+      }}
+    >
       <NextSeo {...seo} />
       <WritePage
-        isEdit
-        formRef={formRef}
-        isPosting={isPosting || isSuccess}
-        onSubmitForm={onClickSubmit}
         isLoading={!isReady || !isFetched || !isDraftReady}
-        isForbidden={post?.author.id !== user?.id}
-        squad={squad}
-        post={post}
-        draft={draft}
-        updateDraft={updateDraft}
-      />
-    </>
+        isForbidden={!isVerified || !squad || !canEdit}
+      >
+        <WritePostHeader isEdit />
+        <WriteFreeformContent />
+      </WritePage>
+    </WritePostContext.Provider>
   );
 }
 

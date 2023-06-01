@@ -24,6 +24,7 @@ interface MarkdownInputProps
     TextareaHTMLAttributes<HTMLTextAreaElement>,
     'className'
   >;
+  showMarkdownGuide?: boolean;
 }
 
 function MarkdownInput({
@@ -32,9 +33,10 @@ function MarkdownInput({
   sourceId,
   onSubmit,
   onValueUpdate,
-  enableUpload,
   initialContent,
   textareaProps = {},
+  enabledCommand,
+  showMarkdownGuide = true,
 }: MarkdownInputProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
@@ -61,7 +63,7 @@ function MarkdownInput({
     onSubmit,
     textareaRef,
     onValueUpdate,
-    enableUpload,
+    enabledCommand,
   });
 
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
@@ -95,7 +97,7 @@ function MarkdownInput({
         onClickOutside={onCloseMention}
       />
       <span className="flex flex-row gap-3 items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
-        {enableUpload && (
+        {onUploadCommand && (
           <button
             type="button"
             className={classNames(
@@ -121,30 +123,36 @@ function MarkdownInput({
         <ConditionalWrapper
           condition={sidebarRendered}
           wrapper={(children) => (
-            <span className="grid grid-cols-3 gap-3 ml-auto">{children}</span>
+            <span className="flex flex-row gap-3 ml-auto">{children}</span>
           )}
         >
-          <Button
-            type="button"
-            buttonSize={ButtonSize.XSmall}
-            icon={<LinkIcon secondary />}
-            onClick={onLinkCommand}
-          />
-          <Button
-            type="button"
-            buttonSize={ButtonSize.XSmall}
-            icon={<AtIcon />}
-            onClick={onMentionCommand}
-          />
-          <Button
-            type="button"
-            buttonSize={ButtonSize.XSmall}
-            icon={<MarkdownIcon />}
-            tag="a"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={markdownGuide}
-          />
+          {onLinkCommand && (
+            <Button
+              type="button"
+              buttonSize={ButtonSize.XSmall}
+              icon={<LinkIcon secondary />}
+              onClick={onLinkCommand}
+            />
+          )}
+          {onMentionCommand && (
+            <Button
+              type="button"
+              buttonSize={ButtonSize.XSmall}
+              icon={<AtIcon />}
+              onClick={onMentionCommand}
+            />
+          )}
+          {showMarkdownGuide && (
+            <Button
+              type="button"
+              buttonSize={ButtonSize.XSmall}
+              icon={<MarkdownIcon />}
+              tag="a"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={markdownGuide}
+            />
+          )}
         </ConditionalWrapper>
       </span>
     </div>
