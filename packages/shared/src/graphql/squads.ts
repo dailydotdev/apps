@@ -142,7 +142,7 @@ export const EDIT_SQUAD_MUTATION = gql`
 `;
 
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
-  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String!) {
+  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String) {
     sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
       id
     }
