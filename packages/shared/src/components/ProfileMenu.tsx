@@ -71,7 +71,7 @@ export default function ProfileMenu(): ReactElement {
               className="mr-2"
               width={24}
               height={24}
-              src={cloudinary.referralCampaign.legoPiece}
+              src={cloudinary.referralCampaign.lego.piece}
             />
             Referral campagin
             <TimerIcon className="ml-auto" size={IconSize.Small} />

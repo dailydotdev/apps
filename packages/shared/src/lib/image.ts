@@ -59,7 +59,9 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty_squad_light',
   },
   referralCampaign: {
-    legoPiece:
-      'https://daily-now-res.cloudinary.com/image/upload/v1685615660/public/lego-piece.svg',
+    lego: {
+      piece:
+        'https://daily-now-res.cloudinary.com/image/upload/v1685615660/public/lego-piece.svg',
+    },
   },
 };

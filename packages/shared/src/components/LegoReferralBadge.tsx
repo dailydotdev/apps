@@ -43,7 +43,7 @@ const LegoReferralBadge = ({
         <Image
           width={33}
           height={29}
-          src={cloudinary.referralCampaign.legoPiece}
+          src={cloudinary.referralCampaign.lego.piece}
         />
       </FlexRow>
     </button>
