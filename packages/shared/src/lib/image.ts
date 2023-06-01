@@ -62,6 +62,12 @@ export const cloudinary = {
     lego: {
       piece:
         'https://daily-now-res.cloudinary.com/image/upload/v1685615660/public/lego-piece.svg',
+      francesco:
+        'https://daily-now-res.cloudinary.com/image/upload/s--eVT2CUmp--/f_auto,q_auto/v1685612551/public/Francheco',
+      madeWithLove:
+        'https://daily-now-res.cloudinary.com/image/upload/v1685615660/public/Made_with_love.svg',
     },
+    backgroundDark:
+      'https://daily-now-res.cloudinary.com/image/upload/s--PpylqK65--/f_auto,q_auto/v1685615660/public/background_Image',
   },
 };
