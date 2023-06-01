@@ -40,6 +40,7 @@ function LegoReferralCampaignModal({
   );
   const [, copyReferralLink] = useCopyLink(() => referralUrl);
   const { sidebarRendered } = useSidebarRendered();
+  const progress = (referralCurrentCount / referralTargetCount) * 100;
 
   if (!isReady) {
     return null;
@@ -101,10 +102,20 @@ function LegoReferralCampaignModal({
                 Copy link
               </Button>
             </FlexRow>
-            <div className="mb-6 bg-gradient-to-br rounded-12 p-[3px] from-[#6DE8BE] via-[#DD3DFC] to-[#F9DD53]">
-              <div className="flex gap-1.5 justify-center items-center py-4 px-3 font-bold text-white rounded-10 bg-[#1b174b] typo-title3">
+            <div className="relative mb-6 bg-gradient-to-r rounded-12 p-[3px] from-[#6DE8BE] via-[#DD3DFC] to-[#F9DD53]">
+              <div className="flex gap-1.5 justify-center items-center py-4 px-3 h-16 rounded-10" />
+              <div
+                style={{
+                  width: `${100 - progress}%`,
+                }}
+                className={classNames(
+                  'ml-auto -mt-16 h-14 rounded-10 bg-[#1b174b]',
+                  progress > 0 && 'rounded-tl-none rounded-bl-none',
+                )}
+              />
+              <p className="absolute font-bold text-white top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] typo-title3">
                 {referralCurrentCount} out of {referralTargetCount}
-              </div>
+              </p>
             </div>
             {sidebarRendered && (
               <Image
