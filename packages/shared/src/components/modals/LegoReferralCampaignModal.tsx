@@ -15,6 +15,7 @@ import { cloudinary } from '../../lib/image';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY } from '../../lib/storage';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import TwitterIcon from '../icons/Twitter';
 
 type LegoReferralCampaignModalProps = {
   campaignKey: ReferralCampaignKey;
@@ -31,6 +32,7 @@ function LegoReferralCampaignModal({
     isReady,
     referralCurrentCount,
     referralTargetCount,
+    isCompleted,
   } = useReferralCampaign({
     campaignKey,
   });
@@ -81,27 +83,40 @@ function LegoReferralCampaignModal({
               />
             )}
             <h3 className="mb-3 font-bold text-transparent bg-clip-text bg-gradient-to-l typo-mega3 laptop:typo-mega2 from-[#6DE8BE] via-[#DD3DFC] to-[#F9DD53]">
-              Win a limited edition lego set!
+              {isCompleted
+                ? 'Congratulations!'
+                : 'Win a limited edition lego set!'}
             </h3>
-            <p className="mb-6 text-salt-50 typo-title3">
-              <b>Invite 5 friends</b> using the link below for a chance to win
-              the lego set.
-            </p>
-            <FlexRow className="gap-4 items-center px-3 mb-6 h-12 rounded-14 bg-[#a8b3cf14]">
-              <FieldInput
-                className="flex flex-1 text-white"
-                value={referralUrl}
-              />
-              <Button
-                className="bg-white text-[black]"
-                buttonSize={ButtonSize.Small}
-                onClick={() => {
-                  copyReferralLink();
-                }}
-              >
-                Copy link
-              </Button>
-            </FlexRow>
+            {!isCompleted && (
+              <p className="mb-6 text-salt-50 typo-title3">
+                <b>Invite 5 friends</b> using the link below for a chance to win
+                the lego set.
+              </p>
+            )}
+            {isCompleted && (
+              <p className="mb-6 text-salt-50 typo-title3">
+                You are now in the draw and winners will be announced soon.
+                <br />
+                <b>Keep an eye 👀 on your email!</b>
+              </p>
+            )}
+            {!isCompleted && (
+              <FlexRow className="gap-4 items-center px-3 mb-6 h-12 rounded-14 bg-[#a8b3cf14]">
+                <FieldInput
+                  className="flex flex-1 text-white"
+                  value={referralUrl}
+                />
+                <Button
+                  className="bg-white text-[black]"
+                  buttonSize={ButtonSize.Small}
+                  onClick={() => {
+                    copyReferralLink();
+                  }}
+                >
+                  Copy link
+                </Button>
+              </FlexRow>
+            )}
             <div className="relative mb-6 bg-gradient-to-r rounded-12 p-[3px] from-[#6DE8BE] via-[#DD3DFC] to-[#F9DD53]">
               <div className="flex gap-1.5 justify-center items-center py-4 px-3 h-16 rounded-10" />
               <div
@@ -125,6 +140,19 @@ function LegoReferralCampaignModal({
                 src={cloudinary.referralCampaign.lego.francesco}
                 alt="Image showing lego set box held by a person."
               />
+            )}
+            {isCompleted && (
+              <Button
+                tag="a"
+                target="_blank"
+                rel="noopener"
+                href="https://twitter.com/dailydotdev"
+                className="mx-auto mb-6 text-white bg-theme-bg-twitter max-w-[13.75rem]"
+                icon={<TwitterIcon />}
+                buttonSize={ButtonSize.Large}
+              >
+                Follow @dailydotdev
+              </Button>
             )}
             <FlexRow className="justify-center items-center">
               <Checkbox
