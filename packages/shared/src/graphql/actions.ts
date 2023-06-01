@@ -12,6 +12,7 @@ export enum ActionType {
   BrowserExtension = 'browser_extension',
   EnableNotification = 'enable_notification',
   WritePost = 'write_post',
+  LegoMay2023Hide = 'lego_0523_hide',
 }
 
 export interface Action {

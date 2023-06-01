@@ -266,3 +266,12 @@ export const GET_USERNAME_SUGGESTION = gql`
 `;
 
 export const handleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
+
+export const REFERRAL_CAMPAIGN_QUERY = gql`
+  query ReferralCampaign($referralOrigin: String!) {
+    referralCampaign(referralOrigin: $referralOrigin) {
+      referredUsersCount
+      url
+    }
+  }
+`;

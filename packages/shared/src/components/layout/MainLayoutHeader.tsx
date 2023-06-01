@@ -18,6 +18,8 @@ import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
+import LegoReferralBadge from '../LegoReferralBadge';
+import { ReferralCampaignKey } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -109,32 +111,38 @@ function MainLayoutHeader({
             )}
           </div>
           {!hideButton && user && (
-            <LinkWithTooltip
-              tooltip={{ placement: 'left', content: 'Notifications' }}
-              href={`${webappUrl}notifications`}
-            >
-              <Button
-                className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
-                buttonSize={ButtonSize.Small}
-                iconOnly
-                onClick={onNavigateNotifications}
-                icon={
-                  <BellIcon
-                    className={classNames(
-                      'hover:text-theme-label-primary',
-                      atNotificationsPage && 'text-theme-label-primary',
-                    )}
-                    secondary={atNotificationsPage}
-                  />
-                }
+            <>
+              <LegoReferralBadge
+                className="mr-3"
+                campaignKey={ReferralCampaignKey.LegoMay2023}
+              />
+              <LinkWithTooltip
+                tooltip={{ placement: 'left', content: 'Notifications' }}
+                href={`${webappUrl}notifications`}
               >
-                {hasNotification && (
-                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
-                    {getUnreadText(unreadCount)}
-                  </Bubble>
-                )}
-              </Button>
-            </LinkWithTooltip>
+                <Button
+                  className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
+                  buttonSize={ButtonSize.Small}
+                  iconOnly
+                  onClick={onNavigateNotifications}
+                  icon={
+                    <BellIcon
+                      className={classNames(
+                        'hover:text-theme-label-primary',
+                        atNotificationsPage && 'text-theme-label-primary',
+                      )}
+                      secondary={atNotificationsPage}
+                    />
+                  }
+                >
+                  {hasNotification && (
+                    <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
+                      {getUnreadText(unreadCount)}
+                    </Bubble>
+                  )}
+                </Button>
+              </LinkWithTooltip>
+            </>
           )}
           {additionalButtons}
           {headerButton}

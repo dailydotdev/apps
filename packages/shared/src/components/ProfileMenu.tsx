@@ -8,6 +8,11 @@ import UserIcon from './icons/User';
 import DevCardIcon from './icons/DevCard';
 import SettingsIcon from './icons/Settings';
 import { IconSize } from './Icon';
+import TimerIcon from './icons/Timer';
+import { Image } from './image/Image';
+import { useActions } from '../hooks/useActions';
+import { ActionType } from '../graphql/actions';
+import { cloudinary } from '../lib/image';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -18,6 +23,7 @@ const PortalMenu = dynamic(
 
 export default function ProfileMenu(): ReactElement {
   const { user, logout } = useContext(AuthContext);
+  const { checkHasCompleted } = useActions();
 
   if (!user) {
     return <></>;
@@ -58,6 +64,20 @@ export default function ProfileMenu(): ReactElement {
           </a>
         </Link>
       </Item>
+      {checkHasCompleted(ActionType.LegoMay2023Hide) && (
+        <Item>
+          <button type="button" className="flex items-center min-w-[12.5rem]">
+            <Image
+              className="mr-2"
+              width={24}
+              height={24}
+              src={cloudinary.referralCampaign.lego.piece}
+            />
+            Referral campagin
+            <TimerIcon className="ml-auto" size={IconSize.Small} />
+          </button>
+        </Item>
+      )}
       <Item>
         <Link
           href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
