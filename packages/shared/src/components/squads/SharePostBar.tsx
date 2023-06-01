@@ -97,6 +97,7 @@ function SharePostBar({
             className="hidden tablet:flex ml-1 font-bold reading-history hover:text-theme-label-primary"
             inverseUnderline
             onClick={() => onNewSquadPost()}
+            type="button"
           >
             reading history
           </ClickableText>

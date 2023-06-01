@@ -168,6 +168,7 @@ function TextFieldComponent(
           size={1}
           className={classNames(
             'self-stretch',
+            className?.input,
             getFieldFontColor({
               readOnly,
               disabled,
