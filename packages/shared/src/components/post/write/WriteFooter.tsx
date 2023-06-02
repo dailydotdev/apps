@@ -11,8 +11,8 @@ interface WriteFooterProps {
 
 export function WriteFooter({ isLoading }: WriteFooterProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
-  const { isEnabled, onToggle, onSubmitted } = useNotificationToggle();
-  const shouldShowCta = true;
+  const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
+    useNotificationToggle();
 
   return (
     <span

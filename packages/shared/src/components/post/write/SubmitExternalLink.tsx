@@ -1,12 +1,11 @@
 import React, { FormEventHandler, ReactElement, useState } from 'react';
-import { ExternalLinkPreview } from '../../../graphql/posts';
+import { ExternalLinkPreview, ReadHistoryPost } from '../../../graphql/posts';
 import { TextField } from '../../fields/TextField';
 import { Loader } from '../../Loader';
 import LinkIcon from '../../icons/Link';
 import { ClickableText } from '../../buttons/ClickableText';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { usePostToSquad } from '../../../hooks';
 import useDebounce from '../../../hooks/useDebounce';
 import { isValidHttpUrl } from '../../../lib/links';
 import { Image } from '../../image/Image';
@@ -15,22 +14,27 @@ import OpenLinkIcon from '../../icons/OpenLink';
 import { SourceAvatar } from '../../profile/source';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 
-export function SubmitExternalLink(): ReactElement {
+interface SubmitExternalLinkProps {
+  preview: ExternalLinkPreview;
+  isLoadingPreview: boolean;
+  getLinkPreview: (value: string) => void;
+  onSelectedHistory: (post: ReadHistoryPost) => void;
+}
+
+export function SubmitExternalLink({
+  onSelectedHistory,
+  isLoadingPreview,
+  getLinkPreview,
+  preview,
+}: SubmitExternalLinkProps): ReactElement {
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
-  const [preview, setPreview] = useState<ExternalLinkPreview>();
-  const { getLinkPreview, isLoadingPreview } = usePostToSquad({
-    callback: {
-      onSuccess: (data, link) => setPreview({ ...data, url: link }),
-    },
-  });
+  const label = `Enter URL${url === undefined ? ' / Choose from' : ''}`;
   const [checkUrl] = useDebounce((value: string) => {
-    if (!isValidHttpUrl(value) || value === preview.url) return null;
+    if (!isValidHttpUrl(value) || value === preview?.url) return null;
 
     return getLinkPreview(value);
   }, 1000);
-
-  const label = `Enter URL${url === undefined ? ' / Choose from' : ''}`;
 
   const onInput: FormEventHandler<HTMLInputElement> = (e) => {
     const { value } = e.currentTarget;
@@ -39,6 +43,7 @@ export function SubmitExternalLink(): ReactElement {
   };
 
   const imageClass = 'w-28 h-16 rounded-12 bg-theme-label-disabled';
+  const link = preview?.url ?? preview?.permalink ?? url;
 
   if (preview || isLoadingPreview) {
     return (
@@ -51,7 +56,7 @@ export function SubmitExternalLink(): ReactElement {
           inputId="preview_url"
           fieldType="tertiary"
           className={{ container: 'w-full' }}
-          value={preview?.url ?? preview?.permalink ?? url}
+          value={link}
         />
         <div className="flex relative flex-row gap-3 items-center py-5 px-4">
           {isLoadingPreview && (
@@ -88,6 +93,11 @@ export function SubmitExternalLink(): ReactElement {
             icon={<OpenLinkIcon />}
             className="btn-tertiary"
             disabled={isLoadingPreview}
+            type="button"
+            tag="a"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={link}
           />
         </div>
       </div>
@@ -113,7 +123,9 @@ export function SubmitExternalLink(): ReactElement {
           onClick={() =>
             openModal({
               type: LazyModal.ReadingHistory,
-              props: { onArticleSelected: ({ post }) => setPreview(post) },
+              props: {
+                onArticleSelected: ({ post }) => onSelectedHistory(post),
+              },
             })
           } // open history and select
           type="button"

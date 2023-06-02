@@ -12,8 +12,6 @@ import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import { WritePostContext } from '@dailydotdev/shared/src/contexts';
-import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
@@ -36,12 +34,10 @@ enum WriteFormTab {
 }
 
 function CreatePost(): ReactElement {
-  const { query, push } = useRouter();
+  const { push } = useRouter();
   const { squads } = useAuthContext();
   const [selected, setSelected] = useState(-1);
-  const squad = squads?.find(({ id, handle }) =>
-    [id, handle].includes(query?.handle as string),
-  );
+  const squad = squads?.[selected];
   const [display, setDisplay] = useState(WriteFormTab.Share);
   const { displayToast } = useToastNotification();
   const { onAskConfirmation, draft, updateDraft, formRef, clearDraft } =
@@ -69,6 +65,11 @@ function CreatePost(): ReactElement {
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
     if (isPosting || isSuccess) return null;
 
+    if (!squad) {
+      displayToast('Select a Squad to post to!');
+      return null;
+    }
+
     return onCreatePost({ ...params, sourceId: squad.id });
   };
 
@@ -93,7 +94,11 @@ function CreatePost(): ReactElement {
         >
           <Tab label={WriteFormTab.Share} className="px-6">
             <SquadsDropdown onSelect={setSelected} selected={selected} />
-            <ShareLink squad={squad} className="mt-4" />
+            <ShareLink
+              squad={squad}
+              className="mt-4"
+              onPostSuccess={() => push(squad.permalink)}
+            />
           </Tab>
           <Tab label={WriteFormTab.NewPost} className="px-6">
             <SquadsDropdown onSelect={setSelected} selected={selected} />

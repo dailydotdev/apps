@@ -32,7 +32,6 @@ function SharePostBar({
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const onSharedSuccessfully = () => setUrl('');
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
-    onEmptyUrl: () => onNewSquadPost({ preview: { url: '' } }),
     callback: {
       onSuccess: (preview, link) =>
         onNewSquadPost({
