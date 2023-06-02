@@ -108,9 +108,8 @@ export function SquadComment({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onSubmitForm = (e?: FormEvent<HTMLFormElement>) => {
+  const onSubmitForm = (e?: FormEvent<HTMLFormElement>) => 
     onSubmit(e, commentary);
-  };
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const pressedSpecialkey = e.ctrlKey || e.metaKey;
@@ -145,7 +144,6 @@ export function SquadComment({
               ref={textinput}
             />
           </span>
-          123
           <PostPreview
             className="mb-4"
             preview={preview}
