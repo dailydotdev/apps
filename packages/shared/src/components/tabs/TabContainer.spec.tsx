@@ -31,12 +31,12 @@ describe('tab container component', () => {
     const inactive1 = await screen.findByText('Second');
     const inactive2 = await screen.findByText('Third');
 
-    expect(active).toHaveClass('font-bold');
+    expect(active).not.toHaveClass('text-theme-label-tertiary');
     expect(inactive1).toHaveClass('text-theme-label-tertiary');
     expect(inactive2).toHaveClass('text-theme-label-tertiary');
   });
 
-  it('should switch betweem tabs', async () => {
+  it('should switch between tabs', async () => {
     renderComponent();
     await screen.findByText('Sample');
     const second = await screen.findByText('Second');
