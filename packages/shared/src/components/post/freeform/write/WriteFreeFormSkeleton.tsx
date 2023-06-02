@@ -12,7 +12,7 @@ export function WriteFreeFormSkeleton({
 }: WriteFreeFormSkeletonProps): ReactElement {
   return (
     <WritePageContainer>
-      <WritePostHeader squad={null} isEdit={isEdit} />
+      <WritePostHeader isEdit={isEdit} />
       <WritePageMain>
         <ElementPlaceholder className="w-40 h-24 rounded-16" />
         <ElementPlaceholder className="mt-6 h-12 rounded-12" />
