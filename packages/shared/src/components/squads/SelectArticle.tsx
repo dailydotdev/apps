@@ -1,14 +1,8 @@
-import React, { MouseEventHandler, ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Modal } from '../modals/common/Modal';
-import {
-  ModalState,
-  SquadStateProps,
-  SquadTitle,
-  SquadTitleColor,
-} from './utils';
+import { ModalState, SquadStateProps } from './utils';
 import ReadingHistoryPlaceholder from '../history/ReadingHistoryPlaceholder';
 import { ModalPropsContext } from '../modals/common/types';
-import { PostItem } from '../../graphql/posts';
 import { Button } from '../buttons/Button';
 import { SquadForm } from '../../graphql/squads';
 import { usePublicReadingHistory } from '../../hooks/post/usePublicReadingHistory';
