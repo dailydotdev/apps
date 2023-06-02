@@ -7,7 +7,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { cloudinary } from '../lib/image';
 import usePersistentContext from '../hooks/usePersistentContext';
-import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY } from '../lib/storage';
+import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY } from '../lib/storage';
 
 type LegoReferralBadgeProps = {
   className?: string;
@@ -24,7 +24,7 @@ const LegoReferralBadge = ({
     });
   const { openModal } = useLazyModal();
   const [isHiddenFromHeader = true] = usePersistentContext(
-    LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY,
+    LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY,
     false,
   );
 

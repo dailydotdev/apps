@@ -15,7 +15,7 @@ import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { ReferralCampaignKey } from '../hooks';
 import usePersistentContext from '../hooks/usePersistentContext';
-import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY } from '../lib/storage';
+import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY } from '../lib/storage';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -27,7 +27,7 @@ const PortalMenu = dynamic(
 export default function ProfileMenu(): ReactElement {
   const { user, logout } = useContext(AuthContext);
   const [isHiddenFromHeader] = usePersistentContext(
-    LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY,
+    LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY,
     false,
   );
   const { openModal } = useLazyModal();

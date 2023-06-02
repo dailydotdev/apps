@@ -1,5 +1,5 @@
 /* eslint-disable @dailydotdev/daily-dev-eslint-rules/no-custom-color */
-import React, { ReactElement } from 'react';
+import React, { ReactElement, MouseEvent } from 'react';
 import classNames from 'classnames';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
@@ -13,7 +13,7 @@ import { useCopyLink } from '../../hooks/useCopyLink';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY } from '../../lib/storage';
+import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY } from '../../lib/storage';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import TwitterIcon from '../icons/Twitter';
 
@@ -37,7 +37,7 @@ function LegoReferralCampaignModal({
     campaignKey,
   });
   const [isHiddenFromHeader, setHiddenFromHeader] = usePersistentContext(
-    LEGO_REFERRAL_CAMPAIGN_MAY_2023_KEY,
+    LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY,
     false,
   );
   const [, copyReferralLink] = useCopyLink(() => referralUrl);
