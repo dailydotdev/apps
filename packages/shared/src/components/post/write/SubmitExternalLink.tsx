@@ -53,6 +53,7 @@ export function SubmitExternalLink({
             isLoadingPreview ? <Loader className="mr-2" /> : <LinkIcon />
           }
           label="URL"
+          type="url"
           inputId="preview_url"
           fieldType="tertiary"
           className={{ container: 'w-full' }}
@@ -109,6 +110,7 @@ export function SubmitExternalLink({
       <TextField
         className={{ container: 'flex-1 w-full' }}
         inputId="url"
+        type="url"
         label={label}
         fieldType="tertiary"
         leftIcon={<LinkIcon />}
