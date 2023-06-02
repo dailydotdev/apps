@@ -276,10 +276,12 @@ export const REFERRAL_CAMPAIGN_QUERY = gql`
   }
 `;
 
-export const GET_USERNAME_BY_ID_QUERY = gql`
+export const GET_REFERRING_USER_QUERY = gql`
   query User($id: ID!) {
     user(id: $id) {
-      username
+      id
+      name
+      image
     }
   }
 `;
