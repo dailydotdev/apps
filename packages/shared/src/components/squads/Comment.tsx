@@ -108,7 +108,7 @@ export function SquadComment({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onSubmitForm = (e?: FormEvent<HTMLFormElement>) => 
+  const onSubmitForm = (e?: FormEvent<HTMLFormElement>) =>
     onSubmit(e, commentary);
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
