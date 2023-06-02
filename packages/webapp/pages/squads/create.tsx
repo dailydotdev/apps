@@ -97,8 +97,9 @@ function CreatePost(): ReactElement {
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}
           shouldMountInactive
+          className={{ header: 'px-1' }}
         >
-          <Tab label={WriteFormTab.Share} className="px-6">
+          <Tab label={WriteFormTab.Share} className="px-5">
             <SquadsDropdown onSelect={setSelected} selected={selected} />
             <ShareLink
               squad={squad}
@@ -106,7 +107,7 @@ function CreatePost(): ReactElement {
               onPostSuccess={() => push(squad.permalink)}
             />
           </Tab>
-          <Tab label={WriteFormTab.NewPost} className="px-6">
+          <Tab label={WriteFormTab.NewPost} className="px-5">
             <SquadsDropdown onSelect={setSelected} selected={selected} />
             <WriteFreeformContent className="mt-6" />
           </Tab>
