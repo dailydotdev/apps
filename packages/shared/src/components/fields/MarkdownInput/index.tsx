@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   TextareaHTMLAttributes,
   useRef,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import { MarkdownIcon } from '../../icons';
@@ -16,6 +17,8 @@ import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 import { markdownGuide } from '../../../lib/constants';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import TabContainer, { Tab } from '../../tabs/TabContainer';
+import MarkdownPreview from '../MarkdownPreview';
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
@@ -25,6 +28,11 @@ interface MarkdownInputProps
     'className'
   >;
   showMarkdownGuide?: boolean;
+}
+
+enum MarkdownDisplay {
+  Write = 'write',
+  Preview = 'preview',
 }
 
 function MarkdownInput({
@@ -38,6 +46,7 @@ function MarkdownInput({
   enabledCommand,
   showMarkdownGuide = true,
 }: MarkdownInputProps): ReactElement {
+  const [display, setDisplay] = useState(MarkdownDisplay.Write);
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
   const uploadRef = useRef<HTMLInputElement>();
@@ -76,17 +85,28 @@ function MarkdownInput({
         className,
       )}
     >
-      <textarea
-        {...textareaProps}
-        {...callbacks}
-        ref={textareaRef}
-        className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
-        placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
-        value={input}
-        onClick={() => checkMention()}
-        onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
-        rows={10}
-      />
+      <TabContainer
+        shouldMountInactive={false}
+        className={{ header: 'px-1', container: 'min-h-[20.5rem]' }}
+        tabListProps={{ className: { indicator: '!w-6' } }}
+      >
+        <Tab label="Write">
+          <textarea
+            {...textareaProps}
+            {...callbacks}
+            ref={textareaRef}
+            className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
+            placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
+            value={input}
+            onClick={() => checkMention()}
+            onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
+            rows={11}
+          />
+        </Tab>
+        <Tab label="Preview" className="p-4">
+          <MarkdownPreview input={input} sourceId={sourceId} />
+        </Tab>
+      </TabContainer>
       <RecommendedMentionTooltip
         elementRef={textareaRef}
         offset={offset}
