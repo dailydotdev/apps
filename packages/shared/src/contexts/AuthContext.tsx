@@ -16,6 +16,7 @@ import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 import { Squad } from '../graphql/sources';
+import { getCookieObject } from '../lib/cookie';
 
 export interface LoginState {
   trigger: AuthTriggersOrString;
@@ -29,6 +30,7 @@ type LoginOptions = Omit<LoginState, 'trigger'>;
 export interface AuthContextData {
   user?: LoggedUser;
   referral?: string;
+  referralOrigin?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
   showLogin: (trigger: AuthTriggersOrString, options?: LoginOptions) => void;
@@ -120,7 +122,29 @@ export const AuthContextProvider = ({
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
-  const referral = user?.referrer;
+  const referralCampaign = useMemo<{
+    referralId: string;
+    referralOrigin: string;
+  }>(() => {
+    const cookie = typeof window !== 'undefined' ? getCookieObject() : {};
+    const { join_referral: joinReferralCookie } = cookie as Partial<{
+      join_referral: string;
+    }>;
+
+    if (!joinReferralCookie) {
+      return undefined;
+    }
+
+    const [referralId, referralOrigin] = joinReferralCookie.split(':');
+
+    return {
+      referralId,
+      referralOrigin,
+    };
+  }, []);
+
+  const referral = referralCampaign?.referralId || user?.referrer;
+  const referralOrigin = referralCampaign?.referralOrigin;
 
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout();
@@ -134,6 +158,7 @@ export const AuthContextProvider = ({
     () => ({
       user: endUser,
       referral: loginState?.referral ?? referral,
+      referralOrigin,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,

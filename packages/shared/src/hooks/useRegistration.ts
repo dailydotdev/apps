@@ -52,7 +52,7 @@ const useRegistration = ({
 }: UseRegistrationProps): UseRegistration => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
-  const { trackingId, referral } = useContext(AuthContext);
+  const { trackingId, referral, referralOrigin } = useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const { data: registration, isLoading: isQueryLoading } = useQuery(
     key,
@@ -114,6 +114,7 @@ const useRegistration = ({
       csrf_token: getNodeValue('csrf_token', nodes),
       'traits.userId': trackingId,
       'traits.referral': referral,
+      'traits.referralOrigin': referralOrigin,
       'traits.timezone': timezone,
     };
 
@@ -148,6 +149,7 @@ const useRegistration = ({
       'traits.image': '',
       'traits.userId': trackingId,
       'traits.referral': referral,
+      'traits.referralOrigin': referralOrigin,
       'traits.timezone': timezone,
       'traits.acceptedMarketing': false,
     };
