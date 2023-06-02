@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   TextareaHTMLAttributes,
   useRef,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import { MarkdownIcon } from '../../icons';
@@ -30,11 +29,6 @@ interface MarkdownInputProps
   showMarkdownGuide?: boolean;
 }
 
-enum MarkdownDisplay {
-  Write = 'write',
-  Preview = 'preview',
-}
-
 function MarkdownInput({
   className,
   postId,
@@ -46,7 +40,6 @@ function MarkdownInput({
   enabledCommand,
   showMarkdownGuide = true,
 }: MarkdownInputProps): ReactElement {
-  const [display, setDisplay] = useState(MarkdownDisplay.Write);
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
   const uploadRef = useRef<HTMLInputElement>();
