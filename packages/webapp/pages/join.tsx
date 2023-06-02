@@ -19,7 +19,7 @@ import {
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import request from 'graphql-request';
 import { GetServerSideProps } from 'next';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
@@ -31,17 +31,29 @@ import {
   ModalSize,
 } from '@dailydotdev/shared/src/components/modals/common/types';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { useRouter } from 'next/router';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
 type PageProps = {
   referringUser: Pick<PublicProfile, 'id' | 'name' | 'image'>;
 };
 
 const Page = ({ referringUser }: PageProps): ReactElement => {
+  const router = useRouter();
+  const { user } = useContext(AuthContext);
   const [isVideoOpen, setVideoOpen] = useState(false);
 
   const onVideoModalClose = () => {
     setVideoOpen(false);
   };
+
+  useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
+    router.replace('/');
+  }, [user?.id, router]);
 
   return (
     <div className="flex p-8 pr-0 h-[100vh]">
