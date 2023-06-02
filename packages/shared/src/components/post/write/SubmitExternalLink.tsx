@@ -1,4 +1,5 @@
 import React, { FormEventHandler, ReactElement, useState } from 'react';
+import classNames from 'classnames';
 import { ExternalLinkPreview, ReadHistoryPost } from '../../../graphql/posts';
 import { TextField } from '../../fields/TextField';
 import { Loader } from '../../Loader';
@@ -13,6 +14,8 @@ import { Button } from '../../buttons/Button';
 import OpenLinkIcon from '../../icons/OpenLink';
 import { SourceAvatar } from '../../profile/source';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
+import useMedia from '../../../hooks/useMedia';
+import { tablet } from '../../../styles/media';
 
 interface SubmitExternalLinkProps {
   preview: ExternalLinkPreview;
@@ -27,9 +30,11 @@ export function SubmitExternalLink({
   getLinkPreview,
   preview,
 }: SubmitExternalLinkProps): ReactElement {
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
-  const label = `Enter URL${url === undefined ? ' / Choose from' : ''}`;
+  const shouldShorten = url !== undefined || isMobile;
+  const label = `Enter URL${shouldShorten ? '' : ' / Choose from'}`;
   const [checkUrl] = useDebounce((value: string) => {
     if (!isValidHttpUrl(value) || value === preview?.url) return null;
 
@@ -106,7 +111,12 @@ export function SubmitExternalLink({
   }
 
   return (
-    <span className="flex relative flex-row items-center">
+    <span
+      className={classNames(
+        'flex relative flex-col tablet:flex-row items-center',
+        isMobile ? 'border border-theme-divider-tertiary rounded-16' : '',
+      )}
+    >
       <TextField
         className={{ container: 'flex-1 w-full' }}
         inputId="url"
@@ -118,10 +128,15 @@ export function SubmitExternalLink({
         onInput={onInput}
         onFocus={() => !url?.length && setUrl('')}
       />
-      {url === undefined && (
+      {(url === undefined || isMobile) && (
         <ClickableText
-          className="hidden tablet:flex absolute left-56 ml-3 font-bold reading-history hover:text-theme-label-primary"
-          inverseUnderline
+          className={classNames(
+            'font-bold reading-history hover:text-theme-label-primary',
+            isMobile
+              ? 'py-4 w-full justify-center'
+              : 'hidden tablet:flex absolute left-56 ml-3',
+          )}
+          inverseUnderline={!isMobile}
           onClick={() =>
             openModal({
               type: LazyModal.ReadingHistory,
@@ -129,10 +144,10 @@ export function SubmitExternalLink({
                 onArticleSelected: ({ post }) => onSelectedHistory(post),
               },
             })
-          } // open history and select
+          }
           type="button"
         >
-          reading history
+          {isMobile ? 'Choose from reading history' : 'reading history'}
         </ClickableText>
       )}
     </span>
