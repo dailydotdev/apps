@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, useState } from 'react';
+import { nextTick } from '../../lib/func';
 
 interface TabListProps {
   items: string[];
@@ -15,8 +16,9 @@ function TabList({ items, active, onClick }: TabListProps): ReactElement {
       {items.map((tab) => (
         <button
           key={tab}
-          ref={(el) => {
+          ref={async (el) => {
             if (!el || offset === el?.offsetLeft || tab !== active) return;
+            await nextTick();
 
             const value = el.getBoundingClientRect().width / 2 + el.offsetLeft;
             setOffset(value);
@@ -39,10 +41,12 @@ function TabList({ items, active, onClick }: TabListProps): ReactElement {
           </span>
         </button>
       ))}
-      <div
-        className="absolute bottom-0 mx-auto w-16 h-0.5 rounded ease-linear -translate-x-1/2 transition-[left] bg-theme-label-primary"
-        style={{ left: offset }}
-      />
+      {offset !== undefined && (
+        <div
+          className="absolute bottom-0 mx-auto w-16 h-0.5 rounded ease-linear -translate-x-1/2 transition-[left] bg-theme-label-primary"
+          style={{ left: offset }}
+        />
+      )}
     </ul>
   );
 }

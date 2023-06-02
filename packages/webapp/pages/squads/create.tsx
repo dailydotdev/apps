@@ -3,6 +3,7 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
   WriteFreeformContent,
+  WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from 'react-query';
@@ -19,6 +20,7 @@ import {
   ShareLink,
   SquadsDropdown,
 } from '@dailydotdev/shared/src/components/post/write';
+import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -35,7 +37,7 @@ enum WriteFormTab {
 
 function CreatePost(): ReactElement {
   const { push } = useRouter();
-  const { squads } = useAuthContext();
+  const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const [selected, setSelected] = useState(-1);
   const squad = squads?.[selected];
   const [display, setDisplay] = useState(WriteFormTab.Share);
@@ -72,6 +74,10 @@ function CreatePost(): ReactElement {
 
     return onCreatePost({ ...params, sourceId: squad.id });
   };
+
+  if (!isFetched || !isAuthReady) return <WriteFreeFormSkeleton />;
+
+  if (!user || (!squads?.length && isAuthReady)) return <Unauthorized />;
 
   return (
     <WritePostContext.Provider

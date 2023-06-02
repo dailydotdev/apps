@@ -48,6 +48,7 @@ export interface AuthContextData {
   refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   accessToken?: AccessToken;
   squads?: Squad[];
+  isAuthReady?: boolean;
 }
 const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -132,6 +133,7 @@ export const AuthContextProvider = ({
 
   const authContext: AuthContextData = useMemo(
     () => ({
+      isAuthReady: firstLoad,
       user: endUser,
       referral: loginState?.referral ?? referral,
       isFirstVisit: user?.isFirstVisit ?? false,
@@ -174,6 +176,7 @@ export const AuthContextProvider = ({
       visit,
       accessToken,
       squads,
+      firstLoad,
     ],
   );
 
