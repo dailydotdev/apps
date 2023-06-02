@@ -72,8 +72,6 @@ export function setOnError(
   onError = newOnError;
 }
 
-const ImageComponent = forwardRef(Image);
-
 function ProfilePictureComponent(
   {
     user,
@@ -94,7 +92,7 @@ function ProfilePictureComponent(
 
   if (nativeLazyLoading) {
     return (
-      <ImageComponent
+      <Image
         {...props}
         ref={ref}
         src={user.image}

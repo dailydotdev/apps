@@ -1,4 +1,5 @@
 import React, {
+  forwardRef,
   ImgHTMLAttributes,
   ReactElement,
   Ref,
@@ -10,7 +11,7 @@ interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
 }
 
-export const Image = (
+const ImageComponent = (
   { fallbackSrc, ...props }: ImageProps,
   ref: Ref<HTMLImageElement> = null,
 ): ReactElement => {
@@ -29,3 +30,5 @@ export const Image = (
   // eslint-disable-next-line jsx-a11y/alt-text
   return <img {...props} ref={ref} onError={onError} />;
 };
+
+export const Image = forwardRef(ImageComponent);
