@@ -30,17 +30,11 @@ import {
   ModalKind,
   ModalSize,
 } from '@dailydotdev/shared/src/components/modals/common/types';
-import dynamic from 'next/dynamic';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 
 type PageProps = {
   referringUser: Pick<PublicProfile, 'id' | 'name' | 'image'>;
 };
-
-const Modal = dynamic(() =>
-  import(
-    /* webpackChunkName: "modal" */ '@dailydotdev/shared/src/components/modals/common/Modal'
-  ).then((mod) => mod.Modal),
-);
 
 const Page = ({ referringUser }: PageProps): ReactElement => {
   const [isVideoOpen, setVideoOpen] = useState(false);
