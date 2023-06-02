@@ -6,6 +6,7 @@ import React, {
   ReactNode,
   Ref,
   SyntheticEvent,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 
@@ -40,7 +41,7 @@ function LazyImageComponent(
   }: LazyImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement {
-  // const { asyncImageSupport } = useContext(ProgressiveEnhancementContext);
+  const [retries, setRetries] = useState(0);
   const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${
     fit === 'cover' ? 'object-cover' : 'object-contain'
   }`;
@@ -59,7 +60,10 @@ function LazyImageComponent(
   }
 
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
+    if (retries >= 3) return;
+
     if (fallbackSrc) {
+      setRetries((value) => value + 1);
       // eslint-disable-next-line no-param-reassign
       event.currentTarget.src = fallbackSrc;
     }

@@ -1,17 +1,31 @@
-import React, { ImgHTMLAttributes, ReactElement, SyntheticEvent } from 'react';
+import React, {
+  ImgHTMLAttributes,
+  ReactElement,
+  Ref,
+  SyntheticEvent,
+  useState,
+} from 'react';
 
 interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
 }
 
-export const Image = ({ fallbackSrc, ...props }: ImageProps): ReactElement => {
+export const Image = (
+  { fallbackSrc, ...props }: ImageProps,
+  ref: Ref<HTMLImageElement> = null,
+): ReactElement => {
+  const [retries, setRetries] = useState(0);
+
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
+    if (retries >= 3) return;
+
     if (fallbackSrc) {
+      setRetries((value) => value + 1);
       // eslint-disable-next-line no-param-reassign
       event.currentTarget.src = fallbackSrc;
     }
   };
 
   // eslint-disable-next-line jsx-a11y/alt-text
-  return <img {...props} onError={onError} />;
+  return <img {...props} ref={ref} onError={onError} />;
 };

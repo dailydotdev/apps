@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
+import { Image } from './image/Image';
 
 export type ProfileImageSize =
   | 'xsmall'
@@ -71,6 +72,8 @@ export function setOnError(
   onError = newOnError;
 }
 
+const ImageComponent = forwardRef(Image);
+
 function ProfilePictureComponent(
   {
     user,
@@ -91,7 +94,7 @@ function ProfilePictureComponent(
 
   if (nativeLazyLoading) {
     return (
-      <img
+      <ImageComponent
         {...props}
         ref={ref}
         src={user.image}
