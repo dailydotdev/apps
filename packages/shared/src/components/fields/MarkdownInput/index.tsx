@@ -18,6 +18,8 @@ import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import TabContainer, { Tab } from '../../tabs/TabContainer';
 import MarkdownPreview from '../MarkdownPreview';
+import { isNullOrUndefined } from '../../../lib/func';
+import { SavingLabel } from './SavingLabel';
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
@@ -27,6 +29,7 @@ interface MarkdownInputProps
     'className'
   >;
   showMarkdownGuide?: boolean;
+  isUpdatingDraft?: boolean;
 }
 
 function MarkdownInput({
@@ -39,6 +42,7 @@ function MarkdownInput({
   textareaProps = {},
   enabledCommand,
   showMarkdownGuide = true,
+  isUpdatingDraft,
 }: MarkdownInputProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
@@ -74,10 +78,16 @@ function MarkdownInput({
   return (
     <div
       className={classNames(
-        'flex flex-col bg-theme-float rounded-16',
+        'relative flex flex-col bg-theme-float rounded-16',
         className,
       )}
     >
+      {!isNullOrUndefined(isUpdatingDraft) && (
+        <SavingLabel
+          className="absolute top-3 right-3"
+          isUpdating={isUpdatingDraft}
+        />
+      )}
       <TabContainer
         shouldMountInactive={false}
         className={{ header: 'px-1', container: 'min-h-[20.5rem]' }}
@@ -135,8 +145,8 @@ function MarkdownInput({
         )}
         <ConditionalWrapper
           condition={sidebarRendered}
-          wrapper={(children) => (
-            <span className="flex flex-row gap-3 ml-auto">{children}</span>
+          wrapper={(component) => (
+            <span className="flex flex-row gap-3 ml-auto">{component}</span>
           )}
         >
           {onLinkCommand && (

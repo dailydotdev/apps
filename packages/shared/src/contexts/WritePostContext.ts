@@ -21,6 +21,7 @@ export interface WritePostProps {
   formRef?: MutableRefObject<HTMLFormElement>;
   draft?: Partial<WriteForm>;
   updateDraft?: (props: Partial<WriteForm>) => Promise<void>;
+  isUpdatingDraft?: boolean;
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
