@@ -86,7 +86,7 @@ const Page = ({ referringUser }: PageProps): ReactElement => {
             <br />
             <b className="text-cabbage-40">Developers Deserve</b>
           </h1>
-          <p className="mb-10 text-center laptop:text-left text-salt-90 laptop:typo-title2 typo-headline">
+          <p className="mb-10 text-center laptop:text-left text-salt-90 !font-normal laptop:typo-title2 typo-headline">
             Get one personalized feed for all the knowledge you need. Make
             learning a daily habit or just do something useful while you&apos;re
             in endless meetings&nbsp;😜
