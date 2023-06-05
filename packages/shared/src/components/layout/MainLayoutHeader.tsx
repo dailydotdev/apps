@@ -19,6 +19,8 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -59,6 +61,7 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const hideButton = showOnlyLogo || loadingUser;
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
 
   const headerButton = (() => {
     if (hideButton) {
@@ -111,7 +114,11 @@ function MainLayoutHeader({
               />
             )}
           </div>
-          {showPostButton && <CreatePostButton className="mr-2" />}
+          {showPostButton && (
+            <CreatePostButton
+              className={!optOutWeeklyGoal && !isMobile && 'tablet: mr-2'}
+            />
+          )}
           {!hideButton && user && (
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
@@ -142,7 +149,7 @@ function MainLayoutHeader({
           )}
           {additionalButtons}
           {headerButton}
-          {!sidebarRendered && !optOutWeeklyGoal && (
+          {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
             <MobileHeaderRankProgress />
           )}
         </>
