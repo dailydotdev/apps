@@ -18,6 +18,7 @@ import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
+import { CreatePostButton } from '../post/write';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -30,6 +31,7 @@ export interface MainLayoutHeaderProps extends ShouldShowLogoProps {
   showOnlyLogo?: boolean;
   optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
+  showPostButton?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   onMobileSidebarToggle: (state: boolean) => unknown;
 }
@@ -46,6 +48,7 @@ function MainLayoutHeader({
   hasBanner,
   mobileTitle,
   showOnlyLogo,
+  showPostButton,
   sidebarRendered,
   optOutWeeklyGoal,
   additionalButtons,
@@ -108,9 +111,10 @@ function MainLayoutHeader({
               />
             )}
           </div>
+          {showPostButton && <CreatePostButton className="mr-2" />}
           {!hideButton && user && (
             <LinkWithTooltip
-              tooltip={{ placement: 'left', content: 'Notifications' }}
+              tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
               <Button
