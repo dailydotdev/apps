@@ -4,8 +4,6 @@ import { CSSTransition } from 'react-transition-group';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
-import useMedia from '../hooks/useMedia';
-import { laptop } from '../styles/media';
 
 interface LogoProps {
   className?: string;
@@ -22,8 +20,6 @@ export default function Logo({
   onLogoClick,
   hideTextMobile = false,
 }: LogoProps): ReactElement {
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
-
   return (
     <LinkWithTooltip
       href={process.env.NEXT_PUBLIC_WEBAPP_URL}
@@ -35,28 +31,27 @@ export default function Logo({
       <a
         className={classNames(
           'flex items-center',
-          isTablet && 'absolute left-1/2 -translate-x-1/2 top-4 mt-0.5',
+          'absolute left-1/2 -translate-x-1/2 top-4 mt-0.5',
+          'laptop:relative laptop:left-[unset] laptop:top-[unset] laptop:translate-x-[unset] laptop:mt-0',
           className,
         )}
         onClick={onLogoClick}
       >
         <LogoIcon className={logoClassName} />
-        {!isTablet && (
-          <CSSTransition
-            in={!showGreeting}
-            timeout={500}
-            classNames="fade"
-            unmountOnExit
-          >
-            <LogoText
-              className={classNames(
-                'ml-1',
-                logoClassName,
-                hideTextMobile && 'hidden laptop:block',
-              )}
-            />
-          </CSSTransition>
-        )}
+        <CSSTransition
+          in={!showGreeting}
+          timeout={500}
+          classNames="fade"
+          unmountOnExit
+        >
+          <LogoText
+            className={classNames(
+              'ml-1',
+              logoClassName,
+              hideTextMobile && 'hidden laptop:block',
+            )}
+          />
+        </CSSTransition>
       </a>
     </LinkWithTooltip>
   );
