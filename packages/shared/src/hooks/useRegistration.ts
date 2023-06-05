@@ -63,11 +63,14 @@ const useRegistration = ({
   );
 
   const getReferralTraits = useCallback(() => {
-    if (
-      referralOrigin === ReferralOriginKey.LegoMay2023 &&
-      !checkIsExtension()
-    ) {
-      return {};
+    if (referralOrigin === ReferralOriginKey.LegoMay2023) {
+      const url = new URL(window.location.href);
+      const isEligibleForOrigin =
+        checkIsExtension() || url.searchParams.get('ref') === 'install';
+
+      if (!isEligibleForOrigin) {
+        return {};
+      }
     }
 
     return {
