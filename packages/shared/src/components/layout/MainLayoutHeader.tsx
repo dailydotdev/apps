@@ -115,6 +115,7 @@ function MainLayoutHeader({
               <LegoReferralBadge
                 className="mr-3"
                 campaignKey={ReferralCampaignKey.LegoMay2023}
+                autoOpenModal
               />
               <LinkWithTooltip
                 tooltip={{ placement: 'left', content: 'Notifications' }}
