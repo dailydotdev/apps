@@ -15,6 +15,7 @@ const alwaysValidClasses = [
   'bg-gradient-to-t',
   'bg-theme-bg-inherit',
   'bg-gradient-to-br',
+  'bg-cover'
 ];
 const findTargetClassNames = (classNames) => {
   if (!classNames) {
