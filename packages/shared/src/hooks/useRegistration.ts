@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { QueryKey, useMutation, useQuery } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
@@ -19,6 +19,9 @@ import {
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { ReferralCampaignKey } from './useReferralCampaign';
+import { checkIsExtension } from '../lib/func';
+import { ReferralOriginKey } from '../lib/user';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -59,6 +62,21 @@ const useRegistration = ({
     () => initializeKratosFlow(AuthFlow.Registration),
     { refetchOnWindowFocus: false },
   );
+
+  const getReferralTraits = useCallback(() => {
+    if (
+      referralOrigin === ReferralOriginKey.LegoMay2023 &&
+      !checkIsExtension()
+    ) {
+      return {};
+    }
+
+    return {
+      'traits.referral': referral,
+      'traits.referralOrigin': referralOrigin,
+    };
+  }, [referral, referralOrigin]);
+
   const {
     mutateAsync: validate,
     status,
@@ -113,8 +131,7 @@ const useRegistration = ({
       method: values.method || 'password',
       csrf_token: getNodeValue('csrf_token', nodes),
       'traits.userId': trackingId,
-      'traits.referral': referral,
-      'traits.referralOrigin': referralOrigin,
+      ...getReferralTraits(),
       'traits.timezone': timezone,
     };
 
@@ -148,8 +165,7 @@ const useRegistration = ({
       'traits.name': '',
       'traits.image': '',
       'traits.userId': trackingId,
-      'traits.referral': referral,
-      'traits.referralOrigin': referralOrigin,
+      ...getReferralTraits(),
       'traits.timezone': timezone,
       'traits.acceptedMarketing': false,
     };
