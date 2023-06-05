@@ -47,7 +47,7 @@ const LegoReferralBadge = ({
   }, [campaignKey, openModal]);
 
   useEffect(() => {
-    if (!autoOpenModal) {
+    if (!autoOpenModal || !isReady) {
       return undefined;
     }
 
@@ -68,7 +68,7 @@ const LegoReferralBadge = ({
     return () => {
       mounted = false;
     };
-  }, [autoOpenModal, onOpenModal]);
+  }, [autoOpenModal, onOpenModal, isReady]);
 
   if (isHiddenFromHeader) {
     return null;
