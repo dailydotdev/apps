@@ -10,9 +10,12 @@ import SettingsIcon from './icons/Settings';
 import { IconSize } from './Icon';
 import TimerIcon from './icons/Timer';
 import { Image } from './image/Image';
-import { useActions } from '../hooks/useActions';
-import { ActionType } from '../graphql/actions';
 import { cloudinary } from '../lib/image';
+import { LazyModal } from './modals/common/types';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { ReferralCampaignKey } from '../hooks';
+import usePersistentContext from '../hooks/usePersistentContext';
+import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY } from '../lib/storage';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -23,7 +26,11 @@ const PortalMenu = dynamic(
 
 export default function ProfileMenu(): ReactElement {
   const { user, logout } = useContext(AuthContext);
-  const { checkHasCompleted } = useActions();
+  const [isHiddenFromHeader] = usePersistentContext(
+    LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY,
+    false,
+  );
+  const { openModal } = useLazyModal();
 
   if (!user) {
     return <></>;
@@ -64,9 +71,20 @@ export default function ProfileMenu(): ReactElement {
           </a>
         </Link>
       </Item>
-      {checkHasCompleted(ActionType.LegoMay2023Hide) && (
+      {isHiddenFromHeader && (
         <Item>
-          <button type="button" className="flex items-center min-w-[12.5rem]">
+          <button
+            type="button"
+            className="flex items-center min-w-[12.5rem]"
+            onClick={() => {
+              openModal({
+                type: LazyModal.LegoReferralCampaign,
+                props: {
+                  campaignKey: ReferralCampaignKey.LegoMay2023,
+                },
+              });
+            }}
+          >
             <Image
               className="mr-2"
               width={24}
