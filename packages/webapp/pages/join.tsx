@@ -125,7 +125,7 @@ const Page = ({ referringUser }: PageProps): ReactElement => {
               style={{
                 boxShadow: '0px 3px 43px rgba(206,60,243, 1)',
               }}
-              className="absolute top-1 laptop:top-1/2 left-1/2 h-20 laptop:h-28 bg-pepper-90 rounded-full transform -translate-x-1/2 -translate-y-1/2 z-[100] !w-20 laptop:!w-28"
+              className="absolute top-1 laptop:top-1/2 left-1/2 h-20 laptop:h-28 bg-pepper-90 rounded-full transform -translate-x-1/2 -translate-y-1/2 !w-20 laptop:!w-28"
               size={IconSize.XXXLarge}
             />
           </button>
@@ -147,7 +147,6 @@ const Page = ({ referringUser }: PageProps): ReactElement => {
           />
           <iframe
             className="w-full border-none aspect-video"
-            // TODO WT-1412-lego-landing-page r.daily.dev link
             src="https://www.youtube.com/embed/igZCEr3HwCg"
             title="YouTube video player"
             allow="encrypted-media;web-share"
@@ -155,12 +154,12 @@ const Page = ({ referringUser }: PageProps): ReactElement => {
           />
         </Modal>
       )}
-      {/* <div
+      <div
         style={{
           backgroundImage: `url(${cloudinary.referralCampaign.purpleEdgeGlow})`,
         }}
-        className="absolute top-0 right-0 pointer-events-none h-[100vh] w-[29.375rem]"
-      /> */}
+        className="hidden laptop:block absolute top-0 right-0 pointer-events-none h-[100vh] w-[29.375rem]"
+      />
     </div>
   );
 };
