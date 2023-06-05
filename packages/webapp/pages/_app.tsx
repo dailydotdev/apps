@@ -92,14 +92,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       return undefined;
     }
 
-    const onBeforeHistoryChange = () => {
+    const onRouteChange = () => {
       closeModal();
     };
 
-    router.events.on('beforeHistoryChange', onBeforeHistoryChange);
+    router.events.on('routeChangeStart', onRouteChange);
 
     return () => {
-      router.events.off('beforeHistoryChange', onBeforeHistoryChange);
+      router.events.off('routeChangeStart', onRouteChange);
     };
   }, [modal, closeModal, router.events]);
 
