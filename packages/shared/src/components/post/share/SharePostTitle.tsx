@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
-import { sanitize } from 'dompurify';
 import { Post } from '../../../graphql/posts';
-import styles from '../../markdown.module.css';
+import Markdown from '../../Markdown';
 
 interface SharePostTitleProps {
   post: Post;
@@ -14,12 +13,5 @@ export function SharePostTitle({ post }: SharePostTitleProps): ReactElement {
     return <p className="mt-6 whitespace-pre-line typo-title3">{post.title}</p>;
   }
 
-  return (
-    <div
-      className={styles.markdown}
-      dangerouslySetInnerHTML={{
-        __html: sanitize(post?.titleHtml, { ALLOWED_TAGS: ['a'] }),
-      }}
-    />
-  );
+  return <Markdown className="mt-6" content={post.titleHtml} />;
 }
