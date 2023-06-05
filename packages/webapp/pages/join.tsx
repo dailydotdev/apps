@@ -188,7 +188,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   const { userid: userId, cid } = query;
   const campaign = Object.values(ReferralCampaignKey).find(
     (item) => item === cid,
-  );
+  ) as ReferralCampaignKey;
 
   if (!validateUserId(userId as string) || !campaign) {
     return {
@@ -206,20 +206,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
       id: userId,
     },
   );
-
-  if (result) {
-    res.setHeader(
-      'Set-Cookie',
-      [
-        `join_referral=${userId}:${campaign}`,
-        `max-age=${1 * 365 * 24 * 60 * 60}`,
-        isDevelopment ? undefined : 'Secure',
-        `domain=${process.env.NEXT_PUBLIC_DOMAIN}`,
-      ]
-        .filter(Boolean)
-        .join('; '),
-    );
-  }
 
   res.setHeader(
     'Cache-Control',

@@ -19,7 +19,6 @@ import {
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { ReferralCampaignKey } from './useReferralCampaign';
 import { checkIsExtension } from '../lib/func';
 import { ReferralOriginKey } from '../lib/user';
 
