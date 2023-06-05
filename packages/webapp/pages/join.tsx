@@ -127,6 +127,7 @@ const Page = ({ referringUser }: PageProps): ReactElement => {
               }}
               className="absolute top-1 laptop:top-1/2 left-1/2 h-20 laptop:h-28 bg-pepper-90 rounded-full transform -translate-x-1/2 -translate-y-1/2 !w-20 laptop:!w-28"
               size={IconSize.XXXLarge}
+              secondary
             />
           </button>
         </FlexCol>
