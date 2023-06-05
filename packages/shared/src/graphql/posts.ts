@@ -42,7 +42,8 @@ export const supportedTypesForPrivateSources = [
 export interface Post {
   __typename?: string;
   id: string;
-  title: string;
+  title?: string;
+  titleHtml?: string;
   permalink?: string;
   image: string;
   content?: string;
@@ -146,6 +147,7 @@ export const POST_BY_ID_QUERY = gql`
       ...SharedPostInfo
       trending
       views
+      titleHtml
       content
       contentHtml
       sharedPost {
