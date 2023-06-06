@@ -104,29 +104,13 @@ function SquadPostContent({
           className={{
             ...className,
             onboarding: 'mb-6',
-            navigation: { actions: !canEdit && 'ml-auto', container: 'mb-6' },
+            navigation: { actions: 'ml-auto', container: 'mb-6' },
           }}
           isFallback={isFallback}
           customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
-          navigationProps={{
-            ...navigationProps,
-            children: canEdit && (
-              <Button
-                icon={<EditIcon />}
-                className="ml-auto btn-primary"
-                onClick={() =>
-                  openModal({
-                    type: LazyModal.EditWelcomePost,
-                    props: { post },
-                  })
-                }
-              >
-                Edit post
-              </Button>
-            ),
-          }}
+          navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
           post={post}
