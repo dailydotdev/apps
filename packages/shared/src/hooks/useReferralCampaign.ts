@@ -6,6 +6,8 @@ import { graphqlUrl } from '../lib/config';
 import { RequestKey, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ReferralOriginKey } from '../lib/user';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { getFeatureValue, Features } from '../lib/featureManagement';
 
 export type ReferralCampaign = {
   referredUsersCount: number;
@@ -38,9 +40,20 @@ export const campaignToReferralTargetCountMap: Record<
   [ReferralCampaignKey.LegoMay2023]: 5,
 };
 
+const campaignFeatureFlagMap: Partial<
+  Record<ReferralCampaignKey, Features<string>>
+> = {
+  [ReferralCampaignKey.LegoMay2023]: Features.LegoReferralCampaignMay2023,
+};
+
 const useReferralCampaign = ({
   campaignKey,
 }: UseReferralCampaignProps): UseReferralCampaign => {
+  const { flags } = useContext(FeaturesContext);
+  const featureFlag = campaignFeatureFlagMap[campaignKey];
+  const isCampaignEnabled = featureFlag
+    ? !!getFeatureValue(featureFlag, flags)
+    : true;
   const { requestMethod } = useRequestProtocol();
   const { user } = useContext(AuthContext);
   const queryKey = generateQueryKey(RequestKey.ReferralCampaigns, user, {
@@ -62,7 +75,7 @@ const useReferralCampaign = ({
       return result.referralCampaign;
     },
     {
-      enabled: !!user?.id,
+      enabled: !!user?.id && !!isCampaignEnabled,
     },
   );
   const referredUsersCount = data?.referredUsersCount || 0;
