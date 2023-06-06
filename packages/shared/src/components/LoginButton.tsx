@@ -4,21 +4,10 @@ import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
-import { IconProps } from './Icon';
 import { AuthTriggers } from '../lib/auth';
-
-const getAnalyticsEvent = (
-  eventName: string,
-  copy: string,
-): AnalyticsEvent => ({
-  event_name: eventName,
-  target_type: 'signup button',
-  target_id: 'header',
-  feed_item_title: copy,
-});
+import { TargetType } from '../lib/analytics';
 
 interface LoginButtonProps {
-  icon?: React.ReactElement<IconProps>;
   className?: string;
 }
 
@@ -27,6 +16,15 @@ enum ButtonCopy {
   Signup = 'Sign up',
 }
 
+const getAnalyticsEvent = (copy: ButtonCopy): AnalyticsEvent => ({
+  event_name: 'click',
+  target_type:
+    copy === ButtonCopy.Login
+      ? TargetType.LoginButton
+      : TargetType.SignupButton,
+  target_id: 'header',
+});
+
 export default function LoginButton({
   className,
 }: LoginButtonProps): ReactElement {
@@ -34,7 +32,7 @@ export default function LoginButton({
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onClick = (copy: ButtonCopy) => {
-    trackEvent(getAnalyticsEvent('click', copy));
+    trackEvent(getAnalyticsEvent(copy));
     showLogin(AuthTriggers.MainButton, { isLogin: copy === ButtonCopy.Login });
   };
 
