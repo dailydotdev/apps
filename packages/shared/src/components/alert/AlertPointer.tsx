@@ -9,7 +9,6 @@ import {
   AlertPointerContainer,
 } from './common';
 import Pointer, { PointerColor } from './Pointer';
-import { isNullOrUndefined } from '../../lib/func';
 
 interface ClassName {
   container?: string;
