@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { QueryKey, useMutation, useQuery } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
@@ -62,7 +62,7 @@ const useRegistration = ({
     { refetchOnWindowFocus: false },
   );
 
-  const getReferralTraits = useCallback(() => {
+  const referralTraits = useMemo(() => {
     if (referralOrigin === ReferralOriginKey.LegoMay2023) {
       const url = new URL(window.location.href);
       const isEligibleForOrigin =
@@ -133,7 +133,7 @@ const useRegistration = ({
       method: values.method || 'password',
       csrf_token: getNodeValue('csrf_token', nodes),
       'traits.userId': trackingId,
-      ...getReferralTraits(),
+      ...referralTraits,
       'traits.timezone': timezone,
     };
 
@@ -167,7 +167,7 @@ const useRegistration = ({
       'traits.name': '',
       'traits.image': '',
       'traits.userId': trackingId,
-      ...getReferralTraits(),
+      ...referralTraits,
       'traits.timezone': timezone,
       'traits.acceptedMarketing': false,
     };
