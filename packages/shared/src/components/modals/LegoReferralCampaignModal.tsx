@@ -1,5 +1,5 @@
 /* eslint-disable @dailydotdev/daily-dev-eslint-rules/no-custom-color */
-import React, { ReactElement, MouseEvent } from 'react';
+import React, { ReactElement, MouseEvent, useEffect } from 'react';
 import classNames from 'classnames';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
@@ -16,6 +16,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY } from '../../lib/storage';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import TwitterIcon from '../icons/Twitter';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 
 type LegoReferralCampaignModalProps = {
   campaignKey: ReferralCampaignKey;
@@ -27,6 +28,7 @@ function LegoReferralCampaignModal({
   onRequestClose,
   ...props
 }: LegoReferralCampaignModalProps): ReactElement {
+  const { trackEvent } = useAnalyticsContext();
   const {
     url: referralUrl,
     isReady,
@@ -43,6 +45,15 @@ function LegoReferralCampaignModal({
   const [, copyReferralLink] = useCopyLink(() => referralUrl);
   const { sidebarRendered } = useSidebarRendered();
   const progress = (referralCurrentCount / referralTargetCount) * 100;
+
+  useEffect(() => {
+    trackEvent({
+      event_name: 'impression',
+      target_type: 'referral popup',
+    });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!isReady) {
     return null;
@@ -111,6 +122,10 @@ function LegoReferralCampaignModal({
                   buttonSize={ButtonSize.Small}
                   onClick={() => {
                     copyReferralLink();
+
+                    trackEvent({
+                      event_name: 'copy referral link',
+                    });
                   }}
                 >
                   Copy link

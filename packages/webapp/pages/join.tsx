@@ -36,6 +36,7 @@ import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { GetServerSideProps } from 'next';
 import { NextSeo, NextSeoProps } from 'next-seo';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { defaultOpenGraph } from '../next-seo';
 
 type PageProps = {
@@ -45,6 +46,7 @@ type PageProps = {
 
 const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
   const router = useRouter();
+  const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
   const [isVideoOpen, setVideoOpen] = useState(false);
   const isDesktop = useMedia([laptop.replace('@media ', '')], [true], false);
@@ -122,6 +124,11 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
                 href={downloadBrowserExtension}
                 target="_blank"
                 buttonSize={ButtonSize.XLarge}
+                onClick={() => {
+                  trackEvent({
+                    event_name: 'download extension',
+                  });
+                }}
               >
                 <FlexCentered className="gap-2">
                   <BrowsersIcon
