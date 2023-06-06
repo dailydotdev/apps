@@ -112,11 +112,13 @@ function MainLayoutHeader({
           </div>
           {!hideButton && user && (
             <>
-              <LegoReferralBadge
-                className="mr-3"
-                campaignKey={ReferralCampaignKey.LegoMay2023}
-                autoOpenModal
-              />
+              {sidebarRendered && (
+                <LegoReferralBadge
+                  className="mr-3"
+                  campaignKey={ReferralCampaignKey.LegoMay2023}
+                  autoOpenModal
+                />
+              )}
               <LinkWithTooltip
                 tooltip={{ placement: 'left', content: 'Notifications' }}
                 href={`${webappUrl}notifications`}
