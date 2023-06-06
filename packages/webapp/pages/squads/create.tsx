@@ -1,4 +1,4 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
+import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
@@ -36,7 +36,7 @@ enum WriteFormTab {
 }
 
 function CreatePost(): ReactElement {
-  const { push } = useRouter();
+  const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const [selected, setSelected] = useState(-1);
   const squad = squads?.[selected];
@@ -64,6 +64,16 @@ function CreatePost(): ReactElement {
     },
   });
 
+  useEffect(() => {
+    const { sid } = query ?? {};
+    if (!isRouteReady || !sid || !squads?.length) return;
+
+    const preselected = squads.findIndex(({ id, handle }) =>
+      [id, handle].includes(sid as string),
+    );
+    setSelected((value) => (value >= 0 ? value : preselected));
+  }, [isRouteReady, query, squads]);
+
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
     if (isPosting || isSuccess) return null;
 
@@ -75,7 +85,9 @@ function CreatePost(): ReactElement {
     return onCreatePost({ ...params, sourceId: squad.id });
   };
 
-  if (!isFetched || !isAuthReady) return <WriteFreeFormSkeleton />;
+  if (!isFetched || !isAuthReady || !isRouteReady) {
+    return <WriteFreeFormSkeleton />;
+  }
 
   if (!user || (!squads?.length && isAuthReady)) return <Unauthorized />;
 
