@@ -70,8 +70,8 @@ export const cloudinary = {
     appScreenshot:
       'https://daily-now-res.cloudinary.com/image/upload/s--oBZh_90u--/f_auto,q_auto/v1685615660/public/daily',
     backgroundDark:
-      'https://daily-now-res.cloudinary.com/image/upload/s--PpylqK65--/f_auto,q_auto/v1685615660/public/background_Image',
+      'https://daily-now-res.cloudinary.com/image/upload/s--YzB9MTQz--/v1686039108/main-background_ciqmr7.svg',
     purpleEdgeGlow:
-      'https://daily-now-res.cloudinary.com/image/upload/s--uiRh9iWP--/v1685967636/Glow_hzxbke.svg',
+      'https://daily-now-res.cloudinary.com/image/upload/s--YYHMRc1I--/v1686039108/Glow_ximejm.svg',
   },
 };

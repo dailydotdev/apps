@@ -192,7 +192,7 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
           style={{
             backgroundImage: `url(${cloudinary.referralCampaign.purpleEdgeGlow})`,
           }}
-          className="hidden laptop:block absolute top-0 right-0 pointer-events-none h-[100vh] w-[29.375rem]"
+          className="hidden laptop:block absolute top-0 right-0 bg-center bg-no-repeat pointer-events-none h-[100vh] w-[25.875rem]"
         />
       </div>
     </>
