@@ -140,7 +140,7 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
                 </FlexCentered>
               </Button>
             </FlexCol>
-            <FlexCol className="relative mt-8 laptop:mt-0">
+            <FlexCol className="relative mt-10 laptop:mt-0">
               <button
                 className="-mx-8"
                 type="button"
@@ -157,7 +157,7 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
                   style={{
                     boxShadow: '0px 3px 43px rgba(206,60,243, 1)',
                   }}
-                  className="absolute top-1 laptop:top-1/2 left-1/2 z-1 h-20 laptop:h-28 bg-pepper-90 rounded-full transform -translate-x-1/2 -translate-y-1/2 !w-20 laptop:!w-28"
+                  className="absolute top-1 laptop:top-1/2 left-1/2 z-1 bg-pepper-90 rounded-full transform -translate-x-1/2 -translate-y-1/2 laptop:!h-28 !h-20 !w-20 laptop:!w-28"
                   size={IconSize.XXXLarge}
                   secondary
                 />
