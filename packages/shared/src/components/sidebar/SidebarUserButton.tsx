@@ -51,7 +51,7 @@ export default function SidebarUserButton({
               <ProfileMenu />
             </>
           ) : (
-            <LoginButton icon={<UserIcon />} />
+            <LoginButton />
           )}
         </li>
       )}
