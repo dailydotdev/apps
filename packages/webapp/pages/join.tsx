@@ -64,9 +64,10 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
   useEffect(() => {
     document.cookie = [
       `join_referral=${referringUser.id}:${campaign}`,
-      `max-age=${1 * 365 * 24 * 60 * 60}`,
+      `Max-Age=${1 * 365 * 24 * 60 * 60}`,
       isDevelopment ? undefined : 'Secure',
-      `domain=${process.env.NEXT_PUBLIC_DOMAIN}`,
+      `Domain=${process.env.NEXT_PUBLIC_DOMAIN}`,
+      `SameSite=Lax`,
     ]
       .filter(Boolean)
       .join('; ');
@@ -221,7 +222,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 
   res.setHeader(
     'Cache-Control',
-    `public, max-age=0, must-revalidate, s-maxage=${60}`,
+    `public, max-age=0, must-revalidate, s-maxage=${24 * 60 * 60}`,
   );
 
   return {
