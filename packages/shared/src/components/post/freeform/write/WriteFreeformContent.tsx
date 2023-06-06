@@ -48,6 +48,7 @@ export function WriteFreeformContent({
     post,
     draft,
     updateDraft,
+    isUpdatingDraft,
     formRef: propRef,
   } = useWritePostContext();
   const formRef = useRef<HTMLFormElement>();
@@ -141,6 +142,7 @@ export function WriteFreeformContent({
         initialContent={draft?.content ?? post?.content}
         textareaProps={{ name: 'content' }}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
+        isUpdatingDraft={isUpdatingDraft}
       />
       <WriteFooter isLoading={isPosting} />
     </WritePageMain>

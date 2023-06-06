@@ -24,6 +24,7 @@ interface UseDiscardPost
   formRef: MutableRefObject<HTMLFormElement>;
   isDraftReady: boolean;
   clearDraft: () => void;
+  isUpdatingDraft: boolean;
 }
 
 export const useDiscardPost = ({
@@ -32,9 +33,8 @@ export const useDiscardPost = ({
 }: UseDiscardPostProps = {}): UseDiscardPost => {
   const formRef = useRef<HTMLFormElement>();
   const draftKey = generateWritePostKey(draftIdentifier ?? post?.id);
-  const [draft, updateDraft, isDraftReady] = usePersistentContext<
-    Partial<WriteForm>
-  >(draftKey, {});
+  const [draft, updateDraft, isDraftReady, isUpdatingDraft] =
+    usePersistentContext<Partial<WriteForm>>(draftKey, {});
   const onValidateAction = useCallback(() => {
     if (!formRef.current) return true;
 
@@ -57,5 +57,6 @@ export const useDiscardPost = ({
     isDraftReady,
     formRef,
     clearDraft,
+    isUpdatingDraft,
   };
 };
