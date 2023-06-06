@@ -50,11 +50,10 @@ const alertContainerClasses: Record<AlertPlacement, string> = {
   bottom: classNames('translate-y-full bottom-0 flex-col', horizontalCenter),
 };
 
-const getCenteredOffset = (offset: number | undefined) =>
-  isNullOrUndefined(offset) ? '50%' : `calc(50% - ${offset}px)`;
+const getCenteredOffset = (offset: number) => `calc(50% - ${offset}px)`;
 
 const getContainerStyle = (
-  [xOffset, yOffset]: OffsetXY = [undefined, undefined],
+  [xOffset = 0, yOffset = 0]: OffsetXY = [0, 0],
 ): Record<AlertPlacement, CSSProperties> => ({
   left: { left: xOffset, top: getCenteredOffset(yOffset) },
   right: { right: xOffset, top: getCenteredOffset(yOffset) },
