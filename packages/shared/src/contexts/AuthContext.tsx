@@ -16,6 +16,7 @@ import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 import { Squad } from '../graphql/sources';
+import { isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
   trigger: AuthTriggersOrString;
@@ -133,7 +134,7 @@ export const AuthContextProvider = ({
 
   const authContext: AuthContextData = useMemo(
     () => ({
-      isAuthReady: firstLoad,
+      isAuthReady: !isNullOrUndefined(firstLoad),
       user: endUser,
       referral: loginState?.referral ?? referral,
       isFirstVisit: user?.isFirstVisit ?? false,
