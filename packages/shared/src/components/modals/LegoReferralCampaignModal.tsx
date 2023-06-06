@@ -3,7 +3,7 @@ import React, { ReactElement, MouseEvent, useEffect } from 'react';
 import classNames from 'classnames';
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
-import { FlexCol, FlexRow } from '../utilities';
+import { Divider, FlexCol, FlexRow } from '../utilities';
 import { Image } from '../image/Image';
 import { referralToC, twitter } from '../../lib/constants';
 import { Checkbox } from '../fields/Checkbox';
@@ -181,6 +181,7 @@ function LegoReferralCampaignModal({
                   Hide from header
                 </p>
               </Checkbox>
+              <Divider className="mr-3.5 bg-theme-divider-secondary" vertical />
               <a
                 target="_blank"
                 rel="noopener"
