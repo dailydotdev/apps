@@ -28,7 +28,7 @@ export const WelcomePostCardFooter = ({
       />
     );
   }
-  if (post.content) {
+  if (content) {
     return (
       <p className="px-2 break-words line-clamp-6 typo-callout">{content}</p>
     );
