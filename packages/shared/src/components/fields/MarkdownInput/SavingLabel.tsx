@@ -17,17 +17,17 @@ export function SavingLabel({
 }: SavingLabelProps): ReactElement {
   if (!isUptoDate && !isUpdating) return null;
 
-  const label = (() => {
+  const getLabel = () => {
     if (isUpdating) return 'Saving changes';
 
     return isUptoDate ? 'All changes saved' : '';
-  })();
+  };
 
-  const icon = (() => {
+  const getIcon = () => {
     if (isUpdating) return <Loader />;
 
     return isUptoDate ? <VIcon size={IconSize.Medium} /> : '';
-  })();
+  };
 
   return (
     <span
@@ -36,8 +36,8 @@ export function SavingLabel({
         className,
       )}
     >
-      {icon}
-      {label}
+      {getIcon()}
+      {getLabel()}
     </span>
   );
 }
