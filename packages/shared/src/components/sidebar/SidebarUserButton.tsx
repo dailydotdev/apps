@@ -6,7 +6,6 @@ import { Button } from '../buttons/Button';
 import useProfileMenu from '../../hooks/useProfileMenu';
 import AuthContext from '../../contexts/AuthContext';
 import SettingsIcon from '../icons/Settings';
-import UserIcon from '../icons/User';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
 
