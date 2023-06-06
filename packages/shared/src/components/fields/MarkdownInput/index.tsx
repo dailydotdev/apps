@@ -86,6 +86,7 @@ function MarkdownInput({
         <SavingLabel
           className="absolute top-3 right-3"
           isUpdating={isUpdatingDraft}
+          isUptoDate={initialContent === input}
         />
       )}
       <TabContainer
