@@ -22,6 +22,7 @@ export interface LoginState {
   referral?: string;
   onLoginSuccess?: () => void;
   onRegistrationSuccess?: () => void;
+  isLogin?: boolean;
 }
 
 type LoginOptions = Omit<LoginState, 'trigger'>;

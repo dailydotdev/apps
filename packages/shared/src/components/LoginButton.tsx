@@ -1,9 +1,7 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
-import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { IconProps } from './Icon';
@@ -23,34 +21,37 @@ interface LoginButtonProps {
   icon?: React.ReactElement<IconProps>;
   className?: string;
 }
+
+enum ButtonCopy {
+  Login = 'Log in',
+  Signup = 'Sign up',
+}
+
 export default function LoginButton({
-  icon,
   className,
 }: LoginButtonProps): ReactElement {
   const { showLogin } = useContext(AuthContext);
-  const { flags } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const buttonCopy = getFeatureValue(Features.SignupButtonCopy, flags);
 
-  useEffect(() => {
-    trackEvent(getAnalyticsEvent('impression', buttonCopy));
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buttonCopy]);
-
-  const onClick = () => {
-    trackEvent(getAnalyticsEvent('click', buttonCopy));
-    showLogin(AuthTriggers.MainButton);
+  const onClick = (copy: ButtonCopy) => {
+    trackEvent(getAnalyticsEvent('click', copy));
+    showLogin(AuthTriggers.MainButton, { isLogin: copy === ButtonCopy.Login });
   };
 
   return (
-    <Button
-      onClick={onClick}
-      icon={icon}
-      className={classNames(className, 'btn-primary')}
-    >
-      <span className="hidden laptop:inline">{buttonCopy}</span>
-      <span className="laptop:hidden">Sign up</span>
-    </Button>
+    <span className="flex flex-row gap-4">
+      <Button
+        onClick={() => onClick(ButtonCopy.Login)}
+        className={classNames(className, 'btn-secondary')}
+      >
+        {ButtonCopy.Login}
+      </Button>
+      <Button
+        onClick={() => onClick(ButtonCopy.Signup)}
+        className={classNames(className, 'btn-primary')}
+      >
+        {ButtonCopy.Signup}
+      </Button>
+    </span>
   );
 }
