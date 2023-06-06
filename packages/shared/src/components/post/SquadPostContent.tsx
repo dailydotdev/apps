@@ -14,13 +14,6 @@ import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
-import { Button } from '../buttons/Button';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { verifyPermission } from '../../graphql/squads';
-import { SourcePermissions, Squad } from '../../graphql/sources';
-import EditIcon from '../icons/Edit';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -46,8 +39,6 @@ function SquadPostContent({
 }: PostContentProps): ReactElement {
   const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
-  const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onSharePost, onToggleBookmark } = engagementActions;
   const { role } = useMemberRoleForSource({
@@ -76,13 +67,6 @@ function SquadPostContent({
   }, [post?.id, onSendViewPost]);
 
   const Content = ContentMap[post?.type];
-  const canEdit =
-    post.author.id === user?.id ||
-    (post.type === PostType.Welcome &&
-      verifyPermission(
-        post.source as Squad,
-        SourcePermissions.WelcomePostEdit,
-      ));
 
   return (
     <>
@@ -104,29 +88,13 @@ function SquadPostContent({
           className={{
             ...className,
             onboarding: 'mb-6',
-            navigation: { actions: !canEdit && 'ml-auto', container: 'mb-6' },
+            navigation: { actions: 'ml-auto', container: 'mb-6' },
           }}
           isFallback={isFallback}
           customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
-          navigationProps={{
-            ...navigationProps,
-            children: canEdit && (
-              <Button
-                icon={<EditIcon />}
-                className="ml-auto btn-primary"
-                onClick={() =>
-                  openModal({
-                    type: LazyModal.EditWelcomePost,
-                    props: { post },
-                  })
-                }
-              >
-                Edit post
-              </Button>
-            ),
-          }}
+          navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
           post={post}
