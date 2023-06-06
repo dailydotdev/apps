@@ -149,7 +149,7 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
                 }}
               >
                 <Image
-                  className="object-contain w-full laptopL:max-w-[1015px] laptopL:height-[633px] laptop:max-w-[650px] height-[405px]"
+                  className="object-contain w-full h-auto laptopL:max-w-[1015px] laptopL:h-[712px] laptop:max-w-[650px] laptop:h-[456px]"
                   src={cloudinary.referralCampaign.appScreenshot}
                   alt="Image showing the daily.dev"
                 />
