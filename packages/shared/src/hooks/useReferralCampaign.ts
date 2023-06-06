@@ -5,6 +5,7 @@ import { REFERRAL_CAMPAIGN_QUERY } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { RequestKey, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
+import { ReferralOriginKey } from '../lib/user';
 
 export type ReferralCampaign = {
   referredUsersCount: number;
@@ -23,7 +24,7 @@ export type UseReferralCampaign = Pick<
 };
 
 export enum ReferralCampaignKey {
-  LegoMay2023 = 'lego-0523',
+  LegoMay2023 = ReferralOriginKey.LegoMay2023,
 }
 
 export type UseReferralCampaignProps = {

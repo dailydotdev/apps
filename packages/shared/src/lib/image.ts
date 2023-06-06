@@ -67,7 +67,11 @@ export const cloudinary = {
       madeWithLove:
         'https://daily-now-res.cloudinary.com/image/upload/v1685615660/public/Made_with_love.svg',
     },
+    appScreenshot:
+      'https://daily-now-res.cloudinary.com/image/upload/s--oBZh_90u--/f_auto,q_auto/v1685615660/public/daily',
     backgroundDark:
       'https://daily-now-res.cloudinary.com/image/upload/s--PpylqK65--/f_auto,q_auto/v1685615660/public/background_Image',
+    purpleEdgeGlow:
+      'https://daily-now-res.cloudinary.com/image/upload/s--uiRh9iWP--/v1685967636/Glow_hzxbke.svg',
   },
 };

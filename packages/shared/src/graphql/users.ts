@@ -275,3 +275,13 @@ export const REFERRAL_CAMPAIGN_QUERY = gql`
     }
   }
 `;
+
+export const GET_REFERRING_USER_QUERY = gql`
+  query User($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      image
+    }
+  }
+`;
