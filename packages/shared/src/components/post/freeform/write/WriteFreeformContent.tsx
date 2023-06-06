@@ -124,7 +124,7 @@ export function WriteFreeformContent({
       </ImageInput>
       <AlertPointer
         className={{ container: 'bg-theme-bg-primary' }}
-        offset={[4, -14]}
+        offset={[0, -12]}
         message={
           <div className="flex flex-col w-64">
             <h3 className="font-bold typo-headline">First time? 👋</h3>
