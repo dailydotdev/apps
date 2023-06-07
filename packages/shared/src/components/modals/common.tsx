@@ -43,6 +43,8 @@ const ReadingHistoryModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "readingHistoryModal" */ './post/ReadingHistoryModal'
+    ),
+);
 
 const LegoReferralCampaignModal = dynamic(
   () =>
