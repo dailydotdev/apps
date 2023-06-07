@@ -72,4 +72,20 @@ export const cloudinary = {
     emptySquadLight:
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty_squad_light',
   },
+  referralCampaign: {
+    lego: {
+      piece:
+        'https://daily-now-res.cloudinary.com/image/upload/v1685615660/public/lego-piece.svg',
+      francesco:
+        'https://daily-now-res.cloudinary.com/image/upload/s--eVT2CUmp--/f_auto,q_auto/v1685612551/public/Francheco',
+      madeWithLove:
+        'https://daily-now-res.cloudinary.com/image/upload/v1685615660/public/Made_with_love.svg',
+    },
+    appScreenshot:
+      'https://daily-now-res.cloudinary.com/image/upload/s--3e8Phst3--/f_auto,q_auto/v1686045256/daily_lmzdaf',
+    backgroundDark:
+      'https://daily-now-res.cloudinary.com/image/upload/s--YzB9MTQz--/v1686039108/main-background_ciqmr7.svg',
+    purpleEdgeGlow:
+      'https://daily-now-res.cloudinary.com/image/upload/s--Va9xODJM--/v1686074969/Glow_fjelt5.svg',
+  },
 };

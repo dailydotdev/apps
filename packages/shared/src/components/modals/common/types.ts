@@ -31,6 +31,7 @@ export enum LazyModal {
   UpvotedPopup = 'upvotedPopup',
   EditWelcomePost = 'editWelcomePost',
   SquadPromotion = 'squadPromotion',
+  LegoReferralCampaign = 'legoReferralCampaign',
 }
 
 export type ModalTabItem = {
