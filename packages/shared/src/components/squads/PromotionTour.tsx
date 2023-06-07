@@ -93,7 +93,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
         key="step2"
         bannerAsBg
         className={{ banner: bannerClass }}
-        banner={cloudinary.squads.promotion.remove}
+        banner={cloudinary.squads.promotion.delete}
         title="Remove posts and comments"
         description="Uphold your squad’s standards by removing off-topic or inappropriate content."
       />,
