@@ -40,6 +40,7 @@ export enum AuthTriggers {
   HidePost = 'hide post',
   MainButton = 'main button',
   RanksModal = 'ranks modal',
+  Onboarding = 'onboarding',
   SubmitNewSource = 'submit new source',
 }
 

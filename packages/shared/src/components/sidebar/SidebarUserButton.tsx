@@ -6,7 +6,6 @@ import { Button } from '../buttons/Button';
 import useProfileMenu from '../../hooks/useProfileMenu';
 import AuthContext from '../../contexts/AuthContext';
 import SettingsIcon from '../icons/Settings';
-import { UserIcon } from '../icons';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
 import LegoReferralBadge from '../LegoReferralBadge';
@@ -57,7 +56,7 @@ export default function SidebarUserButton({
               <ProfileMenu />
             </>
           ) : (
-            <LoginButton icon={<UserIcon />} />
+            <LoginButton />
           )}
         </li>
       )}

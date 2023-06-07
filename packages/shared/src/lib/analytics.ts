@@ -69,6 +69,8 @@ export enum TargetType {
   EnableNotifications = 'enable notifications',
   CreateSquadPopup = 'create squad popup',
   OnboardingChecklist = 'onboarding checklist',
+  LoginButton = 'login button',
+  SignupButton = 'signup button',
 }
 
 export enum NotificationChannel {
