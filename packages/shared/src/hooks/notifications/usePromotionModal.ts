@@ -15,15 +15,19 @@ export const usePromotionModal = (): void => {
     const squad = squads.find(({ id, handle }) =>
       [id, handle].includes(query.sid as string),
     );
+    const { origin, pathname } = window.location;
+
     if (!squad) {
-      const { origin, pathname } = window.location;
       replace(origin + pathname);
       return;
     }
 
     openModal({
       type: LazyModal.SquadPromotion,
-      props: { handle: squad.handle },
+      props: {
+        handle: squad.handle,
+        onAfterClose: () => replace(origin + pathname),
+      },
     });
   }, [query, squads, replace, openModal]);
 };
