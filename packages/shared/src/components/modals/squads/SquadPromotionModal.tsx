@@ -16,12 +16,6 @@ export function SquadPromotionModal({
   ...props
 }: SquadPromotionModalProps): ReactElement {
   const { squad, isFetched } = useSquad({ handle });
-  const onClose = () => {
-    console.log('on close');
-    onRequestClose(null);
-  };
-
-  console.log(squad, isFetched);
 
   if (!isFetched) return null;
 
@@ -29,16 +23,16 @@ export function SquadPromotionModal({
     <Modal
       {...props}
       isOpen
-      onRequestClose={onClose}
+      onRequestClose={onRequestClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       className="overflow-hidden !border-theme-color-cabbage"
     >
-      <PromotionTour onClose={onClose} source={squad} />
+      <PromotionTour onClose={onRequestClose} source={squad} />
       <CloseButton
         buttonSize={ButtonSize.Small}
         className="top-3 right-3 !absolute !btn-secondary"
-        onClick={onClose}
+        onClick={onRequestClose}
       />
     </Modal>
   );
