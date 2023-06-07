@@ -142,7 +142,7 @@ export function WriteFreeformContent({
         textareaProps={{ name: 'content' }}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
       />
-      <WriteFooter isLoading={isPosting} />
+      <WriteFooter isLoading={isPosting} className="mt-5" />
     </WritePageMain>
   );
 }

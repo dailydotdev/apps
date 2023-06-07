@@ -97,7 +97,7 @@ function MarkdownInput({
         onClickOutside={onCloseMention}
       />
       <span className="flex flex-row gap-3 items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
-        {onUploadCommand && (
+        {!!onUploadCommand && (
           <button
             type="button"
             className={classNames(
@@ -126,7 +126,7 @@ function MarkdownInput({
             <span className="flex flex-row gap-3 ml-auto">{children}</span>
           )}
         >
-          {onLinkCommand && (
+          {!!onLinkCommand && (
             <Button
               type="button"
               buttonSize={ButtonSize.XSmall}
@@ -134,7 +134,7 @@ function MarkdownInput({
               onClick={onLinkCommand}
             />
           )}
-          {onMentionCommand && (
+          {!!onMentionCommand && (
             <Button
               type="button"
               buttonSize={ButtonSize.XSmall}
