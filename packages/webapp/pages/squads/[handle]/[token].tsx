@@ -40,6 +40,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
@@ -172,6 +173,7 @@ const SquadReferral = ({
 
     return showLogin('join squad', {
       referral: member.user.id,
+      referralOrigin: ReferralOriginKey.Squad,
       onLoginSuccess: onJoinSquad,
       onRegistrationSuccess: onJoinSquad,
     });
