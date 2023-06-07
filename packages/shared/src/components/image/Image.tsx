@@ -4,7 +4,6 @@ import React, {
   ReactElement,
   Ref,
   SyntheticEvent,
-  useState,
 } from 'react';
 
 interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
@@ -15,13 +14,8 @@ const ImageComponent = (
   { fallbackSrc, ...props }: ImageProps,
   ref: Ref<HTMLImageElement> = null,
 ): ReactElement => {
-  const [retries, setRetries] = useState(0);
-
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
-    if (retries >= 3) return;
-
-    if (fallbackSrc) {
-      setRetries((value) => value + 1);
+    if (fallbackSrc && fallbackSrc !== event.currentTarget.src) {
       // eslint-disable-next-line no-param-reassign
       event.currentTarget.src = fallbackSrc;
     }

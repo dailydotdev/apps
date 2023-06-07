@@ -14,6 +14,10 @@ const alwaysValidClasses = [
   'bg-gradient-to-l',
   'bg-gradient-to-t',
   'bg-theme-bg-inherit',
+  'bg-gradient-to-br',
+  'bg-cover',
+  'bg-no-repeat',
+  'bg-center',
 ];
 const findTargetClassNames = (classNames) => {
   if (!classNames) {

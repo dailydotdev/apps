@@ -25,6 +25,12 @@ const UpvotedPopupModal = dynamic(
 const SquadTourModal = dynamic(
   () => import(/* webpackChunkName: "squadTourModal" */ './SquadTourModal'),
 );
+const SquadPromotionModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadPromotionModal" */ './squads/SquadPromotionModal'
+    ),
+);
 
 const EditWelcomePostModal = dynamic(
   () =>
@@ -36,7 +42,14 @@ const EditWelcomePostModal = dynamic(
 const ReadingHistoryModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "editWelcomePostModal" */ './post/ReadingHistoryModal'
+      /* webpackChunkName: "readingHistoryModal" */ './post/ReadingHistoryModal'
+    ),
+);
+
+const LegoReferralCampaignModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "legoReferralCampaignModal" */ './LegoReferralCampaignModal'
     ),
 );
 
@@ -49,6 +62,8 @@ export const modals = {
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.EditWelcomePost]: EditWelcomePostModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
+  [LazyModal.SquadPromotion]: SquadPromotionModal,
+  [LazyModal.LegoReferralCampaign]: LegoReferralCampaignModal,
 };
 
 type GetComponentProps<T> = T extends
