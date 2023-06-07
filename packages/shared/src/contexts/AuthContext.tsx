@@ -21,8 +21,10 @@ import { isNullOrUndefined } from '../lib/func';
 export interface LoginState {
   trigger: AuthTriggersOrString;
   referral?: string;
+  referralOrigin?: string;
   onLoginSuccess?: () => void;
   onRegistrationSuccess?: () => void;
+  isLogin?: boolean;
 }
 
 type LoginOptions = Omit<LoginState, 'trigger'>;
@@ -30,6 +32,7 @@ type LoginOptions = Omit<LoginState, 'trigger'>;
 export interface AuthContextData {
   user?: LoggedUser;
   referral?: string;
+  referralOrigin?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
   showLogin: (trigger: AuthTriggersOrString, options?: LoginOptions) => void;
@@ -122,7 +125,8 @@ export const AuthContextProvider = ({
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
-  const referral = user?.referrer;
+  const referral = user?.referralId || user?.referrer;
+  const referralOrigin = user?.referralOrigin;
 
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout();
@@ -137,6 +141,7 @@ export const AuthContextProvider = ({
       isAuthReady: !isNullOrUndefined(firstLoad),
       user: endUser,
       referral: loginState?.referral ?? referral,
+      referralOrigin: loginState?.referralOrigin ?? referralOrigin,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,

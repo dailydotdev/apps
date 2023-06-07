@@ -60,7 +60,7 @@ export default function AuthModal({
         onSuccessfulLogin={onSuccessfulLogin}
         onSuccessfulRegistration={loginState?.onRegistrationSuccess}
         trigger={trigger}
-        isLoginFlow={isLogoutFlow}
+        isLoginFlow={isLogoutFlow || loginState?.isLogin}
         onDisplayChange={(display: Display) => setScreenValue(display)}
       />
     </Modal>

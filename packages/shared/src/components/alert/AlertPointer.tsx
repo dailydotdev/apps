@@ -39,20 +39,25 @@ const pointerClasses: Record<AlertPlacement, string> = {
   bottom: '',
 };
 
+const verticalCenter = '-translate-y-1/2';
+const horizontalCenter = '-translate-x-1/2';
+
 const alertContainerClasses: Record<AlertPlacement, string> = {
-  top: '-translate-y-full top-0 flex-col-reverse',
-  right: 'translate-x-full right-0 flex-row',
-  left: '-translate-x-full left-0 flex-row-reverse',
-  bottom: 'translate-y-full bottom-0 flex-col',
+  top: classNames('top-0 flex-col-reverse -translate-y-full', horizontalCenter),
+  right: classNames('translate-x-full right-0 flex-row', verticalCenter),
+  left: classNames('-translate-x-full left-0 flex-row-reverse', verticalCenter),
+  bottom: classNames('translate-y-full bottom-0 flex-col', horizontalCenter),
 };
+
+const getCenteredOffset = (offset: number) => `calc(50% - ${offset}px)`;
 
 const getContainerStyle = (
   [xOffset = 0, yOffset = 0]: OffsetXY = [0, 0],
 ): Record<AlertPlacement, CSSProperties> => ({
-  left: { left: xOffset, top: yOffset },
-  right: { right: xOffset, top: yOffset },
-  bottom: { bottom: yOffset, left: xOffset },
-  top: { top: yOffset, left: xOffset },
+  left: { left: xOffset, top: getCenteredOffset(yOffset) },
+  right: { right: xOffset, top: getCenteredOffset(yOffset) },
+  bottom: { bottom: yOffset, left: getCenteredOffset(xOffset) },
+  top: { top: yOffset, left: getCenteredOffset(xOffset) },
 });
 
 export interface AlertPointerProps {
