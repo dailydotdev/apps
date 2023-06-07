@@ -143,6 +143,10 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly ShowHiring = new Features('show_hiring');
 
+  static readonly LegoReferralCampaignMay2023 = new Features(
+    'lego_referral_campaign_0523',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: T,

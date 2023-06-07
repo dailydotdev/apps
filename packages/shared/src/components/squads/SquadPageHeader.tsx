@@ -119,7 +119,7 @@ export function SquadPageHeader({
               </FlexCentered>
               <Button
                 tag="a"
-                href={link.post.create}
+                href={`${link.post.create}?sid=${squad?.handle}`}
                 className="w-full tablet:w-auto btn-primary-cabbage"
               >
                 New post

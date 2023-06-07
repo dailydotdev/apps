@@ -23,6 +23,7 @@ import InfiniteScrolling, {
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
+import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 
@@ -87,6 +88,8 @@ const Notifications = (): ReactElement => {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetchedAfterMount]);
+
+  usePromotionModal();
 
   return (
     <ProtectedPage seo={seo}>

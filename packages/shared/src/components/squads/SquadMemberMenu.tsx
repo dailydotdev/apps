@@ -10,8 +10,7 @@ import {
   Squad,
 } from '../../graphql/sources';
 import BlockIcon from '../icons/Block';
-import StarIcon from '../icons/Star';
-import UserIcon from '../icons/User';
+import { StarIcon, UserIcon } from '../icons';
 import SquadIcon from '../icons/Squad';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';

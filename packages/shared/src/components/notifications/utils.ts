@@ -8,8 +8,7 @@ import DiscussIcon from '../icons/Discuss';
 import EyeIcon from '../icons/Eye';
 import UpvoteIcon from '../icons/Upvote';
 import BlockIcon from '../icons/Block';
-import UserIcon from '../icons/User';
-import StarIcon from '../icons/Star';
+import { UserIcon, StarIcon } from '../icons';
 
 export const NotifContainer = classed(
   'div',
