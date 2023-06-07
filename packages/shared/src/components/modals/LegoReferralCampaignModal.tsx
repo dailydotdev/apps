@@ -100,8 +100,8 @@ function LegoReferralCampaignModal({
             </h3>
             {!isCompleted && (
               <p className="mb-6 text-salt-50 typo-title3">
-                <b>Invite 5 friends</b> using the link below for a chance to win
-                the lego set.
+                <b>Invite 5 friends</b> before June 30th 12:00 PM PST using the
+                link below for a chance to win the lego set.
               </p>
             )}
             {isCompleted && (
