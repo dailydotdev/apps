@@ -53,6 +53,14 @@ export const cloudinary = {
       banner4_v2:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour4_v2',
     },
+    promotion: {
+      settings: '/squad_promotion_settings.png',
+      remove: '/squad_promotion_remove.png',
+      delete: '/squad_promotion_delete.png',
+      banner: '/squad_promotion_banner.png',
+      invite: '/squad_promotion_invite.png',
+      promote: '/squad_promotion_promote.png',
+    },
     emptySquad:
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty-squad',
     emptySquadLight:
