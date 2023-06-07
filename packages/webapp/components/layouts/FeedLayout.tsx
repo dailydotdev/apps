@@ -17,7 +17,7 @@ export const getLayout = (
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
   return getFooterNavBarLayout(
-    <MainLayout {...layoutProps} activePage={router?.asPath}>
+    <MainLayout {...layoutProps} showPostButton activePage={router?.asPath}>
       <FeedLayout>{page}</FeedLayout>
     </MainLayout>,
   );

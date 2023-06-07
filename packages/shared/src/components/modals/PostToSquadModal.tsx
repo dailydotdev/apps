@@ -74,9 +74,7 @@ function PostToSquadModal({
 
   const { mutateAsync: onSubmitLink, isLoading: isLinkLoading } = useMutation(
     submitExternalLink,
-    {
-      onSuccess: (submittedLinkPost) => onPostSuccess(submittedLinkPost),
-    },
+    { onSuccess: () => onPostSuccess(null) },
   );
 
   const onSubmit: SubmitSharePostFunc = async (e, commentary) => {
@@ -98,13 +96,15 @@ function PostToSquadModal({
       return displayToast('Invalid link');
     }
 
-    return onSubmitLink({
+    await onSubmitLink({
       url,
       title,
       image,
       sourceId: squad.id,
       commentary,
     });
+
+    return null;
   };
 
   const onNext = async (squadForm?: SquadForm) => {

@@ -1,6 +1,6 @@
 import React, { FormEventHandler, MutableRefObject, ReactElement } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import UserIcon from '@dailydotdev/shared/src/components/icons/User';
+import { UserIcon } from '@dailydotdev/shared/src/components/icons';
 import SitesIcon from '@dailydotdev/shared/src/components/icons/Sites';
 import {
   Modal,

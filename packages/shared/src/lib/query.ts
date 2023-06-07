@@ -22,6 +22,7 @@ export enum RequestKey {
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
   Actions = 'actions',
+  ReferralCampaigns = 'referral_campaigns',
 }
 
 export type HasConnection<
