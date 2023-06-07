@@ -8,6 +8,8 @@ import AuthContext from '../../contexts/AuthContext';
 import SettingsIcon from '../icons/Settings';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
+import LegoReferralBadge from '../LegoReferralBadge';
+import { ReferralCampaignKey } from '../../hooks';
 
 // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -36,6 +38,10 @@ export default function SidebarUserButton({
                   <ProfilePicture user={user} size="medium" />
                   <span className="mr-3 ml-2">{user.reputation ?? 0}</span>
                 </ProfileLink>
+                <LegoReferralBadge
+                  campaignKey={ReferralCampaignKey.LegoMay2023}
+                  autoOpenModal
+                />
                 <Button
                   iconOnly
                   className="btn btn-tertiary"

@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { ItemInner, ListIcon, NavItem, SidebarMenuItem } from './common';
-import UserShareIcon from '../icons/UserShare';
+import UserShareIcon from '../icons/Share';
 import AuthContext from '../../contexts/AuthContext';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ClickableNavItem } from './ClickableNavItem';

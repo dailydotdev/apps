@@ -11,6 +11,8 @@ export interface AnonymousUser {
   firstVisit?: string;
   referrer?: string;
   isFirstVisit?: boolean;
+  referralId?: string;
+  referralOrigin?: string;
 }
 
 export interface PublicProfile {
@@ -144,4 +146,9 @@ export async function getProfileSSR(id: string): Promise<PublicProfile> {
 
 export async function getProfile(id: string): Promise<PublicProfile> {
   return await getProfileRequest(fetch, id);
+}
+
+export enum ReferralOriginKey {
+  Squad = 'squad',
+  LegoMay2023 = 'lego-0523',
 }
