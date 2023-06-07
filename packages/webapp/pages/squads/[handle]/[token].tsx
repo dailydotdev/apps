@@ -215,7 +215,7 @@ const SquadReferral = ({
   }
 
   return (
-    <PageContainer className="relative justify-center items-center pt-24">
+    <PageContainer className="relative items-center pt-10 tablet:pt-20">
       <NextSeo {...seo} />
       <div className="absolute -top-4 right-0 tablet:-right-20 left-0 tablet:-left-20 h-40 rounded-26 max-w-[100vw] squad-background-fade" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
@@ -224,7 +224,7 @@ const SquadReferral = ({
         squad members can share knowledge and content in one place. Join now to
         start collaborating.
       </BodyParagraph>
-      <span className="flex flex-row items-center mt-10" data-testid="inviter">
+      <span className="flex flex-row items-center mt-8" data-testid="inviter">
         <ProfileImageLink user={user} />
         <BodyParagraph className="flex-1 ml-4">
           <HighlightedText>{user.name}</HighlightedText>{' '}
@@ -234,7 +234,7 @@ const SquadReferral = ({
           has invited you to <HighlightedText>{source.name}</HighlightedText>
         </BodyParagraph>
       </span>
-      <div className="flex flex-col p-6 my-10 w-full rounded-24 border border-theme-color-cabbage">
+      <div className="flex flex-col p-6 my-8 w-full rounded-24 border border-theme-color-cabbage">
         <span className="flex flex-row items-center">
           <SourceButton source={source} size="xxlarge" />
           <div className="flex flex-col ml-4">
