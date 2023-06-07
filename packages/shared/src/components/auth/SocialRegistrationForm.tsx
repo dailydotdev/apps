@@ -17,7 +17,7 @@ import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
-import UserIcon from '../icons/User';
+import { UserIcon } from '../icons';
 import AuthModalHeader from './AuthModalHeader';
 import { providerMap } from './common';
 import LockIcon from '../icons/Lock';

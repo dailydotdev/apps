@@ -53,6 +53,20 @@ export const cloudinary = {
       banner4_v2:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour4_v2',
     },
+    promotion: {
+      settings:
+        'https://daily-now-res.cloudinary.com/image/upload/s--t2gh6NPn--/f_auto/v1686119165/Customize_squad_settings_nepkhd',
+      remove:
+        'https://daily-now-res.cloudinary.com/image/upload/s--Eux3awhS--/f_auto/v1686120942/Remove_squad_members_jukf7z',
+      delete:
+        'https://daily-now-res.cloudinary.com/image/upload/s--wXug6Yop--/f_auto/v1686119164/Remove_posts_and_comments_pu3zjj',
+      banner:
+        'https://daily-now-res.cloudinary.com/image/upload/s--6v3E8go1--/f_auto/v1686119164/promoted-bg_k9jzgt',
+      invite:
+        'https://daily-now-res.cloudinary.com/image/upload/s--d3OMbTzl--/f_auto/v1686119165/Grow_your_squad_wtlbof',
+      promote:
+        'https://daily-now-res.cloudinary.com/image/upload/s--iMFoS7Pd--/f_auto/v1686119165/Manage_roles_and_permissions_om64cu',
+    },
     emptySquad:
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty-squad',
     emptySquadLight:

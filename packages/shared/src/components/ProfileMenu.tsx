@@ -4,7 +4,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import Link from 'next/link';
 import AuthContext from '../contexts/AuthContext';
 import PowerIcon from './icons/Power';
-import UserIcon from './icons/User';
+import { UserIcon } from './icons';
 import DevCardIcon from './icons/DevCard';
 import SettingsIcon from './icons/Settings';
 import { IconSize } from './Icon';
