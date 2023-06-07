@@ -72,6 +72,6 @@ export const cloudinary = {
     backgroundDark:
       'https://daily-now-res.cloudinary.com/image/upload/s--YzB9MTQz--/v1686039108/main-background_ciqmr7.svg',
     purpleEdgeGlow:
-      'https://daily-now-res.cloudinary.com/image/upload/s--tV3Pge37--/v1686064286/Glow_l5yvph.svg',
+      'https://daily-now-res.cloudinary.com/image/upload/s--Va9xODJM--/v1686074969/Glow_fjelt5.svg',
   },
 };
