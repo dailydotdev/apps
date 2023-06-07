@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
+import { Image } from './image/Image';
 
 export type ProfileImageSize =
   | 'xsmall'
@@ -27,7 +28,7 @@ export interface ProfilePictureProps
   nativeLazyLoading?: boolean;
 }
 
-const sizeClasses: Record<ProfileImageSize, string> = {
+export const sizeClasses: Record<ProfileImageSize, string> = {
   xsmall: 'w-5 h-5',
   small: 'w-6 h-6',
   medium: 'w-8 h-8',
@@ -91,7 +92,7 @@ function ProfilePictureComponent(
 
   if (nativeLazyLoading) {
     return (
-      <img
+      <Image
         {...props}
         ref={ref}
         src={user.image}

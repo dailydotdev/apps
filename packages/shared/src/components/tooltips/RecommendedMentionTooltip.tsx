@@ -37,7 +37,7 @@ export function RecommendedMentionTooltip({
 
   return (
     <BaseTooltip
-      appendTo={appendTo || document?.body || 'parent'}
+      appendTo={appendTo || globalThis?.document?.body || 'parent'}
       content={
         <RecommendedMention
           users={typeof query !== 'undefined' && mentions}

@@ -16,6 +16,7 @@ import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 import { Squad } from '../graphql/sources';
+import { isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
   trigger: AuthTriggersOrString;
@@ -51,6 +52,7 @@ export interface AuthContextData {
   refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   accessToken?: AccessToken;
   squads?: Squad[];
+  isAuthReady?: boolean;
 }
 const isExtension = process.env.TARGET_BROWSER;
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -136,6 +138,7 @@ export const AuthContextProvider = ({
 
   const authContext: AuthContextData = useMemo(
     () => ({
+      isAuthReady: !isNullOrUndefined(firstLoad),
       user: endUser,
       referral: loginState?.referral ?? referral,
       referralOrigin: loginState?.referralOrigin ?? referralOrigin,
@@ -179,6 +182,7 @@ export const AuthContextProvider = ({
       visit,
       accessToken,
       squads,
+      firstLoad,
     ],
   );
 

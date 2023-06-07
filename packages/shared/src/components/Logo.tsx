@@ -29,7 +29,12 @@ export default function Logo({
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
       <a
-        className={classNames('flex items-center', className)}
+        className={classNames(
+          'flex items-center',
+          'absolute left-1/2 -translate-x-1/2 top-4 mt-0.5',
+          'laptop:relative laptop:left-[unset] laptop:top-[unset] laptop:translate-x-[unset] laptop:mt-0',
+          className,
+        )}
         onClick={onLogoClick}
       >
         <LogoIcon className={logoClassName} />

@@ -120,7 +120,7 @@ export type ReadHistoryPost = Pick<
   | 'tags'
   | 'sharedPost'
   | 'type'
-> & { source?: Pick<Source, 'image' | 'id' | 'type'> } & {
+> & { source?: Source } & {
   author?: Pick<Author, 'id'>;
 } & {
   scout?: Pick<Scout, 'id'>;
@@ -402,9 +402,11 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
 
 export interface ExternalLinkPreview {
   url?: string;
+  permalink?: string;
   id?: string;
   title: string;
   image: string;
+  source?: Source;
 }
 
 export const PREVIEW_LINK_MUTATION = gql`
@@ -431,7 +433,9 @@ interface SubmitExternalLink
   commentary: string;
 }
 
-export const submitExternalLink = (params: SubmitExternalLink): Promise<Post> =>
+export const submitExternalLink = (
+  params: SubmitExternalLink,
+): Promise<EmptyResponse> =>
   request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
 
 export const EDIT_POST_MUTATION = gql`

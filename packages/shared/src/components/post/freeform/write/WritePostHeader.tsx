@@ -1,16 +1,16 @@
 import React, { ReactElement } from 'react';
 import SourceButton from '../../../cards/SourceButton';
-import { Squad } from '../../../../graphql/sources';
+import { useWritePostContext } from '../../../../contexts';
 
 interface WritePostHeaderProps {
-  squad: Squad;
   isEdit?: boolean;
 }
 
 export function WritePostHeader({
   isEdit,
-  squad,
 }: WritePostHeaderProps): ReactElement {
+  const { squad } = useWritePostContext();
+
   return (
     <header className="flex flex-row items-center py-4 px-6 h-14 border-b border-theme-divider-tertiary">
       <h1 className="font-bold typo-title3">{isEdit ? 'Edit' : 'New'} post</h1>

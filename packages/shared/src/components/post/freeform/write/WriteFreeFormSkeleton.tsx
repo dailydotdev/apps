@@ -12,8 +12,8 @@ export function WriteFreeFormSkeleton({
 }: WriteFreeFormSkeletonProps): ReactElement {
   return (
     <WritePageContainer>
-      <WritePostHeader squad={null} isEdit={isEdit} />
-      <WritePageMain>
+      <WritePostHeader isEdit={isEdit} />
+      <WritePageMain className="py-5 px-6">
         <ElementPlaceholder className="w-40 h-24 rounded-16" />
         <ElementPlaceholder className="mt-6 h-12 rounded-12" />
         <ElementPlaceholder className="mt-4 h-60 rounded-12" />
