@@ -33,6 +33,13 @@ const EditWelcomePostModal = dynamic(
     ),
 );
 
+const LegoReferralCampaignModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "legoReferralCampaignModal" */ './LegoReferralCampaignModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.EditSquad]: EditSquadModal,
@@ -41,6 +48,7 @@ export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.EditWelcomePost]: EditWelcomePostModal,
+  [LazyModal.LegoReferralCampaign]: LegoReferralCampaignModal,
 };
 
 type GetComponentProps<T> = T extends
