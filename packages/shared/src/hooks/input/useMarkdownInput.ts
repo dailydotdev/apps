@@ -202,7 +202,11 @@ export const useMarkdownInput = ({
   };
 
   const onKeyUp: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!arrowKeys.includes(e.key as ArrowKey)) return;
+    const pressed = e.key as ArrowKey;
+
+    if (!arrowKeys.includes(pressed)) return;
+
+    if (Y_AXIS_KEYS.includes(pressed) && mentions?.length) return;
 
     const { selectionStart, selectionEnd } = e.currentTarget;
     checkMention([selectionStart, selectionEnd]);

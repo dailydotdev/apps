@@ -124,7 +124,10 @@ function CreatePost(): ReactElement {
             <ShareLink
               squad={squad}
               className="mt-4"
-              onPostSuccess={() => push(squad.permalink)}
+              onPostSuccess={() => {
+                onAskConfirmation(false);
+                push(squad.permalink);
+              }}
             />
           </Tab>
           <Tab label={WriteFormTab.NewPost} className="px-5">
