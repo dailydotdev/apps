@@ -19,6 +19,7 @@ import { ActionType } from '../../graphql/actions';
 import { Button } from '../buttons/Button';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { link } from '../../lib/links';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -118,7 +119,7 @@ export function SquadPageHeader({
               </FlexCentered>
               <Button
                 tag="a"
-                href={`${squad.permalink}/create`}
+                href={`${link.post.create}?sid=${squad?.handle}`}
                 className="w-full tablet:w-auto btn-primary-cabbage"
               >
                 New post

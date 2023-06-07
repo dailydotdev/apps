@@ -40,7 +40,6 @@ function LazyImageComponent(
   }: LazyImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement {
-  // const { asyncImageSupport } = useContext(ProgressiveEnhancementContext);
   const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${
     fit === 'cover' ? 'object-cover' : 'object-contain'
   }`;
@@ -59,7 +58,7 @@ function LazyImageComponent(
   }
 
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
-    if (fallbackSrc) {
+    if (fallbackSrc && fallbackSrc !== event.currentTarget.src) {
       // eslint-disable-next-line no-param-reassign
       event.currentTarget.src = fallbackSrc;
     }

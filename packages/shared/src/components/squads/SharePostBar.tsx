@@ -32,7 +32,6 @@ function SharePostBar({
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const onSharedSuccessfully = () => setUrl('');
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
-    onEmptyUrl: () => onNewSquadPost({ preview: { url: '' } }),
     callback: {
       onSuccess: (preview, link) =>
         onNewSquadPost({
@@ -97,6 +96,7 @@ function SharePostBar({
             className="hidden tablet:flex ml-1 font-bold reading-history hover:text-theme-label-primary"
             inverseUnderline
             onClick={() => onNewSquadPost()}
+            type="button"
           >
             reading history
           </ClickableText>
