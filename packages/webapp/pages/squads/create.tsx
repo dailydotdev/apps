@@ -70,15 +70,16 @@ function CreatePost(): ReactElement {
     },
   });
 
+  const param = isRouteReady && squads?.length && (query.sid as string);
+
   useEffect(() => {
-    const { sid } = query ?? {};
-    if (!isRouteReady || !sid || !squads?.length) return;
+    if (!param) return;
 
     const preselected = squads.findIndex(({ id, handle }) =>
-      [id, handle].includes(sid as string),
+      [id, handle].includes(param),
     );
     setSelected((value) => (value >= 0 ? value : preselected));
-  }, [isRouteReady, query, squads]);
+  }, [squads, param]);
 
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
     if (isPosting || isSuccess) return null;

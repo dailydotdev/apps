@@ -7,9 +7,13 @@ import useSidebarRendered from '../../../hooks/useSidebarRendered';
 
 interface WriteFooterProps {
   isLoading?: boolean;
+  className?: string;
 }
 
-export function WriteFooter({ isLoading }: WriteFooterProps): ReactElement {
+export function WriteFooter({
+  isLoading,
+  className,
+}: WriteFooterProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
@@ -19,7 +23,7 @@ export function WriteFooter({ isLoading }: WriteFooterProps): ReactElement {
       className={classNames(
         'relative flex flex-col tablet:flex-row items-center',
         !sidebarRendered && 'justify-center',
-        shouldShowCta && 'mt-1',
+        className,
       )}
     >
       {shouldShowCta && (

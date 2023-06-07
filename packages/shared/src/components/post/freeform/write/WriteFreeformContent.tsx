@@ -144,7 +144,7 @@ export function WriteFreeformContent({
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
         isUpdatingDraft={isUpdatingDraft}
       />
-      <WriteFooter isLoading={isPosting} />
+      <WriteFooter isLoading={isPosting} className="mt-5" />
     </WritePageMain>
   );
 }
