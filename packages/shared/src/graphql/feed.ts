@@ -111,7 +111,7 @@ export const FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('content contentHtml')}
+  ${getFeedPostFragment('contentHtml')}
 `;
 
 export const MOST_UPVOTED_FEED_QUERY = gql`
@@ -178,7 +178,7 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('pinnedAt content contentHtml')}
+  ${getFeedPostFragment('pinnedAt contentHtml')}
 `;
 
 export const BOOKMARKS_FEED_QUERY = gql`

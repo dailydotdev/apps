@@ -77,7 +77,7 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
 
 it('should show login when clicking on the button', async () => {
   renderLayout();
-  const [el] = await screen.findAllByText('Access all features');
+  const [el] = await screen.findAllByText('Log in');
   el.click();
   expect(showLogin).toBeCalledTimes(1);
 });
