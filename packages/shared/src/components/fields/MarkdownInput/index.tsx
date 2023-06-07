@@ -16,6 +16,10 @@ import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 import { markdownGuide } from '../../../lib/constants';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import TabContainer, { Tab } from '../../tabs/TabContainer';
+import MarkdownPreview from '../MarkdownPreview';
+import { isNullOrUndefined } from '../../../lib/func';
+import { SavingLabel } from './SavingLabel';
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
@@ -25,6 +29,7 @@ interface MarkdownInputProps
     'className'
   >;
   showMarkdownGuide?: boolean;
+  isUpdatingDraft?: boolean;
 }
 
 function MarkdownInput({
@@ -37,6 +42,7 @@ function MarkdownInput({
   textareaProps = {},
   enabledCommand,
   showMarkdownGuide = true,
+  isUpdatingDraft,
 }: MarkdownInputProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
@@ -72,21 +78,39 @@ function MarkdownInput({
   return (
     <div
       className={classNames(
-        'flex flex-col bg-theme-float rounded-16',
+        'relative flex flex-col bg-theme-float rounded-16',
         className,
       )}
     >
-      <textarea
-        {...textareaProps}
-        {...callbacks}
-        ref={textareaRef}
-        className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
-        placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
-        value={input}
-        onClick={() => checkMention()}
-        onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
-        rows={10}
-      />
+      {!isNullOrUndefined(isUpdatingDraft) && (
+        <SavingLabel
+          className="absolute top-3 right-3"
+          isUpdating={isUpdatingDraft}
+          isUptoDate={initialContent === input}
+        />
+      )}
+      <TabContainer
+        shouldMountInactive={false}
+        className={{ header: 'px-1', container: 'min-h-[20.5rem]' }}
+        tabListProps={{ className: { indicator: '!w-6' } }}
+      >
+        <Tab label="Write">
+          <textarea
+            {...textareaProps}
+            {...callbacks}
+            ref={textareaRef}
+            className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
+            placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
+            value={input}
+            onClick={() => checkMention()}
+            onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
+            rows={11}
+          />
+        </Tab>
+        <Tab label="Preview" className="p-4">
+          <MarkdownPreview input={input} sourceId={sourceId} />
+        </Tab>
+      </TabContainer>
       <RecommendedMentionTooltip
         elementRef={textareaRef}
         offset={offset}
@@ -122,8 +146,8 @@ function MarkdownInput({
         )}
         <ConditionalWrapper
           condition={sidebarRendered}
-          wrapper={(children) => (
-            <span className="flex flex-row gap-3 ml-auto">{children}</span>
+          wrapper={(component) => (
+            <span className="flex flex-row gap-3 ml-auto">{component}</span>
           )}
         >
           {!!onLinkCommand && (

@@ -42,8 +42,14 @@ function CreatePost(): ReactElement {
   const squad = squads?.[selected];
   const [display, setDisplay] = useState(WriteFormTab.Share);
   const { displayToast } = useToastNotification();
-  const { onAskConfirmation, draft, updateDraft, formRef, clearDraft } =
-    useDiscardPost({ draftIdentifier: squad?.id });
+  const {
+    onAskConfirmation,
+    draft,
+    updateDraft,
+    formRef,
+    clearDraft,
+    isUpdatingDraft,
+  } = useDiscardPost({ draftIdentifier: squad?.id });
   const {
     mutateAsync: onCreatePost,
     isLoading: isPosting,
@@ -98,6 +104,7 @@ function CreatePost(): ReactElement {
         draft,
         updateDraft,
         formRef,
+        isUpdatingDraft,
         onSubmitForm: onClickSubmit,
         squad,
         isPosting: isPosting || isSuccess,

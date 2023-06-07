@@ -1,14 +1,23 @@
 import classNames from 'classnames';
 import React, { ReactElement, useState } from 'react';
-import { nextTick } from '../../lib/func';
 
-interface TabListProps {
+interface ClassName {
+  indicator?: string;
+}
+
+export interface TabListProps {
   items: string[];
   active: string;
   onClick?: (label: string) => unknown;
+  className?: ClassName;
 }
 
-function TabList({ items, active, onClick }: TabListProps): ReactElement {
+function TabList({
+  items,
+  active,
+  onClick,
+  className = {},
+}: TabListProps): ReactElement {
   const [offset, setOffset] = useState<number>(undefined);
 
   return (
@@ -17,10 +26,14 @@ function TabList({ items, active, onClick }: TabListProps): ReactElement {
         <button
           key={tab}
           ref={async (el) => {
-            if (!el || offset === el?.offsetLeft || tab !== active) return;
-            await nextTick();
+            if (!el || tab !== active) return;
 
-            const value = el.getBoundingClientRect().width / 2 + el.offsetLeft;
+            const rect = el.getBoundingClientRect();
+
+            if (rect.width === 0) return;
+
+            const size = rect.width / 2;
+            const value = size + el.offsetLeft;
             setOffset(value);
           }}
           className={classNames(
@@ -43,7 +56,10 @@ function TabList({ items, active, onClick }: TabListProps): ReactElement {
       ))}
       {offset !== undefined && (
         <div
-          className="absolute bottom-0 mx-auto w-16 h-0.5 rounded ease-linear -translate-x-1/2 transition-[left] bg-theme-label-primary"
+          className={classNames(
+            'absolute bottom-0 mx-auto w-12 h-0.5 rounded transition-[left] ease-linear -translate-x-1/2 bg-theme-label-primary',
+            className?.indicator,
+          )}
           style={{ left: offset }}
         />
       )}

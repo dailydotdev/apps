@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import TabList from './TabList';
+import TabList, { TabListProps } from './TabList';
 
 export interface TabProps<T extends string> {
   key?: number;
@@ -43,6 +43,7 @@ export interface TabContainerProps<T extends string> {
   style?: CSSProperties;
   showHeader?: boolean;
   controlledActive?: string;
+  tabListProps?: Pick<TabListProps, 'className'>;
 }
 
 function TabContainer<T extends string = string>({
@@ -53,6 +54,7 @@ function TabContainer<T extends string = string>({
   style,
   showHeader = true,
   controlledActive,
+  tabListProps = {},
 }: TabContainerProps<T>): ReactElement {
   const [active, setActive] = useState(children[0].props.label);
   const onClick = (label: T) => {
@@ -104,6 +106,7 @@ function TabContainer<T extends string = string>({
           items={children.map((child) => child.props.label)}
           onClick={onClick}
           active={active}
+          className={tabListProps?.className}
         />
       </header>
       {render}

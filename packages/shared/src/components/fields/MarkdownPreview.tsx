@@ -8,7 +8,7 @@ import Markdown from '../Markdown';
 export interface MarkdownPreviewProps {
   input: string;
   sourceId: string;
-  parentSelector: () => HTMLElement;
+  parentSelector?: () => HTMLElement;
   enabled?: boolean;
 }
 
