@@ -100,9 +100,5 @@ export const updateInfiniteCache = <
 };
 
 export const defaultQueryClientConfig: QueryClientConfig = {
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
-    },
-  },
+  defaultOptions: {},
 };

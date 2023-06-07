@@ -1,6 +1,7 @@
 import React, {
   ChangeEventHandler,
   ReactElement,
+  ReactNode,
   TextareaHTMLAttributes,
   useRef,
 } from 'react';
@@ -24,11 +25,14 @@ import { SavingLabel } from './SavingLabel';
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
   className?: string;
+  shouldShowFooter?: boolean;
+  footer?: ReactNode;
   textareaProps?: Omit<
     TextareaHTMLAttributes<HTMLTextAreaElement>,
     'className'
   >;
   showMarkdownGuide?: boolean;
+  allowPreview?: boolean;
   isUpdatingDraft?: boolean;
 }
 
@@ -42,7 +46,10 @@ function MarkdownInput({
   textareaProps = {},
   enabledCommand,
   showMarkdownGuide = true,
+  allowPreview = true,
   isUpdatingDraft,
+  shouldShowFooter = true,
+  footer,
 }: MarkdownInputProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
@@ -89,28 +96,33 @@ function MarkdownInput({
           isUptoDate={initialContent === input}
         />
       )}
-      <TabContainer
-        shouldMountInactive={false}
-        className={{ header: 'px-1', container: 'min-h-[20.5rem]' }}
-        tabListProps={{ className: { indicator: '!w-6' } }}
+      <ConditionalWrapper
+        condition={allowPreview}
+        wrapper={(children) => (
+          <TabContainer
+            shouldMountInactive={false}
+            className={{ header: 'px-1', container: 'min-h-[20.5rem]' }}
+            tabListProps={{ className: { indicator: '!w-6' } }}
+          >
+            <Tab label="Write">{children}</Tab>
+            <Tab label="Preview" className="p-4">
+              <MarkdownPreview input={input} sourceId={sourceId} />
+            </Tab>
+          </TabContainer>
+        )}
       >
-        <Tab label="Write">
-          <textarea
-            {...textareaProps}
-            {...callbacks}
-            ref={textareaRef}
-            className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
-            placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
-            value={input}
-            onClick={() => checkMention()}
-            onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
-            rows={11}
-          />
-        </Tab>
-        <Tab label="Preview" className="p-4">
-          <MarkdownPreview input={input} sourceId={sourceId} />
-        </Tab>
-      </TabContainer>
+        <textarea
+          {...textareaProps}
+          {...callbacks}
+          ref={textareaRef}
+          className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
+          placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
+          value={input}
+          onClick={() => checkMention && checkMention()}
+          onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
+          rows={11}
+        />
+      </ConditionalWrapper>
       <RecommendedMentionTooltip
         elementRef={textareaRef}
         offset={offset}
@@ -120,65 +132,67 @@ function MarkdownInput({
         onMentionClick={onApplyMention}
         onClickOutside={onCloseMention}
       />
-      <span className="flex flex-row gap-3 items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
-        {!!onUploadCommand && (
-          <button
-            type="button"
-            className={classNames(
-              'flex relative flex-row gap-2 typo-callout',
-              uploadingCount && 'text-theme-color-cabbage',
+      {footer ?? (
+        <span className="flex flex-row gap-3 items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
+          {!!onUploadCommand && (
+            <button
+              type="button"
+              className={classNames(
+                'flex relative flex-row gap-2 typo-callout',
+                uploadingCount && 'text-theme-color-cabbage',
+              )}
+              onClick={() => uploadRef?.current?.click()}
+            >
+              <MarkdownUploadLabel
+                uploadingCount={uploadingCount}
+                uploadedCount={uploadedCount}
+              />
+              <input
+                type="file"
+                className="hidden"
+                name="content_upload"
+                ref={uploadRef}
+                accept={ACCEPTED_TYPES}
+                onInput={onUpload}
+              />
+            </button>
+          )}
+          <ConditionalWrapper
+            condition={sidebarRendered}
+            wrapper={(children) => (
+              <span className="grid grid-cols-3 gap-3 ml-auto">{children}</span>
             )}
-            onClick={() => uploadRef?.current?.click()}
           >
-            <MarkdownUploadLabel
-              uploadingCount={uploadingCount}
-              uploadedCount={uploadedCount}
-            />
-            <input
-              type="file"
-              className="hidden"
-              name="content_upload"
-              ref={uploadRef}
-              accept={ACCEPTED_TYPES}
-              onInput={onUpload}
-            />
-          </button>
-        )}
-        <ConditionalWrapper
-          condition={sidebarRendered}
-          wrapper={(component) => (
-            <span className="flex flex-row gap-3 ml-auto">{component}</span>
-          )}
-        >
-          {!!onLinkCommand && (
-            <Button
-              type="button"
-              buttonSize={ButtonSize.XSmall}
-              icon={<LinkIcon secondary />}
-              onClick={onLinkCommand}
-            />
-          )}
-          {!!onMentionCommand && (
-            <Button
-              type="button"
-              buttonSize={ButtonSize.XSmall}
-              icon={<AtIcon />}
-              onClick={onMentionCommand}
-            />
-          )}
-          {showMarkdownGuide && (
-            <Button
-              type="button"
-              buttonSize={ButtonSize.XSmall}
-              icon={<MarkdownIcon />}
-              tag="a"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={markdownGuide}
-            />
-          )}
-        </ConditionalWrapper>
-      </span>
+            {!!onLinkCommand && (
+              <Button
+                type="button"
+                buttonSize={ButtonSize.XSmall}
+                icon={<LinkIcon secondary />}
+                onClick={onLinkCommand}
+              />
+            )}
+            {!!onMentionCommand && (
+              <Button
+                type="button"
+                buttonSize={ButtonSize.XSmall}
+                icon={<AtIcon />}
+                onClick={onMentionCommand}
+              />
+            )}
+            {showMarkdownGuide && (
+              <Button
+                type="button"
+                buttonSize={ButtonSize.XSmall}
+                icon={<MarkdownIcon />}
+                tag="a"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={markdownGuide}
+              />
+            )}
+          </ConditionalWrapper>
+        </span>
+      )}
     </div>
   );
 }

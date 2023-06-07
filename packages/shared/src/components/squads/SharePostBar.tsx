@@ -11,6 +11,8 @@ import { usePostToSquad } from '../../hooks';
 import { ClickableText } from '../buttons/ClickableText';
 import useMedia from '../../hooks/useMedia';
 import { mobileL } from '../../styles/media';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
@@ -28,15 +30,19 @@ function SharePostBar({
   onNewSquadPost,
   disabled = false,
 }: SharePostBarProps): ReactElement {
+  const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const onSharedSuccessfully = () => setUrl('');
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
     callback: {
       onSuccess: (preview, link) =>
-        onNewSquadPost({
-          preview: { ...preview, url: link },
-          onSharedSuccessfully,
+        openModal({
+          type: LazyModal.CreateSharedPost,
+          props: {
+            preview: { ...preview, url: link },
+            onSharedSuccessfully,
+          },
         }),
     },
   });

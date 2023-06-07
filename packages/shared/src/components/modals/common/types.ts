@@ -33,6 +33,7 @@ export enum LazyModal {
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   LegoReferralCampaign = 'legoReferralCampaign',
+  CreateSharedPost = 'createSharedPost',
 }
 
 export type ModalTabItem = {
