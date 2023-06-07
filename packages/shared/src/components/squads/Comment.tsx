@@ -212,9 +212,7 @@ export function SquadComment({
                 className="btn-primary-cabbage"
                 type="submit"
                 loading={isLoading}
-                disabled={
-                  !commentary || isLoading || isLoadingPreview || !preview.title
-                }
+                disabled={isLoading || isLoadingPreview || !preview.title}
               >
                 Done
               </Button>
