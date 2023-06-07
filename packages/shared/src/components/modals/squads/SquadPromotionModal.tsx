@@ -3,7 +3,6 @@ import { Modal, ModalProps } from '../common/Modal';
 import CloseButton from '../../CloseButton';
 import { ButtonSize } from '../../buttons/Button';
 import PromotionTour from '../../squads/PromotionTour';
-import { Source } from '../../../graphql/sources';
 import { useSquad } from '../../../hooks';
 
 interface SquadPromotionModalProps extends ModalProps {
