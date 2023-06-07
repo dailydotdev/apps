@@ -18,6 +18,9 @@ import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
+import { CreatePostButton } from '../post/write';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
 import LegoReferralBadge from '../LegoReferralBadge';
 import { ReferralCampaignKey } from '../../hooks';
 
@@ -32,6 +35,7 @@ export interface MainLayoutHeaderProps extends ShouldShowLogoProps {
   showOnlyLogo?: boolean;
   optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
+  showPostButton?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   onMobileSidebarToggle: (state: boolean) => unknown;
 }
@@ -48,6 +52,7 @@ function MainLayoutHeader({
   hasBanner,
   mobileTitle,
   showOnlyLogo,
+  showPostButton,
   sidebarRendered,
   optOutWeeklyGoal,
   additionalButtons,
@@ -58,6 +63,7 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const hideButton = showOnlyLogo || loadingUser;
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
 
   const headerButton = (() => {
     if (hideButton) {
@@ -110,6 +116,11 @@ function MainLayoutHeader({
               />
             )}
           </div>
+          {showPostButton && (
+            <CreatePostButton
+              className={!optOutWeeklyGoal && !isMobile && 'tablet: mr-2'}
+            />
+          )}
           {!hideButton && user && (
             <>
               {sidebarRendered && (
@@ -120,7 +131,7 @@ function MainLayoutHeader({
                 />
               )}
               <LinkWithTooltip
-                tooltip={{ placement: 'left', content: 'Notifications' }}
+                tooltip={{ placement: 'bottom', content: 'Notifications' }}
                 href={`${webappUrl}notifications`}
               >
                 <Button
@@ -149,7 +160,7 @@ function MainLayoutHeader({
           )}
           {additionalButtons}
           {headerButton}
-          {!sidebarRendered && !optOutWeeklyGoal && (
+          {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
             <MobileHeaderRankProgress />
           )}
         </>
