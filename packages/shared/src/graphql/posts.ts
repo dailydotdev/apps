@@ -388,7 +388,7 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
     $url: String!
     $title: String
     $image: String
-    $commentary: String!
+    $commentary: String
   ) {
     submitExternalLink(
       url: $url
