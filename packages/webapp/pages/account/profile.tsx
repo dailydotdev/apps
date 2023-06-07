@@ -4,7 +4,7 @@ import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
 import HashnodeIcon from '@dailydotdev/shared/src/components/icons/Hashnode';
 import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
 import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
-import UserIcon from '@dailydotdev/shared/src/components/icons/User';
+import { UserIcon } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';

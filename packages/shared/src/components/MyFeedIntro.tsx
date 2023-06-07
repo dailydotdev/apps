@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import UserIcon from './icons/User';
+import { UserIcon } from './icons';
 import classed from '../lib/classed';
 import { IconSize } from './Icon';
 
