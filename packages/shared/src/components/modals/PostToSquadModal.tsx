@@ -15,6 +15,10 @@ import AuthContext from '../../contexts/AuthContext';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { useNotificationToggle } from '../../hooks/notifications';
+import { Button, ButtonSize } from '../buttons/Button';
+import CloseButton from '../CloseButton';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
 
 export interface PostToSquadModalProps
   extends LazyModalCommonProps,
@@ -51,6 +55,11 @@ function PostToSquadModal({
     preview,
   });
   const { completeAction } = useActions();
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  let titleText = null;
+  if (!isMobile) {
+    titleText = shouldSkipHistory ? 'Post article' : 'Share post';
+  }
 
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
@@ -135,7 +144,24 @@ function PostToSquadModal({
       steps={preview?.id ? undefined : modalSteps}
       {...props}
     >
-      <Modal.Header title={shouldSkipHistory ? 'Post article' : 'Share post'} />
+      <Modal.Header showCloseButton={!isMobile} title={titleText}>
+        {isMobile && (
+          <div className="flex flex-row flex-1 justify-between items-center">
+            <CloseButton onClick={onRequestClose} />
+
+            <Button
+              form="squad-comment"
+              className="btn-primary-cabbage"
+              type="submit"
+              loading={isLoading}
+              disabled={isLoading || !preview.title}
+              buttonSize={ButtonSize.Small}
+            >
+              Post
+            </Button>
+          </div>
+        )}
+      </Modal.Header>
       {shouldSkipHistory ? (
         <SquadComment
           {...commentCommonProps}

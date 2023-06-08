@@ -27,6 +27,8 @@ import { Loader } from '../Loader';
 import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
 import { Switch } from '../fields/Switch';
 import { SquadStateProps } from './utils';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
 
 export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
@@ -63,6 +65,7 @@ export function SquadComment({
   const [commentary, setCommentary] = useState(form.commentary);
   const [link, setLink] = useState(preview.url);
   const [linkHint, setLinkHint] = useState(preview.url);
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
     callback: {
       onSuccess: (linkPreview, url) => {
@@ -201,23 +204,25 @@ export function SquadComment({
               </h6>
             </div>
           </div>
-          <SimpleTooltip
-            placement="left"
-            disabled={!!commentary}
-            content="Please add a comment before proceeding"
-          >
-            <div>
-              <Button
-                form="squad-comment"
-                className="btn-primary-cabbage"
-                type="submit"
-                loading={isLoading}
-                disabled={isLoading || isLoadingPreview || !preview.title}
-              >
-                Done
-              </Button>
-            </div>
-          </SimpleTooltip>
+          {!isMobile && (
+            <SimpleTooltip
+              placement="left"
+              disabled={!!commentary}
+              content="Please add a comment before proceeding"
+            >
+              <div>
+                <Button
+                  form="squad-comment"
+                  className="btn-primary-cabbage"
+                  type="submit"
+                  loading={isLoading}
+                  disabled={isLoading || isLoadingPreview || !preview.title}
+                >
+                  Done
+                </Button>
+              </div>
+            </SimpleTooltip>
+          )}
         </span>
       </Modal.Footer>
     </>
