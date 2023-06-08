@@ -100,12 +100,12 @@ const AuthDefault = ({
       return null;
     }
 
-    // const res = await checkEmail(email);
-    //
-    // if (res?.result) {
-    //   setRegisterEmail(email);
-    //   return setShouldLogin(true);
-    // }
+    const res = await checkEmail(email);
+
+    if (res?.result) {
+      setRegisterEmail(email);
+      return setShouldLogin(true);
+    }
 
     return onSignup(input.value.trim());
   };
