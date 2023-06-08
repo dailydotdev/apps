@@ -1,8 +1,11 @@
 import React, {
   ChangeEventHandler,
+  forwardRef,
+  MutableRefObject,
   ReactElement,
   ReactNode,
   TextareaHTMLAttributes,
+  useImperativeHandle,
   useRef,
 } from 'react';
 import classNames from 'classnames';
@@ -11,7 +14,11 @@ import { Button, ButtonSize } from '../../buttons/Button';
 import LinkIcon from '../../icons/Link';
 import AtIcon from '../../icons/At';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
-import { useMarkdownInput, UseMarkdownInputProps } from '../../../hooks/input';
+import {
+  UseMarkdownInput,
+  useMarkdownInput,
+  UseMarkdownInputProps,
+} from '../../../hooks/input';
 import { ACCEPTED_TYPES } from '../ImageInput';
 import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 import { markdownGuide } from '../../../lib/constants';
@@ -38,21 +45,29 @@ interface MarkdownInputProps
   isUpdatingDraft?: boolean;
 }
 
-function MarkdownInput({
-  className,
-  postId,
-  sourceId,
-  onSubmit,
-  onValueUpdate,
-  initialContent,
-  textareaProps = {},
-  enabledCommand,
-  showMarkdownGuide = true,
-  allowPreview = true,
-  isUpdatingDraft,
-  showUserAvatar,
-  footer,
-}: MarkdownInputProps): ReactElement {
+export interface MarkdownRef
+  extends Pick<UseMarkdownInput, 'onMentionCommand'> {
+  textareaRef: MutableRefObject<HTMLTextAreaElement>;
+}
+
+function MarkdownInput(
+  {
+    className,
+    postId,
+    sourceId,
+    onSubmit,
+    onValueUpdate,
+    initialContent,
+    textareaProps = {},
+    enabledCommand,
+    showMarkdownGuide = true,
+    allowPreview = true,
+    isUpdatingDraft,
+    showUserAvatar,
+    footer,
+  }: MarkdownInputProps,
+  ref: MutableRefObject<MarkdownRef>,
+): ReactElement {
   const { user } = useAuthContext();
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
@@ -81,6 +96,8 @@ function MarkdownInput({
     onValueUpdate,
     enabledCommand,
   });
+
+  useImperativeHandle(ref, () => ({ textareaRef, onMentionCommand }));
 
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
     onUploadCommand(e.currentTarget.files);
@@ -213,4 +230,4 @@ function MarkdownInput({
   );
 }
 
-export default MarkdownInput;
+export default forwardRef(MarkdownInput);

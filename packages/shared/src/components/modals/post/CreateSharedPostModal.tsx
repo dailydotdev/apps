@@ -1,21 +1,30 @@
-import React, { FormEventHandler, ReactElement, useState } from 'react';
+import React, { FormEventHandler, ReactElement, useRef, useState } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
-import MarkdownInput from '../../fields/MarkdownInput';
+import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import useDebounce from '../../../hooks/useDebounce';
 import { isValidHttpUrl } from '../../../lib/links';
 import { usePostToSquad } from '../../../hooks';
+import { Button, ButtonSize } from '../../buttons/Button';
+import AtIcon from '../../icons/At';
+import { Divider } from '../../utilities';
+import SourceButton from '../../cards/SourceButton';
+import { Squad } from '../../../graphql/sources';
+import { formToJson } from '../../../lib/form';
 
 interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
   onSharedSuccessfully: () => void;
+  squad: Squad;
 }
 
 export function CreateSharedPostModal({
   preview,
+  squad,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
+  const markdownRef = useRef<MarkdownRef>();
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const {
     getLinkPreview,
@@ -23,10 +32,13 @@ export function CreateSharedPostModal({
     preview: updatedPreview,
     isPosting,
     onSubmitPost,
-    onUpdatePreview,
   } = usePostToSquad();
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+
+    const { commentary } = formToJson(e.currentTarget);
+
+    return onSubmitPost(e, squad.id, commentary);
   };
 
   const [checkUrl] = useDebounce((value: string) => {
@@ -48,10 +60,12 @@ export function CreateSharedPostModal({
         className="flex flex-col p-3 w-full"
         action="#"
         onSubmit={onFormSubmit}
+        id="share_post"
       >
         <MarkdownInput
+          ref={markdownRef}
           showUserAvatar
-          textareaProps={{ rows: 5 }}
+          textareaProps={{ rows: 5, name: 'commentary' }}
           allowPreview={false}
           enabledCommand={{ mention: true }}
           footer={
@@ -71,6 +85,30 @@ export function CreateSharedPostModal({
           }
         />
       </form>
+      <Modal.Footer className="typo-caption1">
+        <Button
+          icon={<AtIcon />}
+          className="btn-tertiary"
+          buttonSize={ButtonSize.Small}
+          onClick={markdownRef?.current?.onMentionCommand}
+        />
+        <Divider vertical />
+        <SourceButton source={squad} size="small" />
+        <span className="-ml-1">
+          <strong>{squad.name}</strong>
+          <span className="ml-1 text-theme-label-tertiary">
+            @{squad.handle}
+          </span>
+        </span>
+        <Button
+          className="ml-auto btn-primary-cabbage"
+          disabled={isPosting}
+          loading={isPosting}
+          form="share_post"
+        >
+          Post
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 }

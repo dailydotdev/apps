@@ -135,6 +135,7 @@ export function SquadPageHeader({
             )}
             onNewSquadPost={onNewSquadPost}
             disabled={!allowedToPost}
+            squad={squad}
           />
         </ConditionalWrapper>
         {sharePostTutorial.isActive && (
