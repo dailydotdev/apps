@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { FormEventHandler, ReactElement } from 'react';
 import { TextField } from '../../fields/TextField';
 import LinkIcon from '../../icons/Link';
 import { SourceAvatar } from '../../profile/source';
@@ -15,22 +15,28 @@ import { ExternalLinkPreview } from '../../../graphql/posts';
 interface WriteLinkPreviewProps {
   link: string;
   preview: ExternalLinkPreview;
+  onLinkChange: FormEventHandler<HTMLInputElement>;
+  className?: string;
 }
 
 export function WriteLinkPreview({
   link,
   preview,
+  onLinkChange,
+  className,
 }: WriteLinkPreviewProps): ReactElement {
   return (
-    <WritePreviewContainer>
+    <WritePreviewContainer className={className}>
       <TextField
         leftIcon={<LinkIcon />}
         label="URL"
         type="url"
+        name="url"
         inputId="preview_url"
         fieldType="tertiary"
         className={{ container: 'w-full' }}
         value={link}
+        onInput={onLinkChange}
       />
       <WritePreviewContent>
         <div className="flex flex-col flex-1 typo-footnote">

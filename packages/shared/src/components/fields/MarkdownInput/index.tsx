@@ -21,17 +21,19 @@ import TabContainer, { Tab } from '../../tabs/TabContainer';
 import MarkdownPreview from '../MarkdownPreview';
 import { isNullOrUndefined } from '../../../lib/func';
 import { SavingLabel } from './SavingLabel';
+import { ProfilePicture } from '../../ProfilePicture';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
   className?: string;
-  shouldShowFooter?: boolean;
   footer?: ReactNode;
   textareaProps?: Omit<
     TextareaHTMLAttributes<HTMLTextAreaElement>,
     'className'
   >;
   showMarkdownGuide?: boolean;
+  showUserAvatar?: boolean;
   allowPreview?: boolean;
   isUpdatingDraft?: boolean;
 }
@@ -48,9 +50,10 @@ function MarkdownInput({
   showMarkdownGuide = true,
   allowPreview = true,
   isUpdatingDraft,
-  shouldShowFooter = true,
+  showUserAvatar,
   footer,
 }: MarkdownInputProps): ReactElement {
+  const { user } = useAuthContext();
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
   const uploadRef = useRef<HTMLInputElement>();
@@ -111,17 +114,30 @@ function MarkdownInput({
           </TabContainer>
         )}
       >
-        <textarea
-          {...textareaProps}
-          {...callbacks}
-          ref={textareaRef}
-          className="m-4 bg-transparent outline-none typo-body placeholder-theme-label-quaternary"
-          placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
-          value={input}
-          onClick={() => checkMention && checkMention()}
-          onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
-          rows={11}
-        />
+        <ConditionalWrapper
+          condition={showUserAvatar}
+          wrapper={(component) => (
+            <span className="flex flex-row w-full">
+              <ProfilePicture size="large" className="mt-3 ml-3" user={user} />
+              {component}
+            </span>
+          )}
+        >
+          <textarea
+            rows={11}
+            placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
+            {...textareaProps}
+            {...callbacks}
+            ref={textareaRef}
+            className={classNames(
+              'flex flex-1 bg-transparent outline-none typo-body placeholder-theme-label-quaternary',
+              showUserAvatar ? 'm-3' : 'm-4',
+            )}
+            value={input}
+            onClick={() => checkMention && checkMention()}
+            onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
+          />
+        </ConditionalWrapper>
       </ConditionalWrapper>
       <RecommendedMentionTooltip
         elementRef={textareaRef}

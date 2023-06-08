@@ -1,8 +1,11 @@
-import React, { FormEventHandler, ReactElement } from 'react';
+import React, { FormEventHandler, ReactElement, useState } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput from '../../fields/MarkdownInput';
-import PostPreview from '../../post/PostPreview';
+import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
+import useDebounce from '../../../hooks/useDebounce';
+import { isValidHttpUrl } from '../../../lib/links';
+import { usePostToSquad } from '../../../hooks';
 
 interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -13,8 +16,29 @@ export function CreateSharedPostModal({
   preview,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
+  const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
+  const {
+    getLinkPreview,
+    isLoadingPreview,
+    preview: updatedPreview,
+    isPosting,
+    onSubmitPost,
+    onUpdatePreview,
+  } = usePostToSquad();
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+  };
+
+  const [checkUrl] = useDebounce((value: string) => {
+    if (!isValidHttpUrl(value) || value === updatedPreview?.url) return null;
+
+    return getLinkPreview(value);
+  }, 1000);
+
+  const onInput: FormEventHandler<HTMLInputElement> = (e) => {
+    const { value } = e.currentTarget;
+    setLink(value);
+    checkUrl(value);
   };
 
   return (
@@ -26,10 +50,25 @@ export function CreateSharedPostModal({
         onSubmit={onFormSubmit}
       >
         <MarkdownInput
-          shouldShowFooter={false}
+          showUserAvatar
+          textareaProps={{ rows: 5 }}
           allowPreview={false}
           enabledCommand={{ mention: true }}
-          footer={<PostPreview className="m-3 !w-auto" preview={preview} />}
+          footer={
+            isLoadingPreview ? (
+              <WritePreviewSkeleton
+                link={link}
+                className="flex-col-reverse m-3"
+              />
+            ) : (
+              <WriteLinkPreview
+                className="flex-col-reverse m-3 !w-auto"
+                preview={updatedPreview ?? preview}
+                link={link}
+                onLinkChange={onInput}
+              />
+            )
+          }
         />
       </form>
     </Modal>
