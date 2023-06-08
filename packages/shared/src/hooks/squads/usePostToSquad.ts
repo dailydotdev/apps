@@ -2,6 +2,7 @@ import {
   UseMutateAsyncFunction,
   useMutation,
   UseMutationOptions,
+  useQueryClient,
 } from 'react-query';
 import { FormEvent, useCallback, useState } from 'react';
 import request from 'graphql-request';
@@ -14,6 +15,9 @@ import {
 import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { addPostToSquad } from '../../graphql/squads';
+import { ActionType } from '../../graphql/actions';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useActions } from '../useActions';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
@@ -47,6 +51,9 @@ export const usePostToSquad = ({
   onPostSuccess,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { displayToast } = useToastNotification();
+  const { user } = useAuthContext();
+  const client = useQueryClient();
+  const { completeAction } = useActions();
   const [preview, setPreview] = useState<ExternalLinkPreview>();
   const { mutateAsync: getLinkPreview, isLoading: isLoadingPreview } =
     useMutation(getExternalLinkPreview, {
@@ -64,13 +71,20 @@ export const usePostToSquad = ({
       },
     });
 
+  const onSharedPostSuccessfully = async () => {
+    displayToast('This post has been shared to your Squad');
+    await client.invalidateQueries(['sourceFeed', user.id]);
+    completeAction(ActionType.SquadFirstPost);
+  };
+
   const {
     mutateAsync: onPost,
     isLoading: isPostLoading,
     isSuccess: isPostSuccess,
   } = useMutation(addPostToSquad(request), {
     onSuccess: (data) => {
-      onPostSuccess(data, data.permalink);
+      onSharedPostSuccessfully();
+      if (onPostSuccess) onPostSuccess(data, data.permalink);
     },
   });
 
@@ -80,7 +94,8 @@ export const usePostToSquad = ({
     isSuccess: isLinkSuccess,
   } = useMutation(submitExternalLink, {
     onSuccess: (_, { url }) => {
-      onPostSuccess(null, url);
+      onSharedPostSuccessfully();
+      if (onPostSuccess) onPostSuccess(null, url);
     },
   });
 

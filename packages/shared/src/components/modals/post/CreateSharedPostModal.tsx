@@ -22,6 +22,7 @@ interface CreateSharedPostModalProps extends ModalProps {
 export function CreateSharedPostModal({
   preview,
   squad,
+  onSharedSuccessfully,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
   const markdownRef = useRef<MarkdownRef>();
@@ -32,7 +33,12 @@ export function CreateSharedPostModal({
     preview: updatedPreview,
     isPosting,
     onSubmitPost,
-  } = usePostToSquad();
+  } = usePostToSquad({
+    onPostSuccess: () => {
+      onSharedSuccessfully();
+      props.onRequestClose(null);
+    },
+  });
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 

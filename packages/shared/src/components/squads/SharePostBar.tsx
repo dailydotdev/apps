@@ -36,7 +36,7 @@ function SharePostBar({
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
-  const onSharedSuccessfully = () => setUrl('');
+  const onSharedSuccessfully = () => setUrl(undefined);
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
     callback: {
       onSuccess: (preview, link) =>
