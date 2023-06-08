@@ -42,6 +42,7 @@ interface UsePostToSquadProps {
     'onSuccess' | 'onError'
   >;
   onPostSuccess?: (post: Post, url: string) => void;
+  initialPreview?: ExternalLinkPreview;
 }
 
 const DEFAULT_ERROR = 'An error occurred, please try again';
@@ -49,12 +50,13 @@ const DEFAULT_ERROR = 'An error occurred, please try again';
 export const usePostToSquad = ({
   callback,
   onPostSuccess,
+  initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { completeAction } = useActions();
-  const [preview, setPreview] = useState<ExternalLinkPreview>();
+  const [preview, setPreview] = useState(initialPreview);
   const { mutateAsync: getLinkPreview, isLoading: isLoadingPreview } =
     useMutation(getExternalLinkPreview, {
       onSuccess: (...params) => {
