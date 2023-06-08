@@ -23,19 +23,12 @@ import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from 'react-query';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
-import { NewSquadPostProps } from '@dailydotdev/shared/src/components/squads/SharePostBar';
-import {
-  useTutorial,
-  TutorialKey,
-} from '@dailydotdev/shared/src/hooks/useTutorial';
 import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
@@ -72,7 +65,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = useRouter();
-  const { openModal } = useLazyModal();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -130,34 +122,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   if (!squad) return <Custom404 />;
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const sharePostTutorial = useTutorial({
-    key: TutorialKey.ShareSquadPost,
-  });
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const copyLinkTutorial = useTutorial({
-    key: TutorialKey.CopySquadLink,
-  });
-
-  const onNewSquadPost = async (props: NewSquadPostProps = {}) => {
-    openModal({
-      type: LazyModal.PostToSquad,
-      props: {
-        ...props,
-        squad,
-        onAfterClose: () => {
-          sharePostTutorial.complete();
-          copyLinkTutorial.activate();
-        },
-      },
-    });
-
-    return null;
-  };
-
   const seo = (
     <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
   );
@@ -175,7 +139,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
-          onNewSquadPost={onNewSquadPost}
           hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
         />
         <SquadChecklistCard squad={squad} />

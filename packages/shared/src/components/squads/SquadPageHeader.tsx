@@ -24,7 +24,6 @@ import { link } from '../../lib/links';
 interface SquadPageHeaderProps {
   squad: Squad;
   members: SourceMember[];
-  onNewSquadPost: () => void;
   hasTriedOnboarding?: boolean;
 }
 
@@ -34,7 +33,6 @@ const Divider = classed('span', 'flex flex-1 h-px bg-theme-divider-tertiary');
 export function SquadPageHeader({
   squad,
   members,
-  onNewSquadPost,
   hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
   const { tourIndex } = useSquadTour();
@@ -88,7 +86,6 @@ export function SquadPageHeader({
         squad={squad}
         members={members}
         memberCount={squad.membersCount}
-        onNewSquadPost={onNewSquadPost}
         className="laptopL:absolute laptopL:top-0 laptopL:right-[4.5rem]"
       />
       {hasTriedOnboarding && (
