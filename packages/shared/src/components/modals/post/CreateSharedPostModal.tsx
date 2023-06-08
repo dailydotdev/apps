@@ -15,7 +15,7 @@ import { formToJson } from '../../../lib/form';
 
 interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
-  onSharedSuccessfully: () => void;
+  onSharedSuccessfully?: () => void;
   squad: Squad;
 }
 
@@ -35,7 +35,7 @@ export function CreateSharedPostModal({
     onSubmitPost,
   } = usePostToSquad({
     onPostSuccess: () => {
-      onSharedSuccessfully();
+      if (onSharedSuccessfully) onSharedSuccessfully();
       props.onRequestClose(null);
     },
   });
@@ -48,7 +48,9 @@ export function CreateSharedPostModal({
   };
 
   const [checkUrl] = useDebounce((value: string) => {
-    if (!isValidHttpUrl(value) || value === updatedPreview?.url) return null;
+    const links = [link, updatedPreview?.url, updatedPreview?.permalink];
+    if (!isValidHttpUrl(value) || links.some((url) => url === value))
+      return null;
 
     return getLinkPreview(value);
   }, 1000);

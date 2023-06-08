@@ -14,6 +14,7 @@ import { mobileL } from '../../styles/media';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
+import { ExternalLinkPreview } from '../../graphql/posts';
 
 export type NewSquadPostProps = Pick<
   PostToSquadModalProps,
@@ -22,36 +23,43 @@ export type NewSquadPostProps = Pick<
 
 export interface SharePostBarProps {
   className?: string;
-  onNewSquadPost?: (props?: NewSquadPostProps) => Promise<null>;
   disabled?: boolean;
   squad: Squad;
 }
 
 function SharePostBar({
   className,
-  onNewSquadPost,
   disabled = false,
   squad,
 }: SharePostBarProps): ReactElement {
+  const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const onSharedSuccessfully = () => setUrl(undefined);
+  const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) =>
+    openModal({
+      type: LazyModal.CreateSharedPost,
+      props: {
+        preview: { ...preview, url: link },
+        squad,
+        onSharedSuccessfully,
+      },
+    });
+
+  const onOpenHistory = () =>
+    openModal({
+      type: LazyModal.ReadingHistory,
+      props: {
+        onArticleSelected: ({ post }) => onOpenCreatePost(post, post.permalink),
+        keepOpenAfterSelecting: true,
+      },
+    });
+
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
-    callback: {
-      onSuccess: (preview, link) =>
-        openModal({
-          type: LazyModal.CreateSharedPost,
-          props: {
-            preview: { ...preview, url: link },
-            squad,
-            onSharedSuccessfully,
-          },
-        }),
-    },
+    callback: { onSuccess: onOpenCreatePost },
   });
 
-  const { user } = useAuthContext();
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     await getLinkPreview(url);
@@ -105,7 +113,7 @@ function SharePostBar({
           <ClickableText
             className="hidden tablet:flex ml-1 font-bold reading-history hover:text-theme-label-primary"
             inverseUnderline
-            onClick={() => onNewSquadPost()}
+            onClick={onOpenHistory}
             type="button"
           >
             reading history
@@ -124,7 +132,7 @@ function SharePostBar({
       <button
         className="flex tablet:hidden justify-center items-center py-5 w-full font-bold border-t text-theme-label-tertiary typo-callout border-theme-divider-tertiary"
         type="button"
-        onClick={() => onNewSquadPost()}
+        onClick={onOpenHistory}
       >
         Choose from reading history
       </button>

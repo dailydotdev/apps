@@ -7,7 +7,7 @@ import EnableNotification from '../notifications/EnableNotification';
 import { FlexCentered, FlexCol } from '../utilities';
 import SquadMemberShortList from './SquadMemberShortList';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import SharePostBar, { SharePostBarProps } from './SharePostBar';
+import SharePostBar from './SharePostBar';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
 import { TourScreenIndex } from './SquadTour';
@@ -24,7 +24,7 @@ import { link } from '../../lib/links';
 interface SquadPageHeaderProps {
   squad: Squad;
   members: SourceMember[];
-  onNewSquadPost: SharePostBarProps['onNewSquadPost'];
+  onNewSquadPost: () => void;
   hasTriedOnboarding?: boolean;
 }
 
@@ -133,7 +133,6 @@ export function SquadPageHeader({
               'w-full',
               allowedToPost && 'max-w-[30.25rem]',
             )}
-            onNewSquadPost={onNewSquadPost}
             disabled={!allowedToPost}
             squad={squad}
           />
