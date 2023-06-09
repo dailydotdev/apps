@@ -9,7 +9,7 @@ import React, {
   useRef,
 } from 'react';
 import classNames from 'classnames';
-import { MarkdownIcon } from '../../icons';
+import { ImageIcon, MarkdownIcon } from '../../icons';
 import { Button, ButtonSize } from '../../buttons/Button';
 import LinkIcon from '../../icons/Link';
 import AtIcon from '../../icons/At';
@@ -30,15 +30,22 @@ import { isNullOrUndefined } from '../../../lib/func';
 import { SavingLabel } from './SavingLabel';
 import { ProfilePicture } from '../../ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { Loader } from '../../Loader';
+
+interface ClassName {
+  container?: string;
+  tab?: string;
+}
 
 interface MarkdownInputProps
   extends Omit<UseMarkdownInputProps, 'textareaRef'> {
-  className?: string;
+  className?: ClassName;
   footer?: ReactNode;
   textareaProps?: Omit<
     TextareaHTMLAttributes<HTMLTextAreaElement>,
     'className'
   >;
+  submitCopy?: string;
   showMarkdownGuide?: boolean;
   showUserAvatar?: boolean;
   allowPreview?: boolean;
@@ -52,7 +59,7 @@ export interface MarkdownRef
 
 function MarkdownInput(
   {
-    className,
+    className = {},
     postId,
     sourceId,
     onSubmit,
@@ -60,6 +67,7 @@ function MarkdownInput(
     initialContent,
     textareaProps = {},
     enabledCommand,
+    submitCopy,
     showMarkdownGuide = true,
     allowPreview = true,
     isUpdatingDraft,
@@ -68,6 +76,7 @@ function MarkdownInput(
   }: MarkdownInputProps,
   ref: MutableRefObject<MarkdownRef>,
 ): ReactElement {
+  const shouldShowSubmit = !!submitCopy;
   const { user } = useAuthContext();
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
@@ -102,11 +111,25 @@ function MarkdownInput(
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
     onUploadCommand(e.currentTarget.files);
 
+  const actionButtonSizes = shouldShowSubmit
+    ? ButtonSize.Small
+    : ButtonSize.XSmall;
+
+  const icon =
+    uploadingCount === 0 ? (
+      <ImageIcon />
+    ) : (
+      <Loader
+        className="btn-loader"
+        innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage"
+      />
+    );
+
   return (
     <div
       className={classNames(
         'relative flex flex-col bg-theme-float rounded-16',
-        className,
+        className?.container,
       )}
     >
       {!isNullOrUndefined(isUpdatingDraft) && (
@@ -121,7 +144,10 @@ function MarkdownInput(
         wrapper={(children) => (
           <TabContainer
             shouldMountInactive={false}
-            className={{ header: 'px-1', container: 'min-h-[20.5rem]' }}
+            className={{
+              header: 'px-1',
+              container: classNames('min-h-[20.5rem]', className?.tab),
+            }}
             tabListProps={{ className: { indicator: '!w-6' } }}
           >
             <Tab label="Write">{children}</Tab>
@@ -168,54 +194,68 @@ function MarkdownInput(
       {footer ?? (
         <span className="flex flex-row gap-3 items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
           {!!onUploadCommand && (
-            <button
+            <Button
               type="button"
+              buttonSize={actionButtonSizes}
               className={classNames(
-                'flex relative flex-row gap-2 typo-callout',
+                'btn-tertiary',
                 uploadingCount && 'text-theme-color-cabbage',
               )}
+              icon={icon}
               onClick={() => uploadRef?.current?.click()}
             >
-              <MarkdownUploadLabel
-                uploadingCount={uploadingCount}
-                uploadedCount={uploadedCount}
-              />
-              <input
-                type="file"
-                className="hidden"
-                name="content_upload"
-                ref={uploadRef}
-                accept={ACCEPTED_TYPES}
-                onInput={onUpload}
-              />
-            </button>
+              {shouldShowSubmit ? null : (
+                <MarkdownUploadLabel
+                  uploadingCount={uploadingCount}
+                  uploadedCount={uploadedCount}
+                />
+              )}
+            </Button>
           )}
+          <input
+            type="file"
+            className="hidden"
+            name="content_upload"
+            ref={uploadRef}
+            accept={ACCEPTED_TYPES}
+            onInput={onUpload}
+          />
           <ConditionalWrapper
             condition={sidebarRendered}
             wrapper={(children) => (
-              <span className="grid grid-cols-3 gap-3 ml-auto">{children}</span>
+              <span
+                className={classNames(
+                  'grid grid-cols-3 gap-3',
+                  !shouldShowSubmit && 'ml-auto',
+                )}
+              >
+                {children}
+              </span>
             )}
           >
             {!!onLinkCommand && (
               <Button
+                className="btn-tertiary"
                 type="button"
-                buttonSize={ButtonSize.XSmall}
+                buttonSize={actionButtonSizes}
                 icon={<LinkIcon secondary />}
                 onClick={onLinkCommand}
               />
             )}
             {!!onMentionCommand && (
               <Button
+                className="btn-tertiary"
                 type="button"
-                buttonSize={ButtonSize.XSmall}
+                buttonSize={actionButtonSizes}
                 icon={<AtIcon />}
                 onClick={onMentionCommand}
               />
             )}
             {showMarkdownGuide && (
               <Button
+                className="btn-tertiary"
                 type="button"
-                buttonSize={ButtonSize.XSmall}
+                buttonSize={actionButtonSizes}
                 icon={<MarkdownIcon />}
                 tag="a"
                 target="_blank"
@@ -224,6 +264,11 @@ function MarkdownInput(
               />
             )}
           </ConditionalWrapper>
+          {shouldShowSubmit && (
+            <Button className="ml-auto btn-primary-cabbage" type="submit">
+              {submitCopy}
+            </Button>
+          )}
         </span>
       )}
     </div>

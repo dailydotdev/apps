@@ -1,21 +1,22 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import { LoggedUser } from '../../lib/user';
 import { Button, ButtonSize } from '../buttons/Button';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
+import {
+  CommentMarkdownInput,
+  CommentMarkdownInputProps,
+} from '../fields/MarkdownInput/CommentMarkdownInput';
+import { useAuthContext } from '../../contexts/AuthContext';
 
-interface NewCommentProps {
-  user?: LoggedUser;
+interface NewCommentProps extends CommentMarkdownInputProps {
   className?: string;
-  isCommenting: boolean;
   size?: ProfileImageSize;
-  onNewComment: () => unknown;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
@@ -24,23 +25,31 @@ const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
 };
 
 export function NewComment({
-  user,
   className,
-  isCommenting,
   size = 'large',
-  onNewComment,
+  sourceId,
+  initialContent,
 }: NewCommentProps): ReactElement {
+  const { user } = useAuthContext();
+  const [shouldShowInput, setShouldShowInput] = useState(false);
+
+  if (shouldShowInput) {
+    return (
+      <CommentMarkdownInput
+        sourceId={sourceId}
+        initialContent={initialContent}
+      />
+    );
+  }
+
   return (
     <button
       type="button"
       className={classNames(
-        'flex items-center p-3 w-full rounded-16 typo-callout border',
-        isCommenting
-          ? 'bg-theme-active border-theme-divider-primary'
-          : 'bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
+        'flex items-center p-3 w-full rounded-16 typo-callout border bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
         className,
       )}
-      onClick={onNewComment}
+      onClick={() => setShouldShowInput(true)}
     >
       {user ? (
         <ProfilePicture user={user} size={size} nativeLazyLoading />

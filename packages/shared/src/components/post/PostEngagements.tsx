@@ -97,12 +97,7 @@ function PostEngagements({
         actionsClassName="hidden laptop:flex"
         origin={analyticsOrigin}
       />
-      <NewComment
-        user={user}
-        className="my-6"
-        isCommenting={!!parentComment}
-        onNewComment={() => openNewComment('start discussion button')}
-      />
+      <NewComment className="my-6" />
       <PostComments
         post={post}
         origin={analyticsOrigin}
