@@ -1,4 +1,4 @@
-import Logo from '@dailydotdev/shared/src/components/Logo';
+import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import {
   Button,
@@ -96,6 +96,7 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
       >
         <Logo
           className="mx-auto laptop:mx-0 mb-8 laptop:mb-16 h-6"
+          position={LogoPosition.Relative}
           logoClassName="h-6"
         />
         {!!referringUser && (
