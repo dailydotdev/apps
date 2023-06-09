@@ -56,10 +56,11 @@ function PostToSquadModal({
   });
   const { completeAction } = useActions();
   const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  let titleText = null;
-  if (!isMobile) {
-    titleText = shouldSkipHistory ? 'Post article' : 'Share post';
-  }
+  // let titleText = null;
+  // if (!isMobile) {
+  //   titleText = shouldSkipHistory ? 'Post article' : 'Share post';
+  // }
+  const titleText = shouldSkipHistory ? 'Post article' : 'Share post';
 
   const onPostSuccess = async (squadPost?: Post) => {
     if (squadPost) onSharedSuccessfully?.(squadPost);
@@ -144,7 +145,10 @@ function PostToSquadModal({
       steps={preview?.id ? undefined : modalSteps}
       {...props}
     >
-      <Modal.Header showCloseButton={!isMobile} title={titleText}>
+      <Modal.Header
+        showCloseButton={!isMobile}
+        title={isMobile ? null : titleText}
+      >
         {isMobile && (
           <div className="flex flex-row flex-1 justify-between items-center">
             <CloseButton onClick={onRequestClose} />
