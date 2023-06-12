@@ -3,8 +3,6 @@ import { ChecklistStepProps } from '../../lib/checklist';
 import { Button } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 import EditIcon from '../icons/Edit';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
 import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
 import { Squad } from '../../graphql/sources';
 import usePostById from '../../hooks/usePostById';
@@ -13,7 +11,6 @@ const SquadEditWelcomePostChecklistStep = ({
   squad,
   ...props
 }: ChecklistStepProps & { squad: Squad }): ReactElement => {
-  const { openModal } = useLazyModal();
   const welcomePostId = useFindSquadWelcomePost(squad)?.id;
   const { post: welcomePost } = usePostById({
     id: welcomePostId,
@@ -21,19 +18,17 @@ const SquadEditWelcomePostChecklistStep = ({
 
   return (
     <ChecklistStep {...props}>
-      <Button
-        className="btn-primary"
-        disabled={!welcomePost}
-        icon={<EditIcon />}
-        onClick={() => {
-          openModal({
-            type: LazyModal.EditWelcomePost,
-            props: { post: welcomePost },
-          });
-        }}
-      >
-        Customize
-      </Button>
+      <div className="flex">
+        <Button
+          tag="a"
+          className="btn-primary"
+          disabled={!welcomePost}
+          icon={<EditIcon />}
+          href={`/posts/${welcomePost?.id}/edit`}
+        >
+          Customize
+        </Button>
+      </div>
     </ChecklistStep>
   );
 };
