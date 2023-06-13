@@ -719,8 +719,8 @@ importers:
         specifier: npm:@preact/compat@17.0.2
         version: /@preact/compat@17.0.2(preact@10.7.1)
       react-flip-toolkit:
-        specifier: ^7.0.13
-        version: 7.0.13(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        specifier: ^7.1.0
+        version: 7.1.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)
       react-intersection-observer:
         specifier: ^8.34.0
         version: 8.34.0(@preact/compat@17.0.2)
@@ -4101,6 +4101,22 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
+  /autoprefixer@10.4.5(postcss@8.4.24):
+    resolution: {integrity: sha512-Fvd8yCoA7lNX/OUllvS+aS1I7WRBclGXsepbvT8ZaPgrH24rgXpZzF0/6Hh3ZEkwg+0AES/Osd196VZmYoEFtw==}
+    engines: {node: ^10 || ^12 || >=14}
+    hasBin: true
+    peerDependencies:
+      postcss: ^8.1.0
+    dependencies:
+      browserslist: 4.21.8
+      caniuse-lite: 1.0.30001502
+      fraction.js: 4.2.0
+      normalize-range: 0.1.2
+      picocolors: 1.0.0
+      postcss: 8.4.24
+      postcss-value-parser: 4.2.0
+    dev: true
+
   /autoprefixer@9.8.8:
     resolution: {integrity: sha512-eM9d/swFopRt5gdJ7jrpCwgvEMIayITpojhkkSMRsFHYuH5bkSQ4p/9qTEHtmNudUZh22Tehu7I6CxAW0IXTKA==}
     hasBin: true
@@ -6531,8 +6547,8 @@ packages:
   /flatted@3.2.7:
     resolution: {integrity: sha512-5nqDSxl8nn5BSNxyR3n4I6eDmbolI6WT+QqR547RwxQapgjQBmtktdP+HTBb/a/zLsbzERTONyUB5pefh5TtjQ==}
 
-  /flip-toolkit@7.0.13:
-    resolution: {integrity: sha512-9rj4mPk2FeKu/FW8Rvl3YrU8Hc7uSUYpzk3ZBeVF0xaaZsoVMLrfmffrDsrQgASvbTbd5kEf9yjfSwEZ+30cKg==}
+  /flip-toolkit@7.1.0:
+    resolution: {integrity: sha512-tvids+uibr8gVFUp1xHMkNSIFvM4++Xr4jAJouUVsId2hv3YvhvC4Ht2FJzdxBZHhI4AeULPFAF6z9fhc20XWQ==}
     engines: {node: '>=8', npm: '>=5'}
     dependencies:
       rematrix: 0.2.2
@@ -10475,14 +10491,14 @@ packages:
       react: 17.0.2
     dev: true
 
-  /react-flip-toolkit@7.0.13(@preact/compat@17.0.2)(@preact/compat@17.0.2):
-    resolution: {integrity: sha512-HNsw07LPR9mduytuIzRhb/uslkxFkQlHoXFA2M3O0CutwKM9v7X0SK44uxJgo+S5iP2FeR8gTBSbq/fkrxYEfg==}
+  /react-flip-toolkit@7.1.0(@preact/compat@17.0.2)(@preact/compat@17.0.2):
+    resolution: {integrity: sha512-KJ2IecKpYOJWgtXY9myyJzzC96FJaE9/8pFSAKgIoG54tiUAZ64ksDpmB+QmMofqFTa06RK7xWb9Rfavf8qz4Q==}
     engines: {node: '>=8', npm: '>=5'}
     peerDependencies:
       react: '>= 16.x'
       react-dom: '>= 16.x'
     dependencies:
-      flip-toolkit: 7.0.13
+      flip-toolkit: 7.1.0
       prop-types: 15.8.1
       react: /@preact/compat@17.0.2(preact@10.7.1)
       react-dom: /@preact/compat@17.0.2(preact@10.7.1)
@@ -11900,7 +11916,7 @@ packages:
       postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
-      autoprefixer: 10.4.5(postcss@8.4.12)
+      autoprefixer: 10.4.5(postcss@8.4.24)
       bytes: 3.1.2
       chalk: 4.1.2
       chokidar: 3.5.3
