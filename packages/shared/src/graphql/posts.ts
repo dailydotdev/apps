@@ -346,7 +346,7 @@ export const LATEST_CHANGELOG_POST_QUERY = gql`
           title
           createdAt
           image
-          permalink
+          commentsPermalink
           numComments
           numUpvotes
           summary
