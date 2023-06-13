@@ -150,7 +150,7 @@ describe('ChangelogTooltip component', () => {
     expect(changelogReleaseNotesBtn).toBeInTheDocument();
     expect(changelogReleaseNotesBtn).toHaveAttribute(
       'href',
-      defaultPost.permalink,
+      defaultPost.commentsPermalink,
     );
 
     const changelogExtensionBtn = screen.queryByTestId('changelogExtensionBtn');

@@ -173,7 +173,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
                 className="btn-tertiary"
                 onClick={dismissChangelog}
                 tag="a"
-                href={post.permalink}
+                href={post.commentsPermalink}
                 data-testid="changelogReleaseNotesBtn"
               >
                 Release notes
