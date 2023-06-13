@@ -11,14 +11,13 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
-            - deps-v5-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
             - deps-v5-{{ .Branch }}
             - deps-v5-
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v5-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+          key: deps-v5-{{ .Branch }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -41,14 +40,13 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
-            - deps-v5-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
             - deps-v5-{{ .Branch }}
             - deps-v5-
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v5-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+          key: deps-v5-{{ .Branch }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
