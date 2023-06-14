@@ -5,7 +5,7 @@ import { Post } from '../../graphql/posts';
 import CopyIcon from '../icons/Copy';
 import { TextField } from '../fields/TextField';
 import { useCopyLink } from '../../hooks/useCopyLink';
-import { SocialShare } from '../widgets/SocialShare';
+import { SocialShare, SocialShareType } from '../widgets/SocialShare';
 import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
@@ -103,8 +103,18 @@ export default function ShareModal({
           value={link}
           readOnly
         />
-        <p className="py-2.5 font-bold typo-callout">Share to</p>
         <SocialShare
+          type={SocialShareType.Squad}
+          post={post}
+          comment={comment}
+          origin={origin}
+          columns={columns}
+          column={column}
+          row={row}
+          onSquadShare={() => onRequestClose(null)}
+        />
+        <SocialShare
+          type={SocialShareType.External}
           post={post}
           comment={comment}
           origin={origin}
