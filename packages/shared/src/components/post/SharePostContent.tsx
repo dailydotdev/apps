@@ -36,7 +36,7 @@ function SharePostContent({
           href={
             post.sharedPost.source.id === 'unknown'
               ? post.sharedPost.permalink
-              : post.sharedPost.commentsPermalink
+              : `${post.sharedPost.commentsPermalink}?squad=${post.source.id}&n=${post.source.name}`
           }
           title="Go to post"
           target="_blank"
