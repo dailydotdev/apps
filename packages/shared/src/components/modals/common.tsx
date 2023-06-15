@@ -32,13 +32,6 @@ const SquadPromotionModal = dynamic(
     ),
 );
 
-const EditWelcomePostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "editWelcomePostModal" */ './comment/EditWelcomePostModal'
-    ),
-);
-
 const ReadingHistoryModal = dynamic(
   () =>
     import(
@@ -67,7 +60,6 @@ export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.SquadTour]: SquadTourModal,
-  [LazyModal.EditWelcomePost]: EditWelcomePostModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
   [LazyModal.LegoReferralCampaign]: LegoReferralCampaignModal,

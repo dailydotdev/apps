@@ -39,7 +39,11 @@ import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
 import { UploadState, useSyncUploader } from './useSyncUploader';
 import { useToastNotification } from '../useToastNotification';
-import { allowedContentImage, allowedFileSize } from '../../graphql/posts';
+import {
+  allowedContentImage,
+  allowedFileSize,
+  imageSizeLimitMB,
+} from '../../graphql/posts';
 
 export enum MarkdownCommand {
   Upload = 'upload',
@@ -127,7 +131,7 @@ export const useMarkdownInput = ({
       onFinish: async (status, file, url) => {
         if (status === UploadState.Failed) {
           return displayToast(
-            'File type is not allowed or the size exceeded the limit',
+            `File type is not allowed or the size exceeded the limit of ${imageSizeLimitMB} MB`,
           );
         }
 
