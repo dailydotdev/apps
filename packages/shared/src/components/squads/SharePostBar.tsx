@@ -1,4 +1,4 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
+import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -33,11 +33,15 @@ function SharePostBar({
   disabled = false,
   squad,
 }: SharePostBarProps): ReactElement {
+  const inputRef = useRef<HTMLInputElement>();
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
-  const onSharedSuccessfully = () => setUrl(undefined);
+  const onSharedSuccessfully = () => {
+    inputRef.current.value = '';
+    setUrl(undefined);
+  };
   const sharePostTutorial = useTutorial({
     key: TutorialKey.ShareSquadPost,
   });
@@ -112,6 +116,7 @@ function SharePostBar({
         />
         <input
           type="url"
+          ref={inputRef}
           autoComplete="off"
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
