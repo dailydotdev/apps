@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
@@ -16,9 +15,10 @@ import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 import { ExternalLinkPreview } from '../../graphql/posts';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
+import { CreateSharedPostModalProps } from '../modals/post/CreateSharedPostModal';
 
 export type NewSquadPostProps = Pick<
-  PostToSquadModalProps,
+  CreateSharedPostModalProps,
   'preview' | 'onSharedSuccessfully'
 >;
 
