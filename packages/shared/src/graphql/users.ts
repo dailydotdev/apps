@@ -21,6 +21,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       bio
       twitter
       github
+      hashnode
       timezone
       portfolio
       reputation
@@ -261,5 +262,26 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
 export const GET_USERNAME_SUGGESTION = gql`
   query GenerateUniqueUsername($name: String!) {
     generateUniqueUsername(name: $name)
+  }
+`;
+
+export const handleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
+
+export const REFERRAL_CAMPAIGN_QUERY = gql`
+  query ReferralCampaign($referralOrigin: String!) {
+    referralCampaign(referralOrigin: $referralOrigin) {
+      referredUsersCount
+      url
+    }
+  }
+`;
+
+export const GET_REFERRING_USER_QUERY = gql`
+  query User($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      image
+    }
   }
 `;

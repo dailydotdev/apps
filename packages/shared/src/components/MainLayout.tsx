@@ -64,6 +64,7 @@ export default function MainLayout({
   onNavTabClick,
   enableSearch,
   onShowDndClick,
+  showPostButton,
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
@@ -150,6 +151,7 @@ export default function MainLayout({
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
         onMobileSidebarToggle={onMobileSidebarToggle}
+        showPostButton={showPostButton}
       />
       <main
         className={classNames(

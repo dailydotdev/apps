@@ -10,7 +10,7 @@ import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   FeedData,
   KEYWORD_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/posts';
+} from '@dailydotdev/shared/src/graphql/feed';
 import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import Link from 'next/link';

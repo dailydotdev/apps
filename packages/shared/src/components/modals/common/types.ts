@@ -26,10 +26,12 @@ export enum LazyModal {
   EditSquad = 'editSquad',
   NewSquad = 'newSquad',
   PostToSquad = 'postToSquad',
-  SquadInvite = 'squadInvite',
   SquadMember = 'squadMember',
   SquadTour = 'squadTour',
   UpvotedPopup = 'upvotedPopup',
+  ReadingHistory = 'readingHistory',
+  SquadPromotion = 'squadPromotion',
+  LegoReferralCampaign = 'legoReferralCampaign',
 }
 
 export type ModalTabItem = {

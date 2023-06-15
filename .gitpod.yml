@@ -38,7 +38,7 @@ tasks:
       nvm install
       nvm use
     init: |
-      npm i -g lerna
+      npm i -g lerna@6
       lerna bootstrap
     command: |
       cd packages/webapp

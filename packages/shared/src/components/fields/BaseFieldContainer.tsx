@@ -17,6 +17,7 @@ interface FieldStateProps {
   hasActionIcon?: boolean;
   isTertiaryField?: boolean;
   isSecondaryField?: boolean;
+  isPrimaryField?: boolean;
 }
 
 export interface FieldClassName {
@@ -34,8 +35,14 @@ export const getFieldLabelColor = ({
   hasInput,
   disabled,
   focused,
+  isPrimaryField,
 }: FieldStateProps): string => {
-  if (readOnly || isLocked || (hasInput && !focused)) {
+  if (
+    readOnly ||
+    isLocked ||
+    (hasInput && !focused) ||
+    (isPrimaryField && hasInput)
+  ) {
     return 'text-theme-label-tertiary';
   }
 

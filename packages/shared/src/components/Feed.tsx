@@ -59,6 +59,7 @@ export interface FeedProps<T>
   emptyScreen?: ReactNode;
   header?: ReactNode;
   forceCardMode?: boolean;
+  allowPin?: boolean;
 }
 
 interface RankVariables {
@@ -133,6 +134,8 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
 const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
+  [PostType.Welcome]: SharePostModal,
+  [PostType.Freeform]: SharePostModal,
 };
 
 export default function Feed<T>({
@@ -146,6 +149,7 @@ export default function Feed<T>({
   emptyScreen,
   forceCardMode,
   options,
+  allowPin,
 }: FeedProps<T>): ReactElement {
   const { showCommentPopover } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
@@ -484,9 +488,12 @@ export default function Feed<T>({
         <PostOptionsMenu
           {...commonMenuItems}
           feedName={feedName}
+          feedQueryKey={feedQueryKey}
           postIndex={postMenuIndex}
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
+          origin={Origin.Feed}
+          allowPin={allowPin}
         />
         <ShareOptionsMenu
           {...commonMenuItems}

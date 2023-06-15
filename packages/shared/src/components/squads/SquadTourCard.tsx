@@ -1,7 +1,7 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Badge } from '../tooltips/utils';
-import { FlexCentered, FlexCol } from '../utilities';
+import { FlexCol } from '../utilities';
 
 interface ClassName {
   container?: string;
@@ -11,30 +11,47 @@ interface ClassName {
 interface SquadTourCardProps {
   banner: string;
   title: string;
-  badge?: string;
+  badge?: ReactNode;
+  children?: ReactNode;
   description?: string;
   className?: ClassName;
+  bannerAsBg?: boolean;
 }
 
 function SquadTourCard({
   banner,
+  bannerAsBg,
   title,
   description,
   badge,
+  children,
   className,
 }: SquadTourCardProps): ReactElement {
   return (
     <FlexCol className={className?.container}>
-      <FlexCentered className="h-80 bg-gradient-to-l from-cabbage-90 to-cabbage-50">
-        <img
-          className={classNames(
-            'w-full max-w-[23.5rem] pt-14',
-            className?.banner,
-          )}
-          src={banner}
-          alt={`${title} banner`}
-        />
-      </FlexCentered>
+      <FlexCol
+        className={classNames(
+          'relative',
+          !bannerAsBg &&
+            'h-80 justify-center items-center bg-gradient-to-l from-cabbage-90 to-cabbage-50',
+        )}
+      >
+        {bannerAsBg ? (
+          <div
+            className={classNames('w-full ', className?.banner)}
+            style={{ backgroundImage: `url(${banner})` }}
+          />
+        ) : (
+          <img
+            className={classNames(
+              'w-full max-w-[23.5rem] pt-14',
+              className?.banner,
+            )}
+            src={banner}
+            alt={`${title} banner`}
+          />
+        )}
+      </FlexCol>
       <FlexCol className="p-6">
         <h3
           className={classNames(
@@ -42,7 +59,7 @@ function SquadTourCard({
             description ? 'typo-title3' : 'typo-title1',
           )}
         >
-          {badge && <Badge>{badge}</Badge>}
+          {typeof badge === 'string' ? <Badge>{badge}</Badge> : badge}
           {title}
         </h3>
         {description && (
@@ -51,6 +68,7 @@ function SquadTourCard({
           </p>
         )}
       </FlexCol>
+      {children}
     </FlexCol>
   );
 }

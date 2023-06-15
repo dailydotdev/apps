@@ -43,10 +43,12 @@ import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/type
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import { getTemplatedTitle } from '../../components/layouts/utils';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
-const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
+const Custom404 = dynamic(
+  () => import(/* webpackChunkName: "404" */ '../../404'),
+);
 
 export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {
@@ -65,6 +67,8 @@ export interface Props {
 const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   article: PostContent,
   share: SquadPostContent,
+  welcome: SquadPostContent,
+  freeform: SquadPostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -95,7 +99,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   });
   const containerClass = classNames(
     'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
-    post?.type === PostType.Share &&
+    [PostType.Share, PostType.Welcome, PostType.Freeform].includes(
+      post?.type,
+    ) &&
       sidebarRendered &&
       modalSizeToClassName[ModalSize.Large],
   );
@@ -103,7 +109,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     title: getTemplatedTitle(post?.title),
     description: getSeoDescription(post),
     openGraph: {
-      images: [{ url: post?.image }],
+      images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
       article: {
         publishedTime: post?.createdAt,
         tags: post?.tags,
@@ -130,13 +136,16 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   }
 
   const Content = CONTENT_MAP[post?.type];
+  const shareNavigation = !post?.source ? (
+    <></>
+  ) : (
+    <SquadPostPageNavigation squadLink={post.source.permalink} />
+  );
   const navigation: Record<PostType, ReactNode> = {
     article: null,
-    share: !post?.source ? (
-      <></>
-    ) : (
-      <SquadPostPageNavigation squadLink={post.source.permalink} />
-    ),
+    share: shareNavigation,
+    welcome: shareNavigation,
+    freeform: shareNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 

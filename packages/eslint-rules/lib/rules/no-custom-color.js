@@ -5,13 +5,19 @@ const alwaysValidClasses = [
   'text-center',
   'text-2xl',
   'text-left',
+  'text-right',
   'text-lg',
   'text-xl',
   'text-ellipsis',
   'bg-none',
   'bg-gradient-to-r',
   'bg-gradient-to-l',
+  'bg-gradient-to-t',
   'bg-theme-bg-inherit',
+  'bg-gradient-to-br',
+  'bg-cover',
+  'bg-no-repeat',
+  'bg-center',
 ];
 const findTargetClassNames = (classNames) => {
   if (!classNames) {

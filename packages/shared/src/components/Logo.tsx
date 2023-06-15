@@ -5,12 +5,26 @@ import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
 
+export enum LogoPosition {
+  Absolute = 'absolute',
+  Relative = 'relative',
+}
+
+const logoPositionToClassName: Record<LogoPosition, string> = {
+  [LogoPosition.Absolute]: classNames(
+    'absolute left-1/2 -translate-x-1/2 top-4 mt-0.5',
+    'laptop:relative laptop:left-[unset] laptop:top-[unset] laptop:translate-x-[unset] laptop:mt-0',
+  ),
+  [LogoPosition.Relative]: classNames('relative mt-0.5', 'laptop:mt-0'),
+};
+
 interface LogoProps {
   className?: string;
   logoClassName?: string;
   showGreeting?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   hideTextMobile?: boolean;
+  position?: LogoPosition;
 }
 
 export default function Logo({
@@ -19,6 +33,7 @@ export default function Logo({
   showGreeting,
   onLogoClick,
   hideTextMobile = false,
+  position = LogoPosition.Absolute,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -29,7 +44,11 @@ export default function Logo({
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
       <a
-        className={classNames('flex items-center', className)}
+        className={classNames(
+          'flex items-center',
+          logoPositionToClassName[position],
+          className,
+        )}
         onClick={onLogoClick}
       >
         <LogoIcon className={logoClassName} />

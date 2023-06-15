@@ -9,6 +9,9 @@ export function formToJson<T>(form: HTMLFormElement, initialValue?: T): T {
     if (val.type === 'radio' && !val.checked) {
       return acc;
     }
+    if (val.type === 'file') {
+      return { ...acc, [val.name]: val.files.length === 0 ? null : val.files };
+    }
     return {
       ...acc,
       [val.name]: val.value.length ? val.value : null,

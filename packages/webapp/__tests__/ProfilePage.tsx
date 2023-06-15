@@ -9,11 +9,11 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   AUTHOR_FEED_QUERY,
   FeedData,
-  Post,
-} from '@dailydotdev/shared/src/graphql/posts';
+} from '@dailydotdev/shared/src/graphql/feed';
 import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,

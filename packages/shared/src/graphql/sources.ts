@@ -15,13 +15,15 @@ export enum SourcePermissions {
   ViewBlockedMembers = 'view_blocked_members',
   Post = 'post',
   PostLimit = 'post_limit',
+  PostPin = 'post_pin',
   PostDelete = 'post_delete',
   MemberRoleUpdate = 'member_role_update',
   MemberRemove = 'member_remove',
-  InviteDisable = 'invite_disable',
+  Invite = 'invite',
   Leave = 'leave',
   Delete = 'delete',
   Edit = 'edit',
+  WelcomePostEdit = 'welcome_post_edit',
 }
 
 export interface SourceMember {
@@ -46,6 +48,7 @@ export interface Squad extends Source {
   membersCount: number;
   description: string;
   memberPostingRole: SourceMemberRole;
+  memberInviteRole: SourceMemberRole;
 }
 
 export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {

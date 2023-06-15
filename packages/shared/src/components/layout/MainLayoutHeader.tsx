@@ -18,6 +18,11 @@ import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
+import { CreatePostButton } from '../post/write';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
+import LegoReferralBadge from '../LegoReferralBadge';
+import { ReferralCampaignKey } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -30,6 +35,7 @@ export interface MainLayoutHeaderProps extends ShouldShowLogoProps {
   showOnlyLogo?: boolean;
   optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
+  showPostButton?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   onMobileSidebarToggle: (state: boolean) => unknown;
 }
@@ -46,6 +52,7 @@ function MainLayoutHeader({
   hasBanner,
   mobileTitle,
   showOnlyLogo,
+  showPostButton,
   sidebarRendered,
   optOutWeeklyGoal,
   additionalButtons,
@@ -56,6 +63,7 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const hideButton = showOnlyLogo || loadingUser;
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
 
   const headerButton = (() => {
     if (hideButton) {
@@ -108,37 +116,51 @@ function MainLayoutHeader({
               />
             )}
           </div>
+          {showPostButton && (
+            <CreatePostButton
+              className={!optOutWeeklyGoal && !isMobile && 'tablet: mr-2'}
+            />
+          )}
           {!hideButton && user && (
-            <LinkWithTooltip
-              tooltip={{ placement: 'left', content: 'Notifications' }}
-              href={`${webappUrl}notifications`}
-            >
-              <Button
-                className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
-                buttonSize={ButtonSize.Small}
-                iconOnly
-                onClick={onNavigateNotifications}
-                icon={
-                  <BellIcon
-                    className={classNames(
-                      'hover:text-theme-label-primary',
-                      atNotificationsPage && 'text-theme-label-primary',
-                    )}
-                    secondary={atNotificationsPage}
-                  />
-                }
+            <>
+              {sidebarRendered && (
+                <LegoReferralBadge
+                  className="mr-3"
+                  campaignKey={ReferralCampaignKey.LegoMay2023}
+                  autoOpenModal
+                />
+              )}
+              <LinkWithTooltip
+                tooltip={{ placement: 'bottom', content: 'Notifications' }}
+                href={`${webappUrl}notifications`}
               >
-                {hasNotification && (
-                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
-                    {getUnreadText(unreadCount)}
-                  </Bubble>
-                )}
-              </Button>
-            </LinkWithTooltip>
+                <Button
+                  className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
+                  buttonSize={ButtonSize.Small}
+                  iconOnly
+                  onClick={onNavigateNotifications}
+                  icon={
+                    <BellIcon
+                      className={classNames(
+                        'hover:text-theme-label-primary',
+                        atNotificationsPage && 'text-theme-label-primary',
+                      )}
+                      secondary={atNotificationsPage}
+                    />
+                  }
+                >
+                  {hasNotification && (
+                    <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
+                      {getUnreadText(unreadCount)}
+                    </Bubble>
+                  )}
+                </Button>
+              </LinkWithTooltip>
+            </>
           )}
           {additionalButtons}
           {headerButton}
-          {!sidebarRendered && !optOutWeeklyGoal && (
+          {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
             <MobileHeaderRankProgress />
           )}
         </>

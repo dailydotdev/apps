@@ -4,7 +4,7 @@ import { Squad, SourceMember, SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
-import { FlexCol } from '../utilities';
+import { FlexCentered, FlexCol } from '../utilities';
 import SquadMemberShortList from './SquadMemberShortList';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import SharePostBar, { SharePostBarProps } from './SharePostBar';
@@ -14,6 +14,12 @@ import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/analytics';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+import { ActionType } from '../../graphql/actions';
+import { Button } from '../buttons/Button';
+import classed from '../../lib/classed';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { link } from '../../lib/links';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -22,7 +28,8 @@ interface SquadPageHeaderProps {
   hasTriedOnboarding?: boolean;
 }
 
-const MAX_WIDTH = 'laptop:max-w-[38.5rem]';
+const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
+const Divider = classed('span', 'flex flex-1 h-px bg-theme-divider-tertiary');
 
 export function SquadPageHeader({
   squad,
@@ -37,20 +44,26 @@ export function SquadPageHeader({
     key: TutorialKey.ShareSquadPost,
   });
 
+  const { openStep, isChecklistVisible } = useSquadChecklist({ squad });
+  const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
+  const shouldShowHighlightPulse =
+    tourIndex === TourScreenIndex.Post ||
+    (isChecklistVisible && openStep === ActionType.SquadFirstPost);
+
   return (
     <FlexCol
       className={classNames(
-        'relative items-center laptop:items-start px-6 pb-20 tablet:pb-20 laptop:pb-14 mb-6 w-full tablet:border-b laptop:px-[4.5rem] min-h-20 border-theme-divider-tertiary',
-        sharePostTutorial.isActive && 'laptop:mb-28 mb-28',
+        'relative items-center laptopL:items-start px-6 tablet:pb-20 laptopL:pb-14 tablet:mb-6 w-full tablet:border-b laptopL:px-[4.5rem] min-h-20 border-theme-divider-tertiary',
+        sharePostTutorial.isActive && 'laptopL:mb-28 mb-28',
       )}
     >
-      <div className="flex flex-col laptop:flex-row items-center">
+      <div className="flex flex-col laptopL:flex-row items-center">
         <SquadImage className="w-16 tablet:w-24 h-16 tablet:h-24" {...squad} />
-        <FlexCol className="mt-4 laptop:mt-0 ml-6">
-          <h3 className="font-bold text-center laptop:text-left typo-title2">
+        <FlexCol className="mt-4 laptopL:mt-0 ml-6">
+          <h3 className="font-bold text-center laptopL:text-left typo-title2">
             {squad.name}
           </h3>
-          <h4 className="mt-1 tablet:mt-2 text-center laptop:text-left typo-body text-theme-label-tertiary">
+          <h4 className="mt-1 tablet:mt-2 text-center laptopL:text-left typo-body text-theme-label-tertiary">
             @{squad.handle}
           </h4>
         </FlexCol>
@@ -58,27 +71,25 @@ export function SquadPageHeader({
       {squad.description && (
         <p
           className={classNames(
-            'mt-6 w-full text-center laptop:text-left typo-body text-theme-label-tertiary',
+            'mt-6 w-full text-center laptopL:text-left typo-body text-theme-label-tertiary',
             MAX_WIDTH,
           )}
         >
           {squad.description}
         </p>
       )}
-      {!sidebarRendered && (
-        <SquadMemberShortList
-          squad={squad}
-          members={members}
-          memberCount={squad.membersCount}
-          className="my-6"
-        />
-      )}
+      <SquadMemberShortList
+        squad={squad}
+        members={members}
+        memberCount={squad.membersCount}
+        className="laptopL:hidden my-6"
+      />
       <SquadHeaderBar
         squad={squad}
         members={members}
         memberCount={squad.membersCount}
         onNewSquadPost={onNewSquadPost}
-        className={sidebarRendered && 'absolute top-0 right-[4.5rem]'}
+        className="laptopL:absolute laptopL:top-0 laptopL:right-[4.5rem]"
       />
       {hasTriedOnboarding && (
         <EnableNotification
@@ -89,19 +100,46 @@ export function SquadPageHeader({
       )}
       <div
         className={classNames(
-          'absolute bottom-0 w-full translate-y-1/2 px-6 laptop:px-0 bg-theme-bg-primary',
-          tourIndex === TourScreenIndex.Post && 'highlight-pulse',
-          MAX_WIDTH,
+          'relative tablet:absolute flex flex-col tablet:flex-row pt-8 tablet:p-0 bottom-0 w-full tablet:translate-y-1/2 laptopL:px-0 bg-theme-bg-primary',
+          shouldShowHighlightPulse && 'highlight-pulse',
+          allowedToPost
+            ? 'justify-center items-center laptop:max-w-[41.5rem]'
+            : 'laptop:max-w-[38.25rem]',
         )}
       >
-        <SharePostBar
-          className="w-full"
-          onNewSquadPost={onNewSquadPost}
-          disabled={!verifyPermission(squad, SourcePermissions.Post)}
-        />
+        <ConditionalWrapper
+          condition={allowedToPost}
+          wrapper={(children) => (
+            <>
+              <Divider />
+              {children}
+              <FlexCentered className="relative my-2 mx-2 w-full tablet:w-auto text-theme-label-tertiary typo-callout">
+                <span className="flex tablet:hidden absolute -left-6 h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary" />
+                <span className="z-0 px-4 bg-theme-bg-primary">or</span>
+              </FlexCentered>
+              <Button
+                tag="a"
+                href={`${link.post.create}?sid=${squad?.handle}`}
+                className="w-full tablet:w-auto btn-primary-cabbage"
+              >
+                New post
+              </Button>
+              <Divider />
+            </>
+          )}
+        >
+          <SharePostBar
+            className={classNames(
+              'w-full',
+              allowedToPost && 'max-w-[30.25rem]',
+            )}
+            onNewSquadPost={onNewSquadPost}
+            disabled={!allowedToPost}
+          />
+        </ConditionalWrapper>
         {sharePostTutorial.isActive && (
           <TutorialGuide
-            className="absolute right-0 -bottom-22 tablet:-bottom-24 laptop:-bottom-20 left-0"
+            className="absolute right-0 -bottom-22 tablet:-bottom-24 laptopL:-bottom-20 left-0"
             arrowPlacement={sidebarRendered ? 'left' : 'top'}
           >
             Let&apos;s share your first post 🥳
