@@ -15,6 +15,9 @@ import useUpdatePost from '../../hooks/useUpdatePost';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import BookmarkIcon from '../icons/Bookmark';
+import DownvoteIcon from '../icons/Downvote';
+import { Card } from '../cards/Card';
+import { useDownvotePost } from '../../hooks';
 
 export interface ShareBookmarkProps {
   onShare: (post: Post) => void;
@@ -43,11 +46,29 @@ export function PostActions({
   const { upvotePost, cancelPostUpvote } = useUpvotePost({
     onUpvotePostMutate: updatePost({
       id: post.id,
-      update: { upvoted: true, numUpvotes: post.numUpvotes + 1 },
+      update: {
+        upvoted: true,
+        downvoted: false,
+        numUpvotes: post.numUpvotes + 1,
+      },
     }),
     onCancelPostUpvoteMutate: updatePost({
       id: post.id,
       update: { upvoted: false, numUpvotes: post.numUpvotes + -1 },
+    }),
+  });
+  const { downvotePost, cancelPostDownvote } = useDownvotePost({
+    onDownvotePostMutate: updatePost({
+      id: post.id,
+      update: {
+        downvoted: true,
+        upvoted: false,
+        numUpvotes: post.upvoted ? post.numUpvotes + -1 : post.numUpvotes,
+      },
+    }),
+    onCancelPostDownvoteMutate: updatePost({
+      id: post.id,
+      update: { downvoted: false },
     }),
   });
 
@@ -75,50 +96,79 @@ export function PostActions({
     return undefined;
   };
 
+  const toggleDownvote = () => {
+    if (!post) {
+      return;
+    }
+
+    if (!user) {
+      showLogin(AuthTriggers.Downvote);
+
+      return;
+    }
+
+    if (post.downvoted) {
+      cancelPostDownvote({ id: post.id });
+    } else {
+      downvotePost({ id: post.id });
+    }
+  };
+
   return (
-    <div className="flex justify-between py-2 px-4 rounded-16 border border-theme-divider-tertiary">
-      <QuaternaryButton
-        id="upvote-post-btn"
-        pressed={post.upvoted}
-        onClick={toggleUpvote}
-        icon={<UpvoteIcon secondary={post.upvoted} />}
-        aria-label="Upvote"
-        responsiveLabelClass={actionsClassName}
-        className="btn-tertiary-avocado"
-      >
-        Upvote
-      </QuaternaryButton>
-      <QuaternaryButton
-        id="comment-post-btn"
-        pressed={post.commented}
-        onClick={onComment}
-        icon={<CommentIcon secondary={post.commented} />}
-        aria-label="Comment"
-        responsiveLabelClass={actionsClassName}
-        className="btn-tertiary-blueCheese"
-      >
-        Comment
-      </QuaternaryButton>
-      <QuaternaryButton
-        id="bookmark-post-btn"
-        pressed={post.bookmarked}
-        onClick={onBookmark}
-        icon={<BookmarkIcon secondary={post.bookmarked} />}
-        aria-label="Bookmark"
-        responsiveLabelClass={actionsClassName}
-        className="btn-tertiary-bun"
-      >
-        Bookmark
-      </QuaternaryButton>
-      <QuaternaryButton
-        id="share-post-btn"
-        onClick={() => onShare(post)}
-        icon={<ShareIcon />}
-        responsiveLabelClass={actionsClassName}
-        className="btn-tertiary-cabbage"
-      >
-        Share
-      </QuaternaryButton>
+    <div className="flex items-center rounded-16 border border-theme-divider-tertiary">
+      <Card className="flex !flex-row">
+        <QuaternaryButton
+          id="upvote-post-btn"
+          pressed={post.upvoted}
+          onClick={toggleUpvote}
+          icon={<UpvoteIcon secondary={post.upvoted} />}
+          aria-label="Upvote"
+          responsiveLabelClass={actionsClassName}
+          className="btn-tertiary-avocado"
+        />
+        <QuaternaryButton
+          id="downvote-post-btn"
+          pressed={post.downvoted}
+          onClick={toggleDownvote}
+          icon={<DownvoteIcon secondary={post.downvoted} />}
+          aria-label="Downvote"
+          responsiveLabelClass={actionsClassName}
+          className="btn-tertiary-ketchup"
+        />
+      </Card>
+      <div className="flex flex-1 justify-between items-center py-2 px-4">
+        <QuaternaryButton
+          id="comment-post-btn"
+          pressed={post.commented}
+          onClick={onComment}
+          icon={<CommentIcon secondary={post.commented} />}
+          aria-label="Comment"
+          responsiveLabelClass={actionsClassName}
+          className="btn-tertiary-blueCheese"
+        >
+          Comment
+        </QuaternaryButton>
+        <QuaternaryButton
+          id="bookmark-post-btn"
+          pressed={post.bookmarked}
+          onClick={onBookmark}
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
+          aria-label="Bookmark"
+          responsiveLabelClass={actionsClassName}
+          className="btn-tertiary-bun"
+        >
+          Bookmark
+        </QuaternaryButton>
+        <QuaternaryButton
+          id="share-post-btn"
+          onClick={() => onShare(post)}
+          icon={<ShareIcon />}
+          responsiveLabelClass={actionsClassName}
+          className="btn-tertiary-cabbage"
+        >
+          Share
+        </QuaternaryButton>
+      </div>
     </div>
   );
 }

@@ -83,6 +83,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     source {
       ...SourceBaseInfo
     }
+    downvoted
   }
   ${SOURCE_BASE_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}

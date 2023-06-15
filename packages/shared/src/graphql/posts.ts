@@ -75,6 +75,7 @@ export interface Post {
   type: PostType;
   private?: boolean;
   feedMeta?: string;
+  downvoted?: boolean;
 }
 
 export interface Ad {
@@ -564,3 +565,19 @@ export const uploadContentImage = async (
 
   return res.uploadContentImage;
 };
+
+export const DOWNVOTE_MUTATION = gql`
+  mutation Downvote($id: ID!) {
+    downvote(id: $id) {
+      _
+    }
+  }
+`;
+
+export const CANCEL_DOWNVOTE_MUTATION = gql`
+  mutation CancelDownvote($id: ID!) {
+    cancelDownvote(id: $id) {
+      _
+    }
+  }
+`;

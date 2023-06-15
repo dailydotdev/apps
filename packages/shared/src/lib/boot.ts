@@ -31,6 +31,7 @@ export type PostBootData = Pick<
   | 'scout'
   | 'commented'
   | 'type'
+  | 'downvoted'
 >;
 
 export enum BootApp {
