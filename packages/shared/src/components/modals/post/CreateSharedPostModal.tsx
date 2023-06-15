@@ -13,7 +13,7 @@ import SourceButton from '../../cards/SourceButton';
 import { Squad } from '../../../graphql/sources';
 import { formToJson } from '../../../lib/form';
 
-interface CreateSharedPostModalProps extends ModalProps {
+export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
   onSharedSuccessfully?: () => void;
   squad: Squad;
