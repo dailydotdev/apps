@@ -53,7 +53,7 @@ export function CommentMarkdownInput({
   const onSuccess = (comment: Comment) => {
     const comments = ['post_comments', postId];
     client.setQueryData<PostCommentsData>(comments, (data) => {
-      const copy = cloneDeep(data);
+      const copy = { ...data };
 
       if (!editCommentId) {
         const edge = generateCommentEdge(comment);

@@ -8,7 +8,7 @@ const initialState: ReplyTo = [null, null, false];
 
 interface UseComments {
   replyComment: Comment;
-  onReplyTo: (params: ReplyTo) => void;
+  onReplyTo: (params: ReplyTo | null) => void;
   inputProps: Partial<CommentMarkdownInputProps>;
 }
 
@@ -30,7 +30,7 @@ export const useComments = (): UseComments => {
 
   return {
     replyComment: replyTo[0],
-    onReplyTo: setReplyTo,
+    onReplyTo: (params) => setReplyTo(params === null ? initialState : params),
     inputProps,
   };
 };

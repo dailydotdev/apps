@@ -1,18 +1,15 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
 import AuthContext from '../../contexts/AuthContext';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { Comment } from '../../graphql/comments';
 import { useComments } from '../../hooks/post';
 
 export interface MainCommentProps extends CommentBoxProps {
   permissionNotificationCommentId?: string;
 }
-
-const initialState: [Comment, string, boolean?] = [null, null, false];
 
 export default function MainComment({
   className,
@@ -50,7 +47,7 @@ export default function MainComment({
         <CommentMarkdownInput
           {...inputProps}
           postId={props.post.id}
-          onCommented={() => onReplyTo(initialState)}
+          onCommented={() => onReplyTo(null)}
         />
       )}
       {comment.children?.edges.map(({ node }) => (
