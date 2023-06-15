@@ -5,8 +5,7 @@ import {
   render,
   RenderResult,
   screen,
-  waitFor,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';
@@ -28,6 +27,7 @@ import {
 import { BootDataProvider } from './BootProvider';
 import { getBootData, Boot, BootCacheData } from '../lib/boot';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
+import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),
@@ -204,25 +204,22 @@ it('should toggle the sidebar callback', async () => {
   mockSettingsMutation({ sidebarExpanded: expected });
   renderComponent(<SettingsMock />);
   const sidebar = await screen.findByText('Sidebar');
-  expect(sidebar).toHaveAttribute(
-    'data-test-value',
+  await expectToHaveTestValue(
+    sidebar,
     defaultSettings.sidebarExpanded.toString(),
   );
   fireEvent.click(sidebar);
-  expect(sidebar).toHaveAttribute('data-test-value', expected.toString());
+  await expectToHaveTestValue(sidebar, expected.toString());
 });
 
-it('should trigget set theme callback', async () => {
+it('should trigger set theme callback', async () => {
   const expected = ThemeMode.Dark;
   mockSettingsMutation({ theme: remoteThemes[expected] });
   renderComponent(<SettingsMock toTheme={expected} />);
   const theme = await screen.findByText('Theme');
-  expect(theme).toHaveAttribute(
-    'data-test-value',
-    themeModes[defaultSettings.theme],
-  );
+  await expectToHaveTestValue(theme, themeModes[defaultSettings.theme]);
   fireEvent.click(theme);
-  expect(theme).toHaveAttribute('data-test-value', expected);
+  await expectToHaveTestValue(theme, expected);
 });
 
 it('should set spaciness callback', async () => {
@@ -230,12 +227,9 @@ it('should set spaciness callback', async () => {
   mockSettingsMutation({ spaciness: expected });
   renderComponent(<SettingsMock toSpaciness={expected} />);
   const spaciness = await screen.findByText('Spaciness');
-  expect(spaciness).toHaveAttribute(
-    'data-test-value',
-    defaultSettings.spaciness,
-  );
+  await expectToHaveTestValue(spaciness, defaultSettings.spaciness);
   fireEvent.click(spaciness);
-  expect(spaciness).toHaveAttribute('data-test-value', expected);
+  await expectToHaveTestValue(spaciness, expected);
 });
 
 it('should toggle insane mode callback', async () => {
@@ -243,12 +237,12 @@ it('should toggle insane mode callback', async () => {
   mockSettingsMutation({ insaneMode: expected });
   renderComponent(<SettingsMock />);
   const insaneMode = await screen.findByText('Insane Mode');
-  expect(insaneMode).toHaveAttribute(
-    'data-test-value',
+  await expectToHaveTestValue(
+    insaneMode,
     defaultSettings.insaneMode.toString(),
   );
   fireEvent.click(insaneMode);
-  expect(insaneMode).toHaveAttribute('data-test-value', expected.toString());
+  await expectToHaveTestValue(insaneMode, expected.toString());
 });
 
 it('should toggle open new tab settings callback', async () => {
@@ -256,12 +250,12 @@ it('should toggle open new tab settings callback', async () => {
   mockSettingsMutation({ openNewTab: expected });
   renderComponent(<SettingsMock />);
   const openNewTab = await screen.findByText('Open New Tab');
-  expect(openNewTab).toHaveAttribute(
-    'data-test-value',
+  await expectToHaveTestValue(
+    openNewTab,
     defaultSettings.openNewTab.toString(),
   );
   fireEvent.click(openNewTab);
-  expect(openNewTab).toHaveAttribute('data-test-value', expected.toString());
+  await expectToHaveTestValue(openNewTab, expected.toString());
 });
 
 it('should toggle show top sites callback', async () => {
@@ -269,12 +263,12 @@ it('should toggle show top sites callback', async () => {
   mockSettingsMutation({ showTopSites: expected });
   renderComponent(<SettingsMock />);
   const showTopSites = await screen.findByText('Show Top Sites');
-  expect(showTopSites).toHaveAttribute(
-    'data-test-value',
+  await expectToHaveTestValue(
+    showTopSites,
     defaultSettings.showTopSites.toString(),
   );
   fireEvent.click(showTopSites);
-  expect(showTopSites).toHaveAttribute('data-test-value', expected.toString());
+  await expectToHaveTestValue(showTopSites, expected.toString());
 });
 
 it('should toggle sorting enabled callback', async () => {
@@ -282,12 +276,12 @@ it('should toggle sorting enabled callback', async () => {
   mockSettingsMutation({ sortingEnabled: expected });
   renderComponent(<SettingsMock />);
   const sorting = await screen.findByText('Sorting Feed');
-  expect(sorting).toHaveAttribute(
-    'data-test-value',
+  await expectToHaveTestValue(
+    sorting,
     defaultSettings.sortingEnabled.toString(),
   );
   fireEvent.click(sorting);
-  expect(sorting).toHaveAttribute('data-test-value', expected.toString());
+  await expectToHaveTestValue(sorting, expected.toString());
 });
 
 it('should toggle auto dismiss notifications', async () => {
@@ -295,12 +289,12 @@ it('should toggle auto dismiss notifications', async () => {
   mockSettingsMutation({ autoDismissNotifications: expected });
   renderComponent(<SettingsMock />);
   const autoDismiss = await screen.findByText('Auto dismiss notifications');
-  expect(autoDismiss).toHaveAttribute(
-    'data-test-value',
+  await expectToHaveTestValue(
+    autoDismiss,
     defaultSettings.autoDismissNotifications.toString(),
   );
   fireEvent.click(autoDismiss);
-  expect(autoDismiss).toHaveAttribute('data-test-value', expected.toString());
+  await expectToHaveTestValue(autoDismiss, expected.toString());
 });
 
 const AlertsMock = (params: Partial<Alerts>) => {
@@ -334,14 +328,9 @@ it('should trigger update alerts callback', async () => {
   mockAlertsMutation({ filter });
   renderComponent(<AlertsMock filter={filter} />);
   const alertsEl = await screen.findByText('Alerts');
-  expect(alertsEl).toHaveAttribute(
-    'data-test-value',
-    JSON.stringify(defaultAlerts),
-  );
+  await expectToHaveTestValue(alertsEl, JSON.stringify(defaultAlerts));
   fireEvent.click(alertsEl);
-  await waitFor(() =>
-    expect(alertsEl).toHaveAttribute('data-test-value', JSON.stringify(alerts)),
-  );
+  await expectToHaveTestValue(alertsEl, JSON.stringify(alerts));
 });
 
 interface AuthMockProps {
@@ -407,9 +396,9 @@ it('should trigger update user callback', async () => {
     <AuthMock updatedUser={{ ...defaultUser, name: expected }} />,
   );
   const user = await screen.findByText('User');
-  expect(user).toHaveAttribute('data-test-value', defaultUser.name);
+  await expectToHaveTestValue(user, defaultUser.name);
   fireEvent.click(user);
-  expect(user).toHaveAttribute('data-test-value', expected);
+  await expectToHaveTestValue(user, expected);
 });
 
 it('should trigger delete account callback', async () => {
@@ -432,12 +421,9 @@ it('should trigger show login callback', async () => {
     user: defaultAnonymousUser,
   });
   const login = await screen.findByText('Log in');
-  expect(login).toHaveAttribute('data-test-value', 'null');
+  await expectToHaveTestValue(login, 'null');
   fireEvent.click(login);
-  expect(login).toHaveAttribute(
-    'data-test-value',
-    JSON.stringify({ trigger: expected }),
-  );
+  await expectToHaveTestValue(login, JSON.stringify({ trigger: expected }));
 });
 
 it('should trigger close login callback', async () => {
@@ -448,14 +434,14 @@ it('should trigger close login callback', async () => {
   });
   const login = await screen.findByText('Log in');
   const closeLogin = await screen.findByText('Close Login');
-  expect(closeLogin).toHaveAttribute('data-test-value', 'null');
+  await expectToHaveTestValue(closeLogin, 'null');
   fireEvent.click(login);
-  expect(closeLogin).toHaveAttribute(
-    'data-test-value',
+  await expectToHaveTestValue(
+    closeLogin,
     JSON.stringify({ trigger: expected }),
   );
   fireEvent.click(closeLogin);
-  expect(closeLogin).toHaveAttribute('data-test-value', 'null');
+  await expectToHaveTestValue(closeLogin, 'null');
 });
 
 it('should trigger get redirect uri callback', async () => {
@@ -471,12 +457,9 @@ it('should display user tracking id for anonymous user', async () => {
     user: defaultAnonymousUser,
   });
   const trackingId = await screen.findByText('Tracking ID');
-  expect(trackingId).toHaveAttribute(
-    'data-test-value',
-    defaultAnonymousUser.id,
-  );
+  await expectToHaveTestValue(trackingId, defaultAnonymousUser.id);
   const user = await screen.findByText('User');
-  expect(user).toHaveAttribute('data-test-value', 'anonymous');
+  await expectToHaveTestValue(user, 'anonymous');
 });
 
 it('should display accurate information of anonymous user', async () => {
@@ -485,10 +468,10 @@ it('should display accurate information of anonymous user', async () => {
     user: defaultAnonymousUser,
   });
   const anonymousUser = await screen.findByText('Anonymous User');
-  expect(anonymousUser).toHaveAttribute(
-    'data-test-value',
+  await expectToHaveTestValue(
+    anonymousUser,
     JSON.stringify(defaultAnonymousUser),
   );
   const user = await screen.findByText('User');
-  expect(user).toHaveAttribute('data-test-value', 'anonymous');
+  await expectToHaveTestValue(user, 'anonymous');
 });

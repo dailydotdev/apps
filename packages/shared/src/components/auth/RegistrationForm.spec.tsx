@@ -5,8 +5,8 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/react';
-import { act, Simulate } from 'react-dom/test-utils';
+  act,
+} from '@testing-library/preact';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
@@ -93,7 +93,7 @@ const renderComponent = (
 };
 
 const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
-  Simulate.blur(el);
+  el.blur();
   // eslint-disable-next-line no-param-reassign
   el.value += key;
 };

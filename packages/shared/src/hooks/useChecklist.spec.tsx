@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/preact';
 import { useChecklist } from './useChecklist';
 import { ActionType } from '../graphql/actions';
 import { ChecklistStepType } from '../lib/checklist';

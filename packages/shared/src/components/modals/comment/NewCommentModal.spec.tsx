@@ -1,6 +1,11 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { Simulate } from 'react-dom/test-utils';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
@@ -302,7 +307,7 @@ it('should pre-populate comment box with the author username when', async () => 
 });
 
 const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
-  Simulate.input(el, { data: key } as unknown);
+  fireEvent.change(el, { target: { value: key } });
   // eslint-disable-next-line no-param-reassign
   el.value += key;
 };

@@ -1,4 +1,4 @@
-import { render, RenderResult, screen } from '@testing-library/react';
+import { render, RenderResult, screen } from '@testing-library/preact';
 import React, { HTMLAttributes, ReactNode } from 'react';
 import { ClickableText, BaseClickableTextProps } from './ClickableText';
 

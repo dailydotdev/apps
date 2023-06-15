@@ -3,7 +3,7 @@ import {
   render,
   screen,
   waitForElementToBeRemoved,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';

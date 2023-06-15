@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook, RenderResult } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/preact';
 import { TutorialKey, UseTutorial, useTutorial } from './useTutorial';
 
 describe('useTutorial hook', () => {

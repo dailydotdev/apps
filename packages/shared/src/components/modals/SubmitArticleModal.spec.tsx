@@ -1,5 +1,10 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import {
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+  act,
+} from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
