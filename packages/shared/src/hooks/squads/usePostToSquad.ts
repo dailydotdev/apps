@@ -88,7 +88,6 @@ export const usePostToSquad = ({
   } = useMutation(addPostToSquad(requestMethod), {
     onSuccess: (data) => {
       onSharedPostSuccessfully();
-      console.log('added post to squad');
       if (onPostSuccess) onPostSuccess(data, data?.permalink);
     },
   });
@@ -102,7 +101,6 @@ export const usePostToSquad = ({
     {
       onSuccess: (_, { url }) => {
         onSharedPostSuccessfully();
-        console.log('submitted external link');
         if (onPostSuccess) onPostSuccess(null, url);
       },
     },
