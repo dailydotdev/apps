@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { graphqlUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -22,14 +22,11 @@ import { initialDataKey } from '../../lib/constants';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import {
-  getParentComment,
-  UsePostComment,
-  usePostComment,
-} from '../../hooks/usePostComment';
+import { getParentComment, UsePostComment } from '../../hooks/usePostComment';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
+import { removePostComments } from '../../hooks/usePostById';
 
 interface PostCommentsProps {
   post: Post;
@@ -51,6 +48,7 @@ export function PostComments({
   permissionNotificationCommentId,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
+  const client = useQueryClient();
   const container = useRef<HTMLDivElement>();
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -76,7 +74,6 @@ export function PostComments({
   const { hash: commentHash } = window.location;
   const commentsCount = comments?.postComments?.edges?.length || 0;
   const commentRef = useRef<HTMLElement>(null);
-  const { deleteCommentCache } = usePostComment(post);
   const deleteCommentPrompt = async (
     commentId: string,
     parentId: string | null,
@@ -90,12 +87,12 @@ export function PostComments({
         className: 'btn-primary-cabbage',
       },
     };
-    if (await showPrompt(options)) {
-      trackEvent(postAnalyticsEvent(AnalyticsEvent.DeleteComment, post));
-      await deleteComment(commentId, requestMethod);
-      displayToast('The comment has been deleted');
-      deleteCommentCache(commentId, parentId);
-    }
+    if (!(await showPrompt(options))) return;
+
+    trackEvent(postAnalyticsEvent(AnalyticsEvent.DeleteComment, post));
+    await deleteComment(commentId, requestMethod);
+    displayToast('The comment has been deleted');
+    removePostComments(client, post, commentId, parentId);
   };
 
   const [scrollToComment, setScrollToComment] = useState(!!commentHash);
