@@ -36,7 +36,7 @@ export function NewComment({
     return (
       <CommentMarkdownInput
         {...props}
-        className="mt-4"
+        className="my-4"
         onCommented={() => setShouldShowInput(false)}
       />
     );
