@@ -1,9 +1,13 @@
 import { useContext, useMemo } from 'react';
 import { InfiniteData, useQueryClient } from 'react-query';
-import { FeedData, Post, PostType } from '../graphql/posts';
+import {
+  FeedData,
+  Post,
+  PostType,
+  supportedTypesForPrivateSources,
+} from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import AuthContext from '../contexts/AuthContext';
-import { baseFeedSupportedTypes } from '../graphql/feed';
 
 const useFindSquadWelcomePost = ({
   id: squadId,
@@ -17,7 +21,7 @@ const useFindSquadWelcomePost = ({
     Object.values({
       source: squadId,
       ranking: 'TIME',
-      supportedTypes: baseFeedSupportedTypes.concat(PostType.Welcome),
+      supportedTypes: supportedTypesForPrivateSources,
     }),
   ]);
 

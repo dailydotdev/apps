@@ -109,7 +109,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     title: getTemplatedTitle(post?.title),
     description: getSeoDescription(post),
     openGraph: {
-      images: [{ url: post?.image }],
+      images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
       article: {
         publishedTime: post?.createdAt,
         tags: post?.tags,
