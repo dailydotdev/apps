@@ -32,8 +32,15 @@ export function NewComment({
   const { user } = useAuthContext();
   const [shouldShowInput, setShouldShowInput] = useState(false);
 
-  if (shouldShowInput)
-    return <CommentMarkdownInput {...props} className="mt-4" />;
+  if (shouldShowInput) {
+    return (
+      <CommentMarkdownInput
+        {...props}
+        className="mt-4"
+        onCommented={() => setShouldShowInput(false)}
+      />
+    );
+  }
 
   return (
     <button

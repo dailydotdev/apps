@@ -19,6 +19,8 @@ import { graphqlUrl } from '../../../lib/config';
 import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
 import { formToJson } from '../../../lib/form';
 import { generateCommentEdge } from '../../../hooks/usePostComment';
+import { getPostByIdKey, updatePostCache } from '../../../hooks/usePostById';
+import { PostData } from '../../../graphql/posts';
 
 export interface CommentMarkdownInputProps {
   postId?: string;
@@ -95,7 +97,14 @@ export function CommentMarkdownInput({
       return copy;
     });
 
-    onCommented(comment);
+    if (!editCommentId) {
+      const { post } = client.getQueryData<PostData>(getPostByIdKey(postId));
+      updatePostCache(client, postId, {
+        numComments: post.numComments + 1,
+      });
+    }
+
+    if (onCommented) onCommented(comment);
   };
 
   const mutation = parentCommentId
