@@ -49,9 +49,11 @@ export function CreateSharedPostModal({
   };
 
   const [checkUrl] = useDebounce((value: string) => {
-    const links = [link, updatedPreview?.url, updatedPreview?.permalink];
-    if (!isValidHttpUrl(value) || links.some((url) => url === value))
+    const links = [updatedPreview?.url, updatedPreview?.permalink];
+
+    if (!isValidHttpUrl(value) || links.some((url) => url === value)) {
       return null;
+    }
 
     return getLinkPreview(value);
   }, 1000);

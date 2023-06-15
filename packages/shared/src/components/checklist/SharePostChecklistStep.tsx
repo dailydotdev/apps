@@ -23,9 +23,8 @@ const SharePostChecklistStep = ({
           className={showArticleOnboarding ? 'btn-secondary' : 'btn-primary'}
           onClick={() => {
             openModal({
-              type: LazyModal.PostToSquad,
+              type: LazyModal.CreateSharedPost,
               props: {
-                ...props,
                 squad,
                 preview: { url: '' },
               },

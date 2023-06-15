@@ -407,7 +407,7 @@ export interface ExternalLinkPreview {
   permalink?: string;
   id?: string;
   title?: string;
-  image: string;
+  image?: string;
   source?: Source;
 }
 
