@@ -46,6 +46,10 @@ interface SharedData {
   editId?: string;
 }
 
+export const generateCommentEdge = (comment: Comment): Edge<Comment> => ({
+  node: { ...comment, children: { edges: [], pageInfo: null } },
+});
+
 export const getParentComment = (
   post: Post,
   comment?: Comment,

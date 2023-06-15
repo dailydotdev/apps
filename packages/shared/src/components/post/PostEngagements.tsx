@@ -97,7 +97,11 @@ function PostEngagements({
         actionsClassName="hidden laptop:flex"
         origin={analyticsOrigin}
       />
-      <NewComment className="my-6" />
+      <NewComment
+        className="my-6"
+        postId={post?.id}
+        sourceId={post?.source?.id}
+      />
       <PostComments
         post={post}
         origin={analyticsOrigin}

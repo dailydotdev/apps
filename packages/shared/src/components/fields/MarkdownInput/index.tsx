@@ -31,10 +31,13 @@ import { SavingLabel } from './SavingLabel';
 import { ProfilePicture } from '../../ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Loader } from '../../Loader';
+import { Divider } from '../../utilities';
 
 interface ClassName {
   container?: string;
   tab?: string;
+  input?: string;
+  profile?: string;
 }
 
 interface MarkdownInputProps
@@ -50,6 +53,7 @@ interface MarkdownInputProps
   showUserAvatar?: boolean;
   allowPreview?: boolean;
   isUpdatingDraft?: boolean;
+  timeline?: ReactNode;
 }
 
 export interface MarkdownRef
@@ -73,6 +77,7 @@ function MarkdownInput(
     isUpdatingDraft,
     showUserAvatar,
     footer,
+    timeline,
   }: MarkdownInputProps,
   ref: MutableRefObject<MarkdownRef>,
 ): ReactElement {
@@ -158,28 +163,47 @@ function MarkdownInput(
         )}
       >
         <ConditionalWrapper
-          condition={showUserAvatar}
+          condition={!!timeline}
           wrapper={(component) => (
-            <span className="flex flex-row w-full">
-              <ProfilePicture size="large" className="mt-3 ml-3" user={user} />
+            <span className="flex relative flex-col">
+              <Divider
+                className="absolute left-8 !h-10 !bg-theme-divider-tertiary"
+                vertical
+              />
+              {timeline}
               {component}
             </span>
           )}
         >
-          <textarea
-            rows={11}
-            placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
-            {...textareaProps}
-            {...callbacks}
-            ref={textareaRef}
-            className={classNames(
-              'flex flex-1 bg-transparent outline-none typo-body placeholder-theme-label-quaternary',
-              showUserAvatar ? 'm-3' : 'm-4',
+          <ConditionalWrapper
+            condition={showUserAvatar}
+            wrapper={(component) => (
+              <span className="flex flex-row w-full">
+                <ProfilePicture
+                  size="large"
+                  className={classNames('mt-3 ml-3', className?.profile)}
+                  user={user}
+                />
+                {component}
+              </span>
             )}
-            value={input}
-            onClick={() => checkMention && checkMention()}
-            onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
-          />
+          >
+            <textarea
+              rows={11}
+              placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
+              {...textareaProps}
+              {...callbacks}
+              ref={textareaRef}
+              className={classNames(
+                'flex flex-1 bg-transparent outline-none typo-body placeholder-theme-label-quaternary',
+                showUserAvatar ? 'm-3' : 'm-4',
+                className?.input,
+              )}
+              value={input}
+              onClick={() => checkMention && checkMention()}
+              onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
+            />
+          </ConditionalWrapper>
         </ConditionalWrapper>
       </ConditionalWrapper>
       <RecommendedMentionTooltip

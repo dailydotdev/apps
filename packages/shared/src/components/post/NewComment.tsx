@@ -27,20 +27,13 @@ const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
 export function NewComment({
   className,
   size = 'large',
-  sourceId,
-  initialContent,
+  ...props
 }: NewCommentProps): ReactElement {
   const { user } = useAuthContext();
   const [shouldShowInput, setShouldShowInput] = useState(false);
 
-  if (shouldShowInput) {
-    return (
-      <CommentMarkdownInput
-        sourceId={sourceId}
-        initialContent={initialContent}
-      />
-    );
-  }
+  if (shouldShowInput)
+    return <CommentMarkdownInput {...props} className="mt-4" />;
 
   return (
     <button
