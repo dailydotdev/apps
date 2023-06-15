@@ -145,11 +145,11 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
   const navigation: Record<PostType, ReactNode> = {
-    article: router?.query?.squad && (
+    article: !!router?.query?.squad && (
       <Link href={`/squads/${router.query.squad}`}>
         <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
           <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-          Back to {router?.query?.n || 'Squad'}
+          Back to {router.query.squad || 'Squad'}
         </a>
       </Link>
     ),
