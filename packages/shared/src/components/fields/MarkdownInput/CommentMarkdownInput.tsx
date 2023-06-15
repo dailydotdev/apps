@@ -75,7 +75,10 @@ export function CommentMarkdownInput({
         const index = copy.postComments.edges.findIndex(
           ({ node }) => node.id === editCommentId,
         );
-        copy.postComments.edges[index].node = { ...comment };
+        copy.postComments.edges[index].node = {
+          ...comment,
+          children: copy.postComments.edges[index].node.children,
+        };
         return copy;
       }
 
@@ -85,7 +88,10 @@ export function CommentMarkdownInput({
       const index = parent.node.children.edges.findIndex(
         ({ node }) => node.id === editCommentId,
       );
-      parent.node.children.edges[index].node = { ...comment };
+      parent.node.children.edges[index].node = {
+        ...comment,
+        children: parent.node.children,
+      };
       return copy;
     });
 

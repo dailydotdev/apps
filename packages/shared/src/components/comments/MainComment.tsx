@@ -6,6 +6,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { Comment } from '../../graphql/comments';
+import { useComments } from '../../hooks/post';
 
 export interface MainCommentProps extends CommentBoxProps {
   permissionNotificationCommentId?: string;
@@ -20,7 +21,6 @@ export default function MainComment({
   permissionNotificationCommentId,
   ...props
 }: MainCommentProps): ReactElement {
-  const [replyTo, setReplyTo] = useState(initialState);
   const { user } = useContext(AuthContext);
   const shouldShowBanner =
     permissionNotificationCommentId === comment.id ||
@@ -28,40 +28,29 @@ export default function MainComment({
       ({ node }) => node.id === permissionNotificationCommentId,
     );
 
-  const onComment: typeof props.onComment = (selected, parentId) => {
-    setReplyTo([selected, parentId]);
-  };
-
-  const [replyComment, parentId, isEdit] = replyTo;
+  const { replyComment, inputProps, onReplyTo } = useComments();
 
   return (
     <section
       className="flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16"
       data-testid="comment"
     >
-      {!isEdit && (
+      {!inputProps?.editCommentId && (
         <CommentBox
           {...props}
           comment={comment}
           parentId={comment.id}
           className={{ container: 'border-b' }}
           appendTooltipTo={appendTooltipTo}
-          onComment={onComment}
-          onEdit={(selected, parentComment) =>
-            setReplyTo([selected, parentComment?.id, true])
-          }
+          onComment={(selected, parentId) => onReplyTo([selected, parentId])}
+          onEdit={(selected) => onReplyTo([selected, null, true])}
         />
       )}
       {replyComment?.id === comment.id && (
         <CommentMarkdownInput
-          replyTo={isEdit ? null : replyComment.author.username}
-          parentCommentId={parentId}
+          {...inputProps}
           postId={props.post.id}
-          initialContent={
-            isEdit ? comment.content : `@${replyComment.author.username} `
-          }
-          editCommentId={isEdit ? comment.id : null}
-          onCommented={() => setReplyTo(initialState)}
+          onCommented={() => onReplyTo(initialState)}
         />
       )}
       {comment.children?.edges.map(({ node }) => (
