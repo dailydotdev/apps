@@ -57,6 +57,7 @@ interface MarkdownInputProps
   allowPreview?: boolean;
   isUpdatingDraft?: boolean;
   timeline?: ReactNode;
+  isLoading?: boolean;
 }
 
 export interface MarkdownRef
@@ -81,6 +82,7 @@ function MarkdownInput(
     showUserAvatar,
     footer,
     timeline,
+    isLoading,
   }: MarkdownInputProps,
   ref: MutableRefObject<MarkdownRef>,
 ): ReactElement {
@@ -305,7 +307,12 @@ function MarkdownInput(
             )}
           </ConditionalWrapper>
           {shouldShowSubmit && (
-            <Button className="ml-auto btn-primary-cabbage" type="submit">
+            <Button
+              className="ml-auto btn-primary-cabbage"
+              type="submit"
+              disabled={isLoading}
+              loading={isLoading}
+            >
               {submitCopy}
             </Button>
           )}
