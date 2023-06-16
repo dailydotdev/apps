@@ -39,7 +39,7 @@ function SharePostContent({
           href={
             isUnknownSource
               ? post.sharedPost.permalink
-              : `${post.sharedPost.commentsPermalink}?squad=${post.source.name}`
+              : `${post.sharedPost.commentsPermalink}?squad=${post.source.handle}&n=${post.source.name}`
           }
           as={isUnknownSource ? undefined : post.sharedPost.commentsPermalink}
         >

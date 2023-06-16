@@ -149,7 +149,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       <Link href={`/squads/${router.query.squad}`}>
         <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
           <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-          Back to {router.query.squad || 'Squad'}
+          Back to {router.query.n || 'Squad'}
         </a>
       </Link>
     ),
