@@ -15,25 +15,23 @@ import {
   deleteComment,
 } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
-import MainComment from '../comments/MainComment';
+import MainComment, { MainCommentProps } from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { UsePostComment } from '../../hooks/usePostComment';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { removePostComments } from '../../hooks/usePostById';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 
-interface PostCommentsProps {
+interface PostCommentsProps extends Pick<MainCommentProps, 'onCommented'> {
   post: Post;
   origin: Origin;
   permissionNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
-  onClick?: UsePostComment['onCommentClick'];
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
   className?: CommentClassName;
@@ -47,6 +45,7 @@ export function PostComments({
   modalParentSelector,
   permissionNotificationCommentId,
   className = {},
+  onCommented,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const client = useQueryClient();
@@ -136,6 +135,7 @@ export function PostComments({
           postScoutId={post.scout?.id}
           appendTooltipTo={modalParentSelector ?? (() => container?.current)}
           permissionNotificationCommentId={permissionNotificationCommentId}
+          onCommented={onCommented}
         />
       ))}
     </div>

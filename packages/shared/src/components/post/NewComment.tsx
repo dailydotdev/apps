@@ -1,4 +1,10 @@
-import React, { ReactElement, useState } from 'react';
+import React, {
+  forwardRef,
+  MutableRefObject,
+  ReactElement,
+  useImperativeHandle,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import {
   getProfilePictureClasses,
@@ -23,20 +29,31 @@ const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
   medium: ButtonSize.Small,
 };
 
-export function NewComment({
-  className,
-  size = 'large',
-  ...props
-}: NewCommentProps): ReactElement {
+export interface NewCommentRef {
+  onShowInput: () => void;
+}
+
+function NewCommentComponent(
+  { className, size = 'large', onCommented, ...props }: NewCommentProps,
+  ref: MutableRefObject<NewCommentRef>,
+): ReactElement {
   const { user } = useAuthContext();
   const [shouldShowInput, setShouldShowInput] = useState(false);
+  useImperativeHandle(ref, () => ({
+    onShowInput: () => setShouldShowInput(true),
+  }));
+
+  const onSuccess: typeof onCommented = (comment, isNew) => {
+    setShouldShowInput(true);
+    onCommented(comment, isNew);
+  };
 
   if (shouldShowInput) {
     return (
       <CommentMarkdownInput
         {...props}
         className={{ container: 'my-4', tab: className?.tab }}
-        onCommented={() => setShouldShowInput(false)}
+        onCommented={onSuccess}
       />
     );
   }
@@ -72,3 +89,5 @@ export function NewComment({
     </button>
   );
 }
+
+export const NewComment = forwardRef(NewCommentComponent);

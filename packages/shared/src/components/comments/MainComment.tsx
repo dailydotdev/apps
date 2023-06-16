@@ -17,6 +17,7 @@ export default function MainComment({
   comment,
   appendTooltipTo,
   permissionNotificationCommentId,
+  onCommented,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -27,6 +28,10 @@ export default function MainComment({
     );
 
   const { replyComment, inputProps, onReplyTo } = useComments();
+  const onSuccess: typeof inputProps.onCommented = (newComment, isNew) => {
+    onReplyTo(null);
+    onCommented(newComment, isNew);
+  };
 
   return (
     <section
@@ -48,7 +53,7 @@ export default function MainComment({
         <CommentMarkdownInput
           {...inputProps}
           postId={props.post.id}
-          onCommented={() => onReplyTo(null)}
+          onCommented={onSuccess}
           className={className}
         />
       )}

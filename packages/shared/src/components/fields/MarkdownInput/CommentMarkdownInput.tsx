@@ -19,10 +19,10 @@ import {
 import { graphqlUrl } from '../../../lib/config';
 import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
 import { formToJson } from '../../../lib/form';
-import { generateCommentEdge } from '../../../hooks/usePostComment';
 import { getPostByIdKey, updatePostCache } from '../../../hooks/usePostById';
 import { PostData } from '../../../graphql/posts';
 import { useBackgroundRequest } from '../../../hooks/companion';
+import { Edge } from '../../../graphql/common';
 
 export interface CommentClassName {
   container?: string;
@@ -37,13 +37,17 @@ export interface CommentMarkdownInputProps {
   initialContent?: string;
   replyTo?: string;
   className?: CommentClassName;
-  onCommented?: (comment: Comment) => void;
+  onCommented?: (comment: Comment, isNew?: boolean) => void;
 }
 
 interface SubmitComment {
   id?: string;
   content: string;
 }
+
+const generateCommentEdge = (comment: Comment): Edge<Comment> => ({
+  node: { ...comment, children: { edges: [], pageInfo: null } },
+});
 
 export function CommentMarkdownInput({
   postId,
@@ -123,7 +127,7 @@ export function CommentMarkdownInput({
       });
     }
 
-    if (onCommented) onCommented(comment);
+    if (onCommented) onCommented(comment, !editCommentId);
   };
 
   const mutation = parentCommentId
@@ -173,7 +177,7 @@ export function CommentMarkdownInput({
       <MarkdownInput
         ref={markdownRef}
         className={{
-          tab: classNames('min-h-[16rem]', className?.tab),
+          tab: classNames('!min-h-[16rem]', className?.tab),
           input: replyTo && 'mt-0',
           profile: replyTo && '!mt-0',
         }}

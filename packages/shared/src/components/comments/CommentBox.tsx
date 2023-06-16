@@ -36,6 +36,7 @@ export interface CommentBoxProps extends CommentActionProps {
   parentId?: string;
   appendTooltipTo?: () => HTMLElement;
   children?: ReactNode;
+  onCommented?: (comment: Comment, isNew?: boolean) => void;
 }
 
 function CommentBox({

@@ -13,9 +13,14 @@ function SubComment({
   comment,
   parentComment,
   className,
+  onCommented,
   ...props
 }: SubCommentProps): ReactElement {
   const { replyComment, onReplyTo, inputProps } = useComments();
+  const onSuccess: typeof inputProps.onCommented = (newComment, isNew) => {
+    onReplyTo(null);
+    onCommented(newComment, isNew);
+  };
 
   return (
     <>
@@ -40,7 +45,7 @@ function SubComment({
           {...inputProps}
           className={className}
           postId={props.post.id}
-          onCommented={() => onReplyTo(null)}
+          onCommented={onSuccess}
         />
       )}
     </>
