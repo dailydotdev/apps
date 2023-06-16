@@ -71,6 +71,7 @@ export function CreateSharedPostModal({
           ref={markdownRef}
           showUserAvatar
           textareaProps={{ rows: 5, name: 'commentary' }}
+          sourceId={squad?.id}
           allowPreview={false}
           enabledCommand={{ mention: true }}
           footer={
