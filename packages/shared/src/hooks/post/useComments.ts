@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Comment } from '../../graphql/comments';
 import { CommentMarkdownInputProps } from '../../components/fields/MarkdownInput/CommentMarkdownInput';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 type ReplyTo = [Comment, string, boolean?];
 
@@ -13,6 +14,7 @@ interface UseComments {
 }
 
 export const useComments = (): UseComments => {
+  const { user, showLogin } = useAuthContext();
   const [replyTo, setReplyTo] = useState(initialState);
 
   const inputProps = useMemo(() => {
@@ -28,9 +30,18 @@ export const useComments = (): UseComments => {
     };
   }, [replyTo]);
 
+  const onReplyTo = useCallback(
+    (params: ReplyTo | null) => {
+      if (!user) return showLogin('comment');
+
+      return setReplyTo(params === null ? initialState : params);
+    },
+    [user, showLogin],
+  );
+
   return {
     replyComment: replyTo[0],
-    onReplyTo: (params) => setReplyTo(params === null ? initialState : params),
+    onReplyTo,
     inputProps,
   };
 };

@@ -37,16 +37,25 @@ function NewCommentComponent(
   { className, size = 'large', onCommented, ...props }: NewCommentProps,
   ref: MutableRefObject<NewCommentRef>,
 ): ReactElement {
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const [shouldShowInput, setShouldShowInput] = useState(false);
-  useImperativeHandle(ref, () => ({
-    onShowInput: () => setShouldShowInput(true),
-  }));
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
-    setShouldShowInput(true);
+    setShouldShowInput(false);
     onCommented(comment, isNew);
   };
+
+  const onCommentClick = () => {
+    if (!user) {
+      return showLogin('new comment');
+    }
+
+    return setShouldShowInput(true);
+  };
+
+  useImperativeHandle(ref, () => ({
+    onShowInput: onCommentClick,
+  }));
 
   if (shouldShowInput) {
     return (
@@ -65,7 +74,7 @@ function NewCommentComponent(
         'flex items-center p-3 w-full rounded-16 typo-callout border bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
         className?.container,
       )}
-      onClick={() => setShouldShowInput(true)}
+      onClick={onCommentClick}
     >
       {user ? (
         <ProfilePicture user={user} size={size} nativeLazyLoading />
