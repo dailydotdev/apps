@@ -346,7 +346,7 @@ export const LATEST_CHANGELOG_POST_QUERY = gql`
           title
           createdAt
           image
-          permalink
+          commentsPermalink
           numComments
           numUpvotes
           summary
@@ -542,7 +542,7 @@ export const UPLOAD_IMAGE_MUTATION = gql`
   }
 `;
 
-const imageSizeLimitMB = 5;
+export const imageSizeLimitMB = 5;
 export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
 export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
 
@@ -551,7 +551,7 @@ export const uploadContentImage = async (
   onProcessing?: (file: File) => void,
 ): Promise<string> => {
   if (image.size > allowedFileSize) {
-    throw new Error('File size exceeds the limit');
+    throw new Error(`File size exceeds the limit of ${imageSizeLimitMB} MB`);
   }
 
   if (!allowedContentImage.includes(image.type)) {
