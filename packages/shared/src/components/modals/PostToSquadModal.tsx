@@ -56,10 +56,6 @@ function PostToSquadModal({
   });
   const { completeAction } = useActions();
   const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  // let titleText = null;
-  // if (!isMobile) {
-  //   titleText = shouldSkipHistory ? 'Post article' : 'Share post';
-  // }
   const titleText = shouldSkipHistory ? 'Post article' : 'Share post';
 
   const onPostSuccess = async (squadPost?: Post) => {
