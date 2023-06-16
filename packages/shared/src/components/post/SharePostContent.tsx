@@ -29,25 +29,25 @@ function SharePostContent({
     return shouldShowSummary ? height : 0;
   }, [shouldShowSummary, height]);
 
+  const isUnknownSource = post.sharedPost.source.id === 'unknown';
+
   return (
     <>
       <p className="mt-6 whitespace-pre-line typo-title3">{post.title}</p>
       <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
         <Link
           href={
-            post.sharedPost.source.id === 'unknown'
+            isUnknownSource
               ? post.sharedPost.permalink
               : `${post.sharedPost.commentsPermalink}?squad=${post.source.name}`
           }
-          as={
-            post.sharedPost.source.id === 'unknown'
-              ? undefined
-              : post.sharedPost.commentsPermalink
-          }
+          as={isUnknownSource ? undefined : post.sharedPost.commentsPermalink}
         >
           {/* eslint-disable-next-line react/jsx-no-comment-textnodes, jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <a
             title="Go to post"
+            target={isUnknownSource ? '_blank' : undefined}
+            rel={isUnknownSource ? 'noopener' : undefined}
             className="flex flex-col-reverse laptop:flex-row p-4 max-w-full"
             onClick={onReadArticle}
           >
