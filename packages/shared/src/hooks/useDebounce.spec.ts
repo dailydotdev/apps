@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/preact-hooks';
 import { waitFor } from '@testing-library/preact';
 import useDebounce from './useDebounce';
 

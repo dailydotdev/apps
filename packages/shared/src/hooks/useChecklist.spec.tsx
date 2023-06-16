@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/preact-hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitFor } from '@testing-library/preact';
 import { useChecklist } from './useChecklist';
@@ -96,9 +96,9 @@ describe('useChecklist hook', () => {
 
     expect(result.current.isDone).toBe(false);
     expect(result.current.activeStep).toBe(steps[0].action.type);
-    await waitFor(() =>
-      expect(result.current.openStep).toBe(steps[0].action.type),
-    );
+    await waitFor(() => {
+      expect(result.current.openStep).toBe(steps[0].action.type);
+    });
   });
 
   it('should return completed steps', () => {

@@ -412,11 +412,12 @@ it('should send previewComment query', async () => {
       return { data: { preview: '<h1>Test</>' } };
     },
   });
+  await waitForNock();
   renderComponent();
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = '# Test';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const preview = await screen.findByText('Preview');
   preview.click();
-  await waitFor(() => queryCalled);
+  await waitFor(() => expect(queryCalled).toBeTruthy());
 });
