@@ -3,8 +3,6 @@ import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
-import useDebounce from '../../../hooks/useDebounce';
-import { isValidHttpUrl } from '../../../lib/links';
 import { usePostToSquad } from '../../../hooks';
 import { Button, ButtonSize } from '../../buttons/Button';
 import AtIcon from '../../icons/At';
@@ -12,8 +10,9 @@ import { Divider } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
 import { Squad } from '../../../graphql/sources';
 import { formToJson } from '../../../lib/form';
+import { useDebouncedUrl } from '../../../hooks/input';
 
-interface CreateSharedPostModalProps extends ModalProps {
+export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
   onSharedSuccessfully?: () => void;
   squad: Squad;
@@ -48,13 +47,10 @@ export function CreateSharedPostModal({
     return onSubmitPost(e, squad.id, commentary);
   };
 
-  const [checkUrl] = useDebounce((value: string) => {
-    const links = [link, updatedPreview?.url, updatedPreview?.permalink];
-    if (!isValidHttpUrl(value) || links.some((url) => url === value))
-      return null;
-
-    return getLinkPreview(value);
-  }, 1000);
+  const links = [updatedPreview?.url, updatedPreview?.permalink];
+  const [checkUrl] = useDebouncedUrl(getLinkPreview, (value) =>
+    links.every((url) => url !== value),
+  );
 
   const onInput: FormEventHandler<HTMLInputElement> = (e) => {
     const { value } = e.currentTarget;

@@ -9,7 +9,11 @@ import CameraIcon from '../../../icons/Camera';
 import { TextField } from '../../../fields/TextField';
 import MarkdownInput from '../../../fields/MarkdownInput';
 import { WritePageMain } from './common';
-import { EditPostProps, Post } from '../../../../graphql/posts';
+import {
+  EditPostProps,
+  Post,
+  imageSizeLimitMB,
+} from '../../../../graphql/posts';
 import { formToJson } from '../../../../lib/form';
 import useDebounce from '../../../../hooks/useDebounce';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
@@ -87,7 +91,7 @@ export function WriteFreeformContent({
         enableHover={false}
         fallbackImage={null}
         closeable
-        fileSizeLimitMB={5}
+        fileSizeLimitMB={imageSizeLimitMB}
         name="image"
         initialValue={draft?.image ?? post?.image}
         onChange={(base64, file) =>

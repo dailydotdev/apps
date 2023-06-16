@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { Button } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
@@ -12,7 +11,6 @@ const SquadEditWelcomePostChecklistStep = ({
   squad,
   ...props
 }: ChecklistStepProps & { squad: Squad }): ReactElement => {
-  const router = useRouter();
   const welcomePostId = useFindSquadWelcomePost(squad)?.id;
   const { post: welcomePost } = usePostById({
     id: welcomePostId,
@@ -20,14 +18,17 @@ const SquadEditWelcomePostChecklistStep = ({
 
   return (
     <ChecklistStep {...props}>
-      <Button
-        className="btn-primary"
-        disabled={!welcomePost}
-        icon={<EditIcon />}
-        onClick={() => router.push(`/posts/${welcomePostId}/edit`)}
-      >
-        Customize
-      </Button>
+      <div className="flex">
+        <Button
+          tag="a"
+          className="btn-primary"
+          disabled={!welcomePost}
+          icon={<EditIcon />}
+          href={`/posts/${welcomePost?.id}/edit`}
+        >
+          Customize
+        </Button>
+      </div>
     </ChecklistStep>
   );
 };

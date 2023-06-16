@@ -20,16 +20,15 @@ import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboard
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import PostToSquadModal, {
-  PostToSquadModalProps,
-} from '@dailydotdev/shared/src/components/modals/PostToSquadModal';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import CreateSharedPostModal, {
+  CreateSharedPostModalProps,
+} from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
 import CompanionToggle from './CompanionToggle';
-import { companionRequest } from './companionRequest';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -269,13 +268,12 @@ export default function CompanionMenu({
           onRequestClose={closeSharePost}
         />
       )}
-      {modal?.type === LazyModal.PostToSquad && (
-        <PostToSquadModal
+      {modal?.type === LazyModal.CreateSharedPost && (
+        <CreateSharedPostModal
           isOpen
           parentSelector={getCompanionWrapper}
-          requestMethod={companionRequest}
           onRequestClose={closeModal}
-          {...(modal.props as PostToSquadModalProps)}
+          {...(modal.props as CreateSharedPostModalProps)}
         />
       )}
     </div>

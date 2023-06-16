@@ -1,6 +1,7 @@
 import React, {
   ChangeEventHandler,
   forwardRef,
+  MouseEventHandler,
   MutableRefObject,
   ReactElement,
   ReactNode,
@@ -135,6 +136,10 @@ function MarkdownInput(
       />
     );
 
+  const onInputClick: MouseEventHandler<HTMLTextAreaElement> = () => {
+    if (checkMention) checkMention();
+  };
+
   return (
     <div
       className={classNames(
@@ -210,7 +215,7 @@ function MarkdownInput(
                 className?.input,
               )}
               value={input}
-              onClick={() => checkMention && checkMention()}
+              onClick={onInputClick}
               onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
             />
           </ConditionalWrapper>

@@ -5,11 +5,11 @@ import {
   useQueryClient,
 } from 'react-query';
 import { FormEvent, useCallback, useState } from 'react';
-import request from 'graphql-request';
 import {
   ExternalLinkPreview,
   getExternalLinkPreview,
   Post,
+  SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
 import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
@@ -18,6 +18,7 @@ import { addPostToSquad } from '../../graphql/squads';
 import { ActionType } from '../../graphql/actions';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
+import { useRequestProtocol } from '../useRequestProtocol';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
@@ -57,8 +58,9 @@ export const usePostToSquad = ({
   const client = useQueryClient();
   const { completeAction } = useActions();
   const [preview, setPreview] = useState(initialPreview);
+  const { requestMethod } = useRequestProtocol();
   const { mutateAsync: getLinkPreview, isLoading: isLoadingPreview } =
-    useMutation(getExternalLinkPreview, {
+    useMutation((url: string) => getExternalLinkPreview(url, requestMethod), {
       onSuccess: (...params) => {
         const [result, url] = params;
         setPreview({ ...result, url });
@@ -83,10 +85,10 @@ export const usePostToSquad = ({
     mutateAsync: onPost,
     isLoading: isPostLoading,
     isSuccess: isPostSuccess,
-  } = useMutation(addPostToSquad(request), {
+  } = useMutation(addPostToSquad(requestMethod), {
     onSuccess: (data) => {
       onSharedPostSuccessfully();
-      if (onPostSuccess) onPostSuccess(data, data.permalink);
+      if (onPostSuccess) onPostSuccess(data, data?.permalink);
     },
   });
 
@@ -94,12 +96,15 @@ export const usePostToSquad = ({
     mutateAsync: onSubmitLink,
     isLoading: isLinkLoading,
     isSuccess: isLinkSuccess,
-  } = useMutation(submitExternalLink, {
-    onSuccess: (_, { url }) => {
-      onSharedPostSuccessfully();
-      if (onPostSuccess) onPostSuccess(null, url);
+  } = useMutation(
+    (params: SubmitExternalLink) => submitExternalLink(params, requestMethod),
+    {
+      onSuccess: (_, { url }) => {
+        onSharedPostSuccessfully();
+        if (onPostSuccess) onPostSuccess(null, url);
+      },
     },
-  });
+  );
 
   const isPosting =
     isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;

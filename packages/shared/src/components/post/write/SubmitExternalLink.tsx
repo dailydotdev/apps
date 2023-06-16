@@ -6,12 +6,11 @@ import LinkIcon from '../../icons/Link';
 import { ClickableText } from '../../buttons/ClickableText';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import useDebounce from '../../../hooks/useDebounce';
-import { isValidHttpUrl } from '../../../lib/links';
 import useMedia from '../../../hooks/useMedia';
 import { tablet } from '../../../styles/media';
 import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 import { WriteLinkPreview } from './WriteLinkPreview';
+import { useDebouncedUrl } from '../../../hooks/input';
 
 interface SubmitExternalLinkProps {
   preview: ExternalLinkPreview;
@@ -31,11 +30,10 @@ export function SubmitExternalLink({
   const [url, setUrl] = useState<string>(undefined);
   const shouldShorten = url !== undefined || isMobile;
   const label = `Enter URL${shouldShorten ? '' : ' / Choose from'}`;
-  const [checkUrl] = useDebounce((value: string) => {
-    if (!isValidHttpUrl(value) || value === preview?.url) return null;
-
-    return getLinkPreview(value);
-  }, 1000);
+  const [checkUrl] = useDebouncedUrl(
+    getLinkPreview,
+    (value) => value !== preview?.url,
+  );
 
   const onInput: FormEventHandler<HTMLInputElement> = (e) => {
     const { value } = e.currentTarget;

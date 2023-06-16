@@ -38,29 +38,31 @@ export function WriteLinkPreview({
         value={link}
         onInput={onLinkChange}
       />
-      <WritePreviewContent>
-        <div className="flex flex-col flex-1 typo-footnote">
-          <span className="font-bold line-clamp-2">{preview.title}</span>
-          {preview.source && (
-            <span className="flex flex-row items-center mt-1">
-              <SourceAvatar size="small" source={preview.source} />
-              <span className="text-theme-label-tertiary">
-                {preview.source.name}
+      {preview.title && preview.image && (
+        <WritePreviewContent>
+          <div className="flex flex-col flex-1 typo-footnote">
+            <span className="font-bold line-clamp-2">{preview.title}</span>
+            {preview.source && (
+              <span className="flex flex-row items-center mt-1">
+                <SourceAvatar size="small" source={preview.source} />
+                <span className="text-theme-label-tertiary">
+                  {preview.source.name}
+                </span>
               </span>
-            </span>
-          )}
-        </div>
-        <Image className={previewImageClass} src={preview.image} />
-        <Button
-          icon={<OpenLinkIcon />}
-          className="btn-tertiary"
-          type="button"
-          tag="a"
-          target="_blank"
-          rel="noopener noreferrer"
-          href={link}
-        />
-      </WritePreviewContent>
+            )}
+          </div>
+          <Image className={previewImageClass} src={preview.image} />
+          <Button
+            icon={<OpenLinkIcon />}
+            className="btn-tertiary"
+            type="button"
+            tag="a"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={link}
+          />
+        </WritePreviewContent>
+      )}
     </WritePreviewContainer>
   );
 }

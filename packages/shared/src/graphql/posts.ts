@@ -348,7 +348,7 @@ export const LATEST_CHANGELOG_POST_QUERY = gql`
           title
           createdAt
           image
-          permalink
+          commentsPermalink
           numComments
           numUpvotes
           summary
@@ -407,7 +407,7 @@ export interface ExternalLinkPreview {
   permalink?: string;
   id?: string;
   title?: string;
-  image: string;
+  image?: string;
   source?: Source;
 }
 
@@ -423,13 +423,14 @@ export const PREVIEW_LINK_MUTATION = gql`
 
 export const getExternalLinkPreview = async (
   url: string,
+  requestMethod = request,
 ): Promise<ExternalLinkPreview> => {
-  const res = await request(graphqlUrl, PREVIEW_LINK_MUTATION, { url });
+  const res = await requestMethod(graphqlUrl, PREVIEW_LINK_MUTATION, { url });
 
   return res.checkLinkPreview;
 };
 
-interface SubmitExternalLink
+export interface SubmitExternalLink
   extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
   sourceId: string;
   commentary: string;
@@ -437,8 +438,9 @@ interface SubmitExternalLink
 
 export const submitExternalLink = (
   params: SubmitExternalLink,
+  requestMethod = request,
 ): Promise<EmptyResponse> =>
-  request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
+  requestMethod(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
 
 export const EDIT_POST_MUTATION = gql`
   mutation EditPost(
@@ -544,7 +546,7 @@ export const UPLOAD_IMAGE_MUTATION = gql`
   }
 `;
 
-const imageSizeLimitMB = 5;
+export const imageSizeLimitMB = 5;
 export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
 export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
 
@@ -553,7 +555,7 @@ export const uploadContentImage = async (
   onProcessing?: (file: File) => void,
 ): Promise<string> => {
   if (image.size > allowedFileSize) {
-    throw new Error('File size exceeds the limit');
+    throw new Error(`File size exceeds the limit of ${imageSizeLimitMB} MB`);
   }
 
   if (!allowedContentImage.includes(image.type)) {
