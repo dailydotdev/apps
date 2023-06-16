@@ -36,7 +36,6 @@ type UseCompanionActionsRet<T> = {
 
 interface UseCompanionActionsProps {
   id?: string;
-  Ø;
   reason?: string;
   comment?: string;
   companionExpandedValue?: boolean;

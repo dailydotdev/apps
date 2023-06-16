@@ -1,10 +1,9 @@
 import React, { ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { Button } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 import EditIcon from '../icons/Edit';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
 import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
 import { Squad } from '../../graphql/sources';
 import usePostById from '../../hooks/usePostById';
@@ -13,7 +12,7 @@ const SquadEditWelcomePostChecklistStep = ({
   squad,
   ...props
 }: ChecklistStepProps & { squad: Squad }): ReactElement => {
-  const { openModal } = useLazyModal();
+  const router = useRouter();
   const welcomePostId = useFindSquadWelcomePost(squad)?.id;
   const { post: welcomePost } = usePostById({
     id: welcomePostId,
@@ -25,12 +24,7 @@ const SquadEditWelcomePostChecklistStep = ({
         className="btn-primary"
         disabled={!welcomePost}
         icon={<EditIcon />}
-        onClick={() => {
-          openModal({
-            type: LazyModal.EditWelcomePost,
-            props: { post: welcomePost },
-          });
-        }}
+        onClick={() => router.push(`/posts/${welcomePostId}/edit`)}
       >
         Customize
       </Button>
