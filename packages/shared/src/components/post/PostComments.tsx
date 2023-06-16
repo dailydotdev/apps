@@ -20,13 +20,13 @@ import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { AuthTriggers } from '../../lib/auth';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { getParentComment, UsePostComment } from '../../hooks/usePostComment';
+import { UsePostComment } from '../../hooks/usePostComment';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { removePostComments } from '../../hooks/usePostById';
+import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 
 interface PostCommentsProps {
   post: Post;
@@ -36,21 +36,22 @@ interface PostCommentsProps {
   onClick?: UsePostComment['onCommentClick'];
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
+  className?: CommentClassName;
 }
 
 export function PostComments({
   post,
   origin,
-  onClick,
   onShare,
   onClickUpvote,
   modalParentSelector,
   permissionNotificationCommentId,
+  className = {},
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const client = useQueryClient();
   const container = useRef<HTMLDivElement>();
-  const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
@@ -115,42 +116,21 @@ export function PostComments({
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
-  const getReplyTo = (comment: Comment) =>
-    comment.author.id === user.id ? '' : `@${comment.author.username} `;
-
-  const onCommentClick = (comment: Comment, parentId: string | null) => {
-    if (user) {
-      const parent = getParentComment(post, comment);
-      parent.commentId = parentId;
-      const replyTo = getReplyTo(comment);
-      onClick(parent, replyTo);
-    } else {
-      showLogin(AuthTriggers.Comment);
-    }
-  };
-
-  const onEditClick = (comment: Comment, localParentComment?: Comment) => {
-    const shared = { editContent: comment.content, editId: comment.id };
-    const replyTo = getReplyTo(comment);
-    onClick(getParentComment(post, localParentComment, shared), replyTo);
-  };
-
   return (
     <div className="flex flex-col gap-4 mb-12" ref={container}>
       {comments.postComments.edges.map((e) => (
         <MainComment
+          className={className}
           post={post}
           origin={origin}
           commentHash={commentHash}
           commentRef={commentRef}
           comment={e.node}
           key={e.node.id}
-          onComment={onCommentClick}
           onShare={onShare}
           onDelete={(comment, parentId) =>
             deleteCommentPrompt(comment.id, parentId)
           }
-          onEdit={onEditClick}
           onShowUpvotes={onClickUpvote}
           postAuthorId={post.author?.id}
           postScoutId={post.scout?.id}

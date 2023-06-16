@@ -1,6 +1,6 @@
-import { EmptyObjectLiteral } from '@dailydotdev/shared/src/lib/kratos';
 import { useEffect } from 'react';
 import { browser } from 'webextension-polyfill-ts';
+import { EmptyObjectLiteral } from '../../lib/kratos';
 
 export const useRawBackgroundRequest = (
   command: (params: EmptyObjectLiteral) => void,

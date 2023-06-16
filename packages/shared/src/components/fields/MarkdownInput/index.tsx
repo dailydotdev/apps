@@ -32,6 +32,8 @@ import { ProfilePicture } from '../../ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Loader } from '../../Loader';
 import { Divider } from '../../utilities';
+import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
+import { getCompanion } from '../../../hooks/companion/common';
 
 interface ClassName {
   container?: string;
@@ -113,6 +115,9 @@ function MarkdownInput(
 
   useImperativeHandle(ref, () => ({ textareaRef, onMentionCommand }));
 
+  const { isCompanion } = useRequestProtocol();
+  const parentSelector = isCompanion ? getCompanion : undefined;
+
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
     onUploadCommand(e.currentTarget.files);
 
@@ -157,7 +162,11 @@ function MarkdownInput(
           >
             <Tab label="Write">{children}</Tab>
             <Tab label="Preview" className="p-4">
-              <MarkdownPreview input={input} sourceId={sourceId} />
+              <MarkdownPreview
+                input={input}
+                sourceId={sourceId}
+                parentSelector={parentSelector}
+              />
             </Tab>
           </TabContainer>
         )}
@@ -183,6 +192,7 @@ function MarkdownInput(
                   size="large"
                   className={classNames('mt-3 ml-3', className?.profile)}
                   user={user}
+                  nativeLazyLoading
                 />
                 {component}
               </span>
@@ -214,6 +224,7 @@ function MarkdownInput(
         query={query}
         onMentionClick={onApplyMention}
         onClickOutside={onCloseMention}
+        appendTo={parentSelector}
       />
       {footer ?? (
         <span className="flex flex-row gap-3 items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">

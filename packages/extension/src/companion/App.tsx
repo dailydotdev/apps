@@ -17,11 +17,11 @@ import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
+import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
 import { version } from '../../package.json';
-import { useBackgroundRequest } from './useBackgroundRequest';
 import { getCompanionWrapper } from './common';
 
 const queryClient = new QueryClient(defaultQueryClientConfig);

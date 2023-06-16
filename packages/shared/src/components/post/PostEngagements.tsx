@@ -98,7 +98,7 @@ function PostEngagements({
         origin={analyticsOrigin}
       />
       <NewComment
-        className="my-6"
+        className={{ container: 'my-6' }}
         postId={post?.id}
         sourceId={post?.source?.id}
       />

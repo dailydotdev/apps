@@ -1,5 +1,5 @@
 import { QueryKey, QueryClient, useQueryClient } from 'react-query';
-import { isQueryKeySame } from '@dailydotdev/shared/src/graphql/common';
+import { isQueryKeySame } from '../../graphql/common';
 import { useRawBackgroundRequest } from './useRawBackgroundRequest';
 
 interface UseBackgroundRequestOptionalProps {

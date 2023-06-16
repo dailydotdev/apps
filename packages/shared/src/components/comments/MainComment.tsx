@@ -7,7 +7,8 @@ import { NotificationPromptSource } from '../../lib/analytics';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 
-export interface MainCommentProps extends CommentBoxProps {
+export interface MainCommentProps
+  extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   permissionNotificationCommentId?: string;
 }
 
@@ -48,6 +49,7 @@ export default function MainComment({
           {...inputProps}
           postId={props.post.id}
           onCommented={() => onReplyTo(null)}
+          className={className}
         />
       )}
       {comment.children?.edges.map(({ node }) => (
@@ -57,6 +59,7 @@ export default function MainComment({
           comment={node}
           parentComment={comment}
           appendTooltipTo={appendTooltipTo}
+          className={className}
         />
       ))}
       {shouldShowBanner && (

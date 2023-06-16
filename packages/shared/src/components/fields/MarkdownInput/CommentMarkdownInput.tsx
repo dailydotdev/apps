@@ -2,10 +2,11 @@ import React, {
   FormEventHandler,
   ReactElement,
   useEffect,
+  useMemo,
   useRef,
 } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import cloneDeep from 'lodash.clonedeep';
+import classNames from 'classnames';
 import { defaultMarkdownCommands } from '../../../hooks/input';
 import MarkdownInput, { MarkdownRef } from './index';
 import {
@@ -21,6 +22,12 @@ import { formToJson } from '../../../lib/form';
 import { generateCommentEdge } from '../../../hooks/usePostComment';
 import { getPostByIdKey, updatePostCache } from '../../../hooks/usePostById';
 import { PostData } from '../../../graphql/posts';
+import { useBackgroundRequest } from '../../../hooks/companion';
+
+export interface CommentClassName {
+  container?: string;
+  tab?: string;
+}
 
 export interface CommentMarkdownInputProps {
   postId?: string;
@@ -29,7 +36,7 @@ export interface CommentMarkdownInputProps {
   parentCommentId?: string;
   initialContent?: string;
   replyTo?: string;
-  className?: string;
+  className?: CommentClassName;
   onCommented?: (comment: Comment) => void;
 }
 
@@ -45,14 +52,26 @@ export function CommentMarkdownInput({
   initialContent,
   replyTo,
   editCommentId,
-  className,
+  className = {},
   onCommented,
 }: CommentMarkdownInputProps): ReactElement {
   const client = useQueryClient();
   const markdownRef = useRef<MarkdownRef>();
-  const key = ['post_comments_mutations', postId];
-  const { requestMethod } = useRequestProtocol();
+  const key = useMemo(
+    () =>
+      [
+        'post_comments_mutations',
+        postId,
+        sourceId,
+        editCommentId,
+        parentCommentId,
+      ].filter((value) => !!value),
+    [postId, sourceId, editCommentId, parentCommentId],
+  );
+  const { requestMethod, isCompanion } = useRequestProtocol();
   const onSuccess = (comment: Comment) => {
+    if (!comment) return;
+
     const comments = ['post_comments', postId];
     client.setQueryData<PostCommentsData>(comments, (data) => {
       const copy = { ...data };
@@ -120,6 +139,11 @@ export function CommentMarkdownInput({
     },
   );
 
+  useBackgroundRequest(key, {
+    enabled: isCompanion,
+    callback: ({ res }) => onSuccess(res.comment),
+  });
+
   const { mutateAsync: editComment } = useMutation(
     (variables: SubmitComment) =>
       requestMethod(graphqlUrl, EDIT_COMMENT_MUTATION, variables, {
@@ -145,14 +169,15 @@ export function CommentMarkdownInput({
   }, []);
 
   return (
-    <form action="#" onSubmit={onSubmit} className={className}>
+    <form action="#" onSubmit={onSubmit} className={className?.container}>
       <MarkdownInput
         ref={markdownRef}
         className={{
-          tab: 'min-h-[16rem]',
+          tab: classNames('min-h-[16rem]', className?.tab),
           input: replyTo && 'mt-0',
           profile: replyTo && '!mt-0',
         }}
+        postId={postId}
         sourceId={sourceId}
         showUserAvatar
         initialContent={initialContent}

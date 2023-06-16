@@ -15,7 +15,6 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
-  className?: string;
   size?: ProfileImageSize;
 }
 
@@ -36,7 +35,7 @@ export function NewComment({
     return (
       <CommentMarkdownInput
         {...props}
-        className="my-4"
+        className={{ container: 'my-4', tab: className?.tab }}
         onCommented={() => setShouldShowInput(false)}
       />
     );
@@ -47,7 +46,7 @@ export function NewComment({
       type="button"
       className={classNames(
         'flex items-center p-3 w-full rounded-16 typo-callout border bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
-        className,
+        className?.container,
       )}
       onClick={() => setShouldShowInput(true)}
     >

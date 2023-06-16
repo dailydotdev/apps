@@ -1,10 +1,8 @@
 import React from 'react';
 import { AlertPointerCopy } from '@dailydotdev/shared/src/components/alert/common';
+import { getCompanion } from '@dailydotdev/shared/src/hooks/companion/common';
 
-export const getCompanionWrapper = (): HTMLElement =>
-  document
-    .querySelector('daily-companion-app')
-    .shadowRoot.querySelector('#daily-companion-wrapper');
+export const getCompanionWrapper = getCompanion;
 
 export const companionAlertMessage = (
   <AlertPointerCopy>

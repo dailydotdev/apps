@@ -4,14 +4,15 @@ import CommentBox, { CommentBoxProps } from './CommentBox';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 
-export interface SubCommentProps extends CommentBoxProps {
+export interface SubCommentProps
+  extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   parentComment: Comment;
 }
 
 function SubComment({
   comment,
   parentComment,
-  onEdit,
+  className,
   ...props
 }: SubCommentProps): ReactElement {
   const { replyComment, onReplyTo, inputProps } = useComments();
@@ -37,6 +38,7 @@ function SubComment({
       {replyComment?.id === comment.id && (
         <CommentMarkdownInput
           {...inputProps}
+          className={className}
           postId={props.post.id}
           onCommented={() => onReplyTo(null)}
         />
