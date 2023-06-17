@@ -118,7 +118,7 @@ function MainLayoutHeader({
           </div>
           {showPostButton && (
             <CreatePostButton
-              className={!optOutWeeklyGoal && !isMobile && 'tablet: mr-2'}
+              className={!optOutWeeklyGoal && 'mr-0 tablet:mr-2'}
             />
           )}
           {!hideButton && user && (
