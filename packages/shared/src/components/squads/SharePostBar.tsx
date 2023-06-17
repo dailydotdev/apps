@@ -1,9 +1,8 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
+import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { PostToSquadModalProps } from '../modals/PostToSquadModal';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
@@ -11,37 +10,75 @@ import { usePostToSquad } from '../../hooks';
 import { ClickableText } from '../buttons/ClickableText';
 import useMedia from '../../hooks/useMedia';
 import { mobileL } from '../../styles/media';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
+import { Squad } from '../../graphql/sources';
+import { ExternalLinkPreview } from '../../graphql/posts';
+import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
+import { CreateSharedPostModalProps } from '../modals/post/CreateSharedPostModal';
 
 export type NewSquadPostProps = Pick<
-  PostToSquadModalProps,
+  CreateSharedPostModalProps,
   'preview' | 'onSharedSuccessfully'
 >;
 
 export interface SharePostBarProps {
   className?: string;
-  onNewSquadPost?: (props?: NewSquadPostProps) => Promise<null>;
   disabled?: boolean;
+  squad: Squad;
 }
 
 function SharePostBar({
   className,
-  onNewSquadPost,
   disabled = false,
+  squad,
 }: SharePostBarProps): ReactElement {
+  const inputRef = useRef<HTMLInputElement>();
+  const { user } = useAuthContext();
+  const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
-  const onSharedSuccessfully = () => setUrl('');
-  const { getLinkPreview, isLoadingPreview } = usePostToSquad({
-    callback: {
-      onSuccess: (preview, link) =>
-        onNewSquadPost({
-          preview: { ...preview, url: link },
-          onSharedSuccessfully,
-        }),
-    },
+  const onSharedSuccessfully = () => {
+    inputRef.current.value = '';
+    setUrl(undefined);
+  };
+  const sharePostTutorial = useTutorial({
+    key: TutorialKey.ShareSquadPost,
   });
 
-  const { user } = useAuthContext();
+  const copyLinkTutorial = useTutorial({
+    key: TutorialKey.CopySquadLink,
+  });
+  const onCompleteTutorials = () => {
+    sharePostTutorial.complete();
+    copyLinkTutorial.activate();
+  };
+
+  const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) =>
+    openModal({
+      type: LazyModal.CreateSharedPost,
+      props: {
+        preview: { ...preview, url: link },
+        squad,
+        onSharedSuccessfully,
+        onAfterClose: onCompleteTutorials,
+      },
+    });
+
+  const onOpenHistory = () =>
+    openModal({
+      type: LazyModal.ReadingHistory,
+      props: {
+        onArticleSelected: ({ post }) => onOpenCreatePost(post, post.permalink),
+        keepOpenAfterSelecting: true,
+        onAfterClose: onCompleteTutorials,
+      },
+    });
+
+  const { getLinkPreview, isLoadingPreview } = usePostToSquad({
+    callback: { onSuccess: onOpenCreatePost },
+  });
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     await getLinkPreview(url);
@@ -79,6 +116,7 @@ function SharePostBar({
         />
         <input
           type="url"
+          ref={inputRef}
           autoComplete="off"
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
@@ -95,7 +133,7 @@ function SharePostBar({
           <ClickableText
             className="hidden tablet:flex ml-1 font-bold reading-history hover:text-theme-label-primary"
             inverseUnderline
-            onClick={() => onNewSquadPost()}
+            onClick={onOpenHistory}
             type="button"
           >
             reading history
@@ -114,7 +152,7 @@ function SharePostBar({
       <button
         className="flex tablet:hidden justify-center items-center py-5 w-full font-bold border-t text-theme-label-tertiary typo-callout border-theme-divider-tertiary"
         type="button"
-        onClick={() => onNewSquadPost()}
+        onClick={onOpenHistory}
       >
         Choose from reading history
       </button>

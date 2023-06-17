@@ -19,14 +19,14 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TextField } from '../fields/TextField';
 import LinkIcon from '../icons/Link';
 import { Post } from '../../graphql/posts';
-import useDebounce from '../../hooks/useDebounce';
 import { isValidHttpUrl } from '../../lib/links';
 import { KeyboardCommand } from '../../lib/element';
 import PostPreview from '../post/PostPreview';
 import { Loader } from '../Loader';
-import { usePostToSquad } from '../../hooks/squads/usePostToSquad';
+import { usePostToSquad } from '../../hooks';
 import { Switch } from '../fields/Switch';
 import { SquadStateProps } from './utils';
+import { useDebouncedUrl } from '../../hooks/input';
 
 export type SubmitSharePostFunc = (
   e: React.FormEvent<HTMLFormElement>,
@@ -77,11 +77,10 @@ export function SquadComment({
     },
   });
 
-  const [checkUrl] = useDebounce((url: string) => {
-    if (!isValidHttpUrl(url) || url === preview.url) return null;
-
-    return getLinkPreview(url);
-  }, 1000);
+  const [checkUrl] = useDebouncedUrl(
+    getLinkPreview,
+    (url) => url !== preview.url,
+  );
 
   const onInputChange: FormEventHandler<HTMLInputElement> = (e) => {
     const text = e.currentTarget.value;

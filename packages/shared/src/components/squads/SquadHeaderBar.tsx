@@ -23,19 +23,13 @@ import ChecklistBIcon from '../icons/ChecklistB';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
 
-interface SquadHeaderBarProps
-  extends SquadMemberShortListProps,
-    HTMLAttributes<HTMLDivElement> {
-  onNewSquadPost: () => void;
-}
-
 export function SquadHeaderBar({
   squad,
   members,
   memberCount,
   className,
   ...props
-}: SquadHeaderBarProps): ReactElement {
+}: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
   const { tourIndex } = useSquadTour();
   const { copying, trackAndCopyLink } = useSquadInvitation({
     squad,

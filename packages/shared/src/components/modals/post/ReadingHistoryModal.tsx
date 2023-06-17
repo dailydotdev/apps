@@ -8,9 +8,11 @@ import ReadingHistoryPlaceholder from '../../history/ReadingHistoryPlaceholder';
 
 interface ReadingHistoryModalProps extends ModalProps {
   onArticleSelected: (post: PostItem) => void;
+  keepOpenAfterSelecting?: boolean;
 }
 
 export function ReadingHistoryModal({
+  keepOpenAfterSelecting,
   onArticleSelected,
   onRequestClose,
 }: ReadingHistoryModalProps): ReactElement {
@@ -27,7 +29,7 @@ export function ReadingHistoryModal({
 
   const onClick = (e: React.MouseEvent, post: PostItem) => {
     onArticleSelected(post);
-    onRequestClose(e);
+    if (!keepOpenAfterSelecting) onRequestClose(e);
   };
 
   return (

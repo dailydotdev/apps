@@ -7,7 +7,7 @@ import EnableNotification from '../notifications/EnableNotification';
 import { FlexCentered, FlexCol } from '../utilities';
 import SquadMemberShortList from './SquadMemberShortList';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import SharePostBar, { SharePostBarProps } from './SharePostBar';
+import SharePostBar from './SharePostBar';
 import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
 import TutorialGuide from '../tutorial/TutorialGuide';
 import { TourScreenIndex } from './SquadTour';
@@ -24,7 +24,6 @@ import { link } from '../../lib/links';
 interface SquadPageHeaderProps {
   squad: Squad;
   members: SourceMember[];
-  onNewSquadPost: SharePostBarProps['onNewSquadPost'];
   hasTriedOnboarding?: boolean;
 }
 
@@ -34,7 +33,6 @@ const Divider = classed('span', 'flex flex-1 h-px bg-theme-divider-tertiary');
 export function SquadPageHeader({
   squad,
   members,
-  onNewSquadPost,
   hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
   const { tourIndex } = useSquadTour();
@@ -88,7 +86,6 @@ export function SquadPageHeader({
         squad={squad}
         members={members}
         memberCount={squad.membersCount}
-        onNewSquadPost={onNewSquadPost}
         className="laptopL:absolute laptopL:top-0 laptopL:right-[4.5rem]"
       />
       {hasTriedOnboarding && (
@@ -133,8 +130,8 @@ export function SquadPageHeader({
               'w-full',
               allowedToPost && 'max-w-[30.25rem]',
             )}
-            onNewSquadPost={onNewSquadPost}
             disabled={!allowedToPost}
+            squad={squad}
           />
         </ConditionalWrapper>
         {sharePostTutorial.isActive && (
