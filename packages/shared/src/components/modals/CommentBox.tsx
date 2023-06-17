@@ -180,7 +180,7 @@ function CommentBox({
         )}
         <textarea
           className={classNames(
-            'flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
+            'flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-body resize-none',
             styles.textarea,
             isComment && 'ml-3',
           )}

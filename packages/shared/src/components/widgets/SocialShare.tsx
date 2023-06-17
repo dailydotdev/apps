@@ -85,7 +85,7 @@ export const SocialShare = ({
   const onShareToSquad = (squad: SquadType) => {
     trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
     openModal({
-      type: LazyModal.PostToSquad,
+      type: LazyModal.CreateSharedPost,
       props: {
         squad,
         preview: post,

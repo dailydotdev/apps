@@ -2,18 +2,23 @@ import {
   UseMutateAsyncFunction,
   useMutation,
   UseMutationOptions,
+  useQueryClient,
 } from 'react-query';
 import { FormEvent, useCallback, useState } from 'react';
-import request from 'graphql-request';
 import {
   ExternalLinkPreview,
   getExternalLinkPreview,
   Post,
+  SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
 import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { addPostToSquad } from '../../graphql/squads';
+import { ActionType } from '../../graphql/actions';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useActions } from '../useActions';
+import { useRequestProtocol } from '../useRequestProtocol';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
@@ -38,6 +43,7 @@ interface UsePostToSquadProps {
     'onSuccess' | 'onError'
   >;
   onPostSuccess?: (post: Post, url: string) => void;
+  initialPreview?: ExternalLinkPreview;
 }
 
 const DEFAULT_ERROR = 'An error occurred, please try again';
@@ -45,11 +51,16 @@ const DEFAULT_ERROR = 'An error occurred, please try again';
 export const usePostToSquad = ({
   callback,
   onPostSuccess,
+  initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { displayToast } = useToastNotification();
-  const [preview, setPreview] = useState<ExternalLinkPreview>();
+  const { user } = useAuthContext();
+  const client = useQueryClient();
+  const { completeAction } = useActions();
+  const [preview, setPreview] = useState(initialPreview);
+  const { requestMethod } = useRequestProtocol();
   const { mutateAsync: getLinkPreview, isLoading: isLoadingPreview } =
-    useMutation(getExternalLinkPreview, {
+    useMutation((url: string) => getExternalLinkPreview(url, requestMethod), {
       onSuccess: (...params) => {
         const [result, url] = params;
         setPreview({ ...result, url });
@@ -64,13 +75,20 @@ export const usePostToSquad = ({
       },
     });
 
+  const onSharedPostSuccessfully = async () => {
+    displayToast('This post has been shared to your Squad');
+    await client.invalidateQueries(['sourceFeed', user.id]);
+    completeAction(ActionType.SquadFirstPost);
+  };
+
   const {
     mutateAsync: onPost,
     isLoading: isPostLoading,
     isSuccess: isPostSuccess,
-  } = useMutation(addPostToSquad(request), {
+  } = useMutation(addPostToSquad(requestMethod), {
     onSuccess: (data) => {
-      onPostSuccess(data, data.permalink);
+      onSharedPostSuccessfully();
+      if (onPostSuccess) onPostSuccess(data, data?.permalink);
     },
   });
 
@@ -78,11 +96,15 @@ export const usePostToSquad = ({
     mutateAsync: onSubmitLink,
     isLoading: isLinkLoading,
     isSuccess: isLinkSuccess,
-  } = useMutation(submitExternalLink, {
-    onSuccess: (_, { url }) => {
-      onPostSuccess(null, url);
+  } = useMutation(
+    (params: SubmitExternalLink) => submitExternalLink(params, requestMethod),
+    {
+      onSuccess: (_, { url }) => {
+        onSharedPostSuccessfully();
+        if (onPostSuccess) onPostSuccess(null, url);
+      },
     },
-  });
+  );
 
   const isPosting =
     isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;

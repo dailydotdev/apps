@@ -39,6 +39,7 @@ export interface PostContentProps
   shouldOnboardAuthor?: boolean;
   customNavigation?: ReactNode;
   position?: CSSProperties['position'];
+  backToSquad?: boolean;
 }
 
 export const SCROLL_OFFSET = 80;
@@ -64,6 +65,7 @@ export function PostContent({
   isFallback,
   customNavigation,
   onRemovePost,
+  backToSquad,
 }: PostContentProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -111,6 +113,7 @@ export function PostContent({
         <BasePostContent
           className={{
             ...className,
+            onboarding: backToSquad && 'mb-6',
             navigation: {
               actions: className?.navigation?.actions,
               container: classNames('pt-6', className?.navigation?.container),

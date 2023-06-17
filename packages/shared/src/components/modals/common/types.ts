@@ -25,14 +25,13 @@ export enum ModalSize {
 export enum LazyModal {
   EditSquad = 'editSquad',
   NewSquad = 'newSquad',
-  PostToSquad = 'postToSquad',
   SquadMember = 'squadMember',
   SquadTour = 'squadTour',
   UpvotedPopup = 'upvotedPopup',
-  EditWelcomePost = 'editWelcomePost',
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   LegoReferralCampaign = 'legoReferralCampaign',
+  CreateSharedPost = 'createSharedPost',
 }
 
 export type ModalTabItem = {
