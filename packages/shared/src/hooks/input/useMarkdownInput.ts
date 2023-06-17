@@ -66,7 +66,7 @@ type InputCallbacks = Pick<
   'onSubmit' | 'onKeyDown' | 'onKeyUp' | 'onDrop' | 'onInput' | 'onPaste'
 >;
 
-interface UseMarkdownInput {
+export interface UseMarkdownInput {
   input: string;
   query?: string;
   offset?: number[];
