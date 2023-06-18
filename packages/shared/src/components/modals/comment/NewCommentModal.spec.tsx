@@ -307,9 +307,9 @@ it('should pre-populate comment box with the author username when', async () => 
 });
 
 const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
-  fireEvent.change(el, { target: { value: key } });
   // eslint-disable-next-line no-param-reassign
   el.value += key;
+  fireEvent.input(el, { data: key });
 };
 
 const defaultMention = [

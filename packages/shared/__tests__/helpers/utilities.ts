@@ -11,6 +11,9 @@ export function expectToHaveAttribute(
   value: string | null | undefined,
 ): Promise<void> {
   return waitFor(() => {
+    if (value === 'false') {
+      return expect(el).not.toHaveAttribute(att);
+    }
     return expect(el).toHaveAttribute(att, value);
   });
 }

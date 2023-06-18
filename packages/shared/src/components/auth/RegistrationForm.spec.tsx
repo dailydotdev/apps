@@ -5,7 +5,6 @@ import {
   RenderResult,
   screen,
   waitFor,
-  act,
 } from '@testing-library/preact';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -93,6 +92,7 @@ const renderComponent = (
 };
 
 const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
+  el.focus();
   el.blur();
   // eslint-disable-next-line no-param-reassign
   el.value += key;
@@ -107,14 +107,12 @@ const renderRegistration = async (
   renderComponent();
   await waitForNock();
   mockEmailCheck(email, existing);
-  await act(async () => {
-    fireEvent.input(screen.getByPlaceholderText('Email'), {
-      target: { value: email },
-    });
-    const submit = await screen.findByTestId('email_signup_submit');
-    fireEvent.click(submit);
-    await waitForNock();
+  fireEvent.input(screen.getByPlaceholderText('Email'), {
+    target: { value: email },
   });
+  const submit = await screen.findByTestId('email_signup_submit');
+  fireEvent.click(submit);
+  await waitForNock();
   let queryCalled = false;
   mockGraphQL({
     request: {
@@ -139,6 +137,7 @@ const renderRegistration = async (
     target: { value: '#123xAbc' },
   });
 
+  await waitForNock();
   await waitFor(() => expect(queryCalled).toBeTruthy());
 };
 

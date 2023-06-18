@@ -199,10 +199,16 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
   );
 };
 
+const waitForRemoteBoot = async () => {
+  const theme = await screen.findByText('Theme');
+  await expectToHaveTestValue(theme, themeModes[defaultSettings.theme]);
+};
+
 it('should toggle the sidebar callback', async () => {
   const expected = false;
   mockSettingsMutation({ sidebarExpanded: expected });
   renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
   const sidebar = await screen.findByText('Sidebar');
   await expectToHaveTestValue(
     sidebar,
@@ -216,6 +222,7 @@ it('should trigger set theme callback', async () => {
   const expected = ThemeMode.Dark;
   mockSettingsMutation({ theme: remoteThemes[expected] });
   renderComponent(<SettingsMock toTheme={expected} />);
+  await waitForRemoteBoot();
   const theme = await screen.findByText('Theme');
   await expectToHaveTestValue(theme, themeModes[defaultSettings.theme]);
   fireEvent.click(theme);
@@ -226,6 +233,7 @@ it('should set spaciness callback', async () => {
   const expected = 'eco';
   mockSettingsMutation({ spaciness: expected });
   renderComponent(<SettingsMock toSpaciness={expected} />);
+  await waitForRemoteBoot();
   const spaciness = await screen.findByText('Spaciness');
   await expectToHaveTestValue(spaciness, defaultSettings.spaciness);
   fireEvent.click(spaciness);
@@ -236,6 +244,7 @@ it('should toggle insane mode callback', async () => {
   const expected = true;
   mockSettingsMutation({ insaneMode: expected });
   renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
   const insaneMode = await screen.findByText('Insane Mode');
   await expectToHaveTestValue(
     insaneMode,
@@ -249,6 +258,7 @@ it('should toggle open new tab settings callback', async () => {
   const expected = true;
   mockSettingsMutation({ openNewTab: expected });
   renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
   const openNewTab = await screen.findByText('Open New Tab');
   await expectToHaveTestValue(
     openNewTab,
@@ -262,6 +272,7 @@ it('should toggle show top sites callback', async () => {
   const expected = false;
   mockSettingsMutation({ showTopSites: expected });
   renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
   const showTopSites = await screen.findByText('Show Top Sites');
   await expectToHaveTestValue(
     showTopSites,
@@ -275,6 +286,7 @@ it('should toggle sorting enabled callback', async () => {
   const expected = true;
   mockSettingsMutation({ sortingEnabled: expected });
   renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
   const sorting = await screen.findByText('Sorting Feed');
   await expectToHaveTestValue(
     sorting,
@@ -288,6 +300,7 @@ it('should toggle auto dismiss notifications', async () => {
   const expected = false;
   mockSettingsMutation({ autoDismissNotifications: expected });
   renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
   const autoDismiss = await screen.findByText('Auto dismiss notifications');
   await expectToHaveTestValue(
     autoDismiss,
