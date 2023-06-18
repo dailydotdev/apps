@@ -148,6 +148,7 @@ const renderRegistration = async (
 it('should post registration', async () => {
   const email = 'sshanzel@yahoo.com';
   await renderRegistration(email);
+  await waitForNock();
   const form = await screen.findByTestId('registration_form');
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
@@ -166,10 +167,12 @@ it('should post registration', async () => {
 it('should display error messages', async () => {
   const email = 'sshanzel@yahoo.com';
   await renderRegistration(email);
+  await waitForNock();
   const form = await screen.findByTestId('registration_form');
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);
   fireEvent.submit(form);
+  await waitForNock();
   await waitFor(() => {
     const errorMessage =
       'The password can not be used because password length must be at least 8 characters but only got 3.';
