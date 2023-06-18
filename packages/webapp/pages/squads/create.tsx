@@ -16,10 +16,8 @@ import { WritePostContext } from '@dailydotdev/shared/src/contexts';
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import {
-  ShareLink,
-  SquadsDropdown,
-} from '@dailydotdev/shared/src/components/post/write';
+import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
+import { SquadsDropdown } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';

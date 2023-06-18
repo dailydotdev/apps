@@ -9,6 +9,7 @@ import PostSummary from '../cards/PostSummary';
 import ArrowIcon from '../icons/Arrow';
 import { Post } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
+import { SharePostTitle } from './share';
 
 interface SharePostContentProps {
   post: Post;
@@ -33,7 +34,7 @@ function SharePostContent({
 
   return (
     <>
-      <p className="mt-6 whitespace-pre-line typo-title3">{post.title}</p>
+      <SharePostTitle post={post} />
       <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
         <Link
           href={
