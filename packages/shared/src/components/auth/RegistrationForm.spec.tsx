@@ -154,6 +154,7 @@ it('should post registration', async () => {
   fireEvent.submit(form);
   // We need a longer timeout in case the full tests run and spool up
   await new Promise((resolve) => setTimeout(resolve, 100));
+  await waitForNock();
   await waitFor(() => {
     const sentText = screen.queryByText('We just sent an email to:');
     expect(sentText).toBeInTheDocument();
