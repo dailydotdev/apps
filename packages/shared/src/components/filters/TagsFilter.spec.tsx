@@ -8,7 +8,6 @@ import {
   findAllByRole,
   screen,
   fireEvent,
-  act,
 } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
@@ -287,18 +286,18 @@ it('should utilize query cache to follow a tag when not logged in', async () => 
   const category = await screen.findByText('Frontend');
   // eslint-disable-next-line testing-library/no-node-access
   const container = category.parentElement.parentElement;
-
   container.click();
 
   const button = await screen.findByTestId('tagCategoryTags');
   expect(button).toBeVisible();
 
-  await act(async () => {
-    const webdev = await screen.findByText('#webdev');
-    expect(webdev).toBeVisible();
-    fireEvent.click(webdev);
-  });
+  const webdev = await screen.findByText('#webdev');
+  expect(webdev).toBeVisible();
+  fireEvent.click(webdev);
+  await waitForNock();
 
+  // We have to wait for the data to be set
+  await new Promise((resolve) => setTimeout(resolve, 10));
   const { feedSettings } = client.getQueryData(
     getFeedSettingsQueryKey(),
   ) as AllTagCategoriesData;
@@ -323,12 +322,12 @@ it('should utilize query cache to unfollow a tag when not logged in', async () =
   const button = await screen.findByTestId('tagCategoryTags');
   expect(button).toBeVisible();
 
-  await act(async () => {
-    const react = await screen.findByText(`#${unfollow}`);
-    expect(react).toBeVisible();
-    fireEvent.click(react);
-  });
+  const react = await screen.findByText(`#${unfollow}`);
+  expect(react).toBeVisible();
+  fireEvent.click(react);
 
+  // We have to wait for the data to be set
+  await new Promise((resolve) => setTimeout(resolve, 10));
   const { feedSettings: initialSettings } = client.getQueryData(
     getFeedSettingsQueryKey(),
   ) as AllTagCategoriesData;
@@ -336,11 +335,12 @@ it('should utilize query cache to unfollow a tag when not logged in', async () =
     initialSettings.includeTags.find((tag) => tag === unfollow),
   ).toBeTruthy();
 
-  await act(async () => {
-    const react = await screen.findByText(`#${unfollow}`);
-    expect(react).toBeVisible();
-    fireEvent.click(react);
-  });
+  const reactTwo = await screen.findByText(`#${unfollow}`);
+  expect(reactTwo).toBeVisible();
+  fireEvent.click(reactTwo);
+
+  // We have to wait for the data to be set
+  await new Promise((resolve) => setTimeout(resolve, 10));
 
   const { feedSettings } = client.getQueryData(
     getFeedSettingsQueryKey(),

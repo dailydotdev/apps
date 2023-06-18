@@ -405,19 +405,19 @@ it('should send previewComment query', async () => {
   mockGraphQL({
     request: {
       query: PREVIEW_COMMENT_MUTATION,
-      variables: { content: '# Test' },
+      variables: { content: '# Test', sourceId: 's' },
     },
     result: () => {
       queryCalled = true;
       return { data: { preview: '<h1>Test</>' } };
     },
   });
-  await waitForNock();
   renderComponent();
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = '# Test';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const preview = await screen.findByText('Preview');
   preview.click();
-  await waitFor(() => expect(queryCalled).toBeTruthy());
+  await waitForNock();
+  expect(queryCalled).toBeTruthy();
 });

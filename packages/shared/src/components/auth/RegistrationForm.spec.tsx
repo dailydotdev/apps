@@ -26,8 +26,13 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 
+const client = new QueryClient();
+
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
+  nock.cleanAll();
+  client.clear();
 });
 
 const defaultToken = getNodeValue(
@@ -69,7 +74,6 @@ const renderComponent = (
     formRef: null,
   },
 ): RenderResult => {
-  const client = new QueryClient();
   mockLoginFlow();
   mockRegistraitonFlow();
   return render(
@@ -148,6 +152,8 @@ it('should post registration', async () => {
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
   fireEvent.submit(form);
+  // We need a longer timeout in case the full tests run and spool up
+  await new Promise((resolve) => setTimeout(resolve, 100));
   await waitFor(() => {
     const sentText = screen.queryByText('We just sent an email to:');
     expect(sentText).toBeInTheDocument();

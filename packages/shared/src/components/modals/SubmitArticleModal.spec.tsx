@@ -1,10 +1,4 @@
-import {
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-  act,
-} from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
@@ -22,6 +16,7 @@ import {
 import SubmitArticleModal from './SubmitArticleModal';
 import user from '../../../__tests__/fixture/loggedUser';
 import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const onRequestClose = jest.fn();
 
@@ -190,16 +185,16 @@ it('should feedback existing article', async () => {
     },
   });
   renderComponent();
-  await act(async () => {
-    const link = 'http://blog.daily.dev/blog/article-1';
-    const input = (await screen.findByRole('textbox')) as HTMLInputElement;
-    userEvent.type(input, link);
-    input.value = link;
-    const btn = await screen.findByLabelText('Submit link');
-    await waitFor(() => expect(btn).toBeEnabled());
-    btn.click();
-  });
-  await screen.findAllByRole('button');
+  const link = 'http://blog.daily.dev/blog/article-1';
+  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+  userEvent.type(input, link);
+  input.value = link;
+  const btn = await screen.findByLabelText('Submit link');
+  await waitFor(() => expect(btn).toBeEnabled());
+  btn.click();
+  // Wait for promise to resolve
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  await waitForNock();
   expect(mutationCalled).toBeTruthy();
   expect(await screen.findByText('Article exists')).toBeInTheDocument();
   expect(await screen.findByText('Test article title')).toBeInTheDocument();
