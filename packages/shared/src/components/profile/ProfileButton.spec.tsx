@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { waitFor, render, RenderResult, screen } from '@testing-library/react';
+import { waitFor, render, RenderResult, screen } from '@testing-library/preact';
 import ProfileButton from './ProfileButton';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';

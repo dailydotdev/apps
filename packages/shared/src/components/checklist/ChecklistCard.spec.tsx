@@ -4,7 +4,7 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { ChecklistCard } from './ChecklistCard';

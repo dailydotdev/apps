@@ -1,6 +1,6 @@
 import React from 'react';
 import nock from 'nock';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/preact';
 import { ProfileTooltipContent } from './ProfileTooltipContent';
 import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 import user from '../../../__tests__/fixture/loggedUser';
