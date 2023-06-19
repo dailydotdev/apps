@@ -45,8 +45,7 @@ export function CompanionDiscussion({
         <h3 className="mt-4 mb-6 ml-2 font-bold typo-callout">Discussion</h3>
         <NewComment
           size="medium"
-          postId={post?.id}
-          sourceId={post?.source?.id}
+          post={post}
           className={{ ...commentClasses, container: 'mb-4' }}
         />
         <PostComments
