@@ -87,7 +87,7 @@ const renderComponent = (
         loadedUserFromCache
         refetchBoot={jest.fn()}
       >
-        <SettingsContext.Provider value={{ syncSettings: async () => {} }}>
+        <SettingsContext.Provider value={{ syncSettings: jest.fn() }}>
           <AuthOptions {...props} />
         </SettingsContext.Provider>
       </AuthContextProvider>
@@ -162,14 +162,14 @@ it('should post registration', async () => {
 
 it('should display error messages', async () => {
   const email = 'sshanzel@yahoo.com';
+  const errorMessage =
+    'The password can not be used because password length must be at least 8 characters but only got 3.';
   await renderRegistration(email);
   const form = await screen.findByTestId('registration_form');
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);
   fireEvent.submit(form);
   await waitFor(() => {
-    const errorMessage =
-      'The password can not be used because password length must be at least 8 characters but only got 3.';
     const text = screen.queryByText(errorMessage);
     expect(text).toBeInTheDocument();
   });
