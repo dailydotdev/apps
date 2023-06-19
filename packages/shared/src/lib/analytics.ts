@@ -21,6 +21,7 @@ export enum Origin {
   // squads - end
   PostCommentButton = 'comment button',
   StartDiscussion = 'start discussion button',
+  SquadChecklist = 'squad checklist',
 }
 
 export enum LoginTrigger {

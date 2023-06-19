@@ -2,10 +2,13 @@ import React, {
   forwardRef,
   MutableRefObject,
   ReactElement,
+  useCallback,
+  useEffect,
   useImperativeHandle,
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
@@ -22,6 +25,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { PostType } from '../../graphql/posts';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
@@ -37,42 +41,67 @@ export interface NewCommentRef {
 }
 
 function NewCommentComponent(
-  { className, size = 'large', onCommented, ...props }: NewCommentProps,
+  { className, size = 'large', onCommented, post, ...props }: NewCommentProps,
   ref: MutableRefObject<NewCommentRef>,
 ): ReactElement {
+  const router = useRouter();
   const { trackEvent } = useAnalyticsContext();
   const { user, showLogin } = useAuthContext();
-  const [shouldShowInput, setShouldShowInput] = useState(false);
+  const [inputContent, setInputContent] = useState<string>(undefined);
+
+  const onShowComment = useCallback(
+    (origin: Origin, content = '') => {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.OpenComment, post, {
+          extra: { origin },
+        }),
+      );
+
+      return setInputContent(content);
+    },
+    [post, trackEvent],
+  );
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
-    setShouldShowInput(false);
+    setInputContent(undefined);
     onCommented(comment, isNew);
   };
+
+  const hasCommentQuery = typeof router.query.comment === 'string';
+
+  useEffect(() => {
+    if (!hasCommentQuery || post.type !== PostType.Welcome) {
+      return;
+    }
+
+    const { comment, ...query } = router.query;
+
+    onShowComment(Origin.SquadChecklist, comment);
+
+    router.replace({ pathname: router.pathname, query }, undefined, {
+      shallow: true,
+    });
+  }, [post, hasCommentQuery, setInputContent, onShowComment, router]);
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {
       return showLogin('new comment');
     }
 
-    trackEvent(
-      postAnalyticsEvent(AnalyticsEvent.OpenComment, props.post, {
-        extra: { origin },
-      }),
-    );
-
-    return setShouldShowInput(true);
+    return onShowComment(origin);
   };
 
   useImperativeHandle(ref, () => ({
     onShowInput: onCommentClick,
   }));
 
-  if (shouldShowInput) {
+  if (inputContent) {
     return (
       <CommentMarkdownInput
         {...props}
         className={{ container: 'my-4', tab: className?.tab }}
         onCommented={onSuccess}
+        initialContent={inputContent}
       />
     );
   }
