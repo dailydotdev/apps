@@ -25,16 +25,19 @@ export const useComments = (post: Post): UseComments => {
 
   const inputProps = useMemo(() => {
     const [replyComment, parentId, isEdit] = replyTo;
+    const replyToUsername =
+      isEdit || user?.username === replyComment?.author.username
+        ? null
+        : replyComment?.author.username;
+    const replyToContent = replyToUsername ? `@${replyToUsername} ` : undefined;
 
     return {
-      replyTo: isEdit ? null : replyComment?.author.username,
-      initialContent: isEdit
-        ? replyComment?.content
-        : `@${replyComment?.author.username} `,
+      replyTo: replyToUsername,
+      initialContent: isEdit ? replyComment?.content : replyToContent,
       editCommentId: isEdit ? replyComment?.id : null,
       parentCommentId: parentId,
     };
-  }, [replyTo]);
+  }, [user, replyTo]);
 
   const onReplyTo = useCallback(
     (params: ReplyTo | null) => {

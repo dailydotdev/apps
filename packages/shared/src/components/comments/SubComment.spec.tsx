@@ -88,11 +88,12 @@ it('should show comment content', async () => {
   await screen.findByText('my comment');
 });
 
-it('should call onComment callback', async () => {
+it('should render the comment box', async () => {
   renderLayout();
   const el = await screen.findByLabelText('Comment');
   el.click();
-  expect(onComment).toBeCalledWith(comment, 'c1');
+  const commentBox = await screen.findByRole('textbox');
+  expect(commentBox).toBeInTheDocument();
 });
 
 it('should call onDelete callback', async () => {
