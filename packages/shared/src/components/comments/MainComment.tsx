@@ -27,7 +27,7 @@ export default function MainComment({
       ({ node }) => node.id === permissionNotificationCommentId,
     );
 
-  const { replyComment, inputProps, onReplyTo } = useComments();
+  const { replyComment, inputProps, onReplyTo } = useComments(props.post);
   const onSuccess: typeof inputProps.onCommented = (newComment, isNew) => {
     onReplyTo(null);
     onCommented(newComment, isNew);
@@ -52,7 +52,7 @@ export default function MainComment({
       {replyComment?.id === comment.id && (
         <CommentMarkdownInput
           {...inputProps}
-          postId={props.post.id}
+          post={props.post}
           onCommented={onSuccess}
           className={className}
         />

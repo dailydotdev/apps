@@ -2,6 +2,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { Comment } from '../../graphql/comments';
 import { CommentMarkdownInputProps } from '../../components/fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { isNullOrUndefined } from '../../lib/func';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { Post } from '../../graphql/posts';
 
 type ReplyTo = [Comment, string, boolean?];
 
@@ -13,7 +18,8 @@ interface UseComments {
   inputProps: Partial<CommentMarkdownInputProps>;
 }
 
-export const useComments = (): UseComments => {
+export const useComments = (post: Post): UseComments => {
+  const { trackEvent } = useAnalyticsContext();
   const { user, showLogin } = useAuthContext();
   const [replyTo, setReplyTo] = useState(initialState);
 
@@ -34,9 +40,17 @@ export const useComments = (): UseComments => {
     (params: ReplyTo | null) => {
       if (!user) return showLogin('comment');
 
+      if (!isNullOrUndefined(params)) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.OpenComment, post, {
+            extra: { origin: Origin.PostCommentButton },
+          }),
+        );
+      }
+
       return setReplyTo(params === null ? initialState : params);
     },
-    [user, showLogin],
+    [user, showLogin, trackEvent, post],
   );
 
   return {

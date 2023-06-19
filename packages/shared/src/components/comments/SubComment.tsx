@@ -16,7 +16,7 @@ function SubComment({
   onCommented,
   ...props
 }: SubCommentProps): ReactElement {
-  const { replyComment, onReplyTo, inputProps } = useComments();
+  const { replyComment, onReplyTo, inputProps } = useComments(props.post);
   const onSuccess: typeof inputProps.onCommented = (newComment, isNew) => {
     onReplyTo(null);
     onCommented(newComment, isNew);
@@ -44,7 +44,7 @@ function SubComment({
         <CommentMarkdownInput
           {...inputProps}
           className={className}
-          postId={props.post.id}
+          post={props.post}
           onCommented={onSuccess}
         />
       )}
