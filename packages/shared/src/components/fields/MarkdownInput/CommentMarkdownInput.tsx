@@ -19,8 +19,8 @@ import {
 import { graphqlUrl } from '../../../lib/config';
 import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
 import { formToJson } from '../../../lib/form';
-import { getPostByIdKey, updatePostCache } from '../../../hooks/usePostById';
-import { PostData } from '../../../graphql/posts';
+import { updatePostCache } from '../../../hooks/usePostById';
+import { Post } from '../../../graphql/posts';
 import { useBackgroundRequest } from '../../../hooks/companion';
 import { Edge } from '../../../graphql/common';
 
@@ -30,8 +30,7 @@ export interface CommentClassName {
 }
 
 export interface CommentMarkdownInputProps {
-  postId?: string;
-  sourceId?: string;
+  post?: Post;
   editCommentId?: string;
   parentCommentId?: string;
   initialContent?: string;
@@ -50,8 +49,7 @@ const generateCommentEdge = (comment: Comment): Edge<Comment> => ({
 });
 
 export function CommentMarkdownInput({
-  postId,
-  sourceId,
+  post,
   parentCommentId,
   initialContent,
   replyTo,
@@ -59,6 +57,8 @@ export function CommentMarkdownInput({
   className = {},
   onCommented,
 }: CommentMarkdownInputProps): ReactElement {
+  const postId = post?.id;
+  const sourceId = post?.source?.id;
   const client = useQueryClient();
   const markdownRef = useRef<MarkdownRef>();
   const key = useMemo(
@@ -121,10 +121,7 @@ export function CommentMarkdownInput({
     });
 
     if (!editCommentId) {
-      const { post } = client.getQueryData<PostData>(getPostByIdKey(postId));
-      updatePostCache(client, postId, {
-        numComments: post.numComments + 1,
-      });
+      updatePostCache(client, postId, { numComments: post.numComments + 1 });
     }
 
     if (onCommented) onCommented(comment, !editCommentId);

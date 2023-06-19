@@ -11,6 +11,7 @@ import { PostActions, ShareBookmarkProps } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
+import { Origin } from '../../lib/analytics';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -81,14 +82,15 @@ function PostEngagements({
         onShare={onShare}
         post={post}
         postQueryKey={postQueryKey}
-        onComment={() => commentRef.current.onShowInput()}
+        onComment={() =>
+          commentRef.current.onShowInput(Origin.PostCommentButton)
+        }
         actionsClassName="hidden laptop:flex"
         origin={analyticsOrigin}
       />
       <NewComment
         className={{ container: 'my-6' }}
-        postId={post?.id}
-        sourceId={post?.source?.id}
+        post={post}
         ref={commentRef}
         onCommented={onCommented}
       />

@@ -19,6 +19,8 @@ export enum Origin {
   Notification = 'notification',
   SquadMembersList = 'squad members list',
   // squads - end
+  PostCommentButton = 'comment button',
+  StartDiscussion = 'start discussion button',
 }
 
 export enum LoginTrigger {
@@ -61,6 +63,7 @@ export enum AnalyticsEvent {
   DeleteComment = 'delete comment',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
+  OpenComment = 'open comment modal',
 }
 
 export enum TargetType {

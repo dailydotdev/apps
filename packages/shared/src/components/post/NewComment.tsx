@@ -19,6 +19,9 @@ import {
   CommentMarkdownInputProps,
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
@@ -30,13 +33,14 @@ const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
 };
 
 export interface NewCommentRef {
-  onShowInput: () => void;
+  onShowInput: (origin: Origin) => void;
 }
 
 function NewCommentComponent(
   { className, size = 'large', onCommented, ...props }: NewCommentProps,
   ref: MutableRefObject<NewCommentRef>,
 ): ReactElement {
+  const { trackEvent } = useAnalyticsContext();
   const { user, showLogin } = useAuthContext();
   const [shouldShowInput, setShouldShowInput] = useState(false);
 
@@ -45,10 +49,16 @@ function NewCommentComponent(
     onCommented(comment, isNew);
   };
 
-  const onCommentClick = () => {
+  const onCommentClick = (origin: Origin) => {
     if (!user) {
       return showLogin('new comment');
     }
+
+    trackEvent(
+      postAnalyticsEvent(AnalyticsEvent.OpenComment, props.post, {
+        extra: { origin },
+      }),
+    );
 
     return setShouldShowInput(true);
   };
@@ -74,7 +84,7 @@ function NewCommentComponent(
         'flex items-center p-3 w-full rounded-16 typo-callout border bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
         className?.container,
       )}
-      onClick={onCommentClick}
+      onClick={() => onCommentClick(Origin.StartDiscussion)}
     >
       {user ? (
         <ProfilePicture user={user} size={size} nativeLazyLoading />
