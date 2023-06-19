@@ -154,7 +154,7 @@ it('should post registration', async () => {
   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
   fireEvent.submit(form);
   // We need a longer timeout in case the full tests run and spool up
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   await waitForNock();
   await waitFor(() => {
     const sentText = screen.queryByText('We just sent an email to:');
@@ -172,6 +172,7 @@ it('should display error messages', async () => {
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);
   fireEvent.submit(form);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   await waitForNock();
   await waitFor(() => {
     const errorMessage =
