@@ -7,7 +7,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { SettingsContextProvider } from '../contexts/SettingsContext';

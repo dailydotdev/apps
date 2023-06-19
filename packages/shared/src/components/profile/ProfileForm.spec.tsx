@@ -5,7 +5,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import { LoggedUser, updateProfile } from '../../lib/user';

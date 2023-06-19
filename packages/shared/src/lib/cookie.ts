@@ -45,7 +45,7 @@ export const updateFeatureFlags = (
       return features;
     }
 
-    return { ...features, [key]: { enabled: true, value } };
+    return { ...features, [key]: { enabled: true, value } } as IFlags;
   }, flags);
 
 if (isPreviewDeployment) {

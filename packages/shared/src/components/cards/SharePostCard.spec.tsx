@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { SharePostCard } from './SharePostCard';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { sharePost } from '../../../__tests__/fixture/post';
