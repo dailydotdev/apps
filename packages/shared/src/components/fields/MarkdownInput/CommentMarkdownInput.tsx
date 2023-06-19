@@ -23,6 +23,8 @@ import { updatePostCache } from '../../../hooks/usePostById';
 import { Post } from '../../../graphql/posts';
 import { useBackgroundRequest } from '../../../hooks/companion';
 import { Edge } from '../../../graphql/common';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export interface CommentClassName {
   container?: string;
@@ -61,22 +63,23 @@ export function CommentMarkdownInput({
   const sourceId = post?.source?.id;
   const client = useQueryClient();
   const markdownRef = useRef<MarkdownRef>();
+  const { user } = useAuthContext();
   const key = useMemo(
     () =>
-      [
-        'post_comments_mutations',
-        postId,
-        sourceId,
-        editCommentId,
-        parentCommentId,
-      ].filter((value) => !!value),
-    [postId, sourceId, editCommentId, parentCommentId],
+      generateQueryKey(
+        RequestKey.PostCommentsMutations,
+        user,
+        [postId, sourceId, editCommentId, parentCommentId].filter(
+          (value) => !!value,
+        ),
+      ),
+    [user, postId, sourceId, editCommentId, parentCommentId],
   );
   const { requestMethod, isCompanion } = useRequestProtocol();
   const onSuccess = (comment: Comment) => {
     if (!comment) return;
 
-    const comments = ['post_comments', postId];
+    const comments = generateQueryKey(RequestKey.PostComments, null, postId);
     client.setQueryData<PostCommentsData>(comments, (data) => {
       const copy = { ...data };
 
