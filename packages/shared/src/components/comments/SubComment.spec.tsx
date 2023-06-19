@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, render, RenderResult } from '@testing-library/react';
+import { screen, render, RenderResult } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';

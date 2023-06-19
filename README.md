@@ -26,9 +26,8 @@ The decision was made to allow faster iterations and to keep features parity in 
 
 ## Technology
 
-* NPM for managing dependencies.
 * Node v18.16.0 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
-* [lerna](https://github.com/lerna/lerna) for managing the monorepo.
+* [pnpm](https://pnpm.io/workspaces) for managing the monorepo and dependencies.
 
 ## Projects
 
@@ -70,15 +69,15 @@ https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md
 
 After cloning the project, please make sure to run the following commands to bootstrap the project:
 ```
-npm i -g lerna
-lerna bootstrap
+npm i -g pnpm
+pnpm install
 ```
 
 ## Firefox Review
 
 * Install node v18.16.0 and npm v9.5.1
-* Install `lerna` as a global package `npm i -g lerna` 
-* Bootstrap project `lerna bootstrap`
+* Install `pnpm` as a global package `npm i -g pnpm` 
+* Bootstrap project `pnpm install`
 * Change working directory to extension project `cd packages/extension`
 * Build Firefox version `npm run build:firefox`
 * Firefox build should be located at `dist`

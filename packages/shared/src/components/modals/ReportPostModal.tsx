@@ -61,6 +61,7 @@ export default function ReportPostModal({
         <textarea
           onChange={(event) => setComment(event.target.value)}
           className="self-stretch p-2 mb-4 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
+          data-testid="report_comment"
         />
         <Checkbox
           ref={inputRef}

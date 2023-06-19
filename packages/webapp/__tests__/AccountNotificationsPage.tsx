@@ -28,6 +28,7 @@ jest.mock('next/router', () => ({
 let client: QueryClient;
 
 beforeEach(() => {
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   client = new QueryClient();
@@ -112,7 +113,7 @@ it('should change user email marketing subscription', async () => {
   const subscription = await screen.findByTestId('marketing-switch');
   expect(subscription).not.toBeChecked();
   subscription.click();
-  await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
   await waitForNock();
   expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 });
@@ -124,7 +125,7 @@ it('should change user notification email subscription', async () => {
   const subscription = await screen.findByTestId('new_activity-switch');
   expect(subscription).not.toBeChecked();
   subscription.click();
-  await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
   await waitForNock();
   expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 });
