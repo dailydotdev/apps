@@ -62,6 +62,7 @@ function PostEngagements({
   const onCommented = (comment: Comment, isNew?: boolean) => {
     if (isNew) {
       setPermissionNotificationCommentId(comment.id);
+      onShowShareNewComment(comment.id);
     }
   };
 
