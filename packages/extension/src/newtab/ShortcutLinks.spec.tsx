@@ -145,7 +145,7 @@ describe('shortcut links component', () => {
   it('should display add shortcuts if settings is enabled', async () => {
     renderComponent();
 
-    act(async () => {
+    await act(async () => {
       const addShortcuts = await screen.findByText('Add shortcuts');
       expect(addShortcuts).toBeVisible();
     });

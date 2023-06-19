@@ -187,6 +187,7 @@ function MarkdownInput(
                 vertical
               />
               {timeline}
+
               {component}
             </span>
           )}

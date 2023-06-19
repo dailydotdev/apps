@@ -43,6 +43,9 @@ import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/type
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
+import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import Link from 'next/link';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -142,7 +145,14 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
   const navigation: Record<PostType, ReactNode> = {
-    article: null,
+    article: !!router?.query?.squad && (
+      <Link href={`/squads/${router.query.squad}`}>
+        <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
+          <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
+          Back to {router.query.n || 'Squad'}
+        </a>
+      </Link>
+    ),
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
@@ -150,7 +160,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
   if (!Content || isError) return <Custom404 />;
-
   return (
     <>
       <Head>
@@ -162,6 +171,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         post={post}
         isFallback={isFallback}
         customNavigation={customNavigation}
+        backToSquad={!!router?.query?.squad}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
         origin={Origin.ArticlePage}
