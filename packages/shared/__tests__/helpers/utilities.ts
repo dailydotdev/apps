@@ -3,7 +3,8 @@ import nock from 'nock';
 
 export const expectNockDone = (): void => expect(nock.isDone()).toBeTruthy();
 
-export const waitForNock = (): Promise<void> => waitFor(expectNockDone);
+export const waitForNock = (): Promise<void> =>
+  waitFor(expectNockDone, { timeout: 1000 });
 
 export function expectToHaveAttribute(
   el: HTMLElement,

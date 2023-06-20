@@ -21,6 +21,7 @@ export enum Justify {
   End = 'justify-end',
   Center = 'justify-center',
   Between = 'justify-between',
+  Start = 'justify-start',
 }
 
 export interface ThemeColor {
