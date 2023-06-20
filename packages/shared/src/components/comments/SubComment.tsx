@@ -7,6 +7,7 @@ import { useComments } from '../../hooks/post';
 export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   parentComment: Comment;
+  onCommented: (comment: Comment, isNew?: boolean) => void;
 }
 
 function SubComment({

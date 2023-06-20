@@ -6,10 +6,12 @@ import AuthContext from '../../contexts/AuthContext';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
+import { Comment } from '../../graphql/comments';
 
 export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   permissionNotificationCommentId?: string;
+  onCommented: (comment: Comment, isNew?: boolean) => void;
 }
 
 export default function MainComment({
@@ -65,6 +67,7 @@ export default function MainComment({
           parentComment={comment}
           appendTooltipTo={appendTooltipTo}
           className={className}
+          onCommented={onCommented}
         />
       ))}
       {shouldShowBanner && (
