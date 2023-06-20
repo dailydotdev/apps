@@ -26,6 +26,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { removePostComments } from '../../hooks/usePostById';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 interface PostCommentsProps extends Pick<MainCommentProps, 'onCommented'> {
   post: Post;
@@ -55,7 +56,7 @@ export function PostComments({
   const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
   const { showPrompt } = usePrompt();
-  const queryKey = ['post_comments', id];
+  const queryKey = generateQueryKey(RequestKey.PostComments, null, id);
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
       queryKey,

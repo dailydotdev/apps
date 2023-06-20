@@ -11,6 +11,7 @@ import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
 import { Post, PostData, POST_BY_ID_QUERY } from '../graphql/posts';
 import { PostCommentsData } from '../graphql/comments';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 interface UsePostByIdProps {
   id: string;
@@ -44,7 +45,7 @@ export const removePostComments = (
   commentId: string,
   parentId: string,
 ): void => {
-  const key = ['post_comments', post.id];
+  const key = generateQueryKey(RequestKey.PostComments, null, post.id);
   client.setQueryData<PostCommentsData>(key, (data) => {
     const copy = { ...data };
 

@@ -95,10 +95,11 @@ function NewCommentComponent(
     onShowInput: onCommentClick,
   }));
 
-  if (inputContent) {
+  if (typeof inputContent !== 'undefined') {
     return (
       <CommentMarkdownInput
         {...props}
+        post={post}
         className={{ container: 'my-4', tab: className?.tab }}
         onCommented={onSuccess}
         initialContent={inputContent}

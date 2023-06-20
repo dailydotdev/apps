@@ -32,7 +32,7 @@ export interface CommentClassName {
 }
 
 export interface CommentMarkdownInputProps {
-  post?: Post;
+  post: Post;
   editCommentId?: string;
   parentCommentId?: string;
   initialContent?: string;
@@ -156,6 +156,8 @@ export function CommentMarkdownInput({
     { onSuccess: (data) => onSuccess(data.comment) },
   );
 
+  console.log(postId, post?.id);
+
   const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
@@ -164,6 +166,8 @@ export function CommentMarkdownInput({
     if (editCommentId) {
       return editComment({ id: editCommentId, content });
     }
+
+    console.log('commenting: ', postId, post?.id);
 
     return onComment({ content, id: parentCommentId ?? postId });
   };

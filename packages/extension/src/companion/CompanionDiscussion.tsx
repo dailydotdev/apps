@@ -7,6 +7,10 @@ import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { getCompanionWrapper } from './common';
 
 interface CompanionDiscussionProps {
@@ -26,7 +30,9 @@ export function CompanionDiscussion({
   const { shareComment, openShareComment, closeShareComment } = useShareComment(
     Origin.Companion,
   );
-  useBackgroundRequest(['post_comments', post?.id]);
+  useBackgroundRequest(
+    generateQueryKey(RequestKey.PostComments, null, post?.id),
+  );
 
   if (!post) {
     return null;
