@@ -10,7 +10,6 @@ import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
-  errorRegistrationMockData,
   mockEmailCheck,
   mockLoginFlow,
   mockRegistraitonFlow,
