@@ -204,8 +204,7 @@ export const SocialRegistrationForm = ({
           hint={hints?.username || usernameHint}
           onBlur={(e) => setUsername(e.target.value)}
           valueChanged={() =>
-            hints?.[username] &&
-            onUpdateHints({ ...hints, username: '' })
+            hints?.[username] && onUpdateHints({ ...hints, username: '' })
           }
         />
         {isAuthorOnboarding && (
