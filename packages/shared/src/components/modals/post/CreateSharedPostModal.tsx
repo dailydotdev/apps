@@ -118,20 +118,20 @@ export function CreateSharedPostModal({
             )
           }
         />
-        {/* {shouldShowCta && ( */}
-        <Switch
-          data-testId="push_notification-switch"
-          inputId="push_notification-switch"
-          name="push_notification"
-          labelClassName="flex-1 font-normal"
-          className="py-3"
-          compact={false}
-          checked={isEnabled}
-          onToggle={onToggle}
-        >
-          Receive updates whenever your Squad members engage with your post
-        </Switch>
-        {/* )} */}
+        {shouldShowCta && (
+          <Switch
+            data-testId="push_notification-switch"
+            inputId="push_notification-switch"
+            name="push_notification"
+            labelClassName="flex-1 font-normal"
+            className="py-3"
+            compact={false}
+            checked={isEnabled}
+            onToggle={onToggle}
+          >
+            Receive updates whenever your Squad members engage with your post
+          </Switch>
+        )}
       </form>
       <Modal.Footer className="typo-caption1" justify={Justify.Start}>
         <Button
