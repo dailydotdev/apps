@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useRequestProtocol } from './useRequestProtocol';
 import { GET_USERNAME_SUGGESTION } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
@@ -15,8 +15,8 @@ export const useGenerateUsername = (
   const [username, setUsername] = useState('');
   const usernameRef = useRef(false);
   const { requestMethod } = useRequestProtocol();
-  const usernameQueryKey = ['generateUsername', name];
-  const { data, isLoading } = useQuery<{
+  const usernameQueryKey = ['generateUsername'];
+  const { data } = useQuery<{
     generateUniqueUsername: string;
   }>(
     usernameQueryKey,
@@ -32,15 +32,13 @@ export const useGenerateUsername = (
     },
   );
 
-  useEffect(() => {
-    if (username.length || isLoading || usernameRef.current === true) return;
-
+  if (data?.generateUniqueUsername && !usernameRef.current) {
     usernameRef.current = true;
 
-    if (data?.generateUniqueUsername) {
+    if (!username.length) {
       setUsername(data.generateUniqueUsername);
     }
-  }, [data, isLoading, username]);
+  }
 
   return {
     username,
