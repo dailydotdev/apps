@@ -15,7 +15,7 @@ export const useGenerateUsername = (
   const [username, setUsername] = useState('');
   const usernameRef = useRef(false);
   const { requestMethod } = useRequestProtocol();
-  const usernameQueryKey = ['generateUsername'];
+  const usernameQueryKey = ['generateUsername', name];
   const { data } = useQuery<{
     generateUniqueUsername: string;
   }>(
@@ -28,7 +28,7 @@ export const useGenerateUsername = (
         { requestKey: JSON.stringify(usernameQueryKey) },
       ),
     {
-      enabled: !!name?.length,
+      enabled: !!name?.length && usernameRef.current !== true,
     },
   );
 
