@@ -9,9 +9,6 @@ export type CloseModalFunc = (
 const EditSquadModal = dynamic(
   () => import(/* webpackChunkName: "editSquadModal" */ './EditSquadModal'),
 );
-const PostToSquadModal = dynamic(
-  () => import(/* webpackChunkName: "postToSquadModal" */ './PostToSquadModal'),
-);
 const NewSquadModal = dynamic(
   () => import(/* webpackChunkName: "newSquadModal" */ './NewSquadModal'),
 );
@@ -46,16 +43,23 @@ const LegoReferralCampaignModal = dynamic(
     ),
 );
 
+const CreateSharedPostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "createSharedPostModal" */ './post/CreateSharedPostModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.EditSquad]: EditSquadModal,
-  [LazyModal.PostToSquad]: PostToSquadModal,
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
   [LazyModal.LegoReferralCampaign]: LegoReferralCampaignModal,
+  [LazyModal.CreateSharedPost]: CreateSharedPostModal,
 };
 
 type GetComponentProps<T> = T extends

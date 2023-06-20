@@ -1,6 +1,11 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { Simulate } from 'react-dom/test-utils';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
@@ -302,9 +307,9 @@ it('should pre-populate comment box with the author username when', async () => 
 });
 
 const simulateTextboxInput = (el: HTMLTextAreaElement, key: string) => {
-  Simulate.input(el, { data: key } as unknown);
   // eslint-disable-next-line no-param-reassign
   el.value += key;
+  fireEvent.input(el, { data: key });
 };
 
 const defaultMention = [
@@ -400,7 +405,7 @@ it('should send previewComment query', async () => {
   mockGraphQL({
     request: {
       query: PREVIEW_COMMENT_MUTATION,
-      variables: { content: '# Test' },
+      variables: { content: '# Test', sourceId: 's' },
     },
     result: () => {
       queryCalled = true;
@@ -413,5 +418,7 @@ it('should send previewComment query', async () => {
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const preview = await screen.findByText('Preview');
   preview.click();
-  await waitFor(() => queryCalled);
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  await waitForNock();
+  expect(queryCalled).toBeTruthy();
 });
