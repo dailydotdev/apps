@@ -33,8 +33,7 @@ import { ProfilePicture } from '../../ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Loader } from '../../Loader';
 import { Divider } from '../../utilities';
-import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
-import { getCompanion } from '../../../hooks/companion/common';
+import { usePopupSelector } from '../../../hooks/usePopupSelector';
 
 interface ClassName {
   container?: string;
@@ -88,6 +87,7 @@ function MarkdownInput(
 ): ReactElement {
   const shouldShowSubmit = !!submitCopy;
   const { user } = useAuthContext();
+  const { parentSelector } = usePopupSelector();
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
   const uploadRef = useRef<HTMLInputElement>();
@@ -117,9 +117,6 @@ function MarkdownInput(
   });
 
   useImperativeHandle(ref, () => ({ textareaRef, onMentionCommand }));
-
-  const { isCompanion } = useRequestProtocol();
-  const parentSelector = isCompanion ? getCompanion : undefined;
 
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
     onUploadCommand(e.currentTarget.files);

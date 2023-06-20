@@ -18,6 +18,7 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
+import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -58,6 +59,7 @@ export default function App({
   const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(
     settings?.optOutCompanion,
   );
+  usePopupSelector({ parentSelector: getCompanionWrapper });
 
   if (isOptOutCompanion) {
     return <></>;
