@@ -8,7 +8,9 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
 
-type ReplyTo = [Comment, string, boolean?];
+type IsEdit = boolean;
+type ParentId = string;
+type ReplyTo = [Comment, ParentId, IsEdit?];
 
 const initialState: ReplyTo = [null, null, false];
 
