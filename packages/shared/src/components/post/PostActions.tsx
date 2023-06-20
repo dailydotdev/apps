@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { QueryKey } from 'react-query';
+import classNames from 'classnames';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
 import { Post } from '../../graphql/posts';
@@ -116,7 +117,17 @@ export function PostActions({
 
   return (
     <div className="flex items-center rounded-16 border border-theme-divider-tertiary">
-      <Card className="flex !flex-row">
+      <Card
+        className={classNames(
+          'flex !flex-row hover:border-theme-divider-tertiary gap-2',
+          {
+            'border-avocado-40 hover:!border-avocado-40 bg-avocado-50/8':
+              post.upvoted,
+            'border-ketchup-40 hover:!border-ketchup-40 bg-ketchup-50/8':
+              post.downvoted,
+          },
+        )}
+      >
         <QuaternaryButton
           id="upvote-post-btn"
           pressed={post.upvoted}

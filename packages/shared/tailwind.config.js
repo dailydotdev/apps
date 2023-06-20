@@ -114,6 +114,7 @@ module.exports = {
     boxShadow,
     opacity: {
       0: '0',
+      8: '0.08',
       40: '0.4',
       50: '0.5',
       64: '0.64',
