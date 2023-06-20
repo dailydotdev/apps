@@ -13,6 +13,7 @@ export type ModalHeaderProps = {
   children?: ReactNode;
   className?: string;
   title?: string;
+  showCloseButton?: boolean;
 };
 
 const headerKindToTitleClassName: Record<ModalHeaderKind, string> = {
@@ -33,6 +34,7 @@ export function ModalHeader({
   children,
   className,
   title,
+  showCloseButton = true,
 }: ModalHeaderProps): ReactElement {
   const { activeView, onRequestClose, tabs } = useContext(ModalPropsContext);
   const modalTitle = title ?? (tabs ? activeView : undefined);
@@ -49,7 +51,9 @@ export function ModalHeader({
           {modalTitle}
         </ModalHeaderTitle>
       )}
-      {onRequestClose && <ModalClose onClick={onRequestClose} />}
+      {showCloseButton && onRequestClose && (
+        <ModalClose onClick={onRequestClose} />
+      )}
     </ModalHeaderOuter>
   );
 }

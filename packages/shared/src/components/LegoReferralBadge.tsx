@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import classNames from 'classnames';
 import { get as getCache, set as setCache } from 'idb-keyval';
 import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
@@ -13,6 +19,7 @@ import {
   LEGO_REFERRAL_CAMPAIGN_MAY_2023_SEEN_MODAL_KEY,
 } from '../lib/storage';
 import OnboardingContext from '../contexts/OnboardingContext';
+import AuthContext from '../contexts/AuthContext';
 
 type LegoReferralBadgeProps = {
   className?: string;
@@ -34,7 +41,19 @@ const LegoReferralBadge = ({
     LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY,
     false,
   );
+  const { user } = useContext(AuthContext);
   const { showArticleOnboarding } = useContext(OnboardingContext);
+  const shouldShowModal =
+    useMemo(() => {
+      if (!user?.createdAt) {
+        return false;
+      }
+
+      const registrationDate = new Date(user.createdAt);
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+      return Date.now() - registrationDate.getTime() > sevenDays;
+    }, [user?.createdAt]) && !showArticleOnboarding;
 
   const onOpenModal = useCallback(() => {
     openModal({
@@ -49,7 +68,7 @@ const LegoReferralBadge = ({
   }, [campaignKey, openModal]);
 
   useEffect(() => {
-    if (!autoOpenModal || !isReady || showArticleOnboarding) {
+    if (!autoOpenModal || !isReady || !shouldShowModal) {
       return undefined;
     }
 
@@ -70,7 +89,7 @@ const LegoReferralBadge = ({
     return () => {
       mounted = false;
     };
-  }, [autoOpenModal, onOpenModal, isReady, showArticleOnboarding]);
+  }, [autoOpenModal, onOpenModal, isReady, shouldShowModal]);
 
   if (isHiddenFromHeader) {
     return null;
