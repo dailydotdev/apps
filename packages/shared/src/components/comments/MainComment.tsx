@@ -11,7 +11,7 @@ import { Comment } from '../../graphql/comments';
 export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   permissionNotificationCommentId?: string;
-  onCommented: (comment: Comment, isNew?: boolean) => void;
+  onCommented?: (comment: Comment, isNew?: boolean) => void;
 }
 
 export default function MainComment({
