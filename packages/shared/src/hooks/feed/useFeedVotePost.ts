@@ -5,6 +5,8 @@ import {
   useVotePost,
   cancelUpvotePostMutationKey,
   upvotePostMutationKey,
+  downvotePostMutationKey,
+  cancelDownvotePostMutationKey,
 } from '../useVotePost';
 import { FeedItem } from '../useFeed';
 import { Post } from '../../graphql/posts';
@@ -35,6 +37,8 @@ export type UseFeedVotePost = {
 
 const upvotePostKey = upvotePostMutationKey.toString();
 const cancelUpvotePostKey = cancelUpvotePostMutationKey.toString();
+const downvotePostKey = downvotePostMutationKey.toString();
+const cancelDownvotePostKey = cancelDownvotePostMutationKey.toString();
 const mutationHandlers = {
   [upvotePostKey]: (post: Post) => ({
     upvoted: true,
@@ -43,6 +47,15 @@ const mutationHandlers = {
   [cancelUpvotePostKey]: (post: Post) => ({
     upvoted: false,
     numUpvotes: post.numUpvotes - 1,
+  }),
+  [downvotePostKey]: (post: Post) => ({
+    downvoted: true,
+    upvoted: false,
+    numUpvotes: post.upvoted ? post.numUpvotes + -1 : post.numUpvotes,
+  }),
+  [cancelDownvotePostKey]: (post: Post) => ({
+    id: post.id,
+    update: { downvoted: false },
   }),
 };
 
