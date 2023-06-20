@@ -152,6 +152,7 @@ it('should post registration', async () => {
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
   fireEvent.submit(form);
+  await waitForNock();
   await waitFor(() => {
     const sentText = screen.queryByText('We just sent an email to:');
     expect(sentText).toBeInTheDocument();
@@ -169,6 +170,7 @@ it('should display error messages', async () => {
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);
   fireEvent.submit(form);
+  await waitForNock();
   await waitFor(() => {
     const text = screen.queryByText(errorMessage);
     expect(text).toBeInTheDocument();
