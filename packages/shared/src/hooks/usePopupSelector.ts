@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useQueryClient } from 'react-query';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 
