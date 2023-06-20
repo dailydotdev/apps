@@ -42,6 +42,7 @@ const cancelDownvotePostKey = cancelDownvotePostMutationKey.toString();
 const mutationHandlers = {
   [upvotePostKey]: (post: Post) => ({
     upvoted: true,
+    downvoted: false,
     numUpvotes: post.numUpvotes + 1,
   }),
   [cancelUpvotePostKey]: (post: Post) => ({
