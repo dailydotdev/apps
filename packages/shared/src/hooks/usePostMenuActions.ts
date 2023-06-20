@@ -5,10 +5,12 @@ import { deletePost, Post, updatePinnedPost } from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useVotePost } from './useVotePost';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
   onPinPost: () => Promise<void>;
+  onToggleDownvotePost: () => Promise<void>;
 }
 
 interface DeletePostProps {
@@ -73,8 +75,17 @@ export const usePostMenuActions = ({
     { onSuccess: onPinSuccessful },
   );
 
+  const { downvotePost, cancelPostDownvote } = useVotePost();
+
   return {
     onConfirmDeletePost: canDelete ? deletePostPrompt : null,
     onPinPost: canPin ? onPinPost : null,
+    onToggleDownvotePost: () => {
+      if (post.downvoted) {
+        return cancelPostDownvote({ id: post.id });
+      }
+
+      return downvotePost({ id: post.id });
+    },
   };
 };

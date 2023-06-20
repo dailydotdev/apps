@@ -1,10 +1,11 @@
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { useContext, useEffect } from 'react';
 import { useQueryClient } from 'react-query';
-import useUpvotePost, {
+import {
+  useVotePost,
   cancelUpvotePostMutationKey,
   upvotePostMutationKey,
-} from '../useUpvotePost';
+} from '../useVotePost';
 import { FeedItem } from '../useFeed';
 import { Post } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
@@ -17,9 +18,19 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postEventName } from '../../components/utilities';
 import { AuthTriggers } from '../../lib/auth';
 
-export type UseFeedUpvotePostVariables = {
+export type UseFeedVotePostProps = {
   id: string;
   index: number;
+};
+
+export type UseFeedVotePost = {
+  onUpvote: (
+    post: Post,
+    index: number,
+    row: number,
+    column: number,
+    upvoted: boolean,
+  ) => Promise<void>;
 };
 
 const upvotePostKey = upvotePostMutationKey.toString();
@@ -35,37 +46,30 @@ const mutationHandlers = {
   }),
 };
 
-export default function useFeedUpvotePost(
+export default function useFeedVotePost(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
   setShowCommentPopupId: (postId: string) => void,
   columns: number,
   feedName: string,
   ranking?: string,
-): (
-  post: Post,
-  index: number,
-  row: number,
-  column: number,
-  upvoted: boolean,
-) => Promise<void> {
+): UseFeedVotePost {
   const queryClient = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const { upvotePost, cancelPostUpvote } =
-    useUpvotePost<UseFeedUpvotePostVariables>({
-      onUpvotePostMutate: optimisticPostUpdateInFeed(
-        items,
-        updatePost,
-        mutationHandlers[upvotePostKey],
-      ),
-      onCancelPostUpvoteMutate: optimisticPostUpdateInFeed(
-        items,
-        updatePost,
-        mutationHandlers[cancelUpvotePostKey],
-      ),
-    });
+  const { upvotePost, cancelPostUpvote } = useVotePost<UseFeedVotePostProps>({
+    onUpvotePostMutate: optimisticPostUpdateInFeed(
+      items,
+      updatePost,
+      mutationHandlers[upvotePostKey],
+    ),
+    onCancelPostUpvoteMutate: optimisticPostUpdateInFeed(
+      items,
+      updatePost,
+      mutationHandlers[cancelUpvotePostKey],
+    ),
+  });
 
   useEffect(() => {
     const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
@@ -82,7 +86,7 @@ export default function useFeedUpvotePost(
       }
 
       const variables = event.options
-        .variables as unknown as UseFeedUpvotePostVariables;
+        .variables as unknown as UseFeedVotePostProps;
 
       if (!variables) {
         return;
@@ -114,28 +118,30 @@ export default function useFeedUpvotePost(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, updatePost]);
 
-  return async (post, index, row, column, upvoted): Promise<void> => {
-    if (!user) {
-      showLogin(AuthTriggers.Upvote);
-      return;
-    }
-    trackEvent(
-      postAnalyticsEvent(postEventName({ upvoted }), post, {
-        columns,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking),
-      }),
-    );
-    if (upvoted) {
-      await upvotePost({ id: post.id, index });
-      if (setShowCommentPopupId) {
-        requestIdleCallback(() => {
-          setShowCommentPopupId(post.id);
-        });
+  return {
+    onUpvote: async (post, index, row, column, upvoted): Promise<void> => {
+      if (!user) {
+        showLogin(AuthTriggers.Upvote);
+        return;
       }
-    } else {
-      await cancelPostUpvote({ id: post.id, index });
-    }
+      trackEvent(
+        postAnalyticsEvent(postEventName({ upvoted }), post, {
+          columns,
+          column,
+          row,
+          ...feedAnalyticsExtra(feedName, ranking),
+        }),
+      );
+      if (upvoted) {
+        await upvotePost({ id: post.id, index });
+        if (setShowCommentPopupId) {
+          requestIdleCallback(() => {
+            setShowCommentPopupId(post.id);
+          });
+        }
+      } else {
+        await cancelPostUpvote({ id: post.id, index });
+      }
+    },
   };
 }

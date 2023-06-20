@@ -15,7 +15,7 @@ import styles from './Feed.module.css';
 import SettingsContext from '../contexts/SettingsContext';
 import { Spaciness } from '../graphql/settings';
 import ScrollToTopButton from './ScrollToTopButton';
-import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
+import useFeedVotePost from '../hooks/feed/useFeedVotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick, {
@@ -241,7 +241,7 @@ export default function Feed<T>({
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const onUpvote = useFeedUpvotePost(
+  const { onUpvote } = useFeedVotePost(
     items,
     updatePost,
     showCommentPopover && setShowCommentPopupId,

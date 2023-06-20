@@ -5,7 +5,6 @@ import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
 import { Post } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import useUpvotePost from '../../hooks/useUpvotePost';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -13,12 +12,12 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { postEventName } from '../utilities';
 import ShareIcon from '../icons/Share';
 import useUpdatePost from '../../hooks/useUpdatePost';
+import { useVotePost } from '../../hooks';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import BookmarkIcon from '../icons/Bookmark';
 import DownvoteIcon from '../icons/Downvote';
 import { Card } from '../cards/Card';
-import { useDownvotePost } from '../../hooks';
 
 export interface ShareBookmarkProps {
   onShare: (post: Post) => void;
@@ -44,34 +43,33 @@ export function PostActions({
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const { updatePost } = useUpdatePost();
-  const { upvotePost, cancelPostUpvote } = useUpvotePost({
-    onUpvotePostMutate: updatePost({
-      id: post.id,
-      update: {
-        upvoted: true,
-        downvoted: false,
-        numUpvotes: post.numUpvotes + 1,
-      },
-    }),
-    onCancelPostUpvoteMutate: updatePost({
-      id: post.id,
-      update: { upvoted: false, numUpvotes: post.numUpvotes + -1 },
-    }),
-  });
-  const { downvotePost, cancelPostDownvote } = useDownvotePost({
-    onDownvotePostMutate: updatePost({
-      id: post.id,
-      update: {
-        downvoted: true,
-        upvoted: false,
-        numUpvotes: post.upvoted ? post.numUpvotes + -1 : post.numUpvotes,
-      },
-    }),
-    onCancelPostDownvoteMutate: updatePost({
-      id: post.id,
-      update: { downvoted: false },
-    }),
-  });
+  const { upvotePost, cancelPostUpvote, downvotePost, cancelPostDownvote } =
+    useVotePost({
+      onUpvotePostMutate: updatePost({
+        id: post.id,
+        update: {
+          upvoted: true,
+          downvoted: false,
+          numUpvotes: post.numUpvotes + 1,
+        },
+      }),
+      onCancelPostUpvoteMutate: updatePost({
+        id: post.id,
+        update: { upvoted: false, numUpvotes: post.numUpvotes + -1 },
+      }),
+      onDownvotePostMutate: updatePost({
+        id: post.id,
+        update: {
+          downvoted: true,
+          upvoted: false,
+          numUpvotes: post.upvoted ? post.numUpvotes + -1 : post.numUpvotes,
+        },
+      }),
+      onCancelPostDownvoteMutate: updatePost({
+        id: post.id,
+        update: { downvoted: false },
+      }),
+    });
 
   const toggleUpvote = () => {
     if (user) {
