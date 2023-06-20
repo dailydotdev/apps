@@ -55,7 +55,7 @@ const mutationHandlers = {
   }),
   [cancelDownvotePostKey]: (post: Post) => ({
     id: post.id,
-    update: { downvoted: false },
+    downvoted: false,
   }),
 };
 

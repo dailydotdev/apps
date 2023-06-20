@@ -3,6 +3,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryKey, useQueryClient } from 'react-query';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, ReportReason } from '../graphql/posts';
@@ -252,7 +253,13 @@ export default function PostOptionsMenu({
       action: onBookmark,
     },
     {
-      icon: <MenuIcon Icon={DownvoteIcon} />,
+      icon: (
+        <MenuIcon
+          className={classNames(post?.downvoted && 'text-ketchup-40')}
+          Icon={DownvoteIcon}
+          secondary={post?.downvoted}
+        />
+      ),
       text: 'Downvote',
       action: onToggleDownvotePost,
     },
