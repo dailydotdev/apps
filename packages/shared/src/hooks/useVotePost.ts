@@ -5,6 +5,7 @@ import {
   CANCEL_DOWNVOTE_MUTATION,
   CANCEL_UPVOTE_MUTATION,
   DOWNVOTE_MUTATION,
+  Post,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
 import { MutateFunc } from '../lib/query';
@@ -30,6 +31,29 @@ export const cancelDownvotePostMutationKey = [
   'mutation',
   'cancelDownvote',
 ];
+
+export const mutationHandlers: Record<
+  'upvote' | 'cancelUpvote' | 'downvote' | 'cancelDownvote',
+  (post: Post) => Partial<Post>
+> = {
+  upvote: (post) => ({
+    upvoted: true,
+    downvoted: false,
+    numUpvotes: post.numUpvotes + 1,
+  }),
+  cancelUpvote: (post) => ({
+    upvoted: false,
+    numUpvotes: post.numUpvotes - 1,
+  }),
+  downvote: (post) => ({
+    downvoted: true,
+    upvoted: false,
+    numUpvotes: post.upvoted ? post.numUpvotes - 1 : post.numUpvotes,
+  }),
+  cancelDownvote: () => ({
+    downvoted: false,
+  }),
+};
 
 const useVotePost = <T extends { id: string } = { id: string }>({
   onUpvotePostMutate,

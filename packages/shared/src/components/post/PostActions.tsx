@@ -12,7 +12,7 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { postEventName } from '../utilities';
 import ShareIcon from '../icons/Share';
 import useUpdatePost from '../../hooks/useUpdatePost';
-import { useVotePost } from '../../hooks';
+import { mutationHandlers, useVotePost } from '../../hooks';
 import { Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import BookmarkIcon from '../icons/Bookmark';
@@ -47,27 +47,19 @@ export function PostActions({
     useVotePost({
       onUpvotePostMutate: updatePost({
         id: post.id,
-        update: {
-          upvoted: true,
-          downvoted: false,
-          numUpvotes: post.numUpvotes + 1,
-        },
+        update: mutationHandlers.upvote(post),
       }),
       onCancelPostUpvoteMutate: updatePost({
         id: post.id,
-        update: { upvoted: false, numUpvotes: post.numUpvotes + -1 },
+        update: mutationHandlers.cancelUpvote(post),
       }),
       onDownvotePostMutate: updatePost({
         id: post.id,
-        update: {
-          downvoted: true,
-          upvoted: false,
-          numUpvotes: post.upvoted ? post.numUpvotes + -1 : post.numUpvotes,
-        },
+        update: mutationHandlers.downvote(post),
       }),
       onCancelPostDownvoteMutate: updatePost({
         id: post.id,
-        update: { downvoted: false },
+        update: mutationHandlers.cancelDownvote(post),
       }),
     });
 

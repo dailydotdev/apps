@@ -7,6 +7,7 @@ import {
   upvotePostMutationKey,
   downvotePostMutationKey,
   cancelDownvotePostMutationKey,
+  mutationHandlers,
 } from '../useVotePost';
 import { FeedItem } from '../useFeed';
 import { Post } from '../../graphql/posts';
@@ -39,25 +40,11 @@ const upvotePostKey = upvotePostMutationKey.toString();
 const cancelUpvotePostKey = cancelUpvotePostMutationKey.toString();
 const downvotePostKey = downvotePostMutationKey.toString();
 const cancelDownvotePostKey = cancelDownvotePostMutationKey.toString();
-const mutationHandlers = {
-  [upvotePostKey]: (post: Post) => ({
-    upvoted: true,
-    downvoted: false,
-    numUpvotes: post.numUpvotes + 1,
-  }),
-  [cancelUpvotePostKey]: (post: Post) => ({
-    upvoted: false,
-    numUpvotes: post.numUpvotes - 1,
-  }),
-  [downvotePostKey]: (post: Post) => ({
-    downvoted: true,
-    upvoted: false,
-    numUpvotes: post.upvoted ? post.numUpvotes + -1 : post.numUpvotes,
-  }),
-  [cancelDownvotePostKey]: (post: Post) => ({
-    id: post.id,
-    downvoted: false,
-  }),
+const mutationKeyToHandlerMap = {
+  [upvotePostKey]: mutationHandlers.upvote,
+  [cancelUpvotePostKey]: mutationHandlers.cancelUpvote,
+  [downvotePostKey]: mutationHandlers.downvote,
+  [cancelDownvotePostKey]: mutationHandlers.cancelDownvote,
 };
 
 export default function useFeedVotePost(
@@ -76,12 +63,12 @@ export default function useFeedVotePost(
     onUpvotePostMutate: optimisticPostUpdateInFeed(
       items,
       updatePost,
-      mutationHandlers[upvotePostKey],
+      mutationHandlers.upvote,
     ),
     onCancelPostUpvoteMutate: optimisticPostUpdateInFeed(
       items,
       updatePost,
-      mutationHandlers[cancelUpvotePostKey],
+      mutationHandlers.cancelUpvote,
     ),
   });
 
@@ -93,7 +80,7 @@ export default function useFeedVotePost(
 
       const mutationKey = event.options.mutationKey?.toString();
 
-      const mutationHandler = mutationHandlers[mutationKey];
+      const mutationHandler = mutationKeyToHandlerMap[mutationKey];
 
       if (!mutationHandler) {
         return;

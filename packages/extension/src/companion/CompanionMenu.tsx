@@ -25,6 +25,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import CreateSharedPostModal, {
   CreateSharedPostModalProps,
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
+import { mutationHandlers } from '@dailydotdev/shared/src/hooks';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
@@ -91,10 +92,8 @@ export default function CompanionMenu({
   } = useCompanionActions({
     onBookmarkMutate: () => updatePost({ bookmarked: true }),
     onRemoveBookmarkMutate: () => updatePost({ bookmarked: false }),
-    onUpvoteMutate: () =>
-      updatePost({ upvoted: true, numUpvotes: post.numUpvotes + 1 }),
-    onRemoveUpvoteMutate: () =>
-      updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
+    onUpvoteMutate: () => updatePost(mutationHandlers.upvote(post)),
+    onRemoveUpvoteMutate: () => updatePost(mutationHandlers.cancelUpvote(post)),
   });
   const { parentComment, closeNewComment, openNewComment, onInput } =
     useCompanionPostComment(post, { onCommentSuccess: onOpenComments });
