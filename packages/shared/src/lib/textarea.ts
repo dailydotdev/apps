@@ -55,7 +55,7 @@ export const getCloseWord = (
   let lastIndex = 0;
   let startIndex = 0;
 
-  const found = line.split(' ').find((word, i) => {
+  const found = line.split(' ').find((word) => {
     startIndex = lastIndex;
     const current = lastIndex + word.length;
 
