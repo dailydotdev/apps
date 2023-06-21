@@ -24,10 +24,9 @@ import SourceProfilePicture from './profile/SourceProfilePicture';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { verifyPermission } from '../graphql/squads';
-import { SourcePermissions } from '../graphql/sources';
+import { Squad, SourcePermissions } from '../graphql/sources';
 import PlusIcon from './icons/Plus';
 import { IconSize } from './Icon';
-import { Squad } from '../graphql/sources';
 
 export default function ShareBar({ post }: { post: Post }): ReactElement {
   const href = post.commentsPermalink;
