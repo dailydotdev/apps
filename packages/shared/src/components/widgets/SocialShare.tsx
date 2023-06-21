@@ -24,7 +24,7 @@ import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { SourcePermissions } from '../../graphql/sources';
+import { SourcePermissions, Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { verifyPermission } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
@@ -87,7 +87,7 @@ export const SocialShare = ({
     },
   });
 
-  const postToSquad = (e, squad: SquadType) => {
+  const postToSquad = (e, squad: Squad) => {
     return onSubmitPost(e, squad.id, commentary);
   };
 

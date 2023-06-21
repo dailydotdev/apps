@@ -27,6 +27,7 @@ import { verifyPermission } from '../graphql/squads';
 import { SourcePermissions } from '../graphql/sources';
 import PlusIcon from './icons/Plus';
 import { IconSize } from './Icon';
+import { Squad } from '../graphql/sources';
 
 export default function ShareBar({ post }: { post: Post }): ReactElement {
   const href = post.commentsPermalink;
@@ -53,7 +54,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     onClick(ShareProvider.CopyLink);
   };
 
-  const onShareToSquad = (squad: SquadType) => {
+  const onShareToSquad = (squad: Squad) => {
     trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
     openModal({
       type: LazyModal.CreateSharedPost,
@@ -61,9 +62,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         squad,
         preview: post,
         onSharedSuccessfully: () => {
-          trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
-
-          return onRequestClose(null);
+          return trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
         },
       },
     });
