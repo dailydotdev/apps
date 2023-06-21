@@ -1,5 +1,4 @@
 import { useMutation } from 'react-query';
-import request from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
 import {
   CANCEL_DOWNVOTE_MUTATION,
@@ -9,14 +8,15 @@ import {
   UPVOTE_MUTATION,
 } from '../graphql/posts';
 import { MutateFunc } from '../lib/query';
+import { useRequestProtocol } from './useRequestProtocol';
 
-type UseVotePostProps<T> = {
+export type UseVotePostProps<T> = {
   onUpvotePostMutate?: MutateFunc<T>;
   onCancelPostUpvoteMutate?: MutateFunc<T>;
   onDownvotePostMutate?: MutateFunc<T>;
   onCancelPostDownvoteMutate?: MutateFunc<T>;
 };
-type UseVotePost<T> = {
+export type UseVotePost<T> = {
   upvotePost: (variables: T) => Promise<void>;
   cancelPostUpvote: (variables: T) => Promise<void>;
   downvotePost: (variables: T) => Promise<void>;
@@ -61,6 +61,7 @@ const useVotePost = <T extends { id: string } = { id: string }>({
   onDownvotePostMutate,
   onCancelPostDownvoteMutate,
 }: UseVotePostProps<T> = {}): UseVotePost<T> => {
+  const { requestMethod } = useRequestProtocol();
   const { mutateAsync: upvotePost } = useMutation<
     void,
     unknown,
@@ -68,7 +69,7 @@ const useVotePost = <T extends { id: string } = { id: string }>({
     (() => void) | undefined
   >(
     ({ id }) =>
-      request(graphqlUrl, UPVOTE_MUTATION, {
+      requestMethod(graphqlUrl, UPVOTE_MUTATION, {
         id,
       }),
     {
@@ -85,7 +86,7 @@ const useVotePost = <T extends { id: string } = { id: string }>({
     (() => void) | undefined
   >(
     ({ id }) =>
-      request(graphqlUrl, CANCEL_UPVOTE_MUTATION, {
+      requestMethod(graphqlUrl, CANCEL_UPVOTE_MUTATION, {
         id,
       }),
     {
@@ -102,7 +103,7 @@ const useVotePost = <T extends { id: string } = { id: string }>({
     (() => void) | undefined
   >(
     ({ id }) =>
-      request(graphqlUrl, DOWNVOTE_MUTATION, {
+      requestMethod(graphqlUrl, DOWNVOTE_MUTATION, {
         id,
       }),
     {
@@ -119,7 +120,7 @@ const useVotePost = <T extends { id: string } = { id: string }>({
     (() => void) | undefined
   >(
     ({ id }) =>
-      request(graphqlUrl, CANCEL_DOWNVOTE_MUTATION, {
+      requestMethod(graphqlUrl, CANCEL_DOWNVOTE_MUTATION, {
         id,
       }),
     {
