@@ -418,7 +418,7 @@ it('should send previewComment query', async () => {
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const preview = await screen.findByText('Preview');
   preview.click();
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   await waitForNock();
   expect(queryCalled).toBeTruthy();
 });

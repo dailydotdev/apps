@@ -11,13 +11,15 @@ import SourceButton from '../../cards/SourceButton';
 import { Squad } from '../../../graphql/sources';
 import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
+import { useNotificationToggle } from '../../../hooks/notifications';
+import { Switch } from '../../fields/Switch';
 import CloseButton from '../../CloseButton';
 import useMedia from '../../../hooks/useMedia';
 import { tablet } from '../../../styles/media';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
-  onSharedSuccessfully?: () => void;
+  onSharedSuccessfully?: (enableNotification?: boolean) => void;
   squad: Squad;
 }
 
@@ -29,6 +31,8 @@ export function CreateSharedPostModal({
 }: CreateSharedPostModalProps): ReactElement {
   const markdownRef = useRef<MarkdownRef>();
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
+  const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
+    useNotificationToggle();
   const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
   const {
     getLinkPreview,
@@ -40,6 +44,7 @@ export function CreateSharedPostModal({
     initialPreview: preview,
     onPostSuccess: () => {
       if (onSharedSuccessfully) onSharedSuccessfully();
+      onSubmitted();
       props.onRequestClose(null);
     },
   });
@@ -113,6 +118,20 @@ export function CreateSharedPostModal({
             )
           }
         />
+        {shouldShowCta && (
+          <Switch
+            data-testId="push_notification-switch"
+            inputId="push_notification-switch"
+            name="push_notification"
+            labelClassName="flex-1 font-normal"
+            className="py-3"
+            compact={false}
+            checked={isEnabled}
+            onToggle={onToggle}
+          >
+            Receive updates whenever your Squad members engage with your post
+          </Switch>
+        )}
       </form>
       <Modal.Footer className="typo-caption1" justify={Justify.Start}>
         <Button
