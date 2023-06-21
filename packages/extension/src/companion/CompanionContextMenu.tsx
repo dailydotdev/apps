@@ -83,7 +83,11 @@ export default function CompanionContextMenu({
         className="menu-primary"
         animation="fade"
       >
-        <Item onClick={onDownvote}>
+        <Item
+          onClick={onDownvote}
+          aria-pressed={!!postData?.downvoted}
+          aria-label={postData?.downvoted ? 'Remove downvote' : 'Downvote'}
+        >
           <DownvoteIcon
             size={IconSize.Small}
             className={classNames(
