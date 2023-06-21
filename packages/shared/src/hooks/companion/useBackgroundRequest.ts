@@ -3,22 +3,16 @@ import { isQueryKeySame } from '../../graphql/common';
 import { useRawBackgroundRequest } from './useRawBackgroundRequest';
 
 interface UseBackgroundRequestOptionalProps {
-  queryClient?: QueryClient;
   callback?: (params: unknown) => void;
   enabled?: boolean;
 }
 
 export const useBackgroundRequest = (
   queryKey: QueryKey,
-  {
-    callback,
-    queryClient,
-    enabled = true,
-  }: UseBackgroundRequestOptionalProps = {},
+  { callback, enabled = true }: UseBackgroundRequestOptionalProps = {},
 ): void => {
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const client = queryClient || useQueryClient();
+  const client = useQueryClient();
+
   useRawBackgroundRequest(({ key, ...args }) => {
     if (!enabled || !isQueryKeySame(key, queryKey)) {
       return;
