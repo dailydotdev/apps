@@ -17,8 +17,6 @@ import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
-import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
-import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -40,8 +38,6 @@ export type CompanionData = { url: string; deviceId: string } & Pick<
   | 'squads'
 >;
 
-const refreshTokenKey = 'refresh_token';
-
 export default function App({
   deviceId,
   url,
@@ -59,27 +55,17 @@ export default function App({
   const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(
     settings?.optOutCompanion,
   );
-  usePopupSelector({ parentSelector: getCompanionWrapper });
+  const memoizedFlags = useMemo(() => flags, [flags]);
 
   if (isOptOutCompanion) {
     return <></>;
   }
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const memoizedFlags = useMemo(() => flags, [flags]);
   const refetchData = async () =>
     browser.runtime.sendMessage({ type: ExtensionMessageType.ContentLoaded });
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useRefreshToken(token, refetchData);
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useBackgroundRequest(refreshTokenKey, {
-    queryClient,
-    callback: ({ res }) => setToken(res.accessToken),
-  });
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -120,6 +106,7 @@ export default function App({
                       companionHelper={alerts?.companionHelper}
                       companionExpanded={settings?.companionExpanded}
                       onOptOut={() => setIsOptOutCompanion(true)}
+                      onUpdateToken={setToken}
                     />
                     <PromptElement parentSelector={getCompanionWrapper} />
                     <Toast
