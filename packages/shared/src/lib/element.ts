@@ -24,13 +24,18 @@ export const getCaretOffset = (textarea: HTMLTextAreaElement): CaretOffset => {
   left.innerText = textarea.value.substring(0, textarea.selectionStart);
   right.innerText = textarea.value.substring(textarea.selectionStart);
 
+  left.setAttribute('style', 'word-break: break-word; max-width: 100%');
   div.className = classNames(textarea.className, 'absolute invisible');
-  div.setAttribute('style', 'left: 2rem');
   div.appendChild(left);
-  div.appendChild(right);
+  left.appendChild(right);
   textarea.parentElement.appendChild(div);
 
-  const coordinates: CaretOffset = [right.offsetLeft, right.offsetTop];
+  const coordinates: CaretOffset = [
+    right.offsetLeft,
+    right.offsetTop - textarea.scrollTop,
+  ];
+
+  // console.log(coordinates, textarea.scrollTop);
   div.remove();
 
   return coordinates;

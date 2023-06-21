@@ -203,21 +203,23 @@ function MarkdownInput(
               </span>
             )}
           >
-            <textarea
-              rows={11}
-              placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
-              {...textareaProps}
-              {...callbacks}
-              ref={textareaRef}
-              className={classNames(
-                'flex flex-1 bg-transparent outline-none typo-body placeholder-theme-label-quaternary',
-                showUserAvatar ? 'm-3' : 'm-4',
-                className?.input,
-              )}
-              value={input}
-              onClick={onInputClick}
-              onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
-            />
+            <span className="flex relative flex-1">
+              <textarea
+                rows={11}
+                placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
+                {...textareaProps}
+                {...callbacks}
+                ref={textareaRef}
+                className={classNames(
+                  'flex flex-1 bg-transparent outline-none typo-body placeholder-theme-label-quaternary',
+                  showUserAvatar ? 'm-3' : 'm-4',
+                  className?.input,
+                )}
+                value={input}
+                onClick={onInputClick}
+                onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
+              />
+            </span>
           </ConditionalWrapper>
         </ConditionalWrapper>
       </ConditionalWrapper>
