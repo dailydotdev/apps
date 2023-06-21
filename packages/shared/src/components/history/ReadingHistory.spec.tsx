@@ -125,11 +125,12 @@ describe('PostItemCard component', () => {
     post,
   };
 
-  const renderCard = (props: Partial<PostItemCardProps> = {}) => (
-    <QueryClientProvider client={new QueryClient()}>
-      <PostItemCard postItem={defaultHistory} {...props} />
-    </QueryClientProvider>
-  );
+  const renderCard = (props: Partial<PostItemCardProps> = {}) =>
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <PostItemCard postItem={defaultHistory} {...props} />
+      </QueryClientProvider>,
+    );
 
   it('should show view history post title', async () => {
     renderCard();

@@ -7,10 +7,9 @@ import MainComment, { MainCommentProps } from './MainComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
+import { Origin } from '../../lib/analytics';
 
-const onComment = jest.fn();
 const onDelete = jest.fn();
-const onEdit = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -23,11 +22,12 @@ const renderLayout = (
   const defaultProps: MainCommentProps = {
     post,
     comment,
-    onComment,
     onDelete,
-    onEdit,
     postAuthorId: null,
     postScoutId: null,
+    onShare: jest.fn(),
+    onShowUpvotes: jest.fn(),
+    origin: Origin.PostCommentButton,
   };
 
   const client = new QueryClient();
@@ -108,10 +108,10 @@ it('should have subcomments', async () => {
 });
 
 it('should render the comment box', async () => {
-  renderLayout();
+  renderLayout({}, loggedUser);
   const el = await screen.findByLabelText('Comment');
   el.click();
-  const commentBox = await screen.findByRole('textbox');
+  const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();
 });
 
