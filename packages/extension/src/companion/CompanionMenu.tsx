@@ -82,8 +82,10 @@ export default function CompanionMenu({
   const {
     bookmark,
     removeBookmark,
-    upvote,
-    removeUpvote,
+    upvotePost,
+    cancelPostUpvote,
+    downvotePost,
+    cancelPostDownvote,
     report,
     blockSource,
     disableCompanion,
@@ -92,8 +94,12 @@ export default function CompanionMenu({
   } = useCompanionActions({
     onBookmarkMutate: () => updatePost({ bookmarked: true }),
     onRemoveBookmarkMutate: () => updatePost({ bookmarked: false }),
-    onUpvoteMutate: () => updatePost(mutationHandlers.upvote(post)),
-    onRemoveUpvoteMutate: () => updatePost(mutationHandlers.cancelUpvote(post)),
+    onUpvotePostMutate: () => updatePost(mutationHandlers.upvote(post)),
+    onCancelPostUpvoteMutate: () =>
+      updatePost(mutationHandlers.cancelUpvote(post)),
+    onDownvotePostMutate: () => updatePost(mutationHandlers.downvote(post)),
+    onCancelPostDownvoteMutate: () =>
+      updatePost(mutationHandlers.cancelDownvote(post)),
   });
   const { parentComment, closeNewComment, openNewComment, onInput } =
     useCompanionPostComment(post, { onCommentSuccess: onOpenComments });
@@ -133,9 +139,24 @@ export default function CompanionMenu({
   const toggleUpvote = async () => {
     if (user) {
       if (!post.upvoted) {
-        await upvote({ id: post.id });
+        await upvotePost({ id: post.id });
       } else {
-        await removeUpvote({ id: post.id });
+        await cancelPostUpvote({ id: post.id });
+      }
+    } else {
+      window.open(
+        `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`,
+        '_blank',
+      );
+    }
+  };
+
+  const toggleDownvote = async () => {
+    if (user) {
+      if (!post.downvoted) {
+        await downvotePost({ id: post.id });
+      } else {
+        await cancelPostDownvote({ id: post.id });
       }
     } else {
       window.open(
@@ -262,6 +283,7 @@ export default function CompanionMenu({
         onReport={report}
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
+        onDownvote={toggleDownvote}
       />
       {parentComment && (
         <NewCommentModal
