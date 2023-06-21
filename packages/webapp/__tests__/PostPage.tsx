@@ -679,7 +679,7 @@ it('should send cancel downvote mutation', async () => {
 
 it('should decrement number of upvotes if downvoting post that was upvoted', async () => {
   let mutationCalled = false;
-  const { rerender } = renderPost({}, [
+  renderPost({}, [
     createPostMock({ upvoted: true, numUpvotes: 15 }),
     createCommentsMock(),
     {
