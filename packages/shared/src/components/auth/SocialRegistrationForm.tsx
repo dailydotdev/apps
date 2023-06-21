@@ -202,15 +202,10 @@ export const SocialRegistrationForm = ({
           minLength={1}
           valid={!usernameHint && !hints?.username}
           hint={hints?.username || usernameHint}
-          valueChanged={(value: string) => {
-            setUsername(value);
-            if (hints?.username) {
-              onUpdateHints?.({ ...hints, username: '' });
-            }
-            if (usernameHint) {
-              setUsernameHint('');
-            }
-          }}
+          onBlur={(e) => setUsername(e.target.value)}
+          valueChanged={() =>
+            hints?.[username] && onUpdateHints({ ...hints, username: '' })
+          }
         />
         {isAuthorOnboarding && (
           <TextField

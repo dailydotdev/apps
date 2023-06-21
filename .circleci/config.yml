@@ -4,6 +4,7 @@ jobs:
   build:
     docker:
       - image: cimg/node:18.16.0
+    resource_class: medium+
     steps:
       - checkout
       - run:
@@ -33,6 +34,7 @@ jobs:
   test:
     docker:
       - image: cimg/node:18.16.0
+    resource_class: medium+
     steps:
       - checkout
       - run:
