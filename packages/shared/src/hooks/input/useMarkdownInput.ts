@@ -194,15 +194,20 @@ export const useMarkdownInput = ({
     const current = [textarea.selectionStart, textarea.selectionEnd];
     const selection = position ?? current;
     const [word] = getCloseWord(textarea, selection);
+    const mention = word.substring(1);
+    const isValid =
+      word.charAt(0) === '@' &&
+      (mention.length === 0 || handleRegex.test(mention));
 
-    if (isNullOrUndefined(query)) {
-      if (word.charAt(0) === '@') updateQuery(word.substring(1) ?? '');
-      return;
+    if (!isValid) {
+      return updateQuery(undefined);
     }
 
-    const mention = word.substring(1);
-    const isValid = word.charAt(0) === '@' && handleRegex.test(mention);
-    updateQuery(isValid ? mention : undefined);
+    if (isNullOrUndefined(query)) {
+      return updateQuery(mention ?? '');
+    }
+
+    return updateQuery(mention);
   };
 
   const onKeyUp: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
