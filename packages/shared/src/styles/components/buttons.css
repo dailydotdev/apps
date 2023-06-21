@@ -51,6 +51,27 @@
     color: #FFFFFF;
   }
 
+  &.share,
+  &.share:not(.iconOnly) {
+    padding: 0;
+    width: 4rem;
+    height: auto;
+    min-height: 3.875rem;
+
+    border-radius: 0;
+
+    & .icon {
+      margin-left: 0;
+      margin-right: 0;
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    & span {
+      width: 100%;
+    }
+  }
+
   &:not(.iconOnly) {
     & .icon {
       margin-left: -0.5rem;
