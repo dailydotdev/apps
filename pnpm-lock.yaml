@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 importers:
 
   .:
@@ -710,8 +706,8 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4(@babel/core@7.17.9)(next@12.2.2)(webpack@5.72.0)
       next-seo:
-        specifier: ^5.4.0
-        version: 5.4.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2)
+        specifier: ^6.0.0
+        version: 6.0.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2)
       preact:
         specifier: ^10.8.2
         version: 10.8.2
@@ -2776,7 +2772,7 @@ packages:
     dependencies:
       '@babel/core': 7.17.9
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss@8.4.12)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0)(postcss-less@3.1.4)(postcss-scss@2.1.1)(postcss@7.0.39)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2789,7 +2785,7 @@ packages:
       postcss-syntax: '>=0.36.2'
     dependencies:
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss@8.4.12)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0)(postcss-less@3.1.4)(postcss-scss@2.1.1)(postcss@7.0.39)
       remark: 13.0.0
       unist-util-find-all-after: 3.0.2
     transitivePeerDependencies:
@@ -8997,8 +8993,8 @@ packages:
       - webpack
     dev: false
 
-  /next-seo@5.4.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2):
-    resolution: {integrity: sha512-R9DhajPwJnR/lsF2hZ8cN8uqr5CVITsRrCG1AF5+ufcaybKYOvnH8sH9MaH4/hpkps3PQ9H71S7J7SPYixAYzQ==}
+  /next-seo@6.0.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2):
+    resolution: {integrity: sha512-jKKt1p1z4otMA28AyeoAONixVjdYmgFCWwpEFtu+DwRHQDllVX3RjtyXbuCQiUZEfQ9rFPBpAI90vDeLZlMBdg==}
     peerDependencies:
       next: ^8.1.1-canary.54 || >=9.0.0
       react: '>=16.0.0'
@@ -9737,7 +9733,7 @@ packages:
     dependencies:
       htmlparser2: 3.10.1
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss@8.4.12)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0)(postcss-less@3.1.4)(postcss-scss@2.1.1)(postcss@7.0.39)
     dev: true
 
   /postcss-import@14.1.0(postcss@8.4.12):
@@ -10129,7 +10125,7 @@ packages:
       svgo: 2.8.0
     dev: true
 
-  /postcss-syntax@0.36.2(postcss@8.4.12):
+  /postcss-syntax@0.36.2(postcss-html@0.36.0)(postcss-less@3.1.4)(postcss-scss@2.1.1)(postcss@7.0.39):
     resolution: {integrity: sha512-nBRg/i7E3SOHWxF3PpF5WnJM/jQ1YpY9000OaVXlAQj6Zp/kIqJxEDWIZ67tAd7NLuk7zqN4yqe9nc0oNAOs1w==}
     peerDependencies:
       postcss: '>=5.0.0'
@@ -10150,7 +10146,10 @@ packages:
       postcss-scss:
         optional: true
     dependencies:
-      postcss: 8.4.12
+      postcss: 7.0.39
+      postcss-html: 0.36.0(postcss-syntax@0.36.2)(postcss@7.0.39)
+      postcss-less: 3.1.4
+      postcss-scss: 2.1.1
     dev: true
 
   /postcss-unique-selectors@5.1.1(postcss@8.4.24):
@@ -11561,7 +11560,7 @@ packages:
       postcss-sass: 0.4.4
       postcss-scss: 2.1.1
       postcss-selector-parser: 6.0.13
-      postcss-syntax: 0.36.2(postcss@8.4.12)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0)(postcss-less@3.1.4)(postcss-scss@2.1.1)(postcss@7.0.39)
       postcss-value-parser: 4.2.0
       resolve-from: 5.0.0
       slash: 3.0.0
@@ -13095,3 +13094,7 @@ packages:
   /zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
