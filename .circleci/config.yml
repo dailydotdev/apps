@@ -14,7 +14,6 @@ jobs:
           keys:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
-            - deps-v6-
       - run:
           name: Install dependencies
           command: pnpm install
@@ -45,7 +44,6 @@ jobs:
           keys:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
-            - deps-v6-
       - run:
           name: Install dependencies
           command: pnpm install
