@@ -12,13 +12,13 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
-            - deps-v5-{{ .Branch }}
-            - deps-v5-
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v5-{{ .Branch }}
+          key: deps-v6-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -42,13 +42,13 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
-            - deps-v5-{{ .Branch }}
-            - deps-v5-
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v5-{{ .Branch }}
+          key: deps-v6-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
