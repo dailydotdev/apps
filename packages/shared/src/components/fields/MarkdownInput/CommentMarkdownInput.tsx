@@ -156,11 +156,7 @@ export function CommentMarkdownInput({
     { onSuccess: (data) => onSuccess(data.comment) },
   );
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-
-    const { content } = formToJson(e.currentTarget);
-
+  const onSubmit = (content: string) => {
     if (editCommentId) {
       return editComment({ id: editCommentId, content });
     }
@@ -168,12 +164,26 @@ export function CommentMarkdownInput({
     return onComment({ content, id: parentCommentId ?? postId });
   };
 
+  const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+
+    const { content } = formToJson(e.currentTarget);
+
+    return onSubmit(content);
+  };
+
+  const onKeyboardSubmit: FormEventHandler<HTMLTextAreaElement> = (e) => {
+    const content = e.currentTarget.value;
+
+    return onSubmit(content);
+  };
+
   useEffect(() => {
     markdownRef?.current?.textareaRef?.current?.focus();
   }, []);
 
   return (
-    <form action="#" onSubmit={onSubmit} className={className?.container}>
+    <form action="#" onSubmit={onSubmitForm} className={className?.container}>
       <MarkdownInput
         ref={markdownRef}
         className={{
@@ -191,6 +201,7 @@ export function CommentMarkdownInput({
           rows: 7,
           placeholder: 'Share your thoughts',
         }}
+        onSubmit={onKeyboardSubmit}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
         submitCopy={editCommentId ? 'Update' : 'Comment'}
         timeline={

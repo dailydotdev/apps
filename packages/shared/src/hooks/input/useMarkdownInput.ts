@@ -218,7 +218,10 @@ export const useMarkdownInput = ({
 
   const onKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = async (e) => {
     const isSpecialKey = e.ctrlKey || e.metaKey;
-    if (isSpecialKey && e.key === KeyboardCommand.Enter && input?.length) {
+    const isSubmitting =
+      isSpecialKey && e.key === KeyboardCommand.Enter && input?.length;
+
+    if (onSubmit && isSubmitting) {
       return onSubmit(e);
     }
 
