@@ -30,17 +30,18 @@ export default function MainComment({
     );
 
   const { replyComment, inputProps, onReplyTo } = useComments(props.post);
-  const onSuccess: typeof inputProps.onCommented = (newComment, isNew) => {
-    onReplyTo(null);
-    onCommented(newComment, isNew);
-  };
+  const {
+    replyComment: editComment,
+    inputProps: editProps,
+    onReplyTo: onEdit,
+  } = useComments(props.post);
 
   return (
     <section
       className="flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16"
       data-testid="comment"
     >
-      {!inputProps?.editCommentId && (
+      {!editComment && (
         <CommentBox
           {...props}
           comment={comment}
@@ -48,14 +49,28 @@ export default function MainComment({
           className={{ container: 'border-b' }}
           appendTooltipTo={appendTooltipTo}
           onComment={(selected, parentId) => onReplyTo([selected, parentId])}
-          onEdit={(selected) => onReplyTo([selected, null, true])}
+          onEdit={(selected) => onEdit([selected, null, true])}
+        />
+      )}
+      {editComment && (
+        <CommentMarkdownInput
+          {...editProps}
+          post={props.post}
+          onCommented={(data, isNew) => {
+            onEdit(null);
+            onCommented(data, isNew);
+          }}
+          className={className}
         />
       )}
       {replyComment?.id === comment.id && (
         <CommentMarkdownInput
           {...inputProps}
           post={props.post}
-          onCommented={onSuccess}
+          onCommented={(data, isNew) => {
+            onReplyTo(null);
+            onCommented(data, isNew);
+          }}
           className={className}
         />
       )}

@@ -18,20 +18,21 @@ function SubComment({
   ...props
 }: SubCommentProps): ReactElement {
   const { replyComment, onReplyTo, inputProps } = useComments(props.post);
-  const onSuccess: typeof inputProps.onCommented = (newComment, isNew) => {
-    onReplyTo(null);
-    onCommented(newComment, isNew);
-  };
+  const {
+    replyComment: editComment,
+    inputProps: editProps,
+    onReplyTo: onEdit,
+  } = useComments(props.post);
 
   return (
     <>
-      {!inputProps?.editCommentId && (
+      {!editComment && (
         <CommentBox
           {...props}
           key={comment.id}
           parentId={parentComment.id}
           comment={comment}
-          onEdit={(selected) => onReplyTo([selected, parentComment.id, true])}
+          onEdit={(selected) => onEdit([selected, parentComment.id, true])}
           className={{ container: 'relative', content: 'ml-14' }}
           onComment={(selected, parent) => onReplyTo([comment, parent])}
         >
@@ -41,12 +42,26 @@ function SubComment({
           />
         </CommentBox>
       )}
+      {editComment && (
+        <CommentMarkdownInput
+          {...editProps}
+          post={props.post}
+          onCommented={(data, isNew) => {
+            onEdit(null);
+            onCommented(data, isNew);
+          }}
+          className={className}
+        />
+      )}
       {replyComment?.id === comment.id && (
         <CommentMarkdownInput
           {...inputProps}
           className={className}
           post={props.post}
-          onCommented={onSuccess}
+          onCommented={(data, isNew) => {
+            onReplyTo(null);
+            onCommented(data, isNew);
+          }}
         />
       )}
     </>
