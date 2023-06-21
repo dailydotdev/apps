@@ -43,7 +43,7 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
-            - - deps-v5-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v5-{{ checksum "pnpm-lock.yaml" }}
             - deps-v5-{{ .Branch }}
             - deps-v5-
       - run:
