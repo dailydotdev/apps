@@ -8,6 +8,7 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
   ShareProvider,
+  SocialShareType,
 } from '../../lib/share';
 import { ShareText, SocialShareIcon } from './SocialShareIcon';
 import { Post } from '../../graphql/posts';
@@ -23,9 +24,7 @@ import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { SourcePermissions, Squad as SquadType } from '../../graphql/sources';
+import { SourcePermissions } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { verifyPermission } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
@@ -34,11 +33,8 @@ import PlusIcon from '../icons/Plus';
 import { IconSize } from '../Icon';
 import { useSharePost } from '../../hooks/useSharePost';
 import MenuIcon from '../icons/Menu';
-
-export enum SocialShareType {
-  Squad = 'squad',
-  External = 'external',
-}
+import CopyIcon from '../icons/Copy';
+import { usePostToSquad } from '../../hooks';
 
 interface SocialShareProps {
   origin: Origin;
@@ -46,6 +42,7 @@ interface SocialShareProps {
   comment?: Comment;
   onSquadShare?: (post: Post) => void;
   type?: SocialShareType;
+  commentary?: string;
 }
 
 export const SocialShare = ({
@@ -57,10 +54,10 @@ export const SocialShare = ({
   row,
   onSquadShare,
   type = SocialShareType.External,
+  commentary,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const { squads } = useAuthContext();
   const isComment = !!comment;
-  const { openModal } = useLazyModal();
   const link = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
@@ -82,32 +79,27 @@ export const SocialShare = ({
       }),
     );
 
-  const onShareToSquad = (squad: SquadType) => {
-    trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
-    openModal({
-      type: LazyModal.CreateSharedPost,
-      props: {
-        squad,
-        preview: post,
-        onSharedSuccessfully: () => {
-          trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
-          return onSquadShare;
-        },
-      },
-    });
+  const { onSubmitPost } = usePostToSquad({
+    initialPreview: post,
+    onPostSuccess: () => {
+      trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
+      onSquadShare(null);
+    },
+  });
+
+  const postToSquad = (e, squad: SquadType) => {
+    return onSubmitPost(e, squad.id, commentary);
   };
 
   return (
-    <>
+    <div className="mb-4">
       {hasSquadAccess &&
         type === SocialShareType.Squad &&
         !isComment &&
         !post.private && (
           <>
-            <p className="py-2.5 font-bold typo-callout">
-              Share with your squad
-            </p>
-            <section className="grid grid-cols-5 gap-4 pt-2 w-fit">
+            <p className="pb-4 font-bold typo-callout">Share with your squad</p>
+            <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4 pt-2">
               {squads
                 ?.filter(
                   (squadItem) =>
@@ -117,12 +109,12 @@ export const SocialShare = ({
                 ?.map((squad) => (
                   <button
                     type="button"
-                    className="flex flex-col items-center w-16 text-center"
+                    className="flex overflow-hidden flex-col items-center w-16 text-center"
                     key={squad.id}
-                    onClick={() => onShareToSquad(squad)}
+                    onClick={(e) => postToSquad(e, squad)}
                   >
                     <SourceProfilePicture source={squad} />
-                    <ShareText className="mt-2 break-words">
+                    <ShareText className="mt-2 max-w-full truncate">
                       @{squad.handle}
                     </ShareText>
                   </button>
@@ -141,7 +133,7 @@ export const SocialShare = ({
                       })
                     }
                   >
-                    <div className="flex justify-center items-center w-12 h-12 bg-cabbage-40 rounded-full">
+                    <div className="flex justify-center items-center w-12 h-12 rounded-full bg-theme-color-cabbage">
                       <PlusIcon
                         size={IconSize.Large}
                         className="text-pepper-90"
@@ -159,8 +151,14 @@ export const SocialShare = ({
 
       {type === SocialShareType.External && (
         <>
-          <p className="py-2.5 font-bold typo-callout">Share externally</p>
-          <section className="grid grid-cols-5 gap-4 pt-2 w-fit">
+          <p className="pb-4 font-bold typo-callout">Share externally</p>
+          <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4 pt-2">
+            <SocialShareIcon
+              icon={<CopyIcon />}
+              className="text-pepper-90 bg-white"
+              onClick={() => openNativeSharePost(post)}
+              label="Copy link"
+            />
             <SocialShareIcon
               href={getTwitterShareLink(link, post?.title)}
               icon={<TwitterIcon />}
@@ -221,6 +219,6 @@ export const SocialShare = ({
           </section>
         </>
       )}
-    </>
+    </div>
   );
 };
