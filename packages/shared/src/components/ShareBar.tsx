@@ -78,11 +78,15 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
       <div className="flex flex-wrap gap-2">
         <SimpleTooltip content="Copy link">
           <Button
-            className="flex-col font-normal text-center text-salt-90 border-0 share btn-tertiary-avocado typo-caption1"
+            className="group flex-col mb-2 font-normal text-center text-salt-90 hover:bg-transparent border-0 share btn-tertiary typo-caption1"
             onClick={trackAndCopyLink}
             pressed={copying}
             textPosition="justify-between"
-            icon={<CopyIcon secondary className="mt-1.5 mb-3" />}
+            icon={
+              <div className="flex justify-center items-center mb-2 group-hover:bg-theme-hover rounded-xl">
+                <CopyIcon secondary className="w-7 h-7" />
+              </div>
+            }
           >
             Copy link
           </Button>
@@ -90,14 +94,18 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
 
         <SimpleTooltip content="Share on WhatsApp">
           <Button
-            className="flex-col font-normal text-center text-salt-90 border-0 share btn-tertiary typo-caption1"
+            className="group flex-col mb-2 font-normal text-center text-salt-90 hover:bg-transparent border-0 share btn-tertiary typo-caption1"
             tag="a"
             href={getWhatsappShareLink(href)}
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.WhatsApp)}
             textPosition="justify-between"
-            icon={<WhatsappIcon secondary className="mt-1.5 mb-3 text-white" />}
+            icon={
+              <div className="flex justify-center items-center mb-2 group-hover:bg-theme-hover rounded-xl">
+                <WhatsappIcon secondary className="w-7 h-7 text-white" />
+              </div>
+            }
           >
             WhatsApp
           </Button>
@@ -105,14 +113,18 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
 
         <SimpleTooltip content="Share on Facebook">
           <Button
-            className="flex-col font-normal text-center text-salt-90 border-0 share btn-tertiary typo-caption1"
+            className="group flex-col mb-2 font-normal text-center text-salt-90 hover:bg-transparent border-0 share btn-tertiary typo-caption1"
             tag="a"
             href={getFacebookShareLink(href)}
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.Facebook)}
             textPosition="justify-start"
-            icon={<FacebookIcon secondary className="mt-1.5 mb-3 text-white" />}
+            icon={
+              <div className="flex justify-center items-center mb-2 group-hover:bg-theme-hover rounded-xl">
+                <FacebookIcon secondary className="w-7 h-7 text-white" />
+              </div>
+            }
           >
             Facebook
           </Button>
@@ -120,14 +132,18 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
 
         <SimpleTooltip content="Share on Twitter">
           <Button
-            className="flex-col font-normal text-center text-salt-90 border-0 share btn-tertiary typo-caption1"
+            className="group flex-col mb-2 font-normal text-center text-salt-90 hover:bg-transparent border-0 share btn-tertiary typo-caption1"
             tag="a"
             href={getTwitterShareLink(href, post.title)}
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.Twitter)}
             textPosition="justify-start"
-            icon={<TwitterIcon secondary className="mt-1.5 mb-3 text-white" />}
+            icon={
+              <div className="flex justify-center items-center mb-2 group-hover:bg-theme-hover rounded-xl">
+                <TwitterIcon secondary className="w-7 h-7 text-white" />
+              </div>
+            }
           >
             Twitter
           </Button>
@@ -142,15 +158,17 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           ?.map((squad) => (
             <SimpleTooltip content={`Share on ${squad.name}`} key={squad.id}>
               <Button
-                className="flex-col font-normal text-center text-salt-90 border-0 share btn-tertiary typo-caption1"
+                className="group flex-col mb-2 font-normal text-center text-salt-90 hover:bg-transparent border-0 share btn-tertiary typo-caption1"
                 key={squad.id}
                 onClick={() => onShareToSquad(squad)}
                 textPosition="justify-between"
                 icon={
-                  <SourceProfilePicture
-                    source={squad}
-                    className="mt-1.5 mb-3 squad"
-                  />
+                  <div className="flex justify-center items-center mb-2">
+                    <SourceProfilePicture
+                      source={squad}
+                      className="w-10 h-10 squad"
+                    />
+                  </div>
                 }
               >
                 <div className="truncate">@{squad.handle}</div>
@@ -161,7 +179,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         {hasSquadAccess && squads?.length === 0 && (
           <SimpleTooltip content="Create new squad">
             <Button
-              className="flex-col font-normal text-center text-salt-90 border-0 share btn-tertiary typo-caption1"
+              className="group flex-col mb-2 font-normal text-center text-salt-90 hover:bg-transparent border-0 share btn-tertiary typo-caption1"
               onClick={() =>
                 openNewSquadModal({
                   origin: Origin.Share,
@@ -170,8 +188,13 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
               }
               textPosition="justify-between"
               icon={
-                <div className="flex justify-center items-center mt-1.5 mb-3 rounded-full squad bg-theme-color-cabbage">
-                  <PlusIcon size={IconSize.Small} className="text-pepper-90" />
+                <div className="flex justify-center items-center mb-2">
+                  <div className="flex justify-center items-center w-10 h-10 rounded-full squad bg-theme-color-cabbage">
+                    <PlusIcon
+                      size={IconSize.Small}
+                      className="text-pepper-90"
+                    />
+                  </div>
                 </div>
               }
             >

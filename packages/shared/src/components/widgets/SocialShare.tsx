@@ -109,7 +109,7 @@ export const SocialShare = ({
         !post.private && (
           <>
             <p className="pb-4 font-bold typo-callout">Share with your squad</p>
-            <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4 pt-2">
+            <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4">
               {squads
                 ?.filter(
                   (squadItem) =>
@@ -162,9 +162,9 @@ export const SocialShare = ({
       {type === SocialShareType.External && (
         <>
           <p className="pb-4 font-bold typo-callout">Share externally</p>
-          <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4 pt-2">
+          <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4">
             <SocialShareIcon
-              icon={<CopyIcon />}
+              icon={<CopyIcon size={IconSize.Large} />}
               className="text-pepper-90"
               onClick={() => trackAndCopyLink()}
               label="Copy link"
@@ -173,56 +173,56 @@ export const SocialShare = ({
             />
             <SocialShareIcon
               href={getTwitterShareLink(link, post?.title)}
-              icon={<TwitterIcon />}
+              icon={<TwitterIcon size={IconSize.Large} />}
               iconBg="bg-theme-bg-twitter"
               onClick={() => trackClick(ShareProvider.Twitter)}
               label="Twitter"
             />
             <SocialShareIcon
               href={getWhatsappShareLink(link)}
-              icon={<WhatsappIcon />}
+              icon={<WhatsappIcon size={IconSize.Large} />}
               onClick={() => trackClick(ShareProvider.WhatsApp)}
               iconBg="bg-theme-bg-whatsapp"
               label="WhatsApp"
             />
             <SocialShareIcon
               href={getFacebookShareLink(link)}
-              icon={<FacebookIcon />}
+              icon={<FacebookIcon size={IconSize.Large} />}
               iconBg="bg-theme-bg-facebook"
               onClick={() => trackClick(ShareProvider.Facebook)}
               label="Facebook"
             />
             <SocialShareIcon
               href={getRedditShareLink(link, post?.title)}
-              icon={<RedditIcon />}
+              icon={<RedditIcon size={IconSize.Large} />}
               iconBg="bg-theme-bg-reddit"
               onClick={() => trackClick(ShareProvider.Reddit)}
               label="Reddit"
             />
             <SocialShareIcon
               href={getLinkedInShareLink(link)}
-              icon={<LinkedInIcon />}
+              icon={<LinkedInIcon size={IconSize.Large} />}
               iconBg="bg-theme-bg-linkedin"
               onClick={() => trackClick(ShareProvider.LinkedIn)}
               label="LinkedIn"
             />
             <SocialShareIcon
               href={getTelegramShareLink(link, post?.title)}
-              icon={<TelegramIcon />}
+              icon={<TelegramIcon size={IconSize.Large} />}
               iconBg="bg-theme-bg-telegram"
               onClick={() => trackClick(ShareProvider.Telegram)}
               label="Telegram"
             />
             <SocialShareIcon
               href={getEmailShareLink(link, 'I found this amazing post')}
-              icon={<MailIcon />}
+              icon={<MailIcon size={IconSize.Large} />}
               iconBg="bg-theme-bg-email"
               onClick={() => trackClick(ShareProvider.Email)}
               label="Email"
             />
             {'share' in navigator && (
               <SocialShareIcon
-                icon={<MenuIcon className="rotate-90" />}
+                icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
                 iconBg="bg-theme-bg-email"
                 onClick={() => openNativeSharePost(post)}
                 label="Share via..."

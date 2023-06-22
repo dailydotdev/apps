@@ -85,6 +85,7 @@ export default function ShareModal({
       kind={isMobile ? Modal.Kind.FixedBottom : Modal.Kind.FlexibleCenter}
       onRequestClose={onRequestClose}
       {...props}
+      className="overflow-hidden"
     >
       <Modal.Header title={isComment ? 'Share comment' : 'Share post'} />
       <Modal.Body {...handlers}>
@@ -92,7 +93,7 @@ export default function ShareModal({
           className={{ container: 'mb-4' }}
           ref={markdownRef}
           showUserAvatar
-          textareaProps={{ rows: 5, name: 'commentary' }}
+          textareaProps={{ rows: 4, name: 'commentary' }}
           allowPreview={false}
           enabledCommand={{ mention: true }}
           onValueUpdate={(value) => setCommentary(value)}
