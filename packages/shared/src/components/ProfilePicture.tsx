@@ -4,6 +4,7 @@ import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 import { Image } from './image/Image';
+import { useRequestProtocol } from '../hooks/useRequestProtocol';
 
 export type ProfileImageSize =
   | 'xsmall'
@@ -83,6 +84,7 @@ function ProfilePictureComponent(
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement {
+  const { isCompanion } = useRequestProtocol();
   const classes = classNames(
     getProfilePictureClasses(size, rounded),
     className,
@@ -99,7 +101,7 @@ function ProfilePictureComponent(
         alt={`${user.username || user.id}'s profile`}
         onError={onError}
         className={classes}
-        loading="lazy"
+        loading={isCompanion ? 'eager' : 'lazy'}
       />
     );
   }

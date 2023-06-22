@@ -13,7 +13,7 @@ import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinary } from '../../lib/image';
 
-interface PostItemCardProps {
+export interface PostItemCardProps {
   className?: string;
   postItem: PostItem;
   showButtons?: boolean;
