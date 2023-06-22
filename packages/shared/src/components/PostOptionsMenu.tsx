@@ -255,7 +255,7 @@ export default function PostOptionsMenu({
     {
       icon: (
         <MenuIcon
-          className={classNames(post?.downvoted && 'text-ketchup-40')}
+          className={classNames(post?.downvoted && 'text-theme-color-ketchup')}
           Icon={DownvoteIcon}
           secondary={post?.downvoted}
         />
