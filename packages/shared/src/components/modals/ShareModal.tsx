@@ -89,7 +89,7 @@ export default function ShareModal({
       <Modal.Header title={isComment ? 'Share comment' : 'Share post'} />
       <Modal.Body {...handlers}>
         <MarkdownInput
-          className="mb-4"
+          className={{ container: 'mb-4' }}
           ref={markdownRef}
           showUserAvatar
           textareaProps={{ rows: 5, name: 'commentary' }}
