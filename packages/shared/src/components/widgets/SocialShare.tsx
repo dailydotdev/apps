@@ -84,7 +84,7 @@ export const SocialShare = ({
       }),
     );
 
-  const { onSubmitPost } = usePostToSquad({
+  const { onSubmitPost, isPosting } = usePostToSquad({
     initialPreview: post,
     onPostSuccess: () => {
       trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
@@ -122,6 +122,7 @@ export const SocialShare = ({
                     className="flex overflow-hidden flex-col items-center w-16 text-center"
                     key={squad.id}
                     onClick={(e) => postToSquad(e, squad)}
+                    disabled={isPosting}
                   >
                     <SourceProfilePicture source={squad} />
                     <ShareText className="mt-2 max-w-full truncate">
