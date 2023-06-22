@@ -92,7 +92,7 @@ export default function CompanionContextMenu({
             size={IconSize.Small}
             className={classNames(
               'mr-2',
-              postData?.downvoted && 'text-ketchup-40',
+              postData?.downvoted && 'text-theme-color-ketchup',
             )}
             secondary={postData?.downvoted}
           />{' '}
