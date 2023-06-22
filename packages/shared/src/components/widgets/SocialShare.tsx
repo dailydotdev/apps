@@ -35,6 +35,7 @@ import { useSharePost } from '../../hooks/useSharePost';
 import MenuIcon from '../icons/Menu';
 import CopyIcon from '../icons/Copy';
 import { usePostToSquad } from '../../hooks';
+import { useCopyPostLink } from '../../hooks/useCopyPostLink';
 
 interface SocialShareProps {
   origin: Origin;
@@ -56,8 +57,12 @@ export const SocialShare = ({
   type = SocialShareType.External,
   commentary,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
-  const { squads } = useAuthContext();
   const isComment = !!comment;
+  const href = isComment
+    ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
+    : post?.commentsPermalink;
+  const { squads } = useAuthContext();
+  const [copying, copyLink] = useCopyPostLink(href);
   const link = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
@@ -86,6 +91,11 @@ export const SocialShare = ({
       onSquadShare(null);
     },
   });
+
+  const trackAndCopyLink = () => {
+    copyLink();
+    trackClick(ShareProvider.CopyLink);
+  };
 
   const postToSquad = (e, squad: Squad) => {
     return onSubmitPost(e, squad.id, commentary);
@@ -155,14 +165,16 @@ export const SocialShare = ({
           <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4 pt-2">
             <SocialShareIcon
               icon={<CopyIcon />}
-              className="text-pepper-90 bg-white"
-              onClick={() => openNativeSharePost(post)}
+              className="text-pepper-90"
+              onClick={() => trackAndCopyLink()}
               label="Copy link"
+              iconBg="bg-white"
+              pressed={copying}
             />
             <SocialShareIcon
               href={getTwitterShareLink(link, post?.title)}
               icon={<TwitterIcon />}
-              className="bg-theme-bg-twitter"
+              iconBg="bg-theme-bg-twitter"
               onClick={() => trackClick(ShareProvider.Twitter)}
               label="Twitter"
             />
@@ -170,48 +182,48 @@ export const SocialShare = ({
               href={getWhatsappShareLink(link)}
               icon={<WhatsappIcon />}
               onClick={() => trackClick(ShareProvider.WhatsApp)}
-              className="bg-theme-bg-whatsapp"
+              iconBg="bg-theme-bg-whatsapp"
               label="WhatsApp"
             />
             <SocialShareIcon
               href={getFacebookShareLink(link)}
               icon={<FacebookIcon />}
-              className="bg-theme-bg-facebook"
+              iconBg="bg-theme-bg-facebook"
               onClick={() => trackClick(ShareProvider.Facebook)}
               label="Facebook"
             />
             <SocialShareIcon
               href={getRedditShareLink(link, post?.title)}
               icon={<RedditIcon />}
-              className="bg-theme-bg-reddit"
+              iconBg="bg-theme-bg-reddit"
               onClick={() => trackClick(ShareProvider.Reddit)}
               label="Reddit"
             />
             <SocialShareIcon
               href={getLinkedInShareLink(link)}
               icon={<LinkedInIcon />}
-              className="bg-theme-bg-linkedin"
+              iconBg="bg-theme-bg-linkedin"
               onClick={() => trackClick(ShareProvider.LinkedIn)}
               label="LinkedIn"
             />
             <SocialShareIcon
               href={getTelegramShareLink(link, post?.title)}
               icon={<TelegramIcon />}
-              className="bg-theme-bg-telegram"
+              iconBg="bg-theme-bg-telegram"
               onClick={() => trackClick(ShareProvider.Telegram)}
               label="Telegram"
             />
             <SocialShareIcon
               href={getEmailShareLink(link, 'I found this amazing post')}
               icon={<MailIcon />}
-              className="bg-theme-bg-email"
+              iconBg="bg-theme-bg-email"
               onClick={() => trackClick(ShareProvider.Email)}
               label="Email"
             />
             {'share' in navigator && (
               <SocialShareIcon
                 icon={<MenuIcon className="rotate-90" />}
-                className="bg-theme-bg-email"
+                iconBg="bg-theme-bg-email"
                 onClick={() => openNativeSharePost(post)}
                 label="Share via..."
               />

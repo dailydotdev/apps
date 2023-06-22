@@ -1,4 +1,4 @@
-.btn {
+.btn:not(.reset) {
   transition: 0.2s ease-in-out;
   transition-property: border, background, box-shadow;
   height: 2.5rem;

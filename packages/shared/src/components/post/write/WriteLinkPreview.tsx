@@ -80,7 +80,11 @@ export function WriteLinkPreview({
               />
             </div>
           )}
-          <Image className={previewImageClass} src={preview.image} />
+          <Image
+            className={previewImageClass}
+            src={preview.image}
+            alt={`${preview.title}`}
+          />
           {showOpenLink && (
             <Button
               icon={<OpenLinkIcon />}
