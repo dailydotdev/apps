@@ -8,7 +8,7 @@ import {
 } from '@testing-library/preact';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import PostItemCard from '../post/PostItemCard';
+import PostItemCard, { PostItemCardProps } from '../post/PostItemCard';
 import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import AuthContext from '../../contexts/AuthContext';
@@ -125,25 +125,32 @@ describe('PostItemCard component', () => {
     post,
   };
 
+  const renderCard = (props: Partial<PostItemCardProps> = {}) =>
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <PostItemCard postItem={defaultHistory} {...props} />
+      </QueryClientProvider>,
+    );
+
   it('should show view history post title', async () => {
-    render(<PostItemCard postItem={defaultHistory} />);
+    renderCard();
     await screen.findByText(defaultHistory.post.title);
   });
 
   it('should show view history post image', async () => {
-    render(<PostItemCard postItem={defaultHistory} />);
+    renderCard();
     await screen.findByAltText(defaultHistory.post.title);
   });
 
   it('should show view history post source image', async () => {
-    render(<PostItemCard postItem={defaultHistory} />);
+    renderCard();
     await screen.findByAltText(
       `source of ${defaultHistory.post.title}'s profile`,
     );
   });
 
   it('should call onHide on close button clicked', async () => {
-    render(<PostItemCard postItem={defaultHistory} onHide={onHide} />);
+    renderCard({ onHide });
     const button = (await screen.findAllByRole('button'))[0];
     fireEvent.click(button);
     expect(onHide).toHaveBeenCalledWith({
@@ -153,13 +160,7 @@ describe('PostItemCard component', () => {
   });
 
   it('should call onContextMenu on menu button clicked', async () => {
-    render(
-      <PostItemCard
-        postItem={defaultHistory}
-        onHide={onHide}
-        onContextMenu={onContextMenu}
-      />,
-    );
+    renderCard({ onHide, onContextMenu });
     const button = (await screen.findAllByRole('button'))[1];
     fireEvent.click(button);
     expect(onContextMenu).toHaveBeenCalledTimes(1);

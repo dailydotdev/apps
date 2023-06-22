@@ -18,9 +18,9 @@ import CommentActionButtons, {
 import CommentAuthor from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
+import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 
-interface ClassName {
-  container?: string;
+interface ClassName extends CommentClassName {
   content?: string;
 }
 
