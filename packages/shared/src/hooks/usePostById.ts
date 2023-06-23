@@ -10,6 +10,8 @@ import {
 import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
 import { Post, PostData, POST_BY_ID_QUERY } from '../graphql/posts';
+import { PostCommentsData } from '../graphql/comments';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 interface UsePostByIdProps {
   id: string;
@@ -36,6 +38,41 @@ export const updatePostCache = (
       ...postUpdate,
     },
   }));
+
+export const removePostComments = (
+  client: QueryClient,
+  post: Post,
+  commentId: string,
+  parentId: string,
+): void => {
+  const key = generateQueryKey(RequestKey.PostComments, null, post.id);
+  client.setQueryData<PostCommentsData>(key, (data) => {
+    const copy = { ...data };
+
+    if (commentId !== parentId) {
+      const parent = copy.postComments.edges.find(
+        ({ node }) => node.id === parentId,
+      );
+      parent.node.children.edges = parent.node.children.edges.filter(
+        ({ node }) => node.id !== commentId,
+      );
+      updatePostCache(client, post.id, { numComments: post.numComments - 1 });
+      return copy;
+    }
+
+    const parent = copy.postComments.edges.find(
+      ({ node }) => node.id === commentId,
+    );
+    const count = parent.node.children.edges.length + 1;
+    const numComments = post.numComments - count;
+    updatePostCache(client, post.id, { numComments });
+    copy.postComments.edges = data.postComments.edges.filter(
+      ({ node }) => node.id !== commentId,
+    );
+
+    return data;
+  });
+};
 
 const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const { tokenRefreshed } = useAuthContext();

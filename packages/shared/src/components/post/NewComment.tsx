@@ -1,21 +1,34 @@
-import React, { ReactElement } from 'react';
+import React, {
+  forwardRef,
+  MutableRefObject,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import { LoggedUser } from '../../lib/user';
 import { Button, ButtonSize } from '../buttons/Button';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
+import {
+  CommentMarkdownInput,
+  CommentMarkdownInputProps,
+} from '../fields/MarkdownInput/CommentMarkdownInput';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { PostType } from '../../graphql/posts';
 
-interface NewCommentProps {
-  user?: LoggedUser;
-  className?: string;
-  isCommenting: boolean;
+interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
-  onNewComment: () => unknown;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
@@ -23,24 +36,85 @@ const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
   medium: ButtonSize.Small,
 };
 
-export function NewComment({
-  user,
-  className,
-  isCommenting,
-  size = 'large',
-  onNewComment,
-}: NewCommentProps): ReactElement {
+export interface NewCommentRef {
+  onShowInput: (origin: Origin) => void;
+}
+
+function NewCommentComponent(
+  { className, size = 'large', onCommented, post, ...props }: NewCommentProps,
+  ref: MutableRefObject<NewCommentRef>,
+): ReactElement {
+  const router = useRouter();
+  const { trackEvent } = useAnalyticsContext();
+  const { user, showLogin } = useAuthContext();
+  const [inputContent, setInputContent] = useState<string>(undefined);
+
+  const onShowComment = useCallback(
+    (origin: Origin, content = '') => {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.OpenComment, post, {
+          extra: { origin },
+        }),
+      );
+
+      return setInputContent(content);
+    },
+    [post, trackEvent],
+  );
+
+  const onSuccess: typeof onCommented = (comment, isNew) => {
+    setInputContent(undefined);
+    onCommented(comment, isNew);
+  };
+
+  const hasCommentQuery = typeof router.query.comment === 'string';
+
+  useEffect(() => {
+    if (!hasCommentQuery || post.type !== PostType.Welcome) {
+      return;
+    }
+
+    const { comment, ...query } = router.query;
+
+    onShowComment(Origin.SquadChecklist, comment);
+
+    router.replace({ pathname: router.pathname, query }, undefined, {
+      shallow: true,
+    });
+  }, [post, hasCommentQuery, setInputContent, onShowComment, router]);
+
+  const onCommentClick = (origin: Origin) => {
+    if (!user) {
+      return showLogin('new comment');
+    }
+
+    return onShowComment(origin);
+  };
+
+  useImperativeHandle(ref, () => ({
+    onShowInput: onCommentClick,
+  }));
+
+  if (typeof inputContent !== 'undefined') {
+    return (
+      <CommentMarkdownInput
+        {...props}
+        post={post}
+        className={{ container: 'my-4', tab: className?.tab }}
+        onCommented={onSuccess}
+        initialContent={inputContent}
+      />
+    );
+  }
+
   return (
     <button
       type="button"
       className={classNames(
-        'flex items-center p-3 w-full rounded-16 typo-callout border',
-        isCommenting
-          ? 'bg-theme-active border-theme-divider-primary'
-          : 'bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
-        className,
+        'flex items-center p-3 w-full rounded-16 typo-callout border bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
+        className?.container,
       )}
-      onClick={onNewComment}
+      onClick={() => onCommentClick(Origin.StartDiscussion)}
     >
       {user ? (
         <ProfilePicture user={user} size={size} nativeLazyLoading />
@@ -64,3 +138,5 @@ export function NewComment({
     </button>
   );
 }
+
+export const NewComment = forwardRef(NewCommentComponent);

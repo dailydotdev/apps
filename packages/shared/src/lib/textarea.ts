@@ -47,27 +47,27 @@ export const getCloseWord = (
   selected: number[],
 ): [string, number] => {
   const [, end] = selected;
-
-  let lastIndex = 0;
+  const index = textarea.value.substring(0, end).split('\n').length - 1;
   const lines = textarea.value.split('\n');
-  const closeWord = lines.reduce((query, line) => {
-    if (lastIndex + line.length < end) {
-      lastIndex += line.length + 1;
-      return query;
-    }
+  const line = lines[index];
+  const preLines = lines.slice(0, index).join('\n');
+  const offset = lines.length === 1 ? 0 : 1;
+  const base = end - preLines.length - offset;
+  let lastIndex = 0;
+  let startIndex = 0;
 
-    return line.split(' ').find((word) => {
-      const current = lastIndex + word.length;
+  const found = line.split(' ').find((word) => {
+    startIndex = lastIndex;
+    const current = lastIndex + word.length;
 
-      if (current >= end) return true;
+    if (current >= base) return true;
 
-      lastIndex = current + 1;
+    lastIndex = current + 1;
 
-      return false;
-    });
-  }, '');
+    return false;
+  });
 
-  return [closeWord?.trimEnd() ?? '', lastIndex];
+  return [found ?? '', preLines.length + startIndex + offset];
 };
 
 /**
@@ -156,13 +156,13 @@ export class TextareaCommand {
       this.textarea.selectionStart,
       this.textarea.selectionEnd,
     ];
-    const [word, startIndex] = getCloseWord(this.textarea, selection);
-    const position = [startIndex, startIndex + word.length];
+    const [word, start] = getCloseWord(this.textarea, selection);
+    const position = [start, start + word.length];
     const { replacement, offset } = getReplacement(CursorType.Adjacent, {
       word,
-      selection: [startIndex, startIndex + word.length],
+      selection: position,
     });
-    const defaultOffset = startIndex + replacement.length;
+    const defaultOffset = start + replacement.length;
     const result = concatReplacement(this.textarea, position, replacement);
     const finalPosition = offset ?? [defaultOffset, defaultOffset];
     return { result, position: finalPosition, replacement };
