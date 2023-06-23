@@ -56,7 +56,10 @@ export const SocialShareIcon = ({
         ref={button}
       />
       <ShareText
-        className={classNames('mt-1.5', sizeToText[size])}
+        className={classNames(
+          'mt-1.5 max-w-[4rem] overflow-hidden overflow-ellipsis',
+          sizeToText[size],
+        )}
         onClick={() => button?.current?.click()}
       >
         {label}
