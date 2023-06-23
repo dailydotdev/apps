@@ -32,7 +32,6 @@ import { usePostToSquad } from '../../hooks';
 import { SocialShareContainer } from './SocialShareContainer';
 import { useCopyLink } from '../../hooks/useCopyLink';
 import { SquadsToShare } from '../squads/SquadsToShare';
-import classed from '../../lib/classed';
 
 interface SocialShareProps {
   origin: Origin;
