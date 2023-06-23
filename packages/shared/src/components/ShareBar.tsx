@@ -83,6 +83,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           size={ButtonSize.Medium}
           href={getWhatsappShareLink(href)}
           icon={<WhatsappIcon secondary />}
+          className="text-white btn-tertiary"
           onClick={() => onClick(ShareProvider.WhatsApp)}
           label="WhatsApp"
         />
@@ -90,6 +91,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           size={ButtonSize.Medium}
           href={getFacebookShareLink(href)}
           icon={<FacebookIcon secondary />}
+          className="btn-tertiary"
           onClick={() => onClick(ShareProvider.Facebook)}
           label="Facebook"
         />
@@ -97,6 +99,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           size={ButtonSize.Medium}
           href={getTwitterShareLink(href, post?.title)}
           icon={<TwitterIcon secondary />}
+          className="btn-tertiary"
           onClick={() => onClick(ShareProvider.Twitter)}
           label="Twitter"
         />
