@@ -49,13 +49,11 @@ export function WriteLinkPreview({
           <div className="flex flex-col flex-1 typo-footnote">
             <span className="font-bold line-clamp-2">{preview.title}</span>
             {preview.source && isMinimized ? (
-              <div className="flex absolute right-28 justify-center items-center w-8 h-8 rounded-full bg-theme-bg-primary">
-                <SourceAvatar
-                  size="small"
-                  source={preview.source}
-                  className="mr-0"
-                />
-              </div>
+              <SourceAvatar
+                size="small"
+                source={preview.source}
+                className="absolute right-24 mt-1 mr-4"
+              />
             ) : (
               <span className="flex flex-row items-center mt-1">
                 <SourceAvatar size="small" source={preview.source} />
