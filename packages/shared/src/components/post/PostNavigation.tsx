@@ -50,7 +50,7 @@ function PostNavigation({
       {onPreviousPost && (
         <SimpleTooltip content="Previous">
           <Button
-            className="-rotate-90 btn-secondary"
+            className="-rotate-90 btn-tertiary"
             icon={<ArrowIcon />}
             onClick={onPreviousPost}
             disabled={[PostPosition.First, PostPosition.Only].includes(
@@ -62,7 +62,7 @@ function PostNavigation({
       {onNextPost && (
         <SimpleTooltip content="Next">
           <Button
-            className="rotate-90 btn-secondary"
+            className="rotate-90 btn-tertiary"
             icon={<ArrowIcon />}
             onClick={onNextPost}
             disabled={[PostPosition.Last, PostPosition.Only].includes(
