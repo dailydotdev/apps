@@ -125,21 +125,13 @@ export const SocialShare = ({
       {hasSquadAccess && !isComment && !post.private && (
         <SocialShareContainer title="Share with your squad">
           {list ?? (
-            <button
-              type="button"
-              className="flex flex-col items-center w-16 text-center"
-              onClick={() =>
-                openNewSquadModal({
-                  origin: Origin.Share,
-                  redirectAfterCreate: false,
-                })
-              }
-            >
-              <div className="flex justify-center items-center w-12 h-12 rounded-full bg-theme-color-cabbage">
-                <PlusIcon size={IconSize.Large} className="text-pepper-90" />
-              </div>
-              <ShareText className="mt-2 break-words">New squad</ShareText>
-            </button>
+            <SocialShareIcon
+              onClick={trackAndCopyLink}
+              pressed={copying}
+              icon={<PlusIcon className="text-theme-label-invert" />}
+              className="!rounded-full btn-primary-cabbage"
+              label="New Squad"
+            />
           )}
         </SocialShareContainer>
       )}
