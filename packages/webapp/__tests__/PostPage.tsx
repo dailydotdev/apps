@@ -1,7 +1,5 @@
 import React from 'react';
 import {
-  findAllByText,
-  findByText,
   fireEvent,
   queryByText,
   render,
@@ -381,16 +379,8 @@ it('should open new comment modal and set the correct props', async () => {
   await screen.findByText('Learn SQL');
   const el = await screen.findByText('Comment');
   el.click();
-  const dialog = await screen.findByRole('dialog');
-  expect(dialog).toBeInTheDocument();
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect((await findAllByText(dialog, 'Towards Data Science')).length).toEqual(
-    2,
-  );
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  await findByText(dialog, 'Learn SQL');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  await findByText(dialog, 'May 16, 2019');
+  const [commentBox] = await screen.findAllByRole('textbox');
+  expect(commentBox).toBeInTheDocument();
 });
 
 it('should not show stats when they are zero', async () => {

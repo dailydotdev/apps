@@ -13,9 +13,11 @@ import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { AccessToken, PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
+import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';
+import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import {
   getPostByIdKey,
   updatePostCache,
@@ -24,6 +26,7 @@ import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { companionRequest } from './companionRequest';
 import { companionFetch } from './companionFetch';
+import { getCompanionWrapper } from './common';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -34,6 +37,7 @@ interface CompanionProps {
   companionHelper: boolean;
   companionExpanded: boolean;
   onOptOut: () => void;
+  onUpdateToken: (token: AccessToken) => void;
 }
 
 interface ContainerProps {
@@ -64,14 +68,21 @@ const Container = ({
   );
 };
 
+export const refreshTokenKey = 'refresh_token';
+
 export default function Companion({
   postData,
   companionHelper,
   companionExpanded,
   onOptOut,
+  onUpdateToken,
 }: CompanionProps): ReactElement {
+  useBackgroundRequest(refreshTokenKey, {
+    callback: ({ res }) => onUpdateToken(res.accessToken),
+  });
   const containerRef = useRef<HTMLDivElement>();
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
+  usePopupSelector({ parentSelector: getCompanionWrapper });
   const client = useQueryClient();
   const { data: post } = useQuery(
     getPostByIdKey(postData.id),

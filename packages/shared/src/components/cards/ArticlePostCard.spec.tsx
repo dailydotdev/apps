@@ -6,6 +6,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/preact';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { ArticlePostCard } from './ArticlePostCard';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import post from '../../../__tests__/fixture/post';
@@ -29,7 +30,9 @@ beforeEach(() => {
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <FeaturesContextProvider flags={{}}>
-      <ArticlePostCard {...defaultProps} {...props} />
+      <QueryClientProvider client={new QueryClient()}>
+        <ArticlePostCard {...defaultProps} {...props} />
+      </QueryClientProvider>
     </FeaturesContextProvider>,
   );
 };

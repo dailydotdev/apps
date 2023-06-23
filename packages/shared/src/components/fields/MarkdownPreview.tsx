@@ -4,6 +4,7 @@ import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { graphqlUrl } from '../../lib/config';
 import { PREVIEW_COMMENT_MUTATION } from '../../graphql/comments';
 import Markdown from '../Markdown';
+import { useBackgroundRequest } from '../../hooks/companion';
 
 export interface MarkdownPreviewProps {
   input: string;
@@ -35,6 +36,8 @@ function MarkdownPreview({
       ),
     { enabled: input?.length > 0 && enabled },
   );
+
+  useBackgroundRequest(query, { enabled: input?.length > 0 && enabled });
 
   return (
     <Markdown

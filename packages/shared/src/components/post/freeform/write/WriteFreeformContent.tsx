@@ -140,7 +140,7 @@ export function WriteFreeformContent({
         />
       </AlertPointer>
       <MarkdownInput
-        className="mt-4"
+        className={{ container: 'mt-4' }}
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
         initialContent={draft?.content ?? post?.content}
