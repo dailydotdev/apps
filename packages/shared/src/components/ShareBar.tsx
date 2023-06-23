@@ -63,7 +63,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   return (
     <WidgetContainer className="hidden laptop:flex flex-col p-3">
       <p className="mb-4 typo-callout text-theme-label-tertiary">
-        One-click share
+        Would you recommend this post?
       </p>
       <div className="grid grid-cols-4 gap-2 gap-y-4">
         <SocialShareIcon
