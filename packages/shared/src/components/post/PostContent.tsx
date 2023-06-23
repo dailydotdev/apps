@@ -9,7 +9,6 @@ import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigationProps } from './PostNavigation';
 import { PostModalActionsProps } from './PostModalActions';
-import { UsePostCommentOptionalProps } from '../../hooks/usePostComment';
 import {
   ToastSubject,
   useToastNotification,
@@ -30,8 +29,8 @@ export type PassedPostNavigationProps = Pick<
 
 export interface PostContentProps
   extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
-    PassedPostNavigationProps,
-    UsePostCommentOptionalProps {
+    PassedPostNavigationProps {
+  enableShowShareNewComment?: boolean;
   post?: Post;
   isFallback?: boolean;
   className?: PostContentClassName;
