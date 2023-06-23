@@ -65,36 +65,38 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
       <p className="mb-4 typo-callout text-theme-label-tertiary">
         One-click share
       </p>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2 gap-y-4">
         <SocialShareIcon
           size={ButtonSize.Medium}
           onClick={trackAndCopyLink}
           pressed={copying}
-          icon={<CopyIcon className="text-theme-label-invert" />}
-          className={copying ? 'btn-primary-avocado' : 'btn-primary'}
+          className="btn-tertiary"
+          icon={
+            <CopyIcon
+              className={copying && 'text-theme-color-avocado'}
+              secondary={copying}
+            />
+          }
           label={copying ? 'Copied!' : 'Copy link'}
         />
         <SocialShareIcon
           size={ButtonSize.Medium}
           href={getWhatsappShareLink(href)}
-          icon={<WhatsappIcon />}
+          icon={<WhatsappIcon secondary />}
           onClick={() => onClick(ShareProvider.WhatsApp)}
-          className="bg-theme-bg-whatsapp"
           label="WhatsApp"
         />
         <SocialShareIcon
           size={ButtonSize.Medium}
           href={getFacebookShareLink(href)}
-          icon={<FacebookIcon />}
-          className="bg-theme-bg-facebook"
+          icon={<FacebookIcon secondary />}
           onClick={() => onClick(ShareProvider.Facebook)}
           label="Facebook"
         />
         <SocialShareIcon
           size={ButtonSize.Medium}
           href={getTwitterShareLink(href, post?.title)}
-          icon={<TwitterIcon />}
-          className="bg-theme-bg-twitter"
+          icon={<TwitterIcon secondary />}
           onClick={() => onClick(ShareProvider.Twitter)}
           label="Twitter"
         />

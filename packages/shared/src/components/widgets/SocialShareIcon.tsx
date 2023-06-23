@@ -14,8 +14,13 @@ interface SocialShareIconProps extends HTMLAttributes<HTMLButtonElement> {
 
 export const ShareText = classed(
   'span',
-  'typo-caption2 text-theme-label-tertiary cursor-pointer',
+  'text-theme-label-tertiary cursor-pointer',
 );
+
+const sizeToText = {
+  [ButtonSize.Large]: 'typo-caption2',
+  [ButtonSize.Medium]: 'typo-caption1',
+};
 
 export const SocialShareIcon = ({
   pressed,
@@ -44,13 +49,16 @@ export const SocialShareIcon = ({
         {...buttonProps}
         data-testid={`social-share-${label}`}
         buttonSize={size}
-        className={classNames(className, 'text-white')}
+        className={className}
         iconOnly
         icon={icon}
         pressed={pressed}
         ref={button}
       />
-      <ShareText className="mt-1.5" onClick={() => button?.current?.click()}>
+      <ShareText
+        className={classNames('mt-1.5', sizeToText[size])}
+        onClick={() => button?.current?.click()}
+      >
         {label}
       </ShareText>
     </div>

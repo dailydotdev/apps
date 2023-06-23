@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import {
   getEmailShareLink,
   getFacebookShareLink,
@@ -31,6 +32,7 @@ import { usePostToSquad } from '../../hooks';
 import { SocialShareContainer } from './SocialShareContainer';
 import { useCopyLink } from '../../hooks/useCopyLink';
 import { SquadsToShare } from '../squads/SquadsToShare';
+import classed from '../../lib/classed';
 
 interface SocialShareProps {
   origin: Origin;
@@ -98,8 +100,16 @@ export const SocialShare = ({
         <SocialShareIcon
           onClick={trackAndCopyLink}
           pressed={copying}
-          icon={<CopyIcon className="text-theme-label-invert" />}
-          className={copying ? 'btn-primary-avocado' : 'btn-primary'}
+          icon={
+            <CopyIcon
+              className={classNames(
+                'text-theme-label-invert',
+                copying && 'text-theme-color-avocado',
+              )}
+              secondary={copying}
+            />
+          }
+          className="btn-primary"
           label={copying ? 'Copied!' : 'Copy link'}
         />
         <SocialShareIcon
