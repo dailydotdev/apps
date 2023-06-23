@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import CopyIcon from './icons/Copy';
 import WhatsappIcon from './icons/Whatsapp';
 import TwitterIcon from './icons/Twitter';
@@ -11,24 +11,26 @@ import {
   getWhatsappShareLink,
   ShareProvider,
 } from '../lib/share';
-import { Button, ButtonProps } from './buttons/Button';
-import classed from '../lib/classed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
-import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { WidgetContainer } from './widgets/common';
-import { Origin } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { LazyModal } from './modals/common/types';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { Squad } from '../graphql/sources';
+import { SocialShareIcon } from './widgets/SocialShareIcon';
+import { SquadsToShare } from './squads/SquadsToShare';
+import { ButtonSize } from './buttons/Button';
 
-const ShareButton = classed(Button, 'my-1');
-const ColorfulShareButton = classed(
-  ShareButton,
-  'text-white',
-) as unknown as FunctionComponent<ButtonProps<'a'>>;
+interface ShareBarProps {
+  post: Post;
+}
 
-export default function ShareBar({ post }: { post: Post }): ReactElement {
+export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const href = post.commentsPermalink;
   const [copying, copyLink] = useCopyPostLink(href);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { openModal } = useLazyModal();
 
   const onClick = (provider: ShareProvider) =>
     trackEvent(
@@ -42,53 +44,67 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     onClick(ShareProvider.CopyLink);
   };
 
+  const onShareToSquad = (squad: Squad) => {
+    trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
+    openModal({
+      type: LazyModal.CreateSharedPost,
+      props: {
+        squad,
+        preview: post,
+        onSharedSuccessfully: () =>
+          trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post)),
+      },
+    });
+  };
+
   return (
     <WidgetContainer className="hidden laptop:flex flex-col p-3">
-      <p className="typo-callout text-theme-label-tertiary">
+      <p className="mb-4 typo-callout text-theme-label-tertiary">
         Would you recommend this post?
       </p>
-      <div className="inline-flex relative flex-row items-center mt-3">
-        <SimpleTooltip content="Copy link">
-          <ShareButton
-            onClick={trackAndCopyLink}
-            pressed={copying}
-            icon={<CopyIcon />}
-            className="btn-tertiary-avocado"
-          />
-        </SimpleTooltip>
-        <SimpleTooltip content="Share on WhatsApp">
-          <ColorfulShareButton
-            tag="a"
-            href={getWhatsappShareLink(href)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick(ShareProvider.WhatsApp)}
-            icon={<WhatsappIcon secondary />}
-            className="btn-tertiary"
-          />
-        </SimpleTooltip>
-        <SimpleTooltip content="Share on Twitter">
-          <ColorfulShareButton
-            tag="a"
-            href={getTwitterShareLink(href, post.title)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick(ShareProvider.Twitter)}
-            icon={<TwitterIcon secondary />}
-            className="btn-tertiary"
-          />
-        </SimpleTooltip>
-        <SimpleTooltip content="Share on Facebook">
-          <ColorfulShareButton
-            tag="a"
-            href={getFacebookShareLink(href)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick(ShareProvider.Facebook)}
-            icon={<FacebookIcon secondary />}
-            className="btn-tertiary"
-          />
-        </SimpleTooltip>
+      <div className="grid grid-cols-4 gap-2 gap-y-4">
+        <SocialShareIcon
+          size={ButtonSize.Medium}
+          onClick={trackAndCopyLink}
+          pressed={copying}
+          className="btn-tertiary"
+          icon={
+            <CopyIcon
+              className={copying && 'text-theme-color-avocado'}
+              secondary={copying}
+            />
+          }
+          label={copying ? 'Copied!' : 'Copy link'}
+        />
+        <SocialShareIcon
+          size={ButtonSize.Medium}
+          href={getWhatsappShareLink(href)}
+          icon={<WhatsappIcon secondary />}
+          className="text-white btn-tertiary"
+          onClick={() => onClick(ShareProvider.WhatsApp)}
+          label="WhatsApp"
+        />
+        <SocialShareIcon
+          size={ButtonSize.Medium}
+          href={getFacebookShareLink(href)}
+          icon={<FacebookIcon secondary />}
+          className="btn-tertiary"
+          onClick={() => onClick(ShareProvider.Facebook)}
+          label="Facebook"
+        />
+        <SocialShareIcon
+          size={ButtonSize.Medium}
+          href={getTwitterShareLink(href, post?.title)}
+          icon={<TwitterIcon secondary />}
+          className="btn-tertiary"
+          onClick={() => onClick(ShareProvider.Twitter)}
+          label="Twitter"
+        />
+        <SquadsToShare
+          size={ButtonSize.Medium}
+          squadAvatarSize="large"
+          onClick={(_, squad) => onShareToSquad(squad)}
+        />
       </div>
     </WidgetContainer>
   );
