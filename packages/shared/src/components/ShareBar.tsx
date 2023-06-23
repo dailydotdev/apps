@@ -51,10 +51,8 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
       props: {
         squad,
         preview: post,
-        onSharedSuccessfully: () => trackEvent(
-            postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post),
-          )
-        },
+        onSharedSuccessfully: () =>
+          trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post)),
       },
     });
   };
