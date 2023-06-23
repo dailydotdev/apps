@@ -41,7 +41,7 @@ export default function ShareModal({
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
   const { trackEvent } = useContext(AnalyticsContext);
-  const [commentary, setCommentary] = useState<string>('');
+  const [commentary, setCommentary] = useState('');
   const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
   const markdownRef = useRef<MarkdownRef>();
 
