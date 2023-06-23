@@ -126,7 +126,12 @@ export const SocialShare = ({
         <SocialShareContainer title="Share with your squad">
           {list ?? (
             <SocialShareIcon
-              onClick={trackAndCopyLink}
+              onClick={() =>
+                openNewSquadModal({
+                  origin: Origin.Share,
+                  redirectAfterCreate: false,
+                })
+              }
               pressed={copying}
               icon={<PlusIcon className="text-theme-label-invert" />}
               className="!rounded-full btn-primary-cabbage"

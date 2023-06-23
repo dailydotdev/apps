@@ -17,7 +17,7 @@ import { ExperimentWinner } from '../../lib/featureValues';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
 import MarkdownInput, { MarkdownRef } from '../fields/MarkdownInput';
-import { WriteLinkPreview, WriteLinkPreviewGutterSize } from '../post/write';
+import { WriteLinkPreview } from '../post/write';
 
 type ShareModalProps = {
   post: Post;
