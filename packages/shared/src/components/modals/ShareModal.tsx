@@ -101,10 +101,8 @@ export default function ShareModal({
               className="flex-col-reverse m-3 !w-auto"
               preview={post}
               link={link}
-              showOpenLink={false}
               showPreviewLink={false}
-              sourceInfoFormat="avatar"
-              gutterSize={WriteLinkPreviewGutterSize.Small}
+              isMinimized
             />
           }
         />

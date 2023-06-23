@@ -11,5 +11,5 @@ export const WritePreviewContainer = classed(
 
 export const WritePreviewContent = classed(
   FlexRow,
-  'relative gap-3 items-center',
+  'relative gap-3 items-center py-5 px-4',
 );

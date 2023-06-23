@@ -22,26 +22,17 @@ interface WriteLinkPreviewProps {
   preview: ExternalLinkPreview;
   onLinkChange?: FormEventHandler<HTMLInputElement>;
   className?: string;
-  showOpenLink?: boolean;
   showPreviewLink?: boolean;
-  sourceInfoFormat?: 'long' | 'avatar';
-  gutterSize?: WriteLinkPreviewGutterSize;
+  isMinimized?: boolean;
 }
-
-const gutterSizeToClassName: Record<WriteLinkPreviewGutterSize, string> = {
-  [WriteLinkPreviewGutterSize.Small]: 'py-2 px-3',
-  [WriteLinkPreviewGutterSize.Medium]: 'py-5 px-4',
-};
 
 export function WriteLinkPreview({
   link,
   preview,
   onLinkChange,
   className,
-  showOpenLink = true,
+  isMinimized,
   showPreviewLink = true,
-  sourceInfoFormat = 'long',
-  gutterSize = WriteLinkPreviewGutterSize.Medium,
 }: WriteLinkPreviewProps): ReactElement {
   return (
     <WritePreviewContainer className={className}>
@@ -59,10 +50,18 @@ export function WriteLinkPreview({
         />
       )}
       {preview.title && preview.image && (
-        <WritePreviewContent className={gutterSizeToClassName[gutterSize]}>
+        <WritePreviewContent className={isMinimized && '!py-2 !px-3'}>
           <div className="flex flex-col flex-1 typo-footnote">
             <span className="font-bold line-clamp-2">{preview.title}</span>
-            {preview.source && sourceInfoFormat === 'long' && (
+            {preview.source && isMinimized ? (
+              <div className="flex absolute right-28 justify-center items-center w-8 h-8 rounded-full bg-theme-bg-primary">
+                <SourceAvatar
+                  size="small"
+                  source={preview.source}
+                  className="mr-0"
+                />
+              </div>
+            ) : (
               <span className="flex flex-row items-center mt-1">
                 <SourceAvatar size="small" source={preview.source} />
                 <span className="text-theme-label-tertiary">
@@ -71,21 +70,12 @@ export function WriteLinkPreview({
               </span>
             )}
           </div>
-          {preview.source && sourceInfoFormat === 'avatar' && (
-            <div className="flex absolute right-28 justify-center items-center w-8 h-8 rounded-full bg-theme-bg-primary">
-              <SourceAvatar
-                size="small"
-                source={preview.source}
-                className="mr-0"
-              />
-            </div>
-          )}
           <Image
             className={previewImageClass}
             src={preview.image}
             alt={`${preview.title}`}
           />
-          {showOpenLink && (
+          {!isMinimized && (
             <Button
               icon={<OpenLinkIcon />}
               className="btn-tertiary"
