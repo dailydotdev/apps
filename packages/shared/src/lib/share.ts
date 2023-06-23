@@ -10,11 +10,6 @@ export enum ShareProvider {
   Email = 'email',
 }
 
-export enum SocialShareType {
-  Squad = 'squad',
-  External = 'external',
-}
-
 export const getWhatsappShareLink = (link: string): string =>
   `https://wa.me/?text=${encodeURIComponent(link)}`;
 export const getTwitterShareLink = (link: string, text: string): string =>

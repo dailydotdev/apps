@@ -11,7 +11,6 @@ import { SocialShare } from '../widgets/SocialShare';
 import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
-import { SocialShareType } from '../../lib/share';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
@@ -109,9 +108,7 @@ export default function ShareModal({
             />
           }
         />
-
         <SocialShare
-          type={SocialShareType.Squad}
           post={post}
           comment={comment}
           origin={origin}
@@ -120,16 +117,6 @@ export default function ShareModal({
           row={row}
           onSquadShare={() => onRequestClose(null)}
           commentary={commentary}
-        />
-        <SocialShare
-          type={SocialShareType.External}
-          post={post}
-          comment={comment}
-          origin={origin}
-          columns={columns}
-          column={column}
-          row={row}
-          onSquadShare={() => onRequestClose(null)}
         />
       </Modal.Body>
     </Modal>

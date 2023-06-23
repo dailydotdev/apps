@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import {
   getEmailShareLink,
   getFacebookShareLink,
@@ -8,7 +8,6 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
   ShareProvider,
-  SocialShareType,
 } from '../../lib/share';
 import { ShareText, SocialShareIcon } from './SocialShareIcon';
 import { Post } from '../../graphql/posts';
@@ -24,7 +23,7 @@ import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { SourcePermissions, Squad } from '../../graphql/sources';
+import { SourcePermissions } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { verifyPermission } from '../../graphql/squads';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
@@ -35,14 +34,14 @@ import { useSharePost } from '../../hooks/useSharePost';
 import MenuIcon from '../icons/Menu';
 import CopyIcon from '../icons/Copy';
 import { usePostToSquad } from '../../hooks';
-import { useCopyPostLink } from '../../hooks/useCopyPostLink';
+import { SocialShareContainer } from './SocialShareContainer';
+import { useCopyLink } from '../../hooks/useCopyLink';
 
 interface SocialShareProps {
   origin: Origin;
   post: Post;
   comment?: Comment;
   onSquadShare?: (post: Post) => void;
-  type?: SocialShareType;
   commentary?: string;
 }
 
@@ -54,7 +53,6 @@ export const SocialShare = ({
   column,
   row,
   onSquadShare,
-  type = SocialShareType.External,
   commentary,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const isComment = !!comment;
@@ -62,7 +60,7 @@ export const SocialShare = ({
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
   const { squads } = useAuthContext();
-  const [copying, copyLink] = useCopyPostLink(href);
+  const [copying, copyLink] = useCopyLink(() => href);
   const link = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
@@ -97,141 +95,120 @@ export const SocialShare = ({
     trackClick(ShareProvider.CopyLink);
   };
 
-  const postToSquad = (e, squad: Squad) => {
-    return onSubmitPost(e, squad.id, commentary);
-  };
+  const list = useMemo(
+    () =>
+      squads
+        ?.filter(
+          (squadItem) =>
+            squadItem.active &&
+            verifyPermission(squadItem, SourcePermissions.Post),
+        )
+        .map((squad) => (
+          <button
+            type="button"
+            className="flex overflow-hidden flex-col items-center w-16 text-center"
+            key={squad.id}
+            onClick={(e) => onSubmitPost(e, squad.id, commentary)}
+            disabled={isPosting}
+          >
+            <SourceProfilePicture source={squad} />
+            <ShareText className="mt-2 max-w-full truncate">
+              @{squad.handle}
+            </ShareText>
+          </button>
+        )),
+    [squads, onSubmitPost, commentary, isPosting],
+  );
 
   return (
-    <div className="mb-4">
-      {hasSquadAccess &&
-        type === SocialShareType.Squad &&
-        !isComment &&
-        !post.private && (
-          <>
-            <p className="pb-4 font-bold typo-callout">Share with your squad</p>
-            <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4">
-              {squads
-                ?.filter(
-                  (squadItem) =>
-                    squadItem.active &&
-                    verifyPermission(squadItem, SourcePermissions.Post),
-                )
-                ?.map((squad) => (
-                  <button
-                    type="button"
-                    className="flex overflow-hidden flex-col items-center w-16 text-center"
-                    key={squad.id}
-                    onClick={(e) => postToSquad(e, squad)}
-                    disabled={isPosting}
-                  >
-                    <SourceProfilePicture source={squad} />
-                    <ShareText className="mt-2 max-w-full truncate">
-                      @{squad.handle}
-                    </ShareText>
-                  </button>
-                ))}
-              {hasSquadAccess &&
-                type === SocialShareType.Squad &&
-                !isComment &&
-                squads?.length === 0 && (
-                  <button
-                    type="button"
-                    className="flex flex-col items-center w-16 text-center"
-                    onClick={() =>
-                      openNewSquadModal({
-                        origin: Origin.Share,
-                        redirectAfterCreate: false,
-                      })
-                    }
-                  >
-                    <div className="flex justify-center items-center w-12 h-12 rounded-full bg-theme-color-cabbage">
-                      <PlusIcon
-                        size={IconSize.Large}
-                        className="text-pepper-90"
-                      />
-                    </div>
-
-                    <ShareText className="mt-2 break-words">
-                      New squad
-                    </ShareText>
-                  </button>
-                )}
-            </section>
-          </>
-        )}
-
-      {type === SocialShareType.External && (
-        <>
-          <p className="pb-4 font-bold typo-callout">Share externally</p>
-          <section className="grid overflow-x-auto tablet:overflow-x-visible tablet:grid-cols-5 grid-flow-col tablet:grid-flow-row auto-cols-auto gap-4">
-            <SocialShareIcon
-              icon={<CopyIcon size={IconSize.Large} />}
-              className="text-pepper-90"
-              onClick={() => trackAndCopyLink()}
-              label="Copy link"
-              iconBg="bg-white"
-              pressed={copying}
-            />
-            <SocialShareIcon
-              href={getTwitterShareLink(link, post?.title)}
-              icon={<TwitterIcon size={IconSize.Large} />}
-              iconBg="bg-theme-bg-twitter"
-              onClick={() => trackClick(ShareProvider.Twitter)}
-              label="Twitter"
-            />
-            <SocialShareIcon
-              href={getWhatsappShareLink(link)}
-              icon={<WhatsappIcon size={IconSize.Large} />}
-              onClick={() => trackClick(ShareProvider.WhatsApp)}
-              iconBg="bg-theme-bg-whatsapp"
-              label="WhatsApp"
-            />
-            <SocialShareIcon
-              href={getFacebookShareLink(link)}
-              icon={<FacebookIcon size={IconSize.Large} />}
-              iconBg="bg-theme-bg-facebook"
-              onClick={() => trackClick(ShareProvider.Facebook)}
-              label="Facebook"
-            />
-            <SocialShareIcon
-              href={getRedditShareLink(link, post?.title)}
-              icon={<RedditIcon size={IconSize.Large} />}
-              iconBg="bg-theme-bg-reddit"
-              onClick={() => trackClick(ShareProvider.Reddit)}
-              label="Reddit"
-            />
-            <SocialShareIcon
-              href={getLinkedInShareLink(link)}
-              icon={<LinkedInIcon size={IconSize.Large} />}
-              iconBg="bg-theme-bg-linkedin"
-              onClick={() => trackClick(ShareProvider.LinkedIn)}
-              label="LinkedIn"
-            />
-            <SocialShareIcon
-              href={getTelegramShareLink(link, post?.title)}
-              icon={<TelegramIcon size={IconSize.Large} />}
-              iconBg="bg-theme-bg-telegram"
-              onClick={() => trackClick(ShareProvider.Telegram)}
-              label="Telegram"
-            />
-            <SocialShareIcon
-              href={getEmailShareLink(link, 'I found this amazing post')}
-              icon={<MailIcon size={IconSize.Large} />}
-              iconBg="bg-theme-bg-email"
-              onClick={() => trackClick(ShareProvider.Email)}
-              label="Email"
-            />
-            {'share' in navigator && (
-              <SocialShareIcon
-                icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
-                iconBg="bg-theme-bg-email"
-                onClick={() => openNativeSharePost(post)}
-                label="Share via..."
-              />
-            )}
-          </section>
-        </>
+    <>
+      {hasSquadAccess && !isComment && !post.private && (
+        <SocialShareContainer title="Share with your squad">
+          {list ?? (
+            <button
+              type="button"
+              className="flex flex-col items-center w-16 text-center"
+              onClick={() =>
+                openNewSquadModal({
+                  origin: Origin.Share,
+                  redirectAfterCreate: false,
+                })
+              }
+            >
+              <div className="flex justify-center items-center w-12 h-12 rounded-full bg-theme-color-cabbage">
+                <PlusIcon size={IconSize.Large} className="text-pepper-90" />
+              </div>
+              <ShareText className="mt-2 break-words">New squad</ShareText>
+            </button>
+          )}
+        </SocialShareContainer>
       )}
-    </div>
+      <SocialShareContainer title="Share externally" className="mt-4">
+        <SocialShareIcon
+          onClick={trackAndCopyLink}
+          pressed={copying}
+          icon={<CopyIcon className="text-theme-label-invert" />}
+          className={copying ? 'btn-primary-avocado' : 'btn-primary'}
+          label={copying ? 'Copied!' : 'Copy link'}
+        />
+        <SocialShareIcon
+          href={getTwitterShareLink(link, post?.title)}
+          icon={<TwitterIcon />}
+          className="bg-theme-bg-twitter"
+          onClick={() => trackClick(ShareProvider.Twitter)}
+          label="Twitter"
+        />
+        <SocialShareIcon
+          href={getWhatsappShareLink(link)}
+          icon={<WhatsappIcon />}
+          onClick={() => trackClick(ShareProvider.WhatsApp)}
+          className="bg-theme-bg-whatsapp"
+          label="WhatsApp"
+        />
+        <SocialShareIcon
+          href={getFacebookShareLink(link)}
+          icon={<FacebookIcon />}
+          className="bg-theme-bg-facebook"
+          onClick={() => trackClick(ShareProvider.Facebook)}
+          label="Facebook"
+        />
+        <SocialShareIcon
+          href={getRedditShareLink(link, post?.title)}
+          icon={<RedditIcon />}
+          className="bg-theme-bg-reddit"
+          onClick={() => trackClick(ShareProvider.Reddit)}
+          label="Reddit"
+        />
+        <SocialShareIcon
+          href={getLinkedInShareLink(link)}
+          icon={<LinkedInIcon />}
+          className="bg-theme-bg-linkedin"
+          onClick={() => trackClick(ShareProvider.LinkedIn)}
+          label="LinkedIn"
+        />
+        <SocialShareIcon
+          href={getTelegramShareLink(link, post?.title)}
+          icon={<TelegramIcon />}
+          className="bg-theme-bg-telegram"
+          onClick={() => trackClick(ShareProvider.Telegram)}
+          label="Telegram"
+        />
+        <SocialShareIcon
+          href={getEmailShareLink(link, 'I found this amazing post')}
+          icon={<MailIcon />}
+          className="bg-theme-bg-email"
+          onClick={() => trackClick(ShareProvider.Email)}
+          label="Email"
+        />
+        {'share' in navigator && (
+          <SocialShareIcon
+            icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
+            className="bg-theme-bg-email"
+            onClick={() => openNativeSharePost(post)}
+            label="Share via..."
+          />
+        )}
+      </SocialShareContainer>
+    </>
   );
 };
