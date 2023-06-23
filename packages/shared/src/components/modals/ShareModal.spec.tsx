@@ -55,7 +55,7 @@ it('should render the article card', async () => {
 
 it('should render the copy link section', async () => {
   renderComponent();
-  const btn = await screen.findByTestId('social-share-Copylink');
+  const btn = await screen.findByTestId('social-share-Copy link');
 
   btn.click();
   await waitFor(() =>
@@ -67,7 +67,7 @@ it('should render the copy link section', async () => {
 
 it('should render the copy link section for comments', async () => {
   renderComponent(defaultComment);
-  const btn = await screen.findByTestId('social-share-Copylink');
+  const btn = await screen.findByTestId('social-share-Copy link');
 
   btn.click();
   await waitFor(() =>
