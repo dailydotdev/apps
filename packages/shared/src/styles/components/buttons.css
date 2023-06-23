@@ -1,4 +1,4 @@
-.btn:not(.reset) {
+.btn {
   transition: 0.2s ease-in-out;
   transition-property: border, background, box-shadow;
   height: 2.5rem;
@@ -49,27 +49,6 @@
 
   &.bg-theme-color-cabbage {
     color: #FFFFFF;
-  }
-
-  &.share,
-  &.share:not(.iconOnly) {
-    padding: 0;
-    width: 4rem;
-    height: fit-content;
-    /* min-height: 3.875rem; */
-
-    border-radius: 0;
-
-    & .icon {
-      margin-left: 0;
-      margin-right: 0;
-      width: 2.5rem;
-      height: 2.5rem;
-    }
-
-    & span {
-      width: 100%;
-    }
   }
 
   &:not(.iconOnly) {
