@@ -16,6 +16,8 @@ import {
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import DownvoteIcon from '@dailydotdev/shared/src/components/icons/Downvote';
+import classNames from 'classnames';
 import { getCompanionWrapper } from './common';
 
 interface CompanionContextMenuProps
@@ -24,6 +26,7 @@ interface CompanionContextMenuProps
   onReport: (T) => void;
   onBlockSource: (T) => void;
   onDisableCompanion: () => void;
+  onDownvote: () => void;
 }
 
 export default function CompanionContextMenu({
@@ -31,6 +34,7 @@ export default function CompanionContextMenu({
   onReport,
   onBlockSource,
   onDisableCompanion,
+  onDownvote,
 }: CompanionContextMenuProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -79,6 +83,21 @@ export default function CompanionContextMenu({
         className="menu-primary"
         animation="fade"
       >
+        <Item
+          onClick={onDownvote}
+          aria-pressed={!!postData?.downvoted}
+          aria-label={postData?.downvoted ? 'Remove downvote' : 'Downvote'}
+        >
+          <DownvoteIcon
+            size={IconSize.Small}
+            className={classNames(
+              'mr-2',
+              postData?.downvoted && 'text-theme-color-ketchup',
+            )}
+            secondary={postData?.downvoted}
+          />{' '}
+          Downvote
+        </Item>
         <Item>
           <a
             className="flex items-center w-full"

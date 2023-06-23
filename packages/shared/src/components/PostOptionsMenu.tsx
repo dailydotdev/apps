@@ -3,6 +3,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryKey, useQueryClient } from 'react-query';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, ReportReason } from '../graphql/posts';
@@ -29,6 +30,7 @@ import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import { PinIcon } from './icons';
 import { getPostByIdKey } from '../hooks/usePostById';
 import EditIcon from './icons/Edit';
+import DownvoteIcon from './icons/Downvote';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -114,35 +116,40 @@ export default function PostOptionsMenu({
     });
     onRemovePost?.(_postIndex);
   };
-  const { onConfirmDeletePost, onPinPost } = usePostMenuActions({
-    post,
-    postIndex,
-    onPinSuccessful: async () => {
-      const key = getPostByIdKey(post.id);
-      const cached = client.getQueryData(key);
-      if (cached) {
-        client.setQueryData<Post>(key, (data) => ({
-          ...data,
-          pinnedAt: post.pinnedAt ? null : new Date(),
-        }));
-      }
+  const { onConfirmDeletePost, onPinPost, onToggleDownvotePost } =
+    usePostMenuActions({
+      post,
+      postIndex,
+      onPinSuccessful: async () => {
+        const key = getPostByIdKey(post.id);
+        const cached = client.getQueryData(key);
+        if (cached) {
+          client.setQueryData<Post>(key, (data) => ({
+            ...data,
+            pinnedAt: post.pinnedAt ? null : new Date(),
+          }));
+        }
 
-      await client.invalidateQueries(feedQueryKey);
-      displayToast(
-        post.pinnedAt
-          ? 'Your post has been unpinned'
-          : '📌 Your post has been pinned',
-      );
-    },
-    onPostDeleted: ({ index, post: deletedPost }) => {
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
-          extra: { origin },
-        }),
-      );
-      return showMessageAndRemovePost('The post has been deleted', index, null);
-    },
-  });
+        await client.invalidateQueries(feedQueryKey);
+        displayToast(
+          post.pinnedAt
+            ? 'Your post has been unpinned'
+            : '📌 Your post has been pinned',
+        );
+      },
+      onPostDeleted: ({ index, post: deletedPost }) => {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
+            extra: { origin },
+          }),
+        );
+        return showMessageAndRemovePost(
+          'The post has been deleted',
+          index,
+          null,
+        );
+      },
+    });
 
   const onReportPost: ReportPostAsync = async (
     reportPostIndex,
@@ -244,6 +251,17 @@ export default function PostOptionsMenu({
       ),
       text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onBookmark,
+    },
+    {
+      icon: (
+        <MenuIcon
+          className={classNames(post?.downvoted && 'text-theme-color-ketchup')}
+          Icon={DownvoteIcon}
+          secondary={post?.downvoted}
+        />
+      ),
+      text: 'Downvote',
+      action: onToggleDownvotePost,
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,

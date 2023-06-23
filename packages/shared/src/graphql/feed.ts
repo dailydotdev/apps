@@ -47,6 +47,7 @@ export const USER_POST_FRAGMENT = gql`
     upvoted
     commented
     bookmarked
+    downvoted
   }
 `;
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  fireEvent,
   queryByText,
   render,
   RenderResult,
@@ -17,6 +18,8 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
   PostType,
+  DOWNVOTE_MUTATION,
+  CANCEL_DOWNVOTE_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -109,6 +112,7 @@ const createPostMock = (
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
         },
         upvoted: false,
+        downvoted: false,
         commented: false,
         bookmarked: false,
         commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
@@ -248,7 +252,7 @@ it('should show post image', async () => {
 
 it('should show login on upvote click', async () => {
   renderPost({}, [createPostMock(), createCommentsMock()], null);
-  const el = await screen.findByText('Upvote');
+  const el = await screen.findByLabelText('Upvote');
   el.click();
   expect(showLogin).toBeCalledTimes(1);
 });
@@ -326,7 +330,7 @@ it('should send upvote mutation', async () => {
       },
     },
   ]);
-  const el = await screen.findByText('Upvote');
+  const el = await screen.findByLabelText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
 });
@@ -347,7 +351,7 @@ it('should send cancel upvote mutation', async () => {
       },
     },
   ]);
-  const el = await screen.findByText('Upvote');
+  const el = await screen.findByLabelText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
 });
@@ -522,7 +526,7 @@ it('should send bookmark mutation', async () => {
   await waitFor(() => mutationCalled);
 });
 
-it('should send cancel upvote mutation', async () => {
+it('should send remove bookmark mutation', async () => {
   let mutationCalled = false;
   renderPost({}, [
     createPostMock({ bookmarked: true }),
@@ -607,4 +611,84 @@ it('should not cut summary when there is a summary without reaching threshold', 
   expect(el).toBeInTheDocument();
   const fullSummary = await screen.findByText(summaryText);
   expect(fullSummary).toBeInTheDocument();
+});
+
+it('should show login on downvote click', async () => {
+  renderPost({}, [createPostMock(), createCommentsMock()], null);
+
+  const el = await screen.findByLabelText('Downvote');
+  fireEvent.click(el);
+  expect(showLogin).toBeCalledTimes(1);
+});
+
+it('should send downvote mutation', async () => {
+  let mutationCalled = false;
+
+  renderPost({}, [
+    createPostMock(),
+    createCommentsMock(),
+    {
+      request: {
+        query: DOWNVOTE_MUTATION,
+        variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+
+  const el = await screen.findByLabelText('Downvote');
+  fireEvent.click(el);
+  await waitFor(() => mutationCalled);
+});
+
+it('should send cancel downvote mutation', async () => {
+  let mutationCalled = false;
+
+  renderPost({}, [
+    createPostMock({ downvoted: true }),
+    createCommentsMock(),
+    {
+      request: {
+        query: CANCEL_DOWNVOTE_MUTATION,
+        variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+
+  const el = await screen.findByLabelText('Downvote');
+  fireEvent.click(el);
+  await waitFor(() => mutationCalled);
+});
+
+it('should decrement number of upvotes if downvoting post that was upvoted', async () => {
+  let mutationCalled = false;
+  renderPost({}, [
+    createPostMock({ upvoted: true, numUpvotes: 15 }),
+    createCommentsMock(),
+    {
+      request: {
+        query: DOWNVOTE_MUTATION,
+        variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+
+  const downvote = await screen.findByLabelText('Downvote');
+  fireEvent.click(downvote);
+  await new Promise(process.nextTick);
+  await waitFor(() => mutationCalled);
+
+  const el = await screen.findByTestId('statsBar');
+  expect(el).toHaveTextContent('14 Upvotes');
 });
