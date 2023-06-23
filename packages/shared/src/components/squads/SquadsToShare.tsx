@@ -2,21 +2,27 @@ import React, { ReactElement, MouseEvent, useMemo, useContext } from 'react';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions, Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
-import { ShareText, SocialShareIcon } from '../widgets/SocialShareIcon';
+import { SocialShareIcon } from '../widgets/SocialShareIcon';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/analytics';
 import PlusIcon from '../icons/Plus';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
+import { ButtonSize } from '../buttons/Button';
+import { ProfileImageSize } from '../ProfilePicture';
 
 interface SquadsToShareProps {
   isLoading?: boolean;
   onClick: (e: MouseEvent, squad: Squad) => void;
+  size?: ButtonSize;
+  squadIconSize?: ProfileImageSize;
 }
 
 export function SquadsToShare({
   isLoading,
   onClick,
+  size = ButtonSize.Large,
+  squadIconSize = 'xlarge',
 }: SquadsToShareProps): ReactElement {
   const { squads } = useAuthContext();
   const { hasSquadAccess, isFlagsFetched } = useContext(FeaturesContext);
@@ -35,20 +41,16 @@ export function SquadsToShare({
             verifyPermission(squadItem, SourcePermissions.Post),
         )
         .map((squad) => (
-          <button
-            type="button"
-            className="flex overflow-hidden flex-col items-center w-16 text-center"
+          <SocialShareIcon
             key={squad.id}
             onClick={(e) => onClick(e, squad)}
+            icon={<SourceProfilePicture source={squad} size={squadIconSize} />}
+            size={size}
+            label={`@${squad.handle}`}
             disabled={isLoading}
-          >
-            <SourceProfilePicture source={squad} />
-            <ShareText className="mt-2 max-w-full truncate">
-              @{squad.handle}
-            </ShareText>
-          </button>
+          />
         )) ?? [],
-    [squads, isLoading, onClick],
+    [squads, isLoading, onClick, size, squadIconSize],
   );
 
   if (list.length) return <>{list}</>;
@@ -64,6 +66,7 @@ export function SquadsToShare({
       icon={<PlusIcon className="text-theme-label-invert" />}
       className="!rounded-full btn-primary-cabbage"
       label="New Squad"
+      size={size}
     />
   );
 }

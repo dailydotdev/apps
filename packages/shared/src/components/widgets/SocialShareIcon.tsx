@@ -8,6 +8,8 @@ interface SocialShareIconProps extends HTMLAttributes<HTMLButtonElement> {
   href?: string;
   icon: ReactElement;
   label: string;
+  size?: ButtonSize;
+  disabled?: boolean;
 }
 
 export const ShareText = classed(
@@ -22,25 +24,35 @@ export const SocialShareIcon = ({
   className,
   onClick,
   label,
+  disabled,
+  size = ButtonSize.Large,
 }: SocialShareIconProps): ReactElement => {
   const button = useRef<HTMLButtonElement>();
   const buttonProps = href
-    ? ({ href, rel: 'noopener', target: 'blank', tag: 'a' } as ButtonProps<'a'>)
-    : ({ onClick } as ButtonProps<'button'>);
+    ? ({
+        href,
+        rel: 'noopener',
+        target: 'blank',
+        tag: 'a',
+        disabled,
+      } as ButtonProps<'a'>)
+    : ({ onClick, disabled } as ButtonProps<'button'>);
 
   return (
     <div className="flex flex-col items-center w-16">
       <Button
         {...buttonProps}
         data-testid={`social-share-${label}`}
-        buttonSize={ButtonSize.Large}
-        className={classNames(className, 'mb-2 text-white')}
+        buttonSize={size}
+        className={classNames(className, 'text-white')}
         iconOnly
         icon={icon}
         pressed={pressed}
         ref={button}
       />
-      <ShareText onClick={() => button?.current?.click()}>{label}</ShareText>
+      <ShareText className="mt-1.5" onClick={() => button?.current?.click()}>
+        {label}
+      </ShareText>
     </div>
   );
 };
