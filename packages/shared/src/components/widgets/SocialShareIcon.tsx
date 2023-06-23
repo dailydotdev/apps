@@ -28,7 +28,7 @@ export const SocialShareIcon = ({
     : ({ onClick } as ButtonProps<'button'>);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-16">
       <Button
         {...buttonProps}
         data-testid={`social-share-${label}`}

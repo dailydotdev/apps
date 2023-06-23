@@ -15,7 +15,7 @@ export function SocialShareContainer({
   return (
     <section className={classNames('flex flex-col', className)}>
       <h4 className="font-bold typo-callout">{title}</h4>
-      <div className={classNames('grid grid-cols-5 gap-4 w-fit mt-4')}>
+      <div className="flex tablet:grid overflow-x-scroll flex-row tablet:grid-cols-5 gap-4 mt-4 max-w-full tablet:overflow w-fit">
         {children}
       </div>
     </section>
