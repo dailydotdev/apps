@@ -15,14 +15,14 @@ interface SquadsToShareProps {
   isLoading?: boolean;
   onClick: (e: MouseEvent, squad: Squad) => void;
   size?: ButtonSize;
-  squadIconSize?: ProfileImageSize;
+  squadAvatarSize?: ProfileImageSize;
 }
 
 export function SquadsToShare({
   isLoading,
   onClick,
   size = ButtonSize.Large,
-  squadIconSize = 'xlarge',
+  squadAvatarSize = 'xlarge',
 }: SquadsToShareProps): ReactElement {
   const { squads } = useAuthContext();
   const { hasSquadAccess, isFlagsFetched } = useContext(FeaturesContext);
@@ -44,13 +44,15 @@ export function SquadsToShare({
           <SocialShareIcon
             key={squad.id}
             onClick={(e) => onClick(e, squad)}
-            icon={<SourceProfilePicture source={squad} size={squadIconSize} />}
+            icon={
+              <SourceProfilePicture source={squad} size={squadAvatarSize} />
+            }
             size={size}
             label={`@${squad.handle}`}
             disabled={isLoading}
           />
         )) ?? [],
-    [squads, isLoading, onClick, size, squadIconSize],
+    [squads, isLoading, onClick, size, squadAvatarSize],
   );
 
   if (list.length) return <>{list}</>;

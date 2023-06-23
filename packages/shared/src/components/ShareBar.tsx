@@ -105,7 +105,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         />
         <SquadsToShare
           size={ButtonSize.Medium}
-          squadIconSize="large"
+          squadAvatarSize="large"
           onClick={(_, squad) => onShareToSquad(squad)}
         />
       </div>
