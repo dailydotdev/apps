@@ -12,11 +12,6 @@ import {
 } from './common';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 
-export enum WriteLinkPreviewGutterSize {
-  Small = 'small',
-  Medium = 'medium',
-}
-
 interface WriteLinkPreviewProps {
   link: string;
   preview: ExternalLinkPreview;
