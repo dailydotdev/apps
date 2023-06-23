@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement, useRef } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
 import classed from '../../lib/classed';
@@ -12,7 +12,7 @@ interface SocialShareIconProps extends HTMLAttributes<HTMLButtonElement> {
 
 export const ShareText = classed(
   'span',
-  'typo-caption2 text-theme-label-tertiary',
+  'typo-caption2 text-theme-label-tertiary cursor-pointer',
 );
 
 export const SocialShareIcon = ({
@@ -23,6 +23,7 @@ export const SocialShareIcon = ({
   onClick,
   label,
 }: SocialShareIconProps): ReactElement => {
+  const button = useRef<HTMLButtonElement>();
   const buttonProps = href
     ? ({ href, rel: 'noopener', target: 'blank', tag: 'a' } as ButtonProps<'a'>)
     : ({ onClick } as ButtonProps<'button'>);
@@ -37,8 +38,9 @@ export const SocialShareIcon = ({
         iconOnly
         icon={icon}
         pressed={pressed}
+        ref={button}
       />
-      <ShareText>{label}</ShareText>
+      <ShareText onClick={() => button?.current?.click()}>{label}</ShareText>
     </div>
   );
 };
