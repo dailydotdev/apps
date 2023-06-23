@@ -66,6 +66,8 @@ module.exports = {
           to: 'var(--theme-overlay-to)',
           float: {
             cabbage: 'var(--theme-overlay-float-cabbage)',
+            avocado: 'var(--theme-overlay-float-avocado)',
+            ketchup: 'var(--theme-overlay-float-ketchup)',
           },
         },
         gradient: {
@@ -114,7 +116,6 @@ module.exports = {
     boxShadow,
     opacity: {
       0: '0',
-      8: '0.08',
       40: '0.4',
       50: '0.5',
       64: '0.64',

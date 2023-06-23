@@ -111,9 +111,9 @@ export function PostActions({
         className={classNames(
           'flex !flex-row hover:border-theme-divider-tertiary gap-2',
           {
-            'border-theme-color-avocado hover:!border-theme-color-avocado bg-avocado-50/8':
+            'border-theme-color-avocado hover:!border-theme-color-avocado bg-theme-overlay-float-avocado':
               post.upvoted,
-            'border-theme-color-ketchup hover:!border-theme-color-ketchup bg-ketchup-50/8':
+            'border-theme-color-ketchup hover:!border-theme-color-ketchup bg-theme-overlay-float-ketchup':
               post.downvoted,
           },
         )}
