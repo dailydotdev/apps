@@ -1,11 +1,14 @@
 import { useMutation } from 'react-query';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { PromptOptions, usePrompt } from './usePrompt';
 import { deletePost, Post, updatePinnedPost } from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useVotePost } from './useVotePost';
+import { postAnalyticsEvent } from '../lib/feed';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
@@ -24,6 +27,7 @@ interface UsePostMenuActionsProps {
   postIndex?: number;
   onPinSuccessful?: () => Promise<unknown>;
   onPostDeleted?: (args: DeletePostProps) => void;
+  origin: Origin;
 }
 
 const deletePromptOptions: PromptOptions = {
@@ -41,7 +45,9 @@ export const usePostMenuActions = ({
   postIndex,
   onPostDeleted,
   onPinSuccessful,
+  origin,
 }: UsePostMenuActionsProps): UsePostMenuActions => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
   const { mutateAsync: onDeletePost } = useMutation(
@@ -82,8 +88,20 @@ export const usePostMenuActions = ({
     onPinPost: canPin ? onPinPost : null,
     onToggleDownvotePost: () => {
       if (post.downvoted) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
+            extra: { origin },
+          }),
+        );
+
         return cancelPostDownvote({ id: post.id });
       }
+
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
+          extra: { origin },
+        }),
+      );
 
       return downvotePost({ id: post.id });
     },

@@ -65,6 +65,12 @@ export enum AnalyticsEvent {
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',
+  // vote - start
+  UpvotePost = 'upvote post',
+  RemovePostUpvote = 'remove post upvote',
+  DownvotePost = 'downvote post',
+  RemovePostDownvote = 'remove post downvote',
+  // vote - end
 }
 
 export enum TargetType {

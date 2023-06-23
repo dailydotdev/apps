@@ -18,8 +18,8 @@ import {
   postAnalyticsEvent,
 } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postEventName } from '../../components/utilities';
 import { AuthTriggers } from '../../lib/auth';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 export type UseFeedVotePostProps = {
   id: string;
@@ -125,15 +125,16 @@ export default function useFeedVotePost(
         showLogin(AuthTriggers.Upvote);
         return;
       }
-      trackEvent(
-        postAnalyticsEvent(postEventName({ upvoted }), post, {
-          columns,
-          column,
-          row,
-          ...feedAnalyticsExtra(feedName, ranking),
-        }),
-      );
+
       if (upvoted) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking),
+          }),
+        );
         await upvotePost({ id: post.id, index });
         if (setShowCommentPopupId) {
           requestIdleCallback(() => {
@@ -141,6 +142,14 @@ export default function useFeedVotePost(
           });
         }
       } else {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking),
+          }),
+        );
         await cancelPostUpvote({ id: post.id, index });
       }
     },

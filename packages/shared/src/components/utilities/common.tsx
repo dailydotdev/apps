@@ -101,12 +101,8 @@ export const upvoteCommentEventName = (upvoted: boolean): string =>
   upvoted ? 'upvote comment' : 'remove comment upvote';
 
 export const postEventName = (
-  update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
+  update: Pick<PostBootData, 'bookmarked'>,
 ): string => {
-  if ('upvoted' in update) {
-    return !update.upvoted ? 'remove post upvote' : 'upvote post';
-  }
-
   return !update.bookmarked ? 'remove post bookmark' : 'bookmark post';
 };
 

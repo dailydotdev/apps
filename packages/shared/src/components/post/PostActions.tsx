@@ -9,11 +9,10 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import { postEventName } from '../utilities';
 import ShareIcon from '../icons/Share';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { mutationHandlers, useVotePost } from '../../hooks';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import BookmarkIcon from '../icons/Bookmark';
 import DownvoteIcon from '../icons/Downvote';
@@ -67,7 +66,7 @@ export function PostActions({
     if (user) {
       if (post.upvoted) {
         trackEvent(
-          postAnalyticsEvent(postEventName({ upvoted: false }), post, {
+          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
             extra: { origin },
           }),
         );
@@ -75,7 +74,7 @@ export function PostActions({
       }
       if (post) {
         trackEvent(
-          postAnalyticsEvent(postEventName({ upvoted: true }), post, {
+          postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
             extra: { origin },
           }),
         );
@@ -99,8 +98,20 @@ export function PostActions({
     }
 
     if (post.downvoted) {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
+          extra: { origin },
+        }),
+      );
+
       cancelPostDownvote({ id: post.id });
     } else {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
+          extra: { origin },
+        }),
+      );
+
       downvotePost({ id: post.id });
     }
   };
