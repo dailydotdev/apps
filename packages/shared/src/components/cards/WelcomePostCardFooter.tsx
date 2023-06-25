@@ -30,7 +30,7 @@ export const WelcomePostCardFooter = ({
     }
 
     return false;
-  }, [post.image]);
+  }, [post?.contentHtml, image]);
 
   if (imageCheck) {
     return (
