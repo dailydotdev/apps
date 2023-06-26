@@ -17,6 +17,7 @@ const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 export type NewSquadModalProps = Pick<ModalProps, 'isOpen'> & {
   onRequestClose: () => void;
   origin: Origin;
+  redirectAfterCreate?: boolean;
 };
 
 let activeView;
@@ -24,6 +25,7 @@ function NewSquadModal({
   onRequestClose,
   isOpen,
   origin,
+  redirectAfterCreate = true,
 }: NewSquadModalProps): ReactElement {
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -52,7 +54,9 @@ function NewSquadModal({
         event_name: AnalyticsEvent.CompleteSquadCreation,
       });
       addSquad(newSquad);
-      await router.replace(newSquad.permalink);
+      if (redirectAfterCreate) {
+        await router.replace(newSquad.permalink);
+      }
       onRequestClose();
     } catch (err) {
       displayToast(DEFAULT_ERROR);

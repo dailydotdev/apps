@@ -15,8 +15,10 @@ import { ExternalLinkPreview } from '../../../graphql/posts';
 interface WriteLinkPreviewProps {
   link: string;
   preview: ExternalLinkPreview;
-  onLinkChange: FormEventHandler<HTMLInputElement>;
+  onLinkChange?: FormEventHandler<HTMLInputElement>;
   className?: string;
+  showPreviewLink?: boolean;
+  isMinimized?: boolean;
 }
 
 export function WriteLinkPreview({
@@ -24,25 +26,35 @@ export function WriteLinkPreview({
   preview,
   onLinkChange,
   className,
+  isMinimized,
+  showPreviewLink = true,
 }: WriteLinkPreviewProps): ReactElement {
   return (
     <WritePreviewContainer className={className}>
-      <TextField
-        leftIcon={<LinkIcon />}
-        label="URL"
-        type="url"
-        name="url"
-        inputId="preview_url"
-        fieldType="tertiary"
-        className={{ container: 'w-full' }}
-        value={link}
-        onInput={onLinkChange}
-      />
+      {showPreviewLink && (
+        <TextField
+          leftIcon={<LinkIcon />}
+          label="URL"
+          type="url"
+          name="url"
+          inputId="preview_url"
+          fieldType="tertiary"
+          className={{ container: 'w-full' }}
+          value={link}
+          onInput={onLinkChange}
+        />
+      )}
       {preview.title && preview.image && (
-        <WritePreviewContent>
+        <WritePreviewContent className={isMinimized && '!py-2 !px-3'}>
           <div className="flex flex-col flex-1 typo-footnote">
             <span className="font-bold line-clamp-2">{preview.title}</span>
-            {preview.source && (
+            {preview.source && isMinimized ? (
+              <SourceAvatar
+                size="small"
+                source={preview.source}
+                className="absolute right-24 mt-1 mr-4"
+              />
+            ) : (
               <span className="flex flex-row items-center mt-1">
                 <SourceAvatar size="small" source={preview.source} />
                 <span className="text-theme-label-tertiary">
@@ -51,16 +63,22 @@ export function WriteLinkPreview({
               </span>
             )}
           </div>
-          <Image className={previewImageClass} src={preview.image} />
-          <Button
-            icon={<OpenLinkIcon />}
-            className="btn-tertiary"
-            type="button"
-            tag="a"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={link}
+          <Image
+            className={previewImageClass}
+            src={preview.image}
+            alt={`${preview.title}`}
           />
+          {!isMinimized && (
+            <Button
+              icon={<OpenLinkIcon />}
+              className="btn-tertiary"
+              type="button"
+              tag="a"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={link}
+            />
+          )}
         </WritePreviewContent>
       )}
     </WritePreviewContainer>
