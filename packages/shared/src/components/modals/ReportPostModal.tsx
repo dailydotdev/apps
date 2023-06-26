@@ -46,8 +46,8 @@ const reportReasonsMap: Partial<
 > = {
   IRRELEVANT: ({ post, selectedTags, setSelectedTags }) => {
     return (
-      <FlexRow className="gap-2 my-4">
-        {post.tags.map((tag) => {
+      <FlexRow className="flex-wrap gap-2 my-4">
+        {post.tags?.map((tag) => {
           const isSelected = selectedTags.includes(tag);
 
           return (
