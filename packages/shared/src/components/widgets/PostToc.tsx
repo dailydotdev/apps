@@ -57,7 +57,7 @@ export default function PostToc({
     return (
       <details
         className={classNames(
-          'flex-col rounded-2xl bg-theme-bg-secondary overflow-hidden select-none',
+          'flex-col rounded-2xl overflow-hidden select-none',
           styles.details,
           className,
         )}
