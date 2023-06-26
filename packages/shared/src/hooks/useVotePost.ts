@@ -15,6 +15,7 @@ export type UseVotePostProps<T> = {
   onCancelPostUpvoteMutate?: MutateFunc<T>;
   onDownvotePostMutate?: MutateFunc<T>;
   onCancelPostDownvoteMutate?: MutateFunc<T>;
+  onDownvoted?(): void;
 };
 export type UseVotePost<T> = {
   upvotePost: (variables: T) => Promise<void>;
@@ -60,6 +61,7 @@ const useVotePost = <T extends { id: string } = { id: string }>({
   onCancelPostUpvoteMutate,
   onDownvotePostMutate,
   onCancelPostDownvoteMutate,
+  onDownvoted,
 }: UseVotePostProps<T> = {}): UseVotePost<T> => {
   const { requestMethod } = useRequestProtocol();
   const { mutateAsync: upvotePost } = useMutation<
@@ -110,6 +112,7 @@ const useVotePost = <T extends { id: string } = { id: string }>({
       mutationKey: downvotePostMutationKey,
       onMutate: onDownvotePostMutate,
       onError: (err, _, rollback) => rollback?.(),
+      onSuccess: onDownvoted,
     },
   );
 

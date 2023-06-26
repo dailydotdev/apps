@@ -18,6 +18,9 @@ import { AuthTriggers } from '../../lib/auth';
 import BookmarkIcon from '../icons/Bookmark';
 import DownvoteIcon from '../icons/Downvote';
 import { Card } from '../cards/Card';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { PostTagsPanel } from './block/PostTagsPanel';
+import { useBlockPost } from '../../hooks/post/useBlockPost';
 
 export interface ShareBookmarkProps {
   onShare: (post: Post) => void;
@@ -43,6 +46,8 @@ export function PostActions({
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const { updatePost } = useUpdatePost();
+  const { data, onShowPanel } = useBlockPost(post);
+  const { showTagsPanel } = data;
   const { upvotePost, cancelPostUpvote, downvotePost, cancelPostDownvote } =
     useVotePost({
       onUpvotePostMutate: updatePost({
@@ -61,6 +66,7 @@ export function PostActions({
         id: post.id,
         update: mutationHandlers.cancelDownvote(post),
       }),
+      onDownvoted: onShowPanel,
     });
 
   const toggleUpvote = () => {
@@ -106,70 +112,80 @@ export function PostActions({
   };
 
   return (
-    <div className="flex items-center rounded-16 border border-theme-divider-tertiary">
-      <Card
-        className={classNames(
-          'flex !flex-row hover:border-theme-divider-tertiary gap-2',
-          {
-            'border-theme-color-avocado hover:!border-theme-color-avocado bg-theme-overlay-float-avocado':
-              post.upvoted,
-            'border-theme-color-ketchup hover:!border-theme-color-ketchup bg-theme-overlay-float-ketchup':
-              post.downvoted,
-          },
-        )}
-      >
-        <QuaternaryButton
-          id="upvote-post-btn"
-          pressed={post.upvoted}
-          onClick={toggleUpvote}
-          icon={<UpvoteIcon secondary={post.upvoted} />}
-          aria-label="Upvote"
-          responsiveLabelClass={actionsClassName}
-          className="btn-tertiary-avocado"
-        />
-        <QuaternaryButton
-          id="downvote-post-btn"
-          pressed={post.downvoted}
-          onClick={toggleDownvote}
-          icon={<DownvoteIcon secondary={post.downvoted} />}
-          aria-label="Downvote"
-          responsiveLabelClass={actionsClassName}
-          className="btn-tertiary-ketchup"
-        />
-      </Card>
-      <div className="flex flex-1 justify-between items-center py-2 px-4">
-        <QuaternaryButton
-          id="comment-post-btn"
-          pressed={post.commented}
-          onClick={onComment}
-          icon={<CommentIcon secondary={post.commented} />}
-          aria-label="Comment"
-          responsiveLabelClass={actionsClassName}
-          className="btn-tertiary-blueCheese"
+    <ConditionalWrapper
+      condition={!showTagsPanel}
+      wrapper={(children) => (
+        <div className="flex flex-col">
+          {children}
+          <PostTagsPanel post={post} className="mt-4" toastOnSuccess={false} />
+        </div>
+      )}
+    >
+      <div className="flex items-center rounded-16 border border-theme-divider-tertiary">
+        <Card
+          className={classNames(
+            'flex !flex-row hover:border-theme-divider-tertiary gap-2',
+            {
+              'border-theme-color-avocado hover:!border-theme-color-avocado bg-theme-overlay-float-avocado':
+                post.upvoted,
+              'border-theme-color-ketchup hover:!border-theme-color-ketchup bg-theme-overlay-float-ketchup':
+                post.downvoted,
+            },
+          )}
         >
-          Comment
-        </QuaternaryButton>
-        <QuaternaryButton
-          id="bookmark-post-btn"
-          pressed={post.bookmarked}
-          onClick={onBookmark}
-          icon={<BookmarkIcon secondary={post.bookmarked} />}
-          aria-label="Bookmark"
-          responsiveLabelClass={actionsClassName}
-          className="btn-tertiary-bun"
-        >
-          Bookmark
-        </QuaternaryButton>
-        <QuaternaryButton
-          id="share-post-btn"
-          onClick={() => onShare(post)}
-          icon={<ShareIcon />}
-          responsiveLabelClass={actionsClassName}
-          className="btn-tertiary-cabbage"
-        >
-          Share
-        </QuaternaryButton>
+          <QuaternaryButton
+            id="upvote-post-btn"
+            pressed={post.upvoted}
+            onClick={toggleUpvote}
+            icon={<UpvoteIcon secondary={post.upvoted} />}
+            aria-label="Upvote"
+            responsiveLabelClass={actionsClassName}
+            className="btn-tertiary-avocado"
+          />
+          <QuaternaryButton
+            id="downvote-post-btn"
+            pressed={post.downvoted}
+            onClick={toggleDownvote}
+            icon={<DownvoteIcon secondary={post.downvoted} />}
+            aria-label="Downvote"
+            responsiveLabelClass={actionsClassName}
+            className="btn-tertiary-ketchup"
+          />
+        </Card>
+        <div className="flex flex-1 justify-between items-center py-2 px-4">
+          <QuaternaryButton
+            id="comment-post-btn"
+            pressed={post.commented}
+            onClick={onComment}
+            icon={<CommentIcon secondary={post.commented} />}
+            aria-label="Comment"
+            responsiveLabelClass={actionsClassName}
+            className="btn-tertiary-blueCheese"
+          >
+            Comment
+          </QuaternaryButton>
+          <QuaternaryButton
+            id="bookmark-post-btn"
+            pressed={post.bookmarked}
+            onClick={onBookmark}
+            icon={<BookmarkIcon secondary={post.bookmarked} />}
+            aria-label="Bookmark"
+            responsiveLabelClass={actionsClassName}
+            className="btn-tertiary-bun"
+          >
+            Bookmark
+          </QuaternaryButton>
+          <QuaternaryButton
+            id="share-post-btn"
+            onClick={() => onShare(post)}
+            icon={<ShareIcon />}
+            responsiveLabelClass={actionsClassName}
+            className="btn-tertiary-cabbage"
+          >
+            Share
+          </QuaternaryButton>
+        </div>
       </div>
-    </div>
+    </ConditionalWrapper>
   );
 }
