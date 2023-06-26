@@ -72,6 +72,10 @@ export enum AnalyticsEvent {
   DownvotePost = 'downvote post',
   RemovePostDownvote = 'remove post downvote',
   // vote - end
+  // bookmark - start
+  BookmarkPost = 'bookmark post',
+  RemovePostBookmark = 'remove post bookmark',
+  // bookmark - end
 }
 
 export enum TargetType {

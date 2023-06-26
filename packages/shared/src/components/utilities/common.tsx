@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import classed, { ClassedHTML } from '../../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../icons/Arrow';
-import { PostBootData } from '../../lib/boot';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -99,12 +98,6 @@ export const getThemeColor = (color: string, fallback: string): ThemeColor => {
 
 export const upvoteCommentEventName = (upvoted: boolean): string =>
   upvoted ? 'upvote comment' : 'remove comment upvote';
-
-export const postEventName = (
-  update: Pick<PostBootData, 'bookmarked'>,
-): string => {
-  return !update.bookmarked ? 'remove post bookmark' : 'bookmark post';
-};
 
 export const pageBorders =
   'laptop:border-r laptop:border-l border-theme-divider-tertiary';

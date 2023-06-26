@@ -15,7 +15,6 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
@@ -92,12 +91,12 @@ export default function CompanionMenu({
     onBookmarkMutate: () =>
       updatePost({
         update: { bookmarked: true },
-        event: postEventName({ bookmarked: true }),
+        event: AnalyticsEvent.BookmarkPost,
       }),
     onRemoveBookmarkMutate: () =>
       updatePost({
         update: { bookmarked: false },
-        event: postEventName({ bookmarked: false }),
+        event: AnalyticsEvent.RemovePostBookmark,
       }),
     onUpvotePostMutate: () =>
       updatePost({
