@@ -17,6 +17,7 @@ type UseReportPostRet = {
     id: string;
     reason: ReportReason;
     comment?: string;
+    tags?: string[];
   }) => BooleanPromise;
   hidePost: (id: string) => BooleanPromise;
   unhidePost: (id: string) => BooleanPromise;

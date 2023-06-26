@@ -64,6 +64,7 @@ type ReportPostAsync = (
   reason: ReportReason,
   comment: string,
   blockSource: boolean,
+  tags: string[],
 ) => Promise<unknown>;
 
 export default function PostOptionsMenu({
@@ -158,11 +159,13 @@ export default function PostOptionsMenu({
     reason,
     comment,
     blockSource,
+    tags,
   ): Promise<void> => {
     const { successful } = await reportPost({
       id: reportedPost?.id,
       reason,
       comment,
+      tags,
     });
 
     if (!successful) {
