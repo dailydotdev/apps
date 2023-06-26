@@ -121,7 +121,7 @@ function SharePostBar({
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
           className={classNames(
-            'pl-1 tablet:min-w-[11rem] w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-body',
+            'pl-1 tablet:min-w-[11rem] w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-body flex-1 w-full tablet:flex-none tablet:w-auto',
             url !== undefined && 'flex-1 pr-2',
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}
