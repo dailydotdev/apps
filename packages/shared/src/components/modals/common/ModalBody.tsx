@@ -1,5 +1,11 @@
 import classNames from 'classnames';
-import React, { forwardRef, ReactElement, ReactNode, useContext } from 'react';
+import React, {
+  forwardRef,
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+  useContext,
+} from 'react';
 import { ModalKind, ModalPropsContext, ModalSize } from './types';
 
 export type ModalBodyProps = JSX.IntrinsicElements['section'] & {
@@ -10,12 +16,10 @@ export type ModalBodyProps = JSX.IntrinsicElements['section'] & {
 
 const bigModals = [ModalSize.Large, ModalSize.XLarge];
 
-function ModalBodyComponent({
-  children,
-  className,
-  view,
-  ...props
-}: ModalBodyProps): ReactElement {
+function ModalBodyComponent(
+  { children, className, view, ...props }: ModalBodyProps,
+  ref: MutableRefObject<HTMLElement>,
+): ReactElement {
   const { activeView, kind, size } = useContext(ModalPropsContext);
   const sectionClassName = classNames(
     'overflow-auto relative w-full h-full shrink max-h-full p-6 flex flex-col',
@@ -24,7 +28,7 @@ function ModalBodyComponent({
   );
   if (view && view !== activeView) return null;
   return (
-    <section className={sectionClassName} {...props}>
+    <section className={sectionClassName} {...props} ref={ref}>
       {children}
     </section>
   );
