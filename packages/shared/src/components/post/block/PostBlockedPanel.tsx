@@ -1,25 +1,19 @@
-import React, { ReactElement } from 'react';
+import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize } from '../../buttons/Button';
+import { DownvoteBlocked, getBlockedLength, getBlockedMessage } from './common';
 
 interface PostBlockedPanelProps {
-  blockedTags: number;
+  blocked: DownvoteBlocked;
   className?: string;
+  onActionClick: MouseEventHandler;
 }
 
 export function PostBlockedPanel({
-  blockedTags,
+  blocked,
   className,
+  onActionClick,
 }: PostBlockedPanelProps): ReactElement {
-  const getMessage = () => {
-    if (blockedTags === 0) return 'No topics blocked';
-
-    const topic =
-      blockedTags === 1 ? 'topic was blocked' : 'topics are now blocked';
-
-    return `${blockedTags} ${topic}`;
-  };
-
   return (
     <span
       className={classNames(
@@ -27,13 +21,14 @@ export function PostBlockedPanel({
         className,
       )}
     >
-      {getMessage()}
+      {getBlockedMessage(blocked)}
       <Button
         className="right-4 btn-tertiary"
         position="absolute"
         buttonSize={ButtonSize.Small}
+        onClick={onActionClick}
       >
-        {blockedTags > 0 ? 'Undo' : `Don't ask again`}
+        {getBlockedLength(blocked) > 0 ? 'Undo' : `Don't ask again`}
       </Button>
     </span>
   );

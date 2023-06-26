@@ -113,7 +113,7 @@ export function PostActions({
 
   return (
     <ConditionalWrapper
-      condition={!showTagsPanel}
+      condition={showTagsPanel !== undefined}
       wrapper={(children) => (
         <div className="flex flex-col">
           {children}

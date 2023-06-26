@@ -7,6 +7,8 @@ import { PostBlockedPanel } from './PostBlockedPanel';
 import CloseButton from '../../CloseButton';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { SourceAvatar } from '../../profile/source';
+import useFeedSettings from '../../../hooks/useFeedSettings';
+import { BlockTagSelection } from './common';
 
 interface PostTagsPanelProps {
   post: Post;
@@ -19,13 +21,24 @@ export function PostTagsPanel({
   className,
   toastOnSuccess = true,
 }: PostTagsPanelProps): ReactElement {
-  const [shouldBlockSource, setShouldBlockSource] = useState(false);
-  const [tags, setTags] = useState<Record<string, boolean>>({});
+  const { feedSettings } = useFeedSettings();
+  const [shouldBlockSource, setShouldBlockSource] = useState(
+    feedSettings?.excludeSources?.some(({ id }) => id === post.source.id),
+  );
+  const [tags, setTags] = useState<BlockTagSelection>(
+    feedSettings?.blockedTags?.reduce(
+      (block, tag) => ({ ...block, [tag]: true }),
+      {},
+    ),
+  );
   const {
-    data: { showTagsPanel, blockedTags },
+    data: { showTagsPanel, blocked },
+    blockedTags,
     onClose,
     onBlock,
     onReport,
+    onUndo,
+    onDismissPermanently,
   } = useBlockPost(post, { toastOnSuccess });
 
   if (post.tags.length === 0 || isNullOrUndefined(showTagsPanel)) return null;
@@ -33,7 +46,17 @@ export function PostTagsPanel({
   if (!showTagsPanel) {
     if (toastOnSuccess) return null;
 
-    return <PostBlockedPanel className="mt-6" blockedTags={blockedTags} />;
+    return (
+      <PostBlockedPanel
+        className="mt-6"
+        blocked={blocked}
+        onActionClick={
+          blockedTags === 0 && !blocked?.sourceIncluded
+            ? onDismissPermanently
+            : onUndo
+        }
+      />
+    );
   }
 
   return (
@@ -72,20 +95,13 @@ export function PostTagsPanel({
           </Button>
         ))}
       </span>
-      <span className="flex flex-row p-3 -mx-4 mt-4 border-t border-theme-divider-tertiary">
+      <span className="flex flex-row gap-2 p-3 -mx-4 mt-4 border-t border-theme-divider-tertiary">
         <Button className="ml-auto btn-tertiary" onClick={onReport}>
           Report
         </Button>
         <Button
           className="btn-primary-cabbage"
-          onClick={() =>
-            onBlock(
-              Object.entries(tags)
-                .filter(([, blocked]) => blocked)
-                .map(([tag]) => tag),
-              shouldBlockSource,
-            )
-          }
+          onClick={() => onBlock(tags, shouldBlockSource)}
         >
           Block
         </Button>
