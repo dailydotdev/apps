@@ -22,6 +22,7 @@ export enum Origin {
   PostCommentButton = 'comment button',
   StartDiscussion = 'start discussion button',
   SquadChecklist = 'squad checklist',
+  CompanionContextMenu = 'companion context menu',
 }
 
 export enum LoginTrigger {
