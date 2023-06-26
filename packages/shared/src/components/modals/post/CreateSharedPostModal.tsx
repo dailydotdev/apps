@@ -142,7 +142,7 @@ export function CreateSharedPostModal({
         />
         <Divider vertical />
         <SourceButton source={squad} size="small" />
-        <span className="-ml-1">
+        <span className="flex-1 -ml-1">
           <strong>{squad.name}</strong>
           <span className="ml-1 text-theme-label-tertiary">
             @{squad.handle}

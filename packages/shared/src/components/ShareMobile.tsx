@@ -4,14 +4,25 @@ import ShareIcon from './icons/Share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { Button, ButtonSize } from './buttons/Button';
 import { WidgetContainer } from './widgets/common';
+import { postAnalyticsEvent } from '../lib/feed';
+import { AnalyticsEvent } from '../lib/analytics';
+import { Post } from '../graphql/posts';
+import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 
 export interface Props {
+  post: Post;
   link: string;
-  share: () => Promise<void>;
+  share: (post: Post) => void;
 }
 
-export function ShareMobile({ share, link }: Props): ReactElement {
+export function ShareMobile({ post, share, link }: Props): ReactElement {
   const [copying, copyLink] = useCopyPostLink(link);
+  const { trackEvent } = useAnalyticsContext();
+
+  const onShare = () => {
+    trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
+    share(post);
+  };
 
   return (
     <WidgetContainer className="flex laptop:hidden flex-col gap-2 items-start p-3">
@@ -26,7 +37,7 @@ export function ShareMobile({ share, link }: Props): ReactElement {
       </Button>
       <Button
         buttonSize={ButtonSize.Small}
-        onClick={share}
+        onClick={onShare}
         icon={<ShareIcon />}
         className="btn-tertiary-cabbage"
       >

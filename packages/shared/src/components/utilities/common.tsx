@@ -139,7 +139,7 @@ export const PageContainer = classed(
 
 export const PageWidgets = classed(
   'aside',
-  'flex flex-col gap-6 px-6 w-full max-w-full',
+  'flex flex-col gap-6 px-4 w-full max-w-full',
   'tablet:w-[18.75rem] tablet:max-w-[18.75rem]',
   'laptop:w-[21.25rem] laptop:max-w-[21.25rem]',
 );

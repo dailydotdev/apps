@@ -46,20 +46,17 @@ const renderComponent = (comment?): RenderResult => {
 
 it('should render the article card', async () => {
   renderComponent();
-  expect(screen.getByAltText(defaultPost.title)).toBeInTheDocument();
+  expect(screen.getByAltText(`${defaultPost.title}`)).toBeInTheDocument();
   expect(
-    screen.getByAltText(`source of ${defaultPost.title}'s profile`),
+    screen.getByAltText(`Avatar of ${defaultPost.source.handle}`),
   ).toBeInTheDocument();
   expect(screen.getByText(defaultPost.title)).toBeInTheDocument();
 });
 
 it('should render the copy link section', async () => {
   renderComponent();
-  expect(
-    screen.getByDisplayValue(defaultPost.commentsPermalink),
-  ).toBeInTheDocument();
+  const btn = await screen.findByTestId('social-share-Copy link');
 
-  const btn = await screen.findByTestId('textfield-action-icon');
   btn.click();
   await waitFor(() =>
     expect(window.navigator.clipboard.writeText).toBeCalledWith(
@@ -70,13 +67,8 @@ it('should render the copy link section', async () => {
 
 it('should render the copy link section for comments', async () => {
   renderComponent(defaultComment);
-  expect(
-    screen.getByDisplayValue(
-      `${defaultPost.commentsPermalink}${getCommentHash(defaultComment.id)}`,
-    ),
-  ).toBeInTheDocument();
+  const btn = await screen.findByTestId('social-share-Copy link');
 
-  const btn = await screen.findByTestId('textfield-action-icon');
   btn.click();
   await waitFor(() =>
     expect(window.navigator.clipboard.writeText).toBeCalledWith(
