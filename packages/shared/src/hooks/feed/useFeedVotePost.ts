@@ -18,8 +18,8 @@ import {
   postAnalyticsEvent,
 } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postEventName } from '../../components/utilities';
 import { AuthTriggers } from '../../lib/auth';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 export type UseFeedVotePostProps = {
   id: string;
@@ -33,6 +33,13 @@ export type UseFeedVotePost = {
     row: number,
     column: number,
     upvoted: boolean,
+  ) => Promise<void>;
+  onDownvote: (
+    post: Post,
+    index: number,
+    row: number,
+    column: number,
+    downvoted: boolean,
   ) => Promise<void>;
 };
 
@@ -59,18 +66,29 @@ export default function useFeedVotePost(
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const { upvotePost, cancelPostUpvote } = useVotePost<UseFeedVotePostProps>({
-    onUpvotePostMutate: optimisticPostUpdateInFeed(
-      items,
-      updatePost,
-      mutationHandlers.upvote,
-    ),
-    onCancelPostUpvoteMutate: optimisticPostUpdateInFeed(
-      items,
-      updatePost,
-      mutationHandlers.cancelUpvote,
-    ),
-  });
+  const { upvotePost, cancelPostUpvote, downvotePost, cancelPostDownvote } =
+    useVotePost<UseFeedVotePostProps>({
+      onUpvotePostMutate: optimisticPostUpdateInFeed(
+        items,
+        updatePost,
+        mutationHandlers.upvote,
+      ),
+      onCancelPostUpvoteMutate: optimisticPostUpdateInFeed(
+        items,
+        updatePost,
+        mutationHandlers.cancelUpvote,
+      ),
+      onDownvotePostMutate: optimisticPostUpdateInFeed(
+        items,
+        updatePost,
+        mutationHandlers.downvote,
+      ),
+      onCancelPostDownvoteMutate: optimisticPostUpdateInFeed(
+        items,
+        updatePost,
+        mutationHandlers.cancelDownvote,
+      ),
+    });
 
   useEffect(() => {
     const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
@@ -125,15 +143,16 @@ export default function useFeedVotePost(
         showLogin(AuthTriggers.Upvote);
         return;
       }
-      trackEvent(
-        postAnalyticsEvent(postEventName({ upvoted }), post, {
-          columns,
-          column,
-          row,
-          ...feedAnalyticsExtra(feedName, ranking),
-        }),
-      );
+
       if (upvoted) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking),
+          }),
+        );
         await upvotePost({ id: post.id, index });
         if (setShowCommentPopupId) {
           requestIdleCallback(() => {
@@ -141,7 +160,43 @@ export default function useFeedVotePost(
           });
         }
       } else {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking),
+          }),
+        );
         await cancelPostUpvote({ id: post.id, index });
+      }
+    },
+    onDownvote: async (post, index, row, column, downvoted): Promise<void> => {
+      if (!user) {
+        showLogin(AuthTriggers.Downvote);
+        return;
+      }
+
+      if (downvoted) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking),
+          }),
+        );
+        await downvotePost({ id: post.id, index });
+      } else {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking),
+          }),
+        );
+        await cancelPostDownvote({ id: post.id, index });
       }
     },
   };

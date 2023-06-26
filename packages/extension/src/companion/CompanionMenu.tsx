@@ -10,12 +10,11 @@ import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
@@ -60,15 +59,15 @@ export default function CompanionMenu({
     'companion_helper',
     companionHelper,
   );
-  const updatePost = async (update) => {
+  const updatePost = async ({ update, event }) => {
     const oldPost = post;
     setPost({
       ...post,
       ...update,
     });
     trackEvent(
-      postAnalyticsEvent(postEventName(update), post, {
-        extra: { origin: 'companion context menu' },
+      postAnalyticsEvent(event, post, {
+        extra: { origin: Origin.CompanionContextMenu },
       }),
     );
     return () => setPost(oldPost);
@@ -89,14 +88,36 @@ export default function CompanionMenu({
     removeCompanionHelper,
     toggleCompanionExpanded,
   } = useCompanionActions({
-    onBookmarkMutate: () => updatePost({ bookmarked: true }),
-    onRemoveBookmarkMutate: () => updatePost({ bookmarked: false }),
-    onUpvotePostMutate: () => updatePost(mutationHandlers.upvote(post)),
+    onBookmarkMutate: () =>
+      updatePost({
+        update: { bookmarked: true },
+        event: AnalyticsEvent.BookmarkPost,
+      }),
+    onRemoveBookmarkMutate: () =>
+      updatePost({
+        update: { bookmarked: false },
+        event: AnalyticsEvent.RemovePostBookmark,
+      }),
+    onUpvotePostMutate: () =>
+      updatePost({
+        update: mutationHandlers.upvote(post),
+        event: AnalyticsEvent.UpvotePost,
+      }),
     onCancelPostUpvoteMutate: () =>
-      updatePost(mutationHandlers.cancelUpvote(post)),
-    onDownvotePostMutate: () => updatePost(mutationHandlers.downvote(post)),
+      updatePost({
+        update: mutationHandlers.cancelUpvote(post),
+        event: AnalyticsEvent.RemovePostUpvote,
+      }),
+    onDownvotePostMutate: () =>
+      updatePost({
+        update: mutationHandlers.downvote(post),
+        event: AnalyticsEvent.DownvotePost,
+      }),
     onCancelPostDownvoteMutate: () =>
-      updatePost(mutationHandlers.cancelDownvote(post)),
+      updatePost({
+        update: mutationHandlers.cancelDownvote(post),
+        event: AnalyticsEvent.RemovePostDownvote,
+      }),
   });
 
   /**

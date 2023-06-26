@@ -16,6 +16,13 @@ export default function useUpdatePost(): UseBookmarkPostRet {
       const postQueryKey = ['post', props.id];
       await client.cancelQueries(postQueryKey);
       const oldPost = client.getQueryData<PostData>(postQueryKey);
+
+      if (!oldPost) {
+        // nothing in cache so we skip any update
+
+        return () => undefined;
+      }
+
       client.setQueryData<PostData>(postQueryKey, {
         post: {
           ...oldPost.post,
