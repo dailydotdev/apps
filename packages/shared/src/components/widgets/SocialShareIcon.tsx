@@ -57,7 +57,7 @@ export const SocialShareIcon = ({
       />
       <ShareText
         className={classNames(
-          'mt-1.5 max-w-[4rem] overflow-hidden overflow-ellipsis',
+          'mt-1.5 max-w-[4rem] overflow-hidden overflow-ellipsis text-center',
           sizeToText[size],
         )}
         onClick={() => button?.current?.click()}
