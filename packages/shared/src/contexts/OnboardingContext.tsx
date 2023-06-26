@@ -85,7 +85,7 @@ export const OnboardingContextProvider = ({
     trackEvent({
       event_name: AnalyticsEvent.ClickArticleAnonymousCTA,
       target_id: ExperimentWinner.ArticleOnboarding,
-      extra: JSON.stringify({ origin }),
+      extra: JSON.stringify({ origin: window.origin }),
     });
     onInitializeOnboarding(null);
   };
