@@ -5,7 +5,8 @@ import { deletePost, Post, updatePinnedPost } from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
-import { useVotePost } from './useVotePost';
+import { mutationHandlers, useVotePost } from './useVotePost';
+import useUpdatePost from './useUpdatePost';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
@@ -44,6 +45,7 @@ export const usePostMenuActions = ({
 }: UsePostMenuActionsProps): UsePostMenuActions => {
   const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
+  const { updatePost } = useUpdatePost();
   const { mutateAsync: onDeletePost } = useMutation(
     ({ id }: DeletePostProps) => deletePost(id),
     { onSuccess: (_, vars) => onPostDeleted(vars) },
@@ -75,7 +77,20 @@ export const usePostMenuActions = ({
     { onSuccess: onPinSuccessful },
   );
 
-  const { downvotePost, cancelPostDownvote } = useVotePost();
+  const { downvotePost, cancelPostDownvote } = useVotePost({
+    onDownvotePostMutate:
+      !!post &&
+      updatePost({
+        id: post.id,
+        update: mutationHandlers.downvote(post),
+      }),
+    onCancelPostDownvoteMutate:
+      !!post &&
+      updatePost({
+        id: post.id,
+        update: mutationHandlers.cancelDownvote(post),
+      }),
+  });
 
   return {
     onConfirmDeletePost: canDelete ? deletePostPrompt : null,
