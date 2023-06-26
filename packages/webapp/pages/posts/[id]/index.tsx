@@ -108,8 +108,12 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       sidebarRendered &&
       modalSizeToClassName[ModalSize.Large],
   );
+  const seoTitle = () => {
+    if (post?.type !== PostType.Share || (post?.type === PostType.Share && post?.title !== null)) return post?.title;
+    return `Shared post at ${post?.source?.name}`
+  };
   const seo: NextSeoProps = {
-    title: getTemplatedTitle(post?.title),
+    title: getTemplatedTitle(seoTitle()),
     description: getSeoDescription(post),
     openGraph: {
       images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
