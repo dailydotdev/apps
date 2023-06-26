@@ -18,6 +18,7 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import DownvoteIcon from '@dailydotdev/shared/src/components/icons/Downvote';
 import classNames from 'classnames';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { getCompanionWrapper } from './common';
 
 interface CompanionContextMenuProps
@@ -55,7 +56,7 @@ export default function CompanionContextMenu({
 
     trackEvent(
       postAnalyticsEvent('report post', reportedPost, {
-        extra: { origin: 'companion context menu' },
+        extra: { origin: Origin.CompanionContextMenu },
       }),
     );
 

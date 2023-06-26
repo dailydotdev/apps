@@ -12,11 +12,11 @@ import useBookmarkPost from './useBookmarkPost';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AuthTriggers } from '../lib/auth';
 import { postAnalyticsEvent } from '../lib/feed';
-import { postEventName } from '../components/utilities';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
 import { PostOrigin } from './analytics/useAnalyticsContextData';
 import { updatePostCache } from './usePostById';
+import { AnalyticsEvent } from '../lib/analytics';
 
 export interface UsePostContent {
   sharePost: Post;
@@ -60,7 +60,9 @@ const usePostContent = ({
     const targetBookmarkState = !post?.bookmarked;
     trackEvent(
       postAnalyticsEvent(
-        postEventName({ bookmarked: targetBookmarkState }),
+        targetBookmarkState
+          ? AnalyticsEvent.BookmarkPost
+          : AnalyticsEvent.RemovePostBookmark,
         post,
         { extra: { origin } },
       ),

@@ -22,6 +22,7 @@ export enum Origin {
   PostCommentButton = 'comment button',
   StartDiscussion = 'start discussion button',
   SquadChecklist = 'squad checklist',
+  CompanionContextMenu = 'companion context menu',
 }
 
 export enum LoginTrigger {
@@ -65,6 +66,16 @@ export enum AnalyticsEvent {
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',
+  // vote - start
+  UpvotePost = 'upvote post',
+  RemovePostUpvote = 'remove post upvote',
+  DownvotePost = 'downvote post',
+  RemovePostDownvote = 'remove post downvote',
+  // vote - end
+  // bookmark - start
+  BookmarkPost = 'bookmark post',
+  RemovePostBookmark = 'remove post bookmark',
+  // bookmark - end
 }
 
 export enum TargetType {

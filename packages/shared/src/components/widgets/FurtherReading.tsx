@@ -15,8 +15,8 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
-import { postEventName } from '../utilities';
 import { AuthTriggers } from '../../lib/auth';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -116,9 +116,15 @@ export default function FurtherReading({
     }
     const bookmarked = !post.bookmarked;
     trackEvent(
-      postAnalyticsEvent(postEventName({ bookmarked }), post, {
-        extra: { origin: 'recommendation' },
-      }),
+      postAnalyticsEvent(
+        bookmarked
+          ? AnalyticsEvent.BookmarkPost
+          : AnalyticsEvent.RemovePostBookmark,
+        post,
+        {
+          extra: { origin: 'recommendation' },
+        },
+      ),
     );
     if (bookmarked) {
       await bookmark({ id: post.id });

@@ -149,6 +149,7 @@ export default function PostOptionsMenu({
           null,
         );
       },
+      origin,
     });
 
   const onReportPost: ReportPostAsync = async (

@@ -16,8 +16,8 @@ import {
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
 import { postAnalyticsEvent } from '../lib/feed';
-import { postEventName } from './utilities';
 import { updateInfiniteCache } from '../lib/query';
+import { AnalyticsEvent } from '../lib/analytics';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -107,11 +107,11 @@ export default function PostOptionsReadingHistoryMenu({
       indexes,
     ),
     onBookmarkTrackObject: () =>
-      postAnalyticsEvent(postEventName({ bookmarked: true }), post, {
+      postAnalyticsEvent(AnalyticsEvent.BookmarkPost, post, {
         extra: { origin: 'reading history context menu' },
       }),
     onRemoveBookmarkTrackObject: () =>
-      postAnalyticsEvent(postEventName({ bookmarked: false }), post, {
+      postAnalyticsEvent(AnalyticsEvent.RemovePostBookmark, post, {
         extra: { origin: 'reading history context menu' },
       }),
   });
