@@ -82,7 +82,6 @@ export default function ReportPostModal({
   const [comment, setComment] = useState<string>();
   const inputRef = useRef<HTMLInputElement>();
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
-  const showTextArea = reason !== 'IRRELEVANT';
   const reportOptionsForActiveReason = useMemo<RadioOption[]>(() => {
     return reportReasons.map((reportReason) => {
       const LabelComponent =
@@ -137,13 +136,11 @@ export default function ReportPostModal({
           value={reason}
           onChange={setReason}
         />
-        {showTextArea && (
-          <textarea
-            onChange={(event) => setComment(event.target.value)}
-            className="self-stretch p-2 mb-4 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
-            data-testid="report_comment"
-          />
-        )}
+        <textarea
+          onChange={(event) => setComment(event.target.value)}
+          className="self-stretch p-2 mb-4 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
+          data-testid="report_comment"
+        />
         <Checkbox ref={inputRef} name="blockSource" className="font-normal">
           Don&apos;t show posts from {post?.source?.name}
         </Checkbox>
