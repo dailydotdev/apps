@@ -170,6 +170,9 @@ export const generateTestSquad = (props: Partial<Squad> = {}): Squad => ({
     user: {
       id: 'u1',
     },
+    permissions: [
+      "post"
+    ]
   },
   ...props,
 });
