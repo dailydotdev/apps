@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
 import {
@@ -10,7 +10,6 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { MutateFunc } from '../lib/query';
 import { useToastNotification } from './useToastNotification';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
-import { useAuthContext } from '../contexts/AuthContext';
 
 type UseBookmarkPostParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
@@ -32,8 +31,6 @@ export default function useBookmarkPost<
   onBookmarkTrackObject,
   onRemoveBookmarkTrackObject,
 }: UseBookmarkPostParams<T>): UseBookmarkPostRet<T> {
-  const client = useQueryClient();
-  const { user } = useAuthContext();
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { mutateAsync: bookmark } = useMutation<
@@ -67,10 +64,9 @@ export default function useBookmarkPost<
     {
       onMutate: onRemoveBookmarkMutate,
       onError: (err, _, rollback) => rollback?.(),
-      onSuccess: (_, { id }) => {
-        if (onRemoveBookmarkTrackObject)
-          trackEvent(onRemoveBookmarkTrackObject());
-      },
+      onSuccess: () =>
+        onRemoveBookmarkTrackObject &&
+        trackEvent(onRemoveBookmarkTrackObject()),
     },
   );
   const bookmarkToast = (targetBookmarState) =>
