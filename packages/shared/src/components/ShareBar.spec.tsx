@@ -13,6 +13,7 @@ import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 import { IFlags } from 'flagsmith';
 import { getFacebookShareLink } from '../lib/share';
 import { LazyModalElement } from './modals/LazyModalElement';
+import { NotificationsContextProvider } from '../contexts/NotificationsContext';
 
 const defaultPost = Post;
 let features: IFlags;
@@ -46,10 +47,12 @@ const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
           loadedUserFromCache
           squads={hasSquads ? squads : []}
         >
-          <LazyModalElement />
-          <ShareBar
-            post={defaultPost}
-          />
+          <NotificationsContextProvider>
+            <LazyModalElement />
+            <ShareBar
+              post={defaultPost}
+            />
+          </NotificationsContextProvider>
         </AuthContextProvider>
       </FeaturesContextProvider>
     </QueryClientProvider>,
