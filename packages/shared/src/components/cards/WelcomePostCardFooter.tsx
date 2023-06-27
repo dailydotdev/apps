@@ -24,10 +24,10 @@ export const WelcomePostCardFooter = ({
     const doc = parser.parseFromString(post?.contentHtml, 'text/html');
     const imgTag = doc.querySelector('img');
     if (imgTag) {
-      return imgTag.getAttribute('src') || null;
+      return imgTag.getAttribute('src');
     }
 
-    return null;
+    return undefined;
   }, [post?.contentHtml, post?.image]);
 
   if (image) {
