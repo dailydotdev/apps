@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { LoggedUser } from '../lib/user';
+import { setCookie } from '../lib/cookie';
 
 const consentCookieName = 'ilikecookies';
 
@@ -12,9 +13,12 @@ export function useCookieBanner(): [
 
   const acceptCookies = (): void => {
     setShowCookie(false);
-    document.cookie = `${consentCookieName}=true;path=/;domain=${
-      process.env.NEXT_PUBLIC_DOMAIN
-    };samesite=lax;expires=${60 * 60 * 24 * 365 * 10}`;
+    setCookie(consentCookieName, true, {
+      path: '/',
+      domain: process.env.NEXT_PUBLIC_DOMAIN,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365 * 10,
+    });
   };
 
   const updateCookieBanner = (user?: LoggedUser): void => {

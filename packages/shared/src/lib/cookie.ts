@@ -40,7 +40,7 @@ export const setCookie = (
   value: string | number | boolean,
   options: Partial<{
     domain: string;
-    expires: number | Date;
+    expires: Date | string;
     maxAge: number;
     partitioned: boolean;
     path: string;
