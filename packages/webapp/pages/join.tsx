@@ -37,6 +37,7 @@ import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { GetServerSideProps } from 'next';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { defaultOpenGraph } from '../next-seo';
 
 type PageProps = {
@@ -64,15 +65,12 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
   }, [user?.id, router]);
 
   useEffect(() => {
-    document.cookie = [
-      `join_referral=${referringUser.id}:${campaign}`,
-      `Max-Age=${1 * 365 * 24 * 60 * 60}`,
-      isDevelopment ? undefined : 'Secure',
-      `Domain=${process.env.NEXT_PUBLIC_DOMAIN}`,
-      `SameSite=Lax`,
-    ]
-      .filter(Boolean)
-      .join('; ');
+    setCookie('join_referral', `${referringUser.id}:${campaign}`, {
+      maxAge: 1 * 365 * 24 * 60 * 60,
+      secure: !isDevelopment,
+      domain: process.env.NEXT_PUBLIC_DOMAIN,
+      sameSite: 'lax',
+    });
   }, [campaign, referringUser.id]);
 
   const Seo: NextSeoProps = {
