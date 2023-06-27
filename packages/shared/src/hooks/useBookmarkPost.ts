@@ -4,16 +4,10 @@ import request from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
-  FeedData,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import {
-  filterInfiniteCache,
-  generateQueryKey,
-  MutateFunc,
-  RequestKey,
-} from '../lib/query';
+import { MutateFunc } from '../lib/query';
 import { useToastNotification } from './useToastNotification';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -76,15 +70,6 @@ export default function useBookmarkPost<
       onSuccess: (_, { id }) => {
         if (onRemoveBookmarkTrackObject)
           trackEvent(onRemoveBookmarkTrackObject());
-
-        filterInfiniteCache<FeedData>(
-          {
-            client,
-            prop: 'page',
-            queryKey: generateQueryKey(RequestKey.Bookmarks, user),
-          },
-          ({ node }) => node.id !== id,
-        );
       },
     },
   );
