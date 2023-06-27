@@ -603,7 +603,11 @@ it('should report broken link', async () => {
     {
       request: {
         query: REPORT_POST_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'BROKEN' },
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'BROKEN',
+          tags: [],
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -644,6 +648,7 @@ it('should report broken link with comment', async () => {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
           reason: 'BROKEN',
           comment: 'comment',
+          tags: [],
         },
       },
       result: () => {
@@ -684,7 +689,11 @@ it('should report nsfw', async () => {
     {
       request: {
         query: REPORT_POST_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'NSFW' },
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'NSFW',
+          tags: [],
+        },
       },
       result: () => {
         mutationCalled = true;
