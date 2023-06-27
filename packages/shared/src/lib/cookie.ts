@@ -94,7 +94,7 @@ if (isPreviewDeployment) {
   const setFeature = (key: string, value: FeatureValue) => {
     const features = getCookieFeatureFlags();
     features[key] = value;
-    document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify(features)}`;
+    setCookie(COOKIE_FEATURES_KEY, JSON.stringify(features));
   };
 
   const getFeatures = getCookieFeatureFlags;
@@ -107,11 +107,11 @@ if (isPreviewDeployment) {
   const removeFeature = (key: string) => {
     const features = getCookieFeatureFlags();
     delete features[key];
-    document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify(features)}`;
+    setCookie(COOKIE_FEATURES_KEY, JSON.stringify(features));
   };
 
   const clearFeatures = () => {
-    document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify({})}`;
+    setCookie(COOKIE_FEATURES_KEY, JSON.stringify({}));
   };
 
   globalThis.setFeature = setFeature;
