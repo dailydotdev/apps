@@ -54,7 +54,7 @@ export default function PostToc({
 
   const titleClass =
     'flex items-center py-3 px-4 typo-body text-theme-label-tertiary border border-theme-divider-quaternary';
-  if (!collapsible) {
+  if (collapsible) {
     return (
       <details
         className={classNames(
