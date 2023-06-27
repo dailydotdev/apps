@@ -35,6 +35,48 @@ export const getCookieFeatureFlags = (): Record<string, FeatureValue> => {
   }
 };
 
+export const setCookie = (
+  name: string,
+  value: string | number | boolean,
+  options: Partial<{
+    domain: string;
+    expires: number | Date;
+    maxAge: number;
+    partitioned: boolean;
+    path: string;
+    sameSite: 'lax' | 'strict' | 'none';
+    secure: boolean;
+  }> = {},
+): void => {
+  if (!name || !value) {
+    throw new Error('name and value are required');
+  }
+
+  const { expires, maxAge, sameSite, ...rest } = options;
+  const parsedOptions = {
+    ...rest,
+    expires: expires instanceof Date ? expires.toUTCString() : expires,
+    'max-age': maxAge,
+    samesite: sameSite,
+  };
+
+  const cookieValue: string = Object.keys(parsedOptions).reduce((acc, key) => {
+    const option = parsedOptions[key];
+
+    if (typeof option === 'undefined') {
+      return acc;
+    }
+
+    if (typeof option === 'boolean' && option) {
+      return `${acc}; ${key}`;
+    }
+
+    return `${acc}; ${key}=${option}`;
+  }, `${name}=${encodeURIComponent(value)}`);
+
+  document.cookie = cookieValue;
+};
+
 export const updateFeatureFlags = (
   flags: IFlags,
   obj: Record<string, FeatureValue>,
