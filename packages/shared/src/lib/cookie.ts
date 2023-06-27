@@ -52,12 +52,17 @@ export const setCookie = (
     throw new Error('name and value are required');
   }
 
-  const { expires, maxAge, sameSite, ...rest } = options;
   const parsedOptions = {
-    ...rest,
-    expires: expires instanceof Date ? expires.toUTCString() : expires,
-    'max-age': maxAge,
-    samesite: sameSite,
+    domain: options.domain,
+    expires:
+      options.expires instanceof Date
+        ? options.expires.toUTCString()
+        : options.expires,
+    'max-age': options.maxAge,
+    partitioned: options.partitioned,
+    path: options.path,
+    samesite: options.sameSite,
+    secure: options.secure,
   };
 
   const cookieValue: string = Object.keys(parsedOptions).reduce((acc, key) => {
