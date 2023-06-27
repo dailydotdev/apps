@@ -148,7 +148,11 @@ export default function ReportPostModal({
       <Modal.Footer>
         <Button
           className="btn-primary"
-          disabled={!reason || (reason === 'OTHER' && !comment)}
+          disabled={
+            !reason ||
+            (reason === 'OTHER' && !comment) ||
+            (reason === 'IRRELEVANT' && selectedTags.length === 0)
+          }
           onClick={onReportPost}
         >
           Submit report
