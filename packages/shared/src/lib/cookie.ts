@@ -67,8 +67,8 @@ export const setCookie = (
       return acc;
     }
 
-    if (typeof option === 'boolean' && option) {
-      return `${acc}; ${key}`;
+    if (typeof option === 'boolean') {
+      return option ? `${acc}; ${key}` : acc;
     }
 
     return `${acc}; ${key}=${option}`;
