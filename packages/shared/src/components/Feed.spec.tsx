@@ -900,3 +900,46 @@ it('should be able to navigate through posts', async () => {
   const firstTitle = await screen.findByTestId('post-modal-title');
   expect(firstTitle).toHaveTextContent(firstPost.node.title);
 });
+
+it('should report irrelevant tags', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'IRRELEVANT',
+          tags: ['javascript'],
+        },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
+  const irrelevantTagsBtn = await screen.findByText('The post is not about...');
+  fireEvent.click(irrelevantTagsBtn);
+  const javascriptBtn = await screen.findByText('#javascript');
+  fireEvent.click(javascriptBtn);
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() =>
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument(),
+  );
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
+});
