@@ -19,6 +19,7 @@ import { IFlags } from 'flagsmith';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { ADD_POST_TO_SQUAD_MUTATION, addPostToSquad } from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { LazyModalElement } from './LazyModalElement';
 
 const defaultPost = Post;
 const defaultComment = Comment;
@@ -60,6 +61,7 @@ const renderComponent = (loggedIn = true, hasSquads = true, comment?): RenderRes
           loadedUserFromCache
           squads={hasSquads ? squads : []}
         >
+          <LazyModalElement />
           <ShareModal
             origin={Origin.Feed}
             post={defaultPost}
@@ -90,20 +92,20 @@ describe('ShareModal Test Suite:', () => {
     expect(screen.getByText('Share post')).toBeInTheDocument();
   });
 
-  // TODO: Fix this test - the modal isn't opening onClick
   it('should render the component with logged user but no squads and open new squad modal', async () => {
     renderComponent(true, false);
     const btn = await screen.findByTestId('social-share-New Squad')
 
     expect(btn).toBeInTheDocument();
     btn.click();
-    // await waitFor(() => {
-    //   expect(screen.getByPlaceholderText('Name your squad')).toBeInTheDocument();
-    // });
+    await waitFor(() => {
+      // expect(screen.getByPlaceholderText('Name your squad')).toBeInTheDocument();
+      expect(screen.getByText('Squads early access!')).toBeInTheDocument();
+    });
   });
 
-  // TODO: Fix this test - mock after button press
   it('should render the component with logged user and squads and open the share to squad modal', async () => {
+    renderComponent(true, true);
     let queryCalled = false;
     mockGraphQL({
       request: {
@@ -111,6 +113,7 @@ describe('ShareModal Test Suite:', () => {
         variables: { 
           id: defaultPost.id,
           sourceId: squads[0].id,
+          commentary: "",
         },
       },
       result: () => {
@@ -118,8 +121,6 @@ describe('ShareModal Test Suite:', () => {
         return { data: { sharePost: { id: 123 } } };
       },
     });
-
-    renderComponent(true, true);
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
 
     expect(btn).toBeInTheDocument();
