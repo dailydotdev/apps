@@ -53,7 +53,7 @@ const reportReasonsMap: Partial<
           return (
             <Button
               key={tag}
-              className={isSelected ? 'btn-primary' : 'btn-tag'}
+              className={isSelected ? 'btn-primary' : 'btn-tertiaryFloat'}
               buttonSize={ButtonSize.Small}
               onClick={() => {
                 if (isSelected) {
