@@ -48,8 +48,9 @@ export default function CompanionContextMenu({
     reason,
     comment,
     blockSource,
+    tags,
   ): Promise<void> => {
-    onReport({ id: reportedPost.id, reason, comment });
+    onReport({ id: reportedPost.id, reason, comment, tags });
     if (blockSource) {
       onBlockSource({ id: reportedPost?.source?.id });
     }
