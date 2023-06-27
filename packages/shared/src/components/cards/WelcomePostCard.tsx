@@ -2,7 +2,6 @@ import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
 import {
   CardButton,
-  CardSpace,
   FreeformCardTitle,
   getPostClassNames,
 } from './Card';
@@ -88,7 +87,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       >
         {post.title}
       </FreeformCardTitle>
-      {post.image && <CardSpace />}
       <Container ref={containerRef}>
         <WelcomePostCardFooter post={post} />
         <ActionButtons
