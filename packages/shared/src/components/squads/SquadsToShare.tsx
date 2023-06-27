@@ -55,6 +55,7 @@ export function SquadsToShare({
     [squads, isLoading, onClick, size, squadAvatarSize],
   );
 
+  if (!hasSquadAccess) return null;
   if (list.length) return <>{list}</>;
 
   return (
