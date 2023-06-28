@@ -14,13 +14,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 import { ExternalLinkPreview } from '../../graphql/posts';
-import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
-import { CreateSharedPostModalProps } from '../modals/post/CreateSharedPostModal';
-
-export type NewSquadPostProps = Pick<
-  CreateSharedPostModalProps,
-  'preview' | 'onSharedSuccessfully'
->;
 
 export interface SharePostBarProps {
   className?: string;
@@ -42,17 +35,6 @@ function SharePostBar({
     inputRef.current.value = '';
     setUrl(undefined);
   };
-  const sharePostTutorial = useTutorial({
-    key: TutorialKey.ShareSquadPost,
-  });
-
-  const copyLinkTutorial = useTutorial({
-    key: TutorialKey.CopySquadLink,
-  });
-  const onCompleteTutorials = () => {
-    sharePostTutorial.complete();
-    copyLinkTutorial.activate();
-  };
 
   const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) =>
     openModal({
@@ -61,7 +43,6 @@ function SharePostBar({
         preview: { ...preview, url: link },
         squad,
         onSharedSuccessfully,
-        onAfterClose: onCompleteTutorials,
       },
     });
 
@@ -71,7 +52,6 @@ function SharePostBar({
       props: {
         onArticleSelected: ({ post }) => onOpenCreatePost(post, post.permalink),
         keepOpenAfterSelecting: true,
-        onAfterClose: onCompleteTutorials,
       },
     });
 
