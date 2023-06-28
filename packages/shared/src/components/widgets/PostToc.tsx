@@ -6,6 +6,7 @@ import { Summary, SummaryArrow } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import styles from './PostToc.module.css';
+import { WidgetContainer } from './common';
 
 export type PostTocProps = {
   post: Post;
@@ -52,12 +53,12 @@ export default function PostToc({
   );
 
   const titleClass =
-    'flex items-center py-3 px-4 typo-body text-theme-label-tertiary';
+    'flex items-center py-3 px-4 typo-body text-theme-label-tertiary border border-theme-divider-quaternary';
   if (collapsible) {
     return (
       <details
         className={classNames(
-          'flex-col rounded-2xl bg-theme-bg-secondary overflow-hidden select-none',
+          'flex-col rounded-2xl overflow-hidden select-none',
           styles.details,
           className,
         )}
@@ -75,9 +76,9 @@ export default function PostToc({
     );
   }
   return (
-    <section
+    <WidgetContainer
       className={classNames(
-        'flex-col rounded-2xl pb-3 bg-theme-bg-secondary overflow-hidden',
+        'flex-col rounded-2xl pb-3 overflow-hidden border border-theme-divider-quaternary',
         className,
       )}
     >
@@ -87,6 +88,6 @@ export default function PostToc({
       </h4>
       {Separator}
       {items}
-    </section>
+    </WidgetContainer>
   );
 }

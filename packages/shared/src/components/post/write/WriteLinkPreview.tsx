@@ -48,20 +48,21 @@ export function WriteLinkPreview({
         <WritePreviewContent className={isMinimized && '!py-2 !px-3'}>
           <div className="flex flex-col flex-1 typo-footnote">
             <span className="font-bold line-clamp-2">{preview.title}</span>
-            {preview.source && isMinimized ? (
-              <SourceAvatar
-                size="small"
-                source={preview.source}
-                className="absolute right-24 mt-1 mr-4"
-              />
-            ) : (
-              <span className="flex flex-row items-center mt-1">
-                <SourceAvatar size="small" source={preview.source} />
-                <span className="text-theme-label-tertiary">
-                  {preview.source.name}
+            {preview.source &&
+              (isMinimized ? (
+                <SourceAvatar
+                  size="small"
+                  source={preview.source}
+                  className="absolute right-24 mt-1 mr-4"
+                />
+              ) : (
+                <span className="flex flex-row items-center mt-1">
+                  <SourceAvatar size="small" source={preview.source} />
+                  <span className="text-theme-label-tertiary">
+                    {preview.source.name}
+                  </span>
                 </span>
-              </span>
-            )}
+              ))}
           </div>
           <Image
             className={previewImageClass}
