@@ -12,6 +12,8 @@ import {
   DownvoteBlocked,
   getBlockedLength,
 } from '../../components/post/block/common';
+import { useLazyModal } from '../useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
 
 interface BlockData {
   showTagsPanel?: boolean;
@@ -53,6 +55,7 @@ export const useBlockPost = (
   post: Post,
   { toastOnSuccess }: UseBlockPostProps = {},
 ): UseBlockPost => {
+  const { openModal } = useLazyModal();
   const { onBlockTags, onUnfollowSource, onUnblockTags, onFollowSource } =
     useTagAndSource({
       origin: Origin.TagsFilter,
@@ -132,6 +135,10 @@ export const useBlockPost = (
     },
     onUndo,
     onReport: () => {
+      openModal({
+        type: LazyModal.ReportPost,
+        props: { post, onReport: () => null, postIndex: -1 },
+      });
       setShowTagsPanel({ showTagsPanel: false });
     },
     onBlock: async (tags, shouldBlockSource) => {
