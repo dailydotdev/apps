@@ -46,7 +46,7 @@ export const ONBOARDING_OFFSET = 120;
 
 const PostContainer = classed(
   'main',
-  'flex flex-col flex-1 px-4 pt-6 tablet:px-8 tablet:border-r tablet:border-theme-divider-tertiary',
+  'flex flex-col flex-1 px-4 tablet:px-8 tablet:border-r tablet:border-theme-divider-tertiary',
 );
 
 export function PostContent({
@@ -112,7 +112,10 @@ export function PostContent({
         <BasePostContent
           className={{
             ...className,
-            onboarding: backToSquad && 'mb-6',
+            onboarding: classNames(
+              className?.onboarding,
+              backToSquad && 'mb-6',
+            ),
             navigation: {
               actions: className?.navigation?.actions,
               container: classNames('pt-6', className?.navigation?.container),
