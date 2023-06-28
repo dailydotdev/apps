@@ -6,10 +6,7 @@ import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
 import { FlexCentered, FlexCol } from '../utilities';
 import SquadMemberShortList from './SquadMemberShortList';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import SharePostBar from './SharePostBar';
-import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
-import TutorialGuide from '../tutorial/TutorialGuide';
 import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
@@ -36,11 +33,6 @@ export function SquadPageHeader({
   hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
   const { tourIndex } = useSquadTour();
-  const { sidebarRendered } = useSidebarRendered();
-
-  const sharePostTutorial = useTutorial({
-    key: TutorialKey.ShareSquadPost,
-  });
 
   const { openStep, isChecklistVisible } = useSquadChecklist({ squad });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
@@ -52,7 +44,6 @@ export function SquadPageHeader({
     <FlexCol
       className={classNames(
         'relative items-center laptopL:items-start px-6 tablet:pb-20 laptopL:pb-14 tablet:mb-6 w-full tablet:border-b laptopL:px-[4.5rem] min-h-20 border-theme-divider-tertiary',
-        sharePostTutorial.isActive && 'laptopL:mb-28 mb-28',
       )}
     >
       <div className="flex flex-col laptopL:flex-row items-center">
@@ -134,14 +125,6 @@ export function SquadPageHeader({
             squad={squad}
           />
         </ConditionalWrapper>
-        {sharePostTutorial.isActive && (
-          <TutorialGuide
-            className="absolute right-0 -bottom-22 tablet:-bottom-24 laptopL:-bottom-20 left-0"
-            arrowPlacement={sidebarRendered ? 'left' : 'top'}
-          >
-            Let&apos;s share your first post 🥳
-          </TutorialGuide>
-        )}
       </div>
     </FlexCol>
   );
