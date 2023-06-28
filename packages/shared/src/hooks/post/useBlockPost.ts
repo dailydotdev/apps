@@ -66,7 +66,7 @@ export const useBlockPost = (
   const { onBlockTags, onUnfollowSource, onUnblockTags, onFollowSource } =
     useTagAndSource({
       origin: Origin.TagsFilter,
-      postId: post.id,
+      postId: post?.id,
     });
   const client = useQueryClient();
   const { user } = useAuthContext();

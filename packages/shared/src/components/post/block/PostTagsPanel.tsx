@@ -76,12 +76,16 @@ export function PostTagsPanel({
         className="top-3 right-3"
         position="absolute"
         onClick={() => onClose()}
+        buttonSize={ButtonSize.Small}
       />
       <h4 className="font-bold typo-body">Don&apos;t show me posts from...</h4>
       <p className="mt-1 typo-callout text-theme-label-tertiary">
         Pick all the topics you are not interested to see on your feed
       </p>
-      <span className="flex flex-row flex-wrap gap-2 mt-4" role="list">
+      <span
+        className="flex overflow-auto flex-row flex-wrap flex-1 gap-2 mt-4"
+        role="list"
+      >
         <Button
           className={shouldBlockSource ? 'btn-primary' : 'btn-tertiaryFloat'}
           buttonSize={ButtonSize.Small}

@@ -10,6 +10,7 @@ import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import useUpdatePost from './useUpdatePost';
+import { useBlockPost } from './post/useBlockPost';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
@@ -83,19 +84,29 @@ export const usePostMenuActions = ({
     { onSuccess: onPinSuccessful },
   );
 
+  const { onClose, onShowPanel } = useBlockPost(post);
+
+  const onDownvoteMutate =
+    post &&
+    updatePost({
+      id: post.id,
+      update: mutationHandlers.downvote(post),
+    });
+  const onCancelDownvoteMutate =
+    post &&
+    updatePost({
+      id: post.id,
+      update: mutationHandlers.cancelDownvote(post),
+    });
   const { downvotePost, cancelPostDownvote } = useVotePost({
-    onDownvotePostMutate:
-      !!post &&
-      updatePost({
-        id: post.id,
-        update: mutationHandlers.downvote(post),
-      }),
-    onCancelPostDownvoteMutate:
-      !!post &&
-      updatePost({
-        id: post.id,
-        update: mutationHandlers.cancelDownvote(post),
-      }),
+    onDownvotePostMutate: (params) => {
+      onShowPanel();
+      return onDownvoteMutate(params);
+    },
+    onCancelPostDownvoteMutate: (params) => {
+      onClose(true);
+      return onCancelDownvoteMutate(params);
+    },
   });
 
   return {
