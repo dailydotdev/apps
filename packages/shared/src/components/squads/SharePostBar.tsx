@@ -14,13 +14,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 import { ExternalLinkPreview } from '../../graphql/posts';
-import { TutorialKey, useTutorial } from '../../hooks/useTutorial';
-import { CreateSharedPostModalProps } from '../modals/post/CreateSharedPostModal';
-
-export type NewSquadPostProps = Pick<
-  CreateSharedPostModalProps,
-  'preview' | 'onSharedSuccessfully'
->;
 
 export interface SharePostBarProps {
   className?: string;
@@ -42,17 +35,6 @@ function SharePostBar({
     inputRef.current.value = '';
     setUrl(undefined);
   };
-  const sharePostTutorial = useTutorial({
-    key: TutorialKey.ShareSquadPost,
-  });
-
-  const copyLinkTutorial = useTutorial({
-    key: TutorialKey.CopySquadLink,
-  });
-  const onCompleteTutorials = () => {
-    sharePostTutorial.complete();
-    copyLinkTutorial.activate();
-  };
 
   const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) =>
     openModal({
@@ -61,7 +43,6 @@ function SharePostBar({
         preview: { ...preview, url: link },
         squad,
         onSharedSuccessfully,
-        onAfterClose: onCompleteTutorials,
       },
     });
 
@@ -71,7 +52,6 @@ function SharePostBar({
       props: {
         onArticleSelected: ({ post }) => onOpenCreatePost(post, post.permalink),
         keepOpenAfterSelecting: true,
-        onAfterClose: onCompleteTutorials,
       },
     });
 
@@ -121,7 +101,7 @@ function SharePostBar({
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
           className={classNames(
-            'pl-1 tablet:min-w-[11rem] w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-body',
+            'pl-1 tablet:min-w-[11rem] w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-body flex-1 w-full tablet:flex-none tablet:w-auto',
             url !== undefined && 'flex-1 pr-2',
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}

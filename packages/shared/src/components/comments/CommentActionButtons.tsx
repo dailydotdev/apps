@@ -29,6 +29,7 @@ import PortalMenu from '../fields/PortalMenu';
 import classed from '../../lib/classed';
 import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
+import { RequestKey } from '../../lib/query';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
@@ -82,7 +83,7 @@ export default function CommentActionButtons({
       }),
     {
       onMutate: async () => {
-        await queryClient.cancelQueries('post_comments');
+        await queryClient.cancelQueries(RequestKey.PostComments);
         setUpvoted(true);
         setNumUpvotes(numUpvotes + 1);
         return () => {
@@ -101,7 +102,7 @@ export default function CommentActionButtons({
       }),
     {
       onMutate: async () => {
-        await queryClient.cancelQueries('post_comments');
+        await queryClient.cancelQueries(RequestKey.PostComments);
         setUpvoted(false);
         setNumUpvotes(numUpvotes - 1);
         return () => {

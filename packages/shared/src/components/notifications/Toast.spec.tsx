@@ -3,7 +3,7 @@ import {
   render,
   screen,
   waitForElementToBeRemoved,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -23,13 +23,15 @@ const ComponentWithToast = ({ autoDismissNotifications = true }) => {
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <button
         type="button"
-        onClick={() => displayToast('Sample Notification', { timer: 1000 })}
+        onClick={() => displayToast('Sample Notification', { timer: 500 })}
       >
         Regular Toast
       </button>
       <button
         type="button"
-        onClick={() => displayToast('Undoable Notification', { onUndo: undo })}
+        onClick={() =>
+          displayToast('Undoable Notification', { onUndo: undo, timer: 500 })
+        }
       >
         Undoable Toast
       </button>
@@ -54,7 +56,7 @@ it('should display a toast notification', async () => {
   await screen.findByRole('alert');
   await screen.findByText('Sample Notification');
   await waitForElementToBeRemoved(() => screen.queryByRole('alert'), {
-    timeout: 2000,
+    timeout: 1000,
   });
 });
 
@@ -65,7 +67,9 @@ it('should display a toast notification and be dismissable', async () => {
   await screen.findByRole('alert');
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
   fireEvent.click(dismiss);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
+  await waitForElementToBeRemoved(() => screen.queryByRole('alert'), {
+    timeout: 1000,
+  });
 });
 
 it('should display a toast notification and do not automatically close', async () => {
@@ -73,9 +77,12 @@ it('should display a toast notification and do not automatically close', async (
   const button = await screen.findByText('Regular Toast');
   fireEvent.click(button);
   await screen.findByRole('alert');
+  await new Promise((resolve) => setTimeout(resolve, 10));
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
   fireEvent.click(dismiss);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
+  await waitForElementToBeRemoved(() => screen.queryByRole('alert'), {
+    timeout: 1000,
+  });
 });
 
 it('should display a toast notification and undoable action', async () => {
@@ -86,6 +93,8 @@ it('should display a toast notification and undoable action', async () => {
   await screen.findByText('Undoable Notification');
   const undoBtn = await screen.findByLabelText('Undo action');
   fireEvent.click(undoBtn);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
+  await waitForElementToBeRemoved(() => screen.queryByRole('alert'), {
+    timeout: 1000,
+  });
   expect(undo).toBeCalled();
 });

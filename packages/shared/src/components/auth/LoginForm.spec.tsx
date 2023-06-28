@@ -5,8 +5,8 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+  act,
+} from '@testing-library/preact';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
@@ -79,7 +79,7 @@ const renderComponent = (
         loadedUserFromCache
         refetchBoot={onSuccessfulLogin}
       >
-        <SettingsContext.Provider value={{ syncSettings: async () => {} }}>
+        <SettingsContext.Provider value={{ syncSettings: jest.fn() }}>
           <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
         </SettingsContext.Provider>
       </AuthContextProvider>

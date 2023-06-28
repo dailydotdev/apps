@@ -6,15 +6,20 @@ import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { usePostToSquad } from '../../../hooks';
 import { Button, ButtonSize } from '../../buttons/Button';
 import AtIcon from '../../icons/At';
-import { Divider } from '../../utilities';
+import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
 import { Squad } from '../../../graphql/sources';
 import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
+import { useNotificationToggle } from '../../../hooks/notifications';
+import { Switch } from '../../fields/Switch';
+import CloseButton from '../../CloseButton';
+import useMedia from '../../../hooks/useMedia';
+import { tablet } from '../../../styles/media';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
-  onSharedSuccessfully?: () => void;
+  onSharedSuccessfully?: (enableNotification?: boolean) => void;
   squad: Squad;
 }
 
@@ -26,6 +31,9 @@ export function CreateSharedPostModal({
 }: CreateSharedPostModalProps): ReactElement {
   const markdownRef = useRef<MarkdownRef>();
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
+  const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
+    useNotificationToggle();
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -36,6 +44,7 @@ export function CreateSharedPostModal({
     initialPreview: preview,
     onPostSuccess: () => {
       if (onSharedSuccessfully) onSharedSuccessfully();
+      onSubmitted();
       props.onRequestClose(null);
     },
   });
@@ -60,7 +69,26 @@ export function CreateSharedPostModal({
 
   return (
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
-      <Modal.Header title="New post" />
+      <Modal.Header
+        showCloseButton={!isMobile}
+        title={isMobile ? null : 'New post'}
+      >
+        {isMobile && (
+          <div className="flex flex-row flex-1 justify-between items-center">
+            <CloseButton onClick={props.onRequestClose} />
+
+            <Button
+              className="btn-primary-cabbage"
+              disabled={isPosting}
+              loading={isPosting}
+              form="share_post"
+              buttonSize={ButtonSize.Small}
+            >
+              Post
+            </Button>
+          </div>
+        )}
+      </Modal.Header>
       <form
         className="flex flex-col p-3 w-full"
         action="#"
@@ -90,8 +118,22 @@ export function CreateSharedPostModal({
             )
           }
         />
+        {shouldShowCta && (
+          <Switch
+            data-testId="push_notification-switch"
+            inputId="push_notification-switch"
+            name="push_notification"
+            labelClassName="flex-1 font-normal"
+            className="py-3"
+            compact={false}
+            checked={isEnabled}
+            onToggle={onToggle}
+          >
+            Receive updates whenever your Squad members engage with your post
+          </Switch>
+        )}
       </form>
-      <Modal.Footer className="typo-caption1">
+      <Modal.Footer className="typo-caption1" justify={Justify.Start}>
         <Button
           icon={<AtIcon />}
           className="btn-tertiary"
@@ -100,20 +142,23 @@ export function CreateSharedPostModal({
         />
         <Divider vertical />
         <SourceButton source={squad} size="small" />
-        <span className="-ml-1">
+        <span className="flex-1 -ml-1">
           <strong>{squad.name}</strong>
           <span className="ml-1 text-theme-label-tertiary">
             @{squad.handle}
           </span>
         </span>
-        <Button
-          className="ml-auto btn-primary-cabbage"
-          disabled={isPosting}
-          loading={isPosting}
-          form="share_post"
-        >
-          Post
-        </Button>
+
+        {!isMobile && (
+          <Button
+            className="ml-auto btn-primary-cabbage"
+            disabled={isPosting}
+            loading={isPosting}
+            form="share_post"
+          >
+            Post
+          </Button>
+        )}
       </Modal.Footer>
     </Modal>
   );

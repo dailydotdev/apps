@@ -5,7 +5,7 @@ import ReadingHistoryPlaceholder from '../history/ReadingHistoryPlaceholder';
 import { ModalPropsContext } from '../modals/common/types';
 import { Button } from '../buttons/Button';
 import { SquadForm } from '../../graphql/squads';
-import { usePublicReadingHistory } from '../../hooks/post/usePublicReadingHistory';
+import { usePublicReadingHistory } from '../../hooks/post';
 import { InfiniteReadingHistory } from '../post/infinite';
 import { ReadingHistoryTitle } from '../modals/post';
 

@@ -4,7 +4,7 @@ import {
   UseMutationOptions,
   useQueryClient,
 } from 'react-query';
-import { FormEvent, useCallback, useState } from 'react';
+import { BaseSyntheticEvent, useCallback, useState } from 'react';
 import {
   ExternalLinkPreview,
   getExternalLinkPreview,
@@ -31,7 +31,7 @@ interface UsePostToSquad {
     string
   >;
   onSubmitPost: (
-    e: FormEvent<HTMLFormElement>,
+    e: BaseSyntheticEvent,
     sourceId: string,
     commentary: string,
   ) => Promise<unknown>;
@@ -110,7 +110,7 @@ export const usePostToSquad = ({
     isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;
 
   const onSubmitPost = useCallback(
-    (e: FormEvent<HTMLFormElement>, sourceId: string, commentary: string) => {
+    (e: BaseSyntheticEvent, sourceId: string, commentary: string) => {
       e.preventDefault();
 
       if (isPosting) return null;
