@@ -109,7 +109,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       modalSizeToClassName[ModalSize.Large],
   );
   const seoTitle = () => {
-    if (post?.type === PostType.Share && post?.title === null) return `Shared post at ${post?.source?.name}`;
+    if (post?.type === PostType.Share && post?.title === null)
+      return `Shared post at ${post?.source?.name}`;
 
     return post?.title;
   };
