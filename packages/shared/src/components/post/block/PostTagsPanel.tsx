@@ -87,7 +87,7 @@ export function PostTagsPanel({
         {post.tags.map((tag) => (
           <Button
             key={tag}
-            className={tags[tag] ? 'btn-primary' : 'btn-tertiaryFloat'}
+            className={tags?.[tag] ? 'btn-primary' : 'btn-tertiaryFloat'}
             buttonSize={ButtonSize.Small}
             onClick={() => setTags({ ...tags, [tag]: !tags[tag] })}
           >
