@@ -20,7 +20,6 @@ import { LazyModalElement } from './LazyModalElement';
 import {
   ActionType,
   COMPLETE_ACTION_MUTATION,
-  completeUserAction,
 } from '../../graphql/actions';
 
 const defaultPost = Post;
