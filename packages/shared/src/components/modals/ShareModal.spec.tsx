@@ -17,6 +17,7 @@ import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { ADD_POST_TO_SQUAD_MUTATION } from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { LazyModalElement } from './LazyModalElement';
+import { ActionType, COMPLETE_ACTION_MUTATION, completeUserAction } from '../../graphql/actions';
 
 const defaultPost = Post;
 const defaultComment = Comment;
@@ -120,6 +121,13 @@ describe('ShareModal Test Suite:', () => {
         queryCalled = true;
         return { data: { sharePost: { id: 123 } } };
       },
+    });
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SquadFirstPost },
+      },
+      result: { data: { _: true } },
     });
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
 
