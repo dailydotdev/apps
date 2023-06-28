@@ -47,6 +47,7 @@ interface UseCompanionActionsProps {
   reason?: string;
   comment?: string;
   companionExpandedValue?: boolean;
+  tags?: string[];
 }
 export default function useCompanionActions<
   T extends UseCompanionActionsProps,
@@ -63,11 +64,12 @@ export default function useCompanionActions<
     unknown,
     T,
     (() => void) | undefined
-  >(({ id, reason, comment }) =>
+  >(({ id, reason, comment, tags }) =>
     companionRequest(graphqlUrl, REPORT_POST_MUTATION, {
       id,
       reason,
       comment,
+      tags,
     }),
   );
 
