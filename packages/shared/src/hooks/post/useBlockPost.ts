@@ -34,6 +34,7 @@ interface UseBlockPost {
 
 interface UseBlockPostProps {
   toastOnSuccess?: boolean;
+  blockedSource?: boolean;
 }
 
 interface Params {
@@ -44,17 +45,22 @@ interface Params {
 const getParams = (tags: BlockTagSelection): Params => {
   const blocks = [];
   const unblocks = [];
-  Object.entries(tags).forEach(([tag, shouldBlock]) => {
-    const container = shouldBlock ? blocks : unblocks;
-    container.push(tag);
-  });
+
+  if (tags) {
+    Object.entries(tags).forEach(([tag, shouldBlock]) => {
+      const container = shouldBlock ? blocks : unblocks;
+      container.push(tag);
+    });
+  }
 
   return { blocks, unblocks };
 };
 
+const ignoredCall = () => Promise.resolve({ successful: true });
+
 export const useBlockPost = (
   post: Post,
-  { toastOnSuccess }: UseBlockPostProps = {},
+  { toastOnSuccess, blockedSource }: UseBlockPostProps = {},
 ): UseBlockPost => {
   const { openModal } = useLazyModal();
   const { onBlockTags, onUnfollowSource, onUnblockTags, onFollowSource } =
@@ -104,14 +110,23 @@ export const useBlockPost = (
         : onFollowSource;
 
       const results = await Promise.all([
-        onBlockTags({ tags: blocks }),
-        onUnblockTags({ tags: unblocks }),
-        onUpdateSource({ source: post.source }),
+        blocks.length ? onBlockTags({ tags: blocks }) : ignoredCall(),
+        unblocks.length ? onUnblockTags({ tags: unblocks }) : ignoredCall(),
+        blockedSource !== shouldBlockSource
+          ? onUpdateSource({ source: post.source })
+          : ignoredCall(),
       ]);
 
       return results.every(({ successful }) => successful);
     },
-    [onFollowSource, onUnfollowSource, onBlockTags, onUnblockTags, post],
+    [
+      blockedSource,
+      onFollowSource,
+      onUnfollowSource,
+      onBlockTags,
+      onUnblockTags,
+      post,
+    ],
   );
 
   const onUndo = useCallback(async () => {

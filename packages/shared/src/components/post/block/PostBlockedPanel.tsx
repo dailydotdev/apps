@@ -1,18 +1,19 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize } from '../../buttons/Button';
-import { DownvoteBlocked, getBlockedLength, getBlockedMessage } from './common';
 
 interface PostBlockedPanelProps {
-  blocked: DownvoteBlocked;
   className?: string;
   onActionClick: MouseEventHandler;
+  message: string;
+  ctaCopy: string;
 }
 
 export function PostBlockedPanel({
-  blocked,
   className,
   onActionClick,
+  message,
+  ctaCopy,
 }: PostBlockedPanelProps): ReactElement {
   return (
     <span
@@ -21,14 +22,14 @@ export function PostBlockedPanel({
         className,
       )}
     >
-      {getBlockedMessage(blocked)}
+      {message}
       <Button
         className="right-4 btn-tertiary"
         position="absolute"
         buttonSize={ButtonSize.Small}
         onClick={onActionClick}
       >
-        {getBlockedLength(blocked) > 0 ? 'Undo' : `Don't ask again`}
+        {ctaCopy}
       </Button>
     </span>
   );

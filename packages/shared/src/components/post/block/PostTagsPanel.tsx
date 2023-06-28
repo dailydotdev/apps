@@ -8,7 +8,7 @@ import CloseButton from '../../CloseButton';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
-import { BlockTagSelection } from './common';
+import { BlockTagSelection, getBlockedMessage } from './common';
 
 interface PostTagsPanelProps {
   post: Post;
@@ -22,14 +22,16 @@ export function PostTagsPanel({
   toastOnSuccess = true,
 }: PostTagsPanelProps): ReactElement {
   const { feedSettings } = useFeedSettings();
-  const [shouldBlockSource, setShouldBlockSource] = useState(() =>
-    feedSettings?.excludeSources?.some(({ id }) => id === post.source.id),
-  );
-  const [tags, setTags] = useState<BlockTagSelection>(() =>
-    feedSettings?.blockedTags?.reduce(
-      (block, tag) => ({ ...block, [tag]: post?.tags.includes(tag) }),
-      {},
-    ),
+  const hasBlockedSource = () =>
+    feedSettings?.excludeSources?.some(({ id }) => id === post.source.id);
+  const [initialPreference] = useState(hasBlockedSource);
+  const [shouldBlockSource, setShouldBlockSource] = useState(hasBlockedSource);
+  const [tags, setTags] = useState<BlockTagSelection>(
+    () =>
+      feedSettings?.blockedTags?.reduce(
+        (block, tag) => ({ ...block, [tag]: post?.tags.includes(tag) }),
+        {},
+      ) ?? {},
   );
   const {
     data: { showTagsPanel, blocked },
@@ -39,22 +41,26 @@ export function PostTagsPanel({
     onReport,
     onUndo,
     onDismissPermanently,
-  } = useBlockPost(post, { toastOnSuccess });
+  } = useBlockPost(post, {
+    toastOnSuccess,
+    blockedSource: initialPreference,
+  });
 
   if (post.tags.length === 0 || isNullOrUndefined(showTagsPanel)) return null;
 
   if (!showTagsPanel) {
     if (toastOnSuccess) return null;
 
+    const sourcePreferenceChanged =
+      initialPreference !== blocked?.sourceIncluded;
+    const noAction = blockedTags === 0 && !sourcePreferenceChanged;
+
     return (
       <PostBlockedPanel
         className="mt-6"
-        blocked={blocked}
-        onActionClick={
-          blockedTags === 0 && !blocked?.sourceIncluded
-            ? onDismissPermanently
-            : onUndo
-        }
+        onActionClick={noAction ? onDismissPermanently : onUndo}
+        message={getBlockedMessage(blockedTags, sourcePreferenceChanged)}
+        ctaCopy={noAction ? `Don't ask again` : 'Undo'}
       />
     );
   }
@@ -88,7 +94,7 @@ export function PostTagsPanel({
           <Button
             key={tag}
             role="listitem"
-            className={tags?.[tag] ? 'btn-primary' : 'btn-tertiaryFloat'}
+            className={tags[tag] ? 'btn-primary' : 'btn-tertiaryFloat'}
             buttonSize={ButtonSize.Small}
             onClick={() => setTags({ ...tags, [tag]: !tags[tag] })}
           >

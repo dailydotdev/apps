@@ -11,12 +11,13 @@ export const getBlockedLength = (blocked: DownvoteBlocked): number =>
         .length ?? 0
     : 0;
 
-export const getBlockedMessage = (blocked: DownvoteBlocked): string => {
-  if (blocked?.sourceIncluded) return 'Preferences saved';
+export const getBlockedMessage = (
+  blockedTags: number,
+  sourcePreferenceChanged: boolean,
+): string => {
+  if (sourcePreferenceChanged) return 'Preferences saved';
 
-  const blockedTags = getBlockedLength(blocked);
-
-  if (blockedTags === 0) return 'No topics blocked';
+  if (blockedTags === 0) return 'No topics were blocked';
 
   const topic =
     blockedTags === 1 ? 'topic was blocked' : 'topics are now blocked';
