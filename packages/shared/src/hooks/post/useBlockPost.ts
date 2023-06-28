@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from 'react-query';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Post } from '../../graphql/posts';
 import { generateStorageKey, StorageTopic } from '../../lib/storage';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -74,11 +74,14 @@ export const useBlockPost = (
     initialData: {},
     ...disabledRefetch,
   });
-  const setShowTagsPanel = (params: BlockData) =>
-    client.setQueryData<BlockData>(key, (current) => ({
-      ...current,
-      ...params,
-    }));
+  const setShowTagsPanel = useCallback(
+    (params: BlockData) =>
+      client.setQueryData<BlockData>(key, (current) => ({
+        ...current,
+        ...params,
+      })),
+    [client, key],
+  );
 
   const value = useMemo<BlockData>(
     () => ({
@@ -91,25 +94,28 @@ export const useBlockPost = (
     [data, checkHasCompleted],
   );
 
-  const updateFeedPreferences = async (
-    blocks: string[],
-    unblocks: string[],
-    shouldBlockSource: boolean,
-  ) => {
-    const onUpdateSource = shouldBlockSource
-      ? onUnfollowSource
-      : onFollowSource;
+  const updateFeedPreferences = useCallback(
+    async (
+      blocks: string[],
+      unblocks: string[],
+      shouldBlockSource: boolean,
+    ) => {
+      const onUpdateSource = shouldBlockSource
+        ? onUnfollowSource
+        : onFollowSource;
 
-    const results = await Promise.all([
-      onBlockTags({ tags: blocks }),
-      onUnblockTags({ tags: unblocks }),
-      onUpdateSource({ source: post.source }),
-    ]);
+      const results = await Promise.all([
+        onBlockTags({ tags: blocks }),
+        onUnblockTags({ tags: unblocks }),
+        onUpdateSource({ source: post.source }),
+      ]);
 
-    return results.every(({ successful }) => successful);
-  };
+      return results.every(({ successful }) => successful);
+    },
+    [onFollowSource, onUnfollowSource, onBlockTags, onUnblockTags, post],
+  );
 
-  const onUndo = async () => {
+  const onUndo = useCallback(async () => {
     const { blocked = {} } = value;
     const { blocks } = getParams(blocked.tags);
     const successful = await updateFeedPreferences(
@@ -124,26 +130,33 @@ export const useBlockPost = (
       showTagsPanel: undefined,
       blocked: {},
     });
-  };
+  }, [value, setShowTagsPanel, updateFeedPreferences]);
 
-  return {
-    data: value,
-    blockedTags: getBlockedLength(value?.blocked),
-    onClose: () => setShowTagsPanel({ showTagsPanel: false }),
-    onShowPanel: () => setShowTagsPanel({ showTagsPanel: true }),
-    onDismissPermanently: () => {
-      completeAction(ActionType.HideBlockPanel);
-      setShowTagsPanel({ showTagsPanel: undefined });
-    },
-    onUndo,
-    onReport: () => {
-      openModal({
-        type: LazyModal.ReportPost,
-        props: { post, onReport: () => null, postIndex: -1 },
-      });
-      setShowTagsPanel({ showTagsPanel: false });
-    },
-    onBlock: async (tags, shouldBlockSource) => {
+  const onClose = useCallback(
+    () => setShowTagsPanel({ showTagsPanel: false }),
+    [setShowTagsPanel],
+  );
+
+  const onShowPanel = useCallback(
+    () => setShowTagsPanel({ showTagsPanel: true }),
+    [setShowTagsPanel],
+  );
+
+  const onDismissPermanently = useCallback(() => {
+    completeAction(ActionType.HideBlockPanel);
+    setShowTagsPanel({ showTagsPanel: undefined });
+  }, [completeAction, setShowTagsPanel]);
+
+  const onReport = useCallback(() => {
+    openModal({
+      type: LazyModal.ReportPost,
+      props: { post, onReport: () => null, postIndex: -1 },
+    });
+    setShowTagsPanel({ showTagsPanel: false });
+  }, [openModal, setShowTagsPanel, post]);
+
+  const onBlock = useCallback(
+    async (tags, shouldBlockSource) => {
       const { blocks } = getParams(tags);
       const successful = await updateFeedPreferences(
         blocks,
@@ -158,5 +171,17 @@ export const useBlockPost = (
         blocked: { tags, sourceIncluded: shouldBlockSource },
       });
     },
+    [setShowTagsPanel, updateFeedPreferences, toastOnSuccess],
+  );
+
+  return {
+    data: value,
+    blockedTags: getBlockedLength(value?.blocked),
+    onClose,
+    onShowPanel,
+    onDismissPermanently,
+    onUndo,
+    onReport,
+    onBlock,
   };
 };

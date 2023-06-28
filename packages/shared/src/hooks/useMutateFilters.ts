@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
@@ -140,50 +140,47 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
   const shouldFilterLocally = !user;
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const updateFeedFilters = ({
-    advancedSettings,
-    ...filters
-  }: FeedSettings) => {
-    const {
-      blockedTags = [],
-      excludeSources = [],
-      includeTags = [],
-    } = filters ?? {};
-    const fixed: typeof filters = {
-      includeTags: Array.from(new Set(includeTags)),
-      blockedTags: Array.from(new Set(blockedTags)),
-      excludeSources: Array.from(new Set(excludeSources)),
-    };
-    return request(graphqlUrl, FEED_FILTERS_FROM_REGISTRATION, {
-      filters: fixed,
-      settings: advancedSettings,
-    });
-  };
+  const updateFeedFilters = useCallback(
+    ({ advancedSettings, ...filters }: FeedSettings) => {
+      const {
+        blockedTags = [],
+        excludeSources = [],
+        includeTags = [],
+      } = filters ?? {};
+      const fixed: typeof filters = {
+        includeTags: Array.from(new Set(includeTags)),
+        blockedTags: Array.from(new Set(blockedTags)),
+        excludeSources: Array.from(new Set(excludeSources)),
+      };
+      return request(graphqlUrl, FEED_FILTERS_FROM_REGISTRATION, {
+        filters: fixed,
+        settings: advancedSettings,
+      });
+    },
+    [],
+  );
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onAdvancedSettingsUpdate = ({
-    advancedSettings,
-  }: AdvancedSettingsMutationProps) =>
-    onMutateAdvancedSettings(
-      advancedSettings,
-      queryClient,
-      (feedSettings, [feedAdvancedSettings]) => {
-        const newData = cloneDeep(feedSettings);
-        const index = newData.advancedSettings.findIndex(
-          (settings) => settings.id === feedAdvancedSettings.id,
-        );
-        if (index === -1) {
-          newData.advancedSettings.push(feedAdvancedSettings);
-        } else {
-          newData.advancedSettings[index] = feedAdvancedSettings;
-        }
-        return newData;
-      },
-      user,
-    );
+  const onAdvancedSettingsUpdate = useCallback(
+    ({ advancedSettings }: AdvancedSettingsMutationProps) =>
+      onMutateAdvancedSettings(
+        advancedSettings,
+        queryClient,
+        (feedSettings, [feedAdvancedSettings]) => {
+          const newData = cloneDeep(feedSettings);
+          const index = newData.advancedSettings.findIndex(
+            (settings) => settings.id === feedAdvancedSettings.id,
+          );
+          if (index === -1) {
+            newData.advancedSettings.push(feedAdvancedSettings);
+          } else {
+            newData.advancedSettings[index] = feedAdvancedSettings;
+          }
+          return newData;
+        },
+        user,
+      ),
+    [user, queryClient],
+  );
 
   const { mutateAsync: updateAdvancedSettingsRemote } = useMutation<
     unknown,
@@ -201,19 +198,20 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onFollowTags = ({ tags }: TagsMutationProps) =>
-    onMutateTagsSettings(
-      tags,
-      queryClient,
-      (feedSettings, manipulateTags) => {
-        const newData = cloneDeep(feedSettings);
-        newData.includeTags = newData.includeTags.concat(manipulateTags);
-        return newData;
-      },
-      user,
-    );
+  const onFollowTags = useCallback(
+    ({ tags }: TagsMutationProps) =>
+      onMutateTagsSettings(
+        tags,
+        queryClient,
+        (feedSettings, manipulateTags) => {
+          const newData = cloneDeep(feedSettings);
+          newData.includeTags = newData.includeTags.concat(manipulateTags);
+          return newData;
+        },
+        user,
+      ),
+    [user, queryClient],
+  );
 
   const { mutateAsync: followTagsRemote } = useMutation<
     unknown,
@@ -233,25 +231,26 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onBlockTags = ({ tags }: TagsMutationProps) =>
-    onMutateTagsSettings(
-      tags,
-      queryClient,
-      (feedSettings, manipulateTags) => {
-        const newData = cloneDeep(feedSettings);
-        newData.blockedTags = [
-          ...Array.from(new Set(newData.blockedTags.concat(manipulateTags))),
-        ];
+  const onBlockTags = useCallback(
+    ({ tags }: TagsMutationProps) =>
+      onMutateTagsSettings(
+        tags,
+        queryClient,
+        (feedSettings, manipulateTags) => {
+          const newData = cloneDeep(feedSettings);
+          newData.blockedTags = [
+            ...Array.from(new Set(newData.blockedTags.concat(manipulateTags))),
+          ];
 
-        newData.includeTags = newData.includeTags.filter(
-          (value) => manipulateTags.indexOf(value) < 0,
-        );
-        return newData;
-      },
-      user,
-    );
+          newData.includeTags = newData.includeTags.filter(
+            (value) => manipulateTags.indexOf(value) < 0,
+          );
+          return newData;
+        },
+        user,
+      ),
+    [user, queryClient],
+  );
 
   const { mutateAsync: blockTagRemote } = useMutation<
     unknown,
@@ -271,21 +270,22 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onUnfollowTags = ({ tags }: TagsMutationProps) =>
-    onMutateTagsSettings(
-      tags,
-      queryClient,
-      (feedSettings, manipulateTags) => {
-        const newData = cloneDeep(feedSettings);
-        newData.includeTags = newData.includeTags.filter(
-          (value) => manipulateTags.indexOf(value) < 0,
-        );
-        return newData;
-      },
-      user,
-    );
+  const onUnfollowTags = useCallback(
+    ({ tags }: TagsMutationProps) =>
+      onMutateTagsSettings(
+        tags,
+        queryClient,
+        (feedSettings, manipulateTags) => {
+          const newData = cloneDeep(feedSettings);
+          newData.includeTags = newData.includeTags.filter(
+            (value) => manipulateTags.indexOf(value) < 0,
+          );
+          return newData;
+        },
+        user,
+      ),
+    [user, queryClient],
+  );
 
   const { mutateAsync: unfollowTagsRemote } = useMutation<
     unknown,
@@ -305,21 +305,22 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onUnblockTags = ({ tags }: TagsMutationProps) =>
-    onMutateTagsSettings(
-      tags,
-      queryClient,
-      (feedSettings, manipulateTags) => {
-        const newData = cloneDeep(feedSettings);
-        newData.blockedTags = newData.blockedTags.filter(
-          (value) => manipulateTags.indexOf(value) < 0,
-        );
-        return newData;
-      },
-      user,
-    );
+  const onUnblockTags = useCallback(
+    ({ tags }: TagsMutationProps) =>
+      onMutateTagsSettings(
+        tags,
+        queryClient,
+        (feedSettings, manipulateTags) => {
+          const newData = cloneDeep(feedSettings);
+          newData.blockedTags = newData.blockedTags.filter(
+            (value) => manipulateTags.indexOf(value) < 0,
+          );
+          return newData;
+        },
+        user,
+      ),
+    [user, queryClient],
+  );
 
   const { mutateAsync: unblockTagRemote } = useMutation<
     unknown,
@@ -339,24 +340,25 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onFollowSource = ({ source }: SourceMutationProps) =>
-    onMutateSourcesSettings(
-      source,
-      queryClient,
-      (feedSettings, manipulateSource) => {
-        const newData = cloneDeep(feedSettings);
-        const index = newData.excludeSources.findIndex(
-          (s) => s.id === manipulateSource.id,
-        );
-        if (index > -1) {
-          newData.excludeSources.splice(index, 1);
-        }
-        return newData;
-      },
-      user,
-    );
+  const onFollowSource = useCallback(
+    ({ source }: SourceMutationProps) =>
+      onMutateSourcesSettings(
+        source,
+        queryClient,
+        (feedSettings, manipulateSource) => {
+          const newData = cloneDeep(feedSettings);
+          const index = newData.excludeSources.findIndex(
+            (s) => s.id === manipulateSource.id,
+          );
+          if (index > -1) {
+            newData.excludeSources.splice(index, 1);
+          }
+          return newData;
+        },
+        user,
+      ),
+    [user, queryClient],
+  );
 
   const { mutateAsync: followSourceRemote } = useMutation<
     unknown,
@@ -376,19 +378,20 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onUnfollowSource = ({ source }: SourceMutationProps) =>
-    onMutateSourcesSettings(
-      source,
-      queryClient,
-      (feedSettings, manipulateSource) => {
-        const newData = cloneDeep(feedSettings);
-        newData.excludeSources.push(manipulateSource);
-        return newData;
-      },
-      user,
-    );
+  const onUnfollowSource = useCallback(
+    ({ source }: SourceMutationProps) =>
+      onMutateSourcesSettings(
+        source,
+        queryClient,
+        (feedSettings, manipulateSource) => {
+          const newData = cloneDeep(feedSettings);
+          newData.excludeSources.push(manipulateSource);
+          return newData;
+        },
+        user,
+      ),
+    [user, queryClient],
+  );
 
   const { mutateAsync: unfollowSourceRemote } = useMutation<
     unknown,
