@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  act,
   fireEvent,
   queryByText,
   render,
@@ -26,6 +27,12 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
+import {
+  Action,
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+  COMPLETED_USER_ACTIONS,
+} from '@dailydotdev/shared/src/graphql/actions';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -44,6 +51,12 @@ import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContex
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
+  AllTagCategoriesData,
+  FEED_SETTINGS_QUERY,
+  REMOVE_FILTERS_FROM_FEED_MUTATION,
+} from '@dailydotdev/shared/src/graphql/feedSettings';
 import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
@@ -121,6 +134,13 @@ const createPostMock = (
         ...data,
       },
     },
+  },
+});
+
+const createActionsMock = (): MockedGraphQLResponse<{ actions: Action[] }> => ({
+  request: { query: COMPLETED_USER_ACTIONS },
+  result: {
+    data: { actions: [] },
   },
 });
 
@@ -691,4 +711,124 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
 
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('14 Upvotes');
+});
+
+describe('downvote flow', () => {
+  const createAllTagCategoriesMock = (
+    onSuccess?: () => void,
+  ): MockedGraphQLResponse<AllTagCategoriesData> => ({
+    request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
+    result: () => {
+      if (onSuccess) onSuccess();
+      return {
+        data: {
+          feedSettings: {
+            includeTags: ['react', 'golang'],
+            blockedTags: [],
+            excludeSources: [],
+            advancedSettings: [],
+          },
+        },
+      };
+    },
+  });
+
+  const next10ms = () =>
+    act(() => new Promise((resolve) => setTimeout(resolve, 10)));
+
+  const prepareDownvote = async () => {
+    let queryCalled = false;
+    renderPost({}, [
+      createActionsMock(),
+      createPostMock({ upvoted: true, numUpvotes: 15 }),
+      createAllTagCategoriesMock(() => {
+        queryCalled = true;
+      }),
+      createCommentsMock(),
+      {
+        request: {
+          query: DOWNVOTE_MUTATION,
+          variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+        },
+        result: () => ({ data: { _: true } }),
+      },
+    ]);
+    const downvote = await screen.findByLabelText('Downvote');
+    fireEvent.click(downvote);
+    await new Promise(process.nextTick);
+    await waitFor(() => queryCalled);
+    await next10ms();
+    expect(queryCalled).toBeTruthy();
+  };
+
+  it('should display the tags to block panel', async () => {
+    await prepareDownvote();
+    await screen.findByText("Don't show me posts from...");
+  });
+
+  it('should display the option to never see the selection again if blocked no tags', async () => {
+    await prepareDownvote();
+    const items = await screen.findAllByRole('listitem');
+    const allUnselected = items.every((el) =>
+      el.classList.contains('btn-tertiaryFloat'),
+    );
+    await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
+    expect(allUnselected).toBeTruthy();
+    const block = await screen.findByText('Block');
+    fireEvent.click(block);
+    await screen.findByText('No topics were blocked');
+    let mutationCalled = false;
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.HideBlockPanel },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    });
+    const dontAskAgain = await screen.findByText("Don't ask again");
+    fireEvent.click(dontAskAgain);
+    await next10ms();
+    expect(mutationCalled).toBeTruthy();
+  });
+
+  it('should display the correct blocked tags count and update filters', async () => {
+    await prepareDownvote();
+    const [, tag] = await screen.findAllByRole('listitem');
+    fireEvent.click(tag);
+    let mutationCalled = false;
+    const label = tag.textContent.substring(1);
+    mockGraphQL({
+      request: {
+        query: ADD_FILTERS_TO_FEED_MUTATION,
+        variables: { filters: { blockedTags: [label] } },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { feedSettings: { id: defaultUser.id } } };
+      },
+    });
+    const block = await screen.findByText('Block');
+    fireEvent.click(block);
+    await next10ms();
+    expect(mutationCalled).toBeTruthy();
+    await screen.findByText('1 topic was blocked');
+    let undoMutationCalled = true;
+    mockGraphQL({
+      request: {
+        query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+        variables: { filters: { blockedTags: [label] } },
+      },
+      result: () => {
+        undoMutationCalled = true;
+        return { data: { _: true } };
+      },
+    });
+    const undo = await screen.findByText('Undo');
+    fireEvent.click(undo);
+    await next10ms();
+    expect(undoMutationCalled).toBeTruthy();
+  });
 });
