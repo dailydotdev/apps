@@ -45,8 +45,16 @@ export function PostActions({
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const { updatePost } = useUpdatePost();
-  const { data, onShowPanel } = useBlockPost(post);
+  const { data, onShowPanel, onClose } = useBlockPost(post);
   const { showTagsPanel } = data;
+  const onDownvoteMutate = updatePost({
+    id: post.id,
+    update: mutationHandlers.downvote(post),
+  });
+  const onCancelDownvoteMutate = updatePost({
+    id: post.id,
+    update: mutationHandlers.cancelDownvote(post),
+  });
   const { upvotePost, cancelPostUpvote, downvotePost, cancelPostDownvote } =
     useVotePost({
       onUpvotePostMutate: updatePost({
@@ -57,15 +65,14 @@ export function PostActions({
         id: post.id,
         update: mutationHandlers.cancelUpvote(post),
       }),
-      onDownvotePostMutate: updatePost({
-        id: post.id,
-        update: mutationHandlers.downvote(post),
-      }),
-      onCancelPostDownvoteMutate: updatePost({
-        id: post.id,
-        update: mutationHandlers.cancelDownvote(post),
-      }),
-      onDownvoted: onShowPanel,
+      onDownvotePostMutate: (params) => {
+        onShowPanel();
+        return onDownvoteMutate(params);
+      },
+      onCancelPostDownvoteMutate: (params) => {
+        onClose(true);
+        return onCancelDownvoteMutate(params);
+      },
     });
 
   const toggleUpvote = () => {

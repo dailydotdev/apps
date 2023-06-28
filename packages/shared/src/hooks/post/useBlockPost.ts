@@ -24,7 +24,7 @@ interface BlockData {
 interface UseBlockPost {
   data: BlockData;
   blockedTags: number;
-  onClose(): void;
+  onClose(forceClose?: boolean): void;
   onShowPanel(): void;
   onDismissPermanently(): void;
   onReport(): void;
@@ -133,7 +133,8 @@ export const useBlockPost = (
   }, [value, setShowTagsPanel, updateFeedPreferences]);
 
   const onClose = useCallback(
-    () => setShowTagsPanel({ showTagsPanel: false }),
+    (forceClose?: boolean) =>
+      setShowTagsPanel({ showTagsPanel: forceClose ? undefined : false }),
     [setShowTagsPanel],
   );
 

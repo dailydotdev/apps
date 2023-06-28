@@ -69,7 +69,7 @@ export function PostTagsPanel({
       <CloseButton
         className="top-3 right-3"
         position="absolute"
-        onClick={onClose}
+        onClick={() => onClose()}
       />
       <h4 className="font-bold typo-body">Don&apos;t show me posts from...</h4>
       <p className="mt-1 typo-callout text-theme-label-tertiary">
