@@ -112,7 +112,10 @@ export function PostContent({
         <BasePostContent
           className={{
             ...className,
-            onboarding: backToSquad && 'mb-6',
+            onboarding: classNames(
+              className?.onboarding,
+              backToSquad && 'mb-6',
+            ),
             navigation: {
               actions: className?.navigation?.actions,
               container: classNames('pt-6', className?.navigation?.container),
