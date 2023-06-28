@@ -2,22 +2,19 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
+import { IFlags } from 'flagsmith';
 import ShareModal from './ShareModal';
 import Post from '../../../__tests__/fixture/post';
-import { getWhatsappShareLink, getFacebookShareLink } from '../../lib/share';
+import { getFacebookShareLink } from '../../lib/share';
 import { Origin } from '../../lib/analytics';
 import Comment from '../../../__tests__/fixture/comment';
 import { getCommentHash } from '../../graphql/comments';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import { LoggedUser } from '../../lib/user';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
-import {
-  generateTestSquad,
-} from '../../../__tests__/fixture/squads';
+import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import { IFlags } from 'flagsmith';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { ADD_POST_TO_SQUAD_MUTATION, addPostToSquad } from '../../graphql/squads';
+import { ADD_POST_TO_SQUAD_MUTATION } from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { LazyModalElement } from './LazyModalElement';
 
@@ -46,7 +43,11 @@ beforeEach(async () => {
 
 const squads = [generateTestSquad()];
 
-const renderComponent = (loggedIn = true, hasSquads = true, comment?): RenderResult => {
+const renderComponent = (
+  loggedIn = true,
+  hasSquads = true,
+  comment?,
+): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -94,7 +95,7 @@ describe('ShareModal Test Suite:', () => {
 
   it('should render the component with logged user but no squads and open new squad modal', async () => {
     renderComponent(true, false);
-    const btn = await screen.findByTestId('social-share-New Squad')
+    const btn = await screen.findByTestId('social-share-New Squad');
 
     expect(btn).toBeInTheDocument();
     btn.click();
@@ -110,10 +111,10 @@ describe('ShareModal Test Suite:', () => {
     mockGraphQL({
       request: {
         query: ADD_POST_TO_SQUAD_MUTATION,
-        variables: { 
+        variables: {
           id: defaultPost.id,
           sourceId: squads[0].id,
-          commentary: "",
+          commentary: '',
         },
       },
       result: () => {
