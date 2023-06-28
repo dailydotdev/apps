@@ -89,7 +89,6 @@ export const useBlockPost = (
       showTagsPanel: checkHasCompleted(ActionType.HideBlockPanel)
         ? undefined
         : data?.showTagsPanel,
-      blockedTags: 0,
     }),
     [data, checkHasCompleted],
   );

@@ -27,7 +27,7 @@ export function PostTagsPanel({
   );
   const [tags, setTags] = useState<BlockTagSelection>(() =>
     feedSettings?.blockedTags?.reduce(
-      (block, tag) => ({ ...block, [tag]: true }),
+      (block, tag) => ({ ...block, [tag]: post?.tags.includes(tag) }),
       {},
     ),
   );
@@ -75,7 +75,7 @@ export function PostTagsPanel({
       <p className="mt-1 typo-callout text-theme-label-tertiary">
         Pick all the topics you are not interested to see on your feed
       </p>
-      <span className="flex flex-row flex-wrap gap-2 mt-4">
+      <span className="flex flex-row flex-wrap gap-2 mt-4" role="list">
         <Button
           className={shouldBlockSource ? 'btn-primary' : 'btn-tertiaryFloat'}
           buttonSize={ButtonSize.Small}
@@ -87,6 +87,7 @@ export function PostTagsPanel({
         {post.tags.map((tag) => (
           <Button
             key={tag}
+            role="listitem"
             className={tags?.[tag] ? 'btn-primary' : 'btn-tertiaryFloat'}
             buttonSize={ButtonSize.Small}
             onClick={() => setTags({ ...tags, [tag]: !tags[tag] })}
