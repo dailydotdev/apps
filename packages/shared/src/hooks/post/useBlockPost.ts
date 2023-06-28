@@ -14,6 +14,7 @@ import {
 } from '../../components/post/block/common';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
+import { disabledRefetch } from '../../lib/func';
 
 interface BlockData {
   showTagsPanel?: boolean;
@@ -71,6 +72,7 @@ export const useBlockPost = (
   );
   const { data } = useQuery<BlockData>(key, () => client.getQueryData(key), {
     initialData: {},
+    ...disabledRefetch,
   });
   const setShowTagsPanel = (params: BlockData) =>
     client.setQueryData<BlockData>(key, (current) => ({

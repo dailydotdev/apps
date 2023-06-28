@@ -22,10 +22,10 @@ export function PostTagsPanel({
   toastOnSuccess = true,
 }: PostTagsPanelProps): ReactElement {
   const { feedSettings } = useFeedSettings();
-  const [shouldBlockSource, setShouldBlockSource] = useState(
+  const [shouldBlockSource, setShouldBlockSource] = useState(() =>
     feedSettings?.excludeSources?.some(({ id }) => id === post.source.id),
   );
-  const [tags, setTags] = useState<BlockTagSelection>(
+  const [tags, setTags] = useState<BlockTagSelection>(() =>
     feedSettings?.blockedTags?.reduce(
       (block, tag) => ({ ...block, [tag]: true }),
       {},
