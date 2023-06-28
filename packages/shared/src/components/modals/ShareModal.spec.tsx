@@ -17,10 +17,7 @@ import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { ADD_POST_TO_SQUAD_MUTATION } from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { LazyModalElement } from './LazyModalElement';
-import {
-  ActionType,
-  COMPLETE_ACTION_MUTATION,
-} from '../../graphql/actions';
+import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
 
 const defaultPost = Post;
 const defaultComment = Comment;
