@@ -96,6 +96,7 @@ export default function PostOptionsMenu({
   } = useTagAndSource({
     origin: Origin.PostContextMenu,
     postId: post?.id,
+    shouldInvalidateQueries: false,
   });
   const [reportModal, setReportModal] = useState<{
     index?: number;
