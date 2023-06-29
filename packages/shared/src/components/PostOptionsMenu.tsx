@@ -103,6 +103,7 @@ export default function PostOptionsMenu({
     message: string,
     _postIndex: number,
     undo?: () => unknown,
+    callback?: (index: number) => Promise<unknown>,
   ) => {
     const onUndo = async () => {
       await undo?.();
@@ -112,7 +113,7 @@ export default function PostOptionsMenu({
       subject: ToastSubject.Feed,
       onUndo: undo !== null ? onUndo : null,
     });
-    onRemovePost?.(_postIndex);
+    callback?.(_postIndex);
   };
   const { onConfirmDeletePost, onPinPost } = usePostMenuActions({
     post,
@@ -140,7 +141,12 @@ export default function PostOptionsMenu({
           extra: { origin },
         }),
       );
-      return showMessageAndRemovePost('The post has been deleted', index, null);
+      return showMessageAndRemovePost(
+        'The post has been deleted',
+        index,
+        null,
+        onRemovePost,
+      );
     },
   });
 
