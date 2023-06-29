@@ -19,15 +19,14 @@ export interface ToastNotification {
   timer: number;
   subject?: ToastSubject;
   onUndo?: AnyFunction;
+  undoCopy?: string;
 }
 
 export const TOAST_NOTIF_KEY = 'toast_notif';
 
-export interface NotifyOptionalProps {
-  timer?: number;
-  subject?: ToastSubject;
-  onUndo?: AnyFunction;
-}
+export type NotifyOptionalProps = Partial<
+  Pick<ToastNotification, 'timer' | 'subject' | 'onUndo' | 'undoCopy'>
+>;
 
 export const useToastNotification = (): UseToastNotification => {
   const client = useQueryClient();

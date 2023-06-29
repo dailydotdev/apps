@@ -83,7 +83,7 @@ export function PostTagsPanel({
         Pick all the topics you are not interested to see on your feed
       </p>
       <span
-        className="flex overflow-auto flex-row flex-wrap flex-1 gap-2 mt-4"
+        className="flex overflow-auto flex-row flex-wrap flex-1 gap-2 content-start mt-4"
         role="list"
       >
         <Button

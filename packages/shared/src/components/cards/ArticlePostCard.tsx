@@ -49,6 +49,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       <PostTagsPanel
         className="overflow-hidden h-full max-h-[23.5rem]"
         post={post}
+        toastOnSuccess
       />
     );
   }

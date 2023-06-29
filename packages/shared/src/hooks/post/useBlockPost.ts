@@ -11,10 +11,12 @@ import {
   BlockTagSelection,
   DownvoteBlocked,
   getBlockedLength,
+  getBlockedMessage,
 } from '../../components/post/block/common';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { disabledRefetch } from '../../lib/func';
+import { useToastNotification } from '../useToastNotification';
 
 interface BlockData {
   showTagsPanel?: boolean;
@@ -63,6 +65,7 @@ export const useBlockPost = (
   { toastOnSuccess, blockedSource }: UseBlockPostProps = {},
 ): UseBlockPost => {
   const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
   const { onBlockTags, onUnfollowSource, onUnblockTags, onFollowSource } =
     useTagAndSource({
       origin: Origin.TagsFilter,
@@ -181,12 +184,33 @@ export const useBlockPost = (
 
       if (!successful) return;
 
+      if (toastOnSuccess) {
+        const sourcePreferenceChanged = blockedSource !== shouldBlockSource;
+        const noAction = blocks.length === 0 && !sourcePreferenceChanged;
+
+        displayToast(
+          getBlockedMessage(blocks.length, sourcePreferenceChanged),
+          {
+            onUndo: noAction ? onDismissPermanently : onUndo,
+            undoCopy: noAction ? `Don't ask again` : 'Undo',
+          },
+        );
+      }
+
       setShowTagsPanel({
         showTagsPanel: toastOnSuccess ? undefined : false,
         blocked: { tags, sourceIncluded: shouldBlockSource },
       });
     },
-    [setShowTagsPanel, updateFeedPreferences, toastOnSuccess],
+    [
+      displayToast,
+      onDismissPermanently,
+      onUndo,
+      blockedSource,
+      setShowTagsPanel,
+      updateFeedPreferences,
+      toastOnSuccess,
+    ],
   );
 
   return {
