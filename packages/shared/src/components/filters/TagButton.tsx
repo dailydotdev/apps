@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '../icons/Plus';
 import BlockIcon from '../icons/Block';
@@ -10,18 +10,20 @@ import {
 } from '../buttons/Button';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 
-const GenericTagButton = ({
+interface GenericTagButtonProps extends HTMLAttributes<HTMLButtonElement> {
+  tag: string;
+  className?: string;
+  icon?: ReactElement;
+  action: () => unknown;
+}
+
+export const GenericTagButton = ({
   tag,
   className,
   icon,
   action,
   ...props
-}: {
-  tag: string;
-  className?: string;
-  icon?: ReactElement;
-  action: () => unknown;
-}) => (
+}: GenericTagButtonProps): ReactElement => (
   <Button
     {...props}
     buttonSize={ButtonSize.Small}
@@ -38,11 +40,7 @@ const UnblockTagButton = ({
   className,
   action,
   ...props
-}: {
-  tag: string;
-  className?: string;
-  action: () => unknown;
-}) => (
+}: GenericTagButtonProps) => (
   <GenericTagButton
     {...props}
     className={classNames('btn-tagBlocked', className)}
@@ -57,11 +55,7 @@ const UnfollowTagButton = ({
   className,
   action,
   ...props
-}: {
-  tag: string;
-  className?: string;
-  action: () => unknown;
-}) => (
+}: GenericTagButtonProps) => (
   <GenericTagButton
     {...props}
     className={classNames('btn-primary', className)}
@@ -76,11 +70,7 @@ const FollowTagButton = ({
   className,
   action,
   ...props
-}: {
-  tag: string;
-  className?: string;
-  action: () => unknown;
-}) => (
+}: GenericTagButtonProps) => (
   <GenericTagButton
     {...props}
     className={classNames('btn-tag', className)}

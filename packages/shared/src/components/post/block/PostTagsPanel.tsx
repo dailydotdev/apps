@@ -9,6 +9,7 @@ import { Button, ButtonSize } from '../../buttons/Button';
 import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { BlockTagSelection, getBlockedMessage } from './common';
+import { GenericTagButton } from '../../filters/TagButton';
 
 interface PostTagsPanelProps {
   post: Post;
@@ -95,15 +96,13 @@ export function PostTagsPanel({
           {post.source.name}
         </Button>
         {post.tags.map((tag) => (
-          <Button
+          <GenericTagButton
             key={tag}
             role="listitem"
             className={tags[tag] ? 'btn-primary' : 'btn-tertiaryFloat'}
-            buttonSize={ButtonSize.Small}
-            onClick={() => setTags({ ...tags, [tag]: !tags[tag] })}
-          >
-            #{tag}
-          </Button>
+            action={() => setTags({ ...tags, [tag]: !tags[tag] })}
+            tag={tag}
+          />
         ))}
       </span>
       <span className="flex flex-row gap-2 p-3 -mx-4 mt-4 border-t border-theme-divider-tertiary">
