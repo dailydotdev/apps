@@ -1,10 +1,13 @@
 import { useCallback, useContext } from 'react';
+import { useQueryClient } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 import { BooleanPromise } from '../components/filters/common';
+import { generateQueryKey } from '../lib/query';
+import useDebounce from './useDebounce';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -20,6 +23,7 @@ export interface SourceActionArguments {
 interface UseTagAndSourceProps {
   origin?: string;
   postId?: string;
+  shouldInvalidateQueries?: boolean;
 }
 
 interface UseTagAndSource {
@@ -34,7 +38,9 @@ interface UseTagAndSource {
 export default function useTagAndSource({
   origin,
   postId,
+  shouldInvalidateQueries = true,
 }: UseTagAndSourceProps): UseTagAndSource {
+  const queryClient = useQueryClient();
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -52,6 +58,14 @@ export default function useTagAndSource({
     unfollowSource,
   } = useMutateFilters(user);
 
+  const [invalidateQueries] = useDebounce(() => {
+    if (!shouldInvalidateQueries) {
+      return;
+    }
+
+    queryClient.invalidateQueries(generateQueryKey('my-feed', user));
+  }, 100);
+
   const onFollowTags = useCallback(
     async ({ tags, category, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
@@ -68,6 +82,9 @@ export default function useTagAndSource({
         updateAlerts({ filter: false, myFeed: 'created' });
       }
       await followTags({ tags });
+
+      invalidateQueries();
+
       return { successful: true };
     },
     [
@@ -79,6 +96,7 @@ export default function useTagAndSource({
       showLogin,
       followTags,
       alerts?.filter,
+      invalidateQueries,
     ],
   );
 
@@ -95,9 +113,19 @@ export default function useTagAndSource({
         extra: JSON.stringify({ origin }),
       });
       await unfollowTags({ tags });
+
+      invalidateQueries();
+
       return { successful: true };
     },
-    [trackEvent, shouldShowLogin, origin, showLogin, unfollowTags],
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      unfollowTags,
+      invalidateQueries,
+    ],
   );
 
   const onBlockTags = useCallback(
@@ -114,9 +142,20 @@ export default function useTagAndSource({
         extra: JSON.stringify({ origin, post_id: postId }),
       });
       await blockTag({ tags });
+
+      invalidateQueries();
+
       return { successful: true };
     },
-    [trackEvent, shouldShowLogin, origin, showLogin, blockTag, postId],
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      blockTag,
+      postId,
+      invalidateQueries,
+    ],
   );
 
   const onUnblockTags = useCallback(
@@ -132,9 +171,20 @@ export default function useTagAndSource({
         extra: JSON.stringify({ origin, post_id: postId }),
       });
       await unblockTag({ tags });
+
+      invalidateQueries();
+
       return { successful: true };
     },
-    [trackEvent, shouldShowLogin, origin, showLogin, unblockTag, postId],
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      unblockTag,
+      postId,
+      invalidateQueries,
+    ],
   );
 
   const onFollowSource = useCallback(
@@ -150,9 +200,20 @@ export default function useTagAndSource({
         extra: JSON.stringify({ origin, post_id: postId }),
       });
       await followSource({ source });
+
+      invalidateQueries();
+
       return { successful: true };
     },
-    [trackEvent, shouldShowLogin, origin, showLogin, followSource, postId],
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      followSource,
+      postId,
+      invalidateQueries,
+    ],
   );
 
   const onUnfollowSource = useCallback(
@@ -168,9 +229,20 @@ export default function useTagAndSource({
         extra: JSON.stringify({ origin, post_id: postId }),
       });
       await unfollowSource({ source });
+
+      invalidateQueries();
+
       return { successful: true };
     },
-    [trackEvent, shouldShowLogin, origin, showLogin, unfollowSource, postId],
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      unfollowSource,
+      postId,
+      invalidateQueries,
+    ],
   );
 
   return {

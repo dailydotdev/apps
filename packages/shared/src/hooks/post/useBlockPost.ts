@@ -70,6 +70,7 @@ export const useBlockPost = (
     useTagAndSource({
       origin: Origin.TagsFilter,
       postId: post?.id,
+      shouldInvalidateQueries: false,
     });
   const client = useQueryClient();
   const { user } = useAuthContext();
