@@ -13,6 +13,8 @@ import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
 import { Container, PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
+import { useBlockPost } from '../../hooks/post/useBlockPost';
+import { PostTagsPanel } from '../post/block/PostTagsPanel';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -37,9 +39,20 @@ export const ArticlePostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { data } = useBlockPost(post);
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
+
+  if (data?.showTagsPanel && post.tags.length > 0) {
+    return (
+      <PostTagsPanel
+        className="overflow-hidden h-full max-h-[23.5rem]"
+        post={post}
+        toastOnSuccess
+      />
+    );
+  }
 
   return (
     <FeedItemContainer

@@ -11,10 +11,12 @@ import {
   BlockTagSelection,
   DownvoteBlocked,
   getBlockedLength,
+  getBlockedMessage,
 } from '../../components/post/block/common';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
-import { disabledRefetch } from '../../lib/func';
+import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
+import { useToastNotification } from '../useToastNotification';
 
 interface BlockData {
   showTagsPanel?: boolean;
@@ -63,10 +65,11 @@ export const useBlockPost = (
   { toastOnSuccess, blockedSource }: UseBlockPostProps = {},
 ): UseBlockPost => {
   const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
   const { onBlockTags, onUnfollowSource, onUnblockTags, onFollowSource } =
     useTagAndSource({
       origin: Origin.TagsFilter,
-      postId: post.id,
+      postId: post?.id,
     });
   const client = useQueryClient();
   const { user } = useAuthContext();
@@ -103,7 +106,7 @@ export const useBlockPost = (
     async (
       blocks: string[],
       unblocks: string[],
-      shouldBlockSource: boolean,
+      shouldBlockSource?: boolean,
     ) => {
       const onUpdateSource = shouldBlockSource
         ? onUnfollowSource
@@ -112,39 +115,33 @@ export const useBlockPost = (
       const results = await Promise.all([
         blocks.length ? onBlockTags({ tags: blocks }) : ignoredCall(),
         unblocks.length ? onUnblockTags({ tags: unblocks }) : ignoredCall(),
-        blockedSource !== shouldBlockSource
-          ? onUpdateSource({ source: post.source })
-          : ignoredCall(),
+        isNullOrUndefined(shouldBlockSource)
+          ? ignoredCall()
+          : onUpdateSource({ source: post.source }),
       ]);
 
       return results.every(({ successful }) => successful);
     },
-    [
-      blockedSource,
-      onFollowSource,
-      onUnfollowSource,
-      onBlockTags,
-      onUnblockTags,
-      post,
-    ],
+    [onFollowSource, onUnfollowSource, onBlockTags, onUnblockTags, post],
   );
 
-  const onUndo = useCallback(async () => {
-    const { blocked = {} } = value;
-    const { blocks } = getParams(blocked.tags);
-    const successful = await updateFeedPreferences(
-      [],
-      blocks,
-      blocked.sourceIncluded,
-    );
+  const onUndo = useCallback(
+    async (blocks: string[], shouldBlockSource?: boolean) => {
+      const successful = await updateFeedPreferences(
+        [],
+        blocks,
+        shouldBlockSource,
+      );
 
-    if (!successful) return;
+      if (!successful) return;
 
-    setShowTagsPanel({
-      showTagsPanel: undefined,
-      blocked: {},
-    });
-  }, [value, setShowTagsPanel, updateFeedPreferences]);
+      setShowTagsPanel({
+        showTagsPanel: undefined,
+        blocked: {},
+      });
+    },
+    [setShowTagsPanel, updateFeedPreferences],
+  );
 
   const onClose = useCallback(
     (forceClose?: boolean) =>
@@ -173,21 +170,61 @@ export const useBlockPost = (
   const onBlock = useCallback(
     async (tags, shouldBlockSource) => {
       const { blocks } = getParams(tags);
+      const hasChangedPreference = blockedSource !== shouldBlockSource;
       const successful = await updateFeedPreferences(
         blocks,
         [],
-        shouldBlockSource,
+        hasChangedPreference ? shouldBlockSource : undefined,
       );
 
       if (!successful) return;
+
+      if (toastOnSuccess) {
+        const sourcePreferenceChanged = blockedSource !== shouldBlockSource;
+        const noAction = blocks.length === 0 && !sourcePreferenceChanged;
+        const onUndoToast = () => {
+          onUndo(
+            blocks,
+            sourcePreferenceChanged ? !shouldBlockSource : undefined,
+          );
+        };
+
+        displayToast(
+          getBlockedMessage(blocks.length, sourcePreferenceChanged),
+          {
+            onUndo: noAction ? onDismissPermanently : onUndoToast,
+            undoCopy: noAction ? `Don't ask again` : 'Undo',
+          },
+        );
+      }
 
       setShowTagsPanel({
         showTagsPanel: toastOnSuccess ? undefined : false,
         blocked: { tags, sourceIncluded: shouldBlockSource },
       });
     },
-    [setShowTagsPanel, updateFeedPreferences, toastOnSuccess],
+    [
+      displayToast,
+      onDismissPermanently,
+      onUndo,
+      blockedSource,
+      setShowTagsPanel,
+      updateFeedPreferences,
+      toastOnSuccess,
+    ],
   );
+
+  const onUndoPanel = useCallback(() => {
+    const { blocked = {} } = value;
+    const { blocks } = getParams(blocked.tags);
+
+    return onUndo(
+      blocks,
+      blockedSource === blocked.sourceIncluded
+        ? undefined
+        : !blocked.sourceIncluded,
+    );
+  }, [value, blockedSource, onUndo]);
 
   return {
     data: value,
@@ -195,7 +232,7 @@ export const useBlockPost = (
     onClose,
     onShowPanel,
     onDismissPermanently,
-    onUndo,
+    onUndo: onUndoPanel,
     onReport,
     onBlock,
   };

@@ -104,7 +104,7 @@ const Toast = ({
             onClick={undoAction}
             aria-label="Undo action"
           >
-            Undo
+            {toast?.undoCopy ?? 'Undo'}
           </Button>
         )}
         <Button
