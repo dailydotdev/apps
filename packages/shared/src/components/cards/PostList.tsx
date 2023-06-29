@@ -45,6 +45,7 @@ export const PostList = forwardRef(function PostList(
       <PostTagsPanel
         className="overflow-hidden h-full max-h-[23.5rem]"
         post={post}
+        toastOnSuccess
       />
     );
   }
