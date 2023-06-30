@@ -6,7 +6,7 @@ import { formToJson } from '../../lib/form';
 import { graphqlUrl } from '../../lib/config';
 import {
   communityLinksGuidelines,
-  submissionGuidelineDocsLink,
+  contentGuidelinesLink,
 } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
 import AuthContext from '../../contexts/AuthContext';
@@ -164,11 +164,11 @@ export default function SubmitArticleModal({
           For more details see our{' '}
           <a
             className="hover:underline text-theme-label-link"
-            href={submissionGuidelineDocsLink}
+            href={contentGuidelinesLink}
             target="_blank"
             rel="noopener"
           >
-            Community Picks submission guidelines
+            content guidelines
           </a>
         </AlertParagraph>
       </Alert>
