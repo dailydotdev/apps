@@ -9,11 +9,11 @@ export interface Props extends ModalProps {
 }
 
 const reportReasons: { value: string; label: string }[] = [
-  { value: 'HATEFUL', label: 'Hateful or Offensive Content' },
-  { value: 'HARASSMENT', label: 'Harassment or Bullying' },
-  { value: 'SPAM', label: 'Spam or Scams' },
-  { value: 'EXPLICIT', label: 'Explicit Sexual Content' },
-  { value: 'MISINFORMATION', label: 'False Information or Misinformation' },
+  { value: 'HATEFUL', label: 'Hateful or offensive content' },
+  { value: 'HARASSMENT', label: 'Harassment or bullying' },
+  { value: 'SPAM', label: 'Spam or scams' },
+  { value: 'EXPLICIT', label: 'Explicit sexual content' },
+  { value: 'MISINFORMATION', label: 'False information or misinformation' },
   { value: 'OTHER', label: 'Other' },
 ];
 
