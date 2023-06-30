@@ -52,6 +52,7 @@ const defaultPostData = {
   title: 'Learn Asynchronus Programming – JavaScript Tutorial',
   trending: true,
   upvoted: true,
+  downvoted: false,
 };
 
 const renderComponent = (postdata, settings): RenderResult => {
@@ -161,5 +162,37 @@ describe('companion app', () => {
     const button = await screen.findByText('1 Comment');
     fireEvent.click(button);
     expect(await screen.findByText('Discussion')).toBeInTheDocument();
+  });
+
+  it('should show downvoted icon unselected', async () => {
+    renderComponent({ downvoted: false, upvoted: true }, {});
+    await screen.findByTestId('companion');
+    const optionsButton = await screen.findByLabelText('More options');
+    fireEvent.click(optionsButton);
+    await screen.findByText('Report');
+    const downvote = await screen.findByLabelText('Downvote');
+    expect(downvote).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('should show downvoted icon selected', async () => {
+    renderComponent({ downvoted: true, upvoted: false }, {});
+    await screen.findByTestId('companion');
+    const optionsButton = await screen.findByLabelText('More options');
+    fireEvent.click(optionsButton);
+    await screen.findByText('Report');
+    const downvote = await screen.findByLabelText('Remove downvote');
+    expect(downvote).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('should decrement number of upvotes if downvoting post that was upvoted', async () => {
+    renderComponent({ downvoted: false, upvoted: true, numUpvotes: 6 }, {});
+    await screen.findByTestId('companion');
+    const optionsButton = await screen.findByLabelText('More options');
+    fireEvent.click(optionsButton);
+    await screen.findByText('Report');
+    const downvote = await screen.findByLabelText('Downvote');
+    fireEvent.click(downvote);
+    await new Promise(process.nextTick);
+    expect(await screen.findByText('5 Upvotes')).toBeInTheDocument();
   });
 });
