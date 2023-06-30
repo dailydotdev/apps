@@ -56,6 +56,7 @@ import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
 import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { LazyModalElement } from './modals/LazyModalElement';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -85,6 +86,16 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
   variables = defaultVariables;
+});
+
+const originalScrollTo = window.scrollTo;
+
+beforeAll(() => {
+  window.scrollTo = jest.fn();
+});
+
+afterAll(() => {
+  window.scrollTo = originalScrollTo;
 });
 
 const createTagsSettingsMock = (
@@ -170,6 +181,7 @@ const renderComponent = (
             loginState: null,
           }}
         >
+          <LazyModalElement />
           <SettingsContext.Provider value={settingsContext}>
             <OnboardingContext.Provider
               value={{
