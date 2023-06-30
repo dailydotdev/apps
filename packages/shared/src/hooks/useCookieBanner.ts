@@ -12,12 +12,14 @@ export function useCookieBanner(): [
   const [showCookie, setShowCookie] = useState(false);
 
   const acceptCookies = (): void => {
+    const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
+
     setShowCookie(false);
     setCookie(consentCookieName, true, {
       path: '/',
       domain: process.env.NEXT_PUBLIC_DOMAIN,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 365 * 10,
+      maxAge: TEN_YEARS,
     });
   };
 

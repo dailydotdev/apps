@@ -65,8 +65,10 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
   }, [user?.id, router]);
 
   useEffect(() => {
+    const ONE_YEAR = 1 * 365 * 24 * 60 * 60;
+
     setCookie('join_referral', `${referringUser.id}:${campaign}`, {
-      maxAge: 1 * 365 * 24 * 60 * 60,
+      maxAge: ONE_YEAR,
       secure: !isDevelopment,
       domain: process.env.NEXT_PUBLIC_DOMAIN,
       sameSite: 'lax',
