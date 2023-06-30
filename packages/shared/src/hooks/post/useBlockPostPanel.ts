@@ -17,9 +17,6 @@ import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
 import { useToastNotification } from '../useToastNotification';
-import useReportPost from '../useReportPost';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 
 interface BlockData {
   showTagsPanel?: boolean;
@@ -95,8 +92,6 @@ export const useBlockPostPanel = (
       })),
     [client, key],
   );
-  const { reportPost } = useReportPost();
-  const { trackEvent } = useAnalyticsContext();
 
   const value = useMemo<BlockData>(
     () => ({
@@ -168,38 +163,10 @@ export const useBlockPostPanel = (
   const onReport = useCallback(() => {
     openModal({
       type: LazyModal.ReportPost,
-      props: {
-        post,
-        onReport: async (
-          reportPostIndex,
-          reportedPost,
-          reason,
-          comment,
-          blockSource,
-          tags,
-        ): Promise<void> => {
-          const { successful } = await reportPost({
-            id: reportedPost?.id,
-            reason,
-            comment,
-            tags,
-          });
-
-          if (!successful) {
-            return;
-          }
-
-          trackEvent(
-            postAnalyticsEvent('report post', reportedPost, {
-              extra: { origin: Origin.TagsFilter },
-            }),
-          );
-        },
-        postIndex: -1,
-      },
+      props: { post, origin: Origin.TagsFilter },
     });
     setShowTagsPanel({ showTagsPanel: false });
-  }, [openModal, setShowTagsPanel, post, reportPost, trackEvent]);
+  }, [openModal, setShowTagsPanel, post]);
 
   const onBlock = useCallback(
     async (tags, shouldBlockSource) => {

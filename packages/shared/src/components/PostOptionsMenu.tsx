@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryKey, useQueryClient } from 'react-query';
@@ -6,13 +6,13 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post, ReportReason } from '../graphql/posts';
+import { Post } from '../graphql/posts';
 import TrashIcon from './icons/Trash';
 import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import ReportPostModal from './modals/ReportPostModal';
+import { ReportedCallback } from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -31,6 +31,8 @@ import { PinIcon } from './icons';
 import { getPostByIdKey } from '../hooks/usePostById';
 import EditIcon from './icons/Edit';
 import DownvoteIcon from './icons/Downvote';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -58,15 +60,6 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   allowPin?: boolean;
 }
 
-type ReportPostAsync = (
-  postIndex: number,
-  post: Post,
-  reason: ReportReason,
-  comment: string,
-  blockSource: boolean,
-  tags: string[],
-) => Promise<unknown>;
-
 export default function PostOptionsMenu({
   onBookmark,
   postIndex,
@@ -86,7 +79,8 @@ export default function PostOptionsMenu({
   const { displayToast } = useToastNotification();
   const { feedSettings } = useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { reportPost, hidePost, unhidePost } = useReportPost();
+  const { hidePost, unhidePost } = useReportPost();
+  const { openModal } = useLazyModal();
   const {
     onFollowSource,
     onUnfollowSource,
@@ -98,10 +92,6 @@ export default function PostOptionsMenu({
     postId: post?.id,
     shouldInvalidateQueries: false,
   });
-  const [reportModal, setReportModal] = useState<{
-    index?: number;
-    post?: Post;
-  }>();
 
   const showMessageAndRemovePost = async (
     message: string,
@@ -154,34 +144,13 @@ export default function PostOptionsMenu({
       origin,
     });
 
-  const onReportPost: ReportPostAsync = async (
-    reportPostIndex,
+  const onReportedPost: ReportedCallback = async (
     reportedPost,
-    reason,
-    comment,
-    blockSource,
-    tags,
+    { index, shouldBlockSource },
   ): Promise<void> => {
-    const { successful } = await reportPost({
-      id: reportedPost?.id,
-      reason,
-      comment,
-      tags,
-    });
+    showMessageAndRemovePost('🚨 Thanks for reporting!', index);
 
-    if (!successful) {
-      return;
-    }
-
-    trackEvent(
-      postAnalyticsEvent('report post', reportedPost, {
-        extra: { origin: Origin.PostContextMenu },
-      }),
-    );
-
-    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
-
-    if (blockSource) {
+    if (shouldBlockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
     }
   };
@@ -288,7 +257,16 @@ export default function PostOptionsMenu({
   postOptions.push({
     icon: <MenuIcon Icon={FlagIcon} />,
     text: 'Report',
-    action: async () => setReportModal({ index: postIndex, post }),
+    action: async () =>
+      openModal({
+        type: LazyModal.ReportPost,
+        props: {
+          index: postIndex,
+          post,
+          onReported: onReportedPost,
+          origin: Origin.PostContextMenu,
+        },
+      }),
   });
   if (post?.author?.id === user?.id) {
     postOptions.push({
@@ -335,15 +313,6 @@ export default function PostOptionsMenu({
           </Item>
         ))}
       </PortalMenu>
-      {reportModal && (
-        <ReportPostModal
-          isOpen={!!reportModal}
-          postIndex={reportModal.index}
-          post={reportModal.post}
-          onReport={onReportPost}
-          onRequestClose={() => setReportModal(null)}
-        />
-      )}
     </>
   );
 }

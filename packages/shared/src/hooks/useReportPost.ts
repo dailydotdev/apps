@@ -11,6 +11,7 @@ import { graphqlUrl } from '../lib/config';
 import AuthContext from '../contexts/AuthContext';
 import { BooleanPromise } from '../components/filters/common';
 import { AuthTriggers } from '../lib/auth';
+import { useRequestProtocol } from './useRequestProtocol';
 
 type UseReportPostRet = {
   reportPost: (variables: {
@@ -31,11 +32,12 @@ interface ReportPostProps {
 
 export default function useReportPost(): UseReportPostRet {
   const { user, showLogin } = useContext(AuthContext);
+  const { requestMethod } = useRequestProtocol();
   const { mutateAsync: reportPostAsync } = useMutation<
     void,
     unknown,
     ReportPostProps
-  >((variables) => request(graphqlUrl, REPORT_POST_MUTATION, variables));
+  >((variables) => requestMethod(graphqlUrl, REPORT_POST_MUTATION, variables));
 
   const { mutateAsync: hidePostAsync } = useMutation<void, unknown, string>(
     (id) => request(graphqlUrl, HIDE_POST_MUTATION, { id }),

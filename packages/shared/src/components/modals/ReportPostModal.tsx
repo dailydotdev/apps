@@ -14,11 +14,26 @@ import { Button, ButtonSize } from '../buttons/Button';
 import { PostBootData } from '../../lib/boot';
 import { Modal, ModalProps } from './common/Modal';
 import { FlexRow } from '../utilities';
+import useReportPost from '../../hooks/useReportPost';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { Origin } from '../../lib/analytics';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+
+interface OptionalProps {
+  index?: number;
+  shouldBlockSource?: boolean;
+}
+
+export type ReportedCallback = (
+  post: Post | PostBootData,
+  options: OptionalProps,
+) => void;
 
 export interface Props extends ModalProps {
-  postIndex: number;
+  index?: number;
+  origin: Origin;
   post: Post | PostBootData;
-  onReport: (postIndex, postId, reason, comment, blockSource, tags) => unknown;
+  onReported?: ReportedCallback;
 }
 
 const reportReasons: { value: string; label: string }[] = [
@@ -73,11 +88,13 @@ const reportReasonsMap: Partial<
 };
 
 export default function ReportPostModal({
-  postIndex,
+  index,
   post,
-  onReport,
+  origin,
+  onReported,
   ...props
 }: Props): ReactElement {
+  const { trackEvent } = useAnalyticsContext();
   const [reason, setReason] = useState(null);
   const [comment, setComment] = useState<string>();
   const inputRef = useRef<HTMLInputElement>();
@@ -104,15 +121,20 @@ export default function ReportPostModal({
     });
   }, [reason, post, selectedTags]);
 
+  const { reportPost } = useReportPost();
   const onReportPost = async (event: MouseEvent): Promise<void> => {
-    onReport(
-      postIndex,
-      post,
+    const { successful } = await reportPost({
+      id: post.id,
       reason,
       comment,
-      inputRef.current?.checked,
-      selectedTags,
-    );
+      tags: selectedTags,
+    });
+
+    if (!successful) return;
+
+    trackEvent(postAnalyticsEvent('report post', post, { extra: { origin } }));
+
+    onReported(post, { index, shouldBlockSource: inputRef.current?.checked });
     props.onRequestClose(event);
   };
 
