@@ -1,6 +1,7 @@
 import { IFlags } from 'flagsmith';
 import { FeatureValue } from './featureManagement';
 import { isPreviewDeployment } from './links';
+import { isNullOrUndefined } from './func';
 
 export const COOKIE_FEATURES_KEY = 'preview:featuresFlags';
 
@@ -35,19 +36,25 @@ export const getCookieFeatureFlags = (): Record<string, FeatureValue> => {
   }
 };
 
+export type CookieOptions = {
+  domain: string;
+  expires: Date | string;
+  maxAge: number;
+  partitioned: boolean;
+  path: string;
+  sameSite: 'lax' | 'strict' | 'none';
+  secure: boolean;
+};
+
 export const setCookie = (
   name: string,
   value: string | number | boolean,
-  options: Partial<{
-    domain: string;
-    expires: Date | string;
-    maxAge: number;
-    partitioned: boolean;
-    path: string;
-    sameSite: 'lax' | 'strict' | 'none';
-    secure: boolean;
-  }> = {},
+  options: Partial<CookieOptions> = {},
 ): void => {
+  if (typeof document === 'undefined') {
+    throw new Error('can only be used in the browser environment');
+  }
+
   if (!name || !value) {
     throw new Error('name and value are required');
   }
@@ -68,7 +75,7 @@ export const setCookie = (
   const cookieValue: string = Object.keys(parsedOptions).reduce((acc, key) => {
     const option = parsedOptions[key];
 
-    if (typeof option === 'undefined') {
+    if (isNullOrUndefined(option)) {
       return acc;
     }
 
