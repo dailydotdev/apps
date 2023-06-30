@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { useBlockPost } from '../../../hooks/post/useBlockPost';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { Post } from '../../../graphql/posts';
 import { isNullOrUndefined } from '../../../lib/func';
 import { PostBlockedPanel } from './PostBlockedPanel';
@@ -42,7 +42,7 @@ export function PostTagsPanel({
     onReport,
     onUndo,
     onDismissPermanently,
-  } = useBlockPost(post, {
+  } = useBlockPostPanel(post, {
     toastOnSuccess,
     blockedSource: initialPreference,
   });

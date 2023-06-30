@@ -13,7 +13,7 @@ import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
 import { Container, PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
-import { useBlockPost } from '../../hooks/post/useBlockPost';
+import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 
 export const ArticlePostCard = forwardRef(function PostCard(
@@ -39,7 +39,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { data } = useBlockPost(post);
+  const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};

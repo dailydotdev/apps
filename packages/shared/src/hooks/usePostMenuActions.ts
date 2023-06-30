@@ -10,7 +10,7 @@ import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import useUpdatePost from './useUpdatePost';
-import { useBlockPost } from './post/useBlockPost';
+import { useBlockPostPanel } from './post/useBlockPostPanel';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
@@ -84,7 +84,7 @@ export const usePostMenuActions = ({
     { onSuccess: onPinSuccessful },
   );
 
-  const { onClose, onShowPanel } = useBlockPost(post);
+  const { onClose, onShowPanel } = useBlockPostPanel(post);
 
   const onDownvoteMutate =
     post &&

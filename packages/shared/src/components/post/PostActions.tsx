@@ -19,7 +19,7 @@ import DownvoteIcon from '../icons/Downvote';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';
-import { useBlockPost } from '../../hooks/post/useBlockPost';
+import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 
 export interface ShareBookmarkProps {
   onShare: (post: Post) => void;
@@ -45,7 +45,7 @@ export function PostActions({
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const { updatePost } = useUpdatePost();
-  const { data, onShowPanel, onClose } = useBlockPost(post);
+  const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const onDownvoteMutate = updatePost({
     id: post.id,

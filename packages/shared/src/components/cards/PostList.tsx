@@ -14,7 +14,7 @@ import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
 import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
-import { useBlockPost } from '../../hooks/post/useBlockPost';
+import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -36,7 +36,7 @@ export const PostList = forwardRef(function PostList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { data } = useBlockPost(post);
+  const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
 

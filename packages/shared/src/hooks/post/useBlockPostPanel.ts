@@ -63,7 +63,7 @@ const getParams = (tags: BlockTagSelection): Params => {
 
 const ignoredCall = () => Promise.resolve({ successful: true });
 
-export const useBlockPost = (
+export const useBlockPostPanel = (
   post: Post,
   { toastOnSuccess, blockedSource }: UseBlockPostProps = {},
 ): UseBlockPost => {
