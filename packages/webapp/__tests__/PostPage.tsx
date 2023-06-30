@@ -733,9 +733,6 @@ describe('downvote flow', () => {
     },
   });
 
-  const next10ms = () =>
-    act(() => new Promise((resolve) => setTimeout(resolve, 10)));
-
   const prepareDownvote = async () => {
     let queryCalled = false;
     renderPost({}, [
@@ -756,9 +753,9 @@ describe('downvote flow', () => {
     const downvote = await screen.findByLabelText('Downvote');
     fireEvent.click(downvote);
     await new Promise(process.nextTick);
-    await waitFor(() => queryCalled);
-    await next10ms();
-    expect(queryCalled).toBeTruthy();
+    await act(async () => {
+      await waitFor(() => expect(queryCalled).toBeTruthy());
+    });
   };
 
   it('should display the tags to block panel', async () => {
@@ -790,8 +787,7 @@ describe('downvote flow', () => {
     });
     const dontAskAgain = await screen.findByText("Don't ask again");
     fireEvent.click(dontAskAgain);
-    await next10ms();
-    expect(mutationCalled).toBeTruthy();
+    await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
   it('should display the correct blocked tags count and update filters', async () => {
@@ -812,8 +808,7 @@ describe('downvote flow', () => {
     });
     const block = await screen.findByText('Block');
     fireEvent.click(block);
-    await next10ms();
-    expect(mutationCalled).toBeTruthy();
+    await waitFor(() => expect(mutationCalled).toBeTruthy());
     await screen.findByText('1 topic was blocked');
     let undoMutationCalled = true;
     mockGraphQL({
@@ -828,7 +823,6 @@ describe('downvote flow', () => {
     });
     const undo = await screen.findByText('Undo');
     fireEvent.click(undo);
-    await next10ms();
-    expect(undoMutationCalled).toBeTruthy();
+    await waitFor(() => expect(undoMutationCalled).toBeTruthy());
   });
 });
