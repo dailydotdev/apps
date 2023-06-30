@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-const withPreact = require('next-plugin-preact');
+const withPreact = (config) => config
 const withPWA = require('next-pwa');
 const withTM = require('next-transpile-modules')(['@dailydotdev/shared']);
 const sharedPackage = require('../shared/package.json');
