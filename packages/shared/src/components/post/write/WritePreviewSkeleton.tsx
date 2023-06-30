@@ -12,13 +12,15 @@ import {
 
 interface WritePreviewSkeletonProps {
   link: string;
+  className?: string;
 }
 
 export function WritePreviewSkeleton({
   link,
+  className,
 }: WritePreviewSkeletonProps): ReactElement {
   return (
-    <WritePreviewContainer>
+    <WritePreviewContainer className={className}>
       <TextField
         leftIcon={<Loader className="mr-2" />}
         label="URL"

@@ -18,20 +18,17 @@ import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
-import NewCommentModal from '@dailydotdev/shared/src/components/modals/comment/NewCommentModal';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import PostToSquadModal, {
-  PostToSquadModalProps,
-} from '@dailydotdev/shared/src/components/modals/PostToSquadModal';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import CreateSharedPostModal, {
+  CreateSharedPostModalProps,
+} from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
-import { useCompanionPostComment } from './useCompanionPostComment';
 import CompanionToggle from './CompanionToggle';
-import { companionRequest } from './companionRequest';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -54,7 +51,6 @@ export default function CompanionMenu({
   companionState,
   onOptOut,
   setCompanionState,
-  onOpenComments,
 }: CompanionMenuProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -97,8 +93,6 @@ export default function CompanionMenu({
     onRemoveUpvoteMutate: () =>
       updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
   });
-  const { parentComment, closeNewComment, openNewComment, onInput } =
-    useCompanionPostComment(post, { onCommentSuccess: onOpenComments });
 
   /**
    * Use a cleanup effect to always set the local cache helper state to false on destroy
@@ -218,7 +212,7 @@ export default function CompanionMenu({
           className="btn-tertiary-blueCheese"
           pressed={post?.commented}
           icon={<CommentIcon />}
-          onClick={() => openNewComment('comment button')}
+          onClick={() => setCompanionState(true)}
         />
       </SimpleTooltip>
       <SimpleTooltip
@@ -265,16 +259,6 @@ export default function CompanionMenu({
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
       />
-      {parentComment && (
-        <NewCommentModal
-          isOpen={!!parentComment}
-          parentSelector={getCompanionWrapper}
-          onRequestClose={closeNewComment}
-          onInputChange={onInput}
-          parentComment={parentComment}
-          post={post}
-        />
-      )}
       {sharePost && (
         <ShareModal
           isOpen={!!sharePost}
@@ -284,13 +268,12 @@ export default function CompanionMenu({
           onRequestClose={closeSharePost}
         />
       )}
-      {modal?.type === LazyModal.PostToSquad && (
-        <PostToSquadModal
+      {modal?.type === LazyModal.CreateSharedPost && (
+        <CreateSharedPostModal
           isOpen
           parentSelector={getCompanionWrapper}
-          requestMethod={companionRequest}
           onRequestClose={closeModal}
-          {...(modal.props as PostToSquadModalProps)}
+          {...(modal.props as CreateSharedPostModalProps)}
         />
       )}
     </div>

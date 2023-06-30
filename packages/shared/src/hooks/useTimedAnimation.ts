@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isNullOrUndefined } from '../lib/func';
 import useDebounce from './useDebounce';
 
@@ -37,35 +37,38 @@ export const useTimedAnimation = ({
     interval.current = null;
   };
 
-  const endAnimation = () => {
+  const endAnimation = useCallback(() => {
     if (!interval.current) {
       return;
     }
 
     setTimer(0);
-  };
+  }, []);
 
-  const startAnimation = (duration: number) => {
-    if (isNullOrUndefined(duration) || duration <= 0) {
-      return;
-    }
+  const startAnimation = useCallback(
+    (duration: number) => {
+      if (isNullOrUndefined(duration) || duration <= 0) {
+        return;
+      }
 
-    setTimer(duration);
-    clearInterval();
+      setTimer(duration);
+      clearInterval();
 
-    if (!autoEndAnimation) {
-      interval.current = MANUAL_DISMISS_ANIMATION_ID;
-      return;
-    }
+      if (!autoEndAnimation) {
+        interval.current = MANUAL_DISMISS_ANIMATION_ID;
+        return;
+      }
 
-    interval.current = window.setInterval(
-      () =>
-        setTimer((current) =>
-          PROGRESS_INTERVAL >= current ? 0 : current - PROGRESS_INTERVAL,
-        ),
-      PROGRESS_INTERVAL,
-    );
-  };
+      interval.current = window.setInterval(
+        () =>
+          setTimer((current) =>
+            PROGRESS_INTERVAL >= current ? 0 : current - PROGRESS_INTERVAL,
+          ),
+        PROGRESS_INTERVAL,
+      );
+    },
+    [autoEndAnimation],
+  );
 
   useEffect(() => {
     // when the timer ends we need to do cleanups
@@ -85,8 +88,6 @@ export const useTimedAnimation = ({
       endAnimation,
       startAnimation,
     }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [timer],
+    [timer, endAnimation, startAnimation],
   );
 };

@@ -1,9 +1,9 @@
 import React, { HTMLAttributes, ReactElement, ReactHTML } from 'react';
 import classNames from 'classnames';
-import classed, { ClassedHTML } from '../lib/classed';
+import classed, { ClassedHTML } from '../../lib/classed';
 import styles from './utilities.module.css';
-import ArrowIcon from './icons/Arrow';
-import { PostBootData } from '../lib/boot';
+import ArrowIcon from '../icons/Arrow';
+import { PostBootData } from '../../lib/boot';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -21,6 +21,7 @@ export enum Justify {
   End = 'justify-end',
   Center = 'justify-center',
   Between = 'justify-between',
+  Start = 'justify-start',
 }
 
 export interface ThemeColor {
@@ -142,7 +143,7 @@ export const PageContainer = classed(
 
 export const PageWidgets = classed(
   'aside',
-  'flex flex-col gap-6 px-6 w-full max-w-full',
+  'flex flex-col gap-6 px-4 w-full max-w-full',
   'tablet:w-[18.75rem] tablet:max-w-[18.75rem]',
   'laptop:w-[21.25rem] laptop:max-w-[21.25rem]',
 );
@@ -266,20 +267,4 @@ export const getContextBottomPosition = (
   const { right, bottom } = e.currentTarget.getBoundingClientRect();
 
   return { x: right, y: bottom + 4 };
-};
-
-const DividerBase = classed('span', 'bg-theme-divider-primary');
-
-export const Divider = ({
-  className,
-  vertical = false,
-}: {
-  className?: string;
-  vertical?: boolean;
-}): ReactElement => {
-  if (vertical) {
-    return <DividerBase className={classNames(className, 'w-px h-5')} />;
-  }
-
-  return <DividerBase className={classNames(className, 'h-px w-full')} />;
 };

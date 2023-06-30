@@ -2,15 +2,17 @@ import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { InfiniteReadingHistory } from '../../post/infinite';
 import { PostItem } from '../../../graphql/posts';
-import { usePublicReadingHistory } from '../../../hooks/post/usePublicReadingHistory';
+import { usePublicReadingHistory } from '../../../hooks/post';
 import { ReadingHistoryTitle } from './ReadingHistoryTitle';
 import ReadingHistoryPlaceholder from '../../history/ReadingHistoryPlaceholder';
 
 interface ReadingHistoryModalProps extends ModalProps {
   onArticleSelected: (post: PostItem) => void;
+  keepOpenAfterSelecting?: boolean;
 }
 
 export function ReadingHistoryModal({
+  keepOpenAfterSelecting,
   onArticleSelected,
   onRequestClose,
 }: ReadingHistoryModalProps): ReactElement {
@@ -27,7 +29,7 @@ export function ReadingHistoryModal({
 
   const onClick = (e: React.MouseEvent, post: PostItem) => {
     onArticleSelected(post);
-    onRequestClose(e);
+    if (!keepOpenAfterSelecting) onRequestClose(e);
   };
 
   return (

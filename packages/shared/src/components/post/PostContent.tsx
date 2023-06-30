@@ -9,7 +9,6 @@ import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigationProps } from './PostNavigation';
 import { PostModalActionsProps } from './PostModalActions';
-import { UsePostCommentOptionalProps } from '../../hooks/usePostComment';
 import {
   ToastSubject,
   useToastNotification,
@@ -30,8 +29,8 @@ export type PassedPostNavigationProps = Pick<
 
 export interface PostContentProps
   extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
-    PassedPostNavigationProps,
-    UsePostCommentOptionalProps {
+    PassedPostNavigationProps {
+  enableShowShareNewComment?: boolean;
   post?: Post;
   isFallback?: boolean;
   className?: PostContentClassName;
@@ -39,6 +38,7 @@ export interface PostContentProps
   shouldOnboardAuthor?: boolean;
   customNavigation?: ReactNode;
   position?: CSSProperties['position'];
+  backToSquad?: boolean;
 }
 
 export const SCROLL_OFFSET = 80;
@@ -64,6 +64,7 @@ export function PostContent({
   isFallback,
   customNavigation,
   onRemovePost,
+  backToSquad,
 }: PostContentProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -111,6 +112,10 @@ export function PostContent({
         <BasePostContent
           className={{
             ...className,
+            onboarding: classNames(
+              className?.onboarding,
+              backToSquad && 'mb-6',
+            ),
             navigation: {
               actions: className?.navigation?.actions,
               container: classNames('pt-6', className?.navigation?.container),

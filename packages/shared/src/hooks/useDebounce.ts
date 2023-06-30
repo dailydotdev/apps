@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useMemo } from 'react';
 
-type StartFn<T> = (params?: T) => void;
-type CancelEvent = () => void;
+export type StartFn<T, R = void> = (params?: T) => R;
+export type CancelEvent = () => void;
 
 export default function useDebounce<T = unknown>(
   callback: StartFn<T>,

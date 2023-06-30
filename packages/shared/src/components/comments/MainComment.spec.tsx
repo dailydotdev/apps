@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
+import { render, RenderResult, screen } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
@@ -7,10 +7,9 @@ import MainComment, { MainCommentProps } from './MainComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
+import { Origin } from '../../lib/analytics';
 
-const onComment = jest.fn();
 const onDelete = jest.fn();
-const onEdit = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -23,11 +22,12 @@ const renderLayout = (
   const defaultProps: MainCommentProps = {
     post,
     comment,
-    onComment,
     onDelete,
-    onEdit,
     postAuthorId: null,
     postScoutId: null,
+    onShare: jest.fn(),
+    onShowUpvotes: jest.fn(),
+    origin: Origin.PostCommentButton,
   };
 
   const client = new QueryClient();
@@ -107,11 +107,12 @@ it('should have subcomments', async () => {
   expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
 });
 
-it('should call onComment callback', async () => {
-  renderLayout();
+it('should render the comment box', async () => {
+  renderLayout({}, loggedUser);
   const el = await screen.findByLabelText('Comment');
   el.click();
-  expect(onComment).toBeCalledWith(comment, 'c1');
+  const [commentBox] = await screen.findAllByRole('textbox');
+  expect(commentBox).toBeInTheDocument();
 });
 
 it('should call onDelete callback', async () => {

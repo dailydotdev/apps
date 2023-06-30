@@ -12,6 +12,7 @@ export enum ModalKind {
   FlexibleCenter = 'flexible-center',
   FlexibleTop = 'flexible-top',
   FixedCenter = 'fixed-center',
+  FixedBottom = 'fixed-bottom',
 }
 
 export enum ModalSize {
@@ -25,13 +26,13 @@ export enum ModalSize {
 export enum LazyModal {
   EditSquad = 'editSquad',
   NewSquad = 'newSquad',
-  PostToSquad = 'postToSquad',
   SquadMember = 'squadMember',
   SquadTour = 'squadTour',
   UpvotedPopup = 'upvotedPopup',
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   LegoReferralCampaign = 'legoReferralCampaign',
+  CreateSharedPost = 'createSharedPost',
 }
 
 export type ModalTabItem = {
