@@ -134,7 +134,10 @@ export default function ReportPostModal({
 
     trackEvent(postAnalyticsEvent('report post', post, { extra: { origin } }));
 
-    onReported(post, { index, shouldBlockSource: inputRef.current?.checked });
+    if (typeof onReported === 'function') {
+      onReported(post, { index, shouldBlockSource: inputRef.current?.checked });
+    }
+
     props.onRequestClose(event);
   };
 
