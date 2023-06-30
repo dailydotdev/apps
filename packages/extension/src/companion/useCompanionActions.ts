@@ -5,7 +5,6 @@ import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
-  REPORT_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
@@ -30,7 +29,6 @@ type UseCompanionActionsParams<T> = {
   | 'onCancelPostDownvoteMutate'
 >;
 type UseCompanionActionsRet<T> = {
-  report: (variables: T) => Promise<void>;
   blockSource: (variables: T) => Promise<void>;
   bookmark: (variables: T) => Promise<void>;
   removeBookmark: (variables: T) => Promise<void>;
@@ -59,20 +57,6 @@ export default function useCompanionActions<
   onDownvotePostMutate,
   onCancelPostDownvoteMutate,
 }: UseCompanionActionsParams<T>): UseCompanionActionsRet<T> {
-  const { mutateAsync: report } = useMutation<
-    void,
-    unknown,
-    T,
-    (() => void) | undefined
-  >(({ id, reason, comment, tags }) =>
-    companionRequest(graphqlUrl, REPORT_POST_MUTATION, {
-      id,
-      reason,
-      comment,
-      tags,
-    }),
-  );
-
   const { mutateAsync: blockSource } = useMutation<
     void,
     unknown,
@@ -183,7 +167,6 @@ export default function useCompanionActions<
 
   return useMemo(
     () => ({
-      report,
       blockSource,
       bookmark,
       removeBookmark,
@@ -196,7 +179,6 @@ export default function useCompanionActions<
       toggleCompanionExpanded,
     }),
     [
-      report,
       blockSource,
       bookmark,
       removeBookmark,

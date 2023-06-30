@@ -24,7 +24,6 @@ import { getCompanionWrapper } from './common';
 interface CompanionContextMenuProps
   extends Omit<ShareBookmarkProps, 'onBookmark'> {
   postData: PostBootData;
-  onReport: (T) => void;
   onBlockSource: (T) => void;
   onDisableCompanion: () => void;
   onDownvote: () => void;

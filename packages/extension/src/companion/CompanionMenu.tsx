@@ -82,7 +82,6 @@ export default function CompanionMenu({
     cancelPostUpvote,
     downvotePost,
     cancelPostDownvote,
-    report,
     blockSource,
     disableCompanion,
     removeCompanionHelper,
@@ -296,7 +295,6 @@ export default function CompanionMenu({
       <CompanionContextMenu
         onShare={onShare}
         postData={post}
-        onReport={report}
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
         onDownvote={toggleDownvote}
