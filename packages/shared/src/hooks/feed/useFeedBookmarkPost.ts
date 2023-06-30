@@ -9,8 +9,8 @@ import {
 import { Post } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postEventName } from '../../components/utilities';
 import { AuthTriggers } from '../../lib/auth';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 export default function useFeedBookmarkPost(
   items: FeedItem[],
@@ -55,7 +55,9 @@ export default function useFeedBookmarkPost(
     }
     trackEvent(
       postAnalyticsEvent(
-        postEventName({ bookmarked: targetBookmarkState }),
+        targetBookmarkState
+          ? AnalyticsEvent.BookmarkPost
+          : AnalyticsEvent.RemovePostBookmark,
         post,
         {
           columns,

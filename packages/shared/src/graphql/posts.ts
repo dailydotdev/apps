@@ -76,6 +76,7 @@ export interface Post {
   type: PostType;
   private?: boolean;
   feedMeta?: string;
+  downvoted?: boolean;
 }
 
 export interface Ad {
@@ -289,8 +290,13 @@ export const POSTS_ENGAGED_SUBSCRIPTION = gql`
 `;
 
 export const REPORT_POST_MUTATION = gql`
-  mutation ReportPost($id: ID!, $reason: ReportReason!, $comment: String) {
-    reportPost(id: $id, reason: $reason, comment: $comment) {
+  mutation ReportPost(
+    $id: ID!
+    $reason: ReportReason!
+    $comment: String
+    $tags: [String!]
+  ) {
+    reportPost(id: $id, reason: $reason, comment: $comment, tags: $tags) {
       _
     }
   }
@@ -568,3 +574,19 @@ export const uploadContentImage = async (
 
   return res.uploadContentImage;
 };
+
+export const DOWNVOTE_MUTATION = gql`
+  mutation Downvote($id: ID!) {
+    downvote(id: $id) {
+      _
+    }
+  }
+`;
+
+export const CANCEL_DOWNVOTE_MUTATION = gql`
+  mutation CancelDownvote($id: ID!) {
+    cancelDownvote(id: $id) {
+      _
+    }
+  }
+`;
