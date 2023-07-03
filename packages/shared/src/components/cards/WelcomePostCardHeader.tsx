@@ -38,7 +38,7 @@ export const WelcomePostCardHeader = ({
         <PostMetadata
           className="break-words line-clamp-1"
           createdAt={createdAt}
-          description={`@${author.username}`}
+          description={enableSourceHeader ? `@${author.username}` : author.name}
         />
       </div>
     </div>
