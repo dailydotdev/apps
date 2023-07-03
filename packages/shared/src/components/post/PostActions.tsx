@@ -47,6 +47,10 @@ export function PostActions({
   const { updatePost } = useUpdatePost();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
+  const onUpvotePostMutate = updatePost({
+    id: post.id,
+    update: mutationHandlers.upvote(post),
+  });
   const onDownvoteMutate = updatePost({
     id: post.id,
     update: mutationHandlers.downvote(post),
@@ -57,10 +61,10 @@ export function PostActions({
   });
   const { upvotePost, cancelPostUpvote, downvotePost, cancelPostDownvote } =
     useVotePost({
-      onUpvotePostMutate: updatePost({
-        id: post.id,
-        update: mutationHandlers.upvote(post),
-      }),
+      onUpvotePostMutate: (params) => {
+        onClose(true);
+        return onUpvotePostMutate(params);
+      },
       onCancelPostUpvoteMutate: updatePost({
         id: post.id,
         update: mutationHandlers.cancelUpvote(post),
