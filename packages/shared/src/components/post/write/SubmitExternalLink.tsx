@@ -63,6 +63,7 @@ export function SubmitExternalLink({
         inputId="url"
         type="url"
         label={label}
+        required
         fieldType="tertiary"
         leftIcon={<LinkIcon />}
         onBlur={() => !url?.length && setUrl(undefined)}

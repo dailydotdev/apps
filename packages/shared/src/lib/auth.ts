@@ -42,6 +42,7 @@ export enum AuthTriggers {
   RanksModal = 'ranks modal',
   Onboarding = 'onboarding',
   SubmitNewSource = 'submit new source',
+  Downvote = 'downvote',
 }
 
 // Needed for the AB flagged Sidebar items

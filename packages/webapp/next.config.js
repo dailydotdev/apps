@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-const withPreact = require('next-plugin-preact');
 const withPWA = require('next-pwa');
 const withTM = require('next-transpile-modules')(['@dailydotdev/shared']);
 const sharedPackage = require('../shared/package.json');
@@ -16,8 +15,7 @@ module.exports = withTM(
       dest: 'public',
       disable: process.env.NODE_ENV === 'development',
     },
-    ...withPreact(
-      withBundleAnalyzer({
+    ...withBundleAnalyzer({
         i18n: {
           locales: ["en"],
           defaultLocale: "en",
@@ -87,6 +85,5 @@ module.exports = withTM(
         reactStrictMode: false,
         productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
       }),
-    ),
   }),
 );

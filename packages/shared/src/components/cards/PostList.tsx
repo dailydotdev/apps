@@ -13,6 +13,8 @@ import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
 import FeedItemContainer from './FeedItemContainer';
+import { PostTagsPanel } from '../post/block/PostTagsPanel';
+import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -34,8 +36,19 @@ export const PostList = forwardRef(function PostList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
+
+  if (data?.showTagsPanel && post.tags.length > 0) {
+    return (
+      <PostTagsPanel
+        className="overflow-hidden h-full max-h-[23.5rem]"
+        post={post}
+        toastOnSuccess
+      />
+    );
+  }
 
   return (
     <FeedItemContainer

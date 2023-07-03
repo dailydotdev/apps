@@ -2,7 +2,13 @@ import React from 'react';
 import nock from 'nock';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import {
@@ -101,9 +107,10 @@ it('should change user all email subscription', async () => {
   mockGraphQL(updateProfileMock(data));
   const subscription = await screen.findByTestId('email_notification-switch');
   expect(subscription).not.toBeChecked();
-  subscription.click();
-  await waitForNock();
-  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+  fireEvent.click(subscription);
+  await waitFor(() =>
+    expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data }),
+  );
 });
 
 it('should change user email marketing subscription', async () => {
