@@ -134,7 +134,7 @@ module.exports = {
       'img-mobile': '280px',
       'rank-modal': 'calc(100vh - 5rem)',
       page: 'calc(100vh - 3.5rem)',
-      textarea: '292px',
+      commentBox: '18.25rem',
     },
     minHeight: {
       page: 'calc(100vh - 3.5rem)',
