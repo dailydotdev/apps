@@ -211,7 +211,7 @@ function MarkdownInput(
                 {...callbacks}
                 ref={textareaRef}
                 className={classNames(
-                  'flex flex-1 bg-transparent outline-none typo-body placeholder-theme-label-quaternary',
+                  'flex flex-1 bg-transparent outline-none typo-body placeholder-theme-label-quaternary max-h-commentBox',
                   showUserAvatar ? 'm-3' : 'm-4',
                   className?.input,
                 )}
