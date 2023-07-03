@@ -7,17 +7,18 @@ import React, {
   SetStateAction,
   Dispatch,
 } from 'react';
-import { Radio, RadioOption } from '../fields/Radio';
-import { Post } from '../../graphql/posts';
-import { Checkbox } from '../fields/Checkbox';
-import { Button, ButtonSize } from '../buttons/Button';
-import { PostBootData } from '../../lib/boot';
-import { Modal, ModalProps } from './common/Modal';
-import { FlexRow } from '../utilities';
-import useReportPost from '../../hooks/useReportPost';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { Origin } from '../../lib/analytics';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { Radio, RadioOption } from '../../fields/Radio';
+import { Post } from '../../../graphql/posts';
+import { Checkbox } from '../../fields/Checkbox';
+import { Button, ButtonSize } from '../../buttons/Button';
+import { PostBootData } from '../../../lib/boot';
+import { Modal, ModalProps } from '../common/Modal';
+import { FlexRow } from '../../utilities';
+import useReportPost from '../../../hooks/useReportPost';
+import { postAnalyticsEvent } from '../../../lib/feed';
+import { Origin } from '../../../lib/analytics';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import ReportCommentModal from './ReportCommentModal';
 
 interface OptionalProps {
   index?: number;
@@ -29,7 +30,7 @@ export type ReportedCallback = (
   options: OptionalProps,
 ) => void;
 
-export interface Props extends ModalProps {
+interface Props extends ModalProps {
   index?: number;
   origin: Origin;
   post: Post | PostBootData;
@@ -87,7 +88,7 @@ const reportReasonsMap: Partial<
   },
 };
 
-export default function ReportPostModal({
+export function ReportPostModal({
   index,
   post,
   origin,
@@ -186,3 +187,5 @@ export default function ReportPostModal({
     </Modal>
   );
 }
+
+export default ReportPostModal;

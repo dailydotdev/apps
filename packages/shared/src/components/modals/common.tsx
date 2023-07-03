@@ -51,7 +51,10 @@ const CreateSharedPostModal = dynamic(
 );
 
 const ReportPostModal = dynamic(
-  () => import(/* webpackChunkName: "reportPostModal" */ './ReportPostModal'),
+  () =>
+    import(
+      /* webpackChunkName: "reportPostModal" */ './report/ReportPostModal'
+    ),
 );
 
 export const modals = {

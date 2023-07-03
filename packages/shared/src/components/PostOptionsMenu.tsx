@@ -12,7 +12,7 @@ import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import { ReportedCallback } from './modals/ReportPostModal';
+import { ReportedCallback } from './modals/report/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';

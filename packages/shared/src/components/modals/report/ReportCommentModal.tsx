@@ -4,7 +4,7 @@ import { Radio } from '../../fields/Radio';
 import { Button } from '../../buttons/Button';
 import { Modal, ModalProps } from '../common/Modal';
 
-export interface Props extends ModalProps {
+interface Props extends ModalProps {
   onReport?(): void;
 }
 
@@ -17,7 +17,7 @@ const reportReasons: { value: string; label: string }[] = [
   { value: 'OTHER', label: 'Other' },
 ];
 
-export default function ReportCommentModal({
+export function ReportCommentModal({
   onReport,
   ...props
 }: Props): ReactElement {
@@ -66,3 +66,5 @@ export default function ReportCommentModal({
     </Modal>
   );
 }
+
+export default ReportCommentModal;
