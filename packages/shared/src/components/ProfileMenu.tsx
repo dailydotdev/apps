@@ -13,7 +13,7 @@ import { Image } from './image/Image';
 import { cloudinary } from '../lib/image';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
-import { ReferralCampaignKey } from '../hooks';
+import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { LEGO_REFERRAL_CAMPAIGN_MAY_2023_HIDDEN_FROM_HEADER_KEY } from '../lib/storage';
 
@@ -31,6 +31,9 @@ export default function ProfileMenu(): ReactElement {
     false,
   );
   const { openModal } = useLazyModal();
+  const { isReady } = useReferralCampaign({
+    campaignKey: ReferralCampaignKey.LegoMay2023,
+  });
 
   if (!user) {
     return <></>;
@@ -71,7 +74,7 @@ export default function ProfileMenu(): ReactElement {
           </a>
         </Link>
       </Item>
-      {isHiddenFromHeader && (
+      {isReady && isHiddenFromHeader && (
         <Item>
           <button
             type="button"
@@ -91,7 +94,7 @@ export default function ProfileMenu(): ReactElement {
               height={24}
               src={cloudinary.referralCampaign.lego.piece}
             />
-            Referral campagin
+            Referral campaign
             <TimerIcon className="ml-auto" size={IconSize.Small} />
           </button>
         </Item>
