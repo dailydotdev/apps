@@ -7,7 +7,7 @@ import { Post } from '../../graphql/posts';
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
   className?: string;
-  username?: string;
+  description?: string;
   children?: ReactNode;
 }
 
@@ -17,7 +17,7 @@ export default function PostMetadata({
   numUpvotes,
   className,
   children,
-  username,
+  description,
 }: PostMetadataProps): ReactElement {
   const date = useMemo(
     () => createdAt && postDateFormat(createdAt),
@@ -31,8 +31,8 @@ export default function PostMetadata({
         className,
       )}
     >
-      {!!username && <span>@{username}</span>}
-      {!!createdAt && !!username && <Separator />}
+      {!!description && <span>{description}</span>}
+      {!!createdAt && !!description && <Separator />}
       {!!createdAt && <time dateTime={createdAt}>{date}</time>}
       {!!createdAt && !!readTime && <Separator />}
       {!!readTime && <span data-testid="readTime">{readTime}m read time</span>}

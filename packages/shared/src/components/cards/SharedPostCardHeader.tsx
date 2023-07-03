@@ -29,7 +29,7 @@ export const SharedPostCardHeader = ({
         <PostMetadata
           className="break-words line-clamp-1"
           createdAt={createdAt}
-          username={author.username}
+          description={`@${author.username}`}
         />
       </div>
     </div>
