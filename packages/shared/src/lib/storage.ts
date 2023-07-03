@@ -2,6 +2,7 @@ export enum StorageTopic {
   Squad = 'squad',
   ReferralCampaign = 'referralCampaign',
   Popup = 'popup',
+  Post = 'post',
 }
 
 export const APP_KEY_PREFIX = 'dailydev';

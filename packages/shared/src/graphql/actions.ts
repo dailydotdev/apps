@@ -12,6 +12,7 @@ export enum ActionType {
   BrowserExtension = 'browser_extension',
   EnableNotification = 'enable_notification',
   WritePost = 'write_post',
+  HideBlockPanel = 'hide_block_panel',
 }
 
 export interface Action {

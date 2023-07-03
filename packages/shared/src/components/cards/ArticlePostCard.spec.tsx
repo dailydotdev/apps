@@ -11,6 +11,7 @@ import { ArticlePostCard } from './ArticlePostCard';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import post from '../../../__tests__/fixture/post';
 import { PostCardProps, visibleOnGroupHover } from './common';
+import { AuthContextProvider } from '../../contexts/AuthContext';
 
 const defaultProps: PostCardProps = {
   post,
@@ -30,9 +31,16 @@ beforeEach(() => {
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <FeaturesContextProvider flags={{}}>
-      <QueryClientProvider client={new QueryClient()}>
-        <ArticlePostCard {...defaultProps} {...props} />
-      </QueryClientProvider>
+      <AuthContextProvider
+        user={null}
+        updateUser={jest.fn()}
+        tokenRefreshed={false}
+        getRedirectUri={jest.fn()}
+      >
+        <QueryClientProvider client={new QueryClient()}>
+          <ArticlePostCard {...defaultProps} {...props} />
+        </QueryClientProvider>
+      </AuthContextProvider>
     </FeaturesContextProvider>,
   );
 };

@@ -91,6 +91,8 @@ body {
   --theme-overlay-to: theme('colors.cabbage.40')30;
 
   --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
+  --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
+  --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;
@@ -207,6 +209,8 @@ body {
   --theme-overlay-to: theme('colors.cabbage.40')30;
 
   --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
+  --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
+  --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;

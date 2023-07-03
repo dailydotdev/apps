@@ -56,6 +56,7 @@ import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
 import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { LazyModalElement } from './modals/LazyModalElement';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -85,6 +86,16 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
   variables = defaultVariables;
+});
+
+const originalScrollTo = window.scrollTo;
+
+beforeAll(() => {
+  window.scrollTo = jest.fn();
+});
+
+afterAll(() => {
+  window.scrollTo = originalScrollTo;
 });
 
 const createTagsSettingsMock = (
@@ -170,6 +181,7 @@ const renderComponent = (
             loginState: null,
           }}
         >
+          <LazyModalElement />
           <SettingsContext.Provider value={settingsContext}>
             <OnboardingContext.Provider
               value={{
@@ -603,7 +615,11 @@ it('should report broken link', async () => {
     {
       request: {
         query: REPORT_POST_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'BROKEN' },
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'BROKEN',
+          tags: [],
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -644,6 +660,7 @@ it('should report broken link with comment', async () => {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
           reason: 'BROKEN',
           comment: 'comment',
+          tags: [],
         },
       },
       result: () => {
@@ -684,7 +701,11 @@ it('should report nsfw', async () => {
     {
       request: {
         query: REPORT_POST_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'NSFW' },
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'NSFW',
+          tags: [],
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -890,4 +911,47 @@ it('should be able to navigate through posts', async () => {
   fireEvent.click(previous);
   const firstTitle = await screen.findByTestId('post-modal-title');
   expect(firstTitle).toHaveTextContent(firstPost.node.title);
+});
+
+it('should report irrelevant tags', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'IRRELEVANT',
+          tags: ['javascript'],
+        },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
+  const irrelevantTagsBtn = await screen.findByText('The post is not about...');
+  fireEvent.click(irrelevantTagsBtn);
+  const javascriptBtn = await screen.findByText('#javascript');
+  fireEvent.click(javascriptBtn);
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() =>
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument(),
+  );
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
 });

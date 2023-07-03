@@ -10,12 +10,11 @@ import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
@@ -24,6 +23,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import CreateSharedPostModal, {
   CreateSharedPostModalProps,
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
+import { mutationHandlers } from '@dailydotdev/shared/src/hooks';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
@@ -59,15 +59,15 @@ export default function CompanionMenu({
     'companion_helper',
     companionHelper,
   );
-  const updatePost = async (update) => {
+  const updatePost = async ({ update, event }) => {
     const oldPost = post;
     setPost({
       ...post,
       ...update,
     });
     trackEvent(
-      postAnalyticsEvent(postEventName(update), post, {
-        extra: { origin: 'companion context menu' },
+      postAnalyticsEvent(event, post, {
+        extra: { origin: Origin.CompanionContextMenu },
       }),
     );
     return () => setPost(oldPost);
@@ -78,20 +78,45 @@ export default function CompanionMenu({
   const {
     bookmark,
     removeBookmark,
-    upvote,
-    removeUpvote,
-    report,
+    upvotePost,
+    cancelPostUpvote,
+    downvotePost,
+    cancelPostDownvote,
     blockSource,
     disableCompanion,
     removeCompanionHelper,
     toggleCompanionExpanded,
   } = useCompanionActions({
-    onBookmarkMutate: () => updatePost({ bookmarked: true }),
-    onRemoveBookmarkMutate: () => updatePost({ bookmarked: false }),
-    onUpvoteMutate: () =>
-      updatePost({ upvoted: true, numUpvotes: post.numUpvotes + 1 }),
-    onRemoveUpvoteMutate: () =>
-      updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
+    onBookmarkMutate: () =>
+      updatePost({
+        update: { bookmarked: true },
+        event: AnalyticsEvent.BookmarkPost,
+      }),
+    onRemoveBookmarkMutate: () =>
+      updatePost({
+        update: { bookmarked: false },
+        event: AnalyticsEvent.RemovePostBookmark,
+      }),
+    onUpvotePostMutate: () =>
+      updatePost({
+        update: mutationHandlers.upvote(post),
+        event: AnalyticsEvent.UpvotePost,
+      }),
+    onCancelPostUpvoteMutate: () =>
+      updatePost({
+        update: mutationHandlers.cancelUpvote(post),
+        event: AnalyticsEvent.RemovePostUpvote,
+      }),
+    onDownvotePostMutate: () =>
+      updatePost({
+        update: mutationHandlers.downvote(post),
+        event: AnalyticsEvent.DownvotePost,
+      }),
+    onCancelPostDownvoteMutate: () =>
+      updatePost({
+        update: mutationHandlers.cancelDownvote(post),
+        event: AnalyticsEvent.RemovePostDownvote,
+      }),
   });
 
   /**
@@ -129,9 +154,24 @@ export default function CompanionMenu({
   const toggleUpvote = async () => {
     if (user) {
       if (!post.upvoted) {
-        await upvote({ id: post.id });
+        await upvotePost({ id: post.id });
       } else {
-        await removeUpvote({ id: post.id });
+        await cancelPostUpvote({ id: post.id });
+      }
+    } else {
+      window.open(
+        `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`,
+        '_blank',
+      );
+    }
+  };
+
+  const toggleDownvote = async () => {
+    if (user) {
+      if (!post.downvoted) {
+        await downvotePost({ id: post.id });
+      } else {
+        await cancelPostDownvote({ id: post.id });
       }
     } else {
       window.open(
@@ -255,9 +295,9 @@ export default function CompanionMenu({
       <CompanionContextMenu
         onShare={onShare}
         postData={post}
-        onReport={report}
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
+        onDownvote={toggleDownvote}
       />
       {sharePost && (
         <ShareModal

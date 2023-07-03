@@ -1,5 +1,5 @@
-import { useContext, useMemo, useEffect, useState } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useContext, useMemo } from 'react';
+import { useQuery } from 'react-query';
 import { request } from 'graphql-request';
 import {
   AdvancedSettings,
@@ -11,10 +11,7 @@ import {
 } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
 import { graphqlUrl } from '../lib/config';
-import { generateQueryKey } from '../lib/query';
 import { LoggedUser } from '../lib/user';
-import usePersistentContext from './usePersistentContext';
-import useDebounce from './useDebounce';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -27,7 +24,6 @@ export type FeedSettingsReturnType = {
   isLoading: boolean;
   hasAnyFilter?: boolean;
   advancedSettings: AdvancedSettings[];
-  setAvoidRefresh: (value: boolean) => void;
 };
 
 export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
@@ -44,23 +40,9 @@ const isObjectEmpty = (obj: unknown) => {
   return Object.keys(obj).length === 0;
 };
 
-const AVOID_REFRESH_KEY = 'avoidRefresh';
-
 export default function useFeedSettings(): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
-  const queryClient = useQueryClient();
-  const [avoidRefresh, setAvoidRefresh] = usePersistentContext(
-    AVOID_REFRESH_KEY,
-    false,
-    [true, false],
-    false,
-  );
-  const [invaliateQueries] = useDebounce(() => {
-    queryClient.invalidateQueries(generateQueryKey('popular', user));
-    queryClient.invalidateQueries(generateQueryKey('my-feed', user));
-  }, 100);
 
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
@@ -85,21 +67,6 @@ export default function useFeedSettings(): FeedSettingsReturnType {
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
 
-  useEffect(() => {
-    if (!user?.id || avoidRefresh) {
-      return;
-    }
-
-    if (isFirstLoad) {
-      setIsFirstLoad(false);
-      return;
-    }
-
-    invaliateQueries();
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tagsCategories, feedSettings, avoidRefresh]);
-
   return useMemo(() => {
     return {
       tagsCategories,
@@ -107,13 +74,6 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       isLoading,
       advancedSettings,
       hasAnyFilter: getHasAnyFilter(feedSettings),
-      setAvoidRefresh,
     };
-  }, [
-    tagsCategories,
-    feedSettings,
-    isLoading,
-    advancedSettings,
-    setAvoidRefresh,
-  ]);
+  }, [tagsCategories, feedSettings, isLoading, advancedSettings]);
 }
