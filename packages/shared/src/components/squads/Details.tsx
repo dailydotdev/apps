@@ -16,15 +16,16 @@ import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
-import { Justify } from '../utilities';
+import { FlexCol, FlexRow, Justify } from '../utilities';
 import SquadIcon from '../icons/Squad';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
+import SourceIcon from '../icons/Source';
 
 const squadImageId = 'squad_image_file';
 
 interface SquadDetailsProps {
+  className?: string;
   onSubmit?: (e: FormEvent, formJson: SquadForm) => void;
   form: Partial<SquadForm>;
   createMode: boolean;
@@ -56,6 +57,7 @@ const memberRoleOptions = [
 ];
 
 export function SquadDetails({
+  className,
   onSubmit,
   form,
   createMode = true,
@@ -124,22 +126,13 @@ export function SquadDetails({
 
   return (
     <>
-      <Modal.Body>
+      <FlexCol className={className}>
         <form
           className="flex flex-col gap-4 items-center -mb-2"
           onSubmit={handleSubmit}
           onChange={handleChange}
           id="squad-form"
         >
-          {createMode && (
-            <>
-              <SquadTitle>Squads early access!</SquadTitle>
-              <SquadSubTitle>
-                Create a group where you can learn and interact privately with
-                other developers around topics that matter to you
-              </SquadSubTitle>
-            </>
-          )}
           {!createMode && (
             <ImageInput
               initialValue={form.image ?? form.file}
@@ -155,85 +148,88 @@ export function SquadDetails({
               size="large"
             />
           )}
-          <TextField
-            label={createMode ? 'Name your squad' : 'Squad name'}
-            inputId="name"
-            name="name"
-            valid={!!name}
-            leftIcon={<SquadIcon />}
-            value={name ?? ''}
-            className={{
-              container: 'w-full',
-            }}
-          />
-          <TextField
-            label="Squad handle"
-            inputId="handle"
-            hint={handleHint}
-            valid={!handleHint}
-            name="handle"
-            leftIcon={<AtIcon />}
-            value={activeHandle ?? ''}
-            onChange={() => !!handleHint && setHandleHint(null)}
-            className={{
-              hint: 'text-theme-status-error',
-              container: classNames('w-full', !handleHint && 'mb-1'),
-            }}
-          />
-          {!createMode && (
-            <Textarea
-              label="Squad description"
-              inputId="description"
-              name="description"
-              hint="(optional)"
-              rows={4}
-              value={description ?? ''}
-              maxLength={250}
+          <FlexCol className="gap-4 justify-center w-full max-w-lg">
+            <TextField
+              label={createMode ? 'Name your squad' : 'Squad name'}
+              inputId="name"
+              name="name"
+              valid={!!name}
+              leftIcon={<SquadIcon />}
+              value={name ?? ''}
               className={{
-                hint: '-mt-8 py-2 pl-4',
                 container: 'w-full',
               }}
             />
-          )}
-          <div className="flex flex-col">
-            <h4 className="mb-2 typo-headline">Post permissions</h4>
-            <p className="mb-4 text-theme-label-tertiary typo-callout">
-              Choose who is allowed to post new content in this Squad.
-              {createMode && ' You can always change this setting later.'}
-            </p>
-            <Radio
-              name="memberPostingRole"
-              options={memberRoleOptions}
-              value={memberPostingRole}
-              onChange={(value) =>
-                setMemberPostingRole(value as SourceMemberRole)
-              }
+            <TextField
+              label="Squad handle"
+              inputId="handle"
+              hint={handleHint}
+              valid={!handleHint}
+              name="handle"
+              leftIcon={<AtIcon />}
+              value={activeHandle ?? ''}
+              onChange={() => !!handleHint && setHandleHint(null)}
+              className={{
+                hint: 'text-theme-status-error',
+                container: classNames('w-full', !handleHint && 'mb-1'),
+              }}
             />
-          </div>
-          <div className="flex flex-col">
-            <h4 className="mb-2 typo-headline">Invitation permissions</h4>
-            <p className="mb-4 text-theme-label-tertiary typo-callout">
-              Choose who is allowed to invite new members to this squad.
-              {createMode && ' You can always change this setting later.'}
-            </p>
-            <Radio
-              name="memberInviteRole"
-              options={memberRoleOptions}
-              value={memberInviteRole}
-              onChange={(value) =>
-                setMemberInviteRole(value as SourceMemberRole)
-              }
-            />
-          </div>
+            {!createMode && (
+              <Textarea
+                label="Squad description"
+                inputId="description"
+                name="description"
+                hint="(optional)"
+                rows={4}
+                value={description ?? ''}
+                maxLength={250}
+                className={{
+                  hint: '-mt-8 py-2 pl-4',
+                  container: 'w-full',
+                }}
+              />
+            )}
+            <div className="flex flex-row gap-8 justify-center">
+              <div className="flex flex-col flex-1">
+                <h4 className="mb-2 typo-headline">Post permissions</h4>
+                <p className="mb-4 text-theme-label-tertiary typo-callout">
+                  Choose who is allowed to post new content in this squad.
+                </p>
+                <Radio
+                  name="memberPostingRole"
+                  options={memberRoleOptions}
+                  value={memberPostingRole}
+                  onChange={(value) =>
+                    setMemberPostingRole(value as SourceMemberRole)
+                  }
+                />
+              </div>
+              <div className="flex flex-col flex-1">
+                <h4 className="mb-2 typo-headline">Invitation permissions</h4>
+                <p className="mb-4 text-theme-label-tertiary typo-callout">
+                  Choose who is allowed to invite new members to this squad.
+                </p>
+                <Radio
+                  name="memberInviteRole"
+                  options={memberRoleOptions}
+                  value={memberInviteRole}
+                  onChange={(value) =>
+                    setMemberInviteRole(value as SourceMemberRole)
+                  }
+                />
+              </div>
+            </div>
+          </FlexCol>
         </form>
-      </Modal.Body>
-      <Modal.Footer className={!createMode && 'px-6'} justify={Justify.Between}>
+      </FlexCol>
+      <Modal.Footer
+        className={classNames(!createMode && 'px-6', 'mt-auto')}
+        justify={Justify.Between}
+      >
         {createMode && (
-          <SimpleTooltip placement="top" content="🔥 limited spot left !">
-            <Button onClick={onRequestClose} className="btn-tertiary">
-              Close
-            </Button>
-          </SimpleTooltip>
+          <Button onClick={onRequestClose} className="btn-tertiary">
+            Close
+          </Button>
         )}
         <Button
           className={createMode ? 'btn-primary-cabbage' : 'btn-primary w-full'}

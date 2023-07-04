@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { Post } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -47,6 +48,7 @@ export default function ShareOptionsMenu({
   onHidden,
   contextId = 'share-context',
 }: ShareOptionsMenuProps): ReactElement {
+  const router = useRouter();
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
   const { squads } = useContext(AuthContext);
@@ -93,11 +95,9 @@ export default function ShareOptionsMenu({
       shareOptions.push({
         icon: <MenuIcon Icon={SquadIcon} />,
         text: 'Post to new squad',
-        action: () =>
-          openModal({
-            type: LazyModal.NewSquad,
-            props: { origin: Origin.Share },
-          }),
+        action: () => {
+          router.push(`/squads/new?origin=${Origin.Share}`);
+        },
       });
     }
 

@@ -1,12 +1,9 @@
 import { useRouter } from 'next/router';
 import { useEffect, useMemo } from 'react';
-import { LazyModal } from '../components/modals/common/types';
-import { NewSquadModalProps } from '../components/modals/NewSquadModal';
 import { Origin } from '../lib/analytics';
-import { useLazyModal } from './useLazyModal';
 import usePersistentContext from './usePersistentContext';
 
-type ModalProps = Omit<NewSquadModalProps, 'onRequestClose' | 'isOpen'>;
+type ModalProps = { origin: Origin };
 interface UseCreateSquadModal {
   openNewSquadModal: (props?: ModalProps) => void;
 }
@@ -26,14 +23,14 @@ export const useCreateSquadModal = ({
   isFlagsFetched,
 }: UseCreateSquadModalProps): UseCreateSquadModal => {
   const router = useRouter();
-  const { openModal } = useLazyModal();
   const [hasTriedOnboarding, setHasTriedOnboarding, isLoaded] =
     usePersistentContext<boolean>(SQUAD_ONBOARDING, hasSquads);
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const openNewSquadModal = (props: ModalProps) =>
-    openModal({ type: LazyModal.NewSquad, props });
+  const openNewSquadModal = (props: ModalProps) => {
+    router.push(`/squads/new?origin=${props.origin}`);
+  };
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);

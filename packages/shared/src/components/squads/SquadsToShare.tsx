@@ -63,7 +63,6 @@ export function SquadsToShare({
       onClick={() =>
         openNewSquadModal({
           origin: Origin.Share,
-          redirectAfterCreate: false,
         })
       }
       icon={<PlusIcon className="text-theme-label-invert" />}
