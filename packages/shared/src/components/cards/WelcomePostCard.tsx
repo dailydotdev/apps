@@ -26,7 +26,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     children,
     style,
     onReadArticleClick,
-    enableSourceHeader,
+    enableSourceHeader = false,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,

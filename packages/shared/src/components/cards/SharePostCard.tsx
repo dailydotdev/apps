@@ -26,6 +26,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     style,
     insaneMode,
     onReadArticleClick,
+    enableSourceHeader = false,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -60,6 +61,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
         author={post.author}
         source={post.source}
         createdAt={post.createdAt}
+        enableSourceHeader={enableSourceHeader}
       />
       <SharedPostText
         title={post.title}
