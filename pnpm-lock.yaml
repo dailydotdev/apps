@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  next-plugin-preact@3.0.7:
+    hash: ab52wh5a4az5wr2bwj5v7hjvpq
+    path: patches/next-plugin-preact@3.0.7.patch
+
 importers:
 
   .:
@@ -703,6 +708,9 @@ importers:
       next:
         specifier: ^12.2.2
         version: 12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0)
+      next-plugin-preact:
+        specifier: ^3.0.7
+        version: 3.0.7(patch_hash=ab52wh5a4az5wr2bwj5v7hjvpq)(@prefresh/babel-plugin@0.4.4)(next@12.2.2)(preact-render-to-string@5.2.0)(preact-ssr-prepass@1.2.0)(preact@10.8.2)(webpack@5.72.0)
       next-pwa:
         specifier: ^5.5.4
         version: 5.5.4(@babel/core@7.17.9)(next@12.2.2)(webpack@5.72.0)
@@ -2636,7 +2644,6 @@ packages:
 
   /@prefresh/babel-plugin@0.4.4:
     resolution: {integrity: sha512-/EvgIFMDL+nd20WNvMO0JQnzIl1EJPgmSaSYrZUww7A+aSdKsi37aL07TljrZR1cBMuzFxcr4xvqsUQLFJEukw==}
-    dev: true
 
   /@prefresh/core@1.5.1(preact@10.8.2):
     resolution: {integrity: sha512-e0mB0Oxtog6ZpKPDBYbzFniFJDIktuKMzOHp7sguntU+ot0yi6dbhJRE9Css1qf0u16wdSZjpL2W2ODWuU05Cw==}
@@ -2690,7 +2697,6 @@ packages:
       '@prefresh/utils': 1.2.0
       preact: 10.8.2
       webpack: 5.72.0(webpack-cli@4.9.2)
-    dev: true
 
   /@reach/observe-rect@1.2.0:
     resolution: {integrity: sha512-Ba7HmkFgfQxZqqaeIWWkNK0rEhpxVQHIoVyW1YDSkGsGIXzcaW4deC8B0pZrNSSyLTdIk7y+5olKt5+g0GmFIQ==}
@@ -4090,6 +4096,22 @@ packages:
       normalize-range: 0.1.2
       picocolors: 1.0.0
       postcss: 8.4.12
+      postcss-value-parser: 4.2.0
+    dev: true
+
+  /autoprefixer@10.4.5(postcss@8.4.24):
+    resolution: {integrity: sha512-Fvd8yCoA7lNX/OUllvS+aS1I7WRBclGXsepbvT8ZaPgrH24rgXpZzF0/6Hh3ZEkwg+0AES/Osd196VZmYoEFtw==}
+    engines: {node: ^10 || ^12 || >=14}
+    hasBin: true
+    peerDependencies:
+      postcss: ^8.1.0
+    dependencies:
+      browserslist: 4.21.8
+      caniuse-lite: 1.0.30001502
+      fraction.js: 4.2.0
+      normalize-range: 0.1.2
+      picocolors: 1.0.0
+      postcss: 8.4.24
       postcss-value-parser: 4.2.0
     dev: true
 
@@ -8879,6 +8901,10 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
+  /module-alias@2.2.3:
+    resolution: {integrity: sha512-23g5BFj4zdQL/b6tor7Ji+QY4pEfNH784BMslY9Qb0UnJWRAt+lQGLYmRaM0KDBwIG23ffEBELhZDP2rhi9f/Q==}
+    dev: false
+
   /mrmime@1.0.1:
     resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==}
     engines: {node: '>=10'}
@@ -8933,6 +8959,27 @@ packages:
   /nested-error-stacks@2.1.1:
     resolution: {integrity: sha512-9iN1ka/9zmX1ZvLV9ewJYEk9h7RyRRtqdK0woXcqohu8EWIerfPUjYJPg0ULy0UqP7cslmdGc8xKDJcojlKiaw==}
     dev: true
+
+  /next-plugin-preact@3.0.7(patch_hash=ab52wh5a4az5wr2bwj5v7hjvpq)(@prefresh/babel-plugin@0.4.4)(next@12.2.2)(preact-render-to-string@5.2.0)(preact-ssr-prepass@1.2.0)(preact@10.8.2)(webpack@5.72.0):
+    resolution: {integrity: sha512-8Xl+SJT3FCZHS7R/6Gana6e95o09UpiyCsK0cw8P/KW2M+lQcYIwIt4ZLZd+K9TW3JZx6KJDLqVbq0Kd6KZsIg==}
+    requiresBuild: true
+    peerDependencies:
+      preact: '>=10'
+      preact-render-to-string: '>=5'
+      preact-ssr-prepass: '>=1'
+    dependencies:
+      '@prefresh/next': 1.5.2(next@12.2.2)(preact@10.8.2)(webpack@5.72.0)
+      '@prefresh/webpack': 3.3.3(@prefresh/babel-plugin@0.4.4)(preact@10.8.2)(webpack@5.72.0)
+      module-alias: 2.2.3
+      preact: 10.8.2
+      preact-render-to-string: 5.2.0(preact@10.8.2)
+      preact-ssr-prepass: 1.2.0(preact@10.8.2)
+    transitivePeerDependencies:
+      - '@prefresh/babel-plugin'
+      - next
+      - webpack
+    dev: false
+    patched: true
 
   /next-pwa@5.5.4(@babel/core@7.17.9)(next@12.2.2)(webpack@5.72.0):
     resolution: {integrity: sha512-EgB2MQWGR8oZDzY6US+/D0LOCUhPZYCgeqRVBYDxQWNi0N6XfQOoZPw2COIrg/eMt/rB0M+/mquhAQACs5v4Ag==}
@@ -10178,6 +10225,14 @@ packages:
     dependencies:
       preact: 10.8.2
       pretty-format: 3.8.0
+    dev: false
+
+  /preact-ssr-prepass@1.2.0(preact@10.8.2):
+    resolution: {integrity: sha512-UKz6FB2+KepjHQ6aGqiTUMZfGgdoTunxtByczdUNho9UvSRTJw31Np9J+wUSAlJ1kALJGX1BpcBLvO3iohQUSA==}
+    peerDependencies:
+      preact: '>=10 || ^10.0.0-beta.0 || ^10.0.0-alpha.0'
+    dependencies:
+      preact: 10.8.2
     dev: false
 
   /preact@10.8.2:
@@ -11671,7 +11726,7 @@ packages:
       postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
-      autoprefixer: 10.4.5(postcss@8.4.12)
+      autoprefixer: 10.4.5(postcss@8.4.24)
       bytes: 3.1.2
       chalk: 4.1.2
       chokidar: 3.5.3
