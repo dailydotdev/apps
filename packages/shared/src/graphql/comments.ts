@@ -5,6 +5,13 @@ import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
 
+export type ReportCommentReason =
+  | 'HATEFUL'
+  | 'HARASSMENT'
+  | 'SPAM'
+  | 'EXPLICIT'
+  | 'MISINFORMATION'
+  | 'OTHER';
 export interface Author {
   __typename?: string;
   id: string;
