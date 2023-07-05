@@ -33,6 +33,7 @@ import EditIcon from './icons/Edit';
 import DownvoteIcon from './icons/Downvote';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
+import UpvoteIcon from './icons/Upvote';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -55,6 +56,7 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   feedQueryKey?: QueryKey;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
+  setShowPromotePost?: () => unknown;
   contextId?: string;
   origin: Origin;
   allowPin?: boolean;
@@ -68,6 +70,7 @@ export default function PostOptionsMenu({
   onHidden,
   onRemovePost,
   setShowBanPost,
+  setShowPromotePost,
   feedQueryKey,
   origin,
   allowPin,
@@ -296,6 +299,15 @@ export default function PostOptionsMenu({
       action: setShowBanPost,
     });
   }
+  if (setShowPromotePost) {
+    const promoteFlag = post.flags?.promoteToPublic;
+    postOptions.push({
+      icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
+      text: promoteFlag ? 'Demote' : 'Promote',
+      action: setShowPromotePost,
+    });
+  }
+
   return (
     <>
       <PortalMenu

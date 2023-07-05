@@ -84,6 +84,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       ...SourceBaseInfo
     }
     downvoted
+    flags {
+      promoteToPublic
+    }
   }
   ${SOURCE_BASE_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}

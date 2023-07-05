@@ -39,6 +39,16 @@ export const supportedTypesForPrivateSources = [
   PostType.Freeform,
 ];
 
+type PostFlags = {
+  sentAnalyticsReport: boolean;
+  banned: boolean;
+  deleted: boolean;
+  private: boolean;
+  visible: boolean;
+  showOnFeed: boolean;
+  promoteToPublic: boolean;
+};
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -77,6 +87,7 @@ export interface Post {
   private?: boolean;
   feedMeta?: string;
   downvoted?: boolean;
+  flags: PostFlags;
 }
 
 export interface Ad {
@@ -255,6 +266,14 @@ export const BAN_POST_MUTATION = gql`
   }
 `;
 
+export const PROMOTE_TO_PUBLIC_MUTATION = gql`
+  mutation UpdatePromoteToPublic($id: ID!, $promoteToPublic: Boolean!) {
+    updatePromoteToPublic(id: $id, promoteToPublic: $promoteToPublic) {
+      _
+    }
+  }
+`;
+
 export const ADD_BOOKMARKS_MUTATION = gql`
   mutation AddBookmarks($data: AddBookmarkInput!) {
     addBookmarks(data: $data) {
@@ -321,6 +340,16 @@ export const UNHIDE_POST_MUTATION = gql`
 export const banPost = (id: string): Promise<EmptyResponse> => {
   return request(graphqlUrl, BAN_POST_MUTATION, {
     id,
+  });
+};
+
+export const promotePost = (
+  id: string,
+  value: boolean,
+): Promise<EmptyResponse> => {
+  return request(graphqlUrl, PROMOTE_TO_PUBLIC_MUTATION, {
+    id,
+    promoteToPublic: value,
   });
 };
 
