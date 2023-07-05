@@ -268,7 +268,7 @@ export default function PostOptionsMenu({
         },
       }),
   });
-  if (post?.author?.id === user?.id) {
+  if (user?.id && post?.author?.id === user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={EditIcon} />,
       text: 'Edit post',
