@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
 import { IFlags } from 'flagsmith';
+import { useRouter } from 'next/router';
 import ShareBar from './ShareBar';
 import Post from '../../__tests__/fixture/post';
 import { AuthContextProvider } from '../contexts/AuthContext';
@@ -89,8 +90,14 @@ describe('ShareBar Test Suite:', () => {
 
     expect(btn).toBeInTheDocument();
     btn.click();
+    const useRouterMock = useRouter as jest.Mock;
+    const routerPushMock =
+      useRouterMock.mock.results[useRouterMock.mock.results.length - 1].value
+        .push;
+
     await waitFor(() => {
-      expect(screen.getByText('Squads early access!')).toBeInTheDocument();
+      expect(routerPushMock).toHaveBeenCalled();
+      expect(routerPushMock).toHaveBeenCalledWith('/squads/new?origin=share');
     });
   });
 
