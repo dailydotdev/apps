@@ -1,12 +1,16 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
+import React, { FormEvent, ReactElement, ReactNode, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
 import { useMutation } from 'react-query';
-import { Button } from '../buttons/Button';
+import {
+  AllowedTags,
+  Button,
+  ButtonProps,
+  ButtonSize,
+} from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import AtIcon from '../icons/At';
 import Textarea from '../fields/Textarea';
-import { SquadSubTitle, SquadTitle } from './utils';
 import ImageInput from '../fields/ImageInput';
 import { cloudinary } from '../../lib/image';
 import CameraIcon from '../icons/Camera';
@@ -16,11 +20,13 @@ import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
-import { FlexCol, FlexRow, Justify } from '../utilities';
+import { FlexCol, Justify } from '../utilities';
 import SquadIcon from '../icons/Squad';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
-import SourceIcon from '../icons/Source';
+import VIcon from '../icons/V';
+import BetaBadge from '../../svg/BetaBadge';
+import { publicSquadWaitlist } from '../../lib/constants';
 
 const squadImageId = 'squad_image_file';
 
@@ -56,6 +62,59 @@ const memberRoleOptions = [
   },
 ];
 
+type SquadTypeCardProps<ButtonTag extends AllowedTags> = {
+  className?: string;
+  title: ReactNode;
+  description: string;
+  isSelected: boolean;
+  buttonProps?: { text: string } & Omit<
+    ButtonProps<ButtonTag>,
+    'disabled' | 'size' | 'children'
+  >;
+};
+
+const SquadTypeCard = <ButtonTag extends AllowedTags>({
+  className,
+  title,
+  description,
+  isSelected,
+  buttonProps,
+}: SquadTypeCardProps<ButtonTag>): ReactElement => {
+  const { text: buttonText = 'Select', ...restButtonProps } = buttonProps || {};
+
+  return (
+    <div
+      className={classNames(
+        'flex flex-col flex-1 p-3 rounded-16 justify-between gap-4 relative',
+        isSelected &&
+          'bg-gradient-to-r from-theme-bg-overlay-onion-opacity to-theme-bg-overlay-cabbage-opacity border-2 -m-1 border-theme-divider-primary',
+        className,
+      )}
+    >
+      <div>
+        <h4 className="mb-2 font-bold typo-headline">{title}</h4>
+        <p className="typo-footnote">{description}</p>
+      </div>
+      <Button
+        className="btn-secondary"
+        buttonSize={ButtonSize.XSmall}
+        // @ts-expect-error Property 'disabled' does not exist on type
+        disabled={isSelected}
+        {...restButtonProps}
+      >
+        {isSelected ? 'Selected' : buttonText}
+      </Button>
+      {isSelected && (
+        <VIcon
+          className="absolute top-3 right-3"
+          size={IconSize.Medium}
+          secondary
+        />
+      )}
+    </div>
+  );
+};
+
 export function SquadDetails({
   className,
   onSubmit,
@@ -69,11 +128,13 @@ export function SquadDetails({
     description,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
+    private: isPrivate,
   } = form;
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
+  const [isDescriptionOpen, setDescriptionOpen] = useState(!createMode);
   const [memberPostingRole, setMemberPostingRole] = useState(
     () => initialMemberPostingRole || SourceMemberRole.Member,
   );
@@ -174,7 +235,18 @@ export function SquadDetails({
                 container: classNames('w-full', !handleHint && 'mb-1'),
               }}
             />
-            {!createMode && (
+            {!isDescriptionOpen && (
+              <button
+                className="mr-auto typo-callout text-theme-label-tertiary"
+                type="button"
+                onClick={() => {
+                  setDescriptionOpen((current) => !current);
+                }}
+              >
+                + Add description
+              </button>
+            )}
+            {isDescriptionOpen && (
               <Textarea
                 label="Squad description"
                 inputId="description"
@@ -189,9 +261,35 @@ export function SquadDetails({
                 }}
               />
             )}
-            <div className="flex flex-row gap-8 justify-center">
+            <h4 className="mt-2 font-bold typo-body">
+              {createMode ? 'Squad type' : 'Squad'}
+            </h4>
+            <div className="flex flex-row gap-4 rounded-16 border-2 border-theme-divider-tertiary">
+              <SquadTypeCard
+                title="Private squad"
+                description="Only people who join the squad can see the content"
+                isSelected={isPrivate}
+              />
+              <SquadTypeCard
+                title={
+                  <div className="flex gap-2 items-center">
+                    Public squad <BetaBadge />
+                  </div>
+                }
+                description="Everyone can see the content and the posts may appear on the main feed"
+                isSelected={!isPrivate}
+                buttonProps={{
+                  text: 'Join waitlist',
+                  tag: 'a',
+                  // @ts-expect-error Property 'disabled' does not exist on type
+                  target: '_blank',
+                  href: publicSquadWaitlist,
+                }}
+              />
+            </div>
+            <div className="flex flex-row gap-4">
               <div className="flex flex-col flex-1">
-                <h4 className="mb-2 typo-headline">Post permissions</h4>
+                <h4 className="mb-2 font-bold typo-body">Post permissions</h4>
                 <p className="mb-4 text-theme-label-tertiary typo-callout">
                   Choose who is allowed to post new content in this squad.
                 </p>
@@ -205,7 +303,9 @@ export function SquadDetails({
                 />
               </div>
               <div className="flex flex-col flex-1">
-                <h4 className="mb-2 typo-headline">Invitation permissions</h4>
+                <h4 className="mb-2 font-bold typo-body">
+                  Invitation permissions
+                </h4>
                 <p className="mb-4 text-theme-label-tertiary typo-callout">
                   Choose who is allowed to invite new members to this squad.
                 </p>

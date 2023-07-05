@@ -71,7 +71,9 @@ const NewSquad = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { addSquad } = useBoot();
-  const [form] = useState<Partial<SquadForm>>({});
+  const [form] = useState<Partial<SquadForm>>({
+    private: true,
+  });
 
   useEffect(() => {
     trackEvent({
