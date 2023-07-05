@@ -47,7 +47,7 @@ export const MangeSquadPageSkeleton = (): ReactElement => {
   return (
     <ManageSquadPageContainer>
       <ManageSquadPageMain className="items-center">
-        <ElementPlaceholder className="w-full h-60" />
+        <ElementPlaceholder className="w-full h-48" />
         <div className="flex flex-col items-center w-full max-w-lg">
           <ElementPlaceholder className="mx-8 mt-6 w-full h-12 rounded-12" />
           <ElementPlaceholder className="mx-8 mt-4 w-full h-12 rounded-12" />
@@ -126,7 +126,7 @@ const NewSquad = (): ReactElement => {
           style={{
             backgroundImage: `url(${cloudinary.squads.createSquad})`,
           }}
-          className="flex flex-col justify-center items-center mb-6 w-full h-60"
+          className="flex flex-col justify-center items-center mb-6 w-full h-48 bg-cover"
         >
           <SourceIcon className="!w-20 !h-20" />
           <SquadTitle className="mb-2">Squads early access!</SquadTitle>
