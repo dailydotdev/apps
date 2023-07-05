@@ -55,7 +55,7 @@ export default function SquadHeaderMenu({
   const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
   const onEditSquad = () => {
-    router.push(`/squads/${squad.id}/edit`);
+    router.push(`/squads/${squad.handle}/edit`);
   };
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
