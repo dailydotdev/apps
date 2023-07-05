@@ -41,7 +41,7 @@ const NewSquad = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { addSquad } = useBoot();
   const [form] = useState<Partial<SquadForm>>({
-    private: true,
+    public: false,
   });
 
   useEffect(() => {

@@ -70,7 +70,7 @@ export function SquadDetails({
     description,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
-    private: isPrivate,
+    public: isPublic,
   } = form;
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
@@ -210,7 +210,7 @@ export function SquadDetails({
               <SquadTypeCard
                 title="Private squad"
                 description="Only people who join the squad can see the content"
-                isSelected={isPrivate}
+                isSelected={!isPublic}
               />
               <SquadTypeCard
                 title={
@@ -219,7 +219,7 @@ export function SquadDetails({
                   </div>
                 }
                 description="Everyone can see the content and the posts may appear on the main feed"
-                isSelected={!isPrivate}
+                isSelected={isPublic}
                 buttonProps={{
                   text: 'Join waitlist',
                   tag: 'a',
@@ -229,7 +229,7 @@ export function SquadDetails({
                 }}
               />
             </div>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-row gap-4 mt-2">
               <div className="flex flex-col flex-1">
                 <h4 className="mb-2 font-bold typo-body">Post permissions</h4>
                 <p className="mb-4 text-theme-label-tertiary typo-callout">

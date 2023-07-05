@@ -55,12 +55,7 @@ export default function SquadHeaderMenu({
   const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
   const onEditSquad = () => {
-    openModal({
-      type: LazyModal.EditSquad,
-      props: {
-        squad,
-      },
-    });
+    router.push(`/squads/${squad.id}/edit`);
   };
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks

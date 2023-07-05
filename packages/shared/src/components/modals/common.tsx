@@ -6,9 +6,6 @@ export type CloseModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
 ) => void;
 
-const EditSquadModal = dynamic(
-  () => import(/* webpackChunkName: "editSquadModal" */ './EditSquadModal'),
-);
 const SquadMemberModal = dynamic(
   () => import(/* webpackChunkName: "squadMemberModal" */ './SquadMemberModal'),
 );
@@ -52,7 +49,6 @@ const ReportPostModal = dynamic(
 );
 
 export const modals = {
-  [LazyModal.EditSquad]: EditSquadModal,
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.SquadTour]: SquadTourModal,
