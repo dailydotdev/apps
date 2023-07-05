@@ -3,12 +3,6 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
-import {
-  BasePageContainer,
-  pageBorders,
-} from '@dailydotdev/shared/src/components/utilities';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { SquadForm, createSquad } from '@dailydotdev/shared/src/graphql/squads';
@@ -23,40 +17,15 @@ import SourceIcon from '@dailydotdev/shared/src/components/icons/Source';
 import {
   SquadTitle,
   SquadSubTitle,
+  ManageSquadPageContainer,
+  ManageSquadPageMain,
 } from '@dailydotdev/shared/src/components/squads/utils';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
-
-export const ManageSquadPageContainer = classed(
-  BasePageContainer,
-  '!p-0 laptop:min-h-page h-full !max-w-[42.5rem] !w-full',
-  pageBorders,
-);
-
-export const ManageSquadPageMain = classed('div', 'flex flex-1 flex-col');
-
-export const ManageSquadPageFooter = classed(
-  'footer',
-  'flex sticky flex-row gap-3 items-center p-3 px-8 mt-auto h-16 border-t border-theme-divider-tertiary',
-);
-
-export const MangeSquadPageSkeleton = (): ReactElement => {
-  return (
-    <ManageSquadPageContainer>
-      <ManageSquadPageMain className="items-center">
-        <ElementPlaceholder className="w-full h-48" />
-        <div className="flex flex-col items-center w-full max-w-lg">
-          <ElementPlaceholder className="mx-8 mt-6 w-full h-12 rounded-12" />
-          <ElementPlaceholder className="mx-8 mt-4 w-full h-12 rounded-12" />
-        </div>
-      </ManageSquadPageMain>
-      <ManageSquadPageFooter />
-    </ManageSquadPageContainer>
-  );
-};
 
 const seo: NextSeoProps = {
   title: 'Create your Squad',

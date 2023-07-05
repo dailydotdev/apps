@@ -1,13 +1,8 @@
-import React, { FormEvent, ReactElement, ReactNode, useState } from 'react';
+import React, { FormEvent, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
 import { useMutation } from 'react-query';
-import {
-  AllowedTags,
-  Button,
-  ButtonProps,
-  ButtonSize,
-} from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import AtIcon from '../icons/At';
 import Textarea from '../fields/Textarea';
@@ -15,18 +10,18 @@ import ImageInput from '../fields/ImageInput';
 import { cloudinary } from '../../lib/image';
 import CameraIcon from '../icons/Camera';
 import { formToJson } from '../../lib/form';
-import { Modal } from '../modals/common/Modal';
 import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
-import { FlexCol, Justify } from '../utilities';
+import { FlexCol } from '../utilities';
 import SquadIcon from '../icons/Squad';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
-import VIcon from '../icons/V';
 import BetaBadge from '../../svg/BetaBadge';
 import { publicSquadWaitlist } from '../../lib/constants';
+import { SquadTypeCard } from './SquadTypeCard';
+import { ManageSquadPageFooter } from './utils';
 
 const squadImageId = 'squad_image_file';
 
@@ -61,59 +56,6 @@ const memberRoleOptions = [
     value: SourceMemberRole.Moderator,
   },
 ];
-
-type SquadTypeCardProps<ButtonTag extends AllowedTags> = {
-  className?: string;
-  title: ReactNode;
-  description: string;
-  isSelected: boolean;
-  buttonProps?: { text: string } & Omit<
-    ButtonProps<ButtonTag>,
-    'disabled' | 'size' | 'children'
-  >;
-};
-
-const SquadTypeCard = <ButtonTag extends AllowedTags>({
-  className,
-  title,
-  description,
-  isSelected,
-  buttonProps,
-}: SquadTypeCardProps<ButtonTag>): ReactElement => {
-  const { text: buttonText = 'Select', ...restButtonProps } = buttonProps || {};
-
-  return (
-    <div
-      className={classNames(
-        'flex flex-col flex-1 p-3 rounded-16 justify-between gap-4 relative',
-        isSelected &&
-          'bg-gradient-to-r from-theme-bg-overlay-onion-opacity to-theme-bg-overlay-cabbage-opacity border-2 -m-1 border-theme-divider-primary',
-        className,
-      )}
-    >
-      <div>
-        <h4 className="mb-2 font-bold typo-headline">{title}</h4>
-        <p className="typo-footnote">{description}</p>
-      </div>
-      <Button
-        className="btn-secondary"
-        buttonSize={ButtonSize.XSmall}
-        // @ts-expect-error Property 'disabled' does not exist on type
-        disabled={isSelected}
-        {...restButtonProps}
-      >
-        {isSelected ? 'Selected' : buttonText}
-      </Button>
-      {isSelected && (
-        <VIcon
-          className="absolute top-3 right-3"
-          size={IconSize.Medium}
-          secondary
-        />
-      )}
-    </div>
-  );
-};
 
 export function SquadDetails({
   className,
@@ -322,9 +264,8 @@ export function SquadDetails({
           </FlexCol>
         </form>
       </FlexCol>
-      <Modal.Footer
-        className={classNames(!createMode && 'px-6', 'mt-auto')}
-        justify={Justify.Between}
+      <ManageSquadPageFooter
+        className={classNames(!createMode && 'px-6', 'mt-auto justify-between')}
       >
         {createMode && (
           <Button onClick={onRequestClose} className="btn-tertiary">
@@ -339,7 +280,7 @@ export function SquadDetails({
         >
           {createMode ? 'Create Squad' : 'Save'}
         </Button>
-      </Modal.Footer>
+      </ManageSquadPageFooter>
     </>
   );
 }

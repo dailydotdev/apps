@@ -2,6 +2,7 @@ import React from 'react';
 import classed from '../../lib/classed';
 import { PromptOptions } from '../../hooks/usePrompt';
 import { SquadForm } from '../../graphql/squads';
+import { BasePageContainer, pageBorders } from '../utilities';
 
 export enum ModalState {
   Details = 'Squad settings',
@@ -47,3 +48,16 @@ export const quitSquadModal: PromptOptions = {
     className: 'btn-secondary',
   },
 };
+
+export const ManageSquadPageContainer = classed(
+  BasePageContainer,
+  '!p-0 laptop:min-h-page h-full !max-w-[42.5rem] !w-full',
+  pageBorders,
+);
+
+export const ManageSquadPageMain = classed('div', 'flex flex-1 flex-col');
+
+export const ManageSquadPageFooter = classed(
+  'footer',
+  'flex sticky flex-row gap-3 items-center p-3 px-8 mt-auto h-16 border-t border-theme-divider-tertiary',
+);
