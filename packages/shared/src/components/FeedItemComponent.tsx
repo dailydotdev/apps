@@ -148,7 +148,7 @@ export default function FeedItemComponent({
       return (
         <PostTag
           enableSourceHeader={
-            feedName === 'squad' && item.post.source.type === 'squad'
+            feedName !== 'squad' && item.post.source.type === 'squad'
           }
           ref={inViewRef}
           post={{

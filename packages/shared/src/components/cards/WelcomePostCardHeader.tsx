@@ -20,24 +20,24 @@ export const WelcomePostCardHeader = ({
       <div className="relative">
         <ProfilePicture
           user={author}
-          size={enableSourceHeader ? undefined : 'xsmall'}
-          className={!enableSourceHeader && 'top-7 -right-2.5'}
-          absolute={!enableSourceHeader}
+          size={enableSourceHeader ? 'xsmall' : 'xlarge'}
+          className={enableSourceHeader && 'top-7 -right-2.5'}
+          absolute={enableSourceHeader}
         />
         <SourceButton
           source={source}
-          className={enableSourceHeader && 'absolute -right-2 -bottom-2'}
-          size={enableSourceHeader ? 'xsmall' : 'large'}
+          className={!enableSourceHeader && 'absolute -right-2 -bottom-2'}
+          size={enableSourceHeader ? 'large' : 'xsmall'}
         />
       </div>
       <div className="flex flex-col flex-1 flex-grow mr-6 ml-2 typo-footnote">
         <span className="font-bold line-clamp-2">
-          {enableSourceHeader ? author.name : source.name}
+          {enableSourceHeader ? source.name : author.name}
         </span>
         <PostMetadata
           className="break-words line-clamp-1"
           createdAt={createdAt}
-          description={enableSourceHeader ? `@${author.username}` : author.name}
+          description={enableSourceHeader ? author.name : `@${author.username}`}
         />
       </div>
     </div>
