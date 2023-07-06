@@ -36,7 +36,7 @@ const seo: NextSeoProps = {
 const NewSquad = (): ReactElement => {
   const { isReady: isRouteReady, query } = useRouter();
   const origin = query.origin as Origin;
-  const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const { user, isAuthReady, isFetched } = useAuthContext();
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { addSquad } = useBoot();
@@ -85,7 +85,7 @@ const NewSquad = (): ReactElement => {
     return <MangeSquadPageSkeleton />;
   }
 
-  if (!user || (!squads?.length && isAuthReady)) {
+  if (!user) {
     return <Unauthorized />;
   }
 
