@@ -26,6 +26,10 @@ import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
+import { OnboardingV2 } from '../lib/featureValues';
+import { useFeaturesContext } from '../contexts/FeaturesContext';
+import { OnboardingOverlay } from './onboarding/OnboardingOverlay';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -67,6 +71,8 @@ export default function MainLayout({
   showPostButton,
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
+  const { user } = useAuthContext();
+  const { onboardingV2 } = useFeaturesContext();
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
@@ -137,6 +143,7 @@ export default function MainLayout({
       {customBanner || (
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
+      {!user && onboardingV2 !== OnboardingV2.Control && <OnboardingOverlay />}
       <InAppNotificationElement />
       <LazyModalElement />
       <PromptElement />

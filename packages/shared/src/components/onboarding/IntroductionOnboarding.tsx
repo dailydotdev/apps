@@ -6,28 +6,33 @@ import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
 import { Justify } from '../utilities';
 import { OnboardingStep, OnboardingStepProps, OnboardingTitle } from './common';
 import Container from './OnboardingStep';
-import { ClickableText } from '../buttons/ClickableText';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
+import { MemberAlready } from './MemberAlready';
+
+interface IntroductionOnboardingTitleProps {
+  className?: string;
+}
+
+export const IntroductionOnboardingTitle = ({
+  className,
+}: IntroductionOnboardingTitleProps): ReactElement => (
+  <OnboardingTitle className={className}>
+    Make the feed,
+    <span className="ml-1 text-theme-color-cabbage">your feed.</span>
+  </OnboardingTitle>
+);
 
 function IntroductionOnboarding({
   onClose,
 }: OnboardingStepProps): ReactElement {
-  const { showLogin, user } = useAuthContext();
+  const { user } = useAuthContext();
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Intro}>
       {({ nextStep }: StepComponentProps) => (
         <>
           <Container
-            title={
-              <OnboardingTitle>
-                Make the feed,
-                <span className="ml-1 text-theme-color-cabbage">
-                  your feed.
-                </span>
-              </OnboardingTitle>
-            }
+            title={<IntroductionOnboardingTitle />}
             description="Supercharge your feed with content you'll love reading!"
             className={{
               container: 'overflow-hidden',
@@ -42,17 +47,7 @@ function IntroductionOnboarding({
               className="absolute -top-4 w-full h-full bg-cover"
             />
             {!user && (
-              <span className="flex py-10">
-                Already a member?
-                <ClickableText
-                  className="z-0 ml-1.5 font-bold"
-                  onClick={() =>
-                    showLogin(AuthTriggers.Onboarding, { isLogin: true })
-                  }
-                >
-                  Log in
-                </ClickableText>
-              </span>
+              <MemberAlready className={{ container: 'py-10', login: 'z-0' }} />
             )}
           </Container>
           <Modal.Footer justify={Justify.Between}>

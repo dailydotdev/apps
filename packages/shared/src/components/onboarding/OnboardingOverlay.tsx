@@ -1,0 +1,36 @@
+import React, { ReactElement } from 'react';
+import Logo from '../Logo';
+import { IntroductionOnboardingTitle } from './IntroductionOnboarding';
+import { cloudinary } from '../../lib/image';
+import { Button } from '../buttons/Button';
+import { MemberAlready } from './MemberAlready';
+
+export function OnboardingOverlay(): ReactElement {
+  return (
+    <div className="flex overflow-auto absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
+      <Logo className="py-8 px-10 w-auto laptop:w-full" />
+      <div className="flex relative flex-col flex-1 items-center mt-6 w-full max-w-[22.5rem] max-h-[40rem]">
+        <IntroductionOnboardingTitle />
+        <p className="px-6 mt-3 text-center text-theme-label-secondary typo-body">
+          Pick a few subjects that interest you.
+          <br />
+          You can always change these later.
+        </p>
+        <div className="flex flex-1" />
+        <div
+          style={{
+            backgroundImage: `url(${cloudinary.feedFilters.yourFeed})`,
+          }}
+          className="absolute h-full bg-no-repeat bg-contain w-[150%]"
+        />
+        <Button className="btn-primary w-[22.5rem]">Next</Button>
+        <MemberAlready
+          className={{
+            container: 'text-theme-label-tertiary font-thin py-4',
+            login: 'text-theme-label-primary',
+          }}
+        />
+      </div>
+    </div>
+  );
+}

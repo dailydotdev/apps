@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { IFlags } from 'flagsmith';
 import {
   Features,
@@ -9,6 +15,7 @@ import {
 import {
   InAppNotificationPosition,
   OnboardingFiltersLayout,
+  OnboardingV2,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
@@ -26,12 +33,15 @@ interface Experiments {
   inAppNotificationPosition?: InAppNotificationPosition;
   hasSquadAccess?: boolean;
   showHiring?: boolean;
+  onboardingV2?: OnboardingV2;
 }
 
 export interface FeaturesData extends Experiments {
   flags: IFlags;
   isFlagsFetched?: boolean;
   isFeaturesLoaded?: boolean;
+  isOnboardingOpen?: boolean;
+  onIsOnboardingOpen?(value: boolean): void;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
@@ -73,6 +83,8 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.InAppNotificationPosition,
       flags,
     ),
+    // onboardingV2: getFeatureValue(Features.OnboardingV2, flags),
+    onboardingV2: OnboardingV2.V1,
     hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
     showHiring: isFeaturedEnabled(Features.ShowHiring, flags),
   };
@@ -84,6 +96,8 @@ export const FeaturesContextProvider = ({
   children,
   flags,
 }: FeaturesContextProviderProps): ReactElement => {
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
   const featuresFlags: FeaturesData = useMemo(() => {
     const features = getFeatures(flags);
     const props = { isFeaturesLoaded, isFlagsFetched };
@@ -97,8 +111,20 @@ export const FeaturesContextProvider = ({
     const result = getFeatures(updated);
 
     globalThis.getFeatureKeys = () => Object.keys(flags);
-    return { ...result, ...props };
-  }, [flags, isFeaturesLoaded, isFlagsFetched]);
+
+    return {
+      ...result,
+      ...props,
+      isOnboardingOpen,
+      onIsOnboardingOpen: setIsOnboardingOpen,
+    };
+  }, [
+    flags,
+    isFeaturesLoaded,
+    isFlagsFetched,
+    isOnboardingOpen,
+    setIsOnboardingOpen,
+  ]);
 
   return (
     <FeaturesContext.Provider value={featuresFlags}>
@@ -106,3 +132,6 @@ export const FeaturesContextProvider = ({
     </FeaturesContext.Provider>
   );
 };
+
+export const useFeaturesContext = (): FeaturesData =>
+  useContext(FeaturesContext);

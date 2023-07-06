@@ -33,7 +33,9 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import FeaturesContext from '../contexts/FeaturesContext';
+import FeaturesContext, {
+  useFeaturesContext,
+} from '../contexts/FeaturesContext';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
   ToastSubject,
@@ -131,6 +133,8 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   return {};
 };
 
+const HIDDEN_SCROLLBAR = 'hidden-scrollbar';
+
 const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
@@ -159,6 +163,8 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
   const { subject } = useToastNotification();
+  const { isOnboardingOpen, isFeaturesLoaded, onIsOnboardingOpen } =
+    useFeaturesContext();
   const {
     openNewTab,
     spaciness,
@@ -226,7 +232,28 @@ export default function Feed<T>({
   const virtualizedNumCards = useList ? 1 : numCards;
   const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
 
-  if (!loadedSettings) {
+  useEffect(() => {
+    const feeds = ['source', 'squad'];
+    if (
+      !isFeaturesLoaded ||
+      feeds.includes(feedName) ||
+      document.body.classList.contains(HIDDEN_SCROLLBAR)
+    ) {
+      return null;
+    }
+
+    console.log('setting');
+
+    onIsOnboardingOpen(true);
+    document.body.classList.add(HIDDEN_SCROLLBAR);
+
+    return () => {
+      onIsOnboardingOpen(false);
+      document.body.classList.remove(HIDDEN_SCROLLBAR);
+    };
+  }, [isFeaturesLoaded, onIsOnboardingOpen, feedName]);
+
+  if (!loadedSettings || isOnboardingOpen) {
     return <></>;
   }
 
@@ -393,9 +420,11 @@ export default function Feed<T>({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!selectedPost) {
+      if (isOnboardingOpen) return;
+
       document.body.classList.remove('hidden-scrollbar');
     }
-  }, [selectedPost]);
+  }, [selectedPost, isOnboardingOpen]);
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>

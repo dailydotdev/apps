@@ -3,6 +3,7 @@ import { OnboardingStep } from '../components/onboarding/common';
 import {
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
+  OnboardingV2,
 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
@@ -135,6 +136,12 @@ export class Features<T extends FeatureValue = string> {
     'in_app_notification_position',
     InAppNotificationPositionEnum.Bottom,
     [InAppNotificationPositionEnum.Bottom, InAppNotificationPositionEnum.Top],
+  );
+
+  static readonly OnboardingV2 = new Features(
+    'onboarding_v2',
+    OnboardingV2.Control,
+    [OnboardingV2.Control, OnboardingV2.V1],
   );
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');
