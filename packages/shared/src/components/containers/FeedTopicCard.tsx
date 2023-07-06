@@ -15,6 +15,7 @@ interface FeedTopicCardProps {
   isActive?: boolean;
   topicLayout?: OnboardingFiltersLayout;
   onClick?: (e: ButtonEvent) => void;
+  isAnimated?: boolean;
 }
 
 interface ClassName {
@@ -80,6 +81,7 @@ function FeedFilterCard({
   isActive,
   topicLayout = OnboardingFiltersLayout.Grid,
   onClick,
+  isAnimated = true,
 }: FeedTopicCardProps): ReactElement {
   const backgroundLayers = background[topicLayout];
 
@@ -93,7 +95,7 @@ function FeedFilterCard({
         classes[topicLayout].container,
       )}
     >
-      {backgroundLayers}
+      {isAnimated && backgroundLayers}
       <Icon layout={topicLayout} isActive={isActive} />
       <span
         className={classNames(
