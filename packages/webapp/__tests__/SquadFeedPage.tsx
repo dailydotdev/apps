@@ -283,6 +283,7 @@ describe('squad header bar', () => {
   });
 
   it('should copy invitation link', async () => {
+    requestedSquad.public = false;
     requestedSquad.currentMember = {
       ...defaultSquad.currentMember,
       permissions: [SourcePermissions.Invite],
@@ -301,6 +302,31 @@ describe('squad header bar', () => {
     await new Promise(process.nextTick);
 
     const invitation = `https://app.daily.dev/squads/webteam/3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8`;
+    await waitFor(() =>
+      expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
+    );
+  });
+
+  it('should copy invitation link for public squad', async () => {
+    requestedSquad.public = true;
+    requestedSquad.currentMember = {
+      ...defaultSquad.currentMember,
+      permissions: [SourcePermissions.Invite],
+    };
+    renderComponent();
+    const invite = await screen.findByText('Copy invitation link');
+
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SquadInvite },
+      },
+      result: { data: { _: true } },
+    });
+    fireEvent.click(invite);
+    await new Promise(process.nextTick);
+
+    const invitation = `https://app.daily.dev/squads/webteam?cid=squad&userid=u1`;
     await waitFor(() =>
       expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
     );

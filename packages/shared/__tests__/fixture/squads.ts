@@ -152,28 +152,38 @@ export const generateTestMember = (
   role: SourceMemberRole.Member,
 });
 
-export const generateTestSquad = (props: Partial<Squad> = {}): Squad => ({
-  id: '343f82f0-85f0-4f10-a666-aa331d8d7a1b',
-  active: true,
-  handle: 'webteam',
-  name: 'Web team',
-  permalink: 'https://app.daily.dev/squads/webteam',
-  public: true,
-  type: SourceType.Squad,
-  description: 'A squad for the web team 🥳',
-  image:
-    'https://daily-now-res.cloudinary.com/image/upload/v1675848308/squads/343f82f0-85f0-4f10-a666-aa331d8d7a1b.png',
-  membersCount: 12,
-  currentMember: {
-    role: SourceMemberRole.Member,
-    referralToken: '3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8',
-    user: {
-      id: 'u1',
+export const generateTestSquad = (props: Partial<Squad> = {}): Squad => {
+  const squad = {
+    id: '343f82f0-85f0-4f10-a666-aa331d8d7a1b',
+    active: true,
+    handle: 'webteam',
+    name: 'Web team',
+    permalink: 'https://app.daily.dev/squads/webteam',
+    public: true,
+    type: SourceType.Squad,
+    description: 'A squad for the web team 🥳',
+    image:
+      'https://daily-now-res.cloudinary.com/image/upload/v1675848308/squads/343f82f0-85f0-4f10-a666-aa331d8d7a1b.png',
+    membersCount: 12,
+    currentMember: {
+      role: SourceMemberRole.Member,
+      referralToken: '3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8',
+      user: {
+        id: 'u1',
+      },
+      permissions: ['post'],
     },
-    permissions: ['post'],
-  },
-  ...props,
-});
+    ...props,
+  };
+
+  if (squad.public) {
+    squad.referralUrl = `https://app.daily.dev/squads/${squad.handle}?cid=squad&userid=${squad.currentMember.user.id}`;
+  } else {
+    squad.referralUrl = `https://app.daily.dev/squads/${squad.handle}/${squad.currentMember.referralToken}`;
+  }
+
+  return squad;
+};
 
 export const generateForbiddenSquadResult = (): GraphQLResult<SquadData> => ({
   data: { source: null },
