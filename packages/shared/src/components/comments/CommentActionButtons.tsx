@@ -11,6 +11,7 @@ import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,
   UPVOTE_COMMENT_MUTATION,
+  OptionMenuItem,
 } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
 import { graphqlUrl } from '../../lib/config';
@@ -30,6 +31,8 @@ import classed from '../../lib/classed';
 import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
 import { RequestKey } from '../../lib/query';
+import FlagIcon from '../icons/Flag';
+import useReportComment from '../../hooks/useReportComment';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
@@ -67,6 +70,7 @@ export default function CommentActionButtons({
   const { user, showLogin } = useContext(AuthContext);
   const [upvoted, setUpvoted] = useState(comment.upvoted);
   const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
+  const { openReportCommentModal } = useReportComment();
 
   const queryClient = useQueryClient();
 
@@ -144,6 +148,31 @@ export default function CommentActionButtons({
       SourcePermissions.CommentDelete,
     );
 
+  const postOptions: OptionMenuItem[] = [];
+
+  if (canModifyComment) {
+    postOptions.push(
+      {
+        text: 'Edit comment',
+        action: () => onEdit(comment),
+        icon: <EditIcon />,
+      },
+      {
+        text: 'Delete comment',
+        action: () => onDelete(comment, parentId),
+        icon: <TrashIcon />,
+      },
+    );
+  }
+
+  if (!isAuthor) {
+    postOptions.push({
+      text: 'Report comment',
+      action: () => openReportCommentModal(comment),
+      icon: <FlagIcon />,
+    });
+  }
+
   return (
     <div className={classNames('flex flex-row items-center', className)}>
       <SimpleTooltip content="Upvote">
@@ -172,7 +201,7 @@ export default function CommentActionButtons({
           className="mr-3 btn-tertiary-cabbage"
         />
       </SimpleTooltip>
-      {canModifyComment && (
+      {!!postOptions && (
         <OptionsButton
           tooltipPlacement="top"
           onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
@@ -194,18 +223,35 @@ export default function CommentActionButtons({
         className="menu-primary typo-callout"
         animation="fade"
       >
-        {isAuthor && (
+        {postOptions.map(({ text, action, icon }) => (
+          <Item key={text} onClick={action}>
+            <ContextItem>
+              {icon} {text}
+            </ContextItem>
+          </Item>
+        ))}
+
+        {/* {canModifyComment && (
           <Item onClick={() => onEdit(comment)}>
             <ContextItem>
               <EditIcon /> Edit comment
             </ContextItem>
           </Item>
-        )}
-        <Item onClick={() => onDelete(comment, parentId)}>
-          <ContextItem className="flex items-center w-full">
-            <TrashIcon /> Delete comment
-          </ContextItem>
-        </Item>
+        )} */}
+        {/* {canModifyComment && (
+          <Item onClick={() => onDelete(comment, parentId)}>
+            <ContextItem className="flex items-center w-full">
+              <TrashIcon /> Delete comment
+            </ContextItem>
+          </Item>
+        )} */}
+        {/* {!isAuthor && (
+          <Item onClick={() => console.log('Test')}>
+            <ContextItem>
+              <FlagIcon /> Report comment
+            </ContextItem>
+          </Item>
+        )} */}
       </PortalMenu>
     </div>
   );

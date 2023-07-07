@@ -1,9 +1,14 @@
 import React, { ReactElement } from 'react';
 import { ModalProps } from '../common/Modal';
 import { ReportModal } from './ReportModal';
+import useReportComment from '../../../hooks/useReportComment';
+import { Comment, ReportCommentReason } from '../../../graphql/comments';
+// import { postAnalyticsEvent } from '../../../lib/feed';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 
 interface Props extends ModalProps {
-  onReport?(): void;
+  onReport: (comment: Comment) => void;
+  comment: Comment;
 }
 
 const reportReasons: { value: string; label: string }[] = [
@@ -17,13 +22,39 @@ const reportReasons: { value: string; label: string }[] = [
 
 export function ReportCommentModal({
   onReport,
+  comment,
   ...props
 }: Props): ReactElement {
+  const { reportComment } = useReportComment();
+  const { trackEvent } = useAnalyticsContext();
+
+  const onReportComment = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    reason: ReportCommentReason,
+    text: string,
+  ): Promise<void> => {
+    const { successful } = await reportComment({
+      id: comment.id,
+      reason,
+      text,
+    });
+    if (!successful) return;
+
+    // TODO: Come back to this
+    // trackEvent(postAnalyticsEvent('report post comment', post, { extra: { origin } }));
+
+    if (typeof onReport === 'function') {
+      onReport(comment);
+    }
+
+    props.onRequestClose(event);
+  };
+
   return (
     <ReportModal
       {...props}
       isOpen
-      onReport={() => console.log('test')}
+      onReport={onReportComment}
       reasons={reportReasons}
       heading="Report comment"
     />

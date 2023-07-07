@@ -33,6 +33,7 @@ import EditIcon from './icons/Edit';
 import DownvoteIcon from './icons/Downvote';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
+import { OptionMenuItem } from '../graphql/comments';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -40,12 +41,6 @@ const PortalMenu = dynamic(
     ssr: false,
   },
 );
-
-interface PostOptions {
-  icon: ReactElement;
-  text: string;
-  action: () => unknown;
-}
 
 export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
@@ -209,7 +204,7 @@ export default function PostOptionsMenu({
     );
   };
 
-  const postOptions: PostOptions[] = [
+  const postOptions: OptionMenuItem[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
       text: 'Hide',

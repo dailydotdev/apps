@@ -1,9 +1,16 @@
 import request, { gql } from 'graphql-request';
+import { ReactElement } from 'react';
 import { Connection, Upvote } from './common';
 import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
+
+export interface OptionMenuItem {
+  icon: ReactElement;
+  text: string;
+  action: () => unknown;
+}
 
 export type ReportCommentReason =
   | 'HATEFUL'
@@ -193,6 +200,18 @@ export const EDIT_COMMENT_MUTATION = gql`
 export const PREVIEW_COMMENT_MUTATION = gql`
   query CommentPreview($content: String!, $sourceId: String) {
     preview: commentPreview(content: $content, sourceId: $sourceId)
+  }
+`;
+
+export const REPORT_COMMENT_MUTATION = gql`
+  mutation ReportComment(
+    commentId: ID!
+    reason: ReportCommentReason
+    note: String
+  ) {
+    reportComment(id: $id, reason: $reason, note: $note) {
+      _
+    }
   }
 `;
 

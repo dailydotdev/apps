@@ -4,9 +4,14 @@ import { Button } from '../../buttons/Button';
 import { Modal, ModalProps } from '../common/Modal';
 import { Justify } from '../../utilities';
 import { ReportReason } from '../../../graphql/posts';
+import { ReportCommentReason } from '../../../graphql/comments';
 
 interface Props extends ModalProps {
-  onReport(e: React.MouseEvent, reason: ReportReason, comment: string): void;
+  onReport(
+    e: React.MouseEvent,
+    reason: ReportReason | ReportCommentReason,
+    text: string,
+  ): void;
   reasons: RadioOption[] | ((reason: string) => RadioOption[]);
   heading: string;
   title?: string;
@@ -26,7 +31,7 @@ export function ReportModal({
   ...props
 }: Props): ReactElement {
   const [reason, setReason] = useState(null);
-  const [comment, setComment] = useState<string>();
+  const [text, setText] = useState<string>();
 
   return (
     <Modal isOpen kind={Modal.Kind.FixedCenter} {...props}>
@@ -47,19 +52,19 @@ export function ReportModal({
               Anything else you&apos;d like to add?
             </p>
             <textarea
-              onChange={(event) => setComment(event.target.value)}
+              onChange={(event) => setText(event.target.value)}
               className="self-stretch p-2 mb-1 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
               data-testid="report_comment"
             />
           </>
         )}
       </Modal.Body>
-      <Modal.Footer justify={Justify.Between}>
+      <Modal.Footer justify={footer ? Justify.Between : Justify.End}>
         {footer}
         <Button
           className="btn-primary"
-          disabled={!reason || (reason === OTHER_KEY && !comment) || disabled}
-          onClick={(e) => onReport(e, reason, comment)}
+          disabled={!reason || (reason === OTHER_KEY && !text) || disabled}
+          onClick={(e) => onReport(e, reason, text)}
         >
           Submit report
         </Button>

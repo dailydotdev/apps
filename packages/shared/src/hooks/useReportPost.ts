@@ -18,7 +18,7 @@ type UseReportPostRet = {
   reportPost: (variables: {
     id: string;
     reason: ReportReason | ReportCommentReason;
-    comment?: string;
+    text?: string;
     tags?: string[];
   }) => BooleanPromise;
   hidePost: (id: string) => BooleanPromise;
@@ -28,7 +28,7 @@ type UseReportPostRet = {
 interface ReportPostProps {
   id: string;
   reason: ReportReason;
-  comment: string;
+  text: string;
 }
 
 export default function useReportPost(): UseReportPostRet {

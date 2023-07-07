@@ -127,12 +127,12 @@ export function ReportPostModal({
   const onReportPost = async (
     event: MouseEvent,
     reason: ReportReason,
-    comment: string,
+    text: string,
   ): Promise<void> => {
     const { successful } = await reportPost({
       id: post.id,
       reason,
-      comment,
+      text,
       tags: selectedTags,
     });
 
