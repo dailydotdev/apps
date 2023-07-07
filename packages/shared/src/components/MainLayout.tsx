@@ -72,7 +72,7 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useAuthContext();
-  const { onboardingV2 } = useFeaturesContext();
+  const { onboardingV2, isOnboardingOpen } = useFeaturesContext();
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
@@ -143,7 +143,9 @@ export default function MainLayout({
       {customBanner || (
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
-      {!user && onboardingV2 !== OnboardingV2.Control && <OnboardingOverlay />}
+      {!user && isOnboardingOpen && onboardingV2 !== OnboardingV2.Control && (
+        <OnboardingOverlay />
+      )}
       <InAppNotificationElement />
       <LazyModalElement />
       <PromptElement />
