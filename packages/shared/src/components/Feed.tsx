@@ -33,9 +33,7 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import FeaturesContext, {
-  useFeaturesContext,
-} from '../contexts/FeaturesContext';
+import { useFeaturesContext } from '../contexts/FeaturesContext';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
   ToastSubject,
@@ -44,7 +42,7 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ExperimentWinner } from '../lib/featureValues';
+import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -155,7 +153,6 @@ export default function Feed<T>({
   options,
   allowPin,
 }: FeedProps<T>): ReactElement {
-  const { showCommentPopover } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -163,8 +160,13 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
   const { subject } = useToastNotification();
-  const { isOnboardingOpen, isFeaturesLoaded, onIsOnboardingOpen } =
-    useFeaturesContext();
+  const {
+    isOnboardingOpen,
+    isFeaturesLoaded,
+    onIsOnboardingOpen,
+    showCommentPopover,
+    onboardingV2,
+  } = useFeaturesContext();
   const {
     openNewTab,
     spaciness,
@@ -213,7 +215,8 @@ export default function Feed<T>({
     feedName === MainFeedPage.Popular &&
     !isLoading &&
     alerts?.filter &&
-    !user?.id;
+    !user?.id &&
+    onboardingV2 === OnboardingV2.Control;
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
@@ -242,8 +245,6 @@ export default function Feed<T>({
       return null;
     }
 
-    console.log('setting');
-
     onIsOnboardingOpen(true);
     document.body.classList.add(HIDDEN_SCROLLBAR);
 
@@ -253,7 +254,7 @@ export default function Feed<T>({
     };
   }, [isFeaturesLoaded, onIsOnboardingOpen, feedName]);
 
-  if (!loadedSettings || isOnboardingOpen) {
+  if (!loadedSettings || (isOnboardingOpen && !user)) {
     return <></>;
   }
 

@@ -1,13 +1,13 @@
 import React, {
-  ReactNode,
-  ReactElement,
-  useMemo,
-  useState,
-  useEffect,
-  useContext,
-  useRef,
-  SetStateAction,
   Dispatch,
+  ReactElement,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -20,7 +20,8 @@ import AlertContext from './AlertContext';
 import AnalyticsContext from './AnalyticsContext';
 import { isTesting } from '../lib/constants';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import { ExperimentWinner } from '../lib/featureValues';
+import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
+import { useFeaturesContext } from './FeaturesContext';
 
 const OnboardingModal = dynamic(
   () =>
@@ -57,6 +58,7 @@ export const OnboardingContextProvider = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const { registerLocalFilters } = useMyFeed();
   const [isOnboarding, setIsOnboarding] = useState(false);
+  const { onboardingV2 } = useFeaturesContext();
   const [isRegisteringFilters, setIsRegisteringFilters] = useState(false);
   const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
   const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);
@@ -115,6 +117,7 @@ export const OnboardingContextProvider = ({
       hasTriedOnboarding,
       !alerts.filter,
       !isHome,
+      onboardingV2 !== OnboardingV2.Control,
     ];
 
     if (conditions.some((condition) => !!condition)) {
@@ -124,9 +127,16 @@ export const OnboardingContextProvider = ({
     setHasTriedOnboarding(false);
     setOnboardingMode(OnboardingMode.Auto);
     setIsOnboarding(true);
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasOnboardingLoaded, user, pathname, loadedAlerts]);
+  }, [
+    setHasTriedOnboarding,
+    hasTriedOnboarding,
+    alerts?.filter,
+    hasOnboardingLoaded,
+    user,
+    pathname,
+    loadedAlerts,
+    onboardingV2,
+  ]);
 
   const onCloseOnboardingModal = () => {
     if (onboardingMode === OnboardingMode.Auto) {
@@ -185,5 +195,8 @@ export const OnboardingContextProvider = ({
     </OnboardingContext.Provider>
   );
 };
+
+export const useOnboardingContext = (): OnboardingContextData =>
+  useContext(OnboardingContext);
 
 export default OnboardingContext;

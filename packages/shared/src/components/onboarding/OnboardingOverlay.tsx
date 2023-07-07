@@ -1,54 +1,84 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useRef, useState } from 'react';
+import classNames from 'classnames';
 import Logo from '../Logo';
 import { FilterOnboarding } from './FilterOnboarding';
 import { IntroductionOnboardingTitle } from './IntroductionOnboarding';
 import { Button } from '../buttons/Button';
 import { MemberAlready } from './MemberAlready';
 import { cloudinary } from '../../lib/image';
+import ConditionalWrapper from '../ConditionalWrapper';
+import AuthOptions from '../auth/AuthOptions';
+import { AuthTriggers } from '../../lib/auth';
+import { useOnboardingContext } from '../../contexts/OnboardingContext';
 
 export function OnboardingOverlay(): ReactElement {
   const [isFiltering, setIsFiltering] = useState(false);
-  const [selectedTopics, setSelectedTopics] = useState({});
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const { onShouldUpdateFilters } = useOnboardingContext();
+
+  const onClickNext = () => {
+    if (!isFiltering) return setIsFiltering(true);
+
+    return setIsAuthenticating(true);
+  };
+
+  const formRef = useRef<HTMLFormElement>();
 
   return (
     <div className="flex overflow-auto absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
       <Logo className="py-8 px-10 w-auto laptop:w-full" />
-      <div className="flex relative flex-col flex-1 items-center mt-6 w-full max-w-[22.5rem] max-h-[40rem]">
+      <div
+        className={classNames(
+          'flex relative flex-col flex-1 items-center mt-6 w-full max-h-[40rem]',
+          isFiltering
+            ? 'laptop:max-w-[48.75rem] tablet:max-w-[32rem]'
+            : 'max-w-[22.5rem]',
+        )}
+      >
         <IntroductionOnboardingTitle />
         <p className="px-6 mt-3 text-center text-theme-label-secondary typo-body">
           Pick a few subjects that interest you.
           <br />
           You can always change these later.
         </p>
-        <div className="flex flex-1" />
-        {isFiltering ? (
-          <FilterOnboarding
-            isAnimated={false}
-            className="mt-4"
-            onSelectedTopics={setSelectedTopics}
-          />
-        ) : (
-          <div
-            style={{
-              backgroundImage: `url(${cloudinary.feedFilters.yourFeed})`,
-            }}
-            className="absolute h-full bg-no-repeat bg-contain w-[150%]"
-          />
-        )}
-        <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 bg-theme-bg-primary">
-          <Button
-            className="btn-primary w-[22.5rem]"
-            onClick={() => setIsFiltering(true)}
-          >
-            Next
-          </Button>
-          <MemberAlready
-            className={{
-              container: 'text-theme-label-tertiary py-4',
-              login: 'text-theme-label-primary',
-            }}
-          />
-        </div>
+        {!isAuthenticating && <div className="flex flex-1" />}
+        <ConditionalWrapper
+          condition={isAuthenticating}
+          wrapper={() => (
+            <AuthOptions
+              trigger={AuthTriggers.Filter}
+              formRef={formRef}
+              simplified
+              onSuccessfulLogin={() => onShouldUpdateFilters(true)}
+              onSuccessfulRegistration={() => onShouldUpdateFilters(true)}
+            />
+          )}
+        >
+          {isFiltering ? (
+            <FilterOnboarding
+              isAnimated={false}
+              className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
+            />
+          ) : (
+            <div
+              style={{
+                backgroundImage: `url(${cloudinary.feedFilters.yourFeed})`,
+              }}
+              className="absolute h-full bg-no-repeat bg-contain w-[150%]"
+            />
+          )}
+          <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full bg-theme-bg-primary">
+            <Button className="btn-primary w-[22.5rem]" onClick={onClickNext}>
+              Next
+            </Button>
+            <MemberAlready
+              className={{
+                container: 'text-theme-label-tertiary py-4',
+                login: 'text-theme-label-primary',
+              }}
+            />
+          </div>
+        </ConditionalWrapper>
       </div>
     </div>
   );

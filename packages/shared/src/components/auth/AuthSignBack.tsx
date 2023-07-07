@@ -1,14 +1,14 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import AuthModalHeader from './AuthModalHeader';
-import { Provider, providerMap } from './common';
+import { AuthFormProps, Provider, providerMap } from './common';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
 import AuthModalFooter from './AuthModalFooter';
 import AuthContainer from './AuthContainer';
 import { ButtonSize } from '../buttons/Button';
 
-interface AuthSignBackProps {
+interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;
   onRegister?: () => void;
   onProviderClick?: (provider: string) => unknown;
@@ -22,6 +22,7 @@ export const AuthSignBack = ({
   children,
   onRegister,
   onProviderClick,
+  simplified,
 }: AuthSignBackProps): ReactElement => {
   const signback = useMemo<Provider>(() => {
     const method = storage.getItem(SIGNIN_METHOD_KEY);
@@ -32,7 +33,7 @@ export const AuthSignBack = ({
 
   return (
     <span className="flex flex-col flex-1">
-      <AuthModalHeader title="Login to daily.dev" />
+      {!simplified && <AuthModalHeader title="Login to daily.dev" />}
       <AuthContainer>
         <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
           Sign back in with
