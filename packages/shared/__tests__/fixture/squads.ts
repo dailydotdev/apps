@@ -176,10 +176,12 @@ export const generateTestSquad = (props: Partial<Squad> = {}): Squad => {
     ...props,
   };
 
-  if (squad.public) {
-    squad.referralUrl = `https://app.daily.dev/squads/${squad.handle}?cid=squad&userid=${squad.currentMember.user.id}`;
-  } else {
-    squad.referralUrl = `https://app.daily.dev/squads/${squad.handle}/${squad.currentMember.referralToken}`;
+  if (squad.currentMember) {
+    if (squad.public) {
+      squad.referralUrl = `https://app.daily.dev/squads/${squad.handle}?cid=squad&userid=${squad.currentMember.user?.id}`;
+    } else {
+      squad.referralUrl = `https://app.daily.dev/squads/${squad.handle}/${squad.currentMember.referralToken}`;
+    }
   }
 
   return squad;
