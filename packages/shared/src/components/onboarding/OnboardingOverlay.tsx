@@ -83,14 +83,9 @@ export function OnboardingOverlay(): ReactElement {
               className="absolute h-full bg-no-repeat bg-contain w-[150%]"
             />
           )}
-          <div
-            className={classNames(
-              'flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full',
-              isFiltering
-                ? 'from-theme-bg-primary bg-gradient-to-t to-transparent'
-                : 'bg-theme-bg-primary',
-            )}
-          >
+          <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">
+            <div className="flex absolute inset-0 -z-1 w-full h-1/2 bg-gradient-to-t to-transparent from-theme-bg-primary" />
+            <div className="flex absolute inset-0 top-1/2 -z-1 w-full h-1/2 bg-theme-bg-primary" />
             <Button className="btn-primary w-[22.5rem]" onClick={onClickNext}>
               Next
             </Button>
