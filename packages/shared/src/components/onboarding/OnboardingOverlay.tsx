@@ -25,11 +25,11 @@ export function OnboardingOverlay(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
 
   return (
-    <div className="flex overflow-auto absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
+    <div className="flex overflow-auto overflow-x-hidden absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
       <Logo className="py-8 px-10 w-auto laptop:w-full" />
       <div
         className={classNames(
-          'flex relative flex-col flex-1 items-center mt-6 w-full max-h-[40rem]',
+          'flex relative flex-col flex-1 items-center mt-24 laptop:mt-6 w-full max-h-[40rem]',
           isFiltering
             ? 'laptop:max-w-[48.75rem] tablet:max-w-[32rem]'
             : 'max-w-[22.5rem]',
