@@ -7,6 +7,7 @@ export type AnalyticsContextData = {
   trackEvent: (event: AnalyticsEvent) => void;
   trackEventStart: (id: string, event: AnalyticsEvent) => void;
   trackEventEnd: (id: string, now?: Date) => void;
+  sendBeacon: () => void;
 };
 
 const generateEventId = (now = new Date()): string => {
@@ -45,6 +46,7 @@ export default function useAnalyticsContextData(
   sharedPropsRef: MutableRefObject<Partial<AnalyticsEvent>>,
   getPage: () => string,
   durationEventsQueue: MutableRefObject<Map<string, AnalyticsEvent>>,
+  sendBeacon: () => void,
 ): AnalyticsContextData {
   return useMemo<AnalyticsContextData>(
     () => ({
@@ -71,7 +73,8 @@ export default function useAnalyticsContextData(
           pushToQueue([event]);
         }
       },
+      sendBeacon,
     }),
-    [sharedPropsRef, getPage, pushToQueue, durationEventsQueue],
+    [sharedPropsRef, getPage, pushToQueue, durationEventsQueue, sendBeacon],
   );
 }

@@ -19,15 +19,14 @@ export interface ToastNotification {
   timer: number;
   subject?: ToastSubject;
   onUndo?: AnyFunction;
+  undoCopy?: string;
 }
 
 export const TOAST_NOTIF_KEY = 'toast_notif';
 
-export interface NotifyOptionalProps {
-  timer?: number;
-  subject?: ToastSubject;
-  onUndo?: AnyFunction;
-}
+export type NotifyOptionalProps = Partial<
+  Pick<ToastNotification, 'timer' | 'subject' | 'onUndo' | 'undoCopy'>
+>;
 
 export const useToastNotification = (): UseToastNotification => {
   const client = useQueryClient();
@@ -48,6 +47,8 @@ export const useToastNotification = (): UseToastNotification => {
       subject: toast?.subject,
       dismissToast: () => toast && setToastNotification({ ...toast, timer: 0 }),
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [toast],
   );
 };

@@ -21,6 +21,9 @@ export const generateQueryKey = (
 export enum RequestKey {
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
+  PostCommentsMutations = 'post_comments_mutations',
+  Actions = 'actions',
+  ReferralCampaigns = 'referral_campaigns',
 }
 
 export type HasConnection<

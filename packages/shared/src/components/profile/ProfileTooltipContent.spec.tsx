@@ -1,6 +1,7 @@
 import React from 'react';
 import nock from 'nock';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/preact';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { ProfileTooltipContent } from './ProfileTooltipContent';
 import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 import user from '../../../__tests__/fixture/loggedUser';
@@ -22,7 +23,11 @@ const defaultTagsData = [
 const mockRank = { rank: defaultRankData, tags: defaultTagsData };
 
 const renderComponent = (rank: UserTooltipContentData = mockRank) => {
-  return render(<ProfileTooltipContent user={user} data={rank} />);
+  return render(
+    <QueryClientProvider client={new QueryClient()}>
+      <ProfileTooltipContent user={user} data={rank} />
+    </QueryClientProvider>,
+  );
 };
 
 describe('ProfileTooltipContent component', () => {

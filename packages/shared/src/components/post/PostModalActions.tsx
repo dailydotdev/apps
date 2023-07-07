@@ -11,7 +11,7 @@ import CloseIcon from '../icons/MiniClose';
 import OpenLinkIcon from '../icons/OpenLink';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { banPost, Post } from '../../graphql/posts';
+import { banPost, internalReadTypes, Post } from '../../graphql/posts';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -20,6 +20,7 @@ import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
+import { Origin } from '../../lib/analytics';
 
 export interface PostModalActionsProps extends ShareBookmarkProps {
   post: Post;
@@ -60,6 +61,7 @@ export function PostModalActions({
     });
   };
 
+  const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
 
   const banPostPrompt = async () => {
@@ -78,7 +80,7 @@ export function PostModalActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {onReadArticle && (
+      {!isInternalReadType && onReadArticle && (
         <SimpleTooltip
           placement="bottom"
           content="Read post"
@@ -119,6 +121,7 @@ export function PostModalActions({
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         contextId={contextMenuId}
+        origin={Origin.ArticleModal}
       />
     </Container>
   );

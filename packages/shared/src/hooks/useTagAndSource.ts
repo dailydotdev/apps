@@ -1,10 +1,13 @@
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext } from 'react';
+import { useQueryClient } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 import { BooleanPromise } from '../components/filters/common';
+import { generateQueryKey } from '../lib/query';
+import useDebounce from './useDebounce';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -20,6 +23,7 @@ export interface SourceActionArguments {
 interface UseTagAndSourceProps {
   origin?: string;
   postId?: string;
+  shouldInvalidateQueries?: boolean;
 }
 
 interface UseTagAndSource {
@@ -34,12 +38,16 @@ interface UseTagAndSource {
 export default function useTagAndSource({
   origin,
   postId,
+  shouldInvalidateQueries = true,
 }: UseTagAndSourceProps): UseTagAndSource {
+  const queryClient = useQueryClient();
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const shouldShowLogin = (requireLogin?: boolean) =>
-    user ? false : requireLogin;
+  const shouldShowLogin = useCallback(
+    (requireLogin?: boolean) => (user ? false : requireLogin),
+    [user],
+  );
 
   const {
     followTags,
@@ -50,130 +58,199 @@ export default function useTagAndSource({
     unfollowSource,
   } = useMutateFilters(user);
 
-  const onFollowTags = async ({
-    tags,
-    category,
-    requireLogin,
-  }: TagActionArguments) => {
-    if (shouldShowLogin(requireLogin)) {
-      showLogin(origin);
-      return { successful: false };
-    }
-    trackEvent({
-      event_name: `follow${category ? ' all' : ''}`,
-      target_type: 'tag',
-      target_id: category || tags[0],
-      extra: JSON.stringify({ origin }),
-    });
-    if (alerts?.filter && user) {
-      updateAlerts({ filter: false, myFeed: 'created' });
-    }
-    await followTags({ tags });
-    return { successful: true };
-  };
-
-  const onUnfollowTags = async ({
-    tags,
-    category,
-    requireLogin,
-  }: TagActionArguments) => {
-    if (shouldShowLogin(requireLogin)) {
-      showLogin(origin);
-      return { successful: false };
-    }
-    trackEvent({
-      event_name: `unfollow${category ? ' all' : ''}`,
-      target_type: 'tag',
-      target_id: category || tags[0],
-      extra: JSON.stringify({ origin }),
-    });
-    await unfollowTags({ tags });
-    return { successful: true };
-  };
-
-  const onBlockTags = async ({ tags, requireLogin }: TagActionArguments) => {
-    if (shouldShowLogin(requireLogin)) {
-      showLogin(origin);
-      return { successful: false };
+  const [invalidateQueries] = useDebounce(() => {
+    if (!shouldInvalidateQueries) {
+      return;
     }
 
-    trackEvent({
-      event_name: 'block',
-      target_type: 'tag',
-      target_id: tags[0],
-      extra: JSON.stringify({ origin, post_id: postId }),
-    });
-    await blockTag({ tags });
-    return { successful: true };
-  };
+    queryClient.invalidateQueries(generateQueryKey('my-feed', user));
+  }, 100);
 
-  const onUnblockTags = async ({ tags, requireLogin }: TagActionArguments) => {
-    if (shouldShowLogin(requireLogin)) {
-      showLogin(origin);
-      return { successful: false };
-    }
-    trackEvent({
-      event_name: 'unblock',
-      target_type: 'tag',
-      target_id: tags[0],
-      extra: JSON.stringify({ origin, post_id: postId }),
-    });
-    await unblockTag({ tags });
-    return { successful: true };
-  };
+  const onFollowTags = useCallback(
+    async ({ tags, category, requireLogin }: TagActionArguments) => {
+      if (shouldShowLogin(requireLogin)) {
+        showLogin(origin);
+        return { successful: false };
+      }
+      trackEvent({
+        event_name: `follow${category ? ' all' : ''}`,
+        target_type: 'tag',
+        target_id: category || tags[0],
+        extra: JSON.stringify({ origin }),
+      });
+      if (alerts?.filter && user) {
+        updateAlerts({ filter: false, myFeed: 'created' });
+      }
+      await followTags({ tags });
 
-  const onFollowSource = async ({
-    source,
-    requireLogin,
-  }: SourceActionArguments) => {
-    if (shouldShowLogin(requireLogin)) {
-      showLogin(origin);
-      return { successful: false };
-    }
-    trackEvent({
-      event_name: 'follow',
-      target_type: 'source',
-      target_id: source?.id,
-      extra: JSON.stringify({ origin, post_id: postId }),
-    });
-    await followSource({ source });
-    return { successful: true };
-  };
+      invalidateQueries();
 
-  const onUnfollowSource = async ({
-    source,
-    requireLogin,
-  }: SourceActionArguments) => {
-    if (shouldShowLogin(requireLogin)) {
-      showLogin(origin);
-      return { successful: false };
-    }
-    trackEvent({
-      event_name: 'unfollow',
-      target_type: 'source',
-      target_id: source?.id,
-      extra: JSON.stringify({ origin, post_id: postId }),
-    });
-    await unfollowSource({ source });
-    return { successful: true };
-  };
-
-  return useMemo(
-    () => ({
-      onFollowTags,
-      onUnfollowTags,
-      onBlockTags,
-      onUnblockTags,
-      onFollowSource,
-      onUnfollowSource,
-    }),
+      return { successful: true };
+    },
     [
-      onFollowTags,
-      onUnfollowTags,
-      onBlockTags,
-      onUnblockTags,
-      onFollowSource,
-      onUnfollowSource,
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      updateAlerts,
+      user,
+      showLogin,
+      followTags,
+      alerts?.filter,
+      invalidateQueries,
     ],
   );
+
+  const onUnfollowTags = useCallback(
+    async ({ tags, category, requireLogin }: TagActionArguments) => {
+      if (shouldShowLogin(requireLogin)) {
+        showLogin(origin);
+        return { successful: false };
+      }
+      trackEvent({
+        event_name: `unfollow${category ? ' all' : ''}`,
+        target_type: 'tag',
+        target_id: category || tags[0],
+        extra: JSON.stringify({ origin }),
+      });
+      await unfollowTags({ tags });
+
+      invalidateQueries();
+
+      return { successful: true };
+    },
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      unfollowTags,
+      invalidateQueries,
+    ],
+  );
+
+  const onBlockTags = useCallback(
+    async ({ tags, requireLogin }: TagActionArguments) => {
+      if (shouldShowLogin(requireLogin)) {
+        showLogin(origin);
+        return { successful: false };
+      }
+
+      trackEvent({
+        event_name: 'block',
+        target_type: 'tag',
+        target_id: tags[0],
+        extra: JSON.stringify({ origin, post_id: postId }),
+      });
+      await blockTag({ tags });
+
+      invalidateQueries();
+
+      return { successful: true };
+    },
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      blockTag,
+      postId,
+      invalidateQueries,
+    ],
+  );
+
+  const onUnblockTags = useCallback(
+    async ({ tags, requireLogin }: TagActionArguments) => {
+      if (shouldShowLogin(requireLogin)) {
+        showLogin(origin);
+        return { successful: false };
+      }
+      trackEvent({
+        event_name: 'unblock',
+        target_type: 'tag',
+        target_id: tags[0],
+        extra: JSON.stringify({ origin, post_id: postId }),
+      });
+      await unblockTag({ tags });
+
+      invalidateQueries();
+
+      return { successful: true };
+    },
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      unblockTag,
+      postId,
+      invalidateQueries,
+    ],
+  );
+
+  const onFollowSource = useCallback(
+    async ({ source, requireLogin }: SourceActionArguments) => {
+      if (shouldShowLogin(requireLogin)) {
+        showLogin(origin);
+        return { successful: false };
+      }
+      trackEvent({
+        event_name: 'follow',
+        target_type: 'source',
+        target_id: source?.id,
+        extra: JSON.stringify({ origin, post_id: postId }),
+      });
+      await followSource({ source });
+
+      invalidateQueries();
+
+      return { successful: true };
+    },
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      followSource,
+      postId,
+      invalidateQueries,
+    ],
+  );
+
+  const onUnfollowSource = useCallback(
+    async ({ source, requireLogin }: SourceActionArguments) => {
+      if (shouldShowLogin(requireLogin)) {
+        showLogin(origin);
+        return { successful: false };
+      }
+      trackEvent({
+        event_name: 'unfollow',
+        target_type: 'source',
+        target_id: source?.id,
+        extra: JSON.stringify({ origin, post_id: postId }),
+      });
+      await unfollowSource({ source });
+
+      invalidateQueries();
+
+      return { successful: true };
+    },
+    [
+      trackEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      unfollowSource,
+      postId,
+      invalidateQueries,
+    ],
+  );
+
+  return {
+    onFollowTags,
+    onUnfollowTags,
+    onBlockTags,
+    onUnblockTags,
+    onFollowSource,
+    onUnfollowSource,
+  };
 }

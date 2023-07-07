@@ -10,7 +10,7 @@ import {
   screen,
   waitFor,
   within,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import {
@@ -55,8 +55,8 @@ import {
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
 import { FeaturesContextProvider } from '../contexts/FeaturesContext';
-import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { LazyModalElement } from './modals/LazyModalElement';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -86,6 +86,16 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
   variables = defaultVariables;
+});
+
+const originalScrollTo = window.scrollTo;
+
+beforeAll(() => {
+  window.scrollTo = jest.fn();
+});
+
+afterAll(() => {
+  window.scrollTo = originalScrollTo;
 });
 
 const createTagsSettingsMock = (
@@ -171,6 +181,7 @@ const renderComponent = (
             loginState: null,
           }}
         >
+          <LazyModalElement />
           <SettingsContext.Provider value={settingsContext}>
             <OnboardingContext.Provider
               value={{
@@ -594,82 +605,6 @@ it('should update feed item on subscription message', async () => {
   });
 });
 
-it('should open comment popup on upvote', async () => {
-  renderComponent([
-    createFeedMock({
-      pageInfo: defaultFeedPage.pageInfo,
-      edges: [defaultFeedPage.edges[0]],
-    }),
-    {
-      request: {
-        query: UPVOTE_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
-      },
-      result: () => {
-        return { data: { _: true } };
-      },
-    },
-  ]);
-  const [el] = await screen.findAllByLabelText('Upvote');
-  el.click();
-  await waitFor(async () =>
-    expect(await screen.findByRole('textbox')).toBeInTheDocument(),
-  );
-});
-
-it('should send comment through the comment popup', async () => {
-  let mutationCalled = false;
-  const newComment = {
-    __typename: 'Comment',
-    id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-    content: 'comment',
-    createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
-    permalink: 'https://daily.dev',
-  };
-  renderComponent([
-    createFeedMock({
-      pageInfo: defaultFeedPage.pageInfo,
-      edges: [defaultFeedPage.edges[0]],
-    }),
-    {
-      request: {
-        query: UPVOTE_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
-      },
-      result: () => {
-        return { data: { _: true } };
-      },
-    },
-    {
-      request: {
-        query: COMMENT_ON_POST_MUTATION,
-        variables: {
-          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-          content: 'comment',
-        },
-      },
-      result: () => {
-        mutationCalled = true;
-        return {
-          data: {
-            comment: newComment,
-          },
-        };
-      },
-    },
-  ]);
-  const [upvoteBtn] = await screen.findAllByLabelText('Upvote');
-  upvoteBtn.click();
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  fireEvent.change(input, { target: { value: 'comment' } });
-  const commentBtn = await screen.findByText('Post');
-  commentBtn.click();
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await waitFor(async () =>
-    expect(screen.queryByRole('textbox')).not.toBeInTheDocument(),
-  );
-});
-
 it('should report broken link', async () => {
   let mutationCalled = false;
   renderComponent([
@@ -680,7 +615,11 @@ it('should report broken link', async () => {
     {
       request: {
         query: REPORT_POST_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'BROKEN' },
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'BROKEN',
+          tags: [],
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -721,6 +660,7 @@ it('should report broken link with comment', async () => {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
           reason: 'BROKEN',
           comment: 'comment',
+          tags: [],
         },
       },
       result: () => {
@@ -737,6 +677,7 @@ it('should report broken link with comment', async () => {
   brokenLinkBtn.click();
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   fireEvent.change(input, { target: { value: 'comment' } });
+  input.dispatchEvent(new Event('input', { bubbles: true }));
   const submitBtn = await screen.findByText('Submit report');
   submitBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -760,7 +701,11 @@ it('should report nsfw', async () => {
     {
       request: {
         query: REPORT_POST_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'NSFW' },
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'NSFW',
+          tags: [],
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -966,4 +911,47 @@ it('should be able to navigate through posts', async () => {
   fireEvent.click(previous);
   const firstTitle = await screen.findByTestId('post-modal-title');
   expect(firstTitle).toHaveTextContent(firstPost.node.title);
+});
+
+it('should report irrelevant tags', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'IRRELEVANT',
+          tags: ['javascript'],
+        },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
+  const irrelevantTagsBtn = await screen.findByText('The post is not about...');
+  fireEvent.click(irrelevantTagsBtn);
+  const javascriptBtn = await screen.findByText('#javascript');
+  fireEvent.click(javascriptBtn);
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() =>
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument(),
+  );
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
 });

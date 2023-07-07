@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from 'react-query';
-import { useMemo } from 'react';
-import { TutorialKey, useTutorial } from './useTutorial';
+import { useCallback, useMemo } from 'react';
 
 const SQUAD_TOUR_KEY = 'squadTourKey';
 
@@ -20,25 +19,23 @@ export const useSquadTour = (): UseSquadTour => {
     () => client.getQueryData(SQUAD_TOUR_KEY),
     { initialData: { tourIndex: -1 } },
   );
-  const sharePostTutorial = useTutorial({
-    key: TutorialKey.ShareSquadPost,
-  });
 
-  const onTourIndexChange = (tourIndex: number) =>
-    client.setQueryData<SquadTourData>(SQUAD_TOUR_KEY, (value) => ({
-      ...value,
-      tourIndex,
-    }));
+  const onTourIndexChange = useCallback(
+    (tourIndex: number) => {
+      client.setQueryData<SquadTourData>(SQUAD_TOUR_KEY, (value) => ({
+        ...value,
+        tourIndex,
+      }));
+    },
+    [client],
+  );
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     onTourIndexChange(-1);
-    if (!sharePostTutorial.isCompleted) {
-      sharePostTutorial.activate();
-    }
-  };
+  }, [onTourIndexChange]);
 
   return useMemo(
     () => ({ ...data, onCloseTour: onClose, onTourIndexChange }),
-    [data, sharePostTutorial],
+    [data, onClose, onTourIndexChange],
   );
 };

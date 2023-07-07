@@ -10,6 +10,7 @@ export function useSharePost(origin: Origin): {
   sharePostFeedLocation?: FeedItemPosition;
   openSharePost: (Post, columns?, column?, row?) => void;
   closeSharePost: () => void;
+  openNativeSharePost?: (Post, columns?, column?, row?) => void;
 } {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shareModal, setShareModal] = useState<Post>();
@@ -31,28 +32,40 @@ export function useSharePost(origin: Origin): {
           column,
           row,
         });
-        if ('share' in navigator) {
-          try {
-            await navigator.share({
-              text: `${post.title}\n${post.commentsPermalink}`,
-            });
-            trackEvent(
-              postAnalyticsEvent('share post', post, {
-                columns,
-                column,
-                row,
-                extra: { origin, provider: ShareProvider.Native },
-              }),
-            );
-          } catch (err) {
-            // Do nothing
-          }
-        } else {
-          setShareModal(post);
+        setShareModal(post);
+      },
+      openNativeSharePost: async (
+        post: Post,
+        columns?: number,
+        column?: number,
+        row?: number,
+      ) => {
+        setSharePostFeedLocation({
+          columns,
+          column,
+          row,
+        });
+        try {
+          await navigator.share({
+            title: post.title,
+            url: post.commentsPermalink,
+          });
+          trackEvent(
+            postAnalyticsEvent('share post', post, {
+              columns,
+              column,
+              row,
+              extra: { origin, provider: ShareProvider.Native },
+            }),
+          );
+        } catch (err) {
+          // Do nothing
         }
       },
       closeSharePost: () => setShareModal(null),
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [shareModal, sharePostFeedLocation],
   );
 }

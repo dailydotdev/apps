@@ -15,6 +15,7 @@ import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
 import ShareIcon from './icons/Share';
 import { generateQueryKey, RequestKey } from '../lib/query';
+import { supportedTypesForPrivateSources } from '../graphql/posts';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -45,7 +46,10 @@ export default function BookmarkFeedLayout({
         feedName: 'search-bookmarks',
         feedQueryKey: defaultKey.concat(searchQuery),
         query: SEARCH_BOOKMARKS_QUERY,
-        variables: { query: searchQuery },
+        variables: {
+          query: searchQuery,
+          supportedTypes: supportedTypesForPrivateSources,
+        },
         emptyScreen: <SearchEmptyScreen />,
       };
     }
@@ -53,9 +57,14 @@ export default function BookmarkFeedLayout({
       feedName: 'bookmarks',
       feedQueryKey: defaultKey,
       query: BOOKMARKS_FEED_QUERY,
+      variables: {
+        supportedTypes: supportedTypesForPrivateSources,
+      },
       onEmptyFeed: () => setShowEmptyScreen(true),
       options: { refetchOnMount: true },
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, user]);
 
   if (showEmptyScreen) {

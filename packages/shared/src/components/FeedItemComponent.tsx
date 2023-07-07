@@ -13,6 +13,7 @@ import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
+import { WelcomePostCard } from './cards/WelcomePostCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -95,6 +96,8 @@ export function getFeedItemKey(items: FeedItem[], index: number): string {
 const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Article]: ArticlePostCard,
   [PostType.Share]: SharePostCard,
+  [PostType.Welcome]: WelcomePostCard,
+  [PostType.Freeform]: WelcomePostCard,
 };
 
 export default function FeedItemComponent({

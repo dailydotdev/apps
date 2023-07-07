@@ -1,16 +1,18 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from 'react-query';
+import { QueryKey, useQueryClient } from 'react-query';
+import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post, ReportReason } from '../graphql/posts';
+import { Post } from '../graphql/posts';
 import TrashIcon from './icons/Trash';
 import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import ReportPostModal from './modals/ReportPostModal';
+import { ReportedCallback } from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -23,8 +25,14 @@ import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
-import { Origin } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
+import { PinIcon } from './icons';
+import { getPostByIdKey } from '../hooks/usePostById';
+import EditIcon from './icons/Edit';
+import DownvoteIcon from './icons/Downvote';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -33,23 +41,24 @@ const PortalMenu = dynamic(
   },
 );
 
+interface PostOptions {
+  icon: ReactElement;
+  text: string;
+  action: () => unknown;
+}
+
 export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
   feedName?: string;
   onHidden?: () => unknown;
+  feedQueryKey?: QueryKey;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   contextId?: string;
+  origin: Origin;
+  allowPin?: boolean;
 }
-
-type ReportPostAsync = (
-  postIndex: number,
-  post: Post,
-  reason: ReportReason,
-  comment: string,
-  blockSource: boolean,
-) => Promise<unknown>;
 
 export default function PostOptionsMenu({
   onBookmark,
@@ -59,14 +68,19 @@ export default function PostOptionsMenu({
   onHidden,
   onRemovePost,
   setShowBanPost,
+  feedQueryKey,
+  origin,
+  allowPin,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
+  const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const { feedSettings } = useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { reportPost, hidePost, unhidePost } = useReportPost();
+  const { hidePost, unhidePost } = useReportPost();
+  const { openModal } = useLazyModal();
   const {
     onFollowSource,
     onUnfollowSource,
@@ -76,11 +90,8 @@ export default function PostOptionsMenu({
   } = useTagAndSource({
     origin: Origin.PostContextMenu,
     postId: post?.id,
+    shouldInvalidateQueries: false,
   });
-  const [reportModal, setReportModal] = useState<{
-    index?: number;
-    post?: Post;
-  }>();
 
   const showMessageAndRemovePost = async (
     message: string,
@@ -97,39 +108,49 @@ export default function PostOptionsMenu({
     });
     onRemovePost?.(_postIndex);
   };
-  const { onConfirmDeletePost } = usePostMenuActions({
-    post,
-    postIndex,
-    onPostDeleted: ({ index }) =>
-      showMessageAndRemovePost('The post has been deleted', index, null),
-  });
+  const { onConfirmDeletePost, onPinPost, onToggleDownvotePost } =
+    usePostMenuActions({
+      post,
+      postIndex,
+      onPinSuccessful: async () => {
+        const key = getPostByIdKey(post.id);
+        const cached = client.getQueryData(key);
+        if (cached) {
+          client.setQueryData<Post>(key, (data) => ({
+            ...data,
+            pinnedAt: post.pinnedAt ? null : new Date(),
+          }));
+        }
 
-  const onReportPost: ReportPostAsync = async (
-    reportPostIndex,
-    reportedPost,
-    reason,
-    comment,
-    blockSource,
-  ): Promise<void> => {
-    const { successful } = await reportPost({
-      id: reportedPost?.id,
-      reason,
-      comment,
+        await client.invalidateQueries(feedQueryKey);
+        displayToast(
+          post.pinnedAt
+            ? 'Your post has been unpinned'
+            : '📌 Your post has been pinned',
+        );
+      },
+      onPostDeleted: ({ index, post: deletedPost }) => {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
+            extra: { origin },
+          }),
+        );
+        return showMessageAndRemovePost(
+          'The post has been deleted',
+          index,
+          null,
+        );
+      },
+      origin,
     });
 
-    if (!successful) {
-      return;
-    }
+  const onReportedPost: ReportedCallback = async (
+    reportedPost,
+    { index, shouldBlockSource },
+  ): Promise<void> => {
+    showMessageAndRemovePost('🚨 Thanks for reporting!', index);
 
-    trackEvent(
-      postAnalyticsEvent('report post', reportedPost, {
-        extra: { origin: Origin.PostContextMenu },
-      }),
-    );
-
-    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
-
-    if (blockSource) {
+    if (shouldBlockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
     }
   };
@@ -188,11 +209,7 @@ export default function PostOptionsMenu({
     );
   };
 
-  const postOptions: {
-    icon: ReactElement;
-    text: string;
-    action: () => unknown;
-  }[] = [
+  const postOptions: PostOptions[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
       text: 'Hide',
@@ -208,6 +225,17 @@ export default function PostOptionsMenu({
       ),
       text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onBookmark,
+    },
+    {
+      icon: (
+        <MenuIcon
+          className={classNames(post?.downvoted && 'text-theme-color-ketchup')}
+          Icon={DownvoteIcon}
+          secondary={post?.downvoted}
+        />
+      ),
+      text: 'Downvote',
+      action: onToggleDownvotePost,
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,
@@ -229,13 +257,36 @@ export default function PostOptionsMenu({
   postOptions.push({
     icon: <MenuIcon Icon={FlagIcon} />,
     text: 'Report',
-    action: async () => setReportModal({ index: postIndex, post }),
+    action: async () =>
+      openModal({
+        type: LazyModal.ReportPost,
+        props: {
+          index: postIndex,
+          post,
+          onReported: onReportedPost,
+          origin: Origin.PostContextMenu,
+        },
+      }),
   });
+  if (user?.id && post?.author?.id === user?.id) {
+    postOptions.push({
+      icon: <MenuIcon Icon={EditIcon} />,
+      text: 'Edit post',
+      action: () => router.push(`${post.commentsPermalink}/edit`),
+    });
+  }
   if (onConfirmDeletePost) {
     postOptions.push({
       icon: <MenuIcon Icon={TrashIcon} />,
       text: 'Delete post',
       action: onConfirmDeletePost,
+    });
+  }
+  if (allowPin && onPinPost) {
+    postOptions.unshift({
+      icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
+      text: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
+      action: onPinPost,
     });
   }
   if (setShowBanPost) {
@@ -262,15 +313,6 @@ export default function PostOptionsMenu({
           </Item>
         ))}
       </PortalMenu>
-      {reportModal && (
-        <ReportPostModal
-          isOpen={!!reportModal}
-          postIndex={reportModal.index}
-          post={reportModal.post}
-          onReport={onReportPost}
-          onRequestClose={() => setReportModal(null)}
-        />
-      )}
     </>
   );
 }

@@ -19,6 +19,10 @@ export enum Origin {
   Notification = 'notification',
   SquadMembersList = 'squad members list',
   // squads - end
+  PostCommentButton = 'comment button',
+  StartDiscussion = 'start discussion button',
+  SquadChecklist = 'squad checklist',
+  CompanionContextMenu = 'companion context menu',
 }
 
 export enum LoginTrigger {
@@ -56,8 +60,22 @@ export enum AnalyticsEvent {
   CompleteSquadCreation = 'complete squad creation',
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
+  ChecklistClose = 'checklist close',
+  DeletePost = 'delete post',
+  DeleteComment = 'delete comment',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
+  OpenComment = 'open comment modal',
+  // vote - start
+  UpvotePost = 'upvote post',
+  RemovePostUpvote = 'remove post upvote',
+  DownvotePost = 'downvote post',
+  RemovePostDownvote = 'remove post downvote',
+  // vote - end
+  // bookmark - start
+  BookmarkPost = 'bookmark post',
+  RemovePostBookmark = 'remove post bookmark',
+  // bookmark - end
 }
 
 export enum TargetType {
@@ -65,6 +83,9 @@ export enum TargetType {
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
   CreateSquadPopup = 'create squad popup',
+  OnboardingChecklist = 'onboarding checklist',
+  LoginButton = 'login button',
+  SignupButton = 'signup button',
 }
 
 export enum NotificationChannel {
@@ -89,4 +110,8 @@ export enum NotificationPromptSource {
   CommunityPicks = 'community picks modal',
   NewSourceModal = 'new source modal',
   SquadPage = 'squad page',
+  NotificationItem = 'notification item',
+  SquadPostCommentary = 'squad post commentary',
+  SquadPostModal = 'squad post modal',
+  SquadChecklist = 'squad checklist',
 }

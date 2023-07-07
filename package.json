@@ -2,6 +2,12 @@
   "name": "daily-apps",
   "private": true,
   "dependencies": {
+    "@babel/runtime": "^7.17.9",
     "postcss-rem-to-responsive-pixel": "^5.1.1"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "next-plugin-preact@3.0.7": "patches/next-plugin-preact@3.0.7.patch"
+    }
   }
 }

@@ -3,7 +3,6 @@ import { OnboardingStep } from '../components/onboarding/common';
 import {
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
-  ScrollOnboardingVersion,
 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
@@ -140,19 +139,13 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');
 
-  static readonly ScrollOnboardingVersion = new Features(
-    'anonymous_users_scroll_home_page',
-    ScrollOnboardingVersion.Control,
-    [
-      ScrollOnboardingVersion.Control,
-      ScrollOnboardingVersion.V1,
-      ScrollOnboardingVersion.V2,
-    ],
-  );
-
   static readonly HasSquadAccess = new Features('squad');
 
   static readonly ShowHiring = new Features('show_hiring');
+
+  static readonly LegoReferralCampaignMay2023 = new Features(
+    'lego_referral_campaign_0523',
+  );
 
   private constructor(
     public readonly id: string,

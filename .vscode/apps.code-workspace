@@ -18,6 +18,9 @@
     "editor.quickSuggestions": {
       "strings": true
     },
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
     "tailwindCSS.classAttributes": [
       "class",
       "className",

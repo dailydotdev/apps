@@ -24,12 +24,14 @@ export function PostFeedFiltersOnboarding({
       target_type: TargetType.ArticleAnonymousCTA,
       target_id: ExperimentWinner.ArticleOnboarding,
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div
       className={classNames(
-        'flex relative rounded-16 border border-theme-color-cabbage',
+        'flex relative rounded-16 border border-theme-color-cabbage items-center',
         className,
       )}
       onClick={onInitializeOnboarding}

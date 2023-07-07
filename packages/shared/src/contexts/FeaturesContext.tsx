@@ -9,7 +9,6 @@ import {
 import {
   InAppNotificationPosition,
   OnboardingFiltersLayout,
-  ScrollOnboardingVersion,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
@@ -25,7 +24,6 @@ interface Experiments {
   submitArticleModalButton?: string;
   showCommentPopover?: boolean;
   inAppNotificationPosition?: InAppNotificationPosition;
-  scrollOnboardingVersion?: ScrollOnboardingVersion;
   hasSquadAccess?: boolean;
   showHiring?: boolean;
 }
@@ -73,10 +71,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
     ),
     inAppNotificationPosition: getFeatureValue(
       Features.InAppNotificationPosition,
-      flags,
-    ),
-    scrollOnboardingVersion: getFeatureValue(
-      Features.ScrollOnboardingVersion,
       flags,
     ),
     hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),

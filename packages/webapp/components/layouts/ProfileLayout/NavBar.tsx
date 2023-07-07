@@ -2,7 +2,6 @@ import React, { ReactElement, useContext } from 'react';
 import Link from 'next/link';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '@dailydotdev/shared/src/lib/dynamicParent';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
@@ -16,11 +15,11 @@ import styles from './NavBar.module.css';
 const flipperLoader = () =>
   import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');
 
-const Flipper = dynamicParent<FlipperProps>(
+const Flipper = dynamicParent(
   () => flipperLoader().then((mod) => mod.Flipper),
   'div',
 );
-const Flipped = dynamicParent<FlippedProps>(
+const Flipped = dynamicParent(
   () => flipperLoader().then((mod) => mod.Flipped),
   React.Fragment,
 );

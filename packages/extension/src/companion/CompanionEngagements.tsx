@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { useQueryClient } from 'react-query';
-import { useRawBackgroundRequest } from './useRawBackgroundRequest';
+import { useRawBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 
 interface CompanionEngagementsProps {
   post: PostBootData;
@@ -17,7 +17,11 @@ export function CompanionEngagements({
     return null;
   }
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const client = useQueryClient();
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useRawBackgroundRequest(({ res, key }) => {
     if (!Array.isArray(key)) {
       return;

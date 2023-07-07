@@ -4,7 +4,7 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import nock from 'nock';
 import TabContainer, { Tab, TabContainerProps } from './TabContainer';
 
@@ -31,12 +31,12 @@ describe('tab container component', () => {
     const inactive1 = await screen.findByText('Second');
     const inactive2 = await screen.findByText('Third');
 
-    expect(active).toHaveClass('font-bold');
-    expect(inactive1).toHaveClass('text-theme-label-tertiary');
-    expect(inactive2).toHaveClass('text-theme-label-tertiary');
+    expect(active).toHaveClass('bg-theme-active');
+    expect(inactive1).not.toHaveClass('bg-theme-active');
+    expect(inactive2).not.toHaveClass('bg-theme-active');
   });
 
-  it('should switch betweem tabs', async () => {
+  it('should switch between tabs', async () => {
     renderComponent();
     await screen.findByText('Sample');
     const second = await screen.findByText('Second');

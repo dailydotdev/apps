@@ -17,7 +17,7 @@ import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
-import UserIcon from '../icons/User';
+import { UserIcon } from '../icons';
 import AuthModalHeader from './AuthModalHeader';
 import { providerMap } from './common';
 import LockIcon from '../icons/Lock';
@@ -30,6 +30,7 @@ import AuthForm from './AuthForm';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
+import { useGenerateUsername } from '../../hooks';
 
 export interface SocialRegistrationFormProps {
   className?: string;
@@ -64,12 +65,16 @@ export const SocialRegistrationForm = ({
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
+  const [name, setName] = useState(user?.name);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
+  const { username, setUsername } = useGenerateUsername(name);
 
   useEffect(() => {
     trackEvent({
       event_name: AuthEventNames.StartSignUpForm,
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const trackError = (error) => {
@@ -83,6 +88,8 @@ export const SocialRegistrationForm = ({
     if (Object.keys(hints).length) {
       trackError(hints);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hints]);
 
   const onSubmit = (e: React.FormEvent) => {
@@ -171,9 +178,10 @@ export const SocialRegistrationForm = ({
           name="name"
           inputId="name"
           label="Full name"
-          value={user?.name}
+          value={name}
           valid={!nameHint && !hints?.name}
           hint={hints?.name || nameHint}
+          onBlur={(e) => setName(e.target.value)}
           valueChanged={() => {
             if (hints?.name) {
               onUpdateHints?.({ ...hints, name: '' });
@@ -190,18 +198,14 @@ export const SocialRegistrationForm = ({
           name="username"
           inputId="username"
           label="Enter a username"
-          value={user?.username}
+          value={username}
           minLength={1}
           valid={!usernameHint && !hints?.username}
           hint={hints?.username || usernameHint}
-          valueChanged={() => {
-            if (hints?.username) {
-              onUpdateHints?.({ ...hints, username: '' });
-            }
-            if (usernameHint) {
-              setUsernameHint('');
-            }
-          }}
+          onBlur={(e) => setUsername(e.target.value)}
+          valueChanged={() =>
+            hints?.[username] && onUpdateHints({ ...hints, username: '' })
+          }
         />
         {isAuthorOnboarding && (
           <TextField

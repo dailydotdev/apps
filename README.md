@@ -26,15 +26,14 @@ The decision was made to allow faster iterations and to keep features parity in 
 
 ## Technology
 
-* NPM for managing dependencies.
-* Node v16.15.0 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
-* [lerna](https://github.com/lerna/lerna) for managing the monorepo.
+* Node v18.16.0 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
+* [pnpm](https://pnpm.io/workspaces) for managing the monorepo and dependencies.
 
 ## Projects
 
 ### eslint-config
 
-Shared settings for eslint for all the projects in this repo.
+Shared ESLint settings for all the projects in this repo.
 
 ### extension
 
@@ -42,16 +41,15 @@ The browser extension project. Includes webpack configuration for browser extens
 
 ### prettier-config
 
-Shared settings for prettier for all the projects in this repo.
+Shared Prettier settings for all the projects in this repo.
 
 ### shared
 
-The main project with most of the components that are used in the applications. Every component that need to be used in both platforms should be placed in this project. This includes the design system components, custom hooks, and many more.
+The main project contains most of the components used in the applications. Every component that needs to be used on both platforms should be placed in this project. This includes the design system components, custom hooks, and many more.
 
 ### webapp
 
-The web app project. It is a Next.js project and it has more pages than the extension. Such as registration page, post page, profile page, etc.
-For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
+The web app project. This is a Next.js project and has more pages than the extension, such as a registration page, post page, profile page, etc. For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
 
 ## Local Environment
 
@@ -63,22 +61,24 @@ We have a GitPod button above, click on it and let's roll!
 So you want to contribute to daily.dev app suite and make an impact, we are glad to hear it. :heart_eyes:
 
 Before you proceed we have a few guidelines for contribution that will make everything much easier.
+
 We would appreciate if you dedicate the time and read them carefully:
 https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md
 
 ## Bootstrap Project
 
 After cloning the project, please make sure to run the following commands to bootstrap the project:
-```
-npm i -g lerna
-lerna bootstrap
+
+```bash
+npm i -g pnpm
+pnpm install
 ```
 
 ## Firefox Review
 
-* Install node v16.15.0 and npm v8.5.5
-* Install `lerna` as a global package `npm i -g lerna` 
-* Bootstrap project `lerna bootstrap`
+* Install node v18.16.0 and npm v9.5.1
+* Install `pnpm` as a global package `npm i -g pnpm` 
+* Bootstrap project `pnpm install`
 * Change working directory to extension project `cd packages/extension`
 * Build Firefox version `npm run build:firefox`
 * Firefox build should be located at `dist`

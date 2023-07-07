@@ -117,10 +117,10 @@ export default function ShareOptionsMenu({
               postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post),
             );
             openModal({
-              type: LazyModal.PostToSquad,
+              type: LazyModal.CreateSharedPost,
               props: {
                 squad,
-                post,
+                preview: post,
                 onSharedSuccessfully: () => {
                   trackEvent(
                     postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post),

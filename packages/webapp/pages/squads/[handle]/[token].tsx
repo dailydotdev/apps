@@ -11,7 +11,11 @@ import {
   SourceMember,
   SourceMemberRole,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { Edge } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ApiErrorMessage,
+  ApiErrorResult,
+  Edge,
+} from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -36,6 +40,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
@@ -119,6 +124,8 @@ const SquadReferral = ({
       extra: joinSquadAnalyticsExtra(),
     });
     setTrackedImpression(true);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member, trackedImpression]);
 
   const sourceId = member?.source?.id;
@@ -136,6 +143,17 @@ const SquadReferral = ({
 
         addSquad(data);
         return router.replace(data.permalink);
+      },
+      onError: (error: ApiErrorResult) => {
+        const errorMessage = error?.response?.errors?.[0]?.message;
+
+        if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
+          displayToast(
+            '🚫 The invitation is no longer valid, please check with the person who shared this invite (or the Squad admin) for further information.',
+          );
+        } else {
+          displayToast('🚫 Something went wrong, please try again.');
+        }
       },
     },
   );
@@ -155,6 +173,7 @@ const SquadReferral = ({
 
     return showLogin('join squad', {
       referral: member.user.id,
+      referralOrigin: ReferralOriginKey.Squad,
       onLoginSuccess: onJoinSquad,
       onRegistrationSuccess: onJoinSquad,
     });
@@ -196,7 +215,7 @@ const SquadReferral = ({
   }
 
   return (
-    <PageContainer className="relative justify-center items-center pt-24">
+    <PageContainer className="relative items-center pt-10 tablet:pt-20">
       <NextSeo {...seo} />
       <div className="absolute -top-4 right-0 tablet:-right-20 left-0 tablet:-left-20 h-40 rounded-26 max-w-[100vw] squad-background-fade" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
@@ -205,7 +224,7 @@ const SquadReferral = ({
         squad members can share knowledge and content in one place. Join now to
         start collaborating.
       </BodyParagraph>
-      <span className="flex flex-row items-center mt-10" data-testid="inviter">
+      <span className="flex flex-row items-center mt-8" data-testid="inviter">
         <ProfileImageLink user={user} />
         <BodyParagraph className="flex-1 ml-4">
           <HighlightedText>{user.name}</HighlightedText>{' '}
@@ -215,7 +234,7 @@ const SquadReferral = ({
           has invited you to <HighlightedText>{source.name}</HighlightedText>
         </BodyParagraph>
       </span>
-      <div className="flex flex-col p-6 my-10 w-full rounded-24 border border-theme-color-cabbage">
+      <div className="flex flex-col p-6 my-8 w-full rounded-24 border border-theme-color-cabbage">
         <span className="flex flex-row items-center">
           <SourceButton source={source} size="xxlarge" />
           <div className="flex flex-col ml-4">
@@ -225,7 +244,7 @@ const SquadReferral = ({
           {renderJoinButton('hidden tablet:flex ml-auto')}
         </span>
         {source.description && (
-          <BodyParagraph className="mt-4 ml-[4.5rem]">
+          <BodyParagraph className="mt-4 break-words ml-[4.5rem]">
             {source.description}
           </BodyParagraph>
         )}

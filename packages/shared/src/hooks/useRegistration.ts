@@ -19,6 +19,8 @@ import {
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { checkIsExtension } from '../lib/func';
+import { ReferralOriginKey } from '../lib/user';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -52,13 +54,31 @@ const useRegistration = ({
 }: UseRegistrationProps): UseRegistration => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
-  const { trackingId, referral } = useContext(AuthContext);
+  const { trackingId, referral, referralOrigin } = useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const { data: registration, isLoading: isQueryLoading } = useQuery(
     key,
     () => initializeKratosFlow(AuthFlow.Registration),
     { refetchOnWindowFocus: false },
   );
+
+  const referralTraits = useMemo(() => {
+    if (referralOrigin === ReferralOriginKey.LegoMay2023) {
+      const url = new URL(window.location.href);
+      const isEligibleForOrigin =
+        checkIsExtension() || url.searchParams.get('ref') === 'install';
+
+      if (!isEligibleForOrigin) {
+        return {};
+      }
+    }
+
+    return {
+      'traits.referral': referral,
+      'traits.referralOrigin': referralOrigin,
+    };
+  }, [referral, referralOrigin]);
+
   const {
     mutateAsync: validate,
     status,
@@ -113,7 +133,7 @@ const useRegistration = ({
       method: values.method || 'password',
       csrf_token: getNodeValue('csrf_token', nodes),
       'traits.userId': trackingId,
-      'traits.referral': referral,
+      ...referralTraits,
       'traits.timezone': timezone,
     };
 
@@ -147,7 +167,7 @@ const useRegistration = ({
       'traits.name': '',
       'traits.image': '',
       'traits.userId': trackingId,
-      'traits.referral': referral,
+      ...referralTraits,
       'traits.timezone': timezone,
       'traits.acceptedMarketing': false,
     };
@@ -164,6 +184,8 @@ const useRegistration = ({
       validateRegistration: onValidateRegistration,
       isValidationIdle: status === 'idle',
     }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [registration, status, isQueryLoading, isMutationLoading],
   );
 };

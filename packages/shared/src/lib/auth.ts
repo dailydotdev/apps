@@ -40,7 +40,9 @@ export enum AuthTriggers {
   HidePost = 'hide post',
   MainButton = 'main button',
   RanksModal = 'ranks modal',
+  Onboarding = 'onboarding',
   SubmitNewSource = 'submit new source',
+  Downvote = 'downvote',
 }
 
 // Needed for the AB flagged Sidebar items
@@ -86,6 +88,7 @@ export interface RegistrationParameters {
   'traits.email': string;
   'traits.userId'?: string;
   'traits.referral'?: string;
+  'traits.referralOrigin'?: string;
   'traits.timezone'?: string;
   'traits.twitter'?: string;
   'traits.name'?: string;

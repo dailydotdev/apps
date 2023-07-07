@@ -10,6 +10,8 @@ type UseLazyModal<K extends keyof ModalsType, T extends LazyModalType<K>> = {
   modal: T;
 };
 
+let scrollPosition = 0;
+
 export function useLazyModal<
   K extends keyof ModalsType,
   T extends LazyModalType<K> = LazyModalType<K>,
@@ -19,13 +21,19 @@ export function useLazyModal<
     client.getQueryData<T>(MODAL_KEY),
   );
   const openModal = useCallback(
-    (data: T) => client.setQueryData(MODAL_KEY, data),
+    (data: T) => {
+      scrollPosition = window.scrollY;
+
+      client.setQueryData(MODAL_KEY, data);
+    },
     [client],
   );
-  const closeModal = useCallback(
-    () => client.setQueryData(MODAL_KEY, null),
-    [client],
-  );
+  const closeModal = useCallback(() => {
+    window.scrollTo(0, scrollPosition);
+    scrollPosition = 0;
+
+    client.setQueryData(MODAL_KEY, null);
+  }, [client]);
 
   return useMemo(
     () => ({

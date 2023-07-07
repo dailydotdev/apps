@@ -20,6 +20,8 @@ export const useSubmitArticle = (): UseSubmitArticle => {
     const { origin, pathname } = window.location;
     setIsOpen(true);
     router.replace(origin + pathname);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return useMemo(() => ({ isOpen, onIsOpen: setIsOpen }), [isOpen]);

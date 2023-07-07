@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import TabList from './TabList';
+import TabList, { TabListProps } from './TabList';
 
 export interface TabProps<T extends string> {
   key?: number;
@@ -30,24 +30,31 @@ export const Tab = <T extends string>({
     </div>
   );
 
+interface ClassName {
+  container?: string;
+  header?: string;
+}
+
 export interface TabContainerProps<T extends string> {
   children?: ReactElement<TabProps<T>>[];
   shouldMountInactive?: boolean;
   onActiveChange?: (active: T) => unknown;
-  className?: string;
+  className?: ClassName;
   style?: CSSProperties;
   showHeader?: boolean;
   controlledActive?: string;
+  tabListProps?: Pick<TabListProps, 'className'>;
 }
 
 function TabContainer<T extends string = string>({
   children,
   shouldMountInactive = false,
   onActiveChange,
-  className,
+  className = {},
   style,
   showHeader = true,
   controlledActive,
+  tabListProps = {},
 }: TabContainerProps<T>): ReactElement {
   const [active, setActive] = useState(children[0].props.label);
   const onClick = (label: T) => {
@@ -85,12 +92,21 @@ function TabContainer<T extends string = string>({
   }
 
   return (
-    <div className={classNames('flex flex-col', className)} style={style}>
-      <header className="flex flex-row border-b border-theme-divider-tertiary">
+    <div
+      className={classNames('flex flex-col', className?.container)}
+      style={style}
+    >
+      <header
+        className={classNames(
+          'flex flex-row border-b border-theme-divider-tertiary',
+          className?.header,
+        )}
+      >
         <TabList
           items={children.map((child) => child.props.label)}
           onClick={onClick}
           active={active}
+          className={tabListProps?.className}
         />
       </header>
       {render}

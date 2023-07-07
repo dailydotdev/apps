@@ -22,15 +22,15 @@ export default function usePersistentContext<T>(
   valueWhenCacheEmpty?: T,
   validValues?: T[],
   fallbackValue?: T,
-): [T, (value: T) => Promise<void>, boolean] {
+): [T, (value: T) => Promise<void>, boolean, boolean] {
   const queryKey = [key, valueWhenCacheEmpty];
   const queryClient = useQueryClient();
 
-  const { data, isFetched } = useQuery<unknown, unknown, T>(queryKey, () =>
+  const { data, isFetched } = useQuery(queryKey, () =>
     getAsyncCache<T>(key, valueWhenCacheEmpty, validValues),
   );
 
-  const { mutateAsync: updateValue } = useMutation<void, unknown, unknown, T>(
+  const { mutateAsync: updateValue, isLoading } = useMutation(
     (value: T) => setCache(key, value),
     {
       onMutate: (mutatedData) => {
@@ -44,5 +44,5 @@ export default function usePersistentContext<T>(
     },
   );
 
-  return [data ?? fallbackValue, updateValue, isFetched];
+  return [data ?? fallbackValue, updateValue, isFetched, isLoading];
 }

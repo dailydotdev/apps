@@ -1,5 +1,6 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { sanitize } from 'dompurify';
+import classNames from 'classnames';
 import styles from './markdown.module.css';
 import { ProfileTooltip } from './profile/ProfileTooltip';
 import { useProfileTooltip } from '../hooks/useProfileTooltip';
@@ -7,6 +8,7 @@ import { CaretOffset } from '../lib/element';
 import useDebounce from '../hooks/useDebounce';
 
 interface MarkdownProps {
+  className?: string;
   content: string;
   appendTooltipTo?: () => HTMLElement;
 }
@@ -15,6 +17,7 @@ const TOOLTIP_SPACING = 8;
 const TOOLTIP_HALF_WIDTH = 140;
 
 export default function Markdown({
+  className,
   content,
   appendTooltipTo,
 }: MarkdownProps): ReactElement {
@@ -73,6 +76,8 @@ export default function Markdown({
         element.removeEventListener('mouseleave', clearUser);
       });
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, userId]);
 
   useEffect(() => {
@@ -80,6 +85,8 @@ export default function Markdown({
       return;
     }
     fetchInfo();
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   return (
@@ -97,7 +104,7 @@ export default function Markdown({
     >
       <div
         ref={ref}
-        className={styles.markdown}
+        className={classNames(styles.markdown, className)}
         dangerouslySetInnerHTML={{
           __html: sanitize(content, { ADD_ATTR: ['target'] }),
         }}

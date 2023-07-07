@@ -1,15 +1,15 @@
 import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import { useInfiniteQuery, InfiniteData, useMutation } from 'react-query';
+import { InfiniteData, useInfiniteQuery, useMutation } from 'react-query';
 import {
-  NotificationsData,
   NOTIFICATIONS_QUERY,
+  NotificationsData,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
-  pageContainerClassNames,
   pageBorders,
+  pageContainerClassNames,
 } from '@dailydotdev/shared/src/components/utilities';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
@@ -23,6 +23,7 @@ import InfiniteScrolling, {
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
+import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 
@@ -43,7 +44,7 @@ const Notifications = (): ReactElement => {
     />
   );
   const { trackEvent } = useAnalyticsContext();
-  const { clearUnreadCount } = useNotificationContext();
+  const { clearUnreadCount, isSubscribed } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
     () => request(graphqlUrl, READ_NOTIFICATIONS_MUTATION),
     { onSuccess: clearUnreadCount },
@@ -84,7 +85,11 @@ const Notifications = (): ReactElement => {
     }
 
     trackEvent({ event_name: AnalyticsEvent.OpenNotificationList });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetchedAfterMount]);
+
+  usePromotionModal();
 
   return (
     <ProtectedPage seo={seo}>
@@ -105,16 +110,28 @@ const Notifications = (): ReactElement => {
         >
           {length > 0 &&
             queryResult.data.pages.map((page) =>
-              page.notifications.edges.map(
-                ({ node: { id, readAt, type, ...props } }) => (
-                  <NotificationItem
-                    key={id}
-                    {...props}
-                    type={type}
-                    isUnread={!readAt}
-                    onClick={() => onNotificationClick(id, type)}
-                  />
-                ),
+              page.notifications.edges.reduce(
+                (nodes, { node: { id, readAt, type, ...props } }) => {
+                  if (
+                    isSubscribed &&
+                    type === NotificationType.SquadSubscribeNotification
+                  ) {
+                    return nodes;
+                  }
+
+                  nodes.push(
+                    <NotificationItem
+                      key={id}
+                      {...props}
+                      type={type}
+                      isUnread={!readAt}
+                      onClick={() => onNotificationClick(id, type)}
+                    />,
+                  );
+
+                  return nodes;
+                },
+                [],
               ),
             )}
           {(!length || !hasNextPage) && isFetched && <FirstNotification />}

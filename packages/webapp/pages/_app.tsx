@@ -83,6 +83,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   usePrompt();
   useEffect(() => {
     updateCookieBanner(user);
+    // @NOTE see this https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
@@ -90,14 +92,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       return undefined;
     }
 
-    const onBeforeHistoryChange = () => {
+    const onRouteChange = () => {
       closeModal();
     };
 
-    router.events.on('beforeHistoryChange', onBeforeHistoryChange);
+    router.events.on('routeChangeStart', onRouteChange);
 
     return () => {
-      router.events.off('beforeHistoryChange', onBeforeHistoryChange);
+      router.events.off('routeChangeStart', onRouteChange);
     };
   }, [modal, closeModal, router.events]);
 

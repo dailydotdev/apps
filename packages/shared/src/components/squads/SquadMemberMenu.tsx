@@ -10,8 +10,7 @@ import {
   Squad,
 } from '../../graphql/sources';
 import BlockIcon from '../icons/Block';
-import StarIcon from '../icons/Star';
-import UserIcon from '../icons/User';
+import { StarIcon, UserIcon } from '../icons';
 import SquadIcon from '../icons/Squad';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
@@ -196,6 +195,8 @@ export default function SquadMemberMenu({
     }
 
     return menu;
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member]);
 
   return <ContextMenu options={options} id="squad-member-menu-context" />;

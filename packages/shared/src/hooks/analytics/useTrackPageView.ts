@@ -33,6 +33,8 @@ export default function useTrackPageView(): MutableRefObject<() => void> {
       router.events.off('routeChangeComplete', handleRouteChange);
       window.removeEventListener('statechange', handleLifecycle);
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return routeChangedCallbackRef;

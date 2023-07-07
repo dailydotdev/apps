@@ -2,7 +2,6 @@ import React, { forwardRef, ReactElement, Ref } from 'react';
 import { PostCardProps } from './common';
 import {
   getPostClassNames,
-  ListCard,
   ListCardTitle,
   ListCardDivider,
   ListCardAside,
@@ -12,9 +11,10 @@ import {
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
-import styles from './Card.module.css';
-import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
+import FeedItemContainer from './FeedItemContainer';
+import { PostTagsPanel } from '../post/block/PostTagsPanel';
+import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -36,14 +36,26 @@ export const PostList = forwardRef(function PostList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
-  const { trending } = post;
+  const { trending, pinnedAt } = post;
 
-  const card = (
-    <ListCard
+  if (data?.showTagsPanel && post.tags.length > 0) {
+    return (
+      <PostTagsPanel
+        className="overflow-hidden h-full max-h-[23.5rem]"
+        post={post}
+        toastOnSuccess
+      />
+    );
+  }
+
+  return (
+    <FeedItemContainer
       {...props}
       className={getPostClassNames(post, className)}
       ref={ref}
+      flagProps={{ listMode: true, pinnedAt, trending }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
       <ListCardAside className="w-14">
@@ -78,15 +90,6 @@ export const PostList = forwardRef(function PostList(
         />
       </ListCardMain>
       {children}
-    </ListCard>
+    </FeedItemContainer>
   );
-  if (trending) {
-    return (
-      <div className={`relative ${styles.cardContainer}`}>
-        {card}
-        <TrendingFlag trending={trending} listMode />
-      </div>
-    );
-  }
-  return card;
 });

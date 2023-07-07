@@ -215,13 +215,14 @@ export default function MainFeedLayout({
   );
 
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
+  const hasMyFeedAlert = alerts.myFeed;
 
   /* eslint-disable react/no-children-prop */
   const feedHeading = {
     [MainFeedPage.MyFeed]: (
       <MyFeedHeading
         hasFiltered={hasFiltered}
-        isAlertDisabled={!alerts.myFeed}
+        isAlertDisabled={!hasMyFeedAlert}
         sidebarRendered={sidebarRendered}
         onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
         onUpdateAlerts={() => updateAlerts({ myFeed: null })}
@@ -245,8 +246,8 @@ export default function MainFeedLayout({
       <div
         className={classNames(
           'flex flex-row flex-wrap gap-4 items-center mr-px w-full',
-          alerts.filter || !alerts.myFeed ? 'h-14' : 'h-32 laptop:h-16',
-          !sidebarRendered && alerts.myFeed && 'content-start',
+          alerts.filter || !hasMyFeedAlert ? 'h-14' : 'h-32 laptop:h-16',
+          !sidebarRendered && hasMyFeedAlert && 'content-start',
         )}
       >
         {feedHeading[feedName]}
@@ -330,10 +331,16 @@ export default function MainFeedLayout({
       ),
       header: !isSearchOn && header,
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     isSearchOn && searchQuery,
     query.query,
     query.variables,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     isUpvoted && selectedPeriod,
   ]);
 
@@ -341,6 +348,8 @@ export default function MainFeedLayout({
     if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
       setSelectedAlgo(0);
     }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   return (

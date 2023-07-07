@@ -8,15 +8,10 @@ export enum OnboardingFiltersLayout {
   List = 'list',
 }
 
-export enum ScrollOnboardingVersion {
-  Control = 'control',
-  V1 = 'v1',
-  V2 = 'v2',
-}
-
 export enum ExperimentWinner {
   ArticleOnboarding = 'v3',
   PostCardShareVersion = 'v2',
   AuthVersion = 'v4',
   OnboardingVersion = 'v2',
+  ScrollOnboardingVersion = 'v2',
 }

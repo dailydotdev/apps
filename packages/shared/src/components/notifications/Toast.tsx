@@ -83,6 +83,8 @@ const Toast = ({
       window.removeEventListener('scroll', handler);
       router.events.off('routeChangeStart', handler);
     };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast]);
 
   if (!toast) {
@@ -102,7 +104,7 @@ const Toast = ({
             onClick={undoAction}
             aria-label="Undo action"
           >
-            Undo
+            {toast?.undoCopy ?? 'Undo'}
           </Button>
         )}
         <Button

@@ -1,25 +1,19 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import usePersistentContext from '../../hooks/usePersistentContext';
 import { Button, ButtonSize } from '../buttons/Button';
-import NotificationsContext from '../../contexts/NotificationsContext';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
 import { webappUrl } from '../../lib/constants';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import {
-  AnalyticsEvent,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/analytics';
-
-export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
+import { NotificationPromptSource } from '../../lib/analytics';
+import BellNotifyIcon from '../icons/Bell/Notify';
+import { useEnableNotification } from '../../hooks/useEnableNotification';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
   contentName?: string;
   className?: string;
+  label?: string;
 };
 
 const containerClassName: Record<NotificationPromptSource, string> = {
@@ -28,7 +22,12 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mx-3 mb-3',
   [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.NewSourceModal]: '',
+  [NotificationPromptSource.NotificationItem]: '',
   [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-6',
+  [NotificationPromptSource.SquadPostCommentary]: '',
+  [NotificationPromptSource.SquadPostModal]:
+    'laptop:rounded-16 laptop:rounded-bl-[0] laptop:rounded-br-[0]',
+  [NotificationPromptSource.SquadChecklist]: '',
 };
 
 const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
@@ -37,81 +36,29 @@ const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
   [NotificationPromptSource.CommunityPicks]: false,
   [NotificationPromptSource.NewSourceModal]: false,
   [NotificationPromptSource.SquadPage]: true,
+  [NotificationPromptSource.SquadPostCommentary]: false,
+  [NotificationPromptSource.SquadPostModal]: false,
+  [NotificationPromptSource.NotificationItem]: false,
+  [NotificationPromptSource.SquadChecklist]: false,
 };
 
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
   contentName,
   className,
+  label,
 }: EnableNotificationProps): ReactElement {
-  const { trackEvent } = useAnalyticsContext();
-  const {
-    isInitialized,
-    isSubscribed,
-    isNotificationSupported,
-    hasPermissionCache,
-    acceptedPermissionJustNow: isEnabled,
-    onAcceptedPermissionJustNow,
-    onTogglePermission,
-  } = useContext(NotificationsContext);
-  const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
-    DISMISS_PERMISSION_BANNER,
-    false,
-  );
-  const onDismiss = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ClickNotificationDismiss,
-      extra: JSON.stringify({ origin: source }),
+  const { shouldShowCta, onEnable, onDismiss, isEnabled, hasEnabled } =
+    useEnableNotification({
+      source,
     });
-    setIsDismissed(true);
-  };
 
-  const onEnable = async () => {
-    const permission = await onTogglePermission(source);
-
-    if (permission === null) {
-      return;
-    }
-
-    const isGranted = permission === 'granted';
-
-    onAcceptedPermissionJustNow?.(isGranted);
-  };
-
-  const hasEnabled = (isSubscribed || hasPermissionCache) && isEnabled;
-
-  const conditions = [
-    !isLoaded,
-    isDismissed,
-    !isInitialized,
-    !isNotificationSupported,
-    (isSubscribed || hasPermissionCache) && !isEnabled,
-  ];
-  const shouldNotDisplay = conditions.some((passed) => passed);
-
-  useEffect(() => {
-    if (shouldNotDisplay) {
-      return;
-    }
-
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      target_type: TargetType.EnableNotifications,
-      extra: JSON.stringify({ origin: source }),
-    });
-  }, [shouldNotDisplay]);
-
-  useEffect(() => {
-    return () => {
-      onAcceptedPermissionJustNow?.(false);
-    };
-  }, []);
-
-  if (shouldNotDisplay) {
+  if (!shouldShowCta) {
     return null;
   }
 
   const sourceToMessage: Record<NotificationPromptSource, string> = {
+    [NotificationPromptSource.SquadPostModal]: '',
     [NotificationPromptSource.NewComment]: `Want to get notified when ${
       contentName ?? 'someone'
     } responds so you can continue the conversation?`,
@@ -120,11 +67,39 @@ function EnableNotification({
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',
+    [NotificationPromptSource.NotificationItem]: '',
+    [NotificationPromptSource.SquadPostCommentary]: '',
     [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on ${contentName}.`,
+    [NotificationPromptSource.SquadChecklist]: '',
   };
   const message = sourceToMessage[source];
   const classes = containerClassName[source];
   const showTextCloseButton = sourceRenderTextCloseButton[source];
+
+  if (source === NotificationPromptSource.SquadPostModal)
+    return (
+      <span
+        className={classNames(
+          'flex relative flex-row items-center p-3 w-full font-bold bg-gradient-to-r from-theme-color-water to-theme-color-onion typo-body',
+          containerClassName[source],
+        )}
+      >
+        <BellNotifyIcon secondary className="mr-2" /> Never miss new posts from{' '}
+        {label}
+        <Button
+          className="mr-14 ml-auto btn-secondary"
+          buttonSize={ButtonSize.XSmall}
+          onClick={onEnable}
+        >
+          Subscribe
+        </Button>
+        <CloseButton
+          className="right-3"
+          position="absolute"
+          onClick={onDismiss}
+        />
+      </span>
+    );
 
   return (
     <div

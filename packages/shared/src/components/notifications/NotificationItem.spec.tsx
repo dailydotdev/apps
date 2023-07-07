@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NotificationItem, { NotificationItemProps } from './NotificationItem';
 import { NotificationAvatarType } from '../../graphql/notifications';

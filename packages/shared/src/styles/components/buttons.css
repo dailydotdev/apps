@@ -1,4 +1,6 @@
 .btn {
+  transition: 0.2s ease-in-out;
+  transition-property: border, background, box-shadow;
   height: 2.5rem;
   padding: 0 1.4375rem;
   border-radius: 0.75rem;

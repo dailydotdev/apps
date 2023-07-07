@@ -9,7 +9,7 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { SUPPORTED_TYPES } from './feed';
+import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -26,15 +26,30 @@ export interface SharedPost extends Post {
 export enum PostType {
   Article = 'article',
   Share = 'share',
+  Welcome = 'welcome',
+  Freeform = 'freeform',
 }
+
+export const internalReadTypes: PostType[] = [PostType.Welcome];
+
+export const supportedTypesForPrivateSources = [
+  PostType.Article,
+  PostType.Share,
+  PostType.Welcome,
+  PostType.Freeform,
+];
 
 export interface Post {
   __typename?: string;
   id: string;
-  title: string;
+  title?: string;
+  titleHtml?: string;
   permalink?: string;
   image: string;
+  content?: string;
+  contentHtml?: string;
   createdAt?: string;
+  pinnedAt?: Date | string;
   readTime?: number;
   tags?: string[];
   source?: Source | Squad;
@@ -61,6 +76,7 @@ export interface Post {
   type: PostType;
   private?: boolean;
   feedMeta?: string;
+  downvoted?: boolean;
 }
 
 export interface Ad {
@@ -81,10 +97,9 @@ export interface ParentComment {
   authorId?: string;
   authorName: string;
   authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
+  publishDate?: Date | string;
+  contentHtml?: string;
+  commentId?: string;
   post: Post;
   editContent?: string;
   editId?: string;
@@ -107,7 +122,7 @@ export type ReadHistoryPost = Pick<
   | 'tags'
   | 'sharedPost'
   | 'type'
-> & { source?: Pick<Source, 'image' | 'id' | 'type'> } & {
+> & { source?: Source } & {
   author?: Pick<Author, 'id'>;
 } & {
   scout?: Pick<Scout, 'id'>;
@@ -133,6 +148,9 @@ export const POST_BY_ID_QUERY = gql`
       ...SharedPostInfo
       trending
       views
+      titleHtml
+      content
+      contentHtml
       sharedPost {
         ...SharedPostInfo
       }
@@ -257,69 +275,6 @@ export interface FeedData {
   page: Connection<Post>;
 }
 
-export const AUTHOR_FEED_QUERY = gql`
-  query AuthorFeed(
-    $userId: ID!,
-    $after: String,
-    $first: Int
-    ${SUPPORTED_TYPES}
-   ) {
-    page: authorFeed(
-      author: $userId
-      after: $after
-      first: $first
-      ranking: TIME
-      supportedTypes: $supportedTypes
-    ) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-          source {
-            ...SourceShortInfo
-          }
-          numUpvotes
-          numComments
-          views
-          isAuthor
-          isScout
-        }
-      }
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
-`;
-
-export const KEYWORD_FEED_QUERY = gql`
-  query KeywordFeed(
-    $keyword: String!,
-    $after: String,
-    $first: Int
-    ${SUPPORTED_TYPES}
-   ) {
-    page: keywordFeed(keyword: $keyword, after: $after, first: $first, supportedTypes: $supportedTypes) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-        }
-      }
-    }
-  }
-`;
-
 export interface PostsEngaged {
   postsEngaged: { id: string; numComments: number; numUpvotes: number };
 }
@@ -335,8 +290,13 @@ export const POSTS_ENGAGED_SUBSCRIPTION = gql`
 `;
 
 export const REPORT_POST_MUTATION = gql`
-  mutation ReportPost($id: ID!, $reason: ReportReason!, $comment: String) {
-    reportPost(id: $id, reason: $reason, comment: $comment) {
+  mutation ReportPost(
+    $id: ID!
+    $reason: ReportReason!
+    $comment: String
+    $tags: [String!]
+  ) {
+    reportPost(id: $id, reason: $reason, comment: $comment, tags: $tags) {
       _
     }
   }
@@ -394,7 +354,7 @@ export const LATEST_CHANGELOG_POST_QUERY = gql`
           title
           createdAt
           image
-          permalink
+          commentsPermalink
           numComments
           numUpvotes
           summary
@@ -432,10 +392,14 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   mutation SubmitExternalLink(
     $sourceId: ID!
     $url: String!
-    $commentary: String!
+    $title: String
+    $image: String
+    $commentary: String
   ) {
     submitExternalLink(
       url: $url
+      title: $title
+      image: $image
       sourceId: $sourceId
       commentary: $commentary
     ) {
@@ -444,11 +408,185 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   }
 `;
 
-interface SubmitExternalLink {
-  url: string;
+export interface ExternalLinkPreview {
+  url?: string;
+  permalink?: string;
+  id?: string;
+  title?: string;
+  image?: string;
+  source?: Source;
+}
+
+export const PREVIEW_LINK_MUTATION = gql`
+  mutation CheckLinkPreview($url: String!) {
+    checkLinkPreview(url: $url) {
+      id
+      title
+      image
+    }
+  }
+`;
+
+export const getExternalLinkPreview = async (
+  url: string,
+  requestMethod = request,
+): Promise<ExternalLinkPreview> => {
+  const res = await requestMethod(graphqlUrl, PREVIEW_LINK_MUTATION, { url });
+
+  return res.checkLinkPreview;
+};
+
+export interface SubmitExternalLink
+  extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
   sourceId: string;
   commentary: string;
 }
 
-export const submitExternalLink = (params: SubmitExternalLink): Promise<Post> =>
-  request(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
+export const submitExternalLink = (
+  params: SubmitExternalLink,
+  requestMethod = request,
+): Promise<EmptyResponse> =>
+  requestMethod(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
+
+export const EDIT_POST_MUTATION = gql`
+  mutation EditPost(
+    $id: ID!
+    $title: String
+    $content: String
+    $image: Upload
+  ) {
+    editPost(id: $id, title: $title, content: $content, image: $image) {
+      ...SharedPostInfo
+      trending
+      views
+      content
+      contentHtml
+      source {
+        ...SourceBaseInfo
+      }
+      description
+      summary
+      toc {
+        text
+        id
+      }
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export interface EditPostProps {
+  id: string;
+  title: string;
+  content: string;
+  image: File;
+}
+
+export interface CreatePostProps
+  extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
+  sourceId: string;
+}
+
+export const editPost = async (
+  variables: Partial<EditPostProps>,
+): Promise<Post> => {
+  const res = await request(graphqlUrl, EDIT_POST_MUTATION, variables);
+
+  return res.editPost;
+};
+
+export const PIN_POST_MUTATION = gql`
+  mutation UpdatePinPost($id: ID!, $pinned: Boolean!) {
+    updatePinPost(id: $id, pinned: $pinned) {
+      _
+    }
+  }
+`;
+
+interface UpdatePinnedProps {
+  id: string;
+  pinned: boolean;
+}
+
+export const updatePinnedPost = async (
+  variables: UpdatePinnedProps,
+): Promise<void> => request(graphqlUrl, PIN_POST_MUTATION, variables);
+
+export const CREATE_POST_MUTATION = gql`
+  mutation CreatePost(
+    $sourceId: ID!
+    $title: String!
+    $content: String
+    $image: Upload
+  ) {
+    createFreeformPost(
+      sourceId: $sourceId
+      title: $title
+      content: $content
+      image: $image
+    ) {
+      ...SharedPostInfo
+      content
+      contentHtml
+      source {
+        ...SourceBaseInfo
+      }
+      description
+      summary
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const createPost = async (
+  variables: Partial<CreatePostProps>,
+): Promise<Post> => {
+  const res = await request(graphqlUrl, CREATE_POST_MUTATION, variables);
+
+  return res.createFreeformPost;
+};
+
+export const UPLOAD_IMAGE_MUTATION = gql`
+  mutation UploadContentImage($image: Upload!) {
+    uploadContentImage(image: $image)
+  }
+`;
+
+export const imageSizeLimitMB = 5;
+export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
+export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
+
+export const uploadContentImage = async (
+  image: File,
+  onProcessing?: (file: File) => void,
+): Promise<string> => {
+  if (image.size > allowedFileSize) {
+    throw new Error(`File size exceeds the limit of ${imageSizeLimitMB} MB`);
+  }
+
+  if (!allowedContentImage.includes(image.type)) {
+    throw new Error('File type is not allowed');
+  }
+
+  if (onProcessing) onProcessing(image);
+
+  const res = await request(graphqlUrl, UPLOAD_IMAGE_MUTATION, { image });
+
+  return res.uploadContentImage;
+};
+
+export const DOWNVOTE_MUTATION = gql`
+  mutation Downvote($id: ID!) {
+    downvote(id: $id) {
+      _
+    }
+  }
+`;
+
+export const CANCEL_DOWNVOTE_MUTATION = gql`
+  mutation CancelDownvote($id: ID!) {
+    cancelDownvote(id: $id) {
+      _
+    }
+  }
+`;

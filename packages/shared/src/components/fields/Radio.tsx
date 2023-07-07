@@ -6,6 +6,7 @@ export interface RadioOption<T = string> {
   label: ReactNode;
   value: T;
   id?: string;
+  afterElement?: ReactNode;
 }
 
 interface ClassName {
@@ -39,11 +40,12 @@ export function Radio({
         <RadioItem
           key={option.value}
           name={name}
-          id={option.id || option.value}
+          id={`${name}-${option.id || option.value}`}
           value={option.value}
           checked={value === option.value}
           onChange={() => onChange(option.value)}
           className={classNames('my-0.5 truncate', className.content)}
+          afterElement={option.afterElement}
         >
           {option.label}
         </RadioItem>

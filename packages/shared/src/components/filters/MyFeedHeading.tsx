@@ -23,10 +23,6 @@ function MyFeedHeading({
   onUpdateAlerts,
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
-  if (!hasFiltered) {
-    return <FeedHeading>My feed</FeedHeading>;
-  }
-
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onClick = () => {
@@ -34,9 +30,13 @@ function MyFeedHeading({
     onOpenFeedFilters();
   };
 
+  if (!hasFiltered) {
+    return <FeedHeading>My feed</FeedHeading>;
+  }
+
   return (
     <AlertPointer
-      offset={[sidebarRendered ? 4 : 0, 8]}
+      offset={[sidebarRendered ? 4 : 0]}
       isAlertDisabled={isAlertDisabled}
       onClose={() => onUpdateAlerts({ myFeed: null })}
       className={{

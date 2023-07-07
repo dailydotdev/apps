@@ -16,8 +16,8 @@ export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const initialDataKey = 'initial';
-export const submissionGuidelineDocsLink =
-  'https://r.daily.dev/submission-guidelines';
+export const contentGuidelinesLink = 'https://r.daily.dev/content-guidelines';
+export const install = 'https://r.daily.dev/install';
 export const uninstall = 'https://r.daily.dev/uninstall';
 export const weeklyGoal = 'https://r.daily.dev/weekly-goal';
 export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
@@ -29,6 +29,9 @@ export const firstNotificationLink = 'https://r.daily.dev/notifications';
 export const reportSquadMember = 'https://r.daily.dev/report-squad-member';
 export const squadFeedback = 'https://r.daily.dev/squad-feedback';
 export const updateFirefoxExtensionLink = 'https://r.daily.dev/firefoxupdate';
+export const downloadBrowserExtension = 'https://r.daily.dev/download';
+export const referralToC = 'https://r.daily.dev/referral-toc';
+export const twitter = 'https://r.daily.dev/twitter';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';

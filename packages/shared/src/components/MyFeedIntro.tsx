@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import UserIcon from './icons/User';
+import { UserIcon } from './icons';
 import classed from '../lib/classed';
 import { IconSize } from './Icon';
 
@@ -28,6 +28,8 @@ const TagPill = ({
     return <Pill className={className}>{children}</Pill>;
   }
 
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [pillWidth] = useState(
     () => emptyWidths[Math.floor(Math.random() * emptyWidths.length)],
   );

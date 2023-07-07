@@ -6,7 +6,7 @@ import { formToJson } from '../../lib/form';
 import { graphqlUrl } from '../../lib/config';
 import {
   communityLinksGuidelines,
-  submissionGuidelineDocsLink,
+  contentGuidelinesLink,
 } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
 import AuthContext from '../../contexts/AuthContext';
@@ -24,6 +24,7 @@ import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/analytics';
+import { Justify } from '../utilities';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -163,11 +164,11 @@ export default function SubmitArticleModal({
           For more details see our{' '}
           <a
             className="hover:underline text-theme-label-link"
-            href={submissionGuidelineDocsLink}
+            href={contentGuidelinesLink}
             target="_blank"
             rel="noopener"
           >
-            Community Picks submission guidelines
+            content guidelines
           </a>
         </AlertParagraph>
       </Alert>
@@ -261,8 +262,8 @@ export default function SubmitArticleModal({
           <PostItemCard postItem={existingArticle} showButtons={false} />
         </div>
       )}
-      {(!isSubmitted || !!existingArticle) && (
-        <Modal.Footer>
+      <Modal.Footer justify={isSubmitted ? Justify.Center : Justify.End}>
+        {(!isSubmitted || !!existingArticle) && (
           <Button
             className="btn-primary"
             type="submit"
@@ -275,8 +276,17 @@ export default function SubmitArticleModal({
               {submitArticleModalButton}
             </span>
           </Button>
-        </Modal.Footer>
-      )}
+        )}
+        {isSubmitted && (
+          <Button
+            className="flex-1 btn-primary max-w-[22.5rem]"
+            aria-label="Close submit article modal"
+            onClick={onRequestClose}
+          >
+            Close
+          </Button>
+        )}
+      </Modal.Footer>
     </Modal>
   );
 }

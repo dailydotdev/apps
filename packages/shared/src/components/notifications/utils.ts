@@ -8,8 +8,7 @@ import DiscussIcon from '../icons/Discuss';
 import EyeIcon from '../icons/Eye';
 import UpvoteIcon from '../icons/Upvote';
 import BlockIcon from '../icons/Block';
-import UserIcon from '../icons/User';
-import StarIcon from '../icons/Star';
+import { UserIcon, StarIcon } from '../icons';
 
 export const NotifContainer = classed(
   'div',
@@ -36,6 +35,7 @@ export enum NotificationType {
   PromotedToAdmin = 'promoted_to_admin',
   PromotedToModerator = 'promoted_to_moderator',
   DemotedToMember = 'demoted_to_member',
+  SquadSubscribeNotification = 'squad_subscribe_to_notification',
 }
 
 export enum NotificationIconType {
@@ -86,6 +86,7 @@ export const notificationTypeTheme: Record<NotificationType, string> = {
   [NotificationType.PromotedToModerator]: 'text-theme-color-cabbage',
   [NotificationType.PromotedToAdmin]: 'text-theme-color-cabbage',
   [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
+  [NotificationType.SquadSubscribeNotification]: 'text-theme-color-cabbage',
 };
 
 const notificationsUrl = `/notifications`;

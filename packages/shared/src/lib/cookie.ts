@@ -1,6 +1,7 @@
 import { IFlags } from 'flagsmith';
 import { FeatureValue } from './featureManagement';
 import { isPreviewDeployment } from './links';
+import { isNullOrUndefined } from './func';
 
 export const COOKIE_FEATURES_KEY = 'preview:featuresFlags';
 
@@ -35,6 +36,59 @@ export const getCookieFeatureFlags = (): Record<string, FeatureValue> => {
   }
 };
 
+export type CookieOptions = {
+  domain: string;
+  expires: Date | string;
+  maxAge: number;
+  partitioned: boolean;
+  path: string;
+  sameSite: 'lax' | 'strict' | 'none';
+  secure: boolean;
+};
+
+export const setCookie = (
+  name: string,
+  value: string | number | boolean,
+  options: Partial<CookieOptions> = {},
+): void => {
+  if (typeof document === 'undefined') {
+    throw new Error('can only be used in the browser environment');
+  }
+
+  if (!name || !value) {
+    throw new Error('name and value are required');
+  }
+
+  const parsedOptions = {
+    domain: options.domain,
+    expires:
+      options.expires instanceof Date
+        ? options.expires.toUTCString()
+        : options.expires,
+    'max-age': options.maxAge,
+    partitioned: options.partitioned,
+    path: options.path,
+    samesite: options.sameSite,
+    secure: options.secure,
+  };
+
+  const cookieValue: string = Object.keys(parsedOptions).reduce((acc, key) => {
+    const option = parsedOptions[key];
+
+    if (isNullOrUndefined(option)) {
+      return acc;
+    }
+
+    if (typeof option === 'boolean') {
+      return option ? `${acc}; ${key}` : acc;
+    }
+
+    return `${acc}; ${key}=${option}`;
+  }, `${name}=${encodeURIComponent(value)}`);
+
+  document.cookie = cookieValue;
+};
+
 export const updateFeatureFlags = (
   flags: IFlags,
   obj: Record<string, FeatureValue>,
@@ -45,14 +99,14 @@ export const updateFeatureFlags = (
       return features;
     }
 
-    return { ...features, [key]: { enabled: true, value } };
+    return { ...features, [key]: { enabled: true, value } } as IFlags;
   }, flags);
 
 if (isPreviewDeployment) {
   const setFeature = (key: string, value: FeatureValue) => {
     const features = getCookieFeatureFlags();
     features[key] = value;
-    document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify(features)}`;
+    setCookie(COOKIE_FEATURES_KEY, JSON.stringify(features));
   };
 
   const getFeatures = getCookieFeatureFlags;
@@ -65,11 +119,11 @@ if (isPreviewDeployment) {
   const removeFeature = (key: string) => {
     const features = getCookieFeatureFlags();
     delete features[key];
-    document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify(features)}`;
+    setCookie(COOKIE_FEATURES_KEY, JSON.stringify(features));
   };
 
   const clearFeatures = () => {
-    document.cookie = `${COOKIE_FEATURES_KEY}=${JSON.stringify({})}`;
+    setCookie(COOKIE_FEATURES_KEY, JSON.stringify({}));
   };
 
   globalThis.setFeature = setFeature;

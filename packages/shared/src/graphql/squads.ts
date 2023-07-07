@@ -9,7 +9,7 @@ import {
   SourcePermissions,
   Squad,
 } from './sources';
-import { Post, PostItem } from './posts';
+import { Post, ExternalLinkPreview } from './posts';
 import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
 
@@ -17,12 +17,12 @@ export type SquadForm = Pick<
   Squad,
   'name' | 'handle' | 'description' | 'image'
 > & {
-  url?: string;
+  preview?: Partial<ExternalLinkPreview>;
   file?: string;
   commentary: string;
-  post: PostItem;
   buttonText?: string;
   memberPostingRole?: SourceMemberRole;
+  memberInviteRole?: SourceMemberRole;
 };
 
 type SharedSquadInput = {
@@ -31,6 +31,7 @@ type SharedSquadInput = {
   description: string;
   image?: File;
   memberPostingRole?: SourceMemberRole;
+  memberInviteRole?: SourceMemberRole;
 };
 
 type EditSquadInput = SharedSquadInput & {
@@ -92,6 +93,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $description: String
     $image: Upload
     $memberPostingRole: String
+    $memberInviteRole: String
   ) {
     createSquad(
       name: $name
@@ -99,6 +101,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       description: $description
       image: $image
       memberPostingRole: $memberPostingRole
+      memberInviteRole: $memberInviteRole
     ) {
       ...SourceBaseInfo
       members {
@@ -121,6 +124,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $description: String
     $image: Upload
     $memberPostingRole: String
+    $memberInviteRole: String
   ) {
     editSquad(
       sourceId: $sourceId
@@ -129,6 +133,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       description: $description
       image: $image
       memberPostingRole: $memberPostingRole
+      memberInviteRole: $memberInviteRole
     ) {
       ...SourceBaseInfo
     }
@@ -137,7 +142,7 @@ export const EDIT_SQUAD_MUTATION = gql`
 `;
 
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
-  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String!) {
+  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String) {
     sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
       id
     }
@@ -339,6 +344,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
     memberPostingRole: form.memberPostingRole,
+    memberInviteRole: form.memberInviteRole,
   };
   const data = await request<CreateSquadOutput>(
     graphqlUrl,
@@ -353,6 +359,7 @@ type EditSquadForm = Pick<
   'name' | 'description' | 'handle' | 'file'
 > & {
   memberPostingRole?: SourceMemberRole;
+  memberInviteRole?: SourceMemberRole;
 };
 
 export async function editSquad(
@@ -366,6 +373,7 @@ export async function editSquad(
     name: form.name,
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
     memberPostingRole: form.memberPostingRole,
+    memberInviteRole: form.memberInviteRole,
   };
   const data = await request<EditSquadOutput>(
     graphqlUrl,

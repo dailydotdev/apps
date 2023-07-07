@@ -1,11 +1,10 @@
-FROM node:16-alpine
+FROM node:18-alpine
 RUN apk add g++ make python3
 
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
 COPY package*.json .
-COPY lerna.json .
 
 COPY packages/eslint-config/package*.json ./packages/eslint-config/
 
@@ -23,8 +22,8 @@ RUN \
   apk --no-cache add \
   libc6-compat
 
-RUN npm i -g lerna
-RUN lerna bootstrap
+RUN npm i -g pnpm
+RUN pnpm install
 
 COPY packages ./packages
 

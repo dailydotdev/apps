@@ -40,6 +40,7 @@ module.exports = {
             primary: 'var(--theme-mention)',
             hover: 'var(--theme-mention-hover)',
           },
+          'cabbage-opacity-24': 'var(--theme-background-cabbage-opacity-24)',
         },
         label: {
           primary: 'var(--theme-label-primary)',
@@ -65,6 +66,8 @@ module.exports = {
           to: 'var(--theme-overlay-to)',
           float: {
             cabbage: 'var(--theme-overlay-float-cabbage)',
+            avocado: 'var(--theme-overlay-float-avocado)',
+            ketchup: 'var(--theme-overlay-float-ketchup)',
           },
         },
         gradient: {
@@ -131,6 +134,7 @@ module.exports = {
       'img-mobile': '280px',
       'rank-modal': 'calc(100vh - 5rem)',
       page: 'calc(100vh - 3.5rem)',
+      commentBox: '18.25rem',
     },
     minHeight: {
       page: 'calc(100vh - 3.5rem)',
@@ -197,6 +201,17 @@ module.exports = {
         logo: '1.125rem',
         'logo-big': '2.0625rem',
       },
+    },
+    lineClamp: {
+      1: '1',
+      2: '2',
+      3: '3',
+      4: '4',
+      5: '5',
+      6: '6',
+      7: '7',
+      8: '8',
+      9: '9',
     },
   },
   // eslint-disable-next-line global-require
