@@ -240,6 +240,7 @@ export default function Feed<T>({
     if (
       !isFeaturesLoaded ||
       feeds.includes(feedName) ||
+      onboardingV2 === OnboardingV2.Control ||
       document.body.classList.contains(HIDDEN_SCROLLBAR)
     ) {
       return null;
@@ -252,7 +253,7 @@ export default function Feed<T>({
       onIsOnboardingOpen(false);
       document.body.classList.remove(HIDDEN_SCROLLBAR);
     };
-  }, [isFeaturesLoaded, onIsOnboardingOpen, feedName]);
+  }, [isFeaturesLoaded, onboardingV2, onIsOnboardingOpen, feedName]);
 
   if (!loadedSettings || (isOnboardingOpen && !user)) {
     return <></>;
