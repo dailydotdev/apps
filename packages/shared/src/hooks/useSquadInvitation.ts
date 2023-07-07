@@ -25,14 +25,7 @@ export const useSquadInvitation = ({
   const { completeAction } = useActions();
 
   const invitation = useMemo(() => {
-    const permalink = squad?.permalink;
-    const token = squad?.currentMember?.referralToken;
-
-    if (!permalink || !token) {
-      return undefined;
-    }
-
-    return `${permalink}/${token}`;
+    return squad.referralUrl;
   }, [squad]);
   const [copying, copyLink] = useCopyLink(() => invitation);
 

@@ -153,6 +153,7 @@ export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
       ...SourceBaseInfo
+      referralUrl
     }
   }
   ${SOURCE_BASE_FRAGMENT}

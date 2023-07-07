@@ -49,6 +49,7 @@ export interface Squad extends Source {
   description: string;
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
+  referralUrl: string;
 }
 
 export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
