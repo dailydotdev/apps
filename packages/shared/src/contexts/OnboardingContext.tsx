@@ -82,7 +82,8 @@ export const OnboardingContextProvider = ({
     setIsOnboarding(true);
   };
   const { sidebarRendered } = useSidebarRendered();
-  const showArticleOnboarding = sidebarRendered && alerts?.filter;
+  const showArticleOnboarding =
+    sidebarRendered && alerts?.filter && onboardingV2 === OnboardingV2.Control;
   const onStartArticleOnboarding = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickArticleAnonymousCTA,
