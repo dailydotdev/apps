@@ -83,8 +83,7 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.InAppNotificationPosition,
       flags,
     ),
-    // onboardingV2: getFeatureValue(Features.OnboardingV2, flags),
-    onboardingV2: OnboardingV2.V1,
+    onboardingV2: getFeatureValue(Features.OnboardingV2, flags),
     hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
     showHiring: isFeaturedEnabled(Features.ShowHiring, flags),
   };
