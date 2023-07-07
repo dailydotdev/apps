@@ -4,6 +4,7 @@ import {
   OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
   InAppNotificationPosition as InAppNotificationPositionEnum,
   OnboardingV2,
+  OnboardingFilteringTitle,
 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
@@ -142,6 +143,18 @@ export class Features<T extends FeatureValue = string> {
     'onboarding_v2',
     OnboardingV2.Control,
     [OnboardingV2.Control, OnboardingV2.V1],
+  );
+
+  static readonly OnboardingFilteringTitle = new Features(
+    'onboarding_filtering_title',
+    OnboardingFilteringTitle.Control,
+    [
+      OnboardingFilteringTitle.Control,
+      OnboardingFilteringTitle.V1,
+      OnboardingFilteringTitle.V2,
+      OnboardingFilteringTitle.V3,
+      OnboardingFilteringTitle.V4,
+    ],
   );
 
   static readonly ShowCommentPopover = new Features('show_comment_popover');

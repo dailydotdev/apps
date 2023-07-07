@@ -10,11 +10,22 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import AuthOptions from '../auth/AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { useOnboardingContext } from '../../contexts/OnboardingContext';
+import { OnboardingFilteringTitle } from '../../lib/featureValues';
+import { useFeaturesContext } from '../../contexts/FeaturesContext';
+
+const versionToTitle: Record<OnboardingFilteringTitle, string> = {
+  [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
+  [OnboardingFilteringTitle.V1]: 'What topic best describes you?',
+  [OnboardingFilteringTitle.V2]: 'Which topics resonate with you the most?',
+  [OnboardingFilteringTitle.V3]: `Pick the topics you'd love to dive into`,
+  [OnboardingFilteringTitle.V4]: 'Choose the topics you’re passionate about',
+};
 
 export function OnboardingOverlay(): ReactElement {
   const [isFiltering, setIsFiltering] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { onShouldUpdateFilters } = useOnboardingContext();
+  const { onboardingFilteringTitle } = useFeaturesContext();
 
   const onClickNext = () => {
     if (!isFiltering) return setIsFiltering(true);
@@ -23,6 +34,7 @@ export function OnboardingOverlay(): ReactElement {
   };
 
   const formRef = useRef<HTMLFormElement>();
+  const title = versionToTitle[onboardingFilteringTitle];
 
   return (
     <div className="flex overflow-auto overflow-x-hidden absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
@@ -35,8 +47,12 @@ export function OnboardingOverlay(): ReactElement {
             : 'max-w-[22.5rem]',
         )}
       >
-        <IntroductionOnboardingTitle />
-        <p className="px-6 mt-3 text-center text-theme-label-secondary typo-body">
+        {isFiltering ? (
+          <h2 className="font-bold typo-title2">{title}</h2>
+        ) : (
+          <IntroductionOnboardingTitle />
+        )}
+        <p className="px-6 mt-3 text-center whitespace-pre-line text-theme-label-secondary typo-body">
           Pick a few subjects that interest you.
           <br />
           You can always change these later.

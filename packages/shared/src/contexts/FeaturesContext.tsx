@@ -14,6 +14,7 @@ import {
 } from '../lib/featureManagement';
 import {
   InAppNotificationPosition,
+  OnboardingFilteringTitle,
   OnboardingFiltersLayout,
   OnboardingV2,
 } from '../lib/featureValues';
@@ -34,6 +35,7 @@ interface Experiments {
   hasSquadAccess?: boolean;
   showHiring?: boolean;
   onboardingV2?: OnboardingV2;
+  onboardingFilteringTitle?: OnboardingFilteringTitle;
 }
 
 export interface FeaturesData extends Experiments {
@@ -84,6 +86,10 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       flags,
     ),
     onboardingV2: getFeatureValue(Features.OnboardingV2, flags),
+    onboardingFilteringTitle: getFeatureValue(
+      Features.OnboardingFilteringTitle,
+      flags,
+    ),
     hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
     showHiring: isFeaturedEnabled(Features.ShowHiring, flags),
   };
