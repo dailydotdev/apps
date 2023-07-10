@@ -106,6 +106,7 @@ export function OnboardingOverlay(): ReactElement {
                 container: 'text-theme-label-tertiary py-4',
                 login: 'text-theme-label-primary',
               }}
+              onLogin={() => setIsAuthenticating(true)}
             />
           </div>
         </ConditionalWrapper>

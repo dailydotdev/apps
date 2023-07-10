@@ -11,19 +11,23 @@ interface ClassName {
 
 interface MemberAlreadyProps {
   className?: ClassName;
+  onLogin?(): void;
 }
 
 export function MemberAlready({
   className = {},
+  onLogin,
 }: MemberAlreadyProps): ReactElement {
   const { showLogin } = useAuthContext();
+  const onClick =
+    onLogin ?? (() => showLogin(AuthTriggers.Onboarding, { isLogin: true }));
 
   return (
     <span className={classNames('flex', className?.container)}>
       Already a member?
       <ClickableText
         className={classNames('ml-1.5 font-bold', className?.login)}
-        onClick={() => showLogin(AuthTriggers.Onboarding, { isLogin: true })}
+        onClick={onClick}
         inverseUnderline
       >
         Log in
