@@ -182,6 +182,7 @@ function AuthOptions({
     onRedirect: (redirect) => {
       windowPopup.current.location.href = redirect;
     },
+    disabled: !isLoginReady,
   });
 
   const isReady = isLoginReady && isRegistrationReady;

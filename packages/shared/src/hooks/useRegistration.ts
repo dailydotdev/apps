@@ -30,6 +30,7 @@ interface UseRegistrationProps {
   onRedirectFail?: () => void;
   onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
+  disabled?: boolean;
 }
 
 interface UseRegistration {
@@ -51,6 +52,7 @@ const useRegistration = ({
   onRedirectFail,
   onValidRegistration,
   onInvalidRegistration,
+  disabled,
 }: UseRegistrationProps): UseRegistration => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
@@ -59,7 +61,7 @@ const useRegistration = ({
   const { data: registration, isLoading: isQueryLoading } = useQuery(
     key,
     () => initializeKratosFlow(AuthFlow.Registration),
-    { refetchOnWindowFocus: false },
+    { refetchOnWindowFocus: false, enabled: !disabled },
   );
 
   const referralTraits = useMemo(() => {
