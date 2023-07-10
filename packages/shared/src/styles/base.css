@@ -98,7 +98,7 @@ body {
   --theme-gradient-onion: theme('colors.onion.10')66;
 
   --theme-overlay-cabbage-opacity: theme('colors.cabbage.90')A3;
-  --theme-overlay-onion-opacity: theme('colors.onion.40')A3;
+  --theme-overlay-onion-opacity: theme('colors.onion.90')A3;
 
   --theme-rank-highlight: theme('colors.salt.10');
 
@@ -219,7 +219,7 @@ body {
   --theme-gradient-onion: theme('colors.onion.10')66;
 
   --theme-overlay-cabbage-opacity: theme('colors.cabbage.90')A3;
-  --theme-overlay-onion-opacity: theme('colors.onion.40')A3;
+  --theme-overlay-onion-opacity: theme('colors.onion.90')A3;
 
   --theme-rank-highlight: theme('colors.salt.10');
 

@@ -63,6 +63,6 @@ export const ManageSquadPageFooter = classed(
 );
 
 export const ManageSquadPageHeader = classed(
-  'footer',
+  'header',
   'flex sticky flex-row gap-3 items-center py-4 px-6 h-16 border-b border-theme-divider-tertiary',
 );
