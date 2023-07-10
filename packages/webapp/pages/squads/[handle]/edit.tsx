@@ -31,8 +31,10 @@ import { getLayout as getMainLayout } from '../../../components/layouts/MainLayo
 
 type EditSquadPageProps = { handle: string };
 
+const pageTitle = 'Squad settings';
+
 const seo: NextSeoProps = {
-  title: 'Create your Squad',
+  title: pageTitle,
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
@@ -96,7 +98,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
               router.push(`/squads/${squad.handle}`);
             }}
           />
-          <h3 className="font-bold typo-title3">Squad settings</h3>
+          <h3 className="font-bold typo-title3">{pageTitle}</h3>
         </ManageSquadPageHeader>
         <SquadDetails
           className="p-8"
