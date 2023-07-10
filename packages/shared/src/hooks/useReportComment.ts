@@ -17,16 +17,16 @@ import { useToastNotification } from './useToastNotification';
 type UseReportCommentRet = {
   openReportCommentModal: (comment: Comment) => void;
   reportComment: (variables: {
-    id: string;
+    commentId: string;
     reason: ReportCommentReason;
-    text?: string;
+    note?: string;
   }) => BooleanPromise;
 };
 
 interface ReportCommentProps {
-  id: string;
+  commentId: string;
   reason: ReportCommentReason;
-  text: string;
+  note: string;
 }
 
 export default function useReportComment(): UseReportCommentRet {
@@ -57,15 +57,12 @@ export default function useReportComment(): UseReportCommentRet {
   };
 
   const reportComment = async (params: ReportCommentProps) => {
-    console.log('params', params);
-
     if (!user) {
       showLogin(AuthTriggers.ReportPost);
       return { successful: false };
     }
 
-    // TODO: Fix this
-    // await reportCommentAsync(params);
+    await reportCommentAsync(params);
 
     return { successful: true };
   };

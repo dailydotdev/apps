@@ -230,28 +230,6 @@ export default function CommentActionButtons({
             </ContextItem>
           </Item>
         ))}
-
-        {/* {canModifyComment && (
-          <Item onClick={() => onEdit(comment)}>
-            <ContextItem>
-              <EditIcon /> Edit comment
-            </ContextItem>
-          </Item>
-        )} */}
-        {/* {canModifyComment && (
-          <Item onClick={() => onDelete(comment, parentId)}>
-            <ContextItem className="flex items-center w-full">
-              <TrashIcon /> Delete comment
-            </ContextItem>
-          </Item>
-        )} */}
-        {/* {!isAuthor && (
-          <Item onClick={() => console.log('Test')}>
-            <ContextItem>
-              <FlagIcon /> Report comment
-            </ContextItem>
-          </Item>
-        )} */}
       </PortalMenu>
     </div>
   );

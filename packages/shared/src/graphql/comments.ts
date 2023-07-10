@@ -205,11 +205,11 @@ export const PREVIEW_COMMENT_MUTATION = gql`
 
 export const REPORT_COMMENT_MUTATION = gql`
   mutation ReportComment(
-    commentId: ID!
-    reason: ReportCommentReason
-    note: String
+    $commentId: ID!
+    $reason: ReportCommentReason
+    $note: String
   ) {
-    reportComment(id: $id, reason: $reason, note: $note) {
+    reportComment(commentId: $commentId, reason: $reason, note: $note) {
       _
     }
   }

@@ -26,22 +26,18 @@ export function ReportCommentModal({
   ...props
 }: Props): ReactElement {
   const { reportComment } = useReportComment();
-  const { trackEvent } = useAnalyticsContext();
 
   const onReportComment = async (
     event: React.MouseEvent<HTMLButtonElement>,
     reason: ReportCommentReason,
-    text: string,
+    note: string,
   ): Promise<void> => {
     const { successful } = await reportComment({
-      id: comment.id,
+      commentId: comment.id,
       reason,
-      text,
+      note,
     });
     if (!successful) return;
-
-    // TODO: Come back to this
-    // trackEvent(postAnalyticsEvent('report post comment', post, { extra: { origin } }));
 
     if (typeof onReport === 'function') {
       onReport(comment);
