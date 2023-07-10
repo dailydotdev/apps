@@ -22,6 +22,7 @@ import {
 } from '@dailydotdev/shared/src/components/squads/utils';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -95,7 +96,7 @@ const NewSquad = (): ReactElement => {
           }}
           className="flex flex-col justify-center items-center mb-6 w-full h-48 bg-cover"
         >
-          <SourceIcon className="!w-20 !h-20" />
+          <SourceIcon size={IconSize.XXXLarge} />
           <SquadTitle className="mb-2">Squads early access!</SquadTitle>
           <SquadSubTitle>
             Create a group where you can learn and interact privately with other
