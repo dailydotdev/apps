@@ -147,6 +147,9 @@ export default function FeedItemComponent({
         : PostTypeToTag[item.post.type] ?? ArticlePostCard;
       return (
         <PostTag
+          enableSourceHeader={
+            feedName !== 'squad' && item.post.source?.type === 'squad'
+          }
           ref={inViewRef}
           post={{
             ...item.post,
