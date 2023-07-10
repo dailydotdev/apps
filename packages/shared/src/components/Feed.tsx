@@ -42,7 +42,11 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
+import {
+  ExperimentWinner,
+  firstVisitRequirement,
+  OnboardingV2,
+} from '../lib/featureValues';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -157,7 +161,7 @@ export default function Feed<T>({
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
-  const { user } = useContext(AuthContext);
+  const { user, firstVisit } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
   const { subject } = useToastNotification();
   const {
@@ -235,14 +239,18 @@ export default function Feed<T>({
   const virtualizedNumCards = useList ? 1 : numCards;
   const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
   const unWalledFeeds = ['source', 'squad'];
-  const shouldShowOnboarding =
+  const existingAnonymousUser =
+    firstVisit && new Date(firstVisit) < firstVisitRequirement;
+  const shouldIgnoreOnboarding =
+    user ||
     !isFeaturesLoaded ||
+    existingAnonymousUser ||
     unWalledFeeds.includes(feedName) ||
     onboardingV2 === OnboardingV2.Control ||
     document.body.classList.contains(HIDDEN_SCROLLBAR);
 
   useEffect(() => {
-    if (shouldShowOnboarding) {
+    if (shouldIgnoreOnboarding) {
       return null;
     }
 
@@ -253,7 +261,7 @@ export default function Feed<T>({
       onIsOnboardingOpen(false);
       document.body.classList.remove(HIDDEN_SCROLLBAR);
     };
-  }, [shouldShowOnboarding, onIsOnboardingOpen]);
+  }, [shouldIgnoreOnboarding, onIsOnboardingOpen]);
 
   if (!loadedSettings || (isOnboardingOpen && !user)) {
     return <></>;
