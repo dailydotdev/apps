@@ -14,6 +14,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import { OnboardingFilteringTitle } from '@dailydotdev/shared/src/lib/featureValues';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { useRouter } from 'next/router';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -26,6 +27,7 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
 const Title = classed('h2', 'font-bold typo-title2');
 
 export function OnboardPage(): ReactElement {
+  const router = useRouter();
   const [isFiltering, setIsFiltering] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { onShouldUpdateFilters } = useOnboardingContext();
@@ -43,6 +45,11 @@ export function OnboardPage(): ReactElement {
   const content = isAuthenticating
     ? 'Once you sign up, your personal feed\nwill be ready to explore.'
     : `Pick a few subjects that interest you.\nYou can always change these later.`;
+
+  const onSuccessfulTransaction = () => {
+    onShouldUpdateFilters(true);
+    router.push('/');
+  };
 
   return (
     <div className="flex overflow-auto overflow-x-hidden absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
@@ -77,8 +84,8 @@ export function OnboardPage(): ReactElement {
               trigger={AuthTriggers.Filter}
               formRef={formRef}
               simplified
-              onSuccessfulLogin={() => onShouldUpdateFilters(true)}
-              onSuccessfulRegistration={() => onShouldUpdateFilters(true)}
+              onSuccessfulLogin={onSuccessfulTransaction}
+              onSuccessfulRegistration={onSuccessfulTransaction}
             />
           )}
         >
