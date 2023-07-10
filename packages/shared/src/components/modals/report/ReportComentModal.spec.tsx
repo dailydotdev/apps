@@ -9,31 +9,18 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
 import { IFlags } from 'flagsmith';
-import { te } from 'date-fns/locale';
-import ShareModal from '../ShareModal';
-import Post from '../../../../__tests__/fixture/post';
-import { getFacebookShareLink } from '../../../lib/share';
-import { Origin } from '../../../lib/analytics';
 import Comment from '../../../../__tests__/fixture/comment';
-import {
-  getCommentHash,
-  REPORT_COMMENT_MUTATION,
-  ReportCommentReason,
-} from '../../../graphql/comments';
+import { REPORT_COMMENT_MUTATION } from '../../../graphql/comments';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../../__tests__/fixture/squads';
 import { FeaturesContextProvider } from '../../../contexts/FeaturesContext';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
-import { ADD_POST_TO_SQUAD_MUTATION } from '../../../graphql/squads';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { LazyModalElement } from '../LazyModalElement';
-import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
-import ReportCommentModal from './ReportCommentModal';
+import { ReportCommentModal } from './ReportCommentModal';
 
-const defaultPost = Post;
 const defaultComment = Comment;
-const onRequestClose = jest.fn();
 let features: IFlags;
 
 const defaultFeatures: IFlags = {
@@ -121,8 +108,8 @@ it('submit the report without text', async () => {
 });
 
 it('submit the report with text', async () => {
-  let queryCalled = false;
-  renderComponent().debug();
+  // let queryCalled = false;
+  renderComponent();
   const otherRadio = screen.getByLabelText('Other');
   const submitButton = screen.getByText('Submit report');
 
@@ -136,7 +123,7 @@ it('submit the report with text', async () => {
       },
     },
     result: () => {
-      queryCalled = true;
+      // queryCalled = true;
       return { data: { reportComment: { _: true } } };
     },
   });
@@ -144,9 +131,7 @@ it('submit the report with text', async () => {
   otherRadio.click();
   await expect(otherRadio).toBeChecked();
 
-  const input = (await screen.getByTestId(
-    'report_comment',
-  )) as HTMLTextAreaElement;
+  const input = screen.getByTestId('report_comment') as HTMLTextAreaElement;
   fireEvent.change(input, { target: { value: 'test note' } });
   expect(input.value).toBe('test note');
   expect(submitButton).toBeEnabled();

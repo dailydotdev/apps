@@ -33,6 +33,8 @@ import { SourcePermissions } from '../../graphql/sources';
 import { RequestKey } from '../../lib/query';
 import FlagIcon from '../icons/Flag';
 import useReportComment from '../../hooks/useReportComment';
+import { LazyModal } from '../modals/common/types';
+import { useLazyModal } from '../../hooks/useLazyModal';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
@@ -70,7 +72,8 @@ export default function CommentActionButtons({
   const { user, showLogin } = useContext(AuthContext);
   const [upvoted, setUpvoted] = useState(comment.upvoted);
   const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
-  const { openReportCommentModal } = useReportComment();
+  const { onReportCallback } = useReportComment();
+  const { openModal } = useLazyModal();
 
   const queryClient = useQueryClient();
 
@@ -148,6 +151,16 @@ export default function CommentActionButtons({
       SourcePermissions.CommentDelete,
     );
 
+  const openReportCommentModal = () => {
+    openModal({
+      type: LazyModal.ReportComment,
+      props: {
+        onReport: onReportCallback,
+        comment,
+      },
+    });
+  };
+
   const postOptions: OptionMenuItem[] = [];
 
   if (canModifyComment) {
@@ -168,7 +181,7 @@ export default function CommentActionButtons({
   if (!isAuthor) {
     postOptions.push({
       text: 'Report comment',
-      action: () => openReportCommentModal(comment),
+      action: () => openReportCommentModal(),
       icon: <FlagIcon />,
     });
   }

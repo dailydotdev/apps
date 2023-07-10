@@ -3,7 +3,6 @@ import { ModalProps } from '../common/Modal';
 import { ReportModal } from './ReportModal';
 import useReportComment from '../../../hooks/useReportComment';
 import { Comment, ReportCommentReason } from '../../../graphql/comments';
-// import { postAnalyticsEvent } from '../../../lib/feed';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 
 interface Props extends ModalProps {
@@ -26,6 +25,7 @@ export function ReportCommentModal({
   ...props
 }: Props): ReactElement {
   const { reportComment } = useReportComment();
+  const { trackEvent } = useAnalyticsContext();
 
   const onReportComment = async (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -38,6 +38,13 @@ export function ReportCommentModal({
       note,
     });
     if (!successful) return;
+
+    trackEvent({
+      event_name: 'report comment',
+      extra: JSON.stringify({
+        commentId: comment.id,
+      }),
+    });
 
     if (typeof onReport === 'function') {
       onReport(comment);
