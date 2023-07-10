@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import { IFlags } from 'flagsmith';
 import {
   Features,
@@ -101,8 +95,6 @@ export const FeaturesContextProvider = ({
   children,
   flags,
 }: FeaturesContextProviderProps): ReactElement => {
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
-
   const featuresFlags: FeaturesData = useMemo(() => {
     const features = getFeatures(flags);
     const props = { isFeaturesLoaded, isFlagsFetched };
@@ -117,19 +109,8 @@ export const FeaturesContextProvider = ({
 
     globalThis.getFeatureKeys = () => Object.keys(flags);
 
-    return {
-      ...result,
-      ...props,
-      isOnboardingOpen,
-      onIsOnboardingOpen: setIsOnboardingOpen,
-    };
-  }, [
-    flags,
-    isFeaturesLoaded,
-    isFlagsFetched,
-    isOnboardingOpen,
-    setIsOnboardingOpen,
-  ]);
+    return { ...result, ...props };
+  }, [flags, isFeaturesLoaded, isFlagsFetched]);
 
   return (
     <FeaturesContext.Provider value={featuresFlags}>
