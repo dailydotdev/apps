@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
 import { Post } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -22,6 +21,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { verifyPermission } from '../graphql/squads';
 import { SourcePermissions } from '../graphql/sources';
+import { useSquadNavigation } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -48,13 +48,13 @@ export default function ShareOptionsMenu({
   onHidden,
   contextId = 'share-context',
 }: ShareOptionsMenuProps): ReactElement {
-  const router = useRouter();
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
   const { squads } = useContext(AuthContext);
   const { hasSquadAccess } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { openModal } = useLazyModal();
+  const { openNewSquad } = useSquadNavigation();
   const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -96,7 +96,7 @@ export default function ShareOptionsMenu({
         icon: <MenuIcon Icon={SquadIcon} />,
         text: 'Post to new squad',
         action: () => {
-          router.push(`/squads/new?origin=${Origin.Share}`);
+          openNewSquad({ origin: Origin.Share });
         },
       });
     }

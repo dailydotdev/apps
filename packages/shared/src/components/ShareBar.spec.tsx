@@ -84,7 +84,7 @@ describe('ShareBar Test Suite:', () => {
     expect(screen.queryByText('New Squad')).not.toBeInTheDocument();
   });
 
-  it('should render the component with logged user but no squads and open new squad modal', async () => {
+  it('should render the component with logged user but no squads and open new squad page', async () => {
     renderComponent(true, false);
     const btn = await screen.findByTestId('social-share-New Squad');
 
