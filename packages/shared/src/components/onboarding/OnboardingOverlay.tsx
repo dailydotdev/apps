@@ -12,6 +12,7 @@ import { AuthTriggers } from '../../lib/auth';
 import { useOnboardingContext } from '../../contexts/OnboardingContext';
 import { OnboardingFilteringTitle } from '../../lib/featureValues';
 import { useFeaturesContext } from '../../contexts/FeaturesContext';
+import { ProgressBar } from '../fields/ProgressBar';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -35,9 +36,11 @@ export function OnboardingOverlay(): ReactElement {
 
   const formRef = useRef<HTMLFormElement>();
   const title = versionToTitle[onboardingFilteringTitle];
+  const percentage = isAuthenticating ? 100 : 50;
 
   return (
     <div className="flex overflow-auto overflow-x-hidden absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
+      <ProgressBar percentage={isFiltering ? percentage : 0} />
       <Logo className="py-8 px-10 w-auto laptop:w-full" />
       <div
         className={classNames(
