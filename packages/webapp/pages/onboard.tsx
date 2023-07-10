@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useFeaturesContext } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
@@ -12,9 +12,20 @@ import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding'
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
-import { OnboardingFilteringTitle } from '@dailydotdev/shared/src/lib/featureValues';
+import {
+  OnboardingFilteringTitle,
+  OnboardingV2,
+} from '@dailydotdev/shared/src/lib/featureValues';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
+import { OnboardingStep } from '@dailydotdev/shared/src/components/onboarding/common';
+import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -28,12 +39,26 @@ const Title = classed('h2', 'font-bold typo-title2');
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
+  const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { onShouldUpdateFilters } = useOnboardingContext();
-  const { onboardingFilteringTitle } = useFeaturesContext();
+  const {
+    onboardingFilteringTitle,
+    onboardingMinimumTopics,
+    onboardingV2,
+    isFeaturesLoaded,
+  } = useFeaturesContext();
+  const { trackEvent } = useAnalyticsContext();
 
   const onClickNext = () => {
+    const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
+
+    trackEvent({
+      event_name: AnalyticsEvent.ClickOnboardingNext,
+      extra: JSON.stringify({ screen_value: screen }),
+    });
+
     if (!isFiltering) return setIsFiltering(true);
 
     return setIsAuthenticating(true);
@@ -50,6 +75,35 @@ export function OnboardPage(): ReactElement {
     onShouldUpdateFilters(true);
     router.push('/');
   };
+
+  const isPageReady = isFeaturesLoaded && isAuthReady;
+
+  useEffect(() => {
+    if (!isPageReady) return;
+
+    if (user || onboardingV2 === OnboardingV2.Control) {
+      router.push('/');
+      return;
+    }
+
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.MyFeedModal,
+      target_id: onboardingV2,
+      extra: JSON.stringify({
+        origin: OnboardingMode.Wall,
+        steps: [OnboardingStep.Topics],
+        mandating_categories: onboardingMinimumTopics,
+      }),
+    });
+  }, [
+    trackEvent,
+    isPageReady,
+    onboardingV2,
+    onboardingMinimumTopics,
+    router,
+    user,
+  ]);
 
   return (
     <div className="flex overflow-auto overflow-x-hidden absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
