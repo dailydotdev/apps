@@ -25,7 +25,7 @@ import { SquadsList } from './SquadsList';
 import { Button, ButtonSize } from '../buttons/Button';
 import PlusIcon from '../icons/Plus';
 import { ProfilePicture } from '../ProfilePicture';
-import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
+import { useSquadNavigation } from '../../hooks';
 import { Origin } from '../../lib/analytics';
 
 const UserSettingsModal = dynamic(
@@ -63,13 +63,8 @@ export default function Sidebar({
     submitArticleSidebarButton,
     submitArticleModalButton,
     popularFeedCopy,
-    isFlagsFetched,
   } = useContext(FeaturesContext);
-  const { openNewSquadModal } = useCreateSquadModal({
-    hasSquads: !!squads?.length,
-    hasAccess: hasSquadAccess,
-    isFlagsFetched,
-  });
+  const { openNewSquad } = useSquadNavigation();
   const newSquadButtonVisible =
     sidebarRendered && hasSquadAccess && !squads?.length;
 
@@ -135,7 +130,7 @@ export default function Sidebar({
                   textPosition={
                     sidebarExpanded ? 'justify-start' : 'justify-center'
                   }
-                  onClick={() => openNewSquadModal({ origin: Origin.Sidebar })}
+                  onClick={() => openNewSquad({ origin: Origin.Sidebar })}
                 >
                   {sidebarExpanded && 'New Squad'}
                 </Button>
@@ -155,7 +150,7 @@ export default function Sidebar({
                 {...defaultRenderSectionProps}
                 activePage={activePageProp}
                 squads={squads}
-                onNewSquad={() => openNewSquadModal({ origin: Origin.Sidebar })}
+                onNewSquad={() => openNewSquad({ origin: Origin.Sidebar })}
               />
             )}
             <DiscoverSection

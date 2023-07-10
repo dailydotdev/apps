@@ -1,36 +1,42 @@
 import { useRouter } from 'next/router';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { Origin } from '../lib/analytics';
 import usePersistentContext from './usePersistentContext';
+import AuthContext from '../contexts/AuthContext';
+import FeaturesContext from '../contexts/FeaturesContext';
 
-type ModalProps = { origin: Origin };
-interface UseCreateSquadModal {
-  openNewSquadModal: (props?: ModalProps) => void;
+type OpenNewSquadProps = { origin: Origin };
+type EditSquadProps = { handle: string };
+interface UseSquadNavigation {
+  openNewSquad: (props?: OpenNewSquadProps) => void;
+  editSquad: (props: EditSquadProps) => void;
 }
 
 const SQUAD_ONBOARDING = 'hasTriedSquadOnboarding';
 const SQUAD_INVITE_PATHNAME = '/squads/[handle]/[token]';
 
-type UseCreateSquadModalProps = {
-  hasSquads: boolean;
-  hasAccess: boolean;
-  isFlagsFetched: boolean;
-};
-
-export const useCreateSquadModal = ({
-  hasSquads = false,
-  hasAccess = false,
-  isFlagsFetched,
-}: UseCreateSquadModalProps): UseCreateSquadModal => {
+export const useSquadNavigation = (): UseSquadNavigation => {
+  const { squads } = useContext(AuthContext);
+  const hasSquads = !!squads?.length;
+  const { hasSquadAccess: hasAccess, isFlagsFetched } =
+    useContext(FeaturesContext);
   const router = useRouter();
   const [hasTriedOnboarding, setHasTriedOnboarding, isLoaded] =
     usePersistentContext<boolean>(SQUAD_ONBOARDING, hasSquads);
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const openNewSquadModal = (props: ModalProps) => {
-    router.push(`/squads/new?origin=${props.origin}`);
-  };
+  const openNewSquad = useCallback(
+    (props: OpenNewSquadProps) => {
+      router.push(`/squads/new?origin=${props.origin}`);
+    },
+    [router],
+  );
+
+  const editSquad = useCallback(
+    ({ handle }: EditSquadProps) => {
+      router.push(`/squads/${handle}/edit`);
+    },
+    [router],
+  );
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
@@ -40,7 +46,7 @@ export const useCreateSquadModal = ({
     }
 
     const { origin, pathname } = window.location;
-    openNewSquadModal({ origin: Origin.Notification });
+    openNewSquad({ origin: Origin.Notification });
     router.replace(origin + pathname);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,7 +64,7 @@ export const useCreateSquadModal = ({
       return;
     }
 
-    openNewSquadModal({ origin: Origin.Auto });
+    openNewSquad({ origin: Origin.Auto });
     setHasTriedOnboarding(true);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,5 +77,5 @@ export const useCreateSquadModal = ({
     router.pathname,
   ]);
 
-  return useMemo(() => ({ openNewSquadModal }), [openNewSquadModal]);
+  return { openNewSquad, editSquad };
 };
