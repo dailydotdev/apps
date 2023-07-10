@@ -1,19 +1,19 @@
 import React, { ReactElement, useRef, useState } from 'react';
+import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { useFeaturesContext } from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
+import Logo from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
-import Logo from '../Logo';
-import { FilterOnboarding } from './FilterOnboarding';
-import { IntroductionOnboardingTitle } from './IntroductionOnboarding';
-import { Button } from '../buttons/Button';
-import { MemberAlready } from './MemberAlready';
-import { cloudinary } from '../../lib/image';
-import ConditionalWrapper from '../ConditionalWrapper';
-import AuthOptions from '../auth/AuthOptions';
-import { AuthTriggers } from '../../lib/auth';
-import { useOnboardingContext } from '../../contexts/OnboardingContext';
-import { OnboardingFilteringTitle } from '../../lib/featureValues';
-import { useFeaturesContext } from '../../contexts/FeaturesContext';
-import { ProgressBar } from '../fields/ProgressBar';
-import classed from '../../lib/classed';
+import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
+import { IntroductionOnboardingTitle } from '@dailydotdev/shared/src/components/onboarding/IntroductionOnboarding';
+import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
+import { OnboardingFilteringTitle } from '@dailydotdev/shared/src/lib/featureValues';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -25,7 +25,7 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
 
 const Title = classed('h2', 'font-bold typo-title2');
 
-export function OnboardingOverlay(): ReactElement {
+export function OnboardPage(): ReactElement {
   const [isFiltering, setIsFiltering] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { onShouldUpdateFilters } = useOnboardingContext();
@@ -114,3 +114,5 @@ export function OnboardingOverlay(): ReactElement {
     </div>
   );
 }
+
+export default OnboardPage;

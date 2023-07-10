@@ -42,11 +42,7 @@ import {
 import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import {
-  ExperimentWinner,
-  firstVisitRequirement,
-  OnboardingV2,
-} from '../lib/featureValues';
+import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -135,8 +131,6 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   return {};
 };
 
-const HIDDEN_SCROLLBAR = 'hidden-scrollbar';
-
 const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
@@ -161,16 +155,10 @@ export default function Feed<T>({
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
-  const { user, firstVisit } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
   const { subject } = useToastNotification();
-  const {
-    isOnboardingOpen,
-    isFeaturesLoaded,
-    onIsOnboardingOpen,
-    showCommentPopover,
-    onboardingV2,
-  } = useFeaturesContext();
+  const { showCommentPopover, onboardingV2 } = useFeaturesContext();
   const {
     openNewTab,
     spaciness,
@@ -238,32 +226,8 @@ export default function Feed<T>({
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
-  const unWalledFeeds = ['source', 'squad'];
-  const existingAnonymousUser =
-    firstVisit && new Date(firstVisit) < firstVisitRequirement;
-  const shouldIgnoreOnboarding =
-    user ||
-    !isFeaturesLoaded ||
-    existingAnonymousUser ||
-    unWalledFeeds.includes(feedName) ||
-    onboardingV2 === OnboardingV2.Control ||
-    document.body.classList.contains(HIDDEN_SCROLLBAR);
 
-  useEffect(() => {
-    if (shouldIgnoreOnboarding) {
-      return null;
-    }
-
-    onIsOnboardingOpen(true);
-    document.body.classList.add(HIDDEN_SCROLLBAR);
-
-    return () => {
-      onIsOnboardingOpen(false);
-      document.body.classList.remove(HIDDEN_SCROLLBAR);
-    };
-  }, [shouldIgnoreOnboarding, onIsOnboardingOpen]);
-
-  if (!loadedSettings || (isOnboardingOpen && !user)) {
+  if (!loadedSettings) {
     return <></>;
   }
 
@@ -430,11 +394,9 @@ export default function Feed<T>({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!selectedPost) {
-      if (isOnboardingOpen) return;
-
       document.body.classList.remove('hidden-scrollbar');
     }
-  }, [selectedPost, isOnboardingOpen]);
+  }, [selectedPost]);
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
