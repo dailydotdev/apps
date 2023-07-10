@@ -14,7 +14,6 @@ import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
-import { FlexCol } from '../utilities';
 import SquadIcon from '../icons/Squad';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
@@ -129,7 +128,7 @@ export function SquadDetails({
 
   return (
     <>
-      <FlexCol className={className}>
+      <div className={classNames('flex flex-col', className)}>
         <form
           className="flex flex-col gap-4 items-center -mb-2"
           onSubmit={handleSubmit}
@@ -151,7 +150,7 @@ export function SquadDetails({
               size="large"
             />
           )}
-          <FlexCol className="gap-4 justify-center w-full max-w-lg">
+          <div className="flex flex-col gap-4 justify-center w-full max-w-lg">
             <TextField
               label={createMode ? 'Name your squad' : 'Squad name'}
               inputId="name"
@@ -261,9 +260,9 @@ export function SquadDetails({
                 />
               </div>
             </div>
-          </FlexCol>
+          </div>
         </form>
-      </FlexCol>
+      </div>
       <ManageSquadPageFooter
         className={classNames(!createMode && 'px-6', 'mt-auto justify-between')}
       >
