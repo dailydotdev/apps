@@ -223,7 +223,7 @@ export function SquadDetails({
                 buttonProps={{
                   text: 'Join waitlist',
                   tag: 'a',
-                  // @ts-expect-error Property 'disabled' does not exist on type
+                  // @ts-expect-error Property 'target' does not exist on type
                   target: '_blank',
                   href: publicSquadWaitlist,
                 }}

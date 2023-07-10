@@ -61,10 +61,6 @@ const NewSquad = (): ReactElement => {
     try {
       const newSquad = await createSquad({ ...data });
 
-      if (!newSquad) {
-        return;
-      }
-
       trackEvent({
         event_name: AnalyticsEvent.CompleteSquadCreation,
       });
