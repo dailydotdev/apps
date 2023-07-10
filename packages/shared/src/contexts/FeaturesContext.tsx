@@ -36,8 +36,6 @@ export interface FeaturesData extends Experiments {
   flags: IFlags;
   isFlagsFetched?: boolean;
   isFeaturesLoaded?: boolean;
-  isOnboardingOpen?: boolean;
-  onIsOnboardingOpen?(value: boolean): void;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
