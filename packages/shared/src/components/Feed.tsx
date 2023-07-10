@@ -234,15 +234,15 @@ export default function Feed<T>({
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
+  const unWalledFeeds = ['source', 'squad'];
+  const shouldShowOnboarding =
+    !isFeaturesLoaded ||
+    unWalledFeeds.includes(feedName) ||
+    onboardingV2 === OnboardingV2.Control ||
+    document.body.classList.contains(HIDDEN_SCROLLBAR);
 
   useEffect(() => {
-    const feeds = ['source', 'squad'];
-    if (
-      !isFeaturesLoaded ||
-      feeds.includes(feedName) ||
-      onboardingV2 === OnboardingV2.Control ||
-      document.body.classList.contains(HIDDEN_SCROLLBAR)
-    ) {
+    if (shouldShowOnboarding) {
       return null;
     }
 
@@ -253,7 +253,7 @@ export default function Feed<T>({
       onIsOnboardingOpen(false);
       document.body.classList.remove(HIDDEN_SCROLLBAR);
     };
-  }, [isFeaturesLoaded, onboardingV2, onIsOnboardingOpen, feedName]);
+  }, [shouldShowOnboarding, onIsOnboardingOpen]);
 
   if (!loadedSettings || (isOnboardingOpen && !user)) {
     return <></>;

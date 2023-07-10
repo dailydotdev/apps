@@ -138,14 +138,15 @@ export default function MainLayout({
     );
   };
 
+  const shouldShowOverlay =
+    !user && isOnboardingOpen && onboardingV2 !== OnboardingV2.Control;
+
   return (
     <div {...handlers}>
       {customBanner || (
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
-      {!user && isOnboardingOpen && onboardingV2 !== OnboardingV2.Control && (
-        <OnboardingOverlay />
-      )}
+      {shouldShowOverlay && <OnboardingOverlay />}
       <InAppNotificationElement />
       <LazyModalElement />
       <PromptElement />
