@@ -13,6 +13,7 @@ import { useOnboardingContext } from '../../contexts/OnboardingContext';
 import { OnboardingFilteringTitle } from '../../lib/featureValues';
 import { useFeaturesContext } from '../../contexts/FeaturesContext';
 import { ProgressBar } from '../fields/ProgressBar';
+import classed from '../../lib/classed';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -21,6 +22,8 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.V3]: `Pick the topics you'd love to dive into`,
   [OnboardingFilteringTitle.V4]: 'Choose the topics you’re passionate about',
 };
+
+const Title = classed('h2', 'font-bold typo-title2');
 
 export function OnboardingOverlay(): ReactElement {
   const [isFiltering, setIsFiltering] = useState(false);
@@ -37,6 +40,9 @@ export function OnboardingOverlay(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const title = versionToTitle[onboardingFilteringTitle];
   const percentage = isAuthenticating ? 100 : 50;
+  const content = isAuthenticating
+    ? 'Once you sign up, your personal feed\nwill be ready to explore.'
+    : `Pick a few subjects that interest you.\nYou can always change these later.`;
 
   return (
     <div className="flex overflow-auto overflow-x-hidden absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
@@ -50,15 +56,18 @@ export function OnboardingOverlay(): ReactElement {
             : 'max-w-[22.5rem]',
         )}
       >
-        {isFiltering ? (
-          <h2 className="font-bold typo-title2">{title}</h2>
-        ) : (
-          <IntroductionOnboardingTitle />
-        )}
+        <ConditionalWrapper
+          condition={isAuthenticating}
+          wrapper={() => <Title>Sign up to daily.dev</Title>}
+        >
+          {isFiltering ? (
+            <Title className="font-bold typo-title2">{title}</Title>
+          ) : (
+            <IntroductionOnboardingTitle />
+          )}
+        </ConditionalWrapper>
         <p className="px-6 mt-3 text-center whitespace-pre-line text-theme-label-secondary typo-body">
-          Pick a few subjects that interest you.
-          <br />
-          You can always change these later.
+          {content}
         </p>
         {!isAuthenticating && <div className="flex flex-1" />}
         <ConditionalWrapper
