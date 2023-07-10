@@ -90,10 +90,7 @@ export function OnboardPage(): ReactElement {
           )}
         >
           {isFiltering ? (
-            <FilterOnboarding
-              isAnimated={false}
-              className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
-            />
+            <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" />
           ) : (
             <div
               style={{

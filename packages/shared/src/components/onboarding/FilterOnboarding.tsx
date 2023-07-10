@@ -14,13 +14,11 @@ const classes: Record<OnboardingFiltersLayout, string> = {
 
 interface FilterOnboardingProps {
   onSelectedTopics?(tags: Record<string, boolean>): void;
-  isAnimated?: boolean;
   className?: string;
 }
 
 export function FilterOnboarding({
   onSelectedTopics,
-  isAnimated,
   className,
 }: FilterOnboardingProps): ReactElement {
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
@@ -57,7 +55,6 @@ export function FilterOnboarding({
         <FeedTopicCard
           key={category.title}
           topic={category}
-          isAnimated={isAnimated}
           isActive={selectedTopics[category.id]}
           topicLayout={onboardingFiltersLayout}
           onClick={(e) => onChangeSelectedTopic(e, category.id)}
