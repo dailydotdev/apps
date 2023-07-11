@@ -37,11 +37,20 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
 
 const Title = classed('h2', 'font-bold typo-title2');
 
+interface AuthProps {
+  isAuthenticating: boolean;
+  isLoginFlow: boolean;
+}
+
 export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [auth, setAuth] = useState<AuthProps>({
+    isAuthenticating: false,
+    isLoginFlow: false,
+  });
+  const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
   const {
     onboardingFilteringTitle,
@@ -61,7 +70,7 @@ export function OnboardPage(): ReactElement {
 
     if (!isFiltering) return setIsFiltering(true);
 
-    return setIsAuthenticating(true);
+    return setAuth({ isAuthenticating: true, isLoginFlow: false });
   };
 
   const formRef = useRef<HTMLFormElement>();
@@ -140,6 +149,7 @@ export function OnboardPage(): ReactElement {
               simplified
               onSuccessfulLogin={onSuccessfulTransaction}
               onSuccessfulRegistration={onSuccessfulTransaction}
+              isLoginFlow={isLoginFlow}
             />
           )}
         >
@@ -164,7 +174,9 @@ export function OnboardPage(): ReactElement {
                 container: 'text-theme-label-tertiary py-4',
                 login: 'text-theme-label-primary',
               }}
-              onLogin={() => setIsAuthenticating(true)}
+              onLogin={() =>
+                setAuth({ isAuthenticating: true, isLoginFlow: true })
+              }
             />
           </div>
         </ConditionalWrapper>
