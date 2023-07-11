@@ -177,7 +177,7 @@ export function OnboardPage(): ReactElement {
             <MemberAlready
               className={{
                 container: 'text-theme-label-tertiary py-4',
-                login: 'text-theme-label-primary',
+                login: 'text-theme-label-primary ml-0.5',
               }}
               onLogin={() =>
                 setAuth({ isAuthenticating: true, isLoginFlow: true })
