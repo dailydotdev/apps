@@ -4,6 +4,7 @@ import {
   screen,
   waitFor,
   fireEvent,
+  act,
 } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
@@ -67,6 +68,7 @@ const renderComponent = (
             onReport={jest.fn()}
             comment={comment || defaultComment}
             isOpen
+            onRequestClose={jest.fn()}
           />
         </AuthContextProvider>
       </FeaturesContextProvider>
@@ -108,7 +110,7 @@ it('submit the report without text', async () => {
 });
 
 it('submit the report with text', async () => {
-  // let queryCalled = false;
+  let queryCalled = false;
   renderComponent();
   const otherRadio = screen.getByLabelText('Other');
   const submitButton = screen.getByText('Submit report');
@@ -123,7 +125,7 @@ it('submit the report with text', async () => {
       },
     },
     result: () => {
-      // queryCalled = true;
+      queryCalled = true;
       return { data: { reportComment: { _: true } } };
     },
   });
@@ -133,10 +135,14 @@ it('submit the report with text', async () => {
 
   const input = screen.getByTestId('report_comment') as HTMLTextAreaElement;
   fireEvent.change(input, { target: { value: 'test note' } });
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+
   expect(input.value).toBe('test note');
   expect(submitButton).toBeEnabled();
-  // submitButton.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
-  // await waitForNock();
-  // await waitFor(() => expect(queryCalled).toBeTruthy());
+  submitButton.click();
+
+  await waitForNock();
+  await waitFor(() => expect(queryCalled).toBeTruthy());
 });

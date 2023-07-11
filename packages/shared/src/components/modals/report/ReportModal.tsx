@@ -52,7 +52,7 @@ export function ReportModal({
               Anything else you&apos;d like to add?
             </p>
             <textarea
-              onChange={(event) => setNote(event.target.value)}
+              onInput={(event) => setNote(event.currentTarget.value)}
               className="self-stretch p-2 mb-1 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
               data-testid="report_comment"
             />
