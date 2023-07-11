@@ -15,10 +15,7 @@ function AuthContainer(
     <Container
       {...props}
       ref={ref}
-      className={classNames(
-        className,
-        'px-6 group-[.padded]:tablet:px-[3.75rem]',
-      )}
+      className={classNames(className, 'px-6 tablet:px-[3.75rem]')}
     >
       {children}
     </Container>

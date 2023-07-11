@@ -301,8 +301,8 @@ function AuthOptions({
   return (
     <div
       className={classNames(
-        'flex overflow-y-auto z-1 flex-col w-full rounded-16 max-w-[26.25rem] group',
-        !simplified && 'bg-theme-bg-tertiary padded',
+        'flex overflow-y-auto z-1 flex-col w-full rounded-16 max-w-[26.25rem]',
+        !simplified && 'bg-theme-bg-tertiary',
         className,
       )}
     >

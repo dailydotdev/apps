@@ -42,6 +42,8 @@ interface AuthProps {
   isLoginFlow: boolean;
 }
 
+const maxAuthWidth = 'tablet:max-w-[30rem]';
+
 export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
@@ -114,6 +116,8 @@ export function OnboardPage(): ReactElement {
     user,
   ]);
 
+  const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
+
   return (
     <div className="flex overflow-auto overflow-x-hidden absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
       <ProgressBar percentage={isFiltering ? percentage : 0} />
@@ -123,7 +127,7 @@ export function OnboardPage(): ReactElement {
           'flex relative flex-col flex-1 items-center mt-24 laptop:mt-6 w-full max-h-[40rem]',
           isFiltering
             ? 'laptop:max-w-[48.75rem] tablet:max-w-[32rem]'
-            : 'max-w-[22.5rem]',
+            : containerClass,
         )}
       >
         <ConditionalWrapper
@@ -150,6 +154,7 @@ export function OnboardPage(): ReactElement {
               onSuccessfulLogin={onSuccessfulTransaction}
               onSuccessfulRegistration={onSuccessfulTransaction}
               isLoginFlow={isLoginFlow}
+              className={classNames('w-full', maxAuthWidth)}
             />
           )}
         >
