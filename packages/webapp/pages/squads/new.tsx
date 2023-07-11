@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -8,11 +8,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { SquadForm, createSquad } from '@dailydotdev/shared/src/graphql/squads';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import {
-  AnalyticsEvent,
-  Origin,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import SourceIcon from '@dailydotdev/shared/src/components/icons/Source';
 import {
   SquadTitle,
@@ -35,8 +31,7 @@ const seo: NextSeoProps = {
 };
 
 const NewSquad = (): ReactElement => {
-  const { isReady: isRouteReady, query } = useRouter();
-  const origin = query.origin as Origin;
+  const { isReady: isRouteReady } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
@@ -44,16 +39,6 @@ const NewSquad = (): ReactElement => {
   const [form] = useState<Partial<SquadForm>>({
     public: false,
   });
-
-  useEffect(() => {
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      target_type: TargetType.CreateSquadPopup,
-      extra: JSON.stringify({ origin }),
-    });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const onCreate = async (e, newSquadForm: SquadForm) => {
     e.preventDefault();
