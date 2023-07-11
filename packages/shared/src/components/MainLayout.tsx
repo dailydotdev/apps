@@ -31,6 +31,7 @@ import { OnboardingV2 } from '../lib/featureValues';
 import { useFeaturesContext } from '../contexts/FeaturesContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
+import { isTesting } from '../lib/constants';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -142,7 +143,7 @@ export default function MainLayout({
   const router = useRouter();
   const feeds = Object.values(MainFeedPage);
   const page = router?.route?.substring(1).trim() as MainFeedPage;
-  const isPageReady = isFeaturesLoaded && router.isReady;
+  const isPageReady = (isFeaturesLoaded && router.isReady) || isTesting;
   const shouldShowOverlay =
     !user &&
     isPageReady &&
@@ -155,7 +156,7 @@ export default function MainLayout({
     router.push('/onboarding');
   }, [shouldShowOverlay, router]);
 
-  if (!isPageReady || shouldShowOverlay) return null;
+  if (!isFeaturesLoaded || shouldShowOverlay) return null;
 
   return (
     <div {...handlers}>
