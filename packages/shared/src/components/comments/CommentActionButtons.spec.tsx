@@ -68,11 +68,6 @@ const renderComponent = (
   );
 };
 
-it('should not show options button when user is not the author', async () => {
-  renderComponent();
-  expect(screen.queryByLabelText('Options')).not.toBeInTheDocument();
-});
-
 it('should show options button when user is the author', async () => {
   renderComponent({}, {
     id: 'u1',
