@@ -27,7 +27,7 @@ import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
-import { firstVisitRequirement, OnboardingV2 } from '../lib/featureValues';
+import { OnboardingV2 } from '../lib/featureValues';
 import { useFeaturesContext } from '../contexts/FeaturesContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
@@ -72,7 +72,7 @@ export default function MainLayout({
   showPostButton,
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { user, firstVisit } = useAuthContext();
+  const { user } = useAuthContext();
   const { onboardingV2, isFeaturesLoaded } = useFeaturesContext();
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
@@ -143,18 +143,17 @@ export default function MainLayout({
   const feeds = Object.values(MainFeedPage);
   const page = router?.route?.substring(1).trim() as MainFeedPage;
   const isPageReady = isFeaturesLoaded && router.isReady;
-  const existingAnonymousUser =
-    firstVisit && new Date(firstVisit) < firstVisitRequirement;
   const shouldShowOverlay =
     !user &&
-    onboardingV2 !== OnboardingV2.Control &&
-    (!page || feeds.includes(page)) &&
     isPageReady &&
-    !existingAnonymousUser;
+    onboardingV2 !== OnboardingV2.Control &&
+    (!page || feeds.includes(page));
 
-  if (shouldShowOverlay) {
+  useEffect(() => {
+    if (!shouldShowOverlay) return;
+
     router.push('/onboard');
-  }
+  }, [shouldShowOverlay, router]);
 
   if (!isPageReady || shouldShowOverlay) return null;
 
