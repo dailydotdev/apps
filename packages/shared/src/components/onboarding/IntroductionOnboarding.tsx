@@ -47,9 +47,7 @@ function IntroductionOnboarding({
               className="absolute -top-4 w-full h-full bg-cover"
             />
             {!user && (
-              <MemberAlready
-                className={{ container: 'py-10', login: 'z-0 ml-1.5' }}
-              />
+              <MemberAlready className={{ container: 'py-10', login: 'z-0' }} />
             )}
           </Container>
           <Modal.Footer justify={Justify.Between}>

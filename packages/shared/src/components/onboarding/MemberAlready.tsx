@@ -26,7 +26,7 @@ export function MemberAlready({
     <span className={classNames('flex', className?.container)}>
       Already a member?
       <ClickableText
-        className={className?.login}
+        className={classNames('ml-1.5', className?.login)}
         onClick={onClick}
         inverseUnderline
       >
