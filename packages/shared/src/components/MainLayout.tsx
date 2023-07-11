@@ -152,7 +152,7 @@ export default function MainLayout({
   useEffect(() => {
     if (!shouldShowOverlay) return;
 
-    router.push('/onboard');
+    router.push('/onboarding');
   }, [shouldShowOverlay, router]);
 
   if (!isPageReady || shouldShowOverlay) return null;
