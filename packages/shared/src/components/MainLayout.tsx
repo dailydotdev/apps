@@ -31,7 +31,7 @@ import { OnboardingV2 } from '../lib/featureValues';
 import { useFeaturesContext } from '../contexts/FeaturesContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
-import { isTesting } from '../lib/constants';
+import { isTesting, webappUrl } from '../lib/constants';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -153,7 +153,7 @@ export default function MainLayout({
   useEffect(() => {
     if (!shouldShowOverlay) return;
 
-    router.push('/onboarding');
+    router.push(`${webappUrl}/onboarding`);
   }, [shouldShowOverlay, router]);
 
   if (!isFeaturesLoaded || shouldShowOverlay) return null;
