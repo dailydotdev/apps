@@ -163,19 +163,20 @@ export default function CommentActionButtons({
 
   const postOptions: OptionMenuItem[] = [];
 
+  if (isAuthor) {
+    postOptions.push({
+      text: 'Edit comment',
+      action: () => onEdit(comment),
+      icon: <EditIcon />,
+    });
+  }
+
   if (canModifyComment) {
-    postOptions.push(
-      {
-        text: 'Edit comment',
-        action: () => onEdit(comment),
-        icon: <EditIcon />,
-      },
-      {
-        text: 'Delete comment',
-        action: () => onDelete(comment, parentId),
-        icon: <TrashIcon />,
-      },
-    );
+    postOptions.push({
+      text: 'Delete comment',
+      action: () => onDelete(comment, parentId),
+      icon: <TrashIcon />,
+    });
   }
 
   if (!isAuthor) {
