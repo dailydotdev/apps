@@ -14,7 +14,7 @@ export type SquadTypeCardProps<ButtonTag extends AllowedTags> = {
   title: ReactNode;
   description: string;
   isSelected: boolean;
-  buttonProps?: { text: string } & Omit<
+  buttonProps?: { tag?: ButtonTag; text: string } & Omit<
     ButtonProps<ButtonTag>,
     'disabled' | 'size' | 'children'
   >;
@@ -45,7 +45,6 @@ export const SquadTypeCard = <ButtonTag extends AllowedTags>({
       <Button
         className="btn-secondary"
         buttonSize={ButtonSize.XSmall}
-        // @ts-expect-error Property 'disabled' does not exist on type
         disabled={isSelected}
         {...restButtonProps}
       >
