@@ -26,6 +26,7 @@ import {
 import { OnboardingStep } from '@dailydotdev/shared/src/components/onboarding/common';
 import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -44,10 +45,16 @@ interface AuthProps {
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
 
+const Container = classed(
+  'div',
+  'flex overflow-auto overflow-x-hidden absolute inset-0 items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary',
+);
+
 export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
+  const [finishedOnboarding, setFinishedOnboarding] = useState(false);
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: false,
     isLoginFlow: false,
@@ -84,6 +91,7 @@ export function OnboardPage(): ReactElement {
 
   const onSuccessfulTransaction = () => {
     onShouldUpdateFilters(true);
+    setFinishedOnboarding(true);
     router.push('/');
   };
 
@@ -118,8 +126,17 @@ export function OnboardPage(): ReactElement {
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
+  if (finishedOnboarding) {
+    return (
+      <Container className="justify-center typo-title2">
+        <Loader innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage typo-title2" />
+        <span className="ml-3">Building your feed...</span>
+      </Container>
+    );
+  }
+
   return (
-    <div className="flex overflow-auto overflow-x-hidden absolute inset-0 flex-col items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary">
+    <Container className="flex-col">
       <ProgressBar percentage={isFiltering ? percentage : 0} />
       <Logo className="py-8 px-10 w-auto laptop:w-full" />
       <div
@@ -186,7 +203,7 @@ export function OnboardPage(): ReactElement {
           </div>
         </ConditionalWrapper>
       </div>
-    </div>
+    </Container>
   );
 }
 
