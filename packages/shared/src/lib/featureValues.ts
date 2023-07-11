@@ -1,5 +1,3 @@
-import { isPreviewDeployment } from './links';
-
 export enum InAppNotificationPosition {
   Bottom = 'bottom',
   Top = 'top',
