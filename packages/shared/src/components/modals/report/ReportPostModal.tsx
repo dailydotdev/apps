@@ -132,7 +132,7 @@ export function ReportPostModal({
     const { successful } = await reportPost({
       id: post.id,
       reason,
-      text,
+      comment: text,
       tags: selectedTags,
     });
 

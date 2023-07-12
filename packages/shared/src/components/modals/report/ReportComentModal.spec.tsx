@@ -4,7 +4,6 @@ import {
   screen,
   waitFor,
   fireEvent,
-  act,
 } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
@@ -139,7 +138,7 @@ it('submit the report with text', async () => {
 
   expect(input.value).toBe('test note');
   expect(submitButton).toBeEnabled();
-  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await new Promise(process.nextTick);
 
   submitButton.click();
 

@@ -33,7 +33,7 @@ import EditIcon from './icons/Edit';
 import DownvoteIcon from './icons/Downvote';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
-import { OptionMenuItem } from '../graphql/comments';
+import { OptionMenuItem } from '../lib/element';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),

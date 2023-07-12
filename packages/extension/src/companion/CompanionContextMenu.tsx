@@ -7,7 +7,7 @@ import { Item, Menu } from '@dailydotdev/react-contexify';
 import {
   ReportPostModal,
   ReportedCallback,
-} from '@dailydotdev/shared/src/components/modals/report';
+} from '@dailydotdev/shared/src/components/modals';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ShareBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';

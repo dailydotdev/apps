@@ -28,7 +28,6 @@ interface ReportCommentProps {
 
 export default function useReportComment(): UseReportCommentRet {
   const { user, showLogin } = useContext(AuthContext);
-  // const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
   const { mutateAsync: reportCommentAsync } = useMutation<

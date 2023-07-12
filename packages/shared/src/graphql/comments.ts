@@ -1,16 +1,9 @@
 import request, { gql } from 'graphql-request';
-import { ReactElement } from 'react';
 import { Connection, Upvote } from './common';
 import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
-
-export interface OptionMenuItem {
-  icon: ReactElement;
-  text: string;
-  action: () => unknown;
-}
 
 export type ReportCommentReason =
   | 'HATEFUL'

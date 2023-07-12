@@ -11,7 +11,6 @@ import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,
   UPVOTE_COMMENT_MUTATION,
-  OptionMenuItem,
 } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
 import { graphqlUrl } from '../../lib/config';
@@ -35,6 +34,7 @@ import FlagIcon from '../icons/Flag';
 import useReportComment from '../../hooks/useReportComment';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { OptionMenuItem } from '../../lib/element';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
@@ -161,10 +161,10 @@ export default function CommentActionButtons({
     });
   };
 
-  const postOptions: OptionMenuItem[] = [];
+  const commentOptions: OptionMenuItem[] = [];
 
   if (isAuthor) {
-    postOptions.push({
+    commentOptions.push({
       text: 'Edit comment',
       action: () => onEdit(comment),
       icon: <EditIcon />,
@@ -172,7 +172,7 @@ export default function CommentActionButtons({
   }
 
   if (canModifyComment) {
-    postOptions.push({
+    commentOptions.push({
       text: 'Delete comment',
       action: () => onDelete(comment, parentId),
       icon: <TrashIcon />,
@@ -180,7 +180,7 @@ export default function CommentActionButtons({
   }
 
   if (!isAuthor) {
-    postOptions.push({
+    commentOptions.push({
       text: 'Report comment',
       action: () => openReportCommentModal(),
       icon: <FlagIcon />,
@@ -215,7 +215,7 @@ export default function CommentActionButtons({
           className="mr-3 btn-tertiary-cabbage"
         />
       </SimpleTooltip>
-      {!!postOptions && (
+      {!!commentOptions && (
         <OptionsButton
           tooltipPlacement="top"
           onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
@@ -237,7 +237,7 @@ export default function CommentActionButtons({
         className="menu-primary typo-callout"
         animation="fade"
       >
-        {postOptions.map(({ text, action, icon }) => (
+        {commentOptions.map(({ text, action, icon }) => (
           <Item key={text} onClick={action}>
             <ContextItem>
               {icon} {text}

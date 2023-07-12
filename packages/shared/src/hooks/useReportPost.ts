@@ -12,13 +12,12 @@ import AuthContext from '../contexts/AuthContext';
 import { BooleanPromise } from '../components/filters/common';
 import { AuthTriggers } from '../lib/auth';
 import { useRequestProtocol } from './useRequestProtocol';
-import { ReportCommentReason } from '../graphql/comments';
 
 type UseReportPostRet = {
   reportPost: (variables: {
     id: string;
-    reason: ReportReason | ReportCommentReason;
-    text?: string;
+    reason: ReportReason;
+    comment?: string;
     tags?: string[];
   }) => BooleanPromise;
   hidePost: (id: string) => BooleanPromise;
@@ -28,7 +27,7 @@ type UseReportPostRet = {
 interface ReportPostProps {
   id: string;
   reason: ReportReason;
-  text: string;
+  comment: string;
 }
 
 export default function useReportPost(): UseReportPostRet {
