@@ -201,7 +201,7 @@ export default function CompanionMenu({
   });
   const onContextOptions = (event: React.MouseEvent): void => {
     showCompanionOptionsMenu(event, {
-      position: { x: 48, y: 265 },
+      position: { x: 48, y: 318 },
     });
   };
 

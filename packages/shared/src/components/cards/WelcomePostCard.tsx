@@ -26,6 +26,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     children,
     style,
     onReadArticleClick,
+    enableSourceHeader = false,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -74,6 +75,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         author={post.author}
         source={post.source}
         createdAt={post.createdAt}
+        enableSourceHeader={enableSourceHeader}
       />
       <FreeformCardTitle
         className={classNames(
