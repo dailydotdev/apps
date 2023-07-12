@@ -78,3 +78,24 @@ export const SOURCE_QUERY = gql`
     }
   }
 `;
+
+export const SOURCES_QUERY = gql`
+  query Sources($filterOpenSquads: Boolean) {
+    sources(filterOpenSquads: $filterOpenSquads) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          name
+          image
+          public
+          type
+          membersCount
+        }
+      }
+    }
+  }
+`;
