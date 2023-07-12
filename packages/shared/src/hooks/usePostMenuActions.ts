@@ -52,7 +52,6 @@ export const usePostMenuActions = ({
 }: UsePostMenuActionsProps): UsePostMenuActions => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useAuthContext();
-  // const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
   const { updatePost } = useUpdatePost();
   const { mutateAsync: onDeletePost } = useMutation(
