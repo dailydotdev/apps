@@ -19,7 +19,7 @@ import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { UserIcon } from '../icons';
 import AuthModalHeader from './AuthModalHeader';
-import { providerMap } from './common';
+import { AuthFormProps, providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
 import AuthContext from '../../contexts/AuthContext';
@@ -31,8 +31,10 @@ import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
 import { useGenerateUsername } from '../../hooks';
+import AuthContainer from './AuthContainer';
+import ConditionalWrapper from '../ConditionalWrapper';
 
-export interface SocialRegistrationFormProps {
+export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
   provider?: string;
   formRef?: MutableRefObject<HTMLFormElement>;
@@ -59,6 +61,7 @@ export const SocialRegistrationForm = ({
   onUpdateHints,
   onSignup,
   isLoading,
+  simplified,
 }: SocialRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
@@ -142,7 +145,7 @@ export const SocialRegistrationForm = ({
 
   return (
     <>
-      <AuthModalHeader title={title} />
+      {!simplified && <AuthModalHeader title={title} />}
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6 px-6 tablet:px-[3.75rem]',
@@ -232,19 +235,24 @@ export const SocialRegistrationForm = ({
           I don’t want to receive updates and promotions via email
         </Checkbox>
       </AuthForm>
-      <Modal.Footer>
-        <Button
-          form="auth-form"
-          type="submit"
-          className={classNames(
-            'w-full btn-primary',
-            !isLoading && 'bg-theme-color-cabbage',
-          )}
-          disabled={isLoading}
-        >
-          Sign up
-        </Button>
-      </Modal.Footer>
+      <ConditionalWrapper
+        condition={simplified}
+        wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
+      >
+        <Modal.Footer>
+          <Button
+            form="auth-form"
+            type="submit"
+            className={classNames(
+              'w-full btn-primary',
+              !isLoading && 'bg-theme-color-cabbage',
+            )}
+            disabled={isLoading}
+          >
+            Sign up
+          </Button>
+        </Modal.Footer>
+      </ConditionalWrapper>
     </>
   );
 };

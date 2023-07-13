@@ -68,6 +68,7 @@ export interface AuthOptionsProps {
   trigger: AuthTriggersOrString;
   defaultDisplay?: AuthDisplay;
   className?: string;
+  simplified?: boolean;
   isLoginFlow?: boolean;
   onDisplayChange?: (value: string) => void;
 }
@@ -82,6 +83,7 @@ function AuthOptions({
   defaultDisplay = AuthDisplay.Default,
   onDisplayChange,
   isLoginFlow,
+  simplified = false,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -300,7 +302,8 @@ function AuthOptions({
   return (
     <div
       className={classNames(
-        'flex overflow-y-auto z-1 flex-col w-full rounded-16 bg-theme-bg-tertiary max-w-[26.25rem]',
+        'flex overflow-y-auto z-1 flex-col w-full rounded-16 max-w-[26.25rem]',
+        !simplified && 'bg-theme-bg-tertiary',
         className,
       )}
     >
@@ -321,6 +324,7 @@ function AuthOptions({
             isLoginFlow={isForgotPasswordReturn || isLoginFlow}
             trigger={trigger}
             isReady={isReady}
+            simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.SocialRegistration}>
@@ -332,12 +336,14 @@ function AuthOptions({
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
             trigger={trigger}
+            simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.Registration}>
           <RegistrationForm
             onBack={() => onSetActiveDisplay(defaultDisplay)}
             formRef={formRef}
+            simplified={simplified}
             email={email}
             onSignup={onRegister}
             hints={registrationHints}
@@ -353,6 +359,7 @@ function AuthOptions({
           <AuthSignBack
             onRegister={() => onSetActiveDisplay(AuthDisplay.Default)}
             onProviderClick={onProviderClick}
+            simplified={simplified}
           >
             <LoginForm
               className="mt-3"
@@ -370,6 +377,7 @@ function AuthOptions({
             initialEmail={email}
             onBack={onForgotPasswordBack}
             onSubmit={onForgotPasswordSubmit}
+            simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.CodeVerification}>
@@ -378,17 +386,21 @@ function AuthOptions({
             initialFlow={flow}
             onBack={onForgotPasswordBack}
             onSubmit={() => setActiveDisplay(AuthDisplay.ChangePassword)}
+            simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.ChangePassword}>
-          <ChangePasswordForm onSubmit={onProfileSuccess} />
+          <ChangePasswordForm
+            onSubmit={onProfileSuccess}
+            simplified={simplified}
+          />
         </Tab>
         <Tab label={AuthDisplay.EmailSent}>
-          <AuthModalHeader title="Verify your email address" />
+          {!simplified && <AuthModalHeader title="Verify your email address" />}
           <EmailVerificationSent email={email} />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
-          <EmailVerified hasUser={!!user}>
+          <EmailVerified hasUser={!!user} simplified={simplified}>
             {!user && (
               <LoginForm
                 isReady={isReady}
@@ -404,7 +416,7 @@ function AuthOptions({
           </EmailVerified>
         </Tab>
         <Tab label={AuthDisplay.ConnectedUser}>
-          <AuthModalHeader title="Account already exists" />
+          {!simplified && <AuthModalHeader title="Account already exists" />}
           {connectedUser && (
             <ConnectedUserModal user={connectedUser} onLogin={onShowLogin} />
           )}

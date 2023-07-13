@@ -30,7 +30,7 @@ const AlertContext = React.createContext<AlertContextData>({
   loadedAlerts: false,
 });
 
-interface AlertContextProviderProps {
+export interface AlertContextProviderProps {
   children: ReactNode;
   alerts?: Alerts;
   isFetched?: boolean;

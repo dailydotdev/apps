@@ -1,3 +1,4 @@
+import React from 'react';
 import classed from '../../lib/classed';
 
 export enum OnboardingStep {
@@ -13,5 +14,6 @@ export const OnboardingTitle = classed(
 );
 
 export interface OnboardingStepProps {
-  onClose: (e: React.MouseEvent | React.KeyboardEvent) => void;
+  onClose?: (e: React.MouseEvent | React.KeyboardEvent) => void;
+  isModal?: boolean;
 }

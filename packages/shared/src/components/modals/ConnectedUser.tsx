@@ -29,7 +29,7 @@ function ConnectedUserModal({
 
   return (
     <>
-      <div className="flex flex-col flex-1 items-center px-10 pt-8 w-full">
+      <div className="flex flex-col flex-1 items-center py-8 px-10 w-full">
         <ImageInput viewOnly initialValue={user.image} size="large" />
         <span className="mt-5 typo-title3">{user.email}</span>
         <span className="mt-1 typo-footnote text-theme-label-tertiary">

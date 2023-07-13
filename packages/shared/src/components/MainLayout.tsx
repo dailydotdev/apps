@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
@@ -26,6 +27,11 @@ import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
+import { OnboardingV2 } from '../lib/featureValues';
+import { useFeaturesContext } from '../contexts/FeaturesContext';
+import { useAuthContext } from '../contexts/AuthContext';
+import { MainFeedPage } from './utilities';
+import { isTesting, webappUrl } from '../lib/constants';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -67,6 +73,8 @@ export default function MainLayout({
   showPostButton,
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
+  const { user, isAuthReady } = useAuthContext();
+  const { onboardingV2, isFeaturesLoaded } = useFeaturesContext();
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
@@ -131,6 +139,26 @@ export default function MainLayout({
       />
     );
   };
+
+  const router = useRouter();
+  const feeds = Object.values(MainFeedPage);
+  const page = router?.route?.substring(1).trim() as MainFeedPage;
+  const isPageReady =
+    (isFeaturesLoaded && router?.isReady && isAuthReady) || isTesting;
+  const shouldRedirectOnboarding =
+    !user &&
+    isPageReady &&
+    onboardingV2 !== OnboardingV2.Control &&
+    (!page || feeds.includes(page)) &&
+    !isTesting;
+
+  useEffect(() => {
+    if (!shouldRedirectOnboarding) return;
+
+    router.push(`${webappUrl}/onboarding`);
+  }, [shouldRedirectOnboarding, router]);
+
+  if (!isPageReady || shouldRedirectOnboarding) return null;
 
   return (
     <div {...handlers}>
