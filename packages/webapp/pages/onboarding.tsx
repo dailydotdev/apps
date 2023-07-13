@@ -60,7 +60,7 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
-  const [isTracked, setIsTracked] = useState(false);
+  const isTracked = useRef(false);
   const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
@@ -104,10 +104,10 @@ export function OnboardPage(): ReactElement {
     router.push('/');
   };
 
-  const isPageReady = isFeaturesLoaded && isAuthReady && !isTracked;
+  const isPageReady = isFeaturesLoaded && isAuthReady;
 
   useEffect(() => {
-    if (!isPageReady) return;
+    if (!isPageReady || isTracked.current) return;
 
     if (user || onboardingV2 === OnboardingV2.Control) {
       router.push('/');
@@ -124,7 +124,7 @@ export function OnboardPage(): ReactElement {
         mandating_categories: onboardingMinimumTopics,
       }),
     });
-    setIsTracked(true);
+    isTracked.current = true;
   }, [
     trackEvent,
     isPageReady,
