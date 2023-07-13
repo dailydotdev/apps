@@ -17,7 +17,7 @@ function AuthModalFooter({
 }: AuthModalFooterProps): ReactElement {
   return (
     <Modal.Footer
-      className={classNames(className, 'gap-[unset]')}
+      className={classNames(className, 'gap-unset')}
       justify={Justify.Center}
     >
       <Modal.Text>
