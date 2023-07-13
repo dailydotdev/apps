@@ -27,6 +27,8 @@ import { OnboardingStep } from '@dailydotdev/shared/src/components/onboarding/co
 import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -49,6 +51,12 @@ const Container = classed(
   'div',
   'flex overflow-auto overflow-x-hidden absolute inset-0 items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary',
 );
+
+const seo: NextSeoProps = {
+  title: 'Get started',
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
+};
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
@@ -137,6 +145,7 @@ export function OnboardPage(): ReactElement {
 
   return (
     <Container className="flex-col">
+      <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <ProgressBar percentage={isFiltering ? percentage : 0} />
       <Logo className="py-8 px-10 w-auto laptop:w-full" />
       <div
