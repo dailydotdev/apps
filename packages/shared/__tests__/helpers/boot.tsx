@@ -72,6 +72,7 @@ export const TestBootProvider = ({
               updateUser: jest.fn(),
               tokenRefreshed: true,
               getRedirectUri: jest.fn(),
+              isFetched: true,
               ...auth,
             }}
           >
