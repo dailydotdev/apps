@@ -19,8 +19,12 @@ export function MemberAlready({
   onLogin,
 }: MemberAlreadyProps): ReactElement {
   const { showLogin } = useAuthContext();
-  const onClick =
-    onLogin ?? (() => showLogin(AuthTriggers.Onboarding, { isLogin: true }));
+
+  const onClick = () => {
+    if (onLogin) return onLogin();
+
+    return showLogin(AuthTriggers.Onboarding, { isLogin: true });
+  };
 
   return (
     <span className={classNames('flex', className?.container)}>
