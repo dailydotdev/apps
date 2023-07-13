@@ -49,7 +49,7 @@ const maxAuthWidth = 'tablet:max-w-[30rem]';
 
 const Container = classed(
   'div',
-  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full flex-1 z-[100] bg-theme-bg-primary',
+  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-[100] bg-theme-bg-primary',
 );
 
 const seo: NextSeoProps = {
@@ -153,7 +153,7 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex relative flex-col flex-1 items-center laptop:mt-6 w-full max-h-[40rem]',
+          'flex relative flex-col flex-1 items-center w-full max-h-[40rem]',
           isFiltering
             ? 'laptop:max-w-[48.75rem] tablet:max-w-[32rem]'
             : containerClass,
@@ -193,7 +193,7 @@ export function OnboardPage(): ReactElement {
             <img
               alt="Sample illustration of selecting topics"
               src={cloudinary.feedFilters.yourFeed}
-              className="scale-150"
+              className="absolute tablet:relative top-20 tablet:top-0 scale-125 tablet:scale-150"
             />
           )}
           <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">
