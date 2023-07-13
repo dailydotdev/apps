@@ -8,6 +8,7 @@ import { OnboardingStep, OnboardingStepProps, OnboardingTitle } from './common';
 import Container from './OnboardingStep';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { MemberAlready } from './MemberAlready';
+import { AuthTriggers } from '../../lib/auth';
 
 interface IntroductionOnboardingTitleProps {
   className?: string;
@@ -25,7 +26,7 @@ export const IntroductionOnboardingTitle = ({
 function IntroductionOnboarding({
   onClose,
 }: OnboardingStepProps): ReactElement {
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Intro}>
@@ -47,7 +48,12 @@ function IntroductionOnboarding({
               className="absolute -top-4 w-full h-full bg-cover"
             />
             {!user && (
-              <MemberAlready className={{ container: 'py-10', login: 'z-0' }} />
+              <MemberAlready
+                className={{ container: 'py-10', login: 'z-0' }}
+                onLogin={() =>
+                  showLogin(AuthTriggers.Onboarding, { isLogin: true })
+                }
+              />
             )}
           </Container>
           <Modal.Footer justify={Justify.Between}>
