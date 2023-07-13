@@ -4,7 +4,7 @@ import { ExperimentWinner } from '../lib/featureValues';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
 import SuperchargeIcon from '../../icons/supercharge.svg';
-import { useCloudinaryAsset } from '../hooks/utils/useCloudinaryAsset';
+import { useCloudinaryAsset } from '../hooks/utils';
 
 const GaussianBlur = (): ReactElement => {
   return (

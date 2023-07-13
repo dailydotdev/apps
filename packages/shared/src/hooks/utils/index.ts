@@ -1,1 +1,1 @@
-export * from '/useCloudinaryAsset';
+export * from './useCloudinaryAsset';
