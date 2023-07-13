@@ -144,7 +144,7 @@ export default function MainLayout({
   const feeds = Object.values(MainFeedPage);
   const page = router?.route?.substring(1).trim() as MainFeedPage;
   const isPageReady = (isFeaturesLoaded && router?.isReady) || isTesting;
-  const shouldShowOverlay =
+  const shouldRedirectOnboarding =
     !user &&
     isPageReady &&
     onboardingV2 !== OnboardingV2.Control &&
@@ -152,12 +152,12 @@ export default function MainLayout({
     !isTesting;
 
   useEffect(() => {
-    if (!shouldShowOverlay) return;
+    if (!shouldRedirectOnboarding) return;
 
     router.push(`${webappUrl}/onboarding`);
-  }, [shouldShowOverlay, router]);
+  }, [shouldRedirectOnboarding, router]);
 
-  if (!isFeaturesLoaded || shouldShowOverlay) return null;
+  if (!isFeaturesLoaded || shouldRedirectOnboarding) return null;
 
   return (
     <div {...handlers}>
