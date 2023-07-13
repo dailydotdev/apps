@@ -36,7 +36,7 @@ export const cloudinary = {
     imageFallback:
       'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
     createSquad:
-      'https://daily-now-res.cloudinary.com/image/upload/v1679320203/public/create_squad.png',
+      'https://daily-now-res.cloudinary.com/image/upload/s--4nZR_i2V--/f_auto/v1686299591/Squads_eary_access_e3lo4u',
     tour: {
       banner0:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour0',

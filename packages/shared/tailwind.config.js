@@ -41,6 +41,8 @@ module.exports = {
             hover: 'var(--theme-mention-hover)',
           },
           'cabbage-opacity-24': 'var(--theme-background-cabbage-opacity-24)',
+          'overlay-cabbage-opacity': 'var(--theme-overlay-cabbage-opacity)',
+          'overlay-onion-opacity': 'var(--theme-overlay-onion-opacity)',
         },
         label: {
           primary: 'var(--theme-label-primary)',
