@@ -83,7 +83,7 @@ function AuthOptions({
   defaultDisplay = AuthDisplay.Default,
   onDisplayChange,
   isLoginFlow,
-  simplified,
+  simplified = false,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
