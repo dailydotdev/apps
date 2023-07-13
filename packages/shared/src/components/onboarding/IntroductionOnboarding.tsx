@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
@@ -9,6 +8,7 @@ import Container from './OnboardingStep';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { MemberAlready } from './MemberAlready';
 import { AuthTriggers } from '../../lib/auth';
+import { useThemedAsset } from '../../hooks/utils';
 
 interface IntroductionOnboardingTitleProps {
   className?: string;
@@ -27,6 +27,7 @@ function IntroductionOnboarding({
   onClose,
 }: OnboardingStepProps): ReactElement {
   const { user, showLogin } = useAuthContext();
+  const { onboardingIntroduction } = useThemedAsset();
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Intro}>
@@ -43,7 +44,7 @@ function IntroductionOnboarding({
             <span className="flex flex-1" />
             <div
               style={{
-                backgroundImage: `url(${cloudinary.feedFilters.yourFeed})`,
+                backgroundImage: `url(${onboardingIntroduction})`,
               }}
               className="absolute -top-4 w-full h-full bg-cover"
             />
