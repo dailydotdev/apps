@@ -12,23 +12,18 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import SettingsContext, {
-  SettingsContextData,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import { Alerts, UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
-import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import { filterAlertMessage } from '@dailydotdev/shared/src/components/filters/FeedFilters';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import MyFeed from '../pages/my-feed';
 
 jest.mock('next/router', () => ({
@@ -37,7 +32,6 @@ jest.mock('next/router', () => ({
 
 let defaultAlerts: Alerts = { filter: true };
 const updateAlerts = jest.fn();
-const showLogin = jest.fn();
 
 beforeEach(() => {
   defaultAlerts = { filter: true };
@@ -83,59 +77,15 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
-  const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: 'dark',
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
-  };
   return render(
-    <QueryClientProvider client={client}>
-      <FeaturesContext.Provider
-        value={{ flags: { my_feed_on: { enabled: true } } }}
-      >
-        <AlertContextProvider
-          alerts={defaultAlerts}
-          updateAlerts={updateAlerts}
-          loadedAlerts
-        >
-          <AuthContext.Provider
-            value={{
-              user,
-              shouldShowLogin: false,
-              showLogin,
-              logout: jest.fn(),
-              updateUser: jest.fn(),
-              tokenRefreshed: true,
-              getRedirectUri: jest.fn(),
-            }}
-          >
-            <SettingsContext.Provider value={settingsContext}>
-              <OnboardingContext.Provider
-                value={{
-                  myFeedMode: OnboardingMode.Manual,
-                  isOnboardingOpen: false,
-                  onCloseOnboardingModal: jest.fn(),
-                  onInitializeOnboarding: jest.fn(),
-                  onShouldUpdateFilters: jest.fn(),
-                }}
-              >
-                <NotificationsContextProvider>
-                  {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
-                </NotificationsContextProvider>
-              </OnboardingContext.Provider>
-            </SettingsContext.Provider>
-          </AuthContext.Provider>
-        </AlertContextProvider>
-      </FeaturesContext.Provider>
-    </QueryClientProvider>,
+    <TestBootProvider
+      client={client}
+      auth={{ user }}
+      features={{ flags: { my_feed_on: { enabled: true } } }}
+      alerts={{ alerts: defaultAlerts, updateAlerts }}
+    >
+      {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+    </TestBootProvider>,
   );
 };
 
