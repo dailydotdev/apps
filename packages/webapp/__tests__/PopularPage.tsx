@@ -24,6 +24,7 @@ import {
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import Popular from '../pages/popular';
 
 const showLogin = jest.fn();
@@ -85,33 +86,35 @@ const renderComponent = (
   };
   return render(
     <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-        }}
-      >
-        <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-            }}
-          >
-            <NotificationsContextProvider>
-              {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
-            </NotificationsContextProvider>
-          </OnboardingContext.Provider>
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
+      <FeaturesContextProvider flags={{}} isFeaturesLoaded isFlagsFetched>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <OnboardingContext.Provider
+              value={{
+                myFeedMode: OnboardingMode.Manual,
+                isOnboardingOpen: false,
+                onCloseOnboardingModal: jest.fn(),
+                onInitializeOnboarding: jest.fn(),
+                onShouldUpdateFilters: jest.fn(),
+              }}
+            >
+              <NotificationsContextProvider>
+                {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
+              </NotificationsContextProvider>
+            </OnboardingContext.Provider>
+          </SettingsContext.Provider>
+        </AuthContext.Provider>
+      </FeaturesContextProvider>
     </QueryClientProvider>,
   );
 };

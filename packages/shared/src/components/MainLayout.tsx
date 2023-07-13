@@ -143,12 +143,13 @@ export default function MainLayout({
   const router = useRouter();
   const feeds = Object.values(MainFeedPage);
   const page = router?.route?.substring(1).trim() as MainFeedPage;
-  const isPageReady = (isFeaturesLoaded && router.isReady) || isTesting;
+  const isPageReady = (isFeaturesLoaded && router?.isReady) || isTesting;
   const shouldShowOverlay =
     !user &&
     isPageReady &&
     onboardingV2 !== OnboardingV2.Control &&
-    (!page || feeds.includes(page));
+    (!page || feeds.includes(page)) &&
+    !isTesting;
 
   useEffect(() => {
     if (!shouldShowOverlay) return;
