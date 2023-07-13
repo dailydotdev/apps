@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useFeaturesContext } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import Logo from '@dailydotdev/shared/src/components/Logo';
+import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { IntroductionOnboardingTitle } from '@dailydotdev/shared/src/components/onboarding/IntroductionOnboarding';
@@ -49,7 +49,7 @@ const maxAuthWidth = 'tablet:max-w-[30rem]';
 
 const Container = classed(
   'div',
-  'flex overflow-auto overflow-x-hidden absolute inset-0 items-center w-screen h-screen min-h-screen z-[100] bg-theme-bg-primary',
+  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full flex-1 z-[100] bg-theme-bg-primary',
 );
 
 const seo: NextSeoProps = {
@@ -147,10 +147,13 @@ export function OnboardPage(): ReactElement {
     <Container className="flex-col">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <ProgressBar percentage={isFiltering ? percentage : 0} />
-      <Logo className="py-8 px-10 w-auto laptop:w-full" />
+      <Logo
+        className="py-8 px-10 w-auto laptop:w-full"
+        position={LogoPosition.Relative}
+      />
       <div
         className={classNames(
-          'flex relative flex-col flex-1 items-center mt-24 laptop:mt-6 w-full max-h-[40rem]',
+          'flex relative flex-col flex-1 items-center laptop:mt-6 w-full max-h-[40rem]',
           isFiltering
             ? 'laptop:max-w-[48.75rem] tablet:max-w-[32rem]'
             : containerClass,
@@ -187,11 +190,10 @@ export function OnboardPage(): ReactElement {
           {isFiltering ? (
             <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" />
           ) : (
-            <div
-              style={{
-                backgroundImage: `url(${cloudinary.feedFilters.yourFeed})`,
-              }}
-              className="absolute h-full bg-no-repeat bg-contain w-[150%]"
+            <img
+              alt="Sample illustration of selecting topics"
+              src={cloudinary.feedFilters.yourFeed}
+              className="scale-150"
             />
           )}
           <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">
