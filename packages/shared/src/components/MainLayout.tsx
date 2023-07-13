@@ -73,7 +73,7 @@ export default function MainLayout({
   showPostButton,
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const { onboardingV2, isFeaturesLoaded } = useFeaturesContext();
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
@@ -143,7 +143,8 @@ export default function MainLayout({
   const router = useRouter();
   const feeds = Object.values(MainFeedPage);
   const page = router?.route?.substring(1).trim() as MainFeedPage;
-  const isPageReady = (isFeaturesLoaded && router?.isReady) || isTesting;
+  const isPageReady =
+    (isFeaturesLoaded && router?.isReady && isAuthReady) || isTesting;
   const shouldRedirectOnboarding =
     !user &&
     isPageReady &&
@@ -157,7 +158,7 @@ export default function MainLayout({
     router.push(`${webappUrl}/onboarding`);
   }, [shouldRedirectOnboarding, router]);
 
-  if (!isFeaturesLoaded || shouldRedirectOnboarding) return null;
+  if (!isPageReady || shouldRedirectOnboarding) return null;
 
   return (
     <div {...handlers}>
