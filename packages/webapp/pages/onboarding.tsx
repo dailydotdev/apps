@@ -27,7 +27,7 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
-import { useCloudinaryAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
@@ -76,7 +76,7 @@ export function OnboardPage(): ReactElement {
     onboardingV2,
     isFeaturesLoaded,
   } = useFeaturesContext();
-  const { onboardingIntroduction } = useCloudinaryAsset();
+  const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
 
   const onClickNext = () => {

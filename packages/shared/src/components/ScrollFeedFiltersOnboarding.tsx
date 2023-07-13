@@ -4,7 +4,7 @@ import { ExperimentWinner } from '../lib/featureValues';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
 import SuperchargeIcon from '../../icons/supercharge.svg';
-import { useCloudinaryAsset } from '../hooks/utils';
+import { useThemedAsset } from '../hooks/utils';
 
 const GaussianBlur = (): ReactElement => {
   return (
@@ -17,7 +17,7 @@ interface ScrollFeedFiltersOnboardingProps {
 export default function ScrollFeedFiltersOnboarding({
   onInitializeOnboarding,
 }: ScrollFeedFiltersOnboardingProps): ReactElement {
-  const { scrollBlock } = useCloudinaryAsset();
+  const { scrollBlock } = useThemedAsset();
   const { trackEvent } = useContext(AnalyticsContext);
   useEffect(() => {
     trackEvent({

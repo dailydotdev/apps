@@ -7,7 +7,7 @@ interface UseCloudinaryAsset {
   scrollBlock: string;
 }
 
-export const useCloudinaryAsset = (): UseCloudinaryAsset => {
+export const useThemedAsset = (): UseCloudinaryAsset => {
   const { themeMode } = useSettingsContext();
   const isLight = useMemo(() => {
     if (themeMode === ThemeMode.Auto) {
