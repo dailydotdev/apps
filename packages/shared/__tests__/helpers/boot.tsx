@@ -10,7 +10,10 @@ import AuthContext, { AuthContextData } from '../../src/contexts/AuthContext';
 import OnboardingContext from '../../src/contexts/OnboardingContext';
 import { OnboardingMode } from '../../src/graphql/feed';
 import { BootApp } from '../../src/lib/boot';
-import { NotificationsContextProvider } from '../../src/contexts/NotificationsContext';
+import {
+  NotificationsContextProvider,
+  NotificationsContextProviderProps,
+} from '../../src/contexts/NotificationsContext';
 import SettingsContext, {
   SettingsContextData,
   ThemeMode,
@@ -27,6 +30,7 @@ interface TestBootProviderProps {
   settings?: Partial<SettingsContextData>;
   auth?: Partial<AuthContextData>;
   alerts?: Partial<AlertContextProviderProps>;
+  notification?: Partial<NotificationsContextProviderProps>;
 }
 
 const settingsContext: Partial<SettingsContextData> = {
@@ -50,6 +54,7 @@ export const TestBootProvider = ({
   settings = {},
   auth = {},
   alerts = {},
+  notification = {},
 }: TestBootProviderProps): ReactElement => {
   return (
     <QueryClientProvider client={client}>
@@ -82,7 +87,10 @@ export const TestBootProvider = ({
                   onShouldUpdateFilters: jest.fn(),
                 }}
               >
-                <NotificationsContextProvider app={BootApp.Test}>
+                <NotificationsContextProvider
+                  app={BootApp.Test}
+                  {...notification}
+                >
                   {children}
                 </NotificationsContextProvider>
               </OnboardingContext.Provider>
