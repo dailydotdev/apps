@@ -17,6 +17,7 @@ import SettingsIcon from '../icons/Settings';
 import { squadFeedback } from '../../lib/constants';
 import FeedbackIcon from '../icons/Feedback';
 import TourIcon from '../icons/Tour';
+import { useSquadNavigation } from '../../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -35,6 +36,7 @@ export default function SquadHeaderMenu({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { openModal } = useLazyModal();
+  const { editSquad } = useSquadNavigation();
 
   if (!user) {
     return <></>;
@@ -54,14 +56,6 @@ export default function SquadHeaderMenu({
   const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
   const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
-  const onEditSquad = () => {
-    openModal({
-      type: LazyModal.EditSquad,
-      props: {
-        squad,
-      },
-    });
-  };
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const items = useMemo(() => {
@@ -90,7 +84,7 @@ export default function SquadHeaderMenu({
     if (canEditSquad) {
       list.unshift({
         Icon: SettingsIcon,
-        onClick: onEditSquad,
+        onClick: () => editSquad({ handle: squad.handle }),
         label: 'Squad settings',
       });
     }

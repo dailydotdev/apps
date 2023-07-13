@@ -27,6 +27,7 @@
     "graphql-request": "^3.7.0",
     "idb-keyval": "^5.1.5",
     "next": "^12.2.2",
+    "next-plugin-preact": "^3.0.7",
     "next-pwa": "^5.5.4",
     "next-seo": "^5.4.0",
     "preact": "^10.8.2",
