@@ -9,7 +9,6 @@ import { IntroductionOnboardingTitle } from '@dailydotdev/shared/src/components/
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import {
@@ -28,6 +27,7 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
+import { useCloudinaryAsset } from '@dailydotdev/shared/src/hooks/utils/useCloudinaryAsset';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
@@ -76,6 +76,7 @@ export function OnboardPage(): ReactElement {
     onboardingV2,
     isFeaturesLoaded,
   } = useFeaturesContext();
+  const { onboardingIntroduction } = useCloudinaryAsset();
   const { trackEvent } = useAnalyticsContext();
 
   const onClickNext = () => {
@@ -194,7 +195,7 @@ export function OnboardPage(): ReactElement {
           ) : (
             <img
               alt="Sample illustration of selecting topics"
-              src={cloudinary.feedFilters.yourFeed}
+              src={onboardingIntroduction}
               className="absolute tablet:relative top-20 tablet:top-0 scale-125 tablet:scale-150"
             />
           )}
