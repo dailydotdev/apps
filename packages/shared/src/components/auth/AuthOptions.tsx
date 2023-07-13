@@ -106,6 +106,8 @@ function AuthOptions({
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
+  const windowPopup = useRef<Window>(null);
+
   const onLoginCheck = () => {
     if (isRegistration) {
       return;
@@ -138,29 +140,6 @@ function AuthOptions({
   }, [user]);
 
   const {
-    isReady: isLoginReady,
-    loginHint,
-    onPasswordLogin,
-    isPasswordLoginLoading,
-  } = useLogin({
-    onSuccessfulLogin: onLoginCheck,
-    queryEnabled: !user,
-    trigger,
-  });
-  const onProfileSuccess = async () => {
-    await refetchBoot();
-    onSuccessfulRegistration?.();
-    onClose(null, true);
-  };
-  const {
-    updateUserProfile,
-    hint,
-    onUpdateHint,
-    isLoading: isProfileUpdateLoading,
-  } = useProfileForm({ onSuccess: onProfileSuccess });
-  const windowPopup = useRef<Window>(null);
-
-  const {
     isReady: isRegistrationReady,
     registration,
     validateRegistration,
@@ -183,6 +162,28 @@ function AuthOptions({
       windowPopup.current.location.href = redirect;
     },
   });
+
+  const {
+    isReady: isLoginReady,
+    loginHint,
+    onPasswordLogin,
+    isPasswordLoginLoading,
+  } = useLogin({
+    onSuccessfulLogin: onLoginCheck,
+    queryEnabled: !user && isRegistrationReady,
+    trigger,
+  });
+  const onProfileSuccess = async () => {
+    await refetchBoot();
+    onSuccessfulRegistration?.();
+    onClose(null, true);
+  };
+  const {
+    updateUserProfile,
+    hint,
+    onUpdateHint,
+    isLoading: isProfileUpdateLoading,
+  } = useProfileForm({ onSuccess: onProfileSuccess });
 
   const isReady = isLoginReady && isRegistrationReady;
   const onProviderClick = (provider: string, login = true) => {
