@@ -78,26 +78,28 @@ export function SquadHeaderBar({
           className="hidden laptopL:flex"
         />
       )}
-      <SimpleTooltip
-        forceLoad={!isTesting}
-        visible={isChecklistReady && completedStepsCount < totalStepsCount}
-        container={{
-          className: '-mb-4 bg-theme-color-onion !text-white',
-        }}
-        placement="top"
-        content={checklistTooltipText}
-        zIndex={3}
-      >
-        <Button
-          tag="a"
-          data-testid="squad-checklist-button"
-          className="btn-secondary"
-          icon={<ChecklistBIcon secondary size={IconSize.Small} />}
-          onClick={() => {
-            setChecklistVisible(!isChecklistVisible);
+      {!!squad.currentMember && (
+        <SimpleTooltip
+          forceLoad={!isTesting}
+          visible={isChecklistReady && completedStepsCount < totalStepsCount}
+          container={{
+            className: '-mb-4 bg-theme-color-onion !text-white',
           }}
-        />
-      </SimpleTooltip>
+          placement="top"
+          content={checklistTooltipText}
+          zIndex={3}
+        >
+          <Button
+            tag="a"
+            data-testid="squad-checklist-button"
+            className="btn-secondary"
+            icon={<ChecklistBIcon secondary size={IconSize.Small} />}
+            onClick={() => {
+              setChecklistVisible(!isChecklistVisible);
+            }}
+          />
+        </SimpleTooltip>
+      )}
       <SimpleTooltip placement="top" content="Squad options">
         <Button
           className="btn-secondary"
