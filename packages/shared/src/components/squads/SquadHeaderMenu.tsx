@@ -3,7 +3,11 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import ExitIcon from '../icons/Exit';
-import { Squad, SourcePermissions } from '../../graphql/sources';
+import {
+  Squad,
+  SourcePermissions,
+  SourceMemberRole,
+} from '../../graphql/sources';
 import TrashIcon from '../icons/Trash';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -76,10 +80,26 @@ export default function SquadHeaderMenu({
         },
         label: 'Feedback',
       },
-      canDeleteSquad
-        ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }
-        : { Icon: ExitIcon, onClick: onLeaveSquad, label: 'Leave Squad' },
     ];
+
+    if (canDeleteSquad) {
+      list.push({
+        Icon: TrashIcon,
+        onClick: onDeleteSquad,
+        label: 'Delete Squad',
+      });
+    }
+
+    if (
+      squad.currentMember &&
+      squad.currentMember.role !== SourceMemberRole.Admin
+    ) {
+      list.push({
+        Icon: ExitIcon,
+        onClick: onLeaveSquad,
+        label: 'Leave Squad',
+      });
+    }
 
     if (canEditSquad) {
       list.unshift({
