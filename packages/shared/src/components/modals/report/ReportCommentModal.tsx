@@ -4,10 +4,12 @@ import { ReportModal } from './ReportModal';
 import useReportComment from '../../../hooks/useReportComment';
 import { Comment, ReportCommentReason } from '../../../graphql/comments';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../../lib/feed';
 
 interface Props extends ModalProps {
   onReport: (comment: Comment) => void;
   comment: Comment;
+  post: Post | PostBootData;
 }
 
 const reportReasons: { value: string; label: string }[] = [
@@ -22,6 +24,7 @@ const reportReasons: { value: string; label: string }[] = [
 export function ReportCommentModal({
   onReport,
   comment,
+  post,
   ...props
 }: Props): ReactElement {
   const { reportComment } = useReportComment();
@@ -45,6 +48,12 @@ export function ReportCommentModal({
         commentId: comment.id,
       }),
     });
+
+    trackEvent(
+      postAnalyticsEvent('report comment', post, {
+        extra: { commentId: comment.id },
+      }),
+    );
 
     if (typeof onReport === 'function') {
       onReport(comment);

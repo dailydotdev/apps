@@ -34,6 +34,7 @@ import DownvoteIcon from './icons/Downvote';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { OptionMenuItem } from '../lib/element';
+import { labels } from '../lib';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -143,7 +144,7 @@ export default function PostOptionsMenu({
     reportedPost,
     { index, shouldBlockSource },
   ): Promise<void> => {
-    showMessageAndRemovePost('🚨 Thanks for reporting!', index);
+    showMessageAndRemovePost(labels.reporting.reportFeedbackText, index);
 
     if (shouldBlockSource) {
       await onUnfollowSource({ source: reportedPost?.source });

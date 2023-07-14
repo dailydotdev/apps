@@ -46,18 +46,15 @@ export function ReportModal({
           value={reason}
           onChange={setReason}
         />
-        {reason === OTHER_KEY && (
-          <>
-            <p className="px-2 mt-6 mb-1 font-bold typo-caption1">
-              Anything else you&apos;d like to add?
-            </p>
-            <textarea
-              onInput={(event) => setNote(event.currentTarget.value)}
-              className="self-stretch p-2 mb-1 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
-              data-testid="report_comment"
-            />
-          </>
-        )}
+
+        <p className="px-2 mt-6 mb-1 font-bold typo-caption1">
+          Anything else you&apos;d like to add?
+        </p>
+        <textarea
+          onInput={(event) => setNote(event.currentTarget.value)}
+          className="self-stretch p-2 mb-1 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
+          data-testid="report_comment"
+        />
       </Modal.Body>
       <Modal.Footer justify={footer ? Justify.Between : Justify.End}>
         {footer}

@@ -21,6 +21,7 @@ import DownvoteIcon from '@dailydotdev/shared/src/components/icons/Downvote';
 import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { getCompanionWrapper } from './common';
+import { labels } from '@dailydotdev/shared/src/lib';
 
 interface CompanionContextMenuProps
   extends Omit<ShareBookmarkProps, 'onBookmark'> {
@@ -48,7 +49,7 @@ export default function CompanionContextMenu({
       onBlockSource({ id: reportedPost?.source?.id });
     }
 
-    displayToast('🚨 Thanks for reporting!');
+    displayToast(labels.reporting.reportFeedbackText);
   };
 
   const disableModal = async () => {

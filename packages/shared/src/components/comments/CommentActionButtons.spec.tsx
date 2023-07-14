@@ -68,7 +68,7 @@ const renderComponent = (
   );
 };
 
-it('should show options button when user is the author', async () => {
+it('should show options button with edit option when user is the author', async () => {
   renderComponent({}, {
     id: 'u1',
     name: 'Ido Shamun',
@@ -79,6 +79,18 @@ it('should show options button when user is the author', async () => {
   } as unknown as LoggedUser);
   const el = await screen.findByLabelText('Options');
   expect(el).toBeInTheDocument();
+  el.click();
+  const editItem = await screen.findByText('Edit comment');
+  expect(editItem).toBeInTheDocument();
+});
+
+it('should show options button with report option when user is not the author', async () => {
+  renderComponent();
+  const el = await screen.findByLabelText('Options');
+  expect(el).toBeInTheDocument();
+  el.click();
+  const reportItem = await screen.findByText('Report comment');
+  expect(reportItem).toBeInTheDocument();
 });
 
 it('should show login on upvote click', async () => {

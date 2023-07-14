@@ -31,10 +31,11 @@ import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
 import { RequestKey } from '../../lib/query';
 import FlagIcon from '../icons/Flag';
-import useReportComment from '../../hooks/useReportComment';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { OptionMenuItem } from '../../lib/element';
+import { labels } from '../../lib';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
@@ -72,8 +73,8 @@ export default function CommentActionButtons({
   const { user, showLogin } = useContext(AuthContext);
   const [upvoted, setUpvoted] = useState(comment.upvoted);
   const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
-  const { onReportCallback } = useReportComment();
   const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
 
   const queryClient = useQueryClient();
 
@@ -155,8 +156,9 @@ export default function CommentActionButtons({
     openModal({
       type: LazyModal.ReportComment,
       props: {
-        onReport: onReportCallback,
+        onReport: () => displayToast(labels.reporting.reportFeedbackText),
         comment,
+        post,
       },
     });
   };

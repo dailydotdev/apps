@@ -646,7 +646,7 @@ it('should report broken link', async () => {
   expect(feed).toHaveAttribute('aria-live', 'assertive');
 });
 
-it('should report broken link', async () => {
+it('should report broken link with comment', async () => {
   let mutationCalled = false;
   renderComponent([
     createFeedMock({
@@ -676,6 +676,9 @@ it('should report broken link', async () => {
   brokenLinkBtn.click();
   const submitBtn = await screen.findByText('Submit report');
   submitBtn.click();
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  fireEvent.change(input, { target: { value: 'comment' } });
+  input.dispatchEvent(new Event('input', { bubbles: true }));
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
     expect(

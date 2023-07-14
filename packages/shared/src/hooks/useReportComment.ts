@@ -9,7 +9,6 @@ import {
   ReportCommentReason,
   REPORT_COMMENT_MUTATION,
 } from '../graphql/comments';
-import { useToastNotification } from './useToastNotification';
 
 type UseReportCommentRet = {
   reportComment: (variables: {
@@ -28,7 +27,6 @@ interface ReportCommentProps {
 
 export default function useReportComment(): UseReportCommentRet {
   const { user, showLogin } = useContext(AuthContext);
-  const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
   const { mutateAsync: reportCommentAsync } = useMutation<
     void,
@@ -37,10 +35,6 @@ export default function useReportComment(): UseReportCommentRet {
   >((variables) =>
     requestMethod(graphqlUrl, REPORT_COMMENT_MUTATION, variables),
   );
-
-  const onReportCallback = async (): Promise<void> => {
-    displayToast('🚨 Thanks for reporting!');
-  };
 
   const reportComment = async (params: ReportCommentProps) => {
     if (!user) {
@@ -53,5 +47,5 @@ export default function useReportComment(): UseReportCommentRet {
     return { successful: true };
   };
 
-  return { reportComment, onReportCallback };
+  return { reportComment };
 }
