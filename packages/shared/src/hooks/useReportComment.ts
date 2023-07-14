@@ -16,7 +16,6 @@ type UseReportCommentRet = {
     reason: ReportCommentReason;
     note?: string;
   }) => BooleanPromise;
-  onReportCallback: () => Promise<void>;
 };
 
 interface ReportCommentProps {
