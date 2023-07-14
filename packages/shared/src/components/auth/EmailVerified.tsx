@@ -2,8 +2,9 @@ import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
 import EmailVerifiedIcon from '../../../icons/mail_verified.svg';
 import AuthModalHeader from './AuthModalHeader';
+import { AuthFormProps } from './common';
 
-interface EmailVerifiedProps {
+interface EmailVerifiedProps extends AuthFormProps {
   children?: ReactNode;
   hasUser: boolean;
 }
@@ -11,12 +12,15 @@ interface EmailVerifiedProps {
 function EmailVerified({
   hasUser,
   children,
+  simplified,
 }: EmailVerifiedProps): ReactElement {
   return (
     <>
-      <AuthModalHeader
-        title={hasUser ? 'Email address verified' : 'Log in to daily.dev'}
-      />
+      {!simplified && (
+        <AuthModalHeader
+          title={hasUser ? 'Email address verified' : 'Log in to daily.dev'}
+        />
+      )}
       <EmailVerifiedIcon
         className={classNames('w-full', children ? 'h-44' : 'h-60 mt-12')}
       />
