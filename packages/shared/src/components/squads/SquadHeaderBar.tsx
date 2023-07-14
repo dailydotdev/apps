@@ -54,21 +54,23 @@ export function SquadHeaderBar({
       className={classNames('flex flex-row gap-4 h-fit', className)}
     >
       <div className="relative">
-        {verifyPermission(squad, SourcePermissions.Invite) && (
-          <Button
-            className={classNames(
-              'btn-secondary',
-              tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
-            )}
-            onClick={() => {
-              trackAndCopyLink();
-            }}
-            icon={<AddUserIcon />}
-            disabled={copying}
-          >
-            Copy invitation link
-          </Button>
-        )}
+        {verifyPermission(squad, SourcePermissions.Invite) ||
+          (squad.public && (
+            <Button
+              className={classNames(
+                'btn-secondary',
+                tourIndex === TourScreenIndex.CopyInvitation &&
+                  'highlight-pulse',
+              )}
+              onClick={() => {
+                trackAndCopyLink();
+              }}
+              icon={<AddUserIcon />}
+              disabled={copying}
+            >
+              Copy invitation link
+            </Button>
+          ))}
       </div>
       {sidebarRendered && (
         <SquadMemberShortList
