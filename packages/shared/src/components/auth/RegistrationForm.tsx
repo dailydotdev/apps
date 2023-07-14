@@ -30,8 +30,11 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import TwitterIcon from '../icons/Twitter';
 import { Modal } from '../modals/common/Modal';
 import { useGenerateUsername } from '../../hooks';
+import { AuthFormProps } from './common';
+import ConditionalWrapper from '../ConditionalWrapper';
+import AuthContainer from './AuthContainer';
 
-export interface RegistrationFormProps {
+export interface RegistrationFormProps extends AuthFormProps {
   email: string;
   formRef?: MutableRefObject<HTMLFormElement>;
   onBack?: CloseModalFunc;
@@ -56,6 +59,7 @@ export const RegistrationForm = ({
   hints,
   trigger,
   onUpdateHints,
+  simplified,
 }: RegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -120,7 +124,9 @@ export const RegistrationForm = ({
 
   return (
     <>
-      <AuthModalHeader title="Sign up to daily.dev" onBack={onBack} />
+      {!simplified && (
+        <AuthModalHeader title="Sign up to daily.dev" onBack={onBack} />
+      )}
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6 px-6 tablet:px-[3.75rem]',
@@ -209,15 +215,20 @@ export const RegistrationForm = ({
           I don’t want to receive updates and promotions via email
         </Checkbox>
       </AuthForm>
-      <Modal.Footer>
-        <Button
-          form="auth-form"
-          type="submit"
-          className="w-full bg-theme-color-cabbage"
-        >
-          Sign up
-        </Button>
-      </Modal.Footer>
+      <ConditionalWrapper
+        condition={simplified}
+        wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
+      >
+        <Modal.Footer>
+          <Button
+            form="auth-form"
+            type="submit"
+            className="w-full bg-theme-color-cabbage"
+          >
+            Sign up
+          </Button>
+        </Modal.Footer>
+      </ConditionalWrapper>
     </>
   );
 };

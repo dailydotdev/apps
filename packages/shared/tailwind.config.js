@@ -41,6 +41,8 @@ module.exports = {
             hover: 'var(--theme-mention-hover)',
           },
           'cabbage-opacity-24': 'var(--theme-background-cabbage-opacity-24)',
+          'overlay-cabbage-opacity': 'var(--theme-overlay-cabbage-opacity)',
+          'overlay-onion-opacity': 'var(--theme-overlay-onion-opacity)',
         },
         label: {
           primary: 'var(--theme-label-primary)',
@@ -134,6 +136,7 @@ module.exports = {
       'img-mobile': '280px',
       'rank-modal': 'calc(100vh - 5rem)',
       page: 'calc(100vh - 3.5rem)',
+      commentBox: '18.25rem',
     },
     minHeight: {
       page: 'calc(100vh - 3.5rem)',
@@ -166,6 +169,9 @@ module.exports = {
       responsiveModalBreakpoint: '420px',
     },
     extend: {
+      gap: {
+        unset: 'unset',
+      },
       borderRadius: {
         2: '0.125rem',
         3: '0.1875rem',

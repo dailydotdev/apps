@@ -23,6 +23,7 @@ export type SquadForm = Pick<
   buttonText?: string;
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
+  public?: boolean;
 };
 
 type SharedSquadInput = {

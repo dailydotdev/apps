@@ -134,7 +134,7 @@ const useSquadChecklist = ({
 
   const steps = useMemo(() => {
     const actionsForRole =
-      actionsPerRoleMap[squad.currentMember.role] ||
+      actionsPerRoleMap[squad.currentMember?.role] ||
       actionsPerRoleMap[SourceMemberRole.Member];
 
     return actionsForRole
