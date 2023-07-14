@@ -5,7 +5,7 @@ import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthModalText } from './common';
+import { AuthFormProps, AuthModalText } from './common';
 import TokenInput from './TokenField';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
@@ -13,7 +13,7 @@ import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
 
-interface ForgotPasswordFormProps {
+interface ForgotPasswordFormProps extends AuthFormProps {
   initialEmail?: string;
   onBack?: CloseModalFunc;
   onSubmit?: (email: string, flow: string) => void;
@@ -23,6 +23,7 @@ function ForgotPasswordForm({
   initialEmail,
   onBack,
   onSubmit,
+  simplified,
 }: ForgotPasswordFormProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [hint, setHint] = useState('');
@@ -43,7 +44,9 @@ function ForgotPasswordForm({
 
   return (
     <>
-      <AuthModalHeader title="Forgot password" onBack={onBack} />
+      {!simplified && (
+        <AuthModalHeader title="Forgot password" onBack={onBack} />
+      )}
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onSendEmail}

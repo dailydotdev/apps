@@ -15,6 +15,7 @@ interface FeedTopicCardProps {
   isActive?: boolean;
   topicLayout?: OnboardingFiltersLayout;
   onClick?: (e: ButtonEvent) => void;
+  isAnimated?: boolean;
 }
 
 interface ClassName {
@@ -31,8 +32,8 @@ const BackgroundLayer = classed(
 const background: Record<OnboardingFiltersLayout, ReactNode> = {
   grid: (
     <>
-      <BackgroundLayer className="-z-1 opacity-64 group-hover:-rotate-12" />
-      <BackgroundLayer className="opacity-24 -z-2 group-hover:-rotate-[24deg]" />
+      <BackgroundLayer className="invisible group-hover:visible -z-1 opacity-64 group-hover:-rotate-12" />
+      <BackgroundLayer className="invisible group-hover:visible opacity-24 -z-2 group-hover:-rotate-[24deg]" />
     </>
   ),
   list: <BackgroundLayer className="hidden group-hover:flex opacity-64" />,

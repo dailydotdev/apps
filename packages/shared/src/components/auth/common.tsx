@@ -64,3 +64,7 @@ export const AuthModalText = classed(
   'p',
   'typo-body text-theme-label-secondary',
 );
+
+export interface AuthFormProps {
+  simplified?: boolean;
+}

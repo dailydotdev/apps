@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import ThemeOnboarding from '../onboarding/ThemeOnboarding';
-import FilterOnboarding from '../onboarding/FilterOnboarding';
+import { FilterOnboardingStep } from '../onboarding';
 import LayoutOnboarding from '../onboarding/LayoutOnboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import FeaturesContext from '../../contexts/FeaturesContext';
@@ -106,7 +106,7 @@ function OnboardingModal({
 
   const components: Record<OnboardingStep, ReactNode> = {
     intro: null,
-    topics: <FilterOnboarding key={OnboardingStep.Topics} />,
+    topics: <FilterOnboardingStep key={OnboardingStep.Topics} />,
     layout: <LayoutOnboarding key={OnboardingStep.Layout} />,
     theme: <ThemeOnboarding key={OnboardingStep.Theme} />,
   };

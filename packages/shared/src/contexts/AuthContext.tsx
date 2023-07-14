@@ -47,7 +47,7 @@ export interface AuthContextData {
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
   visit?: Visit;
-  isFirstVisit?: boolean;
+  firstVisit?: string;
   deleteAccount?: () => Promise<void>;
   refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   accessToken?: AccessToken;
@@ -142,7 +142,7 @@ export const AuthContextProvider = ({
       user: endUser,
       referral: loginState?.referral ?? referral,
       referralOrigin: loginState?.referralOrigin ?? referralOrigin,
-      isFirstVisit: user?.isFirstVisit ?? false,
+      firstVisit: user?.firstVisit,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
       showLogin: (trigger, options = {}) => {

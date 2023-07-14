@@ -167,6 +167,9 @@ module.exports = {
       responsiveModalBreakpoint: '420px',
     },
     extend: {
+      gap: {
+        unset: 'unset',
+      },
       borderRadius: {
         2: '0.125rem',
         3: '0.1875rem',

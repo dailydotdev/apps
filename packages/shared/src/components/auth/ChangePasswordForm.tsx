@@ -4,7 +4,7 @@ import { useMutation, useQuery } from 'react-query';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthModalText } from './common';
+import { AuthFormProps, AuthModalText } from './common';
 import {
   AuthFlow,
   initializeKratosFlow,
@@ -20,12 +20,13 @@ import AuthForm from './AuthForm';
 import { PasswordField } from '../fields/PasswordField';
 import { useToastNotification } from '../../hooks/useToastNotification';
 
-interface ChangePasswordFormProps {
+interface ChangePasswordFormProps extends AuthFormProps {
   onSubmit: () => void;
 }
 
 function ChangePasswordForm({
   onSubmit,
+  simplified,
 }: ChangePasswordFormProps): ReactElement {
   const [hint, setHint] = useState('');
   const { displayToast } = useToastNotification();
@@ -74,7 +75,7 @@ function ChangePasswordForm({
 
   return (
     <>
-      <AuthModalHeader title="Create new password" />
+      {!simplified && <AuthModalHeader title="Create new password" />}
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onChangePasswordSubmit}
