@@ -19,7 +19,9 @@ import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { LazyModalElement } from '../LazyModalElement';
 import { ReportCommentModal } from './ReportCommentModal';
+import Post from '../../../../__tests__/fixture/post';
 
+const defaultPost = Post;
 const defaultComment = Comment;
 let features: IFlags;
 
@@ -68,6 +70,7 @@ const renderComponent = (
             comment={comment || defaultComment}
             isOpen
             onRequestClose={jest.fn()}
+            post={defaultPost}
           />
         </AuthContextProvider>
       </FeaturesContextProvider>

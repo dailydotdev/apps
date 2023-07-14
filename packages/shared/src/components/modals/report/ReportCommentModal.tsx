@@ -5,6 +5,8 @@ import useReportComment from '../../../hooks/useReportComment';
 import { Comment, ReportCommentReason } from '../../../graphql/comments';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../../lib/feed';
+import { Post } from '../../../graphql/posts';
+import { PostBootData } from '../../../lib/boot';
 
 interface Props extends ModalProps {
   onReport: (comment: Comment) => void;
