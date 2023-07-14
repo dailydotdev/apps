@@ -206,7 +206,7 @@ function MarkdownInput(
             <span className="flex relative flex-1">
               <textarea
                 rows={11}
-                placeholder="Start a discussion, ask a question or write about anything that you believe would benefit the squad. (Optional)"
+                placeholder="Thoughts/questions/ideas/rants - Tell the Squad what’s up. (Optional)"
                 {...textareaProps}
                 {...callbacks}
                 ref={textareaRef}

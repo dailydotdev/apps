@@ -4,7 +4,7 @@ import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthModalText } from './common';
+import { AuthFormProps, AuthModalText } from './common';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
@@ -12,7 +12,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
 import KeyIcon from '../icons/Key';
 
-interface CodeVerificationFormProps {
+interface CodeVerificationFormProps extends AuthFormProps {
   initialEmail: string;
   initialFlow: string;
   onBack?: CloseModalFunc;
@@ -24,6 +24,7 @@ function CodeVerificationForm({
   initialFlow,
   onBack,
   onSubmit,
+  simplified,
 }: CodeVerificationFormProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [hint, setHint] = useState('');
@@ -62,7 +63,7 @@ function CodeVerificationForm({
 
   return (
     <>
-      <AuthModalHeader title="Verification" onBack={onBack} />
+      {!simplified && <AuthModalHeader title="Verification" onBack={onBack} />}
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onCodeVerification}

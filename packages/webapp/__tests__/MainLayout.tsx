@@ -1,14 +1,8 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/preact';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import SettingsContext, {
-  SettingsContextData,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { QueryClient } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import MainLayout from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
@@ -19,52 +13,12 @@ beforeEach(() => {
 });
 
 const renderLayout = (user: LoggedUser = null): RenderResult => {
-  const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: 'dark',
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
-    sidebarExpanded: true,
-    toggleSidebarExpanded: jest.fn(),
-  };
   client = new QueryClient();
 
   return render(
-    <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-        }}
-      >
-        <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-            }}
-          >
-            <NotificationsContextProvider>
-              <MainLayout />
-            </NotificationsContextProvider>
-          </OnboardingContext.Provider>
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
-    </QueryClientProvider>,
+    <TestBootProvider client={client} auth={{ user, showLogin }}>
+      <MainLayout />
+    </TestBootProvider>,
   );
 };
 
