@@ -52,7 +52,10 @@ export function SquadHeaderBar({
   return (
     <div
       {...props}
-      className={classNames('flex flex-row gap-4 h-fit', className)}
+      className={classNames(
+        'flex flex-row gap-4 h-fit w-full tablet:w-auto',
+        className,
+      )}
     >
       <div className="relative">
         {(squad.public ||
@@ -61,6 +64,7 @@ export function SquadHeaderBar({
             className={classNames(
               'btn-secondary',
               tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
+              squad.public && 'hidden tablet:flex',
             )}
             onClick={() => {
               trackAndCopyLink();
@@ -72,7 +76,12 @@ export function SquadHeaderBar({
           </Button>
         )}
       </div>
-      {squad.public && <SquadJoinButton squad={squad} />}
+      {squad.public && (
+        <SquadJoinButton
+          className="flex flex-1 tablet:flex-initial -ml-4 tablet:ml-auto w-full tablet:w-auto"
+          squad={squad}
+        />
+      )}
       {sidebarRendered && (
         <SquadMemberShortList
           squad={squad}

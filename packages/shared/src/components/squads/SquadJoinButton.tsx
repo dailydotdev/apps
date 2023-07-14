@@ -8,10 +8,14 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import { useLeaveSquad, useJoinSquad } from '../../hooks';
 
 type SquadJoinProps = {
+  className?: string;
   squad: Squad;
 };
 
-export const SquadJoinButton = ({ squad }: SquadJoinProps): ReactElement => {
+export const SquadJoinButton = ({
+  className,
+  squad,
+}: SquadJoinProps): ReactElement => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { squads } = useAuthContext();
@@ -47,7 +51,10 @@ export const SquadJoinButton = ({ squad }: SquadJoinProps): ReactElement => {
 
   return (
     <Button
-      className={classNames(isCurrentMember ? 'btn-secondary' : 'btn-primary')}
+      className={classNames(
+        isCurrentMember ? 'btn-secondary' : 'btn-primary',
+        className,
+      )}
       disabled={isLoading}
       onClick={() => {
         if (isCurrentMember) {
