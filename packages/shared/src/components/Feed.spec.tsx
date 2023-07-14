@@ -659,6 +659,7 @@ it('should report broken link with comment', async () => {
         variables: {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
           reason: 'BROKEN',
+          comment: 'comment',
           tags: [],
         },
       },
