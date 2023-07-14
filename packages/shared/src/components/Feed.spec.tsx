@@ -674,11 +674,11 @@ it('should report broken link with comment', async () => {
   contextBtn.click();
   const brokenLinkBtn = await screen.findByText('Broken link');
   brokenLinkBtn.click();
-  const submitBtn = await screen.findByText('Submit report');
-  submitBtn.click();
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   fireEvent.change(input, { target: { value: 'comment' } });
   input.dispatchEvent(new Event('input', { bubbles: true }));
+  const submitBtn = await screen.findByText('Submit report');
+  submitBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
     expect(
