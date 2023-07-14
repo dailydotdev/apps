@@ -14,6 +14,7 @@ export enum RankingAlgorithm {
 export enum OnboardingMode {
   Manual = 'manual',
   Auto = 'auto',
+  Wall = 'wall',
 }
 
 export const baseFeedSupportedTypes = [

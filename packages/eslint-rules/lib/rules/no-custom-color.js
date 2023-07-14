@@ -18,6 +18,7 @@ const alwaysValidClasses = [
   'bg-cover',
   'bg-no-repeat',
   'bg-center',
+  'bg-contain',
 ];
 const findTargetClassNames = (classNames) => {
   if (!classNames) {

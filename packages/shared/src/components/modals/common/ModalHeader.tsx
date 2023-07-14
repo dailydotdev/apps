@@ -7,6 +7,7 @@ import { ModalHeaderKind, ModalPropsContext } from './types';
 import { Button, ButtonProps } from '../../buttons/Button';
 import ArrowIcon from '../../icons/Arrow';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
+import { ProgressBar } from '../../fields/ProgressBar';
 
 export type ModalHeaderProps = {
   kind?: ModalHeaderKind;
@@ -83,10 +84,7 @@ export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement {
   if (!activeStep) return null;
   const stepperWidth = () => ((activeStepIndex + 1) / steps.length) * 100;
   const progress = activeStep.hideProgress ? null : (
-    <div
-      className="absolute left-0 h-1 top-[3.3rem] bg-theme-color-cabbage transition-[width]"
-      style={{ width: `${stepperWidth()}%` }}
-    />
+    <ProgressBar percentage={stepperWidth()} className="top-[3.3rem]" />
   );
   if (activeStep.title) {
     return (

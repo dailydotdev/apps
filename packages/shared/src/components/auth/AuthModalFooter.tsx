@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { ClickableText } from '../buttons/ClickableText';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
@@ -15,7 +16,10 @@ function AuthModalFooter({
   onIsLogin,
 }: AuthModalFooterProps): ReactElement {
   return (
-    <Modal.Footer className={className} justify={Justify.Center}>
+    <Modal.Footer
+      className={classNames(className, 'gap-unset')}
+      justify={Justify.Center}
+    >
       <Modal.Text>
         {isLogin ? 'Don’t have an account?' : 'Already have an account?'}
       </Modal.Text>
