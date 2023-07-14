@@ -298,7 +298,7 @@ export interface SquadInvitation {
 }
 
 export interface SquadInvitationProps {
-  token: string;
+  token?: string;
   sourceId: string;
 }
 

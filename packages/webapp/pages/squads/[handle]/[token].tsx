@@ -127,7 +127,10 @@ const SquadReferral = ({
   }, [member, trackedImpression]);
 
   const { mutateAsync: onJoinSquad } = useMutation(
-    useJoinSquad({ squad: { handle, id: member.source.id } }),
+    useJoinSquad({
+      squad: { handle, id: member?.source?.id },
+      referralToken: token,
+    }),
     {
       onSuccess: (data) => {
         router.replace(data.permalink);
