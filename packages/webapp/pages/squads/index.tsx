@@ -6,7 +6,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
-import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/sources';
+import { SOURCES_QUERY, SourceMember } from '@dailydotdev/shared/src/graphql/sources';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import InfiniteScrolling, { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useInfiniteQuery } from 'react-query';
@@ -14,6 +14,12 @@ import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { Spaciness } from '@dailydotdev/shared/src/graphql/settings';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { Card } from '@dailydotdev/shared/src/components/cards/Card';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import SquadMemberShortList from '@dailydotdev/shared/src/components/squads/SquadMemberShortList';
+import { Connection } from '@dailydotdev/shared/src/graphql/common';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { FeedContainer } from '@dailydotdev/shared/src/components';
 
 const seo: NextSeoProps = {
   title: `Squads`,
@@ -21,18 +27,22 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
+interface SourceProps {
+  handle: string;
+  id: string;
+  image: string;
+  name: string;
+  public: boolean;
+  type: string
+  description: string;
+  membersCount: number;
+  members: Connection<SourceMember>;
+}
+
 const SquadsPage = ({
   forceCardMode,
 }): ReactElement => {
   const { sidebarRendered } = useSidebarRendered();
-  // const {
-  //   openNewTab,
-  //   spaciness,
-  //   insaneMode: listMode,
-  //   loadedSettings,
-  // } = useContext(SettingsContext);
-  // const insaneMode = !forceCardMode && listMode;
-  // const numCards = currentSettings.numCards[spaciness ?? 'eco'];
 
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
@@ -48,43 +58,6 @@ const SquadsPage = ({
         lastPage?.notifications?.pageInfo?.endCursor,
     },
   );
-
-  // const useList = insaneMode && numCards > 1;
-
-  // const listGaps = {
-  //   cozy: 'gap-5',
-  //   roomy: 'gap-3',
-  // };
-  // const gridGaps = {
-  //   cozy: 'gap-14',
-  //   roomy: 'gap-12',
-  // };
-  // const getFeedGapPx = {
-  //   'gap-2': 8,
-  //   'gap-3': 12,
-  //   'gap-5': 20,
-  //   'gap-8': 32,
-  //   'gap-12': 48,
-  //   'gap-14': 56,
-  // };
-
-  // const gapClass = (useList: boolean, spaciness: Spaciness) =>
-  // useList ? listGaps[spaciness] ?? 'gap-2' : gridGaps[spaciness] ?? 'gap-8';
-
-  // const cardListClass = {
-  //   1: 'grid-cols-1',
-  //   2: 'grid-cols-2',
-  //   3: 'grid-cols-3',
-  //   4: 'grid-cols-4',
-  //   5: 'grid-cols-5',
-  //   6: 'grid-cols-6',
-  //   7: 'grid-cols-7',
-  // };
-
-  // const cardClass = (useList: boolean, numCards: number): string =>
-  // useList ? 'grid-cols-1' : cardListClass[numCards];
-
-  
 
   return (
     <>
@@ -104,30 +77,22 @@ const SquadsPage = ({
           fetchNextPage={queryResult.fetchNextPage}
         >
           <>
-            {/* <div
-              className={classNames(
-                'grid',
-                gapClass(useList, spaciness),
-                cardClass(useList, numCards),
-              )}
-            > */}
+            <FeedContainer>
               {queryResult?.data?.pages?.length > 0 &&
                 queryResult.data.pages.map((page) => 
                   page.sources.edges.reduce(
-                    (nodes, { node: { id, name, image } }) => {
+                    (nodes, node) => {
                       nodes.push(
-                        <SourcesCard id={id} name={name} image={image} />
+                        <SourcesCard source={node} />
                       );
-
-                      console.log('nodes: ', nodes);
                       return nodes;
                     },
                     [],
                   )
               )}
-            {/* </div> */}
+            </FeedContainer>
             
-            <p>LAST CARD</p>
+            {/* <p>LAST CARD</p> */}
           </>
         </InfiniteScrolling>
       </BaseFeedPage>
@@ -135,9 +100,42 @@ const SquadsPage = ({
   );
 };
 
-const SourcesCard = ({id, name, image}) => {
+const SourcesCard = (props: any) => {
+  const { name, handle, image, description, membersCount, members }: SourceProps = props.source.node;
+  const { user } = useContext(AuthContext);
+  const isMember = members?.edges.find((member) => member?.node?.user.id === user.id);
+  const items = members?.edges.reduce((acc, current) => {
+    acc.push(current.node);
+    return acc;
+  }, []);
+  
   return (
-    <div className='bg-theme-primary'>Card: {id}</div>
+    <Card className='p-0'>
+      <div className='h-24 px-4 bg-theme-bg-onion rounded-t-2xl'>
+      </div>
+      <div className='-mt-12 p-4 bg-theme-bg-secondary rounded-t-2xl'>
+        <div className='flex items-end justify-between mb-3'>
+          <img className='-mt-14 w-24 h-24 rounded-full z-10' src={image} />
+          {membersCount > 0 && (
+            <SquadMemberShortList
+              squad={props.source?.node}
+              members={items}
+              memberCount={membersCount}
+            />
+          )}
+        </div>
+        <div className='typo-title3 font-bold'>{name}</div>
+        <div className='mb-2 text-theme-color-salt'>@{handle}</div>
+        <div className='mb-2 text-theme-color-salt multi-truncate line-clamp-3'>{description}</div>
+        <Button
+          tag="a"
+          href='#'
+          className="btn-secondary"
+        >
+          {isMember ? 'View squad' : 'Join'}
+        </Button>
+      </div>
+    </Card>
   )
 }
 

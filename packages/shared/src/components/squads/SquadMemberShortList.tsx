@@ -8,7 +8,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface SquadMemberShortListProps {
   squad: Squad;
-  members: SourceMember[];
+  members: SourceMember[] | any;
   memberCount: number;
   className?: string;
 }
@@ -28,6 +28,8 @@ function SquadMemberShortList({
         placeholderAmount: squad?.membersCount,
       },
     });
+
+    console.log('members', members);
 
   return (
     <SimpleTooltip placement="top" content="Members list">

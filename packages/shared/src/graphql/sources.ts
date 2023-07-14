@@ -34,6 +34,10 @@ export interface SourceMember {
   permissions?: SourcePermissions[];
 }
 
+export interface SourceMemberSimple {
+  image: string;
+}
+
 export enum SourceType {
   Machine = 'machine',
   Squad = 'squad',
@@ -44,7 +48,7 @@ export interface Squad extends Source {
   permalink: string;
   public: boolean;
   type: SourceType.Squad;
-  members?: Connection<SourceMember>;
+  members?: Connection<SourceMember> | Connection<SourceMemberSimple>;
   membersCount: number;
   description: string;
   memberPostingRole: SourceMemberRole;
@@ -93,7 +97,23 @@ export const SOURCES_QUERY = gql`
           image
           public
           type
+          handle
+          description
           membersCount
+          members {
+            edges {
+              node {
+                user {
+                  bio
+                  id
+                  image
+                  username
+                  permalink
+                  name
+                }
+              }
+            }
+          }
         }
       }
     }
