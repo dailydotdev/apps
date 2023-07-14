@@ -1,40 +1,33 @@
-import React, {
-  ReactElement,
-  useState,
-  useContext,
-  MouseEventHandler,
-  MouseEvent,
-} from 'react';
+import React, { ReactElement, useState, useContext } from 'react';
 import classNames from 'classnames';
-import Container from './OnboardingStep';
 import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
 import { OnboardingFiltersLayout } from '../../lib/featureValues';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { Origin } from '../../lib/analytics';
-import { Modal } from '../modals/common/Modal';
-import { Justify } from '../utilities';
-import { Button } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { OnboardingStep } from './common';
-import { ModalPropsContext } from '../modals/common/types';
 
 const classes: Record<OnboardingFiltersLayout, string> = {
   grid: 'tablet:grid-cols-3 grid-cols-2',
   list: 'grid-cols-1',
 };
 
-function FilterOnboarding(): ReactElement {
+interface FilterOnboardingProps {
+  onSelectedTopics?(tags: Record<string, boolean>): void;
+  className?: string;
+}
+
+export function FilterOnboarding({
+  onSelectedTopics,
+  className,
+}: FilterOnboardingProps): ReactElement {
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const [selectedTopics, setSelectedTopics] = useState({});
-  const { onboardingFiltersLayout, onboardingMinimumTopics } =
-    useContext(FeaturesContext);
+  const { onboardingFiltersLayout } = useContext(FeaturesContext);
   const { tagsCategories } = useFeedSettings();
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.TagsFilter,
   });
-  const { onRequestClose } = useContext(ModalPropsContext);
 
   const onChangeSelectedTopic = (e: ButtonEvent, value: string) => {
     const isFollowed = !selectedTopics[value];
@@ -43,86 +36,30 @@ function FilterOnboarding(): ReactElement {
     tagCommand({ tags, category: title });
     const result = { ...selectedTopics, [value]: isFollowed };
     setSelectedTopics(result);
+    if (onSelectedTopics) onSelectedTopics(result);
     e.currentTarget.blur();
     if (invalidMessage) {
       setInvalidMessage(null);
     }
   };
 
-  const onFilterNext = (e: MouseEvent, nextStep: MouseEventHandler) => {
-    const topics = selectedTopics;
-    const selected = Object.values(topics).filter((value) => !!value);
-    const isValid = selected.length >= onboardingMinimumTopics;
-
-    if (isValid) {
-      return nextStep(e);
-    }
-
-    const topic = `topic${onboardingMinimumTopics > 1 ? 's' : ''}`;
-    const message = `Choose at least ${onboardingMinimumTopics} ${topic} to follow`;
-    setInvalidMessage(isValid ? null : message);
-
-    return null;
-  };
-
   return (
-    <Modal.StepsWrapper view={OnboardingStep.Topics}>
-      {({ activeStepIndex, previousStep, nextStep }) => (
-        <>
-          <Container
-            title="Choose topics to follow"
-            description="Pick topics you are interested in. You can always change these later."
-            className={{
-              container: 'px-0 pb-0',
-              content:
-                'p-4 mt-1 mb-4 flex flex-row justify-center overflow-x-hidden',
-            }}
-          >
-            <div
-              className={classNames(
-                'grid gap-4 w-fit tablet:w-full',
-                classes[onboardingFiltersLayout],
-              )}
-            >
-              {tagsCategories?.map((category) => (
-                <FeedTopicCard
-                  key={category.title}
-                  topic={category}
-                  isActive={selectedTopics[category.id]}
-                  topicLayout={onboardingFiltersLayout}
-                  onClick={(e) => onChangeSelectedTopic(e, category.id)}
-                />
-              ))}
-            </div>
-          </Container>
-          <Modal.Footer justify={Justify.Between}>
-            <Button
-              className="btn-tertiary"
-              onClick={activeStepIndex === 0 ? onRequestClose : previousStep}
-            >
-              {activeStepIndex === 0 ? 'Close' : 'Back'}
-            </Button>
-            <SimpleTooltip
-              forceLoad
-              content={invalidMessage}
-              visible={!!invalidMessage}
-              container={{
-                className: 'w-36 text-center',
-                paddingClassName: 'py-4 px-3',
-              }}
-            >
-              <Button
-                className="bg-theme-color-cabbage"
-                onClick={(e) => onFilterNext(e, nextStep)}
-              >
-                Next
-              </Button>
-            </SimpleTooltip>
-          </Modal.Footer>
-        </>
+    <div
+      className={classNames(
+        'grid gap-4 w-fit tablet:w-full',
+        classes[onboardingFiltersLayout],
+        className,
       )}
-    </Modal.StepsWrapper>
+    >
+      {tagsCategories?.map((category) => (
+        <FeedTopicCard
+          key={category.title}
+          topic={category}
+          isActive={selectedTopics[category.id]}
+          topicLayout={onboardingFiltersLayout}
+          onClick={(e) => onChangeSelectedTopic(e, category.id)}
+        />
+      ))}
+    </div>
   );
 }
-
-export default FilterOnboarding;
