@@ -73,7 +73,11 @@ function SharePostBar({
         )}
       >
         <LockIcon size={IconSize.Small} />
-        <p className="typo-callout">Only admins and moderators can post</p>
+        <p className="typo-callout">
+          {squad.public
+            ? 'Join the squad to create new posts'
+            : 'Only admins and moderators can post'}
+        </p>
       </Card>
     );
   }
