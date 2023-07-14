@@ -5,3 +5,4 @@ export * from './useVotePost';
 export * from './useSquadNavigation';
 export * from './useLeaveSquad';
 export * from './useJoinSquad';
+export * from './useJoinReferral';

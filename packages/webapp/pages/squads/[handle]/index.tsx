@@ -30,7 +30,7 @@ import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
-import { useSquad } from '@dailydotdev/shared/src/hooks';
+import { useJoinReferral, useSquad } from '@dailydotdev/shared/src/hooks';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
@@ -62,6 +62,7 @@ const SquadChecklistCard = dynamic(
 type SourcePageProps = { handle: string };
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
+  useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = useRouter();
