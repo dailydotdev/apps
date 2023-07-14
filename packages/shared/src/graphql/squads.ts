@@ -210,7 +210,7 @@ export const SQUAD_INVITATION_QUERY = gql`
 `;
 
 export const SQUAD_JOIN_MUTATION = gql`
-  mutation JoinSquad($sourceId: ID!, $token: String!) {
+  mutation JoinSquad($sourceId: ID!, $token: String) {
     source: joinSource(sourceId: $sourceId, token: $token) {
       ...SourceBaseInfo
     }

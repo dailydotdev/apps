@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
-  joinSquadInvitation,
   validateSourceHandle,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
@@ -25,7 +24,6 @@ import {
   Button,
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {
@@ -41,6 +39,7 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
+import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
@@ -74,9 +73,8 @@ const SquadReferral = ({
   const router = useRouter();
   const { isFallback } = router;
   const { trackEvent } = useContext(AnalyticsContext);
-  const { addSquad } = useBoot();
   const { displayToast } = useToastNotification();
-  const { showLogin, user: loggedUser, squads } = useAuthContext();
+  const { showLogin, user: loggedUser } = useAuthContext();
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { data: member, isFetched } = useQuery(
     ['squad_referral', token, loggedUser?.id],
@@ -128,21 +126,11 @@ const SquadReferral = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member, trackedImpression]);
 
-  const sourceId = member?.source?.id;
   const { mutateAsync: onJoinSquad } = useMutation(
-    () => joinSquadInvitation({ sourceId, token }),
+    useJoinSquad({ squad: { handle, id: member.source.id } }),
     {
       onSuccess: (data) => {
-        trackEvent({
-          event_name: AnalyticsEvent.CompleteJoiningSquad,
-          extra: joinSquadAnalyticsExtra(),
-        });
-
-        const squad = squads.find(({ id }) => id === data.id);
-        if (squad) return router.replace(squad.permalink);
-
-        addSquad(data);
-        return router.replace(data.permalink);
+        router.replace(data.permalink);
       },
       onError: (error: ApiErrorResult) => {
         const errorMessage = error?.response?.errors?.[0]?.message;

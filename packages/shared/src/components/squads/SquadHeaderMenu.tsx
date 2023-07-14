@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { useMutation } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import ExitIcon from '../icons/Exit';
 import {
@@ -53,9 +54,10 @@ export default function SquadHeaderMenu({
   });
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { onLeaveSquad } = useLeaveSquad({
-    squad,
-    callback: () => router.replace('/'),
+  const { mutateAsync: onLeaveSquad } = useMutation(useLeaveSquad({ squad }), {
+    onSuccess: () => {
+      router.replace('/');
+    },
   });
   const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
   const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
@@ -96,7 +98,9 @@ export default function SquadHeaderMenu({
     ) {
       list.push({
         Icon: ExitIcon,
-        onClick: onLeaveSquad,
+        onClick: () => {
+          onLeaveSquad();
+        },
         label: 'Leave Squad',
       });
     }

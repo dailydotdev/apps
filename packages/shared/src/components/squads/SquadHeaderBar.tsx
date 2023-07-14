@@ -20,6 +20,7 @@ import { SourcePermissions } from '../../graphql/sources';
 import ChecklistBIcon from '../icons/ChecklistB';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
+import { SquadJoinButton } from './SquadJoinButton';
 
 export function SquadHeaderBar({
   squad,
@@ -54,24 +55,24 @@ export function SquadHeaderBar({
       className={classNames('flex flex-row gap-4 h-fit', className)}
     >
       <div className="relative">
-        {verifyPermission(squad, SourcePermissions.Invite) ||
-          (squad.public && (
-            <Button
-              className={classNames(
-                'btn-secondary',
-                tourIndex === TourScreenIndex.CopyInvitation &&
-                  'highlight-pulse',
-              )}
-              onClick={() => {
-                trackAndCopyLink();
-              }}
-              icon={<AddUserIcon />}
-              disabled={copying}
-            >
-              Copy invitation link
-            </Button>
-          ))}
+        {(squad.public ||
+          verifyPermission(squad, SourcePermissions.Invite)) && (
+          <Button
+            className={classNames(
+              'btn-secondary',
+              tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
+            )}
+            onClick={() => {
+              trackAndCopyLink();
+            }}
+            icon={<AddUserIcon />}
+            disabled={copying}
+          >
+            Copy invitation link
+          </Button>
+        )}
       </div>
+      {squad.public && <SquadJoinButton squad={squad} />}
       {sidebarRendered && (
         <SquadMemberShortList
           squad={squad}
