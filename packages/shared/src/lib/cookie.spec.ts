@@ -1,7 +1,7 @@
 import { setCookie } from './cookie';
 
 describe('cookie', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     Object.defineProperty(document, 'cookie', {
       writable: true,
       value: '',

@@ -8,9 +8,10 @@ import { useJoinReferral } from './useJoinReferral';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { GET_REFERRING_USER_QUERY } from '../graphql/users';
+import user from '../../__tests__/fixture/loggedUser';
 
 describe('useJoinReferral hook', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     Object.defineProperty(document, 'cookie', {
       writable: true,
       value: '',
@@ -120,5 +121,35 @@ describe('useJoinReferral hook', () => {
         )}; max-age=0; samesite=lax; secure`,
       ),
     );
+  });
+
+  it('should not set cookie if logger user id is the same as referred user id', async () => {
+    mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          query: {
+            cid: 'squad',
+            userid: '1',
+          },
+        } as unknown as NextRouter),
+    );
+
+    renderHook(() => useJoinReferral(), {
+      wrapper: ({ children }) => (
+        <AuthContextProvider
+          user={{
+            ...user,
+            id: '1',
+          }}
+          getRedirectUri={jest.fn()}
+          updateUser={jest.fn()}
+          tokenRefreshed={false}
+        >
+          {children}
+        </AuthContextProvider>
+      ),
+    });
+
+    expect(document.cookie).toBe('');
   });
 });
