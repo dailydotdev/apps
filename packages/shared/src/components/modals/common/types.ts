@@ -32,6 +32,7 @@ export enum LazyModal {
   LegoReferralCampaign = 'legoReferralCampaign',
   CreateSharedPost = 'createSharedPost',
   ReportPost = 'reportPost',
+  ReportComment = 'reportComment',
 }
 
 export type ModalTabItem = {

@@ -6,6 +6,7 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   PostContextMenu = 'post context menu',
+  PostCommentContextMenu = 'post comment context menu',
   TagsFilter = 'tags filter',
   TagsSearch = 'tags search',
   RealTime = 'realtime',
@@ -76,6 +77,7 @@ export enum AnalyticsEvent {
   BookmarkPost = 'bookmark post',
   RemovePostBookmark = 'remove post bookmark',
   // bookmark - end
+  ReportComment = 'report comment',
 }
 
 export enum TargetType {

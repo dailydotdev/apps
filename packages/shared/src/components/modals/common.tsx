@@ -45,7 +45,17 @@ const CreateSharedPostModal = dynamic(
 );
 
 const ReportPostModal = dynamic(
-  () => import(/* webpackChunkName: "reportPostModal" */ './ReportPostModal'),
+  () =>
+    import(
+      /* webpackChunkName: "reportPostModal" */ './report/ReportPostModal'
+    ),
+);
+
+const ReportCommentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reportCommentModal" */ './report/ReportCommentModal'
+    ),
 );
 
 export const modals = {
@@ -57,6 +67,7 @@ export const modals = {
   [LazyModal.LegoReferralCampaign]: LegoReferralCampaignModal,
   [LazyModal.CreateSharedPost]: CreateSharedPostModal,
   [LazyModal.ReportPost]: ReportPostModal,
+  [LazyModal.ReportComment]: ReportCommentModal,
 };
 
 type GetComponentProps<T> = T extends
