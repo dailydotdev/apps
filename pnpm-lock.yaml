@@ -22,7 +22,7 @@ importers:
         version: 3.9.4(eslint@7.32.0)
       eslint-plugin-testing-library:
         specifier: ^3.10.2
-        version: 3.10.2(typescript@4.6.4)
+        version: 3.10.2(eslint@7.32.0)(typescript@4.6.4)
     devDependencies:
       '@dailydotdev/eslint-plugin-daily-dev-eslint-rules':
         specifier: '*'
@@ -85,8 +85,8 @@ importers:
         specifier: ^2.3.1
         version: 2.3.1
       content-scripts-register-polyfill:
-        specifier: ^3.2.1
-        version: 3.2.1
+        specifier: ^4.0.2
+        version: 4.0.2
       date-fns:
         specifier: ^2.25.0
         version: 2.28.0
@@ -3431,7 +3431,7 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/experimental-utils@3.10.1(typescript@4.6.4):
+  /@typescript-eslint/experimental-utils@3.10.1(eslint@7.32.0)(typescript@4.6.4):
     resolution: {integrity: sha512-DewqIgscDzmAfd5nOGe4zm6Bl7PKtMG2Ad0KG8CUZAHlXfAKTF9Ol5PXhiMh39yRL2ChRH1cuuUGOcVyyrhQIw==}
     engines: {node: ^10.12.0 || >=12.0.0}
     peerDependencies:
@@ -3440,6 +3440,7 @@ packages:
       '@types/json-schema': 7.0.12
       '@typescript-eslint/types': 3.10.1
       '@typescript-eslint/typescript-estree': 3.10.1(typescript@4.6.4)
+      eslint: 7.32.0
       eslint-scope: 5.1.1
       eslint-utils: 2.1.0
     transitivePeerDependencies:
@@ -4886,12 +4887,12 @@ packages:
     resolution: {integrity: sha512-JsPKdmh8ZkmnHxDk55FZ1TqVLvEQTvoByJZRN9jzI0UjxK/QgAmsphz7PGtqgPieQZ/CQcHWXCR7ATDNhGe+YA==}
     dev: true
 
-  /content-scripts-register-polyfill@3.2.1:
-    resolution: {integrity: sha512-0ICk6qluUyEKFJWeK2BadXZDUBwfFW1j842pNuiTG0dERr4HiGJ1iDy6REFEKWZQX99fph8x16Pktgg8hcV2og==}
+  /content-scripts-register-polyfill@4.0.2:
+    resolution: {integrity: sha512-8hDm+tu3BkxHZP7EUIIIo/495F6QNXF7cI9Lwr4PQaiohw2wWmi9k2SE4W4kNrAaLnFw6RZ2ev8EmrQb+sCoGQ==}
     dependencies:
-      webext-content-scripts: 0.12.0
+      webext-content-scripts: 2.5.4
       webext-patterns: 1.3.0
-      webext-polyfill-kinda: 0.9.0
+      webext-polyfill-kinda: 1.0.2
     dev: false
 
   /convert-source-map@0.3.5:
@@ -6097,13 +6098,14 @@ packages:
       - ts-node
     dev: true
 
-  /eslint-plugin-testing-library@3.10.2(typescript@4.6.4):
+  /eslint-plugin-testing-library@3.10.2(eslint@7.32.0)(typescript@4.6.4):
     resolution: {integrity: sha512-WAmOCt7EbF1XM8XfbCKAEzAPnShkNSwcIsAD2jHdsMUT9mZJPjLCG7pMzbcC8kK366NOuGip8HKLDC+Xk4yIdA==}
     engines: {node: ^10.12.0 || >=12.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^5 || ^6 || ^7
     dependencies:
-      '@typescript-eslint/experimental-utils': 3.10.1(typescript@4.6.4)
+      '@typescript-eslint/experimental-utils': 3.10.1(eslint@7.32.0)(typescript@4.6.4)
+      eslint: 7.32.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -12504,10 +12506,12 @@ packages:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
 
-  /webext-content-scripts@0.12.0:
-    resolution: {integrity: sha512-IWeFx80vhGfFVFYkZJURgMg8oZqtpFhCafXYO0u7fD2Tnd+4xKbgGYCwgvSVFB/NME8i1ZB8jTvk6ofdgYFNig==}
+  /webext-content-scripts@2.5.4:
+    resolution: {integrity: sha512-dvTnvUA1eP2WjOlX4kwxNeTNJCCMbBbIoWCcM5EJOQxZT9RFMaXv14GHRsdV8itKCg8Yh9Ia9HqMJ2x7HPB4rg==}
+    engines: {node: '>=16'}
     dependencies:
-      webext-polyfill-kinda: 0.9.0
+      webext-patterns: 1.3.0
+      webext-polyfill-kinda: 1.0.2
     dev: false
 
   /webext-patterns@1.3.0:
@@ -12516,8 +12520,8 @@ packages:
       escape-string-regexp: 5.0.0
     dev: false
 
-  /webext-polyfill-kinda@0.9.0:
-    resolution: {integrity: sha512-TTtitT7rgdaR2nx0+TZDIYHpZ5TXH9Ak8C2TaBaJT9qNeHXexKzde6uQ6cjdOK2G80C04r8fcx98Iy+PTCNN7Q==}
+  /webext-polyfill-kinda@1.0.2:
+    resolution: {integrity: sha512-rqQUKeBTOicej0tjDJWDQlOTnDcm9yYJTzgI+7rMdyYV4QHmYMRm+yjkcVgECkg/Wu9MboZ4lYeBPdp1Ep9WgQ==}
     dev: false
 
   /webextension-polyfill-ts@0.22.0:
