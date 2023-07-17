@@ -42,28 +42,21 @@ export default function SquadHeaderMenu({
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
 
-  if (!user) {
-    return <></>;
-  }
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { onDeleteSquad } = useDeleteSquad({
     squad,
     callback: () => router.replace('/'),
   });
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   const { mutateAsync: onLeaveSquad } = useMutation(useLeaveSquad({ squad }), {
     onSuccess: () => {
       router.replace('/');
     },
   });
-  const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
-  const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const items = useMemo(() => {
+    const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
+    const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
+
     const list: MenuItemProps[] = [
       {
         icon: <ContextMenuIcon Icon={TourIcon} />,
@@ -113,9 +106,11 @@ export default function SquadHeaderMenu({
     }
 
     return list;
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canEditSquad, canDeleteSquad, squad, user, onDeleteSquad, onLeaveSquad]);
+  }, [editSquad, onDeleteSquad, onLeaveSquad, openModal, squad]);
+
+  if (!user) {
+    return <></>;
+  }
 
   return (
     <PortalMenu
