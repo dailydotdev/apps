@@ -27,7 +27,9 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  // TODO: Ask about this - currentSettings numCards is 1?
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  // const numCards = 2;
   const insaneMode = !forceCardMode && listMode;
   const useList = insaneMode && numCards > 1;
   const listGaps = {
@@ -72,34 +74,24 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
 
+  console.log('currentSettings', currentSettings)
+
   return (
     <div
       className={classNames(
-        'flex flex-col laptopL:mx-auto w-full',
+        'here1 flex flex-col laptopL:mx-auto w-full',
         styles.container,
       )}
-      style={style}
     >
-      {header}
+      <ScrollToTopButton />
 
-      <div
-        className={classNames(
-          'relative mx-auto w-full',
-          styles.feed,
-          !useList && styles.cards,
-        )}
-        style={cardContainerStye}
-      >
-        <ScrollToTopButton />
+      <div className="flex flex-col laptopL:mx-auto w-full Feed_container__nHOSZ px-6 laptop:px-0 pt-14 laptop:pt-10" style={style}>
+        <div className="relative mx-auto w-full Feed_feed__uPgJj Feed_cards__wRg8A">
+          {header}
 
-        <div
-          className={classNames(
-            'grid',
-            gapClass(useList, spaciness),
-            cardClass(useList, numCards),
-          )}
-        >
-          {children}
+          <div className="grid gap-8 grid-cols-2">
+            {children}
+          </div>
         </div>
       </div>
     </div>

@@ -29,8 +29,6 @@ function SquadMemberShortList({
       },
     });
 
-    console.log('members', members);
-
   return (
     <SimpleTooltip placement="top" content="Members list">
       <button
