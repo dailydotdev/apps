@@ -25,7 +25,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import PortalMenu from '../fields/PortalMenu';
+import PortalMenu, { MenuItemProps } from '../fields/PortalMenu';
 import classed from '../../lib/classed';
 import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
@@ -33,7 +33,6 @@ import { RequestKey } from '../../lib/query';
 import FlagIcon from '../icons/Flag';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { OptionMenuItem } from '../../lib/element';
 import { labels } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
 
@@ -163,29 +162,29 @@ export default function CommentActionButtons({
     });
   };
 
-  const commentOptions: OptionMenuItem[] = [];
+  const commentOptions: MenuItemProps[] = [];
 
   if (isAuthor) {
     commentOptions.push({
-      text: 'Edit comment',
+      label: 'Edit comment',
       action: () => onEdit(comment),
-      icon: <EditIcon />,
+      Icon: <EditIcon />,
     });
   }
 
   if (canModifyComment) {
     commentOptions.push({
-      text: 'Delete comment',
+      label: 'Delete comment',
       action: () => onDelete(comment, parentId),
-      icon: <TrashIcon />,
+      Icon: <TrashIcon />,
     });
   }
 
   if (!isAuthor) {
     commentOptions.push({
-      text: 'Report comment',
+      label: 'Report comment',
       action: () => openReportCommentModal(),
-      icon: <FlagIcon />,
+      Icon: <FlagIcon />,
     });
   }
 
@@ -239,10 +238,10 @@ export default function CommentActionButtons({
         className="menu-primary typo-callout"
         animation="fade"
       >
-        {commentOptions.map(({ text, action, icon }) => (
-          <Item key={text} onClick={action}>
+        {commentOptions.map(({ label, action, Icon }) => (
+          <Item key={label} onClick={action}>
             <ContextItem>
-              {icon} {text}
+              {Icon} {label}
             </ContextItem>
           </Item>
         ))}

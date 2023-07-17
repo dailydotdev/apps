@@ -44,13 +44,6 @@ export function ReportCommentModal({
     });
     if (!successful) return;
 
-    trackEvent({
-      event_name: 'report comment',
-      extra: JSON.stringify({
-        commentId: comment.id,
-      }),
-    });
-
     trackEvent(
       postAnalyticsEvent('report comment', post, {
         extra: { commentId: comment.id },

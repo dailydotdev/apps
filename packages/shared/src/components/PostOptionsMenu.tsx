@@ -33,8 +33,8 @@ import EditIcon from './icons/Edit';
 import DownvoteIcon from './icons/Downvote';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
-import { OptionMenuItem } from '../lib/element';
 import { labels } from '../lib';
+import { MenuItemProps } from './fields/PortalMenu';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -205,37 +205,37 @@ export default function PostOptionsMenu({
     );
   };
 
-  const postOptions: OptionMenuItem[] = [
+  const postOptions: MenuItemProps[] = [
     {
-      icon: <MenuIcon Icon={EyeIcon} />,
-      text: 'Hide',
+      Icon: <MenuIcon Icon={EyeIcon} />,
+      label: 'Hide',
       action: onHidePost,
     },
     {
-      icon: (
+      Icon: (
         <MenuIcon
           secondary={post?.bookmarked}
           Icon={BookmarkIcon}
           className={post?.bookmarked && 'text-theme-color-bun'}
         />
       ),
-      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+      label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onBookmark,
     },
     {
-      icon: (
+      Icon: (
         <MenuIcon
           className={classNames(post?.downvoted && 'text-theme-color-ketchup')}
           Icon={DownvoteIcon}
           secondary={post?.downvoted}
         />
       ),
-      text: 'Downvote',
+      label: 'Downvote',
       action: onToggleDownvotePost,
     },
     {
-      icon: <MenuIcon Icon={BlockIcon} />,
-      text: `Don't show posts from ${post?.source?.name}`,
+      Icon: <MenuIcon Icon={BlockIcon} />,
+      label: `Don't show posts from ${post?.source?.name}`,
       action: onBlockSource,
     },
   ];
@@ -243,16 +243,16 @@ export default function PostOptionsMenu({
   post?.tags?.forEach((tag) => {
     if (tag.length) {
       postOptions.push({
-        icon: <MenuIcon Icon={BlockIcon} />,
-        text: `Not interested in #${tag}`,
+        Icon: <MenuIcon Icon={BlockIcon} />,
+        label: `Not interested in #${tag}`,
         action: () => onBlockTag(tag),
       });
     }
   });
 
   postOptions.push({
-    icon: <MenuIcon Icon={FlagIcon} />,
-    text: 'Report',
+    Icon: <MenuIcon Icon={FlagIcon} />,
+    label: 'Report',
     action: async () =>
       openModal({
         type: LazyModal.ReportPost,
@@ -266,29 +266,29 @@ export default function PostOptionsMenu({
   });
   if (user?.id && post?.author?.id === user?.id) {
     postOptions.push({
-      icon: <MenuIcon Icon={EditIcon} />,
-      text: 'Edit post',
+      Icon: <MenuIcon Icon={EditIcon} />,
+      label: 'Edit post',
       action: () => router.push(`${post.commentsPermalink}/edit`),
     });
   }
   if (onConfirmDeletePost) {
     postOptions.push({
-      icon: <MenuIcon Icon={TrashIcon} />,
-      text: 'Delete post',
+      Icon: <MenuIcon Icon={TrashIcon} />,
+      label: 'Delete post',
       action: onConfirmDeletePost,
     });
   }
   if (allowPin && onPinPost) {
     postOptions.unshift({
-      icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
-      text: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
+      Icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
+      label: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
       action: onPinPost,
     });
   }
   if (setShowBanPost) {
     postOptions.push({
-      icon: <MenuIcon Icon={HammerIcon} />,
-      text: 'Ban',
+      Icon: <MenuIcon Icon={HammerIcon} />,
+      label: 'Ban',
       action: setShowBanPost,
     });
   }
@@ -301,10 +301,10 @@ export default function PostOptionsMenu({
         animation="fade"
         onHidden={onHidden}
       >
-        {postOptions.map(({ icon, text, action }) => (
-          <Item key={text} className="typo-callout" onClick={action}>
+        {postOptions.map(({ Icon, label, action }) => (
+          <Item key={label} className="typo-callout" onClick={action}>
             <span className="flex items-center w-full typo-callout">
-              {icon} {text}
+              {Icon} {label}
             </span>
           </Item>
         ))}

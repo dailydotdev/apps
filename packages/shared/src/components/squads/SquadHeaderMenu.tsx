@@ -9,15 +9,14 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
 import { useLeaveSquad } from '../../hooks/useLeaveSquad';
-import ContextMenuItem, {
-  ContextMenuItemProps,
-} from '../tooltips/ContextMenuItem';
+import ContextMenuItem from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
 import SettingsIcon from '../icons/Settings';
 import { squadFeedback } from '../../lib/constants';
 import FeedbackIcon from '../icons/Feedback';
 import TourIcon from '../icons/Tour';
 import { useSquadNavigation } from '../../hooks';
+import { MenuItemProps } from '../fields/PortalMenu';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -59,10 +58,10 @@ export default function SquadHeaderMenu({
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const items = useMemo(() => {
-    const list: ContextMenuItemProps[] = [
+    const list: MenuItemProps[] = [
       {
         Icon: TourIcon,
-        onClick: () =>
+        action: () =>
           openModal({
             type: LazyModal.SquadTour,
           }),
@@ -70,21 +69,21 @@ export default function SquadHeaderMenu({
       },
       {
         Icon: FeedbackIcon,
-        href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
         anchorProps: {
+          href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
           target: '_blank',
         },
         label: 'Feedback',
       },
       canDeleteSquad
-        ? { Icon: TrashIcon, onClick: onDeleteSquad, label: 'Delete Squad' }
-        : { Icon: ExitIcon, onClick: onLeaveSquad, label: 'Leave Squad' },
+        ? { Icon: TrashIcon, action: onDeleteSquad, label: 'Delete Squad' }
+        : { Icon: ExitIcon, action: onLeaveSquad, label: 'Leave Squad' },
     ];
 
     if (canEditSquad) {
       list.unshift({
         Icon: SettingsIcon,
-        onClick: () => editSquad({ handle: squad.handle }),
+        action: () => editSquad({ handle: squad.handle }),
         label: 'Squad settings',
       });
     }

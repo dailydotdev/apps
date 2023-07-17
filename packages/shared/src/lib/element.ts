@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { ReactElement } from 'react';
 
 export enum KeyboardCommand {
   Enter = 'Enter',
@@ -63,9 +62,3 @@ export const isCompanionActivated = (): boolean =>
   !!document
     .querySelector('daily-companion-app')
     ?.shadowRoot?.querySelector?.('#daily-companion-wrapper')?.firstChild;
-
-export interface OptionMenuItem {
-  icon: ReactElement;
-  text: string;
-  action: () => unknown;
-}
