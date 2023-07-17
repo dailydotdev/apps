@@ -47,7 +47,7 @@ describe('useJoinReferral hook', () => {
     expect(document.cookie).toBe(
       `join_referral=${encodeURIComponent(
         '1:squad',
-      )}; max-age=31536000; samesite=lax; secure`,
+      )}; max-age=31536000; path=/; samesite=lax; secure`,
     );
   });
 
@@ -115,11 +115,7 @@ describe('useJoinReferral hook', () => {
     });
 
     await waitFor(() =>
-      expect(document.cookie).toBe(
-        `join_referral=${encodeURIComponent(
-          '1:squad',
-        )}; max-age=0; samesite=lax; secure`,
-      ),
+      expect(document.cookie).toBe(`join_referral=expired; max-age=0; path=/`),
     );
   });
 

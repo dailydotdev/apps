@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import request from 'graphql-request';
 import { useRouter } from 'next/router';
-import { setCookie } from '../lib/cookie';
+import { expireCookie, setCookie } from '../lib/cookie';
 import { isDevelopment } from '../lib/constants';
 import { GET_REFERRING_USER_QUERY } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
@@ -24,20 +24,12 @@ export const useJoinReferral = (): void => {
 
     if (campaign && referringUserId) {
       setCookie('join_referral', `${referringUserId}:${campaign}`, {
+        path: '/',
         maxAge: ONE_YEAR,
         secure: !isDevelopment,
         domain: process.env.NEXT_PUBLIC_DOMAIN,
         sameSite: 'lax',
       });
-
-      const removeCookie = () => {
-        setCookie('join_referral', `${referringUserId}:${campaign}`, {
-          maxAge: 0,
-          secure: !isDevelopment,
-          domain: process.env.NEXT_PUBLIC_DOMAIN,
-          sameSite: 'lax',
-        });
-      };
 
       const checkReferringUser = async () => {
         try {
@@ -49,7 +41,10 @@ export const useJoinReferral = (): void => {
             (error as ApiErrorResult).response?.errors?.[0]?.message ===
             'user not found'
           ) {
-            removeCookie();
+            expireCookie('join_referral', {
+              path: '/',
+              domain: process.env.NEXT_PUBLIC_DOMAIN,
+            });
           }
         }
       };
