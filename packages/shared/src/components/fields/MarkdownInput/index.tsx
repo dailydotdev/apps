@@ -8,6 +8,7 @@ import React, {
   TextareaHTMLAttributes,
   useImperativeHandle,
   useRef,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import { ImageIcon, MarkdownIcon } from '../../icons';
@@ -59,6 +60,11 @@ interface MarkdownInputProps
   isLoading?: boolean;
 }
 
+enum CommentTab {
+  Write = 'Write',
+  Preview = 'Preview',
+}
+
 export interface MarkdownRef
   extends Pick<UseMarkdownInput, 'onMentionCommand'> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
@@ -91,6 +97,7 @@ function MarkdownInput(
   const { sidebarRendered } = useSidebarRendered();
   const textareaRef = useRef<HTMLTextAreaElement>();
   const uploadRef = useRef<HTMLInputElement>();
+  const [active, setActive] = useState(CommentTab.Write);
   const {
     input,
     query,
@@ -157,19 +164,21 @@ function MarkdownInput(
         condition={allowPreview}
         wrapper={(children) => (
           <TabContainer
-            shouldMountInactive={false}
+            shouldMountInactive
+            onActiveChange={(tab: CommentTab) => setActive(tab)}
             className={{
               header: 'px-1',
               container: classNames('min-h-[20.5rem]', className?.tab),
             }}
             tabListProps={{ className: { indicator: '!w-6' } }}
           >
-            <Tab label="Write">{children}</Tab>
-            <Tab label="Preview" className="p-4">
+            <Tab label={CommentTab.Write}>{children}</Tab>
+            <Tab label={CommentTab.Preview} className="p-4">
               <MarkdownPreview
                 input={input}
                 sourceId={sourceId}
                 parentSelector={parentSelector}
+                enabled={allowPreview && CommentTab.Preview === active}
               />
             </Tab>
           </TabContainer>
