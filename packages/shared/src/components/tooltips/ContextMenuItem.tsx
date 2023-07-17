@@ -4,10 +4,21 @@ import Link from 'next/link';
 import React, { ReactElement } from 'react';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { MenuItemProps } from '../fields/PortalMenu';
+import { IconSize } from '../Icon';
 
 export interface ContextMenuItemProps
   extends MenuItemProps,
     Omit<ItemProps, 'children'> {}
+
+interface ContextMenuIconProps {
+  Icon: React.ComponentType<{ className; size }>;
+}
+
+export const ContextMenuIcon = ({
+  Icon,
+}: ContextMenuIconProps): ReactElement => (
+  <Icon size={IconSize.Small} className="mr-2" />
+);
 
 function ContextMenuItem({
   label,

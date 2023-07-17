@@ -9,7 +9,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
 import { useLeaveSquad } from '../../hooks/useLeaveSquad';
-import ContextMenuItem from '../tooltips/ContextMenuItem';
+import ContextMenuItem, { ContextMenuIcon } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
 import SettingsIcon from '../icons/Settings';
 import { squadFeedback } from '../../lib/constants';
@@ -17,7 +17,6 @@ import FeedbackIcon from '../icons/Feedback';
 import TourIcon from '../icons/Tour';
 import { useSquadNavigation } from '../../hooks';
 import { MenuItemProps } from '../fields/PortalMenu';
-import { IconSize } from '../Icon';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -61,7 +60,7 @@ export default function SquadHeaderMenu({
   const items = useMemo(() => {
     const list: MenuItemProps[] = [
       {
-        icon: <TourIcon size={IconSize.Small} className="mr-2" />,
+        icon: <ContextMenuIcon Icon={TourIcon} />,
         action: () =>
           openModal({
             type: LazyModal.SquadTour,
@@ -69,7 +68,7 @@ export default function SquadHeaderMenu({
         label: 'Learn how Squads work',
       },
       {
-        icon: <FeedbackIcon size={IconSize.Small} className="mr-2" />,
+        icon: <ContextMenuIcon Icon={FeedbackIcon} />,
         anchorProps: {
           href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
           target: '_blank',
@@ -78,12 +77,12 @@ export default function SquadHeaderMenu({
       },
       canDeleteSquad
         ? {
-            icon: <TrashIcon size={IconSize.Small} className="mr-2" />,
+            icon: <ContextMenuIcon Icon={TrashIcon} />,
             action: onDeleteSquad,
             label: 'Delete Squad',
           }
         : {
-            icon: <ExitIcon size={IconSize.Small} className="mr-2" />,
+            icon: <ContextMenuIcon Icon={ExitIcon} />,
             action: onLeaveSquad,
             label: 'Leave Squad',
           },
@@ -91,7 +90,7 @@ export default function SquadHeaderMenu({
 
     if (canEditSquad) {
       list.unshift({
-        icon: <SettingsIcon size={IconSize.Small} className="mr-2" />,
+        icon: <ContextMenuIcon Icon={SettingsIcon} />,
         action: () => editSquad({ handle: squad.handle }),
         label: 'Squad settings',
       });
