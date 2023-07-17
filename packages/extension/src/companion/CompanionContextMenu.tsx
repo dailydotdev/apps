@@ -20,8 +20,8 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import DownvoteIcon from '@dailydotdev/shared/src/components/icons/Downvote';
 import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
-import { getCompanionWrapper } from './common';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { getCompanionWrapper } from './common';
 
 interface CompanionContextMenuProps
   extends Omit<ShareBookmarkProps, 'onBookmark'> {
