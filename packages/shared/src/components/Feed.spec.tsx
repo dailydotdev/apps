@@ -163,7 +163,7 @@ const renderComponent = (
     toggleSidebarExpanded: jest.fn(),
   };
   return render(
-    <FeaturesContextProvider flags={}>
+    <FeaturesContextProvider flags={{}}>
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider
           value={{
