@@ -58,8 +58,7 @@ export function SquadHeaderBar({
       )}
     >
       <div className="relative">
-        {(squad.public ||
-          verifyPermission(squad, SourcePermissions.Invite)) && (
+        {verifyPermission(squad, SourcePermissions.Invite) && (
           <Button
             className={classNames(
               'btn-secondary',
