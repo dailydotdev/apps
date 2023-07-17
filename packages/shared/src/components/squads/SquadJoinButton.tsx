@@ -11,11 +11,15 @@ import { labels } from '../../lib';
 type SquadJoinProps = {
   className?: string;
   squad: Squad;
+  joinText?: string;
+  leaveText?: string;
 };
 
 export const SquadJoinButton = ({
   className,
   squad,
+  joinText = 'Join squad',
+  leaveText = 'Leave squad',
 }: SquadJoinProps): ReactElement => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
@@ -65,7 +69,7 @@ export const SquadJoinButton = ({
         }
       }}
     >
-      {isCurrentMember ? 'Leave squad' : 'Join squad'}
+      {isCurrentMember ? leaveText : joinText}
     </Button>
   );
 };
