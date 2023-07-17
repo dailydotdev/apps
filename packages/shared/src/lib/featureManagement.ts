@@ -1,143 +1,12 @@
 import { IFlags } from 'flagsmith';
-import { OnboardingStep } from '../components/onboarding/common';
-import {
-  OnboardingFiltersLayout as OnboardingFiltersLayoutEnum,
-  InAppNotificationPosition as InAppNotificationPositionEnum,
-  OnboardingV2,
-  OnboardingFilteringTitle,
-} from './featureValues';
+import { OnboardingV2 } from './featureValues';
 
 export type FeatureValue = string | number | boolean;
 
 export class Features<T extends FeatureValue = string> {
-  static readonly SignupButtonCopy = new Features(
-    'signup_button_copy',
-    'Access all features',
-  );
-
   static readonly FeedVersion = new Features('feed_version', '1');
 
-  static readonly LoginModalButtonCopyPrefix = new Features(
-    'login_modal_button_copy_prefix',
-    'Connect with',
-  );
-
-  static readonly LoginModalDescriptionCopy = new Features(
-    'login_modal_description_copy',
-    'Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.',
-  );
-
-  static readonly MyFeedButtonCopy = new Features(
-    'my_feed_button_copy',
-    'Choose tags',
-  );
-
-  static readonly SubmitArticleOn = new Features('submit_article_on');
-
   static readonly SubmitArticle = new Features('submit_article');
-
-  static readonly SubmitArticleSidebarButton = new Features(
-    'submit_article_sidebar_button',
-    'Submit link',
-  );
-
-  static readonly SubmitArticleModalButton = new Features(
-    'submit_article_modal_button',
-    'Submit link',
-  );
-
-  static readonly MyFeedButtonColor = new Features(
-    'my_feed_button_theme_color',
-    'cabbage',
-  );
-
-  static readonly MyFeedExplainerCopy = new Features(
-    'my_feed_explainer_copy',
-    'Get the content you need by creating a personal feed',
-  );
-
-  static readonly MyFeedExplainerColor = new Features(
-    'my_feed_explainer_theme_color',
-    'cabbage',
-  );
-
-  static readonly SignupTitleCopy = new Features(
-    'signup_title_copy',
-    'Set up your profile',
-  );
-
-  static readonly HideSignupProfileImage = new Features(
-    'hide_signup_profile_image',
-  );
-
-  static readonly SignupSubmitButtonCopy = new Features(
-    'signup_submit_button_copy',
-    'Finish',
-  );
-
-  static readonly SignupLogoutButtonCopy = new Features(
-    'signup_logout_button_copy',
-    'Logout',
-  );
-
-  static readonly PopularFeedCopy = new Features(
-    'popular_feed_copy',
-    'Popular',
-  );
-
-  static readonly PostCardHeadingFont = new Features(
-    'post_card_heading_font',
-    'title3Bold',
-    ['bodyBold', 'body', 'title3', 'title3Bold'],
-  );
-
-  static readonly CompanionPermissionPlacement = new Features(
-    'companion_permission_placement',
-    'header',
-    ['off', 'header', 'sidebar'],
-  );
-
-  static readonly CompanionPermissionTitle = new Features(
-    'companion_permission_title',
-    'Try the new companion feature!',
-  );
-
-  static readonly CompanionPermissionDescription = new Features(
-    'companion_permission_description',
-    "We'll ask for extra permissions so we can show the companion directly on the original content!",
-  );
-
-  static readonly CompanionPermissionLink = new Features(
-    'companion_permission_link',
-    'Overview Video',
-  );
-
-  static readonly CompanionPermissionButton = new Features(
-    'companion_permission_button',
-    'Activate companion',
-  );
-
-  static readonly OnboardingMinimumTopics = new Features<number>(
-    'onboarding_minimum_topics',
-    0,
-  );
-
-  static readonly OnboardingSteps = new Features(
-    'onboarding_steps',
-    `${OnboardingStep.Topics}/${OnboardingStep.Layout}/${OnboardingStep.Theme}`,
-  );
-
-  static readonly OnboardingFiltersLayout = new Features(
-    'onboarding_filters_layout',
-    OnboardingFiltersLayoutEnum.Grid,
-    [OnboardingFiltersLayoutEnum.Grid, OnboardingFiltersLayoutEnum.List],
-  );
-
-  static readonly InAppNotificationPosition = new Features(
-    'in_app_notification_position',
-    InAppNotificationPositionEnum.Bottom,
-    [InAppNotificationPositionEnum.Bottom, InAppNotificationPositionEnum.Top],
-  );
 
   static readonly OnboardingV2 = new Features(
     'onboarding_v2',
@@ -145,27 +14,9 @@ export class Features<T extends FeatureValue = string> {
     [OnboardingV2.Control, OnboardingV2.V1],
   );
 
-  static readonly OnboardingFilteringTitle = new Features(
-    'onboarding_filtering_title',
-    OnboardingFilteringTitle.Control,
-    [
-      OnboardingFilteringTitle.Control,
-      OnboardingFilteringTitle.V1,
-      OnboardingFilteringTitle.V2,
-      OnboardingFilteringTitle.V3,
-      OnboardingFilteringTitle.V4,
-    ],
-  );
-
-  static readonly ShowCommentPopover = new Features('show_comment_popover');
-
   static readonly HasSquadAccess = new Features('squad');
 
   static readonly ShowHiring = new Features('show_hiring');
-
-  static readonly LegoReferralCampaignMay2023 = new Features(
-    'lego_referral_campaign_0523',
-  );
 
   private constructor(
     public readonly id: string,

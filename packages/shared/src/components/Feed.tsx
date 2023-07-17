@@ -33,20 +33,15 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import { useFeaturesContext } from '../contexts/FeaturesContext';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
 import { useSharePost } from '../hooks/useSharePost';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
-import useSidebarRendered from '../hooks/useSidebarRendered';
-import AlertContext from '../contexts/AlertContext';
-import OnboardingContext from '../contexts/OnboardingContext';
-import { MainFeedPage } from './utilities';
+import { ExperimentWinner } from '../lib/featureValues';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -78,12 +73,6 @@ const ArticlePostModal = dynamic(
 const SharePostModal = dynamic(
   () =>
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
-);
-const ScrollFeedFiltersOnboarding = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "scrollFeedFiltersOnboarding" */ './ScrollFeedFiltersOnboarding'
-    ),
 );
 
 const listGaps = {
@@ -151,14 +140,10 @@ export default function Feed<T>({
   options,
   allowPin,
 }: FeedProps<T>): ReactElement {
-  const { alerts } = useContext(AlertContext);
-  const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const { sidebarRendered } = useSidebarRendered();
   const { subject } = useToastNotification();
-  const { showCommentPopover, onboardingV2 } = useFeaturesContext();
   const {
     openNewTab,
     spaciness,
@@ -167,21 +152,14 @@ export default function Feed<T>({
   } = useContext(SettingsContext);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const {
-    items,
-    updatePost,
-    removePost,
-    fetchPage,
-    canFetchMore,
-    emptyFeed,
-    isLoading,
-  } = useFeed(
-    feedQueryKey,
-    currentSettings.pageSize,
-    currentSettings.adSpot,
-    numCards,
-    { query, variables, options },
-  );
+  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
+    useFeed(
+      feedQueryKey,
+      currentSettings.pageSize,
+      currentSettings.adSpot,
+      numCards,
+      { query, variables, options },
+    );
 
   const { ranking } = (variables as RankVariables) || {};
   const {
@@ -202,26 +180,10 @@ export default function Feed<T>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emptyFeed]);
 
-  const showScrollOnboardingVersion =
-    sidebarRendered &&
-    feedName === MainFeedPage.Popular &&
-    !isLoading &&
-    alerts?.filter &&
-    !user?.id &&
-    onboardingV2 === OnboardingV2.Control;
-
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
-    canFetchMore: canFetchMore && !showScrollOnboardingVersion,
+    canFetchMore,
   });
-
-  const onInitializeOnboardingClick = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ClickScrollBlock,
-      target_id: ExperimentWinner.ScrollOnboardingVersion,
-    });
-    onInitializeOnboarding(undefined, true);
-  };
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -245,7 +207,6 @@ export default function Feed<T>({
   const { onUpvote } = useFeedVotePost(
     items,
     updatePost,
-    showCommentPopover && setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
     ranking,
@@ -480,11 +441,6 @@ export default function Feed<T>({
             />
           ))}
         </div>
-        {showScrollOnboardingVersion && (
-          <ScrollFeedFiltersOnboarding
-            onInitializeOnboarding={onInitializeOnboardingClick}
-          />
-        )}
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         <PostOptionsMenu
           {...commonMenuItems}

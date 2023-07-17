@@ -1,15 +1,11 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
-import { IFlags } from 'flagsmith';
 import PlusIcon from './icons/Plus';
 import { Button, ButtonSize } from './buttons/Button';
-import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
-import { getThemeColor } from './utilities';
 
 interface CreateMyFeedButtonProps {
-  flags: IFlags;
   action: () => unknown;
 }
 
@@ -24,20 +20,16 @@ const getAnalyticsEvent = (
 });
 
 export default function CreateMyFeedButton({
-  flags,
   action,
 }: CreateMyFeedButtonProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const buttonCopy = getFeatureValue(Features.MyFeedButtonCopy, flags);
-  const buttonColor = getThemeColor(
-    getFeatureValue(Features.MyFeedButtonColor, flags),
-    Features.MyFeedButtonColor.defaultValue,
-  );
-  const explainerCopy = getFeatureValue(Features.MyFeedExplainerCopy, flags);
-  const explainerColor = getThemeColor(
-    getFeatureValue(Features.MyFeedExplainerColor, flags),
-    Features.MyFeedExplainerColor.defaultValue,
-  );
+  const buttonCopy = 'Choose tags';
+  const cabbageColors = {
+    border: 'border-theme-color-cabbage',
+    shadow: 'shadow-2-cabbage',
+    button: 'btn-primary-cabbage',
+  };
+  const explainerCopy = 'Get the content you need by creating a personal feed';
   const onClick = () => {
     trackEvent(getAnalyticsEvent('click', buttonCopy));
     action();
@@ -54,8 +46,8 @@ export default function CreateMyFeedButton({
       <div
         className={classNames(
           'p-2 border flex-col tablet:flex-row flex items-center rounded-12',
-          explainerColor.border,
-          explainerColor.shadow,
+          cabbageColors.border,
+          cabbageColors.shadow,
         )}
       >
         <p className="ml-2 text-center tablet:text-left transition-all typo-footnote">
@@ -64,7 +56,7 @@ export default function CreateMyFeedButton({
         <Button
           className={classNames(
             'ml-0 mt-4 tablet:ml-8 tablet:mt-0',
-            buttonColor.button,
+            cabbageColors.button,
           )}
           buttonSize={ButtonSize.Small}
           icon={<PlusIcon />}

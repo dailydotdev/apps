@@ -21,8 +21,6 @@ import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
-import LegoReferralBadge from '../LegoReferralBadge';
-import { ReferralCampaignKey } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -123,13 +121,6 @@ function MainLayoutHeader({
           )}
           {!hideButton && user && (
             <>
-              {sidebarRendered && (
-                <LegoReferralBadge
-                  className="mr-3"
-                  campaignKey={ReferralCampaignKey.LegoMay2023}
-                  autoOpenModal
-                />
-              )}
               <LinkWithTooltip
                 tooltip={{ placement: 'bottom', content: 'Notifications' }}
                 href={`${webappUrl}notifications`}

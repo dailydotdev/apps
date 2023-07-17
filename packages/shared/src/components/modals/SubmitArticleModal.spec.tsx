@@ -55,7 +55,6 @@ const renderComponent = (
         <NotificationsContextProvider>
           <SubmitArticleModal
             headerCopy="Submit link"
-            submitArticleModalButton="Submit link"
             isOpen
             onRequestClose={onRequestClose}
           />

@@ -20,15 +20,10 @@ const NewSourceModal = dynamic(
     import(/* webpackChunkName: "newSourceModal" */ '../modals/NewSourceModal'),
 );
 
-type SubmitFlags = Pick<
-  FeaturesData,
-  'canSubmitArticle' | 'submitArticleSidebarButton' | 'submitArticleModalButton'
->;
+type SubmitFlags = Pick<FeaturesData, 'canSubmitArticle'>;
 
 export function ContributeSection({
   canSubmitArticle,
-  submitArticleSidebarButton,
-  submitArticleModalButton,
   ...props
 }: SectionCommonProps & SubmitFlags): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -38,7 +33,7 @@ export function ContributeSection({
   const trackAndShowSubmitArticle = () => {
     trackEvent({
       event_name: 'start submit article',
-      feed_item_title: submitArticleSidebarButton,
+      feed_item_title: 'Submit article',
       extra: JSON.stringify({ has_access: canSubmitArticle }),
     });
     setShowSubmitArticle(true);
@@ -49,7 +44,7 @@ export function ContributeSection({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <LinkIcon secondary={active} />} />
       ),
-      title: submitArticleSidebarButton,
+      title: 'Submit article',
       action: trackAndShowSubmitArticle,
       active: showSubmitArticle,
     },
@@ -73,8 +68,7 @@ export function ContributeSection({
       />
       {showSubmitArticle && (
         <SubmitArticleModal
-          headerCopy={submitArticleSidebarButton}
-          submitArticleModalButton={submitArticleModalButton}
+          headerCopy="Submit article"
           isOpen={showSubmitArticle}
           onRequestClose={() => setShowSubmitArticle(false)}
         />

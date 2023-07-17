@@ -11,10 +11,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
-import {
-  OnboardingFilteringTitle,
-  OnboardingV2,
-} from '@dailydotdev/shared/src/lib/featureValues';
+import { OnboardingV2 } from '@dailydotdev/shared/src/lib/featureValues';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -29,14 +26,6 @@ import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
-
-const versionToTitle: Record<OnboardingFilteringTitle, string> = {
-  [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
-  [OnboardingFilteringTitle.V1]: 'What topic best describes you?',
-  [OnboardingFilteringTitle.V2]: 'Which topics resonate with you the most?',
-  [OnboardingFilteringTitle.V3]: `Pick the topics you'd love to dive into`,
-  [OnboardingFilteringTitle.V4]: 'Choose the topics you’re passionate about',
-};
 
 const Title = classed('h2', 'font-bold typo-title2');
 
@@ -70,12 +59,7 @@ export function OnboardPage(): ReactElement {
   });
   const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
-  const {
-    onboardingFilteringTitle,
-    onboardingMinimumTopics,
-    onboardingV2,
-    isFeaturesLoaded,
-  } = useFeaturesContext();
+  const { onboardingV2, isFeaturesLoaded } = useFeaturesContext();
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
 
@@ -93,7 +77,6 @@ export function OnboardPage(): ReactElement {
   };
 
   const formRef = useRef<HTMLFormElement>();
-  const title = versionToTitle[onboardingFilteringTitle];
   const percentage = isAuthenticating ? 100 : 50;
   const content = isAuthenticating
     ? 'Once you sign up, your personal feed\nwill be ready to explore.'
@@ -122,18 +105,11 @@ export function OnboardPage(): ReactElement {
       extra: JSON.stringify({
         origin: OnboardingMode.Wall,
         steps: [OnboardingStep.Topics],
-        mandating_categories: onboardingMinimumTopics,
+        mandating_categories: 0,
       }),
     });
     isTracked.current = true;
-  }, [
-    trackEvent,
-    isPageReady,
-    onboardingV2,
-    onboardingMinimumTopics,
-    router,
-    user,
-  ]);
+  }, [trackEvent, isPageReady, onboardingV2, router, user]);
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
@@ -167,7 +143,9 @@ export function OnboardPage(): ReactElement {
           wrapper={() => <Title>Sign up to daily.dev</Title>}
         >
           {isFiltering ? (
-            <Title className="font-bold typo-title2">{title}</Title>
+            <Title className="font-bold typo-title2">
+              Choose topics to follow
+            </Title>
           ) : (
             <IntroductionOnboardingTitle />
           )}

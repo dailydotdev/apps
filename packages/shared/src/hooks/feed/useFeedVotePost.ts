@@ -1,4 +1,3 @@
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { useContext, useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import {
@@ -57,7 +56,6 @@ const mutationKeyToHandlerMap = {
 export default function useFeedVotePost(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
-  setShowCommentPopupId: (postId: string) => void,
   columns: number,
   feedName: string,
   ranking?: string,
@@ -154,11 +152,6 @@ export default function useFeedVotePost(
           }),
         );
         await upvotePost({ id: post.id, index });
-        if (setShowCommentPopupId) {
-          requestIdleCallback(() => {
-            setShowCommentPopupId(post.id);
-          });
-        }
       } else {
         trackEvent(
           postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
