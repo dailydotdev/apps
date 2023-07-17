@@ -39,6 +39,7 @@ export function SquadPageHeader({
   const shouldShowHighlightPulse =
     tourIndex === TourScreenIndex.Post ||
     (isChecklistVisible && openStep === ActionType.SquadFirstPost);
+  const isSquadMember = !!squad.currentMember;
 
   return (
     <FlexCol
@@ -122,6 +123,11 @@ export function SquadPageHeader({
               allowedToPost && 'max-w-[30.25rem]',
             )}
             disabled={!allowedToPost}
+            disabledText={
+              isSquadMember
+                ? 'Only admins and moderators can post'
+                : 'Join the squad to create new posts'
+            }
             squad={squad}
           />
         </ConditionalWrapper>

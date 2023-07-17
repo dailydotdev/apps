@@ -18,12 +18,14 @@ import { ExternalLinkPreview } from '../../graphql/posts';
 export interface SharePostBarProps {
   className?: string;
   disabled?: boolean;
+  disabledText?: string;
   squad: Squad;
 }
 
 function SharePostBar({
   className,
   disabled = false,
+  disabledText = 'Only admins and moderators can post',
   squad,
 }: SharePostBarProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
@@ -73,11 +75,7 @@ function SharePostBar({
         )}
       >
         <LockIcon size={IconSize.Small} />
-        <p className="typo-callout">
-          {squad.public
-            ? 'Join the squad to create new posts'
-            : 'Only admins and moderators can post'}
-        </p>
+        <p className="typo-callout">{disabledText}</p>
       </Card>
     );
   }
