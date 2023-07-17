@@ -107,7 +107,7 @@
     "postcss": "^8.4.12",
     "postcss-custom-media": "^8.0.0",
     "postcss-focus-visible": "^6.0.4",
-    "postcss-import": "^14.1.0",
+    "postcss-import": "^15.1.0",
     "postcss-loader": "^6.2.1",
     "postcss-mixins": "^9.0.2",
     "postcss-nesting": "^10.1.4",

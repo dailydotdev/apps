@@ -22,7 +22,7 @@ importers:
         version: 3.9.4(eslint@7.32.0)
       eslint-plugin-testing-library:
         specifier: ^3.10.2
-        version: 3.10.2(typescript@4.6.4)
+        version: 3.10.2(eslint@7.32.0)(typescript@4.6.4)
     devDependencies:
       '@dailydotdev/eslint-plugin-daily-dev-eslint-rules':
         specifier: '*'
@@ -335,8 +335,8 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(postcss@8.4.12)
       postcss-import:
-        specifier: ^14.1.0
-        version: 14.1.0(postcss@8.4.12)
+        specifier: ^15.1.0
+        version: 15.1.0(postcss@8.4.12)
       postcss-loader:
         specifier: ^6.2.1
         version: 6.2.1(postcss@8.4.12)(webpack@5.72.0)
@@ -608,8 +608,8 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(postcss@8.4.12)
       postcss-import:
-        specifier: ^14.1.0
-        version: 14.1.0(postcss@8.4.12)
+        specifier: ^15.1.0
+        version: 15.1.0(postcss@8.4.12)
       postcss-mixins:
         specifier: ^9.0.2
         version: 9.0.2(postcss@8.4.12)
@@ -897,8 +897,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       postcss-import:
-        specifier: ^14.1.0
-        version: 14.1.0(postcss@8.4.12)
+        specifier: ^15.1.0
+        version: 15.1.0(postcss@8.4.12)
       postcss-mixins:
         specifier: ^9.0.2
         version: 9.0.2(postcss@8.4.12)
@@ -3431,7 +3431,7 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/experimental-utils@3.10.1(typescript@4.6.4):
+  /@typescript-eslint/experimental-utils@3.10.1(eslint@7.32.0)(typescript@4.6.4):
     resolution: {integrity: sha512-DewqIgscDzmAfd5nOGe4zm6Bl7PKtMG2Ad0KG8CUZAHlXfAKTF9Ol5PXhiMh39yRL2ChRH1cuuUGOcVyyrhQIw==}
     engines: {node: ^10.12.0 || >=12.0.0}
     peerDependencies:
@@ -3440,6 +3440,7 @@ packages:
       '@types/json-schema': 7.0.12
       '@typescript-eslint/types': 3.10.1
       '@typescript-eslint/typescript-estree': 3.10.1(typescript@4.6.4)
+      eslint: 7.32.0
       eslint-scope: 5.1.1
       eslint-utils: 2.1.0
     transitivePeerDependencies:
@@ -6097,13 +6098,14 @@ packages:
       - ts-node
     dev: true
 
-  /eslint-plugin-testing-library@3.10.2(typescript@4.6.4):
+  /eslint-plugin-testing-library@3.10.2(eslint@7.32.0)(typescript@4.6.4):
     resolution: {integrity: sha512-WAmOCt7EbF1XM8XfbCKAEzAPnShkNSwcIsAD2jHdsMUT9mZJPjLCG7pMzbcC8kK366NOuGip8HKLDC+Xk4yIdA==}
     engines: {node: ^10.12.0 || >=12.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^5 || ^6 || ^7
     dependencies:
-      '@typescript-eslint/experimental-utils': 3.10.1(typescript@4.6.4)
+      '@typescript-eslint/experimental-utils': 3.10.1(eslint@7.32.0)(typescript@4.6.4)
+      eslint: 7.32.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9740,9 +9742,9 @@ packages:
       postcss-syntax: 0.36.2(postcss@8.4.12)
     dev: true
 
-  /postcss-import@14.1.0(postcss@8.4.12):
-    resolution: {integrity: sha512-flwI+Vgm4SElObFVPpTIT7SU7R3qk2L7PyduMcokiaVKuWv9d/U+Gm/QAd8NDLuykTWTkcrjOeD2Pp1rMeBTGw==}
-    engines: {node: '>=10.0.0'}
+  /postcss-import@15.1.0(postcss@8.4.12):
+    resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
+    engines: {node: '>=14.0.0'}
     peerDependencies:
       postcss: ^8.0.0
     dependencies:
