@@ -7,6 +7,7 @@ import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../../lib/feed';
 import { Post } from '../../../graphql/posts';
 import { PostBootData } from '../../../lib/boot';
+import { AnalyticsEvent } from '../../../lib/analytics';
 
 interface Props extends ModalProps {
   onReport: (comment: Comment) => void;
@@ -45,7 +46,7 @@ export function ReportCommentModal({
     if (!successful) return;
 
     trackEvent(
-      postAnalyticsEvent('report comment', post, {
+      postAnalyticsEvent(AnalyticsEvent.ReportComment, post, {
         extra: { commentId: comment.id },
       }),
     );

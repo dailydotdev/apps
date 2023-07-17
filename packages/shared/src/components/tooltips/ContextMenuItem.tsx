@@ -3,19 +3,16 @@ import classNames from 'classnames';
 import Link from 'next/link';
 import React, { ReactElement } from 'react';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { IconProps, IconSize } from '../Icon';
 import { MenuItemProps } from '../fields/PortalMenu';
 
 export interface ContextMenuItemProps
   extends MenuItemProps,
-    Omit<ItemProps, 'children'> {
-  Icon: React.ComponentType<IconProps>;
-}
+    Omit<ItemProps, 'children'> {}
 
 function ContextMenuItem({
   label,
   onClick,
-  Icon,
+  icon,
   className,
   anchorProps,
   ...props
@@ -35,7 +32,7 @@ function ContextMenuItem({
         onClick={onClick}
       >
         <span className="flex items-center w-full">
-          <Icon size={IconSize.Small} className="mr-2" />
+          {icon}
           {label}
         </span>
       </Item>

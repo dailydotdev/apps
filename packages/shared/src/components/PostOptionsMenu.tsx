@@ -207,12 +207,12 @@ export default function PostOptionsMenu({
 
   const postOptions: MenuItemProps[] = [
     {
-      Icon: <MenuIcon Icon={EyeIcon} />,
+      icon: <MenuIcon Icon={EyeIcon} />,
       label: 'Hide',
       action: onHidePost,
     },
     {
-      Icon: (
+      icon: (
         <MenuIcon
           secondary={post?.bookmarked}
           Icon={BookmarkIcon}
@@ -223,7 +223,7 @@ export default function PostOptionsMenu({
       action: onBookmark,
     },
     {
-      Icon: (
+      icon: (
         <MenuIcon
           className={classNames(post?.downvoted && 'text-theme-color-ketchup')}
           Icon={DownvoteIcon}
@@ -234,7 +234,7 @@ export default function PostOptionsMenu({
       action: onToggleDownvotePost,
     },
     {
-      Icon: <MenuIcon Icon={BlockIcon} />,
+      icon: <MenuIcon Icon={BlockIcon} />,
       label: `Don't show posts from ${post?.source?.name}`,
       action: onBlockSource,
     },
@@ -243,7 +243,7 @@ export default function PostOptionsMenu({
   post?.tags?.forEach((tag) => {
     if (tag.length) {
       postOptions.push({
-        Icon: <MenuIcon Icon={BlockIcon} />,
+        icon: <MenuIcon Icon={BlockIcon} />,
         label: `Not interested in #${tag}`,
         action: () => onBlockTag(tag),
       });
@@ -251,7 +251,7 @@ export default function PostOptionsMenu({
   });
 
   postOptions.push({
-    Icon: <MenuIcon Icon={FlagIcon} />,
+    icon: <MenuIcon Icon={FlagIcon} />,
     label: 'Report',
     action: async () =>
       openModal({
@@ -266,28 +266,28 @@ export default function PostOptionsMenu({
   });
   if (user?.id && post?.author?.id === user?.id) {
     postOptions.push({
-      Icon: <MenuIcon Icon={EditIcon} />,
+      icon: <MenuIcon Icon={EditIcon} />,
       label: 'Edit post',
       action: () => router.push(`${post.commentsPermalink}/edit`),
     });
   }
   if (onConfirmDeletePost) {
     postOptions.push({
-      Icon: <MenuIcon Icon={TrashIcon} />,
+      icon: <MenuIcon Icon={TrashIcon} />,
       label: 'Delete post',
       action: onConfirmDeletePost,
     });
   }
   if (allowPin && onPinPost) {
     postOptions.unshift({
-      Icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
+      icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
       label: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
       action: onPinPost,
     });
   }
   if (setShowBanPost) {
     postOptions.push({
-      Icon: <MenuIcon Icon={HammerIcon} />,
+      icon: <MenuIcon Icon={HammerIcon} />,
       label: 'Ban',
       action: setShowBanPost,
     });
@@ -301,10 +301,10 @@ export default function PostOptionsMenu({
         animation="fade"
         onHidden={onHidden}
       >
-        {postOptions.map(({ Icon, label, action }) => (
+        {postOptions.map(({ icon, label, action }) => (
           <Item key={label} className="typo-callout" onClick={action}>
             <span className="flex items-center w-full typo-callout">
-              {Icon} {label}
+              {icon} {label}
             </span>
           </Item>
         ))}

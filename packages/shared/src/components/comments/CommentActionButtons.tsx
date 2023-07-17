@@ -168,7 +168,7 @@ export default function CommentActionButtons({
     commentOptions.push({
       label: 'Edit comment',
       action: () => onEdit(comment),
-      Icon: <EditIcon />,
+      icon: <EditIcon />,
     });
   }
 
@@ -176,15 +176,15 @@ export default function CommentActionButtons({
     commentOptions.push({
       label: 'Delete comment',
       action: () => onDelete(comment, parentId),
-      Icon: <TrashIcon />,
+      icon: <TrashIcon />,
     });
   }
 
   if (!isAuthor) {
     commentOptions.push({
       label: 'Report comment',
-      action: () => openReportCommentModal(),
-      Icon: <FlagIcon />,
+      action: openReportCommentModal,
+      icon: <FlagIcon />,
     });
   }
 
@@ -238,10 +238,10 @@ export default function CommentActionButtons({
         className="menu-primary typo-callout"
         animation="fade"
       >
-        {commentOptions.map(({ label, action, Icon }) => (
+        {commentOptions.map(({ label, action, icon }) => (
           <Item key={label} onClick={action}>
             <ContextItem>
-              {Icon} {label}
+              {icon} {label}
             </ContextItem>
           </Item>
         ))}

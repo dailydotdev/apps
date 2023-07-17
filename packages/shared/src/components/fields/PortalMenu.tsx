@@ -2,7 +2,6 @@ import React, { AnchorHTMLAttributes, ReactElement } from 'react';
 import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
 import Portal from '../tooltips/Portal';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { IconProps } from '../Icon';
 
 export default function PortalMenu(props: MenuProps): ReactElement {
   return (
@@ -17,7 +16,7 @@ export interface MenuItemProps<
   TArgs extends Array<unknown> = Array<unknown>,
   TAnchorProps = AnchorHTMLAttributes<HTMLAnchorElement>,
 > {
-  Icon: ReactElement | React.ComponentType<IconProps>;
+  icon: ReactElement;
   label: string;
   action?: (...args: TArgs) => TReturn;
   anchorProps?: TAnchorProps;
@@ -37,14 +36,14 @@ export const ContextMenu = ({
     animation="fade"
     {...props}
   >
-    {options.map(({ label, Icon, action, anchorProps }) => (
+    {options.map(({ label, icon, action, anchorProps }) => (
       <Item key={label} className="typo-callout" onClick={action}>
         <ConditionalWrapper
           condition={!!anchorProps}
           wrapper={(children) => <a {...anchorProps}>{children}</a>}
         >
           <span className="flex gap-2 items-center w-full typo-callout">
-            {Icon} {label}
+            {icon} {label}
           </span>
         </ConditionalWrapper>
       </Item>

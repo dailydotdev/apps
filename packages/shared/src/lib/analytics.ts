@@ -77,6 +77,7 @@ export enum AnalyticsEvent {
   BookmarkPost = 'bookmark post',
   RemovePostBookmark = 'remove post bookmark',
   // bookmark - end
+  ReportComment = 'report comment',
 }
 
 export enum TargetType {

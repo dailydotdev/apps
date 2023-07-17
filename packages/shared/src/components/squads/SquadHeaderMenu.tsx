@@ -17,6 +17,7 @@ import FeedbackIcon from '../icons/Feedback';
 import TourIcon from '../icons/Tour';
 import { useSquadNavigation } from '../../hooks';
 import { MenuItemProps } from '../fields/PortalMenu';
+import { IconSize } from '../Icon';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -60,7 +61,7 @@ export default function SquadHeaderMenu({
   const items = useMemo(() => {
     const list: MenuItemProps[] = [
       {
-        Icon: TourIcon,
+        icon: <TourIcon size={IconSize.Small} className="mr-2" />,
         action: () =>
           openModal({
             type: LazyModal.SquadTour,
@@ -68,7 +69,7 @@ export default function SquadHeaderMenu({
         label: 'Learn how Squads work',
       },
       {
-        Icon: FeedbackIcon,
+        icon: <FeedbackIcon size={IconSize.Small} className="mr-2" />,
         anchorProps: {
           href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
           target: '_blank',
@@ -76,13 +77,21 @@ export default function SquadHeaderMenu({
         label: 'Feedback',
       },
       canDeleteSquad
-        ? { Icon: TrashIcon, action: onDeleteSquad, label: 'Delete Squad' }
-        : { Icon: ExitIcon, action: onLeaveSquad, label: 'Leave Squad' },
+        ? {
+            icon: <TrashIcon size={IconSize.Small} className="mr-2" />,
+            action: onDeleteSquad,
+            label: 'Delete Squad',
+          }
+        : {
+            icon: <ExitIcon size={IconSize.Small} className="mr-2" />,
+            action: onLeaveSquad,
+            label: 'Leave Squad',
+          },
     ];
 
     if (canEditSquad) {
       list.unshift({
-        Icon: SettingsIcon,
+        icon: <SettingsIcon size={IconSize.Small} className="mr-2" />,
         action: () => editSquad({ handle: squad.handle }),
         label: 'Squad settings',
       });
