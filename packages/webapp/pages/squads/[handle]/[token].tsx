@@ -40,6 +40,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
+import { labels } from '@dailydotdev/shared/src/lib';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
@@ -139,11 +140,9 @@ const SquadReferral = ({
         const errorMessage = error?.response?.errors?.[0]?.message;
 
         if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
-          displayToast(
-            '🚫 The invitation is no longer valid, please check with the person who shared this invite (or the Squad admin) for further information.',
-          );
+          displayToast(labels.squads.invalidInvitation);
         } else {
-          displayToast('🚫 Something went wrong, please try again.');
+          displayToast(labels.error.generic);
         }
       },
     },
@@ -151,7 +150,7 @@ const SquadReferral = ({
 
   const onJoinClick = async () => {
     if (member.source?.currentMember?.role === SourceMemberRole.Blocked) {
-      displayToast('🚫 You no longer have access to this Squad.');
+      displayToast(labels.squads.forbidden);
       return null;
     }
 

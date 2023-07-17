@@ -32,6 +32,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { labels } from '@dailydotdev/shared/src/lib';
 import SquadPage, {
   SquadReferralProps,
 } from '../pages/squads/[handle]/[token]';
@@ -277,6 +278,6 @@ describe('invalid token', () => {
     await waitForNock();
     const [desktop] = await screen.findAllByText('Join Squad');
     desktop.click();
-    await screen.findByText('🚫 You no longer have access to this Squad.');
+    await screen.findByText(labels.squads.forbidden);
   });
 });

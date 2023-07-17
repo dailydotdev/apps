@@ -6,6 +6,7 @@ import { Button } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useLeaveSquad, useJoinSquad } from '../../hooks';
+import { labels } from '../../lib';
 
 type SquadJoinProps = {
   className?: string;
@@ -28,7 +29,7 @@ export const SquadJoinButton = ({
     useJoinSquad({ squad }),
     {
       onError: () => {
-        displayToast('🚫 Something went wrong, please try again.');
+        displayToast(labels.error.generic);
       },
     },
   );
@@ -42,7 +43,7 @@ export const SquadJoinButton = ({
         queryClient.invalidateQueries(['squad', squad.handle]);
       },
       onError: () => {
-        displayToast('🚫 Something went wrong, please try again.');
+        displayToast(labels.error.generic);
       },
     },
   );
