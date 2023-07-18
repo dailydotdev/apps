@@ -319,6 +319,7 @@ describe('squad header bar', () => {
 
   it('should show join squad button for open squad', async () => {
     requestedSquad.public = true;
+    requestedSquad.currentMember = undefined;
     renderComponent(undefined, undefined, undefined, []);
 
     expect(await screen.findByText('Join squad')).toBeInTheDocument();
