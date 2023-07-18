@@ -42,6 +42,7 @@ export const useJoinSquad = ({
 
     addSquad(result);
     queryClient.invalidateQueries(['squad', squad.handle]);
+    queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
 
     return result;
   }, [addSquad, queryClient, squad, trackEvent, referralToken]);

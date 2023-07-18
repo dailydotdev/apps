@@ -42,6 +42,7 @@ export const SquadJoinButton = ({
         displayToast('👋 You have left the squad.');
 
         queryClient.invalidateQueries(['squad', squad.handle]);
+        queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
       },
       onError: () => {
         displayToast(labels.error.generic);
