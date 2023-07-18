@@ -1,8 +1,7 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useMutation } from 'react-query';
-import AuthContext from '../../contexts/AuthContext';
 import ExitIcon from '../icons/Exit';
 import {
   Squad,
@@ -38,7 +37,6 @@ export default function SquadHeaderMenu({
   squad,
 }: SquadHeaderMenuProps): ReactElement {
   const router = useRouter();
-  const { user } = useContext(AuthContext);
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
 
@@ -66,15 +64,18 @@ export default function SquadHeaderMenu({
           }),
         label: 'Learn how Squads work',
       },
-      {
+    ];
+
+    if (squad.currentMember) {
+      list.push({
         icon: <ContextMenuIcon Icon={FeedbackIcon} />,
         anchorProps: {
           href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
           target: '_blank',
         },
         label: 'Feedback',
-      },
-    ];
+      });
+    }
 
     if (canDeleteSquad) {
       list.push({
@@ -107,10 +108,6 @@ export default function SquadHeaderMenu({
 
     return list;
   }, [editSquad, onDeleteSquad, onLeaveSquad, openModal, squad]);
-
-  if (!user) {
-    return <></>;
-  }
 
   return (
     <PortalMenu

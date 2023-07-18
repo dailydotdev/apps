@@ -19,7 +19,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import { getSquadMembers } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from 'react-query';
@@ -33,7 +33,9 @@ import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql
 import { useJoinReferral, useSquad } from '@dailydotdev/shared/src/hooks';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
-import ProtectedPage from '../../../components/ProtectedPage';
+import ProtectedPage, {
+  ProtectedPageProps,
+} from '../../../components/ProtectedPage';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -60,6 +62,25 @@ const SquadChecklistCard = dynamic(
 );
 
 type SourcePageProps = { handle: string };
+
+const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
+  const { squad, seo, children, ...restProtectedPageProps } = props;
+
+  if (squad.public) {
+    return (
+      <>
+        {seo}
+        {children}
+      </>
+    );
+  }
+
+  return (
+    <ProtectedPage {...restProtectedPageProps} seo={seo}>
+      {children}
+    </ProtectedPage>
+  );
+};
 
 const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   useJoinReferral();
@@ -128,7 +149,12 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
   );
 
   return (
-    <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
+    <PageComponent
+      squad={squad}
+      seo={seo}
+      fallback={<></>}
+      shouldFallback={!user}
+    >
       {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
       <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
         <div
@@ -159,7 +185,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           allowPin
         />
       </BaseFeedPage>
-    </ProtectedPage>
+    </PageComponent>
   );
 };
 

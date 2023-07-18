@@ -23,7 +23,7 @@ export const SquadJoinButton = ({
 }: SquadJoinProps): ReactElement => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
-  const { squads } = useAuthContext();
+  const { squads, user, showLogin } = useAuthContext();
   const isCurrentMember = useMemo(
     () => squads?.some(({ id }) => id === squad.id) || false,
     [squad, squads],
@@ -62,6 +62,17 @@ export const SquadJoinButton = ({
       )}
       disabled={isLoading}
       onClick={() => {
+        if (!user) {
+          const onJoinSquad = () => joinSquad();
+
+          showLogin('join squad', {
+            onLoginSuccess: onJoinSquad,
+            onRegistrationSuccess: onJoinSquad,
+          });
+
+          return;
+        }
+
         if (isCurrentMember) {
           leaveSquad();
         } else {
