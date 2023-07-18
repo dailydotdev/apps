@@ -196,7 +196,7 @@ export function OnboardPage(): ReactElement {
             <img
               alt="Sample illustration of selecting topics"
               src={onboardingIntroduction}
-              className="absolute tablet:relative top-20 tablet:top-0 scale-125 tablet:scale-150"
+              className="absolute tablet:relative top-12 tablet:top-0 tablet:scale-125"
             />
           )}
           <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">

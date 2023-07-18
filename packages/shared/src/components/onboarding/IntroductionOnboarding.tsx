@@ -28,7 +28,7 @@ function IntroductionOnboarding({
   onClose,
 }: OnboardingStepProps): ReactElement {
   const { user, showLogin } = useAuthContext();
-  const { onboardingIntroduction, isLight } = useThemedAsset();
+  const { onboardingIntroduction } = useThemedAsset();
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Intro}>
@@ -47,10 +47,7 @@ function IntroductionOnboarding({
               style={{
                 backgroundImage: `url(${onboardingIntroduction})`,
               }}
-              className={classNames(
-                'absolute w-full bg-cover',
-                isLight ? 'scale-75 -top-16 h-full' : 'h-full -top-4',
-              )}
+              className="absolute -top-20 w-full h-full bg-cover"
             />
             {!user && (
               <MemberAlready
