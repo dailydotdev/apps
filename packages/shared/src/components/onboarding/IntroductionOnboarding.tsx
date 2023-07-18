@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
