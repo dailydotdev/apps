@@ -161,7 +161,11 @@ export default function MainLayout({
     router.push(`${webappUrl}/onboarding`);
   }, [shouldRedirectOnboarding, router]);
 
-  if ((!isPageReady && isPageApplicableForOnboarding) || shouldRedirectOnboarding) return null;
+  if (
+    (!isPageReady && isPageApplicableForOnboarding) ||
+    shouldRedirectOnboarding
+  )
+    return null;
 
   return (
     <div {...handlers}>
