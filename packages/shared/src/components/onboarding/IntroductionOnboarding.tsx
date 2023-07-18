@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
@@ -27,7 +28,7 @@ function IntroductionOnboarding({
   onClose,
 }: OnboardingStepProps): ReactElement {
   const { user, showLogin } = useAuthContext();
-  const { onboardingIntroduction } = useThemedAsset();
+  const { onboardingIntroduction, isLight } = useThemedAsset();
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Intro}>
@@ -46,7 +47,10 @@ function IntroductionOnboarding({
               style={{
                 backgroundImage: `url(${onboardingIntroduction})`,
               }}
-              className="absolute -top-4 w-full h-full bg-cover"
+              className={classNames(
+                'absolute w-full bg-cover',
+                isLight ? 'scale-75 -top-16 h-full' : 'h-full -top-4',
+              )}
             />
             {!user && (
               <MemberAlready
