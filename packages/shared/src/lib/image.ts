@@ -10,9 +10,9 @@ export const cloudinary = {
     recommended:
       'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/recommended.png',
     yourFeed: {
-      dark: 'https://daily-now-res.cloudinary.com/image/upload/v1667998924/public/your_feed.png',
+      dark: 'https://daily-now-res.cloudinary.com/image/upload/s--_0r3L1f9--/v1689662930/Your_feed_dark_ord3s0.png',
       light:
-        'https://daily-now-res.cloudinary.com/image/upload/s--EKBQgD4i--/f_auto/v1687253413/your_feed-wv_jnrggw',
+        'https://daily-now-res.cloudinary.com/image/upload/s--n6DmR1cJ--/v1689662930/Your_feed_light_iyrsva.png',
     },
     topicsV2:
       'https://daily-now-res.cloudinary.com/image/upload/v1670321759/public/feed_filters_v2.svg',
