@@ -210,9 +210,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   const validateUserId = (value: string) => !!value && value !== '404';
 
   const { userid: userId, cid } = query;
-  const campaign = Object.values(ReferralCampaignKey).find(
-    (item) => item === cid,
-  ) as ReferralCampaignKey;
+  const campaign = null;
 
   if (!validateUserId(userId as string) || !campaign) {
     return {

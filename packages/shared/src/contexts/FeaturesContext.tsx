@@ -5,7 +5,7 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../lib/featureManagement';
-import { OnboardingV2 } from '../lib/featureValues';
+import { OnboardingFilteringTitle, OnboardingV2 } from '../lib/featureValues';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
 import { isPreviewDeployment } from '../lib/links';
 
@@ -14,6 +14,7 @@ interface Experiments {
   hasSquadAccess?: boolean;
   showHiring?: boolean;
   onboardingV2?: OnboardingV2;
+  onboardingFilteringTitle?: OnboardingFilteringTitle;
 }
 
 export interface FeaturesData extends Experiments {
@@ -34,6 +35,10 @@ const getFeatures = (flags: IFlags): FeaturesData => {
   return {
     flags,
     canSubmitArticle: isFeaturedEnabled(Features.SubmitArticle, flags),
+    onboardingFilteringTitle: getFeatureValue(
+      Features.OnboardingFilteringTitle,
+      flags,
+    ),
     onboardingV2: getFeatureValue(Features.OnboardingV2, flags),
     hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
     showHiring: isFeaturedEnabled(Features.ShowHiring, flags),

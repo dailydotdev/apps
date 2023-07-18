@@ -162,7 +162,7 @@ function OnboardingModal({
     return (
       <>
         <IntroductionOnboarding onClose={onClose} />
-        <FilterOnboardingStep key={OnboardingStep.Topics} />
+        <FilterOnboardingStep />
       </>
     );
   })();

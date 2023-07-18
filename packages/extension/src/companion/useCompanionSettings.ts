@@ -9,8 +9,11 @@ export const useCompanionSettings = (origin: string): void => {
   const { contentScriptGranted, requestContentScripts } =
     useExtensionPermission({ origin });
 
+  const shouldNotToggleCompanion =
+    optOutCompanion || contentScriptGranted || !loadedSettings;
+
   useEffect(() => {
-    if (optOutCompanion || contentScriptGranted || !loadedSettings) {
+    if (shouldNotToggleCompanion) {
       return;
     }
 
@@ -24,7 +27,5 @@ export const useCompanionSettings = (origin: string): void => {
         toggleOptOutCompanion();
       }
     });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [optOutCompanion, loadedSettings]);
+  }, [shouldNotToggleCompanion, requestContentScripts, toggleOptOutCompanion]);
 };

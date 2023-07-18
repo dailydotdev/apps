@@ -24,9 +24,7 @@ export type UseReferralCampaign = Pick<
   isReady: boolean;
 };
 
-export enum ReferralCampaignKey {
-  null,
-}
+export enum ReferralCampaignKey {}
 
 export type UseReferralCampaignProps = {
   campaignKey: ReferralCampaignKey;
@@ -35,9 +33,7 @@ export type UseReferralCampaignProps = {
 export const campaignToReferralTargetCountMap: Record<
   ReferralCampaignKey,
   number
-> = {
-  [ReferralCampaignKey.null]: 0,
-};
+> = {};
 
 const campaignFeatureFlagMap: Partial<
   Record<ReferralCampaignKey, Features<string>>
