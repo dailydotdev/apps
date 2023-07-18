@@ -22,7 +22,7 @@ export const ContextMenuIcon = ({
 
 function ContextMenuItem({
   label,
-  onClick,
+  action,
   icon,
   className,
   anchorProps,
@@ -40,7 +40,7 @@ function ContextMenuItem({
       <Item
         {...props}
         className={classNames('typo-callout', className)}
-        onClick={onClick}
+        onClick={action}
       >
         <span className="flex items-center w-full">
           {icon}
