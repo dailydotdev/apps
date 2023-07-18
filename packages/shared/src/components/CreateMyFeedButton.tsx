@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import classNames from 'classnames';
 import PlusIcon from './icons/Plus';
 import { Button, ButtonSize } from './buttons/Button';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -24,11 +23,6 @@ export default function CreateMyFeedButton({
 }: CreateMyFeedButtonProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const buttonCopy = 'Choose tags';
-  const cabbageColors = {
-    border: 'border-theme-color-cabbage',
-    shadow: 'shadow-2-cabbage',
-    button: 'btn-primary-cabbage',
-  };
   const explainerCopy = 'Get the content you need by creating a personal feed';
   const onClick = () => {
     trackEvent(getAnalyticsEvent('click', buttonCopy));
@@ -43,21 +37,12 @@ export default function CreateMyFeedButton({
 
   return (
     <div className="flex flex-col items-center mb-4 w-full">
-      <div
-        className={classNames(
-          'p-2 border flex-col tablet:flex-row flex items-center rounded-12',
-          cabbageColors.border,
-          cabbageColors.shadow,
-        )}
-      >
+      <div className="flex flex-col tablet:flex-row items-center p-2 rounded-12 border shadow-2-cabbage border-theme-color-cabbage">
         <p className="ml-2 text-center tablet:text-left transition-all typo-footnote">
           {explainerCopy}
         </p>
         <Button
-          className={classNames(
-            'ml-0 mt-4 tablet:ml-8 tablet:mt-0',
-            cabbageColors.button,
-          )}
+          className="mt-4 tablet:mt-0 ml-0 tablet:ml-8 btn-primary-cabbage"
           buttonSize={ButtonSize.Small}
           icon={<PlusIcon />}
           onClick={onClick}
