@@ -33,7 +33,7 @@ export interface NotificationsContextData
   onTogglePermission: (
     source: NotificationPromptSource,
   ) => Promise<NotificationPermission>;
-  trackPermissionGranted: () => void;
+  trackPermissionGranted: (source: NotificationPromptSource) => void;
 }
 
 const NotificationsContext =
@@ -69,7 +69,14 @@ export const NotificationsContextProvider = ({
     ALERT_PUSH_KEY,
     true,
   );
-  const subscriptionCallbackRef = useRef<(isSubscribed: boolean) => unknown>();
+  const subscriptionCallbackRef =
+    useRef<
+      (
+        isSubscribed: boolean,
+        source?: NotificationPromptSource,
+        existing_permission?: boolean,
+      ) => unknown
+    >();
   const notificationSourceRef = useRef<string>();
 
   const getRegistrationId = async (isGranted: boolean) => {
@@ -146,13 +153,18 @@ export const NotificationsContextProvider = ({
   };
 
   useEffect(() => {
-    subscriptionCallbackRef.current = (isSubscribedNew) => {
+    subscriptionCallbackRef.current = (
+      isSubscribedNew,
+      source,
+      existing_permission,
+    ) => {
       if (isSubscribedNew) {
         trackEvent({
           event_name: AnalyticsEvent.ClickEnableNotification,
           extra: JSON.stringify({
-            origin: notificationSourceRef.current,
+            origin: source || notificationSourceRef.current,
             permission: 'granted',
+            ...(existing_permission && { existing_permission }),
           }),
         });
       }
@@ -232,7 +244,8 @@ export const NotificationsContextProvider = ({
       get isNotificationSupported() {
         return !!globalThis.window?.Notification;
       },
-      trackPermissionGranted: () => subscriptionCallbackRef.current?.(true),
+      trackPermissionGranted: (source) =>
+        subscriptionCallbackRef.current?.(true, source, true),
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
