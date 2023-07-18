@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from 'react-query';
 import { Squad } from '../../graphql/sources';
@@ -23,11 +23,8 @@ export const SquadJoinButton = ({
 }: SquadJoinProps): ReactElement => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
-  const { squads, user, showLogin } = useAuthContext();
-  const isCurrentMember = useMemo(
-    () => squads?.some(({ id }) => id === squad.id) || false,
-    [squad, squads],
-  );
+  const { user, showLogin } = useAuthContext();
+  const isCurrentMember = !!squad.currentMember;
 
   const { mutateAsync: joinSquad, isLoading: isJoiningSquad } = useMutation(
     useJoinSquad({ squad }),
