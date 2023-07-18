@@ -4,13 +4,32 @@ import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import nock from 'nock';
 import { waitFor } from '@testing-library/preact';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { useJoinReferral } from './useJoinReferral';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { GET_REFERRING_USER_QUERY } from '../graphql/users';
-import user from '../../__tests__/fixture/loggedUser';
+import defaultUser from '../../__tests__/fixture/loggedUser';
 
 describe('useJoinReferral hook', () => {
+  const createWrapper = ({ user = null, client = new QueryClient() }) => {
+    const Wrapper = ({ children }) => (
+      <QueryClientProvider client={client}>
+        <AuthContextProvider
+          user={user}
+          getRedirectUri={jest.fn()}
+          updateUser={jest.fn()}
+          tokenRefreshed={false}
+          firstLoad={false}
+        >
+          {children}
+        </AuthContextProvider>
+      </QueryClientProvider>
+    );
+
+    return Wrapper;
+  };
+
   beforeEach(() => {
     Object.defineProperty(document, 'cookie', {
       writable: true,
@@ -32,16 +51,7 @@ describe('useJoinReferral hook', () => {
     );
 
     renderHook(() => useJoinReferral(), {
-      wrapper: ({ children }) => (
-        <AuthContextProvider
-          user={null}
-          getRedirectUri={jest.fn()}
-          updateUser={jest.fn()}
-          tokenRefreshed={false}
-        >
-          {children}
-        </AuthContextProvider>
-      ),
+      wrapper: createWrapper({}),
     });
 
     expect(document.cookie).toBe(
@@ -60,16 +70,7 @@ describe('useJoinReferral hook', () => {
     );
 
     renderHook(() => useJoinReferral(), {
-      wrapper: ({ children }) => (
-        <AuthContextProvider
-          user={null}
-          getRedirectUri={jest.fn()}
-          updateUser={jest.fn()}
-          tokenRefreshed={false}
-        >
-          {children}
-        </AuthContextProvider>
-      ),
+      wrapper: createWrapper({}),
     });
 
     expect(document.cookie).toBe('');
@@ -102,16 +103,7 @@ describe('useJoinReferral hook', () => {
     });
 
     renderHook(() => useJoinReferral(), {
-      wrapper: ({ children }) => (
-        <AuthContextProvider
-          user={null}
-          getRedirectUri={jest.fn()}
-          updateUser={jest.fn()}
-          tokenRefreshed={false}
-        >
-          {children}
-        </AuthContextProvider>
-      ),
+      wrapper: createWrapper({}),
     });
 
     await waitFor(() =>
@@ -131,19 +123,12 @@ describe('useJoinReferral hook', () => {
     );
 
     renderHook(() => useJoinReferral(), {
-      wrapper: ({ children }) => (
-        <AuthContextProvider
-          user={{
-            ...user,
-            id: '1',
-          }}
-          getRedirectUri={jest.fn()}
-          updateUser={jest.fn()}
-          tokenRefreshed={false}
-        >
-          {children}
-        </AuthContextProvider>
-      ),
+      wrapper: createWrapper({
+        user: {
+          ...defaultUser,
+          id: '1',
+        },
+      }),
     });
 
     expect(document.cookie).toBe('');
