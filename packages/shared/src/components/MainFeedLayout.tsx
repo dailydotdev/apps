@@ -172,7 +172,7 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  const { flags, popularFeedCopy } = useContext(FeaturesContext);
+  const { flags } = useContext(FeaturesContext);
   const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
@@ -228,7 +228,7 @@ export default function MainFeedLayout({
         onUpdateAlerts={() => updateAlerts({ myFeed: null })}
       />
     ),
-    [MainFeedPage.Popular]: <FeedHeading children={popularFeedCopy} />,
+    [MainFeedPage.Popular]: <FeedHeading children="Popular" />,
     [MainFeedPage.Upvoted]: <FeedHeading children="Most upvoted" />,
     [MainFeedPage.Discussed]: <FeedHeading children="Best discussions" />,
   };
@@ -240,7 +240,6 @@ export default function MainFeedLayout({
           action={() =>
             onInitializeOnboarding(() => onFeedPageChanged(MainFeedPage.MyFeed))
           }
-          flags={flags}
         />
       )}
       <div

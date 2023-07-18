@@ -70,7 +70,6 @@ let client: QueryClient;
 
 const defaultAlerts: Alerts = { filter: false };
 const defaultFlags: IFlags = {};
-const myFeedOnEnabledFlag = { my_feed_on: { enabled: true, value: 'true' } };
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAllTagCategoriesMock()],
@@ -280,7 +279,7 @@ it('should utilize query cache to follow a tag when not logged in', async () => 
   renderComponent(
     [createAllTagCategoriesMock(null)],
     defaultAlerts,
-    myFeedOnEnabledFlag,
+    defaultFlags,
   );
   await waitForNock();
   const category = await screen.findByText('Frontend');
@@ -307,11 +306,7 @@ it('should utilize query cache to follow a tag when not logged in', async () => 
 it('should utilize query cache to unfollow a tag when not logged in', async () => {
   loggedUser = null;
   const unfollow = 'react';
-  renderComponent(
-    [createAllTagCategoriesMock()],
-    defaultAlerts,
-    myFeedOnEnabledFlag,
-  );
+  renderComponent([createAllTagCategoriesMock()], defaultAlerts, defaultFlags);
   await waitForNock();
   const category = await screen.findByText('Frontend');
   // eslint-disable-next-line testing-library/no-node-access

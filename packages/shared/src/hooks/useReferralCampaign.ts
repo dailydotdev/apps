@@ -5,7 +5,6 @@ import { REFERRAL_CAMPAIGN_QUERY } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { RequestKey, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { ReferralOriginKey } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { getFeatureValue, Features } from '../lib/featureManagement';
 
@@ -25,9 +24,7 @@ export type UseReferralCampaign = Pick<
   isReady: boolean;
 };
 
-export enum ReferralCampaignKey {
-  LegoMay2023 = ReferralOriginKey.LegoMay2023,
-}
+export enum ReferralCampaignKey {}
 
 export type UseReferralCampaignProps = {
   campaignKey: ReferralCampaignKey;
@@ -36,15 +33,11 @@ export type UseReferralCampaignProps = {
 export const campaignToReferralTargetCountMap: Record<
   ReferralCampaignKey,
   number
-> = {
-  [ReferralCampaignKey.LegoMay2023]: 5,
-};
+> = {};
 
 const campaignFeatureFlagMap: Partial<
   Record<ReferralCampaignKey, Features<string>>
-> = {
-  [ReferralCampaignKey.LegoMay2023]: Features.LegoReferralCampaignMay2023,
-};
+> = {};
 
 const useReferralCampaign = ({
   campaignKey,
