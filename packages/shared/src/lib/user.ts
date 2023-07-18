@@ -150,5 +150,4 @@ export async function getProfile(id: string): Promise<PublicProfile> {
 
 export enum ReferralOriginKey {
   Squad = 'squad',
-  LegoMay2023 = 'lego-0523',
 }

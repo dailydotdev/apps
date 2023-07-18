@@ -31,7 +31,6 @@ export enum LazyModal {
   UpvotedPopup = 'upvotedPopup',
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
-  LegoReferralCampaign = 'legoReferralCampaign',
   CreateSharedPost = 'createSharedPost',
   ReportPost = 'reportPost',
 }

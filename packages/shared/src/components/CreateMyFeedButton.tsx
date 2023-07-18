@@ -1,15 +1,10 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import classNames from 'classnames';
-import { IFlags } from 'flagsmith';
 import PlusIcon from './icons/Plus';
 import { Button, ButtonSize } from './buttons/Button';
-import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
-import { getThemeColor } from './utilities';
 
 interface CreateMyFeedButtonProps {
-  flags: IFlags;
   action: () => unknown;
 }
 
@@ -24,20 +19,11 @@ const getAnalyticsEvent = (
 });
 
 export default function CreateMyFeedButton({
-  flags,
   action,
 }: CreateMyFeedButtonProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const buttonCopy = getFeatureValue(Features.MyFeedButtonCopy, flags);
-  const buttonColor = getThemeColor(
-    getFeatureValue(Features.MyFeedButtonColor, flags),
-    Features.MyFeedButtonColor.defaultValue,
-  );
-  const explainerCopy = getFeatureValue(Features.MyFeedExplainerCopy, flags);
-  const explainerColor = getThemeColor(
-    getFeatureValue(Features.MyFeedExplainerColor, flags),
-    Features.MyFeedExplainerColor.defaultValue,
-  );
+  const buttonCopy = 'Choose tags';
+  const explainerCopy = 'Get the content you need by creating a personal feed';
   const onClick = () => {
     trackEvent(getAnalyticsEvent('click', buttonCopy));
     action();
@@ -51,21 +37,12 @@ export default function CreateMyFeedButton({
 
   return (
     <div className="flex flex-col items-center mb-4 w-full">
-      <div
-        className={classNames(
-          'p-2 border flex-col tablet:flex-row flex items-center rounded-12',
-          explainerColor.border,
-          explainerColor.shadow,
-        )}
-      >
+      <div className="flex flex-col tablet:flex-row items-center p-2 rounded-12 border shadow-2-cabbage border-theme-color-cabbage">
         <p className="ml-2 text-center tablet:text-left transition-all typo-footnote">
           {explainerCopy}
         </p>
         <Button
-          className={classNames(
-            'ml-0 mt-4 tablet:ml-8 tablet:mt-0',
-            buttonColor.button,
-          )}
+          className="mt-4 tablet:mt-0 ml-0 tablet:ml-8 btn-primary-cabbage"
           buttonSize={ButtonSize.Small}
           icon={<PlusIcon />}
           onClick={onClick}
