@@ -8,6 +8,7 @@ import { graphqlUrl } from '../lib/config';
 import { ApiErrorResult } from '../graphql/common';
 import { useAuthContext } from '../contexts/AuthContext';
 import { disabledRefetch } from '../lib/func';
+import { oneYear } from '../lib/dateFormat';
 
 export const useJoinReferral = (): void => {
   const { user, refetchBoot, isAuthReady } = useAuthContext();
@@ -18,14 +19,13 @@ export const useJoinReferral = (): void => {
   useQuery(
     ['join_referral', { cid, userid }],
     async () => {
-      const ONE_YEAR = 1 * 365 * 24 * 60 * 60;
       const campaign = cid as string;
       const referringUserId = userid as string;
 
       if (campaign && referringUserId) {
         setCookie('join_referral', `${referringUserId}:${campaign}`, {
           path: '/',
-          maxAge: ONE_YEAR,
+          maxAge: oneYear,
           secure: !isDevelopment,
           domain: process.env.NEXT_PUBLIC_DOMAIN,
           sameSite: 'lax',
