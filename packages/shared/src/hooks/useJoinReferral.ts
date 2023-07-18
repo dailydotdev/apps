@@ -16,45 +16,43 @@ export const useJoinReferral = (): void => {
   const { cid, userid } = router.query;
   const shouldSetReferralCookie = isAuthReady && !user;
 
-  useQuery(
-    ['join_referral', { cid, userid }],
-    async () => {
-      const campaign = cid as string;
-      const referringUserId = userid as string;
+  const loadReferralCookie = async () => {
+    const campaign = cid as string;
+    const referringUserId = userid as string;
 
-      if (campaign && referringUserId) {
-        setCookie('join_referral', `${referringUserId}:${campaign}`, {
-          path: '/',
-          maxAge: oneYear,
-          secure: !isDevelopment,
-          domain: process.env.NEXT_PUBLIC_DOMAIN,
-          sameSite: 'lax',
+    if (campaign && referringUserId) {
+      setCookie('join_referral', `${referringUserId}:${campaign}`, {
+        path: '/',
+        maxAge: oneYear,
+        secure: !isDevelopment,
+        domain: process.env.NEXT_PUBLIC_DOMAIN,
+        sameSite: 'lax',
+      });
+
+      try {
+        await request<boolean>(graphqlUrl, GET_REFERRING_USER_QUERY, {
+          id: referringUserId,
         });
 
-        try {
-          await request<boolean>(graphqlUrl, GET_REFERRING_USER_QUERY, {
-            id: referringUserId,
+        refetchBoot();
+      } catch (error) {
+        if (
+          (error as ApiErrorResult).response?.errors?.[0]?.message ===
+          'user not found'
+        ) {
+          expireCookie('join_referral', {
+            path: '/',
+            domain: process.env.NEXT_PUBLIC_DOMAIN,
           });
-
-          refetchBoot();
-        } catch (error) {
-          if (
-            (error as ApiErrorResult).response?.errors?.[0]?.message ===
-            'user not found'
-          ) {
-            expireCookie('join_referral', {
-              path: '/',
-              domain: process.env.NEXT_PUBLIC_DOMAIN,
-            });
-          }
         }
       }
-    },
-    {
-      ...disabledRefetch,
-      enabled: shouldSetReferralCookie,
-      cacheTime: Infinity,
-      staleTime: Infinity,
-    },
-  );
+    }
+  };
+
+  useQuery(['join_referral', { cid, userid }], loadReferralCookie, {
+    ...disabledRefetch,
+    enabled: shouldSetReferralCookie,
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
 };
