@@ -209,7 +209,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 }) => {
   const validateUserId = (value: string) => !!value && value !== '404';
 
-  const { userid: userId, cid } = query;
+  const { userid: userId } = query;
   const campaign = null;
 
   if (!validateUserId(userId as string) || !campaign) {
