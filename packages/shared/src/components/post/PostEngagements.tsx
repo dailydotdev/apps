@@ -11,7 +11,7 @@ import { PostActions, ShareBookmarkProps } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { postAnalyticsEvent } from '../../lib/feed';
 
 const AuthorOnboarding = dynamic(
@@ -62,7 +62,7 @@ function PostEngagements({
 
   const onCommented = (comment: Comment, isNew?: boolean) => {
     if (isNew) {
-      postAnalyticsEvent('comment post', post, {
+      postAnalyticsEvent(AnalyticsEvent.CommentPost, post, {
         extra: { commentId: comment.id, origin: 'comment modal' },
       });
       setPermissionNotificationCommentId(comment.id);
