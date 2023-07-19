@@ -12,6 +12,7 @@ import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
 import { Origin } from '../../lib/analytics';
+import { postAnalyticsEvent } from '../../lib/feed';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -61,6 +62,9 @@ function PostEngagements({
 
   const onCommented = (comment: Comment, isNew?: boolean) => {
     if (isNew) {
+      postAnalyticsEvent('comment post', post, {
+        extra: { commentId: comment.id, origin: 'comment modal' },
+      });
       setPermissionNotificationCommentId(comment.id);
       onShowShareNewComment(comment.id);
     }
