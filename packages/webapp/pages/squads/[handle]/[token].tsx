@@ -35,7 +35,11 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import {
+  AnalyticsEvent,
+  Origin,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
@@ -122,6 +126,17 @@ const SquadReferral = ({
       event_name: AnalyticsEvent.ViewSquadInvitation,
       extra: joinSquadAnalyticsExtra(),
     });
+
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.SquadJoinButton,
+      extra: JSON.stringify({
+        squad: member.source.id,
+        origin: Origin.SquadInvitation,
+        squad_type: member.source.public ? 'public' : 'private',
+      }),
+    });
+
     setTrackedImpression(true);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
