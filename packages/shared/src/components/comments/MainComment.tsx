@@ -4,14 +4,16 @@ import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
 import AuthContext from '../../contexts/AuthContext';
 import { NotificationPromptSource } from '../../lib/analytics';
-import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
+import {
+  CommentMarkdownInput,
+  CommentMarkdownInputProps,
+} from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
-import { Comment } from '../../graphql/comments';
 
 export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   permissionNotificationCommentId?: string;
-  onCommented?: (comment: Comment, isNew?: boolean) => void;
+  onCommented: CommentMarkdownInputProps['onCommented'];
 }
 
 export default function MainComment({
@@ -67,9 +69,9 @@ export default function MainComment({
         <CommentMarkdownInput
           {...inputProps}
           post={props.post}
-          onCommented={(data, isNew) => {
+          onCommented={(...params) => {
             onReplyTo(null);
-            onCommented(data, isNew);
+            onCommented(...params);
           }}
           className={className}
         />
