@@ -24,6 +24,7 @@ import { getUserDefaultTimezone } from '../../lib/timezones';
 import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
+import Toast from '../notifications/Toast';
 
 const client = new QueryClient();
 
@@ -87,6 +88,7 @@ const renderComponent = (
         refetchBoot={jest.fn()}
       >
         <SettingsContext.Provider value={{ syncSettings: jest.fn() }}>
+          <Toast autoDismissNotifications={false} />
           <AuthOptions {...props} />
         </SettingsContext.Provider>
       </AuthContextProvider>
@@ -191,8 +193,12 @@ it('should show login if email exists', async () => {
   await waitForNock();
 
   await waitFor(() => {
-    const text = screen.queryByText('Enter your password to login');
+    const text = screen.queryByText('Log in with Facebook');
+    const toastText = screen.queryByText(
+      "There's already an account for the same credentials. Can you please try logging in instead?",
+    );
     expect(text).toBeInTheDocument();
+    expect(toastText).toBeInTheDocument();
   });
 });
 

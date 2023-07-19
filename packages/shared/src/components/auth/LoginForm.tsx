@@ -43,7 +43,7 @@ function LoginForm({
     const form = formToJson<LoginFormParams>(e.currentTarget);
     onPasswordLogin(form);
   };
-  const [hasFocused, setHasFocused] = useState(autoFocus);
+  const [shouldFocus, setShouldFocus] = useState(autoFocus);
 
   return (
     <AuthForm
@@ -57,9 +57,9 @@ function LoginForm({
 
         const id = email ? 'password' : 'identifier';
         const element = document.getElementById(id);
-        if (hasFocused && !!element) {
+        if (shouldFocus && !!element) {
           element?.focus();
-          setHasFocused(false);
+          setShouldFocus(false);
         }
       }}
     >

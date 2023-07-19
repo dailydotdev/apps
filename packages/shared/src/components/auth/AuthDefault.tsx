@@ -21,6 +21,7 @@ import AuthContainer from './AuthContainer';
 import AuthModalHeader from './AuthModalHeader';
 import { ExperimentWinner } from '../../lib/featureValues';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -82,6 +83,8 @@ const AuthDefault = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
 
+  const { displayToast } = useToastNotification();
+
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -106,6 +109,9 @@ const AuthDefault = ({
 
     if (res?.result) {
       setRegisterEmail(email);
+      displayToast(
+        "There's already an account for the same credentials. Can you please try logging in instead?",
+      );
       return setShouldLogin(true);
     }
 

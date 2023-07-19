@@ -64,7 +64,7 @@ export function PasswordField({
       valueChanged={onChange}
       leftIcon={<LockIcon size={IconSize.Small} />}
       hint={!!value && showStrength ? hint : props.hint}
-      validityChanged={() => !props.hint && setIsValid}
+      validityChanged={(isValid) => !props.hint && setIsValid(isValid)}
       valid={!props.hint || isValid}
       className={{
         ...className,
