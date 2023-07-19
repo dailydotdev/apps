@@ -52,6 +52,8 @@ export interface MainLayoutProps
 const mainLayoutClass = (sidebarExpanded: boolean) =>
   sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
 
+const feeds = Object.values(MainFeedPage);
+
 export default function MainLayout({
   children,
   showOnlyLogo,
@@ -141,15 +143,16 @@ export default function MainLayout({
   };
 
   const router = useRouter();
-  const feeds = Object.values(MainFeedPage);
   const page = router?.route?.substring(1).trim() as MainFeedPage;
   const isPageReady =
     (isFeaturesLoaded && router?.isReady && isAuthReady) || isTesting;
+
+  const isPageApplicableForOnboarding = !page || feeds.includes(page);
   const shouldRedirectOnboarding =
     !user &&
     isPageReady &&
     onboardingV2 !== OnboardingV2.Control &&
-    (!page || feeds.includes(page)) &&
+    isPageApplicableForOnboarding &&
     !isTesting;
 
   useEffect(() => {
@@ -158,7 +161,11 @@ export default function MainLayout({
     router.push(`${webappUrl}/onboarding`);
   }, [shouldRedirectOnboarding, router]);
 
-  if (!isPageReady || shouldRedirectOnboarding) return null;
+  if (
+    (!isPageReady && isPageApplicableForOnboarding) ||
+    shouldRedirectOnboarding
+  )
+    return null;
 
   return (
     <div {...handlers}>
