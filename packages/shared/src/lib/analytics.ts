@@ -1,5 +1,4 @@
 export enum Origin {
-  CommentModal = 'comment modal',
   ShareBar = 'share bar',
   ReadingHistoryContextMenu = 'reading history context menu',
   ArticlePage = 'article page',

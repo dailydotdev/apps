@@ -63,7 +63,7 @@ function PostEngagements({
   const onCommented = (comment: Comment, isNew: boolean, parentId?: string) => {
     if (isNew) {
       postAnalyticsEvent(AnalyticsEvent.CommentPost, post, {
-        extra: { commentId: parentId, origin: Origin.CommentModal },
+        extra: { commentId: parentId },
       });
       setPermissionNotificationCommentId(comment.id);
       onShowShareNewComment(comment.id);
