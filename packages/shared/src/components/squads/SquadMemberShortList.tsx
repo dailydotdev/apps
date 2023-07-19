@@ -8,7 +8,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface SquadMemberShortListProps {
   squad: Squad;
-  members: SourceMember[] | any;
+  members: SourceMember[];
   memberCount: number;
   className?: string;
 }

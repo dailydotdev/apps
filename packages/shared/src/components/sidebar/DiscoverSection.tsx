@@ -54,7 +54,11 @@ export function DiscoverSection({
       ),
       title: 'Squads',
       path: '/squads',
-      rightIcon: (active: boolean) => <span className='typo-caption1 font-bold text-theme-label-quaternary'>beta</span>
+      rightIcon: () => (
+        <span className="font-bold typo-caption1 text-theme-label-quaternary">
+          beta
+        </span>
+      ),
     },
     {
       icon: (active: boolean) => (

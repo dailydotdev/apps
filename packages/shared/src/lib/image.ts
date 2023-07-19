@@ -53,6 +53,8 @@ export const cloudinary = {
       banner4_v2:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour4_v2',
     },
+    listingBanner:
+      'https://daily-now-res.cloudinary.com/image/upload/s--7QJfELWV--/f_auto/v1686299194/Squads_Background_z0uuvc',
     promotion: {
       settings:
         'https://daily-now-res.cloudinary.com/image/upload/s--t2gh6NPn--/f_auto/v1686119165/Customize_squad_settings_nepkhd',
