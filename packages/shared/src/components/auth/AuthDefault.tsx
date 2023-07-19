@@ -65,7 +65,7 @@ const AuthDefault = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
-
+  const { displayToast } = useToastNotification();
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
     checkKratosEmail(emailParam),
@@ -82,8 +82,6 @@ const AuthDefault = ({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
-
-  const { displayToast } = useToastNotification();
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
