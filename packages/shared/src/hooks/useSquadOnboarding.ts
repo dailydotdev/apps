@@ -24,10 +24,10 @@ export const useSquadOnboarding = (
   const { openModal } = useLazyModal<LazyModal.SquadTour>();
   const [hasTriedOnboarding, setHasTriedOnboarding, isCacheFetched] =
     usePersistentContext(SQUAD_ONBOARDING_KEY, false);
-  const { user } = useAuthContext();
+  const { isLoggedIn } = useAuthContext();
 
   useEffect(() => {
-    const conditions = [isPageReady, isFetched, isCacheFetched, user?.id];
+    const conditions = [isPageReady, isFetched, isCacheFetched, isLoggedIn];
     const isReady = conditions.every((isMet) => isMet);
 
     if (!isReady) return;
@@ -51,7 +51,7 @@ export const useSquadOnboarding = (
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    user,
+    isLoggedIn,
     hasTriedOnboarding,
     isFetched,
     isCacheFetched,

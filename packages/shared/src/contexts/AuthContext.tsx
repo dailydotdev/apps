@@ -31,6 +31,7 @@ type LoginOptions = Omit<LoginState, 'trigger'>;
 
 export interface AuthContextData {
   user?: LoggedUser;
+  isLoggedIn: boolean;
   referral?: string;
   referralOrigin?: string;
   trackingId?: string;
@@ -140,6 +141,7 @@ export const AuthContextProvider = ({
     () => ({
       isAuthReady: !isNullOrUndefined(firstLoad),
       user: endUser,
+      isLoggedIn: !!endUser?.id,
       referral: loginState?.referral ?? referral,
       referralOrigin: loginState?.referralOrigin ?? referralOrigin,
       firstVisit: user?.firstVisit,
