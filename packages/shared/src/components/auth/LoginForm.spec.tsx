@@ -5,7 +5,6 @@ import {
   RenderResult,
   screen,
   waitFor,
-  act,
 } from '@testing-library/preact';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -94,11 +93,10 @@ const renderLogin = async (email: string) => {
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
   });
-  await act(async () => {
-    const submit = await screen.findByTestId('email_signup_submit');
-    fireEvent.click(submit);
-    await waitForNock();
-  });
+  const submit = await screen.findByTestId('email_signup_submit');
+  fireEvent.click(submit);
+  await waitForNock();
+
   await waitFor(async () => {
     const login = screen.queryByTestId('login_form');
     expect(login).toBeInTheDocument();
