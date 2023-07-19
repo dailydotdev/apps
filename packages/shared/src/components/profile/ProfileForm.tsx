@@ -20,8 +20,6 @@ import {
   getTimeZoneOptions,
   getUserInitialTimezone,
 } from '../../lib/timezones';
-import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
-import FeaturesContext from '../../contexts/FeaturesContext';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -66,7 +64,6 @@ export default function ProfileForm({
   const [githubHint, setGithubHint] = useState<string>();
   const [hashnodeHint, setHashnodeHint] = useState<string>();
   const [emailHint, setEmailHint] = useState(defaultEmailHint);
-  const { flags } = useContext(FeaturesContext);
 
   const usernameValidityUpdated = (valid: boolean) => {
     if (!valid && !usernameHint) {
@@ -213,18 +210,9 @@ export default function ProfileForm({
     </>
   );
 
-  const isImageHidden = isFeaturedEnabled(
-    Features.HideSignupProfileImage,
-    flags,
-  );
-
   return (
     <form
-      className={classNames(
-        className,
-        'flex flex-col w-full p-0',
-        isImageHidden ? 'mt-4' : 'mt-10',
-      )}
+      className={classNames(className, 'flex flex-col w-full p-0 mt-10')}
       ref={formRef}
       onSubmit={onSubmit}
       {...props}

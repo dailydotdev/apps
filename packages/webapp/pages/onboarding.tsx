@@ -73,12 +73,8 @@ export function OnboardPage(): ReactElement {
   });
   const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
-  const {
-    onboardingFilteringTitle,
-    onboardingMinimumTopics,
-    onboardingV2,
-    isFeaturesLoaded,
-  } = useFeaturesContext();
+  const { onboardingV2, onboardingFilteringTitle, isFeaturesLoaded } =
+    useFeaturesContext();
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
 
@@ -125,18 +121,11 @@ export function OnboardPage(): ReactElement {
       extra: JSON.stringify({
         origin: OnboardingMode.Wall,
         steps: [OnboardingStep.Topics],
-        mandating_categories: onboardingMinimumTopics,
+        mandating_categories: 0,
       }),
     });
     isTracked.current = true;
-  }, [
-    trackEvent,
-    isPageReady,
-    onboardingV2,
-    onboardingMinimumTopics,
-    router,
-    user,
-  ]);
+  }, [trackEvent, isPageReady, onboardingV2, router, user]);
 
   useEffect(() => {
     updateCookieBanner(user);

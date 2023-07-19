@@ -28,14 +28,12 @@ import { Justify } from '../utilities';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
-  submitArticleModalButton: string;
 } & ModalProps;
 
 const defaultErrorMessage = 'Something went wrong, try again';
 
 export default function SubmitArticleModal({
   headerCopy,
-  submitArticleModalButton,
   onRequestClose,
   ...modalProps
 }: SubmitArticleModalProps): ReactElement {
@@ -101,7 +99,7 @@ export default function SubmitArticleModal({
 
     trackEvent({
       event_name: 'submit article',
-      feed_item_title: submitArticleModalButton,
+      feed_item_title: 'Submit article',
       extra: JSON.stringify({ url: data?.articleUrl }),
     });
 
@@ -267,14 +265,12 @@ export default function SubmitArticleModal({
           <Button
             className="btn-primary"
             type="submit"
-            aria-label={submitArticleModalButton}
+            aria-label="Submit article"
             disabled={!enableSubmission || !isEnabled || !!existingArticle}
             loading={isValidating}
             form="submit-article"
           >
-            <span className={isValidating && 'invisible'}>
-              {submitArticleModalButton}
-            </span>
+            <span className={isValidating && 'invisible'}>Submit article</span>
           </Button>
         )}
         {isSubmitted && (

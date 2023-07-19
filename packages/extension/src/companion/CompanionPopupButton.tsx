@@ -4,16 +4,11 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import CompanionIcon from '@dailydotdev/shared/src/components/icons/App';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
 
-interface CompanionPopupButtonProps {
-  placement?: string;
-}
-
-export const CompanionPopupButton = ({
-  placement,
-}: CompanionPopupButtonProps): ReactElement => {
+export const CompanionPopupButton = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { contentScriptGranted, isFetched } = useExtensionPermission({
     origin: 'companion permission button',
@@ -41,7 +36,7 @@ export const CompanionPopupButton = ({
     trackEvent({
       event_name: 'impression',
       target_type: 'companion permission',
-      target_id: placement,
+      target_id: ExperimentWinner.CompanionPermissionPlacement,
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps

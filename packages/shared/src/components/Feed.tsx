@@ -33,7 +33,6 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import { useFeaturesContext } from '../contexts/FeaturesContext';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
   ToastSubject,
@@ -43,9 +42,10 @@ import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
+import { useFeaturesContext } from '../contexts/FeaturesContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import AlertContext from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
+import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 
 export interface FeedProps<T>
@@ -79,6 +79,7 @@ const SharePostModal = dynamic(
   () =>
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
+
 const ScrollFeedFiltersOnboarding = dynamic(
   () =>
     import(
@@ -157,8 +158,8 @@ export default function Feed<T>({
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
+  const { onboardingV2 } = useFeaturesContext();
   const { subject } = useToastNotification();
-  const { showCommentPopover, onboardingV2 } = useFeaturesContext();
   const {
     openNewTab,
     spaciness,
@@ -245,7 +246,6 @@ export default function Feed<T>({
   const { onUpvote } = useFeedVotePost(
     items,
     updatePost,
-    showCommentPopover && setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
     ranking,

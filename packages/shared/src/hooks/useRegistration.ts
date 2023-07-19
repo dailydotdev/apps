@@ -19,8 +19,6 @@ import {
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { checkIsExtension } from '../lib/func';
-import { ReferralOriginKey } from '../lib/user';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -63,16 +61,6 @@ const useRegistration = ({
   );
 
   const referralTraits = useMemo(() => {
-    if (referralOrigin === ReferralOriginKey.LegoMay2023) {
-      const url = new URL(window.location.href);
-      const isEligibleForOrigin =
-        checkIsExtension() || url.searchParams.get('ref') === 'install';
-
-      if (!isEligibleForOrigin) {
-        return {};
-      }
-    }
-
     return {
       'traits.referral': referral,
       'traits.referralOrigin': referralOrigin,
