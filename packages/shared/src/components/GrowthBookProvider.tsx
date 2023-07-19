@@ -5,12 +5,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useMutation } from 'react-query';
 import {
   Context,
   GrowthBook,
   GrowthBookProvider as Provider,
-} from '@growthbook/growthbook-react';
-import { useMutation } from 'react-query';
+} from '../lib/growthbook';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { decrypt } from './crypto';
