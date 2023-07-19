@@ -28,7 +28,9 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import CookieBanner from '../components/CookieBanner';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -60,6 +62,7 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
+  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
   const isTracked = useRef(false);
   const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
@@ -124,6 +127,10 @@ export function OnboardPage(): ReactElement {
     isTracked.current = true;
   }, [trackEvent, isPageReady, onboardingV2, router, user]);
 
+  useEffect(() => {
+    updateCookieBanner(user);
+  }, [updateCookieBanner, user]);
+
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
   if (finishedOnboarding) {
@@ -185,7 +192,7 @@ export function OnboardPage(): ReactElement {
             <img
               alt="Sample illustration of selecting topics"
               src={onboardingIntroduction}
-              className="absolute tablet:relative top-20 tablet:top-0 scale-125 tablet:scale-150"
+              className="absolute tablet:relative top-12 tablet:top-0 tablet:scale-125"
             />
           )}
           <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">
@@ -206,6 +213,7 @@ export function OnboardPage(): ReactElement {
           </div>
         </ConditionalWrapper>
       </div>
+      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </Container>
   );
 }
