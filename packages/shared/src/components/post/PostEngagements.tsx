@@ -60,10 +60,10 @@ function PostEngagements({
     onShowShareNewComment,
   } = useShareComment(analyticsOrigin, enableShowShareNewComment);
 
-  const onCommented = (comment: Comment, isNew?: boolean) => {
+  const onCommented = (comment: Comment, isNew: boolean, parentId?: string) => {
     if (isNew) {
       postAnalyticsEvent(AnalyticsEvent.CommentPost, post, {
-        extra: { commentId: comment.id, origin: 'comment modal' },
+        extra: { commentId: parentId, origin: Origin.CommentModal },
       });
       setPermissionNotificationCommentId(comment.id);
       onShowShareNewComment(comment.id);
