@@ -28,7 +28,9 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import CookieBanner from '../components/CookieBanner';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -60,6 +62,7 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
+  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
   const isTracked = useRef(false);
   const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
@@ -134,6 +137,10 @@ export function OnboardPage(): ReactElement {
     router,
     user,
   ]);
+
+  useEffect(() => {
+    updateCookieBanner(user);
+  }, [updateCookieBanner, user]);
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
@@ -217,6 +224,7 @@ export function OnboardPage(): ReactElement {
           </div>
         </ConditionalWrapper>
       </div>
+      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </Container>
   );
 }
