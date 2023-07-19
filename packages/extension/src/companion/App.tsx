@@ -17,6 +17,7 @@ import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
+import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -36,7 +37,10 @@ export type CompanionData = { url: string; deviceId: string } & Pick<
   | 'visit'
   | 'accessToken'
   | 'squads'
+  | 'exp'
 >;
+
+const app = BootApp.Companion;
 
 export default function App({
   deviceId,
@@ -49,6 +53,7 @@ export default function App({
   visit,
   accessToken,
   squads,
+  exp,
 }: CompanionData): ReactElement {
   useError();
   const [token, setToken] = useState(accessToken);
@@ -83,41 +88,51 @@ export default function App({
       <RouterContext.Provider value={router}>
         <QueryClientProvider client={queryClient}>
           <FeaturesContextProvider flags={memoizedFlags}>
-            <AuthContextProvider
+            <GrowthBookProvider
+              app={app}
               user={user}
-              visit={visit}
-              tokenRefreshed
-              getRedirectUri={() => browser.runtime.getURL('index.html')}
-              updateUser={() => null}
-              squads={squads}
+              deviceId={deviceId}
+              experimentation={exp}
+              fetchMethod={companionFetch}
             >
-              <SettingsContextProvider settings={settings}>
-                <AlertContextProvider alerts={alerts}>
-                  <AnalyticsContextProvider
-                    app={BootApp.Companion}
-                    version={version}
-                    fetchMethod={companionFetch}
-                    backgroundMethod={(msg) => browser.runtime.sendMessage(msg)}
-                    deviceId={deviceId}
-                    getPage={() => url}
-                  >
-                    <Companion
-                      postData={postData}
-                      companionHelper={alerts?.companionHelper}
-                      companionExpanded={settings?.companionExpanded}
-                      onOptOut={() => setIsOptOutCompanion(true)}
-                      onUpdateToken={setToken}
-                    />
-                    <PromptElement parentSelector={getCompanionWrapper} />
-                    <Toast
-                      autoDismissNotifications={
-                        settings?.autoDismissNotifications
+              <AuthContextProvider
+                user={user}
+                visit={visit}
+                tokenRefreshed
+                getRedirectUri={() => browser.runtime.getURL('index.html')}
+                updateUser={() => null}
+                squads={squads}
+              >
+                <SettingsContextProvider settings={settings}>
+                  <AlertContextProvider alerts={alerts}>
+                    <AnalyticsContextProvider
+                      app={app}
+                      version={version}
+                      fetchMethod={companionFetch}
+                      backgroundMethod={(msg) =>
+                        browser.runtime.sendMessage(msg)
                       }
-                    />
-                  </AnalyticsContextProvider>
-                </AlertContextProvider>
-              </SettingsContextProvider>
-            </AuthContextProvider>
+                      deviceId={deviceId}
+                      getPage={() => url}
+                    >
+                      <Companion
+                        postData={postData}
+                        companionHelper={alerts?.companionHelper}
+                        companionExpanded={settings?.companionExpanded}
+                        onOptOut={() => setIsOptOutCompanion(true)}
+                        onUpdateToken={setToken}
+                      />
+                      <PromptElement parentSelector={getCompanionWrapper} />
+                      <Toast
+                        autoDismissNotifications={
+                          settings?.autoDismissNotifications
+                        }
+                      />
+                    </AnalyticsContextProvider>
+                  </AlertContextProvider>
+                </SettingsContextProvider>
+              </AuthContextProvider>
+            </GrowthBookProvider>
           </FeaturesContextProvider>
           <ReactQueryDevtools />
         </QueryClientProvider>

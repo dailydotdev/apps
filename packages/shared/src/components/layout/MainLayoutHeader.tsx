@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
+import { useFeatureValue } from '@growthbook/growthbook-react';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
@@ -59,6 +60,7 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
+  const dummyFeature = useFeatureValue('dummy-feature', 'fallback');
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
@@ -116,6 +118,7 @@ function MainLayoutHeader({
               />
             )}
           </div>
+          <div className="typo-body">{dummyFeature}</div>
           {showPostButton && (
             <CreatePostButton
               className={!optOutWeeklyGoal && 'mr-0 tablet:mr-2'}

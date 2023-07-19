@@ -27,7 +27,7 @@ importers:
         version: 3.9.4(eslint@7.32.0)
       eslint-plugin-testing-library:
         specifier: ^3.10.2
-        version: 3.10.2(typescript@4.6.4)
+        version: 3.10.2(eslint@7.32.0)(typescript@4.6.4)
     devDependencies:
       '@dailydotdev/eslint-plugin-daily-dev-eslint-rules':
         specifier: '*'
@@ -407,6 +407,9 @@ importers:
 
   packages/shared:
     dependencies:
+      '@growthbook/growthbook-react':
+        specifier: ^0.17.0
+        version: 0.17.0(@preact/compat@17.0.2)
       '@tailwindcss/line-clamp':
         specifier: ^0.3.0
         version: 0.3.0(tailwindcss@3.0.24)
@@ -2211,6 +2214,23 @@ packages:
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
     dev: true
 
+  /@growthbook/growthbook-react@0.17.0(@preact/compat@17.0.2):
+    resolution: {integrity: sha512-od+bSg3RD9AXfi/TWFDSzRaB6RuJLkUX5eFOZz8u8wL8yDbgd5RF9cwu4lQIF9/tyG1WLu4qipV+SM2v5s4BcQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@growthbook/growthbook': 0.27.0
+      react: /@preact/compat@17.0.2(preact@10.8.2)
+    dev: false
+
+  /@growthbook/growthbook@0.27.0:
+    resolution: {integrity: sha512-gt/DWXfgyudY3gXAUjzKm9kMjVfCzfRc8d0nQQiXCP523ow23jThrmBzkRKCN+zxYVxUKcHjP9yjU9EKJqP4Fw==}
+    engines: {node: '>=10'}
+    dependencies:
+      dom-mutator: 0.5.0
+    dev: false
+
   /@humanwhocodes/config-array@0.5.0:
     resolution: {integrity: sha512-FagtKFz74XrTl7y6HCzQpwDfXP0yhxe9lHLD1UZxjvZIcbyRz8zTFF/yYNfSfzU414eDwZ1SrO0Qvtyf+wFMQg==}
     engines: {node: '>=10.10.0'}
@@ -3436,7 +3456,7 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/experimental-utils@3.10.1(typescript@4.6.4):
+  /@typescript-eslint/experimental-utils@3.10.1(eslint@7.32.0)(typescript@4.6.4):
     resolution: {integrity: sha512-DewqIgscDzmAfd5nOGe4zm6Bl7PKtMG2Ad0KG8CUZAHlXfAKTF9Ol5PXhiMh39yRL2ChRH1cuuUGOcVyyrhQIw==}
     engines: {node: ^10.12.0 || >=12.0.0}
     peerDependencies:
@@ -3445,6 +3465,7 @@ packages:
       '@types/json-schema': 7.0.12
       '@typescript-eslint/types': 3.10.1
       '@typescript-eslint/typescript-estree': 3.10.1(typescript@4.6.4)
+      eslint: 7.32.0
       eslint-scope: 5.1.1
       eslint-utils: 2.1.0
     transitivePeerDependencies:
@@ -4096,22 +4117,6 @@ packages:
       normalize-range: 0.1.2
       picocolors: 1.0.0
       postcss: 8.4.12
-      postcss-value-parser: 4.2.0
-    dev: true
-
-  /autoprefixer@10.4.5(postcss@8.4.24):
-    resolution: {integrity: sha512-Fvd8yCoA7lNX/OUllvS+aS1I7WRBclGXsepbvT8ZaPgrH24rgXpZzF0/6Hh3ZEkwg+0AES/Osd196VZmYoEFtw==}
-    engines: {node: ^10 || ^12 || >=14}
-    hasBin: true
-    peerDependencies:
-      postcss: ^8.1.0
-    dependencies:
-      browserslist: 4.21.8
-      caniuse-lite: 1.0.30001502
-      fraction.js: 4.2.0
-      normalize-range: 0.1.2
-      picocolors: 1.0.0
-      postcss: 8.4.24
       postcss-value-parser: 4.2.0
     dev: true
 
@@ -5555,6 +5560,11 @@ packages:
       '@babel/runtime': 7.17.9
       csstype: 3.1.2
 
+  /dom-mutator@0.5.0:
+    resolution: {integrity: sha512-bbeX8HWE8JGzraFgbVBX4ws2g3heZFuTtrleQBuN7huy+7n2n7etSuVnot3/1z3jdY2MiwuvoS4Ep1UT2rrGBw==}
+    engines: {node: '>=10'}
+    dev: false
+
   /dom-serializer@0.2.2:
     resolution: {integrity: sha512-2/xPb3ORsQ42nHYiSunXkDjPLBaEj/xTwUO4B7XCZQTRk7EBtTOPaygh10YAAh2OI1Qrp6NWfpAhzswj0ydt9g==}
     dependencies:
@@ -6102,13 +6112,14 @@ packages:
       - ts-node
     dev: true
 
-  /eslint-plugin-testing-library@3.10.2(typescript@4.6.4):
+  /eslint-plugin-testing-library@3.10.2(eslint@7.32.0)(typescript@4.6.4):
     resolution: {integrity: sha512-WAmOCt7EbF1XM8XfbCKAEzAPnShkNSwcIsAD2jHdsMUT9mZJPjLCG7pMzbcC8kK366NOuGip8HKLDC+Xk4yIdA==}
     engines: {node: ^10.12.0 || >=12.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^5 || ^6 || ^7
     dependencies:
-      '@typescript-eslint/experimental-utils': 3.10.1(typescript@4.6.4)
+      '@typescript-eslint/experimental-utils': 3.10.1(eslint@7.32.0)(typescript@4.6.4)
+      eslint: 7.32.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -11726,7 +11737,7 @@ packages:
       postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
-      autoprefixer: 10.4.5(postcss@8.4.24)
+      autoprefixer: 10.4.5(postcss@8.4.12)
       bytes: 3.1.2
       chalk: 4.1.2
       chokidar: 3.5.3
