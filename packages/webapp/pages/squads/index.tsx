@@ -67,7 +67,7 @@ const SquadsPage = (): ReactElement => {
             fetchNextPage={queryResult.fetchNextPage}
             className="w-full"
           >
-            <FeedContainer header={<SquadListingHeader />}>
+            <FeedContainer header={<SquadListingHeader />} className="px-6 laptop:px-0">
               {queryResult?.data?.pages?.length > 0 &&
                 queryResult.data.pages.map((page) =>
                   page.sources.edges.reduce(

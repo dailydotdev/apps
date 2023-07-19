@@ -18,12 +18,14 @@ export interface FeedContainerProps {
   children: ReactNode;
   forceCardMode?: boolean;
   header?: ReactNode;
+  className?: string;
 }
 
 export const FeedContainer = ({
   children,
   forceCardMode,
   header,
+  className,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const {
@@ -68,6 +70,15 @@ export const FeedContainer = ({
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
+  const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
+    if (isList && space !== 'eco') {
+      return space === 'cozy'
+        ? { maxWidth: '48.75rem' }
+        : { maxWidth: '63.75rem' };
+    }
+    return {};
+  };
+  const cardContainerStye = { ...getStyle(useList, spaciness) };
 
   if (!loadedSettings) {
     return <></>;
@@ -76,8 +87,9 @@ export const FeedContainer = ({
   return (
     <div
       className={classNames(
-        'flex flex-col laptopL:mx-auto w-full Feed_container__nHOSZ',
+        'here1 flex flex-col laptopL:mx-auto w-full',
         styles.container,
+        className,
       )}
     >
       <ScrollToTopButton />
@@ -86,7 +98,14 @@ export const FeedContainer = ({
         className="flex flex-col px-6 laptop:px-0 pt-2 laptopL:mx-auto w-full"
         style={style}
       >
-        <div className="relative mx-auto w-full Feed_feed__uPgJj Feed_cards__wRg8A">
+        <div
+          className={classNames(
+            'relative mx-auto w-full',
+            styles.feed,
+            !useList && styles.cards,
+          )}
+          style={cardContainerStye}
+        >
           {header}
 
           <div
