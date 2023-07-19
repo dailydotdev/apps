@@ -163,9 +163,7 @@ const renderComponent = (
     toggleSidebarExpanded: jest.fn(),
   };
   return render(
-    <FeaturesContextProvider
-      flags={{ show_comment_popover: { enabled: true } }}
-    >
+    <FeaturesContextProvider flags={{}}>
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider
           value={{

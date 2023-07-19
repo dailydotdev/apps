@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { FeaturesData } from '../../contexts/FeaturesContext';
 import DiscussIcon from '../icons/Discuss';
 import HotIcon from '../icons/Hot';
 import SearchIcon from '../icons/Search';
@@ -7,9 +6,7 @@ import UpvoteIcon from '../icons/Upvote';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 
-interface DiscoverSectionProps
-  extends SectionCommonProps,
-    Pick<FeaturesData, 'popularFeedCopy'> {
+interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
   enableSearch?: () => unknown;
   onNavTabClick?: (page: string) => unknown;
@@ -17,7 +14,6 @@ interface DiscoverSectionProps
 
 export function DiscoverSection({
   isItemsButton,
-  popularFeedCopy,
   enableSearch,
   onNavTabClick,
   ...defaultRenderSectionProps
@@ -27,7 +23,7 @@ export function DiscoverSection({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <HotIcon secondary={active} />} />
       ),
-      title: popularFeedCopy,
+      title: 'Popular',
       path: '/popular',
       action: () => onNavTabClick?.('popular'),
     },

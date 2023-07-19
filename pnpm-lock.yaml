@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  next-plugin-preact@3.0.7:
-    hash: ab52wh5a4az5wr2bwj5v7hjvpq
-    path: patches/next-plugin-preact@3.0.7.patch
-
 importers:
 
   .:
@@ -713,7 +708,7 @@ importers:
         version: 12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0)
       next-plugin-preact:
         specifier: ^3.0.7
-        version: 3.0.7(patch_hash=ab52wh5a4az5wr2bwj5v7hjvpq)(@prefresh/babel-plugin@0.4.4)(next@12.2.2)(preact-render-to-string@5.2.0)(preact-ssr-prepass@1.2.0)(preact@10.8.2)(webpack@5.72.0)
+        version: 3.0.7(@prefresh/babel-plugin@0.4.4)(next@12.2.2)(preact-render-to-string@5.2.0)(preact-ssr-prepass@1.2.0)(preact@10.8.2)(webpack@5.72.0)
       next-pwa:
         specifier: ^5.5.4
         version: 5.5.4(@babel/core@7.17.9)(next@12.2.2)(webpack@5.72.0)
@@ -8971,7 +8966,7 @@ packages:
     resolution: {integrity: sha512-9iN1ka/9zmX1ZvLV9ewJYEk9h7RyRRtqdK0woXcqohu8EWIerfPUjYJPg0ULy0UqP7cslmdGc8xKDJcojlKiaw==}
     dev: true
 
-  /next-plugin-preact@3.0.7(patch_hash=ab52wh5a4az5wr2bwj5v7hjvpq)(@prefresh/babel-plugin@0.4.4)(next@12.2.2)(preact-render-to-string@5.2.0)(preact-ssr-prepass@1.2.0)(preact@10.8.2)(webpack@5.72.0):
+  /next-plugin-preact@3.0.7(@prefresh/babel-plugin@0.4.4)(next@12.2.2)(preact-render-to-string@5.2.0)(preact-ssr-prepass@1.2.0)(preact@10.8.2)(webpack@5.72.0):
     resolution: {integrity: sha512-8Xl+SJT3FCZHS7R/6Gana6e95o09UpiyCsK0cw8P/KW2M+lQcYIwIt4ZLZd+K9TW3JZx6KJDLqVbq0Kd6KZsIg==}
     requiresBuild: true
     peerDependencies:
@@ -8990,7 +8985,6 @@ packages:
       - next
       - webpack
     dev: false
-    patched: true
 
   /next-pwa@5.5.4(@babel/core@7.17.9)(next@12.2.2)(webpack@5.72.0):
     resolution: {integrity: sha512-EgB2MQWGR8oZDzY6US+/D0LOCUhPZYCgeqRVBYDxQWNi0N6XfQOoZPw2COIrg/eMt/rB0M+/mquhAQACs5v4Ag==}

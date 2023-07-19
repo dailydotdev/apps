@@ -45,7 +45,7 @@ function Enable(): React.ReactElement {
         postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
           permission: 'granted',
         });
-        trackPermissionGranted();
+        trackPermissionGranted(source as NotificationPromptSource);
         closeWindow();
         return;
       }

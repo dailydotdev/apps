@@ -27,11 +27,7 @@ let client: QueryClient;
 const updateAlerts = jest.fn();
 const toggleSidebarExpanded = jest.fn();
 
-const defaultFeatures: IFlags = {
-  my_feed_on: {
-    enabled: true,
-  },
-};
+const defaultFeatures: IFlags = {};
 
 beforeEach(() => {
   nock.cleanAll();
