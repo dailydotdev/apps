@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from 'react-query';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
-import { Button } from '../buttons/Button';
+import { Button, ButtonProps } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useLeaveSquad, useJoinSquad } from '../../hooks';
@@ -10,6 +10,7 @@ import { labels } from '../../lib';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { UserShortProfile } from '../../lib/user';
 
 type SquadJoinProps = {
   className?: string;
@@ -18,23 +19,19 @@ type SquadJoinProps = {
   leaveText?: string;
   blockedTooltipText?: string;
   origin: Origin;
+  inviterMember?: Pick<UserShortProfile, 'id'>;
 };
 
-export const SquadJoinButton = ({
+export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   className,
   squad,
-  joinText = 'Join squad',
-  leaveText = 'Leave squad',
-  blockedTooltipText = 'You are not allowed to join the squad',
+  onClick,
+  children,
   origin,
-}: SquadJoinProps): ReactElement => {
-  const queryClient = useQueryClient();
+  inviterMember,
+  ...buttonProps
+}: SquadJoinProps & ButtonProps<T>): ReactElement => {
   const { trackEvent } = useAnalyticsContext();
-  const { displayToast } = useToastNotification();
-  const { user, showLogin } = useAuthContext();
-  const isMemberBlocked =
-    squad.currentMember?.role === SourceMemberRole.Blocked;
-  const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
 
   useEffect(() => {
     trackEvent({
@@ -49,6 +46,45 @@ export const SquadJoinButton = ({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [origin, squad.id, squad.public]);
+
+  return (
+    <Button
+      {...buttonProps}
+      className={classNames(className)}
+      onClick={(event) => {
+        if (!squad.currentMember) {
+          trackEvent({
+            event_name: AnalyticsEvent.ClickJoinSquad,
+            extra: JSON.stringify({
+              inviter: inviterMember?.id,
+              squad: squad.id,
+            }),
+          });
+        }
+
+        onClick(event);
+      }}
+    >
+      {children}
+    </Button>
+  );
+};
+
+export const SquadJoinButton = ({
+  className,
+  squad,
+  joinText = 'Join squad',
+  leaveText = 'Leave squad',
+  blockedTooltipText = 'You are not allowed to join the squad',
+  origin,
+  ...rest
+}: SquadJoinProps): ReactElement => {
+  const queryClient = useQueryClient();
+  const { displayToast } = useToastNotification();
+  const { user, showLogin } = useAuthContext();
+  const isMemberBlocked =
+    squad.currentMember?.role === SourceMemberRole.Blocked;
+  const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
 
   const { mutateAsync: joinSquad, isLoading: isJoiningSquad } = useMutation(
     useJoinSquad({ squad }),
@@ -84,22 +120,15 @@ export const SquadJoinButton = ({
       content={blockedTooltipText}
     >
       <div className="flex flex-1">
-        <Button
+        <SimpleSquadJoinButton
+          {...rest}
           className={classNames(
             isCurrentMember ? 'btn-secondary' : 'btn-primary',
             className,
           )}
+          squad={squad}
           disabled={isMemberBlocked || isLoading}
           onClick={() => {
-            if (!isCurrentMember) {
-              trackEvent({
-                event_name: AnalyticsEvent.ClickJoinSquad,
-                extra: JSON.stringify({
-                  squad: squad.id,
-                }),
-              });
-            }
-
             if (!user) {
               const onJoinSquad = () => joinSquad();
 
@@ -117,9 +146,10 @@ export const SquadJoinButton = ({
               joinSquad();
             }
           }}
+          origin={origin}
         >
           {isCurrentMember ? leaveText : joinText}
-        </Button>
+        </SimpleSquadJoinButton>
       </div>
     </SimpleTooltip>
   );

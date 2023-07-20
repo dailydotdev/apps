@@ -20,10 +20,7 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Link from 'next/link';
 import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
-import {
-  Button,
-  ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {
@@ -35,16 +32,15 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import {
-  AnalyticsEvent,
-  Origin,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
+import { tablet } from '@dailydotdev/shared/src/styles/media';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
@@ -76,6 +72,7 @@ const SquadReferral = ({
   initialData,
 }: SquadReferralProps): ReactElement => {
   const router = useRouter();
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
   const { isFallback } = router;
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
@@ -127,16 +124,6 @@ const SquadReferral = ({
       extra: joinSquadAnalyticsExtra(),
     });
 
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      target_type: TargetType.SquadJoinButton,
-      extra: JSON.stringify({
-        squad: member.source.id,
-        origin: Origin.SquadInvitation,
-        squad_type: member.source.public ? 'public' : 'private',
-      }),
-    });
-
     setTrackedImpression(true);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -169,11 +156,6 @@ const SquadReferral = ({
       return null;
     }
 
-    trackEvent({
-      event_name: AnalyticsEvent.ClickJoinSquad,
-      extra: joinSquadAnalyticsExtra(),
-    });
-
     if (loggedUser) return onJoinSquad();
 
     return showLogin('join squad', {
@@ -195,16 +177,6 @@ const SquadReferral = ({
   const othersLabel = getOthers(
     source.members.edges.filter(({ node }) => node.user.id !== user.id),
     source.membersCount,
-  );
-
-  const renderJoinButton = (className?: string) => (
-    <Button
-      className={classNames('btn-primary', className)}
-      buttonSize={ButtonSize.Large}
-      onClick={onJoinClick}
-    >
-      Join Squad
-    </Button>
   );
 
   const seo: NextSeoProps = {
@@ -240,20 +212,32 @@ const SquadReferral = ({
         </BodyParagraph>
       </span>
       <div className="flex flex-col p-6 my-8 w-full rounded-24 border border-theme-color-cabbage">
-        <span className="flex flex-row items-center">
-          <SourceButton source={source} size="xxlarge" />
-          <div className="flex flex-col ml-4">
-            <h2 className="flex flex-col typo-headline">{source.name}</h2>
-            <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
+        <span className="flex flex-col tablet:flex-row items-start tablet:items-center">
+          <div className="flex flex-row items-start">
+            <SourceButton source={source} size="xxlarge" />
+            <div className="flex flex-col ml-4">
+              <h2 className="flex flex-col typo-headline">{source.name}</h2>
+              <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
+              {source.description && (
+                <BodyParagraph className="mt-4 break-words">
+                  {source.description}
+                </BodyParagraph>
+              )}
+            </div>
           </div>
-          {renderJoinButton('hidden tablet:flex ml-auto')}
+          <SimpleSquadJoinButton
+            className={classNames(
+              'btn-primary',
+              isMobile ? 'flex mt-4 w-full' : 'ml-auto',
+            )}
+            buttonSize={ButtonSize.Large}
+            onClick={onJoinClick}
+            squad={source}
+            origin={Origin.SquadInvitation}
+          >
+            Join squad
+          </SimpleSquadJoinButton>
         </span>
-        {source.description && (
-          <BodyParagraph className="mt-4 break-words ml-[4.5rem]">
-            {source.description}
-          </BodyParagraph>
-        )}
-        {renderJoinButton('flex tablet:hidden mt-4 w-full')}
       </div>
       <BodyParagraph data-testid="waiting-users">
         {user.name} {othersLabel} waiting for you inside. Join them now!
