@@ -2,7 +2,13 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import { NextRouter } from 'next/router';
@@ -195,7 +201,7 @@ describe('squad details', () => {
     expect(result.length).toEqual(members.length);
   });
 
-  it('should join squad on the first button', async () => {
+  it('should join squad on button click', async () => {
     client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     const admin = generateTestAdmin();
     renderComponent([createInvitationMock(defaultToken, admin)]);
@@ -207,37 +213,17 @@ describe('squad details', () => {
       },
       result: () => ({ data: { source: admin.source } }),
     });
-    const [desktop] = await screen.findAllByText('Join Squad');
-    desktop.click();
+    const button = await screen.findByText('Join squad');
+    fireEvent.click(button);
     await waitForNock();
     expect(replaced).toEqual(admin.source.permalink);
   });
 
-  it('should join squad on the second button', async () => {
+  it('should have join squad button', async () => {
     client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     const admin = generateTestAdmin();
     renderComponent([createInvitationMock(defaultToken, admin)]);
-    await waitForNock();
-    mockGraphQL({
-      request: {
-        query: SQUAD_JOIN_MUTATION,
-        variables: { token: admin.referralToken, sourceId: admin.source.id },
-      },
-      result: () => ({ data: { source: admin.source } }),
-    });
-    const [, mobile] = await screen.findAllByText('Join Squad');
-    mobile.click();
-    await waitForNock();
-    expect(replaced).toEqual(admin.source.permalink);
-  });
-
-  it('should have two join squad one is displayed on desktop and one on mobile', async () => {
-    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
-    const admin = generateTestAdmin();
-    renderComponent([createInvitationMock(defaultToken, admin)]);
-    const [desktop, mobile] = await screen.findAllByRole('button');
-    expect(desktop).toHaveClass('hidden tablet:flex');
-    expect(mobile).toHaveClass('flex tablet:hidden');
+    await waitFor(() => screen.findAllByText('Join squad'));
   });
 });
 
@@ -276,8 +262,8 @@ describe('invalid token', () => {
     admin.source.currentMember = member;
     renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
-    const [desktop] = await screen.findAllByText('Join Squad');
-    desktop.click();
+    const button = await screen.findByText('Join squad');
+    fireEvent.click(button);
     await screen.findByText(labels.squads.forbidden);
   });
 });
