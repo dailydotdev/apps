@@ -11,9 +11,6 @@ import FeedContext from '../../contexts/FeedContext';
 import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
 
-/**
- * Props for the FeedContainer component.
- */
 export interface FeedContainerProps {
   children: ReactNode;
   forceCardMode?: boolean;

@@ -17,10 +17,10 @@ export const SquadListingHeader = ({
           backgroundImage: `url(${cloudinary.squads.listingBanner})`,
         }}
       >
-        <div className="flex justify-center items-center mb-3 text-white typo-large-title">
+        <div className="flex justify-center items-center mb-3 text-theme-label-primary typo-large-title">
           Introducing Squads
         </div>
-        <div className="mb-4 type-text3 text-theme-color-salt max-w-[40rem]">
+        <div className="mb-4 typo-title3 font-normal text-theme-label-secondary max-w-[40rem]">
           Unleashing the magic of developer communities with Squads. An
           opportunity to dive deep and go niche together with like-minded devs.
         </div>

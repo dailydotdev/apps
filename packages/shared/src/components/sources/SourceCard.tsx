@@ -74,10 +74,10 @@ export const SourceCard = ({
         <div className="flex flex-col flex-1 justify-between">
           <div>
             <div className="font-bold typo-title3">{title}</div>
-            <div className="mb-2 text-theme-color-salt">{subtitle}</div>
+            <div className="mb-2 text-theme-label-secondary">{subtitle}</div>
             <div
               className={classNames(
-                'mb-2 text-theme-color-salt',
+                'mb-2 text-theme-label-secondary',
                 clampDescription && 'multi-truncate line-clamp-3',
               )}
             >

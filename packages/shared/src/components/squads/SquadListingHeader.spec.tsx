@@ -10,19 +10,6 @@ import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { SquadListingHeader } from './SquadListingHeader';
 
 let features: IFlags;
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation((query) => ({
-    matches: true,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
 
 const defaultFeatures: IFlags = {
   squad: {
@@ -60,7 +47,6 @@ const renderComponent = (isOwner = false): RenderResult => {
   );
 };
 
-// Renders the component with create squad button
 it('should render the component as a squad user', async () => {
   renderComponent();
   const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});

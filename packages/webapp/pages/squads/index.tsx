@@ -24,7 +24,7 @@ import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const seo: NextSeoProps = {
-  title: `Squads`,
+  title: `Squad directory | daily.dev`,
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
@@ -107,7 +107,7 @@ const SquadsPage = (): ReactElement => {
                 icon={
                   <EditIcon
                     size={IconSize.XXLarge}
-                    className="text-theme-color-salt"
+                    className="text-theme-label-secondary"
                   />
                 }
                 clampDescription={false}
