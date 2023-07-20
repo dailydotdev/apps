@@ -21,6 +21,7 @@ import AuthContainer from './AuthContainer';
 import AuthModalHeader from './AuthModalHeader';
 import { ExperimentWinner } from '../../lib/featureValues';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -64,7 +65,7 @@ const AuthDefault = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
-
+  const { displayToast } = useToastNotification();
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
     checkKratosEmail(emailParam),
@@ -106,6 +107,9 @@ const AuthDefault = ({
 
     if (res?.result) {
       setRegisterEmail(email);
+      displayToast(
+        "There's already an account for the same credentials. Can you please try logging in instead?",
+      );
       return setShouldLogin(true);
     }
 
