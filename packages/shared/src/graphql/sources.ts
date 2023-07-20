@@ -55,6 +55,14 @@ export interface Squad extends Source {
   memberInviteRole: SourceMemberRole;
 }
 
+export interface PartialSquadWithRequiredFields extends Partial<Squad> {
+  membersCount: number;
+  permalink: string;
+  id: string;
+  name: string;
+  currentMember?: SourceMember & Required<Pick<SourceMember, 'referralToken' | 'permissions'>>;
+}
+
 export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
   user: Pick<UserShortProfile, 'id'>;
 }
@@ -94,6 +102,7 @@ export const SOURCES_QUERY = gql`
         node {
           id
           name
+          permalink
           image
           public
           type
@@ -113,6 +122,14 @@ export const SOURCES_QUERY = gql`
                 }
               }
             }
+          }
+          currentMember {
+            user {
+              id
+            }
+            permissions
+            role
+            referralToken
           }
         }
       }
