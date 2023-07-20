@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from 'react-query';
-import { Squad } from '../../graphql/sources';
+import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { Button } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -9,12 +9,14 @@ import { useLeaveSquad, useJoinSquad } from '../../hooks';
 import { labels } from '../../lib';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 type SquadJoinProps = {
   className?: string;
   squad: Squad;
   joinText?: string;
   leaveText?: string;
+  blockedTooltipText?: string;
   origin: Origin;
 };
 
@@ -23,13 +25,16 @@ export const SquadJoinButton = ({
   squad,
   joinText = 'Join squad',
   leaveText = 'Leave squad',
+  blockedTooltipText = 'You are not allowed to join the squad',
   origin,
 }: SquadJoinProps): ReactElement => {
   const queryClient = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
-  const isCurrentMember = !!squad.currentMember;
+  const isMemberBlocked =
+    squad.currentMember?.role === SourceMemberRole.Blocked;
+  const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
 
   useEffect(() => {
     trackEvent({
@@ -72,41 +77,50 @@ export const SquadJoinButton = ({
   const isLoading = isJoiningSquad || isLeavingSquad;
 
   return (
-    <Button
-      className={classNames(
-        isCurrentMember ? 'btn-secondary' : 'btn-primary',
-        className,
-      )}
-      disabled={isLoading}
-      onClick={() => {
-        if (!isCurrentMember) {
-          trackEvent({
-            event_name: AnalyticsEvent.ClickJoinSquad,
-            extra: JSON.stringify({
-              squad: squad.id,
-            }),
-          });
-        }
-
-        if (!user) {
-          const onJoinSquad = () => joinSquad();
-
-          showLogin('join squad', {
-            onLoginSuccess: onJoinSquad,
-            onRegistrationSuccess: onJoinSquad,
-          });
-
-          return;
-        }
-
-        if (isCurrentMember) {
-          leaveSquad();
-        } else {
-          joinSquad();
-        }
-      }}
+    <SimpleTooltip
+      sticky
+      placement="bottom"
+      disabled={!isMemberBlocked}
+      content={blockedTooltipText}
     >
-      {isCurrentMember ? leaveText : joinText}
-    </Button>
+      <div className="flex flex-1">
+        <Button
+          className={classNames(
+            isCurrentMember ? 'btn-secondary' : 'btn-primary',
+            className,
+          )}
+          disabled={isMemberBlocked || isLoading}
+          onClick={() => {
+            if (!isCurrentMember) {
+              trackEvent({
+                event_name: AnalyticsEvent.ClickJoinSquad,
+                extra: JSON.stringify({
+                  squad: squad.id,
+                }),
+              });
+            }
+
+            if (!user) {
+              const onJoinSquad = () => joinSquad();
+
+              showLogin('join squad', {
+                onLoginSuccess: onJoinSquad,
+                onRegistrationSuccess: onJoinSquad,
+              });
+
+              return;
+            }
+
+            if (isCurrentMember) {
+              leaveSquad();
+            } else {
+              joinSquad();
+            }
+          }}
+        >
+          {isCurrentMember ? leaveText : joinText}
+        </Button>
+      </div>
+    </SimpleTooltip>
   );
 };
