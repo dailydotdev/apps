@@ -5,6 +5,7 @@ import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { useLazyModal } from './useLazyModal';
 import usePersistentContext from './usePersistentContext';
 import useSidebarRendered from './useSidebarRendered';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const SQUAD_ONBOARDING_KEY = generateStorageKey(StorageTopic.Squad, 'tour');
 
@@ -23,9 +24,10 @@ export const useSquadOnboarding = (
   const { openModal } = useLazyModal<LazyModal.SquadTour>();
   const [hasTriedOnboarding, setHasTriedOnboarding, isCacheFetched] =
     usePersistentContext(SQUAD_ONBOARDING_KEY, false);
+  const { isLoggedIn } = useAuthContext();
 
   useEffect(() => {
-    const conditions = [isPageReady, isFetched, isCacheFetched];
+    const conditions = [isPageReady, isFetched, isCacheFetched, isLoggedIn];
     const isReady = conditions.every((isMet) => isMet);
 
     if (!isReady) return;
@@ -49,6 +51,7 @@ export const useSquadOnboarding = (
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    isLoggedIn,
     hasTriedOnboarding,
     isFetched,
     isCacheFetched,

@@ -50,7 +50,10 @@ import {
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import SquadPage from '../pages/squads/[handle]';
 
-const defaultSquad = generateTestSquad();
+const defaultSquad: Squad = {
+  ...generateTestSquad(),
+  public: false,
+};
 let requestedSquad: Partial<Squad> = {};
 
 jest.mock('next/router', () => ({
@@ -97,7 +100,12 @@ const createSourceMock = (
   request: Partial<Squad> = {},
   result: GraphQLResult<SquadData> = {
     data: {
-      source: generateTestSquad({ ...request, ...requestedSquad, handle }),
+      source: generateTestSquad({
+        public: false,
+        ...request,
+        ...requestedSquad,
+        handle,
+      }),
     },
   },
 ): MockedGraphQLResponse<SquadData> => ({
@@ -133,6 +141,7 @@ const renderComponent = (
     createFeedMock(),
   ],
   user: LoggedUser = defaultUser,
+  squads = [defaultSquad],
 ): RenderResult => {
   client = new QueryClient();
 
@@ -142,7 +151,7 @@ const renderComponent = (
   return render(
     <TestBootProvider
       client={client}
-      auth={{ user }}
+      auth={{ user, squads }}
       notification={{
         app: BootApp.Webapp,
         isNotificationsReady: true,
@@ -306,6 +315,27 @@ describe('squad header bar', () => {
     await expect(async () => {
       await screen.findByText('Copy invitation link');
     }).rejects.toThrow();
+  });
+
+  it('should show join squad button for open squad', async () => {
+    requestedSquad.public = true;
+    requestedSquad.currentMember = undefined;
+    renderComponent(undefined, undefined, undefined, []);
+
+    expect(await screen.findByText('Join squad')).toBeInTheDocument();
+  });
+
+  it('should show leave squad button for open squad when already member', async () => {
+    requestedSquad.public = true;
+    renderComponent();
+
+    expect(await screen.findByText('Leave squad')).toBeInTheDocument();
+  });
+
+  it('should not show join squad button for private squad', async () => {
+    renderComponent();
+
+    expect(screen.queryByText('Join squad')).not.toBeInTheDocument();
   });
 });
 

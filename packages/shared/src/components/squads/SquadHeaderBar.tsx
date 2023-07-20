@@ -20,6 +20,7 @@ import { SourcePermissions } from '../../graphql/sources';
 import ChecklistBIcon from '../icons/ChecklistB';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
+import { SquadJoinButton } from './SquadJoinButton';
 
 export function SquadHeaderBar({
   squad,
@@ -51,7 +52,10 @@ export function SquadHeaderBar({
   return (
     <div
       {...props}
-      className={classNames('flex flex-row gap-4 h-fit', className)}
+      className={classNames(
+        'flex flex-row gap-4 h-fit w-full tablet:w-auto',
+        className,
+      )}
     >
       <div className="relative">
         {verifyPermission(squad, SourcePermissions.Invite) && (
@@ -59,6 +63,7 @@ export function SquadHeaderBar({
             className={classNames(
               'btn-secondary',
               tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
+              squad.public && 'hidden tablet:flex',
             )}
             onClick={() => {
               trackAndCopyLink();
@@ -70,6 +75,13 @@ export function SquadHeaderBar({
           </Button>
         )}
       </div>
+      {squad.public && (
+        <SquadJoinButton
+          className="flex flex-1 tablet:flex-initial -ml-4 tablet:ml-auto w-full tablet:w-auto"
+          squad={squad}
+          origin={Origin.SquadPage}
+        />
+      )}
       {sidebarRendered && (
         <SquadMemberShortList
           squad={squad}
@@ -78,26 +90,28 @@ export function SquadHeaderBar({
           className="hidden laptopL:flex"
         />
       )}
-      <SimpleTooltip
-        forceLoad={!isTesting}
-        visible={isChecklistReady && completedStepsCount < totalStepsCount}
-        container={{
-          className: '-mb-4 bg-theme-color-onion !text-white',
-        }}
-        placement="top"
-        content={checklistTooltipText}
-        zIndex={3}
-      >
-        <Button
-          tag="a"
-          data-testid="squad-checklist-button"
-          className="btn-secondary"
-          icon={<ChecklistBIcon secondary size={IconSize.Small} />}
-          onClick={() => {
-            setChecklistVisible(!isChecklistVisible);
+      {!!squad.currentMember && (
+        <SimpleTooltip
+          forceLoad={!isTesting}
+          visible={isChecklistReady && completedStepsCount < totalStepsCount}
+          container={{
+            className: '-mb-4 bg-theme-color-onion !text-white',
           }}
-        />
-      </SimpleTooltip>
+          placement="top"
+          content={checklistTooltipText}
+          zIndex={3}
+        >
+          <Button
+            tag="a"
+            data-testid="squad-checklist-button"
+            className="btn-secondary"
+            icon={<ChecklistBIcon secondary size={IconSize.Small} />}
+            onClick={() => {
+              setChecklistVisible(!isChecklistVisible);
+            }}
+          />
+        </SimpleTooltip>
+      )}
       <SimpleTooltip placement="top" content="Squad options">
         <Button
           className="btn-secondary"

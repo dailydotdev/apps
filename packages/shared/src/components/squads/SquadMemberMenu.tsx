@@ -151,7 +151,7 @@ export default function SquadMemberMenu({
   };
 
   const options: MenuItemProps[] = useMemo(() => {
-    if (!member) return [];
+    if (!member || !user) return [];
 
     const getUpdateRoleFn =
       (role: SourceMemberRole, title: MenuItemTitle) => () =>

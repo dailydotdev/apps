@@ -19,10 +19,11 @@ export enum Origin {
   Share = 'share',
   Notification = 'notification',
   SquadMembersList = 'squad members list',
+  SquadChecklist = 'squad checklist',
+  SquadInvitation = 'squad invitation',
   // squads - end
   PostCommentButton = 'comment button',
   StartDiscussion = 'start discussion button',
-  SquadChecklist = 'squad checklist',
   CompanionContextMenu = 'companion context menu',
 }
 
@@ -87,6 +88,7 @@ export enum TargetType {
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
   SignupButton = 'signup button',
+  SquadJoinButton = 'squad join button',
 }
 
 export enum NotificationChannel {

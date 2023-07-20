@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext } from 'react';
 import { leaveSquad } from '../graphql/squads';
 import { Squad } from '../graphql/sources';
 import { PromptOptions, usePrompt } from './usePrompt';
@@ -6,26 +6,19 @@ import { useBoot } from './useBoot';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
 
-interface UseLeaveSquad {
-  onLeaveSquad: () => void;
-}
+type UseLeaveSquad = () => Promise<void>;
 
 type UseLeaveSquadProps = {
   squad: Squad;
   callback?: (params?: unknown) => void;
 };
 
-export const useLeaveSquad = ({
-  squad,
-  callback,
-}: UseLeaveSquadProps): UseLeaveSquad => {
+export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { showPrompt } = usePrompt();
   const { deleteSquad: deleteCachedSquad } = useBoot();
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onLeaveSquad = async () => {
+  const onLeaveSquad = useCallback(async () => {
     const options: PromptOptions = {
       title: `Leave ${squad.name}`,
       description: `Leaving ${squad.name} means that you will lose your access to all posts that were shared in the Squad`,
@@ -48,9 +41,8 @@ export const useLeaveSquad = ({
       });
       await leaveSquad(squad.id);
       deleteCachedSquad(squad.id);
-      await callback?.();
     }
-  };
+  }, [deleteCachedSquad, showPrompt, squad, trackEvent]);
 
-  return useMemo(() => ({ onLeaveSquad }), [onLeaveSquad]);
+  return onLeaveSquad;
 };

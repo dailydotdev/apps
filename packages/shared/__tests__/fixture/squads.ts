@@ -3,6 +3,7 @@ import { Edge } from '../../src/graphql/common';
 import {
   SourceMember,
   SourceMemberRole,
+  SourcePermissions,
   SourceType,
 } from '../../src/graphql/sources';
 import { Squad, SquadData, SquadEdgesData } from '../../src/graphql/squads';
@@ -50,6 +51,22 @@ export const generateTestAdmin = (
         },
         ...members,
       ],
+    },
+    currentMember: {
+      role: SourceMemberRole.Admin,
+      referralToken: '3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8',
+      user: {
+        id: 'Se4LmwLU0q6aVDpX1MkqX',
+        name: 'Lee Hansel Solevilla',
+        image:
+          'https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3',
+        permalink: 'http://webapp.local.com:5002/a123124124111',
+        username: 'a123124124111',
+      },
+      source: {
+        id: '559581c2-ee2d-440c-b27f-358b074bb0d4',
+      } as Squad,
+      permissions: Object.values(SourcePermissions),
     },
   },
   referralToken: defaultSquadToken,

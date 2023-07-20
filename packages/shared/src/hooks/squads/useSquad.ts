@@ -19,8 +19,8 @@ interface UseSquad {
 }
 
 export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
-  const { isFetched: isBootFetched } = useContext(AuthContext);
-  const queryKey = ['squad', handle];
+  const { isFetched: isBootFetched, user } = useContext(AuthContext);
+  const queryKey = ['squad', handle, user?.id];
   const {
     data: squad,
     isLoading,
