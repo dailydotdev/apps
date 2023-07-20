@@ -234,6 +234,7 @@ const SquadReferral = ({
             onClick={onJoinClick}
             squad={source}
             origin={Origin.SquadInvitation}
+            inviterMember={member?.user}
           >
             Join squad
           </SimpleSquadJoinButton>
