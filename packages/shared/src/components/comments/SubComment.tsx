@@ -1,13 +1,16 @@
 import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
 import CommentBox, { CommentBoxProps } from './CommentBox';
-import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
+import {
+  CommentMarkdownInput,
+  CommentMarkdownInputProps,
+} from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 
 export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   parentComment: Comment;
-  onCommented: (comment: Comment, isNew?: boolean) => void;
+  onCommented: CommentMarkdownInputProps['onCommented'];
 }
 
 function SubComment({
@@ -58,9 +61,9 @@ function SubComment({
           {...inputProps}
           className={className}
           post={props.post}
-          onCommented={(data, isNew) => {
+          onCommented={(...params) => {
             onReplyTo(null);
-            onCommented(data, isNew);
+            onCommented(...params);
           }}
         />
       )}

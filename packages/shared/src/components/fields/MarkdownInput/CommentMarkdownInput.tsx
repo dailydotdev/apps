@@ -38,7 +38,11 @@ export interface CommentMarkdownInputProps {
   initialContent?: string;
   replyTo?: string;
   className?: CommentClassName;
-  onCommented?: (comment: Comment, isNew?: boolean) => void;
+  onCommented?: (
+    comment: Comment,
+    isNew: boolean,
+    parentCommentId?: string,
+  ) => void;
 }
 
 interface SubmitComment {
@@ -127,7 +131,7 @@ export function CommentMarkdownInput({
       updatePostCache(client, postId, { numComments: post.numComments + 1 });
     }
 
-    if (onCommented) onCommented(comment, !editCommentId);
+    if (onCommented) onCommented(comment, !editCommentId, parentCommentId);
   };
 
   const mutation = parentCommentId
