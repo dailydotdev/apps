@@ -38,7 +38,7 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const { placement } = useCompanionSettings('main feed page');
+  useCompanionSettings('main feed page');
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     setIsSearchOn(true);
@@ -97,10 +97,7 @@ export default function MainFeedPage({
       onNavTabClick={onNavTabClick}
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
-      additionalButtons={
-        !loadingUser &&
-        placement === 'header' && <CompanionPopupButton placement={placement} />
-      }
+      additionalButtons={!loadingUser && <CompanionPopupButton />}
     >
       <FeedLayout>
         <MainFeedLayout

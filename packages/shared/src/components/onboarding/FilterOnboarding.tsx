@@ -1,16 +1,9 @@
-import React, { ReactElement, useState, useContext } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
-import { OnboardingFiltersLayout } from '../../lib/featureValues';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { Origin } from '../../lib/analytics';
-
-const classes: Record<OnboardingFiltersLayout, string> = {
-  grid: 'tablet:grid-cols-3 grid-cols-2',
-  list: 'grid-cols-1',
-};
 
 interface FilterOnboardingProps {
   onSelectedTopics?(tags: Record<string, boolean>): void;
@@ -23,7 +16,6 @@ export function FilterOnboarding({
 }: FilterOnboardingProps): ReactElement {
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const [selectedTopics, setSelectedTopics] = useState({});
-  const { onboardingFiltersLayout } = useContext(FeaturesContext);
   const { tagsCategories } = useFeedSettings();
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.TagsFilter,
@@ -46,8 +38,7 @@ export function FilterOnboarding({
   return (
     <div
       className={classNames(
-        'grid gap-4 w-fit tablet:w-full',
-        classes[onboardingFiltersLayout],
+        'grid gap-4 w-fit tablet:w-full tablet:grid-cols-3 grid-cols-2',
         className,
       )}
     >
@@ -56,7 +47,6 @@ export function FilterOnboarding({
           key={category.title}
           topic={category}
           isActive={selectedTopics[category.id]}
-          topicLayout={onboardingFiltersLayout}
           onClick={(e) => onChangeSelectedTopic(e, category.id)}
         />
       ))}

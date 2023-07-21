@@ -17,8 +17,6 @@ import CardIcon from './icons/Card';
 import LineIcon from './icons/Line';
 import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
-import { Features, getFeatureValue } from '../lib/featureManagement';
-import FeaturesContext from '../contexts/FeaturesContext';
 import { AuthTriggers } from '../lib/auth';
 
 const densities = [
@@ -63,11 +61,6 @@ export default function Settings({
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = process.env.TARGET_BROWSER;
   const { user, showLogin } = useContext(AuthContext);
-  const { flags } = useContext(FeaturesContext);
-  const companionPlacement = getFeatureValue(
-    Features.CompanionPermissionPlacement,
-    flags,
-  );
   const {
     spaciness,
     setSpaciness,
@@ -176,15 +169,13 @@ export default function Settings({
           >
             Show Weekly Goal widget
           </SettingsSwitch>
-          {companionPlacement !== 'off' && (
-            <SettingsSwitch
-              name="hide-companion"
-              checked={!optOutCompanion}
-              onToggle={toggleOptOutCompanion}
-            >
-              Enable companion
-            </SettingsSwitch>
-          )}
+          <SettingsSwitch
+            name="hide-companion"
+            checked={!optOutCompanion}
+            onToggle={toggleOptOutCompanion}
+          >
+            Enable companion
+          </SettingsSwitch>
         </SectionContent>
       </Section>
       <Section>

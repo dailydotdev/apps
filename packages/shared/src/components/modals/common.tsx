@@ -30,13 +30,6 @@ const ReadingHistoryModal = dynamic(
     ),
 );
 
-const LegoReferralCampaignModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "legoReferralCampaignModal" */ './LegoReferralCampaignModal'
-    ),
-);
-
 const CreateSharedPostModal = dynamic(
   () =>
     import(
@@ -64,7 +57,6 @@ export const modals = {
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
-  [LazyModal.LegoReferralCampaign]: LegoReferralCampaignModal,
   [LazyModal.CreateSharedPost]: CreateSharedPostModal,
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,

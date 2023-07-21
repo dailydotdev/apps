@@ -1,40 +1,14 @@
-import React, {
-  ReactElement,
-  useState,
-  useContext,
-  MouseEventHandler,
-  MouseEvent,
-} from 'react';
+import React, { ReactElement, useContext } from 'react';
 import Container from './OnboardingStep';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
 import { Button } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { OnboardingStep } from './common';
 import { ModalPropsContext } from '../modals/common/types';
 import { FilterOnboarding } from './FilterOnboarding';
 
 export function FilterOnboardingStep(): ReactElement {
-  const [invalidMessage, setInvalidMessage] = useState<string>(null);
-  const [selectedTopics, setSelectedTopics] = useState({});
-  const { onboardingMinimumTopics } = useContext(FeaturesContext);
   const { onRequestClose } = useContext(ModalPropsContext);
-
-  const onFilterNext = (e: MouseEvent, nextStep: MouseEventHandler) => {
-    const selected = Object.values(selectedTopics).filter((value) => !!value);
-    const isValid = selected.length >= onboardingMinimumTopics;
-
-    if (isValid) {
-      return nextStep(e);
-    }
-
-    const topic = `topic${onboardingMinimumTopics > 1 ? 's' : ''}`;
-    const message = `Choose at least ${onboardingMinimumTopics} ${topic} to follow`;
-    setInvalidMessage(isValid ? null : message);
-
-    return null;
-  };
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Topics}>
@@ -49,7 +23,7 @@ export function FilterOnboardingStep(): ReactElement {
                 'p-4 mt-1 mb-4 flex flex-row justify-center overflow-x-hidden',
             }}
           >
-            <FilterOnboarding onSelectedTopics={setSelectedTopics} />
+            <FilterOnboarding />
           </Container>
           <Modal.Footer justify={Justify.Between}>
             <Button
@@ -58,22 +32,9 @@ export function FilterOnboardingStep(): ReactElement {
             >
               {activeStepIndex === 0 ? 'Close' : 'Back'}
             </Button>
-            <SimpleTooltip
-              forceLoad
-              content={invalidMessage}
-              visible={!!invalidMessage}
-              container={{
-                className: 'w-36 text-center',
-                paddingClassName: 'py-4 px-3',
-              }}
-            >
-              <Button
-                className="bg-theme-color-cabbage"
-                onClick={(e) => onFilterNext(e, nextStep)}
-              >
-                Next
-              </Button>
-            </SimpleTooltip>
+            <Button className="bg-theme-color-cabbage" onClick={nextStep}>
+              Next
+            </Button>
           </Modal.Footer>
         </>
       )}

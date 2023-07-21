@@ -57,13 +57,7 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  const {
-    hasSquadAccess,
-    canSubmitArticle,
-    submitArticleSidebarButton,
-    submitArticleModalButton,
-    popularFeedCopy,
-  } = useContext(FeaturesContext);
+  const { hasSquadAccess, canSubmitArticle } = useContext(FeaturesContext);
   const { openNewSquad } = useSquadNavigation();
   const newSquadButtonVisible =
     sidebarRendered && hasSquadAccess && !squads?.length;
@@ -155,7 +149,6 @@ export default function Sidebar({
             )}
             <DiscoverSection
               {...defaultRenderSectionProps}
-              popularFeedCopy={popularFeedCopy}
               onNavTabClick={onNavTabClick}
               enableSearch={enableSearch}
               isItemsButton={isNavButtons}
@@ -164,8 +157,6 @@ export default function Sidebar({
             <ContributeSection
               {...defaultRenderSectionProps}
               canSubmitArticle={canSubmitArticle}
-              submitArticleSidebarButton={submitArticleSidebarButton}
-              submitArticleModalButton={submitArticleModalButton}
             />
             <ManageSection
               {...defaultRenderSectionProps}
