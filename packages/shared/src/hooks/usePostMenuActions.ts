@@ -11,11 +11,12 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import useUpdatePost from './useUpdatePost';
 import { useBlockPostPanel } from './post/useBlockPostPanel';
+import { AuthTriggers } from '../lib/auth';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
   onPinPost: () => Promise<void>;
-  onToggleDownvotePost: () => Promise<void>;
+  onToggleDownvotePost: () => void;
 }
 
 interface DeletePostProps {
@@ -50,7 +51,7 @@ export const usePostMenuActions = ({
   origin,
 }: UsePostMenuActionsProps): UsePostMenuActions => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const { showPrompt } = usePrompt();
   const { updatePost } = useUpdatePost();
   const { mutateAsync: onDeletePost } = useMutation(
@@ -66,7 +67,7 @@ export const usePostMenuActions = ({
   }, [post, postIndex, onDeletePost, showPrompt]);
 
   const isSharedPostAuthor =
-    post?.source.type === SourceType.Squad && post?.author?.id === user.id;
+    post?.source.type === SourceType.Squad && post?.author?.id === user?.id;
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const canDelete =
     isModerator ||
@@ -113,6 +114,11 @@ export const usePostMenuActions = ({
     onConfirmDeletePost: canDelete ? deletePostPrompt : null,
     onPinPost: canPin ? onPinPost : null,
     onToggleDownvotePost: () => {
+      if (!user) {
+        showLogin(AuthTriggers.Downvote);
+        return;
+      }
+
       if (post.downvoted) {
         trackEvent(
           postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
@@ -120,16 +126,16 @@ export const usePostMenuActions = ({
           }),
         );
 
-        return cancelPostDownvote({ id: post.id });
+        cancelPostDownvote({ id: post.id });
+      } else {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
+            extra: { origin },
+          }),
+        );
+
+        downvotePost({ id: post.id });
       }
-
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
-          extra: { origin },
-        }),
-      );
-
-      return downvotePost({ id: post.id });
     },
   };
 };

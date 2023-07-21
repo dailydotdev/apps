@@ -6,6 +6,7 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   PostContextMenu = 'post context menu',
+  PostCommentContextMenu = 'post comment context menu',
   TagsFilter = 'tags filter',
   TagsSearch = 'tags search',
   RealTime = 'realtime',
@@ -19,10 +20,11 @@ export enum Origin {
   Share = 'share',
   Notification = 'notification',
   SquadMembersList = 'squad members list',
+  SquadChecklist = 'squad checklist',
+  SquadInvitation = 'squad invitation',
   // squads - end
   PostCommentButton = 'comment button',
   StartDiscussion = 'start discussion button',
-  SquadChecklist = 'squad checklist',
   CompanionContextMenu = 'companion context menu',
 }
 
@@ -77,16 +79,17 @@ export enum AnalyticsEvent {
   BookmarkPost = 'bookmark post',
   RemovePostBookmark = 'remove post bookmark',
   // bookmark - end
+  ReportComment = 'report comment',
 }
 
 export enum TargetType {
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
-  CreateSquadPopup = 'create squad popup',
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
   SignupButton = 'signup button',
+  SquadJoinButton = 'squad join button',
 }
 
 export enum NotificationChannel {

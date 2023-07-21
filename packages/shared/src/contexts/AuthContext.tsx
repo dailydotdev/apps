@@ -31,6 +31,7 @@ type LoginOptions = Omit<LoginState, 'trigger'>;
 
 export interface AuthContextData {
   user?: LoggedUser;
+  isLoggedIn: boolean;
   referral?: string;
   referralOrigin?: string;
   trackingId?: string;
@@ -47,7 +48,7 @@ export interface AuthContextData {
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
   visit?: Visit;
-  isFirstVisit?: boolean;
+  firstVisit?: string;
   deleteAccount?: () => Promise<void>;
   refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   accessToken?: AccessToken;
@@ -140,9 +141,10 @@ export const AuthContextProvider = ({
     () => ({
       isAuthReady: !isNullOrUndefined(firstLoad),
       user: endUser,
+      isLoggedIn: !!endUser?.id,
       referral: loginState?.referral ?? referral,
       referralOrigin: loginState?.referralOrigin ?? referralOrigin,
-      isFirstVisit: user?.isFirstVisit ?? false,
+      firstVisit: user?.firstVisit,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
       showLogin: (trigger, options = {}) => {

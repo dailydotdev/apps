@@ -28,6 +28,7 @@ import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceh
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
+import { labels } from '@dailydotdev/shared/src/lib';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -310,8 +311,7 @@ const DevCardPage = (): ReactElement => {
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const [imageError, setImageError] = useState<string>();
 
-  const onError = () =>
-    setImageError('Something went wrong, please try again...');
+  const onError = () => setImageError(labels.error.generic);
 
   const { mutateAsync: generateDevCard } = useMutation(
     ({ file, url }: GenerateDevCardParams = {}) =>

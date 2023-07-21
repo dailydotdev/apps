@@ -78,7 +78,7 @@ function SquadMemberItemAdditionalContent({
     </SimpleTooltip>
   );
 
-  const isLoggedUser = loggedUser.id === user.id;
+  const isLoggedUser = loggedUser && loggedUser.id === user.id;
 
   if (role !== SourceMemberRole.Member) {
     return (
@@ -92,7 +92,7 @@ function SquadMemberItemAdditionalContent({
     );
   }
 
-  if (isLoggedUser) return null;
+  if (isLoggedUser || !loggedUser) return null;
 
   return option;
 }

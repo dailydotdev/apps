@@ -15,3 +15,16 @@ export enum ExperimentWinner {
   OnboardingVersion = 'v2',
   ScrollOnboardingVersion = 'v2',
 }
+
+export enum OnboardingV2 {
+  Control = 'control',
+  V1 = 'v1',
+}
+
+export enum OnboardingFilteringTitle {
+  Control = 'control',
+  V1 = 'v1',
+  V2 = 'v2',
+  V3 = 'v3',
+  V4 = 'v4',
+}

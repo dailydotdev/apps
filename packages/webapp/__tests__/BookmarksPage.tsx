@@ -2,22 +2,14 @@ import {
   FeedData,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  BOOKMARKS_FEED_QUERY,
-  OnboardingMode,
-} from '@dailydotdev/shared/src/graphql/feed';
+import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
-import SettingsContext, {
-  SettingsContextData,
-  ThemeMode,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
@@ -26,11 +18,9 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import BookmarksPage from '../pages/bookmarks';
 
-const showLogin = jest.fn();
 const routerReplace = jest.fn();
 
 jest.mock('next/router', () => ({
@@ -82,65 +72,15 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
-  const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: ThemeMode.Dark,
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
-    sidebarExpanded: false,
-    sortingEnabled: true,
-    optOutWeeklyGoal: false,
-    optOutCompanion: false,
-    autoDismissNotifications: true,
-    toggleSidebarExpanded: jest.fn(),
-    toggleSortingEnabled: jest.fn(),
-    toggleOptOutWeeklyGoal: jest.fn(),
-    toggleAutoDismissNotifications: jest.fn(),
-    toggleOptOutCompanion: jest.fn(),
-    updateCustomLinks: jest.fn(),
-  };
+
   return render(
-    <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          closeLogin: jest.fn(),
-        }}
-      >
-        <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-            }}
-          >
-            <NotificationsContextProvider>
-              {BookmarksPage.getLayout(
-                <BookmarksPage />,
-                {},
-                BookmarksPage.layoutProps,
-              )}
-            </NotificationsContextProvider>
-          </OnboardingContext.Provider>
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
-    </QueryClientProvider>,
+    <TestBootProvider client={client} auth={{ user }}>
+      {BookmarksPage.getLayout(
+        <BookmarksPage />,
+        {},
+        BookmarksPage.layoutProps,
+      )}
+    </TestBootProvider>,
   );
 };
 it('should request bookmarks feed', async () => {

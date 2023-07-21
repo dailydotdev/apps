@@ -53,6 +53,7 @@ export interface Squad extends Source {
   description: string;
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
+  referralUrl?: string;
 }
 
 export interface BasicSquadWithCurrentMember extends Partial<Squad> {

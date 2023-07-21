@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import { IFlags } from 'flagsmith';
 import {
   Features,
@@ -8,7 +8,9 @@ import {
 } from '../lib/featureManagement';
 import {
   InAppNotificationPosition,
+  OnboardingFilteringTitle,
   OnboardingFiltersLayout,
+  OnboardingV2,
 } from '../lib/featureValues';
 import { OnboardingStep } from '../components/onboarding/common';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
@@ -26,6 +28,8 @@ interface Experiments {
   inAppNotificationPosition?: InAppNotificationPosition;
   hasSquadAccess?: boolean;
   showHiring?: boolean;
+  onboardingV2?: OnboardingV2;
+  onboardingFilteringTitle?: OnboardingFilteringTitle;
 }
 
 export interface FeaturesData extends Experiments {
@@ -73,6 +77,11 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       Features.InAppNotificationPosition,
       flags,
     ),
+    onboardingV2: getFeatureValue(Features.OnboardingV2, flags),
+    onboardingFilteringTitle: getFeatureValue(
+      Features.OnboardingFilteringTitle,
+      flags,
+    ),
     hasSquadAccess: isFeaturedEnabled(Features.HasSquadAccess, flags),
     showHiring: isFeaturedEnabled(Features.ShowHiring, flags),
   };
@@ -97,6 +106,7 @@ export const FeaturesContextProvider = ({
     const result = getFeatures(updated);
 
     globalThis.getFeatureKeys = () => Object.keys(flags);
+
     return { ...result, ...props };
   }, [flags, isFeaturesLoaded, isFlagsFetched]);
 
@@ -106,3 +116,6 @@ export const FeaturesContextProvider = ({
     </FeaturesContext.Provider>
   );
 };
+
+export const useFeaturesContext = (): FeaturesData =>
+  useContext(FeaturesContext);

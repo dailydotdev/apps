@@ -235,3 +235,6 @@ export const SettingsContextProvider = ({
     </SettingsContext.Provider>
   );
 };
+
+export const useSettingsContext = (): SettingsContextData =>
+  useContext(SettingsContext);

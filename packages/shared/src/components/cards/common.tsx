@@ -35,4 +35,5 @@ export type PostCardProps = {
   menuOpened?: boolean;
   showImage?: boolean;
   insaneMode?: boolean;
+  enableSourceHeader?: boolean;
 } & HTMLAttributes<HTMLDivElement>;

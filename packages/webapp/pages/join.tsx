@@ -38,6 +38,7 @@ import { GetServerSideProps } from 'next';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
+import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { defaultOpenGraph } from '../next-seo';
 
 type PageProps = {
@@ -65,10 +66,9 @@ const Page = ({ referringUser, campaign }: PageProps): ReactElement => {
   }, [user?.id, router]);
 
   useEffect(() => {
-    const ONE_YEAR = 1 * 365 * 24 * 60 * 60;
-
     setCookie('join_referral', `${referringUser.id}:${campaign}`, {
-      maxAge: ONE_YEAR,
+      path: '/',
+      maxAge: oneYear,
       secure: !isDevelopment,
       domain: process.env.NEXT_PUBLIC_DOMAIN,
       sameSite: 'lax',

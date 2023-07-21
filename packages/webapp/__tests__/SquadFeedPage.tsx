@@ -2,12 +2,8 @@ import {
   FeedData,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  OnboardingMode,
-  SOURCE_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
+import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import {
   fireEvent,
@@ -16,12 +12,9 @@ import {
   screen,
   waitFor,
 } from '@testing-library/preact';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter } from 'next/router';
-import SettingsContext, {
-  SettingsContextData,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
@@ -31,8 +24,6 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import {
   generateForbiddenSquadResult,
   generateMembersList,
@@ -51,16 +42,18 @@ import {
   SourcePermissions,
   Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import {
   ActionType,
   COMPLETE_ACTION_MUTATION,
 } from '@dailydotdev/shared/src/graphql/actions';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import SquadPage from '../pages/squads/[handle]';
 
-const showLogin = jest.fn();
-const defaultSquad = generateTestSquad();
+const defaultSquad: Squad = {
+  ...generateTestSquad(),
+  public: false,
+};
 let requestedSquad: Partial<Squad> = {};
 
 jest.mock('next/router', () => ({
@@ -107,7 +100,12 @@ const createSourceMock = (
   request: Partial<Squad> = {},
   result: GraphQLResult<SquadData> = {
     data: {
-      source: generateTestSquad({ ...request, ...requestedSquad, handle }),
+      source: generateTestSquad({
+        public: false,
+        ...request,
+        ...requestedSquad,
+        handle,
+      }),
     },
   },
 ): MockedGraphQLResponse<SquadData> => ({
@@ -135,7 +133,6 @@ const createSourceMembersMock = (
 
 let client: QueryClient;
 
-const settingsContext: SettingsContextData = createTestSettings();
 const renderComponent = (
   handle = defaultSquad.handle,
   mocks: MockedGraphQLResponse[] = [
@@ -144,6 +141,7 @@ const renderComponent = (
     createFeedMock(),
   ],
   user: LoggedUser = defaultUser,
+  squads = [defaultSquad],
 ): RenderResult => {
   client = new QueryClient();
 
@@ -151,46 +149,21 @@ const renderComponent = (
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
 
   return render(
-    <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          closeLogin: jest.fn(),
-          isFetched: true,
-        }}
-      >
-        <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-              onStartArticleOnboarding: jest.fn(),
-            }}
-          >
-            <NotificationsContextProvider
-              app={BootApp.Webapp}
-              isNotificationsReady
-              unreadCount={0}
-            >
-              {SquadPage.getLayout(
-                <SquadPage handle={handle} />,
-                {},
-                SquadPage.layoutProps,
-              )}
-            </NotificationsContextProvider>
-          </OnboardingContext.Provider>
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
-    </QueryClientProvider>,
+    <TestBootProvider
+      client={client}
+      auth={{ user, squads }}
+      notification={{
+        app: BootApp.Webapp,
+        isNotificationsReady: true,
+        unreadCount: 0,
+      }}
+    >
+      {SquadPage.getLayout(
+        <SquadPage handle={handle} />,
+        {},
+        SquadPage.layoutProps,
+      )}
+    </TestBootProvider>,
   );
 };
 
@@ -283,6 +256,7 @@ describe('squad header bar', () => {
   });
 
   it('should copy invitation link', async () => {
+    requestedSquad.public = false;
     requestedSquad.currentMember = {
       ...defaultSquad.currentMember,
       permissions: [SourcePermissions.Invite],
@@ -306,6 +280,31 @@ describe('squad header bar', () => {
     );
   });
 
+  it('should copy invitation link for public squad', async () => {
+    requestedSquad.public = true;
+    requestedSquad.currentMember = {
+      ...defaultSquad.currentMember,
+      permissions: [SourcePermissions.Invite],
+    };
+    renderComponent();
+    const invite = await screen.findByText('Copy invitation link');
+
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SquadInvite },
+      },
+      result: { data: { _: true } },
+    });
+    fireEvent.click(invite);
+    await new Promise(process.nextTick);
+
+    const invitation = `https://app.daily.dev/squads/webteam?cid=squad&userid=u1`;
+    await waitFor(() =>
+      expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
+    );
+  });
+
   it('should not copy invitation link when member does not have invite permission', async () => {
     requestedSquad.currentMember = {
       ...defaultSquad.currentMember,
@@ -316,6 +315,27 @@ describe('squad header bar', () => {
     await expect(async () => {
       await screen.findByText('Copy invitation link');
     }).rejects.toThrow();
+  });
+
+  it('should show join squad button for open squad', async () => {
+    requestedSquad.public = true;
+    requestedSquad.currentMember = undefined;
+    renderComponent(undefined, undefined, undefined, []);
+
+    expect(await screen.findByText('Join squad')).toBeInTheDocument();
+  });
+
+  it('should show leave squad button for open squad when already member', async () => {
+    requestedSquad.public = true;
+    renderComponent();
+
+    expect(await screen.findByText('Leave squad')).toBeInTheDocument();
+  });
+
+  it('should not show join squad button for private squad', async () => {
+    renderComponent();
+
+    expect(screen.queryByText('Join squad')).not.toBeInTheDocument();
   });
 });
 

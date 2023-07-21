@@ -36,7 +36,7 @@ function MyFeedHeading({
 
   return (
     <AlertPointer
-      offset={[sidebarRendered ? 4 : 0]}
+      offset={sidebarRendered ? [4, 0] : [-32, 4]}
       isAlertDisabled={isAlertDisabled}
       onClose={() => onUpdateAlerts({ myFeed: null })}
       className={{
