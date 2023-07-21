@@ -22,7 +22,7 @@ importers:
         version: 3.9.4(eslint@7.32.0)
       eslint-plugin-testing-library:
         specifier: ^3.10.2
-        version: 3.10.2(typescript@4.6.4)
+        version: 3.10.2(eslint@7.32.0)(typescript@4.6.4)
     devDependencies:
       '@dailydotdev/eslint-plugin-daily-dev-eslint-rules':
         specifier: '*'
@@ -710,8 +710,8 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4(@babel/core@7.17.9)(next@12.2.2)(webpack@5.72.0)
       next-seo:
-        specifier: ^5.4.0
-        version: 5.4.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2)
+        specifier: ^6.1.0
+        version: 6.1.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2)
       preact:
         specifier: ^10.8.2
         version: 10.8.2
@@ -3431,7 +3431,7 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/experimental-utils@3.10.1(typescript@4.6.4):
+  /@typescript-eslint/experimental-utils@3.10.1(eslint@7.32.0)(typescript@4.6.4):
     resolution: {integrity: sha512-DewqIgscDzmAfd5nOGe4zm6Bl7PKtMG2Ad0KG8CUZAHlXfAKTF9Ol5PXhiMh39yRL2ChRH1cuuUGOcVyyrhQIw==}
     engines: {node: ^10.12.0 || >=12.0.0}
     peerDependencies:
@@ -3440,6 +3440,7 @@ packages:
       '@types/json-schema': 7.0.12
       '@typescript-eslint/types': 3.10.1
       '@typescript-eslint/typescript-estree': 3.10.1(typescript@4.6.4)
+      eslint: 7.32.0
       eslint-scope: 5.1.1
       eslint-utils: 2.1.0
     transitivePeerDependencies:
@@ -6097,13 +6098,14 @@ packages:
       - ts-node
     dev: true
 
-  /eslint-plugin-testing-library@3.10.2(typescript@4.6.4):
+  /eslint-plugin-testing-library@3.10.2(eslint@7.32.0)(typescript@4.6.4):
     resolution: {integrity: sha512-WAmOCt7EbF1XM8XfbCKAEzAPnShkNSwcIsAD2jHdsMUT9mZJPjLCG7pMzbcC8kK366NOuGip8HKLDC+Xk4yIdA==}
     engines: {node: ^10.12.0 || >=12.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^5 || ^6 || ^7
     dependencies:
-      '@typescript-eslint/experimental-utils': 3.10.1(typescript@4.6.4)
+      '@typescript-eslint/experimental-utils': 3.10.1(eslint@7.32.0)(typescript@4.6.4)
+      eslint: 7.32.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -8997,8 +8999,8 @@ packages:
       - webpack
     dev: false
 
-  /next-seo@5.4.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2):
-    resolution: {integrity: sha512-R9DhajPwJnR/lsF2hZ8cN8uqr5CVITsRrCG1AF5+ufcaybKYOvnH8sH9MaH4/hpkps3PQ9H71S7J7SPYixAYzQ==}
+  /next-seo@6.1.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2):
+    resolution: {integrity: sha512-iMBpFoJsR5zWhguHJvsoBDxDSmdYTHtnVPB1ij+CD0NReQCP78ZxxbdL9qkKIf4oEuZEqZkrjAQLB0bkII7RYA==}
     peerDependencies:
       next: ^8.1.1-canary.54 || >=9.0.0
       react: '>=16.0.0'
