@@ -19,6 +19,7 @@ import { AuthTriggers } from '../../lib/auth';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
+import { SquadPostListItem } from '../squads/SquadPostListItem';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -79,7 +80,7 @@ export default function FurtherReading({
           graphqlUrl,
           SOURCE_FEED_QUERY,
           {
-            first: 2,
+            first: 3,
             loggedIn: isLoggedIn,
             source: squad.id,
             ranking: 'TIME',
@@ -91,7 +92,9 @@ export default function FurtherReading({
           },
         );
         const similarPosts =
-          squadPostsResult?.page?.edges?.map((item) => item.node) || [];
+          squadPostsResult?.page?.edges
+            ?.map((item) => item.node)
+            ?.filter((item) => item.id !== currentPost.id) || [];
 
         return {
           trendingPosts: [],
@@ -183,6 +186,7 @@ export default function FurtherReading({
             href: isPublicSquad ? currentPost.source.permalink : undefined,
             text: isPublicSquad ? 'Show more' : undefined,
           }}
+          ListItem={isPublicSquad ? SquadPostListItem : undefined}
         />
       )}
       {(isLoading || posts?.discussedPosts?.length > 0) && (

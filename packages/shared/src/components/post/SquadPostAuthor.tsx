@@ -1,28 +1,54 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import { Author } from '../../graphql/comments';
 import { SourceMemberRole } from '../../graphql/sources';
 
 interface SquadPostAuthorProps {
+  className?: Partial<{
+    container: string;
+    name: string;
+    handle: string;
+  }>;
   author: Author;
   role: SourceMemberRole;
+  size?: ProfileImageSize;
 }
 
-function SquadPostAuthor({ author, role }: SquadPostAuthorProps): ReactElement {
+function SquadPostAuthor({
+  className,
+  author,
+  role,
+  size = 'xxxlarge',
+}: SquadPostAuthorProps): ReactElement {
   return (
-    <span className="flex flex-row items-center mt-3">
+    <span
+      className={classNames(
+        'flex flex-row items-center mt-3',
+        className?.container,
+      )}
+    >
       <ProfileTooltip user={author}>
-        <ProfilePicture user={author} size="xxxlarge" nativeLazyLoading />
+        <ProfilePicture user={author} size={size} nativeLazyLoading />
       </ProfileTooltip>
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
         <a className="flex flex-col ml-4">
           <div className="flex items-center">
-            <span className="font-bold">{author.name}</span>
+            <span className={classNames('font-bold', className?.name)}>
+              {author.name}
+            </span>
             <SquadMemberBadge key="squadMemberRole" role={role} />
           </div>
-          <span className="text-theme-label-tertiary">@{author.username}</span>
+          <span
+            className={classNames(
+              'text-theme-label-tertiary',
+              className?.handle,
+            )}
+          >
+            @{author.username}
+          </span>
         </a>
       </ProfileTooltip>
     </span>

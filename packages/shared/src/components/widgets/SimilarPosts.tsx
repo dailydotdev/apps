@@ -25,6 +25,9 @@ export type SimilarPostsProps = {
     href?: string;
     text?: string;
   };
+  ListItem?: React.ComponentType<PostProps> & {
+    Placeholder: () => ReactElement;
+  };
 };
 
 const Separator = <div className="h-px bg-theme-divider-tertiary" />;
@@ -38,7 +41,7 @@ type PostProps = {
 const imageClassName = 'w-7 h-7 rounded-full mt-1';
 const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 
-const ListItem = ({
+const DefaultListItem = ({
   post,
   onLinkClick,
   onBookmark,
@@ -101,7 +104,7 @@ const ListItem = ({
 
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
 
-const ListItemPlaceholder = (): ReactElement => (
+const DefaultListItemPlaceholder = (): ReactElement => (
   <article aria-busy className="flex relative items-start py-2 pr-2 pl-4">
     <ElementPlaceholder className={imageClassName} />
     <div className={textContainerClassName}>
@@ -111,6 +114,7 @@ const ListItemPlaceholder = (): ReactElement => (
     </div>
   </article>
 );
+DefaultListItem.Placeholder = DefaultListItemPlaceholder;
 
 export default function SimilarPosts({
   posts,
@@ -119,6 +123,7 @@ export default function SimilarPosts({
   className,
   title = 'You might like',
   moreButtonProps,
+  ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const moreButtonHref =
@@ -146,9 +151,9 @@ export default function SimilarPosts({
       {Separator}
       {isLoading ? (
         <>
-          <ListItemPlaceholder />
-          <ListItemPlaceholder />
-          <ListItemPlaceholder />
+          <ListItem.Placeholder />
+          <ListItem.Placeholder />
+          <ListItem.Placeholder />
         </>
       ) : (
         <>
