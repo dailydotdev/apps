@@ -62,6 +62,7 @@ const SquadsPage = (): ReactElement => {
               header={<SquadListingHeader />}
               className="px-6 laptop:px-0"
               inlineHeader
+              forceCardMode
             >
               {queryResult?.data?.pages?.length > 0 &&
                 queryResult.data.pages.map((page) =>

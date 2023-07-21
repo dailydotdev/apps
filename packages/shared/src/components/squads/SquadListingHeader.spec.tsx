@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
 import { IFlags } from 'flagsmith';
+import { NextRouter, useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
@@ -10,6 +12,7 @@ import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { SquadListingHeader } from './SquadListingHeader';
 import { SquadsPublicWaitlist } from '../../lib/constants';
 import { LazyModalElement } from '../modals/LazyModalElement';
+import { Origin } from '../../lib/analytics';
 
 let features: IFlags;
 
@@ -18,6 +21,7 @@ const defaultFeatures: IFlags = {
     enabled: true,
   },
 };
+const routerReplace = jest.fn();
 
 beforeEach(async () => {
   nock.cleanAll();
@@ -51,13 +55,22 @@ const renderComponent = (isOwner = false): RenderResult => {
 };
 
 it('should render the component as a squad user', async () => {
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/squads',
+        push: routerReplace,
+      } as unknown as NextRouter),
+  );
   renderComponent();
 
-  const btn = await screen.findByText('Create new squad');
+  const btn = await screen.findByTestId('squad-directory-join-waitlist');
   btn.click();
 
   await waitFor(() => {
-    expect(screen.getByText('Squads early access!')).toBeInTheDocument();
+    expect(routerReplace).toBeCalledWith(
+      `/squads/new?origin=${Origin.SquadDirectory}`,
+    );
   });
 });
 

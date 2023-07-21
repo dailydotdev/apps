@@ -150,6 +150,7 @@ export const SourceCard = ({
               origin={Origin.SquadDirectory}
               onSuccess={() => router.push(permalink)}
               joinText={action?.text}
+              data-testid="squad-action"
             />
           )}
 

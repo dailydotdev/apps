@@ -99,7 +99,7 @@ const renderComponent = (
             icon={<div>icon</div>}
             image={hasImage ? 'test-image.jpg' : undefined}
             description="description"
-            type={SourceType.Squad}
+            type={hasMembers ? SourceType.Squad : SourceType.Machine}
             id={admin.source.id}
             permalink={admin.source.permalink}
             handle={admin.source.handle}
@@ -138,17 +138,17 @@ it('should render the component with basic text and an icon', async () => {
 
 it('should render the component with an image', () => {
   renderComponent(true, false);
-  const img = screen.getByRole('img');
+  const img = screen.getByAltText('title source');
   const icon = screen.queryByText('icon');
 
   expect(img).toHaveAttribute('src', 'test-image.jpg');
   expect(icon).not.toBeInTheDocument();
 });
 
-it('should render the component and call the onClick function when the action button is clicked', () => {
-  renderComponent(false, false);
+it('should render the component and call the onClick function when the action button is clicked', async () => {
+  renderComponent(false, false, false);
 
-  const button = screen.getByText('Test action');
+  const button = await screen.findByText('Test action');
 
   fireEvent.click(button);
   expect(onClickTest).toHaveBeenCalledTimes(1);
