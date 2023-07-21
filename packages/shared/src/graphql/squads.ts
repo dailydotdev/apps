@@ -13,6 +13,7 @@ import {
 import { Post, ExternalLinkPreview } from './posts';
 import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
+import { generateStorageKey, StorageTopic } from '../lib/storage';
 
 export type SquadForm = Pick<
   Squad,
@@ -393,3 +394,8 @@ export const verifyPermission = (
 
 export const isSourcePublicSquad = (source: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);
+
+export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(
+  StorageTopic.Squad,
+  'comment_join_banner',
+);

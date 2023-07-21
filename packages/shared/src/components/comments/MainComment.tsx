@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
@@ -9,6 +9,12 @@ import {
   CommentMarkdownInputProps,
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
+import {
+  SQUAD_COMMENT_JOIN_BANNER_KEY,
+  isSourcePublicSquad,
+} from '../../graphql/squads';
+import { SquadJoinBanner } from '../squads/SquadJoinBanner';
+import { Squad } from '../../graphql/sources';
 
 export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
@@ -37,6 +43,21 @@ export default function MainComment({
     inputProps: editProps,
     onReplyTo: onEdit,
   } = useComments(props.post);
+
+  const [showJoinSquadBanner, setShowJoinSquadBanner] = useState(false);
+
+  const onShowJoinSquadBanner: typeof onCommented = (_, isNew) => {
+    if (!isNew) {
+      return;
+    }
+
+    if (
+      isSourcePublicSquad(props.post?.source) &&
+      !props.post.source.currentMember
+    ) {
+      setShowJoinSquadBanner(true);
+    }
+  };
 
   return (
     <section
@@ -71,6 +92,7 @@ export default function MainComment({
           post={props.post}
           onCommented={(...params) => {
             onReplyTo(null);
+            onShowJoinSquadBanner(...params);
             onCommented(...params);
           }}
           className={className}
@@ -84,9 +106,19 @@ export default function MainComment({
           parentComment={comment}
           appendTooltipTo={appendTooltipTo}
           className={className}
-          onCommented={onCommented}
+          onCommented={(...params) => {
+            onShowJoinSquadBanner(...params);
+            onCommented(...params);
+          }}
         />
       ))}
+      {showJoinSquadBanner && (
+        <SquadJoinBanner
+          squad={props.post?.source as Squad}
+          analyticsOrigin={props.origin}
+          storageKey={SQUAD_COMMENT_JOIN_BANNER_KEY}
+        />
+      )}
       {shouldShowBanner && (
         <EnableNotification
           className={!comment.children?.edges?.length && 'mt-3'}
