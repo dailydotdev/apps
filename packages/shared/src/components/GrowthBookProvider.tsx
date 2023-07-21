@@ -10,7 +10,7 @@ import {
   Context,
   GrowthBook,
   GrowthBookProvider as Provider,
-} from '../lib/growthbook';
+} from '@growthbook/growthbook-react';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { decrypt } from './crypto';

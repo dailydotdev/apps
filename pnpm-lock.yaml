@@ -402,6 +402,9 @@ importers:
 
   packages/shared:
     dependencies:
+      '@growthbook/growthbook':
+        specifier: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92
+        version: '@gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92'
       '@growthbook/growthbook-react':
         specifier: ^0.17.0
         version: 0.17.0(@preact/compat@17.0.2)
@@ -2215,15 +2218,8 @@ packages:
     peerDependencies:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@growthbook/growthbook': 0.27.0
+      '@growthbook/growthbook': '@gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92'
       react: /@preact/compat@17.0.2(preact@10.8.2)
-    dev: false
-
-  /@growthbook/growthbook@0.27.0:
-    resolution: {integrity: sha512-gt/DWXfgyudY3gXAUjzKm9kMjVfCzfRc8d0nQQiXCP523ow23jThrmBzkRKCN+zxYVxUKcHjP9yjU9EKJqP4Fw==}
-    engines: {node: '>=10'}
-    dependencies:
-      dom-mutator: 0.5.0
     dev: false
 
   /@humanwhocodes/config-array@0.5.0:
@@ -5554,11 +5550,6 @@ packages:
     dependencies:
       '@babel/runtime': 7.17.9
       csstype: 3.1.2
-
-  /dom-mutator@0.5.0:
-    resolution: {integrity: sha512-bbeX8HWE8JGzraFgbVBX4ws2g3heZFuTtrleQBuN7huy+7n2n7etSuVnot3/1z3jdY2MiwuvoS4Ep1UT2rrGBw==}
-    engines: {node: '>=10'}
-    dev: false
 
   /dom-serializer@0.2.2:
     resolution: {integrity: sha512-2/xPb3ORsQ42nHYiSunXkDjPLBaEj/xTwUO4B7XCZQTRk7EBtTOPaygh10YAAh2OI1Qrp6NWfpAhzswj0ydt9g==}
@@ -13106,3 +13097,10 @@ packages:
   /zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
+
+  '@gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92':
+    resolution: {tarball: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92}
+    name: '@growthbook/growthbook'
+    version: 0.27.0
+    engines: {node: '>=10'}
+    dev: false
