@@ -9,6 +9,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TextPlaceholder } from '../widgets/common';
 import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/Card';
+import { postDateFormat } from '../../lib/dateFormat';
 
 type PostProps = {
   post: Post;
@@ -43,6 +44,7 @@ export const SquadPostListItem = ({
         author={post.author}
         role={post.source.currentMember?.role}
         size="large"
+        date={postDateFormat(post.createdAt)}
       />
       <p className="mt-2 line-clamp-3 typo-callout text-theme-label-primary">
         {post.title}

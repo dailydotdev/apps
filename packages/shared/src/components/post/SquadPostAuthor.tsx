@@ -5,6 +5,7 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import { Author } from '../../graphql/comments';
 import { SourceMemberRole } from '../../graphql/sources';
+import { Separator } from '../cards/common';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -15,6 +16,7 @@ interface SquadPostAuthorProps {
   author: Author;
   role: SourceMemberRole;
   size?: ProfileImageSize;
+  date?: string;
 }
 
 function SquadPostAuthor({
@@ -22,6 +24,7 @@ function SquadPostAuthor({
   author,
   role,
   size = 'xxxlarge',
+  date,
 }: SquadPostAuthorProps): ReactElement {
   return (
     <span
@@ -48,6 +51,12 @@ function SquadPostAuthor({
             )}
           >
             @{author.username}
+            {!!date && (
+              <>
+                <Separator />
+                <time dateTime={date}>{date}</time>
+              </>
+            )}
           </span>
         </a>
       </ProfileTooltip>
