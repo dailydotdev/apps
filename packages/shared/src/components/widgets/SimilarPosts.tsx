@@ -20,6 +20,11 @@ export type SimilarPostsProps = {
   isLoading: boolean;
   onBookmark: (post: Post) => unknown;
   className?: string;
+  title?: string;
+  moreButtonProps?: {
+    href?: string;
+    text?: string;
+  };
 };
 
 const Separator = <div className="h-px bg-theme-divider-tertiary" />;
@@ -112,8 +117,13 @@ export default function SimilarPosts({
   isLoading,
   onBookmark,
   className,
+  title = 'You might like',
+  moreButtonProps,
 }: SimilarPostsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
+  const moreButtonHref =
+    moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
+  const moreButtonText = moreButtonProps?.text || 'View all';
 
   const onLinkClick = async (post: Post): Promise<void> => {
     trackEvent(
@@ -131,7 +141,7 @@ export default function SimilarPosts({
       )}
     >
       <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
-        You might like
+        {title}
       </h4>
       {Separator}
       {isLoading ? (
@@ -154,14 +164,14 @@ export default function SimilarPosts({
       )}
 
       {Separator}
-      <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL} passHref>
+      <Link href={moreButtonHref} passHref>
         <Button
           className="self-start my-2 ml-2 btn-tertiary"
           buttonSize={ButtonSize.Small}
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}
         >
-          View all
+          {moreButtonText}
         </Button>
       </Link>
     </section>

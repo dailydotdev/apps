@@ -14,6 +14,8 @@ import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
+import { SquadPostWidgets } from './SquadPostWidgets';
+import { isSourcePublicSquad } from '../../graphql/squads';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -45,6 +47,7 @@ function SquadPostContent({
     source: post?.source,
     user: post?.author,
   });
+  const isPublicSquad = isSourcePublicSquad(post?.source);
 
   const navigationProps: PostNavigationProps = {
     post,
@@ -79,34 +82,60 @@ function SquadPostContent({
       )}
       <PostContentContainer
         className={classNames(
-          'relative py-8 px-6 post-content',
+          'relative post-content',
           className?.container,
+          isPublicSquad && 'flex-1 !flex-col tablet:!flex-row',
         )}
         hasNavigation={hasNavigation}
       >
-        <BasePostContent
-          className={{
-            ...className,
-            onboarding: 'mb-6',
-            navigation: { actions: 'ml-auto', container: 'mb-6' },
-          }}
-          isFallback={isFallback}
-          customNavigation={customNavigation}
-          enableShowShareNewComment={enableShowShareNewComment}
-          shouldOnboardAuthor={shouldOnboardAuthor}
-          navigationProps={navigationProps}
-          engagementProps={engagementActions}
-          origin={origin}
-          post={post}
+        <div
+          className={classNames(
+            'relative px-4 tablet:px-8',
+            className?.content,
+            isPublicSquad && 'flex flex-col flex-1',
+          )}
         >
-          <PostSourceInfo
-            date={postDateFormat(post.createdAt)}
-            source={post.source}
-            className="!typo-body"
+          <BasePostContent
+            className={{
+              ...className,
+              onboarding: classNames('mb-6', className?.onboarding),
+              navigation: {
+                actions: classNames(
+                  'ml-auto',
+                  isPublicSquad && 'tablet:hidden',
+                ),
+                container: classNames('mb-6 pt-6'),
+              },
+            }}
+            isFallback={isFallback}
+            customNavigation={customNavigation}
+            enableShowShareNewComment={enableShowShareNewComment}
+            shouldOnboardAuthor={shouldOnboardAuthor}
+            navigationProps={navigationProps}
+            engagementProps={engagementActions}
+            origin={origin}
+            post={post}
+          >
+            <PostSourceInfo
+              date={postDateFormat(post.createdAt)}
+              source={post.source}
+              className="!typo-body"
+            />
+            <SquadPostAuthor author={post.author} role={role} />
+            <Content post={post} onReadArticle={onReadArticle} />
+          </BasePostContent>
+        </div>
+        {isPublicSquad && (
+          <SquadPostWidgets
+            onBookmark={onToggleBookmark}
+            onShare={() => null}
+            onReadArticle={onReadArticle}
+            post={post}
+            className="px-8 tablet:pl-0"
+            onClose={onClose}
+            origin={origin}
           />
-          <SquadPostAuthor author={post.author} role={role} />
-          <Content post={post} onReadArticle={onReadArticle} />
-        </BasePostContent>
+        )}
       </PostContentContainer>
     </>
   );

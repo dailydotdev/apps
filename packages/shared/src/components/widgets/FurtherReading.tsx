@@ -9,7 +9,7 @@ import {
 } from '../../graphql/furtherReading';
 import { graphqlUrl } from '../../lib/config';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
-import { Post } from '../../graphql/posts';
+import { Post, PostType } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import SimilarPosts from './SimilarPosts';
@@ -17,6 +17,8 @@ import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
 import { AuthTriggers } from '../../lib/auth';
 import { AnalyticsEvent } from '../../lib/analytics';
+import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
+import { isSourcePublicSquad } from '../../graphql/squads';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -60,23 +62,53 @@ export default function FurtherReading({
   currentPost,
   className,
 }: FurtherReadingProps): ReactElement {
+  const isPublicSquad = isSourcePublicSquad(currentPost.source);
   const postId = currentPost.id;
   const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
-  const { user, showLogin } = useContext(AuthContext);
+  const { user, showLogin, isLoggedIn } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const queryClient = useQueryClient();
   const { data: posts, isLoading } = useQuery<FurtherReadingData>(
     queryKey,
-    () =>
-      request(graphqlUrl, FURTHER_READING_QUERY, {
+    async () => {
+      const squad = currentPost.source;
+
+      if (isPublicSquad) {
+        const squadPostsResult = await request<FeedData>(
+          graphqlUrl,
+          SOURCE_FEED_QUERY,
+          {
+            first: 2,
+            loggedIn: isLoggedIn,
+            source: squad.id,
+            ranking: 'TIME',
+            supportedTypes: [
+              PostType.Article,
+              PostType.Share,
+              PostType.Freeform,
+            ],
+          },
+        );
+        const similarPosts =
+          squadPostsResult?.page?.edges?.map((item) => item.node) || [];
+
+        return {
+          trendingPosts: [],
+          similarPosts,
+          discussedPosts: [],
+        };
+      }
+
+      return request(graphqlUrl, FURTHER_READING_QUERY, {
         loggedIn: !!user,
         post: postId,
         trendingFirst: 1,
         similarFirst: 3,
         discussedFirst: 4,
         tags,
-      }),
+      });
+    },
     {
       refetchOnWindowFocus: false,
       refetchIntervalInBackground: false,
@@ -142,6 +174,15 @@ export default function FurtherReading({
           posts={similarPosts}
           isLoading={isLoading}
           onBookmark={onBookmark}
+          title={
+            isPublicSquad
+              ? `More posts from ${currentPost.source.name}`
+              : undefined
+          }
+          moreButtonProps={{
+            href: isPublicSquad ? currentPost.source.permalink : undefined,
+            text: isPublicSquad ? 'Show more' : undefined,
+          }}
         />
       )}
       {(isLoading || posts?.discussedPosts?.length > 0) && (

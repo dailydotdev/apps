@@ -7,6 +7,7 @@ import {
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
+  SourceType,
   Squad,
 } from './sources';
 import { Post, ExternalLinkPreview } from './posts';
@@ -389,3 +390,6 @@ export const verifyPermission = (
   squad: Squad,
   permission: SourcePermissions,
 ): boolean => !!squad?.currentMember?.permissions?.includes(permission);
+
+export const isSourcePublicSquad = (source: Source): boolean =>
+  !!(source?.type === SourceType.Squad && source?.public);
