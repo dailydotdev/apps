@@ -46,7 +46,7 @@ type PostFlags = {
   private: boolean;
   visible: boolean;
   showOnFeed: boolean;
-  promoteToPublic: boolean;
+  promoteToPublic: number;
 };
 
 export interface Post {
@@ -267,8 +267,16 @@ export const BAN_POST_MUTATION = gql`
 `;
 
 export const PROMOTE_TO_PUBLIC_MUTATION = gql`
-  mutation UpdatePromoteToPublic($id: ID!, $promoteToPublic: Boolean!) {
-    updatePromoteToPublic(id: $id, promoteToPublic: $promoteToPublic) {
+  mutation PromoteToPublic($id: ID!) {
+    promoteToPublic(id: $id) {
+      _
+    }
+  }
+`;
+
+export const DEMOTE_FROM_PUBLIC_MUTATION = gql`
+  mutation DemoteFromPublic($id: ID!) {
+    demoteFromPublic(id: $id) {
       _
     }
   }
@@ -343,15 +351,15 @@ export const banPost = (id: string): Promise<EmptyResponse> => {
   });
 };
 
-export const promotePost = (
-  id: string,
-  value: boolean,
-): Promise<EmptyResponse> => {
-  return request(graphqlUrl, PROMOTE_TO_PUBLIC_MUTATION, {
+export const promotePost = (id: string): Promise<EmptyResponse> =>
+  request(graphqlUrl, PROMOTE_TO_PUBLIC_MUTATION, {
     id,
-    promoteToPublic: value,
   });
-};
+
+export const demotePost = (id: string): Promise<EmptyResponse> =>
+  request(graphqlUrl, DEMOTE_FROM_PUBLIC_MUTATION, {
+    id,
+  });
 
 export const deletePost = (id: string): Promise<EmptyResponse> => {
   return request(graphqlUrl, DELETE_POST_MUTATION, {

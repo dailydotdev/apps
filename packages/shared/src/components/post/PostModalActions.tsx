@@ -13,6 +13,7 @@ import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import {
   banPost,
+  demotePost,
   internalReadTypes,
   Post,
   promotePost,
@@ -96,7 +97,11 @@ export function PostModalActions({
       },
     };
     if (await showPrompt(options)) {
-      await promotePost(post.id, !promoteFlag);
+      if (promoteFlag) {
+        await demotePost(post.id);
+      } else {
+        await promotePost(post.id);
+      }
     }
   };
 
