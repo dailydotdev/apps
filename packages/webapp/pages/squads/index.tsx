@@ -117,7 +117,7 @@ const SquadsPage = (): ReactElement => {
                 icon={
                   <EditIcon
                     size={IconSize.XXLarge}
-                    className="text-theme-label-secondary"
+                    className="text-salt-90"
                   />
                 }
               />
