@@ -174,6 +174,14 @@ export const BootDataProvider = ({
     [setBootData],
   );
 
+  const updateExperimentation = useCallback(
+    (exp: BootCacheData['exp']) => {
+      const updated = updateLocalBootData(cachedBootData, { exp });
+      setCachedBootData(updated);
+    },
+    [cachedBootData],
+  );
+
   return (
     <FeaturesContextProvider
       flags={flags}
@@ -184,7 +192,8 @@ export const BootDataProvider = ({
         app={app}
         user={user}
         deviceId={deviceId}
-        experimentation={bootRemoteData?.exp}
+        experimentation={cachedBootData?.exp}
+        updateExperimentation={updateExperimentation}
       >
         <AuthContextProvider
           user={user}

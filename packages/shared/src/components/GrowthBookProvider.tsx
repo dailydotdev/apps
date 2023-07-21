@@ -22,10 +22,8 @@ export type GrowthBookProviderProps = {
   user: BootCacheData['user'];
   deviceId: string;
   version?: string;
-  experimentation?: {
-    f: string;
-    e: string[];
-  };
+  experimentation?: BootCacheData['exp'];
+  updateExperimentation?: (exp: BootCacheData['exp']) => unknown;
   children?: ReactNode;
 };
 
@@ -35,6 +33,7 @@ export const GrowthBookProvider = ({
   deviceId,
   version,
   experimentation,
+  updateExperimentation,
   children,
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
@@ -92,8 +91,19 @@ export const GrowthBookProvider = ({
         experimentId: experiment.key,
         variationId,
       });
+      updateExperimentation?.({
+        ...experimentation,
+        e: [...(experimentation?.e ?? []), key],
+      });
     };
-  }, [user, deviceId, experimentation?.e, sendAllocation]);
+  }, [
+    user,
+    deviceId,
+    experimentation?.e,
+    sendAllocation,
+    updateExperimentation,
+    experimentation,
+  ]);
 
   useEffect(() => {
     if (!gb || !user?.id) return;
