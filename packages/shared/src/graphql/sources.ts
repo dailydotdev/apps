@@ -48,19 +48,20 @@ export interface Squad extends Source {
   permalink: string;
   public: boolean;
   type: SourceType.Squad;
-  members?: Connection<SourceMember> | Connection<SourceMemberSimple>;
+  members?: Connection<SourceMember>;
   membersCount: number;
   description: string;
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
 }
 
-export interface PartialSquadWithRequiredFields extends Partial<Squad> {
+export interface BasicSquadWithCurrentMember extends Partial<Squad> {
   membersCount: number;
   permalink: string;
   id: string;
   name: string;
-  currentMember?: SourceMember & Required<Pick<SourceMember, 'referralToken' | 'permissions'>>;
+  currentMember?: SourceMember &
+    Required<Pick<SourceMember, 'referralToken' | 'permissions'>>;
 }
 
 export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {

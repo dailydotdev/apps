@@ -5,6 +5,8 @@ import { Card } from '../cards/Card';
 import { Button } from '../buttons/Button';
 import { Connection } from '../../graphql/common';
 import { SourceMember } from '../../graphql/sources';
+import { Image } from '../image/Image';
+import { SquadDirectoryCardBannerDefault } from '../../lib/constants';
 
 interface SourceCardProps {
   title: string;
@@ -16,9 +18,17 @@ interface SourceCardProps {
     text: string;
     onClick: () => void;
   };
+  link?: {
+    text: string;
+    href: string;
+    target?: string;
+  };
   members?: Connection<SourceMember>;
   membersCount?: number;
-  clampDescription?: boolean;
+  permalink?: string;
+  id?: string;
+  banner?: string;
+  borderColor?: string;
 }
 
 export const SourceCard = ({
@@ -28,21 +38,30 @@ export const SourceCard = ({
   image,
   description,
   action,
+  link,
   members,
   membersCount,
-  clampDescription = true,
-  ...props
+  permalink,
+  id,
+  banner,
+  borderColor,
 }: SourceCardProps): ReactElement => {
-  const items =
-    membersCount > 0 &&
-    members?.edges?.reduce((acc, current) => {
-      acc.push(current.node);
-      return acc;
-    }, []);
-
   return (
-    <Card className="overflow-hidden p-0">
-      <div className="px-4 h-24 rounded-t-2xl bg-theme-bg-onion" />
+    <Card
+      className={classNames(
+        'overflow-hidden p-0',
+        borderColor
+          ? `border-theme-color-${borderColor} hover:border-theme-color-${borderColor}`
+          : 'border-theme-color-avocado hover:border-theme-color-avocado',
+      )}
+    >
+      <div className="h-24 rounded-t-2xl bg-theme-bg-onion">
+        <Image
+          className="object-cover w-full h-full"
+          src={banner || SquadDirectoryCardBannerDefault}
+          alt="Banner image for source, showing abstract colors."
+        />
+      </div>
       <div className="flex flex-col flex-1 p-4 -mt-12 rounded-t-2xl bg-theme-bg-secondary">
         <div className="flex justify-between items-end mb-3">
           {!!image && (
@@ -64,10 +83,13 @@ export const SourceCard = ({
                 description,
                 members,
                 membersCount,
-                ...props,
+                permalink,
+                id,
               }}
-              members={items}
-              memberCount={membersCount}
+              members={members?.edges?.reduce((acc, current) => {
+                acc.push(current.node);
+                return acc;
+              }, [])}
             />
           )}
         </div>
@@ -75,19 +97,31 @@ export const SourceCard = ({
           <div>
             <div className="font-bold typo-title3">{title}</div>
             <div className="mb-2 text-theme-label-secondary">{subtitle}</div>
-            <div
-              className={classNames(
-                'mb-2 text-theme-label-secondary',
-                clampDescription && 'multi-truncate line-clamp-3',
-              )}
-            >
+            <div className="mb-2 line-clamp-5 text-theme-label-secondary multi-truncate">
               {description}
             </div>
           </div>
 
-          {action && (
-            <Button className="w-full btn-secondary" onClick={action?.onClick}>
+          {!!action && (
+            <Button
+              className="w-full btn-secondary"
+              onClick={action?.onClick}
+              data-testid="source-action"
+            >
               {action?.text}
+            </Button>
+          )}
+
+          {!!link && (
+            <Button
+              className="w-full btn-secondary"
+              onClick={action?.onClick}
+              tag="a"
+              href={link.href}
+              target={link?.target ? link.target : '_self'}
+              data-testid="source-link"
+            >
+              {link?.text}
             </Button>
           )}
         </div>

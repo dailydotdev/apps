@@ -22,6 +22,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { SquadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
 
 const seo: NextSeoProps = {
   title: `Squad directory | daily.dev`,
@@ -54,13 +55,6 @@ const SquadsPage = (): ReactElement => {
 
       <FeedLayout>
         <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
-          <div
-            className={classNames(
-              'absolute top-0 w-full h-full',
-              sidebarRendered && '-left-full translate-x-[60%]',
-            )}
-          />
-
           <InfiniteScrolling
             isFetchingNextPage={queryResult.isFetchingNextPage}
             canFetchMore={checkFetchMore(queryResult)}
@@ -71,24 +65,29 @@ const SquadsPage = (): ReactElement => {
               {queryResult?.data?.pages?.length > 0 &&
                 queryResult.data.pages.map((page) =>
                   page.sources.edges.reduce(
-                    (nodes, { node: { name, ...props } }) => {
+                    (nodes, { node: { name, permalink, id, ...props } }) => {
                       const isMember =
                         user &&
                         props?.members?.edges.find(
                           (member) => member?.node?.user.id === user.id,
                         );
-                      const action = {
-                        text: isMember ? 'View squad' : 'Join',
-                        onClick: isMember
-                          ? () => alert(`View ${name}`)
-                          : () => alert(`Join ${name}`),
-                      };
+                      const action = !isMember ? {
+                        text: 'Join',
+                        onClick: () => alert(`Join ${name}`)
+                      } : undefined;
+                      const link = isMember ? {
+                        text: 'View squad',
+                        href: permalink
+                      } : undefined
 
                       nodes.push(
                         <SourceCard
                           title={name}
                           subtitle={`@${props.handle}`}
                           action={action}
+                          link={link}
+                          permalink={permalink}
+                          id={id}
                           {...props}
                         />,
                       );
@@ -100,9 +99,10 @@ const SquadsPage = (): ReactElement => {
               <SourceCard
                 title="Which squads would you like to see next?"
                 description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."
-                action={{
+                link={{
                   text: 'Submit your idea',
-                  onClick: () => alert('Submit your idea'),
+                  href: SquadsPublicSuggestion,
+                  target: '_blank',
                 }}
                 icon={
                   <EditIcon
@@ -110,7 +110,6 @@ const SquadsPage = (): ReactElement => {
                     className="text-theme-label-secondary"
                   />
                 }
-                clampDescription={false}
               />
             </FeedContainer>
           </InfiniteScrolling>

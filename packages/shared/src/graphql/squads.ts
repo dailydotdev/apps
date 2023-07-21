@@ -3,6 +3,7 @@ import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
 import {
+  BasicSquadWithCurrentMember,
   Source,
   SourceMember,
   SourceMemberRole,
@@ -384,6 +385,6 @@ export async function editSquad(
 }
 
 export const verifyPermission = (
-  squad: Squad,
+  squad: BasicSquadWithCurrentMember,
   permission: SourcePermissions,
 ): boolean => !!squad?.currentMember?.permissions?.includes(permission);

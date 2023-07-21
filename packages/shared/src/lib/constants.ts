@@ -32,6 +32,11 @@ export const updateFirefoxExtensionLink = 'https://r.daily.dev/firefoxupdate';
 export const downloadBrowserExtension = 'https://r.daily.dev/download';
 export const referralToC = 'https://r.daily.dev/referral-toc';
 export const twitter = 'https://r.daily.dev/twitter';
+export const SquadsPublicWaitlist = 'https://r.daily.dev/public-squad-waitlist';
+export const SquadsPublicSuggestion =
+  'https://r.daily.dev/public-squad-suggestion';
+export const SquadDirectoryCardBannerDefault =
+  'https://daily-now-res.cloudinary.com/image/upload/s--OYL4lxBN--/f_auto/v1686299194/s2_bg_lypbow';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';

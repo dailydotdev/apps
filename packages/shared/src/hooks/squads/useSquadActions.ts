@@ -13,7 +13,11 @@ import {
   updateSquadMemberRole,
 } from '../../graphql/squads';
 import { graphqlUrl } from '../../lib/config';
-import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
+import {
+  BasicSquadWithCurrentMember,
+  SourceMember,
+  SourceMemberRole,
+} from '../../graphql/sources';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
@@ -27,7 +31,7 @@ interface MembersQueryParams {
 }
 
 interface UseSquadActionsProps {
-  squad: Squad;
+  squad: BasicSquadWithCurrentMember;
   membersQueryParams?: MembersQueryParams;
   membersQueryEnabled?: boolean;
 }

@@ -74,7 +74,6 @@ export function SquadHeaderBar({
         <SquadMemberShortList
           squad={squad}
           members={members}
-          memberCount={memberCount}
           className="hidden laptopL:flex"
         />
       )}

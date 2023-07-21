@@ -70,7 +70,6 @@ export function SquadPageHeader({
       <SquadMemberShortList
         squad={squad}
         members={members}
-        memberCount={squad.membersCount}
         className="laptopL:hidden my-6"
       />
       <SquadHeaderBar

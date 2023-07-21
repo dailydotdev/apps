@@ -1,22 +1,23 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { Squad, SourceMember, PartialSquadWithRequiredFields } from '../../graphql/sources';
+import {
+  SourceMember,
+  BasicSquadWithCurrentMember,
+} from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface SquadMemberShortListProps {
-  squad: PartialSquadWithRequiredFields;
+  squad: BasicSquadWithCurrentMember;
   members: SourceMember[];
-  memberCount: number;
   className?: string;
 }
 
 function SquadMemberShortList({
   squad,
   members,
-  memberCount,
   className,
 }: SquadMemberShortListProps): ReactElement {
   const { openModal } = useLazyModal();
@@ -25,7 +26,7 @@ function SquadMemberShortList({
       type: LazyModal.SquadMember,
       props: {
         squad,
-        placeholderAmount: memberCount ? memberCount : squad?.membersCount,
+        placeholderAmount: squad?.membersCount,
       },
     });
 
@@ -43,7 +44,7 @@ function SquadMemberShortList({
           className="mr-1 ml-2 min-w-[1rem]"
           aria-label="squad-members-count"
         >
-          {memberCount}
+          {squad.membersCount}
         </span>
         {members?.map(({ user }) => (
           <ProfilePicture

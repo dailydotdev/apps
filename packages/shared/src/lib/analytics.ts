@@ -11,6 +11,7 @@ export enum Origin {
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
   // squads - start
+  SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
   SquadPage = 'squad page',
   Auto = 'auto',
