@@ -4,9 +4,12 @@ import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { Card } from '../cards/Card';
 import { Button } from '../buttons/Button';
 import { Connection } from '../../graphql/common';
-import { SourceMember } from '../../graphql/sources';
+import { SourceMember, SourceMemberRole, SourceType } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { SquadDirectoryCardBannerDefault } from '../../lib/constants';
+import { SquadJoinButton } from '../squads/SquadJoinButton';
+import { Origin } from '../../lib/analytics';
+import { useRouter } from 'next/router';
 
 interface SourceCardProps {
   title: string;
@@ -29,6 +32,10 @@ interface SourceCardProps {
   id?: string;
   banner?: string;
   borderColor?: string;
+  type?: SourceType;
+  handle?: string;
+  memberInviteRole?: SourceMemberRole;
+  memberPostingRole?: SourceMemberRole;
 }
 
 export const SourceCard = ({
@@ -45,7 +52,14 @@ export const SourceCard = ({
   id,
   banner,
   borderColor,
+  type,
+  handle,
+  memberInviteRole,
+  memberPostingRole,
+  ...props
 }: SourceCardProps): ReactElement => {
+  const router = useRouter();
+
   return (
     <Card
       className={classNames(
@@ -94,7 +108,7 @@ export const SourceCard = ({
           )}
         </div>
         <div className="flex flex-col flex-1 justify-between">
-          <div>
+          <div className='flex-auto'>
             <div className="font-bold typo-title3">{title}</div>
             <div className="mb-2 text-theme-label-secondary">{subtitle}</div>
             <div className="mb-2 line-clamp-5 text-theme-label-secondary multi-truncate">
@@ -102,7 +116,7 @@ export const SourceCard = ({
             </div>
           </div>
 
-          {!!action && (
+          {!!action && type !== SourceType.Squad && (
             <Button
               className="w-full btn-secondary"
               onClick={action?.onClick}
@@ -110,6 +124,30 @@ export const SourceCard = ({
             >
               {action?.text}
             </Button>
+          )}
+
+          {!!action && type === SourceType.Squad && (
+            <SquadJoinButton
+              className="w-full btn-secondary"
+              squad={{
+                name: title,
+                description,
+                members,
+                membersCount,
+                permalink,
+                id,
+                active: true,
+                public: true,
+                image,
+                type: type,
+                handle: handle,
+                memberInviteRole,
+                memberPostingRole,
+              }}
+              origin={Origin.SquadDirectory}
+              onSuccess={() => router.push(permalink)}
+              joinText={action?.text}
+            />
           )}
 
           {!!link && (

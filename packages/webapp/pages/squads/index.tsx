@@ -79,7 +79,7 @@ const SquadsPage = (): ReactElement => {
                         : undefined;
                       const link = isMember
                         ? {
-                            text: 'View squad',
+                            text: 'View',
                             href: permalink,
                           }
                         : undefined;
@@ -92,6 +92,11 @@ const SquadsPage = (): ReactElement => {
                           link={link}
                           permalink={permalink}
                           id={id}
+                          type={props.type}
+                          handle={props.handle}
+                          image={props.image}
+                          memberInviteRole={props.memberInviteRole}
+                          memberPostingRole={props.memberPostingRole}
                           {...props}
                         />,
                       );

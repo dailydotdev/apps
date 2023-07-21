@@ -24,7 +24,10 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import { SQUAD_MEMBERS_QUERY, SquadEdgesData } from '../../graphql/squads';
+import { SQUAD_JOIN_MUTATION, SQUAD_MEMBERS_QUERY, SquadEdgesData } from '../../graphql/squads';
+import { NextRouter } from 'next/router';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { SourceType } from '../../graphql/sources';
 
 const onClickTest = jest.fn();
 let features: IFlags;
@@ -34,10 +37,23 @@ const defaultFeatures: IFlags = {
   },
 };
 
+let replaced = '';
+jest.mock('next/router', () => ({
+  useRouter: jest.fn().mockImplementation(
+    () =>
+      ({
+        isFallback: false,
+        // eslint-disable-next-line no-return-assign
+        replace: (path: string) => (replaced = path),
+      } as unknown as NextRouter),
+  ),
+}));
+
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
   features = defaultFeatures;
+  replaced = '';
 });
 
 const squads = [generateTestSquad()];
@@ -92,6 +108,7 @@ const renderComponent = (
             icon={<div>icon</div>}
             image={hasImage ? 'test-image.jpg' : undefined}
             description="description"
+            type={SourceType.Squad}
             action={
               !isMember
                 ? {
@@ -168,6 +185,18 @@ it('should render the component with a view squad button', async () => {
 });
 
 // TODO: Complete this test
-// it('should render the component with a join squad button', () => {
-//   renderComponent(true, true);
+// it('should render the component with a join squad button', async () => {
+//   renderComponent(true, true, false);
+//   mockGraphQL({
+//     request: {
+//       query: SQUAD_JOIN_MUTATION,
+//       variables: { token: admin.referralToken, sourceId: admin.source.id },
+//     },
+//     result: () => ({ data: { source: admin.source } }),
+//   });
+
+//   const button = await screen.findByText('Test action');
+//   fireEvent.click(button);
+//   await waitForNock();
+//   expect(replaced).toEqual(admin.source.permalink);
 // });

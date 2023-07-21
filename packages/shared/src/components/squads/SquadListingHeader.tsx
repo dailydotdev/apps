@@ -1,11 +1,10 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { SquadsPublicWaitlist } from '../../lib/constants';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
-import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { Origin } from '../../lib/analytics';
+import { useSquadNavigation } from '../../hooks';
 
 interface SquadListingHeaderProps {
   isOwner?: boolean;
@@ -14,12 +13,7 @@ interface SquadListingHeaderProps {
 export const SquadListingHeader = ({
   isOwner = false,
 }: SquadListingHeaderProps): ReactElement => {
-  const { hasSquadAccess, isFlagsFetched } = useContext(FeaturesContext);
-  const { openNewSquadModal } = useCreateSquadModal({
-    hasSquads: true,
-    hasAccess: hasSquadAccess,
-    isFlagsFetched,
-  });
+  const { openNewSquad } = useSquadNavigation();
 
   return (
     <div className="mb-4">
@@ -50,7 +44,7 @@ export const SquadListingHeader = ({
           target="_blank"
           onClick={
             !isOwner
-              ? () => openNewSquadModal({ origin: Origin.SquadDirectory })
+              ? () => openNewSquad({ origin: Origin.SquadDirectory })
               : undefined
           }
           data-testid="squad-directory-join-waitlist"
