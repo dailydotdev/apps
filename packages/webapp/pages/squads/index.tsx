@@ -2,8 +2,6 @@ import React, { ReactElement, useContext } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
-import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
-import classNames from 'classnames';
 import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import InfiniteScrolling, {
   checkFetchMore,
@@ -19,10 +17,10 @@ import {
 } from '@dailydotdev/shared/src/components';
 import EditIcon from '@dailydotdev/shared/src/components/icons/Edit';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { SquadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { SquadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
 
 const seo: NextSeoProps = {
   title: `Squad directory | daily.dev`,
@@ -31,7 +29,6 @@ const seo: NextSeoProps = {
 };
 
 const SquadsPage = (): ReactElement => {
-  const { sidebarRendered } = useSidebarRendered();
   const { user } = useContext(AuthContext);
 
   const queryResult = useInfiniteQuery(
@@ -61,7 +58,10 @@ const SquadsPage = (): ReactElement => {
             fetchNextPage={queryResult.fetchNextPage}
             className="w-full"
           >
-            <FeedContainer header={<SquadListingHeader />} className="px-6 laptop:px-0">
+            <FeedContainer
+              header={<SquadListingHeader />}
+              className="px-6 laptop:px-0"
+            >
               {queryResult?.data?.pages?.length > 0 &&
                 queryResult.data.pages.map((page) =>
                   page.sources.edges.reduce(
@@ -71,14 +71,18 @@ const SquadsPage = (): ReactElement => {
                         props?.members?.edges.find(
                           (member) => member?.node?.user.id === user.id,
                         );
-                      const action = !isMember ? {
-                        text: 'Join',
-                        onClick: () => alert(`Join ${name}`)
-                      } : undefined;
-                      const link = isMember ? {
-                        text: 'View squad',
-                        href: permalink
-                      } : undefined
+                      const action = !isMember
+                        ? {
+                            text: 'Join',
+                            onClick: () => alert(`Join ${name}`),
+                          }
+                        : undefined;
+                      const link = isMember
+                        ? {
+                            text: 'View squad',
+                            href: permalink,
+                          }
+                        : undefined;
 
                       nodes.push(
                         <SourceCard

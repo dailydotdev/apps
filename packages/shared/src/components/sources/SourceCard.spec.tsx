@@ -55,7 +55,6 @@ const createSourceMembersMock = (
   result: { data: result },
 });
 
-
 const openedMembersModal = async () => {
   const result = generateMembersResult(members);
   mockGraphQL(
