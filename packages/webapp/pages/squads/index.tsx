@@ -115,10 +115,7 @@ const SquadsPage = (): ReactElement => {
                   target: '_blank',
                 }}
                 icon={
-                  <EditIcon
-                    size={IconSize.XXLarge}
-                    className="text-salt-90"
-                  />
+                  <EditIcon size={IconSize.XXLarge} className="text-salt-90" />
                 }
               />
             </FeedContainer>
