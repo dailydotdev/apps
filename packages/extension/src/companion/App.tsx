@@ -93,7 +93,6 @@ export default function App({
               user={user}
               deviceId={deviceId}
               experimentation={exp}
-              fetchMethod={companionFetch}
             >
               <AuthContextProvider
                 user={user}

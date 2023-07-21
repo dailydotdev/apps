@@ -15,6 +15,7 @@ import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { decrypt } from './crypto';
 import { apiUrl } from '../lib/config';
+import { useRequestProtocol } from '../hooks/useRequestProtocol';
 
 export type GrowthBookProviderProps = {
   app: BootApp;
@@ -25,7 +26,6 @@ export type GrowthBookProviderProps = {
     f: string;
     e: string[];
   };
-  fetchMethod?: typeof fetch;
   children?: ReactNode;
 };
 
@@ -35,9 +35,9 @@ export const GrowthBookProvider = ({
   deviceId,
   version,
   experimentation,
-  fetchMethod = fetch,
   children,
 }: GrowthBookProviderProps): ReactElement => {
+  const { fetchMethod } = useRequestProtocol();
   const { mutateAsync: sendAllocation } = useMutation(
     async (data: { experimentId: string; variationId: string }) => {
       const res = await fetchMethod(`${apiUrl}/e/x`, {
