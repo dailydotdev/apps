@@ -9,6 +9,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
 import { IFlags } from 'flagsmith';
+import { NextRouter, useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import {
@@ -24,45 +26,28 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import { SQUAD_JOIN_MUTATION, SQUAD_MEMBERS_QUERY, SquadEdgesData } from '../../graphql/squads';
-import { NextRouter } from 'next/router';
+import {
+  SQUAD_JOIN_MUTATION,
+  SQUAD_MEMBERS_QUERY,
+  SquadEdgesData,
+} from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { SourceType } from '../../graphql/sources';
 
 const onClickTest = jest.fn();
+const routerReplace = jest.fn();
 let features: IFlags;
 const defaultFeatures: IFlags = {
   squad: {
     enabled: true,
   },
 };
-
-let replaced = '';
-jest.mock('next/router', () => ({
-  useRouter: jest.fn().mockImplementation(
-    () =>
-      ({
-        isFallback: false,
-        // eslint-disable-next-line no-return-assign
-        replace: (path: string) => (replaced = path),
-      } as unknown as NextRouter),
-  ),
-}));
-
-beforeEach(async () => {
-  nock.cleanAll();
-  jest.clearAllMocks();
-  features = defaultFeatures;
-  replaced = '';
-});
-
 const squads = [generateTestSquad()];
-
 const members = generateMembersList();
 const admin = generateTestAdmin();
 admin.source.members.edges = members;
-
 const defaultSquad = generateTestSquad();
+
 const createSourceMembersMock = (
   result = generateMembersResult(),
   variables: unknown = { id: defaultSquad.id, first: 5 },
@@ -81,6 +66,12 @@ const openedMembersModal = async () => {
   await screen.findByText('Squad members');
   return members;
 };
+
+beforeEach(async () => {
+  nock.cleanAll();
+  jest.clearAllMocks();
+  features = defaultFeatures;
+});
 
 const renderComponent = (
   hasImage = true,
@@ -109,6 +100,9 @@ const renderComponent = (
             image={hasImage ? 'test-image.jpg' : undefined}
             description="description"
             type={SourceType.Squad}
+            id={admin.source.id}
+            permalink={admin.source.permalink}
+            handle={admin.source.handle}
             action={
               !isMember
                 ? {
@@ -184,19 +178,32 @@ it('should render the component with a view squad button', async () => {
   });
 });
 
-// TODO: Complete this test
-// it('should render the component with a join squad button', async () => {
-//   renderComponent(true, true, false);
-//   mockGraphQL({
-//     request: {
-//       query: SQUAD_JOIN_MUTATION,
-//       variables: { token: admin.referralToken, sourceId: admin.source.id },
-//     },
-//     result: () => ({ data: { source: admin.source } }),
-//   });
+it('should render the component with a join squad button', async () => {
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/squads',
+        push: routerReplace,
+      } as unknown as NextRouter),
+  );
+  renderComponent(true, true, false);
+  let queryCalled = false;
+  mockGraphQL({
+    request: {
+      query: SQUAD_JOIN_MUTATION,
+      variables: { sourceId: admin.source.id },
+    },
+    result: () => {
+      queryCalled = true;
+      return { data: { source: admin.source } };
+    },
+  });
 
-//   const button = await screen.findByText('Test action');
-//   fireEvent.click(button);
-//   await waitForNock();
-//   expect(replaced).toEqual(admin.source.permalink);
-// });
+  const btn = await screen.findByText('Test action');
+  btn.click();
+  await waitForNock();
+  await waitFor(async () => {
+    expect(routerReplace).toBeCalledWith(admin.source.permalink);
+    await waitFor(() => expect(queryCalled).toBeTruthy());
+  });
+});

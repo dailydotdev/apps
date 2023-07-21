@@ -24,16 +24,12 @@ export const SquadListingHeader = ({
         }}
       >
         <div className="mb-4">
-          <SourceBetaIcon
-            width="auto"
-            height="3rem"
-            className="text-theme-label-primary"
-          />
+          <SourceBetaIcon width="auto" height="3rem" className="text-white" />
         </div>
-        <div className="flex justify-center items-center mb-3 text-theme-label-primary typo-large-title">
+        <div className="flex justify-center items-center mb-3 text-white typo-large-title">
           Introducing Squads
         </div>
-        <div className="mb-4 font-normal typo-title3 text-theme-label-secondary max-w-[40rem]">
+        <div className="mb-4 font-normal text-salt-50 typo-title3 max-w-[40rem]">
           Unleashing the magic of developer communities with Squads. An
           opportunity to dive deep and go niche together with like-minded devs.
         </div>

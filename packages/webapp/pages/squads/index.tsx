@@ -61,6 +61,7 @@ const SquadsPage = (): ReactElement => {
             <FeedContainer
               header={<SquadListingHeader />}
               className="px-6 laptop:px-0"
+              inlineHeader
             >
               {queryResult?.data?.pages?.length > 0 &&
                 queryResult.data.pages.map((page) =>
@@ -74,7 +75,6 @@ const SquadsPage = (): ReactElement => {
                       const action = !isMember
                         ? {
                             text: 'Join',
-                            onClick: () => alert(`Join ${name}`),
                           }
                         : undefined;
                       const link = isMember

@@ -4,10 +4,10 @@ import FlagIcon from '../icons/Flag';
 import { reportSquadMember } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import {
-  BasicSquadWithCurrentMember,
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
+  Squad,
 } from '../../graphql/sources';
 import BlockIcon from '../icons/Block';
 import { StarIcon, UserIcon } from '../icons';
@@ -21,7 +21,7 @@ import { verifyPermission } from '../../graphql/squads';
 import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
-  squad: BasicSquadWithCurrentMember;
+  squad: Squad;
   member: SourceMember;
 }
 

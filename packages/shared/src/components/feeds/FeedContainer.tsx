@@ -10,12 +10,17 @@ import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 
 export interface FeedContainerProps {
   children: ReactNode;
   forceCardMode?: boolean;
   header?: ReactNode;
   className?: string;
+  inlineHeader?: boolean;
 }
 
 export const FeedContainer = ({
@@ -23,8 +28,10 @@ export const FeedContainer = ({
   forceCardMode,
   header,
   className,
+  inlineHeader = false,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
+  const { subject } = useToastNotification();
   const {
     spaciness,
     insaneMode: listMode,
@@ -75,7 +82,7 @@ export const FeedContainer = ({
     }
     return {};
   };
-  const cardContainerStye = { ...getStyle(useList, spaciness) };
+  const cardContainerStyle = { ...getStyle(useList, spaciness) };
 
   if (!loadedSettings) {
     return <></>;
@@ -84,7 +91,7 @@ export const FeedContainer = ({
   return (
     <div
       className={classNames(
-        'here1 flex flex-col laptopL:mx-auto w-full',
+        'flex flex-col laptopL:mx-auto w-full',
         styles.container,
         className,
       )}
@@ -95,15 +102,19 @@ export const FeedContainer = ({
         className="flex flex-col px-6 laptop:px-0 pt-2 laptopL:mx-auto w-full"
         style={style}
       >
+        {!inlineHeader && header}
+
         <div
           className={classNames(
             'relative mx-auto w-full',
             styles.feed,
             !useList && styles.cards,
           )}
-          style={cardContainerStye}
+          style={cardContainerStyle}
+          aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
+          data-testid="posts-feed"
         >
-          {header}
+          {inlineHeader && header}
 
           <div
             className={classNames(

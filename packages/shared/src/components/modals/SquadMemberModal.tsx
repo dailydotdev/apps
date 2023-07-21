@@ -1,10 +1,10 @@
 import React, { ReactElement, useState } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import {
-  BasicSquadWithCurrentMember,
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
+  Squad,
 } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
@@ -27,10 +27,10 @@ enum SquadMemberTab {
 
 export interface SquadMemberModalProps extends ModalProps {
   placeholderAmount?: number;
-  squad: BasicSquadWithCurrentMember;
+  squad: Squad;
 }
 
-const InitialItem = ({ squad }: { squad: BasicSquadWithCurrentMember }) => {
+const InitialItem = ({ squad }: { squad: Squad }) => {
   const { copying, trackAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadMembersList,

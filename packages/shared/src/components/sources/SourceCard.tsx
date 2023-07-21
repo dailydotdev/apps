@@ -1,15 +1,19 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { Card } from '../cards/Card';
 import { Button } from '../buttons/Button';
 import { Connection } from '../../graphql/common';
-import { SourceMember, SourceMemberRole, SourceType } from '../../graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+  SourceType,
+} from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { SquadDirectoryCardBannerDefault } from '../../lib/constants';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/analytics';
-import { useRouter } from 'next/router';
 
 interface SourceCardProps {
   title: string;
@@ -19,7 +23,7 @@ interface SourceCardProps {
   description?: string;
   action?: {
     text: string;
-    onClick: () => void;
+    onClick?: () => void;
   };
   link?: {
     text: string;
@@ -56,9 +60,23 @@ export const SourceCard = ({
   handle,
   memberInviteRole,
   memberPostingRole,
-  ...props
 }: SourceCardProps): ReactElement => {
   const router = useRouter();
+
+  const squad = {
+    name: title,
+    description,
+    members,
+    membersCount,
+    permalink,
+    id,
+    active: true,
+    public: true,
+    image,
+    handle,
+    memberInviteRole,
+    memberPostingRole,
+  };
 
   return (
     <Card
@@ -93,12 +111,8 @@ export const SourceCard = ({
           {membersCount > 0 && (
             <SquadMemberShortList
               squad={{
-                name: title,
-                description,
-                members,
-                membersCount,
-                permalink,
-                id,
+                ...squad,
+                type: SourceType.Squad,
               }}
               members={members?.edges?.reduce((acc, current) => {
                 acc.push(current.node);
@@ -108,7 +122,7 @@ export const SourceCard = ({
           )}
         </div>
         <div className="flex flex-col flex-1 justify-between">
-          <div className='flex-auto'>
+          <div className="flex-auto">
             <div className="font-bold typo-title3">{title}</div>
             <div className="mb-2 text-theme-label-secondary">{subtitle}</div>
             <div className="mb-2 line-clamp-5 text-theme-label-secondary multi-truncate">
@@ -128,21 +142,10 @@ export const SourceCard = ({
 
           {!!action && type === SourceType.Squad && (
             <SquadJoinButton
-              className="w-full btn-secondary"
+              className="w-full !btn-secondary"
               squad={{
-                name: title,
-                description,
-                members,
-                membersCount,
-                permalink,
-                id,
-                active: true,
-                public: true,
-                image,
-                type: type,
-                handle: handle,
-                memberInviteRole,
-                memberPostingRole,
+                ...squad,
+                type,
               }}
               origin={Origin.SquadDirectory}
               onSuccess={() => router.push(permalink)}

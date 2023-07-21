@@ -25,7 +25,6 @@ import { SquadJoinButton } from './SquadJoinButton';
 export function SquadHeaderBar({
   squad,
   members,
-  memberCount,
   className,
   ...props
 }: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {

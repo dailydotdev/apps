@@ -1,16 +1,13 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import {
-  SourceMember,
-  BasicSquadWithCurrentMember,
-} from '../../graphql/sources';
+import { SourceMember, Squad } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface SquadMemberShortListProps {
-  squad: BasicSquadWithCurrentMember;
+  squad: Squad;
   members: SourceMember[];
   className?: string;
 }
