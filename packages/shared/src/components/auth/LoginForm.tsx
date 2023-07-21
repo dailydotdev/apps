@@ -43,6 +43,7 @@ function LoginForm({
     const form = formToJson<LoginFormParams>(e.currentTarget);
     onPasswordLogin(form);
   };
+  const [shouldFocus, setShouldFocus] = useState(autoFocus);
 
   return (
     <AuthForm
@@ -56,8 +57,9 @@ function LoginForm({
 
         const id = email ? 'password' : 'identifier';
         const element = document.getElementById(id);
-        if (autoFocus) {
+        if (shouldFocus && !!element) {
           element?.focus();
+          setShouldFocus(false);
         }
       }}
     >
@@ -70,7 +72,6 @@ function LoginForm({
         value={email}
         data-testid="login_email"
         saveHintSpace
-        hint={hint as string}
         onChange={() => hint && setHint(null)}
         valid={!hint}
         required
@@ -81,6 +82,9 @@ function LoginForm({
         name="password"
         label="Password"
         showStrength={false}
+        saveHintSpace
+        hint={hint as string}
+        onChange={() => hint && setHint(null)}
       />
       <span className="flex flex-row mt-4 w-full">
         {onForgotPassword && (
