@@ -42,7 +42,7 @@ export function PasswordField({
   const [value, setValue] = useState<string>(null);
   const [useType, setUseType] = useState(type);
   const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
-  const [isValid, setIsValid] = useState<boolean>(null);
+  const [isValid, setIsValid] = useState<boolean>(!props.hint);
   const hasUserAction = isValid !== null;
   const userActionHint = !isValid
     ? `Password needs a minimum length of ${props.minLength}`
@@ -64,8 +64,10 @@ export function PasswordField({
       valueChanged={onChange}
       leftIcon={<LockIcon size={IconSize.Small} />}
       hint={!!value && showStrength ? hint : props.hint}
-      validityChanged={setIsValid}
-      valid={isValid || !props.hint}
+      validityChanged={(validityCheck) =>
+        !props.hint && setIsValid(validityCheck)
+      }
+      valid={!props.hint || isValid}
       className={{
         ...className,
         hint: shouldShowStrength

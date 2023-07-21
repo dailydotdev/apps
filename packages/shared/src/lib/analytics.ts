@@ -33,6 +33,7 @@ export enum LoginTrigger {
 }
 
 export enum AnalyticsEvent {
+  CommentPost = 'comment post',
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',

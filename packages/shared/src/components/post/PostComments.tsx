@@ -28,7 +28,7 @@ import { removePostComments } from '../../hooks/usePostById';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
-interface PostCommentsProps extends Pick<MainCommentProps, 'onCommented'> {
+interface PostCommentsProps {
   post: Post;
   origin: Origin;
   permissionNotificationCommentId?: string;
@@ -36,6 +36,7 @@ interface PostCommentsProps extends Pick<MainCommentProps, 'onCommented'> {
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
   className?: CommentClassName;
+  onCommented?: MainCommentProps['onCommented'];
 }
 
 export function PostComments({

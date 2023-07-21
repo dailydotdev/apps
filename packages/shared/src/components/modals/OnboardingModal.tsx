@@ -2,17 +2,13 @@ import React, {
   KeyboardEvent,
   MouseEvent,
   ReactElement,
-  ReactNode,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
-import ThemeOnboarding from '../onboarding/ThemeOnboarding';
 import { FilterOnboardingStep } from '../onboarding';
-import LayoutOnboarding from '../onboarding/LayoutOnboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { OnboardingStep } from '../onboarding/common';
 import { AnalyticsEvent, LoginTrigger, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -61,10 +57,8 @@ function OnboardingModal({
   const { trackEvent } = useContext(AnalyticsContext);
   const { showPrompt } = usePrompt();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const { onboardingSteps, onboardingMinimumTopics } =
-    useContext(FeaturesContext);
   const [currentView, setCurrentView] = useState(
-    shouldSkipIntro ? onboardingSteps[0] : OnboardingStep.Intro,
+    shouldSkipIntro ? OnboardingStep.Topics : OnboardingStep.Intro,
   );
   const [screenValue, setScreenValue] = useState<AuthDisplay>(
     AuthDisplay.Default,
@@ -104,13 +98,6 @@ function OnboardingModal({
 
   const { onContainerChange, formRef } = useAuthForms({ onDiscard: onClose });
 
-  const components: Record<OnboardingStep, ReactNode> = {
-    intro: null,
-    topics: <FilterOnboardingStep key={OnboardingStep.Topics} />,
-    layout: <LayoutOnboarding key={OnboardingStep.Layout} />,
-    theme: <ThemeOnboarding key={OnboardingStep.Theme} />,
-  };
-
   useEffect(() => {
     trackEvent({
       event_name: AnalyticsEvent.Impression,
@@ -118,8 +105,8 @@ function OnboardingModal({
       target_id: ExperimentWinner.OnboardingVersion,
       extra: JSON.stringify({
         origin: mode,
-        steps: onboardingSteps,
-        mandating_categories: onboardingMinimumTopics,
+        steps: 'topics',
+        mandating_categories: 0,
       }),
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -135,14 +122,12 @@ function OnboardingModal({
       });
     }
 
-    onboardingSteps.forEach((onboardingStep) => {
-      items.push({
-        key: onboardingStep,
-      });
+    items.push({
+      key: OnboardingStep.Topics,
     });
 
     return items;
-  }, [onboardingSteps, shouldSkipIntro]);
+  }, [shouldSkipIntro]);
 
   const onViewChange = (view: OnboardingStep) => {
     if (!view) {
@@ -177,7 +162,7 @@ function OnboardingModal({
     return (
       <>
         <IntroductionOnboarding onClose={onClose} />
-        {onboardingSteps.map((onboarding) => components[onboarding])}
+        <FilterOnboardingStep />
       </>
     );
   })();
