@@ -71,14 +71,18 @@ export const GrowthBookProvider = ({
 
   useEffect(() => {
     if (gb && experimentation?.f) {
-      decrypt(
-        experimentation.f,
-        process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
-        'AES-CBC',
-        128,
-      ).then((features) => {
-        gb.setFeatures(JSON.parse(features));
-      });
+      const currentFeats = gb.getFeatures();
+      // Do not update when the features are already set
+      if (!currentFeats || !Object.keys(currentFeats).length) {
+        decrypt(
+          experimentation.f,
+          process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
+          'AES-CBC',
+          128,
+        ).then((features) => {
+          gb.setFeatures(JSON.parse(features));
+        });
+      }
     }
   }, [gb, experimentation?.f]);
 
