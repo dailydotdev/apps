@@ -1,33 +1,40 @@
 import React, { ReactElement } from 'react';
-import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
 import { Justify } from '../utilities';
 import { OnboardingStep, OnboardingStepProps, OnboardingTitle } from './common';
 import Container from './OnboardingStep';
-import { ClickableText } from '../buttons/ClickableText';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { MemberAlready } from './MemberAlready';
 import { AuthTriggers } from '../../lib/auth';
+import { useThemedAsset } from '../../hooks/utils';
+
+interface IntroductionOnboardingTitleProps {
+  className?: string;
+}
+
+export const IntroductionOnboardingTitle = ({
+  className,
+}: IntroductionOnboardingTitleProps): ReactElement => (
+  <OnboardingTitle className={className}>
+    Make the feed,
+    <span className="ml-1 text-theme-color-cabbage">your feed.</span>
+  </OnboardingTitle>
+);
 
 function IntroductionOnboarding({
   onClose,
 }: OnboardingStepProps): ReactElement {
-  const { showLogin, user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
+  const { onboardingIntroduction } = useThemedAsset();
 
   return (
     <Modal.StepsWrapper view={OnboardingStep.Intro}>
       {({ nextStep }: StepComponentProps) => (
         <>
           <Container
-            title={
-              <OnboardingTitle>
-                Make the feed,
-                <span className="ml-1 text-theme-color-cabbage">
-                  your feed.
-                </span>
-              </OnboardingTitle>
-            }
+            title={<IntroductionOnboardingTitle />}
             description="Supercharge your feed with content you'll love reading!"
             className={{
               container: 'overflow-hidden',
@@ -37,22 +44,17 @@ function IntroductionOnboarding({
             <span className="flex flex-1" />
             <div
               style={{
-                backgroundImage: `url(${cloudinary.feedFilters.yourFeed})`,
+                backgroundImage: `url(${onboardingIntroduction})`,
               }}
-              className="absolute -top-4 w-full h-full bg-cover"
+              className="absolute -top-20 w-full h-full bg-cover"
             />
             {!user && (
-              <span className="flex py-10">
-                Already a member?
-                <ClickableText
-                  className="z-0 ml-1.5 font-bold"
-                  onClick={() =>
-                    showLogin(AuthTriggers.Onboarding, { isLogin: true })
-                  }
-                >
-                  Log in
-                </ClickableText>
-              </span>
+              <MemberAlready
+                className={{ container: 'py-10', login: 'z-0' }}
+                onLogin={() =>
+                  showLogin(AuthTriggers.Onboarding, { isLogin: true })
+                }
+              />
             )}
           </Container>
           <Modal.Footer justify={Justify.Between}>

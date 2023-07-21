@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
@@ -15,8 +15,6 @@ import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { NotificationType } from './utils';
-import FeaturesContext from '../../contexts/FeaturesContext';
-import { InAppNotificationPosition } from '../../lib/featureValues';
 import { ButtonSize } from '../buttons/Button';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 
@@ -97,17 +95,11 @@ export function InAppNotificationElement(): ReactElement {
     return null;
   }
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { inAppNotificationPosition } = useContext(FeaturesContext);
-
   return (
     <Container
       className={classNames(
-        'top-16',
+        'top-16 laptop:bottom-10 laptop:top-[unset]',
         isExit && 'exit',
-        inAppNotificationPosition === InAppNotificationPosition.Bottom &&
-          'laptop:bottom-10 laptop:top-[unset]',
       )}
       role="alert"
       onMouseEnter={stopTimer}

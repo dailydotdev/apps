@@ -4,13 +4,8 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import React, { ReactElement, Ref, forwardRef, useContext } from 'react';
+import React, { ReactElement, Ref, forwardRef } from 'react';
 import PlayIcon from '@dailydotdev/shared/src/components/icons/Play';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import {
-  Features,
-  getFeatureValue,
-} from '@dailydotdev/shared/src/lib/featureManagement';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { useExtensionPermission } from './useExtensionPermission';
 
@@ -23,14 +18,11 @@ const CompanionPermissionComponent = (
   const { requestContentScripts } = useExtensionPermission({
     origin: 'companion permission popup',
   });
-  const { flags } = useContext(FeaturesContext);
-  const link = getFeatureValue(Features.CompanionPermissionLink, flags);
-  const button = getFeatureValue(Features.CompanionPermissionButton, flags);
-  const title = getFeatureValue(Features.CompanionPermissionTitle, flags);
-  const description = getFeatureValue(
-    Features.CompanionPermissionDescription,
-    flags,
-  );
+  const link = 'Overview Video';
+  const button = 'Activate companion';
+  const title = 'Try the new companion feature!';
+  const description =
+    "We'll ask for extra permissions so we can show the companion directly on the original content!";
 
   return (
     <div ref={ref} className="flex flex-row gap-4 max-w-full typo-callout">

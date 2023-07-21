@@ -84,8 +84,14 @@ it('should hide read time when not available', async () => {
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
 
-it('should show author name and handle', async () => {
-  renderComponent();
+it('should show author name and squad handle when enableSourceHeader is true', async () => {
+  renderComponent({ enableSourceHeader: true });
+  await screen.findByText('Lee Hansel Solevilla Jr');
+  await screen.findByText('Avengers');
+});
+
+it('should show author name and author handle when enableSourceHeader is false', async () => {
+  renderComponent({ enableSourceHeader: false });
   await screen.findByText('Lee Hansel Solevilla Jr');
   await screen.findByText('@sshanzel');
 });

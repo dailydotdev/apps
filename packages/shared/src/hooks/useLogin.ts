@@ -82,9 +82,9 @@ const useLogin = ({
         if (error) {
           trackEvent({
             event_name: AuthEventNames.LoginError,
-            extra: JSON.stringify({ error: 'Invalid username or password' }),
+            extra: JSON.stringify({ error: 'Invalid email or password' }),
           });
-          setHint('Invalid username or password');
+          setHint('Invalid email or password');
           return;
         }
 
@@ -101,9 +101,9 @@ const useLogin = ({
         if (error) {
           trackEvent({
             event_name: AuthEventNames.LoginError,
-            extra: JSON.stringify({ error: 'Invalid username or password' }),
+            extra: JSON.stringify({ error: 'Invalid email or password' }),
           });
-          setHint('Invalid username or password');
+          setHint('Invalid email or password');
         }
 
         if (redirect) {

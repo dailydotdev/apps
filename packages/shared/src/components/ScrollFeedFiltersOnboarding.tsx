@@ -1,10 +1,10 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import { Button, ButtonSize } from './buttons/Button';
 import { ExperimentWinner } from '../lib/featureValues';
-import { cloudinary } from '../lib/image';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
 import SuperchargeIcon from '../../icons/supercharge.svg';
+import { useThemedAsset } from '../hooks/utils';
 
 const GaussianBlur = (): ReactElement => {
   return (
@@ -17,6 +17,7 @@ interface ScrollFeedFiltersOnboardingProps {
 export default function ScrollFeedFiltersOnboarding({
   onInitializeOnboarding,
 }: ScrollFeedFiltersOnboardingProps): ReactElement {
+  const { scrollBlock } = useThemedAsset();
   const { trackEvent } = useContext(AnalyticsContext);
   useEffect(() => {
     trackEvent({
@@ -64,7 +65,7 @@ export default function ScrollFeedFiltersOnboarding({
         </Button>
       </div>
       <img
-        src={cloudinary.feedFilters.scroll}
+        src={scrollBlock}
         alt="example topics for your feed"
         className="laptop:hidden laptopL:block ml-2"
       />

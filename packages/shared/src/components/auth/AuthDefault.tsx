@@ -10,7 +10,7 @@ import { checkKratosEmail } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import AuthModalFooter from './AuthModalFooter';
 import { SIGNIN_METHOD_KEY } from './AuthSignBack';
-import { Provider } from './common';
+import { AuthFormProps, Provider } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
@@ -20,8 +20,10 @@ import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthModalHeader from './AuthModalHeader';
 import { ExperimentWinner } from '../../lib/featureValues';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
-interface AuthDefaultProps {
+interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
   loginHint?: ReturnType<typeof useState>;
   onPasswordLogin?: (params: LoginFormParams) => void;
@@ -58,11 +60,12 @@ const AuthDefault = ({
   signUpTitle = 'Sign up to daily.dev',
   logInTitle = 'Log in to daily.dev',
   loginButton,
+  simplified,
 }: AuthDefaultProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
-
+  const { displayToast } = useToastNotification();
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
     checkKratosEmail(emailParam),
@@ -104,6 +107,9 @@ const AuthDefault = ({
 
     if (res?.result) {
       setRegisterEmail(email);
+      displayToast(
+        "There's already an account for the same credentials. Can you please try logging in instead?",
+      );
       return setShouldLogin(true);
     }
 
@@ -147,7 +153,7 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthModalHeader title={title} />
+      {!simplified && <AuthModalHeader title={title} />}
       <AuthContainer className={disableRegistration && 'mb-6'}>
         {providers.map(({ provider, ...props }) => (
           <ProviderButton
@@ -165,16 +171,21 @@ const AuthDefault = ({
       </AuthContainer>
       <div className="flex flex-1" />
       {!disableRegistration && (
-        <AuthModalFooter
-          className="mt-4"
-          isLogin={shouldLogin}
-          onIsLogin={(value) => {
-            if (!value) {
-              setRegisterEmail(null);
-            }
-            setShouldLogin(value);
-          }}
-        />
+        <ConditionalWrapper
+          condition={simplified}
+          wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
+        >
+          <AuthModalFooter
+            className="mt-4"
+            isLogin={shouldLogin}
+            onIsLogin={(value) => {
+              if (!value) {
+                setRegisterEmail(null);
+              }
+              setShouldLogin(value);
+            }}
+          />
+        </ConditionalWrapper>
       )}
     </>
   );
