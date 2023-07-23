@@ -1,9 +1,10 @@
-import { gql } from 'graphql-request';
+import request, { gql } from 'graphql-request';
 import {
   NotificationIconType,
   NotificationType,
 } from '../components/notifications/utils';
 import { Connection } from './common';
+import { graphqlUrl } from '../lib/config';
 
 export enum NotificationAvatarType {
   User = 'user',
@@ -107,3 +108,48 @@ export const NEW_NOTIFICATIONS_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const NOTIFICATION_PREFERENCES_QUERY = gql`
+  query NotificationPreferences($data: [NotificationPreferenceInput]!) {
+    notificationPreferences(data: $data) {
+      referenceId
+      userId
+      notificationType
+      status
+      type
+    }
+  }
+`;
+
+enum NotificationPreferenceStatus {
+  Muted = 'muted',
+}
+
+enum NotificationPreferenceType {
+  Post = 'post',
+  Comment = 'comment',
+  Source = 'source',
+}
+
+export interface NotificationPreference {
+  referenceId: string;
+  userId: string;
+  notificationType: NotificationType;
+  status: NotificationPreferenceStatus;
+  type: NotificationPreferenceType;
+}
+
+type NotificationPreferenceParams = Pick<
+  NotificationPreference,
+  'type' | 'referenceId'
+>;
+
+export const getNotificationPreferences = async (
+  params: NotificationPreferenceParams[],
+): Promise<NotificationPreference[]> => {
+  const res = await request(graphqlUrl, NOTIFICATION_PREFERENCES_QUERY, {
+    data: params,
+  });
+
+  return res.notificationPreferences;
+};
