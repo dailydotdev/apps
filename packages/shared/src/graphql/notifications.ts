@@ -121,6 +121,14 @@ export const NOTIFICATION_PREFERENCES_QUERY = gql`
   }
 `;
 
+export const MUTE_NOTIFICATION_MUTATION = gql`
+  mutation MuteNotificationPreference($referenceId: ID!, $type: String!) {
+    muteNotificationPreference(referenceId: $referenceId, type: $type) {
+      _
+    }
+  }
+`;
+
 enum NotificationPreferenceStatus {
   Muted = 'muted',
 }
@@ -152,4 +160,19 @@ export const getNotificationPreferences = async (
   });
 
   return res.notificationPreferences;
+};
+
+interface MuteNotificationParams
+  extends Pick<NotificationPreference, 'referenceId'> {
+  type: NotificationType;
+}
+
+export const muteNotification = async (
+  params: MuteNotificationParams,
+): Promise<NotificationPreference[]> => {
+  const res = await request(graphqlUrl, MUTE_NOTIFICATION_MUTATION, {
+    data: params,
+  });
+
+  return res.muteNotificationPreference;
 };

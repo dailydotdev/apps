@@ -1,6 +1,7 @@
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import {
   getNotificationPreferences,
+  muteNotification,
   NotificationPreference,
 } from '../../graphql/notifications';
 import { generateQueryKey, RequestKey } from '../../lib/query';
@@ -8,6 +9,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 
 interface UseNotificationPreference {
   preferences: NotificationPreference[];
+  muteNotification: typeof muteNotification;
 }
 
 interface UseNotificationPreferenceProps {
@@ -22,6 +24,7 @@ export const useNotificationPreference = ({
     generateQueryKey(RequestKey.NotificationPreference, user, params),
     () => getNotificationPreferences(params),
   );
+  const { mutateAsync: muteNotificationAsync } = useMutation(muteNotification);
 
-  return { preferences: data };
+  return { preferences: data, muteNotification: muteNotificationAsync };
 };
