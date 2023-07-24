@@ -4,16 +4,12 @@ import { useExtensionPermission } from './useExtensionPermission';
 
 export const useCompanionSettings = (origin: string): void => {
   const isOnLoad = useRef(true);
-  const { optOutCompanion, toggleOptOutCompanion, loadedSettings } =
-    useContext(SettingsContext);
-  const { contentScriptGranted, requestContentScripts } =
+  const { optOutCompanion, loadedSettings } = useContext(SettingsContext);
+  const { contentScriptGranted, registerBrowserContentScripts } =
     useExtensionPermission({ origin });
 
-  const shouldNotToggleCompanion =
-    optOutCompanion || contentScriptGranted || !loadedSettings;
-
   useEffect(() => {
-    if (shouldNotToggleCompanion) {
+    if (optOutCompanion || contentScriptGranted || !loadedSettings) {
       return;
     }
 
@@ -22,10 +18,6 @@ export const useCompanionSettings = (origin: string): void => {
       return;
     }
 
-    requestContentScripts().then((granted) => {
-      if (!granted) {
-        toggleOptOutCompanion();
-      }
-    });
-  }, [shouldNotToggleCompanion, requestContentScripts, toggleOptOutCompanion]);
+    registerBrowserContentScripts();
+  }, [optOutCompanion, loadedSettings]);
 };
