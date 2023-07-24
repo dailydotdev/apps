@@ -109,7 +109,7 @@ it('should have subcomments', async () => {
 
 it('should render the comment box', async () => {
   renderLayout({}, loggedUser);
-  const el = await screen.findByLabelText('Comment');
+  const el = await screen.findByLabelText('Reply');
   el.click();
   const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();

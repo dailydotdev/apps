@@ -133,7 +133,7 @@ it('should send cancel upvote mutation', async () => {
 
 it('should call onComment callback', async () => {
   renderComponent();
-  const el = await screen.findByLabelText('Comment');
+  const el = await screen.findByLabelText('Reply');
   el.click();
   expect(onComment).toBeCalledWith(comment, 'c1');
 });
