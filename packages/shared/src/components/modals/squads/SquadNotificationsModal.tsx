@@ -83,10 +83,7 @@ export function SquadNotificationsModal({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
     >
-      <Modal.Header
-        title={`Notifications from ${squad.name}`}
-        className="line-clamp-1"
-      />
+      <Modal.Header title={`Notifications from ${squad.name}`} />
       <Modal.Body className="gap-3">
         {/* <Switch */}
         {/*  data-testId="notify_new_posts-switch" */}
