@@ -131,7 +131,7 @@ function SquadPostContent({
             onShare={() => null}
             onReadArticle={onReadArticle}
             post={post}
-            className="px-8 tablet:pl-0"
+            className="px-8 tablet:pl-0 mb-6"
             onClose={onClose}
             origin={origin}
           />
