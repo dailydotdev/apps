@@ -5,6 +5,7 @@ import {
 } from '../components/notifications/utils';
 import { Connection } from './common';
 import { graphqlUrl } from '../lib/config';
+import { EmptyResponse } from './emptyResponse';
 
 export enum NotificationAvatarType {
   User = 'user',
@@ -129,7 +130,15 @@ export const MUTE_NOTIFICATION_MUTATION = gql`
   }
 `;
 
-enum NotificationPreferenceStatus {
+export const CLEAR_NOTIFICATION_PREFERENCE_MUTATION = gql`
+  mutation ClearNotificationPreference($referenceId: ID!, $type: String!) {
+    clearNotificationPreference(referenceId: $referenceId, type: $type) {
+      _
+    }
+  }
+`;
+
+export enum NotificationPreferenceStatus {
   Muted = 'muted',
 }
 
@@ -147,10 +156,10 @@ export interface NotificationPreference {
   type: NotificationPreferenceType;
 }
 
-type NotificationPreferenceParams = Pick<
-  NotificationPreference,
-  'type' | 'referenceId'
->;
+interface NotificationPreferenceParams
+  extends Pick<NotificationPreference, 'referenceId'> {
+  type: NotificationType;
+}
 
 export const getNotificationPreferences = async (
   params: NotificationPreferenceParams[],
@@ -162,17 +171,32 @@ export const getNotificationPreferences = async (
   return res.notificationPreferences;
 };
 
-interface MuteNotificationParams
-  extends Pick<NotificationPreference, 'referenceId'> {
-  type: NotificationType;
-}
+export const notificationPreferenceMap: Partial<
+  Record<NotificationType, NotificationPreferenceType>
+> = {
+  [NotificationType.ArticleNewComment]: NotificationPreferenceType.Post,
+  [NotificationType.CommentReply]: NotificationPreferenceType.Comment,
+  [NotificationType.SquadReply]: NotificationPreferenceType.Comment,
+  [NotificationType.SquadPostAdded]: NotificationPreferenceType.Source,
+  [NotificationType.SquadMemberJoined]: NotificationPreferenceType.Source,
+};
 
 export const muteNotification = async (
-  params: MuteNotificationParams,
-): Promise<NotificationPreference[]> => {
-  const res = await request(graphqlUrl, MUTE_NOTIFICATION_MUTATION, {
-    data: params,
-  });
+  params: NotificationPreferenceParams,
+): Promise<EmptyResponse> => {
+  const res = await request(graphqlUrl, MUTE_NOTIFICATION_MUTATION, params);
 
   return res.muteNotificationPreference;
+};
+
+export const clearNotificationPreference = async (
+  params: NotificationPreferenceParams,
+): Promise<EmptyResponse> => {
+  const res = await request(
+    graphqlUrl,
+    CLEAR_NOTIFICATION_PREFERENCE_MUTATION,
+    params,
+  );
+
+  return res.clearNotificationPreference;
 };

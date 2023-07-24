@@ -29,8 +29,11 @@ export const NotifProgress = classed(
 
 export enum NotificationType {
   System = 'system',
+  ArticleNewComment = 'article_new_comment',
+  CommentReply = 'comment_reply',
   SquadPostAdded = 'squad_post_added',
   SquadMemberJoined = 'squad_member_joined',
+  SquadReply = 'squad_reply',
   SquadBlocked = 'squad_blocked',
   PromotedToAdmin = 'promoted_to_admin',
   PromotedToModerator = 'promoted_to_moderator',
@@ -77,17 +80,18 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.User]: '',
 };
 
-export const notificationTypeTheme: Record<NotificationType, string> = {
-  [NotificationType.System]: '',
-  [NotificationType.SquadPostAdded]: 'text-theme-color-cabbage',
-  [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
-  [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
-  [NotificationType.DemotedToMember]: 'text-theme-color-cabbage',
-  [NotificationType.PromotedToModerator]: 'text-theme-color-cabbage',
-  [NotificationType.PromotedToAdmin]: 'text-theme-color-cabbage',
-  [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
-  [NotificationType.SquadSubscribeNotification]: 'text-theme-color-cabbage',
-};
+export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
+  {
+    [NotificationType.System]: '',
+    [NotificationType.SquadPostAdded]: 'text-theme-color-cabbage',
+    [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
+    [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
+    [NotificationType.DemotedToMember]: 'text-theme-color-cabbage',
+    [NotificationType.PromotedToModerator]: 'text-theme-color-cabbage',
+    [NotificationType.PromotedToAdmin]: 'text-theme-color-cabbage',
+    [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
+    [NotificationType.SquadSubscribeNotification]: 'text-theme-color-cabbage',
+  };
 
 const notificationsUrl = `/notifications`;
 

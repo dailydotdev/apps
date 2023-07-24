@@ -26,12 +26,17 @@ export enum SourcePermissions {
   WelcomePostEdit = 'welcome_post_edit',
 }
 
+interface SourceMemberFlag {
+  showPostsOnFeed: boolean;
+}
+
 export interface SourceMember {
   role: SourceMemberRole;
   user: UserShortProfile;
   source: Squad;
   referralToken: string;
   permissions?: SourcePermissions[];
+  flags: SourceMemberFlag;
 }
 
 export enum SourceType {
