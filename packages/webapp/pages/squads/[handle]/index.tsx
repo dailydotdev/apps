@@ -25,7 +25,6 @@ import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading
 import { useQuery } from 'react-query';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { useSquadOnboarding } from '@dailydotdev/shared/src/hooks/useSquadOnboarding';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
@@ -37,12 +36,6 @@ import ProtectedPage from '../../../components/ProtectedPage';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
-);
-const SquadTourPopup = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "squadTourPopup" */ '@dailydotdev/shared/src/components/squads/SquadTourPopup'
-    ),
 );
 
 const SquadEmptyScreen = dynamic(
@@ -99,12 +92,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     [squadId],
   );
 
-  const isFinishedLoading = isFetched && !isLoading && !!squad;
-
-  const { isPopupOpen, onClosePopup, hasTriedOnboarding } = useSquadOnboarding(
-    isFinishedLoading && !isForbidden,
-  );
-
   useEffect(() => {
     if (!isForbidden) return;
 
@@ -128,7 +115,6 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
 
   return (
     <ProtectedPage seo={seo} fallback={<></>} shouldFallback={!user}>
-      {isPopupOpen && <SquadTourPopup onClose={onClosePopup} />}
       <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
         <div
           className={classNames(
@@ -136,11 +122,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
             sidebarRendered && '-left-full translate-x-[60%]',
           )}
         />
-        <SquadPageHeader
-          squad={squad}
-          members={squadMembers}
-          hasTriedOnboarding={hasTriedOnboarding && !isPopupOpen}
-        />
+        <SquadPageHeader squad={squad} members={squadMembers} />
         <SquadChecklistCard squad={squad} />
         <Feed
           className="px-6 laptop:px-0 pt-14 laptop:pt-10"
