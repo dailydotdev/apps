@@ -128,7 +128,7 @@ function SquadPostContent({
         {isPublicSquad && (
           <SquadPostWidgets
             onBookmark={onToggleBookmark}
-            onShare={() => null}
+            onShare={onSharePost}
             onReadArticle={onReadArticle}
             post={post}
             className="px-8 tablet:pl-0 mb-6"
