@@ -101,7 +101,7 @@ describe('ShareModal Test Suite:', () => {
     expect(btn).toBeInTheDocument();
     btn.click();
     await waitFor(() => {
-      expect(screen.getByText('Squads early access!')).toBeInTheDocument();
+      expect(screen.getByText('Welcome to Squads!')).toBeInTheDocument();
     });
   });
 
