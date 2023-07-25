@@ -10,6 +10,7 @@ import { TextPlaceholder } from '../widgets/common';
 import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/Card';
 import { postDateFormat } from '../../lib/dateFormat';
+import { combinedClicks } from '../../lib/click';
 
 type PostProps = {
   post: Post;
@@ -31,8 +32,7 @@ export const SquadPostListItem = ({
     <CardLink
       href={post.commentsPermalink}
       title={post.title}
-      onClick={() => onLinkClick(post)}
-      onMouseUp={(event) => event.button === 1 && onLinkClick(post)}
+      {...combinedClicks(() => onLinkClick(post))}
     />
     <div className="flex flex-col flex-1">
       <SquadPostAuthor

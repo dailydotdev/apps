@@ -14,6 +14,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { HotLabel } from '../utilities';
+import { combinedClicks } from '../../lib/click';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -55,8 +56,7 @@ const DefaultListItem = ({
     <CardLink
       href={post.commentsPermalink}
       title={post.title}
-      onClick={() => onLinkClick(post)}
-      onMouseUp={(event) => event.button === 1 && onLinkClick(post)}
+      {...combinedClicks(() => onLinkClick(post))}
     />
     <LazyImage
       imgSrc={post.source.image}
