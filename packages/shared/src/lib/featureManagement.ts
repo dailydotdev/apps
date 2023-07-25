@@ -26,8 +26,6 @@ export class Features<T extends FeatureValue = string> {
     ],
   );
 
-  static readonly HasSquadAccess = new Features('squad');
-
   static readonly ShowHiring = new Features('show_hiring');
 
   private constructor(

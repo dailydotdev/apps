@@ -22,8 +22,6 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
 import { SquadsList } from './SquadsList';
-import { Button, ButtonSize } from '../buttons/Button';
-import PlusIcon from '../icons/Plus';
 import { ProfilePicture } from '../ProfilePicture';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
 import { Origin } from '../../lib/analytics';
@@ -57,15 +55,8 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  const { hasSquadAccess, canSubmitArticle, isFlagsFetched } =
-    useContext(FeaturesContext);
-  const { openNewSquadModal } = useCreateSquadModal({
-    hasSquads: !!squads?.length,
-    hasAccess: hasSquadAccess,
-    isFlagsFetched,
-  });
-  const newSquadButtonVisible =
-    sidebarRendered && hasSquadAccess && !squads?.length;
+  const { canSubmitArticle } = useContext(FeaturesContext);
+  const { openNewSquadModal } = useCreateSquadModal();
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -116,25 +107,6 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {newSquadButtonVisible && (
-              <div className="flex mt-0 laptop:mt-2 mb-4">
-                <Button
-                  buttonSize={ButtonSize.Small}
-                  icon={<PlusIcon />}
-                  iconOnly={!sidebarExpanded}
-                  className={classNames(
-                    'btn-primary-cabbage flex flex-1',
-                    sidebarExpanded ? 'mx-3' : 'mx-1.5',
-                  )}
-                  textPosition={
-                    sidebarExpanded ? 'justify-start' : 'justify-center'
-                  }
-                  onClick={() => openNewSquadModal({ origin: Origin.Sidebar })}
-                >
-                  {sidebarExpanded && 'New Squad'}
-                </Button>
-              </div>
-            )}
             {!alerts?.filter && (
               <MyFeedButton
                 {...defaultRenderSectionProps}
@@ -144,14 +116,12 @@ export default function Sidebar({
                 icon={<ProfilePicture size="xsmall" user={user} />}
               />
             )}
-            {!!squads?.length && (
-              <SquadsList
-                {...defaultRenderSectionProps}
-                activePage={activePageProp}
-                squads={squads}
-                onNewSquad={() => openNewSquadModal({ origin: Origin.Sidebar })}
-              />
-            )}
+            <SquadsList
+              {...defaultRenderSectionProps}
+              activePage={activePageProp}
+              squads={squads}
+              onNewSquad={() => openNewSquadModal({ origin: Origin.Sidebar })}
+            />
             <DiscoverSection
               {...defaultRenderSectionProps}
               onNavTabClick={onNavTabClick}

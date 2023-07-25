@@ -1,4 +1,4 @@
-import React, { ReactElement, MouseEvent, useMemo, useContext } from 'react';
+import React, { ReactElement, MouseEvent, useMemo } from 'react';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions, Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
@@ -6,7 +6,6 @@ import { SocialShareIcon } from '../widgets/SocialShareIcon';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/analytics';
 import PlusIcon from '../icons/Plus';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
 import { ButtonSize } from '../buttons/Button';
 import { ProfileImageSize } from '../ProfilePicture';
@@ -25,12 +24,7 @@ export function SquadsToShare({
   squadAvatarSize = 'xlarge',
 }: SquadsToShareProps): ReactElement {
   const { squads } = useAuthContext();
-  const { hasSquadAccess, isFlagsFetched } = useContext(FeaturesContext);
-  const { openNewSquadModal } = useCreateSquadModal({
-    hasSquads: !!squads?.length,
-    hasAccess: hasSquadAccess,
-    isFlagsFetched,
-  });
+  const { openNewSquadModal } = useCreateSquadModal();
 
   const list = useMemo(
     () =>
@@ -55,7 +49,6 @@ export function SquadsToShare({
     [squads, isLoading, onClick, size, squadAvatarSize],
   );
 
-  if (!hasSquadAccess) return null;
   if (list.length) return <>{list}</>;
 
   return (
