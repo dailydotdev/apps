@@ -9,6 +9,7 @@ interface UseExtensionPermission {
   isFetched?: boolean;
   contentScriptGranted: boolean;
   requestContentScripts: () => Promise<boolean>;
+  registerBrowserContentScripts: () => Promise<ContentScripts.RegisteredContentScript>;
 }
 
 const registerBrowserContentScripts =
@@ -83,7 +84,12 @@ export const useExtensionPermission = ({
   };
 
   return useMemo(
-    () => ({ contentScriptGranted, requestContentScripts, isFetched }),
+    () => ({
+      contentScriptGranted,
+      requestContentScripts,
+      isFetched,
+      registerBrowserContentScripts,
+    }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [contentScriptGranted, isFetched],
