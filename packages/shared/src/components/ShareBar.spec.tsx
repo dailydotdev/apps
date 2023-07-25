@@ -74,13 +74,13 @@ const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
 };
 
 describe('ShareBar Test Suite:', () => {
-  it('should render the component without logged in user', async () => {
+  it('should render the component for anonymous users', async () => {
     features = {};
     renderComponent(false, false);
     expect(
       screen.getByText('Would you recommend this post?'),
     ).toBeInTheDocument();
-    expect(screen.queryByText('New Squad')).not.toBeInTheDocument();
+    expect(screen.queryByText('New Squad')).toBeInTheDocument();
   });
 
   it('should render the component with logged user but no squads and open new squad modal', async () => {
@@ -90,7 +90,7 @@ describe('ShareBar Test Suite:', () => {
     expect(btn).toBeInTheDocument();
     btn.click();
     await waitFor(() => {
-      expect(screen.getByText('Squads early access!')).toBeInTheDocument();
+      expect(screen.getByText('Welcome to Squads!')).toBeInTheDocument();
     });
   });
 

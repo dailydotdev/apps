@@ -1,9 +1,11 @@
 import { useRouter } from 'next/router';
-import { useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { LazyModal } from '../components/modals/common/types';
 import { NewSquadModalProps } from '../components/modals/NewSquadModal';
 import { Origin } from '../lib/analytics';
 import { useLazyModal } from './useLazyModal';
+import AuthContext from '../contexts/AuthContext';
+import { AuthTriggers } from '../lib/auth';
 
 type ModalProps = Omit<NewSquadModalProps, 'onRequestClose' | 'isOpen'>;
 interface UseCreateSquadModal {
@@ -11,13 +13,20 @@ interface UseCreateSquadModal {
 }
 
 export const useCreateSquadModal = (): UseCreateSquadModal => {
+  const { user, showLogin } = useContext(AuthContext);
   const router = useRouter();
   const { openModal } = useLazyModal();
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const openNewSquadModal = (props: ModalProps) =>
+  const openNewSquadModal = (props: ModalProps) => {
+    if (!user) {
+      showLogin(AuthTriggers.CreateSquad);
+      return;
+    }
+
     openModal({ type: LazyModal.NewSquad, props });
+  };
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
