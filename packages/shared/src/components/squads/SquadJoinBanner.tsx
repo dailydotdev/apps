@@ -58,7 +58,7 @@ export const SquadJoinBanner = ({
         </p>
         <div className="flex flex-row gap-3 mt-5">
           <SimpleSquadJoinButton
-            className="btn-primary-cabbage text-theme-label-primary"
+            className="btn-primary-cabbage"
             squad={squad}
             origin={analyticsOrigin}
             onClick={() => {
