@@ -190,6 +190,7 @@ it('should show login if email exists', async () => {
   const submit = await screen.findByTestId('email_signup_submit');
   fireEvent.click(submit);
   mockEmailCheck(email, true);
+  await waitForNock();
 
   await waitFor(() => {
     const text = screen.queryByText('Log in with Facebook');
