@@ -156,7 +156,7 @@ export default function CommentActionButtons({
           className="mr-3 btn-tertiary-avocado"
         />
       </SimpleTooltip>
-      <SimpleTooltip content="Comment">
+      <SimpleTooltip content="Reply">
         <Button
           buttonSize={ButtonSize.Small}
           onClick={() => onComment(comment, parentId)}
