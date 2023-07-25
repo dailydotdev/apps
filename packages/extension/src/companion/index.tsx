@@ -23,41 +23,18 @@ const renderApp = (props: CompanionData) => {
   ReactDOM.render(<App {...props} />, container);
 };
 
-browser.runtime.onMessage.addListener(
-  ({
-    deviceId,
-    url,
-    postData,
-    settings,
-    flags,
-    user,
-    alerts,
-    visit,
-    accessToken,
-    squads,
-  }) => {
-    if (!settings || settings?.optOutCompanion) {
-      return;
-    }
+browser.runtime.onMessage.addListener((props) => {
+  const { settings, postData } = props;
+  if (!settings || settings?.optOutCompanion) {
+    return;
+  }
 
-    if (postData) {
-      renderApp({
-        deviceId,
-        url,
-        postData,
-        settings,
-        flags,
-        user,
-        alerts,
-        visit,
-        accessToken,
-        squads,
-      });
-    } else {
-      const container = getCompanionWrapper();
-      if (container) {
-        ReactDOM.unmountComponentAtNode(container);
-      }
+  if (postData) {
+    renderApp(props);
+  } else {
+    const container = getCompanionWrapper();
+    if (container) {
+      ReactDOM.unmountComponentAtNode(container);
     }
-  },
-);
+  }
+});
