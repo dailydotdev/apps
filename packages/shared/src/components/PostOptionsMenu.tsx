@@ -299,7 +299,7 @@ export default function PostOptionsMenu({
     const promoteFlag = post.flags?.promoteToPublic;
     postOptions.push({
       icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
-      text: promoteFlag ? 'Demote' : 'Promote',
+      label: promoteFlag ? 'Demote' : 'Promote',
       action: setShowPromotePost,
     });
   }

@@ -22,6 +22,7 @@ import { useRefreshToken } from '../hooks/useRefreshToken';
 import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { AnalyticsContextProvider } from './AnalyticsContext';
+import { GrowthBookProvider } from '../components/GrowthBookProvider';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -64,6 +65,7 @@ const updateLocalBootData = (
     'user',
     'lastModifier',
     'squads',
+    'exp',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -172,55 +174,71 @@ export const BootDataProvider = ({
     [setBootData],
   );
 
+  const updateExperimentation = useCallback(
+    (exp: BootCacheData['exp']) => {
+      const updated = updateLocalBootData(cachedBootData, { exp });
+      setCachedBootData(updated);
+    },
+    [cachedBootData],
+  );
+
   return (
     <FeaturesContextProvider
       flags={flags}
       isFlagsFetched={initialLoad}
       isFeaturesLoaded={loadedFromCache}
     >
-      <AuthContextProvider
+      <GrowthBookProvider
+        app={app}
         user={user}
-        updateUser={updateUser}
-        tokenRefreshed={updatedAtActive > 0}
-        getRedirectUri={getRedirectUri}
-        loadingUser={!dataUpdatedAt || !user}
-        loadedUserFromCache={loadedFromCache}
-        visit={bootRemoteData?.visit}
-        refetchBoot={refetch}
-        isFetched={isFetched}
-        isLegacyLogout={bootRemoteData?.isLegacyLogout}
-        firstLoad={initialLoad}
-        accessToken={bootRemoteData?.accessToken}
-        squads={squads}
+        deviceId={deviceId}
+        experimentation={cachedBootData?.exp}
+        updateExperimentation={updateExperimentation}
       >
-        <SettingsContextProvider
-          settings={settings}
-          loadedSettings={loadedFromCache}
-          updateSettings={updateSettings}
+        <AuthContextProvider
+          user={user}
+          updateUser={updateUser}
+          tokenRefreshed={updatedAtActive > 0}
+          getRedirectUri={getRedirectUri}
+          loadingUser={!dataUpdatedAt || !user}
+          loadedUserFromCache={loadedFromCache}
+          visit={bootRemoteData?.visit}
+          refetchBoot={refetch}
+          isFetched={isFetched}
+          isLegacyLogout={bootRemoteData?.isLegacyLogout}
+          firstLoad={initialLoad}
+          accessToken={bootRemoteData?.accessToken}
+          squads={squads}
         >
-          <AlertContextProvider
-            alerts={alerts}
-            isFetched={isFetched}
-            updateAlerts={updateAlerts}
-            loadedAlerts={loadedFromCache}
+          <SettingsContextProvider
+            settings={settings}
+            loadedSettings={loadedFromCache}
+            updateSettings={updateSettings}
           >
-            <AnalyticsContextProvider
-              app={app}
-              version={version}
-              getPage={getPage}
-              deviceId={deviceId}
+            <AlertContextProvider
+              alerts={alerts}
+              isFetched={isFetched}
+              updateAlerts={updateAlerts}
+              loadedAlerts={loadedFromCache}
             >
-              <NotificationsContextProvider
+              <AnalyticsContextProvider
                 app={app}
-                isNotificationsReady={initialLoad}
-                unreadCount={notifications?.unreadNotificationsCount}
+                version={version}
+                getPage={getPage}
+                deviceId={deviceId}
               >
-                {children}
-              </NotificationsContextProvider>
-            </AnalyticsContextProvider>
-          </AlertContextProvider>
-        </SettingsContextProvider>
-      </AuthContextProvider>
+                <NotificationsContextProvider
+                  app={app}
+                  isNotificationsReady={initialLoad}
+                  unreadCount={notifications?.unreadNotificationsCount}
+                >
+                  {children}
+                </NotificationsContextProvider>
+              </AnalyticsContextProvider>
+            </AlertContextProvider>
+          </SettingsContextProvider>
+        </AuthContextProvider>
+      </GrowthBookProvider>
     </FeaturesContextProvider>
   );
 };
