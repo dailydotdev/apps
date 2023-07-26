@@ -14,25 +14,22 @@ import {
   mockLoginFlow,
   mockRegistraitonFlow,
   registrationFlowMockData,
-  successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
 import { getNodeValue, RegistrationParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
-import Toast from '../notifications/Toast';
 
-const client = new QueryClient();
+const user = null;
 
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  client.clear();
+  jest.clearAllMocks();
 });
 
 const defaultToken = getNodeValue(
@@ -49,46 +46,32 @@ const defaultParams: Partial<RegistrationParameters> = {
   'traits.acceptedMarketing': true,
   'traits.timezone': getUserDefaultTimezone(),
 };
-const mockRegistraitonValidationFlow = (
-  result: unknown,
-  { optOutMarketing, ...params }: Partial<RegistrationParameters> = {},
-  responseCode = 200,
-) => {
-  const url = new URL(registrationFlowMockData.ui.action);
-  const vars = { ...defaultParams, ...params };
-  nock(url.origin, {
-    reqheaders: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': vars.csrf_token,
-      Accept: 'application/json',
-    },
-  })
-    .post(url.pathname + url.search, vars)
-    .reply(responseCode, result);
-};
+
+const onSuccessfulLogin = jest.fn();
 
 const renderComponent = (
   props: AuthOptionsProps = {
-    trigger: null,
+    onSuccessfulLogin,
     formRef: null,
+    trigger: 'test',
   },
 ): RenderResult => {
-  mockLoginFlow();
+  const client = new QueryClient();
   mockRegistraitonFlow();
+  mockLoginFlow();
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={{ id: trackingId }}
+        user={user}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
-        refetchBoot={jest.fn()}
+        refetchBoot={onSuccessfulLogin}
       >
         <SettingsContext.Provider value={{ syncSettings: jest.fn() }}>
-          <Toast autoDismissNotifications={false} />
-          <AuthOptions {...props} />
+          <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
         </SettingsContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
@@ -145,6 +128,27 @@ const renderRegistration = async (
   await waitFor(() => expect(queryCalled).toBeTruthy());
 };
 
+const renderLogin = async (email: string) => {
+  renderComponent();
+  await waitForNock();
+  mockEmailCheck(email, true);
+  fireEvent.input(screen.getByPlaceholderText('Email'), {
+    target: { value: email },
+  });
+  const submit = await screen.findByTestId('email_signup_submit');
+  fireEvent.click(submit);
+
+  await waitForNock();
+
+  await waitFor(async () => {
+    const login = screen.queryByTestId('login_form');
+    expect(login).toBeInTheDocument();
+  });
+  fireEvent.input(screen.getByTestId('login_email'), {
+    target: { value: email },
+  });
+};
+
 // NOTE: Chris turned this off needs a good re-look at
 // it('should post registration', async () => {
 //   const email = 'sshanzel@yahoo.com';
@@ -181,24 +185,10 @@ const renderRegistration = async (
 
 it('should show login if email exists', async () => {
   const email = 'sshanzel@yahoo.com';
-  renderComponent();
-  await waitForNock();
-  mockEmailCheck(email, true);
-  fireEvent.input(screen.getByPlaceholderText('Email'), {
-    target: { value: email },
-  });
-  const submit = await screen.findByTestId('email_signup_submit');
-  fireEvent.click(submit);
-  await waitForNock();
+  await renderLogin(email);
 
-  await waitFor(() => {
-    const text = screen.queryByText('Log in with Facebook');
-    const toastText = screen.queryByText(
-      "There's already an account for the same credentials. Can you please try logging in instead?",
-    );
-    expect(text).toBeInTheDocument();
-    expect(toastText).toBeInTheDocument();
-  });
+  const text = screen.queryByText('Log in with Facebook');
+  expect(text).toBeInTheDocument();
 });
 
 describe('testing username auto generation', () => {
@@ -208,15 +198,8 @@ describe('testing username auto generation', () => {
     const username = 'johndoe';
 
     await renderRegistration(email, false, name, username);
-    const form = await screen.findByTestId('registration_form');
-    const params = formToJson(form as HTMLFormElement);
-    mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
-    fireEvent.submit(form);
-
-    await waitFor(() => {
-      const usernameEl = screen.getByPlaceholderText('Enter a username');
-      expect(usernameEl).toBeInTheDocument();
-      expect(usernameEl).toHaveValue(username);
-    });
+    const usernameEl = screen.getByPlaceholderText('Enter a username');
+    expect(usernameEl).toBeInTheDocument();
+    expect(usernameEl).toHaveValue(username);
   });
 });

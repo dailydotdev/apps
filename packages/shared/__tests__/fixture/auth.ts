@@ -1357,7 +1357,7 @@ export const mockVerificationFlow = (
   result = registrationFlowMockData,
 ): void => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
-    .get('/self-service/verification/browser?')
+    .get('/self-service/verification/browser')
     .reply(200, result);
 };
 
