@@ -32,6 +32,7 @@ export type PostBootData = Pick<
   | 'commented'
   | 'type'
   | 'downvoted'
+  | 'flags'
 >;
 
 export enum BootApp {
@@ -54,6 +55,7 @@ export type Boot = {
   squads: Squad[];
   postData?: PostBootData;
   isLegacyLogout?: boolean;
+  exp?: { f: string; e: string[] };
 };
 
 export type BootCacheData = Pick<
@@ -65,6 +67,7 @@ export type BootCacheData = Pick<
   | 'postData'
   | 'notifications'
   | 'squads'
+  | 'exp'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {

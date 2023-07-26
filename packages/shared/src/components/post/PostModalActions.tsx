@@ -11,7 +11,13 @@ import CloseIcon from '../icons/MiniClose';
 import OpenLinkIcon from '../icons/OpenLink';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { banPost, internalReadTypes, Post } from '../../graphql/posts';
+import {
+  banPost,
+  demotePost,
+  internalReadTypes,
+  Post,
+  promotePost,
+} from '../../graphql/posts';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -78,6 +84,27 @@ export function PostModalActions({
     }
   };
 
+  const promotePostPrompt = async () => {
+    const promoteFlag = post.flags?.promoteToPublic;
+
+    const options: PromptOptions = {
+      title: promoteFlag ? 'Demote post' : 'Promote post',
+      description: `Do you want to ${
+        promoteFlag ? 'demote' : 'promote'
+      } this post ${promoteFlag ? 'from' : 'to'} the public?`,
+      okButton: {
+        title: promoteFlag ? 'Demote' : 'Promote',
+      },
+    };
+    if (await showPrompt(options)) {
+      if (promoteFlag) {
+        await demotePost(post.id);
+      } else {
+        await promotePost(post.id);
+      }
+    }
+  };
+
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType && onReadArticle && (
@@ -120,6 +147,7 @@ export function PostModalActions({
         post={post}
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
+        setShowPromotePost={isModerator ? () => promotePostPrompt() : null}
         contextId={contextMenuId}
         origin={Origin.ArticleModal}
       />

@@ -45,29 +45,20 @@ const sendBootData = async (_, tab: Tabs.Tab) => {
 
   const href = origin + pathname + search;
 
-  const [
-    deviceId,
-    { postData, settings, flags, user, alerts, visit, accessToken, squads },
-  ] = await Promise.all([
+  const [deviceId, boot] = await Promise.all([
     getOrGenerateDeviceId(),
     getBootData('companion', href),
   ]);
 
-  let settingsOutput = settings;
+  let settingsOutput = boot.settings;
   if (!cacheData?.user || !('providers' in cacheData?.user)) {
     settingsOutput = { ...settingsOutput, ...cacheData?.settings };
   }
   await browser.tabs.sendMessage(tab?.id, {
+    ...boot,
     deviceId,
     url: href,
-    postData,
     settings: settingsOutput,
-    flags,
-    user,
-    alerts,
-    visit,
-    accessToken,
-    squads,
   });
 };
 
