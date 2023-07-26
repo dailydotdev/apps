@@ -4,8 +4,6 @@ import { NextSeo } from 'next-seo';
 import { InfiniteData, useInfiniteQuery, useMutation } from 'react-query';
 import {
   Notification,
-  notificationPreferenceMap,
-  NotificationPreferenceStatus,
   NOTIFICATIONS_QUERY,
   NotificationsData,
   READ_NOTIFICATIONS_MUTATION,
@@ -30,12 +28,8 @@ import {
   NotificationType,
 } from '@dailydotdev/shared/src/components/notifications/utils';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
-import { useNotificationPreference } from '@dailydotdev/shared/src/hooks/notifications';
-import { Item, useContextMenu } from '@dailydotdev/react-contexify';
-import PortalMenu from '@dailydotdev/shared/src/components/fields/PortalMenu';
-import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
-import { Loader } from '@dailydotdev/shared/src/components/Loader';
-import BellDisabledIcon from '@dailydotdev/shared/src/components/icons/Bell/Disabled';
+import { useContextMenu } from '@dailydotdev/react-contexify';
+import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 
@@ -107,21 +101,6 @@ const Notifications = (): ReactElement => {
 
   const { show } = useContextMenu({ id: contextId });
   const [notification, setNotification] = useState<Notification>();
-  const {
-    preferences,
-    isFetching,
-    clearNotificationPreference,
-    muteNotification,
-  } = useNotificationPreference({
-    params: notification
-      ? [
-          {
-            type: notificationPreferenceMap[notification.type],
-            referenceId: notification.referenceId,
-          },
-        ]
-      : [],
-  });
 
   const onOptionsClick = (e: React.MouseEvent, item: Notification) => {
     e.preventDefault();
@@ -137,40 +116,6 @@ const Notifications = (): ReactElement => {
     setNotification(item);
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
     show(e, { position: { x: right, y: bottom + 4 } });
-  };
-
-  const Icon = (): ReactElement => {
-    if (isFetching) return <Loader />;
-
-    const NotifIcon =
-      preferences[0]?.status === NotificationPreferenceStatus.Muted
-        ? BellIcon
-        : BellDisabledIcon;
-
-    return <NotifIcon />;
-  };
-
-  const Copy = (): ReactElement => {
-    if (isFetching) return <>Fetching your preference</>;
-
-    const isMuted =
-      preferences[0]?.status === NotificationPreferenceStatus.Muted;
-    const copy = notificationMutingCopy[notification?.type];
-
-    return <>{isMuted ? copy.unmute : copy.mute}</>;
-  };
-
-  const onItemClick = () => {
-    const isMuted =
-      preferences?.[0]?.status === NotificationPreferenceStatus.Muted;
-    const preferenceCommand = isMuted
-      ? clearNotificationPreference
-      : muteNotification;
-
-    return preferenceCommand({
-      type: notification.type,
-      referenceId: notification.referenceId,
-    });
   };
 
   return (
@@ -223,20 +168,10 @@ const Notifications = (): ReactElement => {
           {(!length || !hasNextPage) && isFetched && <FirstNotification />}
         </InfiniteScrolling>
       </main>
-      <PortalMenu
-        disableBoundariesCheck
-        id={contextId}
-        className="menu-primary"
-        animation="fade"
-        onHidden={() => setNotification(undefined)}
-      >
-        <Item className="py-1 w-64 typo-callout" onClick={onItemClick}>
-          <span className="flex flex-row gap-1 items-center w-full">
-            <Icon />
-            <Copy />
-          </span>
-        </Item>
-      </PortalMenu>
+      <NotificationPreferenceMenu
+        contextId={contextId}
+        notification={notification}
+      />
     </ProtectedPage>
   );
 };
