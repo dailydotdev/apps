@@ -1,8 +1,12 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import { InfiniteData, useInfiniteQuery, useMutation } from 'react-query';
 import {
+  commentReplyTypes,
+  Notification,
+  notificationPreferenceMap,
+  NotificationPreferenceStatus,
   NOTIFICATIONS_QUERY,
   NotificationsData,
   READ_NOTIFICATIONS_MUTATION,
@@ -24,6 +28,12 @@ import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsC
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
+import { useNotificationPreference } from '@dailydotdev/shared/src/hooks/notifications';
+import { Item, useContextMenu } from '@dailydotdev/react-contexify';
+import PortalMenu from '@dailydotdev/shared/src/components/fields/PortalMenu';
+import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import BellDisabledIcon from '@dailydotdev/shared/src/components/icons/Bell/Disabled';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 
@@ -33,6 +43,8 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   data.pages.some((page) =>
     page.notifications.edges.some(({ node }) => !node.readAt),
   );
+
+const contextId = 'notifications-context-menu';
 
 const Notifications = (): ReactElement => {
   const seo = (
@@ -91,6 +103,77 @@ const Notifications = (): ReactElement => {
 
   usePromotionModal();
 
+  const { show } = useContextMenu({ id: contextId });
+  const [notification, setNotification] = useState<Notification>();
+  const {
+    preferences,
+    isFetching,
+    clearNotificationPreference,
+    muteNotification,
+  } = useNotificationPreference({
+    params: notification
+      ? [
+          {
+            type: notificationPreferenceMap[notification.type],
+            referenceId: notification.referenceId,
+          },
+        ]
+      : [],
+  });
+
+  const onOptionsClick = (e: React.MouseEvent, item: Notification) => {
+    e.preventDefault();
+
+    if (notification) {
+      const { referenceId, type } = notification;
+      const clickedSameButton =
+        referenceId === item.referenceId && type === item.type;
+      setNotification(clickedSameButton ? undefined : item);
+      return;
+    }
+
+    setNotification(item);
+    const { right, bottom } = e.currentTarget.getBoundingClientRect();
+    show(e, { position: { x: right, y: bottom + 4 } });
+  };
+
+  const getIcon = () => {
+    if (isFetching) return <Loader />;
+
+    return preferences[0]?.status === NotificationPreferenceStatus.Muted ? (
+      <BellIcon />
+    ) : (
+      <BellDisabledIcon />
+    );
+  };
+
+  const getCopy = () => {
+    if (isFetching) return 'Fetching your preference';
+
+    const isCommentReply = commentReplyTypes.includes(notification?.type);
+    const isMuted =
+      preferences[0]?.status === NotificationPreferenceStatus.Muted;
+
+    if (isCommentReply) {
+      return isMuted ? 'Unmute this thread' : 'Mute this thread';
+    }
+
+    return isMuted ? 'Unmute' : 'Mute';
+  };
+
+  const onItemClick = () => {
+    const isMuted =
+      preferences?.[0]?.status === NotificationPreferenceStatus.Muted;
+    const preferenceCommand = isMuted
+      ? clearNotificationPreference
+      : muteNotification;
+
+    preferenceCommand({
+      type: notification.type,
+      referenceId: notification.referenceId,
+    });
+  };
+
   return (
     <ProtectedPage seo={seo}>
       <main
@@ -110,33 +193,47 @@ const Notifications = (): ReactElement => {
         >
           {length > 0 &&
             queryResult.data.pages.map((page) =>
-              page.notifications.edges.reduce(
-                (nodes, { node: { id, readAt, type, ...props } }) => {
-                  if (
-                    isSubscribed &&
-                    type === NotificationType.SquadSubscribeNotification
-                  ) {
-                    return nodes;
-                  }
+              page.notifications.edges.reduce((nodes, { node }) => {
+                const { id, readAt, type, ...props } = node;
 
-                  nodes.push(
-                    <NotificationItem
-                      key={id}
-                      {...props}
-                      type={type}
-                      isUnread={!readAt}
-                      onClick={() => onNotificationClick(id, type)}
-                    />,
-                  );
-
+                if (
+                  isSubscribed &&
+                  type === NotificationType.SquadSubscribeNotification
+                ) {
                   return nodes;
-                },
-                [],
-              ),
+                }
+
+                nodes.push(
+                  <NotificationItem
+                    key={id}
+                    {...props}
+                    type={type}
+                    isUnread={!readAt}
+                    onClick={() => onNotificationClick(id, type)}
+                    onOptionsClick={(e) => onOptionsClick(e, node)}
+                  />,
+                );
+
+                return nodes;
+              }, []),
             )}
           {(!length || !hasNextPage) && isFetched && <FirstNotification />}
         </InfiniteScrolling>
       </main>
+      <PortalMenu
+        disableBoundariesCheck
+        id={contextId}
+        className="menu-primary"
+        animation="fade"
+        onHidden={() => setNotification(undefined)}
+      >
+        <Item className="py-1 w-64 typo-callout" onClick={onItemClick}>
+          <span className="flex flex-row gap-1 items-center w-full">
+            {getIcon()}
+            {getCopy()}
+          </span>
+        </Item>
+      </PortalMenu>
     </ProtectedPage>
   );
 };

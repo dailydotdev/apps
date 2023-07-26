@@ -12,6 +12,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { NotificationType } from '../../components/notifications/utils';
 
 interface UseNotificationPreference {
+  isFetching: boolean;
   isPreferencesReady: boolean;
   preferences: NotificationPreference[];
   muteNotification: typeof muteNotification;
@@ -37,8 +38,10 @@ export const useNotificationPreference = ({
   const { user } = useAuthContext();
   const client = useQueryClient();
   const key = generateQueryKey(RequestKey.NotificationPreference, user, params);
-  const { data, isFetched } = useQuery(key, () =>
-    getNotificationPreferences(params),
+  const { data, isFetched, isLoading } = useQuery(
+    key,
+    () => getNotificationPreferences(params),
+    { enabled: params?.length > 0 },
   );
   const { mutateAsync: muteNotificationAsync } = useMutation(muteNotification, {
     onSuccess: (_, { referenceId, type }) => {
@@ -73,6 +76,7 @@ export const useNotificationPreference = ({
   );
 
   return {
+    isFetching: isLoading,
     preferences: data ?? [],
     muteNotification: muteNotificationAsync,
     clearNotificationPreference: clearNotificationPreferenceAsync,

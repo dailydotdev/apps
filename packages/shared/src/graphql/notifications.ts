@@ -27,6 +27,7 @@ export interface NotificationAttachment {
 
 export interface Notification {
   id: string;
+  referenceId: string;
   userId: string;
   createdAt: Date;
   readAt?: Date;
@@ -38,6 +39,11 @@ export interface Notification {
   attachments?: NotificationAttachment[];
   targetUrl: string;
 }
+
+export const commentReplyTypes = [
+  NotificationType.SquadReply,
+  NotificationType.CommentReply,
+];
 
 export interface NotificationsData {
   notifications: Connection<Notification>;
@@ -59,6 +65,7 @@ export const NOTIFICATIONS_QUERY = gql`
           title
           type
           description
+          referenceId
           avatars {
             referenceId
             type
@@ -161,8 +168,12 @@ interface NotificationPreferenceParams
   type: NotificationType;
 }
 
+interface FetchParams extends Pick<NotificationPreference, 'referenceId'> {
+  type: NotificationPreferenceType;
+}
+
 export const getNotificationPreferences = async (
-  params: NotificationPreferenceParams[],
+  params: FetchParams[],
 ): Promise<NotificationPreference[]> => {
   const res = await request(graphqlUrl, NOTIFICATION_PREFERENCES_QUERY, {
     data: params,

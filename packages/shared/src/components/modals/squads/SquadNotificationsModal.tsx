@@ -8,6 +8,7 @@ import { SourceMemberRole, Squad } from '../../../graphql/sources';
 import { Switch } from '../../fields/Switch';
 import { NotificationType } from '../../notifications/utils';
 import { ClickableText } from '../../buttons/ClickableText';
+import { notificationPreferenceMap } from '../../../graphql/notifications';
 
 interface SquadNotificationsModalProps extends ModalProps {
   squad: Squad;
@@ -25,8 +26,14 @@ export function SquadNotificationsModal({
     clearNotificationPreference,
   } = useNotificationPreference({
     params: [
-      { type: NotificationType.SquadPostAdded, referenceId: squad?.id },
-      { type: NotificationType.SquadMemberJoined, referenceId: squad?.id },
+      {
+        type: notificationPreferenceMap[NotificationType.SquadPostAdded],
+        referenceId: squad?.id,
+      },
+      {
+        type: notificationPreferenceMap[NotificationType.SquadMemberJoined],
+        referenceId: squad?.id,
+      },
     ],
   });
 
