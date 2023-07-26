@@ -43,7 +43,9 @@ function SquadMemberShortList({
           className="mr-1 ml-2 min-w-[1rem]"
           aria-label="squad-members-count"
         >
-          {memberCount}
+          {memberCount >= 1000
+            ? `${Math.floor(memberCount / 1000)}K`
+            : memberCount}
         </span>
         {members?.map(({ user }) => (
           <ProfilePicture

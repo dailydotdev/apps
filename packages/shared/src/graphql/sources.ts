@@ -66,6 +66,7 @@ export interface Source {
   permalink: string;
   currentMember?: SourceMember;
   privilegedMembers?: SourcePrivilegedMembers[];
+  public: boolean;
 }
 
 export type SourceData = { source: Source };
