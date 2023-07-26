@@ -145,6 +145,22 @@ export const CLEAR_NOTIFICATION_PREFERENCE_MUTATION = gql`
   }
 `;
 
+export const HIDE_SOURCE_ON_FEED_MUTATION = gql`
+  mutation HideSourceFeedPosts($sourceId: ID!) {
+    hideSourceFeedPosts(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
+export const SHOW_SOURCE_ON_FEED_MUTATION = gql`
+  mutation ShowSourceFeedPosts($sourceId: ID!) {
+    showSourceFeedPosts(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
 export enum NotificationPreferenceStatus {
   Muted = 'muted',
 }
@@ -210,4 +226,24 @@ export const clearNotificationPreference = async (
   );
 
   return res.clearNotificationPreference;
+};
+
+export const hideSourceFeedPosts = async (
+  sourceId: string,
+): Promise<EmptyResponse> => {
+  const res = await request(graphqlUrl, HIDE_SOURCE_ON_FEED_MUTATION, {
+    sourceId,
+  });
+
+  return res.showSourceFeedPosts;
+};
+
+export const showSourceFeedPosts = async (
+  sourceId: string,
+): Promise<EmptyResponse> => {
+  const res = await request(graphqlUrl, SHOW_SOURCE_ON_FEED_MUTATION, {
+    sourceId,
+  });
+
+  return res.showSourceFeedPosts;
 };

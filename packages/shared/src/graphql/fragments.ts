@@ -8,6 +8,9 @@ export const CURRENT_MEMBER_FRAGMENT = gql`
     permissions
     role
     referralToken
+    flags {
+      hideFeedPosts
+    }
   }
 `;
 

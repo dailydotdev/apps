@@ -6,6 +6,7 @@ import { getSquad } from '../../graphql/squads';
 import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
 import AuthContext from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 interface UseSquadProps {
   handle: string;
@@ -20,7 +21,7 @@ interface UseSquad {
 
 export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
   const { isFetched: isBootFetched, user } = useContext(AuthContext);
-  const queryKey = ['squad', handle, user?.id];
+  const queryKey = generateQueryKey(RequestKey.Squad, user, handle);
   const {
     data: squad,
     isLoading,

@@ -1,4 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
+import { useQueryClient } from 'react-query';
 import { Modal, ModalProps } from '../common/Modal';
 import {
   checkHasMutedPreference,
@@ -9,6 +10,8 @@ import { Switch } from '../../fields/Switch';
 import { NotificationType } from '../../notifications/utils';
 import { ClickableText } from '../../buttons/ClickableText';
 import { notificationPreferenceMap } from '../../../graphql/notifications';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 interface SquadNotificationsModalProps extends ModalProps {
   squad: Squad;
@@ -24,6 +27,8 @@ export function SquadNotificationsModal({
     isPreferencesReady,
     muteNotification,
     clearNotificationPreference,
+    showSourceFeedPosts,
+    hideSourceFeedPosts,
   } = useNotificationPreference({
     params: [
       {
@@ -35,11 +40,17 @@ export function SquadNotificationsModal({
         referenceId: squad?.id,
       },
     ],
+    squad,
   });
 
-  const { mutedNewPosts, mutedNewMembers } = useMemo(
+  const client = useQueryClient();
+  const { user } = useAuthContext();
+  const squadCache: Squad = client.getQueryData(
+    generateQueryKey(RequestKey.Squad, user, squad?.handle),
+  );
+  const { hideFeedPosts, mutedNewPosts, mutedNewMembers } = useMemo(
     () => ({
-      showNewPosts: squad?.currentMember?.flags?.showPostsOnFeed,
+      hideFeedPosts: squadCache?.currentMember?.flags?.hideFeedPosts,
       mutedNewPosts: preferences?.some((preference) =>
         checkHasMutedPreference(
           preference,
@@ -55,7 +66,7 @@ export function SquadNotificationsModal({
         ),
       ),
     }),
-    [preferences, squad],
+    [preferences, squad, squadCache],
   );
 
   const onToggleNotifyNewPosts = () => {
@@ -92,22 +103,23 @@ export function SquadNotificationsModal({
     >
       <Modal.Header title={`Notifications from ${squad.name}`} />
       <Modal.Body className="gap-3">
-        {/* <Switch */}
-        {/*  data-testId="notify_new_posts-switch" */}
-        {/*  inputId="notify_new_posts-switch" */}
-        {/*  name="notify_new_posts" */}
-        {/*  className="w-20" */}
-        {/*  compact={false} */}
-        {/*  checked={mutedNewPosts} */}
-        {/*  onToggle={() => console.log()} */}
-        {/* > */}
-        {/*  Show new posts on my feed */}
-        {/* </Switch> */}
+        <Switch
+          data-testId="show_new_posts-switch"
+          inputId="show_new_posts-switch"
+          name="show_new_posts"
+          className="w-20"
+          compact={false}
+          checked={!hideFeedPosts}
+          onToggle={hideFeedPosts ? showSourceFeedPosts : hideSourceFeedPosts}
+        >
+          Show new posts on my feed
+        </Switch>
         <Switch
           data-testId="notify_new_posts-switch"
           inputId="notify_new_posts-switch"
           name="notify_new_posts"
           className="w-20"
+          compact={false}
           checked={mutedNewPosts}
           onToggle={onToggleNotifyNewPosts}
         >
@@ -119,6 +131,7 @@ export function SquadNotificationsModal({
             inputId="notify_new_members-switch"
             name="notify_new_members"
             className="w-20"
+            compact={false}
             checked={mutedNewMembers}
             onToggle={onToggleNotifyNewMembers}
           >

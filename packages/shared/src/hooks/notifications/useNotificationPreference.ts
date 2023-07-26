@@ -2,25 +2,32 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   clearNotificationPreference,
   getNotificationPreferences,
+  hideSourceFeedPosts,
   muteNotification,
   NotificationPreference,
   notificationPreferenceMap,
   NotificationPreferenceStatus,
+  showSourceFeedPosts,
 } from '../../graphql/notifications';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { NotificationType } from '../../components/notifications/utils';
+import { Squad } from '../../graphql/sources';
+import { updateFlagsCache } from '../../graphql/source/common';
 
 interface UseNotificationPreference {
   isFetching: boolean;
   isPreferencesReady: boolean;
   preferences: NotificationPreference[];
+  hideSourceFeedPosts(): Promise<unknown>;
+  showSourceFeedPosts(): Promise<unknown>;
   muteNotification: typeof muteNotification;
   clearNotificationPreference: typeof clearNotificationPreference;
 }
 
 interface UseNotificationPreferenceProps {
   params: Parameters<typeof getNotificationPreferences>[0];
+  squad?: Squad;
 }
 
 export const checkHasMutedPreference = (
@@ -34,6 +41,7 @@ export const checkHasMutedPreference = (
 
 export const useNotificationPreference = ({
   params,
+  squad,
 }: UseNotificationPreferenceProps): UseNotificationPreference => {
   const { user } = useAuthContext();
   const client = useQueryClient();
@@ -75,7 +83,27 @@ export const useNotificationPreference = ({
     },
   );
 
+  const { mutateAsync: hideSourceFeedPostsAsync } = useMutation(
+    hideSourceFeedPosts,
+    {
+      onSuccess: () => {
+        updateFlagsCache(client, squad, user, { hideFeedPosts: true });
+      },
+    },
+  );
+
+  const { mutateAsync: showSourceFeedPostsAsync } = useMutation(
+    showSourceFeedPosts,
+    {
+      onSuccess: () => {
+        updateFlagsCache(client, squad, user, { hideFeedPosts: false });
+      },
+    },
+  );
+
   return {
+    hideSourceFeedPosts: () => hideSourceFeedPostsAsync(squad?.id),
+    showSourceFeedPosts: () => showSourceFeedPostsAsync(squad?.id),
     isFetching: isLoading,
     preferences: data ?? [],
     muteNotification: muteNotificationAsync,
