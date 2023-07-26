@@ -26,7 +26,7 @@ export function SquadsList({
 
   return (
     <>
-      {squads.map((squad) => {
+      {squads?.map((squad) => {
         const { handle, name, permalink, image } = squad;
         const menuItem: SidebarMenuItem = {
           icon: () =>

@@ -43,6 +43,7 @@ export enum AuthTriggers {
   Onboarding = 'onboarding',
   SubmitNewSource = 'submit new source',
   Downvote = 'downvote',
+  CreateSquad = 'create squad',
 }
 
 // Needed for the AB flagged Sidebar items

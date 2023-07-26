@@ -12,7 +12,6 @@ import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import LinkIcon from './icons/Link';
-import FeaturesContext from '../contexts/FeaturesContext';
 import AuthContext from '../contexts/AuthContext';
 import SquadIcon from './icons/Squad';
 import { SquadImage } from './squads/SquadImage';
@@ -51,7 +50,6 @@ export default function ShareOptionsMenu({
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
   const { squads } = useContext(AuthContext);
-  const { hasSquadAccess } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { openModal } = useLazyModal();
   const { openNewSquad } = useSquadNavigation();
@@ -90,7 +88,7 @@ export default function ShareOptionsMenu({
     },
   ];
 
-  if (hasSquadAccess && !post?.private) {
+  if (!post?.private) {
     if (!squads?.length) {
       shareOptions.push({
         icon: <MenuIcon Icon={SquadIcon} />,

@@ -21,7 +21,6 @@ import { link } from '../../lib/links';
 interface SquadPageHeaderProps {
   squad: Squad;
   members: SourceMember[];
-  hasTriedOnboarding?: boolean;
 }
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
@@ -30,7 +29,6 @@ const Divider = classed('span', 'flex flex-1 h-px bg-theme-divider-tertiary');
 export function SquadPageHeader({
   squad,
   members,
-  hasTriedOnboarding,
 }: SquadPageHeaderProps): ReactElement {
   const { tourIndex } = useSquadTour();
 
@@ -78,13 +76,11 @@ export function SquadPageHeader({
         members={members}
         className="laptopL:absolute laptopL:top-0 laptopL:right-[4.5rem]"
       />
-      {hasTriedOnboarding && (
-        <EnableNotification
-          contentName={squad.name}
-          source={NotificationPromptSource.SquadPage}
-          className={classNames('w-full', MAX_WIDTH)}
-        />
-      )}
+      <EnableNotification
+        contentName={squad.name}
+        source={NotificationPromptSource.SquadPage}
+        className={classNames('w-full', MAX_WIDTH)}
+      />
       <div
         className={classNames(
           'relative tablet:absolute flex flex-col tablet:flex-row pt-8 tablet:p-0 bottom-0 w-full tablet:translate-y-1/2 laptopL:px-0 bg-theme-bg-primary',
