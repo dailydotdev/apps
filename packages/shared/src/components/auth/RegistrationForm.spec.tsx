@@ -13,12 +13,9 @@ import {
   mockEmailCheck,
   mockLoginFlow,
   mockRegistraitonFlow,
-  registrationFlowMockData,
 } from '../../../__tests__/fixture/auth';
-import { getNodeValue, RegistrationParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
-import { getUserDefaultTimezone } from '../../lib/timezones';
 import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
@@ -31,21 +28,6 @@ beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
 });
-
-const defaultToken = getNodeValue(
-  'csrf_token',
-  registrationFlowMockData.ui.nodes,
-);
-const trackingId = 'id';
-const defaultParams: Partial<RegistrationParameters> = {
-  csrf_token: defaultToken,
-  provider: undefined,
-  method: 'password',
-  'traits.image': undefined,
-  'traits.userId': trackingId,
-  'traits.acceptedMarketing': true,
-  'traits.timezone': getUserDefaultTimezone(),
-};
 
 const onSuccessfulLogin = jest.fn();
 
