@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useCallback } from 'react';
 import {
   clearNotificationPreference,
   getNotificationPreferences,
@@ -49,7 +50,7 @@ export const useNotificationPreference = ({
   const { data, isFetched, isLoading } = useQuery(
     key,
     () => getNotificationPreferences(params),
-    { enabled: params?.length > 0 },
+    { enabled: params?.length > 0, initialData: () => [] },
   );
   const { mutateAsync: muteNotificationAsync } = useMutation(muteNotification, {
     onSuccess: (_, { referenceId, type }) => {
@@ -102,10 +103,16 @@ export const useNotificationPreference = ({
   );
 
   return {
-    hideSourceFeedPosts: () => hideSourceFeedPostsAsync(squad?.id),
-    showSourceFeedPosts: () => showSourceFeedPostsAsync(squad?.id),
+    hideSourceFeedPosts: useCallback(
+      () => hideSourceFeedPostsAsync(squad?.id),
+      [hideSourceFeedPostsAsync, squad?.id],
+    ),
+    showSourceFeedPosts: useCallback(
+      () => showSourceFeedPostsAsync(squad?.id),
+      [showSourceFeedPostsAsync, squad?.id],
+    ),
     isFetching: isLoading,
-    preferences: data ?? [],
+    preferences: data,
     muteNotification: muteNotificationAsync,
     clearNotificationPreference: clearNotificationPreferenceAsync,
     isPreferencesReady: isFetched,
