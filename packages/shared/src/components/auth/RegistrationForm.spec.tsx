@@ -184,12 +184,12 @@ it('should show login if email exists', async () => {
   const email = 'sshanzel@yahoo.com';
   renderComponent();
   await waitForNock();
+  mockEmailCheck(email, true);
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
   });
   const submit = await screen.findByTestId('email_signup_submit');
   fireEvent.click(submit);
-  mockEmailCheck(email, true);
   await waitForNock();
 
   await waitFor(() => {
