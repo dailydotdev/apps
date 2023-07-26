@@ -52,12 +52,12 @@ interface ActionCopy {
 
 const actionCopy: Partial<Record<NotificationType, ActionCopy>> = {
   [NotificationType.ArticleNewComment]: {
-    mute: 'Mute new comments',
-    unmute: 'Unmute new comments',
+    mute: 'Turn off notifications from this post',
+    unmute: 'Turn on notifications from this post',
   },
   [NotificationType.SquadNewComment]: {
-    mute: 'Mute new comments',
-    unmute: 'Unmute new comments',
+    mute: 'Turn off notifications from this post',
+    unmute: 'Turn on notifications from this post',
   },
   [NotificationType.CommentReply]: {
     mute: 'Mute this thread',
@@ -66,14 +66,6 @@ const actionCopy: Partial<Record<NotificationType, ActionCopy>> = {
   [NotificationType.SquadReply]: {
     mute: 'Mute this thread',
     unmute: 'Unmute this thread',
-  },
-  [NotificationType.SquadPostAdded]: {
-    mute: 'Mute new posts',
-    unmute: 'Unmute new posts',
-  },
-  [NotificationType.SquadMemberJoined]: {
-    mute: 'Mute new members joining',
-    unmute: 'Unmute new members joining',
   },
 };
 
