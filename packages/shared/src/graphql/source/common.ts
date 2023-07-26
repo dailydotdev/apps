@@ -7,17 +7,21 @@ export const updateFlagsCache = (
   client: QueryClient,
   squad: Squad,
   user: LoggedUser,
-  update: Partial<SourceMemberFlag>,
+  update: SourceMemberFlag,
 ): void => {
   const queryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
-  client.setQueryData<Squad>(queryKey, (oldData) => ({
-    ...oldData,
-    currentMember: {
-      ...oldData.currentMember,
-      flags: {
-        ...(oldData.currentMember.flags ?? {}),
-        ...update,
-      },
-    },
-  }));
+  client.setQueryData<Squad>(queryKey, (oldData) =>
+    oldData
+      ? {
+          ...oldData,
+          currentMember: {
+            ...oldData.currentMember,
+            flags: {
+              ...(oldData.currentMember.flags ?? {}),
+              ...update,
+            },
+          },
+        }
+      : null,
+  );
 };
