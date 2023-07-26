@@ -135,15 +135,6 @@ export function SquadDetails({
           onChange={handleChange}
           id="squad-form"
         >
-          {createMode && (
-            <>
-              <SquadTitle>Welcome to Squads!</SquadTitle>
-              <SquadSubTitle>
-                Create a group where you can learn and interact privately with
-                other developers around topics that matter to you
-              </SquadSubTitle>
-            </>
-          )}
           {!createMode && (
             <ImageInput
               initialValue={form.image ?? form.file}

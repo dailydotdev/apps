@@ -82,7 +82,7 @@ const NewSquad = (): ReactElement => {
           className="flex flex-col justify-center items-center mb-6 w-full h-48 bg-cover"
         >
           <SourceIcon size={IconSize.XXXLarge} />
-          <SquadTitle className="mb-2">Squads early access!</SquadTitle>
+          <SquadTitle className="mb-2">Welcome to Squads!</SquadTitle>
           <SquadSubTitle>
             Create a group where you can learn and interact privately with other
             developers around topics that matter to you
