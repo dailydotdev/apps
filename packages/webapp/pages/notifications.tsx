@@ -142,15 +142,16 @@ const Notifications = (): ReactElement => {
   const getIcon = () => {
     if (isFetching) return <Loader />;
 
-    return preferences[0]?.status === NotificationPreferenceStatus.Muted ? (
-      <BellIcon />
-    ) : (
-      <BellDisabledIcon />
-    );
+    const Icon =
+      preferences[0]?.status === NotificationPreferenceStatus.Muted
+        ? BellIcon
+        : BellDisabledIcon;
+
+    return <Icon />;
   };
 
   const getCopy = () => {
-    if (isFetching || !notification) return 'Fetching your preference';
+    if (isFetching) return 'Fetching your preference';
 
     const isMuted =
       preferences[0]?.status === NotificationPreferenceStatus.Muted;
