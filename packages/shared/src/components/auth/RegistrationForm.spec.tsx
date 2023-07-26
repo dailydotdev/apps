@@ -69,7 +69,6 @@ const mockRegistraitonValidationFlow = (
 
 const renderComponent = (
   props: AuthOptionsProps = {
-    onDisplayChange: jest.fn(),
     trigger: null,
     formRef: null,
   },
