@@ -9,11 +9,8 @@ import {
   CommentMarkdownInputProps,
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
-import {
-  SQUAD_COMMENT_JOIN_BANNER_KEY,
-  isSourcePublicSquad,
-} from '../../graphql/squads';
-import { SquadJoinBanner } from '../squads/SquadJoinBanner';
+import { isSourcePublicSquad } from '../../graphql/squads';
+import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
 import { Squad } from '../../graphql/sources';
 
 export interface MainCommentProps
@@ -113,10 +110,10 @@ export default function MainComment({
         />
       ))}
       {showJoinSquadBanner && (
-        <SquadJoinBanner
+        <SquadCommentJoinBanner
           squad={props.post?.source as Squad}
           analyticsOrigin={props.origin}
-          storageKey={SQUAD_COMMENT_JOIN_BANNER_KEY}
+          post={props.post}
         />
       )}
       {shouldShowBanner && (

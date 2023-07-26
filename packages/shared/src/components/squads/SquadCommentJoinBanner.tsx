@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useMutation } from 'react-query';
-import { useRouter } from 'next/router';
+import { useMutation, useQueryClient } from 'react-query';
 import { Origin } from '../../lib/analytics';
 import { Button } from '../buttons/Button';
 import { SimpleSquadJoinButton } from './SquadJoinButton';
@@ -12,23 +11,26 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import SourceButton from '../cards/SourceButton';
 import useMedia from '../../hooks/useMedia';
 import { mobileL } from '../../styles/media';
+import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
+import { Post } from '../../graphql/posts';
 
-export type SquadJoinBannerProps = {
+export type SquadCommentJoinBannerProps = {
   squad: Squad;
   analyticsOrigin: Origin;
-  storageKey: string;
+  post?: Pick<Post, 'id'>;
 };
 
-export const SquadJoinBanner = ({
+export const SquadCommentJoinBanner = ({
   squad,
   analyticsOrigin,
-  storageKey,
-}: SquadJoinBannerProps): ReactElement => {
+  post,
+}: SquadCommentJoinBannerProps): ReactElement => {
+  const queryClient = useQueryClient();
+  const isSquadMember = !!squad?.currentMember;
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
-  const router = useRouter();
   const { displayToast } = useToastNotification();
   const [isJoinSquadBannerDismissed, setJoinSquadBannerDismissed] =
-    usePersistentContext(storageKey, false);
+    usePersistentContext(SQUAD_COMMENT_JOIN_BANNER_KEY, false);
 
   const { mutateAsync: onJoinSquad, isLoading } = useMutation(
     useJoinSquad({
@@ -37,7 +39,11 @@ export const SquadJoinBanner = ({
     }),
     {
       onSuccess: () => {
-        router.push(squad.permalink);
+        displayToast(`🙌 You joined the squad ${squad.name}`);
+
+        if (post?.id) {
+          queryClient.invalidateQueries(['post', post.id]);
+        }
       },
       onError: () => {
         displayToast(labels.error.generic);
@@ -45,7 +51,7 @@ export const SquadJoinBanner = ({
     },
   );
 
-  if (!squad || isJoinSquadBannerDismissed) {
+  if (!squad || isJoinSquadBannerDismissed || isSquadMember) {
     return null;
   }
 
