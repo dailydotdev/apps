@@ -137,7 +137,11 @@ export function CommentMarkdownInput({
   const mutation = parentCommentId
     ? COMMENT_ON_COMMENT_MUTATION
     : COMMENT_ON_POST_MUTATION;
-  const { mutateAsync: onComment, isLoading: isCommenting } = useMutation(
+  const {
+    mutateAsync: onComment,
+    isLoading: isCommenting,
+    isSuccess,
+  } = useMutation(
     (variables: SubmitComment) =>
       requestMethod(graphqlUrl, mutation, variables, {
         requestKey: JSON.stringify(key),
@@ -199,6 +203,7 @@ export function CommentMarkdownInput({
         sourceId={sourceId}
         showUserAvatar
         isLoading={isCommenting || isEditing}
+        disabledSubmit={isSuccess}
         initialContent={initialContent}
         textareaProps={{
           name: 'content',
