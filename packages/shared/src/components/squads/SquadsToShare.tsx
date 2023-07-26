@@ -1,4 +1,4 @@
-import React, { ReactElement, MouseEvent, useMemo, useContext } from 'react';
+import React, { ReactElement, MouseEvent, useMemo } from 'react';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions, Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
@@ -6,7 +6,6 @@ import { SocialShareIcon } from '../widgets/SocialShareIcon';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/analytics';
 import PlusIcon from '../icons/Plus';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { useSquadNavigation } from '../../hooks';
 import { ButtonSize } from '../buttons/Button';
 import { ProfileImageSize } from '../ProfilePicture';
@@ -25,7 +24,6 @@ export function SquadsToShare({
   squadAvatarSize = 'xlarge',
 }: SquadsToShareProps): ReactElement {
   const { squads } = useAuthContext();
-  const { hasSquadAccess } = useContext(FeaturesContext);
   const { openNewSquad } = useSquadNavigation();
 
   const list = useMemo(
@@ -51,7 +49,6 @@ export function SquadsToShare({
     [squads, isLoading, onClick, size, squadAvatarSize],
   );
 
-  if (!hasSquadAccess) return null;
   if (list.length) return <>{list}</>;
 
   return (

@@ -23,7 +23,6 @@ import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { IconSize } from '../Icon';
 import { useSharePost } from '../../hooks/useSharePost';
 import MenuIcon from '../icons/Menu';
@@ -60,7 +59,6 @@ export const SocialShare = ({
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
   const { trackEvent } = useContext(AnalyticsContext);
-  const { hasSquadAccess } = useContext(FeaturesContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
   const trackClick = (provider: ShareProvider) =>
     trackEvent(
@@ -87,7 +85,7 @@ export const SocialShare = ({
 
   return (
     <>
-      {hasSquadAccess && !isComment && !post.private && (
+      {!isComment && !post.private && (
         <SocialShareContainer title="Share with your squad">
           <SquadsToShare
             onClick={(e, squad) => onSubmitPost(e, squad.id, commentary)}
