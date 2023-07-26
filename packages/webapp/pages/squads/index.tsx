@@ -17,13 +17,14 @@ import {
 } from '@dailydotdev/shared/src/components';
 import EditIcon from '@dailydotdev/shared/src/components/icons/Edit';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { SquadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
+import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: `Squad directory | daily.dev`,
+  title: getTemplatedTitle('Squad directory'),
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
@@ -73,24 +74,16 @@ const SquadsPage = (): ReactElement => {
                         props?.members?.edges.find(
                           (member) => member?.node?.user.id === user.id,
                         );
-                      const action = !isMember
-                        ? {
-                            text: 'Join',
-                          }
-                        : undefined;
-                      const link = isMember
-                        ? {
-                            text: 'View',
-                            href: permalink,
-                          }
-                        : undefined;
 
                       nodes.push(
                         <SourceCard
                           title={name}
                           subtitle={`@${props.handle}`}
-                          action={action}
-                          link={link}
+                          action={{
+                            text: isMember ? 'View' : 'Join',
+                            type: isMember ? 'link' : 'action',
+                            href: isMember ? permalink : undefined,
+                          }}
                           permalink={permalink}
                           id={id}
                           type={props.type}
@@ -98,6 +91,8 @@ const SquadsPage = (): ReactElement => {
                           image={props.image}
                           memberInviteRole={props.memberInviteRole}
                           memberPostingRole={props.memberPostingRole}
+                          borderColor={props.color}
+                          banner={props.headerImage}
                           {...props}
                         />,
                       );
@@ -109,13 +104,17 @@ const SquadsPage = (): ReactElement => {
               <SourceCard
                 title="Which squads would you like to see next?"
                 description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."
-                link={{
+                action={{
+                  type: 'link',
                   text: 'Submit your idea',
-                  href: SquadsPublicSuggestion,
+                  href: squadsPublicSuggestion,
                   target: '_blank',
                 }}
                 icon={
-                  <EditIcon size={IconSize.XXLarge} className="text-salt-90" />
+                  <EditIcon
+                    size={IconSize.XXLarge}
+                    className="text-theme-label-tertiary"
+                  />
                 }
               />
             </FeedContainer>

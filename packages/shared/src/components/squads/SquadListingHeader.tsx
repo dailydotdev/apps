@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
-import { SquadsPublicWaitlist } from '../../lib/constants';
+import { squadsPublicWaitlist } from '../../lib/constants';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
@@ -20,7 +20,7 @@ export const SquadListingHeader = ({
       <div
         className="flex flex-col items-center p-6 mb-1 text-center bg-center bg-cover rounded-24 bg-theme-bg-primary"
         style={{
-          backgroundImage: `url(${cloudinary.squads.listingBanner})`,
+          backgroundImage: `url(${cloudinary.squads.directory.banner})`,
         }}
       >
         <div className="mb-4">
@@ -36,7 +36,7 @@ export const SquadListingHeader = ({
         <Button
           className="btn-primary"
           tag="a"
-          href={isOwner && SquadsPublicWaitlist}
+          href={isOwner && squadsPublicWaitlist}
           target="_blank"
           onClick={
             !isOwner

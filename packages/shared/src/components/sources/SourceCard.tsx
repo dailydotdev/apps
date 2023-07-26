@@ -6,41 +6,57 @@ import { Card } from '../cards/Card';
 import { Button } from '../buttons/Button';
 import { Connection } from '../../graphql/common';
 import {
+  Source,
   SourceMember,
   SourceMemberRole,
   SourceType,
 } from '../../graphql/sources';
 import { Image } from '../image/Image';
-import { SquadDirectoryCardBannerDefault } from '../../lib/constants';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/analytics';
+import { cloudinary } from '../../lib/image';
 
-interface SourceCardProps {
+type SourceCardActionType = 'link' | 'action';
+
+interface SourceCardAction {
+  type: SourceCardActionType;
+  text: string;
+  href?: string;
+  target?: string;
+  onClick?: () => void;
+}
+
+interface SourceCardProps extends Partial<Source> {
   title: string;
   subtitle?: string;
   icon?: ReactNode;
-  image?: string;
   description?: string;
-  action?: {
-    text: string;
-    onClick?: () => void;
-  };
-  link?: {
-    text: string;
-    href: string;
-    target?: string;
-  };
+  action?: SourceCardAction;
   members?: Connection<SourceMember>;
   membersCount?: number;
-  permalink?: string;
-  id?: string;
   banner?: string;
   borderColor?: string;
-  type?: SourceType;
-  handle?: string;
   memberInviteRole?: SourceMemberRole;
   memberPostingRole?: SourceMemberRole;
 }
+
+export enum BorderColor {
+  Avocado = 'avocado',
+  Bacon = 'bacon',
+  Cabbage = 'cabbage',
+  Onion = 'onion',
+}
+
+const borderColorToClassName: Record<BorderColor, string> = {
+  [BorderColor.Avocado]:
+    'border-theme-squads-avocado hover:border-theme-squads-avocado',
+  [BorderColor.Bacon]:
+    'border-theme-squads-bacon hover:border-theme-squads-bacon',
+  [BorderColor.Cabbage]:
+    'border-theme-squads-cabbage hover:border-theme-squads-cabbage',
+  [BorderColor.Onion]:
+    'border-theme-squads-onion hover:border-theme-squads-onion',
+};
 
 export const SourceCard = ({
   title,
@@ -49,13 +65,12 @@ export const SourceCard = ({
   image,
   description,
   action,
-  link,
   members,
   membersCount,
   permalink,
   id,
   banner,
-  borderColor,
+  borderColor = BorderColor.Avocado,
   type,
   handle,
   memberInviteRole,
@@ -82,15 +97,13 @@ export const SourceCard = ({
     <Card
       className={classNames(
         'overflow-hidden p-0',
-        borderColor
-          ? `border-theme-color-${borderColor} hover:border-theme-color-${borderColor}`
-          : 'border-theme-color-avocado hover:border-theme-color-avocado',
+        borderColorToClassName[borderColor],
       )}
     >
       <div className="h-24 rounded-t-2xl bg-theme-bg-onion">
         <Image
           className="object-cover w-full h-full"
-          src={banner || SquadDirectoryCardBannerDefault}
+          src={banner || cloudinary.squads.directory.cardBannerDefault}
           alt="Banner image for source, showing abstract colors."
         />
       </div>
@@ -104,7 +117,7 @@ export const SourceCard = ({
             />
           )}
           {!image && (
-            <div className="flex justify-center items-center -mt-14 w-24 h-24 bg-pepper-40 rounded-full z-10">
+            <div className="flex justify-center items-center -mt-14 w-24 h-24 rounded-full bg-theme-bg-pepper40 z-10">
               {icon}
             </div>
           )}
@@ -124,23 +137,19 @@ export const SourceCard = ({
         <div className="flex flex-col flex-1 justify-between">
           <div className="flex-auto">
             <div className="font-bold typo-title3">{title}</div>
-            <div className="mb-2 text-theme-label-secondary">{subtitle}</div>
-            <div className="mb-2 line-clamp-5 text-theme-label-secondary multi-truncate">
-              {description}
-            </div>
+            {subtitle && (
+              <div className="mb-2 text-theme-label-secondary">{subtitle}</div>
+            )}
+            {description && (
+              <div className="mb-2 line-clamp-5 text-theme-label-secondary multi-truncate">
+                {description}
+              </div>
+            )}
           </div>
 
-          {!!action && type !== SourceType.Squad && (
-            <Button
-              className="w-full btn-secondary"
-              onClick={action?.onClick}
-              data-testid="source-action"
-            >
-              {action?.text}
-            </Button>
-          )}
-
-          {!!action && type === SourceType.Squad && (
+          {!!action &&
+          action?.type === 'action' &&
+          type === SourceType.Squad ? (
             <SquadJoinButton
               className="w-full !btn-secondary"
               squad={{
@@ -152,9 +161,21 @@ export const SourceCard = ({
               joinText={action?.text}
               data-testid="squad-action"
             />
+          ) : (
+            <Button
+              className="w-full btn-secondary"
+              onClick={action?.type === 'action' ? action?.onClick : undefined}
+              tag={action?.type === 'link' ? 'a' : undefined}
+              href={action?.type === 'link' && action.href}
+              target={action?.target ? action.target : '_self'}
+              rel="noopener"
+              data-testid="source-action"
+            >
+              {action?.text}
+            </Button>
           )}
 
-          {!!link && (
+          {/* {!!action && action?.type === 'link' && (
             <Button
               className="w-full btn-secondary"
               onClick={action?.onClick}
@@ -162,10 +183,11 @@ export const SourceCard = ({
               href={link.href}
               target={link?.target ? link.target : '_self'}
               data-testid="source-link"
+              rel='noopener'
             >
               {link?.text}
             </Button>
-          )}
+          )} */}
         </div>
       </div>
     </Card>

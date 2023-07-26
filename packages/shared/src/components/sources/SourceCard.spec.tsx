@@ -103,22 +103,28 @@ const renderComponent = (
             id={admin.source.id}
             permalink={admin.source.permalink}
             handle={admin.source.handle}
-            action={
-              !isMember
-                ? {
-                    text: 'Test action',
-                    onClick: onClickTest,
-                  }
-                : undefined
-            }
-            link={
-              isMember
-                ? {
-                    text: 'View squad',
-                    href: squads[0].permalink,
-                  }
-                : undefined
-            }
+            action={{
+              type: isMember ? 'link' : 'action',
+              text: isMember ? 'View squad' : 'Test action',
+              onClick: isMember ? undefined : onClickTest,
+              href: isMember ? squads[0].permalink : undefined,
+            }}
+            // action={
+            //   !isMember
+            //     ? {
+            //         text: 'Test action',
+            //         onClick: onClickTest,
+            //       }
+            //     : undefined
+            // }
+            // link={
+            //   isMember
+            //     ? {
+            //         text: 'View squad',
+            //         href: squads[0].permalink,
+            //       }
+            //     : undefined
+            // }
             members={admin.source.members}
             membersCount={hasMembers ? squads[0].membersCount : undefined}
           />
@@ -128,7 +134,7 @@ const renderComponent = (
   );
 };
 
-// Renders the source card with all basic props
+// TODO: Fix this test
 it('should render the component with basic text and an icon', async () => {
   renderComponent(false, false);
 
@@ -173,7 +179,7 @@ it('should render the component with a view squad button', async () => {
   renderComponent(true, true);
 
   await waitFor(async () => {
-    const link = await screen.findByTestId('source-link');
+    const link = await screen.findByTestId('source-action');
     expect(link).toHaveAttribute('href', squads[0].permalink);
   });
 });

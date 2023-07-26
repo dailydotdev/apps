@@ -10,7 +10,7 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { SquadListingHeader } from './SquadListingHeader';
-import { SquadsPublicWaitlist } from '../../lib/constants';
+import { squadsPublicWaitlist } from '../../lib/constants';
 import { LazyModalElement } from '../modals/LazyModalElement';
 import { Origin } from '../../lib/analytics';
 
@@ -79,6 +79,6 @@ it('should render the component and have a link to join waitlist when squad owne
 
   await waitFor(async () => {
     const link = await screen.findByTestId('squad-directory-join-waitlist');
-    expect(link).toHaveAttribute('href', SquadsPublicWaitlist);
+    expect(link).toHaveAttribute('href', squadsPublicWaitlist);
   });
 });

@@ -110,6 +110,8 @@ export const SOURCES_QUERY = gql`
           type
           handle
           description
+          headerImage
+          color
           membersCount
           members {
             edges {

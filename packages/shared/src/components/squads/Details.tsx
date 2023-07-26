@@ -18,7 +18,7 @@ import SquadIcon from '../icons/Squad';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
 import BetaBadge from '../../svg/BetaBadge';
-import { SquadsPublicWaitlist } from '../../lib/constants';
+import { squadsPublicWaitlist } from '../../lib/constants';
 import { SquadTypeCard } from './SquadTypeCard';
 import { ManageSquadPageFooter } from './utils';
 
@@ -223,7 +223,7 @@ export function SquadDetails({
                   text: 'Join waitlist',
                   tag: 'a',
                   target: '_blank',
-                  href: SquadsPublicWaitlist,
+                  href: squadsPublicWaitlist,
                 }}
               />
             </div>

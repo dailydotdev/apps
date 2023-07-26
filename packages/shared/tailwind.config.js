@@ -36,6 +36,7 @@ module.exports = {
           bun: 'var(--theme-background-bun)',
           onion: 'var(--theme-background-onion)',
           pepper: 'var(--theme-background-pepper)',
+          pepper40: 'var(--theme-background-pepper-40)',
           mention: {
             primary: 'var(--theme-mention)',
             hover: 'var(--theme-mention-hover)',
@@ -110,6 +111,12 @@ module.exports = {
           blue: 'var(--theme-highlight-blue)',
           purple: 'var(--theme-highlight-purple)',
           label: 'var(--theme-highlight-label)',
+        },
+        squads: {
+          avocado: 'var(--theme-squads-avocado)',
+          bacon: 'var(--theme-squads-bacon)',
+          cabbage: 'var(--theme-squads-cabbage)',
+          onion: 'var(--theme-squads-onion)',
         },
       },
       white: '#ffffff',
