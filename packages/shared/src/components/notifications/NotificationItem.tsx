@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { commentReplyTypes, Notification } from '../../graphql/notifications';
+import { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
