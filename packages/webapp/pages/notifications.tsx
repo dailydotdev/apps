@@ -139,25 +139,25 @@ const Notifications = (): ReactElement => {
     show(e, { position: { x: right, y: bottom + 4 } });
   };
 
-  const getIcon = () => {
+  const Icon = (): ReactElement => {
     if (isFetching) return <Loader />;
 
-    const Icon =
+    const NotifIcon =
       preferences[0]?.status === NotificationPreferenceStatus.Muted
         ? BellIcon
         : BellDisabledIcon;
 
-    return <Icon />;
+    return <NotifIcon />;
   };
 
-  const getCopy = () => {
-    if (isFetching) return 'Fetching your preference';
+  const Copy = (): ReactElement => {
+    if (isFetching) return <>Fetching your preference</>;
 
     const isMuted =
       preferences[0]?.status === NotificationPreferenceStatus.Muted;
     const copy = notificationMutingCopy[notification?.type];
 
-    return isMuted ? copy.unmute : copy.mute;
+    return <>{isMuted ? copy.unmute : copy.mute}</>;
   };
 
   const onItemClick = () => {
@@ -232,8 +232,8 @@ const Notifications = (): ReactElement => {
       >
         <Item className="py-1 w-64 typo-callout" onClick={onItemClick}>
           <span className="flex flex-row gap-1 items-center w-full">
-            {getIcon()}
-            {getCopy()}
+            <Icon />
+            <Copy />
           </span>
         </Item>
       </PortalMenu>
