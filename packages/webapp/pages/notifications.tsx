@@ -3,8 +3,6 @@ import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import { InfiniteData, useInfiniteQuery, useMutation } from 'react-query';
 import {
-  commentReplyTypes,
-  newPostCommentTypes,
   Notification,
   notificationPreferenceMap,
   NotificationPreferenceStatus,
