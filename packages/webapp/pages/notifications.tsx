@@ -25,7 +25,10 @@ import InfiniteScrolling, {
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
-import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
+import {
+  notificationMutingCopy,
+  NotificationType,
+} from '@dailydotdev/shared/src/components/notifications/utils';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useNotificationPreference } from '@dailydotdev/shared/src/hooks/notifications';
 import { Item, useContextMenu } from '@dailydotdev/react-contexify';
@@ -44,30 +47,6 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   );
 
 const contextId = 'notifications-context-menu';
-
-interface ActionCopy {
-  mute: string;
-  unmute: string;
-}
-
-const actionCopy: Partial<Record<NotificationType, ActionCopy>> = {
-  [NotificationType.ArticleNewComment]: {
-    mute: 'Turn off notifications from this post',
-    unmute: 'Turn on notifications from this post',
-  },
-  [NotificationType.SquadNewComment]: {
-    mute: 'Turn off notifications from this post',
-    unmute: 'Turn on notifications from this post',
-  },
-  [NotificationType.CommentReply]: {
-    mute: 'Mute this thread',
-    unmute: 'Unmute this thread',
-  },
-  [NotificationType.SquadReply]: {
-    mute: 'Mute this thread',
-    unmute: 'Unmute this thread',
-  },
-};
 
 const Notifications = (): ReactElement => {
   const seo = (
@@ -175,7 +154,7 @@ const Notifications = (): ReactElement => {
 
     const isMuted =
       preferences[0]?.status === NotificationPreferenceStatus.Muted;
-    const copy = actionCopy[notification?.type];
+    const copy = notificationMutingCopy[notification?.type];
 
     return isMuted ? copy.unmute : copy.mute;
   };
@@ -230,7 +209,7 @@ const Notifications = (): ReactElement => {
                     isUnread={!readAt}
                     onClick={() => onNotificationClick(id, type)}
                     onOptionsClick={
-                      Object.keys(actionCopy).includes(type)
+                      Object.keys(notificationMutingCopy).includes(type)
                         ? (e) => onOptionsClick(e, node)
                         : undefined
                     }

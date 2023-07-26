@@ -103,3 +103,29 @@ const MAX_UNREAD_DISPLAY = 20;
 
 export const getUnreadText = (unread: number): string =>
   unread > MAX_UNREAD_DISPLAY ? `${MAX_UNREAD_DISPLAY}+` : unread.toString();
+
+interface ActionCopy {
+  mute: string;
+  unmute: string;
+}
+
+export const notificationMutingCopy: Partial<
+  Record<NotificationType, ActionCopy>
+> = {
+  [NotificationType.ArticleNewComment]: {
+    mute: 'Turn off notifications from this post',
+    unmute: 'Turn on notifications from this post',
+  },
+  [NotificationType.SquadNewComment]: {
+    mute: 'Turn off notifications from this post',
+    unmute: 'Turn on notifications from this post',
+  },
+  [NotificationType.CommentReply]: {
+    mute: 'Mute this thread',
+    unmute: 'Unmute this thread',
+  },
+  [NotificationType.SquadReply]: {
+    mute: 'Mute this thread',
+    unmute: 'Unmute this thread',
+  },
+};
