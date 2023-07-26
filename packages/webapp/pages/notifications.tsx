@@ -47,6 +47,38 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
 
 const contextId = 'notifications-context-menu';
 
+interface ActionCopy {
+  mute: string;
+  unmute: string;
+}
+
+const actionCopy: Partial<Record<NotificationType, ActionCopy>> = {
+  [NotificationType.ArticleNewComment]: {
+    mute: 'Mute new comments',
+    unmute: 'Unmute new comments',
+  },
+  [NotificationType.SquadNewComment]: {
+    mute: 'Mute new comments',
+    unmute: 'Unmute new comments',
+  },
+  [NotificationType.CommentReply]: {
+    mute: 'Mute this thread',
+    unmute: 'Unmute this thread',
+  },
+  [NotificationType.SquadReply]: {
+    mute: 'Mute this thread',
+    unmute: 'Unmute this thread',
+  },
+  [NotificationType.SquadPostAdded]: {
+    mute: 'Mute new posts',
+    unmute: 'Unmute new posts',
+  },
+  [NotificationType.SquadMemberJoined]: {
+    mute: 'Mute new members joining',
+    unmute: 'Unmute new members joining',
+  },
+};
+
 const Notifications = (): ReactElement => {
   const seo = (
     <NextSeo
@@ -149,23 +181,13 @@ const Notifications = (): ReactElement => {
   };
 
   const getCopy = () => {
-    if (isFetching) return 'Fetching your preference';
+    if (isFetching || !notification) return 'Fetching your preference';
 
-    const isCommentReply = commentReplyTypes.includes(notification?.type);
     const isMuted =
       preferences[0]?.status === NotificationPreferenceStatus.Muted;
+    const copy = actionCopy[notification?.type];
 
-    if (isCommentReply) {
-      return isMuted ? 'Unmute this thread' : 'Mute this thread';
-    }
-
-    const isNewPostComment = newPostCommentTypes.includes(notification?.type);
-
-    if (isNewPostComment) {
-      return isMuted ? 'Unmute new comments' : 'Mute new comments';
-    }
-
-    return isMuted ? 'Unmute' : 'Mute';
+    return isMuted ? copy.unmute : copy.mute;
   };
 
   const onItemClick = () => {
@@ -210,10 +232,6 @@ const Notifications = (): ReactElement => {
                   return nodes;
                 }
 
-                const allowOptions =
-                  commentReplyTypes.includes(type) ||
-                  newPostCommentTypes.includes(type);
-
                 nodes.push(
                   <NotificationItem
                     key={id}
@@ -222,7 +240,9 @@ const Notifications = (): ReactElement => {
                     isUnread={!readAt}
                     onClick={() => onNotificationClick(id, type)}
                     onOptionsClick={
-                      allowOptions ? (e) => onOptionsClick(e, node) : undefined
+                      Object.keys(actionCopy).includes(type)
+                        ? (e) => onOptionsClick(e, node)
+                        : undefined
                     }
                   />,
                 );

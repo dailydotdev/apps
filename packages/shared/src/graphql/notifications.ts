@@ -206,6 +206,7 @@ export const notificationPreferenceMap: Partial<
   Record<NotificationType, NotificationPreferenceType>
 > = {
   [NotificationType.ArticleNewComment]: NotificationPreferenceType.Post,
+  [NotificationType.SquadNewComment]: NotificationPreferenceType.Post,
   [NotificationType.CommentReply]: NotificationPreferenceType.Comment,
   [NotificationType.SquadReply]: NotificationPreferenceType.Comment,
   [NotificationType.SquadPostAdded]: NotificationPreferenceType.Source,
