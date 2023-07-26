@@ -30,6 +30,7 @@ export const NotifProgress = classed(
 export enum NotificationType {
   System = 'system',
   ArticleNewComment = 'article_new_comment',
+  SquadNewComment = 'squad_new_comment',
   CommentReply = 'comment_reply',
   SquadPostAdded = 'squad_post_added',
   SquadMemberJoined = 'squad_member_joined',

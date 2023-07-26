@@ -60,7 +60,7 @@ function NotificationItem({
           isUnread && 'bg-theme-float',
         )}
       >
-        {onOptionsClick && commentReplyTypes.includes(type) && (
+        {onOptionsClick && (
           <OptionsButton
             className="hidden group-hover:flex top-3 right-2"
             position="absolute"

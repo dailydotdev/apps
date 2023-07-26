@@ -4,6 +4,7 @@ import { NextSeo } from 'next-seo';
 import { InfiniteData, useInfiniteQuery, useMutation } from 'react-query';
 import {
   commentReplyTypes,
+  newPostCommentTypes,
   Notification,
   notificationPreferenceMap,
   NotificationPreferenceStatus,
@@ -158,6 +159,12 @@ const Notifications = (): ReactElement => {
       return isMuted ? 'Unmute this thread' : 'Mute this thread';
     }
 
+    const isNewPostComment = newPostCommentTypes.includes(notification?.type);
+
+    if (isNewPostComment) {
+      return isMuted ? 'Unmute new comments' : 'Mute new comments';
+    }
+
     return isMuted ? 'Unmute' : 'Mute';
   };
 
@@ -168,7 +175,7 @@ const Notifications = (): ReactElement => {
       ? clearNotificationPreference
       : muteNotification;
 
-    preferenceCommand({
+    return preferenceCommand({
       type: notification.type,
       referenceId: notification.referenceId,
     });
@@ -203,6 +210,10 @@ const Notifications = (): ReactElement => {
                   return nodes;
                 }
 
+                const allowOptions =
+                  commentReplyTypes.includes(type) ||
+                  newPostCommentTypes.includes(type);
+
                 nodes.push(
                   <NotificationItem
                     key={id}
@@ -210,7 +221,9 @@ const Notifications = (): ReactElement => {
                     type={type}
                     isUnread={!readAt}
                     onClick={() => onNotificationClick(id, type)}
-                    onOptionsClick={(e) => onOptionsClick(e, node)}
+                    onOptionsClick={
+                      allowOptions ? (e) => onOptionsClick(e, node) : undefined
+                    }
                   />,
                 );
 
