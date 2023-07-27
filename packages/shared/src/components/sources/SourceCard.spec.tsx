@@ -32,6 +32,7 @@ import {
   SquadEdgesData,
 } from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { cloudinary } from '../../lib/image';
 
 const onClickTest = jest.fn();
 const routerReplace = jest.fn();
@@ -45,6 +46,7 @@ const squads = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();
 admin.source.members.edges = members;
+admin.source.membersCount = members.length;
 const defaultSquad = generateTestSquad();
 
 const createSourceMembersMock = (
@@ -73,9 +75,10 @@ beforeEach(async () => {
 });
 
 const renderComponent = (
-  borderColor,
-  hasMembers = true,
-  isMember = true,
+  isMember = false,
+  customStyle = false,
+  setSource = false,
+  setMembers = true,
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -102,15 +105,25 @@ const renderComponent = (
               onClick: isMember ? undefined : onClickTest,
               href: isMember ? squads[0].permalink : undefined,
             }}
-            banner="banner-image.jpg"
-            borderColor={borderColor ? SourceCardBorderColor.Onion : undefined}
+            banner={customStyle ? 'banner-image.jpg' : undefined}
+            borderColor={customStyle ? SourceCardBorderColor.Onion : undefined}
             source={
-              hasMembers && {
+              setSource && {
                 ...admin.source,
-                image: 'test-image.jpg',
-                membersCount: hasMembers ? squads[0].membersCount : undefined,
+                currentMember: setMembers ? admin.source.currentMember : null,
+                members: {
+                  ...admin.source.members,
+                  edges: setMembers ? admin.source.members.edges : [],
+                },
               }
             }
+            // source={
+            //   hasMembers && {
+            //     ...admin.source,
+            //     image: 'test-image.jpg',
+            //     membersCount: hasMembers ? squads[0].membersCount : undefined,
+            //   }
+            // }
           />
         </AuthContextProvider>
       </FeaturesContextProvider>
@@ -118,45 +131,33 @@ const renderComponent = (
   );
 };
 
-it('should render the component with basic text and an icon', async () => {
-  renderComponent(false, false);
+it('should render the component with basic props', async () => {
+  renderComponent();
+  const element = screen.getByRole('article');
+  const img = screen.getByAltText('Banner image for source');
 
   expect(screen.getByText('title')).toBeInTheDocument();
   expect(screen.getByText('icon')).toBeInTheDocument();
+  expect(element).toHaveClass('border-theme-squads-avocado');
+  expect(img).toHaveAttribute(
+    'src',
+    cloudinary.squads.directory.cardBannerDefault,
+  );
 });
 
-it('should render the component with a banner image', () => {
-  renderComponent(true, true, false);
+it('should render the component with basic props and custom border and banner', async () => {
+  renderComponent(false, true, false);
+  const element = screen.getByRole('article');
   const img = screen.getByAltText('Banner image for source');
 
+  expect(screen.getByText('title')).toBeInTheDocument();
+  expect(screen.getByText('icon')).toBeInTheDocument();
+  expect(element).toHaveClass('border-theme-squads-onion');
   expect(img).toHaveAttribute('src', 'banner-image.jpg');
 });
 
-it('should render the component with the default border color', () => {
-  renderComponent(false, false, false);
-  const element = screen.getByRole('article');
-
-  expect(element).toHaveClass('border-theme-squads-avocado');
-});
-
-it('should render the component with a set border color', () => {
-  renderComponent(true, false, false);
-  const element = screen.getByRole('article');
-
-  expect(element).toHaveClass('border-theme-squads-onion');
-});
-
-it('should render the component with an image', () => {
-  renderComponent(false, true, false);
-  const img = screen.getByAltText('title source');
-  const icon = screen.queryByText('icon');
-
-  expect(img).toHaveAttribute('src', 'test-image.jpg');
-  expect(icon).not.toBeInTheDocument();
-});
-
 it('should render the component and call the onClick function when the action button is clicked', async () => {
-  renderComponent(false, false, false);
+  renderComponent();
 
   const button = await screen.findByText('Test action');
 
@@ -164,23 +165,34 @@ it('should render the component and call the onClick function when the action bu
   expect(onClickTest).toHaveBeenCalledTimes(1);
 });
 
+it('should render the component with an image', () => {
+  renderComponent(false, false, true);
+  const img = screen.getByAltText('title source');
+  const icon = screen.queryByText('icon');
+
+  expect(img).toHaveAttribute('src', admin.source.image);
+  expect(icon).not.toBeInTheDocument();
+});
+
 it('should render the component and member short list when members are provided', () => {
-  renderComponent(true, true);
+  renderComponent(false, false, true);
 
   const memberCount = screen.getByLabelText('squad-members-count');
 
   expect(memberCount).toBeInTheDocument();
-  expect(memberCount.innerHTML).toEqual((members.length - 1).toString());
+  expect(memberCount.innerHTML).toEqual(
+    admin.source.members.edges.length.toString(),
+  );
 });
 
 it('should show the admin on top of the list', async () => {
-  renderComponent(true, true);
+  renderComponent(false, false, true);
   const membersList = await openedMembersModal();
   expect(membersList[0].node.user.name).toEqual('Eliz Kılıç');
 });
 
 it('should render the component with a view squad button', async () => {
-  renderComponent(true, true);
+  renderComponent(true);
 
   await waitFor(async () => {
     const link = await screen.findByTestId('source-action');
@@ -188,7 +200,6 @@ it('should render the component with a view squad button', async () => {
   });
 });
 
-// TODO: Fix this test
 it('should render the component with a join squad button', async () => {
   mocked(useRouter).mockImplementation(
     () =>
@@ -197,7 +208,7 @@ it('should render the component with a join squad button', async () => {
         push: routerReplace,
       } as unknown as NextRouter),
   );
-  renderComponent(true, true, false);
+  renderComponent(false, true, true, false);
   let queryCalled = false;
   mockGraphQL({
     request: {

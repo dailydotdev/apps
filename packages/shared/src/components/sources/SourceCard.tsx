@@ -124,12 +124,12 @@ export const SourceCard = ({
 
           {!!action &&
           action?.type === 'action' &&
-          source.type === SourceType.Squad ? (
+          source?.type === SourceType.Squad ? (
             <SquadJoinButton
               className="w-full !btn-secondary"
               squad={source}
               origin={Origin.SquadDirectory}
-              onSuccess={() => router.push(source.permalink)}
+              onSuccess={() => router.push(source?.permalink)}
               joinText={action?.text}
               data-testid="squad-action"
             />
