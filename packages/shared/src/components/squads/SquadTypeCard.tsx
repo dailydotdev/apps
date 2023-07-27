@@ -33,8 +33,10 @@ export const SquadTypeCard = <ButtonTag extends AllowedTags>({
     <div
       className={classNames(
         'flex flex-col flex-1 p-3 rounded-16 justify-between gap-4 relative',
-        isSelected &&
-          'bg-gradient-to-r from-theme-bg-overlay-onion-opacity to-theme-bg-overlay-cabbage-opacity border-2 -m-1 border-theme-divider-primary',
+        isSelected
+          ? 'bg-gradient-to-r from-theme-bg-overlay-onion-opacity to-theme-bg-overlay-cabbage-opacity border-2 -m-1 border-theme-divider-primary'
+          : 'border border-theme-divider-tertiary tablet:border-0',
+
         className,
       )}
     >
