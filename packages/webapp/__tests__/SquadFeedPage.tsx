@@ -322,20 +322,20 @@ describe('squad header bar', () => {
     requestedSquad.currentMember = undefined;
     renderComponent(undefined, undefined, undefined, []);
 
-    expect(await screen.findByText('Join squad')).toBeInTheDocument();
+    expect(await screen.findByText('Join Squad')).toBeInTheDocument();
   });
 
   it('should show leave squad button for open squad when already member', async () => {
     requestedSquad.public = true;
     renderComponent();
 
-    expect(await screen.findByText('Leave squad')).toBeInTheDocument();
+    expect(await screen.findByText('Leave Squad')).toBeInTheDocument();
   });
 
   it('should not show join squad button for private squad', async () => {
     renderComponent();
 
-    expect(screen.queryByText('Join squad')).not.toBeInTheDocument();
+    expect(screen.queryByText('Join Squad')).not.toBeInTheDocument();
   });
 });
 
