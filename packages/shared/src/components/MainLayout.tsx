@@ -172,7 +172,7 @@ export default function MainLayout({
       params.append(key, value as string);
     });
 
-    router.push(`${webappUrl}/onboarding?${params.toString()}`);
+    router.push(`${onboarding}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router]);
 
   if (
