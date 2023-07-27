@@ -53,6 +53,8 @@ export const NotificationPreferenceMenu = ({
   };
 
   const Icon = (): ReactElement => {
+    if (!notification) return null;
+
     if (isFetching) return <Loader />;
 
     const NotifIcon =
@@ -64,6 +66,8 @@ export const NotificationPreferenceMenu = ({
   };
 
   const Copy = (): ReactElement => {
+    if (!notification) return null;
+
     if (isFetching) return <>Fetching your preference</>;
 
     const isMuted =
