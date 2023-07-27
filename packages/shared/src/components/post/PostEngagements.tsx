@@ -11,9 +11,7 @@ import { PostActions, ShareBookmarkProps } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { Origin } from '../../lib/analytics';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -53,7 +51,6 @@ function PostEngagements({
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
   const { onShowUpvoted } = useUpvoteQuery();
-  const { trackEvent } = useAnalyticsContext();
   const {
     shareComment,
     showShareNewComment,
@@ -62,13 +59,8 @@ function PostEngagements({
     onShowShareNewComment,
   } = useShareComment(analyticsOrigin, enableShowShareNewComment);
 
-  const onCommented = (comment: Comment, isNew: boolean, parentId?: string) => {
+  const onCommented = (comment: Comment, isNew: boolean) => {
     if (isNew) {
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.CommentPost, post, {
-          extra: { commentId: parentId },
-        }),
-      );
       setPermissionNotificationCommentId(comment.id);
       onShowShareNewComment(comment.id);
     }
