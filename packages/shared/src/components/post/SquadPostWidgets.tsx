@@ -31,8 +31,6 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
     { enabled: isFetched && !!squadId },
   );
 
-  // TODO: FIx this
-
   return (
     <div className="p-4 rounded-16 border border-theme-divider-tertiary">
       <div className="flex flex-row justify-between">
@@ -40,7 +38,6 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
         <SquadMemberShortList
           squad={squad}
           members={squadMembers}
-          memberCount={squad.membersCount}
           className="h-10"
         />
       </div>

@@ -76,17 +76,15 @@ const SquadsPage = (): ReactElement => {
                           (member) => member?.node?.user.id === user.id,
                         );
 
-                        console.log('props', props)
-
                       nodes.push(
                         <SourceCard
-                        title={name}
-                        subtitle={`@${props.handle}`}
-                        action={{
-                          text: isMember ? 'View' : 'Join',
-                          type: isMember ? 'link' : 'action',
-                          href: isMember ? permalink : undefined,
-                        }}
+                          title={name}
+                          subtitle={`@${props.handle}`}
+                          action={{
+                            text: isMember ? 'View' : 'Join',
+                            type: isMember ? 'link' : 'action',
+                            href: isMember ? permalink : undefined,
+                          }}
                           source={{
                             name,
                             active: props.active,
@@ -117,7 +115,7 @@ const SquadsPage = (): ReactElement => {
                   type: 'link',
                   text: 'Submit your idea',
                   href: squadsPublicSuggestion,
-                  target: '_blank', 
+                  target: '_blank',
                 }}
                 icon={
                   <EditIcon
