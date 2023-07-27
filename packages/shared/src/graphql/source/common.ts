@@ -10,18 +10,18 @@ export const updateFlagsCache = (
   update: SourceMemberFlag,
 ): void => {
   const queryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
-  client.setQueryData<Squad>(queryKey, (oldData) =>
-    oldData
-      ? {
-          ...oldData,
-          currentMember: {
-            ...oldData.currentMember,
-            flags: {
-              ...(oldData.currentMember.flags ?? {}),
-              ...update,
-            },
-          },
-        }
-      : null,
-  );
+  const data = client.getQueryData(queryKey);
+
+  if (!data) return;
+
+  client.setQueryData<Squad>(queryKey, (oldData) => ({
+    ...oldData,
+    currentMember: {
+      ...oldData.currentMember,
+      flags: {
+        ...(oldData.currentMember.flags ?? {}),
+        ...update,
+      },
+    },
+  }));
 };
