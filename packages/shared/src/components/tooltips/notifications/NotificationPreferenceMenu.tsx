@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import PortalMenu from '../../fields/PortalMenu';
 import { Loader } from '../../Loader';
