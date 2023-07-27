@@ -152,7 +152,9 @@ export default function CommentActionButtons({
     );
 
   const openReportCommentModal = () => {
-    openModal({
+    if (!user) return showLogin(AuthTriggers.ReportComment);
+
+    return openModal({
       type: LazyModal.ReportComment,
       props: {
         onReport: () => displayToast(labels.reporting.reportFeedbackText),
