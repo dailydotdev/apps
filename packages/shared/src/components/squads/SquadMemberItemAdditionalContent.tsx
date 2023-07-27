@@ -79,6 +79,7 @@ function SquadMemberItemAdditionalContent({
   );
 
   const sameUser = loggedUser && loggedUser.id === user.id;
+  const hideOption = sameUser || !loggedUser;
 
   if (role !== SourceMemberRole.Member) {
     return (
@@ -87,14 +88,12 @@ function SquadMemberItemAdditionalContent({
           className={sameUser ? 'mr-10' : 'mr-2'}
           role={member.role}
         />
-        {sameUser || !loggedUser ? null : option}
+        {hideOption ? null : option}
       </>
     );
   }
 
-  if (sameUser || !loggedUser) return null;
-
-  return option;
+  return hideOption ? null : option;
 }
 
 export default SquadMemberItemAdditionalContent;
