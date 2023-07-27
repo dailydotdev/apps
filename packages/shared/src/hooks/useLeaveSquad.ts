@@ -6,7 +6,7 @@ import { useBoot } from './useBoot';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
 
-type UseLeaveSquad = () => Promise<void>;
+type UseLeaveSquad = () => Promise<boolean>;
 
 type UseLeaveSquadProps = {
   squad: Squad;
@@ -29,12 +29,15 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
       cancelButton: {
         title: 'Stay',
         className: 'btn-primary-cabbage',
+        type: 'button',
       },
       className: {
         buttons: 'flex-row-reverse',
       },
     };
-    if (await showPrompt(options)) {
+    const left = await showPrompt(options);
+
+    if (left) {
       trackEvent({
         event_name: AnalyticsEvent.LeaveSquad,
         extra: JSON.stringify({ squad: squad.id }),
@@ -42,6 +45,8 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
       await leaveSquad(squad.id);
       deleteCachedSquad(squad.id);
     }
+
+    return left;
   }, [deleteCachedSquad, showPrompt, squad, trackEvent]);
 
   return onLeaveSquad;
