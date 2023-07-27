@@ -102,7 +102,9 @@ export const SquadJoinButton = ({
   const { mutateAsync: leaveSquad, isLoading: isLeavingSquad } = useMutation(
     useLeaveSquad({ squad }),
     {
-      onSuccess: () => {
+      onSuccess: (left) => {
+        if (!left) return;
+
         displayToast('👋 You have left the squad.');
 
         const queryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
@@ -116,6 +118,23 @@ export const SquadJoinButton = ({
   );
 
   const isLoading = isJoiningSquad || isLeavingSquad;
+
+  const onLeaveSquad = () => {
+    if (!user) {
+      showLogin('join squad', {
+        onLoginSuccess: joinSquad,
+        onRegistrationSuccess: joinSquad,
+      });
+
+      return;
+    }
+
+    if (isCurrentMember) {
+      leaveSquad();
+    } else {
+      joinSquad();
+    }
+  };
 
   return (
     <SimpleTooltip
@@ -133,24 +152,7 @@ export const SquadJoinButton = ({
           )}
           squad={squad}
           disabled={isMemberBlocked || isLoading}
-          onClick={() => {
-            if (!user) {
-              const onJoinSquad = () => joinSquad();
-
-              showLogin('join squad', {
-                onLoginSuccess: onJoinSquad,
-                onRegistrationSuccess: onJoinSquad,
-              });
-
-              return;
-            }
-
-            if (isCurrentMember) {
-              leaveSquad();
-            } else {
-              joinSquad();
-            }
-          }}
+          onClick={onLeaveSquad}
           origin={origin}
         >
           {isCurrentMember ? leaveText : joinText}
