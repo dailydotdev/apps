@@ -89,6 +89,40 @@ export const DELETE_SQUAD_MUTATION = gql`
   }
 `;
 
+export const SQUAD_DIRECTORY_SOURCES = gql`
+  query Sources($filterOpenSquads: Boolean) {
+    sources(filterOpenSquads: $filterOpenSquads) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...SourceBaseInfo
+          headerImage
+          color
+          membersCount
+          members {
+            edges {
+              node {
+                user {
+                  bio
+                  id
+                  image
+                  username
+                  permalink
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${SOURCE_BASE_FRAGMENT}
+`;
+
 export const CREATE_SQUAD_MUTATION = gql`
   mutation CreateSquad(
     $name: String!

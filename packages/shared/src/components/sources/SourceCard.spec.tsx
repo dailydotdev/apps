@@ -20,7 +20,7 @@ import {
   generateTestSquad,
 } from '../../../__tests__/fixture/squads';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import { SourceCard } from './SourceCard';
+import { SourceCard, SourceCardBorderColor } from './SourceCard';
 import { LazyModalElement } from '../modals/LazyModalElement';
 import {
   MockedGraphQLResponse,
@@ -32,7 +32,6 @@ import {
   SquadEdgesData,
 } from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { SourceType } from '../../graphql/sources';
 
 const onClickTest = jest.fn();
 const routerReplace = jest.fn();
@@ -74,7 +73,7 @@ beforeEach(async () => {
 });
 
 const renderComponent = (
-  hasImage = true,
+  borderColor,
   hasMembers = true,
   isMember = true,
 ): RenderResult => {
@@ -97,20 +96,21 @@ const renderComponent = (
             title="title"
             subtitle="subtitle"
             icon={<div>icon</div>}
-            image={hasImage ? 'test-image.jpg' : undefined}
-            description="description"
-            type={hasMembers ? SourceType.Squad : SourceType.Machine}
-            id={admin.source.id}
-            permalink={admin.source.permalink}
-            handle={admin.source.handle}
             action={{
               type: isMember ? 'link' : 'action',
               text: isMember ? 'View squad' : 'Test action',
               onClick: isMember ? undefined : onClickTest,
               href: isMember ? squads[0].permalink : undefined,
             }}
-            members={admin.source.members}
-            membersCount={hasMembers ? squads[0].membersCount : undefined}
+            banner="banner-image.jpg"
+            borderColor={borderColor ? SourceCardBorderColor.Onion : undefined}
+            source={
+              hasMembers && {
+                ...admin.source,
+                image: 'test-image.jpg',
+                membersCount: hasMembers ? squads[0].membersCount : undefined,
+              }
+            }
           />
         </AuthContextProvider>
       </FeaturesContextProvider>
@@ -118,7 +118,6 @@ const renderComponent = (
   );
 };
 
-// TODO: Fix this test
 it('should render the component with basic text and an icon', async () => {
   renderComponent(false, false);
 
@@ -126,8 +125,29 @@ it('should render the component with basic text and an icon', async () => {
   expect(screen.getByText('icon')).toBeInTheDocument();
 });
 
+it('should render the component with a banner image', () => {
+  renderComponent(true, true, false);
+  const img = screen.getByAltText('Banner image for source');
+
+  expect(img).toHaveAttribute('src', 'banner-image.jpg');
+});
+
+it('should render the component with the default border color', () => {
+  renderComponent(false, false, false);
+  const element = screen.getByRole('article');
+
+  expect(element).toHaveClass('border-theme-squads-avocado');
+});
+
+it('should render the component with a set border color', () => {
+  renderComponent(true, false, false);
+  const element = screen.getByRole('article');
+
+  expect(element).toHaveClass('border-theme-squads-onion');
+});
+
 it('should render the component with an image', () => {
-  renderComponent(true, false);
+  renderComponent(false, true, false);
   const img = screen.getByAltText('title source');
   const icon = screen.queryByText('icon');
 
@@ -168,6 +188,7 @@ it('should render the component with a view squad button', async () => {
   });
 });
 
+// TODO: Fix this test
 it('should render the component with a join squad button', async () => {
   mocked(useRouter).mockImplementation(
     () =>

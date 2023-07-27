@@ -20,11 +20,15 @@ interface SourceCardAction {
   onClick?: () => void;
 }
 
-interface SourceCardProps extends Partial<Squad> {
+interface SourceCardProps {
   title: string;
   subtitle?: string;
   icon?: ReactNode;
   action?: SourceCardAction;
+  description?: string;
+  borderColor?: SourceCardBorderColor;
+  banner?: string;
+  source?: Squad;
 }
 
 export enum SourceCardBorderColor {
@@ -49,60 +53,41 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
 };
 
 export const SourceCard = ({
+  source,
   title,
   subtitle,
   icon,
-  image,
-  description,
   action,
-  members,
-  membersCount,
-  permalink,
-  id,
-  banner,
+  description,
   borderColor = SourceCardBorderColor.Avocado,
-  type,
-  handle,
-  memberInviteRole,
-  memberPostingRole,
+  banner,
 }: SourceCardProps): ReactElement => {
   const router = useRouter();
-
-  const squad = {
-    name: title,
-    description,
-    members,
-    membersCount,
-    permalink,
-    id,
-    active: true,
-    public: true,
-    image,
-    handle,
-    memberInviteRole,
-    memberPostingRole,
-  };
 
   return (
     <Card
       className={classNames(
         'overflow-hidden p-0',
-        borderColorToClassName[borderColor],
+        borderColorToClassName[source?.borderColor || borderColor],
       )}
     >
       <div className="h-24 rounded-t-2xl bg-theme-bg-onion">
         <Image
           className="object-cover w-full h-full"
-          src={banner || cloudinary.squads.directory.cardBannerDefault}
-          alt="Banner image for source, showing abstract colors."
+          src={
+            source?.banner ||
+            banner ||
+            cloudinary.squads.directory.cardBannerDefault
+          }
+          alt="Banner image for source"
         />
       </div>
       <div className="flex flex-col flex-1 p-4 -mt-12 rounded-t-2xl bg-theme-bg-secondary">
         <div className="flex justify-between items-end mb-3">
-          {image ? (
+          {source?.image ? (
             <img
               className="-mt-14 w-24 h-24 rounded-full z-10"
-              src={image}
+              src={source?.image}
               alt={`${title} source`}
             />
           ) : (
@@ -110,13 +95,13 @@ export const SourceCard = ({
               {icon}
             </div>
           )}
-          {membersCount > 0 && (
+          {source?.membersCount > 0 && (
             <SquadMemberShortList
               squad={{
-                ...squad,
+                ...source,
                 type: SourceType.Squad,
               }}
-              members={members?.edges?.reduce((acc, current) => {
+              members={source?.members?.edges?.reduce((acc, current) => {
                 acc.push(current.node);
                 return acc;
               }, [])}
@@ -129,24 +114,22 @@ export const SourceCard = ({
             {subtitle && (
               <div className="text-theme-label-secondary">{subtitle}</div>
             )}
-            {description && (
-              <div className="mt-1 line-clamp-5 text-theme-label-secondary multi-truncate">
-                {description}
-              </div>
-            )}
+            {description ||
+              (source?.description && (
+                <div className="mt-1 line-clamp-5 text-theme-label-secondary multi-truncate">
+                  {source?.description || description}
+                </div>
+              ))}
           </div>
 
           {!!action &&
           action?.type === 'action' &&
-          type === SourceType.Squad ? (
+          source.type === SourceType.Squad ? (
             <SquadJoinButton
               className="w-full !btn-secondary"
-              squad={{
-                ...squad,
-                type,
-              }}
+              squad={source}
               origin={Origin.SquadDirectory}
-              onSuccess={() => router.push(permalink)}
+              onSuccess={() => router.push(source.permalink)}
               joinText={action?.text}
               data-testid="squad-action"
             />

@@ -1,7 +1,6 @@
 import { gql } from 'graphql-request';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
-import { SOURCE_BASE_FRAGMENT } from './fragments';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -91,46 +90,4 @@ export const SOURCE_QUERY = gql`
       name
     }
   }
-`;
-
-export const SOURCES_QUERY = gql`
-  query Sources($filterOpenSquads: Boolean) {
-    sources(filterOpenSquads: $filterOpenSquads) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          ...SourceBaseInfo
-          headerImage
-          color
-          membersCount
-          members {
-            edges {
-              node {
-                user {
-                  bio
-                  id
-                  image
-                  username
-                  permalink
-                  name
-                }
-              }
-            }
-          }
-          currentMember {
-            user {
-              id
-            }
-            permissions
-            role
-            referralToken
-          }
-        }
-      }
-    }
-  }
-  ${SOURCE_BASE_FRAGMENT}
 `;

@@ -37,6 +37,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
           className="btn-primary"
           tag="a"
           href={isOwner && squadsPublicWaitlist}
+          rel={isOwner && 'noopener'}
           target="_blank"
           onClick={
             !isOwner

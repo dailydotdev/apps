@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
-import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/sources';
+import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
@@ -36,7 +36,7 @@ const SquadsPage = (): ReactElement => {
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
     ({ pageParam }) =>
-      request(graphqlUrl, SOURCES_QUERY, {
+      request(graphqlUrl, SQUAD_DIRECTORY_SOURCES, {
         filterOpenSquads: true,
         first: 100,
         after: pageParam,
@@ -76,25 +76,34 @@ const SquadsPage = (): ReactElement => {
                           (member) => member?.node?.user.id === user.id,
                         );
 
+                        console.log('props', props)
+
                       nodes.push(
                         <SourceCard
-                          title={name}
-                          subtitle={`@${props.handle}`}
-                          action={{
-                            text: isMember ? 'View' : 'Join',
-                            type: isMember ? 'link' : 'action',
-                            href: isMember ? permalink : undefined,
+                        title={name}
+                        subtitle={`@${props.handle}`}
+                        action={{
+                          text: isMember ? 'View' : 'Join',
+                          type: isMember ? 'link' : 'action',
+                          href: isMember ? permalink : undefined,
+                        }}
+                          source={{
+                            name,
+                            active: props.active,
+                            description: props.description,
+                            public: props.public,
+                            membersCount: props.membersCount,
+                            permalink,
+                            id,
+                            type: props.type,
+                            handle: props.handle,
+                            image: props.image,
+                            memberInviteRole: props.memberInviteRole,
+                            memberPostingRole: props.memberPostingRole,
+                            borderColor: props.color,
+                            banner: props.headerImage,
+                            ...props,
                           }}
-                          permalink={permalink}
-                          id={id}
-                          type={props.type}
-                          handle={props.handle}
-                          image={props.image}
-                          memberInviteRole={props.memberInviteRole}
-                          memberPostingRole={props.memberPostingRole}
-                          borderColor={props.color}
-                          banner={props.headerImage}
-                          {...props}
                         />,
                       );
                       return nodes;
@@ -104,12 +113,11 @@ const SquadsPage = (): ReactElement => {
                 )}
               <SourceCard
                 title="Which squads would you like to see next?"
-                description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."
                 action={{
                   type: 'link',
                   text: 'Submit your idea',
                   href: squadsPublicSuggestion,
-                  target: '_blank',
+                  target: '_blank', 
                 }}
                 icon={
                   <EditIcon
@@ -117,6 +125,7 @@ const SquadsPage = (): ReactElement => {
                     className="text-theme-label-tertiary"
                   />
                 }
+                description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."
                 borderColor={SourceCardBorderColor.Pepper}
               />
             </FeedContainer>
