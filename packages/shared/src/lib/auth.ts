@@ -43,6 +43,7 @@ export enum AuthTriggers {
   Onboarding = 'onboarding',
   SubmitNewSource = 'submit new source',
   Downvote = 'downvote',
+  JoinSquad = 'join squad',
   CreateSquad = 'create squad',
 }
 

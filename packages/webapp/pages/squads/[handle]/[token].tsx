@@ -41,6 +41,7 @@ import { labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { tablet } from '@dailydotdev/shared/src/styles/media';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { getLayout } from '../../../components/layouts/MainLayout';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
@@ -158,7 +159,7 @@ const SquadReferral = ({
 
     if (loggedUser) return onJoinSquad();
 
-    return showLogin('join squad', {
+    return showLogin(AuthTriggers.JoinSquad, {
       referral: member.user.id,
       referralOrigin: ReferralOriginKey.Squad,
       onLoginSuccess: onJoinSquad,
