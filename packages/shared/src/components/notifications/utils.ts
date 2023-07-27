@@ -29,8 +29,12 @@ export const NotifProgress = classed(
 
 export enum NotificationType {
   System = 'system',
+  ArticleNewComment = 'article_new_comment',
+  SquadNewComment = 'squad_new_comment',
+  CommentReply = 'comment_reply',
   SquadPostAdded = 'squad_post_added',
   SquadMemberJoined = 'squad_member_joined',
+  SquadReply = 'squad_reply',
   SquadBlocked = 'squad_blocked',
   PromotedToAdmin = 'promoted_to_admin',
   PromotedToModerator = 'promoted_to_moderator',
@@ -77,17 +81,18 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.User]: '',
 };
 
-export const notificationTypeTheme: Record<NotificationType, string> = {
-  [NotificationType.System]: '',
-  [NotificationType.SquadPostAdded]: 'text-theme-color-cabbage',
-  [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
-  [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
-  [NotificationType.DemotedToMember]: 'text-theme-color-cabbage',
-  [NotificationType.PromotedToModerator]: 'text-theme-color-cabbage',
-  [NotificationType.PromotedToAdmin]: 'text-theme-color-cabbage',
-  [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
-  [NotificationType.SquadSubscribeNotification]: 'text-theme-color-cabbage',
-};
+export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
+  {
+    [NotificationType.System]: '',
+    [NotificationType.SquadPostAdded]: 'text-theme-color-cabbage',
+    [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
+    [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
+    [NotificationType.DemotedToMember]: 'text-theme-color-cabbage',
+    [NotificationType.PromotedToModerator]: 'text-theme-color-cabbage',
+    [NotificationType.PromotedToAdmin]: 'text-theme-color-cabbage',
+    [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
+    [NotificationType.SquadSubscribeNotification]: 'text-theme-color-cabbage',
+  };
 
 const notificationsUrl = `/notifications`;
 
@@ -98,3 +103,29 @@ const MAX_UNREAD_DISPLAY = 20;
 
 export const getUnreadText = (unread: number): string =>
   unread > MAX_UNREAD_DISPLAY ? `${MAX_UNREAD_DISPLAY}+` : unread.toString();
+
+interface ActionCopy {
+  mute: string;
+  unmute: string;
+}
+
+export const notificationMutingCopy: Partial<
+  Record<NotificationType, ActionCopy>
+> = {
+  [NotificationType.ArticleNewComment]: {
+    mute: 'Turn off notifications from this post',
+    unmute: 'Turn on notifications from this post',
+  },
+  [NotificationType.SquadNewComment]: {
+    mute: 'Turn off notifications from this post',
+    unmute: 'Turn on notifications from this post',
+  },
+  [NotificationType.CommentReply]: {
+    mute: 'Mute this thread',
+    unmute: 'Unmute this thread',
+  },
+  [NotificationType.SquadReply]: {
+    mute: 'Mute this thread',
+    unmute: 'Unmute this thread',
+  },
+};

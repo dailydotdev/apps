@@ -11,6 +11,7 @@ import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { UserShortProfile } from '../../lib/user';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 type SquadJoinProps = {
   className?: string;
@@ -101,7 +102,8 @@ export const SquadJoinButton = ({
       onSuccess: () => {
         displayToast('👋 You have left the squad.');
 
-        queryClient.invalidateQueries(['squad', squad.handle]);
+        const queryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
+        queryClient.invalidateQueries(queryKey);
         queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
       },
       onError: () => {
