@@ -49,7 +49,7 @@ export const useJoinSquad = ({
     queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
 
     return result;
-  }, [addSquad, queryClient, squad, trackEvent, referralToken]);
+  }, [addSquad, queryClient, squad, user, trackEvent, referralToken]);
 
   return joinSquad;
 };
