@@ -158,13 +158,21 @@ export default function MainLayout({
   useEffect(() => {
     if (!shouldRedirectOnboarding) return;
 
-    const url = new URLSearchParams();
+    const onboarding = `${webappUrl}/onboarding`;
+    const entries = Object.entries(router.query);
 
-    Object.entries(router.query).forEach(([key, value]) => {
-      url.append(key, value as string);
+    if (entries.length === 0) {
+      router.push(onboarding);
+      return;
+    }
+
+    const params = new URLSearchParams();
+
+    entries.forEach(([key, value]) => {
+      params.append(key, value as string);
     });
 
-    router.push(`${webappUrl}/onboarding?${url.toString()}`);
+    router.push(`${webappUrl}/onboarding?${params.toString()}`);
   }, [shouldRedirectOnboarding, router]);
 
   if (
