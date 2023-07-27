@@ -28,7 +28,6 @@ import { LazyModal } from '../modals/common/types';
 export function SquadHeaderBar({
   squad,
   members,
-  memberCount,
   className,
   ...props
 }: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
@@ -90,7 +89,6 @@ export function SquadHeaderBar({
         <SquadMemberShortList
           squad={squad}
           members={members}
-          memberCount={memberCount}
           className="hidden laptopL:flex"
         />
       )}

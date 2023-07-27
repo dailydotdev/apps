@@ -21,6 +21,7 @@ type SquadJoinProps = {
   blockedTooltipText?: string;
   origin: Origin;
   inviterMember?: Pick<UserShortProfile, 'id'>;
+  onSuccess?: () => void;
 };
 
 export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
@@ -78,6 +79,7 @@ export const SquadJoinButton = ({
   leaveText = 'Leave squad',
   blockedTooltipText = 'You are not allowed to join the squad',
   origin,
+  onSuccess,
   ...rest
 }: SquadJoinProps): ReactElement => {
   const queryClient = useQueryClient();
@@ -93,6 +95,7 @@ export const SquadJoinButton = ({
       onError: () => {
         displayToast(labels.error.generic);
       },
+      onSuccess,
     },
   );
 

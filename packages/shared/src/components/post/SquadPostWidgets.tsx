@@ -42,7 +42,6 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
         <SquadMemberShortList
           squad={squad}
           members={squadMembers}
-          memberCount={squad.membersCount}
           className="h-10"
         />
       </div>
