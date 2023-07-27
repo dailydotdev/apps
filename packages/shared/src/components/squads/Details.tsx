@@ -205,7 +205,7 @@ export function SquadDetails({
             <h4 className="mt-2 font-bold typo-body">
               {createMode ? 'Squad type' : 'Squad'}
             </h4>
-            <div className="flex flex-col tablet:flex-row gap-4 rounded-16 border-2 border-theme-divider-tertiary">
+            <div className="flex flex-col tablet:flex-row gap-4 rounded-16 tablet:border-2 border-theme-divider-tertiary">
               <SquadTypeCard
                 title="Private squad"
                 description="Only people who join the squad can see the content"
