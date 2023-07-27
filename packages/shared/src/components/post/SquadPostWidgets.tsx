@@ -23,13 +23,17 @@ interface PostWidgetsProps
 const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   const { isFetched } = useAuthContext();
   const { id: squadId, handle } = squadSource;
-  const { squad = squadSource } = useSquad({ handle });
+  const { squad } = useSquad({ handle });
 
   const { data: squadMembers } = useQuery<SourceMember[]>(
     ['squadMembersInitial', handle],
     () => getSquadMembers(squad.id),
     { enabled: isFetched && !!squadId },
   );
+
+  if (!squad) {
+    return null;
+  }
 
   return (
     <div className="p-4 rounded-16 border border-theme-divider-tertiary">

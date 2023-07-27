@@ -16,6 +16,7 @@ import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { isSourcePublicSquad } from '../../graphql/squads';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -39,6 +40,7 @@ function SquadPostContent({
   onClose,
   onRemovePost,
 }: PostContentProps): ReactElement {
+  const { user } = useAuthContext();
   const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
@@ -62,12 +64,12 @@ function SquadPostContent({
   };
 
   useEffect(() => {
-    if (!post?.id) {
+    if (!post?.id || !user?.id) {
       return;
     }
 
     onSendViewPost(post.id);
-  }, [post?.id, onSendViewPost]);
+  }, [post.id, onSendViewPost, user?.id]);
 
   const Content = ContentMap[post?.type];
 
