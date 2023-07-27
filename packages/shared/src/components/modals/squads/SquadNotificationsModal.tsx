@@ -141,6 +141,7 @@ export function SquadNotificationsModal({
         <p className="flex flex-row typo-callout text-theme-label-tertiary">
           For more options, go to your
           <ClickableText
+            tag="a"
             className="ml-1"
             href="/account/notifications"
             inverseUnderline
