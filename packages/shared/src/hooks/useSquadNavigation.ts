@@ -3,6 +3,7 @@ import { useCallback, useContext, useEffect } from 'react';
 import { Origin } from '../lib/analytics';
 import { AuthTriggers } from '../lib/auth';
 import AuthContext from '../contexts/AuthContext';
+import { webappUrl } from '../lib/constants';
 
 type OpenNewSquadProps = { origin: Origin };
 type EditSquadProps = { handle: string };
@@ -21,14 +22,14 @@ export const useSquadNavigation = (): UseSquadNavigation => {
         showLogin(AuthTriggers.CreateSquad);
         return;
       }
-      router.push(`/squads/new?origin=${props.origin}`);
+      router.push(`${webappUrl}squads/new?origin=${props.origin}`);
     },
     [router, user, showLogin],
   );
 
   const editSquad = useCallback(
     ({ handle }: EditSquadProps) => {
-      router.push(`/squads/${handle}/edit`);
+      router.push(`${webappUrl}squads/${handle}/edit`);
     },
     [router],
   );
