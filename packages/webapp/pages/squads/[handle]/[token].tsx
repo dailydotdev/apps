@@ -198,8 +198,8 @@ const SquadReferral = ({
       <div className="absolute -top-4 right-0 tablet:-right-20 left-0 tablet:-left-20 h-40 rounded-26 max-w-[100vw] squad-background-fade" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
-        {source.name} is your place to stay up to date as a squad. You and your
-        squad members can share knowledge and content in one place. Join now to
+        {source.name} is your place to stay up to date as a Squad. You and your
+        Squad members can share knowledge and content in one place. Join now to
         start collaborating.
       </BodyParagraph>
       <span className="flex flex-row items-center mt-8" data-testid="inviter">
@@ -237,7 +237,7 @@ const SquadReferral = ({
             origin={Origin.SquadInvitation}
             inviterMember={member?.user}
           >
-            Join squad
+            Join Squad
           </SimpleSquadJoinButton>
         </span>
       </div>

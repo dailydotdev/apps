@@ -92,7 +92,7 @@ export default function ShareOptionsMenu({
     if (!squads?.length) {
       shareOptions.push({
         icon: <MenuIcon Icon={SquadIcon} />,
-        text: 'Post to new squad',
+        text: 'Post to new Squad',
         action: () => {
           openNewSquad({ origin: Origin.Share });
         },
