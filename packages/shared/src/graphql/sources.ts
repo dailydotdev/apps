@@ -39,6 +39,10 @@ export interface SourceMember {
   flags?: SourceMemberFlag;
 }
 
+export interface SourceMemberSimple {
+  image: string;
+}
+
 export enum SourceType {
   Machine = 'machine',
   Squad = 'squad',
@@ -55,6 +59,8 @@ export interface Squad extends Source {
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
   referralUrl?: string;
+  banner?: string;
+  borderColor?: string;
 }
 
 export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {

@@ -69,13 +69,11 @@ export function SquadPageHeader({
       <SquadMemberShortList
         squad={squad}
         members={members}
-        memberCount={squad.membersCount}
         className="laptopL:hidden my-6"
       />
       <SquadHeaderBar
         squad={squad}
         members={members}
-        memberCount={squad.membersCount}
         className="laptopL:absolute laptopL:top-0 laptopL:right-[4.5rem]"
       />
       <EnableNotification
