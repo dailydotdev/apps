@@ -32,7 +32,6 @@ import { useContextMenu } from '@dailydotdev/react-contexify';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
-
 import ProtectedPage from '../components/ProtectedPage';
 
 const hasUnread = (data: InfiniteData<NotificationsData>) =>
@@ -171,6 +170,7 @@ const Notifications = (): ReactElement => {
       <NotificationPreferenceMenu
         contextId={contextId}
         notification={notification}
+        onClose={() => setNotification(undefined)}
       />
     </ProtectedPage>
   );

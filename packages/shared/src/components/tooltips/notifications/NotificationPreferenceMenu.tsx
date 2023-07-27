@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import PortalMenu from '../../fields/PortalMenu';
 import { Loader } from '../../Loader';
@@ -15,12 +15,14 @@ import { useNotificationPreference } from '../../../hooks/notifications';
 interface NotificationPreferenceMenuProps {
   contextId: string;
   notification: Notification;
+  onClose(): void;
 }
 
 export const NotificationPreferenceMenu = ({
   contextId,
+  notification,
+  onClose,
 }: NotificationPreferenceMenuProps): ReactElement => {
-  const [notification, setNotification] = useState<Notification>();
   const {
     preferences,
     isFetching,
@@ -77,7 +79,7 @@ export const NotificationPreferenceMenu = ({
       id={contextId}
       className="menu-primary"
       animation="fade"
-      onHidden={() => setNotification(undefined)}
+      onHidden={onClose}
     >
       <Item className="py-1 w-64 typo-callout" onClick={onItemClick}>
         <span className="flex flex-row gap-1 items-center w-full">
