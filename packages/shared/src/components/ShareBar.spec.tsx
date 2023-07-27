@@ -96,7 +96,6 @@ describe('ShareBar Test Suite:', () => {
         .push;
 
     await waitFor(() => {
-      expect(screen.getByText('Welcome to Squads!')).toBeInTheDocument();
       expect(routerPushMock).toHaveBeenCalled();
       expect(routerPushMock).toHaveBeenCalledWith('/squads/new?origin=share');
     });

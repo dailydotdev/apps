@@ -21,6 +21,9 @@ import ChecklistBIcon from '../icons/ChecklistB';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
 import { SquadJoinButton } from './SquadJoinButton';
+import BellIcon from '../icons/Bell';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 export function SquadHeaderBar({
   squad,
@@ -33,6 +36,7 @@ export function SquadHeaderBar({
     squad,
     origin: Origin.SquadPage,
   });
+  const { openModal, modal } = useLazyModal();
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
   const { sidebarRendered } = useSidebarRendered();
 
@@ -100,12 +104,30 @@ export function SquadHeaderBar({
           zIndex={3}
         >
           <Button
-            tag="a"
             data-testid="squad-checklist-button"
             className="btn-secondary"
             icon={<ChecklistBIcon secondary size={IconSize.Small} />}
             onClick={() => {
               setChecklistVisible(!isChecklistVisible);
+            }}
+          />
+        </SimpleTooltip>
+      )}
+      {!!squad.currentMember && (
+        <SimpleTooltip
+          forceLoad={!isTesting}
+          placement="bottom"
+          content="Squad notifications settings"
+        >
+          <Button
+            data-testid="squad-checklist-button"
+            className="btn-secondary"
+            icon={<BellIcon secondary={!!modal} size={IconSize.Small} />}
+            onClick={() => {
+              openModal({
+                type: LazyModal.SquadNotifications,
+                props: { squad },
+              });
             }}
           />
         </SimpleTooltip>

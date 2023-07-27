@@ -27,12 +27,17 @@ export enum SourcePermissions {
   WelcomePostEdit = 'welcome_post_edit',
 }
 
+export type SourceMemberFlag = Partial<{
+  hideFeedPosts: boolean;
+}>;
+
 export interface SourceMember {
   role: SourceMemberRole;
   user: UserShortProfile;
   source: Squad;
   referralToken: string;
   permissions?: SourcePermissions[];
+  flags?: SourceMemberFlag;
 }
 
 export interface SourceMemberSimple {
@@ -73,6 +78,7 @@ export interface Source {
   permalink: string;
   currentMember?: SourceMember;
   privilegedMembers?: SourcePrivilegedMembers[];
+  public: boolean;
 }
 
 export type SourceData = { source: Source };

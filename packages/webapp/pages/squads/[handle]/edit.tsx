@@ -26,6 +26,10 @@ import {
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -64,7 +68,12 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
     };
     const editedSquad = await editSquad(squad.id, formJson);
     if (editedSquad) {
-      const queryKey = ['squad', editedSquad.handle];
+      const queryKey = generateQueryKey(
+        RequestKey.Squad,
+        user,
+        editedSquad.handle,
+      );
+      queryClient.invalidateQueries(queryKey);
       await queryClient.invalidateQueries(queryKey);
       updateSquad(editedSquad);
       displayToast('The Squad has been updated');

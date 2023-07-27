@@ -58,6 +58,7 @@ interface MarkdownInputProps
   isUpdatingDraft?: boolean;
   timeline?: ReactNode;
   isLoading?: boolean;
+  disabledSubmit?: boolean;
 }
 
 enum CommentTab {
@@ -88,6 +89,7 @@ function MarkdownInput(
     footer,
     timeline,
     isLoading,
+    disabledSubmit,
   }: MarkdownInputProps,
   ref: MutableRefObject<MarkdownRef>,
 ): ReactElement {
@@ -319,7 +321,7 @@ function MarkdownInput(
             <Button
               className="ml-auto btn-primary-cabbage"
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || disabledSubmit}
               loading={isLoading}
             >
               {submitCopy}
