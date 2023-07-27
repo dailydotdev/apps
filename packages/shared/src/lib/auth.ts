@@ -45,6 +45,7 @@ export enum AuthTriggers {
   Downvote = 'downvote',
   JoinSquad = 'join squad',
   CreateSquad = 'create squad',
+  ReportComment = 'report comment',
 }
 
 // Needed for the AB flagged Sidebar items

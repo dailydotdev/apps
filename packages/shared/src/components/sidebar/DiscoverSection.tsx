@@ -5,6 +5,7 @@ import SearchIcon from '../icons/Search';
 import UpvoteIcon from '../icons/Upvote';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
+import SourceIcon from '../icons/Source';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
@@ -42,6 +43,18 @@ export function DiscoverSection({
       title: 'Best discussions',
       path: '/discussed',
       action: () => onNavTabClick?.('discussed'),
+    },
+    {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <SourceIcon secondary={active} />} />
+      ),
+      title: 'Squads',
+      path: '/squads',
+      rightIcon: () => (
+        <span className="font-bold typo-caption1 text-theme-label-quaternary">
+          beta
+        </span>
+      ),
     },
     {
       icon: (active: boolean) => (
