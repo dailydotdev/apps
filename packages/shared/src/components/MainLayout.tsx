@@ -158,7 +158,7 @@ export default function MainLayout({
   useEffect(() => {
     if (!shouldRedirectOnboarding) return;
 
-    router.push(`${webappUrl}/onboarding`);
+    router.push({ pathname: `${webappUrl}/onboarding`, query: router.query });
   }, [shouldRedirectOnboarding, router]);
 
   if (
