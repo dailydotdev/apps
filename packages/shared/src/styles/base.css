@@ -159,6 +159,7 @@ body {
   --theme-squads-bacon: theme('colors.bacon.60');
   --theme-squads-cabbage: theme('colors.cabbage.20');
   --theme-squads-onion: theme('colors.onion.90');
+  --theme-squads-pepper: theme('colors.pepper.10');
 }
 
 @define-mixin light-mode {

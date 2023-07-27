@@ -5,15 +5,13 @@ import { squadsPublicWaitlist } from '../../lib/constants';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
 
-interface SquadListingHeaderProps {
-  isOwner?: boolean;
-}
-
-export const SquadListingHeader = ({
-  isOwner = false,
-}: SquadListingHeaderProps): ReactElement => {
+export const SquadsDirectoryHeader = (): ReactElement => {
   const { openNewSquad } = useSquadNavigation();
+  const { isActionsFetched, checkHasCompleted } = useActions();
+  const isOwner = isActionsFetched && checkHasCompleted(ActionType.CreateSquad);
 
   return (
     <div className="mb-4">
@@ -23,9 +21,11 @@ export const SquadListingHeader = ({
           backgroundImage: `url(${cloudinary.squads.directory.banner})`,
         }}
       >
-        <div className="mb-4">
-          <SourceBetaIcon width="auto" height="3rem" className="text-white" />
-        </div>
+        <SourceBetaIcon
+          width="auto"
+          height="3rem"
+          className="mb-4 text-white"
+        />
         <div className="flex justify-center items-center mb-3 text-white typo-large-title">
           Introducing Squads
         </div>

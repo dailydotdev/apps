@@ -4,13 +4,7 @@ import { useRouter } from 'next/router';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { Card } from '../cards/Card';
 import { Button } from '../buttons/Button';
-import { Connection } from '../../graphql/common';
-import {
-  Source,
-  SourceMember,
-  SourceMemberRole,
-  SourceType,
-} from '../../graphql/sources';
+import { SourceType, Squad } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/analytics';
@@ -26,36 +20,32 @@ interface SourceCardAction {
   onClick?: () => void;
 }
 
-interface SourceCardProps extends Partial<Source> {
+interface SourceCardProps extends Partial<Squad> {
   title: string;
   subtitle?: string;
   icon?: ReactNode;
-  description?: string;
   action?: SourceCardAction;
-  members?: Connection<SourceMember>;
-  membersCount?: number;
-  banner?: string;
-  borderColor?: string;
-  memberInviteRole?: SourceMemberRole;
-  memberPostingRole?: SourceMemberRole;
 }
 
-export enum BorderColor {
+export enum SourceCardBorderColor {
   Avocado = 'avocado',
   Bacon = 'bacon',
   Cabbage = 'cabbage',
   Onion = 'onion',
+  Pepper = 'pepper',
 }
 
-const borderColorToClassName: Record<BorderColor, string> = {
-  [BorderColor.Avocado]:
+const borderColorToClassName: Record<SourceCardBorderColor, string> = {
+  [SourceCardBorderColor.Avocado]:
     'border-theme-squads-avocado hover:border-theme-squads-avocado',
-  [BorderColor.Bacon]:
+  [SourceCardBorderColor.Bacon]:
     'border-theme-squads-bacon hover:border-theme-squads-bacon',
-  [BorderColor.Cabbage]:
+  [SourceCardBorderColor.Cabbage]:
     'border-theme-squads-cabbage hover:border-theme-squads-cabbage',
-  [BorderColor.Onion]:
+  [SourceCardBorderColor.Onion]:
     'border-theme-squads-onion hover:border-theme-squads-onion',
+  [SourceCardBorderColor.Pepper]:
+    'border-theme-squads-pepper hover:border-theme-squads-pepper',
 };
 
 export const SourceCard = ({
@@ -70,7 +60,7 @@ export const SourceCard = ({
   permalink,
   id,
   banner,
-  borderColor = BorderColor.Avocado,
+  borderColor = SourceCardBorderColor.Avocado,
   type,
   handle,
   memberInviteRole,
@@ -109,14 +99,13 @@ export const SourceCard = ({
       </div>
       <div className="flex flex-col flex-1 p-4 -mt-12 rounded-t-2xl bg-theme-bg-secondary">
         <div className="flex justify-between items-end mb-3">
-          {!!image && (
+          {image ? (
             <img
               className="-mt-14 w-24 h-24 rounded-full z-10"
               src={image}
               alt={`${title} source`}
             />
-          )}
-          {!image && (
+          ) : (
             <div className="flex justify-center items-center -mt-14 w-24 h-24 rounded-full bg-theme-bg-pepper40 z-10">
               {icon}
             </div>
@@ -135,13 +124,13 @@ export const SourceCard = ({
           )}
         </div>
         <div className="flex flex-col flex-1 justify-between">
-          <div className="flex-auto">
+          <div className="flex-auto mb-5">
             <div className="font-bold typo-title3">{title}</div>
             {subtitle && (
-              <div className="mb-2 text-theme-label-secondary">{subtitle}</div>
+              <div className="text-theme-label-secondary">{subtitle}</div>
             )}
             {description && (
-              <div className="mb-2 line-clamp-5 text-theme-label-secondary multi-truncate">
+              <div className="mt-1 line-clamp-5 text-theme-label-secondary multi-truncate">
                 {description}
               </div>
             )}
@@ -174,20 +163,6 @@ export const SourceCard = ({
               {action?.text}
             </Button>
           )}
-
-          {/* {!!action && action?.type === 'link' && (
-            <Button
-              className="w-full btn-secondary"
-              onClick={action?.onClick}
-              tag="a"
-              href={link.href}
-              target={link?.target ? link.target : '_self'}
-              data-testid="source-link"
-              rel='noopener'
-            >
-              {link?.text}
-            </Button>
-          )} */}
         </div>
       </div>
     </Card>

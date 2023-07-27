@@ -109,22 +109,6 @@ const renderComponent = (
               onClick: isMember ? undefined : onClickTest,
               href: isMember ? squads[0].permalink : undefined,
             }}
-            // action={
-            //   !isMember
-            //     ? {
-            //         text: 'Test action',
-            //         onClick: onClickTest,
-            //       }
-            //     : undefined
-            // }
-            // link={
-            //   isMember
-            //     ? {
-            //         text: 'View squad',
-            //         href: squads[0].permalink,
-            //       }
-            //     : undefined
-            // }
             members={admin.source.members}
             membersCount={hasMembers ? squads[0].membersCount : undefined}
           />

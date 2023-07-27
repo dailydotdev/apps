@@ -94,7 +94,7 @@ export const SquadJoinButton = ({
       onError: () => {
         displayToast(labels.error.generic);
       },
-      onSuccess: onSuccess && (() => onSuccess()),
+      onSuccess,
     },
   );
 

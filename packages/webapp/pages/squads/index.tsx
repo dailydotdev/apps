@@ -13,7 +13,8 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   FeedContainer,
   SourceCard,
-  SquadListingHeader,
+  SourceCardBorderColor,
+  SquadsDirectoryHeader,
 } from '@dailydotdev/shared/src/components';
 import EditIcon from '@dailydotdev/shared/src/components/icons/Edit';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -60,7 +61,7 @@ const SquadsPage = (): ReactElement => {
             className="w-full"
           >
             <FeedContainer
-              header={<SquadListingHeader />}
+              header={<SquadsDirectoryHeader />}
               className="px-6 laptop:px-0"
               inlineHeader
               forceCardMode
@@ -116,6 +117,7 @@ const SquadsPage = (): ReactElement => {
                     className="text-theme-label-tertiary"
                   />
                 }
+                borderColor={SourceCardBorderColor.Pepper}
               />
             </FeedContainer>
           </InfiniteScrolling>

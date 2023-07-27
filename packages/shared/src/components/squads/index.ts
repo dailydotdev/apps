@@ -1,1 +1,1 @@
-export * from './SquadListingHeader';
+export * from './SquadsDirectoryHeader';

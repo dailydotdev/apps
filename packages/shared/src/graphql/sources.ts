@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import { UserShortProfile } from '../lib/user';
 import { Connection } from './common';
+import { SOURCE_BASE_FRAGMENT } from './fragments';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -54,15 +55,8 @@ export interface Squad extends Source {
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
   referralUrl?: string;
-}
-
-export interface BasicSquadWithCurrentMember extends Partial<Squad> {
-  membersCount: number;
-  permalink: string;
-  id: string;
-  name: string;
-  currentMember?: SourceMember &
-    Required<Pick<SourceMember, 'referralToken' | 'permissions'>>;
+  banner?: string;
+  borderColor?: string;
 }
 
 export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
@@ -102,14 +96,7 @@ export const SOURCES_QUERY = gql`
       }
       edges {
         node {
-          id
-          name
-          permalink
-          image
-          public
-          type
-          handle
-          description
+          ...SourceBaseInfo
           headerImage
           color
           membersCount
@@ -139,4 +126,5 @@ export const SOURCES_QUERY = gql`
       }
     }
   }
+  ${SOURCE_BASE_FRAGMENT}
 `;

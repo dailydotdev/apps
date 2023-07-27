@@ -117,6 +117,7 @@ module.exports = {
           bacon: 'var(--theme-squads-bacon)',
           cabbage: 'var(--theme-squads-cabbage)',
           onion: 'var(--theme-squads-onion)',
+          pepper: 'var(--theme-squads-pepper)',
         },
       },
       white: '#ffffff',

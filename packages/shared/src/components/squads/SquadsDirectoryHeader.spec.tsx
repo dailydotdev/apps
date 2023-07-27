@@ -9,10 +9,12 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import { SquadListingHeader } from './SquadListingHeader';
+import { SquadsDirectoryHeader } from '.';
 import { squadsPublicWaitlist } from '../../lib/constants';
 import { LazyModalElement } from '../modals/LazyModalElement';
 import { Origin } from '../../lib/analytics';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { COMPLETED_USER_ACTIONS } from '../../graphql/actions';
 
 let features: IFlags;
 
@@ -31,7 +33,7 @@ beforeEach(async () => {
 
 const squads = [generateTestSquad()];
 
-const renderComponent = (isOwner = false): RenderResult => {
+const renderComponent = (): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -47,7 +49,7 @@ const renderComponent = (isOwner = false): RenderResult => {
           squads={squads}
         >
           <LazyModalElement />
-          <SquadListingHeader isOwner={isOwner} />
+          <SquadsDirectoryHeader />
         </AuthContextProvider>
       </FeaturesContextProvider>
     </QueryClientProvider>,
@@ -75,7 +77,23 @@ it('should render the component as a squad user', async () => {
 });
 
 it('should render the component and have a link to join waitlist when squad owner', async () => {
-  renderComponent(true);
+  mockGraphQL({
+    request: {
+      query: COMPLETED_USER_ACTIONS,
+    },
+    result: {
+      data: {
+        actions: [
+          {
+            type: 'create_squad',
+            completedAt: '2023-07-27T10:01:08.459Z',
+          },
+        ],
+      },
+    },
+  });
+
+  renderComponent();
 
   await waitFor(async () => {
     const link = await screen.findByTestId('squad-directory-join-waitlist');
