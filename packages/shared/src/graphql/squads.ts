@@ -250,6 +250,7 @@ export const SQUAD_JOIN_MUTATION = gql`
   mutation JoinSquad($sourceId: ID!, $token: String) {
     source: joinSource(sourceId: $sourceId, token: $token) {
       ...SourceBaseInfo
+      referralUrl
     }
   }
   ${SOURCE_BASE_FRAGMENT}
