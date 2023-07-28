@@ -25,6 +25,9 @@ import { useBackgroundRequest } from '../../../hooks/companion';
 import { Edge } from '../../../graphql/common';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { postAnalyticsEvent } from '../../../lib/feed';
+import { AnalyticsEvent } from '../../../lib/analytics';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 
 export interface CommentClassName {
   container?: string;
@@ -73,13 +76,14 @@ export function CommentMarkdownInput({
       generateQueryKey(
         RequestKey.PostCommentsMutations,
         user,
-        [postId, sourceId, editCommentId, parentCommentId].filter(
+        ...[postId, sourceId, editCommentId, parentCommentId].filter(
           (value) => !!value,
         ),
       ),
     [user, postId, sourceId, editCommentId, parentCommentId],
   );
   const { requestMethod, isCompanion } = useRequestProtocol();
+  const { trackEvent } = useAnalyticsContext();
   const onSuccess = (comment: Comment) => {
     if (!comment) return;
 
@@ -129,6 +133,12 @@ export function CommentMarkdownInput({
 
     if (!editCommentId) {
       updatePostCache(client, postId, { numComments: post.numComments + 1 });
+
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.CommentPost, post, {
+          extra: { commentId: parentCommentId },
+        }),
+      );
     }
 
     if (onCommented) onCommented(comment, !editCommentId, parentCommentId);
@@ -137,19 +147,23 @@ export function CommentMarkdownInput({
   const mutation = parentCommentId
     ? COMMENT_ON_COMMENT_MUTATION
     : COMMENT_ON_POST_MUTATION;
-  const { mutateAsync: onComment, isLoading: isCommenting } = useMutation(
+  const {
+    mutateAsync: onComment,
+    isLoading: isCommenting,
+    isSuccess,
+  } = useMutation(
     (variables: SubmitComment) =>
       requestMethod(graphqlUrl, mutation, variables, {
         requestKey: JSON.stringify(key),
       }),
     {
-      onSuccess: (data) => onSuccess(data.comment),
+      onSuccess: (data) => onSuccess(data?.comment),
     },
   );
 
   useBackgroundRequest(key, {
     enabled: isCompanion,
-    callback: ({ res }) => onSuccess(res.comment),
+    callback: ({ res }) => onSuccess(res?.comment),
   });
 
   const { mutateAsync: editComment, isLoading: isEditing } = useMutation(
@@ -157,7 +171,7 @@ export function CommentMarkdownInput({
       requestMethod(graphqlUrl, EDIT_COMMENT_MUTATION, variables, {
         requestKey: JSON.stringify(key),
       }),
-    { onSuccess: (data) => onSuccess(data.comment) },
+    { onSuccess: (data) => onSuccess(data?.comment) },
   );
 
   const onSubmit = (content: string) => {
@@ -199,6 +213,7 @@ export function CommentMarkdownInput({
         sourceId={sourceId}
         showUserAvatar
         isLoading={isCommenting || isEditing}
+        disabledSubmit={isSuccess}
         initialContent={initialContent}
         textareaProps={{
           name: 'content',
