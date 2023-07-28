@@ -144,7 +144,7 @@ export const SquadJoinButton = ({
       disabled={!isMemberBlocked}
       content={blockedTooltipText}
     >
-      <div className="flex flex-1">
+      <div>
         <SimpleSquadJoinButton
           {...rest}
           className={classNames(
