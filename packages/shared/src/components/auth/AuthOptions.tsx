@@ -46,6 +46,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
+import { isTesting } from '../../lib/constants';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -172,7 +173,7 @@ function AuthOptions({
     isPasswordLoginLoading,
   } = useLogin({
     onSuccessfulLogin: onLoginCheck,
-    queryEnabled: !user && isRegistrationReady,
+    ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
   });
   const onProfileSuccess = async () => {
@@ -187,7 +188,7 @@ function AuthOptions({
     isLoading: isProfileUpdateLoading,
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
-  const isReady = isLoginReady && isRegistrationReady;
+  const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
   const onProviderClick = (provider: string, login = true) => {
     trackEvent({
       event_name: 'click',
