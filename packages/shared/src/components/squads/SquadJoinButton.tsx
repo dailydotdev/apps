@@ -109,7 +109,15 @@ export const SquadJoinButton = ({
         displayToast('👋 You have left the Squad.');
 
         const queryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
-        queryClient.invalidateQueries(queryKey);
+        const currenSquad = queryClient.getQueryData<Squad>(queryKey);
+
+        if (currenSquad) {
+          queryClient.setQueryData(queryKey, {
+            ...currenSquad,
+            currentMember: null,
+            membersCount: currenSquad.membersCount - 1,
+          });
+        }
         queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
       },
       onError: () => {
