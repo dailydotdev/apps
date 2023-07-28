@@ -29,7 +29,7 @@ export const useDeleteSquad = ({
     const options: PromptOptions = {
       title: `Delete ${squad.name}`,
       description: squad.active
-        ? `Deleting ${squad.name} means you and all squad members will lose access to all posts that were shared in the Squad. Are you sure?`
+        ? `Deleting ${squad.name} means you and all Squad members will lose access to all posts that were shared in the Squad. Are you sure?`
         : `Deleting your Squad will free up your handle and members you invited will not be able to join`,
       okButton: {
         title: 'Delete',

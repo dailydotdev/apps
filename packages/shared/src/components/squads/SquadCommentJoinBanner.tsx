@@ -39,7 +39,7 @@ export const SquadCommentJoinBanner = ({
     }),
     {
       onSuccess: () => {
-        displayToast(`🙌 You joined the squad ${squad.name}`);
+        displayToast(`🙌 You joined the Squad ${squad.name}`);
 
         if (post?.id) {
           queryClient.invalidateQueries(['post', post.id]);
