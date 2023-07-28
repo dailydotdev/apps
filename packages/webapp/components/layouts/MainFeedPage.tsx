@@ -12,6 +12,7 @@ import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import { getLayout } from './FeedLayout';
+import {SearchBar} from '@dailydotdev/shared/src/components';
 
 const PostsSearch = dynamic(
   () =>
@@ -67,15 +68,19 @@ export default function MainFeedPage({
   }
 
   return (
-    <MainFeedLayout
-      feedName={feedName}
-      isSearchOn={isSearchOn}
-      onFeedPageChanged={(page) => router.replace(`/${page}`)}
-      searchQuery={router.query?.q?.toString()}
-      searchChildren={<PostsSearch placeholder="Search posts" />}
-    >
-      {children}
-    </MainFeedLayout>
+    <div className='flex flex-col pt-8'>
+      <SearchBar />
+      
+      <MainFeedLayout
+        feedName={feedName}
+        isSearchOn={isSearchOn}
+        onFeedPageChanged={(page) => router.replace(`/${page}`)}
+        searchQuery={router.query?.q?.toString()}
+        searchChildren={<PostsSearch placeholder="Search posts" />}
+      >
+        {children}
+      </MainFeedLayout>
+    </div>
   );
 }
 

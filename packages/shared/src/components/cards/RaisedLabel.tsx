@@ -6,11 +6,13 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 export enum RaisedLabelType {
   Hot = 'Hot',
   Pinned = 'Pinned',
+  Beta = 'Beta',
 }
 
 const typeToClassName: Record<RaisedLabelType, string> = {
   [RaisedLabelType.Hot]: 'bg-theme-status-error',
   [RaisedLabelType.Pinned]: 'bg-theme-bg-bun',
+  [RaisedLabelType.Beta]: 'bg-cabbage-40',
 };
 
 export interface RaisedLabelProps {
