@@ -144,19 +144,21 @@ export const SquadJoinButton = ({
       disabled={!isMemberBlocked}
       content={blockedTooltipText}
     >
-      <SimpleSquadJoinButton
-        {...rest}
-        className={classNames(
-          isCurrentMember ? 'btn-secondary' : 'btn-primary',
-          className,
-        )}
-        squad={squad}
-        disabled={isMemberBlocked || isLoading}
-        onClick={onLeaveSquad}
-        origin={origin}
-      >
-        {isCurrentMember ? leaveText : joinText}
-      </SimpleSquadJoinButton>
+      <div>
+        <SimpleSquadJoinButton
+          {...rest}
+          className={classNames(
+            isCurrentMember ? 'btn-secondary' : 'btn-primary',
+            className,
+          )}
+          squad={squad}
+          disabled={isMemberBlocked || isLoading}
+          onClick={onLeaveSquad}
+          origin={origin}
+        >
+          {isCurrentMember ? leaveText : joinText}
+        </SimpleSquadJoinButton>
+      </div>
     </SimpleTooltip>
   );
 };
