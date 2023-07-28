@@ -120,7 +120,7 @@ export function SquadPageHeader({
             disabledText={
               isSquadMember
                 ? 'Only admins and moderators can post'
-                : 'Join the squad to create new posts'
+                : 'Join the Squad to create new posts'
             }
             squad={squad}
           />

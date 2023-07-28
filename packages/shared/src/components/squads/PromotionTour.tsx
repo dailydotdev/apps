@@ -28,9 +28,9 @@ const iconMap = {
 };
 const roleDescription = {
   [SourceMemberRole.Moderator]:
-    'As a moderator, you will have the opportunity to help guide and shape the squad, ensuring that all members have a positive and productive experience.',
+    'As a moderator, you will have the opportunity to help guide and shape the Squad, ensuring that all members have a positive and productive experience.',
   [SourceMemberRole.Admin]:
-    'As an admin, you will have full permissions to manage and guide the squad, ensuring that all members and moderators have a positive and productive experience.',
+    'As an admin, you will have full permissions to manage and guide the Squad, ensuring that all members and moderators have a positive and productive experience.',
 };
 const firstStep = {
   [SourceMemberRole.Moderator]: (
@@ -39,8 +39,8 @@ const firstStep = {
       bannerAsBg
       className={{ banner: bannerClass }}
       banner={cloudinary.squads.promotion.remove}
-      title="Manage squad members"
-      description="Maintain a harmonious squad by overseeing membership and removing those no longer contributing positively."
+      title="Manage Squad members"
+      description="Maintain a harmonious Squad by overseeing membership and removing those no longer contributing positively."
     />
   ),
   [SourceMemberRole.Admin]: (
@@ -50,7 +50,7 @@ const firstStep = {
       className={{ banner: bannerClass }}
       banner={cloudinary.squads.promotion.promote}
       title="Manage roles and permissions"
-      description="Take charge of your squad by promoting or demoting members and moderators according to their engagement and contributions."
+      description="Take charge of your Squad by promoting or demoting members and moderators according to their engagement and contributions."
     />
   ),
 };
@@ -106,8 +106,8 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
           bannerAsBg
           className={{ banner: bannerClass }}
           banner={cloudinary.squads.promotion.settings}
-          title="Customize squad settings"
-          description="Tailor your community experience by managing posting rights, member invitation privileges, and editing squad details."
+          title="Customize Squad settings"
+          description="Tailor your community experience by managing posting rights, member invitation privileges, and editing Squad details."
         />,
       );
     }
@@ -118,8 +118,8 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
         bannerAsBg
         className={{ banner: bannerClass }}
         banner={cloudinary.squads.promotion.invite}
-        title="Grow your squad"
-        description="Strengthen your squad's network by bringing in new members to collaborate and exchange insights."
+        title="Grow your Squad"
+        description="Strengthen your Squad's network by bringing in new members to collaborate and exchange insights."
       />,
     );
 
