@@ -120,6 +120,7 @@ export function PostModalActions({
             target={openNewTab ? '_blank' : '_self'}
             icon={<OpenLinkIcon />}
             onClick={onReadArticle}
+            data-testid="postActionsRead"
           >
             {!inlineActions && 'Read post'}
           </Button>

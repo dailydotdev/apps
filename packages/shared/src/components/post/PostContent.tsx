@@ -8,7 +8,7 @@ import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigationProps } from './PostNavigation';
-import { PostModalActionsProps } from './PostModalActions';
+import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 import {
   ToastSubject,
   useToastNotification,
@@ -108,7 +108,23 @@ export function PostContent({
           className={className?.fixedNavigation}
         />
       )}
-      <PostContainer className={classNames('relative', className?.content)}>
+
+      <PostContainer
+        className={classNames('relative', className?.content)}
+        data-testid="postContainer"
+      >
+        {!hasNavigation && (
+          <PostModalActions
+            onBookmark={onToggleBookmark}
+            onShare={onShare}
+            onReadArticle={onReadArticle}
+            post={post}
+            onClose={onClose}
+            className="flex tablet:hidden"
+            contextMenuId="post-widgets-context"
+          />
+        )}
+
         <BasePostContent
           className={{
             ...className,
