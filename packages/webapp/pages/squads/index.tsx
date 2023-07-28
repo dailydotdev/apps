@@ -70,11 +70,7 @@ const SquadsPage = (): ReactElement => {
                 queryResult.data.pages.map((page) =>
                   page.sources.edges.reduce(
                     (nodes, { node: { name, permalink, id, ...props } }) => {
-                      const isMember =
-                        user &&
-                        props?.members?.edges.find(
-                          (member) => member?.node?.user.id === user.id,
-                        );
+                      const isMember = user && props?.currentMember;
 
                       nodes.push(
                         <SourceCard
