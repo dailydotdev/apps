@@ -62,7 +62,7 @@ const SquadsPage = (): ReactElement => {
           >
             <FeedContainer
               header={<SquadsDirectoryHeader />}
-              className="px-6 laptop:px-0"
+              className="px-6"
               inlineHeader
               forceCardMode
             >
