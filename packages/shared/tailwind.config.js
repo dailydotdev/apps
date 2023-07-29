@@ -139,6 +139,7 @@ module.exports = {
       rank: '3',
       sidebar: '9',
       modal: '10',
+      max: '100',
       '-1': '-1',
     },
     maxHeight: {
