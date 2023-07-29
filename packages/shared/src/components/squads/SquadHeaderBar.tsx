@@ -120,7 +120,7 @@ export function SquadHeaderBar({
           content="Squad notifications settings"
         >
           <Button
-            data-testid="squad-checklist-button"
+            data-testid="squad-notification-button"
             className="btn-secondary"
             icon={<BellIcon secondary={!!modal} size={IconSize.Small} />}
             onClick={() => {

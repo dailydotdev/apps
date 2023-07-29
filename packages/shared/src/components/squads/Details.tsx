@@ -152,7 +152,7 @@ export function SquadDetails({
           )}
           <div className="flex flex-col gap-4 justify-center w-full max-w-lg">
             <TextField
-              label={createMode ? 'Name your squad' : 'Squad name'}
+              label={createMode ? 'Name your Squad' : 'Squad name'}
               inputId="name"
               name="name"
               valid={!!name}
@@ -207,14 +207,14 @@ export function SquadDetails({
             </h4>
             <div className="flex flex-col tablet:flex-row gap-4 rounded-16 tablet:border-2 border-theme-divider-tertiary">
               <SquadTypeCard
-                title="Private squad"
-                description="Only people who join the squad can see the content"
+                title="Private Squad"
+                description="Only people who join the Squad can see the content"
                 isSelected={!isPublic}
               />
               <SquadTypeCard
                 title={
                   <div className="flex gap-2 items-center">
-                    Public squad <BetaBadge />
+                    Public Squad <BetaBadge />
                   </div>
                 }
                 description="Everyone can see the content and the posts may appear on the main feed"
@@ -231,7 +231,7 @@ export function SquadDetails({
               <div className="flex flex-col flex-1">
                 <h4 className="mb-2 font-bold typo-body">Post permissions</h4>
                 <p className="mb-4 text-theme-label-tertiary typo-callout">
-                  Choose who is allowed to post new content in this squad.
+                  Choose who is allowed to post new content in this Squad.
                 </p>
                 <Radio
                   name="memberPostingRole"
@@ -247,7 +247,7 @@ export function SquadDetails({
                   Invitation permissions
                 </h4>
                 <p className="mb-4 text-theme-label-tertiary typo-callout">
-                  Choose who is allowed to invite new members to this squad.
+                  Choose who is allowed to invite new members to this Squad.
                 </p>
                 <Radio
                   name="memberInviteRole"

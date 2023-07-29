@@ -1,6 +1,3 @@
-export const smallPostImage = (url: string): string =>
-  url.replace('/f_auto,q_auto/', '/c_fill,f_auto,q_auto,w_192/');
-
 export const cloudinary = {
   post: {
     imageCoverPlaceholder:
@@ -92,4 +89,12 @@ export const cloudinary = {
     purpleEdgeGlow:
       'https://daily-now-res.cloudinary.com/image/upload/s--Va9xODJM--/v1686074969/Glow_fjelt5.svg',
   },
+};
+
+export const smallPostImage = (url: string): string => {
+  if (!url) {
+    return cloudinary.post.imageCoverPlaceholder;
+  }
+
+  return url.replace('/f_auto,q_auto/', '/c_fill,f_auto,q_auto,w_192/');
 };

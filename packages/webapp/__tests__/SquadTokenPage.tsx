@@ -213,7 +213,7 @@ describe('squad details', () => {
       },
       result: () => ({ data: { source: admin.source } }),
     });
-    const button = await screen.findByText('Join squad');
+    const button = await screen.findByText('Join Squad');
     fireEvent.click(button);
     await waitForNock();
     expect(replaced).toEqual(admin.source.permalink);
@@ -223,7 +223,7 @@ describe('squad details', () => {
     client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     const admin = generateTestAdmin();
     renderComponent([createInvitationMock(defaultToken, admin)]);
-    await waitFor(() => screen.findAllByText('Join squad'));
+    await waitFor(() => screen.findAllByText('Join Squad'));
   });
 });
 
@@ -262,7 +262,7 @@ describe('invalid token', () => {
     admin.source.currentMember = member;
     renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
-    const button = await screen.findByText('Join squad');
+    const button = await screen.findByText('Join Squad');
     fireEvent.click(button);
     await screen.findByText(labels.squads.forbidden);
   });

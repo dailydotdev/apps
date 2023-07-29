@@ -5,13 +5,14 @@ import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { Button, ButtonProps } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { useLeaveSquad, useJoinSquad } from '../../hooks';
+import { useJoinSquad, useLeaveSquad } from '../../hooks';
 import { labels } from '../../lib';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { UserShortProfile } from '../../lib/user';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { AuthTriggers } from '../../lib/auth';
 
 type SquadJoinProps = {
   className?: string;
@@ -75,9 +76,9 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
 export const SquadJoinButton = ({
   className,
   squad,
-  joinText = 'Join squad',
-  leaveText = 'Leave squad',
-  blockedTooltipText = 'You are not allowed to join the squad',
+  joinText = 'Join Squad',
+  leaveText = 'Leave Squad',
+  blockedTooltipText = 'You are not allowed to join the Squad',
   origin,
   onSuccess,
   ...rest
@@ -105,7 +106,7 @@ export const SquadJoinButton = ({
       onSuccess: (left) => {
         if (!left) return;
 
-        displayToast('👋 You have left the squad.');
+        displayToast('👋 You have left the Squad.');
 
         const queryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
         queryClient.invalidateQueries(queryKey);
@@ -121,7 +122,7 @@ export const SquadJoinButton = ({
 
   const onLeaveSquad = () => {
     if (!user) {
-      showLogin('join squad', {
+      showLogin(AuthTriggers.JoinSquad, {
         onLoginSuccess: joinSquad,
         onRegistrationSuccess: joinSquad,
       });
@@ -143,7 +144,7 @@ export const SquadJoinButton = ({
       disabled={!isMemberBlocked}
       content={blockedTooltipText}
     >
-      <div className="flex flex-1">
+      <div>
         <SimpleSquadJoinButton
           {...rest}
           className={classNames(
