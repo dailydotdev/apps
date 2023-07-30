@@ -5,7 +5,7 @@ import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { Squad } from '../graphql/sources';
 import { AnalyticsEvent } from '../lib/analytics';
 import { useBoot } from './useBoot';
-import { RequestKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle'>;
@@ -42,7 +42,13 @@ export const useJoinSquad = ({
     });
 
     addSquad(result);
-    queryClient.invalidateQueries([RequestKey.Squad]);
+
+    const queryKey = generateQueryKey(
+      RequestKey.Squad,
+      result.currentMember.user,
+      result.handle,
+    );
+    queryClient.setQueryData(queryKey, result);
     queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
 
     return result;
