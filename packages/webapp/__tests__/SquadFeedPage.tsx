@@ -231,7 +231,44 @@ Object.assign(navigator, {
 
 describe('squad header bar', () => {
   it('should show five of the squad member images', async () => {
-    const members = generateMembersResult().sourceMembers.edges;
+    Object.defineProperty(global, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: true,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      })),
+    });
+    const members = generateMembersResult().sourceMembers.edges.slice(0, 5);
+    renderComponent();
+    const lists = await screen.findAllByLabelText('Members list');
+    const list = lists.find(
+      (item) => !item.className.includes('laptopL:hidden'),
+    );
+    expect(list).toBeInTheDocument();
+    const result = await Promise.all(
+      members.map(async ({ node: { user } }) => {
+        const elements = await screen.findAllByAltText(
+          `${user.username}'s profile`,
+        );
+        return expect(elements.length).toEqual(2);
+      }),
+    );
+    const COUNTER_ELEMENT = 1;
+    expect(result.length).toEqual(5);
+    expect(list.childNodes.length).toEqual(result.length + COUNTER_ELEMENT);
+    Object.defineProperty(global, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: false,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      })),
+    });
+  });
+
+  it('should show three of the squad member images when sidebar is not rendered', async () => {
+    const members = generateMembersResult().sourceMembers.edges.slice(0, 3);
     renderComponent();
     const result = await Promise.all(
       members.map(({ node: { user } }) =>
@@ -239,7 +276,7 @@ describe('squad header bar', () => {
       ),
     );
     const COUNTER_ELEMENT = 1;
-    expect(result.length).toEqual(5);
+    expect(result.length).toEqual(3);
     const list = await screen.findByLabelText('Members list');
     expect(list.childNodes.length).toEqual(result.length + COUNTER_ELEMENT);
   });

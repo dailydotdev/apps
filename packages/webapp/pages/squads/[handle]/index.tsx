@@ -152,7 +152,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
         <SquadPageHeader squad={squad} members={squadMembers} />
         <SquadChecklistCard squad={squad} />
         <Feed
-          className="px-6 laptop:px-0 pt-14 laptop:pt-10"
+          className="px-6 pt-14 laptop:pt-10"
           feedName="squad"
           feedQueryKey={[
             'sourceFeed',
