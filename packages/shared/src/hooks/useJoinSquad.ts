@@ -6,7 +6,6 @@ import { Squad } from '../graphql/sources';
 import { AnalyticsEvent } from '../lib/analytics';
 import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { useActions } from './useActions';
 import { Action, ActionType } from '../graphql/actions';
 
 type UseJoinSquadProps = {
@@ -23,7 +22,6 @@ export const useJoinSquad = ({
   const queryClient = useQueryClient();
   const { addSquad } = useBoot();
   const { trackEvent } = useAnalyticsContext();
-  const {} = useActions();
 
   const joinSquad = useCallback(async () => {
     const payload: SquadInvitationProps = {
