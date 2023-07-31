@@ -22,9 +22,11 @@ const SquadFirstCommentChecklistStep = ({
         disabled={!welcomePost}
         onClick={() => {
           router.push(
-            `/posts/${welcomePost.id}?comment=Hi my name is ${
-              user?.name || user.username
-            } happy to be here! I joined ${squad.name} because…`,
+            `/posts/${welcomePost.id}?comment=${encodeURIComponent(
+              `Hi my name is ${
+                user?.name || user.username
+              } happy to be here! I joined ${squad.name} because…`,
+            )}`,
           );
         }}
       >
