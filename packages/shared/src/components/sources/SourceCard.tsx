@@ -84,17 +84,19 @@ export const SourceCard = ({
       </div>
       <div className="flex flex-col flex-1 p-4 -mt-12 rounded-t-2xl bg-theme-bg-secondary">
         <div className="flex justify-between items-end mb-3">
-          {source?.image ? (
-            <img
-              className="-mt-14 w-24 h-24 rounded-full z-10"
-              src={source?.image}
-              alt={`${title} source`}
-            />
-          ) : (
-            <div className="flex justify-center items-center -mt-14 w-24 h-24 rounded-full bg-theme-bg-pepper40 z-10">
-              {icon}
-            </div>
-          )}
+          <a href={source?.permalink}>
+            {source?.image ? (
+              <img
+                className="-mt-14 w-24 h-24 rounded-full z-10"
+                src={source?.image}
+                alt={`${title} source`}
+              />
+            ) : (
+              <div className="flex justify-center items-center -mt-14 w-24 h-24 rounded-full bg-theme-bg-pepper40 z-10">
+                {icon}
+              </div>
+            )}
+          </a>
           {source?.membersCount > 0 && (
             <SquadMemberShortList
               squad={{
@@ -110,10 +112,12 @@ export const SourceCard = ({
         </div>
         <div className="flex flex-col flex-1 justify-between">
           <div className="flex-auto mb-5">
-            <div className="font-bold typo-title3">{title}</div>
-            {subtitle && (
-              <div className="text-theme-label-secondary">{subtitle}</div>
-            )}
+            <a href={source?.permalink}>
+              <div className="font-bold typo-title3">{title}</div>
+              {subtitle && (
+                <div className="text-theme-label-secondary">{subtitle}</div>
+              )}
+            </a>
             {description ||
               (source?.description && (
                 <div className="mt-1 line-clamp-5 text-theme-label-secondary multi-truncate">
