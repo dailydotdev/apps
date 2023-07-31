@@ -53,7 +53,6 @@ export const useJoinSquad = ({
       RequestKey.Actions,
       result.currentMember.user,
     );
-    queryClient.setQueryData(queryKey, result);
     queryClient.setQueryData<Action[]>(actionsKey, (data) => {
       if (data?.some(({ type }) => type === ActionType.JoinSquad)) return data;
 
