@@ -73,7 +73,6 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
         user,
         editedSquad.handle,
       );
-      queryClient.invalidateQueries(queryKey);
       await queryClient.invalidateQueries(queryKey);
       updateSquad(editedSquad);
       displayToast('The Squad has been updated');

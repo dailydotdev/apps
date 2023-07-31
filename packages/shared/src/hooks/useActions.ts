@@ -22,7 +22,7 @@ export const useActions = (): UseActions => {
   const { data: actions, isFetched: isActionsFetched } = useQuery(
     generateQueryKey(RequestKey.Actions, user),
     getUserActions,
-    { enabled: !!user },
+    { enabled: !!user, refetchOnMount: false },
   );
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {

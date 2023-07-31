@@ -6,6 +6,7 @@ import { Squad } from '../graphql/sources';
 import { AnalyticsEvent } from '../lib/analytics';
 import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
+import { Action, ActionType } from '../graphql/actions';
 
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle'>;
@@ -48,6 +49,17 @@ export const useJoinSquad = ({
       result.currentMember.user,
       result.handle,
     );
+    const actionsKey = generateQueryKey(
+      RequestKey.Actions,
+      result.currentMember.user,
+    );
+    queryClient.setQueryData<Action[]>(actionsKey, (data) => {
+      if (data?.some(({ type }) => type === ActionType.JoinSquad)) return data;
+
+      const action = { type: ActionType.JoinSquad, completedAt: new Date() };
+
+      return data ? [...data, action] : [action];
+    });
     queryClient.setQueryData(queryKey, result);
     queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
 
