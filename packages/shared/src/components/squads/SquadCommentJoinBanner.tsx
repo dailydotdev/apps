@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
+import classNames from 'classnames';
 import { Origin } from '../../lib/analytics';
 import { Button } from '../buttons/Button';
 import { SimpleSquadJoinButton } from './SquadJoinButton';
@@ -15,12 +16,14 @@ import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { Post } from '../../graphql/posts';
 
 export type SquadCommentJoinBannerProps = {
+  className?: string;
   squad: Squad;
   analyticsOrigin: Origin;
   post?: Pick<Post, 'id'>;
 };
 
 export const SquadCommentJoinBanner = ({
+  className,
   squad,
   analyticsOrigin,
   post,
@@ -56,7 +59,12 @@ export const SquadCommentJoinBanner = ({
   }
 
   return (
-    <div className="flex flex-row flex-1 gap-4 justify-between items-start p-4 mx-3 mb-3 rounded-16 border border-theme-color-cabbage">
+    <div
+      className={classNames(
+        'flex flex-row flex-1 gap-4 justify-between items-start p-4 mx-3 mb-3 rounded-16 border border-theme-color-cabbage',
+        className,
+      )}
+    >
       <div className="flex flex-col flex-1">
         <p className="flex flex-1 text-theme-label-tertiary typo-callout">
           Join {squad.name} to see more posts like this one, contribute to
