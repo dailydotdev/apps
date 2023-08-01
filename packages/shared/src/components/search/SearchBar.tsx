@@ -26,6 +26,7 @@ import {
 } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import moreStyles from '../cards/RaisedLabel.module.css';
 
 export interface SearchBarProps
   extends Pick<
@@ -121,7 +122,6 @@ export const SearchBar = forwardRef(function SearchBar(
   ]);
 
   useEffect(() => {
-    console.log('user', user);
     if (!user) {
       setSuggestions([
         {
@@ -169,12 +169,11 @@ export const SearchBar = forwardRef(function SearchBar(
 
   return (
     <div className="max-w-2xl">
-      <div className={classNames('relative', styles.cardContainer)}>
+      <div className={classNames('relative', moreStyles.raiseLabelContainer)}>
         <BaseField
           {...props}
           className={classNames(
-            'relative items-center px-3 h-16 rounded-14 border !border-theme-divider-tertiary',
-            // fieldSize === 'medium' ? 'h-10 rounded-12' : '',
+            'relative items-center px-3 h-16 rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary',
             className,
             { focused },
           )}

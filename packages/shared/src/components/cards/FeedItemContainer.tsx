@@ -3,7 +3,7 @@ import { Post } from '../../graphql/posts';
 import { Card, ListCard } from './Card';
 import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import ConditionalWrapper from '../ConditionalWrapper';
-import styles from './Card.module.css';
+import styles from './RaisedLabel.module.css';
 
 interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -29,7 +29,7 @@ function FeedItemContainer(
     <ConditionalWrapper
       condition={!!pinnedAt || !!trending}
       wrapper={(children) => (
-        <div className={`relative ${styles.cardContainer}`}>
+        <div className={`relative ${styles.raiseLabelContainer}`}>
           {children}
           <RaisedLabel
             type={type}

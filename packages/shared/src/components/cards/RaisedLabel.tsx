@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import styles from './Card.module.css';
+import styles from './RaisedLabel.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export enum RaisedLabelType {

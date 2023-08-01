@@ -1,3 +1,9 @@
+.flag {
+  will-change: transform;
+  z-index: -1;
+  transition: transform 0.1s linear;
+}
+
 .raiseLabelContainer:hover .flag,
 .flag:hover {
   transform: none;
