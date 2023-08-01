@@ -27,6 +27,9 @@ import {
 import AuthContext from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import moreStyles from '../cards/RaisedLabel.module.css';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
+import SearchModal from './SearchModal';
 
 export interface SearchBarProps
   extends Pick<
@@ -106,6 +109,8 @@ export const SearchBar = forwardRef(function SearchBar(
   const { user, showLogin } = useContext(AuthContext);
   const [progress, setProgress] = useState(0);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const [reportModal, setReportModal] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchBarSuggestionProps[]>([
     {
       suggestion:
@@ -168,7 +173,7 @@ export const SearchBar = forwardRef(function SearchBar(
   };
 
   return (
-    <div className="max-w-2xl">
+    <div className="mb-2 w-full max-w-2xl">
       <div className={classNames('relative', moreStyles.raiseLabelContainer)}>
         <BaseField
           {...props}
@@ -177,14 +182,16 @@ export const SearchBar = forwardRef(function SearchBar(
             className,
             { focused },
           )}
-          onClick={focusInput}
+          onClick={isMobile ? () => setReportModal(true) : focusInput}
           data-testid="searchBar"
           ref={ref}
         >
-          <AiIcon
-            size={IconSize.Large}
-            className="mr-3 text-theme-label-tertiary"
-          />
+          {!isMobile && (
+            <AiIcon
+              size={IconSize.Large}
+              className="mr-3 text-theme-label-tertiary"
+            />
+          )}
 
           <FieldInput
             disabled={disabled}
@@ -225,7 +232,9 @@ export const SearchBar = forwardRef(function SearchBar(
               />
             )}
 
-            <div className="h-8 border border-theme-divider-quaternary" />
+            {!isMobile && (
+              <div className="h-8 border border-theme-divider-quaternary" />
+            )}
 
             <SimpleTooltip
               content={
@@ -246,22 +255,24 @@ export const SearchBar = forwardRef(function SearchBar(
                 />
               </div>
             </SimpleTooltip>
-            <Button
-              {...rightButtonProps}
-              className="btn-primary"
-              buttonSize={ButtonSize.Medium}
-              title="Submit"
-              onClick={onSubmit}
-              icon={<SendAirplaneIcon size={IconSize.Medium} />}
-              disabled={!hasInput}
-            />
+            {!isMobile && (
+              <Button
+                {...rightButtonProps}
+                className="btn-primary"
+                buttonSize={ButtonSize.Medium}
+                title="Submit"
+                onClick={onSubmit}
+                icon={<SendAirplaneIcon size={IconSize.Medium} />}
+                disabled={!hasInput}
+              />
+            )}
           </div>
         </BaseField>
 
         <RaisedLabel type={RaisedLabelType.Beta} />
       </div>
 
-      {showProgress && (
+      {!isMobile && showProgress && (
         <div className="mt-6">
           <SearchProgressBar progress={progress} />
 
@@ -279,7 +290,7 @@ export const SearchBar = forwardRef(function SearchBar(
         </div>
       )}
 
-      {suggestions && (
+      {!isMobile && suggestions && (
         <div className="flex flex-wrap gap-4 mt-6">
           {suggestions.map((suggestion, index) => (
             <SearchBarSuggestion
@@ -289,6 +300,19 @@ export const SearchBar = forwardRef(function SearchBar(
             />
           ))}
         </div>
+      )}
+
+      {reportModal && (
+        <SearchModal
+          className="z-rank"
+          // post={postData}
+          // parentSelector={getCompanionWrapper}
+          isOpen={!!reportModal}
+          // index={1}
+          // origin={Origin.CompanionContextMenu}
+          // onReported={onReportPost}
+          onRequestClose={() => setReportModal(null)}
+        />
       )}
     </div>
   );

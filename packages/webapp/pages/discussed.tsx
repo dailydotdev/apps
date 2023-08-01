@@ -22,6 +22,6 @@ const Discussed = (): ReactElement => {
 };
 
 Discussed.getLayout = getMainFeedLayout;
-Discussed.layoutProps = mainFeedLayoutProps;
+Discussed.layoutProps = { ...mainFeedLayoutProps, isSearchOn: true };
 
 export default Discussed;

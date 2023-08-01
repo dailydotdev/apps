@@ -1,3 +1,4 @@
 export * from './SearchBar';
-export * from './SearchProgressBar';
+export * from './SearchBarContainer';
 export * from './SearchBarSuggestion';
+export * from './SearchProgressBar';

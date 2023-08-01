@@ -11,8 +11,11 @@ import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import {
+  SearchBar,
+  SearchBarContainer,
+} from '@dailydotdev/shared/src/components';
 import { getLayout } from './FeedLayout';
-import {SearchBar} from '@dailydotdev/shared/src/components';
 
 const PostsSearch = dynamic(
   () =>
@@ -22,6 +25,7 @@ const PostsSearch = dynamic(
 
 export type MainFeedPageProps = {
   children?: ReactNode;
+  isSearchOn?: boolean;
 };
 
 const getFeedName = (path: string): string => {
@@ -33,26 +37,22 @@ const getFeedName = (path: string): string => {
 
 export default function MainFeedPage({
   children,
+  isSearchOn = false,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
-  const [isSearchOn, setIsSearchOn] = useState(router?.pathname === '/search');
 
   useEffect(() => {
     const isMyFeed = router?.pathname === '/my-feed';
     if (getShouldRedirect(isMyFeed, !!user)) {
       router.replace('/');
     } else if (router?.pathname === '/search') {
-      setIsSearchOn(true);
       if (!feedName) {
         setFeedName('popular');
       }
     } else {
       const newFeed = getFeedName(router?.pathname);
-      if (isSearchOn) {
-        setIsSearchOn(false);
-      }
       if (newFeed) {
         if (feedName !== newFeed) {
           setFeedName(newFeed);
@@ -65,24 +65,18 @@ export default function MainFeedPage({
 
   if (!feedName) {
     return <></>;
-  } 
+  }
 
   return (
-    <div className='flex flex-col pt-8'>
-      <div className="pt-10 px-6 laptop:px-16">
-        <SearchBar inputId='search' completedTime='12:12' />
-      </div>
-      
-      <MainFeedLayout
-        feedName={feedName}
-        isSearchOn={isSearchOn}
-        onFeedPageChanged={(page) => router.replace(`/${page}`)}
-        searchQuery={router.query?.q?.toString()}
-        searchChildren={<PostsSearch placeholder="Search posts" />}
-      >
-        {children}
-      </MainFeedLayout>
-    </div>
+    <MainFeedLayout
+      feedName={feedName}
+      isSearchOn={isSearchOn}
+      onFeedPageChanged={(page) => router.replace(`/${page}`)}
+      searchQuery={router.query?.q?.toString()}
+      searchChildren={<SearchBar inputId="search" completedTime="12:12" />}
+    >
+      {children}
+    </MainFeedLayout>
   );
 }
 
