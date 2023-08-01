@@ -40,7 +40,7 @@ export const cloudinary = {
       banner:
         'https://daily-now-res.cloudinary.com/image/upload/s--7QJfELWV--/f_auto/v1686299194/Squads_Background_z0uuvc',
       cardBannerDefault:
-        'https://daily-now-res.cloudinary.com/image/upload/s--OYL4lxBN--/f_auto/v1686299194/s2_bg_lypbow',
+        'https://daily-now-res.cloudinary.com/image/upload/s--puRUea_K--/f_auto/v1690887143/cover-generic_blur_xny4yt',
     },
     imageFallback:
       'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
