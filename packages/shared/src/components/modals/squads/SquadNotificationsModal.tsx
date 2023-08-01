@@ -119,7 +119,7 @@ export function SquadNotificationsModal({
           name="notify_new_posts"
           className="w-20"
           compact={false}
-          checked={mutedNewPosts}
+          checked={!mutedNewPosts}
           onToggle={onToggleNotifyNewPosts}
         >
           Notify me about new posts
@@ -131,7 +131,7 @@ export function SquadNotificationsModal({
             name="notify_new_members"
             className="w-20"
             compact={false}
-            checked={mutedNewMembers}
+            checked={!mutedNewMembers}
             onToggle={onToggleNotifyNewMembers}
           >
             Notify me about new members
