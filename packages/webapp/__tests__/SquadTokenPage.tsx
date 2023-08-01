@@ -2,7 +2,13 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import { NextRouter } from 'next/router';
@@ -32,6 +38,11 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { labels } from '@dailydotdev/shared/src/lib';
+import {
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+} from '@dailydotdev/shared/src/graphql/actions';
 import SquadPage, {
   SquadReferralProps,
 } from '../pages/squads/[handle]/[token]';
@@ -194,10 +205,10 @@ describe('squad details', () => {
     expect(result.length).toEqual(members.length);
   });
 
-  it('should join squad on the first button', async () => {
-    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
+  it('should join squad on button click', async () => {
     const admin = generateTestAdmin();
     renderComponent([createInvitationMock(defaultToken, admin)]);
+    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     await waitForNock();
     mockGraphQL({
       request: {
@@ -206,37 +217,26 @@ describe('squad details', () => {
       },
       result: () => ({ data: { source: admin.source } }),
     });
-    const [desktop] = await screen.findAllByText('Join Squad');
-    desktop.click();
-    await waitForNock();
-    expect(replaced).toEqual(admin.source.permalink);
-  });
-
-  it('should join squad on the second button', async () => {
-    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
-    const admin = generateTestAdmin();
-    renderComponent([createInvitationMock(defaultToken, admin)]);
-    await waitForNock();
     mockGraphQL({
       request: {
-        query: SQUAD_JOIN_MUTATION,
-        variables: { token: admin.referralToken, sourceId: admin.source.id },
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.JoinSquad },
       },
-      result: () => ({ data: { source: admin.source } }),
+      result: () => {
+        return { data: { _: null } };
+      },
     });
-    const [, mobile] = await screen.findAllByText('Join Squad');
-    mobile.click();
+    const button = await screen.findByText('Join Squad');
+    fireEvent.click(button);
     await waitForNock();
     expect(replaced).toEqual(admin.source.permalink);
   });
 
-  it('should have two join squad one is displayed on desktop and one on mobile', async () => {
-    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
+  it('should have join squad button', async () => {
     const admin = generateTestAdmin();
     renderComponent([createInvitationMock(defaultToken, admin)]);
-    const [desktop, mobile] = await screen.findAllByRole('button');
-    expect(desktop).toHaveClass('hidden tablet:flex');
-    expect(mobile).toHaveClass('flex tablet:hidden');
+    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
+    await waitFor(() => screen.findAllByText('Join Squad'));
   });
 });
 
@@ -275,8 +275,8 @@ describe('invalid token', () => {
     admin.source.currentMember = member;
     renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
-    const [desktop] = await screen.findAllByText('Join Squad');
-    desktop.click();
-    await screen.findByText('🚫 You no longer have access to this Squad.');
+    const button = await screen.findByText('Join Squad');
+    fireEvent.click(button);
+    await screen.findByText(labels.squads.forbidden);
   });
 });

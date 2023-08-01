@@ -7,11 +7,13 @@ import {
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
+  SourceType,
   Squad,
 } from './sources';
 import { Post, ExternalLinkPreview } from './posts';
 import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
+import { generateStorageKey, StorageTopic } from '../lib/storage';
 
 export type SquadForm = Pick<
   Squad,
@@ -23,6 +25,7 @@ export type SquadForm = Pick<
   buttonText?: string;
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
+  public?: boolean;
 };
 
 type SharedSquadInput = {
@@ -84,6 +87,41 @@ export const DELETE_SQUAD_MUTATION = gql`
       _
     }
   }
+`;
+
+export const SQUAD_DIRECTORY_SOURCES = gql`
+  query Sources($filterOpenSquads: Boolean) {
+    sources(filterOpenSquads: $filterOpenSquads) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...SourceBaseInfo
+          headerImage
+          color
+          membersCount
+          members {
+            edges {
+              node {
+                user {
+                  bio
+                  id
+                  image
+                  username
+                  permalink
+                  name
+                }
+              }
+            }
+          }
+          referralUrl
+        }
+      }
+    }
+  }
+  ${SOURCE_BASE_FRAGMENT}
 `;
 
 export const CREATE_SQUAD_MUTATION = gql`
@@ -153,6 +191,7 @@ export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
       ...SourceBaseInfo
+      referralUrl
     }
   }
   ${SOURCE_BASE_FRAGMENT}
@@ -209,9 +248,10 @@ export const SQUAD_INVITATION_QUERY = gql`
 `;
 
 export const SQUAD_JOIN_MUTATION = gql`
-  mutation JoinSquad($sourceId: ID!, $token: String!) {
+  mutation JoinSquad($sourceId: ID!, $token: String) {
     source: joinSource(sourceId: $sourceId, token: $token) {
       ...SourceBaseInfo
+      referralUrl
     }
   }
   ${SOURCE_BASE_FRAGMENT}
@@ -296,7 +336,7 @@ export interface SquadInvitation {
 }
 
 export interface SquadInvitationProps {
-  token: string;
+  token?: string;
   sourceId: string;
 }
 
@@ -387,3 +427,11 @@ export const verifyPermission = (
   squad: Squad,
   permission: SourcePermissions,
 ): boolean => !!squad?.currentMember?.permissions?.includes(permission);
+
+export const isSourcePublicSquad = (source: Source): boolean =>
+  !!(source?.type === SourceType.Squad && source?.public);
+
+export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(
+  StorageTopic.Squad,
+  'comment_join_banner',
+);
