@@ -181,7 +181,7 @@ export default function ProfileLayout({
               </span>
             </div>
           </div>
-          <div className="flex flex-col tablet:flex-1">
+          <div className="flex flex-col tablet:flex-1 min-w-0">
             <div className="flex items-center mb-2">
               <h1 className="m-0 font-bold text-theme-label-primary typo-title3">
                 {profile.name}
@@ -255,11 +255,14 @@ export default function ProfileLayout({
                     target="_blank"
                     rel="noopener"
                     icon={<LinkIcon />}
-                    className="btn-tertiary"
+                    className="btn-tertiary w-full"
+                    responsiveLabelClass="flex flex-1 min-w-0"
                   >
-                    {portfolioLink
-                      .replace(/(^\w+:|^)\/\//, '')
-                      .replace(/\/?(\?.*)?$/, '')}
+                    <div className='truncate flex-1'>
+                      {portfolioLink
+                        .replace(/(^\w+:|^)\/\//, '')
+                        .replace(/\/?(\?.*)?$/, '')}
+                      </div>
                   </QuaternaryButton>
                 </SimpleTooltip>
               )}
