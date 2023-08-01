@@ -69,12 +69,12 @@ export function BasePostContent({
 
   return (
     <>
-      {showArticleOnboarding && (
-        <PostFeedFiltersOnboarding
-          className={className?.onboarding}
-          onInitializeOnboarding={onStartArticleOnboarding}
-        />
-      )}
+      {/* {showArticleOnboarding && ( */}
+      <PostFeedFiltersOnboarding
+        className={className?.onboarding}
+        onInitializeOnboarding={onStartArticleOnboarding}
+      />
+      {/* )} */}
       {customNavigation ?? (
         <PostNavigation {...navigationProps} className={className.navigation} />
       )}

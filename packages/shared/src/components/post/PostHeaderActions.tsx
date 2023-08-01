@@ -28,7 +28,7 @@ import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Origin } from '../../lib/analytics';
 
-export interface PostModalActionsProps extends ShareBookmarkProps {
+export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
   onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
@@ -42,7 +42,7 @@ export interface PostModalActionsProps extends ShareBookmarkProps {
 
 const Container = classed('div', 'flex flex-row items-center');
 
-export function PostModalActions({
+export function PostHeaderActions({
   onReadArticle,
   onShare,
   onBookmark,
@@ -54,7 +54,7 @@ export function PostModalActions({
   contextMenuId,
   onRemovePost,
   ...props
-}: PostModalActionsProps): ReactElement {
+}: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
   const { user } = useContext(AuthContext);
   const { showReportMenu } = useReportPostMenu(contextMenuId);

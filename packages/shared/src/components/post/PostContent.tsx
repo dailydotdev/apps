@@ -8,7 +8,7 @@ import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigationProps } from './PostNavigation';
-import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
 import {
   ToastSubject,
   useToastNotification,
@@ -28,7 +28,7 @@ export type PassedPostNavigationProps = Pick<
 >;
 
 export interface PostContentProps
-  extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
+  extends Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
     PassedPostNavigationProps {
   enableShowShareNewComment?: boolean;
   post?: Post;
@@ -114,7 +114,7 @@ export function PostContent({
         data-testid="postContainer"
       >
         {!hasNavigation && (
-          <PostModalActions
+          <PostHeaderActions
             onBookmark={onToggleBookmark}
             onShare={onShare}
             onReadArticle={onReadArticle}
