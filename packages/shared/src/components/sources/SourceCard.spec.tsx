@@ -33,6 +33,7 @@ import {
 } from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { cloudinary } from '../../lib/image';
+import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
 
 const onClickTest = jest.fn();
 const routerReplace = jest.fn();
@@ -218,6 +219,16 @@ it('should render the component with a join squad button', async () => {
     result: () => {
       queryCalled = true;
       return { data: { source: admin.source } };
+    },
+  });
+
+  mockGraphQL({
+    request: {
+      query: COMPLETE_ACTION_MUTATION,
+      variables: { type: ActionType.JoinSquad },
+    },
+    result: () => {
+      return { data: { _: null } };
     },
   });
 
