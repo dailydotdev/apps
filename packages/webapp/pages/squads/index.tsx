@@ -6,8 +6,8 @@ import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads'
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { useInfiniteQuery } from 'react-query';
-import request from 'graphql-request';
+import { InfiniteData, useInfiniteQuery } from 'react-query';
+import request, { ClientError } from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -19,10 +19,21 @@ import {
 import EditIcon from '@dailydotdev/shared/src/components/icons/Edit';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
+import { GetStaticPropsResult } from 'next';
+import { ApiError } from 'next/dist/server/api-utils';
+import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
+import { Connection } from '@dailydotdev/shared/src/graphql/common';
+import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
+
+export type Props = {
+  initialData?: InfiniteData<{
+    sources: Connection<Squad>;
+  }>;
+};
 
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Squad directory'),
@@ -30,7 +41,7 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const SquadsPage = (): ReactElement => {
+const SquadsPage = ({ initialData }: Props): ReactElement => {
   const { user } = useContext(AuthContext);
 
   const queryResult = useInfiniteQuery(
@@ -43,8 +54,9 @@ const SquadsPage = (): ReactElement => {
       }),
     {
       getNextPageParam: (lastPage) =>
-        lastPage?.notifications?.pageInfo?.hasNextPage &&
-        lastPage?.notifications?.pageInfo?.endCursor,
+        lastPage?.sources?.pageInfo?.hasNextPage &&
+        lastPage?.sources?.pageInfo?.endCursor,
+      initialData,
     },
   );
 
@@ -135,5 +147,37 @@ const SquadsPage = (): ReactElement => {
 
 SquadsPage.getLayout = getLayout;
 SquadsPage.layoutProps = mainFeedLayoutProps;
+
+export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
+  try {
+    const initialData = await request(graphqlUrl, SQUAD_DIRECTORY_SOURCES, {
+      filterOpenSquads: true,
+      first: 100,
+      after: undefined,
+    });
+
+    return {
+      props: {
+        initialData: {
+          pages: [initialData],
+          pageParams: [null],
+        },
+      },
+      revalidate: oneHour,
+    };
+  } catch (err) {
+    const clientError = err as ClientError;
+    const errors = Object.values(ApiError);
+
+    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+      return {
+        props: {},
+        revalidate: oneHour,
+      };
+    }
+
+    throw err;
+  }
+}
 
 export default SquadsPage;
