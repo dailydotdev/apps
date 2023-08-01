@@ -27,7 +27,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
 
   const { data: squadMembers } = useQuery<SourceMember[]>(
     ['squadMembersInitial', handle],
-    () => getSquadMembers(squad.id),
+    () => getSquadMembers(squadId),
     { enabled: isFetched && !!squadId },
   );
 
