@@ -81,6 +81,10 @@ const LayoutHeader = classed(
   'flex justify-between items-center overflow-x-auto relative mb-6 min-h-14 w-full no-scrollbar',
 );
 
+interface ClassName {
+  search?: string;
+}
+
 export type MainFeedLayoutProps = {
   feedName: string;
   isSearchOn: boolean;
@@ -89,6 +93,7 @@ export type MainFeedLayoutProps = {
   searchChildren: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: MainFeedPage) => void;
+  className?: ClassName;
 };
 
 const getQueryBasedOnLogin = (
@@ -161,6 +166,7 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
   onFeedPageChanged,
+  className,
 }: MainFeedLayoutProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const { updateAlerts } = useContext(AlertContext);
@@ -208,7 +214,7 @@ export default function MainFeedLayout({
   );
   const [selectedPeriod, setSelectedPeriod] = useState(0);
   const search = (
-    <LayoutHeader>
+    <LayoutHeader className={className?.search}>
       {navChildren}
       {isSearchOn ? searchChildren : undefined}
     </LayoutHeader>

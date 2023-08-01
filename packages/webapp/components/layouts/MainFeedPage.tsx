@@ -74,6 +74,7 @@ export default function MainFeedPage({
       onFeedPageChanged={(page) => router.replace(`/${page}`)}
       searchQuery={router.query?.q?.toString()}
       searchChildren={<SearchBar inputId="search" completedTime="12:12" />}
+      className={{search: 'overflow-x-visible'}}
     >
       {children}
     </MainFeedLayout>

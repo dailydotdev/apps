@@ -193,31 +193,39 @@ export const SearchBar = forwardRef(function SearchBar(
             />
           )}
 
-          <FieldInput
-            disabled={disabled}
-            placeholder={placeholder}
-            name={name}
-            id={inputId}
-            ref={inputRef}
-            onFocus={(event) => {
-              onFocus();
-              externalOnFocus?.(event);
-            }}
-            onBlur={(event) => {
-              onBlur();
-              externalOnBlur?.(event);
-            }}
-            onInput={onInput}
-            autoFocus={autoFocus}
-            type="primary"
-            aria-describedby={describedBy}
-            autoComplete="off"
-            className={classNames(
-              'flex-1 caret-theme-status-cabbage',
-              getFieldFontColor({ readOnly, disabled, hasInput, focused }),
-            )}
-            required
-          />
+          {isMobile && (
+            <div className="flex-1 text-theme-label-tertiary">
+              { placeholder }
+            </div>
+          )}
+
+          {!isMobile && (
+            <FieldInput
+              disabled={disabled}
+              placeholder={placeholder}
+              name={name}
+              id={inputId}
+              ref={inputRef}
+              onFocus={(event) => {
+                onFocus();
+                externalOnFocus?.(event);
+              }}
+              onBlur={(event) => {
+                onBlur();
+                externalOnBlur?.(event);
+              }}
+              onInput={onInput}
+              autoFocus={autoFocus}
+              type="primary"
+              aria-describedby={describedBy}
+              autoComplete="off"
+              className={classNames(
+                'flex-1 caret-theme-status-cabbage',
+                getFieldFontColor({ readOnly, disabled, hasInput, focused }),
+              )}
+              required
+            />
+          )}
 
           <div className="flex gap-3 items-center">
             {hasInput && (
