@@ -256,13 +256,11 @@ export default function ProfileLayout({
                     rel="noopener"
                     icon={<LinkIcon />}
                     className="w-full btn-tertiary"
-                    responsiveLabelClass="flex flex-1 min-w-0"
+                    responsiveLabelClass="truncate w-auto tablet:w-full self-center flex-1"
                   >
-                    <div className="flex-1 truncate">
-                      {portfolioLink
-                        .replace(/(^\w+:|^)\/\//, '')
-                        .replace(/\/?(\?.*)?$/, '')}
-                    </div>
+                    {portfolioLink
+                      .replace(/(^\w+:|^)\/\//, '')
+                      .replace(/\/?(\?.*)?$/, '')}
                   </QuaternaryButton>
                 </SimpleTooltip>
               )}
