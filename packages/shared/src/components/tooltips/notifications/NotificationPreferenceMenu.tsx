@@ -4,7 +4,6 @@ import PortalMenu from '../../fields/PortalMenu';
 import { Loader } from '../../Loader';
 import {
   Notification,
-  notificationPreferenceMap,
   NotificationPreferenceStatus,
 } from '../../../graphql/notifications';
 import BellIcon from '../../icons/Bell';
