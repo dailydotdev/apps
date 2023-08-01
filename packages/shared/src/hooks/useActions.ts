@@ -23,8 +23,8 @@ export const useActions = (): UseActions => {
   const { data: actions, isFetched: isActionsFetched } = useQuery(
     actionsKey,
     async () => {
-      const current = client.getQueryData<Action[]>(actionsKey);
       const data = await getUserActions();
+      const current = client.getQueryData<Action[]>(actionsKey);
 
       if (!current || !Array.isArray(current)) return data;
 
