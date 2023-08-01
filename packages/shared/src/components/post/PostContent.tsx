@@ -120,7 +120,7 @@ export function PostContent({
             onReadArticle={onReadArticle}
             post={post}
             onClose={onClose}
-            className="flex tablet:hidden"
+            className="flex tablet:hidden mb-4"
             contextMenuId="post-widgets-context"
           />
         )}
