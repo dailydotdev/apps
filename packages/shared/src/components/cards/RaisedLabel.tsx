@@ -19,18 +19,22 @@ export interface RaisedLabelProps {
   listMode?: boolean;
   type: RaisedLabelType;
   description?: string;
+  className?: string | undefined;
 }
 
 export function RaisedLabel({
   listMode,
   type = RaisedLabelType.Hot,
   description,
+  className,
 }: RaisedLabelProps): ReactElement {
   return (
     <div
       className={classNames(
         'absolute flex items-start',
         listMode ? 'top-0 right-full mt-5' : 'left-0 bottom-full ml-5 h-5',
+        styles.raiseLabel,
+        className
       )}
     >
       <SimpleTooltip content={description}>

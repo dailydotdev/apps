@@ -4,10 +4,12 @@ import React, {
   InputHTMLAttributes,
   MouseEvent,
   ReactElement,
+  useState,
+  useEffect,
 } from 'react';
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
-import { AiIcon } from '../icons';
+import { AiIcon, SendAirplaneIcon } from '../icons';
 import CloseIcon from '../icons/MiniClose';
 import ArrowIcon from '../icons/Arrow';
 import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
@@ -16,6 +18,11 @@ import { getFieldFontColor } from '../fields/BaseFieldContainer';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { RaisedLabel, RaisedLabelType } from '../cards/RaisedLabel';
 import styles from '../cards/Card.module.css';
+import TimerIcon from '../icons/Timer';
+import { IconSize } from '../Icon';
+import { SearchProgressBar } from './SearchProgressBar';
+import SimpleTooltip from '../tooltips/SimpleTooltip';
+import { SearchBarSuggestion, SearchBarSuggestionProps } from './SearchBarSuggestion';
 
 export interface SearchBarProps
   extends Pick<
@@ -43,12 +50,18 @@ export interface SearchBarProps
   showIcon?: boolean;
   // fieldType?: 'primary' | 'secondary';
   rightButtonProps?: ButtonProps<'button'> | false;
-  progress?: number;
+  // TODO: Add back in
+  // progress?: number;
   completedTime?: string;
+  showProgress?: boolean;
 }
 
-const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
-  isPrimary ? <CloseIcon /> : <ArrowIcon className="rotate-90" />;
+export interface SearchBarProgressBarProps {
+  progress: number;
+}
+
+// const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
+//   isPrimary ? <CloseIcon /> : <ArrowIcon className="rotate-90" />;
 
 export const SearchBar = forwardRef(function SearchBar(
   {
@@ -69,7 +82,9 @@ export const SearchBar = forwardRef(function SearchBar(
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
     // showIcon = true,
-    progress,
+    // progress,
+    showProgress = true,
+    completedTime,
     ...props
   }: SearchBarProps,
   ref: ForwardedRef<HTMLDivElement>,
@@ -84,15 +99,33 @@ export const SearchBar = forwardRef(function SearchBar(
     focusInput,
     setInput,
   } = useInputField(value, valueChanged);
+  // const [completedTime, setCompletedTime] = useState('');
+  const [progress, setProgress] = useState(0);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<SearchBarSuggestionProps[]>([
+    {
+      suggestion: 'How to handle large-scale data storage and retrieval efficiently?',
+      onClick: () => setInput('How to handle large-scale data storage and retrieval efficiently?'),
+    },
+    {
+      suggestion: 'How do you ensure code quality?',
+      onClick: () => setInput('How do you ensure code quality?'),
+    },
+  ]);
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
-    setInput(null);
+    setInput('');
   };
 
   const onSubmit = (event: MouseEvent): void => {
     event.stopPropagation();
-    alert('submitting');
+    setProgress(0);
+    const searchParam = inputRef.current?.value;
+
+    alert(`Searching... ${searchParam}`);
+    progressEmulator();
+    setInput(null);
   };
 
   const seeSearchHistory = (event: MouseEvent): void => {
@@ -100,116 +133,152 @@ export const SearchBar = forwardRef(function SearchBar(
     alert('see search history');
   };
 
-  // const isPrimary = fieldType === 'primary';
-  // const isSecondary = fieldType === 'secondary';
+  // TODO: Temp for testing
+  const progressEmulator = () => {
+    setInterval(() => {
+      setProgress((oldProgress) => {
+        if (oldProgress === 100) {
+          // setCompletedTime('12:12');
+          return 100;
+        }
+        const newProgress = oldProgress + 1;
+        return newProgress;
+      });
+    }, 100);
+  };
 
   return (
-    <ConditionalWrapper
-      condition={true}
-      wrapper={(children) => (
-        <div 
-          className={classNames(
-            'relative',
-            styles.cardContainer,
-          )
-        }>
-          {children}
-          <RaisedLabel
-            type={RaisedLabelType.Beta}
-            description='desc'
-          />
-        </div>
-      )}
-    >
-      <BaseField
-        {...props}
-        className={classNames(
-          'group relative items-center h-12 rounded-14 border !border-theme-divider-tertiary',
-          // fieldSize === 'medium' ? 'h-10 rounded-12' : '',
-          className,
-          { focused },
+    <div className='max-w-2xl'>
+      <div className={classNames(
+          'relative',
+          styles.cardContainer
         )}
-        onClick={focusInput}
-        data-testid="searchField"
-        ref={ref}
       >
-        <Button
-          type="button"
-          className="mr-2 btn-tertiary"
-          buttonSize={ButtonSize.XSmall}
-          title="Clear query"
-          onClick={onClearClick}
-          icon={
-            <AiIcon className="text-lg icon group-hover:text-theme-label-primary" />
-          }
-        />
-        <FieldInput
-          disabled={disabled}
-          placeholder={placeholder}
-          name={name}
-          id={inputId}
-          ref={inputRef}
-          onFocus={(event) => {
-            onFocus();
-            externalOnFocus?.(event);
-          }}
-          onBlur={(event) => {
-            onBlur();
-            externalOnBlur?.(event);
-          }}
-          onInput={onInput}
-          autoFocus={autoFocus}
-          type='primary'
-          aria-describedby={describedBy}
-          autoComplete="off"
+        <BaseField
+          {...props}
           className={classNames(
-            'flex-1',
-            getFieldFontColor({ readOnly, disabled, hasInput, focused }),
+            'relative items-center px-3 h-16 rounded-14 border !border-theme-divider-tertiary',
+            // fieldSize === 'medium' ? 'h-10 rounded-12' : '',
+            className,
+            { focused },
           )}
-          required
-        />
+          onClick={focusInput}
+          data-testid="searchBar"
+          ref={ref}
+        >
+          <AiIcon size={IconSize.Large} className="mr-3 text-theme-label-tertiary" />
+          
+          <FieldInput
+            disabled={disabled}
+            placeholder={placeholder}
+            name={name}
+            id={inputId}
+            ref={inputRef}
+            onFocus={(event) => {
+              onFocus();
+              externalOnFocus?.(event);
+            }}
+            onBlur={(event) => {
+              onBlur();
+              externalOnBlur?.(event);
+            }}
+            onInput={onInput}
+            autoFocus={autoFocus}
+            type='primary'
+            aria-describedby={describedBy}
+            autoComplete="off"
+            className={classNames(
+              'flex-1 caret-theme-status-cabbage',
+              getFieldFontColor({ readOnly, disabled, hasInput, focused }),
+            )}
+            required
+          />
 
-        <div className='flex gap-3'>
-          {hasInput && (
+          <div className='flex gap-3 items-center'>
+            {hasInput && (
+              <Button
+                {...rightButtonProps}
+                className='btn-tertiary'
+                buttonSize={ButtonSize.Small}
+                title='Clear query'
+                onClick={onClearClick}
+                icon={<CloseIcon size={IconSize.Small} />}
+                disabled={!hasInput}
+              />
+            )}
+
+            <div className='h-8 border border-theme-divider-quaternary' />
+
+            <SimpleTooltip content={searchHistory.length === 0 ? 'no history' : 'See search history'} >
+              <div>
+                <Button
+                  {...rightButtonProps}
+                  className='btn-tertiary'
+                  buttonSize={ButtonSize.Small}
+                  title='Search history'
+                  onClick={seeSearchHistory}
+                  icon={<TimerIcon size={IconSize.Small} />}
+                  disabled={searchHistory.length === 0}
+                />
+              </div>
+            </SimpleTooltip>
             <Button
               {...rightButtonProps}
-              className='btn-tertiary'
-              buttonSize={ButtonSize.XSmall}
-              title='Clear query'
-              onClick={onClearClick}
-              icon={<ButtonIcon isPrimary />}
+              className='btn-primary'
+              buttonSize={ButtonSize.Medium}
+              title='Submit'
+              onClick={onSubmit}
+              icon={<SendAirplaneIcon size={IconSize.Medium} />}
               disabled={!hasInput}
             />
+          </div>
+        </BaseField>
+
+
+        <RaisedLabel
+          type={RaisedLabelType.Beta}
+        />
+      </div>
+
+      {showProgress && (
+        <div className='mt-6'>
+          <SearchProgressBar progress={progress} />
+
+          {progress > 0 && progress < 100 && (
+            <div className='typo-callout text-theme-label-tertiary mt-2'>
+              🚀 Generating answer
+            </div>
           )}
 
-          <div className='w-[1px] h-6 bg-[#383D47]' />
+          {progress === 100 && completedTime && (
+            <div className='typo-callout text-theme-label-tertiary mt-2'>
+              Done! {completedTime} seconds.
+            </div>
+          )}
 
-          <Button
-            {...rightButtonProps}
-            className='btn-tertiary'
-            buttonSize={ButtonSize.XSmall}
-            title='Clear query'
-            onClick={seeSearchHistory}
-            icon={<ButtonIcon isPrimary />}
-            // disabled={!hasInput}
-          />
-          <Button
-            {...rightButtonProps}
-            className='btn-primary'
-            buttonSize={ButtonSize.XSmall}
-            title='Submit'
-            onClick={onSubmit}
-            icon={<ButtonIcon isPrimary />}
-            disabled={!hasInput}
-          />
         </div>
-      </BaseField>
-    </ConditionalWrapper>
+      )}
+
+      {suggestions && (
+        <div className="flex gap-4 mt-6 flex-wrap">
+          {suggestions.map((suggestion, index) => (
+          <SearchBarSuggestion
+            key={index}
+            suggestion={suggestion.suggestion}
+            onClick={suggestion.onClick}
+          />
+          ))}
+        </div>
+      )}
+    </div>
   );
 });
 
 /*
 * TODO
-* 1. #383D47 isn't in the system
-* 2. how do we do 1px width?
+* 5. Beta tag bug - z-index not working
+* 6. Check sizes in the input field
+* 7. Migrate to search page on search
+* 8. QUESTION - What is the empty tag button?
+* - On page give possible search terms maybe even a button
 */

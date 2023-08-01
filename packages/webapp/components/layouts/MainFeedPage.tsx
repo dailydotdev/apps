@@ -65,11 +65,13 @@ export default function MainFeedPage({
 
   if (!feedName) {
     return <></>;
-  }
+  } 
 
   return (
     <div className='flex flex-col pt-8'>
-      <SearchBar />
+      <div className="pt-10 px-6 laptop:px-16">
+        <SearchBar inputId='search' completedTime='12:12' />
+      </div>
       
       <MainFeedLayout
         feedName={feedName}
