@@ -77,7 +77,7 @@ const SquadsPage = (): ReactElement => {
                           title={name}
                           subtitle={`@${props.handle}`}
                           action={{
-                            text: isMember ? 'View' : 'Join',
+                            text: isMember ? 'View Squad' : 'Join Squad',
                             type: isMember ? 'link' : 'action',
                             href: isMember ? permalink : undefined,
                           }}
