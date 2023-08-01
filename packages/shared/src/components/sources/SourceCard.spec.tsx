@@ -228,8 +228,7 @@ it('should render the component with a join squad button', async () => {
       variables: { type: ActionType.JoinSquad },
     },
     result: () => {
-      queryCalled = true;
-      return { data: { source: admin.source } };
+      return { data: { _: null } };
     },
   });
 

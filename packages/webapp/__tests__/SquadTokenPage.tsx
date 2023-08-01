@@ -39,6 +39,10 @@ import {
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { labels } from '@dailydotdev/shared/src/lib';
+import {
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+} from '@dailydotdev/shared/src/graphql/actions';
 import SquadPage, {
   SquadReferralProps,
 } from '../pages/squads/[handle]/[token]';
@@ -202,9 +206,9 @@ describe('squad details', () => {
   });
 
   it('should join squad on button click', async () => {
-    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     const admin = generateTestAdmin();
     renderComponent([createInvitationMock(defaultToken, admin)]);
+    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     await waitForNock();
     mockGraphQL({
       request: {
@@ -212,6 +216,15 @@ describe('squad details', () => {
         variables: { token: admin.referralToken, sourceId: admin.source.id },
       },
       result: () => ({ data: { source: admin.source } }),
+    });
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.JoinSquad },
+      },
+      result: () => {
+        return { data: { _: null } };
+      },
     });
     const button = await screen.findByText('Join Squad');
     fireEvent.click(button);
