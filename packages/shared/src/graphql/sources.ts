@@ -78,6 +78,8 @@ export interface Source {
   currentMember?: SourceMember;
   privilegedMembers?: SourcePrivilegedMembers[];
   public: boolean;
+  headerImage?: string;
+  color?: string;
 }
 
 export type SourceData = { source: Source };
