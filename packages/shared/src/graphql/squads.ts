@@ -116,6 +116,7 @@ export const SQUAD_DIRECTORY_SOURCES = gql`
               }
             }
           }
+          referralUrl
         }
       }
     }
