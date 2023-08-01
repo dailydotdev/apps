@@ -66,62 +66,65 @@ const SquadsPage = (): ReactElement => {
               inlineHeader
               forceCardMode
             >
-              {queryResult?.data?.pages?.length > 0 &&
-                queryResult.data.pages.map((page) =>
-                  page.sources.edges.reduce(
-                    (nodes, { node: { name, permalink, id, ...props } }) => {
-                      const isMember = user && props?.currentMember;
+              {queryResult?.data?.pages?.length > 0 && (
+                <>
+                  {queryResult.data.pages.map((page) =>
+                    page.sources.edges.reduce(
+                      (nodes, { node: { name, permalink, id, ...props } }) => {
+                        const isMember = user && props?.currentMember;
 
-                      nodes.push(
-                        <SourceCard
-                          title={name}
-                          subtitle={`@${props.handle}`}
-                          action={{
-                            text: isMember ? 'View Squad' : 'Join Squad',
-                            type: isMember ? 'link' : 'action',
-                            href: isMember ? permalink : undefined,
-                          }}
-                          source={{
-                            name,
-                            active: props.active,
-                            description: props.description,
-                            public: props.public,
-                            membersCount: props.membersCount,
-                            permalink,
-                            id,
-                            type: props.type,
-                            handle: props.handle,
-                            image: props.image,
-                            memberInviteRole: props.memberInviteRole,
-                            memberPostingRole: props.memberPostingRole,
-                            borderColor: props.color,
-                            banner: props.headerImage,
-                            ...props,
-                          }}
-                        />,
-                      );
-                      return nodes;
-                    },
-                    [],
-                  ),
-                )}
-              <SourceCard
-                title="Which squads would you like to see next?"
-                action={{
-                  type: 'link',
-                  text: 'Submit your idea',
-                  href: squadsPublicSuggestion,
-                  target: '_blank',
-                }}
-                icon={
-                  <EditIcon
-                    size={IconSize.XXLarge}
-                    className="text-theme-label-tertiary"
+                        nodes.push(
+                          <SourceCard
+                            title={name}
+                            subtitle={`@${props.handle}`}
+                            action={{
+                              text: isMember ? 'View Squad' : 'Join Squad',
+                              type: isMember ? 'link' : 'action',
+                              href: isMember ? permalink : undefined,
+                            }}
+                            source={{
+                              name,
+                              active: props.active,
+                              description: props.description,
+                              public: props.public,
+                              membersCount: props.membersCount,
+                              permalink,
+                              id,
+                              type: props.type,
+                              handle: props.handle,
+                              image: props.image,
+                              memberInviteRole: props.memberInviteRole,
+                              memberPostingRole: props.memberPostingRole,
+                              borderColor: props.color,
+                              banner: props.headerImage,
+                              ...props,
+                            }}
+                          />,
+                        );
+                        return nodes;
+                      },
+                      [],
+                    ),
+                  )}
+                  <SourceCard
+                    title="Which squads would you like to see next?"
+                    action={{
+                      type: 'link',
+                      text: 'Submit your idea',
+                      href: squadsPublicSuggestion,
+                      target: '_blank',
+                    }}
+                    icon={
+                      <EditIcon
+                        size={IconSize.XXLarge}
+                        className="text-theme-label-tertiary"
+                      />
+                    }
+                    description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."
+                    borderColor={SourceCardBorderColor.Pepper}
                   />
-                }
-                description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."
-                borderColor={SourceCardBorderColor.Pepper}
-              />
+                </>
+              )}
             </FeedContainer>
           </InfiniteScrolling>
         </BaseFeedPage>
