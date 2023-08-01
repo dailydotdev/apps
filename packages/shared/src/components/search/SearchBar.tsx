@@ -209,7 +209,7 @@ export const SearchBar = forwardRef(function SearchBar(
 
             <div className='h-8 border border-theme-divider-quaternary' />
 
-            <SimpleTooltip content={searchHistory.length === 0 ? 'no history' : 'See search history'} >
+            <SimpleTooltip content={searchHistory.length === 0 ? 'Your search history is empty' : 'See search history'} >
               <div>
                 <Button
                   {...rightButtonProps}
@@ -273,12 +273,3 @@ export const SearchBar = forwardRef(function SearchBar(
     </div>
   );
 });
-
-/*
-* TODO
-* 5. Beta tag bug - z-index not working
-* 6. Check sizes in the input field
-* 7. Migrate to search page on search
-* 8. QUESTION - What is the empty tag button?
-* - On page give possible search terms maybe even a button
-*/
