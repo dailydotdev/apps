@@ -32,7 +32,7 @@ export const NotificationPreferenceMenu = ({
     params: notification
       ? [
           {
-            type: notificationPreferenceMap[notification.type],
+            notificationType: notification.type,
             referenceId: notification.referenceId,
           },
         ]
