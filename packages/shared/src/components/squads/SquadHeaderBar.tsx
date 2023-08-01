@@ -122,7 +122,12 @@ export function SquadHeaderBar({
           <Button
             data-testid="squad-notification-button"
             className="btn-secondary"
-            icon={<BellIcon secondary={!!modal} size={IconSize.Small} />}
+            icon={
+              <BellIcon
+                secondary={modal?.type === LazyModal.SquadNotifications}
+                size={IconSize.Small}
+              />
+            }
             onClick={() => {
               openModal({
                 type: LazyModal.SquadNotifications,
