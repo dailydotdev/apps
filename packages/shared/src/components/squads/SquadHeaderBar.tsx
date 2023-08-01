@@ -37,7 +37,6 @@ export function SquadHeaderBar({
     origin: Origin.SquadPage,
   });
   const { openModal, modal } = useLazyModal();
-  console.log(modal);
   const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
   const { sidebarRendered } = useSidebarRendered();
 
