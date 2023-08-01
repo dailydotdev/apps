@@ -220,9 +220,9 @@ describe('squad details', () => {
   });
 
   it('should have join squad button', async () => {
-    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     const admin = generateTestAdmin();
     renderComponent([createInvitationMock(defaultToken, admin)]);
+    client.setQueryData(BOOT_QUERY_KEY, { squads: [] });
     await waitFor(() => screen.findAllByText('Join Squad'));
   });
 });
