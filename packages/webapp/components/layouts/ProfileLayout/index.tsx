@@ -161,7 +161,7 @@ export default function ProfileLayout({
       <ResponsivePageContainer>
         <section
           className={classNames(
-            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
+            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden w-full tablet:w-auto',
             styles.header,
           )}
         >
@@ -255,14 +255,14 @@ export default function ProfileLayout({
                     target="_blank"
                     rel="noopener"
                     icon={<LinkIcon />}
-                    className="btn-tertiary w-full"
+                    className="w-full btn-tertiary"
                     responsiveLabelClass="flex flex-1 min-w-0"
                   >
-                    <div className='truncate flex-1'>
+                    <div className="flex-1 truncate">
                       {portfolioLink
                         .replace(/(^\w+:|^)\/\//, '')
                         .replace(/\/?(\?.*)?$/, '')}
-                      </div>
+                    </div>
                   </QuaternaryButton>
                 </SimpleTooltip>
               )}
