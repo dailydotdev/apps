@@ -34,6 +34,7 @@ export interface SidebarMenuItem {
   rightIcon?: (active: boolean) => ReactElement;
   path?: string;
   target?: HTMLAttributeAnchorTarget | undefined;
+  isForcedLink?: boolean;
   action?: () => unknown;
   alert?: ReactElement;
   active?: boolean;
