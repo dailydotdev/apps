@@ -3,6 +3,8 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import nock from 'nock';
 import { set as setCache } from 'idb-keyval';
+import { useRouter, NextRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
@@ -29,6 +31,15 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/',
+        query: {},
+        replace: jest.fn(),
+        push: jest.fn(),
+      } as unknown as NextRouter),
+  );
 });
 
 const createRankMock = (

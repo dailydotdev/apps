@@ -50,7 +50,10 @@ import {
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import SquadPage from '../pages/squads/[handle]';
 
-const defaultSquad = generateTestSquad();
+const defaultSquad: Squad = {
+  ...generateTestSquad(),
+  public: false,
+};
 let requestedSquad: Partial<Squad> = {};
 
 jest.mock('next/router', () => ({
@@ -97,7 +100,12 @@ const createSourceMock = (
   request: Partial<Squad> = {},
   result: GraphQLResult<SquadData> = {
     data: {
-      source: generateTestSquad({ ...request, ...requestedSquad, handle }),
+      source: generateTestSquad({
+        public: false,
+        ...request,
+        ...requestedSquad,
+        handle,
+      }),
     },
   },
 ): MockedGraphQLResponse<SquadData> => ({
@@ -133,6 +141,7 @@ const renderComponent = (
     createFeedMock(),
   ],
   user: LoggedUser = defaultUser,
+  squads = [defaultSquad],
 ): RenderResult => {
   client = new QueryClient();
 
@@ -142,7 +151,7 @@ const renderComponent = (
   return render(
     <TestBootProvider
       client={client}
-      auth={{ user }}
+      auth={{ user, squads }}
       notification={{
         app: BootApp.Webapp,
         isNotificationsReady: true,
@@ -222,7 +231,44 @@ Object.assign(navigator, {
 
 describe('squad header bar', () => {
   it('should show five of the squad member images', async () => {
-    const members = generateMembersResult().sourceMembers.edges;
+    Object.defineProperty(global, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: true,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      })),
+    });
+    const members = generateMembersResult().sourceMembers.edges.slice(0, 5);
+    renderComponent();
+    const lists = await screen.findAllByLabelText('Members list');
+    const list = lists.find(
+      (item) => !item.className.includes('laptopL:hidden'),
+    );
+    expect(list).toBeInTheDocument();
+    const result = await Promise.all(
+      members.map(async ({ node: { user } }) => {
+        const elements = await screen.findAllByAltText(
+          `${user.username}'s profile`,
+        );
+        return expect(elements.length).toEqual(2);
+      }),
+    );
+    const COUNTER_ELEMENT = 1;
+    expect(result.length).toEqual(5);
+    expect(list.childNodes.length).toEqual(result.length + COUNTER_ELEMENT);
+    Object.defineProperty(global, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: false,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      })),
+    });
+  });
+
+  it('should show three of the squad member images when sidebar is not rendered', async () => {
+    const members = generateMembersResult().sourceMembers.edges.slice(0, 3);
     renderComponent();
     const result = await Promise.all(
       members.map(({ node: { user } }) =>
@@ -230,7 +276,7 @@ describe('squad header bar', () => {
       ),
     );
     const COUNTER_ELEMENT = 1;
-    expect(result.length).toEqual(5);
+    expect(result.length).toEqual(3);
     const list = await screen.findByLabelText('Members list');
     expect(list.childNodes.length).toEqual(result.length + COUNTER_ELEMENT);
   });
@@ -247,6 +293,7 @@ describe('squad header bar', () => {
   });
 
   it('should copy invitation link', async () => {
+    requestedSquad.public = false;
     requestedSquad.currentMember = {
       ...defaultSquad.currentMember,
       permissions: [SourcePermissions.Invite],
@@ -270,6 +317,31 @@ describe('squad header bar', () => {
     );
   });
 
+  it('should copy invitation link for public squad', async () => {
+    requestedSquad.public = true;
+    requestedSquad.currentMember = {
+      ...defaultSquad.currentMember,
+      permissions: [SourcePermissions.Invite],
+    };
+    renderComponent();
+    const invite = await screen.findByText('Copy invitation link');
+
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SquadInvite },
+      },
+      result: { data: { _: true } },
+    });
+    fireEvent.click(invite);
+    await new Promise(process.nextTick);
+
+    const invitation = `https://app.daily.dev/squads/webteam?cid=squad&userid=u1`;
+    await waitFor(() =>
+      expect(window.navigator.clipboard.writeText).toBeCalledWith(invitation),
+    );
+  });
+
   it('should not copy invitation link when member does not have invite permission', async () => {
     requestedSquad.currentMember = {
       ...defaultSquad.currentMember,
@@ -280,6 +352,27 @@ describe('squad header bar', () => {
     await expect(async () => {
       await screen.findByText('Copy invitation link');
     }).rejects.toThrow();
+  });
+
+  it('should show join squad button for open squad', async () => {
+    requestedSquad.public = true;
+    requestedSquad.currentMember = undefined;
+    renderComponent(undefined, undefined, undefined, []);
+
+    expect(await screen.findByText('Join Squad')).toBeInTheDocument();
+  });
+
+  it('should show leave squad button for open squad when already member', async () => {
+    requestedSquad.public = true;
+    renderComponent();
+
+    expect(await screen.findByText('Leave Squad')).toBeInTheDocument();
+  });
+
+  it('should not show join squad button for private squad', async () => {
+    renderComponent();
+
+    expect(screen.queryByText('Join Squad')).not.toBeInTheDocument();
   });
 });
 

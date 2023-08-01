@@ -51,7 +51,7 @@ const maxAuthWidth = 'tablet:max-w-[30rem]';
 
 const Container = classed(
   'div',
-  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-[100] bg-theme-bg-primary',
+  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max bg-theme-bg-primary',
 );
 
 const seo: NextSeoProps = {

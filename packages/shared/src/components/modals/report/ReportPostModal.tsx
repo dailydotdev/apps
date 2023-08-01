@@ -3,21 +3,22 @@ import React, {
   MouseEvent,
   useState,
   useRef,
-  useMemo,
   SetStateAction,
   Dispatch,
+  useCallback,
 } from 'react';
-import { Radio, RadioOption } from '../fields/Radio';
-import { Post } from '../../graphql/posts';
-import { Checkbox } from '../fields/Checkbox';
-import { Button, ButtonSize } from '../buttons/Button';
-import { PostBootData } from '../../lib/boot';
-import { Modal, ModalProps } from './common/Modal';
-import { FlexRow } from '../utilities';
-import useReportPost from '../../hooks/useReportPost';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { Origin } from '../../lib/analytics';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { RadioOption } from '../../fields/Radio';
+import { Post, ReportReason } from '../../../graphql/posts';
+import { Checkbox } from '../../fields/Checkbox';
+import { Button, ButtonSize } from '../../buttons/Button';
+import { PostBootData } from '../../../lib/boot';
+import { ModalProps } from '../common/Modal';
+import { FlexRow } from '../../utilities';
+import useReportPost from '../../../hooks/useReportPost';
+import { postAnalyticsEvent } from '../../../lib/feed';
+import { Origin } from '../../../lib/analytics';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { ReportModal } from './ReportModal';
 
 interface OptionalProps {
   index?: number;
@@ -29,7 +30,7 @@ export type ReportedCallback = (
   options: OptionalProps,
 ) => void;
 
-export interface Props extends ModalProps {
+interface Props extends ModalProps {
   index?: number;
   origin: Origin;
   post: Post | PostBootData;
@@ -87,7 +88,7 @@ const reportReasonsMap: Partial<
   },
 };
 
-export default function ReportPostModal({
+export function ReportPostModal({
   index,
   post,
   origin,
@@ -95,38 +96,43 @@ export default function ReportPostModal({
   ...props
 }: Props): ReactElement {
   const { trackEvent } = useAnalyticsContext();
-  const [reason, setReason] = useState(null);
-  const [comment, setComment] = useState<string>();
   const inputRef = useRef<HTMLInputElement>();
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
-  const reportOptionsForActiveReason = useMemo<RadioOption[]>(() => {
-    return reportReasons.map((reportReason) => {
-      const LabelComponent =
-        reportReason.value === reason && reportReasonsMap[reportReason.value];
+  const reportOptionsForActiveReason = useCallback(
+    (reason) => {
+      return reportReasons.map((reportReason) => {
+        const LabelComponent =
+          reportReason.value === reason && reportReasonsMap[reportReason.value];
 
-      if (LabelComponent) {
-        return {
-          ...reportReason,
-          afterElement: (
-            <LabelComponent
-              post={post}
-              selectedTags={selectedTags}
-              setSelectedTags={setSelectedTags}
-            />
-          ),
-        };
-      }
+        if (LabelComponent) {
+          return {
+            ...reportReason,
+            afterElement: (
+              <LabelComponent
+                post={post}
+                selectedTags={selectedTags}
+                setSelectedTags={setSelectedTags}
+              />
+            ),
+          } as RadioOption;
+        }
 
-      return reportReason;
-    });
-  }, [reason, post, selectedTags]);
+        return reportReason;
+      });
+    },
+    [post, selectedTags],
+  );
 
   const { reportPost } = useReportPost();
-  const onReportPost = async (event: MouseEvent): Promise<void> => {
+  const onReportPost = async (
+    event: MouseEvent,
+    reason: ReportReason,
+    text: string,
+  ): Promise<void> => {
     const { successful } = await reportPost({
       id: post.id,
       reason,
-      comment,
+      comment: text,
       tags: selectedTags,
     });
 
@@ -142,47 +148,20 @@ export default function ReportPostModal({
   };
 
   return (
-    <Modal
-      isOpen
-      kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Small}
-      onRequestClose={props.onRequestClose}
+    <ReportModal
       {...props}
-    >
-      <Modal.Header title="Report post" />
-      <Modal.Body>
-        <p className="mb-6 text-theme-label-tertiary typo-callout">
-          &quot;{post?.title}&quot;
-        </p>
-        <Radio
-          className={{ container: 'mt-2 mb-4' }}
-          name="report_reason"
-          options={reportOptionsForActiveReason}
-          value={reason}
-          onChange={setReason}
-        />
-        <textarea
-          onChange={(event) => setComment(event.target.value)}
-          className="self-stretch p-2 mb-4 w-full h-20 bg-theme-float rounded-10 resize-none typo-body"
-          data-testid="report_comment"
-        />
+      isOpen
+      onReport={onReportPost}
+      reasons={reportOptionsForActiveReason}
+      heading="Report post"
+      title={`"${post?.title}"`}
+      footer={
         <Checkbox ref={inputRef} name="blockSource" className="font-normal">
           Don&apos;t show posts from {post?.source?.name}
         </Checkbox>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button
-          className="btn-primary"
-          disabled={
-            !reason ||
-            (reason === 'OTHER' && !comment) ||
-            (reason === 'IRRELEVANT' && selectedTags.length === 0)
-          }
-          onClick={onReportPost}
-        >
-          Submit report
-        </Button>
-      </Modal.Footer>
-    </Modal>
+      }
+    />
   );
 }
+
+export default ReportPostModal;
