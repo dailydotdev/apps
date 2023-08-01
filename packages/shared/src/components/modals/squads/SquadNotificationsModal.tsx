@@ -9,7 +9,6 @@ import { SourceMemberRole, Squad } from '../../../graphql/sources';
 import { Switch } from '../../fields/Switch';
 import { NotificationType } from '../../notifications/utils';
 import { ClickableText } from '../../buttons/ClickableText';
-import { notificationPreferenceMap } from '../../../graphql/notifications';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
@@ -32,12 +31,12 @@ export function SquadNotificationsModal({
   } = useNotificationPreference({
     params: [
       {
-        type: notificationPreferenceMap[NotificationType.SquadPostAdded],
         referenceId: squad?.id,
+        notificationType: NotificationType.SquadPostAdded,
       },
       {
-        type: notificationPreferenceMap[NotificationType.SquadMemberJoined],
         referenceId: squad?.id,
+        notificationType: NotificationType.SquadMemberJoined,
       },
     ],
     squad,

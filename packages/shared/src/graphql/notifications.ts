@@ -188,9 +188,10 @@ interface NotificationPreferenceParams
   type: NotificationType;
 }
 
-interface FetchParams extends Pick<NotificationPreference, 'referenceId'> {
-  type: NotificationPreferenceType;
-}
+type FetchParams = Pick<
+  NotificationPreference,
+  'referenceId' | 'notificationType'
+>;
 
 export const getNotificationPreferences = async (
   params: FetchParams[],

@@ -4,7 +4,6 @@ import PortalMenu from '../../fields/PortalMenu';
 import { Loader } from '../../Loader';
 import {
   Notification,
-  notificationPreferenceMap,
   NotificationPreferenceStatus,
 } from '../../../graphql/notifications';
 import BellIcon from '../../icons/Bell';
@@ -32,7 +31,7 @@ export const NotificationPreferenceMenu = ({
     params: notification
       ? [
           {
-            type: notificationPreferenceMap[notification.type],
+            notificationType: notification.type,
             referenceId: notification.referenceId,
           },
         ]
