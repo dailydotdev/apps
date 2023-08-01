@@ -6,23 +6,26 @@ import React, {
   ReactElement,
   useState,
   useEffect,
+  useContext,
 } from 'react';
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { AiIcon, SendAirplaneIcon } from '../icons';
 import CloseIcon from '../icons/MiniClose';
-import ArrowIcon from '../icons/Arrow';
 import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
 import { BaseField, FieldInput } from '../fields/common';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
-import ConditionalWrapper from '../ConditionalWrapper';
 import { RaisedLabel, RaisedLabelType } from '../cards/RaisedLabel';
 import styles from '../cards/Card.module.css';
 import TimerIcon from '../icons/Timer';
 import { IconSize } from '../Icon';
 import { SearchProgressBar } from './SearchProgressBar';
-import SimpleTooltip from '../tooltips/SimpleTooltip';
-import { SearchBarSuggestion, SearchBarSuggestionProps } from './SearchBarSuggestion';
+import {
+  SearchBarSuggestion,
+  SearchBarSuggestionProps,
+} from './SearchBarSuggestion';
+import AuthContext from '../../contexts/AuthContext';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface SearchBarProps
   extends Pick<
@@ -99,19 +102,36 @@ export const SearchBar = forwardRef(function SearchBar(
     focusInput,
     setInput,
   } = useInputField(value, valueChanged);
-  // const [completedTime, setCompletedTime] = useState('');
+  const { user, showLogin } = useContext(AuthContext);
   const [progress, setProgress] = useState(0);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<SearchBarSuggestionProps[]>([
     {
-      suggestion: 'How to handle large-scale data storage and retrieval efficiently?',
-      onClick: () => setInput('How to handle large-scale data storage and retrieval efficiently?'),
+      suggestion:
+        'How to handle large-scale data storage and retrieval efficiently?',
+      onClick: () =>
+        setInput(
+          'How to handle large-scale data storage and retrieval efficiently?',
+        ),
     },
     {
       suggestion: 'How do you ensure code quality?',
       onClick: () => setInput('How do you ensure code quality?'),
     },
   ]);
+
+  useEffect(() => {
+    console.log('user', user);
+    if (!user) {
+      setSuggestions([
+        {
+          suggestion:
+            'Sign up and read your first post to get search recommendations',
+          onClick: () => showLogin('search bar suggestion'),
+        },
+      ]);
+    }
+  }, [user]);
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
@@ -148,12 +168,8 @@ export const SearchBar = forwardRef(function SearchBar(
   };
 
   return (
-    <div className='max-w-2xl'>
-      <div className={classNames(
-          'relative',
-          styles.cardContainer
-        )}
-      >
+    <div className="max-w-2xl">
+      <div className={classNames('relative', styles.cardContainer)}>
         <BaseField
           {...props}
           className={classNames(
@@ -166,8 +182,11 @@ export const SearchBar = forwardRef(function SearchBar(
           data-testid="searchBar"
           ref={ref}
         >
-          <AiIcon size={IconSize.Large} className="mr-3 text-theme-label-tertiary" />
-          
+          <AiIcon
+            size={IconSize.Large}
+            className="mr-3 text-theme-label-tertiary"
+          />
+
           <FieldInput
             disabled={disabled}
             placeholder={placeholder}
@@ -184,7 +203,7 @@ export const SearchBar = forwardRef(function SearchBar(
             }}
             onInput={onInput}
             autoFocus={autoFocus}
-            type='primary'
+            type="primary"
             aria-describedby={describedBy}
             autoComplete="off"
             className={classNames(
@@ -194,28 +213,34 @@ export const SearchBar = forwardRef(function SearchBar(
             required
           />
 
-          <div className='flex gap-3 items-center'>
+          <div className="flex gap-3 items-center">
             {hasInput && (
               <Button
                 {...rightButtonProps}
-                className='btn-tertiary'
+                className="btn-tertiary"
                 buttonSize={ButtonSize.Small}
-                title='Clear query'
+                title="Clear query"
                 onClick={onClearClick}
                 icon={<CloseIcon size={IconSize.Small} />}
                 disabled={!hasInput}
               />
             )}
 
-            <div className='h-8 border border-theme-divider-quaternary' />
+            <div className="h-8 border border-theme-divider-quaternary" />
 
-            <SimpleTooltip content={searchHistory.length === 0 ? 'Your search history is empty' : 'See search history'} >
+            <SimpleTooltip
+              content={
+                searchHistory.length === 0
+                  ? 'Your search history is empty'
+                  : 'See search history'
+              }
+            >
               <div>
                 <Button
                   {...rightButtonProps}
-                  className='btn-tertiary'
+                  className="btn-tertiary"
                   buttonSize={ButtonSize.Small}
-                  title='Search history'
+                  title="Search history"
                   onClick={seeSearchHistory}
                   icon={<TimerIcon size={IconSize.Small} />}
                   disabled={searchHistory.length === 0}
@@ -224,9 +249,9 @@ export const SearchBar = forwardRef(function SearchBar(
             </SimpleTooltip>
             <Button
               {...rightButtonProps}
-              className='btn-primary'
+              className="btn-primary"
               buttonSize={ButtonSize.Medium}
-              title='Submit'
+              title="Submit"
               onClick={onSubmit}
               icon={<SendAirplaneIcon size={IconSize.Medium} />}
               disabled={!hasInput}
@@ -234,39 +259,35 @@ export const SearchBar = forwardRef(function SearchBar(
           </div>
         </BaseField>
 
-
-        <RaisedLabel
-          type={RaisedLabelType.Beta}
-        />
+        <RaisedLabel type={RaisedLabelType.Beta} />
       </div>
 
       {showProgress && (
-        <div className='mt-6'>
+        <div className="mt-6">
           <SearchProgressBar progress={progress} />
 
           {progress > 0 && progress < 100 && (
-            <div className='typo-callout text-theme-label-tertiary mt-2'>
+            <div className="mt-2 typo-callout text-theme-label-tertiary">
               🚀 Generating answer
             </div>
           )}
 
           {progress === 100 && completedTime && (
-            <div className='typo-callout text-theme-label-tertiary mt-2'>
+            <div className="mt-2 typo-callout text-theme-label-tertiary">
               Done! {completedTime} seconds.
             </div>
           )}
-
         </div>
       )}
 
       {suggestions && (
-        <div className="flex gap-4 mt-6 flex-wrap">
+        <div className="flex flex-wrap gap-4 mt-6">
           {suggestions.map((suggestion, index) => (
-          <SearchBarSuggestion
-            key={index}
-            suggestion={suggestion.suggestion}
-            onClick={suggestion.onClick}
-          />
+            <SearchBarSuggestion
+              key={index}
+              suggestion={suggestion.suggestion}
+              onClick={suggestion.onClick}
+            />
           ))}
         </div>
       )}

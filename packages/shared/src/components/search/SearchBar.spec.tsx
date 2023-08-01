@@ -1,56 +1,26 @@
 /*
-* TESTS
-* - should render with search history empty
-* - should render with search history populated
-* - should render with submit
-* - should render with completion loading state
-* - should render with the text suggestions
-* - should render with the text for anon
-* - should render with the text for first time login (no read history)
-*/
+ * TESTS
+ * - should render with search history empty
+ * - should render with search history populated
+ * - should render with submit
+ * - should render with completion loading state
+ * - should render with the text suggestions
+ * - should render with the text for anon
+ * - should render with the text for first time login (no read history)
+ */
 
-
+import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import React from 'react';
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
-import Post from '../../../__tests__/fixture/post';
-import { getFacebookShareLink } from '../../lib/share';
-import { Origin } from '../../lib/analytics';
-import Comment from '../../../__tests__/fixture/comment';
-import { getCommentHash } from '../../graphql/comments';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { ADD_POST_TO_SQUAD_MUTATION } from '../../graphql/squads';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
 import { SearchBar, SearchBarProps } from './SearchBar';
-
-const defaultPost = Post;
-const defaultComment = Comment;
-const onRequestClose = jest.fn();
-let features: IFlags;
-
-const defaultFeatures: IFlags = {
-  squad: {
-    enabled: true,
-  },
-};
-
-Object.assign(navigator, {
-  clipboard: {
-    writeText: jest.fn(),
-  },
-});
 
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
-  features = defaultFeatures;
 });
 
 const squads = [generateTestSquad()];
@@ -64,23 +34,20 @@ const renderComponent = (
     inputId: 'name',
     name: 'name',
   };
-  
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AuthContextProvider
-          user={loggedIn ? loggedUser : null}
-          updateUser={jest.fn()}
-          tokenRefreshed
-          getRedirectUri={jest.fn()}
-          loadingUser={false}
-          loadedUserFromCache
-          squads={squads}
-        >
-          <SearchBar {...defaultProps} {...props} />
-        </AuthContextProvider>
-      </FeaturesContextProvider>
+      <AuthContextProvider
+        user={loggedIn ? loggedUser : null}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        squads={squads}
+      >
+        <SearchBar {...defaultProps} {...props} />
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };
@@ -107,9 +74,9 @@ describe('SearchBar', () => {
     const clear = screen.queryByTitle('Clear query');
 
     await waitFor(() => expect(clear).toBeInTheDocument());
-    expect(input.value).toEqual('search');
+    expect(input).toHaveValue('search');
     clear.click();
-    expect(input.value).toEqual('');
+    expect(input).toHaveValue('');
   });
 
   it('should render with progress bar', async () => {
@@ -150,5 +117,4 @@ describe('SearchBar', () => {
   //   fireEvent.click(submitButton);
   //   expect(onSubmit).toHaveBeenCalled();
   // });
-
 });

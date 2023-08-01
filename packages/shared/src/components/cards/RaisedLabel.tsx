@@ -34,7 +34,7 @@ export function RaisedLabel({
         'absolute flex items-start',
         listMode ? 'top-0 right-full mt-5' : 'left-0 bottom-full ml-5 h-5',
         styles.raiseLabel,
-        className
+        className,
       )}
     >
       <SimpleTooltip content={description}>
