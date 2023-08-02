@@ -50,6 +50,12 @@ export const SOURCE_BASE_FRAGMENT = gql`
     description
     image
     membersCount
+    privilegedMembers {
+      user {
+        id
+      }
+      role
+    }
     currentMember {
       ...CurrentMember
     }
