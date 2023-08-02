@@ -8,7 +8,7 @@ import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigationProps } from './PostNavigation';
-import { PostModalActionsProps } from './PostModalActions';
+import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
 import {
   ToastSubject,
   useToastNotification,
@@ -28,7 +28,7 @@ export type PassedPostNavigationProps = Pick<
 >;
 
 export interface PostContentProps
-  extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
+  extends Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
     PassedPostNavigationProps {
   enableShowShareNewComment?: boolean;
   post?: Post;
@@ -108,7 +108,23 @@ export function PostContent({
           className={className?.fixedNavigation}
         />
       )}
-      <PostContainer className={classNames('relative', className?.content)}>
+
+      <PostContainer
+        className={classNames('relative', className?.content)}
+        data-testid="postContainer"
+      >
+        {!hasNavigation && (
+          <PostHeaderActions
+            onBookmark={onToggleBookmark}
+            onShare={onShare}
+            onReadArticle={onReadArticle}
+            post={post}
+            onClose={onClose}
+            className="flex tablet:hidden mb-4"
+            contextMenuId="post-widgets-context"
+          />
+        )}
+
         <BasePostContent
           className={{
             ...className,

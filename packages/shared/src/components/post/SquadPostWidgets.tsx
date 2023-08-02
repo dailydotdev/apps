@@ -5,7 +5,7 @@ import { ShareMobile } from '../ShareMobile';
 import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
-import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import SourceButton from '../cards/SourceButton';
 import { SourceMember, Squad } from '../../graphql/sources';
@@ -16,7 +16,7 @@ import { getSquadMembers } from '../../graphql/squads';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 
 interface PostWidgetsProps
-  extends Omit<PostModalActionsProps, 'contextMenuId'> {
+  extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
   origin?: PostOrigin;
 }
 
@@ -80,7 +80,7 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PostModalActions
+      <PostHeaderActions
         onBookmark={onBookmark}
         onShare={onShare}
         post={post}
