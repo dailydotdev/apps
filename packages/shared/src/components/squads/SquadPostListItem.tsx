@@ -11,6 +11,7 @@ import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/Card';
 import { postDateFormat } from '../../lib/dateFormat';
 import { combinedClicks } from '../../lib/click';
+import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 
 type PostProps = {
   post: Post;
@@ -22,45 +23,51 @@ export const SquadPostListItem = ({
   post,
   onLinkClick,
   onBookmark,
-}: PostProps): ReactElement => (
-  <article
-    className={classNames(
-      'relative flex py-2 pl-4 pr-2 group items-start hover:bg-theme-hover',
-      styles.card,
-    )}
-  >
-    <CardLink
-      href={post.commentsPermalink}
-      title={post.title}
-      {...combinedClicks(() => onLinkClick(post))}
-    />
-    <div className="flex flex-col flex-1">
-      <SquadPostAuthor
-        className={{
-          container: 'mt-0',
-          name: 'typo-callout text-theme-label-primary',
-          handle: 'typo-callout text-theme-label-quaternary',
-        }}
-        author={post.author}
-        role={post.source.currentMember?.role}
-        size="large"
-        date={postDateFormat(post.createdAt)}
+}: PostProps): ReactElement => {
+  const { role } = useMemberRoleForSource({
+    source: post?.source,
+    user: post?.author,
+  });
+  return (
+    <article
+      className={classNames(
+        'relative flex py-2 pl-4 pr-2 group items-start hover:bg-theme-hover',
+        styles.card,
+      )}
+    >
+      <CardLink
+        href={post.commentsPermalink}
+        title={post.title}
+        {...combinedClicks(() => onLinkClick(post))}
       />
-      <p className="mt-2 line-clamp-3 typo-callout text-theme-label-primary">
-        {post.title}
-      </p>
-    </div>
-    <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-      <Button
-        className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
-        pressed={post.bookmarked}
-        buttonSize={ButtonSize.Small}
-        icon={<BookmarkIcon secondary={post.bookmarked} />}
-        onClick={() => onBookmark(post)}
-      />
-    </SimpleTooltip>
-  </article>
-);
+      <div className="flex flex-col flex-1">
+        <SquadPostAuthor
+          className={{
+            container: 'mt-0',
+            name: 'typo-callout text-theme-label-primary',
+            handle: 'typo-callout text-theme-label-quaternary',
+          }}
+          author={post.author}
+          role={role}
+          size="large"
+          date={postDateFormat(post.createdAt)}
+        />
+        <p className="mt-2 line-clamp-3 typo-callout text-theme-label-primary">
+          {post.title}
+        </p>
+      </div>
+      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+        <Button
+          className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
+          pressed={post.bookmarked}
+          buttonSize={ButtonSize.Small}
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
+          onClick={() => onBookmark(post)}
+        />
+      </SimpleTooltip>
+    </article>
+  );
+};
 
 const SquadPostListItemPlaceholder = (): ReactElement => (
   <article aria-busy className="flex relative flex-col py-2 px-4">

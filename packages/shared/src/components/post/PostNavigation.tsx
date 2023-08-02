@@ -3,11 +3,11 @@ import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../icons/Arrow';
-import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 
 type PostActions = Pick<
-  PostModalActionsProps,
+  PostHeaderActionsProps,
   | 'post'
   | 'onClose'
   | 'onShare'
@@ -72,7 +72,7 @@ function PostNavigation({
         </SimpleTooltip>
       )}
       {children}
-      <PostModalActions
+      <PostHeaderActions
         {...props}
         className={classNames('flex', className?.actions)}
         notificactionClassName="ml-4"

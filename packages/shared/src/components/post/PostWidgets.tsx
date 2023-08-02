@@ -5,11 +5,11 @@ import AuthContext from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
-import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 
 interface PostWidgetsProps
-  extends Omit<PostModalActionsProps, 'contextMenuId'> {
+  extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
   origin?: PostOrigin;
 }
 
@@ -25,7 +25,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PostModalActions
+      <PostHeaderActions
         onBookmark={onBookmark}
         onShare={onShare}
         onReadArticle={onReadArticle}
