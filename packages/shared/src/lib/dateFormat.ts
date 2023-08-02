@@ -7,10 +7,10 @@ import {
   subDays,
 } from 'date-fns';
 
-const oneMinute = 60;
-const oneHour = 3600;
-const oneDay = 86400;
-const oneYear = oneDay * 365;
+export const oneMinute = 60;
+export const oneHour = 3600;
+export const oneDay = 86400;
+export const oneYear = oneDay * 365;
 
 export function postDateFormat(
   value: Date | number | string,

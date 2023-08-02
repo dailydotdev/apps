@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
@@ -9,27 +9,51 @@ import {
   CommentMarkdownInputProps,
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
+import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
+import { Squad } from '../../graphql/sources';
+import { Comment } from '../../graphql/comments';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 
 export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   permissionNotificationCommentId?: string;
+  joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
 }
+
+const shouldShowBannerOnComment = (
+  commentId: string,
+  comment: Comment,
+): boolean =>
+  commentId === comment.id ||
+  comment.children?.edges?.some(({ node }) => node.id === commentId);
 
 export default function MainComment({
   className,
   comment,
   appendTooltipTo,
   permissionNotificationCommentId,
+  joinNotificationCommentId,
   onCommented,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const shouldShowBanner =
-    permissionNotificationCommentId === comment.id ||
-    comment.children?.edges?.some(
-      ({ node }) => node.id === permissionNotificationCommentId,
-    );
+  const showNotificationPermissionBanner = useMemo(
+    () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
+    [permissionNotificationCommentId, comment],
+  );
+  const [isJoinSquadBannerDismissed] = usePersistentContext(
+    SQUAD_COMMENT_JOIN_BANNER_KEY,
+    false,
+  );
+  const showJoinSquadBanner =
+    useMemo(
+      () => shouldShowBannerOnComment(joinNotificationCommentId, comment),
+      [joinNotificationCommentId, comment],
+    ) &&
+    !props.post.source?.currentMember &&
+    !isJoinSquadBannerDismissed;
 
   const { replyComment, inputProps, onReplyTo } = useComments(props.post);
   const {
@@ -87,7 +111,15 @@ export default function MainComment({
           onCommented={onCommented}
         />
       ))}
-      {shouldShowBanner && (
+      {showJoinSquadBanner && (
+        <SquadCommentJoinBanner
+          className={!comment.children?.edges?.length && 'mt-3'}
+          squad={props.post?.source as Squad}
+          analyticsOrigin={props.origin}
+          post={props.post}
+        />
+      )}
+      {!showJoinSquadBanner && showNotificationPermissionBanner && (
         <EnableNotification
           className={!comment.children?.edges?.length && 'mt-3'}
           source={NotificationPromptSource.NewComment}

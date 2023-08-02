@@ -14,12 +14,21 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { HotLabel } from '../utilities';
+import { combinedClicks } from '../../lib/click';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
   isLoading: boolean;
   onBookmark: (post: Post) => unknown;
   className?: string;
+  title?: string;
+  moreButtonProps?: {
+    href?: string;
+    text?: string;
+  };
+  ListItem?: React.ComponentType<PostProps> & {
+    Placeholder: () => ReactElement;
+  };
 };
 
 const Separator = <div className="h-px bg-theme-divider-tertiary" />;
@@ -33,7 +42,7 @@ type PostProps = {
 const imageClassName = 'w-7 h-7 rounded-full mt-1';
 const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 
-const ListItem = ({
+const DefaultListItem = ({
   post,
   onLinkClick,
   onBookmark,
@@ -47,8 +56,7 @@ const ListItem = ({
     <CardLink
       href={post.commentsPermalink}
       title={post.title}
-      onClick={() => onLinkClick(post)}
-      onMouseUp={(event) => event.button === 1 && onLinkClick(post)}
+      {...combinedClicks(() => onLinkClick(post))}
     />
     <LazyImage
       imgSrc={post.source.image}
@@ -96,7 +104,7 @@ const ListItem = ({
 
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
 
-const ListItemPlaceholder = (): ReactElement => (
+const DefaultListItemPlaceholder = (): ReactElement => (
   <article aria-busy className="flex relative items-start py-2 pr-2 pl-4">
     <ElementPlaceholder className={imageClassName} />
     <div className={textContainerClassName}>
@@ -106,14 +114,21 @@ const ListItemPlaceholder = (): ReactElement => (
     </div>
   </article>
 );
+DefaultListItem.Placeholder = DefaultListItemPlaceholder;
 
 export default function SimilarPosts({
   posts,
   isLoading,
   onBookmark,
   className,
+  title = 'You might like',
+  moreButtonProps,
+  ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
+  const moreButtonHref =
+    moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
+  const moreButtonText = moreButtonProps?.text || 'View all';
 
   const onLinkClick = async (post: Post): Promise<void> => {
     trackEvent(
@@ -131,14 +146,14 @@ export default function SimilarPosts({
       )}
     >
       <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
-        You might like
+        {title}
       </h4>
       {Separator}
       {isLoading ? (
         <>
-          <ListItemPlaceholder />
-          <ListItemPlaceholder />
-          <ListItemPlaceholder />
+          <ListItem.Placeholder />
+          <ListItem.Placeholder />
+          <ListItem.Placeholder />
         </>
       ) : (
         <>
@@ -154,14 +169,14 @@ export default function SimilarPosts({
       )}
 
       {Separator}
-      <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL} passHref>
+      <Link href={moreButtonHref} passHref>
         <Button
           className="self-start my-2 ml-2 btn-tertiary"
           buttonSize={ButtonSize.Small}
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}
         >
-          View all
+          {moreButtonText}
         </Button>
       </Link>
     </section>

@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
 import AuthContext from '../contexts/AuthContext';
@@ -27,6 +28,9 @@ export default function RankProgressWrapper({
   sidebarExpanded,
   className,
 }: RankProgressWrapperProps): ReactElement {
+  const router = useRouter();
+  const isSquadPage = (router.asPath || router.pathname).startsWith('/squads/');
+
   const { user } = useContext(AuthContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const {
@@ -38,7 +42,7 @@ export default function RankProgressWrapper({
     shouldShowRankModal,
     levelUp,
     confirmLevelUp,
-  } = useReadingRank(disableNewRankPopup);
+  } = useReadingRank(disableNewRankPopup || isSquadPage);
 
   const [levelUpAnimation] = useDebounce(() => {
     confirmLevelUp(true);

@@ -32,7 +32,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isChecklistVisible || !isChecklistReady) {
+  if (!isChecklistVisible || !isChecklistReady || !squad.currentMember) {
     return null;
   }
 
@@ -47,7 +47,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const checklistElement = (
     <ChecklistCard
       title={isDone ? 'Good job! you nailed it. 🥳' : 'Get started with squads'}
-      description={`${totalStepsCount} simple steps to squad greatness!`}
+      description={`${totalStepsCount} simple steps to Squad greatness!`}
       steps={steps}
       onRequestClose={onRequestClose}
     />

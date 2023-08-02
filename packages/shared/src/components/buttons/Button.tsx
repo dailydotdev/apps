@@ -46,6 +46,7 @@ export interface BaseButtonProps {
   displayClass?: string;
   textPosition?: string;
   position?: string;
+  disabled?: boolean;
 }
 
 const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {

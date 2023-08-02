@@ -32,7 +32,7 @@ export function SquadsDropdown({
           <SquadIcon className="mr-2" />
         )
       }
-      placeholder="Select squad"
+      placeholder="Select Squad"
       buttonSize={ButtonSize.Large}
       className={{
         container: 'mt-6 w-70',

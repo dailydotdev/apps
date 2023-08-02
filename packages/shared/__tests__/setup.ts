@@ -59,6 +59,7 @@ jest.mock('next/router', () => ({
     () =>
       ({
         query: {},
+        push: jest.fn(),
       } as unknown as NextRouter),
   ),
 }));
