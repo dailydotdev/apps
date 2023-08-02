@@ -13,7 +13,6 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import {
   SearchBar,
-  SearchBarContainer,
 } from '@dailydotdev/shared/src/components';
 import { getLayout } from './FeedLayout';
 
