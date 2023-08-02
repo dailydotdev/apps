@@ -63,7 +63,7 @@ export function Section({
             showLogin={
               item.requiresLogin && !user ? () => showLogin(item.title) : null
             }
-            isButton={isItemsButton}
+            isButton={isItemsButton && !item?.isForcedLink}
           >
             <ItemInner
               item={item}

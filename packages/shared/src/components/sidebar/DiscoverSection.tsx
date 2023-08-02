@@ -49,7 +49,8 @@ export function DiscoverSection({
         <ListIcon Icon={() => <SourceIcon secondary={active} />} />
       ),
       title: 'Squads',
-      path: '/squads',
+      path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}squads`,
+      isForcedLink: true,
       rightIcon: () => (
         <span className="font-bold typo-caption1 text-theme-label-quaternary">
           beta
