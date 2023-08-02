@@ -161,7 +161,7 @@ export default function ProfileLayout({
       <ResponsivePageContainer>
         <section
           className={classNames(
-            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
+            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden w-full tablet:w-auto',
             styles.header,
           )}
         >
@@ -181,7 +181,7 @@ export default function ProfileLayout({
               </span>
             </div>
           </div>
-          <div className="flex flex-col tablet:flex-1">
+          <div className="flex flex-col tablet:flex-1 min-w-0">
             <div className="flex items-center mb-2">
               <h1 className="m-0 font-bold text-theme-label-primary typo-title3">
                 {profile.name}
@@ -255,7 +255,8 @@ export default function ProfileLayout({
                     target="_blank"
                     rel="noopener"
                     icon={<LinkIcon />}
-                    className="btn-tertiary"
+                    className="w-full btn-tertiary"
+                    responsiveLabelClass="truncate w-auto tablet:w-full self-center flex-1"
                   >
                     {portfolioLink
                       .replace(/(^\w+:|^)\/\//, '')
