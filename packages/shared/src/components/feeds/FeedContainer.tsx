@@ -21,6 +21,7 @@ export interface FeedContainerProps {
   header?: ReactNode;
   className?: string;
   inlineHeader?: boolean;
+  afterFeed?: ReactNode;
 }
 
 const listGaps = {
@@ -73,6 +74,7 @@ export const FeedContainer = ({
   header,
   className,
   inlineHeader = false,
+  afterFeed,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -126,6 +128,7 @@ export const FeedContainer = ({
           >
             {children}
           </div>
+          {afterFeed}
         </div>
       </div>
     </div>
