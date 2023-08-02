@@ -366,6 +366,13 @@ export default function Feed<T>({
       forceCardMode={forceCardMode}
       header={header}
       className={className}
+      afterFeed={
+        showScrollOnboardingVersion ? (
+          <ScrollFeedFiltersOnboarding
+            onInitializeOnboarding={onInitializeOnboardingClick}
+          />
+        ) : null
+      }
     >
       {items.map((item, index) => (
         <FeedItemComponent
@@ -397,11 +404,6 @@ export default function Feed<T>({
           onReadArticleClick={onReadArticleClick}
         />
       ))}
-      {showScrollOnboardingVersion && (
-        <ScrollFeedFiltersOnboarding
-          onInitializeOnboarding={onInitializeOnboardingClick}
-        />
-      )}
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
         {...commonMenuItems}
