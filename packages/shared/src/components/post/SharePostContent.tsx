@@ -10,6 +10,7 @@ import ArrowIcon from '../icons/Arrow';
 import { Post } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
+import { combinedClicks } from '../../lib/click';
 
 interface SharePostContentProps {
   post: Post;
@@ -69,7 +70,10 @@ function SharePostContent({
                 className="mt-5 btn-secondary w-fit"
                 href={post.sharedPost.permalink}
                 openNewTab={openNewTab}
-                onClick={onReadArticle}
+                title="Go to post"
+                rel="noopener"
+                onClick={(e) => e.stopPropagation()}
+                {...combinedClicks(onReadArticle)}
               />
             </div>
             <div className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit">

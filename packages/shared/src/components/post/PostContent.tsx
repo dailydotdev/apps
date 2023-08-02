@@ -150,7 +150,15 @@ export function PostContent({
             className="my-6 font-bold break-words typo-large-title"
             data-testid="post-modal-title"
           >
-            {post.title}
+            <a
+              href={post.permalink}
+              title="Go to post"
+              target="_blank"
+              rel="noopener"
+              {...combinedClicks(onReadArticle)}
+            >
+              {post.title}
+            </a>
           </h1>
           {post.summary && (
             <PostSummary className="mb-6" summary={post.summary} />
