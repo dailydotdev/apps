@@ -5,7 +5,7 @@ function switchDependency(pkg, dep, newDep) {
 }
 
 function switchToPreact(pkg, dep) {
-  switchDependency(pkg, dep, 'npm:@preact/compat@17.0.2');
+  // switchDependency(pkg, dep, 'npm:@preact/compat@17.0.2');
 }
 
 function readPackage(pkg) {
