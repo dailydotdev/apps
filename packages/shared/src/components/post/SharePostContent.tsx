@@ -33,6 +33,11 @@ function SharePostContent({
 
   const isUnknownSource = post.sharedPost.source.id === 'unknown';
 
+  const openArticle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onReadArticle();
+  };
+
   return (
     <>
       <SharePostTitle post={post} />
@@ -72,8 +77,7 @@ function SharePostContent({
                 openNewTab={openNewTab}
                 title="Go to post"
                 rel="noopener"
-                onClick={(e) => e.stopPropagation()}
-                {...combinedClicks(onReadArticle)}
+                {...combinedClicks(openArticle)}
               />
             </div>
             <div className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit">
