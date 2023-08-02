@@ -160,7 +160,7 @@ const AuthDefault = ({
             key={provider}
             provider={provider}
             label={shouldLogin ? 'Log in with' : 'Sign up with'}
-            className="mb-1"
+            className="border-0 mb-1"
             onClick={() => onSocialClick(provider.toLowerCase())}
             loading={!isReady}
             {...props}
