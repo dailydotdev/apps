@@ -1,7 +1,7 @@
-import { setCookie } from './cookie';
+import { expireCookie, setCookie } from './cookie';
 
 describe('cookie', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     Object.defineProperty(document, 'cookie', {
       writable: true,
       value: '',
@@ -82,5 +82,22 @@ describe('cookie', () => {
     expect(() => setCookie('', 'bar')).toThrow();
     expect(() => setCookie('foo', '')).toThrow();
     expect(() => setCookie(undefined, undefined)).toThrow();
+  });
+
+  it('should expire cookie', () => {
+    expireCookie('foo');
+
+    expect(document.cookie).toBe('foo=expired; max-age=0');
+  });
+
+  it('should expire cookie with options', () => {
+    expireCookie('foo', {
+      path: '/',
+      domain: 'daily.dev',
+    });
+
+    expect(document.cookie).toBe(
+      'foo=expired; domain=daily.dev; max-age=0; path=/',
+    );
   });
 });

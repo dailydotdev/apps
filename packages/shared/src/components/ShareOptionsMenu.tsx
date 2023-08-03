@@ -20,7 +20,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { verifyPermission } from '../graphql/squads';
 import { SourcePermissions } from '../graphql/sources';
-import { useCreateSquadModal } from '../hooks/useCreateSquadModal';
+import { useSquadNavigation } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -47,12 +47,12 @@ export default function ShareOptionsMenu({
   onHidden,
   contextId = 'share-context',
 }: ShareOptionsMenuProps): ReactElement {
-  const { openNewSquadModal } = useCreateSquadModal();
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
   const { squads } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { openModal } = useLazyModal();
+  const { openNewSquad } = useSquadNavigation();
   const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -92,8 +92,10 @@ export default function ShareOptionsMenu({
     if (!squads?.length) {
       shareOptions.push({
         icon: <MenuIcon Icon={SquadIcon} />,
-        text: 'Post to new squad',
-        action: () => openNewSquadModal({ origin: Origin.Share }),
+        text: 'Post to new Squad',
+        action: () => {
+          openNewSquad({ origin: Origin.Share });
+        },
       });
     }
 

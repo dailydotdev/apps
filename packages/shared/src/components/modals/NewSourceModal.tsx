@@ -93,7 +93,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
 
   const failedToScrape = () => {
     setShowContact(true);
-    setScrapeError('Failed to fetch information');
+    setScrapeError(
+      'Failed to fetch information, try to find the link to the RSS itself and try again.',
+    );
   };
 
   const { mutateAsync: checkIfSourceExists, isLoading: checkingIfExists } =

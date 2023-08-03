@@ -41,6 +41,7 @@ export const providerMap: ProviderMap = {
     icon: <GoogleIcon className="socialIcon" secondary />,
     provider: 'Google',
     style: { backgroundColor: '#FFFFFF', color: '#0E1217' },
+    className: 'border border-theme-divider-tertiary',
   },
   github: {
     icon: <GitHubIcon className="socialIcon" />,

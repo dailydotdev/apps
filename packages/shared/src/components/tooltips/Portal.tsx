@@ -6,7 +6,7 @@ interface PortalProps {
 }
 
 function Portal({ children }: PortalProps): ReturnType<typeof createPortal> {
-  return createPortal(children, document.body);
+  return createPortal(children, globalThis?.document?.body);
 }
 
 export default Portal;

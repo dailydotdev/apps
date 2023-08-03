@@ -19,7 +19,14 @@ export const useBoot = (): UseBoot => {
   const getBootData = () => client.getQueryData<Boot>(BOOT_QUERY_KEY);
   const addSquad = (squad: Squad) => {
     const bootData = getBootData();
-    const squads = sortByName([...(bootData?.squads || []), squad]);
+    const currentSquads = bootData?.squads || [];
+    const squadExists = currentSquads.some((item) => item.id === squad.id);
+
+    if (squadExists) {
+      return;
+    }
+
+    const squads = sortByName([...currentSquads, squad]);
     client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
   };
   const deleteSquad = (squadId: string) => {
