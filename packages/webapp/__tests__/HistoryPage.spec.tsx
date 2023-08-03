@@ -91,16 +91,16 @@ const renderComponent = (
 
 it('should show appropriate loading attributes', async () => {
   renderComponent();
-  const initialBusyState = (await screen.findByRole('main')).getAttribute(
-    'aria-busy',
-  );
+  const initialBusyState = (
+    await screen.findByTestId('reading-history-container')
+  ).getAttribute('aria-busy');
   expect(JSON.parse(initialBusyState)).toEqual(true);
 
   await waitForNock();
 
-  const afterFetchingBusyState = (await screen.findByRole('main')).getAttribute(
-    'aria-busy',
-  );
+  const afterFetchingBusyState = (
+    await screen.findByTestId('reading-history-container')
+  ).getAttribute('aria-busy');
   expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
 });
 

@@ -51,7 +51,11 @@ export function ReadingHistory(): ReactElement {
   if (!hasReadingHistory && !isLoading) return <ReadingHistoryEmptyScreen />;
 
   return (
-    <div className="flex flex-col">
+    <div
+      className="flex flex-col"
+      aria-busy={isLoading}
+      data-testId="reading-history-container"
+    >
       <PostsSearch
         autoFocus={false}
         placeholder="Search reading history"
