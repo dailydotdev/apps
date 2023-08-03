@@ -5,13 +5,15 @@ import { squadsPublicWaitlist } from '../../lib/constants';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
-import { useActions } from '../../hooks/useActions';
-import { ActionType } from '../../graphql/actions';
 
-export const SquadsDirectoryHeader = (): ReactElement => {
+interface SquadsDirectoryHeaderProps {
+  isOwner: boolean;
+}
+
+export const SquadsDirectoryHeader = ({
+  isOwner,
+}: SquadsDirectoryHeaderProps): ReactElement => {
   const { openNewSquad } = useSquadNavigation();
-  const { isActionsFetched, checkHasCompleted } = useActions();
-  const isOwner = isActionsFetched && checkHasCompleted(ActionType.CreateSquad);
 
   return (
     <div className="mb-4">

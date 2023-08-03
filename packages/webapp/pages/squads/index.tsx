@@ -24,6 +24,8 @@ import { ApiError } from 'next/dist/server/api-utils';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -42,7 +44,9 @@ const seo: NextSeoProps = {
 };
 
 const SquadsPage = ({ initialData }: Props): ReactElement => {
-  const { user } = useContext(AuthContext);
+  const { user, isAuthReady } = useContext(AuthContext);
+  const { isActionsFetched, checkHasCompleted } = useActions();
+  const isOwner = user && checkHasCompleted(ActionType.CreateSquad);
 
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
@@ -60,6 +64,8 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
     },
   );
 
+  if (!isAuthReady || (user && !isActionsFetched)) return null;
+
   return (
     <>
       <NextSeo {...seo} />
@@ -73,7 +79,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
             className="w-full"
           >
             <FeedContainer
-              header={<SquadsDirectoryHeader />}
+              header={<SquadsDirectoryHeader isOwner={isOwner} />}
               className="px-6"
               inlineHeader
               forceCardMode
