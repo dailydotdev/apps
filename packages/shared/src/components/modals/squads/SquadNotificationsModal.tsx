@@ -100,7 +100,7 @@ export function SquadNotificationsModal({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
     >
-      <Modal.Header title={`Notifications from ${squad.name}`} />
+      <Modal.Header title="Notifications" />
       <Modal.Body className="gap-3">
         <Switch
           data-testId="show_new_posts-switch"
@@ -137,16 +137,14 @@ export function SquadNotificationsModal({
             Notify me about new members
           </Switch>
         )}
-        <p className="flex flex-row typo-callout text-theme-label-tertiary">
+        <p className="typo-callout text-theme-label-tertiary">
           For more options, go to your
-          <ClickableText
-            tag="a"
-            className="ml-1"
+          <a
+            className="ml-1 underline hover:no-underline text-theme-label-link"
             href="/account/notifications"
-            inverseUnderline
           >
             notifications settings
-          </ClickableText>
+          </a>
         </p>
       </Modal.Body>
     </Modal>
