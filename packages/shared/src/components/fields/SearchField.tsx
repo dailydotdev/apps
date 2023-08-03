@@ -86,16 +86,13 @@ export const SearchField = forwardRef(function SearchField(
 
   const isPrimary = fieldType === 'primary';
   const isSecondary = fieldType === 'secondary';
+  const sizeClass =
+    fieldSize === 'medium' ? 'h-10 rounded-12' : 'h-12 rounded-14';
 
   return (
     <BaseField
       {...props}
-      className={classNames(
-        'items-center',
-        fieldSize === 'medium' ? 'h-10 rounded-12' : 'h-12 rounded-14',
-        className,
-        { focused },
-      )}
+      className={classNames('items-center', sizeClass, className, { focused })}
       onClick={focusInput}
       data-testid="searchField"
       ref={ref}
@@ -146,6 +143,7 @@ export const SearchField = forwardRef(function SearchField(
         autoComplete="off"
         className={classNames(
           'flex-1',
+          sizeClass,
           getFieldFontColor({ readOnly, disabled, hasInput, focused }),
         )}
         required
