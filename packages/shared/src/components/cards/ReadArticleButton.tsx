@@ -8,6 +8,8 @@ interface ReadArticleButtonProps {
   openNewTab?: boolean;
   buttonSize?: ButtonSize;
   onClick?: (e: React.MouseEvent) => unknown;
+  title?: string;
+  rel?: string;
 }
 
 export const ReadArticleButton = ({

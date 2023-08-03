@@ -67,7 +67,7 @@ export const usePostMenuActions = ({
   }, [post, postIndex, onDeletePost, showPrompt]);
 
   const isSharedPostAuthor =
-    post?.source.type === SourceType.Squad && post?.author?.id === user.id;
+    post?.source.type === SourceType.Squad && post?.author?.id === user?.id;
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const canDelete =
     isModerator ||

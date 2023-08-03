@@ -6,7 +6,7 @@ import { SocialShareIcon } from '../widgets/SocialShareIcon';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/analytics';
 import PlusIcon from '../icons/Plus';
-import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
+import { useSquadNavigation } from '../../hooks';
 import { ButtonSize } from '../buttons/Button';
 import { ProfileImageSize } from '../ProfilePicture';
 
@@ -24,7 +24,7 @@ export function SquadsToShare({
   squadAvatarSize = 'xlarge',
 }: SquadsToShareProps): ReactElement {
   const { squads } = useAuthContext();
-  const { openNewSquadModal } = useCreateSquadModal();
+  const { openNewSquad } = useSquadNavigation();
 
   const list = useMemo(
     () =>
@@ -54,9 +54,8 @@ export function SquadsToShare({
   return (
     <SocialShareIcon
       onClick={() =>
-        openNewSquadModal({
+        openNewSquad({
           origin: Origin.Share,
-          redirectAfterCreate: false,
         })
       }
       icon={<PlusIcon className="text-theme-label-invert" />}

@@ -2,7 +2,7 @@ import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
-interface ProtectedPageProps {
+export interface ProtectedPageProps {
   seo: ReactNode;
   children: ReactNode;
   fallback?: ReactNode;

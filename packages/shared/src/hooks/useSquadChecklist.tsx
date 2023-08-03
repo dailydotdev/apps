@@ -46,18 +46,18 @@ const useSquadChecklist = ({
       [ActionType.CreateSquad]: createChecklistStep({
         type: ActionType.CreateSquad,
         step: {
-          title: 'Create a squad',
+          title: 'Create a Squad',
           description:
-            'Create your first squad and start sharing posts with other members.',
+            'Create your first Squad and start sharing posts with other members.',
         },
         actions,
       }),
       [ActionType.JoinSquad]: createChecklistStep({
         type: ActionType.JoinSquad,
         step: {
-          title: 'Join a squad',
+          title: 'Join a Squad',
           description:
-            'Join your first squad and start sharing posts with other members.',
+            'Join your first Squad and start sharing posts with other members.',
         },
         actions,
       }),
@@ -65,7 +65,7 @@ const useSquadChecklist = ({
         type: ActionType.EditWelcomePost,
         step: {
           title: 'Customize the welcome post',
-          description: `The welcome post is where your new squad members will start their journey. You can welcome them and explain the behavior and rules that are expected.`,
+          description: `The welcome post is where your new Squad members will start their journey. You can welcome them and explain the behavior and rules that are expected.`,
           component: (props) => (
             <SquadEditWelcomePostChecklistStep {...props} squad={squad} />
           ),
@@ -76,7 +76,7 @@ const useSquadChecklist = ({
         type: ActionType.SquadFirstComment,
         step: {
           title: "Let people know you're here",
-          description: `Welcome to the ${squad.name} squad. Start your journey by saying hi.`,
+          description: `Welcome to the ${squad.name} Squad. Start your journey by saying hi.`,
           component: (props) => (
             <SquadFirstCommentChecklistStep {...props} squad={squad} />
           ),
@@ -90,8 +90,8 @@ const useSquadChecklist = ({
           step: {
             title: 'Share your first post',
             description: showArticleOnboarding
-              ? 'Share your first post to help other squad members discover content you found interesting. New here? Click explore.'
-              : 'Share your first post to help other squad members discover content you found interesting.',
+              ? 'Share your first post to help other Squad members discover content you found interesting. New here? Click explore.'
+              : 'Share your first post to help other Squad members discover content you found interesting.',
             component: (props) => (
               <SharePostChecklistStep {...props} squad={squad} />
             ),
@@ -103,7 +103,7 @@ const useSquadChecklist = ({
         step: {
           title: 'Send invitations',
           description:
-            'To unleash the power of squads invite developers you know and appreciate to join you.',
+            'To unleash the power of Squads invite developers you know and appreciate to join you.',
           component: (props) => (
             <InviteMemberChecklistStep {...props} squad={squad} />
           ),
@@ -124,7 +124,7 @@ const useSquadChecklist = ({
         type: ActionType.EnableNotification,
         step: {
           title: 'Subscribe for updates',
-          description: `One last thing! To get the best out of squads stay tuned about the most important activity on ${squad.name}. No spam, we promise!`,
+          description: `One last thing! To get the best out of Squads stay tuned about the most important activity on ${squad.name}. No spam, we promise!`,
           component: NotificationChecklistStep,
         },
         actions,

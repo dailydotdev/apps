@@ -10,6 +10,7 @@ import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { Squad } from '../../graphql/sources';
 import { ActionType } from '../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
+import { PostType } from '../../graphql/posts';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -31,7 +32,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { pinnedAt } = post;
+  const { pinnedAt, type: postType } = post;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
 
@@ -40,6 +41,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   });
 
   const shouldShowHighlightPulse =
+    postType === PostType.Welcome &&
     isChecklistVisible &&
     [ActionType.SquadFirstComment, ActionType.EditWelcomePost].includes(
       openStep,
