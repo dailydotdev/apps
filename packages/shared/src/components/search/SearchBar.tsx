@@ -5,7 +5,6 @@ import React, {
   MouseEvent,
   ReactElement,
   useState,
-  useEffect,
   useContext,
 } from 'react';
 import classNames from 'classnames';
@@ -15,8 +14,11 @@ import CloseIcon from '../icons/MiniClose';
 import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
 import { BaseField, FieldInput } from '../fields/common';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
-import { RaisedLabel, RaisedLabelType } from '../cards/RaisedLabel';
-import styles from '../cards/Card.module.css';
+import {
+  RaisedLabel,
+  RaisedLabelContainer,
+  RaisedLabelType,
+} from '../cards/RaisedLabel';
 import TimerIcon from '../icons/Timer';
 import { IconSize } from '../Icon';
 import { SearchProgressBar } from './SearchProgressBar';
@@ -26,17 +28,13 @@ import {
 } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import moreStyles from '../cards/RaisedLabel.module.css';
-import useMedia from '../../hooks/useMedia';
-import { tablet } from '../../styles/media';
-import SearchModal from './SearchModal';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
 
 export interface SearchBarProps
   extends Pick<
     InputHTMLAttributes<HTMLInputElement>,
     | 'placeholder'
     | 'value'
-    | 'className'
     | 'style'
     | 'name'
     | 'autoFocus'
@@ -45,7 +43,6 @@ export interface SearchBarProps
     | 'aria-haspopup'
     | 'aria-expanded'
     | 'onKeyDown'
-    // | 'type'
     | 'disabled'
     | 'readOnly'
     | 'aria-describedby'
@@ -53,22 +50,18 @@ export interface SearchBarProps
   > {
   inputId: string;
   valueChanged?: (value: string) => void;
-  // fieldSize?: 'large' | 'medium';
   showIcon?: boolean;
-  // fieldType?: 'primary' | 'secondary';
   rightButtonProps?: ButtonProps<'button'> | false;
-  // TODO: Add back in
-  // progress?: number;
   completedTime?: string;
   showProgress?: boolean;
+  className?: {
+    container?: string;
+  };
 }
 
 export interface SearchBarProgressBarProps {
   progress: number;
 }
-
-// const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
-//   isPrimary ? <CloseIcon /> : <ArrowIcon className="rotate-90" />;
 
 export const SearchBar = forwardRef(function SearchBar(
   {
@@ -77,19 +70,14 @@ export const SearchBar = forwardRef(function SearchBar(
     value,
     valueChanged,
     placeholder = 'Ask anything…',
-    // fieldSize = 'large',
     readOnly,
-    // fieldType = 'primary',
     className,
     autoFocus,
-    // type,
     disabled,
     rightButtonProps = { type: 'button' },
     'aria-describedby': describedBy,
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
-    // showIcon = true,
-    // progress,
     showProgress = true,
     completedTime,
     ...props
@@ -109,34 +97,16 @@ export const SearchBar = forwardRef(function SearchBar(
   const { user, showLogin } = useContext(AuthContext);
   const [progress, setProgress] = useState(0);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const [reportModal, setReportModal] = useState(false);
-  const [suggestions, setSuggestions] = useState<SearchBarSuggestionProps[]>([
-    {
-      suggestion:
-        'How to handle large-scale data storage and retrieval efficiently?',
-      onClick: () =>
-        setInput(
-          'How to handle large-scale data storage and retrieval efficiently?',
-        ),
-    },
-    {
-      suggestion: 'How do you ensure code quality?',
-      onClick: () => setInput('How do you ensure code quality?'),
-    },
-  ]);
+  const { sidebarRendered } = useSidebarRendered();
+  const suggestions: SearchBarSuggestionProps[] = [];
 
-  useEffect(() => {
-    if (!user) {
-      setSuggestions([
-        {
-          suggestion:
-            'Sign up and read your first post to get search recommendations',
-          onClick: () => showLogin('search bar suggestion'),
-        },
-      ]);
-    }
-  }, [user]);
+  if (!user) {
+    suggestions.push({
+      suggestion:
+        'Sign up and read your first post to get search recommendations',
+      onClick: () => showLogin('search bar suggestion'),
+    });
+  }
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
@@ -145,36 +115,16 @@ export const SearchBar = forwardRef(function SearchBar(
 
   const onSubmit = (event: MouseEvent): void => {
     event.stopPropagation();
-    setProgress(0);
-    const searchParam = inputRef.current?.value;
-
-    alert(`Searching... ${searchParam}`);
-    progressEmulator();
     setInput(null);
   };
 
   const seeSearchHistory = (event: MouseEvent): void => {
     event.stopPropagation();
-    alert('see search history');
-  };
-
-  // TODO: Temp for testing
-  const progressEmulator = () => {
-    setInterval(() => {
-      setProgress((oldProgress) => {
-        if (oldProgress === 100) {
-          // setCompletedTime('12:12');
-          return 100;
-        }
-        const newProgress = oldProgress + 1;
-        return newProgress;
-      });
-    }, 100);
   };
 
   return (
-    <div className="mb-2 w-full max-w-2xl">
-      <div className={classNames('relative', moreStyles.raiseLabelContainer)}>
+    <div className={classNames('w-full max-w-2xl', className?.container)}>
+      <RaisedLabelContainer>
         <BaseField
           {...props}
           className={classNames(
@@ -182,24 +132,24 @@ export const SearchBar = forwardRef(function SearchBar(
             className,
             { focused },
           )}
-          onClick={isMobile ? () => setReportModal(true) : focusInput}
+          onClick={sidebarRendered ? focusInput : () => {}}
           data-testid="searchBar"
           ref={ref}
         >
-          {!isMobile && (
+          {sidebarRendered && (
             <AiIcon
               size={IconSize.Large}
               className="mr-3 text-theme-label-tertiary"
             />
           )}
 
-          {isMobile && (
+          {!sidebarRendered && (
             <div className="flex-1 text-theme-label-tertiary">
-              { placeholder }
+              {placeholder}
             </div>
           )}
 
-          {!isMobile && (
+          {sidebarRendered && (
             <FieldInput
               disabled={disabled}
               placeholder={placeholder}
@@ -235,12 +185,12 @@ export const SearchBar = forwardRef(function SearchBar(
                 buttonSize={ButtonSize.Small}
                 title="Clear query"
                 onClick={onClearClick}
-                icon={<CloseIcon size={IconSize.Small} />}
+                icon={<CloseIcon />}
                 disabled={!hasInput}
               />
             )}
 
-            {!isMobile && (
+            {sidebarRendered && (
               <div className="h-8 border border-theme-divider-quaternary" />
             )}
 
@@ -258,29 +208,34 @@ export const SearchBar = forwardRef(function SearchBar(
                   buttonSize={ButtonSize.Small}
                   title="Search history"
                   onClick={seeSearchHistory}
-                  icon={<TimerIcon size={IconSize.Small} />}
+                  icon={<TimerIcon />}
                   disabled={searchHistory.length === 0}
                 />
               </div>
             </SimpleTooltip>
-            {!isMobile && (
-              <Button
-                {...rightButtonProps}
-                className="btn-primary"
-                buttonSize={ButtonSize.Medium}
-                title="Submit"
-                onClick={onSubmit}
-                icon={<SendAirplaneIcon size={IconSize.Medium} />}
-                disabled={!hasInput}
-              />
+            {sidebarRendered && (
+              <SimpleTooltip
+                content={!hasInput && 'Enter text to start searching'}
+              >
+                <div>
+                  <Button
+                    {...rightButtonProps}
+                    className="btn-primary"
+                    title="Submit"
+                    onClick={onSubmit}
+                    icon={<SendAirplaneIcon size={IconSize.Medium} />}
+                    disabled={!hasInput}
+                  />
+                </div>
+              </SimpleTooltip>
             )}
           </div>
         </BaseField>
 
         <RaisedLabel type={RaisedLabelType.Beta} />
-      </div>
+      </RaisedLabelContainer>
 
-      {!isMobile && showProgress && (
+      {sidebarRendered && showProgress && (
         <div className="mt-6">
           <SearchProgressBar progress={progress} />
 
@@ -290,7 +245,7 @@ export const SearchBar = forwardRef(function SearchBar(
             </div>
           )}
 
-          {progress === 100 && completedTime && (
+          {completedTime && (
             <div className="mt-2 typo-callout text-theme-label-tertiary">
               Done! {completedTime} seconds.
             </div>
@@ -298,29 +253,16 @@ export const SearchBar = forwardRef(function SearchBar(
         </div>
       )}
 
-      {!isMobile && suggestions && (
+      {sidebarRendered && suggestions && (
         <div className="flex flex-wrap gap-4 mt-6">
-          {suggestions.map((suggestion, index) => (
+          {suggestions.map((suggestion) => (
             <SearchBarSuggestion
-              key={index}
+              key={suggestion.suggestion}
               suggestion={suggestion.suggestion}
               onClick={suggestion.onClick}
             />
           ))}
         </div>
-      )}
-
-      {reportModal && (
-        <SearchModal
-          className="z-rank"
-          // post={postData}
-          // parentSelector={getCompanionWrapper}
-          isOpen={!!reportModal}
-          // index={1}
-          // origin={Origin.CompanionContextMenu}
-          // onReported={onReportPost}
-          onRequestClose={() => setReportModal(null)}
-        />
       )}
     </div>
   );

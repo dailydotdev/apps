@@ -22,6 +22,6 @@ const Upvoted = (): ReactElement => {
 };
 
 Upvoted.getLayout = getMainFeedLayout;
-Upvoted.layoutProps = { ...mainFeedLayoutProps, isSearchOn: true };
+Upvoted.layoutProps = mainFeedLayoutProps;
 
 export default Upvoted;

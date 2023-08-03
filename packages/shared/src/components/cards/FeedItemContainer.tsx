@@ -1,9 +1,12 @@
 import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import { Post } from '../../graphql/posts';
 import { Card, ListCard } from './Card';
-import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
+import {
+  RaisedLabel,
+  RaisedLabelContainer,
+  RaisedLabelType,
+} from './RaisedLabel';
 import ConditionalWrapper from '../ConditionalWrapper';
-import raisedLabelstyles from './RaisedLabel.module.css';
 
 interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -29,14 +32,14 @@ function FeedItemContainer(
     <ConditionalWrapper
       condition={!!pinnedAt || !!trending}
       wrapper={(children) => (
-        <div className={`relative ${raisedLabelstyles.raiseLabelContainer}`}>
+        <RaisedLabelContainer>
           {children}
           <RaisedLabel
             type={type}
             listMode={listMode}
             description={description}
           />
-        </div>
+        </RaisedLabelContainer>
       )}
     >
       <Component {...props} ref={ref} />

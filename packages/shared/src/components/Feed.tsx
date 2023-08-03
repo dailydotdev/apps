@@ -47,6 +47,7 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
+import { SearchBar } from './search';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -60,6 +61,7 @@ export interface FeedProps<T>
   header?: ReactNode;
   forceCardMode?: boolean;
   allowPin?: boolean;
+  showSearch?: boolean;
 }
 
 interface RankVariables {
@@ -151,6 +153,7 @@ export default function Feed<T>({
   forceCardMode,
   options,
   allowPin,
+  showSearch = true,
 }: FeedProps<T>): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -431,6 +434,15 @@ export default function Feed<T>({
       style={style}
     >
       {header}
+
+      {showSearch && (
+        <SearchBar
+          className={{ container: 'mb-8' }}
+          inputId="search"
+          completedTime="12:12"
+        />
+      )}
+
       <div
         className={classNames(
           'relative mx-auto w-full',

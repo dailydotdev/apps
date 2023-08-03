@@ -36,10 +36,6 @@ const Search = (): ReactElement => {
 };
 
 Search.getLayout = getMainFeedLayout;
-Search.layoutProps = {
-  ...mainFeedLayoutProps,
-  mobileTitle: 'Search',
-  isSearchOn: true,
-};
+Search.layoutProps = mainFeedLayoutProps;
 
 export default Search;

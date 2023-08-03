@@ -1,33 +1,46 @@
-/*
- * TESTS
- * - should render with search history empty
- * - should render with search history populated
- * - should render with submit
- * - should render with completion loading state
- * - should render with the text suggestions
- * - should render with the text for anon
- * - should render with the text for first time login (no read history)
- */
-
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { SearchBar, SearchBarProps } from './SearchBar';
+import { RemoteSettings } from '../../graphql/settings';
+import { SettingsContextProvider } from '../../contexts/SettingsContext';
 
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
 });
+const updateSettings = jest.fn();
+
+const defaultSettings: RemoteSettings = {
+  theme: 'bright',
+  openNewTab: false,
+  spaciness: 'roomy',
+  insaneMode: false,
+  showTopSites: true,
+  sidebarExpanded: true,
+  companionExpanded: false,
+  sortingEnabled: false,
+  optOutWeeklyGoal: true,
+  autoDismissNotifications: true,
+  optOutCompanion: false,
+};
 
 const squads = [generateTestSquad()];
-
+// TODO: How do i render sidebar in tests?
 const renderComponent = (
   loggedIn = true,
   props: Partial<SearchBarProps> = {},
+  settings: RemoteSettings = defaultSettings,
 ): RenderResult => {
   const client = new QueryClient();
   const defaultProps: SearchBarProps = {
@@ -46,7 +59,13 @@ const renderComponent = (
         loadedUserFromCache
         squads={squads}
       >
-        <SearchBar {...defaultProps} {...props} />
+        <SettingsContextProvider
+          settings={settings}
+          updateSettings={updateSettings}
+          loadedSettings
+        >
+          <SearchBar {...defaultProps} {...props} />
+        </SettingsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -54,6 +73,15 @@ const renderComponent = (
 
 describe('SearchBar', () => {
   it('should render with the beta flag', async () => {
+    Object.defineProperty(global, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: true,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      })),
+    });
+
     renderComponent();
 
     expect(screen.getByTestId('searchBar')).toBeInTheDocument();
@@ -69,17 +97,35 @@ describe('SearchBar', () => {
   });
 
   it('should render with clear button when there is a value and clear on click', async () => {
+    Object.defineProperty(global, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: true,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      })),
+    });
+
     renderComponent(true, { value: 'search' });
     const input = screen.queryByRole('textbox') as HTMLInputElement;
     const clear = screen.queryByTitle('Clear query');
 
     await waitFor(() => expect(clear).toBeInTheDocument());
     expect(input).toHaveValue('search');
-    clear.click();
+    fireEvent.click(clear);
     expect(input).toHaveValue('');
   });
 
   it('should render with progress bar', async () => {
+    Object.defineProperty(global, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: true,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      })),
+    });
+
     renderComponent(true);
     const progress = screen.queryByTestId('SearchProgressBar');
 
@@ -87,34 +133,18 @@ describe('SearchBar', () => {
   });
 
   it('should render without progress bar', async () => {
+    Object.defineProperty(global, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: true,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      })),
+    });
+
     renderComponent(true, { showProgress: false });
     const progress = screen.queryByTestId('SearchProgressBar');
 
     await waitFor(() => expect(progress).not.toBeInTheDocument());
   });
-
-  // TODO: Fix this test
-  // it('should render with progress bar and completed time', async () => {
-  //   renderComponent(true, { showProgress: true, completedTime: '12:00' }).debug();
-  //   const progress = screen.queryByTestId('SearchProgressBar');
-  //   await waitFor(() => expect(progress).toBeInTheDocument());
-  //   await waitFor(() => expect(screen.getByText('Done! 12:00 seconds.').toBeInTheDocument()));
-  // });
-
-  // TODO: Fix this test
-  // it('should render with progress bar without completed time', async () => {
-  //   renderComponent(true, { showProgress: true, completedTime: '12:00' }).debug();
-  //   const progress = screen.queryByTestId('SearchProgressBar');
-  //   await waitFor(() => expect(progress).toBeInTheDocument());
-  //   await waitFor(() => expect(screen.getByText('Done! 12:00 seconds.').not.toBeInTheDocument()));
-  // });
-
-  // TODO: Fix this test
-  // it('should submit the search query when the submit button is clicked', () => {
-  // const onSubmit = jest.fn();
-  //   renderComponent(true, { inputId: "search", value: "test", onSubmit: onSubmit});
-  //   const submitButton = screen.getByTitle('Submit');
-  //   fireEvent.click(submitButton);
-  //   expect(onSubmit).toHaveBeenCalled();
-  // });
 });

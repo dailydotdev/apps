@@ -47,10 +47,6 @@ const ReportPostModal = dynamic(
   () => import(/* webpackChunkName: "reportPostModal" */ './ReportPostModal'),
 );
 
-const SearchModal = dynamic(
-  () => import(/* webpackChunkName: "squadTourModal" */ '../search/SearchModal'),
-);
-
 export const modals = {
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.EditSquad]: EditSquadModal,
@@ -61,7 +57,6 @@ export const modals = {
   [LazyModal.SquadPromotion]: SquadPromotionModal,
   [LazyModal.CreateSharedPost]: CreateSharedPostModal,
   [LazyModal.ReportPost]: ReportPostModal,
-  [LazyModal.Search]: SearchModal,
 };
 
 type GetComponentProps<T> = T extends

@@ -22,6 +22,6 @@ const Popular = (): ReactElement => {
 };
 
 Popular.getLayout = getMainFeedLayout;
-Popular.layoutProps = { ...mainFeedLayoutProps, isSearchOn: true };
+Popular.layoutProps = mainFeedLayoutProps;
 
 export default Popular;

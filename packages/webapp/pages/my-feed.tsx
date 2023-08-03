@@ -15,6 +15,6 @@ const seo: NextSeoProps = {
 const MyFeed = (): ReactElement => <NextSeo {...seo} />;
 
 MyFeed.getLayout = getMainFeedLayout;
-MyFeed.layoutProps = { ...mainFeedLayoutProps, isSearchOn: true };
+MyFeed.layoutProps = mainFeedLayoutProps;
 
 export default MyFeed;

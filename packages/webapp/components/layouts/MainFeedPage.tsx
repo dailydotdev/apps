@@ -8,23 +8,12 @@ import React, {
 import { useRouter } from 'next/router';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
-import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
-import {
-  SearchBar,
-} from '@dailydotdev/shared/src/components';
 import { getLayout } from './FeedLayout';
-
-const PostsSearch = dynamic(
-  () =>
-    import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
-  { ssr: false },
-);
 
 export type MainFeedPageProps = {
   children?: ReactNode;
-  isSearchOn?: boolean;
 };
 
 const getFeedName = (path: string): string => {
@@ -36,7 +25,6 @@ const getFeedName = (path: string): string => {
 
 export default function MainFeedPage({
   children,
-  isSearchOn = false,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
@@ -69,11 +57,8 @@ export default function MainFeedPage({
   return (
     <MainFeedLayout
       feedName={feedName}
-      isSearchOn={isSearchOn}
       onFeedPageChanged={(page) => router.replace(`/${page}`)}
       searchQuery={router.query?.q?.toString()}
-      searchChildren={<SearchBar inputId="search" completedTime="12:12" />}
-      className={{search: 'overflow-x-visible'}}
     >
       {children}
     </MainFeedLayout>

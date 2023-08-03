@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import styles from './RaisedLabel.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import classed from '../../lib/classed';
 
 export enum RaisedLabelType {
   Hot = 'Hot',
@@ -22,6 +22,11 @@ export interface RaisedLabelProps {
   className?: string | undefined;
 }
 
+export const RaisedLabelContainer = classed(
+  'div',
+  'temp relative group group-hover:transform-none group-hover:z-10 group-hover:transition-transform group-hover:ease-linear group-hover:transition-z-index group-hover:duration-100 group-hover:step-end',
+);
+
 export function RaisedLabel({
   listMode,
   type = RaisedLabelType.Hot,
@@ -33,7 +38,6 @@ export function RaisedLabel({
       className={classNames(
         'absolute flex items-start',
         listMode ? 'top-0 right-full mt-5' : 'left-0 bottom-full ml-5 h-5',
-        styles.raiseLabel,
         className,
       )}
     >
@@ -41,7 +45,7 @@ export function RaisedLabel({
         <div
           className={classNames(
             'flex items-center px-1',
-            styles.flag,
+            'will-change-auto -z-1 transition-transform duration-100 ease-linear group-hover:transform-none group-hover:z-10 group-hover:transition-transform group-hover:ease-linear group-hover:transition-z-index group-hover:duration-100 group-hover:step-end',
             typeToClassName[type],
             listMode
               ? 'h-5 w-full justify-center mouse:translate-x-9 rounded-l'
