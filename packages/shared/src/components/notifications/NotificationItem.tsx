@@ -7,6 +7,7 @@ import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import { notificationTypeTheme } from './utils';
+import OptionsButton from '../buttons/OptionsButton';
 
 export interface NotificationItemProps
   extends Pick<
@@ -16,6 +17,7 @@ export interface NotificationItemProps
   isUnread?: boolean;
   targetUrl: string;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onOptionsClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 function NotificationItem({
@@ -28,6 +30,7 @@ function NotificationItem({
   attachments,
   targetUrl,
   onClick,
+  onOptionsClick,
 }: NotificationItemProps): ReactElement {
   const {
     isReady,
@@ -53,10 +56,18 @@ function NotificationItem({
         href={targetUrl}
         onClick={onClick}
         className={classNames(
-          'flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
+          'relative group flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
           isUnread && 'bg-theme-float',
         )}
       >
+        {onOptionsClick && (
+          <OptionsButton
+            className="hidden group-hover:flex top-3 right-2"
+            position="absolute"
+            type="button"
+            onClick={onOptionsClick}
+          />
+        )}
         <NotificationItemIcon
           icon={icon}
           iconTheme={notificationTypeTheme[type]}

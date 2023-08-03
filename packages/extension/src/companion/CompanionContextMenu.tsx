@@ -4,9 +4,10 @@ import FlagIcon from '@dailydotdev/shared/src/components/icons/Flag';
 import FeedbackIcon from '@dailydotdev/shared/src/components/icons/Feedback';
 import EyeIcon from '@dailydotdev/shared/src/components/icons/Eye';
 import { Item, Menu } from '@dailydotdev/react-contexify';
-import ReportPostModal, {
+import {
+  ReportPostModal,
   ReportedCallback,
-} from '@dailydotdev/shared/src/components/modals/ReportPostModal';
+} from '@dailydotdev/shared/src/components/modals';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ShareBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
@@ -19,6 +20,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import DownvoteIcon from '@dailydotdev/shared/src/components/icons/Downvote';
 import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { labels } from '@dailydotdev/shared/src/lib';
 import { getCompanionWrapper } from './common';
 
 interface CompanionContextMenuProps
@@ -47,7 +49,7 @@ export default function CompanionContextMenu({
       onBlockSource({ id: reportedPost?.source?.id });
     }
 
-    displayToast('🚨 Thanks for reporting!');
+    displayToast(labels.reporting.reportFeedbackText);
   };
 
   const disableModal = async () => {

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
@@ -24,16 +23,7 @@ export const useSquadInvitation = ({
   const { trackEvent } = useAnalyticsContext();
   const { completeAction } = useActions();
 
-  const invitation = useMemo(() => {
-    const permalink = squad?.permalink;
-    const token = squad?.currentMember?.referralToken;
-
-    if (!permalink || !token) {
-      return undefined;
-    }
-
-    return `${permalink}/${token}`;
-  }, [squad]);
+  const invitation = squad.referralUrl;
   const [copying, copyLink] = useCopyLink(() => invitation);
 
   const trackAndCopyLink = () => {

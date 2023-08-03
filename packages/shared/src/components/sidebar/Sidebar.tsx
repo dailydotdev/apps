@@ -23,7 +23,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
 import { SquadsList } from './SquadsList';
 import { ProfilePicture } from '../ProfilePicture';
-import { useCreateSquadModal } from '../../hooks/useCreateSquadModal';
+import { useSquadNavigation } from '../../hooks';
 import { Origin } from '../../lib/analytics';
 
 const UserSettingsModal = dynamic(
@@ -56,7 +56,7 @@ export default function Sidebar({
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const { canSubmitArticle } = useContext(FeaturesContext);
-  const { openNewSquadModal } = useCreateSquadModal();
+  const { openNewSquad } = useSquadNavigation();
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -120,7 +120,7 @@ export default function Sidebar({
               {...defaultRenderSectionProps}
               activePage={activePageProp}
               squads={squads}
-              onNewSquad={() => openNewSquadModal({ origin: Origin.Sidebar })}
+              onNewSquad={() => openNewSquad({ origin: Origin.Sidebar })}
             />
             <DiscoverSection
               {...defaultRenderSectionProps}

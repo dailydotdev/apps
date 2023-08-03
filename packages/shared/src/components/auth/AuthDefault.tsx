@@ -155,17 +155,18 @@ const AuthDefault = ({
     <>
       {!simplified && <AuthModalHeader title={title} />}
       <AuthContainer className={disableRegistration && 'mb-6'}>
-        {providers.map(({ provider, ...props }) => (
-          <ProviderButton
-            key={provider}
-            provider={provider}
-            label={shouldLogin ? 'Log in with' : 'Sign up with'}
-            className="mb-1"
-            onClick={() => onSocialClick(provider.toLowerCase())}
-            loading={!isReady}
-            {...props}
-          />
-        ))}
+        <div className="flex flex-col gap-4">
+          {providers.map(({ provider, ...props }) => (
+            <ProviderButton
+              key={provider}
+              provider={provider}
+              label={shouldLogin ? 'Log in with' : 'Sign up with'}
+              onClick={() => onSocialClick(provider.toLowerCase())}
+              loading={!isReady}
+              {...props}
+            />
+          ))}
+        </div>
         {getOrDivider()}
         {getForm()}
       </AuthContainer>

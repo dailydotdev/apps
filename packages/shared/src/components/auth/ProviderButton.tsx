@@ -14,7 +14,7 @@ function ProviderButton({
   label,
   provider,
   style,
-  className,
+  className = 'border-0',
   ...props
 }: ProviderButtonProps): ReactElement {
   return (
@@ -24,7 +24,6 @@ function ProviderButton({
       style={{
         justifyContent: label ? 'flex-start' : 'center',
         color: '#FFFFFF',
-        border: 0,
         fontWeight: 'normal',
         ...style,
       }}
