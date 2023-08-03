@@ -2,10 +2,8 @@ import React, { ReactElement, useMemo } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
-import {
-  RenderMarkdown,
-  carStoryMarkdownTest,
-} from '@dailydotdev/shared/src/components';
+import { SearchMessage } from '@dailydotdev/shared/src/components';
+import { useChat } from '@dailydotdev/shared/src/hooks';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const baseSeo: NextSeoProps = {
@@ -29,10 +27,28 @@ const Search = (): ReactElement => {
     };
   }, [query]);
 
+  const { messages, handleSubmit, input, setInput, status } = useChat({});
+  const content = messages[0] || '';
+
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
-      <RenderMarkdown content={carStoryMarkdownTest} />
+      <input
+        type="text"
+        value={input}
+        onChange={(event) => setInput(event.target.value)}
+      />
+      <button
+        type="submit"
+        className="btn-primary"
+        onClick={() => {
+          handleSubmit();
+        }}
+      >
+        Search
+      </button>
+      {!content && status && <div>{status}</div>}
+      <SearchMessage content={messages[0] || ''} />
     </>
   );
 };

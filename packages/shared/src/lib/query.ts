@@ -26,6 +26,7 @@ export enum RequestKey {
   Squad = 'squad',
   ReferralCampaigns = 'referral_campaigns',
   NotificationPreference = 'notification_preference',
+  ChatSearch = 'chat_search',
 }
 
 export type HasConnection<
