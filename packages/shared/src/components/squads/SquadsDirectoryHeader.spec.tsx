@@ -9,7 +9,7 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import { SquadsDirectoryHeader } from '.';
+import { SquadsDirectoryHeader, SquadsDirectoryHeaderProps } from '.';
 import { squadsPublicWaitlist } from '../../lib/constants';
 import { LazyModalElement } from '../modals/LazyModalElement';
 import { Origin } from '../../lib/analytics';
@@ -33,7 +33,9 @@ beforeEach(async () => {
 
 const squads = [generateTestSquad()];
 
-const renderComponent = (): RenderResult => {
+const renderComponent = ({
+  isOwner,
+}: SquadsDirectoryHeaderProps): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -49,7 +51,7 @@ const renderComponent = (): RenderResult => {
           squads={squads}
         >
           <LazyModalElement />
-          <SquadsDirectoryHeader />
+          <SquadsDirectoryHeader isOwner={isOwner} />
         </AuthContextProvider>
       </FeaturesContextProvider>
     </QueryClientProvider>,
@@ -64,7 +66,7 @@ it('should render the component as a squad user', async () => {
         push: routerReplace,
       } as unknown as NextRouter),
   );
-  renderComponent();
+  renderComponent({ isOwner: false });
 
   const btn = await screen.findByTestId('squad-directory-join-waitlist');
   btn.click();
@@ -93,7 +95,7 @@ it('should render the component and have a link to join waitlist when squad owne
     },
   });
 
-  renderComponent();
+  renderComponent({ isOwner: true });
 
   await waitFor(async () => {
     const link = await screen.findByTestId('squad-directory-join-waitlist');

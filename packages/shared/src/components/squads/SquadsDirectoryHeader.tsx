@@ -6,7 +6,7 @@ import SourceBetaIcon from '../../../icons/source_beta.svg';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
 
-interface SquadsDirectoryHeaderProps {
+export interface SquadsDirectoryHeaderProps {
   isOwner: boolean;
 }
 
