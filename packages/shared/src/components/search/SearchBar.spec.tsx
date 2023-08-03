@@ -12,35 +12,17 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { SearchBar, SearchBarProps } from './SearchBar';
-import { RemoteSettings } from '../../graphql/settings';
-import { SettingsContextProvider } from '../../contexts/SettingsContext';
 
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
 });
-const updateSettings = jest.fn();
-
-const defaultSettings: RemoteSettings = {
-  theme: 'bright',
-  openNewTab: false,
-  spaciness: 'roomy',
-  insaneMode: false,
-  showTopSites: true,
-  sidebarExpanded: true,
-  companionExpanded: false,
-  sortingEnabled: false,
-  optOutWeeklyGoal: true,
-  autoDismissNotifications: true,
-  optOutCompanion: false,
-};
 
 const squads = [generateTestSquad()];
 // TODO: How do i render sidebar in tests?
 const renderComponent = (
   loggedIn = true,
   props: Partial<SearchBarProps> = {},
-  settings: RemoteSettings = defaultSettings,
 ): RenderResult => {
   const client = new QueryClient();
   const defaultProps: SearchBarProps = {
@@ -59,13 +41,7 @@ const renderComponent = (
         loadedUserFromCache
         squads={squads}
       >
-        <SettingsContextProvider
-          settings={settings}
-          updateSettings={updateSettings}
-          loadedSettings
-        >
-          <SearchBar {...defaultProps} {...props} />
-        </SettingsContextProvider>
+        <SearchBar {...defaultProps} {...props} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
