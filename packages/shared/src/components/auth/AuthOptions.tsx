@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
-import TabContainer, { Tab } from '../tabs/TabContainer';
+import { Tab, TabContainer } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
 import { AuthSignBack, SIGNIN_METHOD_KEY } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
