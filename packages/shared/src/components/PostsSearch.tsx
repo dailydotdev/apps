@@ -2,6 +2,7 @@ import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
+import classNames from 'classnames';
 import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
 import { graphqlUrl } from '../lib/config';
@@ -20,13 +21,14 @@ const AutoCompleteMenu = dynamic(
   },
 );
 
-export type PostsSearchProps = {
+export interface PostsSearchProps {
   initialQuery?: string;
   placeholder?: string;
   suggestionType?: string;
   autoFocus?: boolean;
+  className?: string;
   onSubmitQuery: (query: string) => Promise<unknown>;
-};
+}
 
 const SEARCH_TYPES = {
   searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
@@ -39,6 +41,7 @@ export default function PostsSearch({
   autoFocus = true,
   placeholder,
   onSubmitQuery,
+  className,
   suggestionType = 'searchPostSuggestions',
 }: PostsSearchProps): ReactElement {
   const searchBoxRef = useRef<HTMLDivElement>();
@@ -131,7 +134,7 @@ export default function PostsSearch({
   return (
     <>
       <SearchField
-        className="flex-1 compact"
+        className={classNames('flex-1 compact', className)}
         inputId="posts-search"
         fieldSize="medium"
         placeholder={placeholder}
