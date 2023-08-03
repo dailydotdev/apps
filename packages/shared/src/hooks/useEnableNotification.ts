@@ -72,7 +72,7 @@ export const useEnableNotification = ({
     !isInitialized,
     !isNotificationSupported,
     (isSubscribed || hasPermissionCache) && !isEnabled,
-    hasEnabled && source === NotificationPromptSource.SquadPostModal,
+    hasEnabled,
   ];
   const shouldShowCta = !conditions.some((passed) => passed);
 
