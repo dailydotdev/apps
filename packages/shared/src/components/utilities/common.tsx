@@ -78,7 +78,7 @@ export const PageWidgets = ({
   laptop = true,
   className,
   children,
-}: PageWidgetsProps) => (
+}: PageWidgetsProps): ReactElement => (
   <RawPageWidgets
     className={classNames(
       className,

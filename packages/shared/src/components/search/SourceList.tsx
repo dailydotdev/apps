@@ -62,6 +62,7 @@ export const SourceList = (): ReactElement => {
           {Array(5)
             .fill(0)
             .map((_, i) => (
+              // eslint-disable-next-line react/no-array-index-key
               <SourceItem key={i} />
             ))}
         </div>
