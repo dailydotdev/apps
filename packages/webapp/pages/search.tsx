@@ -2,17 +2,18 @@ import React, { ReactElement, useMemo } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../components/layouts/MainFeedPage';
+  RenderMarkdown,
+  carStoryMarkdownTest,
+} from '@dailydotdev/shared/src/components';
+import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const baseSeo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
 
+// TODO WT-1554-stream-rendering revert changes in this file
 const Search = (): ReactElement => {
   const router = useRouter();
   const { query } = router;
@@ -31,11 +32,12 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
+      <RenderMarkdown content={carStoryMarkdownTest} />
     </>
   );
 };
 
-Search.getLayout = getMainFeedLayout;
-Search.layoutProps = { ...mainFeedLayoutProps, mobileTitle: 'Search' };
+// Search.getLayout = ({ children }) => children;
+// Search.layoutProps = { ...mainFeedLayoutProps, mobileTitle: 'Search' };
 
 export default Search;
