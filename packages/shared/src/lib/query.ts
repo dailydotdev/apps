@@ -24,6 +24,7 @@ export enum RequestKey {
   PostCommentsMutations = 'post_comments_mutations',
   Actions = 'actions',
   Squad = 'squad',
+  ReadingHistory = 'readingHistory',
   ReferralCampaigns = 'referral_campaigns',
   NotificationPreference = 'notification_preference',
 }
