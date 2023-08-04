@@ -44,9 +44,7 @@ const seo: NextSeoProps = {
 };
 
 const SquadsPage = ({ initialData }: Props): ReactElement => {
-  const { user, isAuthReady } = useContext(AuthContext);
-  const { isActionsFetched, checkHasCompleted } = useActions();
-  const isOwner = user && checkHasCompleted(ActionType.CreateSquad);
+  const { user } = useContext(AuthContext);
 
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
@@ -64,8 +62,6 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
     },
   );
 
-  if (!isAuthReady || (user && !isActionsFetched)) return null;
-
   return (
     <>
       <NextSeo {...seo} />
@@ -79,7 +75,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
             className="w-full"
           >
             <FeedContainer
-              header={<SquadsDirectoryHeader isOwner={isOwner} />}
+              header={<SquadsDirectoryHeader />}
               className="px-6"
               inlineHeader
               forceCardMode

@@ -1,19 +1,21 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { squadsPublicWaitlist } from '../../lib/constants';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
+import AuthContext from '../../contexts/AuthContext';
 
-export interface SquadsDirectoryHeaderProps {
-  isOwner: boolean;
-}
-
-export const SquadsDirectoryHeader = ({
-  isOwner,
-}: SquadsDirectoryHeaderProps): ReactElement => {
+export const SquadsDirectoryHeader = (): ReactElement => {
   const { openNewSquad } = useSquadNavigation();
+  const { user, isAuthReady } = useContext(AuthContext);
+  const { isActionsFetched, checkHasCompleted } = useActions();
+  const isOwner = user && checkHasCompleted(ActionType.CreateSquad);
+  const hideCta = !isAuthReady || (user && !isActionsFetched);
 
   return (
     <div className="mb-4">
@@ -36,7 +38,7 @@ export const SquadsDirectoryHeader = ({
           opportunity to dive deep and go niche together with like-minded devs.
         </div>
         <Button
-          className="btn-primary"
+          className={classNames('btn-primary', hideCta && 'invisible')}
           tag="a"
           href={isOwner && squadsPublicWaitlist}
           rel={isOwner && 'noopener'}

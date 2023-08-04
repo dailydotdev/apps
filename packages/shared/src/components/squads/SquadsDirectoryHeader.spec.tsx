@@ -33,9 +33,7 @@ beforeEach(async () => {
 
 const squads = [generateTestSquad()];
 
-const renderComponent = ({
-  isOwner,
-}: SquadsDirectoryHeaderProps): RenderResult => {
+const renderComponent = (): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -51,7 +49,7 @@ const renderComponent = ({
           squads={squads}
         >
           <LazyModalElement />
-          <SquadsDirectoryHeader isOwner={isOwner} />
+          <SquadsDirectoryHeader />
         </AuthContextProvider>
       </FeaturesContextProvider>
     </QueryClientProvider>,
@@ -66,7 +64,7 @@ it('should render the component as a squad user', async () => {
         push: routerReplace,
       } as unknown as NextRouter),
   );
-  renderComponent({ isOwner: false });
+  renderComponent();
 
   const btn = await screen.findByTestId('squad-directory-join-waitlist');
   btn.click();
@@ -95,7 +93,7 @@ it('should render the component and have a link to join waitlist when squad owne
     },
   });
 
-  renderComponent({ isOwner: true });
+  renderComponent();
 
   await waitFor(async () => {
     const link = await screen.findByTestId('squad-directory-join-waitlist');
