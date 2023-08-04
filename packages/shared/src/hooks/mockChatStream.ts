@@ -1,153 +1,3 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useState,
-  useEffect,
-  useCallback,
-} from 'react';
-
-type UseChatProps = {
-  id?: string;
-};
-
-enum UseChatMessageType {
-  SessionCreated = 'session_created',
-  WebSearchFinished = 'web_search_finished',
-  WebResultsFiltered = 'web_results_filtered',
-  StatusUpdated = 'status_updated',
-  NewTokenReceived = 'new_token_received',
-  Completed = 'completed',
-  Error = 'error',
-  SessionFound = 'session_found',
-}
-
-type UseChatMessage<Payload = unknown> = {
-  type: UseChatMessageType;
-  status?: string;
-  timestamp: number;
-  payload: Payload;
-};
-
-type UseChat = {
-  messages: string[];
-  error?: Error & {
-    code: string;
-  };
-  input: string;
-  setInput: Dispatch<SetStateAction<string>>;
-  handleSubmit: () => void;
-  isLoading: boolean;
-  status: string;
-};
-
-const defaultState = {
-  status: '',
-  error: undefined,
-  isLoading: false,
-};
-
-export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
-  const [messages, setMessages] = useState<string[]>([]);
-  const [prompt, setPrompt] = useState<string | undefined>();
-  const [sessionId, setSessionId] = useState<string | undefined>(idFromProps);
-  const [input, setInput] = useState('');
-  const [state, setState] = useState<
-    Pick<UseChat, 'status' | 'error' | 'isLoading'>
-  >(() => ({ ...defaultState }));
-  // //  WT-1554-stream-rendering save to useQuery per sessionId
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const id = sessionId || idFromProps;
-
-  useEffect(() => {
-    if (!prompt) {
-      return undefined;
-    }
-
-    setState({ ...defaultState });
-    setMessages([]); // for now we always clear messages on new promp because we only support single one
-
-    const onMessage = (event: { data: string }) => {
-      try {
-        const data: UseChatMessage = JSON.parse(event.data);
-
-        switch (data.type) {
-          case UseChatMessageType.SessionCreated: {
-            const { id: newSessionId } = data.payload as { id: string };
-            setSessionId(newSessionId as string);
-            setState((current) => ({
-              ...current,
-              isLoading: true,
-            }));
-
-            break;
-          }
-          case UseChatMessageType.WebSearchFinished:
-          case UseChatMessageType.WebResultsFiltered:
-          case UseChatMessageType.StatusUpdated: {
-            setState((current) => ({
-              ...current,
-              status: data.status,
-            }));
-
-            break;
-          }
-          case UseChatMessageType.NewTokenReceived: {
-            const { token } = data.payload as { token: string };
-
-            setMessages((current) => [(current[0] || '') + token]);
-            break;
-          }
-          case UseChatMessageType.Completed: {
-            setState((current) => ({
-              ...current,
-              isLoading: false,
-            }));
-            setPrompt(undefined);
-
-            break;
-          }
-          case UseChatMessageType.Error: {
-            setState((current) => ({
-              ...current,
-              error: data.payload as UseChat['error'],
-            }));
-
-            break;
-          }
-          case UseChatMessageType.SessionFound: {
-            // TODO WT-1554-stream-rendering redirect to session page
-
-            break;
-          }
-          default:
-            break;
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('[EventSource][message] error', error);
-      }
-    };
-
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    const endStream = mockChatStream({ onMessage });
-
-    return () => {
-      endStream();
-    };
-  }, [prompt]);
-
-  return {
-    ...state,
-    messages,
-    input,
-    setInput,
-    handleSubmit: useCallback(() => {
-      setPrompt(input);
-    }, [input]),
-  };
-};
-
-// TODO WT-1554-stream-rendering remove all the mocks
 const carStoryMarkdownTest = `# Automatopia: The Autozens' Tale
 
 Once upon a time in the bustling city of Automatopia, cars ruled the streets and highways.
@@ -312,7 +162,7 @@ const createStream = (content, chunkSize = 50) => {
   return stream;
 };
 
-const mockChatStream = ({
+export const mockChatStream = ({
   onMessage,
 }: {
   onMessage: (event: { data: string }) => void;
@@ -333,14 +183,13 @@ const mockChatStream = ({
     while (stream.length) {
       // eslint-disable-next-line no-await-in-loop
       await new Promise((resolve) => setTimeout(resolve, 400));
+      onMessage({
+        data: JSON.stringify(stream.pop()),
+      });
 
       if (!mounted) {
         break;
       }
-
-      onMessage({
-        data: JSON.stringify(stream.pop()),
-      });
     }
   };
 
