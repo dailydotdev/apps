@@ -26,7 +26,7 @@ import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 import { markdownGuide } from '../../../lib/constants';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import TabContainer, { Tab } from '../../tabs/TabContainer';
+import { TabContainer, Tab } from '../../tabs/TabContainer';
 import MarkdownPreview from '../MarkdownPreview';
 import { isNullOrUndefined } from '../../../lib/func';
 import { SavingLabel } from './SavingLabel';
