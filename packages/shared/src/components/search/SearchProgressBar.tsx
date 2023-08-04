@@ -14,7 +14,7 @@ export const SearchProgressBar = ({
           className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
             progress >= 33 ? 'w-full' : ''
           }`}
-          style={{ width: progress < 33 ? `${progress * 3}%` : '' }}
+          style={progress < 33 ? { width: `${progress * 3}%` } : {}}
         />
       </div>
       <div className="relative flex-1 h-full bg-theme-float rounded-full">
@@ -22,10 +22,11 @@ export const SearchProgressBar = ({
           className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
             progress >= 66 ? 'w-full' : ''
           }`}
-          style={{
-            width:
-              progress >= 33 && progress < 66 ? `${(progress - 33) * 3}%` : '',
-          }}
+          style={
+            progress >= 33 && progress < 66
+              ? { width: `${(progress - 33) * 3}%` }
+              : {}
+          }
         />
       </div>
       <div className="relative flex-1 h-full bg-theme-float rounded-full">
@@ -33,10 +34,11 @@ export const SearchProgressBar = ({
           className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
             progress >= 100 ? 'w-full' : ''
           }`}
-          style={{
-            width:
-              progress >= 66 && progress < 100 ? `${(progress - 66) * 3}%` : '',
-          }}
+          style={
+            progress >= 66 && progress < 100
+              ? { width: `${(progress - 66) * 3}%` }
+              : {}
+          }
         />
       </div>
     </div>

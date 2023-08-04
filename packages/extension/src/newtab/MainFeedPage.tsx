@@ -102,14 +102,8 @@ export default function MainFeedPage({
       <FeedLayout>
         <MainFeedLayout
           feedName={feedName}
-          isSearchOn={isSearchOn}
           searchQuery={searchQuery}
           onFeedPageChanged={onNavTabClick}
-          searchChildren={
-            <PostsSearch
-              onSubmitQuery={async (query) => setSearchQuery(query)}
-            />
-          }
           navChildren={!isSearchOn && <ShortcutLinks />}
         />
       </FeedLayout>
