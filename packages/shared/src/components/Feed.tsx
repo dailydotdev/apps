@@ -33,7 +33,6 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
-import { SearchBar } from './search';
 import { FeedContainer } from './feeds';
 
 export interface FeedProps<T>

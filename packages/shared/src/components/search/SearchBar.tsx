@@ -4,7 +4,6 @@ import React, {
   InputHTMLAttributes,
   MouseEvent,
   ReactElement,
-  useState,
   useContext,
 } from 'react';
 import classNames from 'classnames';
@@ -95,8 +94,8 @@ export const SearchBar = forwardRef(function SearchBar(
     setInput,
   } = useInputField(value, valueChanged);
   const { user, showLogin } = useContext(AuthContext);
-  const [progress, setProgress] = useState(0);
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const progress = 0;
+  const searchHistory = [];
   const { sidebarRendered } = useSidebarRendered();
   const suggestions: SearchBarSuggestionProps[] = [];
 

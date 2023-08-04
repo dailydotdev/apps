@@ -24,7 +24,7 @@ export interface RaisedLabelProps {
 
 export const RaisedLabelContainer = classed(
   'div',
-  'temp relative group group-hover:transform-none group-hover:z-10 group-hover:transition-transform group-hover:ease-linear group-hover:transition-z-index group-hover:duration-100 group-hover:step-end',
+  'relative group group-hover:transform-none group-hover:z-10 group-hover:transition-transform group-hover:ease-linear group-hover:transition-z-index group-hover:duration-100 group-hover:step-end',
 );
 
 export function RaisedLabel({
