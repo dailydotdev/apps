@@ -9,7 +9,7 @@ export const SearchProgressBar = ({
 }: SearchProgressBarProps): ReactElement => {
   return (
     <div className="flex relative gap-6 h-2" data-testId="SearchProgressBar">
-      <div className="relative flex-1 h-full bg-white rounded-full">
+      <div className="relative flex-1 h-full bg-theme-float rounded-full">
         <div
           className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
             progress >= 33 ? 'w-full' : ''
@@ -17,7 +17,7 @@ export const SearchProgressBar = ({
           style={{ width: progress < 33 ? `${progress * 3}%` : '' }}
         />
       </div>
-      <div className="relative flex-1 h-full bg-white rounded-full">
+      <div className="relative flex-1 h-full bg-theme-float rounded-full">
         <div
           className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
             progress >= 66 ? 'w-full' : ''
@@ -28,7 +28,7 @@ export const SearchProgressBar = ({
           }}
         />
       </div>
-      <div className="relative flex-1 h-full bg-white rounded-full">
+      <div className="relative flex-1 h-full bg-theme-float rounded-full">
         <div
           className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
             progress >= 100 ? 'w-full' : ''
