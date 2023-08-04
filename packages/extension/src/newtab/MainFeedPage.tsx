@@ -14,13 +14,6 @@ import DndContext from './DndContext';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
-const PostsSearch = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "postsSearch" */ '@dailydotdev/shared/src/components/PostsSearch'
-    ),
-);
-
 const DndModal = dynamic(
   () => import(/* webpackChunkName: "dndModal" */ './DndModal'),
 );
