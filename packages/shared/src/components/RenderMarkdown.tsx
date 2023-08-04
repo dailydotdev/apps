@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
 
+import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
 
 const ReactMarkdown = dynamic(
@@ -13,6 +14,7 @@ const ReactMarkdown = dynamic(
 export type RenderMarkdownProps = {
   className?: string;
   content: string;
+  reactMarkdownProps?: Omit<ReactMarkdownOptions, 'children'>;
 };
 
 const replaceNewLineRegex = /\n$/;
@@ -96,6 +98,7 @@ const loadPlugins = async (): Promise<unknown[]> => {
 const RenderMarkdown = ({
   className,
   content,
+  reactMarkdownProps,
 }: RenderMarkdownProps): ReactElement => {
   const [plugins, setPlugins] = useState([]);
 
@@ -154,6 +157,7 @@ const RenderMarkdown = ({
           );
         },
       }}
+      {...reactMarkdownProps}
     >
       {content}
     </ReactMarkdown>

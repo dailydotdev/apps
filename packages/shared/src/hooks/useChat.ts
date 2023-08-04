@@ -173,7 +173,7 @@ for (let i=0; i += 1; i < 10) {
 ~~~
 
 ### Recap
-Among them was Zoomer, a sleek, **silver sports car, who** loved nothing more than the rush of the wind on the open road.
+Among them was [Zoomer](https://arrow.fandom.com/wiki/Hunter_Zolomon), a sleek, **silver sports car, who** loved nothing more than the rush of the wind on the open road.
 Zoomer was owned by Alex, a passionate and adventurous young driver.
 Together, they explored every corner of Automatopia, embarking on thrilling journeys, and even participating in races to test their speed.
 
