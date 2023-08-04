@@ -5,6 +5,7 @@ import {
   SearchResult,
   SourceList,
 } from '@dailydotdev/shared/src/components/search';
+import { SearchBar } from '@dailydotdev/shared/src/components';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const SearchPage = (): ReactElement => (
@@ -12,7 +13,7 @@ const SearchPage = (): ReactElement => (
     <NextSeo nofollow noindex />
     <div className="grid grid-cols-1 laptop:grid-cols-3 gap-y-6 pt-8 m-auto max-w-screen-laptop">
       <main className="flex flex-col flex-1 col-span-2 px-4 laptop:px-8">
-        Search component area
+        <SearchBar inputId="search" />
       </main>
       <SearchFeedback />
       <SearchResult />
