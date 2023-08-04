@@ -19,7 +19,6 @@ beforeEach(async () => {
 });
 
 const squads = [generateTestSquad()];
-// TODO: How do i render sidebar in tests?
 const renderComponent = (
   loggedIn = true,
   props: Partial<SearchBarProps> = {},

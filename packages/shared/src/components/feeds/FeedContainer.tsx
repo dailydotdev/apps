@@ -77,7 +77,7 @@ export const FeedContainer = ({
   className,
   inlineHeader = false,
   afterFeed,
-  showSearch
+  showSearch,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
