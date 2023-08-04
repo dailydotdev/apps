@@ -41,7 +41,6 @@ export default function PostItemCard({
     onHide({ postId: post.id, timestamp: timestampDb });
   };
   const article = post?.sharedPost ?? post;
-  const isUnknownSource = post?.sharedPost?.source?.id === 'unknown';
 
   return (
     <article>
@@ -56,8 +55,6 @@ export default function PostItemCard({
                 className,
               )}
               title="Go to post"
-              target={isUnknownSource ? '_blank' : undefined}
-              rel={isUnknownSource ? 'noopener' : undefined}
             >
               {children}
             </a>
