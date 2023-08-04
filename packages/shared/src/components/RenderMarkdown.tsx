@@ -31,7 +31,7 @@ let languagesLoad: Promise<unknown>;
 const loadAndRegisterLanguages = async () => {
   const languages = await import(
     /* webpackChunkName: "reactSyntaxHighlighterLanguages" */
-    'react-syntax-highlighter/dist/esm/languages/hljs'
+    'react-syntax-highlighter/dist/cjs/languages/hljs'
   );
 
   Object.keys(languages).forEach((language) => {
