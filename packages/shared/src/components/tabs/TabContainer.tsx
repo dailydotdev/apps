@@ -46,7 +46,7 @@ export interface TabContainerProps<T extends string> {
   tabListProps?: Pick<TabListProps, 'className'>;
 }
 
-function TabContainer<T extends string = string>({
+export function TabContainer<T extends string = string>({
   children,
   shouldMountInactive = false,
   onActiveChange,
