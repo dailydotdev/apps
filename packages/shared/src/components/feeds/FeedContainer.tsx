@@ -14,6 +14,7 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
+import { SearchBar } from '../search';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -22,6 +23,7 @@ export interface FeedContainerProps {
   className?: string;
   inlineHeader?: boolean;
   afterFeed?: ReactNode;
+  showSearch?: boolean;
 }
 
 const listGaps = {
@@ -75,6 +77,7 @@ export const FeedContainer = ({
   className,
   inlineHeader = false,
   afterFeed,
+  showSearch,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -108,6 +111,7 @@ export const FeedContainer = ({
       <ScrollToTopButton />
       <div className="flex flex-col pt-2 laptopL:mx-auto w-full" style={style}>
         {!inlineHeader && header}
+
         <div
           className={classNames(
             'relative mx-auto w-full',
@@ -119,6 +123,15 @@ export const FeedContainer = ({
           data-testid="posts-feed"
         >
           {inlineHeader && header}
+
+          {showSearch && (
+            <SearchBar
+              className={{ container: 'mb-8' }}
+              inputId="search"
+              completedTime="12:12"
+            />
+          )}
+
           <div
             className={classNames(
               'grid',

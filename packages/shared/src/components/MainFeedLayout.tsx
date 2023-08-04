@@ -83,10 +83,8 @@ const LayoutHeader = classed(
 
 export type MainFeedLayoutProps = {
   feedName: string;
-  isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
-  searchChildren: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: MainFeedPage) => void;
 };
@@ -156,9 +154,7 @@ export const getFeedName = (
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
-  isSearchOn,
   children,
-  searchChildren,
   navChildren,
   onFeedPageChanged,
 }: MainFeedLayoutProps): ReactElement {
@@ -178,9 +174,8 @@ export default function MainFeedLayout({
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
-  const isUpvoted = !isSearchOn && feedName === 'upvoted';
-  const isSortableFeed =
-    !isSearchOn && (feedName === 'popular' || feedName === 'my-feed');
+  const isUpvoted = feedName === 'upvoted';
+  const isSortableFeed = feedName === 'popular' || feedName === 'my-feed';
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -207,12 +202,6 @@ export default function MainFeedLayout({
     0,
   );
   const [selectedPeriod, setSelectedPeriod] = useState(0);
-  const search = (
-    <LayoutHeader>
-      {navChildren}
-      {isSearchOn ? searchChildren : undefined}
-    </LayoutHeader>
-  );
 
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
   const hasMyFeedAlert = alerts.myFeed;
@@ -286,7 +275,7 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (isSearchOn && searchQuery) {
+    if (searchQuery) {
       return {
         feedName: 'search',
         feedQueryKey: generateQueryKey('search', user, searchQuery),
@@ -328,14 +317,14 @@ export default function MainFeedLayout({
       emptyScreen: (
         <FeedEmptyScreen openFeedFilters={() => setIsFeedFiltersOpen(true)} />
       ),
-      header: !isSearchOn && header,
+      header,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    isSearchOn && searchQuery,
+    searchQuery,
     query.query,
     query.variables,
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -354,7 +343,6 @@ export default function MainFeedLayout({
   return (
     <>
       <FeedPage>
-        {isSearchOn && search}
         {feedProps && <Feed {...feedProps} />}
         {children}
       </FeedPage>
