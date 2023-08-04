@@ -72,7 +72,6 @@ export const useEnableNotification = ({
     !isInitialized,
     !isNotificationSupported,
     (isSubscribed || hasPermissionCache) && !isEnabled,
-    hasEnabled,
   ];
   const shouldShowCta = !conditions.some((passed) => passed);
 
