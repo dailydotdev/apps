@@ -27,7 +27,6 @@ export enum RequestKey {
   ReadingHistory = 'readingHistory',
   ReferralCampaigns = 'referral_campaigns',
   NotificationPreference = 'notification_preference',
-  ChatSearch = 'chat_search',
 }
 
 export type HasConnection<
