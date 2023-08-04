@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
-const ReactMarkdown = ({ children }) => {
+const ReactMarkdown = ({
+  children,
+}: {
+  children?: ReactNode;
+}): ReactElement => {
   return <>{children}</>;
-}
+};
 
 export default ReactMarkdown;
