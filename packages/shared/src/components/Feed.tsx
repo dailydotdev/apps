@@ -47,6 +47,7 @@ export interface FeedProps<T>
   header?: ReactNode;
   forceCardMode?: boolean;
   allowPin?: boolean;
+  showSearch?: boolean;
 }
 
 interface RankVariables {
@@ -98,6 +99,7 @@ export default function Feed<T>({
   forceCardMode,
   options,
   allowPin,
+  showSearch = true,
 }: FeedProps<T>): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -366,6 +368,7 @@ export default function Feed<T>({
       forceCardMode={forceCardMode}
       header={header}
       className={className}
+      showSearch={showSearch}
       afterFeed={
         showScrollOnboardingVersion ? (
           <ScrollFeedFiltersOnboarding

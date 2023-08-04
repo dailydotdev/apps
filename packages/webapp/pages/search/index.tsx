@@ -5,12 +5,12 @@ import {
   SearchResult,
   SourceList,
 } from '@dailydotdev/shared/src/components/search';
+import { SearchBar } from '@dailydotdev/shared/src/components';
 import { useChat } from '@dailydotdev/shared/src/hooks';
-import { FieldInput } from '@dailydotdev/shared/src/components/fields/common';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const SearchPage = (): ReactElement => {
-  const { messages, handleSubmit, input, setInput } = useChat({});
+  const { messages, handleSubmit, setInput } = useChat({});
   const content = messages[0] || '';
 
   return (
@@ -18,21 +18,11 @@ const SearchPage = (): ReactElement => {
       <NextSeo nofollow noindex />
       <div className="grid grid-cols-1 laptop:grid-cols-3 gap-y-6 pt-8 m-auto max-w-screen-laptop">
         <main className="flex flex-col flex-1 col-span-2 px-4 laptop:px-8">
-          <FieldInput
-            className="bg-theme-label-primary field"
-            placeholder="Search here"
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
+          <SearchBar
+            inputId="search"
+            valueChanged={setInput}
+            onSubmit={handleSubmit}
           />
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={() => {
-              handleSubmit();
-            }}
-          >
-            Search
-          </button>
         </main>
         <SearchFeedback />
         {!!content && (

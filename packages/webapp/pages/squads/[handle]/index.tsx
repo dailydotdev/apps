@@ -162,6 +162,7 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
+          showSearch={false}
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
           allowPin
