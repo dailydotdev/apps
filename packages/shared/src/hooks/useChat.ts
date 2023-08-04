@@ -93,6 +93,7 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
           }
           case UseChatMessageType.NewTokenReceived: {
             const { token } = data.payload as { token: string };
+            // TODO WT-1554-stream-rendering handle sources
 
             setMessages((current) => [(current[0] || '') + token]);
             break;
