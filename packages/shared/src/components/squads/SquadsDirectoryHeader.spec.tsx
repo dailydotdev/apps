@@ -9,7 +9,7 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import { SquadsDirectoryHeader, SquadsDirectoryHeaderProps } from '.';
+import { SquadsDirectoryHeader } from '.';
 import { squadsPublicWaitlist } from '../../lib/constants';
 import { LazyModalElement } from '../modals/LazyModalElement';
 import { Origin } from '../../lib/analytics';

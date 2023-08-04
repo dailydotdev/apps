@@ -24,8 +24,6 @@ import { ApiError } from 'next/dist/server/api-utils';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
-import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
