@@ -140,6 +140,7 @@ const RenderMarkdown = ({
               customStyle={containerReset}
               language={language}
               useInlineStyles={false}
+              wrapLongLines
               codeTagProps={{
                 className: codeClassName,
               }}

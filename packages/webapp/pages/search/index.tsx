@@ -10,7 +10,7 @@ import { useChat } from '@dailydotdev/shared/src/hooks';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const SearchPage = (): ReactElement => {
-  const { messages, handleSubmit, setInput } = useChat({});
+  const { messages, handleSubmit, setInput, isLoading } = useChat({});
   const content = messages[0] || '';
 
   return (
@@ -27,7 +27,12 @@ const SearchPage = (): ReactElement => {
         <SearchFeedback />
         {!!content && (
           <>
-            <SearchResult content={content} />
+            <SearchResult
+              content={content}
+              searchMessageProps={{
+                isLoading,
+              }}
+            />
             <SourceList />
           </>
         )}
