@@ -21,7 +21,7 @@ export const SearchResult = ({
       <div className="flex p-2 mr-4 w-10 h-10 rounded-10 bg-theme-color-cabbage">
         <LogoIcon className="max-w-full" />
       </div>
-      <div className="w-[calc(100%-3.5rem)]">
+      <div className="flex-1">
         <SearchMessage {...searchMessageProps} content={content} />
         <div className="flex pt-4">
           <Button
