@@ -80,7 +80,7 @@ export function SquadHeaderBar({
       </div>
       {squad.public && (
         <SquadJoinButton
-          className="flex flex-1 tablet:flex-initial -ml-4 tablet:ml-auto w-full tablet:w-auto"
+          className="flex flex-1 tablet:flex-initial tablet:ml-auto w-full tablet:w-auto"
           squad={squad}
           origin={Origin.SquadPage}
         />
