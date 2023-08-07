@@ -28,7 +28,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
         <SourceBetaIcon
           width="auto"
           height="3rem"
-          className="mb-4 text-white"
+          className="mb-4 text-white translate-x-[1.125rem]"
         />
         <div className="flex justify-center items-center mb-3 text-white typo-large-title">
           Introducing Squads
