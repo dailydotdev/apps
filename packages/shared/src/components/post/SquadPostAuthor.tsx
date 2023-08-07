@@ -42,7 +42,7 @@ function SquadPostAuthor({
             <span className={classNames('font-bold', className?.name)}>
               {author.name}
             </span>
-            {role && <SquadMemberBadge key="squadMemberRole" role={role} />}
+            {!!role && <SquadMemberBadge key="squadMemberRole" role={role} />}
           </div>
           <span
             className={classNames(
