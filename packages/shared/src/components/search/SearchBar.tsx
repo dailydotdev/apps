@@ -56,6 +56,7 @@ export interface SearchBarProps
   className?: {
     container?: string;
   };
+  onSubmit?: <T>(event: MouseEvent<T>) => void;
 }
 
 export interface SearchBarProgressBarProps {
@@ -79,6 +80,7 @@ export const SearchBar = forwardRef(function SearchBar(
     onFocus: externalOnFocus,
     showProgress = true,
     completedTime,
+    onSubmit: handleSubmit,
     ...props
   }: SearchBarProps,
   ref: ForwardedRef<HTMLDivElement>,
@@ -114,6 +116,11 @@ export const SearchBar = forwardRef(function SearchBar(
 
   const onSubmit = (event: MouseEvent): void => {
     event.stopPropagation();
+
+    if (handleSubmit) {
+      handleSubmit(event);
+    }
+
     setInput(null);
   };
 

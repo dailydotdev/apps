@@ -5,15 +5,24 @@ import LogoIcon from '../../svg/LogoIcon';
 import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
 import CopyIcon from '../icons/Copy';
+import { SearchMessage, SearchMessageProps } from './SearchMessage';
 
-export const SearchResult = (): ReactElement => (
-  <main className="order-3 laptop:order-3 col-span-2 px-4 laptop:px-8">
+export type SearchResultProps = {
+  content: string;
+  searchMessageProps?: Omit<SearchMessageProps, 'content'>;
+};
+
+export const SearchResult = ({
+  content,
+  searchMessageProps,
+}: SearchResultProps): ReactElement => (
+  <main className="order-3 laptop:order-3 col-span-2 px-4 laptop:px-8 mb-5">
     <WidgetContainer className="flex p-4">
       <div className="flex p-2 mr-4 w-10 h-10 rounded-10 bg-theme-color-cabbage">
         <LogoIcon className="max-w-full" />
       </div>
-      <div>
-        <p>Result here</p>
+      <div className="flex-1">
+        <SearchMessage {...searchMessageProps} content={content} />
         <div className="flex pt-4">
           <Button
             className="btn-tertiary"

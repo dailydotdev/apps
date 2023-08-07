@@ -5,3 +5,4 @@ export * from './SearchFeedback';
 export * from './SearchProgressBar';
 export * from './SearchResult';
 export * from './SourceList';
+export * from './SearchMessage';
