@@ -11,7 +11,6 @@ import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/Card';
 import { postDateFormat } from '../../lib/dateFormat';
 import { combinedClicks } from '../../lib/click';
-import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 
 type PostProps = {
   post: Post;
@@ -24,10 +23,6 @@ export const SquadPostListItem = ({
   onLinkClick,
   onBookmark,
 }: PostProps): ReactElement => {
-  const { role } = useMemberRoleForSource({
-    source: post?.source,
-    user: post?.author,
-  });
   return (
     <article
       className={classNames(
@@ -48,7 +43,6 @@ export const SquadPostListItem = ({
             handle: 'typo-callout text-theme-label-quaternary',
           }}
           author={post.author}
-          role={role}
           size="large"
           date={postDateFormat(post.createdAt)}
         />
