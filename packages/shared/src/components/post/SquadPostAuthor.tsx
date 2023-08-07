@@ -17,6 +17,7 @@ interface SquadPostAuthorProps {
   role: SourceMemberRole;
   size?: ProfileImageSize;
   date?: string;
+  showRole?: boolean;
 }
 
 function SquadPostAuthor({
@@ -25,6 +26,7 @@ function SquadPostAuthor({
   role,
   size = 'xxxlarge',
   date,
+  showRole = true,
 }: SquadPostAuthorProps): ReactElement {
   return (
     <span
@@ -42,7 +44,7 @@ function SquadPostAuthor({
             <span className={classNames('font-bold', className?.name)}>
               {author.name}
             </span>
-            <SquadMemberBadge key="squadMemberRole" role={role} />
+            {showRole && <SquadMemberBadge key="squadMemberRole" role={role} />}
           </div>
           <span
             className={classNames(

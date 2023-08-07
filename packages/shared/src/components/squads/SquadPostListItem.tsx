@@ -51,6 +51,7 @@ export const SquadPostListItem = ({
           role={role}
           size="large"
           date={postDateFormat(post.createdAt)}
+          showRole={false}
         />
         <p className="mt-2 line-clamp-3 typo-callout text-theme-label-primary">
           {post.title}
