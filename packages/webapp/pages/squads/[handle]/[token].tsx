@@ -214,9 +214,9 @@ const SquadReferral = ({
       </span>
       <div className="flex flex-col p-6 my-8 w-full rounded-24 border border-theme-color-cabbage">
         <span className="flex flex-col tablet:flex-row items-start tablet:items-center">
-          <div className="flex flex-row items-start">
+          <div className="flex flex-row flex-1 items-start">
             <SourceButton source={source} size="xxlarge" />
-            <div className="flex flex-col ml-4">
+            <div className="flex flex-col flex-1 mr-0 tablet:mr-4 ml-4">
               <h2 className="flex flex-col typo-headline">{source.name}</h2>
               <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
               {source.description && (
