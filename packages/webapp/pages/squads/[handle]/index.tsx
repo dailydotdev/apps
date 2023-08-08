@@ -1,8 +1,4 @@
-import {
-  GetStaticPathsResult,
-  GetStaticPropsContext,
-  GetStaticPropsResult,
-} from 'next';
+import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import React, {
   ReactElement,
@@ -11,7 +7,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
@@ -37,6 +32,8 @@ import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import request, { ClientError } from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -64,6 +61,7 @@ const SquadChecklistCard = dynamic(
 type SourcePageProps = {
   handle: string;
   initialData?: Pick<Squad, 'name' | 'public' | 'description' | 'image'>;
+  referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
 };
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
@@ -85,11 +83,14 @@ const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   );
 };
 
-const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
+const SquadPage = ({
+  handle,
+  initialData,
+  referringUser,
+}: SourcePageProps): ReactElement => {
   useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { isFallback } = useRouter();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -136,7 +137,11 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
   const seoData = squad || initialData;
   const seo = !!seoData && (
     <NextSeo
-      title={`${seoData.name} posts on daily.dev`}
+      title={
+        referringUser
+          ? `${referringUser.name} invited you to ${seoData.name}`
+          : `${seoData.name} posts on daily.dev`
+      }
       description={seoData.description}
       openGraph={{
         images: seoData.image ? [{ url: seoData.image }] : undefined,
@@ -146,7 +151,7 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
     />
   );
 
-  if ((isFallback || isLoading) && !isFetched) {
+  if (isLoading && !isFetched) {
     return (
       <>
         {seo}
@@ -204,43 +209,70 @@ SquadPage.layoutProps = mainFeedLayoutProps;
 
 export default SquadPage;
 
-export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
-}
-
 interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
 
-export async function getStaticProps({
+export async function getServerSideProps({
   params,
-}: GetStaticPropsContext<SquadPageParams>): Promise<
-  GetStaticPropsResult<SourcePageProps>
+  query,
+  res,
+}: GetServerSidePropsContext<SquadPageParams>): Promise<
+  GetServerSidePropsResult<SourcePageProps>
 > {
   const { handle } = params;
+  const { userid: userId, cid: campaign } = query;
+
+  const setCacheHeader = () => {
+    res.setHeader(
+      'Cache-Control',
+      `public, max-age=0, must-revalidate, s-maxage=${oneHour}`,
+    );
+  };
 
   try {
-    const { source: squad } = await request<{
-      source: SourcePageProps['initialData'];
-    }>(graphqlUrl, SQUAD_STATIC_FIELDS_QUERY, {
-      handle,
-    });
+    const promises = [];
+
+    promises.push(
+      request<{
+        source: SourcePageProps['initialData'];
+      }>(graphqlUrl, SQUAD_STATIC_FIELDS_QUERY, {
+        handle,
+      }),
+    );
+
+    if (userId && campaign) {
+      promises.push(
+        request<{ user: SourcePageProps['referringUser'] }>(
+          graphqlUrl,
+          GET_REFERRING_USER_QUERY,
+          {
+            id: userId,
+          },
+        ).catch(() => undefined),
+      );
+    }
+
+    const [{ source: squad }, referringUser] = await Promise.all(promises);
+
+    setCacheHeader();
 
     return {
       props: {
         handle,
         initialData: squad,
+        referringUser: referringUser?.user || null,
       },
-      revalidate: oneHour,
     };
   } catch (err) {
     const clientError = err as ClientError;
     const errors = Object.values(ApiError);
 
     if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+      setCacheHeader();
+
       return {
         props: { handle },
-        revalidate: oneHour,
       };
     }
 
