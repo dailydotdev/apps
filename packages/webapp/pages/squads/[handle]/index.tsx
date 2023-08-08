@@ -18,7 +18,10 @@ import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
-import { getSquadMembers } from '@dailydotdev/shared/src/graphql/squads';
+import {
+  SQUAD_QUERY,
+  getSquadMembers,
+} from '@dailydotdev/shared/src/graphql/squads';
 import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
@@ -30,6 +33,10 @@ import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered
 import classNames from 'classnames';
 import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
 import { useJoinReferral, useSquad } from '@dailydotdev/shared/src/hooks';
+import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
+import request, { ClientError } from 'graphql-request';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -54,7 +61,7 @@ const SquadChecklistCard = dynamic(
     ),
 );
 
-type SourcePageProps = { handle: string };
+type SourcePageProps = { handle: string; initialData?: Squad };
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   const { squad, seo, children, ...restProtectedPageProps } = props;
@@ -75,7 +82,7 @@ const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   );
 };
 
-const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
+const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
   useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
@@ -123,17 +130,35 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     });
   }, [isForbidden, squadId, handle, trackEvent]);
 
-  if ((isFallback || isLoading) && !isFetched) return <SquadLoading />;
+  const seoData = squad || initialData;
+  const seo = !!seoData && (
+    <NextSeo
+      title={`${seoData.name} posts on daily.dev`}
+      description={seoData.description}
+      openGraph={{
+        images: seoData.image ? [{ url: seoData.image }] : undefined,
+      }}
+      nofollow={!seoData.public}
+      noindex={!seoData.public}
+    />
+  );
 
-  if (!isFetched) return <></>;
+  if ((isFallback || isLoading) && !isFetched) {
+    return (
+      <>
+        {seo}
+        <SquadLoading />
+      </>
+    );
+  }
+
+  if (!isFetched) {
+    return <>{seo}</>;
+  }
 
   if (isForbidden) return <Unauthorized />;
 
   if (!squad) return <Custom404 />;
-
-  const seo = (
-    <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
-  );
 
   return (
     <PageComponent
@@ -184,12 +209,40 @@ interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
 
-export function getStaticProps({
+export async function getStaticProps({
   params,
-}: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<SourcePageProps> {
-  return {
-    props: {
-      handle: params.handle,
-    },
-  };
+}: GetStaticPropsContext<SquadPageParams>): Promise<
+  GetStaticPropsResult<SourcePageProps>
+> {
+  const { handle } = params;
+
+  try {
+    const { source: squad } = await request<{ source: Squad }>(
+      graphqlUrl,
+      SQUAD_QUERY,
+      {
+        handle,
+      },
+    );
+
+    return {
+      props: {
+        handle,
+        initialData: squad,
+      },
+      revalidate: oneHour,
+    };
+  } catch (err) {
+    const clientError = err as ClientError;
+    const errors = Object.values(ApiError);
+
+    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+      return {
+        props: { handle },
+        revalidate: oneHour,
+      };
+    }
+
+    throw err;
+  }
 }
