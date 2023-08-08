@@ -19,7 +19,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import {
-  SQUAD_QUERY,
+  SQUAD_STATIC_FIELDS_QUERY,
   getSquadMembers,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
@@ -61,7 +61,10 @@ const SquadChecklistCard = dynamic(
     ),
 );
 
-type SourcePageProps = { handle: string; initialData?: Squad };
+type SourcePageProps = {
+  handle: string;
+  initialData?: Pick<Squad, 'name' | 'public' | 'description' | 'image'>;
+};
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   const { squad, seo, children, ...restProtectedPageProps } = props;
@@ -217,13 +220,11 @@ export async function getStaticProps({
   const { handle } = params;
 
   try {
-    const { source: squad } = await request<{ source: Squad }>(
-      graphqlUrl,
-      SQUAD_QUERY,
-      {
-        handle,
-      },
-    );
+    const { source: squad } = await request<{
+      source: SourcePageProps['initialData'];
+    }>(graphqlUrl, SQUAD_STATIC_FIELDS_QUERY, {
+      handle,
+    });
 
     return {
       props: {
