@@ -47,7 +47,7 @@ export const useTimedAnimation = ({
 
   const startAnimation = useCallback(
     (duration: number) => {
-      if (isNullOrUndefined(duration) || duration <= 0) {
+      if (isNullOrUndefined(duration) || duration <= 0 || timer > 0) {
         return;
       }
 
@@ -67,7 +67,7 @@ export const useTimedAnimation = ({
         PROGRESS_INTERVAL,
       );
     },
-    [autoEndAnimation],
+    [autoEndAnimation, timer],
   );
 
   useEffect(() => {

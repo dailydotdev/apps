@@ -42,7 +42,7 @@ const Toast = ({
     {
       enabled: false,
       onSuccess: async (data) => {
-        if (!data) {
+        if (!data || isAnimating) {
           return;
         }
 
