@@ -158,7 +158,7 @@ export default function MainLayout({
   useEffect(() => {
     if (!shouldRedirectOnboarding) return;
 
-    const onboarding = `${webappUrl}/onboarding`;
+    const onboarding = `${webappUrl}onboarding`;
     const entries = Object.entries(router.query);
 
     if (entries.length === 0) {
