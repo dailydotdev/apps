@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from 'react-query';
+import classNames from 'classnames';
 import {
   ToastNotification,
   TOAST_NOTIF_KEY,
@@ -10,12 +11,7 @@ import { Button, ButtonSize } from '../buttons/Button';
 import styles from './Toast.module.css';
 import XIcon from '../icons/MiniClose';
 import { isTouchDevice } from '../../lib/tooltip';
-import {
-  NotifContainer,
-  NotifContent,
-  NotifMessage,
-  NotifProgress,
-} from './utils';
+import { NotifContainer, NotifContent, NotifMessage } from './utils';
 import { useTimedAnimation } from '../../hooks/useTimedAnimation';
 import { nextTick } from '../../lib/func';
 
@@ -24,18 +20,16 @@ interface ToastProps {
 }
 
 const Container = classed(NotifContainer, styles.toastContainer);
-const Progress = classed(NotifProgress, styles.toastProgress);
 
 const Toast = ({
   autoDismissNotifications = false,
 }: ToastProps): ReactElement => {
   const router = useRouter();
   const client = useQueryClient();
-  const { timer, isAnimating, endAnimation, startAnimation } =
-    useTimedAnimation({
-      autoEndAnimation: autoDismissNotifications,
-      onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
-    });
+  const { isAnimating, endAnimation, startAnimation } = useTimedAnimation({
+    autoEndAnimation: autoDismissNotifications,
+    onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
+  });
   const { data: toast } = useQuery<ToastNotification>(
     TOAST_NOTIF_KEY,
     () => client.getQueryData(TOAST_NOTIF_KEY),
@@ -91,8 +85,6 @@ const Toast = ({
     return null;
   }
 
-  const progress = (timer / toast.timer) * 100;
-
   return (
     <Container className={isAnimating && 'slide-in'} role="alert">
       <NotifContent>
@@ -115,7 +107,17 @@ const Toast = ({
           aria-label="Dismiss toast notification"
         />
         {autoDismissNotifications && (
-          <Progress style={{ width: `${progress}%` }} />
+          <div className="flex absolute -bottom-2 left-0 justify-center w-full ease-in-out">
+            <div
+              className={classNames(
+                'h-1 bg-theme-status-cabbage rounded-full transition-all ease-linear',
+                isAnimating ? 'w-0' : 'w-full',
+              )}
+              style={{
+                transitionDuration: `${toast.timer}ms`,
+              }}
+            />
+          </div>
         )}
       </NotifContent>
     </Container>
