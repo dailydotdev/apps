@@ -43,7 +43,7 @@ import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { tablet } from '@dailydotdev/shared/src/styles/media';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { getLayout } from '../../../components/layouts/MainLayout';
-import { defaultOpenGraph } from '../../../next-seo';
+import { getSquadOpenGraph } from '../../../next-seo';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
   const { length } = others;
@@ -184,9 +184,7 @@ const SquadReferral = ({
   const seo: NextSeoProps = {
     title: `${user.name} invited you to ${source.name}`,
     description: source.description,
-    openGraph: {
-      images: source?.image ? [{ url: source.image }] : defaultOpenGraph.images,
-    },
+    openGraph: getSquadOpenGraph({ squad: source }),
   };
 
   if (!initialData && (isFallback || !isFetched)) {

@@ -39,7 +39,7 @@ import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
   ProtectedPageProps,
 } from '../../../components/ProtectedPage';
-import { defaultOpenGraph } from '../../../next-seo';
+import { getSquadOpenGraph } from '../../../next-seo';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -144,11 +144,7 @@ const SquadPage = ({
           : `${seoData.name} posts on daily.dev`
       }
       description={seoData.description}
-      openGraph={{
-        images: seoData.image
-          ? [{ url: seoData.image }]
-          : defaultOpenGraph.images,
-      }}
+      openGraph={getSquadOpenGraph({ squad: seoData })}
       nofollow={!seoData.public}
       noindex={!seoData.public}
     />
