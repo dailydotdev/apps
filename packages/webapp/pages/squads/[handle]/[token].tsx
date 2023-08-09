@@ -43,6 +43,7 @@ import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { tablet } from '@dailydotdev/shared/src/styles/media';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { getLayout } from '../../../components/layouts/MainLayout';
+import { defaultOpenGraph } from '../../../next-seo';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
   const { length } = others;
@@ -184,7 +185,7 @@ const SquadReferral = ({
     title: `${user.name} invited you to ${source.name}`,
     description: source.description,
     openGraph: {
-      images: [{ url: source?.image }],
+      images: source?.image ? [{ url: source.image }] : defaultOpenGraph.images,
     },
   };
 
