@@ -1,8 +1,4 @@
-import {
-  GetStaticPathsResult,
-  GetStaticPropsContext,
-  GetStaticPropsResult,
-} from 'next';
+import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import React, {
   ReactElement,
@@ -11,14 +7,16 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
-import { getSquadMembers } from '@dailydotdev/shared/src/graphql/squads';
+import {
+  SQUAD_STATIC_FIELDS_QUERY,
+  getSquadMembers,
+} from '@dailydotdev/shared/src/graphql/squads';
 import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
@@ -30,11 +28,18 @@ import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered
 import classNames from 'classnames';
 import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
 import { useJoinReferral, useSquad } from '@dailydotdev/shared/src/hooks';
+import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
+import request, { ClientError } from 'graphql-request';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
   ProtectedPageProps,
 } from '../../../components/ProtectedPage';
+import { getSquadOpenGraph } from '../../../next-seo';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -54,7 +59,11 @@ const SquadChecklistCard = dynamic(
     ),
 );
 
-type SourcePageProps = { handle: string };
+type SourcePageProps = {
+  handle: string;
+  initialData?: Pick<Squad, 'name' | 'public' | 'description' | 'image'>;
+  referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
+};
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   const { squad, seo, children, ...restProtectedPageProps } = props;
@@ -75,11 +84,14 @@ const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   );
 };
 
-const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
+const SquadPage = ({
+  handle,
+  initialData,
+  referringUser,
+}: SourcePageProps): ReactElement => {
   useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { isFallback } = useRouter();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -123,17 +135,37 @@ const SquadPage = ({ handle }: SourcePageProps): ReactElement => {
     });
   }, [isForbidden, squadId, handle, trackEvent]);
 
-  if ((isFallback || isLoading) && !isFetched) return <SquadLoading />;
+  const seoData = squad || initialData;
+  const seo = !!seoData && (
+    <NextSeo
+      title={
+        referringUser
+          ? `${referringUser.name} invited you to ${seoData.name}`
+          : `${seoData.name} posts on daily.dev`
+      }
+      description={seoData.description}
+      openGraph={getSquadOpenGraph({ squad: seoData })}
+      nofollow={!seoData.public}
+      noindex={!seoData.public}
+    />
+  );
 
-  if (!isFetched) return <></>;
+  if (isLoading && !isFetched) {
+    return (
+      <>
+        {seo}
+        <SquadLoading />
+      </>
+    );
+  }
+
+  if (!isFetched) {
+    return <>{seo}</>;
+  }
 
   if (isForbidden) return <Unauthorized />;
 
   if (!squad) return <Custom404 />;
-
-  const seo = (
-    <NextSeo title={`${squad.name} posts on daily.dev`} nofollow noindex />
-  );
 
   return (
     <PageComponent
@@ -176,20 +208,73 @@ SquadPage.layoutProps = mainFeedLayoutProps;
 
 export default SquadPage;
 
-export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
-}
-
 interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
 
-export function getStaticProps({
+export async function getServerSideProps({
   params,
-}: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<SourcePageProps> {
-  return {
-    props: {
-      handle: params.handle,
-    },
+  query,
+  res,
+}: GetServerSidePropsContext<SquadPageParams>): Promise<
+  GetServerSidePropsResult<SourcePageProps>
+> {
+  const { handle } = params;
+  const { userid: userId, cid: campaign } = query;
+
+  const setCacheHeader = () => {
+    res.setHeader(
+      'Cache-Control',
+      `public, max-age=0, must-revalidate, s-maxage=${oneHour}, stale-while-revalidate=${oneHour}`,
+    );
   };
+
+  try {
+    const promises = [];
+
+    promises.push(
+      request<{
+        source: SourcePageProps['initialData'];
+      }>(graphqlUrl, SQUAD_STATIC_FIELDS_QUERY, {
+        handle,
+      }),
+    );
+
+    if (userId && campaign) {
+      promises.push(
+        request<{ user: SourcePageProps['referringUser'] }>(
+          graphqlUrl,
+          GET_REFERRING_USER_QUERY,
+          {
+            id: userId,
+          },
+        ).catch(() => undefined),
+      );
+    }
+
+    const [{ source: squad }, referringUser] = await Promise.all(promises);
+
+    setCacheHeader();
+
+    return {
+      props: {
+        handle,
+        initialData: squad,
+        referringUser: referringUser?.user || null,
+      },
+    };
+  } catch (err) {
+    const clientError = err as ClientError;
+    const errors = Object.values(ApiError);
+
+    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+      setCacheHeader();
+
+      return {
+        props: { handle },
+      };
+    }
+
+    throw err;
+  }
 }
