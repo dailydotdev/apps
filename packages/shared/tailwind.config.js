@@ -231,7 +231,7 @@ module.exports = {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [caret, typography, buttons, require('@tailwindcss/line-clamp')],
+  plugins: [caret, typography, buttons],
   corePlugins: {
     invert: false,
   },
