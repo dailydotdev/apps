@@ -118,6 +118,7 @@ function SearchBarInputComponent(
         {sidebarRendered && (
           <FieldInput
             {...inputProps}
+            placeholder={placeholder}
             ref={inputRef}
             onFocus={(event) => {
               onFocus();
