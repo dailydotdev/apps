@@ -9,13 +9,11 @@ import SourceIcon from '../icons/Source';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
-  enableSearch?: () => unknown;
   onNavTabClick?: (page: string) => unknown;
 }
 
 export function DiscoverSection({
   isItemsButton,
-  enableSearch,
   onNavTabClick,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
@@ -62,8 +60,8 @@ export function DiscoverSection({
         <ListIcon Icon={() => <SearchIcon secondary={active} />} />
       ),
       title: 'Search',
-      path: '/search',
-      action: enableSearch,
+      path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}search`,
+      isForcedLink: true,
       hideOnMobile: true,
     },
   ];

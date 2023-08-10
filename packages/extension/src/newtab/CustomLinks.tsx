@@ -17,7 +17,7 @@ export function CustomLinks({
   onOptions,
 }: CustomLinksProps): ReactElement {
   return (
-    <div className="hidden laptop:flex flex-row gap-2 p-2 rounded-14 border border-theme-divider-secondary">
+    <div className="hidden laptop:flex flex-row gap-2 p-2 ml-auto rounded-14 border border-theme-divider-secondary h-fit">
       {links.map((url, i) => (
         <a
           href={url}

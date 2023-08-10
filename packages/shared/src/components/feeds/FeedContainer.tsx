@@ -14,7 +14,8 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
-import { SearchBar } from '../search';
+import { SearchBarSuggestionList, SearchBarInput } from '../search';
+import { FlexRow } from '../utilities';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -24,6 +25,8 @@ export interface FeedContainerProps {
   inlineHeader?: boolean;
   afterFeed?: ReactNode;
   showSearch?: boolean;
+  besideSearch?: ReactNode;
+  actionButtons?: ReactNode;
 }
 
 const listGaps = {
@@ -78,6 +81,8 @@ export const FeedContainer = ({
   inlineHeader = false,
   afterFeed,
   showSearch,
+  besideSearch,
+  actionButtons,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -122,10 +127,29 @@ export const FeedContainer = ({
           data-testid="posts-feed"
         >
           {inlineHeader && header}
-          {showSearch && <SearchBar className={{ container: 'mb-8' }} />}
+          {showSearch && (
+            <FlexRow>
+              <SearchBarInput
+                className={{ container: 'max-w-2xl w-full' }}
+                showProgress={false}
+              />
+              {besideSearch}
+            </FlexRow>
+          )}
+          {showSearch && (
+            <FlexRow className="mt-4">
+              <SearchBarSuggestionList className="mr-3" />
+              {actionButtons && (
+                <FlexRow className="pl-3 ml-auto border-l border-theme-divider-tertiary">
+                  {actionButtons}
+                </FlexRow>
+              )}
+            </FlexRow>
+          )}
           <div
             className={classNames(
               'grid',
+              showSearch && 'mt-6',
               gapClass(isList, spaciness),
               cardClass(isList, numCards),
             )}

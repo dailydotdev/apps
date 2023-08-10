@@ -6,3 +6,5 @@ export * from './SearchProgressBar';
 export * from './SearchResult';
 export * from './SourceList';
 export * from './SearchMessage';
+export * from './SearchBarInput';
+export * from './SearchBarSuggestionList';

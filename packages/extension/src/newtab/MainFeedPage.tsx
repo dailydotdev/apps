@@ -28,21 +28,12 @@ export default function MainFeedPage({
   const { alerts } = useContext(AlertContext);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
-  const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
   useCompanionSettings('main feed page');
   const { isActive: isDndActive } = useContext(DndContext);
-  const enableSearch = () => {
-    setIsSearchOn(true);
-    setSearchQuery(null);
-    onPageChanged('/search');
-  };
 
   const onNavTabClick = (tab: string): void => {
-    if (tab !== 'search') {
-      setIsSearchOn(false);
-    }
     setFeedName(tab);
     const isMyFeed = tab === '/my-feed';
     if (getShouldRedirect(isMyFeed, !!user)) {
@@ -53,10 +44,6 @@ export default function MainFeedPage({
   };
 
   const activePage = useMemo(() => {
-    if (isSearchOn) {
-      return '/search';
-    }
-
     const feed = getFeedName(feedName, {
       hasUser: !!user,
       hasFiltered: !alerts?.filter,
@@ -65,13 +52,12 @@ export default function MainFeedPage({
     return `/${feed}`;
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSearchOn, feedName]);
+  }, [feedName]);
 
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
     setFeedName('popular');
-    setIsSearchOn(false);
     setSearchQuery(undefined);
   };
 
@@ -86,7 +72,6 @@ export default function MainFeedPage({
       showDnd={showDnd}
       dndActive={isDndActive}
       onShowDndClick={() => setShowDnd(true)}
-      enableSearch={enableSearch}
       onNavTabClick={onNavTabClick}
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
@@ -97,7 +82,7 @@ export default function MainFeedPage({
           feedName={feedName}
           searchQuery={searchQuery}
           onFeedPageChanged={onNavTabClick}
-          navChildren={!isSearchOn && <ShortcutLinks />}
+          besideSearch={<ShortcutLinks />}
         />
       </FeedLayout>
       <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

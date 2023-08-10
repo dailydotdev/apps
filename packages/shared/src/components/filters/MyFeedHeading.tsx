@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import FilterIcon from '../icons/Filter';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import AlertPointer, { AlertPlacement } from '../alert/AlertPointer';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
@@ -37,7 +37,7 @@ function MyFeedHeading({
   return (
     <AlertPointer
       offset={sidebarRendered ? [4, 0] : [-32, 4]}
-      isAlertDisabled={isAlertDisabled}
+      isAlertDisabled
       onClose={() => onUpdateAlerts({ myFeed: null })}
       className={{
         label: 'w-44',
@@ -48,12 +48,10 @@ function MyFeedHeading({
       placement={sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom}
     >
       <Button
-        className="mr-auto btn-tertiary headline"
+        className="mr-auto btn-tertiary"
         onClick={onClick}
-        rightIcon={<FilterIcon />}
-      >
-        My feed
-      </Button>
+        icon={<FilterIcon />}
+      />
     </AlertPointer>
   );
 }
