@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useRef, useState } from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useFeaturesContext } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
@@ -31,6 +31,7 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import CookieBanner from '../components/CookieBanner';
+import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -77,6 +78,7 @@ export function OnboardPage(): ReactElement {
     useFeaturesContext();
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
+  const { alerts } = useContext(AlertContext);
 
   const onClickNext = () => {
     const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
@@ -92,6 +94,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const formRef = useRef<HTMLFormElement>();
+  const [hasCategories, setHasCategories] = useState(false);
   const title = versionToTitle[onboardingFilteringTitle];
   const percentage = isAuthenticating ? 100 : 50;
   const content = isAuthenticating
@@ -101,8 +104,21 @@ export function OnboardPage(): ReactElement {
   const onSuccessfulTransaction = () => {
     onShouldUpdateFilters(true);
     setFinishedOnboarding(true);
+    if (hasCategories) {
+      return
+    }
+
     router.push('/');
   };
+
+  useEffect(() => {
+    if (!hasCategories || !alerts?.myFeed) return;
+  
+    if (alerts.myFeed === 'created') {
+      router.push('/');
+    }
+  }, [alerts, hasCategories, router]);
+  
 
   const isPageReady = isFeaturesLoaded && isAuthReady;
 
@@ -187,7 +203,7 @@ export function OnboardPage(): ReactElement {
           )}
         >
           {isFiltering ? (
-            <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" />
+            <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" setHasCategories={setHasCategories} />
           ) : (
             <img
               alt="Sample illustration of selecting topics"
