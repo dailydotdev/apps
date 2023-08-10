@@ -14,7 +14,7 @@ interface SquadPostAuthorProps {
     handle: string;
   }>;
   author: Author;
-  role: SourceMemberRole;
+  role?: SourceMemberRole;
   size?: ProfileImageSize;
   date?: string;
 }
@@ -42,7 +42,7 @@ function SquadPostAuthor({
             <span className={classNames('font-bold', className?.name)}>
               {author.name}
             </span>
-            <SquadMemberBadge key="squadMemberRole" role={role} />
+            {!!role && <SquadMemberBadge key="squadMemberRole" role={role} />}
           </div>
           <span
             className={classNames(

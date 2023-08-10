@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { cloudinary } from '../../lib/image';
 import { Button } from '../buttons/Button';
 import { squadsPublicWaitlist } from '../../lib/constants';
@@ -7,11 +8,14 @@ import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
+import AuthContext from '../../contexts/AuthContext';
 
 export const SquadsDirectoryHeader = (): ReactElement => {
   const { openNewSquad } = useSquadNavigation();
+  const { user, isAuthReady } = useContext(AuthContext);
   const { isActionsFetched, checkHasCompleted } = useActions();
-  const isOwner = isActionsFetched && checkHasCompleted(ActionType.CreateSquad);
+  const isOwner = user && checkHasCompleted(ActionType.CreateSquad);
+  const hideCta = !isAuthReady || (user && !isActionsFetched);
 
   return (
     <div className="mb-4">
@@ -24,7 +28,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
         <SourceBetaIcon
           width="auto"
           height="3rem"
-          className="mb-4 text-white"
+          className="mb-4 text-white translate-x-[1.125rem]"
         />
         <div className="flex justify-center items-center mb-3 text-white typo-large-title">
           Introducing Squads
@@ -34,7 +38,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
           opportunity to dive deep and go niche together with like-minded devs.
         </div>
         <Button
-          className="btn-primary"
+          className={classNames('btn-primary', hideCta && 'invisible')}
           tag="a"
           href={isOwner && squadsPublicWaitlist}
           rel={isOwner && 'noopener'}
