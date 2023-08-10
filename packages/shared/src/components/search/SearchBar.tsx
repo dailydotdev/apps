@@ -16,22 +16,11 @@ export function SearchBar({ className }: SearchBarProps): ReactElement {
   const suggestions: SearchBarSuggestionProps[] = [];
 
   if (!user) {
-    suggestions.push(
-      {
-        suggestion:
-          'Sign up and read your first post to get search recommendations',
-        onClick: () => showLogin('search bar suggestion'),
-      },
-      {
-        suggestion: 'Sign up and read your ',
-        onClick: () => showLogin('search bar suggestion'),
-      },
-      {
-        suggestion:
-          'Sign up and read your first post to get search recommendations',
-        onClick: () => showLogin('search bar suggestion'),
-      },
-    );
+    suggestions.push({
+      suggestion:
+        'Sign up and read your first post to get search recommendations',
+      onClick: () => showLogin('search bar suggestion'),
+    });
   }
 
   return (
