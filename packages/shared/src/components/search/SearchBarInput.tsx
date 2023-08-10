@@ -58,7 +58,7 @@ function SearchBarInputComponent(
     value,
     onFocus: externalOnFocus,
     onBlur: externalOnBlur,
-    placeholder,
+    placeholder = 'Ask anything...',
   } = inputProps;
   const {
     inputRef,

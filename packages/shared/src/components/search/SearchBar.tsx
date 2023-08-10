@@ -10,7 +10,7 @@ import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
-  'className' | 'valueChanged' | 'onSubmit'
+  'className' | 'valueChanged' | 'onSubmit' | 'showProgress'
 >;
 
 export function SearchBar({
