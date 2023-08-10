@@ -18,6 +18,6 @@ const renderComponent = (): RenderResult => {
 
 it('should render the search page', async () => {
   renderComponent();
-  const text = screen.queryByText('Search component area');
+  const text = screen.queryByTestId('searchBar');
   expect(text).toBeInTheDocument();
 });
