@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useFeaturesContext } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
@@ -29,9 +35,9 @@ import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import CookieBanner from '../components/CookieBanner';
-import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -105,7 +111,7 @@ export function OnboardPage(): ReactElement {
     onShouldUpdateFilters(true);
     setFinishedOnboarding(true);
     if (hasCategories) {
-      return
+      return;
     }
 
     router.push('/');
@@ -113,12 +119,11 @@ export function OnboardPage(): ReactElement {
 
   useEffect(() => {
     if (!hasCategories || !alerts?.myFeed) return;
-  
+
     if (alerts.myFeed === 'created') {
       router.push('/');
     }
   }, [alerts, hasCategories, router]);
-  
 
   const isPageReady = isFeaturesLoaded && isAuthReady;
 
@@ -203,7 +208,10 @@ export function OnboardPage(): ReactElement {
           )}
         >
           {isFiltering ? (
-            <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" setHasCategories={setHasCategories} />
+            <FilterOnboarding
+              className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
+              setHasCategories={setHasCategories}
+            />
           ) : (
             <img
               alt="Sample illustration of selecting topics"
