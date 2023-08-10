@@ -24,10 +24,6 @@ const renderComponent = (
   props: Partial<SearchBarProps> = {},
 ): RenderResult => {
   const client = new QueryClient();
-  const defaultProps: SearchBarProps = {
-    inputId: 'name',
-    name: 'name',
-  };
 
   return render(
     <QueryClientProvider client={client}>
@@ -40,7 +36,7 @@ const renderComponent = (
         loadedUserFromCache
         squads={squads}
       >
-        <SearchBar {...defaultProps} {...props} />
+        <SearchBar {...props} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );

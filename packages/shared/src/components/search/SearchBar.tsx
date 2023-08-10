@@ -8,9 +8,15 @@ import AuthContext from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 
-export type SearchBarProps = Pick<SearchBarInputProps, 'className'>;
+export type SearchBarProps = Pick<
+  SearchBarInputProps,
+  'className' | 'valueChanged' | 'onSubmit'
+>;
 
-export function SearchBar({ className }: SearchBarProps): ReactElement {
+export function SearchBar({
+  className,
+  ...props
+}: SearchBarProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
   const suggestions: SearchBarSuggestionProps[] = [];
@@ -26,6 +32,7 @@ export function SearchBar({ className }: SearchBarProps): ReactElement {
   return (
     <div className={classNames('w-full', className?.container)}>
       <SearchBarInput
+        {...props}
         inputProps={{ id: 'search' }}
         className={{ container: 'max-w-2xl', field: className?.field }}
         completedTime="12:12"

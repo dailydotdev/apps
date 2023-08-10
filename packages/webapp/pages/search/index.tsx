@@ -18,11 +18,7 @@ const SearchPage = (): ReactElement => {
       <NextSeo nofollow noindex />
       <div className="grid grid-cols-1 laptop:grid-cols-3 gap-y-6 pt-8 m-auto max-w-screen-laptop">
         <main className="flex flex-col flex-1 col-span-2 px-4 laptop:px-8">
-          <SearchBar
-            inputId="search"
-            valueChanged={setInput}
-            onSubmit={handleSubmit}
-          />
+          <SearchBar valueChanged={setInput} onSubmit={handleSubmit} />
         </main>
         <SearchFeedback />
         {!!content && (
