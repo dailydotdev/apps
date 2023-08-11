@@ -153,11 +153,9 @@ export function OnboardPage(): ReactElement {
   }, [updateCookieBanner, user]);
 
   const hasSelectedTopics = (tags: Record<string, boolean>) => {
-    const hasTopics = Object.values(tags).some(
-      (value) => value === true,
-    );
+    const hasTopics = Object.values(tags).some((value) => value === true);
     if (setOnSelectTopic) setOnSelectTopic(hasTopics);
-  }
+  };
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
