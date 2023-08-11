@@ -21,7 +21,7 @@ const ChecklistCard = ({
 
   return (
     <div className={className}>
-      <Card className=" rounded-14 !p-0 !border-theme-color-cabbage hover:!border-theme-color-cabbage w-[340px]">
+      <Card className="rounded-14 !p-0 !border-theme-color-cabbage hover:!border-theme-color-cabbage w-[340px]">
         <div className="overflow-hidden relative p-4 bg-gradient-to-t from-cabbage-90 to-cabbage-50 rounded-t-12">
           {isDone && (
             <RankConfetti className="absolute top-0 right-0 bottom-0 left-0 opacity-40" />
