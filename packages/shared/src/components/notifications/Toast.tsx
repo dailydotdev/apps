@@ -48,6 +48,7 @@ const Toast = ({
     toastRef.current = toast;
     startAnimation(toast.timer);
   } else if (toastRef.current && toastRef.current !== toast && toast?.message) {
+    endAnimation();
     toastRef.current = toast;
     startAnimation(toast.timer);
   }
