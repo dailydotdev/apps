@@ -100,7 +100,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const formRef = useRef<HTMLFormElement>();
-  const [hasCategories, setHasCategories] = useState(false);
+  const [onSelectTopic, setOnSelectTopic] = useState(false);
   const title = versionToTitle[onboardingFilteringTitle];
   const percentage = isAuthenticating ? 100 : 50;
   const content = isAuthenticating
@@ -110,7 +110,7 @@ export function OnboardPage(): ReactElement {
   const onSuccessfulTransaction = () => {
     onShouldUpdateFilters(true);
     setFinishedOnboarding(true);
-    if (hasCategories) {
+    if (onSelectTopic) {
       return;
     }
 
@@ -118,12 +118,12 @@ export function OnboardPage(): ReactElement {
   };
 
   useEffect(() => {
-    if (!hasCategories || !alerts?.myFeed) return;
+    if (!onSelectTopic || !alerts?.myFeed) return;
 
     if (alerts.myFeed === 'created') {
       router.push('/');
     }
-  }, [alerts, hasCategories, router]);
+  }, [alerts, onSelectTopic, router]);
 
   const isPageReady = isFeaturesLoaded && isAuthReady;
 
@@ -151,6 +151,13 @@ export function OnboardPage(): ReactElement {
   useEffect(() => {
     updateCookieBanner(user);
   }, [updateCookieBanner, user]);
+
+  const hasSelectedTopics = (tags: Record<string, boolean>) => {
+    const hasTopics = Object.values(tags).some(
+      (value) => value === true,
+    );
+    if (setOnSelectTopic) setOnSelectTopic(hasTopics);
+  }
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
@@ -210,7 +217,7 @@ export function OnboardPage(): ReactElement {
           {isFiltering ? (
             <FilterOnboarding
               className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
-              setHasCategories={setHasCategories}
+              onSelectedTopics={hasSelectedTopics}
             />
           ) : (
             <img

@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
 import useTagAndSource from '../../hooks/useTagAndSource';
@@ -8,13 +8,11 @@ import { Origin } from '../../lib/analytics';
 interface FilterOnboardingProps {
   onSelectedTopics?(tags: Record<string, boolean>): void;
   className?: string;
-  setHasCategories?: (hasCategories: boolean) => void;
 }
 
 export function FilterOnboarding({
   onSelectedTopics,
   className,
-  setHasCategories,
 }: FilterOnboardingProps): ReactElement {
   const [invalidMessage, setInvalidMessage] = useState<string>(null);
   const [selectedTopics, setSelectedTopics] = useState({});
@@ -36,13 +34,6 @@ export function FilterOnboarding({
       setInvalidMessage(null);
     }
   };
-
-  useEffect(() => {
-    const hasSelectedTopics = Object.values(selectedTopics).some(
-      (value) => value === true,
-    );
-    if (setHasCategories) setHasCategories(hasSelectedTopics);
-  }, [selectedTopics, setHasCategories]);
 
   return (
     <div
