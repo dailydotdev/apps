@@ -53,7 +53,6 @@ export const useTimedAnimation = ({
         return;
       }
 
-
       if (!autoEndAnimation) {
         interval.current = MANUAL_DISMISS_ANIMATION_ID;
       }
@@ -66,7 +65,7 @@ export const useTimedAnimation = ({
         PROGRESS_INTERVAL,
       );
     },
-    [autoEndAnimation, timer],
+    [autoEndAnimation],
   );
 
   useEffect(() => {
@@ -87,6 +86,6 @@ export const useTimedAnimation = ({
       endAnimation,
       startAnimation,
     }),
-    [endAnimation, startAnimation],
+    [endAnimation, startAnimation, timer],
   );
 };

@@ -218,11 +218,11 @@ module.exports = {
         'logo-big': '2.0625rem',
       },
       transitionProperty: {
-        'width': 'width',
+        width: 'width',
       },
       transitionDuration: {
-        '5000': '5000ms',
-      }
+        5000: '5000ms',
+      },
     },
     lineClamp: {
       1: '1',

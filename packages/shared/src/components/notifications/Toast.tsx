@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from 'react-query';
-import classNames from 'classnames';
 import {
   ToastNotification,
   TOAST_NOTIF_KEY,
@@ -11,7 +10,12 @@ import { Button, ButtonSize } from '../buttons/Button';
 import styles from './Toast.module.css';
 import XIcon from '../icons/MiniClose';
 import { isTouchDevice } from '../../lib/tooltip';
-import { NotifContainer, NotifContent, NotifMessage, NotifProgress } from './utils';
+import {
+  NotifContainer,
+  NotifContent,
+  NotifMessage,
+  NotifProgress,
+} from './utils';
 import { useTimedAnimation } from '../../hooks/useTimedAnimation';
 import { nextTick } from '../../lib/func';
 
@@ -27,7 +31,7 @@ const Toast = ({
 }: ToastProps): ReactElement => {
   const router = useRouter();
   const client = useQueryClient();
-  const testRef = useRef(null)
+  const testRef = useRef(null);
   const { isAnimating, endAnimation, startAnimation } = useTimedAnimation({
     autoEndAnimation: autoDismissNotifications,
     onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
