@@ -43,7 +43,14 @@ export default function PostItemCard({
   const article = post?.sharedPost ?? post;
 
   return (
-    <article>
+    <article
+      className={classNames(
+        !clickable && [
+          'flex relative flex-row items-center py-3 pr-5 pl-9',
+          className,
+        ],
+      )}
+    >
       <ConditionalWrapper
         condition={clickable}
         wrapper={(children) => (
