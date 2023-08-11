@@ -85,6 +85,7 @@ export function OnboardPage(): ReactElement {
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
   const { alerts } = useContext(AlertContext);
+  const [hasSelectTopics, setHasSelectTopics] = useState(false);
 
   const onClickNext = () => {
     const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
@@ -100,7 +101,6 @@ export function OnboardPage(): ReactElement {
   };
 
   const formRef = useRef<HTMLFormElement>();
-  const [onSelectTopic, setOnSelectTopic] = useState(false);
   const title = versionToTitle[onboardingFilteringTitle];
   const percentage = isAuthenticating ? 100 : 50;
   const content = isAuthenticating
@@ -110,7 +110,7 @@ export function OnboardPage(): ReactElement {
   const onSuccessfulTransaction = () => {
     onShouldUpdateFilters(true);
     setFinishedOnboarding(true);
-    if (onSelectTopic) {
+    if (hasSelectTopics) {
       return;
     }
 
@@ -118,12 +118,12 @@ export function OnboardPage(): ReactElement {
   };
 
   useEffect(() => {
-    if (!onSelectTopic || !alerts?.myFeed) return;
+    if (!hasSelectTopics || !alerts?.myFeed) return;
 
     if (alerts.myFeed === 'created') {
       router.push('/');
     }
-  }, [alerts, onSelectTopic, router]);
+  }, [alerts, hasSelectTopics, router]);
 
   const isPageReady = isFeaturesLoaded && isAuthReady;
 
@@ -154,7 +154,7 @@ export function OnboardPage(): ReactElement {
 
   const hasSelectedTopics = (tags: Record<string, boolean>) => {
     const hasTopics = Object.values(tags).some((value) => value === true);
-    if (setOnSelectTopic) setOnSelectTopic(hasTopics);
+    setHasSelectTopics(hasTopics);
   };
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
