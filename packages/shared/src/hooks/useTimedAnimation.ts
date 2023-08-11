@@ -15,6 +15,7 @@ interface UseTimedAnimationProps {
   onAnimationEnd?: () => void;
 }
 
+const PROGRESS_INTERVAL = 10;
 const OUT_ANIMATION_DURATION = 140;
 const MANUAL_DISMISS_ANIMATION_ID = 1;
 
@@ -46,20 +47,24 @@ export const useTimedAnimation = ({
 
   const startAnimation = useCallback(
     (duration: number) => {
-      if (isNullOrUndefined(duration) || duration <= 0 || timer > 0) {
+      setTimer(duration);
+
+      if (isNullOrUndefined(duration) || duration <= 0) {
         return;
       }
 
-      setTimer(duration);
-      clearInterval();
-
-      setTimeout(() => {
-        setTimer(0);
-      }, duration);
 
       if (!autoEndAnimation) {
         interval.current = MANUAL_DISMISS_ANIMATION_ID;
       }
+
+      interval.current = window.setInterval(
+        () =>
+          setTimer((current) =>
+            PROGRESS_INTERVAL >= current ? 0 : current - PROGRESS_INTERVAL,
+          ),
+        PROGRESS_INTERVAL,
+      );
     },
     [autoEndAnimation, timer],
   );
@@ -82,6 +87,6 @@ export const useTimedAnimation = ({
       endAnimation,
       startAnimation,
     }),
-    [timer, endAnimation, startAnimation],
+    [endAnimation, startAnimation],
   );
 };
