@@ -197,6 +197,17 @@ export const SQUAD_QUERY = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
+export const SQUAD_STATIC_FIELDS_QUERY = gql`
+  query Source($handle: ID!) {
+    source(id: $handle) {
+      name
+      public
+      description
+      image
+    }
+  }
+`;
+
 export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
   query SourceHandleExists($handle: String!) {
     sourceHandleExists(handle: $handle)
