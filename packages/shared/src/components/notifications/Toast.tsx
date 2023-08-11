@@ -17,7 +17,6 @@ import {
   NotifProgress,
 } from './utils';
 import { useTimedAnimation } from '../../hooks/useTimedAnimation';
-import { nextTick } from '../../lib/func';
 
 interface ToastProps {
   autoDismissNotifications?: boolean;
@@ -31,7 +30,7 @@ const Toast = ({
 }: ToastProps): ReactElement => {
   const router = useRouter();
   const client = useQueryClient();
-  const testRef = useRef(null);
+  const toastRef = useRef(null);
   const { timer, isAnimating, endAnimation, startAnimation } =
     useTimedAnimation({
       autoEndAnimation: autoDismissNotifications,
@@ -42,22 +41,14 @@ const Toast = ({
     () => client.getQueryData(TOAST_NOTIF_KEY),
     {
       enabled: false,
-      onSuccess: async (data) => {
-        if (!data) {
-          return;
-        }
-
-        await nextTick(); // wait (1ms) for the component to render so animation can be seen
-      },
     },
   );
 
-  if (!testRef.current && toast?.message) {
-    testRef.current = toast;
+  if (!toastRef.current && toast?.message) {
+    toastRef.current = toast;
     startAnimation(toast.timer);
-  } else if (testRef.current && testRef.current !== toast && toast?.message) {
-    endAnimation();
-    testRef.current = toast;
+  } else if (toastRef.current && toastRef.current !== toast && toast?.message) {
+    toastRef.current = toast;
     startAnimation(toast.timer);
   }
 

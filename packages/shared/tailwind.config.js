@@ -217,12 +217,6 @@ module.exports = {
         logo: '1.125rem',
         'logo-big': '2.0625rem',
       },
-      transitionProperty: {
-        width: 'width',
-      },
-      transitionDuration: {
-        5000: '5000ms',
-      },
     },
     lineClamp: {
       1: '1',
