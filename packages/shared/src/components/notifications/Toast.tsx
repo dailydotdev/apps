@@ -32,10 +32,11 @@ const Toast = ({
   const router = useRouter();
   const client = useQueryClient();
   const testRef = useRef(null);
-  const { isAnimating, endAnimation, startAnimation } = useTimedAnimation({
-    autoEndAnimation: autoDismissNotifications,
-    onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
-  });
+  const { timer, isAnimating, endAnimation, startAnimation } =
+    useTimedAnimation({
+      autoEndAnimation: autoDismissNotifications,
+      onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
+    });
   const { data: toast } = useQuery<ToastNotification>(
     TOAST_NOTIF_KEY,
     () => client.getQueryData(TOAST_NOTIF_KEY),
