@@ -85,6 +85,13 @@ export const useExtensionPermission = ({
       } else {
         window.open(companionPermissionGrantedLink, '_blank');
       }
+    } else {
+      trackEvent({
+        event_name: 'decline content scripts',
+        extra: JSON.stringify({ origin }),
+      });
+
+      if (onPermission) onPermission(false);
     }
 
     return granted;

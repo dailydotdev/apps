@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { FeedPostClick } from './feed/useFeedOnPostClick';
 import { Post } from '../graphql/posts';
 import { Features } from '../lib/featureManagement';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 // import { useExtensionPermission } from '../../../extension/src/companion/useExtensionPermission';
 
@@ -32,6 +33,7 @@ export default function useCompanionTrigger(
   ) => Promise<void>,
 ): CompanionTrigger {
   const isExtension = process.env.TARGET_BROWSER;
+  const { trackEvent } = useContext(AnalyticsContext);
   const [data, setData] = useState<CompanionTriggerProps>();
   const [isOpen, toggleOpen] = useState(false);
   const featureEnabled = useFeatureIsOn(
@@ -47,21 +49,37 @@ export default function useCompanionTrigger(
   //     },
   //   });
 
+  const handleToggle = useCallback((opened: boolean) => {
+    toggleOpen(opened);
+    const state = opened ? 'open' : 'close';
+
+    trackEvent({
+      event_name: `${state} companion permission popup`,
+      extra: JSON.stringify({ origin: 'automatic' }),
+    });
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const articleClickHandler = useCallback(
     async (
       e: React.MouseEvent,
       { post, index, row, column }: Partial<CompanionTriggerProps> = {},
     ) => {
-      if (!isExtension || !featureEnabled) {
+      if (!isExtension) {
         // TODO: add contentScriptGranted || isFetched from useExtensionPermission
         await customPostClickHandler(post, index, row, column);
       } else {
         e.preventDefault();
         setData({ post, index, row, column });
-        toggleOpen(true);
+        handleToggle(true);
       }
     },
-    [customPostClickHandler, isExtension],
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [customPostClickHandler, isExtension, featureEnabled],
   );
 
   const onFeedArticleClick = useCallback<FeedPostClick>(
@@ -80,14 +98,16 @@ export default function useCompanionTrigger(
 
   const activateCompanion = useCallback(async () => {
     // await requestContentScripts();
-    toggleOpen(false);
-  }, []);
+    handleToggle(false);
+  }, [handleToggle]);
 
   const openArticle = useCallback(async () => {
-    console.log('OPENING');
     await customPostClickHandler(data.post, data.index, data.row, data.column);
 
-    toggleOpen(false);
+    handleToggle(false);
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, customPostClickHandler]);
 
   return {
