@@ -80,6 +80,7 @@ export const GrowthBookProvider = ({
           'AES-CBC',
           128,
         ).then((features) => {
+          // eslint-disable-next-line no-console
           console.log(features);
           // gb.setFeatures(JSON.parse(features));
         });

@@ -105,8 +105,7 @@ export default function Feed<T>({
   options,
   allowPin,
 }: FeedProps<T>): ReactElement {
-  const [showActivateCompanionModal, setShowActivateCompanionModal] =
-    React.useState(false);
+  React.useState(false);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
