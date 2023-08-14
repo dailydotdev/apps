@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { CSSProperties, ReactElement, ReactNode } from 'react';
+import dynamic from 'next/dynamic';
 import { Post } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
@@ -21,6 +22,12 @@ import { BasePostContent, PostContentClassName } from './BasePostContent';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
+import useCompanionTrigger from '../../hooks/useCompanionTrigger';
+
+const ActivateCompanionModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "CompanionModal" */ '../modals/CompanionModal'),
+);
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
@@ -96,6 +103,17 @@ export function PostContent({
     onRemovePost,
   };
 
+  const {
+    onPostArticleClick: onReadArticleClick,
+    activateCompanion,
+    openArticle,
+    isOpen: companionModalOpen,
+    toggleOpen: companionModalToggle,
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+  } = useCompanionTrigger(onReadArticle);
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -117,7 +135,7 @@ export function PostContent({
           <PostHeaderActions
             onBookmark={onToggleBookmark}
             onShare={onShare}
-            onReadArticle={onReadArticle}
+            onReadArticle={onReadArticleClick}
             post={post}
             onClose={onClose}
             className="flex tablet:hidden mb-4"
@@ -155,7 +173,7 @@ export function PostContent({
               title="Go to post"
               target="_blank"
               rel="noopener"
-              {...combinedClicks(onReadArticle)}
+              {...combinedClicks(onReadArticleClick)}
             >
               {post.title}
             </a>
@@ -174,7 +192,7 @@ export function PostContent({
             title="Go to post"
             target="_blank"
             rel="noopener"
-            {...combinedClicks(onReadArticle)}
+            {...combinedClicks(onReadArticleClick)}
             className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
             style={{ maxWidth: '25.625rem' }}
           >
@@ -198,11 +216,19 @@ export function PostContent({
       <PostWidgets
         onBookmark={onToggleBookmark}
         onShare={onShare}
-        onReadArticle={onReadArticle}
+        onReadArticle={onReadArticleClick}
         post={post}
         className="pb-8"
         onClose={onClose}
         origin={origin}
+      />
+
+      <ActivateCompanionModal
+        url={post.permalink}
+        isOpen={companionModalOpen}
+        onRequestClose={() => companionModalToggle(false)}
+        onReadArticleClick={openArticle}
+        onActivateCompanion={activateCompanion}
       />
     </PostContentContainer>
   );

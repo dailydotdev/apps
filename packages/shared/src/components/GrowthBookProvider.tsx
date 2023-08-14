@@ -80,7 +80,8 @@ export const GrowthBookProvider = ({
           'AES-CBC',
           128,
         ).then((features) => {
-          gb.setFeatures(JSON.parse(features));
+          console.log(features);
+          // gb.setFeatures(JSON.parse(features));
         });
       }
     }

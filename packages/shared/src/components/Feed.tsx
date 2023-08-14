@@ -34,6 +34,7 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
+import useCompanionTrigger from '../hooks/useCompanionTrigger';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -65,6 +66,11 @@ const ArticlePostModal = dynamic(
 const SharePostModal = dynamic(
   () =>
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
+);
+
+const ActivateCompanionModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "CompanionModal" */ './modals/CompanionModal'),
 );
 
 const ScrollFeedFiltersOnboarding = dynamic(
@@ -99,6 +105,8 @@ export default function Feed<T>({
   options,
   allowPin,
 }: FeedProps<T>): ReactElement {
+  const [showActivateCompanionModal, setShowActivateCompanionModal] =
+    React.useState(false);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -216,7 +224,7 @@ export default function Feed<T>({
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const onReadArticleClick = useFeedOnPostClick(
+  const triggerReadArticleClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
@@ -224,6 +232,18 @@ export default function Feed<T>({
     ranking,
     'go to link',
   );
+
+  const {
+    postUrl,
+    onFeedArticleClick: onReadArticleClick,
+    activateCompanion,
+    openArticle,
+    isOpen: companionModalOpen,
+    toggleOpen: companionModalToggle,
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+  } = useCompanionTrigger(triggerReadArticleClick);
 
   const onPostModalOpen = (index: number, callback?: () => unknown) => {
     document.body.classList.add('hidden-scrollbar');
@@ -436,6 +456,13 @@ export default function Feed<T>({
           onRequestClose={closeSharePost}
         />
       )}
+      <ActivateCompanionModal
+        url={postUrl}
+        isOpen={companionModalOpen}
+        onRequestClose={() => companionModalToggle(false)}
+        onReadArticleClick={openArticle}
+        onActivateCompanion={activateCompanion}
+      />
     </FeedContainer>
   );
 }

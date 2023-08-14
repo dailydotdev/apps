@@ -43,10 +43,12 @@ const contentScriptKey = 'permission_key';
 
 interface UseExtensionPermissionProps {
   origin: string;
+  onPermission?: (granted: boolean) => void;
 }
 
 export const useExtensionPermission = ({
   origin,
+  onPermission,
 }: UseExtensionPermissionProps): UseExtensionPermission => {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -77,7 +79,12 @@ export const useExtensionPermission = ({
       });
       client.setQueryData(contentScriptKey, true);
       await registerBrowserContentScripts();
-      window.open(companionPermissionGrantedLink, '_blank');
+
+      if (onPermission) {
+        onPermission(true);
+      } else {
+        window.open(companionPermissionGrantedLink, '_blank');
+      }
     }
 
     return granted;

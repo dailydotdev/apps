@@ -30,7 +30,7 @@ import { Origin } from '../../lib/analytics';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
-  onReadArticle?: () => void;
+  onReadArticle?: (e: React.MouseEvent) => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
