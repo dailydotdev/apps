@@ -137,6 +137,7 @@ module.exports = {
       2: '2',
       3: '3',
       rank: '3',
+      header: '4',
       sidebar: '9',
       modal: '10',
       max: '100',
