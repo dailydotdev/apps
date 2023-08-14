@@ -1,6 +1,9 @@
 import React, { useState, useCallback } from 'react';
+import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { FeedPostClick } from './feed/useFeedOnPostClick';
 import { Post } from '../graphql/posts';
+import { Features } from '../lib/featureManagement';
+
 // import { useExtensionPermission } from '../../../extension/src/companion/useExtensionPermission';
 
 type CompanionTriggerProps = {
@@ -31,7 +34,9 @@ export default function useCompanionTrigger(
   const isExtension = process.env.TARGET_BROWSER;
   const [data, setData] = useState<CompanionTriggerProps>();
   const [isOpen, toggleOpen] = useState(false);
-
+  const featureEnabled = useFeatureIsOn(
+    Features.EngagementLoopJuly2023Companion.toString(), // this feels very smelly, but otherwise complains because of the Features<string> type
+  );
   // const { requestContentScripts, contentScriptGranted, isFetched } =
   //   useExtensionPermission({
   //     origin: 'companion modal permission button',
@@ -47,8 +52,8 @@ export default function useCompanionTrigger(
       e: React.MouseEvent,
       { post, index, row, column }: Partial<CompanionTriggerProps> = {},
     ) => {
-      if (!isExtension) {
-        // TODO: add contentScriptGranted || isFetched || feature flag check
+      if (!isExtension || !featureEnabled) {
+        // TODO: add contentScriptGranted || isFetched from useExtensionPermission
         await customPostClickHandler(post, index, row, column);
       } else {
         e.preventDefault();
