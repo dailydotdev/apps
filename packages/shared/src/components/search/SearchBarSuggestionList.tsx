@@ -16,13 +16,13 @@ export function SearchBarSuggestionList({
   const { user, showLogin } = useContext(AuthContext);
   const suggestions: SearchBarSuggestionProps[] = [];
 
-  // if (!user) {
-  suggestions.push({
-    suggestion:
-      'Sign up and read your first post to get search recommendations',
-    onClick: () => showLogin('search bar suggestion'),
-  });
-  // }
+  if (!user) {
+    suggestions.push({
+      suggestion:
+        'Sign up and read your first post to get search recommendations',
+      onClick: () => showLogin('search bar suggestion'),
+    });
+  }
 
   if (suggestions.length === 0) return null;
 
