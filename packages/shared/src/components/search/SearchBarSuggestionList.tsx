@@ -22,9 +22,13 @@ export function SearchBarSuggestionList({
         'Sign up and read your first post to get search recommendations',
       onClick: () => showLogin('search bar suggestion'),
     });
+  } else if (suggestions.length === 0) {
+    suggestions.push({
+      suggestion:
+        'Read and upvote your first post to get search recommendations',
+      onClick: () => {},
+    });
   }
-
-  if (suggestions.length === 0) return null;
 
   return (
     <div className={classNames('flex flex-wrap gap-4', className)}>
