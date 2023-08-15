@@ -34,7 +34,6 @@ import {
   SearchControlHeaderProps,
 } from './layout/common';
 import { useLazyModal } from '../hooks/useLazyModal';
-import { LazyModal } from './modals/common/types';
 import { useFeedName } from '../hooks/feed/useFeedName';
 
 const SearchEmptyScreen = dynamic(
@@ -151,7 +150,6 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const { flags } = useContext(FeaturesContext);
-  const { openModal } = useLazyModal();
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
@@ -239,11 +237,7 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      emptyScreen: (
-        <FeedEmptyScreen
-          openFeedFilters={() => openModal({ type: LazyModal.FeedFilters })}
-        />
-      ),
+      emptyScreen: <FeedEmptyScreen />,
       header:
         searchVersion === SearchExperiment.Control && !isSearchOn ? (
           <SearchControlHeader {...searchProps} navChildren={navChildren} />
