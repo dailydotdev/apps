@@ -35,6 +35,7 @@ import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
+import { LazyModal } from './modals/common/types';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -232,12 +233,9 @@ export default function Feed<T>({
   );
 
   const {
-    postUrl,
     onFeedArticleClick: onReadArticleClick,
-    activateCompanion,
-    openArticle,
-    isOpen: companionModalOpen,
     toggleOpen: companionModalToggle,
+    lazyModal,
 
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -454,13 +452,14 @@ export default function Feed<T>({
           onRequestClose={closeSharePost}
         />
       )}
-      <ActivateCompanionModal
-        url={postUrl}
-        isOpen={companionModalOpen}
-        onRequestClose={() => companionModalToggle(false)}
-        onReadArticleClick={openArticle}
-        onActivateCompanion={activateCompanion}
-      />
+
+      {lazyModal?.type === LazyModal.CompanionModal && (
+        <ActivateCompanionModal
+          isOpen
+          onRequestClose={() => companionModalToggle(false)}
+          {...lazyModal.props}
+        />
+      )}
     </FeedContainer>
   );
 }

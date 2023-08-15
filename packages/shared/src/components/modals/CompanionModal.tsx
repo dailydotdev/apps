@@ -1,4 +1,4 @@
-import React, { ReactElement, MouseEvent } from 'react';
+import React, { ReactElement } from 'react';
 
 import { LazyModalCommonProps, Modal } from './common/Modal';
 import { Button } from '../buttons/Button';
@@ -9,13 +9,11 @@ import { IconSize } from '../Icon';
 
 type Props = LazyModalCommonProps & {
   url: string;
-  onRequestClose: (event: MouseEvent) => void;
-  onReadArticleClick: () => void;
+  onReadArticleClick: (any) => void;
   onActivateCompanion: () => void;
 };
 
 export default function CompanionModal({
-  onRequestClose,
   onReadArticleClick,
   onActivateCompanion,
   url,
@@ -27,7 +25,6 @@ export default function CompanionModal({
       className="border-none"
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XLarge}
-      onRequestClose={onRequestClose}
     >
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video

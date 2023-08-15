@@ -30,7 +30,7 @@ import { Origin } from '../../lib/analytics';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
-  onReadArticle?: (e: React.MouseEvent) => void;
+  onReadArticle?: (e: React.MouseEvent, data: { post: Post }) => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
@@ -119,7 +119,7 @@ export function PostHeaderActions({
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}
             icon={<OpenLinkIcon />}
-            onClick={onReadArticle}
+            onClick={(e) => onReadArticle(e, { post })}
             data-testid="postActionsRead"
           >
             {!inlineActions && 'Read post'}

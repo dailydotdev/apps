@@ -24,11 +24,6 @@ import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
 import useCompanionTrigger from '../../hooks/useCompanionTrigger';
 
-const ActivateCompanionModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "CompanionModal" */ '../modals/CompanionModal'),
-);
-
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
   'onNextPost' | 'onPreviousPost' | 'postPosition' | 'onRemovePost'
@@ -105,10 +100,8 @@ export function PostContent({
 
   const {
     onPostArticleClick: onReadArticleClick,
-    activateCompanion,
-    openArticle,
-    isOpen: companionModalOpen,
     toggleOpen: companionModalToggle,
+    lazyModal,
 
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -221,14 +214,6 @@ export function PostContent({
         className="pb-8"
         onClose={onClose}
         origin={origin}
-      />
-
-      <ActivateCompanionModal
-        url={post.permalink}
-        isOpen={companionModalOpen}
-        onRequestClose={() => companionModalToggle(false)}
-        onReadArticleClick={openArticle}
-        onActivateCompanion={activateCompanion}
       />
     </PostContentContainer>
   );
