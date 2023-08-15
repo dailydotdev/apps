@@ -15,7 +15,7 @@ import OnboardingContext from '../../contexts/OnboardingContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { Dropdown } from '../fields/Dropdown';
+import { Dropdown, DropdownProps } from '../fields/Dropdown';
 import { ButtonSize } from '../buttons/Button';
 import CalendarIcon from '../icons/Calendar';
 import SortIcon from '../icons/Sort';
@@ -91,6 +91,12 @@ export const SearchControlHeader = ({
   };
 
   if (searchVersion === SearchExperiment.V1) {
+    const dropdownProps: Partial<DropdownProps> = {
+      className: { label: 'hidden', chevron: 'hidden' },
+      dynamicMenuWidth: true,
+      shouldIndicateSelected: true,
+      buttonSize: ButtonSize.Large,
+    };
     const actionButtons = [
       feedName === MainFeedPage.MyFeed ? (
         <MyFeedHeading
@@ -104,10 +110,9 @@ export const SearchControlHeader = ({
       ) : null,
       isUpvoted ? (
         <Dropdown
+          {...dropdownProps}
           key="algorithm"
-          className={{ container: 'w-44' }}
-          buttonSize={ButtonSize.Large}
-          icon={<CalendarIcon className="mr-2" />}
+          icon={<CalendarIcon size={IconSize.Medium} />}
           selectedIndex={selectedPeriod}
           options={periodTexts}
           onChange={(_, index) => setSelectedPeriod(index)}
@@ -115,22 +120,11 @@ export const SearchControlHeader = ({
       ) : null,
       sortingEnabled && isSortableFeed ? (
         <Dropdown
+          {...dropdownProps}
           key="sorting"
-          className={{
-            container: 'w-12 tablet:w-44',
-            indicator: 'flex tablet:hidden',
-            chevron: 'hidden tablet:flex',
-            label: 'hidden tablet:flex',
-            menu: 'w-44',
-          }}
-          dynamicMenuWidth
-          shouldIndicateSelected
-          buttonSize={ButtonSize.Large}
           selectedIndex={selectedAlgo}
           options={algorithmsList}
-          icon={
-            <SortIcon size={IconSize.Small} className="flex tablet:hidden" />
-          }
+          icon={<SortIcon size={IconSize.Medium} />}
           onChange={(_, index) => setSelectedAlgo(index)}
         />
       ) : null,

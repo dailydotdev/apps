@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import FilterIcon from '../icons/Filter';
 import { Button, ButtonSize } from '../buttons/Button';
 import AlertPointer, {
@@ -13,6 +14,7 @@ import { AnalyticsEvent } from '../../lib/analytics';
 import { useFeature } from '../GrowthBookProvider';
 import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
+import { CaretOffset } from '../../lib/element';
 
 interface MyFeedHeadingProps {
   hasFiltered: boolean;
@@ -47,35 +49,41 @@ function MyFeedHeading({
     onClose: () => onUpdateAlerts({ myFeed: null }),
     className: {
       label: 'w-44',
-      message: !sidebarRendered ? 'ml-4' : null,
-      wrapper: 'mr-auto',
+      message: classNames(
+        'bg-theme-bg-primary',
+        !sidebarRendered ? 'ml-4' : null,
+      ),
+      wrapper: 'mr-auto z-modal',
     },
     message: filterAlertMessage,
-    placement: sidebarRendered ? AlertPlacement.Right : AlertPlacement.Bottom,
+    placement:
+      sidebarRendered && searchVersion === SearchExperiment.Control
+        ? AlertPlacement.Right
+        : AlertPlacement.Bottom,
   };
 
-  if (searchVersion === SearchExperiment.Control) {
+  if (searchVersion === SearchExperiment.V1) {
     return (
-      <AlertPointer {...alertProps}>
+      <AlertPointer {...alertProps} offset={[sidebarRendered ? 0 : 8, 8]}>
         <Button
-          className="mr-auto btn-tertiary"
+          className="mr-auto btn-tertiaryFloat"
           onClick={onClick}
-          rightIcon={<FilterIcon />}
-        >
-          My feed
-        </Button>
+          buttonSize={ButtonSize.Large}
+          icon={<FilterIcon />}
+        />
       </AlertPointer>
     );
   }
 
   return (
-    // TODO: Fix the placement of the alert pointer
-    <AlertPointer {...alertProps} isAlertDisabled>
+    <AlertPointer {...alertProps}>
       <Button
         className="mr-auto btn-tertiary"
         onClick={onClick}
-        icon={<FilterIcon />}
-      />
+        rightIcon={<FilterIcon />}
+      >
+        My feed
+      </Button>
     </AlertPointer>
   );
 }

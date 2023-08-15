@@ -33,7 +33,6 @@ import {
   SearchControlHeader,
   SearchControlHeaderProps,
 } from './layout/common';
-import { useLazyModal } from '../hooks/useLazyModal';
 import { useFeedName } from '../hooks/feed/useFeedName';
 
 const SearchEmptyScreen = dynamic(
@@ -243,7 +242,8 @@ export default function MainFeedLayout({
           <SearchControlHeader {...searchProps} navChildren={navChildren} />
         ) : null,
       actionButtons:
-        searchVersion === SearchExperiment.V1 ? (
+        searchVersion === SearchExperiment.V1 &&
+        (isUpvoted || isSortableFeed) ? (
           <SearchControlHeader {...searchProps} />
         ) : null,
       besideSearch,

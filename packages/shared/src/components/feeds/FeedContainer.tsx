@@ -146,7 +146,7 @@ export const FeedContainer = ({
             <FlexRow className="mt-4">
               <SearchBarSuggestionList className="mr-3" />
               {actionButtons && (
-                <FlexRow className="pl-3 ml-auto border-l border-theme-divider-tertiary">
+                <FlexRow className="gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
                   {actionButtons}
                 </FlexRow>
               )}
