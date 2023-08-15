@@ -251,8 +251,10 @@ function MarkdownInput(
               type="button"
               buttonSize={actionButtonSizes}
               className={classNames(
-                'btn-tertiary',
-                uploadingCount && 'text-theme-color-cabbage',
+                'btn-tertiary font-normal',
+                uploadingCount
+                  ? 'text-theme-color-cabbage'
+                  : 'text-theme-label-quaternary',
               )}
               icon={icon}
               onClick={() => uploadRef?.current?.click()}
@@ -278,7 +280,7 @@ function MarkdownInput(
             wrapper={(children) => (
               <span
                 className={classNames(
-                  'grid grid-cols-3 gap-3',
+                  'flex gap-3',
                   !shouldShowSubmit && 'ml-auto',
                 )}
               >
