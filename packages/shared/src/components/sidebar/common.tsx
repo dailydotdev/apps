@@ -20,6 +20,7 @@ export interface SidebarProps {
   dndActive?: boolean;
   onNavTabClick?: (tab: string) => void;
   setOpenMobileSidebar?: () => unknown;
+  enableSearch?: () => void;
   onShowDndClick?: () => void;
 }
 

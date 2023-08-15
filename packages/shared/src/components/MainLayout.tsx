@@ -44,6 +44,7 @@ export interface MainLayoutProps
   screenCentered?: boolean;
   customBanner?: ReactNode;
   showSidebar?: boolean;
+  enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
 }
@@ -69,6 +70,7 @@ export default function MainLayout({
   className,
   onLogoClick,
   onNavTabClick,
+  enableSearch,
   onShowDndClick,
   showPostButton,
 }: MainLayoutProps): ReactElement {
@@ -129,6 +131,7 @@ export default function MainLayout({
         sidebarRendered={sidebarRendered}
         openMobileSidebar={openMobileSidebar}
         onNavTabClick={onNavTabClick}
+        enableSearch={enableSearch}
         activePage={activePage}
         showDnd={showDnd}
         dndActive={dndActive}

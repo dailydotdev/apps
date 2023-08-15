@@ -42,6 +42,7 @@ export default function Sidebar({
   showDnd = false,
   dndActive = false,
   onNavTabClick,
+  enableSearch,
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
@@ -124,6 +125,7 @@ export default function Sidebar({
             <DiscoverSection
               {...defaultRenderSectionProps}
               onNavTabClick={onNavTabClick}
+              enableSearch={enableSearch}
               isItemsButton={isNavButtons}
               className={!!squads?.length && '!mt-6'}
             />

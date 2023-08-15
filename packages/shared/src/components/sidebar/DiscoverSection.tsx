@@ -6,17 +6,23 @@ import UpvoteIcon from '../icons/Upvote';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import SourceIcon from '../icons/Source';
+import { useFeature } from '../GrowthBookProvider';
+import { Features } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
+  enableSearch?: () => void;
   onNavTabClick?: (page: string) => unknown;
 }
 
 export function DiscoverSection({
   isItemsButton,
   onNavTabClick,
+  enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
+  const searchValue = useFeature(Features.Search);
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
@@ -55,16 +61,19 @@ export function DiscoverSection({
         </span>
       ),
     },
-    {
+  ];
+
+  if (searchValue !== SearchExperiment.V1) {
+    discoverMenuItems.push({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <SearchIcon secondary={active} />} />
       ),
       title: 'Search',
-      path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}search`,
-      isForcedLink: true,
       hideOnMobile: true,
-    },
-  ];
+      path: '/search',
+      action: enableSearch,
+    });
+  }
 
   return (
     <Section

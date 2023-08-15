@@ -10,15 +10,12 @@ import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { Dropdown } from './fields/Dropdown';
 import { FeedPage, MainFeedPage } from './utilities';
-import CalendarIcon from './icons/Calendar';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
-  RankingAlgorithm,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import FeaturesContext from '../contexts/FeaturesContext';
@@ -27,11 +24,18 @@ import { Features, getFeatureValue } from '../lib/featureManagement';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
-import useSidebarRendered from '../hooks/useSidebarRendered';
-import MyFeedHeading from './filters/MyFeedHeading';
-import SortIcon from './icons/Sort';
-import { ButtonSize } from './buttons/Button';
-import { IconSize } from './Icon';
+import { useFeature } from './GrowthBookProvider';
+import { SearchExperiment } from '../lib/featureValues';
+import {
+  algorithms,
+  LayoutHeader,
+  periods,
+  SearchControlHeader,
+  SearchControlHeaderProps,
+} from './layout/common';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
+import { useFeedName } from '../hooks/feed/useFeedName';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -40,10 +44,6 @@ const SearchEmptyScreen = dynamic(
 
 const FeedEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "feedEmptyScreen" */ './FeedEmptyScreen'),
-);
-
-const FeedFilters = dynamic(
-  () => import(/* webpackChunkName: "feedFilters" */ './filters/FeedFilters'),
 );
 
 type FeedQueryProps = {
@@ -74,9 +74,12 @@ const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
 
 export type MainFeedLayoutProps = {
   feedName: string;
+  isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
+  searchChildren: ReactNode;
   besideSearch?: ReactNode;
+  navChildren?: ReactNode;
   onFeedPageChanged: (page: MainFeedPage) => void;
 };
 
@@ -95,19 +98,7 @@ const getQueryBasedOnLogin = (
   return null;
 };
 
-const algorithms = [
-  { value: RankingAlgorithm.Popularity, text: 'Recommended' },
-  { value: RankingAlgorithm.Time, text: 'By date' },
-];
-const algorithmsList = algorithms.map((algo) => algo.text);
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
-
-const periods = [
-  { value: 7, text: 'Last week' },
-  { value: 30, text: 'Last month' },
-  { value: 365, text: 'Last year' },
-];
-const periodTexts = periods.map((period) => period.text);
 
 interface GetDefaultFeedProps {
   hasFiltered?: boolean;
@@ -117,7 +108,7 @@ interface GetDefaultFeedProps {
 const getDefaultFeed = ({
   hasFiltered,
   hasUser,
-}: GetDefaultFeedProps): string => {
+}: GetDefaultFeedProps): MainFeedPage => {
   if (!hasUser || !hasFiltered) {
     return MainFeedPage.Popular;
   }
@@ -130,7 +121,7 @@ const defaultFeedConditions = [null, 'default', '/', ''];
 export const getFeedName = (
   path: string,
   options: GetDefaultFeedProps = {},
-): string => {
+): MainFeedPage => {
   const feed = path?.replaceAll?.('/', '') || '';
 
   if (defaultFeedConditions.some((condition) => condition === feed)) {
@@ -139,17 +130,19 @@ export const getFeedName = (
 
   const [page] = feed.split('?');
 
-  return page.replace(/^\/+/, '');
+  return page.replace(/^\/+/, '') as MainFeedPage;
 };
 
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
+  isSearchOn,
   children,
+  searchChildren,
   besideSearch,
+  onFeedPageChanged,
+  navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const { sidebarRendered } = useSidebarRendered();
-  const { updateAlerts } = useContext(AlertContext);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
@@ -158,13 +151,13 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const { flags } = useContext(FeaturesContext);
-  const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
+  const { openModal } = useLazyModal();
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
-  const isUpvoted = feedName === 'upvoted';
-  const isSortableFeed = feedName === 'popular' || feedName === 'my-feed';
+  const searchVersion = useFeature(Features.Search);
+  const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -190,9 +183,24 @@ export default function MainFeedLayout({
     [0, 1],
     0,
   );
-  const [selectedPeriod, setSelectedPeriod] = useState(0);
+  const periodState = useState(0);
+  const [selectedPeriod] = periodState;
+  const searchProps: SearchControlHeaderProps = {
+    algoState: [selectedAlgo, setSelectedAlgo],
+    periodState,
+    feedName,
+    onFeedPageChanged,
+    isSearchOn,
+  };
+  const search = (
+    <LayoutHeader>
+      {navChildren}
+      {isSearchOn ? searchChildren : undefined}
+    </LayoutHeader>
+  );
+
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (searchQuery) {
+    if (isSearchOn && searchQuery) {
       return {
         feedName: 'search',
         feedQueryKey: generateQueryKey('search', user, searchQuery),
@@ -220,49 +228,6 @@ export default function MainFeedLayout({
       return query.variables;
     };
 
-    const actionButtons = [
-      feedName === MainFeedPage.MyFeed ? (
-        <MyFeedHeading
-          hasFiltered={!alerts?.filter}
-          isAlertDisabled={!alerts.myFeed}
-          sidebarRendered={sidebarRendered}
-          onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
-          onUpdateAlerts={() => updateAlerts({ myFeed: null })}
-        />
-      ) : null,
-      isUpvoted ? (
-        <Dropdown
-          className={{ container: 'w-44' }}
-          buttonSize={ButtonSize.Large}
-          icon={<CalendarIcon className="mr-2" />}
-          selectedIndex={selectedPeriod}
-          options={periodTexts}
-          onChange={(_, index) => setSelectedPeriod(index)}
-        />
-      ) : null,
-      sortingEnabled && isSortableFeed ? (
-        <Dropdown
-          className={{
-            container: 'w-12 tablet:w-44',
-            indicator: 'flex tablet:hidden',
-            chevron: 'hidden tablet:flex',
-            label: 'hidden tablet:flex',
-            menu: 'w-44',
-          }}
-          dynamicMenuWidth
-          shouldIndicateSelected
-          buttonSize={ButtonSize.Large}
-          selectedIndex={selectedAlgo}
-          options={algorithmsList}
-          icon={
-            <SortIcon size={IconSize.Small} className="flex tablet:hidden" />
-          }
-          onChange={(_, index) => setSelectedAlgo(index)}
-        />
-      ) : null,
-    ];
-
-    const actions = actionButtons.filter((button) => !!button);
     const variables = getVariables();
 
     return {
@@ -275,17 +240,27 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: (
-        <FeedEmptyScreen openFeedFilters={() => setIsFeedFiltersOpen(true)} />
+        <FeedEmptyScreen
+          openFeedFilters={() => openModal({ type: LazyModal.FeedFilters })}
+        />
       ),
-      actionButtons: actions.length ? actions : null,
+      header:
+        searchVersion === SearchExperiment.Control && !isSearchOn ? (
+          <SearchControlHeader {...searchProps} navChildren={navChildren} />
+        ) : null,
+      actionButtons:
+        searchVersion === SearchExperiment.V1 ? (
+          <SearchControlHeader {...searchProps} />
+        ) : null,
       besideSearch,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    searchVersion,
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    searchQuery,
+    isSearchOn && searchQuery,
     query.query,
     query.variables,
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -302,17 +277,10 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   return (
-    <>
-      <FeedPage>
-        {feedProps && <Feed {...feedProps} />}
-        {children}
-      </FeedPage>
-      {isFeedFiltersOpen && (
-        <FeedFilters
-          isOpen
-          onRequestClose={() => setIsFeedFiltersOpen(false)}
-        />
-      )}
-    </>
+    <FeedPage>
+      {isSearchOn && search}
+      {feedProps && <Feed {...feedProps} />}
+      {children}
+    </FeedPage>
   );
 }

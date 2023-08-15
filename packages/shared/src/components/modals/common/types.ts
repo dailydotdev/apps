@@ -33,6 +33,7 @@ export enum LazyModal {
   ReportPost = 'reportPost',
   ReportComment = 'reportComment',
   SquadNotifications = 'squadNotifications',
+  FeedFilters = 'feedFilters',
 }
 
 export type ModalTabItem = {

@@ -16,6 +16,9 @@ import {
 } from '../../hooks/useToastNotification';
 import { SearchBarSuggestionList, SearchBarInput } from '../search';
 import { FlexRow } from '../utilities';
+import { useFeature } from '../GrowthBookProvider';
+import { Features } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -91,6 +94,7 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const searchValue = useFeature(Features.Search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = insaneMode && numCards > 1;
@@ -104,6 +108,8 @@ export const FeedContainer = ({
   if (!loadedSettings) {
     return <></>;
   }
+
+  const isV1Search = searchValue === SearchExperiment.V1 && showSearch;
 
   return (
     <div
@@ -127,7 +133,7 @@ export const FeedContainer = ({
           data-testid="posts-feed"
         >
           {inlineHeader && header}
-          {showSearch && (
+          {isV1Search && (
             <FlexRow>
               <SearchBarInput
                 className={{ container: 'max-w-2xl w-full' }}
@@ -136,7 +142,7 @@ export const FeedContainer = ({
               {besideSearch}
             </FlexRow>
           )}
-          {showSearch && (
+          {isV1Search && (
             <FlexRow className="mt-4">
               <SearchBarSuggestionList className="mr-3" />
               {actionButtons && (
@@ -149,7 +155,7 @@ export const FeedContainer = ({
           <div
             className={classNames(
               'grid',
-              showSearch && 'mt-6',
+              isV1Search && 'mt-6',
               gapClass(isList, spaciness),
               cardClass(isList, numCards),
             )}
