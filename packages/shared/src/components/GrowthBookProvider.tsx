@@ -72,6 +72,7 @@ export const GrowthBookProvider = ({
   useEffect(() => {
     if (gb && experimentation?.f) {
       const currentFeats = gb.getFeatures();
+
       // Do not update when the features are already set
       if (!currentFeats || !Object.keys(currentFeats).length) {
         decrypt(
@@ -80,9 +81,7 @@ export const GrowthBookProvider = ({
           'AES-CBC',
           128,
         ).then((features) => {
-          // eslint-disable-next-line no-console
-          console.log(features);
-          // gb.setFeatures(JSON.parse(features));
+          gb.setFeatures(JSON.parse(features));
         });
       }
     }

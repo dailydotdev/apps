@@ -105,7 +105,6 @@ export default function Feed<T>({
   options,
   allowPin,
 }: FeedProps<T>): ReactElement {
-  React.useState(false);
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);

@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
@@ -37,8 +37,13 @@ import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import {
   getContentScriptPermissionAndRegister,
-  useExtensionPermission,
+  requestContentScripts,
+  useContentScriptStatus,
+  registerBrowserContentScripts,
 } from '../companion/useExtensionPermission';
+import { companionRequest } from '../companion/companionRequest';
+import { companionFetch } from '../companion/companionFetch';
+import { EXTENSION_PERMISSION_KEY } from '../../../shared/src/hooks/useExtensionPermission';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -90,9 +95,8 @@ function InternalApp({
   const { showPrompt } = usePrompt();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
-  const { contentScriptGranted } = useExtensionPermission({
-    origin: 'on extension load',
-  });
+  const { contentScriptGranted, isFetched } = useContentScriptStatus();
+
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
     'consent',
     false,
@@ -102,6 +106,13 @@ function InternalApp({
   const analyticsConsentPrompt = async () => {
     setAnalyticsConsent(await showPrompt(analyticsConsentPromptOptions));
   };
+
+  useQuery(EXTENSION_PERMISSION_KEY, () => ({
+    requestContentScripts,
+    registerBrowserContentScripts,
+    contentScriptGranted,
+    isFetched,
+  }));
 
   useEffect(() => {
     if (analyticsConsent === null) {

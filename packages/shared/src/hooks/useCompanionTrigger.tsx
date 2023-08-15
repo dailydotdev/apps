@@ -5,7 +5,7 @@ import { Post } from '../graphql/posts';
 import { Features } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 
-// import { useExtensionPermission } from '../../../extension/src/companion/useExtensionPermission';
+import { useExtensionPermission } from './useExtensionPermission';
 
 type CompanionTriggerProps = {
   post: Post;
@@ -32,6 +32,11 @@ export default function useCompanionTrigger(
     column?: number,
   ) => Promise<void>,
 ): CompanionTrigger {
+  // const gb = useGrowthBook<{ foo: string }>();
+  // gb?.refreshFeatures({
+  //   skipCache: true,
+  // });
+
   const isExtension = process.env.TARGET_BROWSER;
   const { trackEvent } = useContext(AnalyticsContext);
   const [data, setData] = useState<CompanionTriggerProps>();
@@ -39,15 +44,16 @@ export default function useCompanionTrigger(
   const featureEnabled = useFeatureIsOn(
     Features.EngagementLoopJuly2023Companion.toString(), // this feels very smelly, but otherwise complains because of the Features<string> type
   );
-  // const { requestContentScripts, contentScriptGranted, isFetched } =
-  //   useExtensionPermission({
-  //     origin: 'companion modal permission button',
-  //     onPermission: () => {
-  //       if (data) {
-  //         readArticleHandler(data.post, data.index, data.row, data.column);
-  //       }
-  //     },
-  //   });
+
+  const { requestContentScripts, contentScriptGranted } =
+    useExtensionPermission({
+      origin: 'companion modal permission button',
+      onPermission: () => {
+        if (data) {
+          customPostClickHandler(data.post, data.index, data.row, data.column);
+        }
+      },
+    });
 
   const handleToggle = useCallback((opened: boolean) => {
     toggleOpen(opened);
@@ -67,7 +73,10 @@ export default function useCompanionTrigger(
       e: React.MouseEvent,
       { post, index, row, column }: Partial<CompanionTriggerProps> = {},
     ) => {
-      if (!isExtension) {
+      // the check whether the user is logged in is done on the GrowthBook side
+      // the feature flag is enabled only for logged-in users
+      // -- check that this is correct
+      if (!isExtension && !contentScriptGranted) {
         // TODO: add contentScriptGranted || isFetched from useExtensionPermission
         await customPostClickHandler(post, index, row, column);
       } else {
@@ -97,9 +106,9 @@ export default function useCompanionTrigger(
   );
 
   const activateCompanion = useCallback(async () => {
-    // await requestContentScripts();
+    await requestContentScripts();
     handleToggle(false);
-  }, [handleToggle]);
+  }, [requestContentScripts, handleToggle]);
 
   const openArticle = useCallback(async () => {
     await customPostClickHandler(data.post, data.index, data.row, data.column);

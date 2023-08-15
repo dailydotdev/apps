@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from 'react-query';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import type { RequestContentScripts } from '@dailydotdev/shared/src/hooks/useExtensionPermission';
 
 interface UseExtensionPermission {
   isFetched?: boolean;
@@ -12,7 +13,12 @@ interface UseExtensionPermission {
   registerBrowserContentScripts: () => Promise<ContentScripts.RegisteredContentScript>;
 }
 
-const registerBrowserContentScripts =
+interface UseExtensionPermissionProps {
+  origin: string;
+  onPermission?: (granted: boolean) => Promise<void>;
+}
+
+export const registerBrowserContentScripts =
   (): Promise<ContentScripts.RegisteredContentScript> =>
     browser.contentScripts.register({
       matches: ['*://*/*'],
@@ -41,33 +47,20 @@ export const getContentScriptPermissionAndRegister =
 
 const contentScriptKey = 'permission_key';
 
-interface UseExtensionPermissionProps {
-  origin: string;
-  onPermission?: (granted: boolean) => void;
-}
-
-export const useExtensionPermission = ({
+export const requestContentScripts: RequestContentScripts = (
   origin,
   onPermission,
-}: UseExtensionPermissionProps): UseExtensionPermission => {
-  const client = useQueryClient();
+) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { trackEvent } = useContext(AnalyticsContext);
-  const { data: contentScriptGranted, isFetched } = useQuery(
-    contentScriptKey,
-    getContentScriptPermission,
-    {
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      refetchIntervalInBackground: false,
-    },
-  );
+  const client = useQueryClient();
 
-  const requestContentScripts = async () => {
+  return async () => {
     trackEvent({
       event_name: 'request content scripts',
       extra: JSON.stringify({ origin }),
     });
+
     const granted = await browser.permissions.request({
       origins: ['*://*/*'],
     });
@@ -81,7 +74,7 @@ export const useExtensionPermission = ({
       await registerBrowserContentScripts();
 
       if (onPermission) {
-        onPermission(true);
+        await onPermission(true);
       } else {
         window.open(companionPermissionGrantedLink, '_blank');
       }
@@ -96,11 +89,36 @@ export const useExtensionPermission = ({
 
     return granted;
   };
+};
+
+export const useContentScriptStatus = (): {
+  contentScriptGranted: boolean;
+  isFetched: boolean;
+} => {
+  const { data: contentScriptGranted, isFetched } = useQuery(
+    contentScriptKey,
+    getContentScriptPermission,
+    {
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      refetchIntervalInBackground: false,
+    },
+  );
+
+  return { contentScriptGranted, isFetched };
+};
+
+export const useExtensionPermission = ({
+  origin,
+  onPermission,
+}: UseExtensionPermissionProps): UseExtensionPermission => {
+  const { contentScriptGranted, isFetched } = useContentScriptStatus();
 
   return useMemo(
     () => ({
       contentScriptGranted,
-      requestContentScripts,
+      requestContentScripts: requestContentScripts(origin, onPermission),
       isFetched,
       registerBrowserContentScripts,
     }),
