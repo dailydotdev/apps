@@ -63,7 +63,7 @@ export function DiscoverSection({
     },
   ];
 
-  if (searchValue !== SearchExperiment.V1) {
+  if (searchValue === SearchExperiment.Control) {
     discoverMenuItems.push({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <SearchIcon secondary={active} />} />
