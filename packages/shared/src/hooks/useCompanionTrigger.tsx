@@ -45,10 +45,12 @@ export default function useCompanionTrigger(
     Features.EngagementLoopJuly2023Companion.toString(), // this feels very smelly, but otherwise complains because of the Features<string> type
   );
 
-  const { requestContentScripts, contentScriptGranted } =
+  const { requestContentScripts, useContentScriptStatus } =
     useExtensionPermission({
       origin: 'companion modal permission button',
     });
+
+  const { contentScriptGranted } = useContentScriptStatus();
 
   const articleClickHandler = useCallback(
     async (
@@ -58,7 +60,8 @@ export default function useCompanionTrigger(
       // the check whether the user is logged in is done on the GrowthBook side
       // the feature flag is enabled only for logged-in users
       // -- check that this is correct
-      if (!isExtension && !contentScriptGranted) {
+      console.log({ isExtension, contentScriptGranted });
+      if (!isExtension || (isExtension && contentScriptGranted)) {
         await customPostClickHandler(post, index, row, column);
       } else {
         e.preventDefault();

@@ -7,10 +7,15 @@ export type RequestContentScripts = (
   onPermission?: UseExtensionPermissionProps['onPermission'],
 ) => () => Promise<boolean>;
 
-interface ExtensionPermission {
-  isFetched?: boolean;
+export type ContentScriptStatus = () => {
   contentScriptGranted: boolean;
+  isFetched: boolean;
+};
+
+interface ExtensionPermission {
+  useContentScriptStatus: ContentScriptStatus;
   requestContentScripts: () => Promise<boolean>;
+  registerBrowserContentScripts: () => Promise<never>;
 }
 
 interface UseExtensionPermissionProps {
@@ -23,16 +28,26 @@ export const useExtensionPermission = ({
   onPermission,
 }: UseExtensionPermissionProps): ExtensionPermission => {
   const client = useQueryClient();
-  const { requestContentScripts, contentScriptGranted, isFetched } =
+  const data =
     client.getQueryData<{
+      registerBrowserContentScripts: ExtensionPermission['registerBrowserContentScripts'];
       requestContentScripts: RequestContentScripts;
-      contentScriptGranted: boolean;
-      isFetched: boolean;
+      useContentScriptStatus: ContentScriptStatus;
     }>(EXTENSION_PERMISSION_KEY) || {};
 
+  const {
+    registerBrowserContentScripts,
+    requestContentScripts,
+    useContentScriptStatus,
+  } = data as {
+    registerBrowserContentScripts: ExtensionPermission['registerBrowserContentScripts'];
+    requestContentScripts: RequestContentScripts;
+    useContentScriptStatus: ContentScriptStatus;
+  };
+
   return {
+    registerBrowserContentScripts,
     requestContentScripts: requestContentScripts?.(origin, onPermission),
-    contentScriptGranted,
-    isFetched,
+    useContentScriptStatus,
   };
 };

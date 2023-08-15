@@ -1,22 +1,10 @@
 import 'content-scripts-register-polyfill';
-import { useContext, useMemo } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
-import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
+import { RequestContentScripts } from '@dailydotdev/shared/src/hooks/useExtensionPermission';
+import { useContext } from 'react';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import type { RequestContentScripts } from '@dailydotdev/shared/src/hooks/useExtensionPermission';
-
-interface UseExtensionPermission {
-  isFetched?: boolean;
-  contentScriptGranted: boolean;
-  requestContentScripts: () => Promise<boolean>;
-  registerBrowserContentScripts: () => Promise<ContentScripts.RegisteredContentScript>;
-}
-
-interface UseExtensionPermissionProps {
-  origin: string;
-  onPermission?: (granted: boolean) => Promise<void>;
-}
+import { useQuery, useQueryClient } from 'react-query';
+import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 
 export const registerBrowserContentScripts =
   (): Promise<ContentScripts.RegisteredContentScript> =>
@@ -107,23 +95,4 @@ export const useContentScriptStatus = (): {
   );
 
   return { contentScriptGranted, isFetched };
-};
-
-export const useExtensionPermission = ({
-  origin,
-  onPermission,
-}: UseExtensionPermissionProps): UseExtensionPermission => {
-  const { contentScriptGranted, isFetched } = useContentScriptStatus();
-
-  return useMemo(
-    () => ({
-      contentScriptGranted,
-      requestContentScripts: requestContentScripts(origin, onPermission),
-      isFetched,
-      registerBrowserContentScripts,
-    }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [contentScriptGranted, isFetched],
-  );
 };

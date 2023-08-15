@@ -69,11 +69,6 @@ const SharePostModal = dynamic(
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
 
-const ActivateCompanionModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "CompanionModal" */ './modals/CompanionModal'),
-);
-
 const ScrollFeedFiltersOnboarding = dynamic(
   () =>
     import(
@@ -450,14 +445,6 @@ export default function Feed<T>({
           origin={Origin.Feed}
           {...sharePostFeedLocation}
           onRequestClose={closeSharePost}
-        />
-      )}
-
-      {lazyModal?.type === LazyModal.CompanionModal && (
-        <ActivateCompanionModal
-          isOpen
-          onRequestClose={() => companionModalToggle(false)}
-          {...lazyModal.props}
         />
       )}
     </FeedContainer>

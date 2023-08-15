@@ -40,7 +40,7 @@ import {
   requestContentScripts,
   useContentScriptStatus,
   registerBrowserContentScripts,
-} from '../companion/useExtensionPermission';
+} from '../lib/extensionScripts';
 import { companionRequest } from '../companion/companionRequest';
 import { companionFetch } from '../companion/companionFetch';
 import { EXTENSION_PERMISSION_KEY } from '../../../shared/src/hooks/useExtensionPermission';
@@ -95,7 +95,7 @@ function InternalApp({
   const { showPrompt } = usePrompt();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
-  const { contentScriptGranted, isFetched } = useContentScriptStatus();
+  const { contentScriptGranted } = useContentScriptStatus();
 
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
     'consent',
@@ -110,8 +110,7 @@ function InternalApp({
   useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
-    contentScriptGranted,
-    isFetched,
+    useContentScriptStatus,
   }));
 
   useEffect(() => {
