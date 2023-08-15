@@ -35,7 +35,7 @@ export interface SearchBarInputProps {
   completedTime?: string;
   showProgress?: boolean;
   className?: SearchBarClassName;
-  onSubmit?: <T>(event: MouseEvent<T>) => void;
+  onSubmit?: (event: MouseEvent, input: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
 }
 
@@ -83,7 +83,7 @@ function SearchBarInputComponent(
     event.stopPropagation();
 
     if (handleSubmit) {
-      handleSubmit(event);
+      handleSubmit(event, inputRef.current.value);
     }
 
     setInput(null);

@@ -5,6 +5,7 @@ import React, {
   useContext,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
@@ -19,6 +20,7 @@ import { FlexRow } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
+import { webappUrl } from '../../lib/constants';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -94,6 +96,7 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const router = useRouter();
   const searchValue = useFeature(Features.Search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
@@ -110,6 +113,9 @@ export const FeedContainer = ({
   }
 
   const isV1Search = searchValue === SearchExperiment.V1 && showSearch;
+  const onSearch = (_: React.MouseEvent, input: string) => {
+    router.push(`${webappUrl}search?query=${input}`);
+  };
 
   return (
     <div
@@ -141,6 +147,7 @@ export const FeedContainer = ({
                   field: 'w-full',
                 }}
                 showProgress={false}
+                onSubmit={onSearch}
               />
               {besideSearch}
             </FlexRow>
