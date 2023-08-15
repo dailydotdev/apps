@@ -122,9 +122,9 @@ export const SearchControlHeader = ({
         <Dropdown
           {...dropdownProps}
           key="sorting"
+          icon={<SortIcon size={IconSize.Medium} />}
           selectedIndex={selectedAlgo}
           options={algorithmsList}
-          icon={<SortIcon size={IconSize.Medium} />}
           onChange={(_, index) => setSelectedAlgo(index)}
         />
       ) : null,
