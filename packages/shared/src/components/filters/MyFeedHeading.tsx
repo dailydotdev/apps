@@ -14,7 +14,6 @@ import { AnalyticsEvent } from '../../lib/analytics';
 import { useFeature } from '../GrowthBookProvider';
 import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { CaretOffset } from '../../lib/element';
 
 interface MyFeedHeadingProps {
   hasFiltered: boolean;
