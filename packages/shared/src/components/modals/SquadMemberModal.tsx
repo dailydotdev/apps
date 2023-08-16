@@ -63,7 +63,9 @@ export function SquadMemberModal({
 }: SquadMemberModalProps): ReactElement {
   const [roleFilter, setRoleFilter] = useState<SourceMemberRole>(null);
   const [member, setMember] = useState<SourceMember>(null);
-  const { onMenuClick, hideAll: hideMenu } = useContextMenu({ id: 'squad-member-menu-context' });
+  const { onMenuClick, hideAll: hideMenu } = useContextMenu({
+    id: 'squad-member-menu-context',
+  });
   const {
     members,
     membersQueryResult: queryResult,
@@ -104,7 +106,7 @@ export function SquadMemberModal({
           isFetchingNextPage: queryResult.isFetchingNextPage,
           canFetchMore: checkFetchMore(queryResult),
           fetchNextPage: queryResult.fetchNextPage,
-          onScroll:hideMenu
+          onScroll: hideMenu,
         }}
         userListProps={{
           additionalContent: (user, index) => (

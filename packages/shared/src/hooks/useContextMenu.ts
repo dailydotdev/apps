@@ -2,7 +2,7 @@ import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-co
 
 export default function useContextMenu({ id }: { id: string }): {
   onMenuClick: (e: React.MouseEvent) => void;
-  hideAll: () => void
+  hideAll: () => void;
 } {
   const { show, hideAll } = useContexifyContextMenu({ id });
 
@@ -15,6 +15,6 @@ export default function useContextMenu({ id }: { id: string }): {
 
   return {
     onMenuClick,
-    hideAll
+    hideAll,
   };
 }
