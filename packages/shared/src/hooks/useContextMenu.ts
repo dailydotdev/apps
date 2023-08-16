@@ -10,9 +10,11 @@ export default function useContextMenu({ id }: { id: string }): {
   const onMenuClick = (e: React.MouseEvent) => {
     setMenu(!menu);
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    menu && show(e, {
+    if (!menu) {
+      show(e, {
         position: { x: right, y: bottom + 4 },
       });
+    }
   };
 
   return {
