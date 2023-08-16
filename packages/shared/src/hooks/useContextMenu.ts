@@ -4,7 +4,7 @@ import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-co
 export default function useContextMenu({ id }: { id: string }): {
   onMenuClick: (e: React.MouseEvent) => void;
 } {
-  const [menu, setMenu] = useState(true);
+  const [menu, setMenu] = useState(false);
   const { show } = useContexifyContextMenu({ id });
 
   const onMenuClick = (e: React.MouseEvent) => {
