@@ -123,7 +123,7 @@ export function PostHeaderActions({
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
           icon={<MenuIcon />}
-          onClick={(event) => onMenuClick(event)}
+          onClick={onMenuClick}
         />
       </SimpleTooltip>
       {onClose && (
