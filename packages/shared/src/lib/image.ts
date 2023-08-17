@@ -1,4 +1,5 @@
 export const cloudinary = {
+  feed: { bg: '/feed_bg.png' }, // TODO: update once the asset is uploaded in cloudinary
   post: {
     imageCoverPlaceholder:
       'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1',

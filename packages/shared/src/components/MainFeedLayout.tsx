@@ -34,6 +34,7 @@ import {
   SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
+import { cloudinary } from '../lib/image';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -271,7 +272,12 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   return (
-    <FeedPage>
+    <FeedPage className="relative">
+      <img
+        className="absolute top-0 left-0 w-full max-w-[58.75rem] min-h-[12rem]"
+        src={cloudinary.feed.bg}
+        alt="Gradient background"
+      />
       {isSearchOn && search}
       {feedProps && <Feed {...feedProps} />}
       {children}
