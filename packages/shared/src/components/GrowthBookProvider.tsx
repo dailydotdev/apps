@@ -10,6 +10,7 @@ import {
   Context,
   GrowthBook,
   GrowthBookProvider as Provider,
+  useFeatureIsOn as gbUseFeatureIsOn,
 } from '@growthbook/growthbook-react';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
@@ -83,12 +84,6 @@ export const GrowthBookProvider = ({
           128,
         ).then((features) => {
           gb.setFeatures(JSON.parse(features));
-
-          // gb.setFeatures({
-          //   [Features.EngagementLoopJuly2023Companion.toString()]: {
-          //     defaultValue: true,
-          //   },
-          // });
         });
       }
     }
@@ -147,3 +142,6 @@ export const GrowthBookProvider = ({
 
   return <Provider growthbook={gb}>{children}</Provider>;
 };
+
+export const useFeatureIsOn = <T extends Features>(feature: T): boolean =>
+  gbUseFeatureIsOn(feature.id);

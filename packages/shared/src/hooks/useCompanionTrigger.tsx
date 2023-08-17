@@ -1,9 +1,5 @@
 import React, { useCallback, useContext } from 'react';
-import {
-  useFeatureIsOn,
-  useFeatureValue,
-  useGrowthBook,
-} from '@growthbook/growthbook-react';
+import { useFeatureIsOn } from '../components/GrowthBookProvider';
 import { FeedPostClick } from './feed/useFeedOnPostClick';
 import { Post } from '../graphql/posts';
 import { Features } from '../lib/featureManagement';
@@ -12,7 +8,6 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { useExtensionPermission } from './useExtensionPermission';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
-import { LazyModalType } from '../components/modals/common';
 
 type CompanionTriggerProps = {
   post: Post;
@@ -46,7 +41,7 @@ export default function useCompanionTrigger(
   const { closeModal, openModal } = useLazyModal();
 
   const featureEnabled = useFeatureIsOn(
-    Features.EngagementLoopJuly2023Companion.id,
+    Features.EngagementLoopJuly2023Companion,
   );
 
   const { requestContentScripts, useContentScriptStatus } =
@@ -64,7 +59,7 @@ export default function useCompanionTrigger(
       // the check whether the user is logged in is done on the GrowthBook side
       // the feature flag is enabled only for logged-in users
       // -- check that this is correct
-      if (!isExtension || (isExtension && contentScriptGranted)) {
+      if (!isExtension || !featureEnabled || contentScriptGranted) {
         await customPostClickHandler(post, index, row, column);
       } else {
         e.preventDefault();
