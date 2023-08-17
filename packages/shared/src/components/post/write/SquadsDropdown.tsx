@@ -4,6 +4,8 @@ import SquadIcon from '../../icons/Squad';
 import { ButtonSize } from '../../buttons/Button';
 import { Dropdown } from '../../fields/Dropdown';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { verifyPermission } from '../../../graphql/squads';
+import { SourcePermissions } from '../../../graphql/sources';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
@@ -15,7 +17,12 @@ export function SquadsDropdown({
   selected,
 }: SquadsDropdownProps): ReactElement {
   const { squads } = useAuthContext();
-  const squadsList = squads?.map(({ name }) => name) ?? [];
+  const squadsList = squads?.reduce((acc, squad) => {
+    if (squad?.active && verifyPermission(squad, SourcePermissions.Post)) {
+      acc.push(squad.name);
+    }
+    return acc;
+  }, []);
 
   const renderDropdownItem = (value: string, index: number) => {
     const source = squads[index];
