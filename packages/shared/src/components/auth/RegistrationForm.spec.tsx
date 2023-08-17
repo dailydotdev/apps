@@ -137,7 +137,7 @@ const renderLogin = async (email: string) => {
 //   await renderRegistration(email);
 //   const form = await screen.findByTestId('registration_form');
 //   const params = formToJson(form as HTMLFormElement);
-//   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
+//   mockRegistrationValidationFlow(successfulRegistrationMockData, params);
 //   fireEvent.submit(form);
 //   await waitForNock();
 //   await waitFor(() => {
@@ -156,7 +156,7 @@ const renderLogin = async (email: string) => {
 //   await renderRegistration(email);
 //   const form = await screen.findByTestId('registration_form');
 //   const params = formToJson(form as HTMLFormElement);
-//   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);
+//   mockRegistrationValidationFlow(errorRegistrationMockData, params, 400);
 //   fireEvent.submit(form);
 //   await waitForNock();
 //   await waitFor(() => {
