@@ -140,7 +140,7 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {isV1Search && (
-            <FlexRow className="gap-3">
+            <span className="flex flex-row gap-3">
               <SearchBarInput
                 className={{
                   container: 'max-w-2xl w-full flex flex-1',
@@ -150,17 +150,17 @@ export const FeedContainer = ({
                 onSubmit={onSearch}
               />
               {besideSearch}
-            </FlexRow>
+            </span>
           )}
           {isV1Search && (
-            <FlexRow className="flex flex-1 mt-4">
+            <span className="flex flex-row flex-1 mt-4">
               <SearchBarSuggestionList className="hidden tablet:flex overflow-hidden flex-1 mr-3" />
               {actionButtons && (
-                <FlexRow className="gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
+                <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
                   {actionButtons}
-                </FlexRow>
+                </span>
               )}
-            </FlexRow>
+            </span>
           )}
           <div
             className={classNames(
