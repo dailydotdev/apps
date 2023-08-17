@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import FilterIcon from '../icons/Filter';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import AlertPointer, {
   AlertPlacement,
   AlertPointerProps,
