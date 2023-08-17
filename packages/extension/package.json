@@ -103,7 +103,7 @@
     "jest-junit": "^12.3.0",
     "mini-css-extract-plugin": "^1.6.2",
     "nock": "^13.2.4",
-    "node-fetch": "^2.6.6",
+    "node-fetch": "^3.3.2",
     "postcss": "^8.4.12",
     "postcss-custom-media": "^8.0.0",
     "postcss-focus-visible": "^6.0.4",

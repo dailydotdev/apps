@@ -116,7 +116,7 @@
     "lazysizes": "^5.3.2",
     "linkifyjs": "^2.1.9",
     "lodash.clonedeep": "^4.5.0",
-    "node-fetch": "^2.6.6",
+    "node-fetch": "^3.3.2",
     "react-onesignal": "^2.0.4",
     "tippy.js": "^6.3.1",
     "uuid": "^8.3.2",
