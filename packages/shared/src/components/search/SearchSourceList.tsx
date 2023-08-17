@@ -1,19 +1,27 @@
 import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { WidgetContainer } from '../widgets/common';
+import { widgetClasses } from '../widgets/common';
 import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { PlaceholderSearchSource } from './PlaceholderSearchSource';
-import { ClickableText } from '../buttons/ClickableText';
 import { PageWidgets } from '../utilities';
 import { SourceItem } from './SearchSourceItem';
+import { SearchChunkSource } from '../../graphql/search';
+import { PaginationContainer } from '../pagination';
 
-export const SourceList = (): ReactElement => {
+interface SearchSourceListProps {
+  sources: SearchChunkSource[];
+}
+
+export const SearchSourceList = ({
+  sources,
+}: SearchSourceListProps): ReactElement => {
   const [isSourcesOpen, setIsSourcesOpen] = useState(false);
+
   return (
     <PageWidgets tablet={false} className="relative order-2 laptop:order-last">
       <i className="hidden laptop:block absolute top-8 -left-8 w-12 h-px bg-theme-divider-tertiary" />
-      <WidgetContainer>
+      <PaginationContainer className={widgetClasses} max={10}>
         <div
           className={classNames(
             'flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
@@ -21,7 +29,10 @@ export const SourceList = (): ReactElement => {
           )}
         >
           <p className="font-bold typo-callout text-theme-label-tertiary laptop:text-theme-label-quaternary">
-            Sources <span className="inline-block laptop:hidden">(15)</span>
+            Sources{' '}
+            <span className="inline-block laptop:hidden">
+              ({sources?.length ?? 1})
+            </span>
           </p>
           <Button
             icon={
@@ -49,27 +60,7 @@ export const SourceList = (): ReactElement => {
               <SourceItem key={i} />
             ))}
         </div>
-
-        <div className="hidden laptop:flex justify-between items-center p-3 border-t border-theme-divider-tertiary">
-          <p className="ml-1 text-theme-label-tertiary typo-callout">1/1</p>
-          <div className="flex ">
-            <Button
-              className="btn-tertiary"
-              disabled
-              icon={<ArrowIcon className="-rotate-90" />}
-              iconOnly
-              buttonSize={ButtonSize.Small}
-            />
-            <Button
-              className="btn-tertiary"
-              disabled
-              icon={<ArrowIcon className="rotate-90" />}
-              iconOnly
-              buttonSize={ButtonSize.Small}
-            />
-          </div>
-        </div>
-      </WidgetContainer>
+      </PaginationContainer>
     </PageWidgets>
   );
 };

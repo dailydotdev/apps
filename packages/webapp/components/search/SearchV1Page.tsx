@@ -3,7 +3,7 @@ import { NextSeo } from 'next-seo';
 import {
   SearchFeedback,
   SearchResult,
-  SourceList,
+  SearchSourceList,
 } from '@dailydotdev/shared/src/components/search';
 import { SearchBar } from '@dailydotdev/shared/src/components';
 import { useChat } from '@dailydotdev/shared/src/hooks';
@@ -29,7 +29,7 @@ const SearchPage = (): ReactElement => {
                 isLoading,
               }}
             />
-            <SourceList />
+            <SearchSourceList sources={[]} />
           </>
         )}
       </div>
