@@ -16,7 +16,6 @@ import {
   useToastNotification,
 } from '../../hooks/useToastNotification';
 import { SearchBarSuggestionList, SearchBarInput } from '../search';
-import { FlexRow } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
