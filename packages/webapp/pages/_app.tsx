@@ -19,7 +19,7 @@ import Head from 'next/head';
 import 'focus-visible';
 import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
@@ -39,7 +39,6 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
-import { EXTENSION_PERMISSION_KEY } from '@dailydotdev/shared/src/hooks/useExtensionPermission';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 

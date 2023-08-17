@@ -35,7 +35,6 @@ import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
-import { LazyModal } from './modals/common/types';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
