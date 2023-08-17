@@ -229,9 +229,6 @@ export default function Feed<T>({
 
   const {
     onFeedArticleClick: onReadArticleClick,
-    toggleOpen: companionModalToggle,
-    lazyModal,
-
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCompanionTrigger(triggerReadArticleClick);

@@ -16,6 +16,7 @@ import { BootApp, BootCacheData } from '../lib/boot';
 import { decrypt } from './crypto';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { Features } from '../lib/featureManagement';
 
 export type GrowthBookProviderProps = {
   app: BootApp;
@@ -82,6 +83,12 @@ export const GrowthBookProvider = ({
           128,
         ).then((features) => {
           gb.setFeatures(JSON.parse(features));
+
+          // gb.setFeatures({
+          //   [Features.EngagementLoopJuly2023Companion.toString()]: {
+          //     defaultValue: true,
+          //   },
+          // });
         });
       }
     }

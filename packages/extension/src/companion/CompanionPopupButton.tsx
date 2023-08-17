@@ -44,8 +44,6 @@ export const CompanionPopupButton = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentScriptGranted, isFetched]);
 
-  console.log(contentScriptGranted, isFetched);
-
   if (contentScriptGranted || !isFetched) {
     return null;
   }

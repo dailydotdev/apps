@@ -83,13 +83,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   usePrompt();
 
-  // This is here to ensure compatibility between the extension and the webapp
-  // Do not remove, otherwise things will fail
-  // TODO: clean up the way this is handled so we don't need to do this
-  useQuery(EXTENSION_PERMISSION_KEY, () => ({
-    useContentScriptStatus: () => ({}),
-  }));
-
   useEffect(() => {
     updateCookieBanner(user);
   }, [updateCookieBanner, user]);

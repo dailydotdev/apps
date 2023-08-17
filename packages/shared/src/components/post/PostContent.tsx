@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React, { CSSProperties, ReactElement, ReactNode } from 'react';
-import dynamic from 'next/dynamic';
 import { Post } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
@@ -100,9 +99,6 @@ export function PostContent({
 
   const {
     onPostArticleClick: onReadArticleClick,
-    toggleOpen: companionModalToggle,
-    lazyModal,
-
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCompanionTrigger(onReadArticle);

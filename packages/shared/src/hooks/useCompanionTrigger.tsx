@@ -1,5 +1,9 @@
 import React, { useCallback, useContext } from 'react';
-import { useFeatureIsOn } from '@growthbook/growthbook-react';
+import {
+  useFeatureIsOn,
+  useFeatureValue,
+  useGrowthBook,
+} from '@growthbook/growthbook-react';
 import { FeedPostClick } from './feed/useFeedOnPostClick';
 import { Post } from '../graphql/posts';
 import { Features } from '../lib/featureManagement';
@@ -25,7 +29,6 @@ export type CompanionTrigger = {
   activateCompanion: () => void;
   openArticle: OpenArticle;
   toggleOpen: (value: boolean, data?: CompanionTriggerProps) => void;
-  lazyModal: LazyModalType<LazyModal>;
 };
 
 type PostClick = (e: React.MouseEvent, data: { post: Post }) => Promise<void>;
@@ -40,9 +43,10 @@ export default function useCompanionTrigger(
 ): CompanionTrigger {
   const isExtension = process.env.TARGET_BROWSER;
   const { trackEvent } = useContext(AnalyticsContext);
-  const { modal, closeModal, openModal } = useLazyModal();
+  const { closeModal, openModal } = useLazyModal();
+
   const featureEnabled = useFeatureIsOn(
-    Features.EngagementLoopJuly2023Companion.toString(), // this feels very smelly, but otherwise complains because of the Features<string> type
+    Features.EngagementLoopJuly2023Companion.id,
   );
 
   const { requestContentScripts, useContentScriptStatus } =
@@ -60,12 +64,10 @@ export default function useCompanionTrigger(
       // the check whether the user is logged in is done on the GrowthBook side
       // the feature flag is enabled only for logged-in users
       // -- check that this is correct
-      console.log({ isExtension, contentScriptGranted });
       if (!isExtension || (isExtension && contentScriptGranted)) {
         await customPostClickHandler(post, index, row, column);
       } else {
         e.preventDefault();
-        // setData({ post, index, row, column });
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         toggleModal(true, { post, index, row, column });
       }
@@ -144,16 +146,11 @@ export default function useCompanionTrigger(
     [openModal, closeModal, openArticle, activateCompanion],
   );
 
-  // const handleToggle = useCallback((opened: boolean) => {
-  //   toggleModal(opened);
-  // }, []);
-
   return {
     onFeedArticleClick,
     onPostArticleClick,
     activateCompanion,
     openArticle,
     toggleOpen: toggleModal,
-    lazyModal: modal,
   };
 }

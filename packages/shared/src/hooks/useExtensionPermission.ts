@@ -28,12 +28,14 @@ export const useExtensionPermission = ({
   onPermission,
 }: UseExtensionPermissionProps): ExtensionPermission => {
   const client = useQueryClient();
-  const data =
-    client.getQueryData<{
-      registerBrowserContentScripts: ExtensionPermission['registerBrowserContentScripts'];
-      requestContentScripts: RequestContentScripts;
-      useContentScriptStatus: ContentScriptStatus;
-    }>(EXTENSION_PERMISSION_KEY) || {};
+  const data = client.getQueryData<{
+    registerBrowserContentScripts: ExtensionPermission['registerBrowserContentScripts'];
+    requestContentScripts: RequestContentScripts;
+    useContentScriptStatus: ContentScriptStatus;
+  }>(EXTENSION_PERMISSION_KEY) || {
+    // to avoid having to check for undefined wherever this is used outside the extension
+    useContentScriptStatus: () => ({}),
+  };
 
   const {
     registerBrowserContentScripts,
