@@ -8,6 +8,8 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { useExtensionPermission } from './useExtensionPermission';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
+import { useActions } from './useActions';
+import { ActionType } from '../graphql/actions';
 
 type CompanionTriggerProps = {
   post: Post;
@@ -39,6 +41,7 @@ export default function useCompanionTrigger(
   const isExtension = process.env.TARGET_BROWSER;
   const { trackEvent } = useContext(AnalyticsContext);
   const { closeModal, openModal } = useLazyModal();
+  const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
 
   const featureEnabled = useFeatureIsOn(
     Features.EngagementLoopJuly2023Companion,
@@ -50,6 +53,14 @@ export default function useCompanionTrigger(
     });
 
   const { contentScriptGranted } = useContentScriptStatus();
+  const alreadyCompleted = checkHasCompleted(
+    ActionType.EngagementLoopJuly2023CompanionModal,
+  );
+
+  const handleCompleteAction = useCallback(() => {
+    if (isActionsFetched)
+      completeAction(ActionType.EngagementLoopJuly2023CompanionModal);
+  }, [isActionsFetched]);
 
   const articleClickHandler = useCallback(
     async (
@@ -59,7 +70,12 @@ export default function useCompanionTrigger(
       // the check whether the user is logged in is done on the GrowthBook side
       // the feature flag is enabled only for logged-in users
       // -- check that this is correct
-      if (!isExtension || !featureEnabled || contentScriptGranted) {
+      if (
+        !isExtension ||
+        !featureEnabled ||
+        alreadyCompleted ||
+        contentScriptGranted
+      ) {
         await customPostClickHandler(post, index, row, column);
       } else {
         e.preventDefault();
@@ -70,7 +86,13 @@ export default function useCompanionTrigger(
 
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [customPostClickHandler, isExtension, featureEnabled, contentScriptGranted],
+    [
+      alreadyCompleted,
+      customPostClickHandler,
+      isExtension,
+      featureEnabled,
+      contentScriptGranted,
+    ],
   );
 
   const onFeedArticleClick = useCallback<FeedPostClick>(
@@ -91,6 +113,7 @@ export default function useCompanionTrigger(
     await requestContentScripts();
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     toggleModal(false);
+    handleCompleteAction();
 
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,6 +130,7 @@ export default function useCompanionTrigger(
 
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       toggleModal(false);
+      handleCompleteAction();
     },
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -126,6 +150,7 @@ export default function useCompanionTrigger(
         });
       } else {
         closeModal();
+        handleCompleteAction();
       }
 
       const state = open ? 'open' : 'close';
