@@ -35,7 +35,7 @@ export interface PostHeaderActionsProps extends ShareBookmarkProps {
   className?: string;
   style?: CSSProperties;
   inlineActions?: boolean;
-  notificactionClassName?: string;
+  notificationClassName?: string;
   contextMenuId: string;
   onRemovePost?: PostOptionsMenuProps['onRemovePost'];
 }
@@ -50,7 +50,7 @@ export function PostHeaderActions({
   onClose,
   inlineActions,
   className,
-  notificactionClassName,
+  notificationClassName,
   contextMenuId,
   onRemovePost,
   ...props
