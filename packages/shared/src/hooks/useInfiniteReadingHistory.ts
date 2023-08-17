@@ -24,7 +24,7 @@ export interface UseInfiniteReadingHistory {
   queryResult: UseInfiniteQueryResult;
 }
 
-interface UseInifiniteReadingHistoryProps {
+interface UseInfiniteReadingHistoryProps {
   key: QueryKey;
   query;
   variables?;
@@ -33,7 +33,7 @@ function useInfiniteReadingHistory({
   key,
   query,
   variables,
-}: UseInifiniteReadingHistoryProps): UseInfiniteReadingHistory {
+}: UseInfiniteReadingHistoryProps): UseInfiniteReadingHistory {
   const queryResult = useInfiniteQuery<ReadHistoryData>(
     key,
     ({ pageParam }) =>
