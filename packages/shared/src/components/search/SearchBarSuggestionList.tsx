@@ -17,7 +17,13 @@ export function SearchBarSuggestionList({
   const { user, showLogin } = useContext(AuthContext);
   const suggestions: SearchBarSuggestionProps[] = [];
 
-  if (user && suggestions?.length === 0) {
+  if (!user) {
+    suggestions.push({
+      suggestion:
+        'Sign up and read your first post to get search recommendations',
+      onClick: () => showLogin('search bar suggestion'),
+    });
+  } else if (suggestions?.length === 0) {
     return (
       <span className="flex flex-row items-center text-theme-label-quaternary">
         <FeedbackIcon />
@@ -26,14 +32,6 @@ export function SearchBarSuggestionList({
         </span>
       </span>
     );
-  }
-
-  if (!user) {
-    suggestions.push({
-      suggestion:
-        'Sign up and read your first post to get search recommendations',
-      onClick: () => showLogin('search bar suggestion'),
-    });
   }
 
   return (
