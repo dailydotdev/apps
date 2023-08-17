@@ -5,6 +5,7 @@ import {
   SearchBarSuggestionProps,
 } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
+import FeedbackIcon from '../icons/Feedback';
 
 interface SearchBarSuggestionListProps {
   className?: string;
@@ -16,17 +17,22 @@ export function SearchBarSuggestionList({
   const { user, showLogin } = useContext(AuthContext);
   const suggestions: SearchBarSuggestionProps[] = [];
 
+  if (user && suggestions?.length === 0) {
+    return (
+      <span className="flex flex-row items-center text-theme-label-quaternary">
+        <FeedbackIcon />
+        <span className="ml-2 typo-footnote">
+          Read and upvote your first post to get search recommendations
+        </span>
+      </span>
+    );
+  }
+
   if (!user) {
     suggestions.push({
       suggestion:
         'Sign up and read your first post to get search recommendations',
       onClick: () => showLogin('search bar suggestion'),
-    });
-  } else if (suggestions.length === 0) {
-    suggestions.push({
-      suggestion:
-        'Read and upvote your first post to get search recommendations',
-      onClick: () => {},
     });
   }
 

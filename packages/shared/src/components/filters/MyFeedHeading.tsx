@@ -67,7 +67,6 @@ function MyFeedHeading({
         <Button
           className="mr-auto btn-tertiaryFloat"
           onClick={onClick}
-          buttonSize={ButtonSize.Large}
           icon={<FilterIcon />}
         />
       </AlertPointer>
