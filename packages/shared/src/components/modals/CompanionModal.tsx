@@ -8,6 +8,7 @@ import LineIcon from '../icons/Line';
 import { IconSize } from '../Icon';
 import useMedia from '../../hooks/useMedia';
 import { mobileL, tablet } from '../../styles/media';
+import { cloudinary } from '../../lib/image';
 
 type Props = LazyModalCommonProps & {
   url: string;
@@ -42,12 +43,12 @@ export default function CompanionModal({
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
           className="tablet:hidden rounded-16 w-fit"
-          poster="https://daily-now-res.cloudinary.com/image/upload/s--IqqAH4Rt--/f_auto/v1689497816/mobile-image_zb923g"
+          poster={cloudinary.companion.videoThumbnailMobile}
           loop
           autoPlay
         >
           <source
-            src="https://daily-now-res.cloudinary.com/video/upload/s--XAM05C_P--/v1689497504/final_mobile_cm24ad.mp4"
+            src={cloudinary.companion.backgroundVideoMobile}
             type="video/mp4"
           />
         </video>
@@ -57,12 +58,12 @@ export default function CompanionModal({
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
           className="hidden tablet:block rounded-16 w-fit"
-          poster="https://daily-now-res.cloudinary.com/image/upload/s--7w2Deabi--/f_auto/v1689497816/web-image_yomdsz"
+          poster={cloudinary.companion.videoThumbnailDesktop}
           loop
           autoPlay
         >
           <source
-            src="https://daily-now-res.cloudinary.com/video/upload/s--2N7_JImI--/v1689497504/final_web_rkupko.mp4"
+            src={cloudinary.companion.backgroundVideoDesktop}
             type="video/mp4"
           />
         </video>
@@ -91,6 +92,7 @@ export default function CompanionModal({
           tag="a"
           target="_blank"
           href={url}
+          rel="noopener"
         >
           Read post
         </Button>
