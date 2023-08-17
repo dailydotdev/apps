@@ -12,7 +12,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   mockEmailCheck,
   mockLoginFlow,
-  mockRegistraitonFlow,
+  mockRegistrationFlow,
 } from '../../../__tests__/fixture/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
@@ -39,7 +39,7 @@ const renderComponent = (
   },
 ): RenderResult => {
   const client = new QueryClient();
-  mockRegistraitonFlow();
+  mockRegistrationFlow();
   mockLoginFlow();
   return render(
     <QueryClientProvider client={client}>

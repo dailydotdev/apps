@@ -13,7 +13,7 @@ import {
   errorRegistrationMockData,
   mockEmailCheck,
   mockLoginFlow,
-  mockRegistraitonFlow,
+  mockRegistrationFlow,
   passwordLoginFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
@@ -66,7 +66,7 @@ const renderComponent = (
 ): RenderResult => {
   const client = new QueryClient();
   mockLoginFlow();
-  mockRegistraitonFlow();
+  mockRegistrationFlow();
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider

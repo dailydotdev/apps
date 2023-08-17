@@ -1345,7 +1345,7 @@ export const mockLoginReverifyFlow = (
     .reply(200, result);
 };
 
-export const mockRegistraitonFlow = (
+export const mockRegistrationFlow = (
   result = registrationFlowMockData,
 ): void => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
