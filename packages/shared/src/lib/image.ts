@@ -1,5 +1,14 @@
 export const cloudinary = {
-  feed: { bg: '/feed_bg.png' }, // TODO: update once the asset is uploaded in cloudinary
+  feed: {
+    bg: {
+      laptop:
+        'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/Desktop-ask-bg.png',
+      tablet:
+        'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/Tablet-ask-bg.png',
+      mobile:
+        'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/Mobile-ask-bg.png',
+    },
+  },
   post: {
     imageCoverPlaceholder:
       'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1',

@@ -35,6 +35,8 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { cloudinary } from '../lib/image';
+import useMedia from '../hooks/useMedia';
+import { laptop, tablet } from '../styles/media';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -271,11 +273,22 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+
+  const getImage = () => {
+    if (isMobile) {
+      return cloudinary.feed.bg.mobile;
+    }
+
+    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
+  };
+
   return (
     <FeedPage className="relative">
       <img
-        className="absolute top-0 left-0 w-full max-w-[58.75rem] min-h-[12rem]"
-        src={cloudinary.feed.bg}
+        className="absolute top-0 left-0 w-full max-w-[58.75rem]"
+        src={getImage()}
         alt="Gradient background"
       />
       {isSearchOn && search}
