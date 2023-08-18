@@ -53,8 +53,10 @@ export const SquadsDirectoryHeader = (): ReactElement => {
           {isOwner ? 'Join waitlist' : 'Create new squad'}
         </Button>
       </div>
-      <div className="text-right typo-footnote text-theme-label-quaternary">
-        Squads are just getting started. More awesomeness coming soon.
+      <div className="text-center tablet:text-right typo-footnote text-theme-label-quaternary">
+        Squads are just getting started.
+        <br className="inline-block tablet:hidden" /> More awesomeness coming
+        soon.
       </div>
     </div>
   );
