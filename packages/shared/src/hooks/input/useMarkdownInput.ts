@@ -129,7 +129,6 @@ export const useMarkdownInput = ({
         await command.replaceWord(replace, onUpdate, allowedType);
       },
       onFinish: async (status, file, url) => {
-        console.log(status);
         if (status === UploadState.Failed) {
           return displayToast(uploadNotAcceptedMessage);
         }
