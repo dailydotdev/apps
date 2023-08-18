@@ -35,6 +35,9 @@ export default function useTrackImpression(
             columns,
             column,
             row,
+            extra: {
+              feedback: true,
+            },
             ...feedAnalyticsExtra(feedName, ranking, {
               scroll_y: window.scrollY,
             }),

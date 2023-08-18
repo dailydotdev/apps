@@ -96,6 +96,12 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     flags {
       promoteToPublic
     }
+    userState {
+      vote
+      flags {
+        feedbackDismiss
+      }
+    }
   }
   ${SOURCE_BASE_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}

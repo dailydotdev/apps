@@ -49,6 +49,23 @@ type PostFlags = {
   promoteToPublic: number;
 };
 
+export type UserPostFlags = Partial<{
+  feedbackDismiss: boolean;
+}>;
+
+export enum UserPostVote {
+  Up = 1,
+  None = 0,
+  Down = -1,
+}
+
+export type UserPostFlagsPublic = Pick<UserPostFlags, 'feedbackDismiss'>;
+
+export interface PostUserState {
+  vote: UserPostVote;
+  flags?: UserPostFlagsPublic;
+}
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -88,6 +105,7 @@ export interface Post {
   feedMeta?: string;
   downvoted?: boolean;
   flags: PostFlags;
+  userState: PostUserState;
 }
 
 export interface Ad {
@@ -133,6 +151,7 @@ export type ReadHistoryPost = Pick<
   | 'tags'
   | 'sharedPost'
   | 'type'
+  | 'userState'
 > & { source?: Source } & {
   author?: Pick<Author, 'id'>;
 } & {
@@ -226,6 +245,22 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
+`;
+
+export const DISMISS_POST_FEEDBACK_MUTATION = gql`
+  mutation DismissPostFeedback($id: ID!) {
+    dismissPostFeedback(id: $id) {
+      _
+    }
+  }
+`;
+
+export const VOTE_POST_MUTATION = gql`
+  mutation VotePost($id: ID!, $vote: Int!) {
+    votePost(id: $id, vote: $vote) {
+      _
+    }
+  }
 `;
 
 export const UPVOTE_MUTATION = gql`
@@ -338,6 +373,22 @@ export const UNHIDE_POST_MUTATION = gql`
     }
   }
 `;
+
+export const dismissPostFeedback = (id: string): Promise<EmptyResponse> => {
+  return request(graphqlUrl, DISMISS_POST_FEEDBACK_MUTATION, {
+    id,
+  });
+};
+
+export const votePost = (
+  id: string,
+  vote: UserPostVote,
+): Promise<EmptyResponse> => {
+  return request(graphqlUrl, VOTE_POST_MUTATION, {
+    id,
+    vote,
+  });
+};
 
 export const banPost = (id: string): Promise<EmptyResponse> => {
   return request(graphqlUrl, BAN_POST_MUTATION, {

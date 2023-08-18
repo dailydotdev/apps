@@ -29,16 +29,23 @@ export type UseFeedVotePost = {
   onUpvote: (
     post: Post,
     index: number,
-    row: number,
-    column: number,
-    upvoted: boolean,
+    upvoted: boolean | number,
+    row?: number,
+    column?: number,
   ) => Promise<void>;
   onDownvote: (
     post: Post,
     index: number,
-    row: number,
-    column: number,
-    downvoted: boolean,
+    downvoted: boolean | number,
+    row?: number,
+    column?: number,
+  ) => Promise<void>;
+  toggleVote: (
+    post: Post,
+    index: number,
+    vote: number,
+    row?: number,
+    column?: number,
   ) => Promise<void>;
 };
 
@@ -56,8 +63,8 @@ const mutationKeyToHandlerMap = {
 export default function useFeedVotePost(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
-  columns: number,
-  feedName: string,
+  columns?: number,
+  feedName?: string,
   ranking?: string,
 ): UseFeedVotePost {
   const queryClient = useQueryClient();
@@ -136,7 +143,7 @@ export default function useFeedVotePost(
   }, [items, updatePost]);
 
   return {
-    onUpvote: async (post, index, row, column, upvoted): Promise<void> => {
+    onUpvote: async (post, index, upvoted, row, column): Promise<void> => {
       if (!user) {
         showLogin(AuthTriggers.Upvote);
         return;
@@ -164,7 +171,7 @@ export default function useFeedVotePost(
         await cancelPostUpvote({ id: post.id, index });
       }
     },
-    onDownvote: async (post, index, row, column, downvoted): Promise<void> => {
+    onDownvote: async (post, index, downvoted, row, column): Promise<void> => {
       if (!user) {
         showLogin(AuthTriggers.Downvote);
         return;
@@ -190,6 +197,34 @@ export default function useFeedVotePost(
           }),
         );
         await cancelPostDownvote({ id: post.id, index });
+      }
+    },
+    toggleVote: async (post, index, upvoted, row, column): Promise<void> => {
+      if (!user) {
+        showLogin(AuthTriggers.Upvote);
+        return;
+      }
+
+      if (upvoted) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking),
+          }),
+        );
+        await upvotePost({ id: post.id, index });
+      } else {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking),
+          }),
+        );
+        await cancelPostUpvote({ id: post.id, index });
       }
     },
   };

@@ -23,7 +23,8 @@ export const Container = classed('div', 'relative flex flex-1 flex-col');
 export type PostCardProps = {
   post: Post;
   onPostClick?: Callback;
-  onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
+  onUpvoteClick?: (post: Post) => unknown;
+  onDownvoteClick?: (post: Post, downvoted: boolean | number) => unknown;
   onCommentClick?: Callback;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;

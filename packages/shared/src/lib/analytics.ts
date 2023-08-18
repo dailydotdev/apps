@@ -26,6 +26,7 @@ export enum Origin {
   PostCommentButton = 'comment button',
   StartDiscussion = 'start discussion button',
   CompanionContextMenu = 'companion context menu',
+  EngagementLoopVote = 'engagement_loop_july2023_upvote',
 }
 
 export enum LoginTrigger {
@@ -75,6 +76,7 @@ export enum AnalyticsEvent {
   RemovePostUpvote = 'remove post upvote',
   DownvotePost = 'downvote post',
   RemovePostDownvote = 'remove post downvote',
+  HideEngagementLoop = 'engagement_loop_july2023_upvote',
   // vote - end
   // bookmark - start
   BookmarkPost = 'bookmark post',

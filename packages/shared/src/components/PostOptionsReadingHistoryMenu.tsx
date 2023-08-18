@@ -88,6 +88,7 @@ export default function PostOptionsReadingHistoryMenu({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
+  const hasEngagementLoopAccess = true;
 
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updateReadingHistoryPost(
@@ -143,7 +144,10 @@ export default function PostOptionsReadingHistoryMenu({
           </span>
         </Item>
         <Item
-          className="laptop:hidden typo-callout"
+          className={classNames(
+            'typo-callout',
+            !hasEngagementLoopAccess && 'laptop:hidden',
+          )}
           onClick={() => onHideHistoryPost(post?.id)}
         >
           <span className="flex w-full typo-callout">

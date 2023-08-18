@@ -49,6 +49,13 @@ export type FeedItemComponentProps = {
     column: number,
     upvoted: boolean,
   ) => Promise<void>;
+  onDownvote: (
+    post: Post,
+    index: number,
+    row: number,
+    column: number,
+    upvoted: boolean,
+  ) => Promise<void>;
   onBookmark: (
     post: Post,
     index: number,
@@ -118,6 +125,7 @@ export default function FeedItemComponent({
   feedName,
   ranking,
   onUpvote,
+  onDownvote,
   onBookmark,
   onPostClick,
   onShare,
@@ -156,7 +164,10 @@ export default function FeedItemComponent({
           }}
           data-testid="postItem"
           onUpvoteClick={(post, upvoted) =>
-            onUpvote(post, index, row, column, upvoted)
+            onUpvote(post, index, upvoted, row, column)
+          }
+          onDownvoteClick={(post, downvoted) =>
+            onDownvote(post, index, downvoted, row, column)
           }
           onPostClick={(post) => onPostClick(post, index, row, column)}
           onBookmarkClick={(post, bookmarked) =>

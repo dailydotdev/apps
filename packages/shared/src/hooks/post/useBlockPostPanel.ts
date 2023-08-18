@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from 'react-query';
 import { useCallback, useMemo } from 'react';
-import { Post } from '../../graphql/posts';
+import { Post, ReadHistoryPost } from '../../graphql/posts';
 import { generateStorageKey, StorageTopic } from '../../lib/storage';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
@@ -61,7 +61,7 @@ const getParams = (tags: BlockTagSelection): Params => {
 const ignoredCall = () => Promise.resolve({ successful: true });
 
 export const useBlockPostPanel = (
-  post: Post,
+  post: Post | ReadHistoryPost,
   { toastOnSuccess, blockedSource }: UseBlockPostProps = {},
 ): UseBlockPost => {
   const { openModal } = useLazyModal();

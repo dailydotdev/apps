@@ -188,7 +188,7 @@ export default function Feed<T>({
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { onUpvote } = useFeedVotePost(
+  const { onUpvote, onDownvote } = useFeedVotePost(
     items,
     updatePost,
     virtualizedNumCards,
@@ -394,6 +394,7 @@ export default function Feed<T>({
           feedName={feedName}
           ranking={ranking}
           onUpvote={onUpvote}
+          onDownvote={onDownvote}
           onBookmark={onBookmark}
           onPostClick={onPostCardClick}
           onShare={onShareClick}

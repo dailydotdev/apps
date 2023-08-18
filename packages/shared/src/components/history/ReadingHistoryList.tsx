@@ -51,6 +51,7 @@ export default function ReadHistoryList({
   const analyticsOrigin = Origin.ReadingHistoryContextMenu;
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
+  const hasEngagementLoopAccess = true;
 
   const renderList = useCallback(() => {
     let currentDate: Date;
@@ -75,6 +76,7 @@ export default function ReadHistoryList({
               onReadingHistoryContextOptions(event, readingHistory, indexes)
             }
             onHide={(params) => onHide({ ...params, ...indexes })}
+            hasEngagementLoopAccess={hasEngagementLoopAccess}
           />,
         );
 

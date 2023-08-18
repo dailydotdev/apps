@@ -28,6 +28,10 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly ShowHiring = new Features('show_hiring');
 
+  static readonly EngagementLoopJuly2023Upvote = new Features(
+    'engagement_loop_july2023_upvote',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: T,
