@@ -80,8 +80,6 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
       try {
         const data: UseChatMessage = JSON.parse(event.data);
 
-        console.log(data);
-
         switch (data.type) {
           case UseChatMessageType.SessionCreated:
             client.setQueryData(

@@ -76,7 +76,7 @@ export const getSearchSession = async (id: string): Promise<Search> => {
   return res.searchSession;
 };
 
-type DeepPartial<T> = T extends object
+type DeepPartial<T> = T extends unknown
   ? {
       [P in keyof T]?: DeepPartial<T[P]>;
     }
