@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useRef, useState } from 'react';
+import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   getSearchSession,
@@ -145,6 +145,14 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
     },
     [setSearchQuery, onMessage],
   );
+
+  useEffect(() => {
+    return () => {
+      if (endStreamRef.current) {
+        endStreamRef.current();
+      }
+    };
+  }, []);
 
   return {
     isLoading:
