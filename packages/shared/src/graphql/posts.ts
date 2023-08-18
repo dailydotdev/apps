@@ -587,6 +587,8 @@ export const imageSizeLimitMB = 5;
 export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
 export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
 
+export const uploadNotAcceptedMessage = `File type is not allowed or the size exceeded the limit of ${imageSizeLimitMB} MB`;
+
 export const uploadContentImage = async (
   image: File,
   onProcessing?: (file: File) => void,
