@@ -7,7 +7,8 @@ import { PlaceholderSearchSource } from './PlaceholderSearchSource';
 import { PageWidgets } from '../utilities';
 import { SearchSourceItem } from './SearchSourceItem';
 import { SearchChunkSource } from '../../graphql/search';
-import { PaginationContainer } from '../pagination';
+import { PaginationActions } from '../pagination';
+import { usePagination } from '../../hooks/utils/usePagination';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
@@ -19,11 +20,15 @@ export const SearchSourceList = ({
   isLoading,
 }: SearchSourceListProps): ReactElement => {
   const [isSourcesOpen, setIsSourcesOpen] = useState(false);
+  const { paginated, ...pagination } = usePagination({
+    items: sources,
+    limit: 3,
+  });
 
   return (
     <PageWidgets tablet={false} className="relative order-2 laptop:order-last">
       <i className="hidden laptop:block absolute top-8 -left-8 w-12 h-px bg-theme-divider-tertiary" />
-      <PaginationContainer className={widgetClasses} max={10}>
+      <div className={classNames('flex flex-col', widgetClasses)}>
         <div
           className={classNames(
             'flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
@@ -57,12 +62,13 @@ export const SearchSourceList = ({
           {isLoading ? (
             <PlaceholderSearchSource />
           ) : (
-            sources?.map((source) => (
+            paginated.map((source) => (
               <SearchSourceItem key={source.id} item={source} />
             ))
           )}
         </div>
-      </PaginationContainer>
+        <PaginationActions {...pagination} />
+      </div>
     </PageWidgets>
   );
 };
