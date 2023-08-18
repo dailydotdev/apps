@@ -5,16 +5,18 @@ import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { PlaceholderSearchSource } from './PlaceholderSearchSource';
 import { PageWidgets } from '../utilities';
-import { SourceItem } from './SearchSourceItem';
+import { SearchSourceItem } from './SearchSourceItem';
 import { SearchChunkSource } from '../../graphql/search';
 import { PaginationContainer } from '../pagination';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
+  isLoading?: boolean;
 }
 
 export const SearchSourceList = ({
   sources,
+  isLoading,
 }: SearchSourceListProps): ReactElement => {
   const [isSourcesOpen, setIsSourcesOpen] = useState(false);
 
@@ -52,13 +54,13 @@ export const SearchSourceList = ({
             isSourcesOpen ? 'flex' : 'hidden laptop:flex',
           )}
         >
-          <PlaceholderSearchSource />
-          {Array(5)
-            .fill(0)
-            .map((_, i) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <SourceItem key={i} />
-            ))}
+          {isLoading ? (
+            <PlaceholderSearchSource />
+          ) : (
+            sources?.map((source) => (
+              <SearchSourceItem key={source.id} item={source} />
+            ))
+          )}
         </div>
       </PaginationContainer>
     </PageWidgets>
