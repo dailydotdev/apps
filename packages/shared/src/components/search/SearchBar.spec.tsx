@@ -24,10 +24,6 @@ const renderComponent = (
   props: Partial<SearchBarProps> = {},
 ): RenderResult => {
   const client = new QueryClient();
-  const defaultProps: SearchBarProps = {
-    inputId: 'name',
-    name: 'name',
-  };
 
   return render(
     <QueryClientProvider client={client}>
@@ -40,7 +36,7 @@ const renderComponent = (
         loadedUserFromCache
         squads={squads}
       >
-        <SearchBar {...defaultProps} {...props} />
+        <SearchBar {...props} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -60,7 +56,7 @@ describe('SearchBar', () => {
     renderComponent();
 
     expect(screen.getByTestId('searchBar')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Ask anything…')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Ask anything...')).toBeInTheDocument();
     expect(screen.getByText('Beta')).toBeInTheDocument();
   });
 
@@ -81,8 +77,10 @@ describe('SearchBar', () => {
       })),
     });
 
-    renderComponent(true, { value: 'search' });
+    renderComponent(true);
     const input = screen.queryByRole('textbox') as HTMLInputElement;
+    fireEvent.input(input, { target: { value: 'search' } });
+    input.value = 'search';
     const clear = screen.queryByTitle('Clear query');
 
     await waitFor(() => expect(clear).toBeInTheDocument());
