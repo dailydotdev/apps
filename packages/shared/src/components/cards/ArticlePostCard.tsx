@@ -2,6 +2,7 @@ import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import {
   CardButton,
+  CardSummary,
   CardSpace,
   CardTextContainer,
   CardTitle,
@@ -72,6 +73,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
           onReadArticleClick={onReadArticleClick}
         />
         <CardTitle>{post.title}</CardTitle>
+        <CardSummary>{post.summary}</CardSummary>
       </CardTextContainer>
       <Container className="mb-8 tablet:mb-0">
         <CardSpace />

@@ -7,6 +7,8 @@ import {
   ListCardAside,
   ListCardMain,
   CardButton,
+  CardImage,
+  CardSummary,
 } from './Card';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
@@ -15,6 +17,7 @@ import PostAuthor from './PostAuthor';
 import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
+import { cloudinary } from '../../lib/image';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -68,6 +71,7 @@ export const PostList = forwardRef(function PostList(
       <ListCardDivider className="mb-1" />
       <ListCardMain>
         <ListCardTitle>{post.title}</ListCardTitle>
+        <CardSummary>{post.summary}</CardSummary>
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}
@@ -89,6 +93,13 @@ export const PostList = forwardRef(function PostList(
           insaneMode
         />
       </ListCardMain>
+      <CardImage
+        alt="Post Cover image"
+        src={post.image}
+        fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        className="object-cover my-2 w-72"
+        loading="lazy"
+      />
       {children}
     </FeedItemContainer>
   );

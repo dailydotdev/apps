@@ -22,6 +22,11 @@ export const FreeformCardTitle = classed(
 
 export const CardTitle = classed(Title, 'my-2 break-words');
 
+export const CardSummary = classed(
+  'summary',
+  'my-2 break-words text-theme-label-tertiary typo-footnote',
+);
+
 export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col mx-4');
