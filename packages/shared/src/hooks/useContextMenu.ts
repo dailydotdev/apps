@@ -8,7 +8,6 @@ export default function useContextMenu({ id }: { id: string }): {
   const { show } = useContexifyContextMenu({ id });
 
   const onMenuClick = (e: React.MouseEvent) => {
-    setMenu(!menu);
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
     if (!menu) {
       show(e, {
