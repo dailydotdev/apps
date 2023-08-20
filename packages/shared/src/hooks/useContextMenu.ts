@@ -15,6 +15,7 @@ export default function useContextMenu({ id }: { id: string }): {
         position: { x: right, y: bottom + 4 },
       });
     }
+    setMenu(!menu);
   };
 
   return {
