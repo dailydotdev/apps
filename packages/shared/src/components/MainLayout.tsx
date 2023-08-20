@@ -181,6 +181,7 @@ export default function MainLayout({
 
   return (
     <div {...handlers}>
+      {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
       <LazyModalElement />
