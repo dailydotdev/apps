@@ -24,14 +24,14 @@ export function useBanner(): UseBanner {
   );
 
   const isAvailable = useMemo(() => {
-    const lastBannerDate = Date.parse(alerts?.lastBanner);
-    const lastPostDate = Date.parse(latestBanner?.banner?.timestamp);
+    const lastSeenBannerDate = Date.parse(alerts?.lastBanner);
+    const latestBannerDate = Date.parse(latestBanner?.banner?.timestamp);
 
-    if (Number.isNaN(lastBannerDate) || Number.isNaN(lastPostDate)) {
+    if (Number.isNaN(latestBannerDate) || Number.isNaN(lastSeenBannerDate)) {
       return false;
     }
 
-    return lastPostDate > lastBannerDate;
+    return latestBannerDate > lastSeenBannerDate;
   }, [alerts.lastBanner, latestBanner?.banner?.timestamp]);
 
   const dismissMutation = useMutation(() => {
