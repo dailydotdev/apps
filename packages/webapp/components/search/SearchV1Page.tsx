@@ -1,39 +1,37 @@
 import React, { ReactElement } from 'react';
 import { NextSeo } from 'next-seo';
 import {
-  SearchFeedback,
   SearchResult,
   SearchSourceList,
 } from '@dailydotdev/shared/src/components/search';
-import { SearchBar } from '@dailydotdev/shared/src/components';
 import { useChat } from '@dailydotdev/shared/src/hooks';
+import { SearchContainer } from '@dailydotdev/shared/src/components/search/SearchContainer';
+import { useRouter } from 'next/router';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
 
 const SearchPage = (): ReactElement => {
-  const { messages, handleSubmit, setInput, isLoading } = useChat({});
-  const content = messages[0] || '';
+  const router = useRouter();
+  const { data, handleSubmit, isLoading } = useChat({
+    id: router?.query?.id?.toString(),
+  });
+  const content = data?.chunks?.[0]?.response || '';
 
   return (
-    <main className="m-auto w-full">
+    <SearchContainer onSubmit={handleSubmit}>
       <NextSeo nofollow noindex />
-      <div className="grid grid-cols-1 laptop:grid-cols-3 gap-y-6 pt-8 m-auto max-w-screen-laptop">
-        <main className="flex flex-col flex-1 col-span-2 px-4 laptop:px-8">
-          <SearchBar valueChanged={setInput} onSubmit={handleSubmit} />
-        </main>
-        <SearchFeedback />
-        {!!content && (
-          <>
-            <SearchResult
-              content={content}
-              searchMessageProps={{
-                isLoading,
-              }}
-            />
-            <SearchSourceList sources={[]} />
-          </>
-        )}
-      </div>
-    </main>
+      {(!!content || !!data) && (
+        <>
+          <SearchResult
+            chunk={data?.chunks?.[0]}
+            searchMessageProps={{ isLoading }}
+          />
+          <SearchSourceList
+            sources={data?.chunks?.[0]?.sources}
+            isLoading={isLoading}
+          />
+        </>
+      )}
+    </SearchContainer>
   );
 };
 

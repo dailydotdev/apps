@@ -6,14 +6,15 @@ import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
 import CopyIcon from '../icons/Copy';
 import { SearchMessage, SearchMessageProps } from './SearchMessage';
+import { SearchChunk } from '../../graphql/search';
 
-export type SearchResultProps = {
-  content: string;
+export interface SearchResultProps {
+  chunk: SearchChunk;
   searchMessageProps?: Omit<SearchMessageProps, 'content'>;
-};
+}
 
 export const SearchResult = ({
-  content,
+  chunk,
   searchMessageProps,
 }: SearchResultProps): ReactElement => (
   <main className="order-3 laptop:order-3 col-span-2 px-4 laptop:px-8 mb-5">
@@ -22,7 +23,7 @@ export const SearchResult = ({
         <LogoIcon className="max-w-full" />
       </div>
       <div className="flex-1">
-        <SearchMessage {...searchMessageProps} content={content} />
+        <SearchMessage {...searchMessageProps} content={chunk?.response} />
         <div className="flex pt-4">
           <Button
             className="btn-tertiary"
