@@ -13,7 +13,7 @@ export function SearchContainer({
 }: SearchContainerProps): React.ReactElement {
   return (
     <main className="m-auto w-full">
-      <div className="grid grid-cols-1 laptop:grid-cols-3 gap-y-6 pt-8 m-auto max-w-screen-laptop">
+      <div className="flex flex-wrap gap-y-6 pt-8 m-auto max-w-screen-laptop">
         <main className="flex flex-col flex-1 col-span-2 px-4 laptop:px-8">
           <SearchBar onSubmit={onSubmit} />
         </main>
