@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import request from 'graphql-request';
 import AlertContext from '../contexts/AlertContext';
@@ -42,13 +42,13 @@ export function useBanner(): UseBanner {
     });
   });
 
-  const dismiss = async () => {
+  const dismiss = useCallback(async () => {
     if (dismissMutation.isLoading) {
       return;
     }
 
     await dismissMutation.mutateAsync();
-  };
+  }, [dismissMutation]);
 
   return {
     isAvailable,
