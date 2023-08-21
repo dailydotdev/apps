@@ -55,7 +55,7 @@ export default function useCompanionTrigger(
   const handleCompleteAction = useCallback(() => {
     if (isActionsFetched)
       completeAction(ActionType.EngagementLoopJuly2023CompanionModal);
-  }, [isActionsFetched]);
+  }, [isActionsFetched, completeAction]);
 
   const closeModal = useCallback(() => {
     closeLazyModal();
@@ -115,11 +115,12 @@ export default function useCompanionTrigger(
       // the check whether the user is logged in is done on the GrowthBook side
       // the feature flag is enabled only for logged-in users
       // -- check that this is correct
-      if (!isExtension || alreadyCompleted || contentScriptGranted) {
+      if (!isExtension || contentScriptGranted) {
         await customPostClickHandler(post, index, row, column);
       } else if (
         // checking this also enrolls the user in the experiment
         // so this must be the last check after all others
+        true ||
         gb.isOn(Features.EngagementLoopJuly2023Companion.id)
       ) {
         e.preventDefault();
