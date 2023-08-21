@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from 'react';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useExtensionPermission } from '@dailydotdev/shared/src/hooks/useExtensionPermission';
+import { useExtensionPermission } from '@dailydotdev/shared/src/hooks';
 import { useContentScriptStatus } from '../lib/extensionScripts';
 
 export const useCompanionSettings = (origin: string): void => {

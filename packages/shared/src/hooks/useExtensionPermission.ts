@@ -1,10 +1,14 @@
-import { useQueryClient } from 'react-query';
+import { QueryClient, useQueryClient } from 'react-query';
+import { useContext } from 'react';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 
 export const EXTENSION_PERMISSION_KEY = 'extension-permission';
 
 export type RequestContentScripts = (
   origin: string,
-  onPermission?: UseExtensionPermissionProps['onPermission'],
+  client: QueryClient,
+  trackEvent: (e: AnalyticsEvent) => void,
 ) => () => Promise<boolean>;
 
 export type ContentScriptStatus = () => {
@@ -20,19 +24,14 @@ interface ExtensionPermission {
 
 interface UseExtensionPermissionProps {
   origin: string;
-  onPermission?: (granted: boolean) => void;
 }
 
 export const useExtensionPermission = ({
   origin,
-  onPermission,
 }: UseExtensionPermissionProps): ExtensionPermission => {
   const client = useQueryClient();
-  const data = client.getQueryData<{
-    registerBrowserContentScripts: ExtensionPermission['registerBrowserContentScripts'];
-    requestContentScripts: RequestContentScripts;
-    useContentScriptStatus: ContentScriptStatus;
-  }>(EXTENSION_PERMISSION_KEY) || {
+  const { trackEvent } = useContext(AnalyticsContext);
+  const data = client.getQueryData(EXTENSION_PERMISSION_KEY) || {
     // to avoid having to check for undefined wherever this is used outside the extension
     useContentScriptStatus: () => ({}),
   };
@@ -49,7 +48,7 @@ export const useExtensionPermission = ({
 
   return {
     registerBrowserContentScripts,
-    requestContentScripts: requestContentScripts?.(origin, onPermission),
+    requestContentScripts: requestContentScripts?.(origin, client, trackEvent),
     useContentScriptStatus,
   };
 };

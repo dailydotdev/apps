@@ -1,5 +1,5 @@
 import React, { useCallback, useContext } from 'react';
-import { useFeatureIsOn } from '../components/GrowthBookProvider';
+import { useGrowthBook } from '@growthbook/growthbook-react';
 import { FeedPostClick } from './feed/useFeedOnPostClick';
 import { Post } from '../graphql/posts';
 import { Features } from '../lib/featureManagement';
@@ -23,9 +23,6 @@ type OpenArticle = (data?: CompanionTriggerProps) => () => Promise<void>;
 export type CompanionTrigger = {
   onFeedArticleClick: FeedPostClick;
   onPostArticleClick: PostClick;
-  activateCompanion: () => void;
-  openArticle: OpenArticle;
-  toggleOpen: (value: boolean, data?: CompanionTriggerProps) => void;
 };
 
 type PostClick = (e: React.MouseEvent, data: { post: Post }) => Promise<void>;
@@ -40,12 +37,10 @@ export default function useCompanionTrigger(
 ): CompanionTrigger {
   const isExtension = process.env.TARGET_BROWSER;
   const { trackEvent } = useContext(AnalyticsContext);
-  const { closeModal, openModal } = useLazyModal();
+  const { closeModal: closeLazyModal, openModal: openLazyModal } =
+    useLazyModal();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
-
-  const featureEnabled = useFeatureIsOn(
-    Features.EngagementLoopJuly2023Companion,
-  );
+  const gb = useGrowthBook();
 
   const { requestContentScripts, useContentScriptStatus } =
     useExtensionPermission({
@@ -62,6 +57,56 @@ export default function useCompanionTrigger(
       completeAction(ActionType.EngagementLoopJuly2023CompanionModal);
   }, [isActionsFetched]);
 
+  const closeModal = useCallback(() => {
+    closeLazyModal();
+    handleCompleteAction();
+
+    trackEvent({
+      event_name: `close companion permission popup`,
+      extra: JSON.stringify({ origin: 'automatic' }),
+    });
+  }, [closeLazyModal, handleCompleteAction, trackEvent]);
+
+  const activateCompanion = useCallback(async () => {
+    await requestContentScripts();
+    closeModal();
+    handleCompleteAction();
+  }, [requestContentScripts, closeModal, handleCompleteAction]);
+
+  const openArticle: OpenArticle = useCallback(
+    (data) => async () => {
+      await customPostClickHandler(
+        data.post,
+        data.index,
+        data.row,
+        data.column,
+      );
+
+      closeModal();
+      handleCompleteAction();
+    },
+    [customPostClickHandler, closeModal, handleCompleteAction],
+  );
+
+  const openModal = useCallback(
+    (data?: CompanionTriggerProps) => {
+      openLazyModal({
+        type: LazyModal.CompanionModal,
+        props: {
+          url: data?.post?.permalink,
+          onReadArticleClick: openArticle(data),
+          onActivateCompanion: activateCompanion,
+        },
+      });
+
+      trackEvent({
+        event_name: `open companion permission popup`,
+        extra: JSON.stringify({ origin: 'automatic' }),
+      });
+    },
+    [openArticle, activateCompanion, openLazyModal, trackEvent],
+  );
+
   const articleClickHandler = useCallback(
     async (
       e: React.MouseEvent,
@@ -70,28 +115,27 @@ export default function useCompanionTrigger(
       // the check whether the user is logged in is done on the GrowthBook side
       // the feature flag is enabled only for logged-in users
       // -- check that this is correct
-      if (
-        !isExtension ||
-        !featureEnabled ||
-        alreadyCompleted ||
-        contentScriptGranted
-      ) {
+      if (!isExtension || alreadyCompleted || contentScriptGranted) {
         await customPostClickHandler(post, index, row, column);
-      } else {
+      } else if (
+        // checking this also enrolls the user in the experiment
+        // so this must be the last check after all others
+        gb.isOn(Features.EngagementLoopJuly2023Companion.id)
+      ) {
         e.preventDefault();
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        toggleModal(true, { post, index, row, column });
+        openModal({ post, index, row, column });
+      } else {
+        await customPostClickHandler(post, index, row, column);
       }
     },
 
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       alreadyCompleted,
       customPostClickHandler,
       isExtension,
-      featureEnabled,
       contentScriptGranted,
+      gb,
+      openModal,
     ],
   );
 
@@ -109,68 +153,8 @@ export default function useCompanionTrigger(
     [articleClickHandler],
   );
 
-  const activateCompanion = useCallback(async () => {
-    await requestContentScripts();
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    toggleModal(false);
-    handleCompleteAction();
-
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requestContentScripts]);
-
-  const openArticle: OpenArticle = useCallback(
-    (data) => async () => {
-      await customPostClickHandler(
-        data.post,
-        data.index,
-        data.row,
-        data.column,
-      );
-
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      toggleModal(false);
-      handleCompleteAction();
-    },
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [customPostClickHandler],
-  );
-
-  const toggleModal = useCallback(
-    (open: boolean, data?: CompanionTriggerProps) => {
-      if (open) {
-        openModal({
-          type: LazyModal.CompanionModal,
-          props: {
-            url: data?.post?.permalink,
-            onReadArticleClick: openArticle(data),
-            onActivateCompanion: activateCompanion,
-          },
-        });
-      } else {
-        closeModal();
-        handleCompleteAction();
-      }
-
-      const state = open ? 'open' : 'close';
-
-      trackEvent({
-        event_name: `${state} companion permission popup`,
-        extra: JSON.stringify({ origin: 'automatic' }),
-      });
-    },
-
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [openModal, closeModal, openArticle, activateCompanion],
-  );
-
   return {
     onFeedArticleClick,
     onPostArticleClick,
-    activateCompanion,
-    openArticle,
-    toggleOpen: toggleModal,
   };
 }

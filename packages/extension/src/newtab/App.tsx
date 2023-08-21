@@ -41,9 +41,7 @@ import {
   useContentScriptStatus,
   registerBrowserContentScripts,
 } from '../lib/extensionScripts';
-import { companionRequest } from '../companion/companionRequest';
-import { companionFetch } from '../companion/companionFetch';
-import { EXTENSION_PERMISSION_KEY } from '../../../shared/src/hooks/useExtensionPermission';
+import { EXTENSION_PERMISSION_KEY } from '../../../shared/src/hooks';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();

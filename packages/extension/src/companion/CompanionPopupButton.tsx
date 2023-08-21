@@ -5,7 +5,7 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import CompanionIcon from '@dailydotdev/shared/src/components/icons/App';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
-import { useExtensionPermission } from '@dailydotdev/shared/src/hooks/useExtensionPermission';
+import { useExtensionPermission } from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {

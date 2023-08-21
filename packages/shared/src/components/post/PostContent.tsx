@@ -97,11 +97,8 @@ export function PostContent({
     onRemovePost,
   };
 
-  const {
-    onPostArticleClick: onReadArticleClick,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-  } = useCompanionTrigger(onReadArticle);
+  const { onPostArticleClick: onReadArticleClick } =
+    useCompanionTrigger(onReadArticle);
 
   return (
     <PostContentContainer

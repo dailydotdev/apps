@@ -1,6 +1,6 @@
 import 'content-scripts-register-polyfill';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
-import { RequestContentScripts } from '@dailydotdev/shared/src/hooks/useExtensionPermission';
+import { RequestContentScripts } from '@dailydotdev/shared/src/hooks';
 import { useContext } from 'react';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useQuery, useQueryClient } from 'react-query';
@@ -37,12 +37,9 @@ const contentScriptKey = 'permission_key';
 
 export const requestContentScripts: RequestContentScripts = (
   origin,
-  onPermission,
+  client,
+  trackEvent,
 ) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { trackEvent } = useContext(AnalyticsContext);
-  const client = useQueryClient();
-
   return async () => {
     trackEvent({
       event_name: 'request content scripts',
@@ -61,18 +58,12 @@ export const requestContentScripts: RequestContentScripts = (
       client.setQueryData(contentScriptKey, true);
       await registerBrowserContentScripts();
 
-      if (onPermission) {
-        await onPermission(true);
-      } else {
-        window.open(companionPermissionGrantedLink, '_blank');
-      }
+      window.open(companionPermissionGrantedLink, '_blank');
     } else {
       trackEvent({
         event_name: 'decline content scripts',
         extra: JSON.stringify({ origin }),
       });
-
-      if (onPermission) onPermission(false);
     }
 
     return granted;
