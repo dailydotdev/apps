@@ -21,7 +21,10 @@ const SearchPage = (): ReactElement => {
       <NextSeo nofollow noindex />
       {(!!content || !!data) && (
         <>
-          <SearchResult content={content} searchMessageProps={{ isLoading }} />
+          <SearchResult
+            chunk={data?.chunks?.[0]}
+            searchMessageProps={{ isLoading }}
+          />
           <SearchSourceList
             sources={data?.chunks?.[0]?.sources}
             isLoading={isLoading}
