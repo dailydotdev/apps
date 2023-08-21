@@ -1,9 +1,7 @@
 import 'content-scripts-register-polyfill';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
 import { RequestContentScripts } from '@dailydotdev/shared/src/hooks';
-import { useContext } from 'react';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 
 export const registerBrowserContentScripts =
