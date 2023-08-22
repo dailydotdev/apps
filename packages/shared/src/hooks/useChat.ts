@@ -145,6 +145,7 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
 
       const source = await sendSearchQuery(value, accessToken.token);
       source.onmessage = onMessage;
+      source.onerror = () => source.close();
       sourceRef.current = source;
       setSearchQuery(undefined);
     },

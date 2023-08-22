@@ -138,5 +138,7 @@ export const sendSearchQuery = async (
     prompt: query,
     token,
   });
-  return new EventSource(`${searchQueryUrl}?${params}`);
+  return new EventSource(`${searchQueryUrl}?${params}`, {
+    withCredentials: true,
+  });
 };
