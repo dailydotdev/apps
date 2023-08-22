@@ -56,6 +56,9 @@ interface TokenPayload {
 export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   const { user } = useAuthContext();
   const client = useQueryClient();
+  const [source] = useState(
+    () => new EventSource('https://api.daily.dev/search/query'),
+  );
   const [prompt, setPrompt] = useState<string | undefined>();
   const id = idFromProps ?? 'new';
   const endStreamRef = useRef<() => void>();
@@ -76,7 +79,7 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   );
 
   const onMessage = useCallback(
-    (event: { data: string }) => {
+    (event: MessageEvent) => {
       try {
         const data: UseChatMessage = JSON.parse(event.data);
 
@@ -140,10 +143,11 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
       }
 
       setSearchQuery(undefined);
+      source.onopen = onMessage;
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       endStreamRef.current = mockChatStream({ onMessage });
     },
-    [setSearchQuery, onMessage],
+    [source, setSearchQuery, onMessage],
   );
 
   useEffect(() => {
