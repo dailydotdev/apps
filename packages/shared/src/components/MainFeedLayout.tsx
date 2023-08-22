@@ -286,11 +286,13 @@ export default function MainFeedLayout({
 
   return (
     <FeedPage className="relative">
-      <img
-        className="absolute top-0 left-0 w-full max-w-[58.75rem]"
-        src={getImage()}
-        alt="Gradient background"
-      />
+      {searchVersion === SearchExperiment.V1 && (
+        <img
+          className="absolute top-0 left-0 w-full max-w-[58.75rem]"
+          src={getImage()}
+          alt="Gradient background"
+        />
+      )}
       {isSearchOn && search}
       {feedProps && <Feed {...feedProps} />}
       {children}
