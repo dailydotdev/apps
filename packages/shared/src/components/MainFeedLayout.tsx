@@ -6,36 +6,37 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { Dropdown } from './fields/Dropdown';
-import { FeedHeading, FeedPage, MainFeedPage } from './utilities';
-import CalendarIcon from './icons/Calendar';
+import { FeedPage, MainFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
-  RankingAlgorithm,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
-import classed from '../lib/classed';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
-import CreateMyFeedButton from './CreateMyFeedButton';
 import AlertContext from '../contexts/AlertContext';
-import useSidebarRendered from '../hooks/useSidebarRendered';
-import MyFeedHeading from './filters/MyFeedHeading';
-import SortIcon from './icons/Sort';
-import OnboardingContext from '../contexts/OnboardingContext';
-import { ButtonSize } from './buttons/Button';
-import { IconSize } from './Icon';
+import { useFeature } from './GrowthBookProvider';
+import { SearchExperiment } from '../lib/featureValues';
+import {
+  algorithms,
+  LayoutHeader,
+  periods,
+  SearchControlHeader,
+  SearchControlHeaderProps,
+} from './layout/common';
+import { useFeedName } from '../hooks/feed/useFeedName';
+import { cloudinary } from '../lib/image';
+import useMedia from '../hooks/useMedia';
+import { laptop, tablet } from '../styles/media';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -44,10 +45,6 @@ const SearchEmptyScreen = dynamic(
 
 const FeedEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "feedEmptyScreen" */ './FeedEmptyScreen'),
-);
-
-const FeedFilters = dynamic(
-  () => import(/* webpackChunkName: "feedFilters" */ './filters/FeedFilters'),
 );
 
 type FeedQueryProps = {
@@ -76,15 +73,13 @@ const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
   },
 };
 
-const LayoutHeader = classed(
-  'header',
-  'flex justify-between items-center overflow-x-auto relative mb-6 min-h-14 w-full no-scrollbar',
-);
-
 export type MainFeedLayoutProps = {
   feedName: string;
+  isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
+  searchChildren: ReactNode;
+  besideSearch?: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: MainFeedPage) => void;
 };
@@ -104,19 +99,7 @@ const getQueryBasedOnLogin = (
   return null;
 };
 
-const algorithms = [
-  { value: RankingAlgorithm.Popularity, text: 'Recommended' },
-  { value: RankingAlgorithm.Time, text: 'By date' },
-];
-const algorithmsList = algorithms.map((algo) => algo.text);
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
-
-const periods = [
-  { value: 7, text: 'Last week' },
-  { value: 30, text: 'Last month' },
-  { value: 365, text: 'Last year' },
-];
-const periodTexts = periods.map((period) => period.text);
 
 interface GetDefaultFeedProps {
   hasFiltered?: boolean;
@@ -126,7 +109,7 @@ interface GetDefaultFeedProps {
 const getDefaultFeed = ({
   hasFiltered,
   hasUser,
-}: GetDefaultFeedProps): string => {
+}: GetDefaultFeedProps): MainFeedPage => {
   if (!hasUser || !hasFiltered) {
     return MainFeedPage.Popular;
   }
@@ -139,7 +122,7 @@ const defaultFeedConditions = [null, 'default', '/', ''];
 export const getFeedName = (
   path: string,
   options: GetDefaultFeedProps = {},
-): string => {
+): MainFeedPage => {
   const feed = path?.replaceAll?.('/', '') || '';
 
   if (defaultFeedConditions.some((condition) => condition === feed)) {
@@ -148,34 +131,33 @@ export const getFeedName = (
 
   const [page] = feed.split('?');
 
-  return page.replace(/^\/+/, '');
+  return page.replace(/^\/+/, '') as MainFeedPage;
 };
 
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
+  isSearchOn,
   children,
-  navChildren,
+  searchChildren,
+  besideSearch,
   onFeedPageChanged,
+  navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const { sidebarRendered } = useSidebarRendered();
-  const { updateAlerts } = useContext(AlertContext);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
-  const { onInitializeOnboarding } = useContext(OnboardingContext);
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
   const { flags } = useContext(FeaturesContext);
-  const [isFeedFiltersOpen, setIsFeedFiltersOpen] = useState(false);
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
-  const isUpvoted = feedName === 'upvoted';
-  const isSortableFeed = feedName === 'popular' || feedName === 'my-feed';
+  const searchVersion = useFeature(Features.Search);
+  const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -201,81 +183,24 @@ export default function MainFeedLayout({
     [0, 1],
     0,
   );
-  const [selectedPeriod, setSelectedPeriod] = useState(0);
-
-  const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
-  const hasMyFeedAlert = alerts.myFeed;
-
-  /* eslint-disable react/no-children-prop */
-  const feedHeading = {
-    [MainFeedPage.MyFeed]: (
-      <MyFeedHeading
-        hasFiltered={hasFiltered}
-        isAlertDisabled={!hasMyFeedAlert}
-        sidebarRendered={sidebarRendered}
-        onOpenFeedFilters={() => setIsFeedFiltersOpen(true)}
-        onUpdateAlerts={() => updateAlerts({ myFeed: null })}
-      />
-    ),
-    [MainFeedPage.Popular]: <FeedHeading children="Popular" />,
-    [MainFeedPage.Upvoted]: <FeedHeading children="Most upvoted" />,
-    [MainFeedPage.Discussed]: <FeedHeading children="Best discussions" />,
+  const periodState = useState(0);
+  const [selectedPeriod] = periodState;
+  const searchProps: SearchControlHeaderProps = {
+    algoState: [selectedAlgo, setSelectedAlgo],
+    periodState,
+    feedName,
+    onFeedPageChanged,
+    isSearchOn,
   };
-
-  const header = (
-    <LayoutHeader className="flex-col">
-      {alerts?.filter && (
-        <CreateMyFeedButton
-          action={() =>
-            onInitializeOnboarding(() => onFeedPageChanged(MainFeedPage.MyFeed))
-          }
-        />
-      )}
-      <div
-        className={classNames(
-          'flex flex-row flex-wrap gap-4 items-center mr-px w-full',
-          alerts.filter || !hasMyFeedAlert ? 'h-14' : 'h-32 laptop:h-16',
-          !sidebarRendered && hasMyFeedAlert && 'content-start',
-        )}
-      >
-        {feedHeading[feedName]}
-        {navChildren}
-        {isUpvoted && (
-          <Dropdown
-            className={{ container: 'w-44' }}
-            buttonSize={ButtonSize.Large}
-            icon={<CalendarIcon className="mr-2" />}
-            selectedIndex={selectedPeriod}
-            options={periodTexts}
-            onChange={(_, index) => setSelectedPeriod(index)}
-          />
-        )}
-        {sortingEnabled && isSortableFeed && (
-          <Dropdown
-            className={{
-              container: 'w-12 tablet:w-44',
-              indicator: 'flex tablet:hidden',
-              chevron: 'hidden tablet:flex',
-              label: 'hidden tablet:flex',
-              menu: 'w-44',
-            }}
-            dynamicMenuWidth
-            shouldIndicateSelected
-            buttonSize={ButtonSize.Large}
-            selectedIndex={selectedAlgo}
-            options={algorithmsList}
-            icon={
-              <SortIcon size={IconSize.Small} className="flex tablet:hidden" />
-            }
-            onChange={(_, index) => setSelectedAlgo(index)}
-          />
-        )}
-      </div>
+  const search = (
+    <LayoutHeader>
+      {navChildren}
+      {isSearchOn ? searchChildren : undefined}
     </LayoutHeader>
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (searchQuery) {
+    if (isSearchOn && searchQuery) {
       return {
         feedName: 'search',
         feedQueryKey: generateQueryKey('search', user, searchQuery),
@@ -314,17 +239,25 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      emptyScreen: (
-        <FeedEmptyScreen openFeedFilters={() => setIsFeedFiltersOpen(true)} />
-      ),
-      header,
+      emptyScreen: <FeedEmptyScreen />,
+      header:
+        searchVersion === SearchExperiment.Control && !isSearchOn ? (
+          <SearchControlHeader {...searchProps} navChildren={navChildren} />
+        ) : null,
+      actionButtons:
+        searchVersion === SearchExperiment.V1 &&
+        (isUpvoted || isSortableFeed) ? (
+          <SearchControlHeader {...searchProps} />
+        ) : null,
+      besideSearch,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    searchVersion,
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    searchQuery,
+    isSearchOn && searchQuery,
     query.query,
     query.variables,
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -340,18 +273,29 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+
+  const getImage = () => {
+    if (isMobile) {
+      return cloudinary.feed.bg.mobile;
+    }
+
+    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
+  };
+
   return (
-    <>
-      <FeedPage>
-        {feedProps && <Feed {...feedProps} />}
-        {children}
-      </FeedPage>
-      {isFeedFiltersOpen && (
-        <FeedFilters
-          isOpen
-          onRequestClose={() => setIsFeedFiltersOpen(false)}
+    <FeedPage className="relative">
+      {searchVersion === SearchExperiment.V1 && (
+        <img
+          className="absolute top-0 left-0 w-full max-w-[58.75rem]"
+          src={getImage()}
+          alt="Gradient background"
         />
       )}
-    </>
+      {isSearchOn && search}
+      {feedProps && <Feed {...feedProps} />}
+      {children}
+    </FeedPage>
   );
 }

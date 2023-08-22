@@ -5,6 +5,7 @@ import React, {
   useContext,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
@@ -14,7 +15,11 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
-import { SearchBar } from '../search';
+import { SearchBarSuggestionList, SearchBarInput } from '../search';
+import { useFeature } from '../GrowthBookProvider';
+import { Features } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
+import { webappUrl } from '../../lib/constants';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -24,6 +29,8 @@ export interface FeedContainerProps {
   inlineHeader?: boolean;
   afterFeed?: ReactNode;
   showSearch?: boolean;
+  besideSearch?: ReactNode;
+  actionButtons?: ReactNode;
 }
 
 const listGaps = {
@@ -78,6 +85,8 @@ export const FeedContainer = ({
   inlineHeader = false,
   afterFeed,
   showSearch,
+  besideSearch,
+  actionButtons,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -86,6 +95,8 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const router = useRouter();
+  const searchValue = useFeature(Features.Search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = insaneMode && numCards > 1;
@@ -99,6 +110,11 @@ export const FeedContainer = ({
   if (!loadedSettings) {
     return <></>;
   }
+
+  const isV1Search = searchValue === SearchExperiment.V1 && showSearch;
+  const onSearch = (_: React.MouseEvent, input: string) => {
+    router.push(`${webappUrl}search?query=${input}`);
+  };
 
   return (
     <div
@@ -122,10 +138,33 @@ export const FeedContainer = ({
           data-testid="posts-feed"
         >
           {inlineHeader && header}
-          {showSearch && <SearchBar className={{ container: 'mb-8' }} />}
+          {isV1Search && (
+            <span className="flex flex-row gap-3">
+              <SearchBarInput
+                className={{
+                  container: 'max-w-2xl w-full flex flex-1',
+                  field: 'w-full',
+                }}
+                showProgress={false}
+                onSubmit={onSearch}
+              />
+              {besideSearch}
+            </span>
+          )}
+          {isV1Search && (
+            <span className="flex flex-row flex-1 mt-4">
+              <SearchBarSuggestionList className="hidden tablet:flex overflow-hidden flex-1 mr-3" />
+              {actionButtons && (
+                <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
+                  {actionButtons}
+                </span>
+              )}
+            </span>
+          )}
           <div
             className={classNames(
               'grid',
+              isV1Search && 'mt-6',
               gapClass(isList, spaciness),
               cardClass(isList, numCards),
             )}

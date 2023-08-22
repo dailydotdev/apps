@@ -1,52 +1,39 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import {
-  SearchBarSuggestion,
-  SearchBarSuggestionProps,
-} from './SearchBarSuggestion';
-import AuthContext from '../../contexts/AuthContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
+import { SearchBarSuggestionList } from './SearchBarSuggestionList';
+import Alert, { AlertType } from '../widgets/Alert';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
-  'className' | 'valueChanged' | 'onSubmit' | 'showProgress'
+  'className' | 'valueChanged' | 'onSubmit' | 'showProgress' | 'chunk'
 >;
 
 export function SearchBar({
   className,
+  chunk,
   ...props
 }: SearchBarProps): ReactElement {
-  const { user, showLogin } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
-  const suggestions: SearchBarSuggestionProps[] = [];
-
-  if (!user) {
-    suggestions.push({
-      suggestion:
-        'Sign up and read your first post to get search recommendations',
-      onClick: () => showLogin('search bar suggestion'),
-    });
-  }
 
   return (
     <div className={classNames('w-full', className?.container)}>
       <SearchBarInput
         {...props}
+        chunk={chunk}
         inputProps={{ id: 'search' }}
         className={{ container: 'max-w-2xl', field: className?.field }}
-        completedTime="12:12"
       />
-      {sidebarRendered && suggestions && (
-        <div className="flex flex-wrap gap-4 mt-6">
-          {suggestions.map((suggestion) => (
-            <SearchBarSuggestion
-              key={suggestion.suggestion}
-              suggestion={suggestion.suggestion}
-              onClick={suggestion.onClick}
-            />
-          ))}
-        </div>
+      {chunk?.error?.message && (
+        <Alert
+          className="my-4"
+          type={AlertType.Error}
+          title={chunk?.error?.message}
+        />
+      )}
+      {sidebarRendered && (!chunk || chunk?.error?.message) && (
+        <SearchBarSuggestionList className={!chunk?.error?.message && 'mt-4'} />
       )}
     </div>
   );

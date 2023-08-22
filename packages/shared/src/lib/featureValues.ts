@@ -19,3 +19,8 @@ export enum OnboardingFilteringTitle {
   V3 = 'v3',
   V4 = 'v4',
 }
+
+export enum SearchExperiment {
+  Control = 'control',
+  V1 = 'v1',
+}

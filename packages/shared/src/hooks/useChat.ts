@@ -1,14 +1,20 @@
+import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import {
-  Dispatch,
-  SetStateAction,
-  useState,
-  useEffect,
-  useCallback,
-} from 'react';
+  getSearchSession,
+  initializeSearchSession,
+  Search,
+  SearchChunk,
+  SearchChunkError,
+  SearchChunkSource,
+  updateSearchData,
+} from '../graphql/search';
+import { generateQueryKey, RequestKey } from '../lib/query';
+import { useAuthContext } from '../contexts/AuthContext';
 
-type UseChatProps = {
+interface UseChatProps {
   id?: string;
-};
+}
 
 enum UseChatMessageType {
   SessionCreated = 'session_created',
@@ -21,105 +27,97 @@ enum UseChatMessageType {
   SessionFound = 'session_found',
 }
 
-type UseChatMessage<Payload = unknown> = {
+interface SourcesMessage {
+  sources: SearchChunkSource[];
+}
+
+interface UseChatMessage<Payload = unknown> {
   type: UseChatMessageType;
   status?: string;
   timestamp: number;
   payload: Payload;
-};
+}
 
-type UseChat = {
-  messages: string[];
-  error?: Error & {
-    code: string;
-  };
-  input: string;
-  setInput: Dispatch<SetStateAction<string>>;
-  handleSubmit: () => void;
+interface UseChat {
+  data: Search;
   isLoading: boolean;
-  status: string;
-};
+  handleSubmit(event: MouseEvent, value: string): void;
+}
 
-const defaultState = {
-  status: '',
-  error: undefined,
-  isLoading: false,
-};
+interface CreatePayload {
+  id: string;
+  steps: number;
+}
+
+interface TokenPayload {
+  token: string;
+}
 
 export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const { user } = useAuthContext();
+  const client = useQueryClient();
   const [prompt, setPrompt] = useState<string | undefined>();
-  const [sessionId, setSessionId] = useState<string | undefined>(idFromProps);
-  const [input, setInput] = useState('');
-  const [state, setState] = useState<
-    Pick<UseChat, 'status' | 'error' | 'isLoading'>
-  >(() => ({ ...defaultState }));
-  // //  WT-1554-stream-rendering save to useQuery per sessionId
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const id = sessionId || idFromProps;
+  const id = idFromProps ?? 'new';
+  const endStreamRef = useRef<() => void>();
+  const idQueryKey = generateQueryKey(RequestKey.Search, user, id);
+  const { data: search, isLoading: isLoadingSession } = useQuery(
+    idQueryKey,
+    () => getSearchSession(idFromProps),
+    { enabled: !!idFromProps },
+  );
 
-  useEffect(() => {
-    if (!prompt) {
-      return undefined;
-    }
+  const setSearchQuery = useCallback(
+    (chunk: Partial<SearchChunk>) => {
+      client.setQueryData<Search>(idQueryKey, (previous) =>
+        updateSearchData(previous, chunk),
+      );
+    },
+    [client, idQueryKey],
+  );
 
-    setState({ ...defaultState });
-    setMessages([]); // for now we always clear messages on new promp because we only support single one
-
-    const onMessage = (event: { data: string }) => {
+  const onMessage = useCallback(
+    (event: { data: string }) => {
       try {
         const data: UseChatMessage = JSON.parse(event.data);
 
         switch (data.type) {
-          case UseChatMessageType.SessionCreated: {
-            const { id: newSessionId } = data.payload as { id: string };
-            setSessionId(newSessionId as string);
-            setState((current) => ({
-              ...current,
-              isLoading: true,
-            }));
-
+          case UseChatMessageType.SessionCreated:
+            client.setQueryData(
+              idQueryKey,
+              initializeSearchSession({
+                ...(data.payload as CreatePayload),
+                createdAt: new Date(),
+                status: data.status,
+                prompt,
+              }),
+            );
             break;
-          }
           case UseChatMessageType.WebSearchFinished:
-          case UseChatMessageType.WebResultsFiltered:
-          case UseChatMessageType.StatusUpdated: {
-            setState((current) => ({
-              ...current,
+            setSearchQuery({
+              sources: (data.payload as SourcesMessage).sources,
               status: data.status,
-            }));
-
+            });
             break;
-          }
-          case UseChatMessageType.NewTokenReceived: {
-            const { token } = data.payload as { token: string };
-            // TODO WT-1554-stream-rendering handle sources
-
-            setMessages((current) => [(current[0] || '') + token]);
+          case UseChatMessageType.WebResultsFiltered:
+            setSearchQuery({ status: data.status });
             break;
-          }
+          case UseChatMessageType.StatusUpdated:
+            setSearchQuery({ status: data.status });
+            break;
+          case UseChatMessageType.NewTokenReceived:
+            setSearchQuery({ response: (data.payload as TokenPayload).token });
+            break;
           case UseChatMessageType.Completed: {
-            setState((current) => ({
-              ...current,
-              isLoading: false,
-            }));
+            setSearchQuery({ completedAt: new Date(), status: data.status });
             setPrompt(undefined);
-
             break;
           }
-          case UseChatMessageType.Error: {
-            setState((current) => ({
-              ...current,
-              error: data.payload as UseChat['error'],
-            }));
-
+          case UseChatMessageType.Error:
+            setSearchQuery({ error: data.payload as SearchChunkError });
             break;
-          }
-          case UseChatMessageType.SessionFound: {
-            // TODO WT-1554-stream-rendering redirect to session page
-
+          case UseChatMessageType.SessionFound:
+            client.setQueryData(idQueryKey, () => data.payload as Search);
             break;
-          }
           default:
             break;
         }
@@ -127,24 +125,46 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
         // eslint-disable-next-line no-console
         console.error('[EventSource][message] error', error);
       }
-    };
+    },
+    [client, prompt, idQueryKey, setSearchQuery],
+  );
 
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    const endStream = mockChatStream({ onMessage });
+  const executePrompt = useCallback(
+    (value: string) => {
+      if (!value) {
+        return;
+      }
 
+      if (endStreamRef.current) {
+        endStreamRef.current();
+      }
+
+      setSearchQuery(undefined);
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      endStreamRef.current = mockChatStream({ onMessage });
+    },
+    [setSearchQuery, onMessage],
+  );
+
+  useEffect(() => {
     return () => {
-      endStream();
+      if (endStreamRef.current) {
+        endStreamRef.current();
+      }
     };
-  }, [prompt]);
+  }, []);
 
   return {
-    ...state,
-    messages,
-    input,
-    setInput,
-    handleSubmit: useCallback(() => {
-      setPrompt(input);
-    }, [input]),
+    isLoading:
+      isLoadingSession ||
+      (search?.chunks?.[0]?.createdAt && !search?.chunks?.[0]?.completedAt),
+    data: search,
+    handleSubmit: useCallback(
+      (_, value: string) => {
+        executePrompt(value);
+      },
+      [executePrompt],
+    ),
   };
 };
 
@@ -313,6 +333,15 @@ const createStream = (content, chunkSize = 50) => {
   return stream;
 };
 
+const sampleSource = {
+  id: 'source id 1',
+  title: 'Understanding the LLaMa model and paper- mercurylabs.io',
+  snippet: `When sampling the LLaMA model, it is important to note that LLaMA, unlike\n
+    popular models like ChatGPT, was not optimized or fine-tuned for some more\n
+    text that will get cut off automatically`,
+  url: '#',
+};
+
 const mockChatStream = ({
   onMessage,
 }: {
@@ -327,13 +356,26 @@ const mockChatStream = ({
       {
         type: 'completed',
       },
+      {
+        type: 'web_search_finished',
+        status: 'Narrowing down search results',
+        payload: {
+          sources: [
+            sampleSource,
+            { ...sampleSource, id: 'source id 2' },
+            { ...sampleSource, id: 'source id 3' },
+            { ...sampleSource, id: 'source id 4' },
+            { ...sampleSource, id: 'source id 5' },
+          ],
+        },
+      },
       ...contentStream,
       ...myQueue,
     ];
 
     while (stream.length) {
       // eslint-disable-next-line no-await-in-loop
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      await new Promise((resolve) => setTimeout(resolve, 40));
 
       if (!mounted) {
         break;
