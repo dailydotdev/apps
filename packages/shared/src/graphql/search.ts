@@ -140,5 +140,6 @@ export const sendSearchQuery = async (
   });
   await fetch(`${searchQueryUrl}?${params}`, {
     method: 'post',
+    headers: { Accept: 'text/event-stream' },
   });
 };
