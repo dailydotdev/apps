@@ -55,8 +55,6 @@ interface TokenPayload {
   token: string;
 }
 
-const createEventSource = () => new EventSource(searchQueryUrl);
-
 export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
@@ -145,8 +143,7 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
         sourceRef.current.close();
       }
 
-      await sendSearchQuery(value, accessToken.token);
-      const source = createEventSource();
+      const source = await sendSearchQuery(value, accessToken.token);
       source.onmessage = onMessage;
       sourceRef.current = source;
       setSearchQuery(undefined);

@@ -133,13 +133,10 @@ export const searchQueryUrl = 'https://api.daily.dev/search/query';
 export const sendSearchQuery = async (
   query: string,
   token: string,
-): Promise<void> => {
+): Promise<EventSource> => {
   const params = new URLSearchParams({
     prompt: query,
     token,
   });
-  await fetch(`${searchQueryUrl}?${params}`, {
-    method: 'post',
-    headers: { Accept: 'text/event-stream' },
-  });
+  return new EventSource(`${searchQueryUrl}?${params}`);
 };
