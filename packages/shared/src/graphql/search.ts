@@ -127,3 +127,11 @@ export const updateSearchData = (
 
   return updated;
 };
+
+export const searchQueryUrl = 'https://api.daily.dev/search/query';
+
+export const sendSearchQuery = async (query: string): Promise<void> => {
+  await fetch(`${searchQueryUrl}?prompt=${encodeURIComponent(query)}`, {
+    method: 'post',
+  });
+};

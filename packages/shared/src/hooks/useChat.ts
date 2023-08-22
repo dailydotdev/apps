@@ -7,6 +7,8 @@ import {
   SearchChunk,
   SearchChunkError,
   SearchChunkSource,
+  searchQueryUrl,
+  sendSearchQuery,
   updateSearchData,
 } from '../graphql/search';
 import { generateQueryKey, RequestKey } from '../lib/query';
@@ -56,9 +58,7 @@ interface TokenPayload {
 export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   const { user } = useAuthContext();
   const client = useQueryClient();
-  const [source] = useState(
-    () => new EventSource('https://api.daily.dev/search/query'),
-  );
+  const [source] = useState(() => new EventSource(searchQueryUrl));
   const [prompt, setPrompt] = useState<string | undefined>();
   const id = idFromProps ?? 'new';
   const endStreamRef = useRef<() => void>();
@@ -133,7 +133,7 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   );
 
   const executePrompt = useCallback(
-    (value: string) => {
+    async (value: string) => {
       if (!value) {
         return;
       }
@@ -142,8 +142,9 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
         endStreamRef.current();
       }
 
-      setSearchQuery(undefined);
       source.onmessage = onMessage;
+      await sendSearchQuery(value);
+      setSearchQuery(undefined);
     },
     [source, setSearchQuery, onMessage],
   );
