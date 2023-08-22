@@ -143,9 +143,7 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
       }
 
       setSearchQuery(undefined);
-      source.onopen = onMessage;
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      endStreamRef.current = mockChatStream({ onMessage });
+      source.onmessage = onMessage;
     },
     [source, setSearchQuery, onMessage],
   );
