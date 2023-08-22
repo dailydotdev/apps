@@ -208,7 +208,7 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
   }
 `;
 
-export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
+export const SQUAD_HANDLE_AVAILABILITY_QUERY = gql`
   query SourceHandleExists($handle: String!) {
     sourceHandleExists(handle: $handle)
   }
@@ -376,7 +376,7 @@ export const joinSquadInvitation = async (
 };
 
 export const checkExistingHandle = async (handle: string): Promise<boolean> => {
-  const req = await request(graphqlUrl, SQUAD_HANDE_AVAILABILITY_QUERY, {
+  const req = await request(graphqlUrl, SQUAD_HANDLE_AVAILABILITY_QUERY, {
     handle: handle.toLocaleLowerCase(),
   });
 

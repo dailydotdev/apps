@@ -47,7 +47,6 @@ Giga
 giga
 Gorno
 Gunsav
-HANDE
 Hanzel
 hljs
 Hovd
