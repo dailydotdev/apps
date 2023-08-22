@@ -105,7 +105,7 @@ export interface Post {
   feedMeta?: string;
   downvoted?: boolean;
   flags: PostFlags;
-  userState: PostUserState;
+  userState?: PostUserState;
 }
 
 export interface Ad {

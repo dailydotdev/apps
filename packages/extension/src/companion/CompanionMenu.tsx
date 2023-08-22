@@ -24,6 +24,7 @@ import CreateSharedPostModal, {
   CreateSharedPostModalProps,
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
 import { mutationHandlers } from '@dailydotdev/shared/src/hooks';
+import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
@@ -153,7 +154,7 @@ export default function CompanionMenu({
 
   const toggleUpvote = async () => {
     if (user) {
-      if (!post.upvoted) {
+      if (post?.userState?.vote !== UserPostVote.Up) {
         await upvotePost({ id: post.id });
       } else {
         await cancelPostUpvote({ id: post.id });
@@ -168,7 +169,7 @@ export default function CompanionMenu({
 
   const toggleDownvote = async () => {
     if (user) {
-      if (!post.downvoted) {
+      if (post?.userState?.vote !== UserPostVote.Down) {
         await downvotePost({ id: post.id });
       } else {
         await cancelPostDownvote({ id: post.id });
@@ -231,13 +232,17 @@ export default function CompanionMenu({
       />
       <SimpleTooltip
         placement="left"
-        content={post?.upvoted ? 'Remove upvote' : 'Upvote'}
+        content={
+          post?.userState?.vote === UserPostVote.Up ? 'Remove upvote' : 'Upvote'
+        }
         appendTo="parent"
         container={tooltipContainerProps}
       >
         <Button
-          icon={<UpvoteIcon secondary={post?.upvoted} />}
-          pressed={post?.upvoted}
+          icon={
+            <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
+          }
+          pressed={post?.userState?.vote === UserPostVote.Up}
           onClick={toggleUpvote}
           className="btn-tertiary-avocado"
         />

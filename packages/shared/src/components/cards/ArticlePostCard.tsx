@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   Ref,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -54,10 +55,9 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { trending, pinnedAt } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const hasBeenRead = post?.read;
-  const hasEngagementLoopAccess = true;
-  const [showEngagementLoop, setShowEngagementLoop] = useState(false);
+  // const [showFeedbackCard, setShowFeedbackCard] = useState(false);
   const { data } = useBlockPostPanel(post);
-  const { hidePostFeedback } = usePostFeedback(post);
+  const { hidePostFeedback, hasUpvoteLoopEnabled } = usePostFeedback(post);
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -69,20 +69,19 @@ export const ArticlePostCard = forwardRef(function PostCard(
     );
   }
 
-  useEffect(() => {
-    if (!hasEngagementLoopAccess || !hasBeenRead) {
-      return setShowEngagementLoop(false);
+  const showFeedbackCard = useMemo(() => {
+    if (!hasUpvoteLoopEnabled || !hasBeenRead) {
+      return false;
     }
 
     if (hidePostFeedback) {
-      return setShowEngagementLoop(false);
+      return false;
     }
 
-    return setShowEngagementLoop(true);
+    return true;
   }, [
     hasBeenRead,
-    hasEngagementLoopAccess,
-    showEngagementLoop,
+    hasUpvoteLoopEnabled,
     hidePostFeedback,
   ]);
 
@@ -94,7 +93,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         false,
         classNames(
           className,
-          showEngagementLoop && '!p-0',
+          showFeedbackCard && '!p-0',
           hidePostFeedback && hasBeenRead && styles.read,
         ),
         'min-h-[22.5rem]',
@@ -105,10 +104,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
 
-      {showEngagementLoop && <FeedbackCard post={post} />}
+      {showFeedbackCard && <FeedbackCard post={post} />}
 
       <ConditionalWrapper
-        condition={showEngagementLoop}
+        condition={showFeedbackCard}
         wrapper={(wrapperChildren) => (
           <div
             className={classNames(
@@ -122,7 +121,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         )}
       >
         <CardTextContainer>
-          {!showEngagementLoop && (
+          {!showFeedbackCard && (
             <PostCardHeader
               openNewTab={openNewTab}
               source={post.source}
@@ -132,12 +131,12 @@ export const ArticlePostCard = forwardRef(function PostCard(
             />
           )}
           <CardTitle
-            className={classNames(showEngagementLoop && '!line-clamp-2')}
+            className={classNames(showFeedbackCard && '!line-clamp-2')}
           >
             {post.title}
           </CardTitle>
         </CardTextContainer>
-        {!showEngagementLoop && (
+        {!showFeedbackCard && (
           <Container className="mb-8 tablet:mb-0">
             <CardSpace />
             <PostMetadata
@@ -155,11 +154,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
             showImage={showImage}
             onReadArticleClick={onReadArticleClick}
             className={{
-              image: classNames(showEngagementLoop && 'mb-0'),
+              image: classNames(showFeedbackCard && 'mb-0'),
             }}
           />
 
-          {!showEngagementLoop && (
+          {!showFeedbackCard && (
             <ActionButtons
               openNewTab={openNewTab}
               post={post}
@@ -182,8 +181,3 @@ export const ArticlePostCard = forwardRef(function PostCard(
     </FeedItemContainer>
   );
 });
-
-/**
- * TODO / QUESTIONS
- * hasEngagementLoopAccess - fix this in all locations
- */

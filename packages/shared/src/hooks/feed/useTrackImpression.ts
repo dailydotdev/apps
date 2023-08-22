@@ -7,6 +7,7 @@ import {
 } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItem } from '../useFeed';
+import { usePostFeedback } from '../usePostFeedback';
 
 const TRACKING = 1;
 const TRACKED = 2;
@@ -24,6 +25,7 @@ export default function useTrackImpression(
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
   });
+  const { hasUpvoteLoopEnabled } = usePostFeedback();
 
   useEffect(() => {
     if (item.type === 'post') {
@@ -36,7 +38,7 @@ export default function useTrackImpression(
             column,
             row,
             extra: {
-              feedback: true,
+              feedback: hasUpvoteLoopEnabled,
             },
             ...feedAnalyticsExtra(feedName, ranking, {
               scroll_y: window.scrollY,

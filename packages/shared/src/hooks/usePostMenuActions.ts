@@ -1,7 +1,12 @@
 import { useMutation } from 'react-query';
 import { useCallback, useContext } from 'react';
 import { PromptOptions, usePrompt } from './usePrompt';
-import { deletePost, Post, updatePinnedPost } from '../graphql/posts';
+import {
+  deletePost,
+  Post,
+  updatePinnedPost,
+  UserPostVote,
+} from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -119,7 +124,7 @@ export const usePostMenuActions = ({
         return;
       }
 
-      if (post.downvoted) {
+      if (post?.userState?.vote === UserPostVote.Down) {
         trackEvent(
           postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
             extra: { origin },

@@ -42,7 +42,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
   return (
     <div className="flex-1 p-6 space-y-4">
       <div className="flex justify-between">
-        <div className="font-bold typoCallout">Did you like the post?</div>
+        <div className="font-bold typo-Callout">Did you like the post?</div>
         <Button
           id="close-engagement-loop-btn"
           className="relative -top-2.5 -right-2.5"
@@ -54,21 +54,21 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
       <div className="flex gap-3 items-center">
         <Button
           id="upvote-post-btn"
-          pressed={post.upvoted}
+          pressed={post?.userState?.vote === UserPostVote.Up}
           onClick={() => toggleUpvote(post)}
           icon={
-            <UpvoteIcon secondary={post.userState?.vote === UserPostVote.Up} />
+            <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
           }
           aria-label="Upvote"
           className="btn-secondary"
         />
         <Button
           id="downvote-post-btn"
-          pressed={post.downvoted}
+          pressed={post?.userState?.vote === UserPostVote.Down}
           onClick={() => toggleDownvote(post)}
           icon={
             <DownvoteIcon
-              secondary={post.userState?.vote === UserPostVote.Down}
+              secondary={post?.userState?.vote === UserPostVote.Down}
             />
           }
           aria-label="Downvote"

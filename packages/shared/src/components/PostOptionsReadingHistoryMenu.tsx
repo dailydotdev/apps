@@ -18,6 +18,7 @@ import { QueryIndexes } from '../hooks/useReadingHistory';
 import { postAnalyticsEvent } from '../lib/feed';
 import { updateInfiniteCache } from '../lib/query';
 import { AnalyticsEvent } from '../lib/analytics';
+import { usePostFeedback } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -88,7 +89,7 @@ export default function PostOptionsReadingHistoryMenu({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
-  const hasEngagementLoopAccess = true;
+  const { hasUpvoteLoopEnabled } = usePostFeedback(post);
 
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updateReadingHistoryPost(
@@ -146,7 +147,7 @@ export default function PostOptionsReadingHistoryMenu({
         <Item
           className={classNames(
             'typo-callout',
-            !hasEngagementLoopAccess && 'laptop:hidden',
+            !hasUpvoteLoopEnabled && 'laptop:hidden',
           )}
           onClick={() => onHideHistoryPost(post?.id)}
         >

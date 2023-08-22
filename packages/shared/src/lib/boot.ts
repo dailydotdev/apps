@@ -18,7 +18,6 @@ export type PostBootData = Pick<
   | 'trending'
   | 'summary'
   | 'numUpvotes'
-  | 'upvoted'
   | 'numComments'
   | 'bookmarked'
   | 'source'
@@ -31,8 +30,8 @@ export type PostBootData = Pick<
   | 'scout'
   | 'commented'
   | 'type'
-  | 'downvoted'
   | 'flags'
+  | 'userState'
 >;
 
 export enum BootApp {

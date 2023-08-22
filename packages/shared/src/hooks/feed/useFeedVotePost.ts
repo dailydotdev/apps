@@ -9,7 +9,7 @@ import {
   mutationHandlers,
 } from '../useVotePost';
 import { FeedItem } from '../useFeed';
-import { Post } from '../../graphql/posts';
+import { Post, UserPostVote } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import {
   feedAnalyticsExtra,
@@ -29,23 +29,21 @@ export type UseFeedVotePost = {
   onUpvote: (
     post: Post,
     index: number,
-    upvoted: boolean | number,
-    row?: number,
-    column?: number,
+    row: number,
+    column: number,
   ) => Promise<void>;
   onDownvote: (
     post: Post,
     index: number,
-    downvoted: boolean | number,
-    row?: number,
-    column?: number,
+    row: number,
+    column: number,
   ) => Promise<void>;
   toggleVote: (
     post: Post,
     index: number,
     vote: number,
-    row?: number,
-    column?: number,
+    row: number,
+    column: number,
   ) => Promise<void>;
 };
 
@@ -143,13 +141,13 @@ export default function useFeedVotePost(
   }, [items, updatePost]);
 
   return {
-    onUpvote: async (post, index, upvoted, row, column): Promise<void> => {
+    onUpvote: async (post, index, row, column): Promise<void> => {
       if (!user) {
         showLogin(AuthTriggers.Upvote);
         return;
       }
 
-      if (upvoted) {
+      if (post.userState?.vote === UserPostVote.Up) {
         trackEvent(
           postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
             columns,
@@ -171,13 +169,13 @@ export default function useFeedVotePost(
         await cancelPostUpvote({ id: post.id, index });
       }
     },
-    onDownvote: async (post, index, downvoted, row, column): Promise<void> => {
+    onDownvote: async (post, index, row, column): Promise<void> => {
       if (!user) {
         showLogin(AuthTriggers.Downvote);
         return;
       }
 
-      if (downvoted) {
+      if (post.userState?.vote === UserPostVote.Down) {
         trackEvent(
           postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
             columns,
@@ -199,13 +197,13 @@ export default function useFeedVotePost(
         await cancelPostDownvote({ id: post.id, index });
       }
     },
-    toggleVote: async (post, index, upvoted, row, column): Promise<void> => {
+    toggleVote: async (post, index, row, column): Promise<void> => {
       if (!user) {
         showLogin(AuthTriggers.Upvote);
         return;
       }
 
-      if (upvoted) {
+      if (post.userState?.vote === UserPostVote.Up) {
         trackEvent(
           postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
             columns,

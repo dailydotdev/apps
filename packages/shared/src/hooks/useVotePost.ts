@@ -9,7 +9,6 @@ import {
 } from '../graphql/posts';
 import { MutateFunc } from '../lib/query';
 import { useRequestProtocol } from './useRequestProtocol';
-import useUpdatePost from './useUpdatePost';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -49,30 +48,30 @@ export const mutationHandlers: Record<
   upvote: (post) => ({
     numUpvotes: post.numUpvotes + 1,
     userState: {
-      ...post.userState,
+      ...post?.userState,
       vote: UserPostVote.Up,
     },
   }),
   cancelUpvote: (post) => ({
     numUpvotes: post.numUpvotes - 1,
     userState: {
-      ...post.userState,
+      ...post?.userState,
       vote: UserPostVote.None,
     },
   }),
   downvote: (post) => ({
     numUpvotes:
-      post.userState?.vote === UserPostVote.Down
+      post?.userState?.vote === UserPostVote.Down
         ? post.numUpvotes - 1
         : post.numUpvotes,
     userState: {
-      ...post.userState,
+      ...post?.userState,
       vote: UserPostVote.Down,
     },
   }),
   cancelDownvote: (post) => ({
     userState: {
-      ...post.userState,
+      ...post?.userState,
       vote: UserPostVote.None,
     },
   }),
@@ -85,7 +84,6 @@ const useVotePost = <T extends { id: string } = { id: string }>({
   onCancelPostDownvoteMutate,
 }: UseVotePostProps<T> = {}): UseVotePost<T> => {
   const { requestMethod } = useRequestProtocol();
-  const { updatePost } = useUpdatePost();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { mutateAsync: upvotePost } = useMutation<
@@ -161,26 +159,29 @@ const useVotePost = <T extends { id: string } = { id: string }>({
   );
 
   const toggleUpvote = (post) => {
-    if (user) {
-      if (post?.userState?.vote === UserPostVote.Up) {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
-            extra: { origin: Origin.EngagementLoopVote },
-          }),
-        );
-        return cancelPostUpvote({ id: post.id });
-      }
-      if (post) {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
-            extra: { origin: Origin.EngagementLoopVote },
-          }),
-        );
-        return upvotePost({ id: post.id });
-      }
-    } else {
-      showLogin(AuthTriggers.Upvote);
+    if (!post) {
+      return;
     }
+
+    if (!user) return showLogin(AuthTriggers.Upvote);
+
+    if (post?.userState?.vote === UserPostVote.Up) {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
+          extra: { origin: Origin.EngagementLoopVote },
+        }),
+      );
+      return cancelPostUpvote({ id: post.id });
+    }
+    if (post) {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
+          extra: { origin: Origin.EngagementLoopVote },
+        }),
+      );
+      return upvotePost({ id: post.id });
+    }
+
     return undefined;
   };
 

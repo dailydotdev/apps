@@ -14,6 +14,7 @@ import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
 import { useSharePost } from '../../hooks/useSharePost';
 import { Origin } from '../../lib/analytics';
+import { usePostFeedback } from '../../hooks';
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
 
@@ -51,7 +52,7 @@ export default function ReadHistoryList({
   const analyticsOrigin = Origin.ReadingHistoryContextMenu;
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
-  const hasEngagementLoopAccess = true;
+  const { hasUpvoteLoopEnabled } = usePostFeedback();
 
   const renderList = useCallback(() => {
     let currentDate: Date;
@@ -76,7 +77,7 @@ export default function ReadHistoryList({
               onReadingHistoryContextOptions(event, readingHistory, indexes)
             }
             onHide={(params) => onHide({ ...params, ...indexes })}
-            hasEngagementLoopAccess={hasEngagementLoopAccess}
+            hasUpvoteLoopEnabled={hasUpvoteLoopEnabled}
           />,
         );
 

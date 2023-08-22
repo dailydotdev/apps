@@ -94,15 +94,21 @@ export default function ActionButtons({
           <div className="flex justify-between">{leftChildren}</div>
         )}
       >
-        <SimpleTooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
+        <SimpleTooltip
+          content={
+            post?.userState?.vote === UserPostVote.Up
+              ? 'Remove upvote'
+              : 'Upvote'
+          }
+        >
           <QuaternaryButton
             id={`post-${post.id}-upvote-btn`}
             icon={
               <UpvoteIcon
-                secondary={post.userState?.vote === UserPostVote.Up}
+                secondary={post?.userState?.vote === UserPostVote.Up}
               />
             }
-            pressed={post.upvoted}
+            pressed={post?.userState?.vote === UserPostVote.Up}
             onClick={() => onUpvoteClick?.(post)}
             {...upvoteCommentProps}
             className="btn-tertiary-avocado w-[4.875rem]"

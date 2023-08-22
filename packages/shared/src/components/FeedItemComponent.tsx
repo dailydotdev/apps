@@ -163,11 +163,9 @@ export default function FeedItemComponent({
             ...item.post,
           }}
           data-testid="postItem"
-          onUpvoteClick={(post, upvoted) =>
-            onUpvote(post, index, upvoted, row, column)
-          }
-          onDownvoteClick={(post, downvoted) =>
-            onDownvote(post, index, downvoted, row, column)
+          onUpvoteClick={(post) => onUpvote(post, index, row, column)}
+          onDownvoteClick={(post) =>
+            onDownvote(post, index, row, column)
           }
           onPostClick={(post) => onPostClick(post, index, row, column)}
           onBookmarkClick={(post, bookmarked) =>

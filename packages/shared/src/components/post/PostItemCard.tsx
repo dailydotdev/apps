@@ -24,7 +24,7 @@ export interface PostItemCardProps {
   clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   onContextMenu?: (event: React.MouseEvent, post: PostItem) => void;
-  hasEngagementLoopAccess?: boolean;
+  hasUpvoteLoopEnabled?: boolean;
 }
 
 const SourceShadow = classed(
@@ -39,7 +39,7 @@ export default function PostItemCard({
   onHide,
   className,
   onContextMenu,
-  hasEngagementLoopAccess = false,
+  hasUpvoteLoopEnabled = false,
 }: PostItemCardProps): ReactElement {
   const { timestampDb, post } = postItem;
   const onHideClick = (e: MouseEvent) => {
@@ -75,7 +75,7 @@ export default function PostItemCard({
 
   const classes = classNames(
     'flex relative flex-row py-3 pr-5 pl-9 w-full',
-    hasEngagementLoopAccess
+    hasUpvoteLoopEnabled
       ? 'items-start tablet:items-center'
       : 'items-center',
     clickable && 'hover:bg-theme-hover hover:cursor-pointer',
@@ -103,14 +103,14 @@ export default function PostItemCard({
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
           <SourceShadow
-            className={classNames(hasEngagementLoopAccess && 'top-8')}
+            className={classNames(hasUpvoteLoopEnabled && 'top-8')}
           />
           <ProfilePicture
             size="small"
             rounded="full"
             className={classNames(
               'absolute left-6',
-              hasEngagementLoopAccess && 'top-8',
+              hasUpvoteLoopEnabled && 'top-8',
             )}
             user={{
               image: post.source.image,
@@ -121,7 +121,7 @@ export default function PostItemCard({
           <div
             className={classNames(
               'flex-1 flex',
-              hasEngagementLoopAccess
+              hasUpvoteLoopEnabled
                 ? 'flex-col tablet:flex-row'
                 : 'items-center',
             )}
@@ -136,18 +136,21 @@ export default function PostItemCard({
               />
             </div>
             <div className="flex ml-4 tablet:ml-0">
-              {showButtons && hasEngagementLoopAccess && (
+              {showButtons && hasUpvoteLoopEnabled && (
                 <>
                   <Button
                     buttonSize={ButtonSize.Small}
                     className={classNames(
                       'btn-tertiary',
-                      hasEngagementLoopAccess ? 'flex' : 'hidden laptop:flex',
+                      hasUpvoteLoopEnabled ? 'flex' : 'hidden laptop:flex',
                     )}
-                    onClick={() => toggleUpvote(post)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleUpvote(post);
+                    }}
                     icon={
                       <UpvoteIcon
-                        secondary={post.userState?.vote === UserPostVote.Up}
+                        secondary={post?.userState?.vote === UserPostVote.Up}
                       />
                     }
                   />
@@ -155,18 +158,21 @@ export default function PostItemCard({
                     buttonSize={ButtonSize.Small}
                     className={classNames(
                       'btn-tertiary',
-                      hasEngagementLoopAccess ? 'flex' : 'hidden laptop:flex',
+                      hasUpvoteLoopEnabled ? 'flex' : 'hidden laptop:flex',
                     )}
-                    onClick={() => toggleDownvote(post)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleDownvote(post);
+                    }}
                     icon={
                       <DownvoteIcon
-                        secondary={post.userState?.vote === UserPostVote.Down}
+                        secondary={post?.userState?.vote === UserPostVote.Down}
                       />
                     }
                   />
                 </>
               )}
-              {showButtons && !hasEngagementLoopAccess && onHide && (
+              {showButtons && !hasUpvoteLoopEnabled && onHide && (
                 <Button
                   buttonSize={ButtonSize.Small}
                   className="hidden laptop:flex btn-tertiary"
