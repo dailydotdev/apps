@@ -151,6 +151,7 @@ export interface PostData {
 
 export interface PostUpvote extends Upvote {
   post: Post;
+  votedAt: Date;
 }
 
 export const POST_BY_ID_QUERY = gql`
