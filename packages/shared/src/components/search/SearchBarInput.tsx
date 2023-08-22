@@ -22,6 +22,8 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { useInputField } from '../../hooks/useInputField';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SearchProgressBar } from './SearchProgressBar';
+import { SearchChunk } from '../../graphql/search';
+import { getSecondsDifference } from '../../lib/dateFormat';
 
 interface SearchBarClassName {
   container?: string;
@@ -32,11 +34,11 @@ export interface SearchBarInputProps {
   valueChanged?: (value: string) => void;
   showIcon?: boolean;
   rightButtonProps?: ButtonProps<'button'> | false;
-  completedTime?: string;
   showProgress?: boolean;
   className?: SearchBarClassName;
   onSubmit?: (event: MouseEvent, input: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
+  chunk?: SearchChunk;
 }
 
 function SearchBarInputComponent(
@@ -46,8 +48,8 @@ function SearchBarInputComponent(
     className,
     rightButtonProps = { type: 'button' },
     showProgress = true,
-    completedTime,
     onSubmit: handleSubmit,
+    chunk,
     ...props
   }: SearchBarInputProps,
   ref: ForwardedRef<HTMLDivElement>,
@@ -194,16 +196,15 @@ function SearchBarInputComponent(
       {sidebarRendered && showProgress && (
         <div className="mt-6">
           <SearchProgressBar progress={progress} />
-
-          {progress > 0 && progress < 100 && (
+          {((progress > 0 && progress < 100) || chunk?.error?.code) && (
             <div className="mt-2 typo-callout text-theme-label-tertiary">
-              🚀 Generating answer
+              {chunk?.error?.code || chunk?.status}
             </div>
           )}
-
-          {completedTime && (
+          {chunk?.completedAt && chunk?.createdAt && (
             <div className="mt-2 typo-callout text-theme-label-tertiary">
-              Done! {completedTime} seconds.
+              Done! {getSecondsDifference(chunk.createdAt, chunk.completedAt)}{' '}
+              seconds.
             </div>
           )}
         </div>
