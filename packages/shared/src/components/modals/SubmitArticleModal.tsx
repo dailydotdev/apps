@@ -13,7 +13,7 @@ import AuthContext from '../../contexts/AuthContext';
 import {
   SubmissionAvailability,
   SUBMISSION_AVAILABILITY_QUERY,
-  SubmitArticleResposne,
+  SubmitArticleResponse,
   SUBMIT_ARTICLE_MUTATION,
 } from '../../graphql/submitArticle';
 import PostItemCard from '../post/PostItemCard';
@@ -53,7 +53,7 @@ export default function SubmitArticleModal({
   const { submissionAvailability } = access || {};
   const isEnabled = submissionAvailability?.hasAccess;
   const { mutateAsync: submitArticle } = useMutation<
-    { submitArticle: SubmitArticleResposne },
+    { submitArticle: SubmitArticleResponse },
     unknown,
     string
   >((articleUrl: string) =>
