@@ -42,6 +42,7 @@ export const getCommentHash = (id: string): string => `#c-${id}`;
 
 export interface CommentUpvote extends Upvote {
   comment: Comment;
+  createdAt: Date;
 }
 
 export interface RecommendedMentionsData {

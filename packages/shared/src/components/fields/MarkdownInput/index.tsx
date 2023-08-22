@@ -252,7 +252,7 @@ function MarkdownInput(
               buttonSize={actionButtonSizes}
               className={classNames(
                 'btn-tertiary font-normal',
-                uploadingCount && 'text-theme-color-cabbage',
+                uploadingCount && 'mr-auto text-theme-color-cabbage',
               )}
               icon={icon}
               iconOnly={!sidebarRendered}
