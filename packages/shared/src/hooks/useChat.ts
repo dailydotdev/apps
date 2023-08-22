@@ -60,7 +60,7 @@ const createEventSource = () => new EventSource(searchQueryUrl);
 export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
-  const sourceRef = useRef(createEventSource());
+  const sourceRef = useRef<EventSource>();
   const [prompt, setPrompt] = useState<string | undefined>();
   const id = idFromProps ?? 'new';
   const idQueryKey = generateQueryKey(RequestKey.Search, user, id);
@@ -141,11 +141,12 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
 
       if (sourceRef.current?.OPEN) {
         sourceRef.current.close();
-        sourceRef.current = createEventSource();
       }
 
       await sendSearchQuery(value, accessToken.token);
-      sourceRef.current.onmessage = onMessage;
+      const source = createEventSource();
+      source.onmessage = onMessage;
+      sourceRef.current = source;
       setSearchQuery(undefined);
     },
     [setSearchQuery, onMessage, accessToken],
