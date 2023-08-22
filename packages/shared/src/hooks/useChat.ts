@@ -55,10 +55,12 @@ interface TokenPayload {
   token: string;
 }
 
+const createEventSource = () => new EventSource(searchQueryUrl);
+
 export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
-  const [source] = useState(() => new EventSource(searchQueryUrl));
+  const [source, setSource] = useState(createEventSource);
   const [prompt, setPrompt] = useState<string | undefined>();
   const id = idFromProps ?? 'new';
   const endStreamRef = useRef<() => void>();
@@ -138,19 +140,23 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
         return;
       }
 
-      if (source.OPEN) {
-        source.close();
+      let eventSource = source;
+
+      if (eventSource.OPEN) {
+        eventSource.close();
+        eventSource = createEventSource();
+        setSource(eventSource);
       }
 
       if (endStreamRef.current) {
         endStreamRef.current();
       }
 
-      source.onmessage = onMessage;
       await sendSearchQuery(value, accessToken.token);
+      source.onmessage = onMessage;
       setSearchQuery(undefined);
     },
-    [source, setSearchQuery, onMessage],
+    [source, setSearchQuery, onMessage, accessToken],
   );
 
   useEffect(() => {
