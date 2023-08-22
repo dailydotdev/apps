@@ -151,6 +151,7 @@ export interface PostData {
 
 export interface PostUpvote extends Upvote {
   post: Post;
+  votedAt: Date;
 }
 
 export const POST_BY_ID_QUERY = gql`
@@ -586,6 +587,8 @@ export const UPLOAD_IMAGE_MUTATION = gql`
 export const imageSizeLimitMB = 5;
 export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
 export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
+
+export const uploadNotAcceptedMessage = `File type is not allowed or the size exceeded the limit of ${imageSizeLimitMB} MB`;
 
 export const uploadContentImage = async (
   image: File,
