@@ -12,7 +12,6 @@ import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import usePromotionalBanner from '../hooks/usePromotionalBanner';
 import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
@@ -32,6 +31,7 @@ import { useFeaturesContext } from '../contexts/FeaturesContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
 import { isTesting, webappUrl } from '../lib/constants';
+import { useBanner } from '../hooks/useBanner';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -78,7 +78,7 @@ export default function MainLayout({
   const { user, isAuthReady } = useAuthContext();
   const { onboardingV2, isFeaturesLoaded } = useFeaturesContext();
   const { sidebarRendered } = useSidebarRendered();
-  const { bannerData, setLastSeen } = usePromotionalBanner();
+  const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
@@ -99,8 +99,6 @@ export default function MainLayout({
     });
     setOpenMobileSidebar(state);
   };
-
-  const hasBanner = !!bannerData?.banner || !!customBanner;
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasTrackedImpression) {
@@ -127,7 +125,7 @@ export default function MainLayout({
 
     return (
       <Sidebar
-        promotionalBannerActive={hasBanner}
+        promotionalBannerActive={isBannerAvailable}
         sidebarRendered={sidebarRendered}
         openMobileSidebar={openMobileSidebar}
         onNavTabClick={onNavTabClick}
@@ -183,16 +181,15 @@ export default function MainLayout({
 
   return (
     <div {...handlers}>
-      {customBanner || (
-        <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
-      )}
+      {customBanner}
+      {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
       <LazyModalElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
         greeting={greeting}
-        hasBanner={hasBanner}
+        hasBanner={isBannerAvailable}
         mobileTitle={mobileTitle}
         showOnlyLogo={showOnlyLogo}
         sidebarRendered={sidebarRendered}
@@ -207,7 +204,7 @@ export default function MainLayout({
           'flex flex-row',
           className,
           !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
-          hasBanner ? 'laptop:pt-22' : 'laptop:pt-14',
+          isBannerAvailable ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
       >
         {renderSidebar()}
