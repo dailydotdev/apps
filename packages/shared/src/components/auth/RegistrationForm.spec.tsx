@@ -12,7 +12,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   mockEmailCheck,
   mockLoginFlow,
-  mockRegistraitonFlow,
+  mockRegistrationFlow,
 } from '../../../__tests__/fixture/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
@@ -39,7 +39,7 @@ const renderComponent = (
   },
 ): RenderResult => {
   const client = new QueryClient();
-  mockRegistraitonFlow();
+  mockRegistrationFlow();
   mockLoginFlow();
   return render(
     <QueryClientProvider client={client}>
@@ -137,7 +137,7 @@ const renderLogin = async (email: string) => {
 //   await renderRegistration(email);
 //   const form = await screen.findByTestId('registration_form');
 //   const params = formToJson(form as HTMLFormElement);
-//   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
+//   mockRegistrationValidationFlow(successfulRegistrationMockData, params);
 //   fireEvent.submit(form);
 //   await waitForNock();
 //   await waitFor(() => {
@@ -156,7 +156,7 @@ const renderLogin = async (email: string) => {
 //   await renderRegistration(email);
 //   const form = await screen.findByTestId('registration_form');
 //   const params = formToJson(form as HTMLFormElement);
-//   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);
+//   mockRegistrationValidationFlow(errorRegistrationMockData, params, 400);
 //   fireEvent.submit(form);
 //   await waitForNock();
 //   await waitFor(() => {
