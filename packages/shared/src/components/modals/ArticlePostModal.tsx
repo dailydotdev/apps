@@ -11,9 +11,11 @@ import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { PostType } from '../../graphql/posts';
+import { Source } from '../../graphql/sources';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
+  postSource: Source;
 }
 
 export default function ArticlePostModal({
@@ -23,6 +25,7 @@ export default function ArticlePostModal({
   onPreviousPost,
   onNextPost,
   postPosition,
+  postSource,
   onRemovePost,
   ...props
 }: ArticlePostModalProps): ReactElement {
@@ -39,6 +42,7 @@ export default function ArticlePostModal({
       {...props}
       onRequestClose={onRequestClose}
       postType={PostType.Article}
+      source={postSource}
       isLoading={isPostLoadingOrFetching}
     >
       <PostContent

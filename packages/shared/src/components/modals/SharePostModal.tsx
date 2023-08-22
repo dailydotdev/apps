@@ -11,9 +11,11 @@ import { PassedPostNavigationProps } from '../post/PostContent';
 import { PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { isSourcePublicSquad } from '../../graphql/squads';
+import { Source } from '../../graphql/sources';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
+  postSource: Source;
 }
 
 export default function PostModal({
@@ -23,6 +25,7 @@ export default function PostModal({
   onPreviousPost,
   onNextPost,
   postPosition,
+  postSource,
   onRemovePost,
   ...props
 }: PostModalProps): ReactElement {
@@ -34,7 +37,7 @@ export default function PostModal({
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
   const containerClass = 'post-content';
-  const isPublicSquad = isSourcePublicSquad(post?.source);
+  const isPublicSquad = isSourcePublicSquad(postSource);
 
   return (
     <BasePostModal
@@ -42,6 +45,7 @@ export default function PostModal({
       size={isPublicSquad ? Modal.Size.XLarge : Modal.Size.Large}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
+      source={postSource}
       isLoading={isPostLoadingOrFetching}
       loadingClassName={containerClass}
     >
