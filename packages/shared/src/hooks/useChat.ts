@@ -60,10 +60,9 @@ const createEventSource = () => new EventSource(searchQueryUrl);
 export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
-  const [source, setSource] = useState(createEventSource);
+  const sourceRef = useRef(createEventSource());
   const [prompt, setPrompt] = useState<string | undefined>();
   const id = idFromProps ?? 'new';
-  const endStreamRef = useRef<() => void>();
   const idQueryKey = generateQueryKey(RequestKey.Search, user, id);
   const { data: search, isLoading: isLoadingSession } = useQuery(
     idQueryKey,
@@ -140,29 +139,22 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
         return;
       }
 
-      let eventSource = source;
-
-      if (eventSource.OPEN) {
-        eventSource.close();
-        eventSource = createEventSource();
-        setSource(eventSource);
-      }
-
-      if (endStreamRef.current) {
-        endStreamRef.current();
+      if (sourceRef.current?.OPEN) {
+        sourceRef.current.close();
+        sourceRef.current = createEventSource();
       }
 
       await sendSearchQuery(value, accessToken.token);
-      source.onmessage = onMessage;
+      sourceRef.current.onmessage = onMessage;
       setSearchQuery(undefined);
     },
-    [source, setSearchQuery, onMessage, accessToken],
+    [setSearchQuery, onMessage, accessToken],
   );
 
   useEffect(() => {
     return () => {
-      if (endStreamRef.current) {
-        endStreamRef.current();
+      if (sourceRef.current?.OPEN) {
+        sourceRef.current.close();
       }
     };
   }, []);
