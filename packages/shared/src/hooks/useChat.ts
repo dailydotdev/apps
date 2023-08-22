@@ -114,10 +114,12 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
           case UseChatMessageType.Completed: {
             setSearchQuery({ completedAt: new Date(), status: data.status });
             setPrompt(undefined);
+            sourceRef.current?.close();
             break;
           }
           case UseChatMessageType.Error:
             setSearchQuery({ error: data.payload as SearchChunkError });
+            sourceRef.current?.close();
             break;
           case UseChatMessageType.SessionFound:
             client.setQueryData(idQueryKey, () => data.payload as Search);
