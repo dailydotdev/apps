@@ -67,7 +67,7 @@ export default function useCompanionTrigger(
 
     trackEvent({
       event_name: `close companion permission popup`,
-      extra: JSON.stringify({ origin: 'automatic' }),
+      extra: JSON.stringify({ origin: 'auto' }),
     });
   }, [closeLazyModal, handleCompleteAction, trackEvent]);
 
@@ -105,7 +105,7 @@ export default function useCompanionTrigger(
 
       trackEvent({
         event_name: `open companion permission popup`,
-        extra: JSON.stringify({ origin: 'automatic' }),
+        extra: JSON.stringify({ origin: 'auto' }),
       });
     },
     [openArticle, activateCompanion, openLazyModal, trackEvent],
