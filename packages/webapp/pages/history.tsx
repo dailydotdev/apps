@@ -28,6 +28,8 @@ const History = (): ReactElement => {
     setPage(tabQuery);
   }, [tabQuery]);
 
+  if (!router.isReady) return seo;
+
   return (
     <ProtectedPage seo={seo}>
       <ResponsivePageContainer className="!p-0" role="main">

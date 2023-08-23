@@ -57,13 +57,14 @@ export function TabContainer<T extends string = string>({
   tabListProps = {},
 }: TabContainerProps<T>): ReactElement {
   const [active, setActive] = useState(children[0].props.label);
+  const currentActive = controlledActive ?? active;
   const onClick = (label: T) => {
     setActive(label);
     onActiveChange?.(label);
   };
 
   const isTabActive = (child: ReactElement<TabProps<T>>) =>
-    child.props.label === (controlledActive ?? active);
+    child.props.label === currentActive;
 
   const renderSingleComponent = () => {
     if (!shouldMountInactive) {
@@ -105,7 +106,7 @@ export function TabContainer<T extends string = string>({
         <TabList
           items={children.map((child) => child.props.label)}
           onClick={onClick}
-          active={active}
+          active={currentActive}
           className={tabListProps?.className}
         />
       </header>
