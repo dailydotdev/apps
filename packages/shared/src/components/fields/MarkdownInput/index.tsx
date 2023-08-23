@@ -245,16 +245,17 @@ function MarkdownInput(
         appendTo={parentSelector}
       />
       {footer ?? (
-        <span className="flex flex-row gap-3 items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
+        <span className="flex flex-row gap-3 justify-end items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
           {!!onUploadCommand && (
             <Button
               type="button"
               buttonSize={actionButtonSizes}
               className={classNames(
-                'btn-tertiary',
-                uploadingCount && 'text-theme-color-cabbage',
+                'btn-tertiary font-normal',
+                uploadingCount && 'mr-auto text-theme-color-cabbage',
               )}
               icon={icon}
+              iconOnly={!sidebarRendered}
               onClick={() => uploadRef?.current?.click()}
             >
               {shouldShowSubmit ? null : (
@@ -278,7 +279,7 @@ function MarkdownInput(
             wrapper={(children) => (
               <span
                 className={classNames(
-                  'grid grid-cols-3 gap-3',
+                  'flex gap-3',
                   !shouldShowSubmit && 'ml-auto',
                 )}
               >

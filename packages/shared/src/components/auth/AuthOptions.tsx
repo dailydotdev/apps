@@ -151,8 +151,8 @@ function AuthOptions({
     key: 'registration_form',
     onValidRegistration: async () => {
       setIsRegistration(true);
-      await refetchBoot();
-      await syncSettings();
+      const { data } = await refetchBoot();
+      await syncSettings(data?.user?.id);
       onSetActiveDisplay(AuthDisplay.EmailSent);
       onSuccessfulRegistration?.();
     },

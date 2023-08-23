@@ -47,16 +47,14 @@ export const useTimedAnimation = ({
 
   const startAnimation = useCallback(
     (duration: number) => {
+      setTimer(duration);
+
       if (isNullOrUndefined(duration) || duration <= 0) {
         return;
       }
 
-      setTimer(duration);
-      clearInterval();
-
       if (!autoEndAnimation) {
         interval.current = MANUAL_DISMISS_ANIMATION_ID;
-        return;
       }
 
       interval.current = window.setInterval(
@@ -73,7 +71,7 @@ export const useTimedAnimation = ({
   useEffect(() => {
     // when the timer ends we need to do cleanups
     // we delay the callback execution so we can let the slide out animation finish
-    if (timer <= 0 && interval?.current) {
+    if (timer <= 0) {
       clearInterval();
       animationEnd();
     }
@@ -88,6 +86,6 @@ export const useTimedAnimation = ({
       endAnimation,
       startAnimation,
     }),
-    [timer, endAnimation, startAnimation],
+    [endAnimation, startAnimation, timer],
   );
 };

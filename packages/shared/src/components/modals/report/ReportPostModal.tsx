@@ -100,25 +100,32 @@ export function ReportPostModal({
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
   const reportOptionsForActiveReason = useCallback(
     (reason) => {
-      return reportReasons.map((reportReason) => {
-        const LabelComponent =
-          reportReason.value === reason && reportReasonsMap[reportReason.value];
+      return reportReasons
+        .filter((reportReason) => {
+          if (reportReason.value === 'IRRELEVANT' && post?.tags?.length === 0)
+            return false;
+          return reportReason;
+        })
+        .map((reportReason) => {
+          const LabelComponent =
+            reportReason.value === reason &&
+            reportReasonsMap[reportReason.value];
 
-        if (LabelComponent) {
-          return {
-            ...reportReason,
-            afterElement: (
-              <LabelComponent
-                post={post}
-                selectedTags={selectedTags}
-                setSelectedTags={setSelectedTags}
-              />
-            ),
-          } as RadioOption;
-        }
+          if (LabelComponent) {
+            return {
+              ...reportReason,
+              afterElement: (
+                <LabelComponent
+                  post={post}
+                  selectedTags={selectedTags}
+                  setSelectedTags={setSelectedTags}
+                />
+              ),
+            } as RadioOption;
+          }
 
-        return reportReason;
-      });
+          return reportReason;
+        });
     },
     [post, selectedTags],
   );
