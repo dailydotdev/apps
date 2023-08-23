@@ -1,5 +1,5 @@
 import request, { gql } from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
+import { apiUrl, graphqlUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
 
 export interface SearchChunkError {
@@ -128,7 +128,7 @@ export const updateSearchData = (
   return updated;
 };
 
-export const searchQueryUrl = 'https://api.daily.dev/search/query';
+export const searchQueryUrl = `${apiUrl}/search/query`;
 
 export const sendSearchQuery = async (
   query: string,
