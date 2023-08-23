@@ -1,9 +1,9 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 import { useGrowthBook } from '@growthbook/growthbook-react';
 import { FeedPostClick } from './feed/useFeedOnPostClick';
 import { Post } from '../graphql/posts';
 import { Features } from '../lib/featureManagement';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 
 import { useExtensionPermission } from './useExtensionPermission';
 import { useLazyModal } from './useLazyModal';
@@ -38,7 +38,7 @@ export default function useCompanionTrigger(
   ) => Promise<void>,
 ): CompanionTrigger {
   const isExtension = process.env.TARGET_BROWSER;
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useAnalyticsContext();
   const { closeModal: closeLazyModal, openModal: openLazyModal } =
     useLazyModal();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
@@ -65,11 +65,6 @@ export default function useCompanionTrigger(
   const closeModal = useCallback(() => {
     closeLazyModal();
     handleCompleteAction();
-
-    trackEvent({
-      event_name: AnalyticsEvent.CloseCompanionPermissionModal,
-      extra: JSON.stringify({ origin: Origin.Auto }),
-    });
   }, [closeLazyModal, handleCompleteAction, trackEvent]);
 
   const activateCompanion = useCallback(async () => {
@@ -101,6 +96,12 @@ export default function useCompanionTrigger(
           url: data?.post?.permalink,
           onReadArticleClick: openArticle(data),
           onActivateCompanion: activateCompanion,
+          onAfterClose() {
+            trackEvent({
+              event_name: AnalyticsEvent.CloseCompanionPermissionModal,
+              extra: JSON.stringify({ origin: Origin.Auto }),
+            });
+          },
         },
       });
 
@@ -119,8 +120,8 @@ export default function useCompanionTrigger(
     ) => {
       if (
         !isExtension ||
-        !featureEnabled ||
-        alreadyCompleted ||
+        // !featureEnabled ||
+        // alreadyCompleted ||
         contentScriptGranted
       ) {
         await customPostClickHandler(post, index, row, column);
