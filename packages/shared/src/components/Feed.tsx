@@ -424,7 +424,7 @@ export default function Feed<T>({
           onPreviousPost={onPrevious}
           onNextPost={onNext}
           postPosition={postPosition}
-          postSource={selectedPost.source}
+          post={selectedPost}
           onRemovePost={() => onRemovePost(selectedPostIndex)}
         />
       )}

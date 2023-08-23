@@ -2,20 +2,18 @@ import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import BasePostModal from './BasePostModal';
 import { NotificationPromptSource, Origin } from '../../lib/analytics';
-import usePostById from '../../hooks/usePostById';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 import { PassedPostNavigationProps } from '../post/PostContent';
-import { PostType } from '../../graphql/posts';
+import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { isSourcePublicSquad } from '../../graphql/squads';
-import { Source } from '../../graphql/sources';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
-  postSource: Source;
+  post: Post;
 }
 
 export default function PostModal({
@@ -25,19 +23,18 @@ export default function PostModal({
   onPreviousPost,
   onNextPost,
   postPosition,
-  postSource,
+  post,
   onRemovePost,
   ...props
 }: PostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { post, isPostLoadingOrFetching } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: isPostLoadingOrFetching,
+    isLoading: false,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
   const containerClass = 'post-content';
-  const isPublicSquad = isSourcePublicSquad(postSource);
+  const isPublicSquad = isSourcePublicSquad(post.source);
 
   return (
     <BasePostModal
@@ -45,8 +42,7 @@ export default function PostModal({
       size={isPublicSquad ? Modal.Size.XLarge : Modal.Size.Large}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
-      source={postSource}
-      isLoading={isPostLoadingOrFetching}
+      source={post.source}
       loadingClassName={containerClass}
     >
       <EnableNotification
