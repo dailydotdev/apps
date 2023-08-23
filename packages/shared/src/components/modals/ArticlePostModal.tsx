@@ -44,6 +44,7 @@ export default function ArticlePostModal({
       postType={PostType.Article}
       source={postSource}
       isLoading={isPostLoadingOrFetching}
+      loadingClassName="post-content"
     >
       <PostContent
         position={position}
