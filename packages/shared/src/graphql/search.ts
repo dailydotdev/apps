@@ -103,6 +103,23 @@ export const SEARCH_HISTORY_QUERY = gql`
   }
 `;
 
+export const SEARCH_FEEDBACK_MUTATION = gql`
+  mutation SearchResultFeedback($chunkId: String!, $value: Int!) {
+    searchResultFeedback(chunkId: $chunkId, value: $value) {
+      _
+    }
+  }
+`;
+
+interface SearchFeedbackProps {
+  chunkId: string;
+  value: number;
+}
+
+export const sendSearchFeedback = (
+  params: SearchFeedbackProps,
+): Promise<void> => request(graphqlUrl, SEARCH_FEEDBACK_MUTATION, params);
+
 export const getSearchSession = async (id: string): Promise<Search> => {
   const res = await request(graphqlUrl, SEARCH_SESSION_QUERY, { id });
 

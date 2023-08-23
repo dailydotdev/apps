@@ -11,7 +11,7 @@ import { getLayout as getMainLayout } from '../layouts/MainLayout';
 
 const SearchPage = (): ReactElement => {
   const router = useRouter();
-  const { data, handleSubmit, isLoading } = useChat({
+  const { data, queryKey, handleSubmit, isLoading } = useChat({
     id: router?.query?.id?.toString(),
   });
   const content = data?.chunks?.[0]?.response || '';
@@ -22,6 +22,8 @@ const SearchPage = (): ReactElement => {
       {(!!content || !!data) && (
         <>
           <SearchResult
+            queryKey={queryKey}
+            isInProgress={isLoading}
             chunk={data?.chunks?.[0]}
             searchMessageProps={{ isLoading }}
           />
