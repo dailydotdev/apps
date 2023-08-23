@@ -1,5 +1,5 @@
 import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { QueryKey, useQuery, useQueryClient } from 'react-query';
 import {
   getSearchSession,
   initializeSearchSession,
@@ -40,6 +40,7 @@ interface UseChatMessage<Payload = unknown> {
 }
 
 interface UseChat {
+  queryKey: QueryKey;
   data: Search;
   isLoading: boolean;
   handleSubmit(event: MouseEvent, value: string): void;
@@ -160,6 +161,7 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   }, []);
 
   return {
+    queryKey: idQueryKey,
     isLoading:
       isLoadingSession ||
       (search?.chunks?.[0]?.createdAt && !search?.chunks?.[0]?.completedAt),
