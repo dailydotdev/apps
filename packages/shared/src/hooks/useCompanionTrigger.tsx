@@ -10,6 +10,7 @@ import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
+import { useFeatureIsOn } from '../components/GrowthBookProvider';
 
 type CompanionTriggerProps = {
   post: Post;
@@ -40,6 +41,9 @@ export default function useCompanionTrigger(
   const { closeModal: closeLazyModal, openModal: openLazyModal } =
     useLazyModal();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
+  const featureEnabled = useFeatureIsOn(
+    Features.EngagementLoopJuly2023Companion,
+  );
   const gb = useGrowthBook();
 
   const { requestContentScripts, useContentScriptStatus } =
@@ -112,20 +116,16 @@ export default function useCompanionTrigger(
       e: React.MouseEvent,
       { post, index, row, column }: Partial<CompanionTriggerProps> = {},
     ) => {
-      // the check whether the user is logged in is done on the GrowthBook side
-      // the feature flag is enabled only for logged-in users
-      // -- check that this is correct
-      if (!isExtension || alreadyCompleted || contentScriptGranted) {
-        await customPostClickHandler(post, index, row, column);
-      } else if (
-        // checking this also enrolls the user in the experiment
-        // so this must be the last check after all others
-        gb.isOn(Features.EngagementLoopJuly2023Companion.id)
+      if (
+        !isExtension ||
+        !featureEnabled ||
+        alreadyCompleted ||
+        contentScriptGranted
       ) {
+        await customPostClickHandler(post, index, row, column);
+      } else {
         e.preventDefault();
         openModal({ post, index, row, column });
-      } else {
-        await customPostClickHandler(post, index, row, column);
       }
     },
 
