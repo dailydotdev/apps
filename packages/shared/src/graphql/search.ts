@@ -190,6 +190,9 @@ export const sendSearchQuery = async (
   source.onmessage = (event) => {
     console.log('from message:', event);
   };
+  source.addEventListener('notice', (e) => {
+    console.log('from notice:', e.data);
+  });
   source.onerror = () => source.close();
 
   return source;
