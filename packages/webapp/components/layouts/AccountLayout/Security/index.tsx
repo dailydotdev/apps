@@ -181,7 +181,7 @@ function AccountSecurityDefault({
     onUpdatePassword(form);
   };
 
-  const verifyable =
+  const verifiable =
     email &&
     session?.identity?.verifiable_addresses?.find(
       (address) => address.value === email,
@@ -215,7 +215,7 @@ function AccountSecurityDefault({
             isLocked
           />
         </SimpleTooltip>
-        {hasPassword && email && verifyable && !verifyable.verified && (
+        {hasPassword && email && verifiable && !verifiable.verified && (
           <EmailSentSection email={email} className="max-w-sm" />
         )}
         {hasPassword && (
