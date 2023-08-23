@@ -81,6 +81,8 @@ export enum AnalyticsEvent {
   RemovePostBookmark = 'remove post bookmark',
   // bookmark - end
   ReportComment = 'report comment',
+  OpenCompanionPermissionModal = 'open companion permission popup',
+  CloseCompanionPermissionModal = 'close companion permission popup',
 }
 
 export enum TargetType {

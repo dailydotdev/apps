@@ -11,6 +11,7 @@ import { LazyModal } from '../components/modals/common/types';
 import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
 import { useFeatureIsOn } from '../components/GrowthBookProvider';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 
 type CompanionTriggerProps = {
   post: Post;
@@ -66,8 +67,8 @@ export default function useCompanionTrigger(
     handleCompleteAction();
 
     trackEvent({
-      event_name: `close companion permission popup`,
-      extra: JSON.stringify({ origin: 'auto' }),
+      event_name: AnalyticsEvent.CloseCompanionPermissionModal,
+      extra: JSON.stringify({ origin: Origin.Auto }),
     });
   }, [closeLazyModal, handleCompleteAction, trackEvent]);
 
@@ -104,8 +105,8 @@ export default function useCompanionTrigger(
       });
 
       trackEvent({
-        event_name: `open companion permission popup`,
-        extra: JSON.stringify({ origin: 'auto' }),
+        event_name: AnalyticsEvent.OpenCompanionPermissionModal,
+        extra: JSON.stringify({ origin: Origin.Auto }),
       });
     },
     [openArticle, activateCompanion, openLazyModal, trackEvent],
