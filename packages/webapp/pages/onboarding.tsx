@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useFeaturesContext } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
@@ -29,6 +35,7 @@ import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import CookieBanner from '../components/CookieBanner';
 
@@ -77,6 +84,8 @@ export function OnboardPage(): ReactElement {
     useFeaturesContext();
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
+  const { alerts } = useContext(AlertContext);
+  const [hasSelectTopics, setHasSelectTopics] = useState(false);
 
   const onClickNext = () => {
     const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
@@ -101,8 +110,20 @@ export function OnboardPage(): ReactElement {
   const onSuccessfulTransaction = () => {
     onShouldUpdateFilters(true);
     setFinishedOnboarding(true);
+    if (hasSelectTopics) {
+      return;
+    }
+
     router.push('/');
   };
+
+  useEffect(() => {
+    if (!hasSelectTopics || !alerts?.myFeed) return;
+
+    if (alerts.myFeed === 'created') {
+      router.push('/');
+    }
+  }, [alerts, hasSelectTopics, router]);
 
   const isPageReady = isFeaturesLoaded && isAuthReady;
 
@@ -130,6 +151,11 @@ export function OnboardPage(): ReactElement {
   useEffect(() => {
     updateCookieBanner(user);
   }, [updateCookieBanner, user]);
+
+  const hasSelectedTopics = (tags: Record<string, boolean>) => {
+    const hasTopics = Object.values(tags).some((value) => value === true);
+    setHasSelectTopics(hasTopics);
+  };
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
@@ -187,7 +213,10 @@ export function OnboardPage(): ReactElement {
           )}
         >
           {isFiltering ? (
-            <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" />
+            <FilterOnboarding
+              className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
+              onSelectedTopics={hasSelectedTopics}
+            />
           ) : (
             <img
               alt="Sample illustration of selecting topics"

@@ -67,7 +67,7 @@ export const SourceCard = ({
   return (
     <Card
       className={classNames(
-        'overflow-hidden p-0',
+        'overflow-hidden !p-0',
         borderColorToClassName[source?.borderColor || borderColor],
       )}
     >

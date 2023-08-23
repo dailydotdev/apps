@@ -126,7 +126,7 @@ export function Dropdown({
         type="button"
         ref={triggerRef}
         className={classNames(
-          'group flex w-full px-3 items-center bg-theme-float typo-body text-theme-label-tertiary hover:text-theme-label-primary hover:bg-theme-hover',
+          'group flex w-full px-3 font-normal items-center bg-theme-float typo-body text-theme-label-tertiary hover:text-theme-label-primary hover:bg-theme-hover',
           getButtonSizeClass(buttonSize),
           className?.button,
           iconOnly && 'items-center justify-center',

@@ -42,20 +42,19 @@ export default function PostItemCard({
   };
   const article = post?.sharedPost ?? post;
 
+  const classes = classNames(
+    'flex relative flex-row items-center py-3 pr-5 pl-9 w-full',
+    clickable && 'hover:bg-theme-hover hover:cursor-pointer',
+    className,
+  );
+
   return (
-    <article>
+    <article className={classNames(!clickable && classes)}>
       <ConditionalWrapper
         condition={clickable}
         wrapper={(children) => (
           <Link href={post.commentsPermalink}>
-            <a
-              className={classNames(
-                'flex relative flex-row items-center py-3 pr-5 pl-9 w-full',
-                clickable && 'hover:bg-theme-hover hover:cursor-pointer',
-                className,
-              )}
-              title="Go to post"
-            >
+            <a className={classes} title="Go to post">
               {children}
             </a>
           </Link>

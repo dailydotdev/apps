@@ -1,6 +1,5 @@
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useQuery, useMutation } from 'react-query';
-import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
@@ -39,8 +38,6 @@ import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
-import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
-import { tablet } from '@dailydotdev/shared/src/styles/media';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
@@ -74,7 +71,6 @@ const SquadReferral = ({
   initialData,
 }: SquadReferralProps): ReactElement => {
   const router = useRouter();
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
   const { isFallback } = router;
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
@@ -226,10 +222,7 @@ const SquadReferral = ({
             </div>
           </div>
           <SimpleSquadJoinButton
-            className={classNames(
-              'btn-primary',
-              isMobile ? 'flex mt-4 w-full' : 'ml-auto',
-            )}
+            className="mt-4 tablet:mt-0 tablet:ml-auto w-full tablet:w-auto btn-primary"
             buttonSize={ButtonSize.Large}
             onClick={onJoinClick}
             squad={source}

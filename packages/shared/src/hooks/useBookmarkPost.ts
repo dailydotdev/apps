@@ -69,8 +69,8 @@ export default function useBookmarkPost<
         trackEvent(onRemoveBookmarkTrackObject()),
     },
   );
-  const bookmarkToast = (targetBookmarState) =>
-    targetBookmarState
+  const bookmarkToast = (targetBookmarkState) =>
+    targetBookmarkState
       ? displayToast('Post was added to your bookmarks')
       : displayToast('Post was removed from your bookmarks');
 
