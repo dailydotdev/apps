@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useGrowthBook } from '@growthbook/growthbook-react';
 import { FeedPostClick } from './feed/useFeedOnPostClick';
 import { Post } from '../graphql/posts';
@@ -10,7 +10,6 @@ import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
-import { useFeatureIsOn } from '../components/GrowthBookProvider';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 
 type CompanionTriggerProps = {
@@ -42,10 +41,16 @@ export default function useCompanionTrigger(
   const { closeModal: closeLazyModal, openModal: openLazyModal } =
     useLazyModal();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
-  const featureEnabled = useFeatureIsOn(
-    Features.EngagementLoopJuly2023Companion,
-  );
   const gb = useGrowthBook();
+
+  const featureEnabled = useMemo(() => {
+    // gb.isOn triggers enrollment in the experiment
+    // to avoid noise in the data, only call this if we are in the extension
+    if (isExtension)
+      return gb.isOn(Features.EngagementLoopJuly2023Companion.id);
+
+    return false;
+  }, [gb, isExtension]);
 
   const { requestContentScripts, useContentScriptStatus } =
     useExtensionPermission({
