@@ -21,6 +21,8 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts } from '../../graphql/alerts';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
+import { Features } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
 
 let features: IFlags;
 let client: QueryClient;
@@ -163,14 +165,18 @@ const sidebarItems = [
   ['Reading history', '/history'],
 ];
 
-it.each(sidebarItems.map((item) => [item[0], item[1]]))(
-  'it should expect %s to exist',
-  async (name, href) => {
-    renderComponent();
-    waitForNock();
-    const el = await screen.findByText(name);
-    expect(el).toBeInTheDocument();
-    // eslint-disable-next-line testing-library/no-node-access
-    expect(el.closest('a')).toHaveAttribute('href', href);
-  },
-);
+describe('sidebar items', () => {
+  Features.Search.defaultValue = SearchExperiment.Control;
+
+  it.each(sidebarItems.map((item) => [item[0], item[1]]))(
+    'it should expect %s to exist',
+    async (name, href) => {
+      renderComponent();
+      waitForNock();
+      const el = await screen.findByText(name);
+      expect(el).toBeInTheDocument();
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(el.closest('a')).toHaveAttribute('href', href);
+    },
+  );
+});
