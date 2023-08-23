@@ -79,7 +79,6 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   const onMessage = useCallback(
     (event: MessageEvent) => {
       try {
-        console.log('getting data: ', event);
         const data: UseChatMessage = JSON.parse(event.data);
 
         switch (data.type) {
@@ -144,11 +143,10 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
       }
 
       setSearchQuery(undefined);
-      sourceRef.current = await sendSearchQuery(
-        value,
-        accessToken.token,
-        onMessage,
-      );
+      const source = await sendSearchQuery(value, accessToken.token);
+      source.addEventListener('message', onMessage);
+      source.onerror = () => source.close();
+      sourceRef.current = source;
     },
     [setSearchQuery, onMessage, accessToken],
   );
