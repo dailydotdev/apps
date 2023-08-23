@@ -70,7 +70,7 @@ export default function useCompanionTrigger(
   const closeModal = useCallback(() => {
     closeLazyModal();
     handleCompleteAction();
-  }, [closeLazyModal, handleCompleteAction, trackEvent]);
+  }, [closeLazyModal, handleCompleteAction]);
 
   const activateCompanion = useCallback(async () => {
     await requestContentScripts();
@@ -125,8 +125,8 @@ export default function useCompanionTrigger(
     ) => {
       if (
         !isExtension ||
-        // !featureEnabled ||
-        // alreadyCompleted ||
+        !featureEnabled ||
+        alreadyCompleted ||
         contentScriptGranted
       ) {
         await customPostClickHandler(post, index, row, column);
@@ -142,7 +142,6 @@ export default function useCompanionTrigger(
       isExtension,
       featureEnabled,
       contentScriptGranted,
-      gb,
       openModal,
     ],
   );
