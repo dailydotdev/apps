@@ -181,4 +181,4 @@ const getNotificationsLayout: typeof getLayout = (...props) =>
 
 Notifications.getLayout = getNotificationsLayout;
 
-export default Notifications;
+export default (): ReactElement => null;
