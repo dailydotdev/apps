@@ -27,6 +27,7 @@ beforeEach(() => {
         query: {},
         replace: routerReplace,
         push: jest.fn(),
+        isReady: true,
       } as unknown as NextRouter),
   );
 });
@@ -89,57 +90,59 @@ const renderComponent = (
   );
 };
 
-it('should show appropriate loading attributes', async () => {
-  renderComponent();
-  const initialBusyState = (
-    await screen.findByTestId('reading-history-container')
-  ).getAttribute('aria-busy');
-  expect(JSON.parse(initialBusyState)).toEqual(true);
+describe('user reading history page', () => {
+  it('should show appropriate loading attributes', async () => {
+    renderComponent();
+    const initialBusyState = (
+      await screen.findByTestId('reading-history-container')
+    ).getAttribute('aria-busy');
+    expect(JSON.parse(initialBusyState)).toEqual(true);
 
-  await waitForNock();
+    await waitForNock();
 
-  const afterFetchingBusyState = (
-    await screen.findByTestId('reading-history-container')
-  ).getAttribute('aria-busy');
-  expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
-});
+    const afterFetchingBusyState = (
+      await screen.findByTestId('reading-history-container')
+    ).getAttribute('aria-busy');
+    expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
+  });
 
-it('should show display empty screen when no view history is found', async () => {
-  const emptyHistory = getDefaultHistory([]);
-  const mock = createReadingHistoryMock(emptyHistory);
-  renderComponent([mock]);
-  await waitForNock();
-  await screen.findByText('Your reading history is empty.');
-});
+  it('should show display empty screen when no view history is found', async () => {
+    const emptyHistory = getDefaultHistory([]);
+    const mock = createReadingHistoryMock(emptyHistory);
+    renderComponent([mock]);
+    await waitForNock();
+    await screen.findByText('Your reading history is empty.');
+  });
 
-it('should show display the list of viewing history', async () => {
-  renderComponent();
-  await waitForNock();
-  await screen.findByText('Most Recent Post');
-});
+  it('should show display the list of viewing history', async () => {
+    renderComponent();
+    await waitForNock();
+    await screen.findByText('Most Recent Post');
+  });
 
-it('should show the search bar', async () => {
-  renderComponent();
-  await waitForNock();
-  expect(await screen.findByTestId('searchField')).toBeInTheDocument();
-});
+  it('should show the search bar', async () => {
+    renderComponent();
+    await waitForNock();
+    expect(await screen.findByTestId('searchField')).toBeInTheDocument();
+  });
 
-it('should update query param on enter', async (done) => {
-  renderComponent();
-  await waitForNock();
-  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
-  input.value = 'daily';
-  input.dispatchEvent(new Event('input', { bubbles: true }));
-  setTimeout(async () => {
-    input.dispatchEvent(
-      new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
-    );
-    await waitFor(() =>
-      expect(routerReplace).toBeCalledWith({
-        pathname: '/history',
-        query: { q: 'daily' },
-      }),
-    );
-    done();
-  }, 150);
+  it('should update query param on enter', async (done) => {
+    renderComponent();
+    await waitForNock();
+    const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+    input.value = 'daily';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    setTimeout(async () => {
+      input.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
+      );
+      await waitFor(() =>
+        expect(routerReplace).toBeCalledWith({
+          pathname: '/history',
+          query: { q: 'daily' },
+        }),
+      );
+      done();
+    }, 150);
+  });
 });

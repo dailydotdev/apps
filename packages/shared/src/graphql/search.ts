@@ -1,6 +1,10 @@
 import request, { gql } from 'graphql-request';
 import { apiUrl, graphqlUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
+import { Connection, RequestQueryParams } from './common';
+import { webappUrl } from '../lib/constants';
+
+export const searchPageUrl = `${webappUrl}search`;
 
 export interface SearchChunkError {
   message: string;
@@ -31,6 +35,16 @@ export interface Search {
   id: string;
   createdAt: Date;
   chunks: SearchChunk[];
+}
+
+export interface SearchSession {
+  id: string;
+  prompt: string;
+  createdAt: Date;
+}
+
+export interface SearchHistoryData {
+  history: Connection<SearchSession>;
 }
 
 export const SEARCH_POST_SUGGESTIONS = gql`
@@ -70,11 +84,35 @@ export const SEARCH_SESSION_QUERY = gql`
   }
 `;
 
+export const SEARCH_HISTORY_QUERY = gql`
+  query SearchSessionHistory($after: String, $first: Int) {
+    history: searchSessionHistory(after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      edges {
+        node {
+          id
+          prompt
+          createdAt
+        }
+      }
+    }
+  }
+`;
+
 export const getSearchSession = async (id: string): Promise<Search> => {
   const res = await request(graphqlUrl, SEARCH_SESSION_QUERY, { id });
 
   return res.searchSession;
 };
+
+export const getSearchHistory = async (
+  params: RequestQueryParams,
+): Promise<SearchHistoryData> =>
+  request(graphqlUrl, SEARCH_HISTORY_QUERY, params);
 
 type DeepPartial<T> = T extends unknown
   ? {
@@ -127,6 +165,9 @@ export const updateSearchData = (
 
   return updated;
 };
+
+export const getSearchIdUrl = (id: string): string =>
+  `${searchPageUrl}?id=${id}`;
 
 export const searchQueryUrl = `${apiUrl}/search/query`;
 
