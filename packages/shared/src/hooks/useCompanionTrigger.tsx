@@ -133,6 +133,7 @@ export default function useCompanionTrigger(
       alreadyCompleted,
       customPostClickHandler,
       isExtension,
+      featureEnabled,
       contentScriptGranted,
       gb,
       openModal,
