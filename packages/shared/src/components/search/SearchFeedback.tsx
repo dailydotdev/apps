@@ -5,6 +5,7 @@ import FeedbackIcon from '../icons/Feedback';
 import { ListCardDivider } from '../cards/Card';
 import TrafficLight from '../../svg/TrafficLight';
 import { PageWidgets } from '../utilities';
+import { searchDocs, searchFeedback } from '../../lib/constants';
 
 export const SearchFeedback = (): ReactElement => (
   <PageWidgets
@@ -13,6 +14,10 @@ export const SearchFeedback = (): ReactElement => (
   >
     <WidgetContainer className="flex justify-around p-4">
       <Button
+        tag="a"
+        href={searchFeedback}
+        target="_blank"
+        rel="noopener"
         icon={<FeedbackIcon />}
         className="btn-tertiary"
         buttonSize={ButtonSize.Small}
@@ -21,6 +26,10 @@ export const SearchFeedback = (): ReactElement => (
       </Button>
       <ListCardDivider className="mx-3" />
       <Button
+        tag="a"
+        href={searchDocs}
+        target="_blank"
+        rel="noopener"
         icon={<TrafficLight />}
         className="btn-tertiary"
         buttonSize={ButtonSize.Small}
