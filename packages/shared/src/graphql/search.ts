@@ -13,7 +13,7 @@ export interface SearchChunkError {
 
 export interface SearchChunkSource {
   id: string;
-  title: string;
+  name: string;
   snippet: string;
   url: string;
 }
