@@ -1,5 +1,5 @@
 import request, { gql } from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
+import { apiUrl, graphqlUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
 
 export interface SearchChunkError {
@@ -126,4 +126,17 @@ export const updateSearchData = (
   updated.chunks[0].response = previous.chunks[0].response + chunk.response;
 
   return updated;
+};
+
+export const searchQueryUrl = `${apiUrl}/search/query`;
+
+export const sendSearchQuery = async (
+  query: string,
+  token: string,
+): Promise<EventSource> => {
+  const params = new URLSearchParams({
+    prompt: query,
+    token,
+  });
+  return new EventSource(`${searchQueryUrl}?${params}`);
 };
