@@ -11,7 +11,7 @@ export function SearchSourceItem({
 }: SearchSourceItemProps): ReactElement {
   if (!item) return null;
 
-  const { title, snippet, url } = item;
+  const { name, snippet, url } = item;
 
   return (
     <div className="w-60 laptop:w-full">
@@ -21,7 +21,7 @@ export function SearchSourceItem({
         href={url}
         className="mb-2 typo-callout"
       >
-        {title}
+        {name}
       </ClickableText>
       <p className="line-clamp-4 typo-footnote text-theme-label-tertiary multi-truncate">
         {snippet}
