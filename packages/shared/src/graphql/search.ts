@@ -181,12 +181,15 @@ export const sendSearchQuery = async (
     token,
   });
   const source = new EventSource(`${searchQueryUrl}?${params}`);
-  source.addEventListener('message', (event) => {
+  // source.addEventListener('message', (event) => {
+  //   console.log('from message:', event);
+  // });
+  // source.addEventListener('update', (event) => {
+  //   console.log('from update:', event);
+  // });
+  source.onmessage = (event) => {
     console.log('from message:', event);
-  });
-  source.addEventListener('update', (event) => {
-    console.log('from update:', event);
-  });
+  };
   source.onerror = () => source.close();
 
   return source;
