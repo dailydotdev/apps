@@ -181,7 +181,7 @@ export const sendSearchQuery = async (
     token,
   });
   const source = new EventSource(`${searchQueryUrl}?${params}`);
-  source.onmessage = onMessage;
+  source.addEventListener('message', onMessage);
   source.onerror = () => source.close();
 
   return source;
