@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { AiIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SearchHistoryContainer } from './common';
 
-export function SearchEmpty(): React.ReactElement {
+export function SearchEmpty(): ReactElement {
   return (
     <SearchHistoryContainer className="items-center pt-24">
       <AiIcon className="text-theme-label-tertiary" size={IconSize.XXXLarge} />
