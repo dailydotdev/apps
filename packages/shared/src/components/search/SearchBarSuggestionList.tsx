@@ -24,7 +24,7 @@ export function SearchBarSuggestionList({
     );
   }
 
-  if (suggestions?.length === 0) {
+  if (!suggestions?.length) {
     return (
       <span className="flex flex-row items-center text-theme-label-quaternary">
         <FeedbackIcon />
