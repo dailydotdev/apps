@@ -1,5 +1,5 @@
 import request, { gql } from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
+import { apiUrl, graphqlUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
 import { Connection, RequestQueryParams } from './common';
 import { webappUrl } from '../lib/constants';
@@ -168,3 +168,16 @@ export const updateSearchData = (
 
 export const getSearchIdUrl = (id: string): string =>
   `${searchPageUrl}?id=${id}`;
+
+export const searchQueryUrl = `${apiUrl}/search/query`;
+
+export const sendSearchQuery = async (
+  query: string,
+  token: string,
+): Promise<EventSource> => {
+  const params = new URLSearchParams({
+    prompt: query,
+    token,
+  });
+  return new EventSource(`${searchQueryUrl}?${params}`);
+};

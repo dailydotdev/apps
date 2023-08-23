@@ -21,8 +21,8 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts } from '../../graphql/alerts';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
-import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
+import { Features } from '../../lib/featureManagement';
 
 let features: IFlags;
 let client: QueryClient;
