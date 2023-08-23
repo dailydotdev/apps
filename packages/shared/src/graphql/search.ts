@@ -174,10 +174,15 @@ export const searchQueryUrl = `${apiUrl}/search/query`;
 export const sendSearchQuery = async (
   query: string,
   token: string,
+  onMessage: (event: MessageEvent) => void,
 ): Promise<EventSource> => {
   const params = new URLSearchParams({
     prompt: query,
     token,
   });
-  return new EventSource(`${searchQueryUrl}?${params}`);
+  const source = new EventSource(`${searchQueryUrl}?${params}`);
+  source.onmessage = onMessage;
+  source.onerror = () => source.close();
+
+  return source;
 };
