@@ -79,6 +79,7 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
   const onMessage = useCallback(
     (event: MessageEvent) => {
       try {
+        console.log('getting data: ', event);
         const data: UseChatMessage = JSON.parse(event.data);
 
         switch (data.type) {
