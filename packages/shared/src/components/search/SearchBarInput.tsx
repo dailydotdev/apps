@@ -74,22 +74,13 @@ function SearchBarInputComponent(
     onClick: externalOnClick,
     placeholder = 'Ask anything...',
   } = inputProps;
-  const {
-    inputRef,
-    focused,
-    hasInput,
-    onFocus,
-    onBlur,
-    onInput,
-    focusInput,
-    setInput,
-  } = useInputField(value, valueChanged);
+  const { inputRef, focused, hasInput, onFocus, onBlur, onInput, setInput } =
+    useInputField(value, valueChanged);
   const isTabletAbove = useMedia(
     [tablet.replace('@media ', '')],
     [true],
     false,
   );
-  const { sidebarRendered } = useSidebarRendered();
   const searchHistory = [];
   const progress = 0;
 
@@ -151,7 +142,6 @@ function SearchBarInputComponent(
             className?.field,
             { focused },
           )}
-          onClick={sidebarRendered ? focusInput : () => {}}
           data-testid="searchBar"
           ref={ref}
         >
@@ -225,7 +215,7 @@ function SearchBarInputComponent(
         </BaseField>
       </form>
       <RaisedLabel type={RaisedLabelType.Beta} />
-      {sidebarRendered && showProgress && (
+      {showProgress && (
         <div className="mt-6">
           <SearchProgressBar progress={progress} />
           {(chunk?.status || chunk?.error?.code) && (
