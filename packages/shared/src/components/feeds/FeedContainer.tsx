@@ -20,6 +20,8 @@ import { useFeature } from '../GrowthBookProvider';
 import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -88,6 +90,11 @@ export const FeedContainer = ({
   besideSearch,
   actionButtons,
 }: FeedContainerProps): ReactElement => {
+  const isTabletAbove = useMedia(
+    [tablet.replace('@media ', '')],
+    [true],
+    false,
+  );
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
   const {
@@ -153,7 +160,9 @@ export const FeedContainer = ({
           )}
           {isV1Search && (
             <span className="flex flex-row flex-1 mt-4">
-              <SearchBarSuggestionList className="hidden tablet:flex overflow-hidden flex-1 mr-3" />
+              {isTabletAbove && (
+                <SearchBarSuggestionList className="hidden tablet:flex overflow-hidden flex-1 mr-3" />
+              )}
               {actionButtons && (
                 <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
                   {actionButtons}

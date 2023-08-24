@@ -1,9 +1,10 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
@@ -15,7 +16,11 @@ export function SearchBar({
   chunk,
   ...props
 }: SearchBarProps): ReactElement {
-  const { sidebarRendered } = useSidebarRendered();
+  const isTabletAbove = useMedia(
+    [tablet.replace('@media ', '')],
+    [true],
+    false,
+  );
 
   return (
     <div className={classNames('w-full', className?.container)}>
@@ -24,6 +29,7 @@ export function SearchBar({
         chunk={chunk}
         inputProps={{ id: 'search' }}
         className={{ container: 'max-w-2xl', field: className?.field }}
+        shouldShowPopup
       />
       {chunk?.error?.message && (
         <Alert
@@ -32,7 +38,7 @@ export function SearchBar({
           title={chunk?.error?.message}
         />
       )}
-      {sidebarRendered && (!chunk || chunk?.error?.message) && (
+      {isTabletAbove && (!chunk || chunk?.error?.message) && (
         <SearchBarSuggestionList className={!chunk?.error?.message && 'mt-4'} />
       )}
     </div>

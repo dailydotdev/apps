@@ -4,6 +4,7 @@ import React, {
   InputHTMLAttributes,
   MouseEvent,
   ReactElement,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import {
@@ -24,6 +25,13 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk } from '../../graphql/search';
 import { getSecondsDifference } from '../../lib/dateFormat';
+import useMedia from '../../hooks/useMedia';
+import { tablet } from '../../styles/media';
+import { useAuthContext } from '../../contexts/AuthContext';
+import InteractivePopup, {
+  InteractivePopupPosition,
+} from '../tooltips/InteractivePopup';
+import CloseButton from '../CloseButton';
 
 interface SearchBarClassName {
   container?: string;
@@ -39,6 +47,7 @@ export interface SearchBarInputProps {
   onSubmit?: (event: MouseEvent, input: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   chunk?: SearchChunk;
+  shouldShowPopup?: boolean;
 }
 
 function SearchBarInputComponent(
@@ -50,16 +59,20 @@ function SearchBarInputComponent(
     showProgress = true,
     onSubmit: handleSubmit,
     chunk,
+    shouldShowPopup,
     ...props
   }: SearchBarInputProps,
   ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
+  const { user, showLogin } = useAuthContext();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const {
     readOnly,
     disabled,
     value,
     onFocus: externalOnFocus,
     onBlur: externalOnBlur,
+    onClick: externalOnClick,
     placeholder = 'Ask anything...',
   } = inputProps;
   const {
@@ -72,6 +85,11 @@ function SearchBarInputComponent(
     focusInput,
     setInput,
   } = useInputField(value, valueChanged);
+  const isTabletAbove = useMedia(
+    [tablet.replace('@media ', '')],
+    [true],
+    false,
+  );
   const { sidebarRendered } = useSidebarRendered();
   const searchHistory = [];
   const progress = 0;
@@ -95,8 +113,27 @@ function SearchBarInputComponent(
     event.stopPropagation();
   };
 
+  const onInputClick = () => {
+    if (isTabletAbove || isMobileOpen || !shouldShowPopup) return null;
+
+    if (!user) return showLogin('search input');
+
+    return setIsMobileOpen(true);
+  };
+
+  const isActionable = isTabletAbove || !shouldShowPopup;
+
   return (
     <RaisedLabelContainer className={className?.container}>
+      {isMobileOpen && (
+        <InteractivePopup
+          position={InteractivePopupPosition.Center}
+          className="w-screen h-screen"
+        >
+          <CloseButton onClick={() => setIsMobileOpen(false)} />
+          Test Sample
+        </InteractivePopup>
+      )}
       <BaseField
         {...props}
         className={classNames(
@@ -108,40 +145,37 @@ function SearchBarInputComponent(
         data-testid="searchBar"
         ref={ref}
       >
-        {sidebarRendered && (
-          <AiIcon
-            size={IconSize.Large}
-            className="mr-3 text-theme-label-tertiary"
-          />
-        )}
-        {!sidebarRendered && (
-          <div className="flex-1 text-theme-label-tertiary">{placeholder}</div>
-        )}
-        {sidebarRendered && (
-          <FieldInput
-            {...inputProps}
-            placeholder={placeholder}
-            ref={inputRef}
-            onFocus={(event) => {
-              onFocus();
-              externalOnFocus?.(event);
-            }}
-            onBlur={(event) => {
-              onBlur();
-              externalOnBlur?.(event);
-            }}
-            onInput={onInput}
-            type="primary"
-            autoComplete="off"
-            className={classNames(
-              'flex-1 caret-theme-status-cabbage',
-              getFieldFontColor({ readOnly, disabled, hasInput, focused }),
-            )}
-          />
-        )}
+        <AiIcon
+          size={IconSize.Large}
+          className="mr-3 text-theme-label-tertiary"
+        />
+        <FieldInput
+          {...inputProps}
+          placeholder={placeholder}
+          ref={inputRef}
+          onFocus={(event) => {
+            onFocus();
+            externalOnFocus?.(event);
+          }}
+          onBlur={(event) => {
+            onBlur();
+            externalOnBlur?.(event);
+          }}
+          onClick={(event) => {
+            onInputClick();
+            externalOnClick?.(event);
+          }}
+          onInput={onInput}
+          type="primary"
+          autoComplete="off"
+          className={classNames(
+            'flex-1 caret-theme-status-cabbage',
+            getFieldFontColor({ readOnly, disabled, hasInput, focused }),
+          )}
+        />
 
         <div className="flex gap-3 items-center">
-          {hasInput && (
+          {hasInput && isActionable && (
             <Button
               {...rightButtonProps}
               className="btn-tertiary"
@@ -152,29 +186,31 @@ function SearchBarInputComponent(
               disabled={!hasInput}
             />
           )}
-          {sidebarRendered && (
+          {isActionable && (
             <div className="h-8 border border-theme-divider-quaternary" />
           )}
-          <SimpleTooltip
-            content={
-              searchHistory.length === 0
-                ? 'Your search history is empty'
-                : 'See search history'
-            }
-          >
-            <div>
-              <Button
-                {...rightButtonProps}
-                className="btn-tertiary"
-                buttonSize={ButtonSize.Small}
-                title="Search history"
-                onClick={seeSearchHistory}
-                icon={<TimerIcon />}
-                disabled={searchHistory.length === 0}
-              />
-            </div>
-          </SimpleTooltip>
-          {sidebarRendered && (
+          {isActionable && (
+            <SimpleTooltip
+              content={
+                searchHistory.length === 0
+                  ? 'Your search history is empty'
+                  : 'See search history'
+              }
+            >
+              <div>
+                <Button
+                  {...rightButtonProps}
+                  className="btn-tertiary"
+                  buttonSize={ButtonSize.Small}
+                  title="Search history"
+                  onClick={seeSearchHistory}
+                  icon={<TimerIcon />}
+                  disabled={searchHistory.length === 0}
+                />
+              </div>
+            </SimpleTooltip>
+          )}
+          {isActionable && (
             <SimpleTooltip
               content={!hasInput && 'Enter text to start searching'}
             >
