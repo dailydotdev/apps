@@ -3,6 +3,7 @@ import { browser, ContentScripts } from 'webextension-polyfill-ts';
 import { RequestContentScripts } from '@dailydotdev/shared/src/hooks';
 import { useQuery } from 'react-query';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 
 export const registerBrowserContentScripts =
   (): Promise<ContentScripts.RegisteredContentScript> =>
@@ -40,7 +41,7 @@ export const requestContentScripts: RequestContentScripts = (
 ) => {
   return async () => {
     trackEvent({
-      event_name: 'request content scripts',
+      event_name: AnalyticsEvent.RequestContentScripts,
       extra: JSON.stringify({ origin }),
     });
 
@@ -50,7 +51,7 @@ export const requestContentScripts: RequestContentScripts = (
 
     if (granted) {
       trackEvent({
-        event_name: 'approve content scripts',
+        event_name: AnalyticsEvent.ApproveContentScripts,
         extra: JSON.stringify({ origin }),
       });
       client.setQueryData(contentScriptKey, true);
@@ -59,7 +60,7 @@ export const requestContentScripts: RequestContentScripts = (
       window.open(companionPermissionGrantedLink, '_blank');
     } else {
       trackEvent({
-        event_name: 'decline content scripts',
+        event_name: AnalyticsEvent.DeclineContentScripts,
         extra: JSON.stringify({ origin }),
       });
     }
