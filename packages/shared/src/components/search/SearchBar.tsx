@@ -19,9 +19,12 @@ export function SearchBar({
       <SearchBarInput
         {...props}
         chunk={chunk}
-        inputProps={{ id: 'search' }}
-        className={{ container: 'max-w-2xl', field: className?.field }}
         shouldShowPopup
+        inputProps={{ id: 'search' }}
+        className={{
+          container: 'max-w-full w-[48rem]',
+          field: className?.field,
+        }}
       />
       {chunk?.error?.message && (
         <Alert
