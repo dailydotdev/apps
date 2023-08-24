@@ -4,16 +4,13 @@ import { SearchBarSuggestion } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
 import { getSearchUrl, SearchSession } from '../../graphql/search';
-import classed from '../../lib/classed';
-import { ElementPlaceholder } from '../ElementPlaceholder';
+import { Pill } from '../utilities/loaders';
 
 export interface SearchBarSuggestionListProps {
   className?: string;
   isLoading?: boolean;
   suggestions?: Partial<SearchSession>[];
 }
-
-const Pill = classed(ElementPlaceholder, 'h-8 rounded-12 w-auto');
 
 export function SearchBarSuggestionList({
   className,
