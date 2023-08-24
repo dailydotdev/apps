@@ -67,11 +67,11 @@ const modalKindAndSizeToClassName: Partial<
   },
 };
 export const modalSizeToClassName: Record<ModalSize, string> = {
-  [ModalSize.XSmall]: 'w-[21.25rem]',
-  [ModalSize.Small]: 'w-[26.25rem]',
-  [ModalSize.Medium]: 'w-[35rem]',
+  [ModalSize.XSmall]: '!w-[21.25rem]',
+  [ModalSize.Small]: '!w-[26.25rem]',
+  [ModalSize.Medium]: '!w-[35rem]',
   [ModalSize.Large]: '!w-[42.5rem]',
-  [ModalSize.XLarge]: 'w-[63.75rem]',
+  [ModalSize.XLarge]: '!w-[63.75rem]',
 };
 
 export function Modal({
