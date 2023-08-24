@@ -149,6 +149,7 @@ export const FeedContainer = ({
                 }}
                 showProgress={false}
                 onSubmit={onSearch}
+                shouldShowPopup
               />
               {besideSearch}
             </span>
