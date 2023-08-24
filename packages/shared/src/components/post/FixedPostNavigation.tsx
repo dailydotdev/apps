@@ -24,7 +24,7 @@ function FixedPostNavigation({
       post={post}
       className={{
         container: classNames(
-          'fixed z-3 bg-theme-bg-secondary border border-theme-divider-tertiary py-4 px-6 top-0 ml-0',
+          'fixed z-3 bg-theme-bg-secondary border border-theme-divider-tertiary py-4 px-6 top-0 ml-0 w-full',
           'laptop:left-[unset] max-w-full',
           className?.container,
         ),
