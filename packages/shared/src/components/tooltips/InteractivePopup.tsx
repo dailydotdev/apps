@@ -50,7 +50,7 @@ function InteractivePopup({
     <Portal>
       <div
         className={classNames(
-          'fixed z-modal bg-theme-bg-primary rounded-16 overflow-hidden',
+          'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden',
           className,
           classes,
         )}
