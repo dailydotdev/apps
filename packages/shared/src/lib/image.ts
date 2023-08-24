@@ -2,11 +2,11 @@ export const cloudinary = {
   feed: {
     bg: {
       laptop:
-        'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/Desktop-ask-bg.png',
+        'https://daily-now-res.cloudinary.com/image/upload/s--O8GDhJO8--/f_auto/v1692271285/public/Desktop-ask-bg',
       tablet:
-        'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/Tablet-ask-bg.png',
+        'https://daily-now-res.cloudinary.com/image/upload/s--1kZ8h30a--/f_auto/v1692271284/public/Tablet-ask-bg',
       mobile:
-        'https://daily-now-res.cloudinary.com/image/upload/v1665224467/public/Mobile-ask-bg.png',
+        'https://daily-now-res.cloudinary.com/image/upload/s--TiBUzfrQ--/f_auto/v1692271284/public/Mobile-ask-bg',
     },
   },
   post: {

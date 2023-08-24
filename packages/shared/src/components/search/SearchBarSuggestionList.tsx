@@ -1,34 +1,35 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import {
-  SearchBarSuggestion,
-  SearchBarSuggestionProps,
-} from './SearchBarSuggestion';
+import { SearchBarSuggestion } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
+import { getSearchIdUrl, SearchSession } from '../../graphql/search';
 
 interface SearchBarSuggestionListProps {
   className?: string;
+  suggestions?: SearchSession[];
 }
 
 export function SearchBarSuggestionList({
   className,
+  suggestions,
 }: SearchBarSuggestionListProps): React.ReactElement {
   const { user, showLogin } = useContext(AuthContext);
-  const suggestions: SearchBarSuggestionProps[] = [];
 
   if (!user) {
-    suggestions.push({
-      suggestion:
-        'Sign up and read your first post to get search recommendations',
-      onClick: () => showLogin('search bar suggestion'),
-    });
-  } else if (suggestions?.length === 0) {
+    return (
+      <SearchBarSuggestion onClick={() => showLogin('search bar suggestion')}>
+        Sign up and read your first post to get search recommendations
+      </SearchBarSuggestion>
+    );
+  }
+
+  if (!suggestions?.length) {
     return (
       <span className="flex flex-row items-center text-theme-label-quaternary">
         <FeedbackIcon />
         <span className="ml-2 typo-footnote">
-          Read and upvote your first post to get search recommendations
+          Start getting search recommendations by upvoting several posts
         </span>
       </span>
     );
@@ -36,12 +37,10 @@ export function SearchBarSuggestionList({
 
   return (
     <div className={classNames('flex flex-wrap gap-4', className)}>
-      {suggestions.map((suggestion) => (
-        <SearchBarSuggestion
-          key={suggestion.suggestion}
-          suggestion={suggestion.suggestion}
-          onClick={suggestion.onClick}
-        />
+      {suggestions.map(({ id, prompt }) => (
+        <SearchBarSuggestion key={prompt} tag="a" href={getSearchIdUrl(id)}>
+          {prompt}
+        </SearchBarSuggestion>
       ))}
     </div>
   );

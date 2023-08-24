@@ -3,13 +3,9 @@ import classNames from 'classnames';
 import XIcon from './icons/MiniClose';
 import { Button, ButtonSize } from './buttons/Button';
 import { isTesting } from '../lib/constants';
-import { BannerCustomTheme, BannerData, BannerTheme } from '../graphql/banner';
+import { BannerCustomTheme, BannerTheme } from '../graphql/banner';
 import { Theme } from './utilities';
-
-interface PromotionalBannerProps {
-  bannerData: BannerData;
-  setLastSeen: (value: Date) => Promise<void>;
-}
+import { useBanner } from '../hooks/useBanner';
 
 const classNamesByTheme: Record<BannerTheme, string[]> = {
   [BannerCustomTheme.CabbageOnion]: [
@@ -65,20 +61,18 @@ const classNamesByTheme: Record<BannerTheme, string[]> = {
   ],
 };
 
-export default function PromotionalBanner({
-  bannerData,
-  setLastSeen,
-}: PromotionalBannerProps): ReactElement {
+export default function PromotionalBanner(): ReactElement {
+  const { latestBanner: banner, dismiss } = useBanner();
+
   // Disable this component in Jest environment
   if (isTesting) {
     return <></>;
   }
 
-  if (!bannerData?.banner) {
+  if (!banner) {
     return <></>;
   }
 
-  const { banner } = bannerData;
   const [container, text, button] =
     classNamesByTheme[banner.theme] ??
     classNamesByTheme[BannerCustomTheme.CabbageOnion];
@@ -107,9 +101,7 @@ export default function PromotionalBanner({
         className="laptop:inset-y-0 top-2 right-2 laptop:my-auto btn-tertiary"
         style={{ position: 'absolute' }}
         icon={<XIcon />}
-        onClick={() =>
-          setLastSeen(new Date(new Date(banner.timestamp).getTime() + 60_000))
-        }
+        onClick={dismiss}
       />
     </div>
   );

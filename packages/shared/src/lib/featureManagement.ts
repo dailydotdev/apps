@@ -30,7 +30,8 @@ export class Features<T extends FeatureValue = string> {
     ],
   );
 
-  static readonly Search = new Features('search', SearchExperiment.Control);
+  // TODO: Revert to Control value before release
+  static readonly Search = new Features('search', SearchExperiment.V1);
 
   static readonly ShowHiring = new Features('show_hiring');
 

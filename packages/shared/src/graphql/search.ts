@@ -1,6 +1,10 @@
 import request, { gql } from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
+import { apiUrl, graphqlUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
+import { Connection, RequestQueryParams } from './common';
+import { webappUrl } from '../lib/constants';
+
+export const searchPageUrl = `${webappUrl}search`;
 
 export interface SearchChunkError {
   message: string;
@@ -9,7 +13,7 @@ export interface SearchChunkError {
 
 export interface SearchChunkSource {
   id: string;
-  title: string;
+  name: string;
   snippet: string;
   url: string;
 }
@@ -31,6 +35,16 @@ export interface Search {
   id: string;
   createdAt: Date;
   chunks: SearchChunk[];
+}
+
+export interface SearchSession {
+  id: string;
+  prompt: string;
+  createdAt: Date;
+}
+
+export interface SearchHistoryData {
+  history: Connection<SearchSession>;
 }
 
 export const SEARCH_POST_SUGGESTIONS = gql`
@@ -70,11 +84,52 @@ export const SEARCH_SESSION_QUERY = gql`
   }
 `;
 
+export const SEARCH_HISTORY_QUERY = gql`
+  query SearchSessionHistory($after: String, $first: Int) {
+    history: searchSessionHistory(after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      edges {
+        node {
+          id
+          prompt
+          createdAt
+        }
+      }
+    }
+  }
+`;
+
+export const SEARCH_FEEDBACK_MUTATION = gql`
+  mutation SearchResultFeedback($chunkId: String!, $value: Int!) {
+    searchResultFeedback(chunkId: $chunkId, value: $value) {
+      _
+    }
+  }
+`;
+
+interface SearchFeedbackProps {
+  chunkId: string;
+  value: number;
+}
+
+export const sendSearchFeedback = (
+  params: SearchFeedbackProps,
+): Promise<void> => request(graphqlUrl, SEARCH_FEEDBACK_MUTATION, params);
+
 export const getSearchSession = async (id: string): Promise<Search> => {
   const res = await request(graphqlUrl, SEARCH_SESSION_QUERY, { id });
 
   return res.searchSession;
 };
+
+export const getSearchHistory = async (
+  params: RequestQueryParams,
+): Promise<SearchHistoryData> =>
+  request(graphqlUrl, SEARCH_HISTORY_QUERY, params);
 
 type DeepPartial<T> = T extends unknown
   ? {
@@ -126,4 +181,21 @@ export const updateSearchData = (
   updated.chunks[0].response = previous.chunks[0].response + chunk.response;
 
   return updated;
+};
+
+export const getSearchIdUrl = (id: string): string =>
+  `${searchPageUrl}?id=${id}`;
+
+export const searchQueryUrl = `${apiUrl}/search/query`;
+
+export const sendSearchQuery = async (
+  query: string,
+  token: string,
+): Promise<EventSource> => {
+  const params = new URLSearchParams({
+    prompt: query,
+    token,
+  });
+
+  return new EventSource(`${searchQueryUrl}?${params}`);
 };

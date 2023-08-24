@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "3.26.1",
+  "version": "3.26.2",
   "scripts": {
     "dev:chrome": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
     "dev:firefox": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=firefox webpack --watch",
@@ -119,7 +119,7 @@
     "stylelint": "^13.12.0",
     "stylelint-config-recommended": "^4.0.0",
     "subscriptions-transport-ws": "^0.9.19",
-    "tailwindcss": "^3.0.24",
+    "tailwindcss": "^3.3.3",
     "terser-webpack-plugin": "^4.2.3",
     "ts-jest": "^26.5.4",
     "typescript": "^4.6.4",

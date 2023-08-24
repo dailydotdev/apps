@@ -232,7 +232,7 @@ function SearchBarInputComponent(
       {sidebarRendered && showProgress && (
         <div className="mt-6">
           <SearchProgressBar progress={progress} />
-          {((progress > 0 && progress < 100) || chunk?.error?.code) && (
+          {(chunk?.status || chunk?.error?.code) && (
             <div className="mt-2 typo-callout text-theme-label-tertiary">
               {chunk?.error?.code || chunk?.status}
             </div>

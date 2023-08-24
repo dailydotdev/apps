@@ -59,7 +59,7 @@ export const SearchSourceList = ({
             isSourcesOpen ? 'flex' : 'hidden laptop:flex',
           )}
         >
-          {isLoading ? (
+          {isLoading && !sources?.length ? (
             <PlaceholderSearchSource />
           ) : (
             paginated.map((source) => (
