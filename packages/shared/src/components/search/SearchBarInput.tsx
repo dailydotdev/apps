@@ -20,7 +20,6 @@ import { getFieldFontColor } from '../fields/BaseFieldContainer';
 import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
 import CloseIcon from '../icons/MiniClose';
 import TimerIcon from '../icons/Timer';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { useInputField } from '../../hooks/useInputField';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SearchProgressBar } from './SearchProgressBar';
@@ -31,6 +30,7 @@ import { tablet } from '../../styles/media';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SearchSubmitButton } from './SearchSubmitButton';
 import { MobileSearch } from './MobileSearch';
+import { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
 
 interface SearchBarClassName {
   container?: string;
@@ -47,6 +47,7 @@ export interface SearchBarInputProps {
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   chunk?: SearchChunk;
   shouldShowPopup?: boolean;
+  suggestionsProps: SearchBarSuggestionListProps;
 }
 
 function SearchBarInputComponent(
@@ -59,6 +60,7 @@ function SearchBarInputComponent(
     onSubmit: handleSubmit,
     chunk,
     shouldShowPopup,
+    suggestionsProps,
     ...props
   }: SearchBarInputProps,
   ref: ForwardedRef<HTMLDivElement>,
@@ -130,6 +132,7 @@ function SearchBarInputComponent(
       <form onSubmit={onSubmit}>
         {isMobileOpen && (
           <MobileSearch
+            suggestionsProps={suggestionsProps}
             input={inputRef.current.value}
             onClose={onPopupClose}
             onSubmit={onMobileSubmit}

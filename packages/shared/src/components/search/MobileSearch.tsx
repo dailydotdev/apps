@@ -7,7 +7,6 @@ import React, {
   useState,
   FormEvent,
 } from 'react';
-import { useQuery } from 'react-query';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
@@ -15,14 +14,15 @@ import { cloudinary } from '../../lib/image';
 import CloseButton from '../CloseButton';
 import { Button } from '../buttons/Button';
 import { SearchSubmitButton } from './SearchSubmitButton';
-import { SearchBarSuggestionList } from './SearchBarSuggestionList';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { getSearchSuggestions } from '../../graphql/search';
-import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  SearchBarSuggestionList,
+  SearchBarSuggestionListProps,
+} from './SearchBarSuggestionList';
 import { SearchHistory } from './SearchHistory';
 
 interface MobileSearchProps {
   input: string;
+  suggestionsProps: SearchBarSuggestionListProps;
   onSubmit(event: FormEvent, value: string): void;
   onClose(event: MouseEvent, value: string): void;
 }
@@ -31,14 +31,10 @@ export function MobileSearch({
   input: initialInput,
   onClose,
   onSubmit,
+  suggestionsProps,
 }: MobileSearchProps): ReactElement {
-  const { user } = useAuthContext();
   const [input, setInput] = useState(initialInput);
   const inputRef = useRef<HTMLInputElement>();
-  const { data, isLoading } = useQuery(
-    generateQueryKey(RequestKey.SearchHistory, user),
-    getSearchSuggestions,
-  );
 
   const onSubmitForm: FormEventHandler = (event) => {
     event.preventDefault();
@@ -88,12 +84,11 @@ export function MobileSearch({
           onInput={(e) => setInput(e.currentTarget.value)}
         />
       </form>
-      <div className="flex flex-col p-4">
-        <SearchBarSuggestionList
-          suggestions={data?.map(({ question }) => ({ prompt: question }))}
-          isLoading={isLoading}
-        />
-      </div>
+      {suggestionsProps && (
+        <div className="flex flex-col p-4">
+          <SearchBarSuggestionList {...suggestionsProps} />
+        </div>
+      )}
       <SearchHistory
         className="!p-4"
         showEmptyState={false}

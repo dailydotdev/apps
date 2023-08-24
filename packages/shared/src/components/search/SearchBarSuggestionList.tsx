@@ -7,7 +7,7 @@ import { getSearchUrl, SearchSession } from '../../graphql/search';
 import classed from '../../lib/classed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
-interface SearchBarSuggestionListProps {
+export interface SearchBarSuggestionListProps {
   className?: string;
   isLoading?: boolean;
   suggestions?: Partial<SearchSession>[];

@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
+import { useSearchSuggestions } from '../../hooks/search';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
@@ -14,6 +15,8 @@ export function SearchBar({
   chunk,
   ...props
 }: SearchBarProps): ReactElement {
+  const suggestionsProps = useSearchSuggestions();
+
   return (
     <div className={classNames('w-full', className?.container)}>
       <SearchBarInput
@@ -25,6 +28,7 @@ export function SearchBar({
           container: 'max-w-full w-[48rem]',
           field: className?.field,
         }}
+        suggestionsProps={suggestionsProps}
       />
       {chunk?.error?.message && (
         <Alert
@@ -35,6 +39,7 @@ export function SearchBar({
       )}
       {(!chunk || chunk?.error?.message) && (
         <SearchBarSuggestionList
+          {...suggestionsProps}
           className={classNames(
             !chunk?.error?.message && 'mt-4',
             'hidden tablet:flex',
