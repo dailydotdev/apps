@@ -1,4 +1,11 @@
-import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { QueryKey, useQuery, useQueryClient } from 'react-query';
 import {
   getSearchSession,
@@ -15,6 +22,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 
 interface UseChatProps {
   id?: string;
+  query?: string;
 }
 
 enum UseChatMessageType {
@@ -55,13 +63,16 @@ interface TokenPayload {
   token: string;
 }
 
-export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
+export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
   const [prompt, setPrompt] = useState<string | undefined>();
   const id = idFromProps ?? 'new';
-  const idQueryKey = generateQueryKey(RequestKey.Search, user, id);
+  const idQueryKey = useMemo(
+    () => generateQueryKey(RequestKey.Search, user, id),
+    [user, id],
+  );
   const { data: search, isLoading: isLoadingSession } = useQuery(
     idQueryKey,
     () => getSearchSession(idFromProps),
@@ -159,6 +170,16 @@ export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!query) return;
+    setPrompt(query); // running twice on render due to deps - though it is required for us to have it most updated
+    setTimeout(() => {
+      if (sourceRef.current) return;
+
+      executePrompt(query);
+    });
+  }, [query, executePrompt]);
 
   return {
     queryKey: idQueryKey,

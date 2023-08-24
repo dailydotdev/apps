@@ -61,7 +61,10 @@ export function MobileSearch({
       />
       <form className="flex flex-col" onSubmit={onSubmitForm}>
         <span className="flex z-1 flex-row gap-4 px-2">
-          <CloseButton onClick={(event) => onClose(event, input)} />
+          <CloseButton
+            type="button"
+            onClick={(event) => onClose(event, input)}
+          />
           <Button
             type="button"
             className="ml-auto btn-tertiary"
