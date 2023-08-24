@@ -29,6 +29,7 @@ export interface SearchChunk {
   feedback: number;
   sources: SearchChunkSource[];
   steps?: number;
+  progress?: number;
   status?: string;
 }
 
@@ -183,6 +184,7 @@ export const initializeSearchSession = ({
         sources: [],
         status,
         steps,
+        progress: 0,
       },
     ],
   };
@@ -198,6 +200,14 @@ export const updateSearchData = (
     ...previous,
     chunks: [{ ...previous.chunks[0], ...chunk }],
   };
+
+  if (chunk.status) {
+    updated.chunks[0].progress += 1;
+  }
+
+  if (chunk.completedAt) {
+    updated.chunks[0].progress = updated.chunks[0].steps;
+  }
 
   if (isNullOrUndefined(chunk.response)) return updated;
 
