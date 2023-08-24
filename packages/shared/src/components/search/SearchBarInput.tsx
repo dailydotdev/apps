@@ -100,13 +100,16 @@ function SearchBarInputComponent(
 
   const onSubmit = (event: FormEvent, input?: string): void => {
     event.stopPropagation();
+
+    if (!user) return showLogin('search input');
+
     const finalValue = input ?? inputRef.current.value;
 
     if (handleSubmit) {
       handleSubmit(event, finalValue);
     }
 
-    setInput(finalValue);
+    return setInput(finalValue);
   };
 
   const seeSearchHistory = (event: MouseEvent): void => {
