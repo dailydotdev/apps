@@ -23,7 +23,10 @@ export function SearchBar({
         {...props}
         chunk={chunk}
         inputProps={{ id: 'search' }}
-        className={{ container: 'max-w-2xl', field: className?.field }}
+        className={{
+          container: 'max-w-full w-[48rem]',
+          field: className?.field,
+        }}
       />
       {chunk?.error?.message && (
         <Alert
