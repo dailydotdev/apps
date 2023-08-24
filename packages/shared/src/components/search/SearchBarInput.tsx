@@ -1,4 +1,5 @@
 import React, {
+  FormEvent,
   ForwardedRef,
   forwardRef,
   InputHTMLAttributes,
@@ -13,7 +14,7 @@ import {
   RaisedLabelType,
 } from '../cards/RaisedLabel';
 import { BaseField, FieldInput } from '../fields/common';
-import { AiIcon, SendAirplaneIcon } from '../icons';
+import { AiIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
 import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
@@ -28,10 +29,8 @@ import { getSecondsDifference } from '../../lib/dateFormat';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
 import { useAuthContext } from '../../contexts/AuthContext';
-import InteractivePopup, {
-  InteractivePopupPosition,
-} from '../tooltips/InteractivePopup';
-import CloseButton from '../CloseButton';
+import { SearchSubmitButton } from './SearchSubmitButton';
+import { MobileSearch } from './MobileSearch';
 
 interface SearchBarClassName {
   container?: string;
@@ -44,7 +43,7 @@ export interface SearchBarInputProps {
   rightButtonProps?: ButtonProps<'button'> | false;
   showProgress?: boolean;
   className?: SearchBarClassName;
-  onSubmit?: (event: MouseEvent, input: string) => void;
+  onSubmit?: (event: FormEvent, input: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   chunk?: SearchChunk;
   shouldShowPopup?: boolean;
@@ -99,14 +98,15 @@ function SearchBarInputComponent(
     setInput('');
   };
 
-  const onSubmit = (event: MouseEvent): void => {
+  const onSubmit = (event: FormEvent, input?: string): void => {
     event.stopPropagation();
+    const finalValue = input ?? inputRef.current.value;
 
     if (handleSubmit) {
-      handleSubmit(event, inputRef.current.value);
+      handleSubmit(event, finalValue);
     }
 
-    setInput(null);
+    setInput(finalValue);
   };
 
   const seeSearchHistory = (event: MouseEvent): void => {
@@ -121,75 +121,79 @@ function SearchBarInputComponent(
     return setIsMobileOpen(true);
   };
 
-  const isActionable = isTabletAbove || !shouldShowPopup;
+  const onMobileSubmit = (event: FormEvent, mobileInput: string) => {
+    setIsMobileOpen(false);
+    onSubmit(event, mobileInput);
+  };
+
+  const onPopupClose = (event: MouseEvent, mobileInput: string) => {
+    setInput(mobileInput);
+    setIsMobileOpen(false);
+  };
 
   return (
     <RaisedLabelContainer className={className?.container}>
-      {isMobileOpen && (
-        <InteractivePopup
-          position={InteractivePopupPosition.Center}
-          className="w-screen h-screen"
-        >
-          <CloseButton onClick={() => setIsMobileOpen(false)} />
-          Test Sample
-        </InteractivePopup>
-      )}
-      <BaseField
-        {...props}
-        className={classNames(
-          'relative items-center px-3 h-16 rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary',
-          className?.field,
-          { focused },
+      <form onSubmit={onSubmit}>
+        {isMobileOpen && (
+          <MobileSearch
+            input={inputRef.current.value}
+            onClose={onPopupClose}
+            onSubmit={onMobileSubmit}
+          />
         )}
-        onClick={sidebarRendered ? focusInput : () => {}}
-        data-testid="searchBar"
-        ref={ref}
-      >
-        <AiIcon
-          size={IconSize.Large}
-          className="mr-3 text-theme-label-tertiary"
-        />
-        <FieldInput
-          {...inputProps}
-          placeholder={placeholder}
-          ref={inputRef}
-          onFocus={(event) => {
-            onFocus();
-            externalOnFocus?.(event);
-          }}
-          onBlur={(event) => {
-            onBlur();
-            externalOnBlur?.(event);
-          }}
-          onClick={(event) => {
-            onInputClick();
-            externalOnClick?.(event);
-          }}
-          onInput={onInput}
-          type="primary"
-          autoComplete="off"
+        <BaseField
+          {...props}
           className={classNames(
-            'flex-1 caret-theme-status-cabbage',
-            getFieldFontColor({ readOnly, disabled, hasInput, focused }),
+            'relative items-center px-3 h-16 rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary',
+            className?.field,
+            { focused },
           )}
-        />
+          onClick={sidebarRendered ? focusInput : () => {}}
+          data-testid="searchBar"
+          ref={ref}
+        >
+          <AiIcon
+            size={IconSize.Large}
+            className="mr-3 text-theme-label-tertiary"
+          />
+          <FieldInput
+            {...inputProps}
+            placeholder={placeholder}
+            ref={inputRef}
+            onFocus={(event) => {
+              onFocus();
+              externalOnFocus?.(event);
+            }}
+            onBlur={(event) => {
+              onBlur();
+              externalOnBlur?.(event);
+            }}
+            onClick={(event) => {
+              onInputClick();
+              externalOnClick?.(event);
+            }}
+            onInput={onInput}
+            type="primary"
+            autoComplete="off"
+            className={classNames(
+              'flex-1 caret-theme-status-cabbage',
+              getFieldFontColor({ readOnly, disabled, hasInput, focused }),
+            )}
+          />
 
-        <div className="flex gap-3 items-center">
-          {hasInput && isActionable && (
-            <Button
-              {...rightButtonProps}
-              className="btn-tertiary"
-              buttonSize={ButtonSize.Small}
-              title="Clear query"
-              onClick={onClearClick}
-              icon={<CloseIcon />}
-              disabled={!hasInput}
-            />
-          )}
-          {isActionable && (
+          <div className="hidden tablet:flex gap-3 items-center">
+            {hasInput && (
+              <Button
+                {...rightButtonProps}
+                className="btn-tertiary"
+                buttonSize={ButtonSize.Small}
+                title="Clear query"
+                onClick={onClearClick}
+                icon={<CloseIcon />}
+                disabled={!hasInput}
+              />
+            )}
             <div className="h-8 border border-theme-divider-quaternary" />
-          )}
-          {isActionable && (
             <SimpleTooltip
               content={
                 searchHistory.length === 0
@@ -209,25 +213,14 @@ function SearchBarInputComponent(
                 />
               </div>
             </SimpleTooltip>
-          )}
-          {isActionable && (
-            <SimpleTooltip
-              content={!hasInput && 'Enter text to start searching'}
-            >
-              <div>
-                <Button
-                  {...rightButtonProps}
-                  className="btn-primary"
-                  title="Submit"
-                  onClick={onSubmit}
-                  icon={<SendAirplaneIcon size={IconSize.Medium} />}
-                  disabled={!hasInput}
-                />
-              </div>
-            </SimpleTooltip>
-          )}
-        </div>
-      </BaseField>
+            <SearchSubmitButton
+              tooltipProps={{
+                content: !hasInput && 'Enter text to start searching',
+              }}
+            />
+          </div>
+        </BaseField>
+      </form>
       <RaisedLabel type={RaisedLabelType.Beta} />
       {sidebarRendered && showProgress && (
         <div className="mt-6">

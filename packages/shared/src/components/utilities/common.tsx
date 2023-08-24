@@ -210,3 +210,7 @@ export const getContextBottomPosition = (
 
   return { x: right, y: bottom + 4 };
 };
+
+export interface WithClassNameProps {
+  className?: string;
+}

@@ -3,8 +3,6 @@ import classNames from 'classnames';
 import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
-import useMedia from '../../hooks/useMedia';
-import { tablet } from '../../styles/media';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
@@ -16,12 +14,6 @@ export function SearchBar({
   chunk,
   ...props
 }: SearchBarProps): ReactElement {
-  const isTabletAbove = useMedia(
-    [tablet.replace('@media ', '')],
-    [true],
-    false,
-  );
-
   return (
     <div className={classNames('w-full', className?.container)}>
       <SearchBarInput
@@ -38,8 +30,13 @@ export function SearchBar({
           title={chunk?.error?.message}
         />
       )}
-      {isTabletAbove && (!chunk || chunk?.error?.message) && (
-        <SearchBarSuggestionList className={!chunk?.error?.message && 'mt-4'} />
+      {(!chunk || chunk?.error?.message) && (
+        <SearchBarSuggestionList
+          className={classNames(
+            !chunk?.error?.message && 'mt-4',
+            'hidden tablet:flex',
+          )}
+        />
       )}
     </div>
   );
