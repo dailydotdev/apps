@@ -6,6 +6,9 @@ import PlayIcon from '../icons/Play';
 import SettingsIcon from '../icons/Settings';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
+import { useFeature } from '../GrowthBookProvider';
+import { Features } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
 
 interface ManageSectionProps extends SectionCommonProps {
   isDndActive?: boolean;
@@ -23,6 +26,7 @@ export function ManageSection({
   onShowSettings,
   ...props
 }: ManageSectionProps): ReactElement {
+  const searchValue = useFeature(Features.Search);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const manageMenuItems: SidebarMenuItem[] = [
     {
@@ -38,7 +42,10 @@ export function ManageSection({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <EyeIcon secondary={active} />} />
       ),
-      title: 'Reading history',
+      title:
+        searchValue === SearchExperiment.Control
+          ? 'Reading history'
+          : 'History',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}history`,
       requiresLogin: true,
     },
