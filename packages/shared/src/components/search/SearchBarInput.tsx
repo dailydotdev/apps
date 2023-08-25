@@ -24,7 +24,6 @@ import { useInputField } from '../../hooks/useInputField';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk } from '../../graphql/search';
-import { getSecondsDifference } from '../../lib/dateFormat';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -223,12 +222,6 @@ function SearchBarInputComponent(
           {(chunk?.status || chunk?.error?.code) && (
             <div className="mt-2 typo-callout text-theme-label-tertiary">
               {chunk?.error?.code || chunk?.status}
-            </div>
-          )}
-          {chunk?.completedAt && chunk?.createdAt && (
-            <div className="mt-2 typo-callout text-theme-label-tertiary">
-              Done! {getSecondsDifference(chunk.createdAt, chunk.completedAt)}{' '}
-              seconds.
             </div>
           )}
         </div>
