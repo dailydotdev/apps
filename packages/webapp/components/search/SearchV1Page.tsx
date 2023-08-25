@@ -12,8 +12,8 @@ import { getLayout as getMainLayout } from '../layouts/MainLayout';
 const SearchPage = (): ReactElement => {
   const router = useRouter();
   const { data, queryKey, handleSubmit, isLoading } = useChat({
-    id: router?.query?.id?.toString(),
-    query: router?.query?.q?.toString(),
+    id: router?.query?.id as string,
+    query: router?.query?.q as string,
   });
   const content = data?.chunks?.[0]?.response || '';
 
