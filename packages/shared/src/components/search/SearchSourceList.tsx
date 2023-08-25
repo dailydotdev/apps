@@ -33,7 +33,7 @@ export const SearchSourceList = ({
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div
           className={classNames(
-            'flex justify-between items-center py-1.5 laptop:py-4 px-4 pb-0 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
+            'flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:!pb-0 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
             isSourcesOpen ? 'rounded-t-16' : 'rounded-16',
           )}
         >
