@@ -25,7 +25,7 @@ export function SearchHistoryButton(): ReactElement {
   const { onMenuClick, onHide } = useContextMenu({ id: contextMenuId });
 
   const getMessage = () => {
-    if (isLoading) return 'Loading your search history...';
+    if (isLoading) return 'Loading your search queries...';
 
     return nodes.length === 0
       ? 'Your search history is empty'
