@@ -57,6 +57,7 @@ interface UseChat {
 interface CreatePayload {
   id: string;
   steps: number;
+  chunk_id: string;
 }
 
 interface TokenPayload {

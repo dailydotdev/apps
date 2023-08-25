@@ -119,6 +119,24 @@ function SearchBarInputComponent(
     setIsMobileOpen(false);
   };
 
+  const onInputClick = () => {
+    if (isTabletAbove || isMobileOpen || !shouldShowPopup) return null;
+
+    if (!user) return showLogin(LoginTrigger.SearchInput);
+
+    return setIsMobileOpen(true);
+  };
+
+  const onMobileSubmit = (event: FormEvent, mobileInput: string) => {
+    setIsMobileOpen(false);
+    onSubmit(event, mobileInput);
+  };
+
+  const onPopupClose = (event: MouseEvent, mobileInput: string) => {
+    setInput(mobileInput);
+    setIsMobileOpen(false);
+  };
+
   return (
     <RaisedLabelContainer className={className?.container}>
       {isMobileOpen && (
