@@ -162,6 +162,7 @@ type DeepPartial<T> = T extends unknown
   : T;
 
 interface InitializePayload extends Pick<Search, 'id' | 'createdAt'> {
+  chunk_id: string;
   steps: number;
   status: string;
   prompt: string;
@@ -177,7 +178,7 @@ export const initializeSearchSession = ({
     ...param,
     chunks: [
       {
-        id: 'chunk id', // currently unsupported, setting this manually shouldn't be a concern
+        id: param.chunk_id,
         prompt,
         response: '',
         createdAt: param.createdAt,
