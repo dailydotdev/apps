@@ -59,16 +59,18 @@ export function SearchResult({
           <SearchMessage {...searchMessageProps} content={chunk.response} />
           <div className="flex pt-4">
             <Button
-              className="btn-tertiary"
+              className="btn-tertiary-avocado"
               iconOnly
+              pressed={chunk.feedback === 1}
               icon={<UpvoteIcon secondary={chunk.feedback === 1} />}
               buttonSize={ButtonSize.Small}
               onClick={() => sendFeedback(chunk.feedback === 1 ? 0 : 1)}
               disabled={isInProgress}
             />
             <Button
-              className="btn-tertiary"
+              className="btn-tertiary-ketchup"
               iconOnly
+              pressed={chunk.feedback === -1}
               icon={<DownvoteIcon secondary={chunk.feedback === -1} />}
               buttonSize={ButtonSize.Small}
               onClick={() => sendFeedback(chunk.feedback === -1 ? 0 : -1)}
