@@ -11,7 +11,7 @@ import { Button, ButtonSize } from '../buttons/Button';
 import { useSearchHistory } from '../../hooks/search';
 import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import useContextMenu from '../../hooks/useContextMenu';
-import { getSearchUrl, searchPageUrl } from '../../graphql/search';
+import { getSearchUrl } from '../../graphql/search';
 
 const contextMenuId = 'search-history-input';
 
