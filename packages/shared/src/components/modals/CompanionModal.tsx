@@ -41,7 +41,7 @@ export default function CompanionModal({
       kind={Modal.Kind.FlexibleCenter}
       size={size}
     >
-      <Modal.Body className={classNames('p-0', { 'min-h-[640px]': !loaded })}>
+      <Modal.Body className="p-0">
         {isTablet && (
           // eslint-disable-next-line jsx-a11y/media-has-caption
           <video
@@ -60,7 +60,9 @@ export default function CompanionModal({
         {!isTablet && (
           // eslint-disable-next-line jsx-a11y/media-has-caption
           <video
-            className="hidden tablet:block rounded-16 w-fit"
+            className={classNames('hidden tablet:block rounded-16 w-fit', {
+              'min-h-[40rem]': !loaded,
+            })}
             poster={cloudinary.companion.videoThumbnailDesktop}
             loop
             autoPlay
