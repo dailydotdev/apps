@@ -9,6 +9,7 @@ import { SearchSourceItem } from './SearchSourceItem';
 import { SearchChunkSource } from '../../graphql/search';
 import { PaginationActions } from '../pagination';
 import { usePagination } from '../../hooks/utils';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
@@ -20,6 +21,7 @@ export const SearchSourceList = ({
   isLoading,
 }: SearchSourceListProps): ReactElement => {
   const [isSourcesOpen, setIsSourcesOpen] = useState(false);
+  const { sidebarRendered } = useSidebarRendered();
   const { paginated, ...pagination } = usePagination({
     items: sources,
     limit: 3,
@@ -62,7 +64,7 @@ export const SearchSourceList = ({
           {isLoading && !sources?.length ? (
             <PlaceholderSearchSource />
           ) : (
-            paginated.map((source) => (
+            (sidebarRendered ? paginated : sources).map((source) => (
               <SearchSourceItem key={source.id} item={source} />
             ))
           )}
