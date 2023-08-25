@@ -143,25 +143,28 @@ const RenderMarkdown = ({
 
           return (
             <>
-              <div className="flex justify-between py-2 px-5 bg-theme-active align-center">
-                <span className="inline leading-8 text-theme-label-tertiary">
-                  {language}
-                </span>
-                <Button
-                  className="btn-tertiary"
-                  icon={<CopyIcon />}
-                  disabled={copying}
-                  buttonSize={ButtonSize.Small}
-                  onClick={() =>
-                    copy({
-                      textToCopy: String(children),
-                    })
-                  }
-                />
-              </div>
+              {!inline && (
+                <div className="flex justify-between items-center py-2 px-5 bg-theme-active">
+                  <span className="inline leading-8 text-theme-label-tertiary">
+                    {language}
+                  </span>
 
-              <div className="py-3 px-5">
-                {!inline && language ? (
+                  <Button
+                    className="btn-tertiary"
+                    icon={<CopyIcon />}
+                    disabled={copying}
+                    buttonSize={ButtonSize.XSmall}
+                    onClick={() =>
+                      copy({
+                        textToCopy: String(children),
+                      })
+                    }
+                  />
+                </div>
+              )}
+
+              {!inline && language ? (
+                <div className="py-3 px-5">
                   <SyntaxHighlighterAsync
                     {...props}
                     customStyle={containerReset}
@@ -174,12 +177,12 @@ const RenderMarkdown = ({
                   >
                     {String(children).replace(replaceNewLineRegex, '')}
                   </SyntaxHighlighterAsync>
-                ) : (
-                  <code {...props} className={codeClassName}>
-                    {children}
-                  </code>
-                )}
-              </div>
+                </div>
+              ) : (
+                <code {...props} className={codeClassName}>
+                  {children}
+                </code>
+              )}
             </>
           );
         },
