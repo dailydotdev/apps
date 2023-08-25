@@ -19,7 +19,7 @@ import request from 'graphql-request';
 import { useMutation } from 'react-query';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
-import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
+import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import Tilt from 'react-parallax-tilt';
 import { NextSeoProps } from 'next-seo/lib/types';

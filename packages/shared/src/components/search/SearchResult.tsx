@@ -13,7 +13,7 @@ import {
   sendSearchFeedback,
   updateSearchData,
 } from '../../graphql/search';
-import { useCopyLink } from '../../hooks/useCopyLink';
+import { useCopyLink } from '../../hooks/useCopy';
 
 export interface SearchResultProps {
   chunk: SearchChunk;

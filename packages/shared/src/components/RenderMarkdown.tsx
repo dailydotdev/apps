@@ -7,7 +7,7 @@ import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
 import { Button, ButtonSize } from './buttons/Button';
 import CopyIcon from './icons/Copy';
-import { useCopyText } from '../hooks/useCopyLink';
+import { useCopyText } from '../hooks/useCopy';
 
 const ReactMarkdown = dynamic(
   // @ts-expect-error issue with next/dynamic types
