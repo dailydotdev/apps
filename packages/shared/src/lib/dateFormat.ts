@@ -104,6 +104,3 @@ export const getReadHistoryDateFormat = (currentDate: Date): string => {
 
   return `${dayOfTheWeek}, ${dayOfTheMonth} ${month}${year}`;
 };
-
-export const getSecondsDifference = (start: Date, end: Date): number =>
-  (end.getTime() - start.getTime()) / 1000;
