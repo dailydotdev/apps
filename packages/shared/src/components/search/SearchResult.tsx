@@ -50,7 +50,7 @@ export function SearchResult({
   );
 
   return (
-    <main className="order-3 laptop:order-3 col-span-2 px-4 laptop:px-8 mb-5">
+    <main className="order-3 laptop:order-3 col-span-2 px-4 laptop:px-8 mb-5 w-full">
       <WidgetContainer className="flex p-4">
         <div className="flex p-2 mr-4 w-10 h-10 rounded-10 bg-theme-color-cabbage">
           <LogoIcon className="max-w-full" />
@@ -59,16 +59,18 @@ export function SearchResult({
           <SearchMessage {...searchMessageProps} content={chunk.response} />
           <div className="flex pt-4">
             <Button
-              className="btn-tertiary"
+              className="btn-tertiary-avocado"
               iconOnly
+              pressed={chunk.feedback === 1}
               icon={<UpvoteIcon secondary={chunk.feedback === 1} />}
               buttonSize={ButtonSize.Small}
               onClick={() => sendFeedback(chunk.feedback === 1 ? 0 : 1)}
               disabled={isInProgress}
             />
             <Button
-              className="btn-tertiary"
+              className="btn-tertiary-ketchup"
               iconOnly
+              pressed={chunk.feedback === -1}
               icon={<DownvoteIcon secondary={chunk.feedback === -1} />}
               buttonSize={ButtonSize.Small}
               onClick={() => sendFeedback(chunk.feedback === -1 ? 0 : -1)}

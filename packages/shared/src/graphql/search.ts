@@ -87,7 +87,7 @@ export const SEARCH_SESSION_QUERY = gql`
         feedback
         sources {
           id
-          title
+          name
           snippet
           url
         }

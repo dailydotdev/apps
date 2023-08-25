@@ -9,6 +9,7 @@ import { SearchSourceItem } from './SearchSourceItem';
 import { SearchChunkSource } from '../../graphql/search';
 import { PaginationActions } from '../pagination';
 import { usePagination } from '../../hooks/utils';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
@@ -20,6 +21,7 @@ export const SearchSourceList = ({
   isLoading,
 }: SearchSourceListProps): ReactElement => {
   const [isSourcesOpen, setIsSourcesOpen] = useState(false);
+  const { sidebarRendered } = useSidebarRendered();
   const { paginated, ...pagination } = usePagination({
     items: sources,
     limit: 3,
@@ -31,11 +33,11 @@ export const SearchSourceList = ({
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div
           className={classNames(
-            'flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
+            'flex justify-between items-center py-1.5 laptop:py-4 px-4 pb-0 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
             isSourcesOpen ? 'rounded-t-16' : 'rounded-16',
           )}
         >
-          <p className="font-bold typo-callout text-theme-label-tertiary laptop:text-theme-label-quaternary">
+          <p className="font-bold typo-callout text-theme-label-quaternary laptop:text-theme-label-quaternary">
             Sources{' '}
             <span className="inline-block laptop:hidden">
               ({sources?.length ?? 1})
@@ -62,7 +64,7 @@ export const SearchSourceList = ({
           {isLoading && !sources?.length ? (
             <PlaceholderSearchSource />
           ) : (
-            paginated.map((source) => (
+            (sidebarRendered ? paginated : sources).map((source) => (
               <SearchSourceItem key={source.id} item={source} />
             ))
           )}
