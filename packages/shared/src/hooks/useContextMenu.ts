@@ -1,18 +1,32 @@
+import { MouseEventHandler, useCallback } from 'react';
 import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-contexify';
 
-export default function useContextMenu({ id }: { id: string }): {
-  onMenuClick: (e: React.MouseEvent) => void;
-} {
-  const { show } = useContexifyContextMenu({ id });
+interface UseContextMenuProps {
+  id: string;
+}
 
-  const onMenuClick = (e: React.MouseEvent) => {
-    const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    show(e, {
-      position: { x: right, y: bottom + 4 },
-    });
-  };
+interface UseContextMenu {
+  onMenuClick: MouseEventHandler;
+  onHide(): void;
+}
+
+export default function useContextMenu({
+  id,
+}: UseContextMenuProps): UseContextMenu {
+  const { show, hideAll } = useContexifyContextMenu({ id });
+
+  const onMenuClick: MouseEventHandler = useCallback(
+    (e) => {
+      const { right, bottom } = e.currentTarget.getBoundingClientRect();
+      show(e, {
+        position: { x: right, y: bottom + 4 },
+      });
+    },
+    [show],
+  );
 
   return {
     onMenuClick,
+    onHide: hideAll,
   };
 }

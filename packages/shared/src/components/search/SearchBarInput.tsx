@@ -17,11 +17,9 @@ import { BaseField, FieldInput } from '../fields/common';
 import { AiIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
-import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import CloseIcon from '../icons/MiniClose';
-import TimerIcon from '../icons/Timer';
 import { useInputField } from '../../hooks/useInputField';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk } from '../../graphql/search';
 import useMedia from '../../hooks/useMedia';
@@ -30,6 +28,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SearchSubmitButton } from './SearchSubmitButton';
 import { MobileSearch } from './MobileSearch';
 import { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
+import { SearchHistoryButton } from './SearchHistoryButton';
 import { LoginTrigger } from '../../lib/analytics';
 
 interface SearchBarClassName {
@@ -41,7 +40,6 @@ interface SearchBarClassName {
 export interface SearchBarInputProps {
   valueChanged?: (value: string) => void;
   showIcon?: boolean;
-  rightButtonProps?: ButtonProps<'button'> | false;
   showProgress?: boolean;
   className?: SearchBarClassName;
   onSubmit?: (event: FormEvent, input: string) => void;
@@ -56,7 +54,6 @@ function SearchBarInputComponent(
     inputProps = {},
     valueChanged,
     className,
-    rightButtonProps = { type: 'button' },
     showProgress = true,
     onSubmit: handleSubmit,
     chunk,
@@ -84,7 +81,6 @@ function SearchBarInputComponent(
     [true],
     false,
   );
-  const searchHistory = [];
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
@@ -103,10 +99,6 @@ function SearchBarInputComponent(
     }
 
     return setInput(finalValue);
-  };
-
-  const seeSearchHistory = (event: MouseEvent): void => {
-    event.stopPropagation();
   };
 
   const onInputClick = () => {
@@ -180,35 +172,17 @@ function SearchBarInputComponent(
           <div className="hidden tablet:flex gap-3 items-center">
             {hasInput && (
               <Button
-                {...rightButtonProps}
                 className="btn-tertiary"
                 buttonSize={ButtonSize.Small}
                 title="Clear query"
                 onClick={onClearClick}
                 icon={<CloseIcon />}
                 disabled={!hasInput}
+                type="button"
               />
             )}
             <div className="h-8 border border-theme-divider-quaternary" />
-            <SimpleTooltip
-              content={
-                searchHistory.length === 0
-                  ? 'Your search history is empty'
-                  : 'See search history'
-              }
-            >
-              <div>
-                <Button
-                  {...rightButtonProps}
-                  className="btn-tertiary"
-                  buttonSize={ButtonSize.Small}
-                  title="Search history"
-                  onClick={seeSearchHistory}
-                  icon={<TimerIcon />}
-                  disabled={searchHistory.length === 0}
-                />
-              </div>
-            </SimpleTooltip>
+            <SearchHistoryButton />
             <SearchSubmitButton
               tooltipProps={{
                 content: !hasInput && 'Enter text to start searching',
