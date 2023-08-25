@@ -34,6 +34,7 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
+import useCompanionTrigger from '../hooks/useCompanionTrigger';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -216,7 +217,7 @@ export default function Feed<T>({
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const onReadArticleClick = useFeedOnPostClick(
+  const triggerReadArticleClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
@@ -224,6 +225,12 @@ export default function Feed<T>({
     ranking,
     'go to link',
   );
+
+  const {
+    onFeedArticleClick: onReadArticleClick,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+  } = useCompanionTrigger(triggerReadArticleClick);
 
   const onPostModalOpen = (index: number, callback?: () => unknown) => {
     document.body.classList.add('hidden-scrollbar');

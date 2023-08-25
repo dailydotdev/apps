@@ -1,18 +1,12 @@
 import 'content-scripts-register-polyfill';
-import { useContext, useMemo } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
+import { RequestContentScripts } from '@dailydotdev/shared/src/hooks';
+import { useQuery } from 'react-query';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 
-interface UseExtensionPermission {
-  isFetched?: boolean;
-  contentScriptGranted: boolean;
-  requestContentScripts: () => Promise<boolean>;
-  registerBrowserContentScripts: () => Promise<ContentScripts.RegisteredContentScript>;
-}
-
-const registerBrowserContentScripts =
+export const registerBrowserContentScripts =
   (): Promise<ContentScripts.RegisteredContentScript> =>
     browser.contentScripts.register({
       matches: ['*://*/*'],
@@ -41,57 +35,50 @@ export const getContentScriptPermissionAndRegister =
 
 const contentScriptKey = 'permission_key';
 
-interface UseExtensionPermissionProps {
-  origin: string;
-}
-
-export const useExtensionPermission = ({
+export const requestContentScripts: RequestContentScripts = (
   origin,
-}: UseExtensionPermissionProps): UseExtensionPermission => {
-  const client = useQueryClient();
-  const { trackEvent } = useContext(AnalyticsContext);
-  const { data: contentScriptGranted, isFetched } = useQuery(
-    contentScriptKey,
-    getContentScriptPermission,
-    {
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      refetchIntervalInBackground: false,
-    },
-  );
-
-  const requestContentScripts = async () => {
+  client,
+  trackEvent,
+) => {
+  return async () => {
     trackEvent({
-      event_name: 'request content scripts',
+      event_name: AnalyticsEvent.RequestContentScripts,
       extra: JSON.stringify({ origin }),
     });
+
     const granted = await browser.permissions.request({
       origins: ['*://*/*'],
     });
 
     if (granted) {
       trackEvent({
-        event_name: 'approve content scripts',
+        event_name: AnalyticsEvent.ApproveContentScripts,
         extra: JSON.stringify({ origin }),
       });
       client.setQueryData(contentScriptKey, true);
       await registerBrowserContentScripts();
+
       window.open(companionPermissionGrantedLink, '_blank');
+    } else {
+      trackEvent({
+        event_name: AnalyticsEvent.DeclineContentScripts,
+        extra: JSON.stringify({ origin }),
+      });
     }
 
     return granted;
   };
+};
 
-  return useMemo(
-    () => ({
-      contentScriptGranted,
-      requestContentScripts,
-      isFetched,
-      registerBrowserContentScripts,
-    }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [contentScriptGranted, isFetched],
+export const useContentScriptStatus = (): {
+  contentScriptGranted: boolean;
+  isFetched: boolean;
+} => {
+  const { data: contentScriptGranted, isFetched } = useQuery(
+    contentScriptKey,
+    getContentScriptPermission,
+    disabledRefetch,
   );
+
+  return { contentScriptGranted, isFetched };
 };
