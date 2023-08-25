@@ -4,6 +4,7 @@ import { RequestContentScripts } from '@dailydotdev/shared/src/hooks';
 import { useQuery } from 'react-query';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 
 export const registerBrowserContentScripts =
   (): Promise<ContentScripts.RegisteredContentScript> =>
@@ -76,12 +77,7 @@ export const useContentScriptStatus = (): {
   const { data: contentScriptGranted, isFetched } = useQuery(
     contentScriptKey,
     getContentScriptPermission,
-    {
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      refetchIntervalInBackground: false,
-    },
+    disabledRefetch,
   );
 
   return { contentScriptGranted, isFetched };

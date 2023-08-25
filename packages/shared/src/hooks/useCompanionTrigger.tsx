@@ -46,8 +46,9 @@ export default function useCompanionTrigger(
   const featureEnabled = useMemo(() => {
     // gb.isOn triggers enrollment in the experiment
     // to avoid noise in the data, only call this if we are in the extension
-    if (isExtension)
+    if (isExtension) {
       return gb.isOn(Features.EngagementLoopJuly2023Companion.id);
+    }
 
     return false;
   }, [gb, isExtension]);
@@ -118,17 +119,21 @@ export default function useCompanionTrigger(
     [openArticle, activateCompanion, openLazyModal, trackEvent],
   );
 
+  const shouldOpenArticle = useMemo(() => {
+    return (
+      !isExtension ||
+      !featureEnabled ||
+      alreadyCompleted ||
+      contentScriptGranted
+    );
+  }, [alreadyCompleted, isExtension, featureEnabled, contentScriptGranted]);
+
   const articleClickHandler = useCallback(
     async (
       e: React.MouseEvent,
       { post, index, row, column }: Partial<CompanionTriggerProps> = {},
     ) => {
-      if (
-        !isExtension ||
-        !featureEnabled ||
-        alreadyCompleted ||
-        contentScriptGranted
-      ) {
+      if (shouldOpenArticle) {
         await customPostClickHandler(post, index, row, column);
       } else {
         e.preventDefault();
@@ -136,14 +141,7 @@ export default function useCompanionTrigger(
       }
     },
 
-    [
-      alreadyCompleted,
-      customPostClickHandler,
-      isExtension,
-      featureEnabled,
-      contentScriptGranted,
-      openModal,
-    ],
+    [shouldOpenArticle, customPostClickHandler, openModal],
   );
 
   const onFeedArticleClick = useCallback<FeedPostClick>(
