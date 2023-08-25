@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
-import { Button } from './buttons/Button';
+import { Button, ButtonSize } from './buttons/Button';
 import CopyIcon from './icons/Copy';
 import { useCopyText } from '../hooks/useCopyLink';
 
@@ -144,15 +144,17 @@ const RenderMarkdown = ({
           return (
             <>
               {language && (
-                <div className="flex justify-between py-3 px-6 bg-theme-active align-center">
-                  <span>{language}</span>
+                <div className="flex justify-between py-2 px-5 bg-theme-active align-center">
+                  <span className="inline leading-8 text-theme-label-tertiary">
+                    {language}
+                  </span>
                   <Button
                     className="btn-tertiary"
                     icon={<CopyIcon />}
                     disabled={copying}
+                    buttonSize={ButtonSize.Small}
                     onClick={() =>
                       copy({
-                        message: 'Copied to clipboard',
                         textToCopy: String(children),
                       })
                     }
@@ -160,7 +162,7 @@ const RenderMarkdown = ({
                 </div>
               )}
 
-              <div className="py-7 px-6">
+              <div className="py-3 px-5">
                 {!inline && language ? (
                   <SyntaxHighlighterAsync
                     {...props}
