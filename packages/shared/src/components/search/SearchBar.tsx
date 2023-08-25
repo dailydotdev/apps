@@ -25,7 +25,7 @@ export function SearchBar({
         shouldShowPopup
         inputProps={{ id: 'search' }}
         className={{
-          container: 'max-w-full w-[48rem]',
+          container: 'max-w-[48rem] w-full',
           field: className?.field,
         }}
         suggestionsProps={suggestionsProps}

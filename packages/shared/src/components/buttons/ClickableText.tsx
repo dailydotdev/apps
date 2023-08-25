@@ -44,7 +44,7 @@ function ClickableTextComponent<Tag extends AvailableTags>(
           : 'hover:underline focus:underline',
         defaultTypo && 'typo-callout',
         pressed && 'text-theme-label-primary',
-        isLink && (textClassName || 'text-theme-label-link'),
+        isLink && (textClassName || '!text-theme-label-link'),
         disabled &&
           'text-theme-label-disabled pointer-events-none hover:no-underline',
         className,
