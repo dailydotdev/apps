@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { getSearchUrl } from '../../graphql/search';
-import { InfiniteScrollScreenOffset } from 
+import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import { SearchEmpty } from './SearchEmpty';
 import { SearchHistoryContainer } from './common';
 import { SearchBarSuggestion } from './SearchBarSuggestion';
