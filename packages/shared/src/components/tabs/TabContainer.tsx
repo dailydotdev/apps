@@ -44,6 +44,7 @@ export interface TabContainerProps<T extends string> {
   showHeader?: boolean;
   controlledActive?: string;
   tabListProps?: Pick<TabListProps, 'className'>;
+  showBorder?: boolean;
 }
 
 export function TabContainer<T extends string = string>({
@@ -53,6 +54,7 @@ export function TabContainer<T extends string = string>({
   className = {},
   style,
   showHeader = true,
+  showBorder = true,
   controlledActive,
   tabListProps = {},
 }: TabContainerProps<T>): ReactElement {
@@ -99,8 +101,9 @@ export function TabContainer<T extends string = string>({
     >
       <header
         className={classNames(
-          'flex flex-row border-b border-theme-divider-tertiary',
+          'flex flex-row',
           className?.header,
+          showBorder && 'border-b border-theme-divider-tertiary',
         )}
       >
         <TabList

@@ -7,11 +7,14 @@ import {
   TabContainer,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import { SearchHistory } from '@dailydotdev/shared/src/components';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
+import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
 import { HistoryType, ReadingHistory } from '../components/history';
 
 const History = (): ReactElement => {
+  const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
   const seo = <NextSeo title="Reading History" nofollow noindex />;
   const router = useRouter();
   const tabQuery = router.query?.t?.toString() as HistoryType;
@@ -29,11 +32,13 @@ const History = (): ReactElement => {
 
   return (
     <ProtectedPage seo={seo}>
-      <ResponsivePageContainer className="!p-0" role="main">
+      <div className="flex laptop:hidden absolute left-0 w-full h-px top-[6.75rem] bg-theme-divider-tertiary" />
+      <ResponsivePageContainer className="relative !p-0" role="main">
         <TabContainer<HistoryType>
           controlledActive={page}
           onActiveChange={setPage}
           className={{ container: 'max-h-page h-full' }}
+          showBorder={isLaptop}
         >
           <Tab label={HistoryType.Reading}>
             <ReadingHistory />
