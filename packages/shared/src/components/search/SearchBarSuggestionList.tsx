@@ -5,6 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
 import { getSearchUrl, SearchSession } from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
+import { LoginTrigger } from '../../lib/analytics';
 
 export interface SearchBarSuggestionListProps {
   className?: string;
@@ -25,7 +26,7 @@ export function SearchBarSuggestionList({
     return (
       <SearchBarSuggestion
         className={className}
-        onClick={() => showLogin('search bar suggestion')}
+        onClick={() => showLogin(LoginTrigger.SearchSuggestion)}
       >
         Sign up and read your first post to get search recommendations
       </SearchBarSuggestion>

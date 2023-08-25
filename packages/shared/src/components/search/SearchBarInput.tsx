@@ -31,6 +31,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SearchSubmitButton } from './SearchSubmitButton';
 import { MobileSearch } from './MobileSearch';
 import { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
+import { LoginTrigger } from '../../lib/analytics';
 
 interface SearchBarClassName {
   container?: string;
@@ -95,7 +96,7 @@ function SearchBarInputComponent(
   const onSubmit = (event: FormEvent, input?: string): void => {
     event.preventDefault();
 
-    if (!user) return showLogin('search input');
+    if (!user) return showLogin(LoginTrigger.SearchInput);
 
     const finalValue = input ?? inputRef.current.value;
 
@@ -113,7 +114,7 @@ function SearchBarInputComponent(
   const onInputClick = () => {
     if (isTabletAbove || isMobileOpen || !shouldShowPopup) return null;
 
-    if (!user) return showLogin('search input');
+    if (!user) return showLogin(LoginTrigger.SearchInput);
 
     return setIsMobileOpen(true);
   };
