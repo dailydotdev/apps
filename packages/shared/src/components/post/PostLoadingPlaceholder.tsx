@@ -57,6 +57,7 @@ export const PostLoadingPlaceholder = ({
       </Container>
       {shouldShowWidgets && (
         <PageWidgets className="flex-1 p-8">
+          <TextPlaceholder />
           <LoadingPlaceholderContainer>
             <UserItemPlaceholder />
             <UserItemPlaceholder />
