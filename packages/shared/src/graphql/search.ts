@@ -224,10 +224,13 @@ interface SearchUrlParams {
 
 export const getSearchUrl = (params: SearchUrlParams): string => {
   const { id, question } = params;
+  const searchParams = new URLSearchParams();
 
   if (!id && !question) throw new Error('Must have at least one parameter');
 
-  const searchParams = new URLSearchParams({ id, q: question });
+  if (id) searchParams.append('id', id);
+
+  if (question) searchParams.append('q', question);
 
   return `${searchPageUrl}?${searchParams}`;
 };
