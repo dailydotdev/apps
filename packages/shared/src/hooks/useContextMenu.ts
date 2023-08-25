@@ -1,4 +1,4 @@
-import { MouseEventHandler, useCallback, useEffect } from 'react';
+import { MouseEventHandler, useCallback } from 'react';
 import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-contexify';
 
 interface UseContextMenuProps {
