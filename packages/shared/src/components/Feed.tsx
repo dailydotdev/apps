@@ -367,12 +367,16 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
 
+  const isValidFeed = Object.values(MainFeedPage).includes(
+    feedName as MainFeedPage,
+  );
+
   return (
     <FeedContainer
       forceCardMode={forceCardMode}
       header={header}
       className={className}
-      showSearch={showSearch}
+      showSearch={showSearch && isValidFeed}
       besideSearch={besideSearch}
       actionButtons={actionButtons}
       afterFeed={
