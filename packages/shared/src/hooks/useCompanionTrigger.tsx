@@ -40,7 +40,7 @@ export default function useCompanionTrigger(
   const { trackEvent } = useAnalyticsContext();
   const { closeModal: closeLazyModal, openModal: openLazyModal } =
     useLazyModal();
-  const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
+  const { checkHasCompleted, completeAction } = useActions();
   const gb = useGrowthBook();
 
   const featureEnabled = useMemo(() => {
@@ -64,20 +64,17 @@ export default function useCompanionTrigger(
   );
 
   const handleCompleteAction = useCallback(() => {
-    if (isActionsFetched)
-      completeAction(ActionType.EngagementLoopJuly2023CompanionModal);
-  }, [isActionsFetched, completeAction]);
+    completeAction(ActionType.EngagementLoopJuly2023CompanionModal);
+  }, [completeAction]);
 
   const closeModal = useCallback(() => {
     closeLazyModal();
-    handleCompleteAction();
-  }, [closeLazyModal, handleCompleteAction]);
+  }, [closeLazyModal]);
 
   const activateCompanion = useCallback(async () => {
     await requestContentScripts();
     closeModal();
-    handleCompleteAction();
-  }, [requestContentScripts, closeModal, handleCompleteAction]);
+  }, [requestContentScripts, closeModal]);
 
   const openArticle: OpenArticle = useCallback(
     (data) => async () => {
@@ -89,9 +86,8 @@ export default function useCompanionTrigger(
       );
 
       closeModal();
-      handleCompleteAction();
     },
-    [customPostClickHandler, closeModal, handleCompleteAction],
+    [customPostClickHandler, closeModal],
   );
 
   const openModal = useCallback(
@@ -103,6 +99,8 @@ export default function useCompanionTrigger(
           onReadArticleClick: openArticle(data),
           onActivateCompanion: activateCompanion,
           onAfterClose() {
+            handleCompleteAction();
+
             trackEvent({
               event_name: AnalyticsEvent.CloseCompanionPermissionModal,
               extra: JSON.stringify({ origin: Origin.Auto }),
@@ -116,7 +114,13 @@ export default function useCompanionTrigger(
         extra: JSON.stringify({ origin: Origin.Auto }),
       });
     },
-    [openArticle, activateCompanion, openLazyModal, trackEvent],
+    [
+      openArticle,
+      activateCompanion,
+      openLazyModal,
+      trackEvent,
+      handleCompleteAction,
+    ],
   );
 
   const shouldOpenArticle = useMemo(() => {
