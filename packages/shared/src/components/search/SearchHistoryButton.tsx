@@ -44,7 +44,10 @@ export function SearchHistoryButton(): ReactElement {
     result.push({
       icon: null,
       label: 'Show all',
-      action: () => router.push(searchPageUrl),
+      action: () =>
+        router.push(
+          `${process.env.NEXT_PUBLIC_WEBAPP_URL}history?t=Search%20history`,
+        ),
     });
 
     return result;
@@ -67,7 +70,7 @@ export function SearchHistoryButton(): ReactElement {
             title="Search history"
             onClick={onMenuOpen}
             icon={<TimerIcon />}
-            disabled={nodes.length === 0 || isLoading}
+            disabled={options.length === 0 || isLoading}
           />
         </div>
       </SimpleTooltip>
