@@ -148,6 +148,7 @@ export const FeedContainer = ({
                 className={{
                   container: 'max-w-2xl w-full flex flex-1',
                   field: 'w-full',
+                  form: 'w-full',
                 }}
                 showProgress={false}
                 onSubmit={onSearch}

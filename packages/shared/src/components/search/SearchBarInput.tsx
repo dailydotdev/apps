@@ -35,6 +35,7 @@ import { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
 interface SearchBarClassName {
   container?: string;
   field?: string;
+  form?: string;
 }
 
 export interface SearchBarInputProps {
@@ -129,15 +130,15 @@ function SearchBarInputComponent(
 
   return (
     <RaisedLabelContainer className={className?.container}>
-      <form onSubmit={onSubmit}>
-        {isMobileOpen && (
-          <MobileSearch
-            suggestionsProps={suggestionsProps}
-            input={inputRef.current.value}
-            onClose={onPopupClose}
-            onSubmit={onMobileSubmit}
-          />
-        )}
+      {isMobileOpen && (
+        <MobileSearch
+          suggestionsProps={suggestionsProps}
+          input={inputRef.current.value}
+          onClose={onPopupClose}
+          onSubmit={onMobileSubmit}
+        />
+      )}
+      <form onSubmit={onSubmit} className={className?.form}>
         <BaseField
           {...props}
           className={classNames(
