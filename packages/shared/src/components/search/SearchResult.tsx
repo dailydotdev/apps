@@ -13,7 +13,7 @@ import {
   sendSearchFeedback,
   updateSearchData,
 } from '../../graphql/search';
-import { useCopyLink } from '../../hooks/useCopy';
+import { useCopyText } from '../../hooks/useCopy';
 
 export interface SearchResultProps {
   chunk: SearchChunk;
@@ -29,7 +29,7 @@ export function SearchResult({
   searchMessageProps,
 }: SearchResultProps): ReactElement {
   const client = useQueryClient();
-  const [isCopying, copyContent] = useCopyLink(() => chunk.response);
+  const [isCopying, copyContent] = useCopyText(chunk.response);
   const { mutateAsync: sendFeedback } = useMutation(
     (value: number) => sendSearchFeedback({ chunkId: chunk.id, value }),
     {
