@@ -88,7 +88,7 @@ function SearchBarInputComponent(
   };
 
   const onSubmit = (event: FormEvent, input?: string): void => {
-    event.stopPropagation();
+    event.preventDefault();
 
     if (!user) return showLogin('search input');
 
