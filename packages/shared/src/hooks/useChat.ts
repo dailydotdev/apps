@@ -121,7 +121,7 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
             setSearchQuery({ response: (data.payload as TokenPayload).token });
             break;
           case UseChatMessageType.Completed: {
-            setSearchQuery({ completedAt: new Date(), status: data.status });
+            setSearchQuery({ completedAt: new Date() });
             setPrompt(undefined);
             sourceRef.current?.close();
             break;

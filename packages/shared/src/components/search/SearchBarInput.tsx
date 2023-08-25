@@ -22,7 +22,6 @@ import CloseIcon from '../icons/MiniClose';
 import { useInputField } from '../../hooks/useInputField';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk } from '../../graphql/search';
-import { getSecondsDifference } from '../../lib/dateFormat';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -30,10 +29,12 @@ import { SearchSubmitButton } from './SearchSubmitButton';
 import { MobileSearch } from './MobileSearch';
 import { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
 import { SearchHistoryButton } from './SearchHistoryButton';
+import { LoginTrigger } from '../../lib/analytics';
 
 interface SearchBarClassName {
   container?: string;
   field?: string;
+  form?: string;
 }
 
 export interface SearchBarInputProps {
@@ -80,7 +81,6 @@ function SearchBarInputComponent(
     [true],
     false,
   );
-  const progress = 0;
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
@@ -90,7 +90,7 @@ function SearchBarInputComponent(
   const onSubmit = (event: FormEvent, input?: string): void => {
     event.preventDefault();
 
-    if (!user) return showLogin('search input');
+    if (!user) return showLogin(LoginTrigger.SearchInput);
 
     const finalValue = input ?? inputRef.current.value;
 
@@ -104,7 +104,7 @@ function SearchBarInputComponent(
   const onInputClick = () => {
     if (isTabletAbove || isMobileOpen || !shouldShowPopup) return null;
 
-    if (!user) return showLogin('search input');
+    if (!user) return showLogin(LoginTrigger.SearchInput);
 
     return setIsMobileOpen(true);
   };
@@ -121,15 +121,15 @@ function SearchBarInputComponent(
 
   return (
     <RaisedLabelContainer className={className?.container}>
-      <form onSubmit={onSubmit}>
-        {isMobileOpen && (
-          <MobileSearch
-            suggestionsProps={suggestionsProps}
-            input={inputRef.current.value}
-            onClose={onPopupClose}
-            onSubmit={onMobileSubmit}
-          />
-        )}
+      {isMobileOpen && (
+        <MobileSearch
+          suggestionsProps={suggestionsProps}
+          input={inputRef.current.value}
+          onClose={onPopupClose}
+          onSubmit={onMobileSubmit}
+        />
+      )}
+      <form onSubmit={onSubmit} className={className?.form}>
         <BaseField
           {...props}
           className={classNames(
@@ -194,16 +194,10 @@ function SearchBarInputComponent(
       <RaisedLabel type={RaisedLabelType.Beta} />
       {showProgress && (
         <div className="mt-6">
-          <SearchProgressBar progress={progress} />
+          <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
           {(chunk?.status || chunk?.error?.code) && (
             <div className="mt-2 typo-callout text-theme-label-tertiary">
               {chunk?.error?.code || chunk?.status}
-            </div>
-          )}
-          {chunk?.completedAt && chunk?.createdAt && (
-            <div className="mt-2 typo-callout text-theme-label-tertiary">
-              Done! {getSecondsDifference(chunk.createdAt, chunk.completedAt)}{' '}
-              seconds.
             </div>
           )}
         </div>

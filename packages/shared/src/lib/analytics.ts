@@ -30,6 +30,8 @@ export enum Origin {
 
 export enum LoginTrigger {
   CreateFeedFilters = 'create feed filters',
+  SearchInput = 'search input',
+  SearchSuggestion = 'search suggestion',
 }
 
 export enum AnalyticsEvent {
