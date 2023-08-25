@@ -145,6 +145,17 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
     [client, prompt, idQueryKey, setSearchQuery],
   );
 
+  const onError = useCallback(() => {
+    sourceRef.current.close();
+    setSearchQuery({
+      error: {
+        message: 'It worked on my machine. Can you please try again?',
+        code: 'Unexpected error.',
+      },
+      progress: -1,
+    });
+  }, [setSearchQuery]);
+
   const executePrompt = useCallback(
     async (value: string) => {
       if (!value) {
@@ -158,10 +169,10 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
       setSearchQuery(undefined);
       const source = await sendSearchQuery(value, accessToken.token);
       source.addEventListener('message', onMessage);
-      source.onerror = () => source.close();
+      source.addEventListener('error', onError);
       sourceRef.current = source;
     },
-    [setSearchQuery, onMessage, accessToken],
+    [setSearchQuery, onMessage, onError, accessToken],
   );
 
   useEffect(() => {
