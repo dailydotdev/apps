@@ -84,7 +84,6 @@ function SearchBarInputComponent(
     false,
   );
   const searchHistory = [];
-  const progress = 0;
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
