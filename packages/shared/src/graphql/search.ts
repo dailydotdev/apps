@@ -3,6 +3,7 @@ import { apiUrl, graphqlUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
 import { Connection, RequestQueryParams } from './common';
 import { webappUrl } from '../lib/constants';
+import { Post } from './posts';
 
 export const searchPageUrl = `${webappUrl}search`;
 
@@ -28,6 +29,7 @@ export interface SearchChunk {
   feedback: number;
   sources: SearchChunkSource[];
   steps?: number;
+  progress?: number;
   status?: string;
 }
 
@@ -47,12 +49,22 @@ export interface SearchHistoryData {
   history: Connection<SearchSession>;
 }
 
+// Search control version suggestions
 export const SEARCH_POST_SUGGESTIONS = gql`
   query SearchPostSuggestions($query: String!) {
     searchPostSuggestions(query: $query) {
       hits {
         title
       }
+    }
+  }
+`;
+
+// AI question recommendations
+export const SEARCH_POST_RECOMMENDATION = gql`
+  query SearchQuestionRecommendations {
+    searchQuestionRecommendations {
+      question
     }
   }
 `;
@@ -111,6 +123,12 @@ export const SEARCH_FEEDBACK_MUTATION = gql`
   }
 `;
 
+interface SearchQuestion {
+  id: string;
+  question: string;
+  post: Post;
+}
+
 interface SearchFeedbackProps {
   chunkId: string;
   value: number;
@@ -130,6 +148,12 @@ export const getSearchHistory = async (
   params: RequestQueryParams,
 ): Promise<SearchHistoryData> =>
   request(graphqlUrl, SEARCH_HISTORY_QUERY, params);
+
+export const getSearchSuggestions = async (): Promise<SearchQuestion[]> => {
+  const res = await request(graphqlUrl, SEARCH_POST_RECOMMENDATION);
+
+  return res.searchQuestionRecommendations;
+};
 
 type DeepPartial<T> = T extends unknown
   ? {
@@ -161,6 +185,7 @@ export const initializeSearchSession = ({
         sources: [],
         status,
         steps,
+        progress: 0,
       },
     ],
   };
@@ -177,6 +202,14 @@ export const updateSearchData = (
     chunks: [{ ...previous.chunks[0], ...chunk }],
   };
 
+  if (chunk.status) {
+    updated.chunks[0].progress += 1;
+  }
+
+  if (chunk.completedAt) {
+    updated.chunks[0].progress = updated.chunks[0].steps;
+  }
+
   if (isNullOrUndefined(chunk.response)) return updated;
 
   updated.chunks[0].response = previous.chunks[0].response + chunk.response;
@@ -184,8 +217,20 @@ export const updateSearchData = (
   return updated;
 };
 
-export const getSearchIdUrl = (id: string): string =>
-  `${searchPageUrl}?id=${id}`;
+interface SearchUrlParams {
+  id?: string;
+  question?: string;
+}
+
+export const getSearchUrl = (params: SearchUrlParams): string => {
+  const { id, question } = params;
+
+  if (!id && !question) throw new Error('Must have at least one parameter');
+
+  const searchParams = new URLSearchParams({ id, q: question });
+
+  return `${searchPageUrl}?${searchParams}`;
+};
 
 export const searchQueryUrl = `${apiUrl}/search/query`;
 

@@ -1,15 +1,17 @@
 import React, { ReactElement } from 'react';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { SearchHistoryContainer } from './common';
+import classed from '../../lib/classed';
+import { Pill } from '../utilities/loaders';
+import { WithClassNameProps } from '../utilities';
 
-const Pill = classed(ElementPlaceholder, 'h-8 rounded-12');
 const ShortPill = classed(Pill, 'w-1/2');
 const LongPill = classed(Pill, 'w-4/5');
 
-export function SearchSkeleton(): ReactElement {
+export function SearchSkeleton({
+  className,
+}: WithClassNameProps): ReactElement {
   return (
-    <SearchHistoryContainer aria-busy="true">
+    <SearchHistoryContainer aria-busy="true" className={className}>
       <LongPill />
       <ShortPill />
       <LongPill />

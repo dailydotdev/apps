@@ -57,6 +57,8 @@ import Toast from './notifications/Toast';
 import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
+import { Features } from '../lib/featureManagement';
+import { SearchExperiment } from '../lib/featureValues';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -92,6 +94,7 @@ const originalScrollTo = window.scrollTo;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
+  Features.Search.defaultValue = SearchExperiment.Control;
 });
 
 afterAll(() => {

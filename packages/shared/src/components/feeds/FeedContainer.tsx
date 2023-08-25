@@ -1,5 +1,6 @@
 import React, {
   CSSProperties,
+  FormEvent,
   ReactElement,
   ReactNode,
   useContext,
@@ -20,6 +21,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
+import { useSearchSuggestions } from '../../hooks/search';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -106,14 +108,16 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
+  const suggestionsProps = useSearchSuggestions();
 
   if (!loadedSettings) {
     return <></>;
   }
 
   const isV1Search = searchValue === SearchExperiment.V1 && showSearch;
-  const onSearch = (_: React.MouseEvent, input: string) => {
-    router.push(`${webappUrl}search?query=${input}`);
+  const onSearch = (event: FormEvent, input: string) => {
+    event.preventDefault();
+    router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
   };
 
   return (
@@ -144,16 +148,22 @@ export const FeedContainer = ({
                 className={{
                   container: 'max-w-2xl w-full flex flex-1',
                   field: 'w-full',
+                  form: 'w-full',
                 }}
                 showProgress={false}
                 onSubmit={onSearch}
+                shouldShowPopup
+                suggestionsProps={suggestionsProps}
               />
               {besideSearch}
             </span>
           )}
           {isV1Search && (
             <span className="flex flex-row flex-1 mt-4">
-              <SearchBarSuggestionList className="hidden tablet:flex overflow-hidden flex-1 mr-3" />
+              <SearchBarSuggestionList
+                {...suggestionsProps}
+                className="hidden tablet:flex overflow-hidden flex-1 mr-3"
+              />
               {actionButtons && (
                 <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
                   {actionButtons}

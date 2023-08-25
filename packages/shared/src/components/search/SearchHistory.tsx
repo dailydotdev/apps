@@ -2,23 +2,32 @@ import React, { ReactElement, useMemo } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import {
   getSearchHistory,
-  getSearchIdUrl,
+  getSearchUrl,
   SearchHistoryData,
-} from '@dailydotdev/shared/src/graphql/search';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
-import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { SearchBarSuggestion } from '@dailydotdev/shared/src/components';
+} from '../../graphql/search';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
-} from '@dailydotdev/shared/src/hooks/feed/useFeedInfiniteScroll';
-import { SearchSkeleton } from './SearchSkeleton';
+} from '../../hooks/feed/useFeedInfiniteScroll';
 import { SearchEmpty } from './SearchEmpty';
 import { SearchHistoryContainer } from './common';
+import { SearchBarSuggestion } from './SearchBarSuggestion';
+import { SearchSkeleton } from './SearchSkeleton';
+import TimerIcon from '../icons/Timer';
 
-export function SearchHistory(): ReactElement {
+interface SearchHistoryProps {
+  showEmptyState?: boolean;
+  className?: string;
+  title?: string;
+}
+
+export function SearchHistory({
+  showEmptyState = true,
+  className,
+  title,
+}: SearchHistoryProps): ReactElement {
+  const { user } = useAuthContext();
   const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage } =
     useInfiniteQuery<SearchHistoryData>(
       generateQueryKey(RequestKey.SearchHistory, user),
@@ -43,14 +52,22 @@ export function SearchHistory(): ReactElement {
     [data],
   );
 
-  if (isLoading) return <SearchSkeleton />;
+  if (isLoading) return <SearchSkeleton className={className} />;
 
-  if (!nodes?.length) return <SearchEmpty />;
+  if (!nodes?.length) return showEmptyState ? <SearchEmpty /> : null;
 
   return (
-    <SearchHistoryContainer>
+    <SearchHistoryContainer className={className}>
+      <span className="font-bold text-theme-label-quaternary typo-footnote">
+        {title}
+      </span>
       {nodes?.map(({ node: { id, prompt } }) => (
-        <SearchBarSuggestion key={id} tag="a" href={getSearchIdUrl(id)}>
+        <SearchBarSuggestion
+          key={id}
+          tag="a"
+          icon={<TimerIcon />}
+          href={getSearchUrl({ id })}
+        >
           {prompt}
         </SearchBarSuggestion>
       ))}

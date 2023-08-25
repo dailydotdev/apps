@@ -6,15 +6,12 @@ import {
   Tab,
   TabContainer,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
+import { SearchHistory } from '@dailydotdev/shared/src/components';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
-import {
-  HistoryType,
-  ReadingHistory,
-  SearchHistory,
-} from '../components/history';
+import { HistoryType, ReadingHistory } from '../components/history';
 
 const History = (): ReactElement => {
   const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);

@@ -1,46 +1,41 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
+import styles from './SearchProgressBar.module.css';
 
 export interface SearchProgressBarProps {
   progress: number;
+  max: number;
 }
 
 export const SearchProgressBar = ({
-  progress,
+  progress = -1,
+  max = 3,
 }: SearchProgressBarProps): ReactElement => {
+  const isDone = progress >= max;
+
   return (
-    <div className="flex relative gap-6 h-2" data-testId="SearchProgressBar">
-      <div className="relative flex-1 h-full bg-theme-float rounded-full">
-        <div
-          className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
-            progress >= 33 ? 'w-full' : ''
-          }`}
-          style={progress < 33 ? { width: `${progress * 3}%` } : {}}
-        />
-      </div>
-      <div className="relative flex-1 h-full bg-theme-float rounded-full">
-        <div
-          className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
-            progress >= 66 ? 'w-full' : ''
-          }`}
-          style={
-            progress >= 33 && progress < 66
-              ? { width: `${(progress - 33) * 3}%` }
-              : {}
-          }
-        />
-      </div>
-      <div className="relative flex-1 h-full bg-theme-float rounded-full">
-        <div
-          className={`absolute left-0 h-full bg-theme-status-cabbage rounded-full ${
-            progress >= 100 ? 'w-full' : ''
-          }`}
-          style={
-            progress >= 66 && progress < 100
-              ? { width: `${(progress - 66) * 3}%` }
-              : {}
-          }
-        />
-      </div>
+    <div className="flex relative gap-3" data-testId="SearchProgressBar">
+      {Array.from({ length: max }).map((_, index) => (
+        <span
+          /* eslint-disable-next-line react/no-array-index-key */
+          key={index}
+          className={classNames(
+            'flex-1 h-2 rounded-10 relative overflow-hidden z-0',
+            index < progress || isDone
+              ? 'bg-theme-status-cabbage'
+              : 'bg-theme-float',
+          )}
+        >
+          {index === progress && !isDone && (
+            <span
+              className={classNames(
+                styles.animatedBar,
+                'rounded-10 h-2 w-3/5 absolute',
+              )}
+            />
+          )}
+        </span>
+      ))}
     </div>
   );
 };

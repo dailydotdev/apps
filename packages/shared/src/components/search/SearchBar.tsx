@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
+import { useSearchSuggestions } from '../../hooks/search';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
@@ -15,18 +15,20 @@ export function SearchBar({
   chunk,
   ...props
 }: SearchBarProps): ReactElement {
-  const { sidebarRendered } = useSidebarRendered();
+  const suggestionsProps = useSearchSuggestions();
 
   return (
     <div className={classNames('w-full', className?.container)}>
       <SearchBarInput
         {...props}
         chunk={chunk}
+        shouldShowPopup
         inputProps={{ id: 'search' }}
         className={{
           container: 'max-w-full w-[48rem]',
           field: className?.field,
         }}
+        suggestionsProps={suggestionsProps}
       />
       {chunk?.error?.message && (
         <Alert
@@ -35,8 +37,14 @@ export function SearchBar({
           title={chunk?.error?.message}
         />
       )}
-      {sidebarRendered && (!chunk || chunk?.error?.message) && (
-        <SearchBarSuggestionList className={!chunk?.error?.message && 'mt-4'} />
+      {(!chunk || chunk?.error?.message) && (
+        <SearchBarSuggestionList
+          {...suggestionsProps}
+          className={classNames(
+            !chunk?.error?.message && 'mt-4',
+            'hidden tablet:flex',
+          )}
+        />
       )}
     </div>
   );
