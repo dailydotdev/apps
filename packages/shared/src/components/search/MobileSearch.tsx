@@ -65,6 +65,7 @@ export function MobileSearch({
             type="button"
             className="ml-auto btn-tertiary"
             onClick={() => setInput('')}
+            disabled={!input}
           >
             Clear
           </Button>
