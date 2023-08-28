@@ -117,7 +117,6 @@ export default function useCompanionTrigger(
           url: data?.post?.permalink,
           onReadArticleClick: openArticle(data),
           onActivateCompanion: activateCompanion(data),
-          onClose: closeModal,
           onAfterClose() {
             handleCompleteAction();
 
@@ -138,7 +137,6 @@ export default function useCompanionTrigger(
       openArticle,
       activateCompanion,
       openLazyModal,
-      closeModal,
       trackEvent,
       handleCompleteAction,
     ],
