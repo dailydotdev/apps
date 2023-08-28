@@ -68,6 +68,8 @@ module.exports = {
           from: 'var(--theme-overlay-from)',
           to: 'var(--theme-overlay-to)',
           float: {
+            bun: 'var(--theme-overlay-float-bun)',
+            blueCheese: 'var(--theme-overlay-float-blueCheese)',
             cabbage: 'var(--theme-overlay-float-cabbage)',
             avocado: 'var(--theme-overlay-float-avocado)',
             ketchup: 'var(--theme-overlay-float-ketchup)',

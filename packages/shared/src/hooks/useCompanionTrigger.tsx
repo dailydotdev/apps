@@ -71,13 +71,8 @@ export default function useCompanionTrigger(
     closeLazyModal();
   }, [closeLazyModal]);
 
-  const activateCompanion = useCallback(async () => {
-    await requestContentScripts();
-    closeModal();
-  }, [requestContentScripts, closeModal]);
-
   const openArticle: OpenArticle = useCallback(
-    (data) => async () => {
+    (data: CompanionTriggerProps) => async (redirectUrl?: string) => {
       await customPostClickHandler(
         data.post,
         data.index,
@@ -85,9 +80,33 @@ export default function useCompanionTrigger(
         data.column,
       );
 
+      if (redirectUrl) {
+        window.open(redirectUrl, '_blank');
+      }
+
       closeModal();
     },
     [customPostClickHandler, closeModal],
+  );
+
+  const activateCompanion = useCallback(
+    (data) => async (redirectUrl?: string) => {
+      await requestContentScripts({ skipRedirect: true });
+
+      await customPostClickHandler(
+        data.post,
+        data.index,
+        data.row,
+        data.column,
+      );
+
+      if (redirectUrl) {
+        window.open(redirectUrl, '_blank');
+      }
+
+      closeModal();
+    },
+    [requestContentScripts, customPostClickHandler, closeModal],
   );
 
   const openModal = useCallback(
@@ -97,7 +116,7 @@ export default function useCompanionTrigger(
         props: {
           url: data?.post?.permalink,
           onReadArticleClick: openArticle(data),
-          onActivateCompanion: activateCompanion,
+          onActivateCompanion: activateCompanion(data),
           onAfterClose() {
             handleCompleteAction();
 
