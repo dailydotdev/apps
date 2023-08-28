@@ -40,7 +40,7 @@ export const requestContentScripts: RequestContentScripts = (
   client,
   trackEvent,
 ) => {
-  return async () => {
+  return async (skipRedirect = false) => {
     trackEvent({
       event_name: AnalyticsEvent.RequestContentScripts,
       extra: JSON.stringify({ origin }),
@@ -58,7 +58,9 @@ export const requestContentScripts: RequestContentScripts = (
       client.setQueryData(contentScriptKey, true);
       await registerBrowserContentScripts();
 
-      window.open(companionPermissionGrantedLink, '_blank');
+      if (!skipRedirect) {
+        window.open(companionPermissionGrantedLink, '_blank');
+      }
     } else {
       trackEvent({
         event_name: AnalyticsEvent.DeclineContentScripts,

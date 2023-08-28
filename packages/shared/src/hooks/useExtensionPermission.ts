@@ -18,7 +18,7 @@ export type ContentScriptStatus = () => {
 
 interface ExtensionPermission {
   useContentScriptStatus: ContentScriptStatus;
-  requestContentScripts: () => Promise<boolean>;
+  requestContentScripts: (skipRedirect?: boolean) => Promise<boolean>;
   registerBrowserContentScripts: () => Promise<never>;
 }
 

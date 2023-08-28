@@ -38,7 +38,7 @@ const CompanionPermissionComponent = (
         </p>
         <Button
           className="mt-1 w-[12.5rem] btn btn-primary"
-          onClick={requestContentScripts}
+          onClick={() => requestContentScripts()}
           buttonSize={ButtonSize.Small}
         >
           {button}
