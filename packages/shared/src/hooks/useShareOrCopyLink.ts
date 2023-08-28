@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
+import { CopyNotifyFunction, useCopyLink } from './useCopy';
 import { ShareProvider } from '../lib/share';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 

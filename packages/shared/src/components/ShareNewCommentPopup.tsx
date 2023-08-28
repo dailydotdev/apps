@@ -16,7 +16,7 @@ import { Button, ButtonSize } from './buttons/Button';
 import { ModalCloseButton } from './modals/ModalCloseButton';
 import classed from '../lib/classed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
-import { useCopyLink } from '../hooks/useCopyLink';
+import { useCopyLink } from '../hooks/useCopy';
 import { getCommentHash } from '../graphql/comments';
 import { IconSize } from './Icon';
 

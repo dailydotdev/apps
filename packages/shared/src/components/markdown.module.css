@@ -27,8 +27,9 @@
     @apply typo-body italic pl-7 my-7 border-l border-theme-divider-secondary;
   }
   & :where(pre) {
-    @apply typo-body relative bg-theme-float py-7 px-6 my-7 rounded-12 border border-theme-divider-quaternary;
+    @apply typo-body relative bg-theme-float py-0 px-0 my-7 rounded-12 border border-theme-divider-quaternary;
   }
+
   & :where(pre) > code {
     @apply whitespace-pre-wrap;
     color: var(--theme-highlight-label);
@@ -135,4 +136,6 @@
         .hljs-cdata)) {
     opacity: 0.5;
   }
+
+
 }

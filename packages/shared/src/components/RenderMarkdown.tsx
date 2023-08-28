@@ -5,6 +5,9 @@ import dynamic from 'next/dynamic';
 
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
+import { Button, ButtonSize } from './buttons/Button';
+import CopyIcon from './icons/Copy';
+import { useCopyText } from '../hooks/useCopy';
 
 const ReactMarkdown = dynamic(
   // @ts-expect-error issue with next/dynamic types
@@ -101,6 +104,7 @@ const RenderMarkdown = ({
   reactMarkdownProps,
 }: RenderMarkdownProps): ReactElement => {
   const [plugins, setPlugins] = useState([]);
+  const [copying, copy] = useCopyText();
 
   useEffect(() => {
     let mounted = true;
@@ -137,23 +141,49 @@ const RenderMarkdown = ({
             loadLanguages();
           }
 
-          return !inline && language ? (
-            <SyntaxHighlighterAsync
-              {...props}
-              customStyle={containerReset}
-              language={language}
-              useInlineStyles={false}
-              wrapLongLines
-              codeTagProps={{
-                className: codeClassName,
-              }}
-            >
-              {String(children).replace(replaceNewLineRegex, '')}
-            </SyntaxHighlighterAsync>
-          ) : (
-            <code {...props} className={codeClassName}>
-              {children}
-            </code>
+          return (
+            <>
+              {!inline && (
+                <div className="flex justify-between items-center py-2 px-5 bg-theme-float">
+                  <span className="inline leading-8 text-theme-label-tertiary">
+                    {language}
+                  </span>
+
+                  <Button
+                    className="btn-tertiary"
+                    icon={<CopyIcon />}
+                    disabled={copying}
+                    buttonSize={ButtonSize.XSmall}
+                    onClick={() =>
+                      copy({
+                        textToCopy: String(children),
+                      })
+                    }
+                  />
+                </div>
+              )}
+
+              {!inline && language ? (
+                <div className="py-3 px-5">
+                  <SyntaxHighlighterAsync
+                    {...props}
+                    customStyle={containerReset}
+                    language={language}
+                    useInlineStyles={false}
+                    wrapLongLines
+                    codeTagProps={{
+                      className: codeClassName,
+                    }}
+                  >
+                    {String(children).replace(replaceNewLineRegex, '')}
+                  </SyntaxHighlighterAsync>
+                </div>
+              ) : (
+                <code {...props} className={codeClassName}>
+                  {children}
+                </code>
+              )}
+            </>
           );
         },
       }}
