@@ -79,7 +79,7 @@ export default function CompanionModal({
         <Button
           icon={<MiniCloseIcon />}
           className="btn-secondary"
-          buttonSize={ButtonSize.XSmall}
+          buttonSize={ButtonSize.Small}
           onClick={props.onRequestClose}
         />
       </div>
@@ -89,7 +89,7 @@ export default function CompanionModal({
           Level up your reading experience
         </h2>
 
-        <p className="pb-6 text-xl text-center text-theme-label-tertiary">
+        <p className="pb-6 text-center typo-title3 text-theme-label-tertiary">
           AI generated summaries, upvoting, commenting, sharing, and more from
           anywhere on the web
         </p>
@@ -115,7 +115,7 @@ export default function CompanionModal({
         <div className="flex flex-col flex-1 justify-between">
           <div className="hidden tablet:flex flex-col items-center">
             <div className="flex items-center pb-4">
-              <div className="inline-block p-2 mr-2 bg-theme-active rounded-16">
+              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-cabbage">
                 <UnreadIcon
                   size={IconSize.Medium}
                   secondary
@@ -123,31 +123,31 @@ export default function CompanionModal({
                 />
               </div>
 
-              <span>Get a TLDR on the original post</span>
+              <span className="typo-body">Get a TLDR on the original post</span>
             </div>
             <div className="hidden tablet:flex items-center pb-4">
-              <div className="inline-block p-2 mr-2 bg-theme-active rounded-16">
+              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-blueCheese">
                 <CommentIcon
                   size={IconSize.Medium}
                   secondary
                   className="text-theme-color-blueCheese"
                 />
               </div>
-              <span>Discuss from everywhere</span>
+              <span className="typo-body">Discuss from everywhere</span>
             </div>
             <div className="hidden tablet:flex items-center pb-4">
-              <div className="inline-block p-2 mr-2 bg-theme-active rounded-16">
+              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-bun">
                 <BookmarkIcon
                   secondary
                   size={IconSize.Medium}
                   className="text-theme-color-bun"
                 />
               </div>
-              <span>Bookmark with a single click</span>
+              <span className="typo-body">Bookmark with a single click</span>
             </div>
           </div>
 
-          <span className="text-center text-theme-label-tertiary typo-footnote">
+          <span className="text-center text-theme-label-tertiary typo-subhead">
             Activating the widget requires extra permissions <br />
             (Give it a try, you can always disable it later)
           </span>

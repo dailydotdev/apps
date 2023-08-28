@@ -65,6 +65,8 @@ module.exports = {
           quaternary: 'var(--theme-overlay-quaternary)',
           water: 'var(--theme-overlay-water)',
           cabbage: 'var(--theme-overlay-cabbage)',
+          blueCheese: 'var(--theme-overlay-blueCheese)',
+          bun: 'var(--theme-overlay-bun)',
           from: 'var(--theme-overlay-from)',
           to: 'var(--theme-overlay-to)',
           float: {
