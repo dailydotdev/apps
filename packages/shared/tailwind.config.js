@@ -65,11 +65,11 @@ module.exports = {
           quaternary: 'var(--theme-overlay-quaternary)',
           water: 'var(--theme-overlay-water)',
           cabbage: 'var(--theme-overlay-cabbage)',
-          blueCheese: 'var(--theme-overlay-blueCheese)',
-          bun: 'var(--theme-overlay-bun)',
           from: 'var(--theme-overlay-from)',
           to: 'var(--theme-overlay-to)',
           float: {
+            bun: 'var(--theme-overlay-float-bun)',
+            blueCheese: 'var(--theme-overlay-float-blueCheese)',
             cabbage: 'var(--theme-overlay-float-cabbage)',
             avocado: 'var(--theme-overlay-float-avocado)',
             ketchup: 'var(--theme-overlay-float-ketchup)',

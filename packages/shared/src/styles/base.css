@@ -88,10 +88,11 @@ body {
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
   --theme-overlay-water: theme('colors.overlay.quaternary.water');
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
-  --theme-overlay-blueCheese: theme('colors.overlay.quaternary.blueCheese');
   --theme-overlay-from: theme('colors.onion.40')30;
   --theme-overlay-to: theme('colors.cabbage.40')30;
 
+  --theme-overlay-float-bun: theme('colors.overlay.float.bun');
+  --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
   --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
   --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
   --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
@@ -217,10 +218,11 @@ body {
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
   --theme-overlay-water: theme('colors.overlay.quaternary.water');
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
-  --theme-overlay-blueCheese: theme('colors.overlay.quaternary.blueCheese');
   --theme-overlay-from: theme('colors.onion.40')30;
   --theme-overlay-to: theme('colors.cabbage.40')30;
 
+  --theme-overlay-float-bun: theme('colors.overlay.float.bun');
+  --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
   --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
   --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
   --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');

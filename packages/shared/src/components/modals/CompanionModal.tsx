@@ -115,7 +115,7 @@ export default function CompanionModal({
         <div className="flex flex-col flex-1 justify-between">
           <div className="hidden tablet:flex flex-col items-center">
             <div className="flex items-center pb-4">
-              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-cabbage">
+              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-float-cabbage">
                 <UnreadIcon
                   size={IconSize.Medium}
                   secondary
@@ -126,7 +126,7 @@ export default function CompanionModal({
               <span className="typo-body">Get a TLDR on the original post</span>
             </div>
             <div className="hidden tablet:flex items-center pb-4">
-              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-blueCheese">
+              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-float-blueCheese">
                 <CommentIcon
                   size={IconSize.Medium}
                   secondary
@@ -136,7 +136,7 @@ export default function CompanionModal({
               <span className="typo-body">Discuss from everywhere</span>
             </div>
             <div className="hidden tablet:flex items-center pb-4">
-              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-bun">
+              <div className="inline-block p-2 mr-4 rounded-16 bg-theme-overlay-float-bun">
                 <BookmarkIcon
                   secondary
                   size={IconSize.Medium}
