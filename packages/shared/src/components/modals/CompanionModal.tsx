@@ -14,6 +14,7 @@ import { cloudinary } from '../../lib/image';
 
 type Props = LazyModalCommonProps & {
   url: string;
+  onClose: () => void;
   onReadArticleClick: (any) => void;
   onActivateCompanion: (redirectUrl?: string) => void;
 };
@@ -80,7 +81,7 @@ export default function CompanionModal({
           icon={<MiniCloseIcon />}
           className="btn-secondary"
           buttonSize={ButtonSize.XSmall}
-          onClick={props.onRequestClose}
+          onClick={props.onClose}
         />
       </div>
 
@@ -140,7 +141,7 @@ export default function CompanionModal({
                 <BookmarkIcon
                   secondary
                   size={IconSize.Medium}
-                  className="text-theme-color-avocado"
+                  className="text-theme-color-bun"
                 />
               </div>
               <span>Bookmark with a single click</span>

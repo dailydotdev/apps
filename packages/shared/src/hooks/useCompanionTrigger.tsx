@@ -91,7 +91,7 @@ export default function useCompanionTrigger(
 
   const activateCompanion = useCallback(
     (data) => async (redirectUrl?: string) => {
-      await requestContentScripts(true);
+      await requestContentScripts({ skipRedirect: true });
 
       await customPostClickHandler(
         data.post,
@@ -117,7 +117,7 @@ export default function useCompanionTrigger(
           url: data?.post?.permalink,
           onReadArticleClick: openArticle(data),
           onActivateCompanion: activateCompanion(data),
-          onRequestClose: closeModal,
+          onClose: closeModal,
           onAfterClose() {
             handleCompleteAction();
 

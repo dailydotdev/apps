@@ -40,7 +40,7 @@ export const requestContentScripts: RequestContentScripts = (
   client,
   trackEvent,
 ) => {
-  return async (skipRedirect = false) => {
+  return async ({ skipRedirect }: { skipRedirect?: boolean } = {}) => {
     trackEvent({
       event_name: AnalyticsEvent.RequestContentScripts,
       extra: JSON.stringify({ origin }),
