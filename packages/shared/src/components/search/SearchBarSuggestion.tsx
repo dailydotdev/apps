@@ -14,10 +14,11 @@ export const SearchBarSuggestion = <TagName extends AllowedTags>({
 }: ButtonProps<TagName>): ReactElement => {
   return (
     <Button
+      spanClassName="w-fit py-2"
       icon={<AiIcon />}
       buttonSize={ButtonSize.XLarge}
       className={classNames(
-        'btn-secondary border-theme-divider-tertiary typo-subhead text-theme-label-tertiary w-fit',
+        'btn-secondary border-theme-divider-tertiary typo-subhead text-theme-label-tertiary w-fit !h-auto min-h-[2.5rem]',
         className,
       )}
       {...props}
