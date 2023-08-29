@@ -64,7 +64,7 @@ export const SearchSourceList = ({
           {isLoading && !sources?.length ? (
             <PlaceholderSearchSource />
           ) : (
-            (sidebarRendered ? paginated : sources).map((source) => (
+            (sidebarRendered ? paginated : sources)?.map((source) => (
               <SearchSourceItem key={source.id} item={source} />
             ))
           )}
