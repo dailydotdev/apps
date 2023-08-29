@@ -149,7 +149,7 @@ const RenderMarkdown = ({
               {!inline && (
                 <div className="flex justify-between items-center py-2 px-5 bg-theme-float">
                   <span className="inline leading-8 text-theme-label-tertiary">
-                    {language}
+                    {language || 'code'}
                   </span>
 
                   <Button

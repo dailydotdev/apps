@@ -47,8 +47,8 @@ export function MobileSearch({
 
   return (
     <InteractivePopup
-      position={InteractivePopupPosition.Center}
-      className="flex flex-col py-2 w-screen h-screen"
+      position={InteractivePopupPosition.Screen}
+      className="flex flex-col py-2"
     >
       <img
         className="absolute top-0 left-0 -z-1 w-full"
