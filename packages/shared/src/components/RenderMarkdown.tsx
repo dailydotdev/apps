@@ -163,7 +163,7 @@ const RenderMarkdown = ({
                 </div>
               )}
 
-              {!inline && language ? (
+              {!inline ? (
                 <div className="py-3 px-5">
                   <SyntaxHighlighterAsync
                     {...props}
