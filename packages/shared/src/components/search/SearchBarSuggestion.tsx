@@ -14,7 +14,8 @@ export const SearchBarSuggestion = <TagName extends AllowedTags>({
 }: ButtonProps<TagName>): ReactElement => {
   return (
     <Button
-      spanClassName="w-fit py-2"
+      spanClassName="w-fit py-2 flex-shrink"
+      textPosition="justify-start"
       icon={<AiIcon />}
       buttonSize={ButtonSize.XLarge}
       className={classNames(
