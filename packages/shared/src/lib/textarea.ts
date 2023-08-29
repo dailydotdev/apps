@@ -157,7 +157,6 @@ export class TextareaCommand {
       this.textarea.selectionEnd,
     ];
     const [word, start] = getCloseWord(this.textarea, selection);
-    console.log(word, start, selection);
     const position = [start, start + word.length];
     const { replacement, offset } = getReplacement(CursorType.Adjacent, {
       word,
