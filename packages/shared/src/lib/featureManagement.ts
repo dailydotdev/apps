@@ -8,6 +8,10 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly SubmitArticle = new Features('submit_article');
 
+  static readonly EngagementLoopJuly2023Companion = new Features(
+    'engagement_loop_july2023_companion',
+  );
+
   static readonly OnboardingV2 = new Features(
     'onboarding_v2',
     OnboardingV2.Control,

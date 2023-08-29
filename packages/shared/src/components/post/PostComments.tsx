@@ -107,7 +107,7 @@ export function PostComments({
     }
   }, [commentsCount, scrollToComment]);
 
-  if (post.numComments === 0) {
+  if (commentsCount === 0) {
     return (
       <div className="mt-8 mb-12 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.

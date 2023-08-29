@@ -29,7 +29,6 @@ export const DEFAULT_UPVOTES_PER_PAGE = 50;
 
 export interface Upvote {
   user: UserShortProfile;
-  createdAt: Date;
 }
 
 export interface UpvotesData {
