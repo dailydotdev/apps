@@ -14,11 +14,12 @@ const ReactMarkdown = dynamic(
   () => import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown'),
 );
 
-export type RenderMarkdownProps = {
+export interface RenderMarkdownProps {
+  isLoading?: boolean;
   className?: string;
   content: string;
   reactMarkdownProps?: Omit<ReactMarkdownOptions, 'children'>;
-};
+}
 
 const replaceNewLineRegex = /\n$/;
 
@@ -102,6 +103,7 @@ const RenderMarkdown = ({
   className,
   content,
   reactMarkdownProps,
+  isLoading = false,
 }: RenderMarkdownProps): ReactElement => {
   const [plugins, setPlugins] = useState([]);
   const [copying, copy] = useCopyText();
@@ -123,8 +125,9 @@ const RenderMarkdown = ({
   return (
     <ReactMarkdown
       className={classNames(styles.markdown, className)}
-      linkTarget="_blank"
+      linkTarget={isLoading ? '_self' : '_blank'}
       remarkPlugins={plugins}
+      transformLinkUri={(uri) => (isLoading ? '#' : uri)}
       components={{
         code({
           node,
