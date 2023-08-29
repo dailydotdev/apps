@@ -2,8 +2,9 @@ import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-co
 
 export default function useContextMenu({ id }: { id: string }): {
   onMenuClick: (e: React.MouseEvent) => void;
+  hideAll: () => void;
 } {
-  const { show } = useContexifyContextMenu({ id });
+  const { show, hideAll } = useContexifyContextMenu({ id });
 
   const onMenuClick = (e: React.MouseEvent) => {
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
@@ -14,5 +15,6 @@ export default function useContextMenu({ id }: { id: string }): {
 
   return {
     onMenuClick,
+    hideAll,
   };
 }
