@@ -37,12 +37,12 @@ export function SearchBarSuggestionList({
     return (
       <span
         className={classNames(
-          'flex overflow-hidden flex-row items-center whitespace-nowrap text-theme-label-quaternary text-ellipsis',
+          'flex flex-row items-center text-theme-label-quaternary',
           className,
         )}
       >
         <FeedbackIcon />
-        <span className="ml-2 typo-footnote">
+        <span className="flex flex-1 ml-2 typo-footnote">
           Start getting search recommendations by upvoting several posts
         </span>
       </span>
