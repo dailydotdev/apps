@@ -49,7 +49,7 @@ const defaultPostData = {
   source: { id: 'gamedevacademy', name: 'GameDev Academy' },
   summary:
     'In this lesson, we’ll compare the differences between promises and Async/await. We also learn how to handle errors in JavaScript using try catch blocks. In the next video, we take a look at the differences in promises and Await and then decide which one to use for this course.',
-  title: 'Learn Asynchronus Programming – JavaScript Tutorial',
+  title: 'Learn Asynchronus Programming – JavaScript Tutorial', // cspell:ignore Asynchronus
   trending: true,
   upvoted: true,
   downvoted: false,
@@ -60,7 +60,7 @@ const renderComponent = (postdata, settings): RenderResult => {
     <App
       postData={{ ...defaultPostData, ...postdata }}
       settings={settings}
-      url="https://gamedevacademy.org/javascript-asynchronus-programming-tutorial/"
+      url="https://gamedevacademy.org/javascript-asynchronus-programming-tutorial/" // cspell:ignore Asynchronus
       alerts={{
         rankLastSeen: new Date(),
       }}
