@@ -10,4 +10,7 @@ export const labels = {
     invalidInvitation:
       '🚫 The invitation is no longer valid, please check with the person who shared this invite (or the Squad admin) for further information.',
   },
+  search: {
+    feedbackText: 'Thanks for your feedback!',
+  },
 };

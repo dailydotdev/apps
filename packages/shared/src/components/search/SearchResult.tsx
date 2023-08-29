@@ -14,6 +14,8 @@ import {
   updateSearchData,
 } from '../../graphql/search';
 import { useCopyText } from '../../hooks/useCopy';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { labels } from '../../lib';
 
 export interface SearchResultProps {
   chunk: SearchChunk;
@@ -29,6 +31,7 @@ export function SearchResult({
   searchMessageProps,
 }: SearchResultProps): ReactElement {
   const client = useQueryClient();
+  const { displayToast } = useToastNotification();
   const [isCopying, copyContent] = useCopyText(chunk.response);
   const { mutateAsync: sendFeedback } = useMutation(
     (value: number) => sendSearchFeedback({ chunkId: chunk.id, value }),
@@ -44,6 +47,9 @@ export function SearchResult({
           client.setQueryData<Search>(queryKey, (search) =>
             updateSearchData(search, { feedback: previousValue }),
           );
+      },
+      onSuccess: () => {
+        displayToast(labels.search.feedbackText);
       },
       onError: (_, __, rollback: () => void) => rollback?.(),
     },
