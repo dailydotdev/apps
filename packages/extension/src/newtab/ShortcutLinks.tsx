@@ -2,12 +2,16 @@ import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
+import classNames from 'classnames';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 import { CustomLinks } from './CustomLinks';
 import useShortcutLinks from './useShortcutLinks';
 
-export default function ShortcutLinks(): ReactElement {
+export default function ShortcutLinks({
+  className,
+}: WithClassNameProps): ReactElement {
   const { showTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -52,11 +56,12 @@ export default function ShortcutLinks(): ReactElement {
       {shortcutLinks?.length ? (
         <CustomLinks
           links={shortcutLinks}
+          className={className}
           onOptions={() => setShowOptions(true)}
         />
       ) : (
         <Button
-          className="btn-tertiary"
+          className={classNames('btn-tertiary', className)}
           rightIcon={<PlusIcon />}
           onClick={() => setShowOptions(true)}
         >

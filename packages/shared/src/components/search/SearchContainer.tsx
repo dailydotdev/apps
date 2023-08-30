@@ -30,6 +30,7 @@ export function SearchContainer({
               onSubmit={onSubmit}
               chunk={chunk}
               showProgress={!!chunk}
+              isLoading={isLoading}
             />
           )}
         </main>
