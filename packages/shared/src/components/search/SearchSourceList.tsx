@@ -39,6 +39,12 @@ export const SearchSourceList = ({
             'cursor-pointer laptop:cursor-auto flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:!pb-0 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
             isSourcesOpen ? 'rounded-t-16' : 'rounded-16',
           )}
+          role="button"
+          tabIndex={0}
+          aria-label="Sources"
+          onKeyDown={() =>
+            !sidebarRendered && setIsSourcesOpen((prev) => !prev)
+          }
           onClick={() => !sidebarRendered && setIsSourcesOpen((prev) => !prev)}
         >
           <p className="font-bold typo-callout text-theme-label-quaternary laptop:text-theme-label-quaternary">
