@@ -99,6 +99,9 @@ export const cloudinary = {
     purpleEdgeGlow:
       'https://daily-now-res.cloudinary.com/image/upload/s--Va9xODJM--/v1686074969/Glow_fjelt5.svg',
   },
+  search: {
+    og: 'https://daily-now-res.cloudinary.com/image/upload/s--Lq4XRH5V--/f_auto/v1693378429/public/dailv.dev_-_OG_Search',
+  },
 };
 
 export const smallPostImage = (url: string): string => {
