@@ -90,7 +90,11 @@ export function SearchResult({
         <LogoIcon className="max-w-full" />
       </div>
       <div className="flex-1">
-        <SearchMessage {...searchMessageProps} content={chunk.response} />
+        <SearchMessage
+          {...searchMessageProps}
+          content={chunk.response}
+          isLoading={isInProgress}
+        />
         <div className="flex pt-4">
           <Button
             className="btn-tertiary-avocado"
@@ -116,6 +120,7 @@ export function SearchResult({
             icon={<CopyIcon secondary={isCopying} />}
             buttonSize={ButtonSize.Small}
             onClick={() => copyContent()}
+            disabled={isInProgress}
           />
         </div>
       </div>

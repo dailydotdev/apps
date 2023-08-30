@@ -14,11 +14,12 @@ const ReactMarkdown = dynamic(
   () => import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown'),
 );
 
-export type RenderMarkdownProps = {
+export interface RenderMarkdownProps {
+  isLoading?: boolean;
   className?: string;
   content: string;
   reactMarkdownProps?: Omit<ReactMarkdownOptions, 'children'>;
-};
+}
 
 const replaceNewLineRegex = /\n$/;
 
@@ -102,6 +103,7 @@ const RenderMarkdown = ({
   className,
   content,
   reactMarkdownProps,
+  isLoading = false,
 }: RenderMarkdownProps): ReactElement => {
   const [plugins, setPlugins] = useState([]);
   const [copying, copy] = useCopyText();
@@ -152,7 +154,7 @@ const RenderMarkdown = ({
                   <Button
                     className="btn-tertiary"
                     icon={<CopyIcon />}
-                    disabled={copying}
+                    disabled={copying || isLoading}
                     buttonSize={ButtonSize.XSmall}
                     onClick={() =>
                       copy({
