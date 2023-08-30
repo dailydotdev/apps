@@ -50,7 +50,12 @@ export function SearchBarSuggestionList({
   }
 
   return (
-    <div className={classNames('flex flex-wrap gap-4', className)}>
+    <div
+      className={classNames(
+        'flex max-w-full overflow-scroll gap-4 p-2 pl-0',
+        className,
+      )}
+    >
       {suggestions.map(({ id, prompt }) => (
         <SearchBarSuggestion
           tag="a"
