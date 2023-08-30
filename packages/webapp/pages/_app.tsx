@@ -81,6 +81,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useInAppNotification();
   const { modal, closeModal } = useLazyModal();
   usePrompt();
+
   useEffect(() => {
     updateCookieBanner(user);
   }, [updateCookieBanner, user]);

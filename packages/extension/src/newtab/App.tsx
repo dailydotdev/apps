@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
@@ -37,8 +37,11 @@ import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import {
   getContentScriptPermissionAndRegister,
-  useExtensionPermission,
-} from '../companion/useExtensionPermission';
+  requestContentScripts,
+  useContentScriptStatus,
+  registerBrowserContentScripts,
+} from '../lib/extensionScripts';
+import { EXTENSION_PERMISSION_KEY } from '../../../shared/src/hooks';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -90,9 +93,8 @@ function InternalApp({
   const { showPrompt } = usePrompt();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
-  const { contentScriptGranted } = useExtensionPermission({
-    origin: 'on extension load',
-  });
+  const { contentScriptGranted } = useContentScriptStatus();
+
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
     'consent',
     false,
@@ -102,6 +104,12 @@ function InternalApp({
   const analyticsConsentPrompt = async () => {
     setAnalyticsConsent(await showPrompt(analyticsConsentPromptOptions));
   };
+
+  useQuery(EXTENSION_PERMISSION_KEY, () => ({
+    requestContentScripts,
+    registerBrowserContentScripts,
+    useContentScriptStatus,
+  }));
 
   useEffect(() => {
     if (analyticsConsent === null) {

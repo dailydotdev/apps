@@ -4,15 +4,19 @@ import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
 import { useSearchSuggestions } from '../../hooks/search';
+import { labels } from '../../lib';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
   'className' | 'valueChanged' | 'onSubmit' | 'showProgress' | 'chunk'
->;
+> & {
+  isLoading?: boolean;
+};
 
 export function SearchBar({
   className,
   chunk,
+  isLoading,
   ...props
 }: SearchBarProps): ReactElement {
   const suggestionsProps = useSearchSuggestions();
@@ -30,11 +34,11 @@ export function SearchBar({
         }}
         suggestionsProps={suggestionsProps}
       />
-      {chunk?.error?.message && (
+      {!isLoading && chunk?.error?.code !== null && (
         <Alert
           className="my-4"
           type={AlertType.Error}
-          title={chunk?.error?.message}
+          title={chunk?.error?.message || labels.error.generic}
         />
       )}
       {(!chunk || chunk?.error?.message) && (

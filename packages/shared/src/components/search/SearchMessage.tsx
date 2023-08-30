@@ -1,13 +1,12 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { RenderMarkdown } from '../RenderMarkdown';
+import { RenderMarkdown, RenderMarkdownProps } from '../RenderMarkdown';
 import styles from './SearchMessage.module.css';
 
-export type SearchMessageProps = {
-  className?: string;
-  content: string;
-  isLoading?: boolean;
-};
+export type SearchMessageProps = Pick<
+  RenderMarkdownProps,
+  'content' | 'className' | 'isLoading'
+>;
 
 export const SearchMessage = ({
   className,
@@ -17,6 +16,7 @@ export const SearchMessage = ({
   return (
     <RenderMarkdown
       className={classNames(className, isLoading && styles.caret)}
+      isLoading={isLoading}
       content={content}
     />
   );
