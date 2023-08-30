@@ -125,9 +125,8 @@ const RenderMarkdown = ({
   return (
     <ReactMarkdown
       className={classNames(styles.markdown, className)}
-      linkTarget={isLoading ? '_self' : '_blank'}
+      linkTarget="_blank"
       remarkPlugins={plugins}
-      transformLinkUri={(uri) => (isLoading ? '#' : uri)}
       components={{
         code({
           node,
