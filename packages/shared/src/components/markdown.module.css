@@ -2,6 +2,10 @@
   position: relative;
   word-break: break-word;
 
+  & > pre {
+    @apply overflow-hidden;
+  }
+
   & :where(h1) {
     @apply font-bold typo-title2 mt-10 mb-7;
   }
