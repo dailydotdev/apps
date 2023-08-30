@@ -45,13 +45,15 @@ export const SearchBarSuggestion = ({
     if (props.suggestion?.id) {
       trackEvent({
         event_name: AnalyticsEvent.Click,
-        target_type: TargetType.SearchRecommendation,
+        target_type: props.isSearch
+          ? TargetType.SearchRecommendation
+          : TargetType.SearchHistory,
         target_id: props.suggestion.id,
-        feed_item_title: props.suggestion?.prompt,
+        feed_item_title: props.suggestion.prompt,
         extra: JSON.stringify({ origin }),
       });
     }
-  }, [origin, props.suggestion, trackEvent]);
+  }, [origin, props.suggestion, trackEvent, props.isSearch]);
 
   return (
     <Button

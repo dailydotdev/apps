@@ -114,6 +114,7 @@ export enum TargetType {
   SignupButton = 'signup button',
   SquadJoinButton = 'squad join button',
   SearchRecommendation = 'search rec',
+  SearchHistory = 'search history',
   SearchSource = 'search source',
 }
 
