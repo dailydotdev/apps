@@ -23,7 +23,9 @@ const SearchPage = (): ReactElement => {
 
   const seo: NextSeoProps = {
     title: getTemplatedTitle(data?.chunks[0]?.prompt || query || 'Search'),
-    description: content || labels.search.shortDescription,
+    description: content
+      ? content.slice(0, 300)
+      : labels.search.shortDescription,
     openGraph: {
       images: [
         {
