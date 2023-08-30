@@ -193,7 +193,7 @@ function SearchBarInputComponent(
       </form>
       <RaisedLabel type={RaisedLabelType.Beta} />
       {showProgress && (
-        <div className="mt-6">
+        <div className="mt-3">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
           {(chunk?.status || chunk?.error?.code) && (
             <div className="mt-2 typo-callout text-theme-label-tertiary">
