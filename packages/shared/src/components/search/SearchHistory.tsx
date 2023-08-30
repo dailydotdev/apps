@@ -36,6 +36,7 @@ export function SearchHistory({
       </span>
       {nodes?.map(({ node: suggestion }) => (
         <SearchBarSuggestion
+          isHistory
           key={suggestion.id}
           tag="a"
           icon={<TimerIcon />}

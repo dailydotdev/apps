@@ -16,7 +16,7 @@ export type SuggestionOrigin = Origin.HomePage;
 type SearchBarSuggestionProps = ButtonProps<AllowedTags> & {
   suggestion?: Partial<SearchSession>;
   origin?: SuggestionOrigin;
-  isSearch?: boolean;
+  isHistory?: boolean;
 };
 
 export const SearchBarSuggestion = ({
@@ -27,7 +27,7 @@ export const SearchBarSuggestion = ({
   const { trackEvent } = useContext(AnalyticsContext);
 
   useEffect(() => {
-    if (props.isSearch && props.suggestion?.id) {
+    if (!props.isHistory && props.suggestion?.id) {
       trackEvent({
         event_name: AnalyticsEvent.Impression,
         target_type: TargetType.SearchRecommendation,
@@ -45,15 +45,15 @@ export const SearchBarSuggestion = ({
     if (props.suggestion?.id) {
       trackEvent({
         event_name: AnalyticsEvent.Click,
-        target_type: props.isSearch
-          ? TargetType.SearchRecommendation
-          : TargetType.SearchHistory,
+        target_type: props.isHistory
+          ? TargetType.SearchHistory
+          : TargetType.SearchRecommendation,
         target_id: props.suggestion.id,
         feed_item_title: props.suggestion.prompt,
         extra: JSON.stringify({ origin }),
       });
     }
-  }, [origin, props.suggestion, trackEvent, props.isSearch]);
+  }, [origin, props.suggestion, trackEvent, props.isHistory]);
 
   return (
     <Button

@@ -55,7 +55,6 @@ export function SearchBarSuggestionList({
     <div className={classNames('flex flex-wrap gap-4', className)}>
       {suggestions.map((suggestion) => (
         <SearchBarSuggestion
-          isSearch
           tag="a"
           origin={origin}
           suggestion={suggestion}
