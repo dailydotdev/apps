@@ -162,7 +162,7 @@ export const FeedContainer = ({
             <span className="flex flex-row flex-1 mt-4">
               <SearchBarSuggestionList
                 {...suggestionsProps}
-                className="hidden tablet:flex overflow-hidden flex-1 mr-3"
+                className="hidden tablet:flex overflow-hidden flex-1 tablet:flex-none mr-3"
               />
               {actionButtons && (
                 <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">

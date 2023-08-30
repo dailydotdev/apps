@@ -14,9 +14,7 @@ export const useSearchSuggestions = (): Pick<
   const { data, isLoading } = useQuery(
     generateQueryKey(RequestKey.SearchHistory, user),
     getSearchSuggestions,
-    {
-      ...disabledRefetch,
-    },
+    { ...disabledRefetch, enabled: !!user },
   );
 
   const suggestions = useMemo(
