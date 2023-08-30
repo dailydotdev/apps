@@ -5,7 +5,7 @@ type CombinedClicks = {
   onClick: React.MouseEventHandler<HTMLAnchorElement>;
 };
 export const combinedClicks = (
-  func: React.MouseEventHandler,
+  func: React.MouseEventHandler | ((e: React.MouseEvent, any?) => void),
 ): CombinedClicks => {
   return {
     onMouseUp: (event) => event.button === 1 && func(event),

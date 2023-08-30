@@ -162,8 +162,8 @@ export default function FeedItemComponent({
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)
           }
-          onReadArticleClick={() =>
-            onReadArticleClick(item.post, index, row, column)
+          onReadArticleClick={(e) =>
+            onReadArticleClick(item.post, index, row, column, { clickEvent: e })
           }
           onShare={(post: Post) => onShare(post, row, column)}
           openNewTab={openNewTab}

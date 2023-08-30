@@ -10,7 +10,7 @@ import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/u
 import { install, uninstall } from '@dailydotdev/shared/src/lib/constants';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
-import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
+import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 
 const excludedCompanionOrigins = [
   'http://127.0.0.1:5002',

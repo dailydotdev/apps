@@ -58,6 +58,10 @@ const SquadNotificationsModal = dynamic(
     ),
 );
 
+const CompanionModal = dynamic(
+  () => import(/* webpackChunkName: "CompanionModal" */ './CompanionModal'),
+);
+
 const FeedFilters = dynamic(
   () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
 );
@@ -72,6 +76,7 @@ export const modals = {
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
+  [LazyModal.CompanionModal]: CompanionModal,
   [LazyModal.FeedFilters]: FeedFilters,
 };
 

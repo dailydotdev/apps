@@ -31,13 +31,20 @@ export const updatePostCache = (
   client: QueryClient,
   id: string,
   { id: _, ...postUpdate }: Partial<Post>,
-): PostData =>
-  client.setQueryData<PostData>(getPostByIdKey(id), (node) => ({
+): PostData => {
+  const currentPost = client.getQueryData<PostData>(getPostByIdKey(id));
+
+  if (!currentPost) {
+    return currentPost;
+  }
+
+  return client.setQueryData<PostData>(getPostByIdKey(id), (node) => ({
     post: {
       ...node.post,
       ...postUpdate,
     },
   }));
+};
 
 export const removePostComments = (
   client: QueryClient,
