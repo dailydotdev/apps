@@ -17,7 +17,7 @@ export function SearchSourceItem({
   const handleSourceClick = useCallback(() => {
     if (itemId) {
       trackEvent({
-        event_name: AnalyticsEvent.Impression,
+        event_name: AnalyticsEvent.Click,
         target_type: TargetType.SearchSource,
         target_id: itemId,
         feed_item_title: name,
