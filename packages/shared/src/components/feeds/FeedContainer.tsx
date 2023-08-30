@@ -22,6 +22,7 @@ import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
+import { Origin } from '../../lib/analytics';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -108,7 +109,7 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
-  const suggestionsProps = useSearchSuggestions();
+  const suggestionsProps = useSearchSuggestions({ origin: Origin.HomePage });
 
   if (!loadedSettings) {
     return <></>;
