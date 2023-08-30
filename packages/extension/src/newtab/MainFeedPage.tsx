@@ -111,7 +111,7 @@ export default function MainFeedPage({
             />
           }
           navChildren={!isSearchOn && <ShortcutLinks />}
-          besideSearch={<ShortcutLinks />}
+          besideSearch={<ShortcutLinks className="ml-auto" />}
         />
       </FeedLayout>
       <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

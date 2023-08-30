@@ -6,8 +6,9 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 
-interface CustomLinksProps {
+interface CustomLinksProps extends WithClassNameProps {
   links: string[];
   onOptions?: () => unknown;
 }
@@ -15,9 +16,15 @@ interface CustomLinksProps {
 export function CustomLinks({
   links,
   onOptions,
+  className,
 }: CustomLinksProps): ReactElement {
   return (
-    <div className="hidden laptop:flex flex-row gap-2 p-2 ml-auto rounded-14 border border-theme-divider-secondary h-fit">
+    <div
+      className={classNames(
+        'hidden laptop:flex flex-row gap-2 p-2 ml-auto rounded-14 border border-theme-divider-secondary h-fit',
+        className,
+      )}
+    >
       {links.map((url, i) => (
         <a
           href={url}
