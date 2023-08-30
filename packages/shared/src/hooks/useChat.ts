@@ -1,6 +1,7 @@
 import {
   MouseEvent,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -20,6 +21,8 @@ import {
 } from '../graphql/search';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../lib/analytics';
 
 interface UseChatProps {
   id?: string;
@@ -66,6 +69,7 @@ interface TokenPayload {
 }
 
 export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
@@ -89,6 +93,13 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
     },
     [client, idQueryKey],
   );
+
+  const trackErrorEvent = useCallback(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.ErrorSearch,
+      target_id: id,
+    });
+  }, [trackEvent, id]);
 
   const onMessage = useCallback(
     (event: MessageEvent) => {
@@ -148,11 +159,13 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
             break;
         }
       } catch (error) {
+        trackErrorEvent();
+
         // eslint-disable-next-line no-console
         console.error('[EventSource][message] error', error);
       }
     },
-    [client, prompt, idQueryKey, setSearchQuery],
+    [client, prompt, idQueryKey, setSearchQuery, trackErrorEvent],
   );
 
   const onError = useCallback(() => {
@@ -164,7 +177,9 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
       },
       progress: -1,
     });
-  }, [setSearchQuery]);
+
+    trackErrorEvent();
+  }, [setSearchQuery, trackErrorEvent]);
 
   const executePrompt = useCallback(
     async (value: string) => {

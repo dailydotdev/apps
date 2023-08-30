@@ -26,6 +26,10 @@ export enum Origin {
   PostCommentButton = 'comment button',
   StartDiscussion = 'start discussion button',
   CompanionContextMenu = 'companion context menu',
+  // search - start
+  HomePage = 'home page',
+  SearchPage = 'search page',
+  // search - end
 }
 
 export enum LoginTrigger {
@@ -35,6 +39,7 @@ export enum LoginTrigger {
 }
 
 export enum AnalyticsEvent {
+  Click = 'click',
   CommentPost = 'comment post',
   Impression = 'impression',
   ManageTags = 'click manage tags',
@@ -83,6 +88,15 @@ export enum AnalyticsEvent {
   RemovePostBookmark = 'remove post bookmark',
   // bookmark - end
   ReportComment = 'report comment',
+  // search start
+  FocusSearch = 'focus search',
+  SubmitSearch = 'submit search',
+  OpenSearchHistory = 'open search history',
+  UpvoteSearch = 'upvote search',
+  DownvoteSearch = 'downvote search',
+  CopySearch = 'copy search',
+  ErrorSearch = 'error search',
+  // search end
   OpenCompanionPermissionModal = 'open companion permission popup',
   CloseCompanionPermissionModal = 'close companion permission popup',
   RequestContentScripts = 'request content scripts',
@@ -98,6 +112,9 @@ export enum TargetType {
   LoginButton = 'login button',
   SignupButton = 'signup button',
   SquadJoinButton = 'squad join button',
+  SearchRecommendation = 'search rec',
+  SearchHistory = 'search history',
+  SearchSource = 'search source',
 }
 
 export enum NotificationChannel {

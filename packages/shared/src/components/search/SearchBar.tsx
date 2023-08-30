@@ -4,6 +4,7 @@ import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
 import { useSearchSuggestions } from '../../hooks/search';
+import { Origin } from '../../lib/analytics';
 import { labels } from '../../lib';
 
 export type SearchBarProps = Pick<
@@ -19,7 +20,7 @@ export function SearchBar({
   isLoading,
   ...props
 }: SearchBarProps): ReactElement {
-  const suggestionsProps = useSearchSuggestions();
+  const suggestionsProps = useSearchSuggestions({ origin: Origin.SearchPage });
 
   return (
     <div className={classNames('w-full', className?.container)}>
