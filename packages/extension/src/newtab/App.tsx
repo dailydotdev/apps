@@ -56,31 +56,7 @@ const AuthModal = dynamic(
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
-const shouldShowConsent = process.env.TARGET_BROWSER === 'firefox';
-
 const getRedirectUri = () => browser.runtime.getURL('index.html');
-
-const analyticsConsentPromptOptions: PromptOptions = {
-  title: 'Your privacy stays yours',
-  description: (
-    <p>
-      We use 3rd party analytics platforms to improve daily.dev. Instead of just
-      using it, we would like to ask for your approval. We promise to never
-      misuse it. 🙏
-      <br />
-      <br />
-      Do you agree to opt-in?
-    </p>
-  ),
-  okButton: {
-    title: "Yes, I'd love to",
-    className: 'btn-primary-water',
-  },
-  cancelButton: {
-    title: 'No',
-  },
-};
-
 function InternalApp({
   pageRef,
 }: {
@@ -90,34 +66,16 @@ function InternalApp({
   useInAppNotification();
   useLazyModal();
   usePrompt();
-  const { showPrompt } = usePrompt();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
-
-  const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
-    'consent',
-    false,
-    shouldShowConsent ? null : true,
-  );
   const routeChangedCallbackRef = useTrackPageView();
-  const analyticsConsentPrompt = async () => {
-    setAnalyticsConsent(await showPrompt(analyticsConsentPromptOptions));
-  };
 
   useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
     useContentScriptStatus,
   }));
-
-  useEffect(() => {
-    if (analyticsConsent === null) {
-      analyticsConsentPrompt();
-    }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [analyticsConsent]);
 
   useEffect(() => {
     if (routeChangedCallbackRef.current) {
