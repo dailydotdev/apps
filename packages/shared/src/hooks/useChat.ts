@@ -14,7 +14,6 @@ import {
   SearchChunk,
   SearchChunkError,
   SearchChunkSource,
-  searchPageUrl,
   sendSearchQuery,
   updateSearchData,
 } from '../graphql/search';
@@ -23,7 +22,6 @@ import { useAuthContext } from '../contexts/AuthContext';
 
 interface UseChatProps {
   id?: string;
-  query?: string;
 }
 
 enum UseChatMessageType {
@@ -65,106 +63,13 @@ interface TokenPayload {
   token: string;
 }
 
-export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
+export const useChatStream = (): Pick<UseChat, 'handleSubmit'> & {
+  id: string;
+} => {
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
-  const [prompt, setPrompt] = useState<string | undefined>();
-  const id = idFromProps ?? 'new';
-  const idQueryKey = useMemo(
-    () => generateQueryKey(RequestKey.Search, user, id),
-    [user, id],
-  );
-  const { data: search, isLoading: isLoadingSession } = useQuery(
-    idQueryKey,
-    () => getSearchSession(idFromProps),
-    { enabled: !!idFromProps },
-  );
-
-  const setSearchQuery = useCallback(
-    (chunk: Partial<SearchChunk>) => {
-      client.setQueryData<Search>(idQueryKey, (previous) =>
-        updateSearchData(previous, chunk),
-      );
-    },
-    [client, idQueryKey],
-  );
-
-  const onMessage = useCallback(
-    (event: MessageEvent) => {
-      try {
-        const data: UseChatMessage = JSON.parse(event.data);
-
-        switch (data.type) {
-          case UseChatMessageType.SessionCreated: {
-            const payload = data.payload as CreatePayload;
-            client.setQueryData(
-              idQueryKey,
-              initializeSearchSession({
-                ...payload,
-                createdAt: new Date(),
-                status: data.status,
-                prompt,
-              }),
-            );
-            if (payload.id) {
-              window.history.pushState(
-                data,
-                'Running search',
-                `${searchPageUrl}?id=${payload.id}`,
-              );
-            }
-            break;
-          }
-          case UseChatMessageType.WebSearchFinished:
-            setSearchQuery({
-              sources: (data.payload as SourcesMessage).sources,
-              status: data.status,
-            });
-            break;
-          case UseChatMessageType.WebResultsFiltered:
-            setSearchQuery({ status: data.status });
-            break;
-          case UseChatMessageType.StatusUpdated:
-            setSearchQuery({ status: data.status });
-            break;
-          case UseChatMessageType.NewTokenReceived:
-            setSearchQuery({ response: (data.payload as TokenPayload).token });
-            break;
-          case UseChatMessageType.Completed: {
-            setSearchQuery({ completedAt: new Date() });
-            setPrompt(undefined);
-            sourceRef.current?.close();
-            break;
-          }
-          case UseChatMessageType.Error:
-            setSearchQuery({ error: data.payload as SearchChunkError });
-            sourceRef.current?.close();
-            break;
-          case UseChatMessageType.SessionFound:
-            client.setQueryData(idQueryKey, () => data.payload as Search);
-            break;
-          default:
-            break;
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('[EventSource][message] error', error);
-      }
-    },
-    [client, prompt, idQueryKey, setSearchQuery],
-  );
-
-  const onError = useCallback(() => {
-    sourceRef.current.close();
-    setSearchQuery({
-      error: {
-        message: 'It worked on my machine. Can you please try again?',
-        code: 'Unexpected error.',
-      },
-      progress: -1,
-    });
-  }, [setSearchQuery]);
+  const [sessionId, setSessionId] = useState<string>();
 
   const executePrompt = useCallback(
     async (value: string) => {
@@ -176,13 +81,96 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
         sourceRef.current.close();
       }
 
-      setSearchQuery(undefined);
+      setSessionId(undefined);
+
+      let queryKey: ReturnType<typeof generateQueryKey> = null;
+
+      const setSearchQuery = (chunk: Partial<SearchChunk>) => {
+        client.setQueryData<Search>(queryKey, (previous) =>
+          updateSearchData(previous, chunk),
+        );
+      };
+
+      const onMessage = (event: MessageEvent) => {
+        try {
+          const data: UseChatMessage = JSON.parse(event.data);
+
+          switch (data.type) {
+            case UseChatMessageType.SessionCreated: {
+              const payload = data.payload as CreatePayload;
+              queryKey = generateQueryKey(RequestKey.Search, user, payload.id);
+              setSessionId(payload.id);
+
+              client.setQueryData(
+                queryKey,
+                initializeSearchSession({
+                  ...payload,
+                  createdAt: new Date(),
+                  status: data.status,
+                  prompt: value,
+                }),
+              );
+
+              break;
+            }
+            case UseChatMessageType.WebSearchFinished:
+              setSearchQuery({
+                sources: (data.payload as SourcesMessage).sources,
+                status: data.status,
+              });
+              break;
+            case UseChatMessageType.WebResultsFiltered:
+              setSearchQuery({ status: data.status });
+              break;
+            case UseChatMessageType.StatusUpdated:
+              setSearchQuery({ status: data.status });
+              break;
+            case UseChatMessageType.NewTokenReceived:
+              setSearchQuery({
+                response: (data.payload as TokenPayload).token,
+              });
+              break;
+            case UseChatMessageType.Completed: {
+              setSearchQuery({ completedAt: new Date() });
+              sourceRef.current?.close();
+              break;
+            }
+            case UseChatMessageType.Error:
+              setSearchQuery({ error: data.payload as SearchChunkError });
+              sourceRef.current?.close();
+              break;
+            case UseChatMessageType.SessionFound: {
+              const sessionData = data.payload as Search;
+              client.setQueryData(queryKey, sessionData);
+              sourceRef.current?.close();
+              break;
+            }
+            default:
+              break;
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('[EventSource][message] error', error);
+        }
+      };
+
+      const onError = () => {
+        sourceRef.current.close();
+        setSearchQuery({
+          error: {
+            message: 'It worked on my machine. Can you please try again?',
+            code: 'Unexpected error.',
+          },
+          progress: -1,
+        });
+      };
+
       const source = await sendSearchQuery(value, accessToken.token);
       source.addEventListener('message', onMessage);
       source.addEventListener('error', onError);
       sourceRef.current = source;
     },
-    [setSearchQuery, onMessage, onError, accessToken],
+    [accessToken.token, client, user],
   );
 
   useEffect(() => {
@@ -193,27 +181,65 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!query) return;
-    setPrompt(query); // running twice on render due to deps - though it is required for us to have it most updated
-    setTimeout(() => {
-      if (sourceRef.current) return;
-
-      executePrompt(query);
-    });
-  }, [query, executePrompt]);
-
   return {
-    queryKey: idQueryKey,
-    isLoading:
-      isLoadingSession ||
-      (search?.chunks?.[0]?.createdAt && !search?.chunks?.[0]?.completedAt),
-    data: search,
+    id: sessionId,
     handleSubmit: useCallback(
       (_, value: string) => {
         executePrompt(value);
       },
       [executePrompt],
     ),
+  };
+};
+
+export const useChatSession = ({
+  id,
+  streamId,
+}: Pick<UseChatProps, 'id'> & {
+  streamId?: string;
+}): Pick<UseChat, 'queryKey' | 'isLoading' | 'data'> => {
+  const { user } = useAuthContext();
+  const client = useQueryClient();
+  const queryKey = useMemo(
+    () => generateQueryKey(RequestKey.Search, user, id),
+    [user, id],
+  );
+  const { data, isLoading } = useQuery(
+    queryKey,
+    () => {
+      if (streamId && streamId === id) {
+        return client.getQueryData<Search>(queryKey);
+      }
+
+      return getSearchSession(id);
+    },
+    { enabled: !!id },
+  );
+
+  return {
+    queryKey,
+    isLoading,
+    data,
+  };
+};
+
+export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
+  const stream = useChatStream();
+  const id = idFromProps || stream.id;
+  const session = useChatSession({
+    id,
+    streamId: stream.id,
+  });
+
+  const isStreaming = !!(
+    session?.data?.chunks?.[0]?.createdAt &&
+    !session?.data?.chunks?.[0]?.completedAt
+  );
+
+  return {
+    queryKey: session.queryKey,
+    isLoading: isStreaming || session.isLoading,
+    data: session.data,
+    handleSubmit: stream.handleSubmit,
   };
 };
