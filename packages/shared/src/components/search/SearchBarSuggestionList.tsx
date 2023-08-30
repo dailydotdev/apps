@@ -14,6 +14,11 @@ export interface SearchBarSuggestionListProps {
   origin: SuggestionOrigin;
 }
 
+const lengthToClass = {
+  '1': 'tablet:grid-cols-1',
+  '2': 'tablet:grid-cols-2',
+};
+
 export function SearchBarSuggestionList({
   className,
   isLoading,
@@ -51,8 +56,17 @@ export function SearchBarSuggestionList({
     );
   }
 
+  const gridClass =
+    lengthToClass[suggestions.length.toString()] ?? 'tablet:grid-cols-3';
+
   return (
-    <div className={classNames('flex flex-wrap gap-4', className)}>
+    <div
+      className={classNames(
+        'flex tablet:grid max-w-full w-full gap-4',
+        gridClass,
+        className,
+      )}
+    >
       {suggestions.map((suggestion) => (
         <SearchBarSuggestion
           tag="a"
