@@ -98,6 +98,11 @@ export enum AnalyticsEvent {
   CopySearch = 'copy search',
   ErrorSearch = 'error search',
   // search end
+  OpenCompanionPermissionModal = 'open companion permission popup',
+  CloseCompanionPermissionModal = 'close companion permission popup',
+  RequestContentScripts = 'request content scripts',
+  ApproveContentScripts = 'approve content scripts',
+  DeclineContentScripts = 'decline content scripts',
 }
 
 export enum TargetType {

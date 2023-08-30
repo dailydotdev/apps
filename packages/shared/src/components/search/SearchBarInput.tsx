@@ -203,9 +203,9 @@ function SearchBarInputComponent(
       {showProgress && (
         <div className="mt-3">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
-          {(chunk?.status || chunk?.error?.code) && (
+          {!!chunk?.status && (
             <div className="mt-2 typo-callout text-theme-label-tertiary">
-              {chunk?.error?.code || chunk?.status}
+              {chunk?.status}
             </div>
           )}
         </div>
