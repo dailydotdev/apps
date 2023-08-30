@@ -51,8 +51,10 @@ function MyFeedHeading({
       message: classNames(
         'bg-theme-bg-primary',
         !sidebarRendered ? 'ml-4' : null,
+        searchVersion === SearchExperiment.V1 && '-left-20',
       ),
-      wrapper: 'mr-auto z-modal',
+      wrapper: 'mr-auto',
+      container: 'z-tooltip',
     },
     message: filterAlertMessage,
     placement:
@@ -63,7 +65,7 @@ function MyFeedHeading({
 
   if (searchVersion === SearchExperiment.V1) {
     return (
-      <AlertPointer {...alertProps} offset={[sidebarRendered ? 0 : 8, 8]}>
+      <AlertPointer {...alertProps} offset={[0, 0]}>
         <Button
           className="mr-auto btn-tertiaryFloat"
           onClick={onClick}
