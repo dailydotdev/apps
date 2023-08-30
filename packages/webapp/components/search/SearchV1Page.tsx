@@ -41,7 +41,7 @@ const SearchPage = (): ReactElement => {
       chunk={data?.chunks?.[0]}
       isLoading={!router?.isReady}
     >
-      <NextSeo {...seo} nofollow noindex />
+      <NextSeo {...seo} />
       {(!!content || !!data) && (
         <>
           <SearchResult
