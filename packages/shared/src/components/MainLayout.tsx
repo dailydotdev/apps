@@ -180,7 +180,7 @@ export default function MainLayout({
     return null;
 
   return (
-    <div {...handlers}>
+    <div {...handlers} className="antialiased">
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
