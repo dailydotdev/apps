@@ -51,7 +51,6 @@ const History = (): ReactElement => {
           <TabContainer<HistoryType>
             controlledActive={page}
             onActiveChange={setPage}
-            className={{ container: 'max-h-page h-full' }}
             showBorder={isLaptop}
           >
             <Tab label={HistoryType.Reading}>
