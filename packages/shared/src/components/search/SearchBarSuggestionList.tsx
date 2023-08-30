@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { SearchBarSuggestion } from './SearchBarSuggestion';
+import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
 import { getSearchUrl, SearchSession } from '../../graphql/search';
@@ -11,12 +11,14 @@ export interface SearchBarSuggestionListProps {
   className?: string;
   isLoading?: boolean;
   suggestions?: Partial<SearchSession>[];
+  origin: SuggestionOrigin;
 }
 
 export function SearchBarSuggestionList({
   className,
   isLoading,
   suggestions,
+  origin,
 }: SearchBarSuggestionListProps): React.ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -51,11 +53,16 @@ export function SearchBarSuggestionList({
 
   return (
     <div className={classNames('flex flex-wrap gap-4', className)}>
-      {suggestions.map(({ id, prompt }) => (
+      {suggestions.map((suggestion) => (
         <SearchBarSuggestion
           tag="a"
-          key={prompt}
-          href={getSearchUrl({ id, question: prompt })}
+          origin={origin}
+          suggestion={suggestion}
+          key={suggestion.prompt}
+          href={getSearchUrl({
+            id: suggestion.id,
+            question: suggestion.prompt,
+          })}
         >
           {prompt}
         </SearchBarSuggestion>

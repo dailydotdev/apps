@@ -1,6 +1,7 @@
 import {
   MouseEvent,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -20,6 +21,8 @@ import {
 } from '../graphql/search';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../lib/analytics';
 
 interface UseChatProps {
   id?: string;
@@ -66,6 +69,7 @@ interface TokenPayload {
 }
 
 export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
@@ -164,7 +168,12 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
       },
       progress: -1,
     });
-  }, [setSearchQuery]);
+
+    trackEvent({
+      event_name: AnalyticsEvent.ErrorSearch,
+      target_id: id,
+    });
+  }, [setSearchQuery, trackEvent, id]);
 
   const executePrompt = useCallback(
     async (value: string) => {

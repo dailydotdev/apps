@@ -6,10 +6,14 @@ import { getSearchSuggestions } from '../../graphql/search';
 import { SearchBarSuggestionListProps } from '../../components/search/SearchBarSuggestionList';
 import { disabledRefetch } from '../../lib/func';
 
-export const useSearchSuggestions = (): Pick<
+type UseSearchSuggestions = (data: {
+  origin: SearchBarSuggestionListProps['origin'];
+}) => Pick<
   SearchBarSuggestionListProps,
-  'suggestions' | 'isLoading'
-> => {
+  'origin' | 'suggestions' | 'isLoading'
+>;
+
+export const useSearchSuggestions: UseSearchSuggestions = (args) => {
   const { user } = useAuthContext();
   const { data, isLoading } = useQuery(
     generateQueryKey(RequestKey.SearchHistory, user),
@@ -27,5 +31,5 @@ export const useSearchSuggestions = (): Pick<
     [data],
   );
 
-  return { isLoading, suggestions };
+  return { isLoading, suggestions, ...args };
 };

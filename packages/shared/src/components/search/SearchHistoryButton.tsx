@@ -1,6 +1,8 @@
 import React, {
   MouseEventHandler,
   ReactElement,
+  useCallback,
+  useContext,
   useMemo,
   useState,
 } from 'react';
@@ -11,11 +13,14 @@ import { Button, ButtonSize } from '../buttons/Button';
 import { useSearchHistory } from '../../hooks/search';
 import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import useContextMenu from '../../hooks/useContextMenu';
-import { getSearchUrl } from '../../graphql/search';
+import { getSearchUrl, SearchSession } from '../../graphql/search';
+import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const contextMenuId = 'search-history-input';
 
 export function SearchHistoryButton(): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const {
     nodes,
     result: { isLoading },
@@ -32,16 +37,20 @@ export function SearchHistoryButton(): ReactElement {
       : 'See search history';
   };
 
-  const options = useMemo<MenuItemProps[]>(() => {
+  const options = useMemo<
+    (MenuItemProps & { id: SearchSession['id'] })[]
+  >(() => {
     if (!nodes.length) return [];
 
     const result = nodes.map(({ node }) => ({
+      id: node.id,
       icon: <TimerIcon />,
       label: node.prompt,
       action: () => router.push(getSearchUrl({ id: node.id })),
     }));
 
     result.push({
+      id: null,
       icon: null,
       label: 'Show all',
       action: () =>
@@ -53,10 +62,25 @@ export function SearchHistoryButton(): ReactElement {
     return result;
   }, [router, nodes]);
 
+  const registerImpressions = useCallback(() => {
+    options.forEach(({ id, label }) => {
+      if (id) {
+        trackEvent({
+          event_name: AnalyticsEvent.Impression,
+          target_type: TargetType.SearchRecommendation,
+          target_id: id,
+          feed_item_title: label,
+          extra: JSON.stringify({ origin: Origin.HistoryTooltip }),
+        });
+      }
+    });
+  }, [trackEvent, options]);
+
   const onMenuOpen: MouseEventHandler = (event) => {
     const command = isMenuOpen ? onHide : onMenuClick;
     command(event);
     setIsMenuOpen(!isMenuOpen);
+    registerImpressions();
   };
 
   return (

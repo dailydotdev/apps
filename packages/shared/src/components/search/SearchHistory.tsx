@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import { getSearchUrl } from '../../graphql/search';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import { SearchEmpty } from './SearchEmpty';
@@ -7,6 +7,8 @@ import { SearchBarSuggestion } from './SearchBarSuggestion';
 import { SearchSkeleton } from './SearchSkeleton';
 import TimerIcon from '../icons/Timer';
 import { useSearchHistory } from '../../hooks/search/useSearchHistory';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 
 interface SearchHistoryProps {
   showEmptyState?: boolean;
@@ -19,11 +21,18 @@ export function SearchHistory({
   className,
   title,
 }: SearchHistoryProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const {
     result: { isLoading },
     nodes,
     infiniteScrollRef,
   } = useSearchHistory();
+
+  useEffect(() => {
+    trackEvent({ event_name: AnalyticsEvent.OpenSearchHistory });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isLoading) return <SearchSkeleton className={className} />;
 
@@ -34,12 +43,17 @@ export function SearchHistory({
       <span className="font-bold text-theme-label-quaternary typo-footnote">
         {title}
       </span>
-      {nodes?.map(({ node: { id, prompt } }) => (
+      {nodes?.map(({ node: suggestion }) => (
         <SearchBarSuggestion
-          key={id}
+          key={suggestion.id}
           tag="a"
           icon={<TimerIcon />}
-          href={getSearchUrl({ id })}
+          suggestion={suggestion}
+          origin={Origin.HistoryPage}
+          href={getSearchUrl({
+            id: suggestion.id,
+            question: suggestion.prompt,
+          })}
         >
           {prompt}
         </SearchBarSuggestion>

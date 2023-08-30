@@ -5,6 +5,7 @@ import React, {
   InputHTMLAttributes,
   MouseEvent,
   ReactElement,
+  useContext,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -29,7 +30,8 @@ import { SearchSubmitButton } from './SearchSubmitButton';
 import { MobileSearch } from './MobileSearch';
 import { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
 import { SearchHistoryButton } from './SearchHistoryButton';
-import { LoginTrigger } from '../../lib/analytics';
+import { AnalyticsEvent, LoginTrigger } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 interface SearchBarClassName {
   container?: string;
@@ -63,6 +65,7 @@ function SearchBarInputComponent(
   }: SearchBarInputProps,
   ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useAuthContext();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const {
@@ -96,6 +99,10 @@ function SearchBarInputComponent(
 
     if (handleSubmit) {
       handleSubmit(event, finalValue);
+      trackEvent({
+        event_name: AnalyticsEvent.SubmitSearch,
+        extra: JSON.stringify({ query: finalValue }),
+      });
     }
 
     return setInput(finalValue);
@@ -151,6 +158,7 @@ function SearchBarInputComponent(
             onFocus={(event) => {
               onFocus();
               externalOnFocus?.(event);
+              trackEvent({ event_name: AnalyticsEvent.FocusSearch });
             }}
             onBlur={(event) => {
               onBlur();
