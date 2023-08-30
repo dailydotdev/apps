@@ -28,8 +28,7 @@ export enum Origin {
   CompanionContextMenu = 'companion context menu',
   // search - start
   HomePage = 'home page',
-  HistoryTooltip = 'history tooltip',
-  HistoryPage = 'history page',
+  SearchPage = 'search page',
   // search - end
 }
 

@@ -11,7 +11,7 @@ import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import { SearchSession } from '../../graphql/search';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
-export type SuggestionOrigin = Origin.HomePage;
+export type SuggestionOrigin = Origin.HomePage | Origin.SearchPage;
 
 type SearchBarSuggestionProps = ButtonProps<AllowedTags> & {
   suggestion?: Partial<SearchSession>;

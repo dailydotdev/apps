@@ -20,7 +20,7 @@ export function SearchBar({
   isLoading,
   ...props
 }: SearchBarProps): ReactElement {
-  const suggestionsProps = useSearchSuggestions({ origin: Origin.HomePage });
+  const suggestionsProps = useSearchSuggestions({ origin: Origin.SearchPage });
 
   return (
     <div className={classNames('w-full', className?.container)}>
