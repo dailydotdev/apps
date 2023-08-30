@@ -18,7 +18,11 @@ const SearchPage = (): ReactElement => {
   const content = data?.chunks?.[0]?.response || '';
 
   return (
-    <SearchContainer onSubmit={handleSubmit} chunk={data?.chunks?.[0]}>
+    <SearchContainer
+      onSubmit={handleSubmit}
+      chunk={data?.chunks?.[0]}
+      isLoading={!router?.isReady}
+    >
       <NextSeo nofollow noindex />
       {(!!content || !!data) && (
         <>
