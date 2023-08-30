@@ -27,6 +27,9 @@ export const SearchSourceList = ({
     limit: 3,
   });
 
+  const handleSourceClick = (): void =>
+    !sidebarRendered && setIsSourcesOpen((prev) => !prev);
+
   return (
     <PageWidgets
       tablet={false}
@@ -42,10 +45,8 @@ export const SearchSourceList = ({
           role="button"
           tabIndex={0}
           aria-label="Sources"
-          onKeyDown={() =>
-            !sidebarRendered && setIsSourcesOpen((prev) => !prev)
-          }
-          onClick={() => !sidebarRendered && setIsSourcesOpen((prev) => !prev)}
+          onKeyDown={handleSourceClick}
+          onClick={handleSourceClick}
         >
           <p className="font-bold typo-callout text-theme-label-quaternary laptop:text-theme-label-quaternary">
             Sources{' '}
