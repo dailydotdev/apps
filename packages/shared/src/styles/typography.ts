@@ -59,6 +59,11 @@ export const typoBody = `
   line-height: 1.375rem;
 `;
 
+export const typoMarkdown = `
+  font-size: 1.0625rem;
+  line-height: 1.75rem;
+`;
+
 export const typoCallout = `
   font-size: 0.9375rem;
   line-height: 1.25rem;

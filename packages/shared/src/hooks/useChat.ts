@@ -14,6 +14,7 @@ import {
   SearchChunk,
   SearchChunkError,
   SearchChunkSource,
+  searchPageUrl,
   sendSearchQuery,
   updateSearchData,
 } from '../graphql/search';
@@ -95,17 +96,26 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
         const data: UseChatMessage = JSON.parse(event.data);
 
         switch (data.type) {
-          case UseChatMessageType.SessionCreated:
+          case UseChatMessageType.SessionCreated: {
+            const payload = data.payload as CreatePayload;
             client.setQueryData(
               idQueryKey,
               initializeSearchSession({
-                ...(data.payload as CreatePayload),
+                ...payload,
                 createdAt: new Date(),
                 status: data.status,
                 prompt,
               }),
             );
+            if (payload.id) {
+              window.history.pushState(
+                data,
+                'Running search',
+                `${searchPageUrl}?id=${payload.id}`,
+              );
+            }
             break;
+          }
           case UseChatMessageType.WebSearchFinished:
             setSearchQuery({
               sources: (data.payload as SourcesMessage).sources,
