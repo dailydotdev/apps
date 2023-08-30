@@ -155,7 +155,7 @@ const RenderMarkdown = ({
                   <Button
                     className="btn-tertiary"
                     icon={<CopyIcon />}
-                    disabled={copying}
+                    disabled={copying || isLoading}
                     buttonSize={ButtonSize.XSmall}
                     onClick={() =>
                       copy({
