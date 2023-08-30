@@ -25,7 +25,8 @@ export const useSearchSuggestions: UseSearchSuggestions = (args) => {
 
   const suggestions = useMemo(
     () =>
-      data?.map(({ question }) => ({
+      data?.map(({ id, question }) => ({
+        id,
         prompt: question,
       })),
     [data],

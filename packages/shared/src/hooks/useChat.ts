@@ -94,6 +94,13 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
     [client, idQueryKey],
   );
 
+  const trackErrorEvent = useCallback(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.ErrorSearch,
+      target_id: id,
+    });
+  }, [trackEvent, id]);
+
   const onMessage = useCallback(
     (event: MessageEvent) => {
       try {
@@ -152,11 +159,13 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
             break;
         }
       } catch (error) {
+        trackErrorEvent();
+
         // eslint-disable-next-line no-console
         console.error('[EventSource][message] error', error);
       }
     },
-    [client, prompt, idQueryKey, setSearchQuery],
+    [client, prompt, idQueryKey, setSearchQuery, trackErrorEvent],
   );
 
   const onError = useCallback(() => {
@@ -169,11 +178,8 @@ export const useChat = ({ id: idFromProps, query }: UseChatProps): UseChat => {
       progress: -1,
     });
 
-    trackEvent({
-      event_name: AnalyticsEvent.ErrorSearch,
-      target_id: id,
-    });
-  }, [setSearchQuery, trackEvent, id]);
+    trackErrorEvent();
+  }, [setSearchQuery, trackErrorEvent]);
 
   const executePrompt = useCallback(
     async (value: string) => {

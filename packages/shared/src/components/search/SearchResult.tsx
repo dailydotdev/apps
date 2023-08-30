@@ -59,10 +59,19 @@ export function SearchResult({
     {
       onMutate: (value) => {
         const previousValue = chunk.feedback;
+        const eventNames = {
+          1: AnalyticsEvent.UpvoteSearch,
+          [-1]: AnalyticsEvent.DownvoteSearch,
+        };
 
         client.setQueryData<Search>(queryKey, (search) =>
           updateSearchData(search, { feedback: value }),
         );
+
+        trackEvent({
+          event_name: eventNames[chunk.feedback],
+          target_id: chunk.id,
+        });
 
         return () =>
           client.setQueryData<Search>(queryKey, (search) =>
@@ -71,16 +80,6 @@ export function SearchResult({
       },
       onSuccess: () => {
         displayToast(labels.search.feedbackText);
-
-        const eventNames = {
-          1: AnalyticsEvent.UpvoteSearch,
-          [-1]: AnalyticsEvent.DownvoteSearch,
-        };
-
-        trackEvent({
-          event_name: eventNames[chunk.feedback],
-          target_id: chunk.id,
-        });
       },
       onError: (_, __, rollback: () => void) => rollback?.(),
     },

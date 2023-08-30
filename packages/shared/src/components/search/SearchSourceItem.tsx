@@ -18,7 +18,7 @@ export function SearchSourceItem({
     if (itemId) {
       trackEvent({
         event_name: AnalyticsEvent.Impression,
-        target_type: TargetType.SearchRecommendation,
+        target_type: TargetType.SearchSource,
         target_id: itemId,
         feed_item_title: name,
         feed_iem_target_url: url,
