@@ -56,7 +56,7 @@ export function SearchResult({
   );
 
   return (
-    <main className="order-3 laptop:order-3 col-span-2 px-4 laptop:px-8 mb-5 w-full">
+    <main className="order-2 laptop:order-3 col-span-2 px-4 laptop:px-8 mb-0 laptop:mb-5 w-full">
       <WidgetContainer className="flex p-4">
         <div className="flex p-2 mr-4 w-10 h-10 rounded-10 bg-theme-color-cabbage">
           <LogoIcon className="max-w-full" />

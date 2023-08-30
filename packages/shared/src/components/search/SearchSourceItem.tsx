@@ -14,7 +14,7 @@ export function SearchSourceItem({
   const { name, snippet, url } = item;
 
   return (
-    <div className="w-60 laptop:w-full">
+    <div className="w-full">
       <ClickableText
         tag="a"
         target="_blank"

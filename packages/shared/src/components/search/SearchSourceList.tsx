@@ -28,7 +28,10 @@ export const SearchSourceList = ({
   });
 
   return (
-    <PageWidgets tablet={false} className="relative order-2 laptop:order-last">
+    <PageWidgets
+      tablet={false}
+      className="relative order-3 laptop:order-last col-span-2 laptop:col-span-1"
+    >
       <i className="hidden laptop:block absolute top-8 -left-8 w-12 h-px bg-theme-divider-tertiary" />
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div
@@ -57,7 +60,7 @@ export const SearchSourceList = ({
         </div>
         <div
           className={classNames(
-            'gap-4 p-4 laptop:min-h-[14rem] overflow-x-scroll flex-row laptop:flex-col',
+            'gap-4 p-4 laptop:min-h-[14rem] overflow-x-scroll flex-col',
             isSourcesOpen ? 'flex' : 'hidden laptop:flex',
           )}
         >
