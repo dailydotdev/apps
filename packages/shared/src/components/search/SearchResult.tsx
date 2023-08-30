@@ -92,6 +92,7 @@ export function SearchResult({
               icon={<CopyIcon secondary={isCopying} />}
               buttonSize={ButtonSize.Small}
               onClick={() => copyContent()}
+              disabled={isInProgress}
             />
           </div>
         </div>
