@@ -7,9 +7,17 @@ import { Post } from './posts';
 
 export const searchPageUrl = `${webappUrl}search`;
 
+export enum SearchChunkErrorCode {
+  Unexpected = '-1',
+  Common = '0',
+  Bragi = '1',
+  Search = '2',
+  RateLimit = '3',
+}
+
 export interface SearchChunkError {
   message: string;
-  code: string;
+  code: SearchChunkErrorCode;
 }
 
 export interface SearchChunkSource {
@@ -199,8 +207,12 @@ export const updateSearchData = (
 
   const updated = {
     ...previous,
-    chunks: [{ ...previous.chunks[0], ...chunk }],
+    chunks: [{ ...previous?.chunks?.[0], ...chunk }],
   };
+
+  if (chunk.error) {
+    return updated;
+  }
 
   if (chunk.status) {
     updated.chunks[0].progress += 1;
