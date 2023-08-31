@@ -78,7 +78,7 @@ export function SearchBarSuggestionList({
             question: suggestion.prompt,
           })}
         >
-          {prompt}
+          {suggestion.prompt}
         </SearchBarSuggestion>
       ))}
     </div>
