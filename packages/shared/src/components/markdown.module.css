@@ -56,6 +56,9 @@
   & :where(ul ul, ul ol, ol ul, ol ol) {
     @apply typo-markdown my-2;
   }
+  & :where(ol p) {
+    @apply my-0;
+  }
   & :where(a) {
     @apply typo-markdown text-theme-label-link hover:underline;
   }

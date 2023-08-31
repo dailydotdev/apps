@@ -175,7 +175,7 @@ export const FeedContainer = ({
           <div
             className={classNames(
               'grid',
-              isV1Search && 'mt-6',
+              isV1Search && 'mt-8',
               gapClass(isList, spaciness),
               cardClass(isList, numCards),
             )}

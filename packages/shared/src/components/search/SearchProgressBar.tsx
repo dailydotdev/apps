@@ -9,12 +9,12 @@ export interface SearchProgressBarProps {
 
 export const SearchProgressBar = ({
   progress = -1,
-  max = 3,
+  max = 0,
 }: SearchProgressBarProps): ReactElement => {
   const isDone = progress >= max;
 
   return (
-    <div className="flex relative gap-3" data-testId="SearchProgressBar">
+    <div className="flex relative gap-3 h-2" data-testId="SearchProgressBar">
       {Array.from({ length: max }).map((_, index) => (
         <span
           /* eslint-disable-next-line react/no-array-index-key */
