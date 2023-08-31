@@ -3,9 +3,9 @@ import { WidgetContainer } from '../widgets/common';
 import { Button, ButtonSize } from '../buttons/Button';
 import FeedbackIcon from '../icons/Feedback';
 import { ListCardDivider } from '../cards/Card';
-import TrafficLight from '../../svg/TrafficLight';
 import { PageWidgets } from '../utilities';
 import { searchDocs, searchFeedback } from '../../lib/constants';
+import DocsIcon from '../icons/Docs';
 
 export const SearchFeedback = (): ReactElement => (
   <PageWidgets
@@ -30,11 +30,11 @@ export const SearchFeedback = (): ReactElement => (
         target="_blank"
         rel="noopener"
         href={searchDocs}
-        icon={<TrafficLight />}
+        icon={<DocsIcon />}
         className="btn-tertiary"
         buttonSize={ButtonSize.Small}
       >
-        Use cases
+        User guide
       </Button>
     </WidgetContainer>
   </PageWidgets>
