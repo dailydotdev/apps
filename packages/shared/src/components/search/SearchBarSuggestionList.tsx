@@ -56,24 +56,18 @@ export function SearchBarSuggestionList({
     );
   }
 
-  const gridClass =
+  const itemClass =
     lengthToClass[suggestions.length.toString()] ?? 'max-w-[33%]';
 
   return (
-    <div
-      className={classNames(
-        'flex flex-row w-full shrink gap-4',
-        gridClass,
-        className,
-      )}
-    >
+    <div className={classNames('flex flex-row shrink gap-4', className)}>
       {suggestions.map((suggestion, i) => (
         <SearchBarSuggestion
           tag="a"
           origin={origin}
           className={classNames(
             i >= 2 && 'tablet:hidden laptop:flex',
-            lengthToClass,
+            itemClass,
           )}
           suggestion={suggestion}
           key={suggestion.prompt}
