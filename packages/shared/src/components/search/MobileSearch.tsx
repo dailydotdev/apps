@@ -45,6 +45,14 @@ export function MobileSearch({
     inputRef.current?.focus();
   }, []);
 
+  const handleClearClick = (event: MouseEvent): void => {
+    event.stopPropagation();
+    setInput('');
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   return (
     <InteractivePopup
       position={InteractivePopupPosition.Screen}
@@ -64,7 +72,7 @@ export function MobileSearch({
           <Button
             type="button"
             className="ml-auto btn-tertiary"
-            onClick={() => setInput('')}
+            onClick={handleClearClick}
             disabled={!input}
           >
             Clear
