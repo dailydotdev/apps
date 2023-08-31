@@ -95,7 +95,7 @@ export function SearchResult({
     }
   }, [isCopying, copyContent, trackEvent, chunk?.id]);
 
-  if (!chunk?.response) {
+  if (!chunk?.response && !chunk?.error) {
     return (
       <Container className="flex-col gap-2 p-6">
         <ContentPill />
@@ -104,6 +104,10 @@ export function SearchResult({
         <ContentPill className="!w-1/2" />
       </Container>
     );
+  }
+
+  if (!chunk?.response) {
+    return null;
   }
 
   return (
