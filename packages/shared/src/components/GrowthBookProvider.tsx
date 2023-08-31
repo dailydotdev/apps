@@ -10,6 +10,7 @@ import {
   Context,
   GrowthBook,
   GrowthBookProvider as Provider,
+  useFeatureValue,
   useFeatureIsOn as gbUseFeatureIsOn,
 } from '@growthbook/growthbook-react';
 import { isProduction } from '../lib/constants';
@@ -74,7 +75,6 @@ export const GrowthBookProvider = ({
   useEffect(() => {
     if (gb && experimentation?.f) {
       const currentFeats = gb.getFeatures();
-
       // Do not update when the features are already set
       if (!currentFeats || !Object.keys(currentFeats).length) {
         decrypt(
@@ -145,3 +145,8 @@ export const GrowthBookProvider = ({
 
 export const useFeatureIsOn = <T extends Features>(feature: T): boolean =>
   gbUseFeatureIsOn(feature.id);
+
+export const useFeature = <T extends Features>(
+  feature: T,
+): typeof feature.defaultValue =>
+  useFeatureValue(feature.id, feature.defaultValue);

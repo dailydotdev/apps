@@ -9,7 +9,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
+import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import classNames from 'classnames';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';

@@ -1,4 +1,4 @@
-import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
+import { CopyNotifyFunction, useCopyLink } from './useCopy';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
 import { Squad } from '../graphql/sources';

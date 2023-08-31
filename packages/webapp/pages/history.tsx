@@ -1,99 +1,86 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
-import dynamic from 'next/dynamic';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
-import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
-import useInfiniteReadingHistory, {
-  ReadHistoryInfiniteData,
-} from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
-import ReadingHistoryList from '@dailydotdev/shared/src/components/history/ReadingHistoryList';
-import ReadingHistoryPlaceholder from '@dailydotdev/shared/src/components/history/ReadingHistoryPlaceholder';
-import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
-import { useQueryClient } from 'react-query';
-import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
-import { getLayout } from '../components/layouts/MainLayout';
 import {
-  READING_HISTORY_QUERY,
-  SEARCH_READING_HISTORY_QUERY,
-} from '../../shared/src/graphql/users';
+  Tab,
+  TabContainer,
+} from '@dailydotdev/shared/src/components/tabs/TabContainer';
+import { SearchHistory } from '@dailydotdev/shared/src/components';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
+import { laptop } from '@dailydotdev/shared/src/styles/media';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
+import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
-
-const PostsSearch = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "routerPostsSearch" */ '../components/RouterPostsSearch'
-    ),
-  {
-    ssr: false,
-  },
-);
+import { HistoryType, ReadingHistory } from '../components/history';
 
 const History = (): ReactElement => {
-  const seo = <NextSeo title="Reading History" nofollow noindex />;
+  const { trackEvent } = useContext(AnalyticsContext);
+  const searchValue = useFeature(Features.Search);
+  const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
+  const seo = (
+    <NextSeo
+      title={
+        searchValue === SearchExperiment.Control ? 'Reading history' : 'History'
+      }
+      nofollow
+      noindex
+    />
+  );
   const router = useRouter();
-  const { user } = useContext(AuthContext);
-  const searchQuery = router.query?.q?.toString();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const key = ['readHistory', user?.id];
-  const client = useQueryClient();
+  const tabQuery = router.query?.t?.toString() as HistoryType;
+  const [page, setPage] = useState(HistoryType.Reading);
 
-  const queryProps = useMemo(() => {
-    if (searchQuery) {
-      return {
-        key: [...key, searchQuery],
-        query: SEARCH_READING_HISTORY_QUERY,
-        variables: { query: searchQuery },
-      };
-    }
-    return {
-      key,
-      query: READING_HISTORY_QUERY,
-    };
-  }, [searchQuery, key]);
+  const handleSetPage = useCallback(
+    (active: HistoryType) => {
+      setPage(active);
 
-  const { hideReadHistory } = useReadingHistory(key);
-  const { data, isInitialLoading, isLoading, hasData, infiniteScrollRef } =
-    useInfiniteReadingHistory({ ...queryProps });
+      if (active === HistoryType.Search) {
+        trackEvent({ event_name: AnalyticsEvent.OpenSearchHistory });
+      }
+    },
+    [setPage, trackEvent],
+  );
 
-  const hasReadingHistory = client
-    .getQueryData<ReadHistoryInfiniteData>(key)
-    ?.pages?.some((page) => page.readHistory.edges.length > 0);
-  const shouldShowEmptyScreen = !hasData && !isLoading;
+  useEffect(() => {
+    const pages = Object.values(HistoryType);
+    if (!tabQuery || !pages.includes(tabQuery)) return;
+
+    setPage(tabQuery);
+  }, [tabQuery]);
+
+  if (!router.isReady) return seo;
 
   return (
-    <ProtectedPage
-      seo={seo}
-      fallback={<ReadingHistoryEmptyScreen />}
-      shouldFallback={!hasReadingHistory && !isLoading}
-    >
-      <ResponsivePageContainer
-        className={isInitialLoading && 'h-screen overflow-hidden'}
-        style={{ paddingLeft: 0, paddingRight: 0 }}
-        aria-busy={isLoading}
-        role="main"
-      >
-        <div className="px-6 mb-10">
-          <h1 className="mb-4 font-bold typo-headline">Reading History</h1>
-          <PostsSearch
-            autoFocus={false}
-            placeholder="Search reading history"
-            suggestionType="searchReadingHistorySuggestions"
-          />
-        </div>
-        {hasData && (
-          <ReadingHistoryList
-            data={data}
-            onHide={hideReadHistory}
-            infiniteScrollRef={infiniteScrollRef}
-          />
+    <ProtectedPage seo={seo}>
+      <div className="flex laptop:hidden absolute left-0 w-full h-px top-[6.75rem] bg-theme-divider-tertiary" />
+      <ResponsivePageContainer className="relative !p-0" role="main">
+        {searchValue === SearchExperiment.Control ? (
+          <ReadingHistory />
+        ) : (
+          <TabContainer<HistoryType>
+            controlledActive={page}
+            onActiveChange={handleSetPage}
+            showBorder={isLaptop}
+          >
+            <Tab label={HistoryType.Reading}>
+              <ReadingHistory />
+            </Tab>
+            <Tab label={HistoryType.Search}>
+              <SearchHistory />
+            </Tab>
+          </TabContainer>
         )}
-        {isLoading && (
-          <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
-        )}
-        {shouldShowEmptyScreen && <SearchEmptyScreen />}
       </ResponsivePageContainer>
     </ProtectedPage>
   );

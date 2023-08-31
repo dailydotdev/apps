@@ -62,6 +62,10 @@ const CompanionModal = dynamic(
   () => import(/* webpackChunkName: "CompanionModal" */ './CompanionModal'),
 );
 
+const FeedFilters = dynamic(
+  () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -73,6 +77,7 @@ export const modals = {
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
   [LazyModal.CompanionModal]: CompanionModal,
+  [LazyModal.FeedFilters]: FeedFilters,
 };
 
 type GetComponentProps<T> = T extends

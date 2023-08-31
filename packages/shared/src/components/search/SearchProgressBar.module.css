@@ -1,0 +1,13 @@
+.animatedBar {
+  background-image: linear-gradient(to right, rgba(113, 71, 237, 0), rgb(206, 61, 243));
+  animation: fadeLeftToRight 1.2s linear infinite;
+}
+
+@keyframes fadeLeftToRight {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 120%;
+  }
+}

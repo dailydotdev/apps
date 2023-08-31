@@ -63,7 +63,7 @@ export function SquadMemberModal({
 }: SquadMemberModalProps): ReactElement {
   const [roleFilter, setRoleFilter] = useState<SourceMemberRole>(null);
   const [member, setMember] = useState<SourceMember>(null);
-  const { onMenuClick, hideAll: hideMenu } = useContextMenu({
+  const { onMenuClick, onHide: hideMenu } = useContextMenu({
     id: 'squad-member-menu-context',
   });
   const {

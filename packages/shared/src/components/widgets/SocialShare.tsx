@@ -29,7 +29,7 @@ import MenuIcon from '../icons/Menu';
 import CopyIcon from '../icons/Copy';
 import { usePostToSquad } from '../../hooks';
 import { SocialShareContainer } from './SocialShareContainer';
-import { useCopyLink } from '../../hooks/useCopyLink';
+import { useCopyLink } from '../../hooks/useCopy';
 import { SquadsToShare } from '../squads/SquadsToShare';
 
 interface SocialShareProps {

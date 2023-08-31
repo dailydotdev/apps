@@ -1,10 +1,12 @@
 import React, {
   CSSProperties,
+  FormEvent,
   ReactElement,
   ReactNode,
   useContext,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
@@ -14,6 +16,13 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
+import { SearchBarSuggestionList, SearchBarInput } from '../search';
+import { useFeature } from '../GrowthBookProvider';
+import { Features } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
+import { webappUrl } from '../../lib/constants';
+import { useSearchSuggestions } from '../../hooks/search';
+import { Origin } from '../../lib/analytics';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -22,6 +31,9 @@ export interface FeedContainerProps {
   className?: string;
   inlineHeader?: boolean;
   afterFeed?: ReactNode;
+  showSearch?: boolean;
+  besideSearch?: ReactNode;
+  actionButtons?: ReactNode;
 }
 
 const listGaps = {
@@ -75,6 +87,9 @@ export const FeedContainer = ({
   className,
   inlineHeader = false,
   afterFeed,
+  showSearch,
+  besideSearch,
+  actionButtons,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -83,6 +98,8 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const router = useRouter();
+  const searchValue = useFeature(Features.Search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = insaneMode && numCards > 1;
@@ -92,10 +109,17 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
+  const suggestionsProps = useSearchSuggestions({ origin: Origin.HomePage });
 
   if (!loadedSettings) {
     return <></>;
   }
+
+  const isV1Search = searchValue === SearchExperiment.V1 && showSearch;
+  const onSearch = (event: FormEvent, input: string) => {
+    event.preventDefault();
+    router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
+  };
 
   return (
     <div
@@ -119,9 +143,39 @@ export const FeedContainer = ({
           data-testid="posts-feed"
         >
           {inlineHeader && header}
+          {isV1Search && (
+            <span className="flex flex-row gap-3">
+              <SearchBarInput
+                className={{
+                  container: 'max-w-2xl w-full flex flex-1',
+                  field: 'w-full',
+                  form: 'w-full',
+                }}
+                showProgress={false}
+                onSubmit={onSearch}
+                shouldShowPopup
+                suggestionsProps={suggestionsProps}
+              />
+              {besideSearch}
+            </span>
+          )}
+          {isV1Search && (
+            <span className="flex flex-row flex-1 mt-4">
+              <SearchBarSuggestionList
+                {...suggestionsProps}
+                className="hidden tablet:flex mr-3"
+              />
+              {actionButtons && (
+                <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
+                  {actionButtons}
+                </span>
+              )}
+            </span>
+          )}
           <div
             className={classNames(
               'grid',
+              isV1Search && 'mt-8',
               gapClass(isList, spaciness),
               cardClass(isList, numCards),
             )}

@@ -23,6 +23,7 @@ interface ClassName {
   label?: string;
   chevron?: string;
   indicator?: string;
+  button?: string;
   item?: string;
 }
 
@@ -39,6 +40,7 @@ export interface DropdownProps {
   scrollable?: boolean;
   renderItem?: (value: string, index: number) => ReactNode;
   placeholder?: string;
+  iconOnly?: boolean;
 }
 
 const getButtonSizeClass = (buttonSize: string): string => {
@@ -46,7 +48,7 @@ const getButtonSizeClass = (buttonSize: string): string => {
     return 'h-9 rounded-10 text-theme-label-primary typo-body';
   }
   if (buttonSize === 'medium') {
-    return 'h-10 rounded-xl';
+    return 'h-10 rounded-xl min-w-[2.5rem]';
   }
   if (buttonSize === 'small') {
     return 'h-8 rounded-10';
@@ -66,6 +68,7 @@ export function Dropdown({
   scrollable = false,
   renderItem,
   placeholder = '',
+  iconOnly,
   ...props
 }: DropdownProps): ReactElement {
   const [id] = useState(`dropdown-${Math.random().toString(36).substring(7)}`);
@@ -125,6 +128,8 @@ export function Dropdown({
         className={classNames(
           'group flex w-full px-3 font-normal items-center bg-theme-float typo-body text-theme-label-tertiary hover:text-theme-label-primary hover:bg-theme-hover',
           getButtonSizeClass(buttonSize),
+          className?.button,
+          iconOnly && 'items-center justify-center',
         )}
         onClick={handleMenuTrigger}
         onKeyDown={handleKeyboard}
