@@ -15,7 +15,6 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { browser } from 'webextension-polyfill-ts';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
-import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
@@ -25,10 +24,7 @@ import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import {
-  PromptOptions,
-  usePrompt,
-} from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
