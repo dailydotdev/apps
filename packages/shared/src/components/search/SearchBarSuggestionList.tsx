@@ -14,11 +14,6 @@ export interface SearchBarSuggestionListProps {
   origin: SuggestionOrigin;
 }
 
-const lengthToClass = {
-  '1': 'max-w-full',
-  '2': 'max-w-[50%]',
-};
-
 export function SearchBarSuggestionList({
   className,
   isLoading,
@@ -56,20 +51,17 @@ export function SearchBarSuggestionList({
     );
   }
 
-  const itemClass =
-    lengthToClass[suggestions.length.toString()] ?? 'max-w-[33%]';
-
   return (
-    <div className={classNames('flex flex-row flex-1 shrink gap-4', className)}>
-      {suggestions.map((suggestion, i) => (
+    <div
+      className={classNames(
+        'flex flex-wrap gap-4 w-full flex-1 tablet:h-10 overflow-hidden',
+        className,
+      )}
+    >
+      {suggestions.map((suggestion) => (
         <SearchBarSuggestion
           tag="a"
           origin={origin}
-          className={classNames(
-            i >= 2 && 'tablet:hidden laptop:flex',
-            itemClass,
-            'flex-1',
-          )}
           suggestion={suggestion}
           key={suggestion.prompt}
           href={getSearchUrl({

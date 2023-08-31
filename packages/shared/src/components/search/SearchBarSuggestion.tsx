@@ -57,7 +57,7 @@ export const SearchBarSuggestion = ({
 
   return (
     <Button
-      spanClassName="w-fit my-2 flex-shrink laptop:line-clamp-2"
+      spanClassName="w-fit my-2 flex-shrink tablet:line-clamp-1"
       textPosition="justify-start"
       icon={<AiIcon />}
       buttonSize={ButtonSize.XLarge}
