@@ -27,15 +27,26 @@ export const SearchSourceList = ({
     limit: 3,
   });
 
+  const handleSourceClick = (): void =>
+    !sidebarRendered && setIsSourcesOpen((prev) => !prev);
+
   return (
-    <PageWidgets tablet={false} className="relative order-2 laptop:order-last">
+    <PageWidgets
+      tablet={false}
+      className="relative order-3 laptop:order-last col-span-2 laptop:col-span-1"
+    >
       <i className="hidden laptop:block absolute top-8 -left-8 w-12 h-px bg-theme-divider-tertiary" />
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div
           className={classNames(
-            'flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:!pb-0 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
+            'cursor-pointer laptop:cursor-auto flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:!pb-0 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
             isSourcesOpen ? 'rounded-t-16' : 'rounded-16',
           )}
+          role="button"
+          tabIndex={0}
+          aria-label="Sources"
+          onKeyDown={handleSourceClick}
+          onClick={handleSourceClick}
         >
           <p className="font-bold typo-callout text-theme-label-quaternary laptop:text-theme-label-quaternary">
             Sources{' '}
@@ -52,12 +63,11 @@ export const SearchSourceList = ({
             iconOnly
             buttonSize={ButtonSize.Small}
             className="block laptop:hidden btn-tertiary"
-            onClick={() => setIsSourcesOpen((prev) => !prev)}
           />
         </div>
         <div
           className={classNames(
-            'gap-4 p-4 laptop:min-h-[14rem] overflow-x-scroll flex-row laptop:flex-col',
+            'gap-4 p-4 laptop:min-h-[14rem] overflow-x-scroll flex-col',
             isSourcesOpen ? 'flex' : 'hidden laptop:flex',
           )}
         >
