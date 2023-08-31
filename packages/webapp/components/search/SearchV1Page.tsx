@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import {
   SearchResult,
@@ -7,6 +7,7 @@ import {
 import { useChat } from '@dailydotdev/shared/src/hooks';
 import { SearchContainer } from '@dailydotdev/shared/src/components/search/SearchContainer';
 import { useRouter } from 'next/router';
+import { searchPageUrl } from '@dailydotdev/shared/src/graphql/search';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
@@ -15,11 +16,37 @@ import { getTemplatedTitle } from '../layouts/utils';
 const SearchPage = (): ReactElement => {
   const router = useRouter();
   const query = router?.query?.q as string;
-  const { data, queryKey, handleSubmit, isLoading } = useChat({
-    id: router?.query?.id as string,
-    query,
+  const sessionId = router?.query?.id as string;
+  const { data, isLoading, queryKey, handleSubmit } = useChat({
+    id: sessionId,
   });
-  const content = data?.chunks?.[0]?.response || '';
+  const searchId = data?.id;
+  const chunk = data?.chunks?.[0];
+  const content = chunk?.response || '';
+
+  useEffect(() => {
+    if (!searchId) {
+      return;
+    }
+
+    const newRoute = `${searchPageUrl}?id=${searchId}`;
+
+    router.replace(newRoute, undefined, {
+      shallow: true,
+    });
+    // router reference is not stable https://github.com/vercel/next.js/issues/18127
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchId]);
+
+  useEffect(() => {
+    const shouldApplySearchQuery = !!(query && !searchId);
+
+    if (!shouldApplySearchQuery) {
+      return;
+    }
+
+    handleSubmit(undefined, query);
+  }, [searchId, query, handleSubmit]);
 
   const seo: NextSeoProps = {
     title: getTemplatedTitle(data?.chunks[0]?.prompt || query || 'Search'),
@@ -37,7 +64,13 @@ const SearchPage = (): ReactElement => {
 
   return (
     <SearchContainer
-      onSubmit={handleSubmit}
+      onSubmit={(event, value) => {
+        router.push(searchPageUrl, undefined, {
+          shallow: true,
+        });
+
+        handleSubmit(event, value);
+      }}
       chunk={data?.chunks?.[0]}
       isLoading={!router?.isReady}
     >
