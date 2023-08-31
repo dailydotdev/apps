@@ -15,8 +15,8 @@ export interface SearchBarSuggestionListProps {
 }
 
 const lengthToClass = {
-  '1': 'tablet:grid-cols-1',
-  '2': 'tablet:grid-cols-2',
+  '1': 'max-w-full',
+  '2': 'max-w-[50%]',
 };
 
 export function SearchBarSuggestionList({
@@ -57,20 +57,24 @@ export function SearchBarSuggestionList({
   }
 
   const gridClass =
-    lengthToClass[suggestions.length.toString()] ?? 'tablet:grid-cols-3';
+    lengthToClass[suggestions.length.toString()] ?? 'max-w-[33%]';
 
   return (
     <div
       className={classNames(
-        'flex tablet:grid max-w-full w-full gap-4',
+        'flex flex-row w-full shrink gap-4',
         gridClass,
         className,
       )}
     >
-      {suggestions.map((suggestion) => (
+      {suggestions.map((suggestion, i) => (
         <SearchBarSuggestion
           tag="a"
           origin={origin}
+          className={classNames(
+            i >= 2 && 'tablet:hidden laptop:flex',
+            lengthToClass,
+          )}
           suggestion={suggestion}
           key={suggestion.prompt}
           href={getSearchUrl({
