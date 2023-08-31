@@ -71,7 +71,7 @@ const SearchPage = (): ReactElement => {
 
         handleSubmit(event, value);
       }}
-      chunk={data?.chunks?.[0]}
+      chunk={chunk}
       isLoading={!router?.isReady}
     >
       <NextSeo {...seo} />
@@ -80,13 +80,12 @@ const SearchPage = (): ReactElement => {
           <SearchResult
             queryKey={queryKey}
             isInProgress={isLoading}
-            chunk={data?.chunks?.[0]}
+            chunk={chunk}
             searchMessageProps={{ isLoading }}
           />
-          <SearchSourceList
-            sources={data?.chunks?.[0]?.sources}
-            isLoading={isLoading}
-          />
+          {!!content && (
+            <SearchSourceList sources={chunk?.sources} isLoading={isLoading} />
+          )}
         </>
       )}
     </SearchContainer>
