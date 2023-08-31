@@ -6,6 +6,8 @@ import React, {
   MouseEvent,
   ReactElement,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -84,6 +86,21 @@ function SearchBarInputComponent(
     [true],
     false,
   );
+
+  const lastChunkIdRef = useRef(chunk?.id);
+
+  useEffect(() => {
+    if (!chunk?.prompt) {
+      return;
+    }
+
+    if (chunk.id === lastChunkIdRef.current) {
+      return;
+    }
+
+    lastChunkIdRef.current = chunk.id;
+    setInput(chunk.prompt);
+  }, [chunk?.prompt, chunk?.id, setInput]);
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
@@ -185,13 +202,13 @@ function SearchBarInputComponent(
                 title="Clear query"
                 onClick={onClearClick}
                 icon={<CloseIcon />}
-                disabled={!hasInput}
                 type="button"
               />
             )}
             <div className="h-8 border border-theme-divider-quaternary" />
             <SearchHistoryButton />
             <SearchSubmitButton
+              buttonProps={{ disabled: !hasInput }}
               tooltipProps={{
                 content: !hasInput && 'Enter text to start searching',
               }}
