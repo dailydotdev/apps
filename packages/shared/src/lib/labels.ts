@@ -12,5 +12,7 @@ export const labels = {
   },
   search: {
     feedbackText: 'Thanks for your feedback!',
+    shortDescription:
+      'Explore daily.dev Search, the AI-powered search engine for developers. Learn about its unique features, integration with the daily.dev platform, and how to get the most accurate search results. Your go-to guide for leveraging daily.dev Search in your coding journey.',
   },
 };

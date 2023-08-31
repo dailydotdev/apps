@@ -6,7 +6,7 @@ import { SearchHistoryContainer } from './common';
 import { SearchBarSuggestion } from './SearchBarSuggestion';
 import { SearchSkeleton } from './SearchSkeleton';
 import TimerIcon from '../icons/Timer';
-import { useSearchHistory } from '../../hooks/search/useSearchHistory';
+import { useSearchHistory } from '../../hooks/search';
 
 interface SearchHistoryProps {
   showEmptyState?: boolean;
@@ -34,12 +34,17 @@ export function SearchHistory({
       <span className="font-bold text-theme-label-quaternary typo-footnote">
         {title}
       </span>
-      {nodes?.map(({ node: { id, prompt } }) => (
+      {nodes?.map(({ node: suggestion }) => (
         <SearchBarSuggestion
-          key={id}
+          isHistory
+          key={suggestion.id}
           tag="a"
           icon={<TimerIcon />}
-          href={getSearchUrl({ id })}
+          suggestion={suggestion}
+          href={getSearchUrl({
+            id: suggestion.id,
+            question: suggestion.prompt,
+          })}
         >
           {prompt}
         </SearchBarSuggestion>

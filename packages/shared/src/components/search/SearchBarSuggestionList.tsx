@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { SearchBarSuggestion } from './SearchBarSuggestion';
+import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
 import { getSearchUrl, SearchSession } from '../../graphql/search';
@@ -11,12 +11,19 @@ export interface SearchBarSuggestionListProps {
   className?: string;
   isLoading?: boolean;
   suggestions?: Partial<SearchSession>[];
+  origin: SuggestionOrigin;
 }
+
+const lengthToClass = {
+  '1': 'tablet:grid-cols-1',
+  '2': 'tablet:grid-cols-2',
+};
 
 export function SearchBarSuggestionList({
   className,
   isLoading,
   suggestions,
+  origin,
 }: SearchBarSuggestionListProps): React.ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -49,13 +56,27 @@ export function SearchBarSuggestionList({
     );
   }
 
+  const gridClass =
+    lengthToClass[suggestions.length.toString()] ?? 'tablet:grid-cols-3';
+
   return (
-    <div className={classNames('flex flex-wrap gap-4', className)}>
-      {suggestions.map(({ id, prompt }) => (
+    <div
+      className={classNames(
+        'flex tablet:grid max-w-full w-full gap-4',
+        gridClass,
+        className,
+      )}
+    >
+      {suggestions.map((suggestion) => (
         <SearchBarSuggestion
           tag="a"
-          key={prompt}
-          href={getSearchUrl({ id, question: prompt })}
+          origin={origin}
+          suggestion={suggestion}
+          key={suggestion.prompt}
+          href={getSearchUrl({
+            id: suggestion.id,
+            question: suggestion.prompt,
+          })}
         >
           {prompt}
         </SearchBarSuggestion>

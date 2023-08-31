@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
 import { QueryKey, useMutation, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
@@ -20,6 +20,8 @@ import { labels } from '../../lib';
 import { Pill } from '../utilities/loaders';
 import { WithClassNameProps } from '../utilities';
 import classed from '../../lib/classed';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 export interface SearchResultProps {
   chunk: SearchChunk;
@@ -48,6 +50,7 @@ export function SearchResult({
   isInProgress,
   searchMessageProps,
 }: SearchResultProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const [isCopying, copyContent] = useCopyText(chunk.response);
@@ -56,10 +59,19 @@ export function SearchResult({
     {
       onMutate: (value) => {
         const previousValue = chunk.feedback;
+        const eventNames = {
+          1: AnalyticsEvent.UpvoteSearch,
+          [-1]: AnalyticsEvent.DownvoteSearch,
+        };
 
         client.setQueryData<Search>(queryKey, (search) =>
           updateSearchData(search, { feedback: value }),
         );
+
+        trackEvent({
+          event_name: eventNames[chunk.feedback],
+          target_id: chunk.id,
+        });
 
         return () =>
           client.setQueryData<Search>(queryKey, (search) =>
@@ -72,6 +84,16 @@ export function SearchResult({
       onError: (_, __, rollback: () => void) => rollback?.(),
     },
   );
+
+  const handleCopy = useCallback(() => {
+    if (!isCopying && chunk?.id) {
+      copyContent();
+      trackEvent({
+        event_name: AnalyticsEvent.CopySearch,
+        target_id: chunk.id,
+      });
+    }
+  }, [isCopying, copyContent, trackEvent, chunk?.id]);
 
   if (!chunk?.response) {
     return (
@@ -119,7 +141,7 @@ export function SearchResult({
             iconOnly
             icon={<CopyIcon secondary={isCopying} />}
             buttonSize={ButtonSize.Small}
-            onClick={() => copyContent()}
+            onClick={handleCopy}
             disabled={isInProgress}
           />
         </div>
