@@ -46,7 +46,7 @@ export function SearchHistory({
             question: suggestion.prompt,
           })}
         >
-          {prompt}
+          {suggestion.prompt}
         </SearchBarSuggestion>
       ))}
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
