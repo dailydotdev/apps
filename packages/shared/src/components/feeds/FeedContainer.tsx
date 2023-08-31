@@ -22,6 +22,7 @@ import { Features } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
+import { Origin } from '../../lib/analytics';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -108,7 +109,7 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
-  const suggestionsProps = useSearchSuggestions();
+  const suggestionsProps = useSearchSuggestions({ origin: Origin.HomePage });
 
   if (!loadedSettings) {
     return <></>;
@@ -162,7 +163,7 @@ export const FeedContainer = ({
             <span className="flex flex-row flex-1 mt-4">
               <SearchBarSuggestionList
                 {...suggestionsProps}
-                className="hidden tablet:flex overflow-hidden flex-1 mr-3"
+                className="hidden tablet:flex overflow-hidden flex-1 tablet:flex-none mr-3"
               />
               {actionButtons && (
                 <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">

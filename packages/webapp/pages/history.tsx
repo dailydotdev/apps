@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useRouter } from 'next/router';
@@ -12,11 +18,14 @@ import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
 import { HistoryType, ReadingHistory } from '../components/history';
 
 const History = (): ReactElement => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const searchValue = useFeature(Features.Search);
   const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
   const seo = (
@@ -31,6 +40,17 @@ const History = (): ReactElement => {
   const router = useRouter();
   const tabQuery = router.query?.t?.toString() as HistoryType;
   const [page, setPage] = useState(HistoryType.Reading);
+
+  const handleSetPage = useCallback(
+    (active: HistoryType) => {
+      setPage(active);
+
+      if (active === HistoryType.Search) {
+        trackEvent({ event_name: AnalyticsEvent.OpenSearchHistory });
+      }
+    },
+    [setPage, trackEvent],
+  );
 
   useEffect(() => {
     const pages = Object.values(HistoryType);
@@ -50,7 +70,7 @@ const History = (): ReactElement => {
         ) : (
           <TabContainer<HistoryType>
             controlledActive={page}
-            onActiveChange={setPage}
+            onActiveChange={handleSetPage}
             showBorder={isLaptop}
           >
             <Tab label={HistoryType.Reading}>

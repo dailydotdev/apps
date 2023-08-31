@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect, useContext } from 'react';
 import { useQueryClient } from 'react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
@@ -18,12 +18,15 @@ import {
   TokenPayload,
   UseChatStream,
 } from './types';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 export const useChatStream = (): UseChatStream => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
-  const [sessionId, setSessionId] = useState<string>();
+  const [sessionId, setSessionId] = useState<string>(null);
 
   const executePrompt = useCallback(
     async (value: string) => {
@@ -35,14 +38,28 @@ export const useChatStream = (): UseChatStream => {
         sourceRef.current.close();
       }
 
-      setSessionId(undefined);
+      setSessionId(null);
 
       let queryKey: ReturnType<typeof generateQueryKey> = null;
+      let streamId: string = null;
+
+      const initSession = (payload: Pick<CreatePayload, 'id'>) => {
+        queryKey = generateQueryKey(RequestKey.Search, user, payload.id);
+        setSessionId(payload.id);
+        streamId = payload.id;
+      };
 
       const setSearchQuery = (chunk: Partial<SearchChunk>) => {
         client.setQueryData<Search>(queryKey, (previous) =>
           updateSearchData(previous, chunk),
         );
+      };
+
+      const trackErrorEvent = () => {
+        trackEvent({
+          event_name: AnalyticsEvent.ErrorSearch,
+          target_id: streamId,
+        });
       };
 
       const onMessage = (event: MessageEvent) => {
@@ -52,8 +69,7 @@ export const useChatStream = (): UseChatStream => {
           switch (data.type) {
             case UseChatMessageType.SessionCreated: {
               const payload = data.payload as CreatePayload;
-              queryKey = generateQueryKey(RequestKey.Search, user, payload.id);
-              setSessionId(payload.id);
+              initSession(payload);
 
               client.setQueryData(
                 queryKey,
@@ -95,6 +111,7 @@ export const useChatStream = (): UseChatStream => {
               break;
             case UseChatMessageType.SessionFound: {
               const sessionData = data.payload as Search;
+              initSession(sessionData);
               client.setQueryData(queryKey, sessionData);
               sourceRef.current?.close();
               break;
@@ -105,6 +122,8 @@ export const useChatStream = (): UseChatStream => {
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error('[EventSource][message] error', error);
+
+          trackErrorEvent();
         }
       };
 
@@ -117,6 +136,8 @@ export const useChatStream = (): UseChatStream => {
           },
           progress: -1,
         });
+
+        trackErrorEvent();
       };
 
       const source = await sendSearchQuery(value, accessToken.token);
@@ -124,7 +145,7 @@ export const useChatStream = (): UseChatStream => {
       source.addEventListener('error', onError);
       sourceRef.current = source;
     },
-    [accessToken.token, client, user],
+    [accessToken.token, client, user, trackEvent],
   );
 
   useEffect(() => {

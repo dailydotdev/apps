@@ -23,6 +23,7 @@ export const useSearchHistory = ({
     generateQueryKey(RequestKey.SearchHistory, user, `limit:${limit}`),
     ({ pageParam }) => getSearchHistory({ after: pageParam, first: limit }),
     {
+      enabled: !!user,
       getNextPageParam: (lastPage) =>
         lastPage?.history?.pageInfo.hasNextPage &&
         lastPage?.history?.pageInfo.endCursor,

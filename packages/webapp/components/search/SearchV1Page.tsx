@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import { NextSeo } from 'next-seo';
+import { NextSeo, NextSeoProps } from 'next-seo';
 import {
   SearchResult,
   SearchSourceList,
@@ -8,7 +8,10 @@ import { useChat } from '@dailydotdev/shared/src/hooks';
 import { SearchContainer } from '@dailydotdev/shared/src/components/search/SearchContainer';
 import { useRouter } from 'next/router';
 import { searchPageUrl } from '@dailydotdev/shared/src/graphql/search';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { labels } from '@dailydotdev/shared/src/lib';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
+import { getTemplatedTitle } from '../layouts/utils';
 
 const SearchPage = (): ReactElement => {
   const router = useRouter();
@@ -45,6 +48,20 @@ const SearchPage = (): ReactElement => {
     handleSubmit(undefined, query);
   }, [searchId, query, handleSubmit]);
 
+  const seo: NextSeoProps = {
+    title: getTemplatedTitle(data?.chunks[0]?.prompt || query || 'Search'),
+    description: content
+      ? content.slice(0, 300)
+      : labels.search.shortDescription,
+    openGraph: {
+      images: [
+        {
+          url: cloudinary.search.og,
+        },
+      ],
+    },
+  };
+
   return (
     <SearchContainer
       onSubmit={(event, value) => {
@@ -57,7 +74,7 @@ const SearchPage = (): ReactElement => {
       chunk={data?.chunks?.[0]}
       isLoading={!router?.isReady}
     >
-      <NextSeo nofollow noindex />
+      <NextSeo {...seo} />
       {(!!content || !!data) && (
         <>
           <SearchResult

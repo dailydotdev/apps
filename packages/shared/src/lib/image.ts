@@ -109,6 +109,9 @@ export const cloudinary = {
     videoThumbnailMobile:
       'https://daily-now-res.cloudinary.com/image/upload/s--IqqAH4Rt--/f_auto/v1689497816/mobile-image_zb923g',
   },
+  search: {
+    og: 'https://daily-now-res.cloudinary.com/image/upload/s--Lq4XRH5V--/f_auto/v1693378429/public/dailv.dev_-_OG_Search',
+  },
 };
 
 export const smallPostImage = (url: string): string => {
