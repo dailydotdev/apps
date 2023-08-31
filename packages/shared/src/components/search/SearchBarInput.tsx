@@ -185,13 +185,13 @@ function SearchBarInputComponent(
                 title="Clear query"
                 onClick={onClearClick}
                 icon={<CloseIcon />}
-                disabled={!hasInput}
                 type="button"
               />
             )}
             <div className="h-8 border border-theme-divider-quaternary" />
             <SearchHistoryButton />
             <SearchSubmitButton
+              buttonProps={{ disabled: !hasInput }}
               tooltipProps={{
                 content: !hasInput && 'Enter text to start searching',
               }}
