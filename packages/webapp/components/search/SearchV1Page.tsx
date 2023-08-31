@@ -16,37 +16,37 @@ import { getTemplatedTitle } from '../layouts/utils';
 const SearchPage = (): ReactElement => {
   const router = useRouter();
   const query = router?.query?.q as string;
-  const sessionId = router?.query?.id as string;
+  const sessionIdQuery = router?.query?.id as string;
   const { data, isLoading, queryKey, handleSubmit } = useChat({
-    id: sessionId,
+    id: sessionIdQuery,
   });
-  const searchId = data?.id;
+  const sessionId = data?.id;
   const chunk = data?.chunks?.[0];
   const content = chunk?.response || '';
 
   useEffect(() => {
-    if (!searchId) {
+    if (!sessionId) {
       return;
     }
 
-    const newRoute = `${searchPageUrl}?id=${searchId}`;
+    const newRoute = `${searchPageUrl}?id=${sessionId}`;
 
     router.replace(newRoute, undefined, {
       shallow: true,
     });
     // router reference is not stable https://github.com/vercel/next.js/issues/18127
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchId]);
+  }, [sessionId]);
 
   useEffect(() => {
-    const shouldApplySearchQuery = !!(query && !searchId);
+    const shouldApplySearchQuery = !!(query && !sessionIdQuery);
 
     if (!shouldApplySearchQuery) {
       return;
     }
 
     handleSubmit(undefined, query);
-  }, [searchId, query, handleSubmit]);
+  }, [sessionIdQuery, query, handleSubmit]);
 
   const seo: NextSeoProps = {
     title: getTemplatedTitle(data?.chunks[0]?.prompt || query || 'Search'),
