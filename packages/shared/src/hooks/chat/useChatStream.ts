@@ -1,71 +1,25 @@
+import { useRef, useState, useCallback, useEffect } from 'react';
+import { useQueryClient } from 'react-query';
+import { useAuthContext } from '../../contexts/AuthContext';
 import {
-  MouseEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { QueryKey, useQuery, useQueryClient } from 'react-query';
-import {
-  getSearchSession,
-  initializeSearchSession,
-  Search,
   SearchChunk,
-  SearchChunkError,
-  SearchChunkSource,
-  sendSearchQuery,
   updateSearchData,
-} from '../graphql/search';
-import { generateQueryKey, RequestKey } from '../lib/query';
-import { useAuthContext } from '../contexts/AuthContext';
+  initializeSearchSession,
+  SearchChunkError,
+  sendSearchQuery,
+  Search,
+} from '../../graphql/search';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import {
+  UseChatMessage,
+  UseChatMessageType,
+  CreatePayload,
+  SourcesMessage,
+  TokenPayload,
+  UseChatStream,
+} from './types';
 
-interface UseChatProps {
-  id?: string;
-}
-
-enum UseChatMessageType {
-  SessionCreated = 'session_created',
-  WebSearchFinished = 'web_search_finished',
-  WebResultsFiltered = 'web_results_filtered',
-  StatusUpdated = 'status_updated',
-  NewTokenReceived = 'new_token_received',
-  Completed = 'completed',
-  Error = 'error',
-  SessionFound = 'session_found',
-}
-
-interface SourcesMessage {
-  sources: SearchChunkSource[];
-}
-
-interface UseChatMessage<Payload = unknown> {
-  type: UseChatMessageType;
-  status?: string;
-  timestamp: number;
-  payload: Payload;
-}
-
-interface UseChat {
-  queryKey: QueryKey;
-  data: Search;
-  isLoading: boolean;
-  handleSubmit(event: MouseEvent, value: string): void;
-}
-
-interface CreatePayload {
-  id: string;
-  steps: number;
-  chunk_id: string;
-}
-
-interface TokenPayload {
-  token: string;
-}
-
-export const useChatStream = (): Pick<UseChat, 'handleSubmit'> & {
-  id: string;
-} => {
+export const useChatStream = (): UseChatStream => {
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
@@ -189,57 +143,5 @@ export const useChatStream = (): Pick<UseChat, 'handleSubmit'> & {
       },
       [executePrompt],
     ),
-  };
-};
-
-export const useChatSession = ({
-  id,
-  streamId,
-}: Pick<UseChatProps, 'id'> & {
-  streamId?: string;
-}): Pick<UseChat, 'queryKey' | 'isLoading' | 'data'> => {
-  const { user } = useAuthContext();
-  const client = useQueryClient();
-  const queryKey = useMemo(
-    () => generateQueryKey(RequestKey.Search, user, id),
-    [user, id],
-  );
-  const { data, isLoading } = useQuery(
-    queryKey,
-    () => {
-      if (streamId && streamId === id) {
-        return client.getQueryData<Search>(queryKey);
-      }
-
-      return getSearchSession(id);
-    },
-    { enabled: !!id },
-  );
-
-  return {
-    queryKey,
-    isLoading,
-    data,
-  };
-};
-
-export const useChat = ({ id: idFromProps }: UseChatProps): UseChat => {
-  const stream = useChatStream();
-  const id = idFromProps || stream.id;
-  const session = useChatSession({
-    id,
-    streamId: stream.id,
-  });
-
-  const isStreaming = !!(
-    session?.data?.chunks?.[0]?.createdAt &&
-    !session?.data?.chunks?.[0]?.completedAt
-  );
-
-  return {
-    queryKey: session.queryKey,
-    isLoading: isStreaming || session.isLoading,
-    data: session.data,
-    handleSubmit: stream.handleSubmit,
   };
 };
