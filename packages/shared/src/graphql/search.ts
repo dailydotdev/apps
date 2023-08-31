@@ -229,8 +229,7 @@ export const getSearchUrl = (params: SearchUrlParams): string => {
   if (!id && !question) throw new Error('Must have at least one parameter');
 
   if (id) searchParams.append('id', id);
-
-  if (question) searchParams.append('q', question);
+  else if (question) searchParams.append('q', question);
 
   return `${searchPageUrl}?${searchParams}`;
 };
