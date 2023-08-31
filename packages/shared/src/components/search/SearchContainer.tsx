@@ -29,7 +29,7 @@ export function SearchContainer({
             <SearchBar
               onSubmit={onSubmit}
               chunk={chunk}
-              showProgress={!!chunk}
+              showProgress
               isLoading={isLoading}
             />
           )}
