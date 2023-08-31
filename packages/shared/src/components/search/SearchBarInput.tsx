@@ -6,6 +6,8 @@ import React, {
   MouseEvent,
   ReactElement,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -84,6 +86,21 @@ function SearchBarInputComponent(
     [true],
     false,
   );
+
+  const lastChunkIdRef = useRef(chunk?.id);
+
+  useEffect(() => {
+    if (!chunk?.prompt) {
+      return;
+    }
+
+    if (chunk.id === lastChunkIdRef.current) {
+      return;
+    }
+
+    lastChunkIdRef.current = chunk.id;
+    setInput(chunk.prompt);
+  }, [chunk?.prompt, chunk?.id, setInput]);
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
