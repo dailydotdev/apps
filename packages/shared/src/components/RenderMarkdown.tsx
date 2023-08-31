@@ -128,6 +128,9 @@ const RenderMarkdown = ({
       linkTarget="_blank"
       remarkPlugins={plugins}
       components={{
+        ol({ children }) {
+          return <ol>{children}</ol>;
+        },
         code({
           node,
           inline,
