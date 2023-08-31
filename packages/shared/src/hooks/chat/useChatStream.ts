@@ -140,12 +140,12 @@ export const useChatStream = (): UseChatStream => {
         trackErrorEvent();
       };
 
-      const source = await sendSearchQuery(value, accessToken.token);
+      const source = await sendSearchQuery(value, accessToken?.token);
       source.addEventListener('message', onMessage);
       source.addEventListener('error', onError);
       sourceRef.current = source;
     },
-    [accessToken.token, client, user, trackEvent],
+    [accessToken?.token, client, user, trackEvent],
   );
 
   useEffect(() => {
