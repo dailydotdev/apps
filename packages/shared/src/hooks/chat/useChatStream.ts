@@ -8,6 +8,7 @@ import {
   SearchChunkError,
   sendSearchQuery,
   Search,
+  SearchChunkErrorCode,
 } from '../../graphql/search';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import {
@@ -20,6 +21,7 @@ import {
 } from './types';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import { labels } from '../../lib';
 
 export const useChatStream = (): UseChatStream => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -40,7 +42,11 @@ export const useChatStream = (): UseChatStream => {
 
       setSessionId(null);
 
-      let queryKey: ReturnType<typeof generateQueryKey> = null;
+      let queryKey: ReturnType<typeof generateQueryKey> = generateQueryKey(
+        RequestKey.Search,
+        user,
+        Date.now().toString(),
+      );
       let streamId: string = null;
 
       const initSession = (payload: Pick<CreatePayload, 'id'>) => {
@@ -105,10 +111,27 @@ export const useChatStream = (): UseChatStream => {
               sourceRef.current?.close();
               break;
             }
-            case UseChatMessageType.Error:
-              setSearchQuery({ error: data.payload as SearchChunkError });
+            case UseChatMessageType.Error: {
+              const errorPayload = data.payload as SearchChunkError;
+
+              switch (errorPayload.code) {
+                case SearchChunkErrorCode.RateLimit:
+                  setSearchQuery({
+                    error: {
+                      ...errorPayload,
+                      message: labels.search.rateLimitExceeded,
+                    },
+                    progress: -1,
+                  });
+                  break;
+                default:
+                  setSearchQuery({ error: errorPayload });
+              }
+
               sourceRef.current?.close();
+              trackErrorEvent();
               break;
+            }
             case UseChatMessageType.SessionFound: {
               const sessionData = data.payload as Search;
               initSession(sessionData);
@@ -132,7 +155,7 @@ export const useChatStream = (): UseChatStream => {
         setSearchQuery({
           error: {
             message: 'It worked on my machine. Can you please try again?',
-            code: 'Unexpected error.',
+            code: SearchChunkErrorCode.Unexpected,
           },
           progress: -1,
         });
