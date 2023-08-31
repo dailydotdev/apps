@@ -35,7 +35,7 @@ export function SearchBar({
         }}
         suggestionsProps={suggestionsProps}
       />
-      {!isLoading && chunk?.error?.code !== null && (
+      {chunk?.error && chunk?.error?.code !== null && (
         <Alert
           className="my-4"
           type={AlertType.Error}
