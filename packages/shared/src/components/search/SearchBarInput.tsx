@@ -102,9 +102,12 @@ function SearchBarInputComponent(
     setInput(chunk.prompt);
   }, [chunk?.prompt, chunk?.id, setInput]);
 
-  const onClearClick = (event: MouseEvent): void => {
+  const handleClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
     setInput('');
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   const onSubmit = (event: FormEvent, input?: string): void => {
@@ -200,7 +203,7 @@ function SearchBarInputComponent(
                 className="btn-tertiary"
                 buttonSize={ButtonSize.Small}
                 title="Clear query"
-                onClick={onClearClick}
+                onClick={handleClearClick}
                 icon={<CloseIcon />}
                 type="button"
               />
