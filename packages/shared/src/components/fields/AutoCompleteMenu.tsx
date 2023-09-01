@@ -36,7 +36,10 @@ export default function AutoCompleteMenu({
   return createPortal(
     <div
       role="menu"
-      className="top-full mt-1 react-contexify menu-secondary"
+      className={classNames(
+        'mt-1 react-contexify menu-secondary',
+        isOpen ? 'flex flex-col' : 'hidden',
+      )}
       style={{
         position: 'absolute',
         top: placement?.y,
