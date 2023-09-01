@@ -1,5 +1,9 @@
 import { IFlags } from 'flagsmith';
-import { OnboardingV2, OnboardingFilteringTitle } from './featureValues';
+import {
+  OnboardingV2,
+  OnboardingFilteringTitle,
+  SearchExperiment,
+} from './featureValues';
 
 export type FeatureValue = string | number | boolean;
 
@@ -7,6 +11,10 @@ export class Features<T extends FeatureValue = string> {
   static readonly FeedVersion = new Features('feed_version', '1');
 
   static readonly SubmitArticle = new Features('submit_article');
+
+  static readonly EngagementLoopJuly2023Companion = new Features(
+    'engagement_loop_july2023_companion',
+  );
 
   static readonly OnboardingV2 = new Features(
     'onboarding_v2',
@@ -25,6 +33,8 @@ export class Features<T extends FeatureValue = string> {
       OnboardingFilteringTitle.V4,
     ],
   );
+
+  static readonly Search = new Features('search', SearchExperiment.Control);
 
   static readonly ShowHiring = new Features('show_hiring');
 

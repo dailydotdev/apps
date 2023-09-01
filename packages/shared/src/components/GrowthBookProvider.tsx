@@ -10,12 +10,15 @@ import {
   Context,
   GrowthBook,
   GrowthBookProvider as Provider,
+  useFeatureValue,
+  useFeatureIsOn as gbUseFeatureIsOn,
 } from '@growthbook/growthbook-react';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { decrypt } from './crypto';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { Features } from '../lib/featureManagement';
 
 export type GrowthBookProviderProps = {
   app: BootApp;
@@ -139,3 +142,11 @@ export const GrowthBookProvider = ({
 
   return <Provider growthbook={gb}>{children}</Provider>;
 };
+
+export const useFeatureIsOn = <T extends Features>(feature: T): boolean =>
+  gbUseFeatureIsOn(feature.id);
+
+export const useFeature = <T extends Features>(
+  feature: T,
+): typeof feature.defaultValue =>
+  useFeatureValue(feature.id, feature.defaultValue);

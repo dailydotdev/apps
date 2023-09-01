@@ -51,7 +51,7 @@ export const getCloseWord = (
   const lines = textarea.value.split('\n');
   const line = lines[index];
   const preLines = lines.slice(0, index).join('\n');
-  const offset = lines.length === 1 ? 0 : 1;
+  const offset = index === 0 ? 0 : 1;
   const base = end - preLines.length - offset;
   let lastIndex = 0;
   let startIndex = 0;

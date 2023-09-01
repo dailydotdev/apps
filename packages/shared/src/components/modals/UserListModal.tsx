@@ -29,6 +29,8 @@ function UserListModal({
   const container = useRef<HTMLElement>();
   const [modalRef, setModalRef] = useState<HTMLElement>();
 
+  const { onScroll, ...otherScrollingProps } = scrollingProps;
+
   return (
     <Modal
       contentRef={(e) => setModalRef(e)}
@@ -37,11 +39,11 @@ function UserListModal({
       {...props}
     >
       {header ?? <Modal.Header title={title} />}
-      <Modal.Body className="py-2 px-0" ref={container}>
+      <Modal.Body className="py-2 px-0" onScroll={onScroll} ref={container}>
         <UserList
           {...userListProps}
           users={users}
-          scrollingProps={scrollingProps}
+          scrollingProps={otherScrollingProps}
           scrollingContainer={container.current}
           appendTooltipTo={modalRef}
           placeholderAmount={placeholderAmount}

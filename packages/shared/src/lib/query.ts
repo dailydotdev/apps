@@ -24,8 +24,12 @@ export enum RequestKey {
   PostCommentsMutations = 'post_comments_mutations',
   Actions = 'actions',
   Squad = 'squad',
+  Search = 'search',
+  SearchHistory = 'searchHistory',
+  ReadingHistory = 'readingHistory',
   ReferralCampaigns = 'referral_campaigns',
   NotificationPreference = 'notification_preference',
+  Banner = 'latest_banner',
 }
 
 export type HasConnection<

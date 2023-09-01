@@ -7,13 +7,13 @@ import {
 } from '../post/PostContent';
 import { Origin } from '../../lib/analytics';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
-import usePostById from '../../hooks/usePostById';
 import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
-import { PostType } from '../../graphql/posts';
+import { Post, PostType } from '../../graphql/posts';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
+  post: Post;
 }
 
 export default function ArticlePostModal({
@@ -23,13 +23,13 @@ export default function ArticlePostModal({
   onPreviousPost,
   onNextPost,
   postPosition,
+  post,
   onRemovePost,
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { post, isPostLoadingOrFetching } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: isPostLoadingOrFetching,
+    isLoading: false,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
@@ -39,7 +39,8 @@ export default function ArticlePostModal({
       {...props}
       onRequestClose={onRequestClose}
       postType={PostType.Article}
-      isLoading={isPostLoadingOrFetching}
+      source={post.source}
+      loadingClassName="post-content"
     >
       <PostContent
         position={position}

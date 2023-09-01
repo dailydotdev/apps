@@ -42,7 +42,7 @@ import { useToastNotification } from '../useToastNotification';
 import {
   allowedContentImage,
   allowedFileSize,
-  imageSizeLimitMB,
+  uploadNotAcceptedMessage,
 } from '../../graphql/posts';
 
 export enum MarkdownCommand {
@@ -130,9 +130,7 @@ export const useMarkdownInput = ({
       },
       onFinish: async (status, file, url) => {
         if (status === UploadState.Failed) {
-          return displayToast(
-            `File type is not allowed or the size exceeded the limit of ${imageSizeLimitMB} MB`,
-          );
+          return displayToast(uploadNotAcceptedMessage);
         }
 
         return onUpdate(command.onReplaceUpload(url, file.name));
@@ -270,7 +268,10 @@ export const useMarkdownInput = ({
   const verifyFile = (file: File) => {
     const isValidType = allowedContentImage.includes(file.type);
 
-    if (file.size > allowedFileSize || !isValidType) return;
+    if (file.size > allowedFileSize || !isValidType) {
+      displayToast(uploadNotAcceptedMessage);
+      return;
+    }
 
     pushUpload(file);
   };

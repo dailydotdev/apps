@@ -12,6 +12,7 @@ export enum InteractivePopupPosition {
   LeftStart = 'leftStart',
   LeftCenter = 'leftCenter',
   LeftEnd = 'leftEnd',
+  Screen = 'screen',
 }
 
 interface InteractivePopupProps {
@@ -37,6 +38,7 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   leftStart: classNames(leftClass, startClass),
   leftCenter: classNames(leftClass, centerClassY),
   leftEnd: classNames(leftClass, endClass),
+  screen: 'inset-0 w-screen h-screen',
 };
 
 function InteractivePopup({
@@ -50,7 +52,7 @@ function InteractivePopup({
     <Portal>
       <div
         className={classNames(
-          'fixed z-3 bg-theme-bg-primary rounded-16 overflow-hidden',
+          'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden',
           className,
           classes,
         )}

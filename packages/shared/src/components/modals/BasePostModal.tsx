@@ -4,9 +4,11 @@ import { Modal, ModalProps } from './common/Modal';
 import styles from './BasePostModal.module.css';
 import PostLoadingSkeleton from '../post/PostLoadingSkeleton';
 import { PostType } from '../../graphql/posts';
+import { Source } from '../../graphql/sources';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
+  source?: Source;
   isLoading?: boolean;
   loadingClassName?: string;
 }
@@ -16,6 +18,7 @@ function BasePostModal({
   children,
   isLoading,
   postType,
+  source,
   loadingClassName,
   ...props
 }: BasePostModalProps): ReactElement {
@@ -36,6 +39,7 @@ function BasePostModal({
         <PostLoadingSkeleton
           hasNavigation
           type={postType}
+          source={source}
           className={loadingClassName}
         />
       ) : (

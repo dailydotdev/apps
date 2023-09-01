@@ -19,6 +19,8 @@ import TabContainer, {
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import { SquadsDropdown } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
+import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -37,7 +39,10 @@ function CreatePost(): ReactElement {
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const [selected, setSelected] = useState(-1);
-  const squad = squads?.[selected];
+  const activeSquads = squads?.filter(
+    (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),
+  );
+  const squad = activeSquads?.[selected];
   const [display, setDisplay] = useState(WriteFormTab.Share);
   const { displayToast } = useToastNotification();
   const {
@@ -68,16 +73,16 @@ function CreatePost(): ReactElement {
     },
   });
 
-  const param = isRouteReady && squads?.length && (query.sid as string);
+  const param = isRouteReady && activeSquads?.length && (query.sid as string);
 
   useEffect(() => {
     if (!param) return;
 
-    const preselected = squads.findIndex(({ id, handle }) =>
+    const preselected = activeSquads.findIndex(({ id, handle }) =>
       [id, handle].includes(param),
     );
     setSelected((value) => (value >= 0 ? value : preselected));
-  }, [squads, param]);
+  }, [activeSquads, param]);
 
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
     if (isPosting || isSuccess) return null;
@@ -94,7 +99,7 @@ function CreatePost(): ReactElement {
     return <WriteFreeFormSkeleton />;
   }
 
-  if (!user || (!squads?.length && isAuthReady)) return <Unauthorized />;
+  if (!user || (!activeSquads?.length && isAuthReady)) return <Unauthorized />;
 
   return (
     <WritePostContext.Provider

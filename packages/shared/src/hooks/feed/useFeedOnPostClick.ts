@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Post } from '../../graphql/posts';
 import { FeedItem, PostItem } from '../useFeed';
 import useOnPostClick from '../useOnPostClick';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
+  clickEvent?: React.MouseEvent;
 }
 
 export type FeedPostClick = (

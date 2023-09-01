@@ -75,7 +75,7 @@ function PostNavigation({
       <PostHeaderActions
         {...props}
         className={classNames('flex', className?.actions)}
-        notificactionClassName="ml-4"
+        notificationClassName="ml-4"
         contextMenuId="post-navigation-context"
       />
     </div>
