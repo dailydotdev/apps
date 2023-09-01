@@ -151,15 +151,13 @@ export default function PostsSearch({
         aria-haspopup="true"
         aria-expanded={isOpen}
       />
-      {isOpen && (
-        <AutoCompleteMenu
-          placement={menuPosition}
-          items={items}
-          focusedItemIndex={selectedItemIndex}
-          onItemClick={submitQuery}
-          isOpen
-        />
-      )}
+      <AutoCompleteMenu
+        placement={menuPosition}
+        items={items}
+        focusedItemIndex={selectedItemIndex}
+        onItemClick={submitQuery}
+        isOpen={isOpen}
+      />
     </>
   );
 }
