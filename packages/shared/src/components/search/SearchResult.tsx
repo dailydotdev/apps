@@ -2,7 +2,7 @@ import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
 import { QueryKey, useMutation, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import LogoIcon from '../../svg/LogoIcon';
 import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
@@ -123,20 +123,18 @@ export function SearchResult({
         />
         <div className="flex pt-4">
           <Button
-            className="btn-tertiary-avocado"
+            className="mr-2 btn-tertiary-avocado"
             iconOnly
             pressed={chunk.feedback === 1}
             icon={<UpvoteIcon secondary={chunk.feedback === 1} />}
-            buttonSize={ButtonSize.Small}
             onClick={() => sendFeedback(chunk.feedback === 1 ? 0 : 1)}
             disabled={isInProgress}
           />
           <Button
-            className="btn-tertiary-ketchup"
+            className="mr-2 btn-tertiary-ketchup"
             iconOnly
             pressed={chunk.feedback === -1}
             icon={<DownvoteIcon secondary={chunk.feedback === -1} />}
-            buttonSize={ButtonSize.Small}
             onClick={() => sendFeedback(chunk.feedback === -1 ? 0 : -1)}
             disabled={isInProgress}
           />
@@ -144,7 +142,6 @@ export function SearchResult({
             className="btn-tertiary"
             iconOnly
             icon={<CopyIcon secondary={isCopying} />}
-            buttonSize={ButtonSize.Small}
             onClick={handleCopy}
             disabled={isInProgress}
           />
