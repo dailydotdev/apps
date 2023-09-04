@@ -3,14 +3,14 @@ import classNames from 'classnames';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
-import { getSearchUrl, SearchSession } from '../../graphql/search';
+import { getSearchUrl, SearchQuestion } from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
 import { LoginTrigger } from '../../lib/analytics';
 
 export interface SearchBarSuggestionListProps {
   className?: string;
   isLoading?: boolean;
-  suggestions?: Partial<SearchSession>[];
+  suggestions?: Partial<SearchQuestion>[];
   origin: SuggestionOrigin;
 }
 
@@ -63,13 +63,13 @@ export function SearchBarSuggestionList({
           tag="a"
           origin={origin}
           suggestion={suggestion}
-          key={suggestion.prompt}
+          key={suggestion.question}
           href={getSearchUrl({
             id: suggestion.id,
-            question: suggestion.prompt,
+            question: suggestion.question,
           })}
         >
-          {suggestion.prompt}
+          {suggestion.question}
         </SearchBarSuggestion>
       ))}
     </div>

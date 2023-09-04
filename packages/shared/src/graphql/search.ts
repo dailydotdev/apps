@@ -48,7 +48,7 @@ export interface Search {
 }
 
 export interface SearchSession {
-  id: string;
+  sessionId: string;
   prompt: string;
   createdAt: Date;
 }
@@ -114,7 +114,7 @@ export const SEARCH_HISTORY_QUERY = gql`
       }
       edges {
         node {
-          id
+          id: sessionId
           prompt
           createdAt
         }
@@ -131,7 +131,7 @@ export const SEARCH_FEEDBACK_MUTATION = gql`
   }
 `;
 
-interface SearchQuestion {
+export interface SearchQuestion {
   id: string;
   question: string;
   post: Post;

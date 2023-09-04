@@ -40,10 +40,10 @@ export function SearchHistoryButton(): ReactElement {
     if (!nodes.length) return [];
 
     const result = nodes.map(({ node }) => ({
-      id: node.id,
+      id: node.sessionId,
       icon: <TimerIcon />,
       label: node.prompt,
-      action: () => router.push(getSearchUrl({ id: node.id })),
+      action: () => router.push(getSearchUrl({ id: node.sessionId })),
     }));
 
     result.push({

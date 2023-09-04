@@ -8,13 +8,13 @@ import {
 } from '../buttons/Button';
 import { AiIcon } from '../icons';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
-import { SearchSession } from '../../graphql/search';
+import { SearchQuestion, SearchSession } from '../../graphql/search';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export type SuggestionOrigin = Origin.HomePage | Origin.SearchPage;
 
 type SearchBarSuggestionProps = ButtonProps<AllowedTags> & {
-  suggestion?: Partial<SearchSession>;
+  suggestion?: Partial<SearchQuestion | SearchSession>;
   origin?: SuggestionOrigin;
   isHistory?: boolean;
 };
@@ -27,12 +27,14 @@ export const SearchBarSuggestion = ({
   const { trackEvent } = useContext(AnalyticsContext);
 
   useEffect(() => {
-    if (!props.isHistory && props.suggestion?.id) {
+    const suggestion = props.suggestion as SearchQuestion;
+
+    if (!props.isHistory && suggestion?.id) {
       trackEvent({
         event_name: AnalyticsEvent.Impression,
         target_type: TargetType.SearchRecommendation,
-        target_id: props.suggestion.id,
-        feed_item_title: props.suggestion.prompt,
+        target_id: suggestion.id,
+        feed_item_title: suggestion.question,
         extra: JSON.stringify({ origin }),
       });
     }
@@ -42,14 +44,17 @@ export const SearchBarSuggestion = ({
   }, []);
 
   const handleSuggestionsClick = useCallback(() => {
-    if (props.suggestion?.id) {
+    const session = props.suggestion as SearchSession;
+    const suggestion = props.suggestion as SearchQuestion;
+
+    if (suggestion?.id || session?.sessionId) {
       trackEvent({
         event_name: AnalyticsEvent.Click,
         target_type: props.isHistory
           ? TargetType.SearchHistory
           : TargetType.SearchRecommendation,
-        target_id: props.suggestion.id,
-        feed_item_title: props.suggestion.prompt,
+        target_id: props.isHistory ? session.sessionId : suggestion.id,
+        feed_item_title: props.isHistory ? session.prompt : suggestion.question,
         extra: JSON.stringify({ origin }),
       });
     }

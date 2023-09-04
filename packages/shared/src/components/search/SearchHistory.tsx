@@ -37,13 +37,12 @@ export function SearchHistory({
       {nodes?.map(({ node: suggestion }) => (
         <SearchBarSuggestion
           isHistory
-          key={suggestion.id}
+          key={suggestion.sessionId}
           tag="a"
           icon={<TimerIcon />}
           suggestion={suggestion}
           href={getSearchUrl({
-            id: suggestion.id,
-            question: suggestion.prompt,
+            id: suggestion.sessionId,
           })}
         >
           {suggestion.prompt}
