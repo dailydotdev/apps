@@ -40,7 +40,7 @@ export const SearchBarSuggestion = ({
 
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.suggestion?.id]);
+  }, [props.id]);
 
   const handleSuggestionsClick = useCallback(() => {
     if (props?.id) {
