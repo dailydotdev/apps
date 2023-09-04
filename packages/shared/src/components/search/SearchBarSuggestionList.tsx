@@ -62,8 +62,9 @@ export function SearchBarSuggestionList({
         <SearchBarSuggestion
           tag="a"
           origin={origin}
-          suggestion={suggestion}
-          key={suggestion.question}
+          id={suggestion.id}
+          prompt={suggestion.question}
+          key={suggestion.id}
           href={getSearchUrl({
             id: suggestion.id,
             question: suggestion.question,

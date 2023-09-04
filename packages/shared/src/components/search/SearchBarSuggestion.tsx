@@ -8,13 +8,14 @@ import {
 } from '../buttons/Button';
 import { AiIcon } from '../icons';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
-import { SearchQuestion, SearchSession } from '../../graphql/search';
+import { SearchQuestion } from '../../graphql/search';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export type SuggestionOrigin = Origin.HomePage | Origin.SearchPage;
 
 type SearchBarSuggestionProps = ButtonProps<AllowedTags> & {
-  suggestion?: Partial<SearchQuestion | SearchSession>;
+  id?: SearchQuestion['id'];
+  prompt?: SearchQuestion['question'];
   origin?: SuggestionOrigin;
   isHistory?: boolean;
 };
@@ -27,14 +28,12 @@ export const SearchBarSuggestion = ({
   const { trackEvent } = useContext(AnalyticsContext);
 
   useEffect(() => {
-    const suggestion = props.suggestion as SearchQuestion;
-
-    if (!props.isHistory && suggestion?.id) {
+    if (!props.isHistory && props?.id) {
       trackEvent({
         event_name: AnalyticsEvent.Impression,
         target_type: TargetType.SearchRecommendation,
-        target_id: suggestion.id,
-        feed_item_title: suggestion.question,
+        target_id: props.id,
+        feed_item_title: props.prompt,
         extra: JSON.stringify({ origin }),
       });
     }
@@ -44,21 +43,18 @@ export const SearchBarSuggestion = ({
   }, []);
 
   const handleSuggestionsClick = useCallback(() => {
-    const session = props.suggestion as SearchSession;
-    const suggestion = props.suggestion as SearchQuestion;
-
-    if (suggestion?.id || session?.sessionId) {
+    if (props?.id) {
       trackEvent({
         event_name: AnalyticsEvent.Click,
         target_type: props.isHistory
           ? TargetType.SearchHistory
           : TargetType.SearchRecommendation,
-        target_id: props.isHistory ? session.sessionId : suggestion.id,
-        feed_item_title: props.isHistory ? session.prompt : suggestion.question,
+        target_id: props.id,
+        feed_item_title: props.prompt,
         extra: JSON.stringify({ origin }),
       });
     }
-  }, [origin, props.suggestion, trackEvent, props.isHistory]);
+  }, [origin, props.id, props.prompt, trackEvent, props.isHistory]);
 
   return (
     <Button

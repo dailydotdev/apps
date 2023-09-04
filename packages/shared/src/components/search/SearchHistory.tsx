@@ -38,9 +38,10 @@ export function SearchHistory({
         <SearchBarSuggestion
           isHistory
           key={suggestion.sessionId}
+          id={suggestion.sessionId}
+          prompt={suggestion.prompt}
           tag="a"
           icon={<TimerIcon />}
-          suggestion={suggestion}
           href={getSearchUrl({
             id: suggestion.sessionId,
           })}
