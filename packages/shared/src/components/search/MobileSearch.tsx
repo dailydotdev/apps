@@ -93,16 +93,18 @@ export function MobileSearch({
           onInput={(e) => setInput(e.currentTarget.value)}
         />
       </form>
-      {suggestionsProps && (
-        <div className="flex flex-col p-4">
-          <SearchBarSuggestionList {...suggestionsProps} />
-        </div>
-      )}
-      <SearchHistory
-        className="!p-4"
-        showEmptyState={false}
-        title="Search history"
-      />
+      <div className="flex overflow-auto flex-col flex-1">
+        {suggestionsProps && (
+          <div className="flex flex-col p-4">
+            <SearchBarSuggestionList {...suggestionsProps} />
+          </div>
+        )}
+        <SearchHistory
+          className="!p-4"
+          showEmptyState={false}
+          title="Search history"
+        />
+      </div>
     </InteractivePopup>
   );
 }
