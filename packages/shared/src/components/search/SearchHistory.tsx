@@ -43,7 +43,6 @@ export function SearchHistory({
           suggestion={suggestion}
           href={getSearchUrl({
             id: suggestion.id,
-            question: suggestion.prompt,
           })}
         >
           {suggestion.prompt}

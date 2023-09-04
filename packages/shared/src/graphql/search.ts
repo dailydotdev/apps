@@ -72,6 +72,7 @@ export const SEARCH_POST_SUGGESTIONS = gql`
 export const SEARCH_POST_RECOMMENDATION = gql`
   query SearchQuestionRecommendations {
     searchQuestionRecommendations {
+      id
       question
     }
   }
