@@ -66,7 +66,6 @@ export function SearchBarSuggestionList({
           prompt={suggestion.question}
           key={suggestion.id}
           href={getSearchUrl({
-            id: suggestion.id,
             question: suggestion.question,
           })}
         >
