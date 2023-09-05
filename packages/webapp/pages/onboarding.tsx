@@ -36,6 +36,8 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import CookieBanner from '../components/CookieBanner';
 
@@ -80,8 +82,8 @@ export function OnboardPage(): ReactElement {
   });
   const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
-  const { onboardingV2, onboardingFilteringTitle, isFeaturesLoaded } =
-    useFeaturesContext();
+  const { onboardingV2, isFeaturesLoaded } = useFeaturesContext();
+  const filteringTitle = useFeature(Features.OnboardingFilteringTitle);
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
   const { alerts } = useContext(AlertContext);
@@ -103,7 +105,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const formRef = useRef<HTMLFormElement>();
-  const title = versionToTitle[onboardingFilteringTitle];
+  const title = versionToTitle[filteringTitle];
   const percentage = isAuthenticating ? 100 : 50;
   const content = isAuthenticating
     ? 'Once you sign up, your personal feed\nwill be ready to explore.'
