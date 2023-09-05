@@ -11,7 +11,6 @@ import { isPreviewDeployment } from '../lib/links';
 
 interface Experiments {
   canSubmitArticle?: boolean;
-  showHiring?: boolean;
   onboardingV2?: OnboardingV2;
   onboardingFilteringTitle?: OnboardingFilteringTitle;
 }
@@ -39,7 +38,6 @@ const getFeatures = (flags: IFlags): FeaturesData => {
       flags,
     ),
     onboardingV2: getFeatureValue(Features.OnboardingV2, flags),
-    showHiring: isFeaturedEnabled(Features.ShowHiring, flags),
   };
 };
 

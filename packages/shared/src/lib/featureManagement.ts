@@ -36,8 +36,6 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly Search = new Features('search', SearchExperiment.Control);
 
-  static readonly ShowHiring = new Features('show_hiring');
-
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: T,

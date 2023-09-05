@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useRef } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
@@ -7,10 +7,8 @@ import SidebarRankProgress from '../SidebarRankProgress';
 import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
-import { careers, docs, feedback } from '../../lib/constants';
+import { docs, feedback } from '../../lib/constants';
 import { useChangelog } from '../../hooks/useChangelog';
-import MegaphoneIcon from '../icons/Megaphone';
-import FeaturesContext from '../../contexts/FeaturesContext';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -29,7 +27,6 @@ export function SidebarBottomSectionSection({
   showSettings,
   ...props
 }: SidebarBottomSectionProps): ReactElement {
-  const { showHiring } = useContext(FeaturesContext);
   const changelog = useChangelog();
   const navItemRef = useRef<HTMLElement>();
 
@@ -53,15 +50,6 @@ export function SidebarBottomSectionSection({
       target: '_blank',
     },
   ];
-
-  if (showHiring) {
-    bottomMenuItems.unshift({
-      icon: () => <ListIcon Icon={() => <MegaphoneIcon />} />,
-      title: 'We are hiring',
-      path: careers,
-      target: '_blank',
-    });
-  }
 
   return (
     <Nav>
