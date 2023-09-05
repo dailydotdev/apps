@@ -14,8 +14,8 @@ import {
   GrowthBookProvider as Provider,
   useFeatureValue,
   useFeatureIsOn as gbUseFeatureIsOn,
+  GrowthBookContextValue,
 } from '@growthbook/growthbook-react';
-import { GrowthBookContextValue } from '@growthbook/growthbook-react/src/GrowthBookReact';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { decrypt } from './crypto';
