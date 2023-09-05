@@ -18,9 +18,8 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
-import { Features, getFeatureValue } from '../lib/featureManagement';
+import { Features } from '../lib/featureManagement';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -151,11 +150,7 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  const { flags } = useContext(FeaturesContext);
-  const feedVersion = parseInt(
-    getFeatureValue(Features.FeedVersion, flags),
-    10,
-  );
+  const feedVersion = useFeature(Features.FeedVersion);
   const searchVersion = useFeature(Features.Search);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
 

@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { useFeaturesContext } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
