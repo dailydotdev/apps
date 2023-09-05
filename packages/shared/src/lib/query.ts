@@ -28,6 +28,7 @@ export enum RequestKey {
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',
   ReferralCampaigns = 'referral_campaigns',
+  ContextMenu = 'context_menu',
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
 }
