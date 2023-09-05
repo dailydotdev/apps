@@ -64,9 +64,13 @@ export const dndOption: { [K in TimeFormat]: DndOption<K> } = {
     getExpiration(time: CustomTime, value: number): Date {
       const exp = new Date();
 
-      if (time === CustomTime.DAYS) return addDays(exp, value);
+      if (time === CustomTime.DAYS) {
+        return addDays(exp, value);
+      }
 
-      if (time === CustomTime.HOURS) return addHours(exp, value);
+      if (time === CustomTime.HOURS) {
+        return addHours(exp, value);
+      }
 
       return addMinutes(exp, value);
     },
