@@ -7,7 +7,9 @@ interface SharePostTitleProps {
 }
 
 export function SharePostTitle({ post }: SharePostTitleProps): ReactElement {
-  if (!post?.title) return null;
+  if (!post?.title) {
+    return null;
+  }
 
   if (!post?.titleHtml) {
     return <p className="mt-6 whitespace-pre-line typo-title3">{post.title}</p>;

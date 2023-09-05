@@ -204,7 +204,9 @@ export const updateSearchData = (
   previous: Search,
   chunk: Partial<SearchChunk>,
 ): Search => {
-  if (!chunk) return null;
+  if (!chunk) {
+    return null;
+  }
 
   const updated = {
     ...previous,
@@ -223,7 +225,9 @@ export const updateSearchData = (
     updated.chunks[0].progress = updated.chunks[0].steps;
   }
 
-  if (isNullOrUndefined(chunk.response)) return updated;
+  if (isNullOrUndefined(chunk.response)) {
+    return updated;
+  }
 
   updated.chunks[0].response = previous.chunks[0].response + chunk.response;
 
@@ -239,10 +243,15 @@ export const getSearchUrl = (params: SearchUrlParams): string => {
   const { id, question } = params;
   const searchParams = new URLSearchParams();
 
-  if (!id && !question) throw new Error('Must have at least one parameter');
+  if (!id && !question) {
+    throw new Error('Must have at least one parameter');
+  }
 
-  if (id) searchParams.append('id', id);
-  else if (question) searchParams.append('q', question);
+  if (id) {
+    searchParams.append('id', id);
+  } else if (question) {
+    searchParams.append('q', question);
+  }
 
   return `${searchPageUrl}?${searchParams}`;
 };

@@ -81,7 +81,9 @@ export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement {
   const { activeView, steps } = useContext(ModalPropsContext);
   const activeStepIndex = steps.findIndex(({ key }) => activeView === key);
   const activeStep = steps[activeStepIndex];
-  if (!activeStep) return null;
+  if (!activeStep) {
+    return null;
+  }
   const stepperWidth = () => ((activeStepIndex + 1) / steps.length) * 100;
   const progress = activeStep.hideProgress ? null : (
     <ProgressBar percentage={stepperWidth()} className="top-[3.3rem]" />

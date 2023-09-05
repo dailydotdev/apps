@@ -26,7 +26,9 @@ export const useActions = (): UseActions => {
       const data = await getUserActions();
       const current = client.getQueryData<Action[]>(actionsKey);
 
-      if (!current || !Array.isArray(current)) return data;
+      if (!current || !Array.isArray(current)) {
+        return data;
+      }
 
       const filtered = data.filter(({ type }) =>
         current.every((action) => action.type !== type),
@@ -55,7 +57,9 @@ export const useActions = (): UseActions => {
       return () => client.setQueryData<Action[]>(actionsKey, actions);
     },
     onError: (_, __, rollback: () => void) => {
-      if (rollback) rollback();
+      if (rollback) {
+        rollback();
+      }
     },
   });
 

@@ -54,12 +54,16 @@ const History = (): ReactElement => {
 
   useEffect(() => {
     const pages = Object.values(HistoryType);
-    if (!tabQuery || !pages.includes(tabQuery)) return;
+    if (!tabQuery || !pages.includes(tabQuery)) {
+      return;
+    }
 
     setPage(tabQuery);
   }, [tabQuery]);
 
-  if (!router.isReady) return seo;
+  if (!router.isReady) {
+    return seo;
+  }
 
   return (
     <ProtectedPage seo={seo}>

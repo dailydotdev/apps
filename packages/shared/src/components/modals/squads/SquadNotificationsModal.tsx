@@ -89,7 +89,9 @@ export function SquadNotificationsModal({
     });
   };
 
-  if (!isPreferencesReady) return null;
+  if (!isPreferencesReady) {
+    return null;
+  }
 
   return (
     <Modal

@@ -738,7 +738,9 @@ describe('downvote flow', () => {
   ): MockedGraphQLResponse<AllTagCategoriesData> => ({
     request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
     result: () => {
-      if (onSuccess) onSuccess();
+      if (onSuccess) {
+        onSuccess();
+      }
       return {
         data: {
           feedSettings: {

@@ -43,7 +43,9 @@ export const useComments = (post: Post): UseComments => {
 
   const onReplyTo = useCallback(
     (params: ReplyTo | null) => {
-      if (!user) return showLogin('comment');
+      if (!user) {
+        return showLogin('comment');
+      }
 
       if (!isNullOrUndefined(params)) {
         trackEvent(

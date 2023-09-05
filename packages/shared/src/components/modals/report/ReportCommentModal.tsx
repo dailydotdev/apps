@@ -43,7 +43,9 @@ export function ReportCommentModal({
       reason,
       note,
     });
-    if (!successful) return;
+    if (!successful) {
+      return;
+    }
 
     trackEvent(
       postAnalyticsEvent(AnalyticsEvent.ReportComment, post, {

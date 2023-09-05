@@ -52,7 +52,9 @@ function UserList({
     );
   }
 
-  if (isLoading) return loader;
+  if (isLoading) {
+    return loader;
+  }
 
   return emptyPlaceholder ?? loader;
 }

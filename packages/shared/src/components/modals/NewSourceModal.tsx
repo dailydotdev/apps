@@ -129,9 +129,13 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         setExistingSource(null);
       },
       onSuccess: (data) => {
-        if (data.type !== 'website') return failedToScrape();
+        if (data.type !== 'website') {
+          return failedToScrape();
+        }
 
-        if (!data.rss.length) return setScrapeError('Could not find RSS feed');
+        if (!data.rss.length) {
+          return setScrapeError('Could not find RSS feed');
+        }
 
         return setFeeds(
           data.rss.map((feed) => ({
@@ -184,7 +188,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   ): Promise<void> => {
     e.preventDefault();
 
-    if (existingSource) return;
+    if (existingSource) {
+      return;
+    }
 
     const data = formToJson<{ rss: string }>(e.currentTarget);
     const res = await checkIfSourceExists(data.rss);

@@ -9,13 +9,17 @@ export const useNotificationParams = (): void => {
   const { isSubscribed, onTogglePermission } = useNotificationContext();
 
   useEffect(() => {
-    if (isSubscribed || !router?.query.notify) return;
+    if (isSubscribed || !router?.query.notify) {
+      return;
+    }
 
     onTogglePermission(NotificationPromptSource.NotificationItem).then(
       (permission) => {
         const isGranted = permission === 'granted';
 
-        if (!isGranted) return;
+        if (!isGranted) {
+          return;
+        }
 
         const link = stripLinkParameters(window.location.href);
         router.replace(link);

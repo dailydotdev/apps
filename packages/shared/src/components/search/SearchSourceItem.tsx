@@ -26,7 +26,9 @@ export function SearchSourceItem({
     }
   }, [itemId, name, trackEvent, url]);
 
-  if (!url) return null;
+  if (!url) {
+    return null;
+  }
 
   return (
     <div className="w-full">

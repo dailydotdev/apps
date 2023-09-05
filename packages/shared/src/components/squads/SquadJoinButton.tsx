@@ -104,7 +104,9 @@ export const SquadJoinButton = ({
     useLeaveSquad({ squad }),
     {
       onSuccess: (left) => {
-        if (!left) return;
+        if (!left) {
+          return;
+        }
 
         displayToast('👋 You have left the Squad.');
 

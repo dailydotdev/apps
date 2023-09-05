@@ -602,7 +602,9 @@ export const uploadContentImage = async (
     throw new Error('File type is not allowed');
   }
 
-  if (onProcessing) onProcessing(image);
+  if (onProcessing) {
+    onProcessing(image);
+  }
 
   const res = await request(graphqlUrl, UPLOAD_IMAGE_MUTATION, { image });
 

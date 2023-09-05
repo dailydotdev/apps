@@ -129,10 +129,11 @@ export const usePostModalNavigation = (
     const isPost = (item: FeedItem) => item.type === 'post';
     const firstPost = items.findIndex(isPost);
     const isLast = items.length - 1 === openedPostIndex;
-    if (firstPost === openedPostIndex)
+    if (firstPost === openedPostIndex) {
       return items.length - 1 === openedPostIndex
         ? PostPosition.Only
         : PostPosition.First;
+    }
     return (!canFetchMore || isFetchingNextPage) && isLast
       ? PostPosition.Last
       : PostPosition.Middle;
@@ -145,7 +146,8 @@ export const usePostModalNavigation = (
       onOpenModal,
       onPrevious() {
         let index = openedPostIndex - 1;
-        for (; index > 0 && items[index].type !== 'post'; index -= 1);
+        // eslint-disable-next-line no-empty
+        for (; index > 0 && items[index].type !== 'post'; index -= 1) {}
         const item = items[index];
         if (!item || item.type !== 'post') {
           return;
@@ -164,8 +166,8 @@ export const usePostModalNavigation = (
         for (
           ;
           index < items.length && items[index].type !== 'post';
-          index += 1
-        );
+          index += 1 // eslint-disable-next-line no-empty
+        ) {}
         const item = items[index];
 
         if (index === items.length && canFetchMore) {
@@ -178,7 +180,9 @@ export const usePostModalNavigation = (
           return;
         }
 
-        if (!item) return;
+        if (!item) {
+          return;
+        }
 
         if (item.type !== 'post') {
           return;

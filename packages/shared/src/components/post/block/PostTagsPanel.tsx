@@ -47,10 +47,14 @@ export function PostTagsPanel({
     blockedSource: initialPreference,
   });
 
-  if (post.tags.length === 0 || isNullOrUndefined(showTagsPanel)) return null;
+  if (post.tags.length === 0 || isNullOrUndefined(showTagsPanel)) {
+    return null;
+  }
 
   if (!showTagsPanel) {
-    if (toastOnSuccess) return null;
+    if (toastOnSuccess) {
+      return null;
+    }
 
     const sourcePreferenceChanged =
       initialPreference !== blocked?.sourceIncluded;

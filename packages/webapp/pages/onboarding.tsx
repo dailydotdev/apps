@@ -95,7 +95,9 @@ export function OnboardPage(): ReactElement {
       extra: JSON.stringify({ screen_value: screen }),
     });
 
-    if (!isFiltering) return setIsFiltering(true);
+    if (!isFiltering) {
+      return setIsFiltering(true);
+    }
 
     return setAuth({ isAuthenticating: true, isLoginFlow: false });
   };
@@ -118,7 +120,9 @@ export function OnboardPage(): ReactElement {
   };
 
   useEffect(() => {
-    if (!hasSelectTopics || !alerts?.myFeed) return;
+    if (!hasSelectTopics || !alerts?.myFeed) {
+      return;
+    }
 
     if (alerts.myFeed === 'created') {
       router.push('/');
@@ -128,7 +132,9 @@ export function OnboardPage(): ReactElement {
   const isPageReady = isFeaturesLoaded && isAuthReady;
 
   useEffect(() => {
-    if (!isPageReady || isTracked.current) return;
+    if (!isPageReady || isTracked.current) {
+      return;
+    }
 
     if (user || onboardingV2 === OnboardingV2.Control) {
       router.push('/');

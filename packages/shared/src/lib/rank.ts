@@ -116,11 +116,18 @@ export const getNextRankText = ({
   showNextLevel = true,
 }: GetNextRankTextProps): string => {
   const { steps } = RANKS[getRank(rank)];
-  if (finalRank && progress >= steps) return FINAL_RANK;
-  if (finalRank || (nextRank === rankLastWeek && progress < steps))
+  if (finalRank && progress >= steps) {
+    return FINAL_RANK;
+  }
+  if (finalRank || (nextRank === rankLastWeek && progress < steps)) {
     return `Re-earn: ${progress}/${steps} days`;
-  if (nextRank === 0) return `Earn: ${progress ?? 0}/1 days`;
-  if (showNextLevel) return `Next level: ${RANKS[rank].name}`;
+  }
+  if (nextRank === 0) {
+    return `Earn: ${progress ?? 0}/1 days`;
+  }
+  if (showNextLevel) {
+    return `Next level: ${RANKS[rank].name}`;
+  }
   return `Earn: ${progress ?? 0}/${RANKS[rank].steps} days`;
 };
 

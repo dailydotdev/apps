@@ -182,7 +182,9 @@ function TextFieldComponent(
           {...props}
           onInput={(e: SyntheticEvent<HTMLInputElement, InputEvent>) => {
             onInput(e);
-            if (props.onInput) props.onInput(e);
+            if (props.onInput) {
+              props.onInput(e);
+            }
           }}
         />
         {progress && (

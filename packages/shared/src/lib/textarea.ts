@@ -60,7 +60,9 @@ export const getCloseWord = (
     startIndex = lastIndex;
     const current = lastIndex + word.length;
 
-    if (current >= base) return true;
+    if (current >= base) {
+      return true;
+    }
 
     lastIndex = current + 1;
 

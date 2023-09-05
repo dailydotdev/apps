@@ -26,7 +26,9 @@ function SharePostContent({
   const [shouldShowSummary, setShouldShowSummary] = useState(true);
 
   const tldrHeight = useMemo(() => {
-    if (height === null) return 'auto';
+    if (height === null) {
+      return 'auto';
+    }
 
     return shouldShowSummary ? height : 0;
   }, [shouldShowSummary, height]);
@@ -95,7 +97,9 @@ function SharePostContent({
           <>
             <PostSummary
               ref={(el) => {
-                if (!el?.offsetHeight || height !== null) return;
+                if (!el?.offsetHeight || height !== null) {
+                  return;
+                }
 
                 setHeight(el.offsetHeight);
               }}

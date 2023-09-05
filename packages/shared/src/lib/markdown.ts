@@ -24,10 +24,14 @@ export const getMentionReplacement: GetReplacementFn = (
 ) => {
   const replacement = `@${word.trim()}`;
 
-  if (type === CursorType.Isolated) return { replacement };
+  if (type === CursorType.Isolated) {
+    return { replacement };
+  }
 
   if (type === CursorType.Adjacent) {
-    if (word.charAt(0) === '@') return { replacement: `${word} @` };
+    if (word.charAt(0) === '@') {
+      return { replacement: `${word} @` };
+    }
 
     return { replacement };
   }

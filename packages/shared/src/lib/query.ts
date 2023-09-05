@@ -57,7 +57,9 @@ export const filterInfiniteCache = <
   condition: (param: TData) => boolean,
 ): TReturn => {
   return client.setQueryData<TReturn>(queryKey, (data) => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
 
     return {
       ...data,
@@ -96,7 +98,9 @@ export const updateInfiniteCache = <
   entity,
 }: UpdateInfiniteCacheProps<TEntity, TData>): TReturn => {
   return client.setQueryData<TReturn>(queryKey, (data) => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
 
     const updated = { ...data };
     const item = updated.pages[page][prop].edges[edge]
