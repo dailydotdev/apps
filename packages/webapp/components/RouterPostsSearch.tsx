@@ -1,18 +1,12 @@
 import React, { ReactElement } from 'react';
-import PostsSearch from '@dailydotdev/shared/src/components/PostsSearch';
+import PostsSearch, {
+  PostsSearchProps,
+} from '@dailydotdev/shared/src/components/PostsSearch';
 import { useRouter } from 'next/router';
 
-export type RouterPostsSearchProps = {
-  suggestionType?: string;
-  placeholder?: string;
-  autoFocus?: boolean;
-};
-
-export default function RouterPostsSearch({
-  suggestionType,
-  placeholder,
-  autoFocus,
-}: RouterPostsSearchProps): ReactElement {
+export default function RouterPostsSearch(
+  props: Omit<PostsSearchProps, 'onSubmitQuery'>,
+): ReactElement {
   const router = useRouter();
 
   const onSubmitQuery = (query: string): Promise<boolean> =>
@@ -23,11 +17,9 @@ export default function RouterPostsSearch({
 
   return (
     <PostsSearch
-      suggestionType={suggestionType}
-      placeholder={placeholder}
+      {...props}
       initialQuery={router.query.q?.toString()}
       onSubmitQuery={onSubmitQuery}
-      autoFocus={autoFocus}
     />
   );
 }

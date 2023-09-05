@@ -10,7 +10,7 @@ interface Submission {
   reason: string;
 }
 
-export interface SubmitArticleResposne {
+export interface SubmitArticleResponse {
   result: 'succeed' | 'exists' | 'rejected';
   reason?: string;
   post?: Post;

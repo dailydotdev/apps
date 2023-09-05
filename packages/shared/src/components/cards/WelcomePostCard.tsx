@@ -48,7 +48,9 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     );
 
   const clamp = (() => {
-    if (post.image) return 'line-clamp-3';
+    if (post.image) {
+      return 'line-clamp-3';
+    }
 
     return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
   })();

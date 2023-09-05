@@ -47,7 +47,9 @@ export default function SquadHeaderMenu({
 
   const { mutateAsync: onLeaveSquad } = useMutation(useLeaveSquad({ squad }), {
     onSuccess: (left) => {
-      if (!left) return;
+      if (!left) {
+        return;
+      }
 
       router.replace('/');
     },

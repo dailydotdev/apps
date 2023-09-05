@@ -45,11 +45,15 @@ const redirectApp = async (url: string) => {
 (async () => {
   const data = getLocalBootData();
 
-  if (data?.settings?.theme) applyTheme(themeModes[data.settings.theme]);
+  if (data?.settings?.theme) {
+    applyTheme(themeModes[data.settings.theme]);
+  }
 
   const source = window.location.href.split('source=')[1];
 
-  if (source) return renderApp(data);
+  if (source) {
+    return renderApp(data);
+  }
 
   const dnd = await getCache<DndSettings>('dnd');
   const isDnd = dnd?.expiration?.getTime() > new Date().getTime();

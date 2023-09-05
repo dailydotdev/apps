@@ -1,4 +1,9 @@
-import React, { HTMLAttributes, ReactElement, ReactHTML } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  ReactHTML,
+  ReactNode,
+} from 'react';
 import classNames from 'classnames';
 import classed, { ClassedHTML } from '../../lib/classed';
 import styles from './utilities.module.css';
@@ -57,11 +62,32 @@ export const PageContainer = classed(
   pageContainerClassNames,
 );
 
-export const PageWidgets = classed(
+const RawPageWidgets = classed(
   'aside',
   'flex flex-col gap-6 px-4 w-full max-w-full',
-  'tablet:w-[18.75rem] tablet:max-w-[18.75rem]',
-  'laptop:w-[21.25rem] laptop:max-w-[21.25rem]',
+);
+
+interface PageWidgetsProps {
+  tablet?: boolean;
+  laptop?: boolean;
+  className?: string;
+  children?: ReactNode;
+}
+export const PageWidgets = ({
+  tablet = true,
+  laptop = true,
+  className,
+  children,
+}: PageWidgetsProps): ReactElement => (
+  <RawPageWidgets
+    className={classNames(
+      className,
+      tablet && 'tablet:w-[18.75rem] tablet:max-w-[18.75rem]',
+      laptop && 'laptop:w-[21.25rem] laptop:max-w-[21.25rem]',
+    )}
+  >
+    {children}
+  </RawPageWidgets>
 );
 
 export const ResponsivePageContainer = classed(
@@ -184,3 +210,7 @@ export const getContextBottomPosition = (
 
   return { x: right, y: bottom + 4 };
 };
+
+export interface WithClassNameProps {
+  className?: string;
+}

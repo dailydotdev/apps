@@ -16,7 +16,9 @@ export function SquadPromotionModal({
 }: SquadPromotionModalProps): ReactElement {
   const { squad, isFetched } = useSquad({ handle });
 
-  if (!isFetched) return null;
+  if (!isFetched) {
+    return null;
+  }
 
   return (
     <Modal

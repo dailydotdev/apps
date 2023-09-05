@@ -2,6 +2,7 @@
 // @ts-ignore
 import React, { ReactElement, ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
 import {
   FeaturesContextProvider,
   FeaturesContextProviderProps,
@@ -31,6 +32,7 @@ interface TestBootProviderProps {
   auth?: Partial<AuthContextData>;
   alerts?: Partial<AlertContextProviderProps>;
   notification?: Partial<NotificationsContextProviderProps>;
+  gb?: GrowthBook;
 }
 
 const settingsContext: Partial<SettingsContextData> = {
@@ -55,6 +57,7 @@ export const TestBootProvider = ({
   auth = {},
   alerts = {},
   notification = {},
+  gb = new GrowthBook(),
 }: TestBootProviderProps): ReactElement => {
   return (
     <QueryClientProvider client={client}>
@@ -76,26 +79,28 @@ export const TestBootProvider = ({
               ...auth,
             }}
           >
-            <SettingsContext.Provider
-              value={{ ...settingsContext, ...settings }}
-            >
-              <OnboardingContext.Provider
-                value={{
-                  myFeedMode: OnboardingMode.Manual,
-                  isOnboardingOpen: false,
-                  onCloseOnboardingModal: jest.fn(),
-                  onInitializeOnboarding: jest.fn(),
-                  onShouldUpdateFilters: jest.fn(),
-                }}
+            <GrowthBookProvider growthbook={gb}>
+              <SettingsContext.Provider
+                value={{ ...settingsContext, ...settings }}
               >
-                <NotificationsContextProvider
-                  app={BootApp.Test}
-                  {...notification}
+                <OnboardingContext.Provider
+                  value={{
+                    myFeedMode: OnboardingMode.Manual,
+                    isOnboardingOpen: false,
+                    onCloseOnboardingModal: jest.fn(),
+                    onInitializeOnboarding: jest.fn(),
+                    onShouldUpdateFilters: jest.fn(),
+                  }}
                 >
-                  {children}
-                </NotificationsContextProvider>
-              </OnboardingContext.Provider>
-            </SettingsContext.Provider>
+                  <NotificationsContextProvider
+                    app={BootApp.Test}
+                    {...notification}
+                  >
+                    {children}
+                  </NotificationsContextProvider>
+                </OnboardingContext.Provider>
+              </SettingsContext.Provider>
+            </GrowthBookProvider>
           </AuthContext.Provider>
         </AlertContextProvider>
       </FeaturesContextProvider>

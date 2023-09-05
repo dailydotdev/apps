@@ -61,7 +61,9 @@ export function WriteFreeformContent({
   const { sidebarRendered } = useSidebarRendered();
 
   const getDraftImage = () => {
-    if (!draft?.image) return null;
+    if (!draft?.image) {
+      return null;
+    }
 
     return base64ToFile(draft.image, draft.filename ?? defaultFilename);
   };

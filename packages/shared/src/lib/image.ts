@@ -1,4 +1,14 @@
 export const cloudinary = {
+  feed: {
+    bg: {
+      laptop:
+        'https://daily-now-res.cloudinary.com/image/upload/s--O8GDhJO8--/f_auto/v1692271285/public/Desktop-ask-bg',
+      tablet:
+        'https://daily-now-res.cloudinary.com/image/upload/s--1kZ8h30a--/f_auto/v1692271284/public/Tablet-ask-bg',
+      mobile:
+        'https://daily-now-res.cloudinary.com/image/upload/s--TiBUzfrQ--/f_auto/v1692271284/public/Mobile-ask-bg',
+    },
+  },
   post: {
     imageCoverPlaceholder:
       'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1',
@@ -43,7 +53,7 @@ export const cloudinary = {
         'https://daily-now-res.cloudinary.com/image/upload/s--puRUea_K--/f_auto/v1690887143/cover-generic_blur_xny4yt',
     },
     imageFallback:
-      'https://daily-now-res.cloudinary.com/image/upload/v1672041320/squads/squad_placeholder.jpg',
+      'https://daily-now-res.cloudinary.com/image/upload/s--LrHsyt2T--/f_auto/v1692632054/squad_placeholder_sfwkmj',
     createSquad:
       'https://daily-now-res.cloudinary.com/image/upload/s--4nZR_i2V--/f_auto/v1686299591/Squads_eary_access_e3lo4u',
     tour: {
@@ -88,6 +98,19 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/s--YzB9MTQz--/v1686039108/main-background_ciqmr7.svg',
     purpleEdgeGlow:
       'https://daily-now-res.cloudinary.com/image/upload/s--Va9xODJM--/v1686074969/Glow_fjelt5.svg',
+  },
+  companion: {
+    backgroundVideoDesktop:
+      'https://daily-now-res.cloudinary.com/video/upload/v1692265138/companion_web_bgkkoz.mp4',
+    videoThumbnailDesktop:
+      'https://daily-now-res.cloudinary.com/image/upload/s--7w2Deabi--/f_auto/v1689497816/web-image_yomdsz',
+    backgroundVideoMobile:
+      'https://daily-now-res.cloudinary.com/video/upload/v1692265139/companion_mobile_bklqez.mp4',
+    videoThumbnailMobile:
+      'https://daily-now-res.cloudinary.com/image/upload/s--IqqAH4Rt--/f_auto/v1689497816/mobile-image_zb923g',
+  },
+  search: {
+    og: 'https://daily-now-res.cloudinary.com/image/upload/s--Lq4XRH5V--/f_auto/v1693378429/public/dailv.dev_-_OG_Search',
   },
 };
 

@@ -58,6 +58,11 @@ module.exports = plugin(({ addUtilities }) => {
       'font-weight': 'bold',
     },
 
+    '.typo-markdown': {
+      'font-size': '1.0625rem',
+      'line-height': '1.75rem',
+    },
+
     '.typo-body': {
       'font-size': '1.0625rem',
       'line-height': '1.375rem',

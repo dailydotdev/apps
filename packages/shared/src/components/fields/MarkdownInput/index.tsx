@@ -26,7 +26,7 @@ import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 import { markdownGuide } from '../../../lib/constants';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import TabContainer, { Tab } from '../../tabs/TabContainer';
+import { TabContainer, Tab } from '../../tabs/TabContainer';
 import MarkdownPreview from '../MarkdownPreview';
 import { isNullOrUndefined } from '../../../lib/func';
 import { SavingLabel } from './SavingLabel';
@@ -145,7 +145,9 @@ function MarkdownInput(
     );
 
   const onInputClick: MouseEventHandler<HTMLTextAreaElement> = () => {
-    if (checkMention) checkMention();
+    if (checkMention) {
+      checkMention();
+    }
   };
 
   return (
@@ -252,7 +254,7 @@ function MarkdownInput(
               buttonSize={actionButtonSizes}
               className={classNames(
                 'btn-tertiary font-normal',
-                uploadingCount && 'text-theme-color-cabbage',
+                uploadingCount && 'mr-auto text-theme-color-cabbage',
               )}
               icon={icon}
               iconOnly={!sidebarRendered}

@@ -16,7 +16,9 @@ export const useNotificationToggle = (): UseNotificationToggle => {
   });
 
   const onSubmitted = async () => {
-    if (!shouldShowCta) return;
+    if (!shouldShowCta) {
+      return;
+    }
 
     const command = isEnabled ? onEnable : onDismiss;
     await command();

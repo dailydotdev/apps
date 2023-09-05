@@ -13,7 +13,9 @@ function ModalCloseComponent(
   }: ButtonProps<'button'>,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
-  if (!onClick) return null;
+  if (!onClick) {
+    return null;
+  }
   return (
     <CloseButton
       {...props}

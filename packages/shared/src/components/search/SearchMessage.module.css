@@ -1,0 +1,21 @@
+@keyframes caretBlink {
+  from,
+  to {
+    background: transparent;
+  }
+  50% {
+    background: var(--theme-color-cabbage);
+  }
+}
+
+/* blink caret and the end of last element */
+.caret > *:last-child:after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 1rem;
+  vertical-align: text-bottom;
+  animation: caretBlink 400ms step-end infinite;
+  margin-left: 2px;
+  background: var(--theme-color-cabbage);
+}

@@ -49,7 +49,9 @@ export function SquadsToShare({
     [squads, isLoading, onClick, size, squadAvatarSize],
   );
 
-  if (list.length) return <>{list}</>;
+  if (list.length) {
+    return <>{list}</>;
+  }
 
   return (
     <SocialShareIcon

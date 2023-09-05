@@ -73,7 +73,9 @@ export const useNotificationPreference = ({
     {
       onSuccess: (_, { referenceId, type }) => {
         client.setQueryData<NotificationPreference[]>(key, (oldData) => {
-          if (!oldData) return [];
+          if (!oldData) {
+            return [];
+          }
 
           return oldData.filter(
             (preference) =>

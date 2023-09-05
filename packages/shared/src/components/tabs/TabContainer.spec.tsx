@@ -6,7 +6,7 @@ import {
   screen,
 } from '@testing-library/preact';
 import nock from 'nock';
-import TabContainer, { Tab, TabContainerProps } from './TabContainer';
+import { Tab, TabContainer, TabContainerProps } from './TabContainer';
 
 beforeEach(() => {
   nock.cleanAll();

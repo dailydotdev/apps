@@ -274,7 +274,9 @@ export function RankProgress({
         levelUp() ||
         RANKS[rankIndex].steps !== progress)
     ) {
-      if (!showRadialProgress) animateRank();
+      if (!showRadialProgress) {
+        animateRank();
+      }
       setAnimatingProgress(true);
     }
     setPrevProgress(progress);

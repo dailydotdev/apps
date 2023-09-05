@@ -47,7 +47,9 @@ function Carousel({
   const onSwipedRight: SwipeCallback = (e) => {
     e?.event?.stopPropagation?.();
 
-    if (index === 0) return isNullOrUndefined(e?.dir) && onClose?.(e);
+    if (index === 0) {
+      return isNullOrUndefined(e?.dir) && onClose?.(e);
+    }
 
     return onUpdateIndex(-1);
   };
@@ -56,7 +58,9 @@ function Carousel({
     e?.event?.stopPropagation?.();
 
     const max = items.length - 1;
-    if (index === max) return isNullOrUndefined(e?.dir) && onEnd?.(e);
+    if (index === max) {
+      return isNullOrUndefined(e?.dir) && onEnd?.(e);
+    }
 
     return onUpdateIndex(1);
   };
@@ -99,7 +103,9 @@ function Carousel({
     </span>
   );
 
-  if (!children) return content;
+  if (!children) {
+    return content;
+  }
 
   return (
     <div className={classNames('flex flex-col', className?.wrapper)}>

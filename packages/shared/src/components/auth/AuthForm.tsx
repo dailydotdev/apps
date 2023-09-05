@@ -14,7 +14,7 @@ function AuthForm(
     <form
       {...props}
       ref={ref}
-      className={classNames('grid grid-cols-1', className)}
+      className={classNames('flex flex-col', className)}
     >
       {children}
     </form>

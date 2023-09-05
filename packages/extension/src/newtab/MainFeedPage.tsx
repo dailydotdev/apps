@@ -33,9 +33,9 @@ export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
   const { alerts } = useContext(AlertContext);
+  const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
-  const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
   useCompanionSettings('main feed page');
@@ -111,6 +111,7 @@ export default function MainFeedPage({
             />
           }
           navChildren={!isSearchOn && <ShortcutLinks />}
+          besideSearch={<ShortcutLinks className="ml-auto" />}
         />
       </FeedLayout>
       <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

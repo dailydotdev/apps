@@ -85,7 +85,9 @@ export function CommentMarkdownInput({
   const { requestMethod, isCompanion } = useRequestProtocol();
   const { trackEvent } = useAnalyticsContext();
   const onSuccess = (comment: Comment) => {
-    if (!comment) return;
+    if (!comment) {
+      return;
+    }
 
     const comments = generateQueryKey(RequestKey.PostComments, null, postId);
     client.setQueryData<PostCommentsData>(comments, (data) => {
@@ -141,7 +143,9 @@ export function CommentMarkdownInput({
       );
     }
 
-    if (onCommented) onCommented(comment, !editCommentId, parentCommentId);
+    if (onCommented) {
+      onCommented(comment, !editCommentId, parentCommentId);
+    }
   };
 
   const mutation = parentCommentId

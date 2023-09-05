@@ -91,7 +91,9 @@ export function PostComments({
         className: 'btn-primary-cabbage',
       },
     };
-    if (!(await showPrompt(options))) return;
+    if (!(await showPrompt(options))) {
+      return;
+    }
 
     trackEvent(postAnalyticsEvent(AnalyticsEvent.DeleteComment, post));
     await deleteComment(commentId, requestMethod);
@@ -107,7 +109,7 @@ export function PostComments({
     }
   }, [commentsCount, scrollToComment]);
 
-  if (post.numComments === 0) {
+  if (commentsCount === 0) {
     return (
       <div className="mt-8 mb-12 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.

@@ -99,7 +99,9 @@ const SquadPage = ({
   const squadId = squad?.id;
 
   useEffect(() => {
-    if (trackedImpression || !squadId) return;
+    if (trackedImpression || !squadId) {
+      return;
+    }
 
     trackEvent({
       event_name: AnalyticsEvent.ViewSquadPage,
@@ -127,7 +129,9 @@ const SquadPage = ({
   );
 
   useEffect(() => {
-    if (!isForbidden) return;
+    if (!isForbidden) {
+      return;
+    }
 
     trackEvent({
       event_name: AnalyticsEvent.ViewSquadForbiddenPage,
@@ -163,9 +167,13 @@ const SquadPage = ({
     return <>{seo}</>;
   }
 
-  if (isForbidden) return <Unauthorized />;
+  if (isForbidden) {
+    return <Unauthorized />;
+  }
 
-  if (!squad) return <Custom404 />;
+  if (!squad) {
+    return <Custom404 />;
+  }
 
   return (
     <PageComponent
@@ -194,6 +202,7 @@ const SquadPage = ({
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
+          showSearch={false}
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
           allowPin

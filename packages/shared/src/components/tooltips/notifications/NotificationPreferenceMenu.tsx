@@ -52,9 +52,13 @@ export const NotificationPreferenceMenu = ({
   };
 
   const Icon = (): ReactElement => {
-    if (!notification) return null;
+    if (!notification) {
+      return null;
+    }
 
-    if (isFetching) return <Loader />;
+    if (isFetching) {
+      return <Loader />;
+    }
 
     const NotifIcon =
       preferences[0]?.status === NotificationPreferenceStatus.Muted
@@ -65,9 +69,13 @@ export const NotificationPreferenceMenu = ({
   };
 
   const Copy = (): ReactElement => {
-    if (!notification) return null;
+    if (!notification) {
+      return null;
+    }
 
-    if (isFetching) return <>Fetching your preference</>;
+    if (isFetching) {
+      return <>Fetching your preference</>;
+    }
 
     const isMuted =
       preferences[0]?.status === NotificationPreferenceStatus.Muted;

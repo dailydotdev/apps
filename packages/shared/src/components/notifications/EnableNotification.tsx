@@ -76,7 +76,7 @@ function EnableNotification({
   const classes = containerClassName[source];
   const showTextCloseButton = sourceRenderTextCloseButton[source];
 
-  if (source === NotificationPromptSource.SquadPostModal)
+  if (source === NotificationPromptSource.SquadPostModal) {
     return (
       <span
         className={classNames(
@@ -100,6 +100,7 @@ function EnableNotification({
         />
       </span>
     );
+  }
 
   return (
     <div

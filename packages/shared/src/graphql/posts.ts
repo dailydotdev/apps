@@ -170,6 +170,7 @@ export interface PostData {
 
 export interface PostUpvote extends Upvote {
   post: Post;
+  votedAt: Date;
 }
 
 export const POST_BY_ID_QUERY = gql`
@@ -638,6 +639,8 @@ export const imageSizeLimitMB = 5;
 export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
 export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
 
+export const uploadNotAcceptedMessage = `File type is not allowed or the size exceeded the limit of ${imageSizeLimitMB} MB`;
+
 export const uploadContentImage = async (
   image: File,
   onProcessing?: (file: File) => void,
@@ -650,7 +653,9 @@ export const uploadContentImage = async (
     throw new Error('File type is not allowed');
   }
 
-  if (onProcessing) onProcessing(image);
+  if (onProcessing) {
+    onProcessing(image);
+  }
 
   const res = await request(graphqlUrl, UPLOAD_IMAGE_MUTATION, { image });
 

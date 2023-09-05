@@ -7,7 +7,7 @@ import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { ReactElement, Ref, forwardRef } from 'react';
 import PlayIcon from '@dailydotdev/shared/src/components/icons/Play';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { useExtensionPermission } from './useExtensionPermission';
+import { useExtensionPermission } from '@dailydotdev/shared/src/hooks';
 
 const CompanionSection = classed('div', 'flex flex-col max-w-full');
 
@@ -38,7 +38,7 @@ const CompanionPermissionComponent = (
         </p>
         <Button
           className="mt-1 w-[12.5rem] btn btn-primary"
-          onClick={requestContentScripts}
+          onClick={() => requestContentScripts()}
           buttonSize={ButtonSize.Small}
         >
           {button}

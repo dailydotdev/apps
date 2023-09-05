@@ -21,7 +21,9 @@ interface SquadReadyProps extends SquadStateProps {
 
 export function SquadReady({ squad }: SquadReadyProps): ReactElement {
   const { activeView } = useContext(ModalPropsContext);
-  if (ModalState.Ready !== activeView) return null;
+  if (ModalState.Ready !== activeView) {
+    return null;
+  }
   const { name, handle } = squad;
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks

@@ -10,13 +10,17 @@ export const useRawBackgroundRequest = (
   const [browser, setBrowser] = useState<Browser>();
 
   useEffect(() => {
-    if (!isCompanion) return;
+    if (!isCompanion) {
+      return;
+    }
 
     import('webextension-polyfill-ts').then((mod) => setBrowser(mod.browser));
   }, [isCompanion]);
 
   useEffect(() => {
-    if (!browser) return null;
+    if (!browser) {
+      return null;
+    }
 
     const handler = ({ key, ...args }) => {
       if (!key) {

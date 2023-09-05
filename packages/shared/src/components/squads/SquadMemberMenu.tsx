@@ -139,7 +139,9 @@ export default function SquadMemberMenu({
       className: { buttons: 'mt-6' },
     });
 
-    if (!hasConfirmed) return;
+    if (!hasConfirmed) {
+      return;
+    }
 
     await onUpdateRole({
       sourceId: squad.id,
@@ -147,11 +149,15 @@ export default function SquadMemberMenu({
       role,
     });
 
-    if (toastDescription[title]) displayToast(toastDescription[title]);
+    if (toastDescription[title]) {
+      displayToast(toastDescription[title]);
+    }
   };
 
   const options: MenuItemProps[] = useMemo(() => {
-    if (!member || !user) return [];
+    if (!member || !user) {
+      return [];
+    }
 
     const getUpdateRoleFn =
       (role: SourceMemberRole, title: MenuItemTitle) => () =>

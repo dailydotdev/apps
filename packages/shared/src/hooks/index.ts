@@ -6,4 +6,6 @@ export * from './useSquadNavigation';
 export * from './useLeaveSquad';
 export * from './useJoinSquad';
 export * from './useJoinReferral';
+export * from './chat';
+export * from './useExtensionPermission';
 export * from './usePostFeedback';

@@ -18,7 +18,6 @@ import {
   Post,
   promotePost,
 } from '../../graphql/posts';
-import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
@@ -27,15 +26,16 @@ import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Origin } from '../../lib/analytics';
+import useContextMenu from '../../hooks/useContextMenu';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
-  onReadArticle?: () => void;
+  onReadArticle?: (e: React.MouseEvent, data: { post: Post }) => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
   inlineActions?: boolean;
-  notificactionClassName?: string;
+  notificationClassName?: string;
   contextMenuId: string;
   onRemovePost?: PostOptionsMenuProps['onRemovePost'];
 }
@@ -50,22 +50,15 @@ export function PostHeaderActions({
   onClose,
   inlineActions,
   className,
-  notificactionClassName,
+  notificationClassName,
   contextMenuId,
   onRemovePost,
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
   const { user } = useContext(AuthContext);
-  const { showReportMenu } = useReportPostMenu(contextMenuId);
   const { showPrompt } = usePrompt();
-
-  const showPostOptionsContext = (e) => {
-    const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    showReportMenu(e, {
-      position: { x: right, y: bottom + 4 },
-    });
-  };
+  const { onMenuClick } = useContextMenu({ id: contextMenuId });
 
   const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
@@ -119,7 +112,7 @@ export function PostHeaderActions({
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}
             icon={<OpenLinkIcon />}
-            onClick={onReadArticle}
+            onClick={(e) => onReadArticle(e, { post })}
             data-testid="postActionsRead"
           >
             {!inlineActions && 'Read post'}
@@ -130,7 +123,7 @@ export function PostHeaderActions({
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
           icon={<MenuIcon />}
-          onClick={(event) => showPostOptionsContext(event)}
+          onClick={onMenuClick}
         />
       </SimpleTooltip>
       {onClose && (
