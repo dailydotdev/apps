@@ -30,7 +30,9 @@ interface SourceAuthorProps {
 }
 
 const getUserIcon = (userType: UserType) => {
-  if (userType === 'source') return null;
+  if (userType === 'source') {
+    return null;
+  }
 
   return userType === 'author' ? FeatherIcon : ScoutIcon;
 };

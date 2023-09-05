@@ -33,7 +33,9 @@ export function ShareLink({
   const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    if (!squad) return displayToast('You must select a Squad to post to!');
+    if (!squad) {
+      return displayToast('You must select a Squad to post to!');
+    }
 
     return onSubmitPost(e, squad.id, commentary);
   };

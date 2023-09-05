@@ -19,7 +19,9 @@ function PostLoadingSkeleton({
   className,
   hasNavigation,
 }: PostLoadingSkeletonProps): ReactElement {
-  if (!type) return null;
+  if (!type) {
+    return null;
+  }
   const publicSquadPost = isSourcePublicSquad(source);
 
   if (type === PostType.Share) {

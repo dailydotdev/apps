@@ -26,11 +26,15 @@ function TabList({
         <button
           key={tab}
           ref={async (el) => {
-            if (!el || tab !== active) return;
+            if (!el || tab !== active) {
+              return;
+            }
 
             const rect = el.getBoundingClientRect();
 
-            if (rect.width === 0) return;
+            if (rect.width === 0) {
+              return;
+            }
 
             const size = rect.width / 2;
             const value = size + el.offsetLeft;

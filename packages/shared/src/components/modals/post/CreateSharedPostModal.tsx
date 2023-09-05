@@ -43,7 +43,9 @@ export function CreateSharedPostModal({
   } = usePostToSquad({
     initialPreview: preview,
     onPostSuccess: () => {
-      if (onSharedSuccessfully) onSharedSuccessfully();
+      if (onSharedSuccessfully) {
+        onSharedSuccessfully();
+      }
       onSubmitted();
       props.onRequestClose(null);
     },

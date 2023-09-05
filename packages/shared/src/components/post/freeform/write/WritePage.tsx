@@ -16,9 +16,13 @@ export function WritePage({
   isForbidden,
   children,
 }: WritePageProps): ReactElement {
-  if (isLoading) return <WriteFreeFormSkeleton isEdit={isEdit} />;
+  if (isLoading) {
+    return <WriteFreeFormSkeleton isEdit={isEdit} />;
+  }
 
-  if (isForbidden) return <Unauthorized />;
+  if (isForbidden) {
+    return <Unauthorized />;
+  }
 
   return <WritePageContainer>{children}</WritePageContainer>;
 }

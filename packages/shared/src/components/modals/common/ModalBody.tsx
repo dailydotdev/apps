@@ -26,7 +26,9 @@ function ModalBodyComponent(
     kind === ModalKind.FlexibleTop && bigModals.includes(size) && 'mobileL:p-8',
     className,
   );
-  if (view && view !== activeView) return null;
+  if (view && view !== activeView) {
+    return null;
+  }
   return (
     <section className={sectionClassName} {...props} ref={ref}>
       {children}

@@ -134,7 +134,9 @@ export const useBlockPostPanel = (
         shouldBlockSource,
       );
 
-      if (!successful) return;
+      if (!successful) {
+        return;
+      }
 
       setShowTagsPanel({
         showTagsPanel: undefined,
@@ -178,7 +180,9 @@ export const useBlockPostPanel = (
         hasChangedPreference ? shouldBlockSource : undefined,
       );
 
-      if (!successful) return;
+      if (!successful) {
+        return;
+      }
 
       if (toastOnSuccess) {
         const sourcePreferenceChanged = blockedSource !== shouldBlockSource;

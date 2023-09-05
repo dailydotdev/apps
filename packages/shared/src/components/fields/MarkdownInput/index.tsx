@@ -145,7 +145,9 @@ function MarkdownInput(
     );
 
   const onInputClick: MouseEventHandler<HTMLTextAreaElement> = () => {
-    if (checkMention) checkMention();
+    if (checkMention) {
+      checkMention();
+    }
   };
 
   return (

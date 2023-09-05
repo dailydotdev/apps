@@ -25,9 +25,13 @@ export function SearchHistory({
     infiniteScrollRef,
   } = useSearchHistory();
 
-  if (isLoading) return <SearchSkeleton className={className} />;
+  if (isLoading) {
+    return <SearchSkeleton className={className} />;
+  }
 
-  if (!nodes?.length) return showEmptyState ? <SearchEmpty /> : null;
+  if (!nodes?.length) {
+    return showEmptyState ? <SearchEmpty /> : null;
+  }
 
   return (
     <SearchHistoryContainer className={className}>

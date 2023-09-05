@@ -120,8 +120,9 @@ export default function MainLayout({
       showOnlyLogo ||
       sidebarRendered === null ||
       (sidebarRendered && !showSidebar)
-    )
+    ) {
       return null;
+    }
 
     return (
       <Sidebar
@@ -154,7 +155,9 @@ export default function MainLayout({
     !isTesting;
 
   useEffect(() => {
-    if (!shouldRedirectOnboarding) return;
+    if (!shouldRedirectOnboarding) {
+      return;
+    }
 
     const onboarding = `${webappUrl}onboarding`;
     const entries = Object.entries(router.query);
@@ -176,8 +179,9 @@ export default function MainLayout({
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
     shouldRedirectOnboarding
-  )
+  ) {
     return null;
+  }
 
   return (
     <div {...handlers} className="antialiased">

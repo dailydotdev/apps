@@ -15,9 +15,13 @@ export const getBlockedMessage = (
   blockedTags: number,
   sourcePreferenceChanged: boolean,
 ): string => {
-  if (sourcePreferenceChanged) return 'Preferences saved';
+  if (sourcePreferenceChanged) {
+    return 'Preferences saved';
+  }
 
-  if (blockedTags === 0) return 'No topics were blocked';
+  if (blockedTags === 0) {
+    return 'No topics were blocked';
+  }
 
   const topic =
     blockedTags === 1 ? 'topic was blocked' : 'topics are now blocked';

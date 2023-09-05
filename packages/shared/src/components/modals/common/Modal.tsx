@@ -95,7 +95,9 @@ export function Modal({
     defaultView ?? stepTitle ?? tabTitle,
   );
   const setActiveView = (view: string) => {
-    if (onViewChange) onViewChange(view);
+    if (onViewChange) {
+      onViewChange(view);
+    }
     setView(view);
   };
   const modalOverlayClassName = classNames(

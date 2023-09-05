@@ -17,7 +17,9 @@ export function ModalFooter({
   view,
 }: ModalFooterProps): ReactElement {
   const { activeView } = useContext(ModalPropsContext);
-  if (view && view !== activeView) return null;
+  if (view && view !== activeView) {
+    return null;
+  }
   return (
     <footer
       className={classNames(

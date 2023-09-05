@@ -29,8 +29,12 @@ export default function CompanionModal({
   const [loaded, toggleLoaded] = useState(false);
 
   const size = useMemo(() => {
-    if (isMobile) return Modal.Size.XSmall;
-    if (isTablet) return Modal.Size.Small;
+    if (isMobile) {
+      return Modal.Size.XSmall;
+    }
+    if (isTablet) {
+      return Modal.Size.Small;
+    }
 
     return Modal.Size.XLarge;
   }, [isTablet, isMobile]);

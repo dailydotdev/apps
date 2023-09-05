@@ -43,7 +43,9 @@ export function SubmitExternalLink({
 
   const link = url ?? preview?.permalink ?? preview?.url;
 
-  if (isLoadingPreview) return <WritePreviewSkeleton link={link} />;
+  if (isLoadingPreview) {
+    return <WritePreviewSkeleton link={link} />;
+  }
 
   if (preview) {
     return (
