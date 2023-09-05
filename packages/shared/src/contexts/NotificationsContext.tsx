@@ -131,7 +131,9 @@ export const NotificationsContextProvider = ({
   const onTogglePermission = async (
     source: NotificationPromptSource,
   ): Promise<NotificationPermission> => {
-    if (!user) return 'default';
+    if (!user) {
+      return 'default';
+    }
 
     const { permission } = globalThis.Notification ?? {};
 

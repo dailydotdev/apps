@@ -152,7 +152,9 @@ export default function CommentActionButtons({
     );
 
   const openReportCommentModal = () => {
-    if (!user) return showLogin(AuthTriggers.ReportComment);
+    if (!user) {
+      return showLogin(AuthTriggers.ReportComment);
+    }
 
     return openModal({
       type: LazyModal.ReportComment,

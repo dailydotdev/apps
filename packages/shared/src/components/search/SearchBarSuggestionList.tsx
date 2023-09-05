@@ -22,7 +22,9 @@ export function SearchBarSuggestionList({
 }: SearchBarSuggestionListProps): React.ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
-  if (isLoading) return <Pill className={className} />;
+  if (isLoading) {
+    return <Pill className={className} />;
+  }
 
   if (!user) {
     return (

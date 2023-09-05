@@ -57,7 +57,9 @@ function EditPost(): ReactElement {
   });
 
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
-    if (isPosting || isSuccess) return null;
+    if (isPosting || isSuccess) {
+      return null;
+    }
 
     return onUpdatePost({ ...params, id: post.id });
   };
@@ -72,9 +74,13 @@ function EditPost(): ReactElement {
   const isAuthor = post?.author.id === user?.id;
 
   const canEdit = (() => {
-    if (isAuthor) return true;
+    if (isAuthor) {
+      return true;
+    }
 
-    if (post?.type !== PostType.Welcome) return false;
+    if (post?.type !== PostType.Welcome) {
+      return false;
+    }
 
     return verifyPermission(squad, SourcePermissions.WelcomePostEdit);
   })();

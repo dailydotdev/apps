@@ -61,7 +61,9 @@ export const useEnableNotification = ({
 
     onAcceptedPermissionJustNow?.(isGranted);
 
-    if (isGranted) completeAction(ActionType.EnableNotification);
+    if (isGranted) {
+      completeAction(ActionType.EnableNotification);
+    }
   };
 
   const hasEnabled = (isSubscribed || hasPermissionCache) && isEnabled;

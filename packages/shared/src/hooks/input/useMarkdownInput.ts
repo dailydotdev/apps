@@ -113,7 +113,9 @@ export const useMarkdownInput = ({
 
   const onUpdate = (value: string) => {
     setInput(value);
-    if (onValueUpdate) onValueUpdate(value);
+    if (onValueUpdate) {
+      onValueUpdate(value);
+    }
   };
 
   const { uploadedCount, queueCount, pushUpload, startUploading } =
@@ -138,7 +140,9 @@ export const useMarkdownInput = ({
     });
 
   useEffect(() => {
-    if (!textareaRef?.current) return;
+    if (!textareaRef?.current) {
+      return;
+    }
 
     setCommand(new TextareaCommand(textareaRef));
   }, [setCommand, textareaRef]);
@@ -162,7 +166,9 @@ export const useMarkdownInput = ({
   const mentions = data?.recommendedMentions;
 
   const updateQuery = (value: string) => {
-    if (!isMentionEnabled || value === query) return;
+    if (!isMentionEnabled || value === query) {
+      return;
+    }
 
     if (isNullOrUndefined(query) && !isNullOrUndefined(value)) {
       setOffset(getCaretOffset(textarea));
@@ -211,9 +217,13 @@ export const useMarkdownInput = ({
   const onKeyUp: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     const pressed = e.key as ArrowKey;
 
-    if (!arrowKeys.includes(pressed)) return;
+    if (!arrowKeys.includes(pressed)) {
+      return;
+    }
 
-    if (Y_AXIS_KEYS.includes(pressed) && mentions?.length) return;
+    if (Y_AXIS_KEYS.includes(pressed) && mentions?.length) {
+      return;
+    }
 
     const { selectionStart, selectionEnd } = e.currentTarget;
     checkMention([selectionStart, selectionEnd]);
@@ -242,7 +252,9 @@ export const useMarkdownInput = ({
 
     if (Y_AXIS_KEYS.includes(e.key as ArrowKey)) {
       if (arrowKey === ArrowKey.Up) {
-        if (selected > 0) setSelected(selected - 1);
+        if (selected > 0) {
+          setSelected(selected - 1);
+        }
       } else if (selected < mentions.length - 1) {
         setSelected(selected + 1);
       }
@@ -259,7 +271,9 @@ export const useMarkdownInput = ({
   const onInput: FormEventHandler<HTMLTextAreaElement> = (e) => {
     const target = e.currentTarget;
 
-    if (!target) return;
+    if (!target) {
+      return;
+    }
 
     onUpdate(target.value);
     checkMention();
@@ -280,7 +294,9 @@ export const useMarkdownInput = ({
     e.preventDefault();
     const items = e.dataTransfer.files;
 
-    if (!items.length || !isUploadEnabled) return;
+    if (!items.length || !isUploadEnabled) {
+      return;
+    }
 
     Array.from(items).forEach(verifyFile);
 
@@ -294,7 +310,9 @@ export const useMarkdownInput = ({
   };
 
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!e.clipboardData.files?.length || !isUploadEnabled) return;
+    if (!e.clipboardData.files?.length || !isUploadEnabled) {
+      return;
+    }
 
     e.preventDefault();
 

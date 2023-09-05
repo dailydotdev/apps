@@ -36,7 +36,9 @@ const getFormData = async (
   current: SquadForm,
   imageChanged: boolean,
 ): Promise<SquadForm> => {
-  if (!imageChanged) return current;
+  if (!imageChanged) {
+    return current;
+  }
 
   const input = document.getElementById(squadImageId) as HTMLInputElement;
   const file = input.files[0];
@@ -86,10 +88,14 @@ export function SquadDetails({
     onError: (err) => {
       const clientError = err as ClientError;
       const message = clientError?.response?.errors?.[0]?.message;
-      if (!message) return null;
+      if (!message) {
+        return null;
+      }
 
       const error = JSON.parse(message);
-      if (error?.handle) return setHandleHint(capitalize(error?.handle));
+      if (error?.handle) {
+        return setHandleHint(capitalize(error?.handle));
+      }
 
       const [unknown] = Object.values(error);
 
@@ -106,12 +112,16 @@ export function SquadDetails({
 
     const data = await getFormData(formJson, imageChanged);
 
-    if (!createMode) return onSubmit(e, data);
+    if (!createMode) {
+      return onSubmit(e, data);
+    }
 
     const handleExists = await onValidateHandle(formJson.handle);
     setHandleHint(handleExists ? 'The handle already exists' : null);
 
-    if (!handleExists) return onSubmit(e, data);
+    if (!handleExists) {
+      return onSubmit(e, data);
+    }
 
     return null;
   };

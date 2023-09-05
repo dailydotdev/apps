@@ -93,7 +93,9 @@ export const GrowthBookProvider = ({
     callback.current = async (experiment, result) => {
       const variationId = result.variationId.toString();
       const key = btoa(`${experiment.key}:${variationId}`);
-      if (experimentation?.e?.includes(key)) return;
+      if (experimentation?.e?.includes(key)) {
+        return;
+      }
       await sendAllocation({
         experimentId: experiment.key,
         variationId,
@@ -113,7 +115,9 @@ export const GrowthBookProvider = ({
   ]);
 
   useEffect(() => {
-    if (!gb || !user?.id) return;
+    if (!gb || !user?.id) {
+      return;
+    }
 
     let atts: Record<string, unknown> = {
       userId: user.id,

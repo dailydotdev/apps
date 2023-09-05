@@ -65,7 +65,9 @@ export const usePostToSquad = ({
         const [result, url] = params;
         setPreview({ ...result, url });
 
-        if (callback?.onSuccess) callback.onSuccess(...params);
+        if (callback?.onSuccess) {
+          callback.onSuccess(...params);
+        }
       },
       onError: (err: ApiErrorResult, link, ...params) => {
         const rateLimited = getApiError(err, ApiError.RateLimited);
@@ -88,7 +90,9 @@ export const usePostToSquad = ({
   } = useMutation(addPostToSquad(requestMethod), {
     onSuccess: (data) => {
       onSharedPostSuccessfully();
-      if (onPostSuccess) onPostSuccess(data, data?.permalink);
+      if (onPostSuccess) {
+        onPostSuccess(data, data?.permalink);
+      }
     },
   });
 
@@ -101,7 +105,9 @@ export const usePostToSquad = ({
     {
       onSuccess: (_, { url }) => {
         onSharedPostSuccessfully();
-        if (onPostSuccess) onPostSuccess(null, url);
+        if (onPostSuccess) {
+          onPostSuccess(null, url);
+        }
       },
     },
   );
@@ -113,7 +119,9 @@ export const usePostToSquad = ({
     (e: BaseSyntheticEvent, sourceId: string, commentary: string) => {
       e.preventDefault();
 
-      if (isPosting) return null;
+      if (isPosting) {
+        return null;
+      }
 
       if (preview.id) {
         return onPost({

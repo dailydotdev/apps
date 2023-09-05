@@ -13,7 +13,9 @@ export function SourceShortInfo({
   source,
   className,
 }: SourceShortInfoProps): ReactElement {
-  if (!source) return null;
+  if (!source) {
+    return null;
+  }
 
   return (
     <FlexRow className={classNames('py-3', className)}>

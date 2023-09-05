@@ -28,7 +28,9 @@ const excludedCompanionOrigins = [
 ];
 
 const isExcluded = (origin: string) => {
-  if (!origin) return false;
+  if (!origin) {
+    return false;
+  }
   return excludedCompanionOrigins.some((e) => origin.includes(e));
 };
 

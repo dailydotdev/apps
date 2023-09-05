@@ -91,7 +91,9 @@ export function PostComments({
         className: 'btn-primary-cabbage',
       },
     };
-    if (!(await showPrompt(options))) return;
+    if (!(await showPrompt(options))) {
+      return;
+    }
 
     trackEvent(postAnalyticsEvent(AnalyticsEvent.DeleteComment, post));
     await deleteComment(commentId, requestMethod);

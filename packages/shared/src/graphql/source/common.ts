@@ -12,7 +12,9 @@ export const updateFlagsCache = (
   const queryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
   const data = client.getQueryData(queryKey);
 
-  if (!data) return;
+  if (!data) {
+    return;
+  }
 
   client.setQueryData<Squad>(queryKey, (oldData) => ({
     ...oldData,

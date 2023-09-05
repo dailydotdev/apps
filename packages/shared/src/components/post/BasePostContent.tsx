@@ -58,7 +58,9 @@ export function BasePostContent({
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
 
-  if (!id && !isFallback) return <Custom404 />;
+  if (!id && !isFallback) {
+    return <Custom404 />;
+  }
 
   const { onCloseShare, sharePost, onSharePost, onToggleBookmark } =
     engagementProps;

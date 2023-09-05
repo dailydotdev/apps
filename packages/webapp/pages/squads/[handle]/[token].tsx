@@ -86,13 +86,20 @@ const SquadReferral = ({
       retry: false,
       enabled: !!token,
       onSuccess: (response) => {
-        if (!loggedUser) return null;
-        if (!response?.source?.id) return router.replace(webappUrl);
+        if (!loggedUser) {
+          return null;
+        }
+
+        if (!response?.source?.id) {
+          return router.replace(webappUrl);
+        }
 
         const squadsUrl = `/squads/${handle}`;
         const isValid = validateSourceHandle(handle, response.source);
 
-        if (!isValid) return router.replace(webappUrl);
+        if (!isValid) {
+          return router.replace(webappUrl);
+        }
 
         const { currentMember } = response.source;
         if (currentMember) {
@@ -115,7 +122,9 @@ const SquadReferral = ({
   };
 
   useEffect(() => {
-    if (trackedImpression || !member) return;
+    if (trackedImpression || !member) {
+      return;
+    }
 
     trackEvent({
       event_name: AnalyticsEvent.ViewSquadInvitation,
@@ -154,7 +163,9 @@ const SquadReferral = ({
       return null;
     }
 
-    if (loggedUser) return onJoinSquad();
+    if (loggedUser) {
+      return onJoinSquad();
+    }
 
     return showLogin(AuthTriggers.JoinSquad, {
       referral: member.user.id,

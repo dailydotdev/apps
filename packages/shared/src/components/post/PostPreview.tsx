@@ -29,7 +29,9 @@ function PostPreview({
   const { url, title, image } = preview ?? {};
   const imageClassName = 'w-16 laptop:w-24 h-16 rounded-16';
 
-  if (!isLoading && !title) return null;
+  if (!isLoading && !title) {
+    return null;
+  }
 
   return (
     <div

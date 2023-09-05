@@ -76,7 +76,9 @@ function CreatePost(): ReactElement {
   const param = isRouteReady && activeSquads?.length && (query.sid as string);
 
   useEffect(() => {
-    if (!param) return;
+    if (!param) {
+      return;
+    }
 
     const preselected = activeSquads.findIndex(({ id, handle }) =>
       [id, handle].includes(param),
@@ -85,7 +87,9 @@ function CreatePost(): ReactElement {
   }, [activeSquads, param]);
 
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
-    if (isPosting || isSuccess) return null;
+    if (isPosting || isSuccess) {
+      return null;
+    }
 
     if (!squad) {
       displayToast('Select a Squad to post to!');
@@ -99,7 +103,9 @@ function CreatePost(): ReactElement {
     return <WriteFreeFormSkeleton />;
   }
 
-  if (!user || (!activeSquads?.length && isAuthReady)) return <Unauthorized />;
+  if (!user || (!activeSquads?.length && isAuthReady)) {
+    return <Unauthorized />;
+  }
 
   return (
     <WritePostContext.Provider

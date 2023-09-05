@@ -15,7 +15,9 @@ export function SourceAvatar({
   size = 'large',
   className,
 }: SourceAvatarProps): ReactElement {
-  if (!source) return null;
+  if (!source) {
+    return null;
+  }
 
   return (
     <Image

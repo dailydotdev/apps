@@ -39,8 +39,9 @@ export default function DndModal({
   };
 
   const getDescription = () => {
-    if (!isActive)
+    if (!isActive) {
       return 'Choose the URL to temporarily show instead of daily.dev and the pause duration.';
+    }
 
     const date = format(dndSettings.expiration, 'MM/dd/yy');
     const time = format(dndSettings.expiration, 'hh:mm a');

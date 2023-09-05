@@ -16,7 +16,9 @@ export function CreatePostButton({
   const { user, isAuthReady, squads } = useAuthContext();
   const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
 
-  if (!user || !isAuthReady || !squads?.length) return null;
+  if (!user || !isAuthReady || !squads?.length) {
+    return null;
+  }
 
   return (
     <Button

@@ -23,12 +23,16 @@ export function useExitConfirmation({
   );
 
   useEffect(() => {
-    if (!router.isReady) return null;
+    if (!router.isReady) {
+      return null;
+    }
 
     const closeHandler = (e: BeforeUnloadEvent) => {
       const shouldAskConfirmation = checkShouldAskConfirmation();
 
-      if (shouldAskConfirmation) return;
+      if (shouldAskConfirmation) {
+        return;
+      }
 
       e.preventDefault();
       e.returnValue = message;
@@ -38,7 +42,9 @@ export function useExitConfirmation({
       const shouldAskConfirmation = checkShouldAskConfirmation();
 
       // eslint-disable-next-line no-restricted-globals,no-alert
-      if (shouldAskConfirmation || confirm(message)) return;
+      if (shouldAskConfirmation || confirm(message)) {
+        return;
+      }
 
       router.events.emit('routeChangeError');
       throw new Error('Cancelling navigation');

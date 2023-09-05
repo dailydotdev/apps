@@ -2,11 +2,23 @@ import React, { AnchorHTMLAttributes, ReactElement } from 'react';
 import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
 import Portal from '../tooltips/Portal';
 import ConditionalWrapper from '../ConditionalWrapper';
+import useContextMenu from '../../hooks/useContextMenu';
 
-export default function PortalMenu(props: MenuProps): ReactElement {
+export default function PortalMenu({
+  id,
+  onHidden: onHiddenProps,
+  ...props
+}: MenuProps): ReactElement {
+  const { onHide } = useContextMenu({ id: id?.toString() });
+
+  const onHidden = () => {
+    onHide();
+    onHiddenProps?.();
+  };
+
   return (
     <Portal>
-      <Menu {...props} />
+      <Menu {...props} id={id} onHidden={onHidden} />
     </Portal>
   );
 }
