@@ -1,6 +1,7 @@
 import React, {
   ReactElement,
   ReactNode,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -9,10 +10,12 @@ import { useMutation } from 'react-query';
 import {
   Context,
   GrowthBook,
+  GrowthBookContext,
   GrowthBookProvider as Provider,
   useFeatureValue,
   useFeatureIsOn as gbUseFeatureIsOn,
 } from '@growthbook/growthbook-react';
+import { GrowthBookContextValue } from '@growthbook/growthbook-react/src/GrowthBookReact';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { decrypt } from './crypto';
@@ -154,3 +157,6 @@ export const useFeature = <T extends Features>(
   feature: T,
 ): typeof feature.defaultValue =>
   useFeatureValue(feature.id, feature.defaultValue);
+
+export const useGrowthBookContext = (): GrowthBookContextValue =>
+  useContext(GrowthBookContext);

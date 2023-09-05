@@ -36,7 +36,10 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import CookieBanner from '../components/CookieBanner';
@@ -82,7 +85,8 @@ export function OnboardPage(): ReactElement {
   });
   const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
-  const { onboardingV2, isFeaturesLoaded } = useFeaturesContext();
+  const onboardingV2 = useFeature(Features.OnboardingV2);
+  const { growthbook } = useGrowthBookContext();
   const filteringTitle = useFeature(Features.OnboardingFilteringTitle);
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
@@ -131,7 +135,7 @@ export function OnboardPage(): ReactElement {
     }
   }, [alerts, hasSelectTopics, router]);
 
-  const isPageReady = isFeaturesLoaded && isAuthReady;
+  const isPageReady = growthbook?.ready && isAuthReady;
 
   useEffect(() => {
     if (!isPageReady || isTracked.current) {
