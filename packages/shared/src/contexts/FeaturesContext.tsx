@@ -1,16 +1,11 @@
 import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import { IFlags } from 'flagsmith';
-import {
-  Features,
-  getFeatureValue,
-  isFeaturedEnabled,
-} from '../lib/featureManagement';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 import { OnboardingFilteringTitle, OnboardingV2 } from '../lib/featureValues';
 import { getCookieFeatureFlags, updateFeatureFlags } from '../lib/cookie';
 import { isPreviewDeployment } from '../lib/links';
 
 interface Experiments {
-  canSubmitArticle?: boolean;
   onboardingV2?: OnboardingV2;
   onboardingFilteringTitle?: OnboardingFilteringTitle;
 }
@@ -32,7 +27,6 @@ export interface FeaturesContextProviderProps
 const getFeatures = (flags: IFlags): FeaturesData => {
   return {
     flags,
-    canSubmitArticle: isFeaturedEnabled(Features.SubmitArticle, flags),
     onboardingFilteringTitle: getFeatureValue(
       Features.OnboardingFilteringTitle,
       flags,

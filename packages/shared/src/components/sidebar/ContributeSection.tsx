@@ -1,7 +1,6 @@
 import dynamic from 'next/dynamic';
 import React, { ReactElement, useContext, useState } from 'react';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { FeaturesData } from '../../contexts/FeaturesContext';
 import { useSubmitArticle } from '../../hooks/useSubmitArticle';
 import EmbedIcon from '../icons/Embed';
 import LinkIcon from '../icons/Link';
@@ -20,12 +19,7 @@ const NewSourceModal = dynamic(
     import(/* webpackChunkName: "newSourceModal" */ '../modals/NewSourceModal'),
 );
 
-type SubmitFlags = Pick<FeaturesData, 'canSubmitArticle'>;
-
-export function ContributeSection({
-  canSubmitArticle,
-  ...props
-}: SectionCommonProps & SubmitFlags): ReactElement {
+export function ContributeSection(props: SectionCommonProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { isOpen: showSubmitArticle, onIsOpen: setShowSubmitArticle } =
     useSubmitArticle();
@@ -34,7 +28,7 @@ export function ContributeSection({
     trackEvent({
       event_name: 'start submit article',
       feed_item_title: 'Submit article',
-      extra: JSON.stringify({ has_access: canSubmitArticle }),
+      extra: JSON.stringify({ has_access: true }),
     });
     setShowSubmitArticle(true);
   };

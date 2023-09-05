@@ -10,8 +10,6 @@ export type FeatureValue = string | number | boolean;
 export class Features<T extends FeatureValue = string> {
   static readonly FeedVersion = new Features('feed_version', '1');
 
-  static readonly SubmitArticle = new Features('submit_article');
-
   static readonly EngagementLoopJuly2023Companion = new Features(
     'engagement_loop_july2023_companion',
   );
