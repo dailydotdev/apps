@@ -9,7 +9,6 @@ import Post from '../../__tests__/fixture/post';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import loggedUser from '../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../__tests__/fixture/squads';
-import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 import { getFacebookShareLink } from '../lib/share';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { NotificationsContextProvider } from '../contexts/NotificationsContext';
@@ -54,22 +53,20 @@ const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AuthContextProvider
-          user={loggedIn ? loggedUser : null}
-          updateUser={jest.fn()}
-          tokenRefreshed
-          getRedirectUri={jest.fn()}
-          loadingUser={false}
-          loadedUserFromCache
-          squads={hasSquads ? squads : []}
-        >
-          <NotificationsContextProvider>
-            <LazyModalElement />
-            <ShareBar post={defaultPost} />
-          </NotificationsContextProvider>
-        </AuthContextProvider>
-      </FeaturesContextProvider>
+      <AuthContextProvider
+        user={loggedIn ? loggedUser : null}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        squads={hasSquads ? squads : []}
+      >
+        <NotificationsContextProvider>
+          <LazyModalElement />
+          <ShareBar post={defaultPost} />
+        </NotificationsContextProvider>
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };

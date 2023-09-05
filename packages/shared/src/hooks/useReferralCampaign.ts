@@ -5,8 +5,8 @@ import { REFERRAL_CAMPAIGN_QUERY } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { RequestKey, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import FeaturesContext from '../contexts/FeaturesContext';
-import { getFeatureValue, Features } from '../lib/featureManagement';
+import { Features } from '../lib/featureManagement';
+import { useFeatureIsOn } from '../components/GrowthBookProvider';
 
 export type ReferralCampaign = {
   referredUsersCount: number;
@@ -42,11 +42,8 @@ const campaignFeatureFlagMap: Partial<
 const useReferralCampaign = ({
   campaignKey,
 }: UseReferralCampaignProps): UseReferralCampaign => {
-  const { flags } = useContext(FeaturesContext);
   const featureFlag = campaignFeatureFlagMap[campaignKey];
-  const isCampaignEnabled = featureFlag
-    ? !!getFeatureValue(featureFlag, flags)
-    : true;
+  const isCampaignEnabled = useFeatureIsOn(featureFlag);
   const { requestMethod } = useRequestProtocol();
   const { user } = useContext(AuthContext);
   const queryKey = generateQueryKey(RequestKey.ReferralCampaigns, user, {

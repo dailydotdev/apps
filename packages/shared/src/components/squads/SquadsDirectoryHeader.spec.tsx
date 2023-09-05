@@ -8,7 +8,6 @@ import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { SquadsDirectoryHeader } from '.';
 import { squadsPublicWaitlist } from '../../lib/constants';
 import { LazyModalElement } from '../modals/LazyModalElement';
@@ -38,20 +37,18 @@ const renderComponent = (): RenderResult => {
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AuthContextProvider
-          user={loggedUser}
-          updateUser={jest.fn()}
-          tokenRefreshed
-          getRedirectUri={jest.fn()}
-          loadingUser={false}
-          loadedUserFromCache
-          squads={squads}
-        >
-          <LazyModalElement />
-          <SquadsDirectoryHeader />
-        </AuthContextProvider>
-      </FeaturesContextProvider>
+      <AuthContextProvider
+        user={loggedUser}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        squads={squads}
+      >
+        <LazyModalElement />
+        <SquadsDirectoryHeader />
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };

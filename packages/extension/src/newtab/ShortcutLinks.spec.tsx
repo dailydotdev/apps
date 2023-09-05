@@ -25,7 +25,6 @@ import {
   UPDATE_USER_SETTINGS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/settings';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
-import { FeaturesData } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { browser, TopSites } from 'webextension-polyfill-ts';
 import ShortcutLinks from './ShortcutLinks';
 
@@ -67,11 +66,8 @@ jest.mock('webextension-polyfill-ts', () => {
   };
 });
 
-let features: FeaturesData;
-
 beforeEach(() => {
   nock.cleanAll();
-  features = { flags: {} };
 });
 
 const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
@@ -110,7 +106,6 @@ const getBootMock = (bootMock: BootCacheData): Boot => ({
   ...bootMock,
   accessToken: { token: '1', expiresIn: '1' },
   visit: { sessionId: '1', visitId: '1' },
-  flags: features.flags,
 });
 
 const renderComponent = (bootData = defaultBootData): RenderResult => {

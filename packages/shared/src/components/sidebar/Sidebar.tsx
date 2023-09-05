@@ -18,7 +18,6 @@ import { DiscoverSection } from './DiscoverSection';
 import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
 import { MobileMenuIcon } from './MobileMenuIcon';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
 import { SquadsList } from './SquadsList';

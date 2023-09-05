@@ -13,7 +13,6 @@ import { getCommentHash } from '../../graphql/comments';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { ADD_POST_TO_SQUAD_MUTATION } from '../../graphql/squads';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
@@ -54,27 +53,25 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AuthContextProvider
-          user={loggedIn ? loggedUser : null}
-          updateUser={jest.fn()}
-          tokenRefreshed
-          getRedirectUri={jest.fn()}
-          loadingUser={false}
-          loadedUserFromCache
-          squads={hasSquads ? squads : []}
-        >
-          <LazyModalElement />
-          <ShareModal
-            origin={Origin.Feed}
-            post={defaultPost}
-            comment={comment}
-            isOpen
-            onRequestClose={onRequestClose}
-            ariaHideApp={false}
-          />
-        </AuthContextProvider>
-      </FeaturesContextProvider>
+      <AuthContextProvider
+        user={loggedIn ? loggedUser : null}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        squads={hasSquads ? squads : []}
+      >
+        <LazyModalElement />
+        <ShareModal
+          origin={Origin.Feed}
+          post={defaultPost}
+          comment={comment}
+          isOpen
+          onRequestClose={onRequestClose}
+          ariaHideApp={false}
+        />
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };

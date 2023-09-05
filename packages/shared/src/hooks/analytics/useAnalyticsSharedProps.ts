@@ -7,7 +7,6 @@ import {
 } from 'react';
 import { useRouter } from 'next/router';
 import { AnalyticsEvent } from './useAnalyticsQueue';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 
@@ -19,7 +18,6 @@ export default function useAnalyticsSharedProps(
   // Use ref instead of state to reduce renders
   const sharedPropsRef = useRef<Partial<AnalyticsEvent>>();
   const { query } = useRouter();
-  const { flags } = useContext(FeaturesContext);
   const { themeMode, spaciness, insaneMode } = useContext(SettingsContext);
   const { visit, anonymous, tokenRefreshed, user } = useContext(AuthContext);
   const [sharedPropsSet, setSharedPropsSet] = useState(false);
@@ -61,7 +59,7 @@ export default function useAnalyticsSharedProps(
         utm_source: query?.utm_source,
         utm_term: query?.utm_term,
         visit_id: visitId,
-        feature_flags: flags ? JSON.stringify(flags) : null,
+        // feature_flags: flags ? JSON.stringify(flags) : null,
         device_id: _deviceId,
       };
       setSharedPropsSet(true);
@@ -80,7 +78,6 @@ export default function useAnalyticsSharedProps(
     visit,
     visitId,
     deviceId,
-    flags,
   ]);
 
   return [sharedPropsRef, sharedPropsSet];

@@ -29,7 +29,6 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 
 const showLogin = jest.fn();
 const updateAlerts = jest.fn();
@@ -80,31 +79,29 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={flags}>
-        <AlertContextProvider
-          alerts={alertsData}
-          updateAlerts={updateAlerts}
-          loadedAlerts
+      <AlertContextProvider
+        alerts={alertsData}
+        updateAlerts={updateAlerts}
+        loadedAlerts
+      >
+        <AuthContext.Provider
+          value={{
+            user: loggedUser,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            trackingId: '',
+            loginState: null,
+            closeLogin: jest.fn(),
+            loadedUserFromCache: true,
+          }}
         >
-          <AuthContext.Provider
-            value={{
-              user: loggedUser,
-              shouldShowLogin: false,
-              showLogin,
-              logout: jest.fn(),
-              updateUser: jest.fn(),
-              tokenRefreshed: true,
-              getRedirectUri: jest.fn(),
-              trackingId: '',
-              loginState: null,
-              closeLogin: jest.fn(),
-              loadedUserFromCache: true,
-            }}
-          >
-            <TagsFilter />
-          </AuthContext.Provider>
-        </AlertContextProvider>
-      </FeaturesContextProvider>
+          <TagsFilter />
+        </AuthContext.Provider>
+      </AlertContextProvider>
     </QueryClientProvider>,
   );
 };

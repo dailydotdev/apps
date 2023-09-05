@@ -20,7 +20,6 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts } from '../../graphql/alerts';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { SearchExperiment } from '../../lib/featureValues';
 import { Features } from '../../lib/featureManagement';
 
@@ -74,38 +73,36 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AlertContextProvider
-          alerts={alertsData}
-          updateAlerts={updateAlerts}
-          loadedAlerts
+      <AlertContextProvider
+        alerts={alertsData}
+        updateAlerts={updateAlerts}
+        loadedAlerts
+      >
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin: jest.fn(),
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            closeLogin: jest.fn(),
+          }}
         >
-          <AuthContext.Provider
+          <ProgressiveEnhancementContext.Provider
             value={{
-              user,
-              shouldShowLogin: false,
-              showLogin: jest.fn(),
-              logout: jest.fn(),
-              updateUser: jest.fn(),
-              tokenRefreshed: true,
-              getRedirectUri: jest.fn(),
-              closeLogin: jest.fn(),
+              windowLoaded: true,
+              nativeShareSupport: true,
+              asyncImageSupport: true,
             }}
           >
-            <ProgressiveEnhancementContext.Provider
-              value={{
-                windowLoaded: true,
-                nativeShareSupport: true,
-                asyncImageSupport: true,
-              }}
-            >
-              <SettingsContext.Provider value={settingsContext}>
-                <Sidebar sidebarRendered />
-              </SettingsContext.Provider>
-            </ProgressiveEnhancementContext.Provider>
-          </AuthContext.Provider>
-        </AlertContextProvider>
-      </FeaturesContextProvider>
+            <SettingsContext.Provider value={settingsContext}>
+              <Sidebar sidebarRendered />
+            </SettingsContext.Provider>
+          </ProgressiveEnhancementContext.Provider>
+        </AuthContext.Provider>
+      </AlertContextProvider>
     </QueryClientProvider>,
   );
 };

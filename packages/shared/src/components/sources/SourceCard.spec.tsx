@@ -19,7 +19,6 @@ import {
   generateTestAdmin,
   generateTestSquad,
 } from '../../../__tests__/fixture/squads';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { SourceCard, SourceCardBorderColor } from './SourceCard';
 import { LazyModalElement } from '../modals/LazyModalElement';
 import {
@@ -85,49 +84,47 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AuthContextProvider
-          user={loggedUser}
-          updateUser={jest.fn()}
-          tokenRefreshed
-          getRedirectUri={jest.fn()}
-          loadingUser={false}
-          loadedUserFromCache
-          squads={squads}
-        >
-          <LazyModalElement />
-          <SourceCard
-            title="title"
-            subtitle="subtitle"
-            icon={<div>icon</div>}
-            action={{
-              type: isMember ? 'link' : 'action',
-              text: isMember ? 'View squad' : 'Test action',
-              onClick: isMember ? undefined : onClickTest,
-              href: isMember ? squads[0].permalink : undefined,
-            }}
-            banner={customStyle ? 'banner-image.jpg' : undefined}
-            borderColor={customStyle ? SourceCardBorderColor.Onion : undefined}
-            source={
-              setSource && {
-                ...admin.source,
-                currentMember: setMembers ? admin.source.currentMember : null,
-                members: {
-                  ...admin.source.members,
-                  edges: setMembers ? admin.source.members.edges : [],
-                },
-              }
+      <AuthContextProvider
+        user={loggedUser}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        squads={squads}
+      >
+        <LazyModalElement />
+        <SourceCard
+          title="title"
+          subtitle="subtitle"
+          icon={<div>icon</div>}
+          action={{
+            type: isMember ? 'link' : 'action',
+            text: isMember ? 'View squad' : 'Test action',
+            onClick: isMember ? undefined : onClickTest,
+            href: isMember ? squads[0].permalink : undefined,
+          }}
+          banner={customStyle ? 'banner-image.jpg' : undefined}
+          borderColor={customStyle ? SourceCardBorderColor.Onion : undefined}
+          source={
+            setSource && {
+              ...admin.source,
+              currentMember: setMembers ? admin.source.currentMember : null,
+              members: {
+                ...admin.source.members,
+                edges: setMembers ? admin.source.members.edges : [],
+              },
             }
-            // source={
-            //   hasMembers && {
-            //     ...admin.source,
-            //     image: 'test-image.jpg',
-            //     membersCount: hasMembers ? squads[0].membersCount : undefined,
-            //   }
-            // }
-          />
-        </AuthContextProvider>
-      </FeaturesContextProvider>
+          }
+          // source={
+          //   hasMembers && {
+          //     ...admin.source,
+          //     image: 'test-image.jpg',
+          //     membersCount: hasMembers ? squads[0].membersCount : undefined,
+          //   }
+          // }
+        />
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };

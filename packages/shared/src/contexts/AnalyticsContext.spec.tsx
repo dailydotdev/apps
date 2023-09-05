@@ -4,7 +4,6 @@ import { fireEvent, render, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AnalyticsContext, { AnalyticsContextProvider } from './AnalyticsContext';
 import { AnalyticsContextData } from '../hooks/analytics/useAnalyticsContextData';
-import FeaturesContext, { FeaturesData } from './FeaturesContext';
 import SettingsContext, { SettingsContextData } from './SettingsContext';
 import AuthContext, { AuthContextData } from './AuthContext';
 import { AnonymousUser } from '../lib/user';
@@ -21,19 +20,6 @@ beforeEach(() => {
   nock.cleanAll();
   queryClient = new QueryClient();
 });
-
-const features: FeaturesData = {
-  flags: {
-    login: {
-      enabled: true,
-      value: 'primary',
-    },
-    theme: {
-      enabled: true,
-      value: 'dark',
-    },
-  },
-};
 
 const settings: SettingsContextData = {
   spaciness: 'roomy',
@@ -76,30 +62,28 @@ const TestComponent = ({
   >;
 }): ReactElement => (
   <QueryClientProvider client={queryClient}>
-    <FeaturesContext.Provider value={features}>
-      <AuthContext.Provider
-        value={{
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          getRedirectUri: jest.fn(),
-          closeLogin: jest.fn(),
-          trackingId: authContext.user?.id || authContext.anonymous?.id,
-          ...authContext,
-        }}
-      >
-        <SettingsContext.Provider value={settings}>
-          <AnalyticsContextProvider
-            app={BootApp.Test}
-            getPage={getPage}
-            deviceId="123"
-          >
-            {children}
-          </AnalyticsContextProvider>
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
-    </FeaturesContext.Provider>
+    <AuthContext.Provider
+      value={{
+        shouldShowLogin: false,
+        showLogin: jest.fn(),
+        logout: jest.fn(),
+        updateUser: jest.fn(),
+        getRedirectUri: jest.fn(),
+        closeLogin: jest.fn(),
+        trackingId: authContext.user?.id || authContext.anonymous?.id,
+        ...authContext,
+      }}
+    >
+      <SettingsContext.Provider value={settings}>
+        <AnalyticsContextProvider
+          app={BootApp.Test}
+          getPage={getPage}
+          deviceId="123"
+        >
+          {children}
+        </AnalyticsContextProvider>
+      </SettingsContext.Provider>
+    </AuthContext.Provider>
   </QueryClientProvider>
 );
 
