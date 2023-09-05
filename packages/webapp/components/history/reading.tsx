@@ -48,7 +48,9 @@ export function ReadingHistory(): ReactElement {
   );
   const shouldShowEmptyScreen = !hasData && !isLoading;
 
-  if (!hasReadingHistory && !isLoading) return <ReadingHistoryEmptyScreen />;
+  if (!hasReadingHistory && !isLoading) {
+    return <ReadingHistoryEmptyScreen />;
+  }
 
   return (
     <div
