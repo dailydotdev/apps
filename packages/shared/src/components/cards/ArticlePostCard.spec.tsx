@@ -38,7 +38,7 @@ const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
       <QueryClientProvider client={new QueryClient()}>
         <ArticlePostCard {...defaultProps} {...props} />
       </QueryClientProvider>
-    </AuthContextProvider>
+    </AuthContextProvider>,
   );
 };
 
