@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import {
   AllowedTags,
@@ -23,38 +29,44 @@ type SearchBarSuggestionProps = ButtonProps<AllowedTags> & {
 export const SearchBarSuggestion = ({
   className,
   origin,
+  id: suggestionId,
+  isHistory,
+  prompt,
   ...props
 }: SearchBarSuggestionProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
+  const [impressionEmitted, toggleImpressionEmitted] = useState(false);
 
   useEffect(() => {
-    if (!props.isHistory && props?.id) {
+    if (!isHistory && suggestionId && !impressionEmitted) {
       trackEvent({
         event_name: AnalyticsEvent.Impression,
         target_type: TargetType.SearchRecommendation,
-        target_id: props.id,
-        feed_item_title: props.prompt,
+        target_id: suggestionId,
+        feed_item_title: prompt,
         extra: JSON.stringify({ origin }),
       });
+
+      toggleImpressionEmitted(true);
     }
 
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.id]);
+  }, [suggestionId, isHistory, impressionEmitted]);
 
   const handleSuggestionsClick = useCallback(() => {
-    if (props?.id) {
+    if (suggestionId) {
       trackEvent({
         event_name: AnalyticsEvent.Click,
-        target_type: props.isHistory
+        target_type: isHistory
           ? TargetType.SearchHistory
           : TargetType.SearchRecommendation,
-        target_id: props.id,
-        feed_item_title: props.prompt,
+        target_id: suggestionId,
+        feed_item_title: prompt,
         extra: JSON.stringify({ origin }),
       });
     }
-  }, [origin, props.id, props.prompt, trackEvent, props.isHistory]);
+  }, [origin, suggestionId, prompt, trackEvent, isHistory]);
 
   return (
     <Button
