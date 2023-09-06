@@ -4,16 +4,26 @@ import { isNullOrUndefined } from '../lib/func';
 import { Connection, RequestQueryParams } from './common';
 import { webappUrl } from '../lib/constants';
 import { Post } from './posts';
+import { labels } from '../lib';
 
 export const searchPageUrl = `${webappUrl}search`;
 
 export enum SearchChunkErrorCode {
+  StoppedGenerating = '-2',
   Unexpected = '-1',
   Common = '0',
   Bragi = '1',
   Search = '2',
   RateLimit = '3',
 }
+
+export const searchErrorCodeToMessage: Partial<
+  Record<SearchChunkErrorCode, string>
+> = {
+  [SearchChunkErrorCode.RateLimit]: labels.search.rateLimitExceeded,
+  [SearchChunkErrorCode.Unexpected]: labels.search.unexpectedError,
+  [SearchChunkErrorCode.StoppedGenerating]: labels.search.stoppedGenerating,
+};
 
 export interface SearchChunkError {
   message: string;
