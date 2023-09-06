@@ -12,7 +12,9 @@ import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { IntroductionOnboardingTitle } from '@dailydotdev/shared/src/components/onboarding/IntroductionOnboarding';
-import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import AuthOptions, {
+  AuthDisplay as Display,
+} from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -86,6 +88,7 @@ export function OnboardPage(): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const { alerts } = useContext(AlertContext);
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
+  const [screenValue, setScreenValue] = useState<Display>(Display.Signup);
 
   const onClickNext = () => {
     const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
@@ -203,6 +206,7 @@ export function OnboardPage(): ReactElement {
         <p className="px-6 mt-3 text-center whitespace-pre-line text-theme-label-secondary typo-body">
           {content}
         </p>
+        {screenValue}
         {!isAuthenticating && <div className="flex flex-1" />}
         <ConditionalWrapper
           condition={isAuthenticating}
@@ -215,6 +219,7 @@ export function OnboardPage(): ReactElement {
               onSuccessfulRegistration={onSuccessfulTransaction}
               isLoginFlow={isLoginFlow}
               className={classNames('w-full', maxAuthWidth)}
+              onDisplayChange={(display: Display) => setScreenValue(display)}
             />
           )}
         >

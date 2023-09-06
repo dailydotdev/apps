@@ -21,7 +21,7 @@ function AuthModalFooter({
       justify={Justify.Center}
     >
       <Modal.Text>
-        {isLogin ? 'Don’t have an account?' : 'Already have an account?'}
+        {isLogin ? 'Not a member yet?' : 'Already a daily.dev member?'}
       </Modal.Text>
       <ClickableText
         className="ml-1 underline text-theme-label-primary"

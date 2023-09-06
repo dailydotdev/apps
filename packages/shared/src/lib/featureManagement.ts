@@ -18,7 +18,7 @@ export class Features<T extends FeatureValue = string> {
 
   static readonly OnboardingV2 = new Features(
     'onboarding_v2',
-    OnboardingV2.Control,
+    OnboardingV2.V1,
     [OnboardingV2.Control, OnboardingV2.V1],
   );
 

@@ -47,9 +47,12 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
+import AuthSignup from './AuthSignup';
 
 export enum AuthDisplay {
   Default = 'default',
+  Signup = 'signup',
+  Login = 'login',
   Registration = 'registration',
   SocialRegistration = 'social_registration',
   SignBack = 'sign_back',
@@ -81,7 +84,7 @@ function AuthOptions({
   className,
   formRef,
   trigger,
-  defaultDisplay = AuthDisplay.Default,
+  defaultDisplay = AuthDisplay.Signup,
   onDisplayChange,
   isLoginFlow,
   simplified = false,
@@ -100,7 +103,10 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
   );
+  console.log('defaultDisplay', defaultDisplay, activeDisplay);
+
   const onSetActiveDisplay = (display: AuthDisplay) => {
+    console.log('change', display);
     onDisplayChange?.(display);
     setActiveDisplay(display);
   };
@@ -110,7 +116,7 @@ function AuthOptions({
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
   const windowPopup = useRef<Window>(null);
-
+  const isLoginFlowActive = isForgotPasswordReturn || isLoginFlow;
   const onLoginCheck = () => {
     if (isRegistration) {
       return;
@@ -313,7 +319,23 @@ function AuthOptions({
         controlledActive={activeDisplay}
         showHeader={false}
       >
-        <Tab label={AuthDisplay.Default}>
+        <Tab label={AuthDisplay.Signup}>
+          <AuthSignup
+            providers={providers}
+            onSignup={onEmailRegistration}
+            onProviderClick={onProviderClick}
+            onForgotPassword={onForgotPassword}
+            onPasswordLogin={onPasswordLogin}
+            loginHint={loginHint}
+            isLoading={isPasswordLoginLoading}
+            isLoginFlow={false}
+            trigger={trigger}
+            isReady={isReady}
+            simplified={simplified}
+            onFooterClick={() => setActiveDisplay(AuthDisplay.Login)}
+          />
+        </Tab>
+        <Tab label={AuthDisplay.Login}>
           <AuthDefault
             providers={providers}
             onSignup={onEmailRegistration}
@@ -322,7 +344,7 @@ function AuthOptions({
             onPasswordLogin={onPasswordLogin}
             loginHint={loginHint}
             isLoading={isPasswordLoginLoading}
-            isLoginFlow={isForgotPasswordReturn || isLoginFlow}
+            isLoginFlow
             trigger={trigger}
             isReady={isReady}
             simplified={simplified}
@@ -358,7 +380,7 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
-            onRegister={() => onSetActiveDisplay(AuthDisplay.Default)}
+            onRegister={() => onSetActiveDisplay(AuthDisplay.Signup)}
             onProviderClick={onProviderClick}
             simplified={simplified}
           >

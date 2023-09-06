@@ -61,7 +61,7 @@ function OnboardingModal({
     shouldSkipIntro ? OnboardingStep.Topics : OnboardingStep.Intro,
   );
   const [screenValue, setScreenValue] = useState<AuthDisplay>(
-    AuthDisplay.Default,
+    AuthDisplay.Signup,
   );
 
   const onCloseConfirm = (e: MouseEvent | KeyboardEvent) => {
