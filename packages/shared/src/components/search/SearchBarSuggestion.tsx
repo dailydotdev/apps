@@ -3,7 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useState,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 import {
@@ -35,10 +35,10 @@ export const SearchBarSuggestion = ({
   ...props
 }: SearchBarSuggestionProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [impressionEmitted, toggleImpressionEmitted] = useState(false);
+  const impressionEmitted = useRef(false);
 
   useEffect(() => {
-    if (!isHistory && suggestionId && !impressionEmitted) {
+    if (!isHistory && suggestionId && !impressionEmitted.current) {
       trackEvent({
         event_name: AnalyticsEvent.Impression,
         target_type: TargetType.SearchRecommendation,
@@ -47,7 +47,7 @@ export const SearchBarSuggestion = ({
         extra: JSON.stringify({ origin }),
       });
 
-      toggleImpressionEmitted(true);
+      impressionEmitted.current = true;
     }
 
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
