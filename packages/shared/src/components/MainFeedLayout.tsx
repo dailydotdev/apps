@@ -19,7 +19,6 @@ import {
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import { generateQueryKey } from '../lib/query';
-import { Features } from '../lib/featureManagement';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -36,6 +35,7 @@ import { useFeedName } from '../hooks/feed/useFeedName';
 import { cloudinary } from '../lib/image';
 import useMedia from '../hooks/useMedia';
 import { laptop, tablet } from '../styles/media';
+import { feature } from '../lib/featureManagement';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -150,8 +150,8 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  const feedVersion = useFeature(Features.FeedVersion);
-  const searchVersion = useFeature(Features.Search);
+  const feedVersion = useFeature(feature.feedVersion);
+  const searchVersion = useFeature(feature.search);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
 
   let query: { query: string; variables?: Record<string, unknown> };

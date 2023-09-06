@@ -21,7 +21,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts } from '../../graphql/alerts';
 import { SearchExperiment } from '../../lib/featureValues';
-import { Features } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 
 let features: IFlags;
 let client: QueryClient;
@@ -163,7 +163,7 @@ const sidebarItems = [
 ];
 
 describe('sidebar items', () => {
-  Features.Search.defaultValue = SearchExperiment.Control;
+  feature.search.defaultValue = SearchExperiment.Control;
 
   it.each(sidebarItems.map((item) => [item[0], item[1]]))(
     'it should expect %s to exist',

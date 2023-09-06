@@ -32,7 +32,7 @@ import { MainFeedPage } from './utilities';
 import { isTesting, webappUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
-import { Features } from '../lib/featureManagement';
+import { feature } from '../lib/featureManagement';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -78,7 +78,7 @@ export default function MainLayout({
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
-  const onboardingV2 = useFeature(Features.OnboardingV2);
+  const onboardingV2 = useFeature(feature.onboardingV2);
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);

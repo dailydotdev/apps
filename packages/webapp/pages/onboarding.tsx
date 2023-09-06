@@ -39,7 +39,7 @@ import {
   useFeature,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import CookieBanner from '../components/CookieBanner';
 
@@ -84,9 +84,9 @@ export function OnboardPage(): ReactElement {
   });
   const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
-  const onboardingV2 = useFeature(Features.OnboardingV2);
+  const onboardingV2 = useFeature(feature.onboardingV2);
   const { growthbook } = useGrowthBookContext();
-  const filteringTitle = useFeature(Features.OnboardingFilteringTitle);
+  const filteringTitle = useFeature(feature.onboardingFilterTitle);
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
   const { alerts } = useContext(AlertContext);

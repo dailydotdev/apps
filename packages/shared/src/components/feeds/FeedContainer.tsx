@@ -18,7 +18,7 @@ import {
 } from '../../hooks/useToastNotification';
 import { SearchBarSuggestionList, SearchBarInput } from '../search';
 import { useFeature } from '../GrowthBookProvider';
-import { Features } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
@@ -99,7 +99,7 @@ export const FeedContainer = ({
     loadedSettings,
   } = useContext(SettingsContext);
   const router = useRouter();
-  const searchValue = useFeature(Features.Search);
+  const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = insaneMode && numCards > 1;

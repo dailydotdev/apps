@@ -22,7 +22,7 @@ import { isTesting } from '../lib/constants';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
 import { useFeature } from '../components/GrowthBookProvider';
-import { Features } from '../lib/featureManagement';
+import { feature } from '../lib/featureManagement';
 
 const OnboardingModal = dynamic(
   () =>
@@ -59,7 +59,7 @@ export const OnboardingContextProvider = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const { registerLocalFilters } = useMyFeed();
   const [isOnboarding, setIsOnboarding] = useState(false);
-  const onboardingV2 = useFeature(Features.OnboardingV2);
+  const onboardingV2 = useFeature(feature.onboardingV2);
   const [isRegisteringFilters, setIsRegisteringFilters] = useState(false);
   const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
   const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);

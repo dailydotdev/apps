@@ -35,7 +35,7 @@ import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
 import { useFeature } from './GrowthBookProvider';
-import { Features } from '../lib/featureManagement';
+import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -113,7 +113,7 @@ export default function Feed<T>({
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
-  const onboardingV2 = useFeature(Features.OnboardingV2);
+  const onboardingV2 = useFeature(feature.onboardingV2);
   const {
     openNewTab,
     spaciness,
