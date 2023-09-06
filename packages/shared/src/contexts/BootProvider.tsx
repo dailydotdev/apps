@@ -58,7 +58,6 @@ const updateLocalBootData = (
   const localData = { ...current, ...boot, lastModifier: 'extension' };
   const result = filteredProps(localData, [
     'alerts',
-    'flags',
     'settings',
     'notifications',
     'user',

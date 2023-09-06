@@ -99,7 +99,6 @@ const defaultBootData: BootCacheData = {
   settings: defaultSettings,
   squads: [],
   notifications: { unreadNotificationsCount: 0 },
-  flags: {},
 };
 
 const getBootMock = (bootMock: BootCacheData): Boot => ({

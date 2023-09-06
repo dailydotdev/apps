@@ -30,7 +30,6 @@ export type CompanionData = { url: string; deviceId: string } & Pick<
   Boot,
   | 'postData'
   | 'settings'
-  | 'flags'
   | 'alerts'
   | 'user'
   | 'visit'
