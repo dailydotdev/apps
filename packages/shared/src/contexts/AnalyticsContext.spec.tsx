@@ -1,15 +1,16 @@
 import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import nock from 'nock';
 import { fireEvent, render, waitFor } from '@testing-library/preact';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import AnalyticsContext, { AnalyticsContextProvider } from './AnalyticsContext';
 import { AnalyticsContextData } from '../hooks/analytics/useAnalyticsContextData';
-import SettingsContext, { SettingsContextData } from './SettingsContext';
-import AuthContext, { AuthContextData } from './AuthContext';
+import { SettingsContextData } from './SettingsContext';
+import { AuthContextData } from './AuthContext';
 import { AnonymousUser } from '../lib/user';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { BootApp, Visit } from '../lib/boot';
 import { waitForNock } from '../../__tests__/helpers/utilities';
+import { TestBootProvider } from '../../__tests__/helpers/boot';
 
 let queryClient: QueryClient;
 const getPage = jest.fn();
@@ -61,30 +62,28 @@ const TestComponent = ({
     'user' | 'anonymous' | 'tokenRefreshed' | 'visit'
   >;
 }): ReactElement => (
-  <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider
-      value={{
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-        getRedirectUri: jest.fn(),
-        closeLogin: jest.fn(),
-        trackingId: authContext.user?.id || authContext.anonymous?.id,
-        ...authContext,
-      }}
+  <TestBootProvider
+    client={queryClient}
+    settings={settings}
+    auth={{
+      shouldShowLogin: false,
+      showLogin: jest.fn(),
+      logout: jest.fn(),
+      updateUser: jest.fn(),
+      getRedirectUri: jest.fn(),
+      closeLogin: jest.fn(),
+      trackingId: authContext.user?.id || authContext.anonymous?.id,
+      ...authContext,
+    }}
+  >
+    <AnalyticsContextProvider
+      app={BootApp.Test}
+      getPage={getPage}
+      deviceId="123"
     >
-      <SettingsContext.Provider value={settings}>
-        <AnalyticsContextProvider
-          app={BootApp.Test}
-          getPage={getPage}
-          deviceId="123"
-        >
-          {children}
-        </AnalyticsContextProvider>
-      </SettingsContext.Provider>
-    </AuthContext.Provider>
-  </QueryClientProvider>
+      {children}
+    </AnalyticsContextProvider>
+  </TestBootProvider>
 );
 
 const baseAnonymous: AnonymousUser = {
