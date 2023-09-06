@@ -8,7 +8,6 @@ import {
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import Comment from '../../../../__tests__/fixture/comment';
 import { REPORT_COMMENT_MUTATION } from '../../../graphql/comments';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
@@ -22,13 +21,6 @@ import Post from '../../../../__tests__/fixture/post';
 
 const defaultPost = Post;
 const defaultComment = Comment;
-let features: IFlags;
-
-const defaultFeatures: IFlags = {
-  squad: {
-    enabled: true,
-  },
-};
 
 Object.assign(navigator, {
   clipboard: {
@@ -39,7 +31,6 @@ Object.assign(navigator, {
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
-  features = defaultFeatures;
 });
 
 const squads = [generateTestSquad()];

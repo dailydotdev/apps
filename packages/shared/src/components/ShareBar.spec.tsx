@@ -2,7 +2,6 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import { useRouter } from 'next/router';
 import ShareBar from './ShareBar';
 import Post from '../../__tests__/fixture/post';
@@ -14,7 +13,6 @@ import { LazyModalElement } from './modals/LazyModalElement';
 import { NotificationsContextProvider } from '../contexts/NotificationsContext';
 
 const defaultPost = Post;
-let features: IFlags;
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -34,16 +32,9 @@ Object.assign(navigator, {
   },
 });
 
-const defaultFeatures: IFlags = {
-  squad: {
-    enabled: true,
-  },
-};
-
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
-  features = defaultFeatures;
 });
 
 const squads = [generateTestSquad()];
@@ -73,7 +64,6 @@ const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
 
 describe('ShareBar Test Suite:', () => {
   it('should render the component for anonymous users', async () => {
-    features = {};
     renderComponent(false, false);
     expect(
       screen.getByText('Would you recommend this post?'),

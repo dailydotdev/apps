@@ -2,7 +2,6 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { IFlags } from 'flagsmith';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../../lib/user';
@@ -23,16 +22,12 @@ import { Alerts } from '../../graphql/alerts';
 import { SearchExperiment } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
 
-let features: IFlags;
 let client: QueryClient;
 const updateAlerts = jest.fn();
 const toggleSidebarExpanded = jest.fn();
 
-const defaultFeatures: IFlags = {};
-
 beforeEach(() => {
   nock.cleanAll();
-  features = {};
 });
 
 const createMockFeedSettings = () => ({
@@ -108,7 +103,6 @@ const renderComponent = (
 };
 
 it('should not render create my feed button if user has alerts.filter as false', async () => {
-  features = defaultFeatures;
   renderComponent({ filter: false });
   const createMyFeed = screen.queryByText('Create my feed');
   expect(createMyFeed).not.toBeInTheDocument();
@@ -147,7 +141,6 @@ it('should render the mobile sidebar version on small screens', async () => {
 });
 
 it('should show the my feed items if the user has filters', async () => {
-  features = defaultFeatures;
   renderComponent({ filter: false });
   const section = await screen.findByText('My feed');
   expect(section).toBeInTheDocument();

@@ -1,5 +1,4 @@
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import React from 'react';
 import {
   render,
@@ -68,12 +67,10 @@ const createAllTagCategoriesMock = (
 let client: QueryClient;
 
 const defaultAlerts: Alerts = { filter: false };
-const defaultFlags: IFlags = {};
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAllTagCategoriesMock()],
   alertsData = defaultAlerts,
-  flags: IFlags = defaultFlags,
 ): RenderResult => {
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -273,11 +270,7 @@ it('should clear all tags on click', async () => {
 
 it('should utilize query cache to follow a tag when not logged in', async () => {
   loggedUser = null;
-  renderComponent(
-    [createAllTagCategoriesMock(null)],
-    defaultAlerts,
-    defaultFlags,
-  );
+  renderComponent([createAllTagCategoriesMock(null)], defaultAlerts);
   await waitForNock();
   const category = await screen.findByText('Frontend');
   // eslint-disable-next-line testing-library/no-node-access
@@ -303,7 +296,7 @@ it('should utilize query cache to follow a tag when not logged in', async () => 
 it('should utilize query cache to unfollow a tag when not logged in', async () => {
   loggedUser = null;
   const unfollow = 'react';
-  renderComponent([createAllTagCategoriesMock()], defaultAlerts, defaultFlags);
+  renderComponent([createAllTagCategoriesMock()], defaultAlerts);
   await waitForNock();
   const category = await screen.findByText('Frontend');
   // eslint-disable-next-line testing-library/no-node-access

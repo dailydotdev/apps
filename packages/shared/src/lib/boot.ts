@@ -1,4 +1,3 @@
-import { IFlags } from 'flagsmith';
 import { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
@@ -49,7 +48,6 @@ export type Boot = {
   accessToken: AccessToken;
   alerts: Alerts;
   visit: Visit;
-  flags: IFlags;
   notifications: NotificationsBootData;
   settings: RemoteSettings;
   squads: Squad[];
@@ -63,7 +61,6 @@ export type BootCacheData = Pick<
   | 'user'
   | 'alerts'
   | 'settings'
-  | 'flags'
   | 'postData'
   | 'notifications'
   | 'squads'

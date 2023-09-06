@@ -2,7 +2,6 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../contexts/AuthContext';
@@ -15,19 +14,11 @@ import { Origin } from '../../lib/analytics';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { COMPLETED_USER_ACTIONS } from '../../graphql/actions';
 
-let features: IFlags;
-
-const defaultFeatures: IFlags = {
-  squad: {
-    enabled: true,
-  },
-};
 const routerReplace = jest.fn();
 
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
-  features = defaultFeatures;
 });
 
 const squads = [generateTestSquad()];

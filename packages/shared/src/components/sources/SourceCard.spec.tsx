@@ -8,7 +8,6 @@ import {
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../contexts/AuthContext';
@@ -36,12 +35,6 @@ import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
 
 const onClickTest = jest.fn();
 const routerReplace = jest.fn();
-let features: IFlags;
-const defaultFeatures: IFlags = {
-  squad: {
-    enabled: true,
-  },
-};
 const squads = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();
@@ -71,7 +64,6 @@ const openedMembersModal = async () => {
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
-  features = defaultFeatures;
 });
 
 const renderComponent = (

@@ -2,7 +2,6 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import { useRouter } from 'next/router';
 import ShareModal from './ShareModal';
 import Post from '../../../__tests__/fixture/post';
@@ -22,13 +21,6 @@ import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
 const defaultPost = Post;
 const defaultComment = Comment;
 const onRequestClose = jest.fn();
-let features: IFlags;
-
-const defaultFeatures: IFlags = {
-  squad: {
-    enabled: true,
-  },
-};
 
 Object.assign(navigator, {
   clipboard: {
@@ -39,7 +31,6 @@ Object.assign(navigator, {
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
-  features = defaultFeatures;
 });
 
 const squads = [generateTestSquad()];
@@ -87,7 +78,6 @@ describe('ShareModal Test Suite:', () => {
   });
 
   it('should render the component without logged in user', async () => {
-    features = {};
     renderComponent(false, false);
     expect(screen.getByText('Share post')).toBeInTheDocument();
   });
