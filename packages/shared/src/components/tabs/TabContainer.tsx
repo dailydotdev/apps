@@ -61,7 +61,6 @@ export function TabContainer<T extends string = string>({
   const [active, setActive] = useState(children[0].props.label);
   const currentActive = controlledActive ?? active;
   const onClick = (label: T) => {
-    console.log('clicking', label);
     setActive(label);
     onActiveChange?.(label);
   };

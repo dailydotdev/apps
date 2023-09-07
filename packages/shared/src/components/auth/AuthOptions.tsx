@@ -101,10 +101,8 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
   );
-  console.log('defaultDisplay', defaultDisplay, activeDisplay);
 
   const onSetActiveDisplay = (display: AuthDisplay) => {
-    console.log('change', display);
     onDisplayChange?.(display);
     setActiveDisplay(display);
   };
