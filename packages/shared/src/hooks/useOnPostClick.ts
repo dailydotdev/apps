@@ -1,9 +1,16 @@
 import { useContext, useMemo } from 'react';
+import { useQueryClient } from 'react-query';
 import useIncrementReadingRank from './useIncrementReadingRank';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { feedAnalyticsExtra, postAnalyticsEvent } from '../lib/feed';
+import {
+  feedAnalyticsExtra,
+  optimisticPostUpdateInFeed,
+  postAnalyticsEvent,
+} from '../lib/feed';
 import { Post } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
+import { ActiveFeedContext } from '../contexts';
+import { updateCachedPagePost } from '../lib/query';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -36,8 +43,10 @@ export default function useOnPostClick({
   ranking,
   origin,
 }: UseOnPostClickProps): FeedPostClick {
+  const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
 
   return useMemo(
     () =>
@@ -64,6 +73,29 @@ export default function useOnPostClick({
 
         if (!post.read) {
           await incrementReadingRank();
+        }
+
+        if (feedQueryKey) {
+          const mutationHandler = () => {
+            return {
+              read: true,
+            };
+          };
+          const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
+          const updateFeedPostCache = optimisticPostUpdateInFeed(
+            items,
+            updateFeedPost,
+            mutationHandler,
+          );
+          const postIndex = items.findIndex(
+            (item) => item.type === 'post' && item.post.id === post.id,
+          );
+
+          if (postIndex === -1) {
+            return;
+          }
+
+          updateFeedPostCache({ index: postIndex });
         }
       },
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM

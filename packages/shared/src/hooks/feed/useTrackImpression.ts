@@ -25,7 +25,7 @@ export default function useTrackImpression(
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
   });
-  const { hasUpvoteLoopEnabled } = usePostFeedback();
+  const { isFeedbackEnabled } = usePostFeedback({});
 
   useEffect(() => {
     if (item.type === 'post') {
@@ -37,9 +37,11 @@ export default function useTrackImpression(
             columns,
             column,
             row,
-            extra: {
-              feedback: hasUpvoteLoopEnabled,
-            },
+            extra: isFeedbackEnabled
+              ? {
+                  feedback: isFeedbackEnabled,
+                }
+              : undefined,
             ...feedAnalyticsExtra(feedName, ranking, {
               scroll_y: window.scrollY,
             }),

@@ -1,47 +1,100 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { Post, ReadHistoryPost, dismissPostFeedback } from '../graphql/posts';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../lib/feed';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { useMutation, useQueryClient } from 'react-query';
+import { Post, dismissPostFeedback } from '../graphql/posts';
+import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { Features } from '../lib/featureManagement';
+import { updatePostCache } from './usePostById';
+import { updateCachedPagePost } from '../lib/query';
+import { ActiveFeedContext } from '../contexts';
+import { MainFeedPage } from '../components/utilities';
+import { EmptyResponse } from '../graphql/emptyResponse';
+
+type UsePostFeedbackProps = {
+  post?: Pick<Post, 'id' | 'userState' | 'read'>;
+};
 
 interface UsePostFeedback {
-  hasUpvoteLoopEnabled: boolean;
-  hidePostFeedback: boolean;
-  hideEngagementLoop: (e: MouseEvent) => void;
+  showFeedback: boolean;
+  dismissFeedback: () => Promise<EmptyResponse>;
+  isFeedbackEnabled: boolean;
 }
 
-export const usePostFeedback = (
-  post?: Post | ReadHistoryPost,
-): UsePostFeedback => {
-  const { trackEvent } = useContext(AnalyticsContext);
-  const [hidePostFeedback, setHidePostFeedback] = useState(null);
+export const usePostFeedback = ({
+  post,
+}: UsePostFeedbackProps): UsePostFeedback => {
+  const client = useQueryClient();
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
 
-  // const hasUpvoteLoopEnabled = useFeatureIsOn(Features.EngagementLoopJuly2023Upvote);
-  const hasUpvoteLoopEnabled = true;
+  const isFeatureEnabled = useFeatureIsOn(
+    Features.EngagementLoopJuly2023Upvote.id,
+  );
+  const isMyFeed = useMemo(() => {
+    return feedQueryKey?.some((item) => item === MainFeedPage.MyFeed);
+  }, [feedQueryKey]);
+  const isFeedbackEnabled = isFeatureEnabled && isMyFeed;
 
-  const hideEngagementLoop = (e: MouseEvent) => {
-    e.stopPropagation();
+  const dismissFeedbackMutation = useMutation(
+    () => dismissPostFeedback(post.id),
+    {
+      onMutate: () => {
+        if (!post) {
+          return;
+        }
 
-    trackEvent(
-      postAnalyticsEvent(AnalyticsEvent.HideEngagementLoop, post, {
-        extra: { origin: Origin.EngagementLoopVote },
-      }),
-    );
+        const mutationHandler = (postItem: Post) => {
+          return {
+            userState: {
+              ...postItem.userState,
+              flags: {
+                ...postItem.userState.flags,
+                feedbackDismiss: true,
+              },
+            },
+          };
+        };
 
-    dismissPostFeedback(post.id);
-  };
+        if (feedQueryKey) {
+          const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
+          const updateFeedPostCache = optimisticPostUpdateInFeed(
+            items,
+            updateFeedPost,
+            mutationHandler,
+          );
+          const postIndex = items.findIndex(
+            (item) => item.type === 'post' && item.post.id === post.id,
+          );
 
-  useEffect(() => {
-    if (!post) return;
+          if (postIndex === -1) {
+            return;
+          }
 
-    setHidePostFeedback(post?.userState?.flags?.feedbackDismiss);
-  }, [post]);
+          updateFeedPostCache({ index: postIndex });
+        }
+
+        updatePostCache(client, post.id, mutationHandler(post as Post));
+      },
+    },
+  );
+
+  const showFeedback = useMemo(() => {
+    if (!isFeedbackEnabled) {
+      return false;
+    }
+
+    if (!post?.read) {
+      return false;
+    }
+
+    const isFeedbackDismissed =
+      post?.userState?.flags?.feedbackDismiss === true;
+
+    return !isFeedbackDismissed;
+  }, [post, isFeedbackEnabled]);
 
   return {
-    hasUpvoteLoopEnabled,
-    hidePostFeedback,
-    hideEngagementLoop,
+    showFeedback,
+    dismissFeedback: dismissFeedbackMutation.mutateAsync,
+    isFeedbackEnabled,
   };
 };

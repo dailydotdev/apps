@@ -1,4 +1,4 @@
-import React, { MouseEvent, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { Button, ButtonSize } from '../buttons/Button';
 import DownvoteIcon from '../icons/Downvote';
 import MiniCloseIcon from '../icons/MiniClose';
@@ -12,7 +12,7 @@ interface FeedbackCardProps {
 }
 
 export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
-  const { hideEngagementLoop } = usePostFeedback(post);
+  const { dismissFeedback } = usePostFeedback({ post });
   const { updatePost } = useUpdatePost();
 
   const onUpvotePostMutate = updatePost({
@@ -48,7 +48,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
           className="relative -top-2.5 -right-2.5"
           buttonSize={ButtonSize.XSmall}
           icon={<MiniCloseIcon />}
-          onClick={(e: MouseEvent) => hideEngagementLoop(e)}
+          onClick={dismissFeedback}
         />
       </div>
       <div className="flex gap-3 items-center">

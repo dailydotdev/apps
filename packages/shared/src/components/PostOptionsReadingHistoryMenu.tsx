@@ -89,7 +89,7 @@ export default function PostOptionsReadingHistoryMenu({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
-  const { hasUpvoteLoopEnabled } = usePostFeedback(post);
+  const { isFeedbackEnabled } = usePostFeedback({ post });
 
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updateReadingHistoryPost(
@@ -147,7 +147,7 @@ export default function PostOptionsReadingHistoryMenu({
         <Item
           className={classNames(
             'typo-callout',
-            !hasUpvoteLoopEnabled && 'laptop:hidden',
+            !isFeedbackEnabled && 'laptop:hidden',
           )}
           onClick={() => onHideHistoryPost(post?.id)}
         >

@@ -1,5 +1,7 @@
 import { NextSeo, NextSeoProps } from 'next-seo';
 import React, { ReactElement } from 'react';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -12,7 +14,11 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const MyFeed = (): ReactElement => <NextSeo {...seo} />;
+const MyFeed = (): ReactElement => {
+  useFeature(Features.EngagementLoopJuly2023Upvote);
+
+  return <NextSeo {...seo} />;
+};
 
 MyFeed.getLayout = getMainFeedLayout;
 MyFeed.layoutProps = mainFeedLayoutProps;

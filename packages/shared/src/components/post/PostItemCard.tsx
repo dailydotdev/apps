@@ -12,7 +12,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinary } from '../../lib/image';
-import { mutationHandlers, useVotePost } from '../../hooks';
+import { mutationHandlers, usePostFeedback, useVotePost } from '../../hooks';
 import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
 import useUpdatePost from '../../hooks/useUpdatePost';
@@ -24,7 +24,7 @@ export interface PostItemCardProps {
   clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   onContextMenu?: (event: React.MouseEvent, post: PostItem) => void;
-  hasUpvoteLoopEnabled?: boolean;
+  isFeedbackEnabled?: boolean;
 }
 
 const SourceShadow = classed(
@@ -39,9 +39,9 @@ export default function PostItemCard({
   onHide,
   className,
   onContextMenu,
-  hasUpvoteLoopEnabled = false,
 }: PostItemCardProps): ReactElement {
   const { timestampDb, post } = postItem;
+  const { isFeedbackEnabled } = usePostFeedback({ post });
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
@@ -75,9 +75,7 @@ export default function PostItemCard({
 
   const classes = classNames(
     'flex relative flex-row py-3 pr-5 pl-9 w-full',
-    hasUpvoteLoopEnabled
-      ? 'items-start tablet:items-center'
-      : 'items-center',
+    isFeedbackEnabled ? 'items-start tablet:items-center' : 'items-center',
     clickable && 'hover:bg-theme-hover hover:cursor-pointer',
     className,
   );
@@ -102,15 +100,13 @@ export default function PostItemCard({
             loading="lazy"
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
-          <SourceShadow
-            className={classNames(hasUpvoteLoopEnabled && 'top-8')}
-          />
+          <SourceShadow className={classNames(isFeedbackEnabled && 'top-8')} />
           <ProfilePicture
             size="small"
             rounded="full"
             className={classNames(
               'absolute left-6',
-              hasUpvoteLoopEnabled && 'top-8',
+              isFeedbackEnabled && 'top-8',
             )}
             user={{
               image: post.source.image,
@@ -121,9 +117,7 @@ export default function PostItemCard({
           <div
             className={classNames(
               'flex-1 flex',
-              hasUpvoteLoopEnabled
-                ? 'flex-col tablet:flex-row'
-                : 'items-center',
+              isFeedbackEnabled ? 'flex-col tablet:flex-row' : 'items-center',
             )}
           >
             <div className="flex flex-col flex-1 ml-4">
@@ -136,13 +130,13 @@ export default function PostItemCard({
               />
             </div>
             <div className="flex ml-4 tablet:ml-0">
-              {showButtons && hasUpvoteLoopEnabled && (
+              {showButtons && isFeedbackEnabled && (
                 <>
                   <Button
                     buttonSize={ButtonSize.Small}
                     className={classNames(
                       'btn-tertiary',
-                      hasUpvoteLoopEnabled ? 'flex' : 'hidden laptop:flex',
+                      isFeedbackEnabled ? 'flex' : 'hidden laptop:flex',
                     )}
                     onClick={(e) => {
                       e.preventDefault();
@@ -158,7 +152,7 @@ export default function PostItemCard({
                     buttonSize={ButtonSize.Small}
                     className={classNames(
                       'btn-tertiary',
-                      hasUpvoteLoopEnabled ? 'flex' : 'hidden laptop:flex',
+                      isFeedbackEnabled ? 'flex' : 'hidden laptop:flex',
                     )}
                     onClick={(e) => {
                       e.preventDefault();
@@ -172,7 +166,7 @@ export default function PostItemCard({
                   />
                 </>
               )}
-              {showButtons && !hasUpvoteLoopEnabled && onHide && (
+              {showButtons && !isFeedbackEnabled && onHide && (
                 <Button
                   buttonSize={ButtonSize.Small}
                   className="hidden laptop:flex btn-tertiary"

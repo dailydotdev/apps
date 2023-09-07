@@ -1,11 +1,4 @@
-import React, {
-  forwardRef,
-  ReactElement,
-  Ref,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import {
   CardButton,
@@ -55,9 +48,8 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { trending, pinnedAt } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const hasBeenRead = post?.read;
-  // const [showFeedbackCard, setShowFeedbackCard] = useState(false);
   const { data } = useBlockPostPanel(post);
-  const { hidePostFeedback, hasUpvoteLoopEnabled } = usePostFeedback(post);
+  const { showFeedback } = usePostFeedback({ post });
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -69,22 +61,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     );
   }
 
-  const showFeedbackCard = useMemo(() => {
-    if (!hasUpvoteLoopEnabled || !hasBeenRead) {
-      return false;
-    }
-
-    if (hidePostFeedback) {
-      return false;
-    }
-
-    return true;
-  }, [
-    hasBeenRead,
-    hasUpvoteLoopEnabled,
-    hidePostFeedback,
-  ]);
-
   return (
     <FeedItemContainer
       {...props}
@@ -93,8 +69,8 @@ export const ArticlePostCard = forwardRef(function PostCard(
         false,
         classNames(
           className,
-          showFeedbackCard && '!p-0',
-          hidePostFeedback && hasBeenRead && styles.read,
+          showFeedback && '!p-0',
+          !showFeedback && hasBeenRead && styles.read,
         ),
         'min-h-[22.5rem]',
       )}
@@ -104,10 +80,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
 
-      {showFeedbackCard && <FeedbackCard post={post} />}
+      {showFeedback && <FeedbackCard post={post} />}
 
       <ConditionalWrapper
-        condition={showFeedbackCard}
+        condition={showFeedback}
         wrapper={(wrapperChildren) => (
           <div
             className={classNames(
@@ -121,7 +97,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         )}
       >
         <CardTextContainer>
-          {!showFeedbackCard && (
+          {!showFeedback && (
             <PostCardHeader
               openNewTab={openNewTab}
               source={post.source}
@@ -130,13 +106,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onReadArticleClick={onReadArticleClick}
             />
           )}
-          <CardTitle
-            className={classNames(showFeedbackCard && '!line-clamp-2')}
-          >
+          <CardTitle className={classNames(showFeedback && '!line-clamp-2')}>
             {post.title}
           </CardTitle>
         </CardTextContainer>
-        {!showFeedbackCard && (
+        {!showFeedback && (
           <Container className="mb-8 tablet:mb-0">
             <CardSpace />
             <PostMetadata
@@ -154,11 +128,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
             showImage={showImage}
             onReadArticleClick={onReadArticleClick}
             className={{
-              image: classNames(showFeedbackCard && 'mb-0'),
+              image: classNames(showFeedback && 'mb-0'),
             }}
           />
 
-          {!showFeedbackCard && (
+          {!showFeedback && (
             <ActionButtons
               openNewTab={openNewTab}
               post={post}

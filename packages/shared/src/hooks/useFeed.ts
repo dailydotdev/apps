@@ -2,12 +2,10 @@ import { useContext, useEffect, useMemo } from 'react';
 import request from 'graphql-request';
 import {
   InfiniteData,
-  QueryClient,
   useInfiniteQuery,
   UseInfiniteQueryOptions,
   useQueryClient,
 } from 'react-query';
-import cloneDeep from 'lodash.clonedeep';
 import {
   Ad,
   FeedData,
@@ -18,7 +16,7 @@ import {
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl, graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
-import { Connection } from '../graphql/common';
+import { removeCachedPagePost, updateCachedPagePost } from '../lib/query';
 
 export type PostItem = {
   type: 'post';
@@ -41,48 +39,6 @@ export type FeedReturnType = {
   emptyFeed: boolean;
   isLoading: boolean;
 };
-
-const updateCachedPage = (
-  feedQueryKey: unknown[],
-  queryClient: QueryClient,
-  pageIndex: number,
-  manipulate: (page: Connection<Post>) => Connection<Post>,
-): void => {
-  queryClient.setQueryData<InfiniteData<FeedData>>(
-    feedQueryKey,
-    (currentData) => {
-      const { pages } = currentData;
-      const currentPage = cloneDeep(pages[pageIndex]);
-      currentPage.page = manipulate(currentPage.page);
-      const newPages = [
-        ...pages.slice(0, pageIndex),
-        currentPage,
-        ...pages.slice(pageIndex + 1),
-      ];
-      return { pages: newPages, pageParams: currentData.pageParams };
-    },
-  );
-};
-
-const updateCachedPost =
-  (feedQueryKey: unknown[], queryClient: QueryClient) =>
-  (pageIndex: number, index: number, post: Post) => {
-    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
-      // eslint-disable-next-line no-param-reassign
-      page.edges[index].node = post;
-      return page;
-    });
-  };
-
-const removeCachedPost =
-  (feedQueryKey: unknown[], queryClient: QueryClient) =>
-  (pageIndex: number, index: number) => {
-    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
-      // eslint-disable-next-line no-param-reassign
-      page.edges.splice(index, 1);
-      return page;
-    });
-  };
 
 const findIndexOfPostInData = (
   data: InfiniteData<FeedData>,
@@ -204,7 +160,7 @@ export default function useFeed<T>(
     adsQuery.isFetching,
   ]);
 
-  const updatePost = updateCachedPost(feedQueryKey, queryClient);
+  const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
 
   useSubscription(
     () => ({
@@ -234,7 +190,7 @@ export default function useFeed<T>(
       await adPromise;
     },
     updatePost,
-    removePost: removeCachedPost(feedQueryKey, queryClient),
+    removePost: removeCachedPagePost(feedQueryKey, queryClient),
     canFetchMore: feedQuery.hasNextPage,
     emptyFeed:
       !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,
