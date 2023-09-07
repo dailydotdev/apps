@@ -101,9 +101,6 @@ export function SearchHistoryButton(): ReactElement {
         id={contextMenuId}
         options={options}
         onHidden={() => setIsMenuOpen(false)}
-        onShown={() => {
-          trackEvent({ event_name: AnalyticsEvent.OpenSearchHistoryTooltip });
-        }}
       />
     </>
   );
