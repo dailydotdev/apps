@@ -1,16 +1,17 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
+import { PlaceholderSearchSuggestion } from './PlaceholderSearchSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
-import { getSearchUrl, SearchSession } from '../../graphql/search';
+import { getSearchUrl, SearchQuestion } from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
 import { LoginTrigger } from '../../lib/analytics';
 
 export interface SearchBarSuggestionListProps {
   className?: string;
   isLoading?: boolean;
-  suggestions?: Partial<SearchSession>[];
+  suggestions?: Partial<SearchQuestion>[];
   origin: SuggestionOrigin;
 }
 
@@ -28,12 +29,12 @@ export function SearchBarSuggestionList({
 
   if (!user) {
     return (
-      <SearchBarSuggestion
+      <PlaceholderSearchSuggestion
         className={className}
         onClick={() => showLogin(LoginTrigger.SearchSuggestion)}
       >
         Sign up and read your first post to get search recommendations
-      </SearchBarSuggestion>
+      </PlaceholderSearchSuggestion>
     );
   }
 
@@ -64,13 +65,14 @@ export function SearchBarSuggestionList({
         <SearchBarSuggestion
           tag="a"
           origin={origin}
-          suggestion={suggestion}
-          key={suggestion.prompt}
+          id={suggestion.id}
+          prompt={suggestion.question}
+          key={suggestion.id}
           href={getSearchUrl({
-            question: suggestion.prompt,
+            question: suggestion.question,
           })}
         >
-          {suggestion.prompt}
+          {suggestion.question}
         </SearchBarSuggestion>
       ))}
     </div>
