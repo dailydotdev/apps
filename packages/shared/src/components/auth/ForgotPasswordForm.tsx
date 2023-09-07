@@ -43,8 +43,6 @@ function ForgotPasswordForm({
     await sendEmail(email);
   };
 
-  const buttonCopy = `&larr; Back to log in`;
-
   return (
     <>
       <AuthHeader

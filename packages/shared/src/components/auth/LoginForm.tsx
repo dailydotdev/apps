@@ -114,8 +114,8 @@ function LoginForm({
       {hint && hint === labels.auth.error.invalidEmailOrPassword && (
         <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
           <AlertParagraph className="flex-1 !mt-0">
-            The email or password you entered doesn't match our records. Please
-            try again or{' '}
+            The email or password you entered doesn&apos;t match our records.
+            Please try again or{' '}
             <button
               type="button"
               onClick={onSignup}
