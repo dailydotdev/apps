@@ -4,7 +4,7 @@ import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { CloseModalFunc } from '../modals/common';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { AuthFormProps, AuthModalText } from './common';
 import TokenInput from './TokenField';
 import { AuthFlow } from '../../lib/kratos';
@@ -12,6 +12,7 @@ import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
+import AuthModalFooter from './AuthModalFooter';
 
 interface ForgotPasswordFormProps extends AuthFormProps {
   initialEmail?: string;
@@ -42,11 +43,15 @@ function ForgotPasswordForm({
     await sendEmail(email);
   };
 
+  const buttonCopy = `&larr; Back to log in`;
+
   return (
     <>
-      {!simplified && (
-        <AuthModalHeader title="Forgot password" onBack={onBack} />
-      )}
+      <AuthHeader
+        simplified={simplified}
+        title="Reset password"
+        onBack={onBack}
+      />
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onSendEmail}
@@ -77,6 +82,12 @@ function ForgotPasswordForm({
           Send verification code
         </Button>
       </AuthForm>
+      {simplified && (
+        <AuthModalFooter
+          text={{ button: `\u2190 Back to log in` }}
+          onClick={onBack}
+        />
+      )}
     </>
   );
 }
