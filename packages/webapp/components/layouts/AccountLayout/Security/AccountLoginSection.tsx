@@ -1,5 +1,5 @@
 import { Provider } from '@dailydotdev/shared/src/components/auth/common';
-import ProviderButton from '@dailydotdev/shared/src/components/auth/ProviderButton';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement, ReactNode } from 'react';
 import AccountContentSection from '../AccountContentSection';
 import {
@@ -36,19 +36,19 @@ function AccountLoginSection({
   return (
     <AccountContentSection title={title} description={description}>
       <div className="grid grid-cols-1 gap-4 mt-6 w-64">
-        {providers.map(({ provider, ...rest }) => (
-          <ProviderButton
+        {providers.map(({ provider, icon }) => (
+          <Button
             key={provider}
+            icon={icon}
             onClick={() =>
               providerAction({
                 type: providerActionType,
                 provider: provider.toLowerCase(),
               })
             }
-            label={providerLabel[providerActionType]}
-            provider={provider}
-            {...rest}
-          />
+          >
+            {providerLabel[providerActionType]} {provider}
+          </Button>
         ))}
         {children}
       </div>

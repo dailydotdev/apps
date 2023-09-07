@@ -3,10 +3,9 @@ import { storageWrapper as storage } from '../../lib/storageWrapper';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthFormProps, Provider, providerMap } from './common';
 import OrDivider from './OrDivider';
-import ProviderButton from './ProviderButton';
 import AuthModalFooter from './AuthModalFooter';
 import AuthContainer from './AuthContainer';
-import { ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 
 interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;
@@ -38,25 +37,24 @@ export const AuthSignBack = ({
         <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
           Sign back in with
         </p>
-        <ProviderButton
-          provider={signback.provider}
-          label="Login with"
+        <Button
+          icon={signback.icon}
           onClick={() => onProviderClick?.(signback.provider)}
-          {...signback}
-        />
+        >
+          {signback.provider}
+        </Button>
         <OrDivider />
         <div className="flex flex-row gap-3 justify-center">
           {providers
             .filter(({ provider }) => provider !== signback.provider)
-            .map(({ provider, style, ...props }) => (
-              <ProviderButton
+            .map(({ provider, icon }) => (
+              <Button
                 key={provider}
-                provider={provider}
-                buttonSize={ButtonSize.Large}
-                style={{ ...style, width: '3.875rem' }}
+                icon={icon}
                 onClick={() => onProviderClick?.(provider)}
-                {...props}
-              />
+              >
+                {provider}
+              </Button>
             ))}
         </div>
         {children}
