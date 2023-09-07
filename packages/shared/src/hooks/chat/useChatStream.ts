@@ -1,27 +1,27 @@
-import { useRef, useState, useCallback, useEffect, useContext } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
-  SearchChunk,
-  updateSearchData,
   initializeSearchSession,
-  SearchChunkError,
-  sendSearchQuery,
   Search,
+  SearchChunk,
+  SearchChunkError,
   SearchChunkErrorCode,
+  searchErrorCodeToMessage,
+  sendSearchQuery,
+  updateSearchData,
 } from '../../graphql/search';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import {
-  UseChatMessage,
-  UseChatMessageType,
   CreatePayload,
   SourcesMessage,
   TokenPayload,
+  UseChatMessage,
+  UseChatMessageType,
   UseChatStream,
 } from './types';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { labels } from '../../lib';
 
 export const useChatStream = (): UseChatStream => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -62,10 +62,11 @@ export const useChatStream = (): UseChatStream => {
         );
       };
 
-      const trackErrorEvent = () => {
+      const trackErrorEvent = (code: SearchChunkErrorCode) => {
         trackEvent({
           event_name: AnalyticsEvent.ErrorSearch,
           target_id: streamId,
+          extra: JSON.stringify({ code }),
         });
       };
 
@@ -114,23 +115,17 @@ export const useChatStream = (): UseChatStream => {
             }
             case UseChatMessageType.Error: {
               const errorPayload = data.payload as SearchChunkError;
+              const message =
+                errorPayload.message ||
+                searchErrorCodeToMessage[errorPayload.code];
 
-              switch (errorPayload.code) {
-                case SearchChunkErrorCode.RateLimit:
-                  setSearchQuery({
-                    error: {
-                      ...errorPayload,
-                      message: labels.search.rateLimitExceeded,
-                    },
-                    progress: -1,
-                  });
-                  break;
-                default:
-                  setSearchQuery({ error: errorPayload });
-              }
+              setSearchQuery({
+                error: { ...errorPayload, message },
+                progress: -1,
+              });
 
               sourceRef.current?.close();
-              trackErrorEvent();
+              trackErrorEvent(errorPayload.code);
               break;
             }
             case UseChatMessageType.SessionFound: {
@@ -147,21 +142,24 @@ export const useChatStream = (): UseChatStream => {
           // eslint-disable-next-line no-console
           console.error('[EventSource][message] error', error);
 
-          trackErrorEvent();
+          trackErrorEvent(SearchChunkErrorCode.Unexpected);
         }
       };
 
       const onError = () => {
+        const data = client.getQueryData<Search>(queryKey);
+        const code = data?.chunks?.[0]?.response?.length
+          ? SearchChunkErrorCode.StoppedGenerating
+          : SearchChunkErrorCode.Unexpected;
+        const message = searchErrorCodeToMessage[code];
+
         sourceRef.current.close();
         setSearchQuery({
-          error: {
-            message: 'It worked on my machine. Can you please try again?',
-            code: SearchChunkErrorCode.Unexpected,
-          },
+          error: { message, code },
           progress: -1,
         });
 
-        trackErrorEvent();
+        trackErrorEvent(code);
       };
 
       const source = await sendSearchQuery(value, accessToken?.token);
