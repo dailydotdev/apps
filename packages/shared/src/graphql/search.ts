@@ -125,7 +125,7 @@ export const SEARCH_HISTORY_QUERY = gql`
       }
       edges {
         node {
-          id: sessionId
+          sessionId: id
           prompt
           createdAt
         }
