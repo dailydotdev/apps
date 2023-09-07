@@ -39,7 +39,7 @@ export default function useTrackImpression(
             row,
             extra: isFeedbackEnabled
               ? {
-                  feedback: isFeedbackEnabled,
+                  feedback: true,
                 }
               : undefined,
             ...feedAnalyticsExtra(feedName, ranking, {
