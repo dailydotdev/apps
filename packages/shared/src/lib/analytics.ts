@@ -94,7 +94,6 @@ export enum AnalyticsEvent {
   FocusSearch = 'focus search',
   SubmitSearch = 'submit search',
   OpenSearchHistory = 'open search history',
-  OpenSearchHistoryTooltip = 'open search history tooltip',
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',
   CopySearch = 'copy search',
