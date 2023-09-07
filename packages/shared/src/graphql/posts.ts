@@ -49,21 +49,19 @@ type PostFlags = {
   promoteToPublic: number;
 };
 
-export type UserPostFlags = Partial<{
-  feedbackDismiss: boolean;
-}>;
-
 export enum UserPostVote {
   Up = 1,
   None = 0,
   Down = -1,
 }
 
-export type UserPostFlagsPublic = Pick<UserPostFlags, 'feedbackDismiss'>;
+export type UserPostFlags = {
+  feedbackDismiss: boolean;
+};
 
 export interface PostUserState {
   vote: UserPostVote;
-  flags?: UserPostFlagsPublic;
+  flags?: UserPostFlags;
 }
 
 export interface Post {
