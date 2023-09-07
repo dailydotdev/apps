@@ -53,7 +53,7 @@ export const PostList = forwardRef(function PostList(
   return (
     <FeedItemContainer
       {...props}
-      className={getPostClassNames(post, post?.read, className)}
+      className={getPostClassNames(post, className)}
       ref={ref}
       flagProps={{ listMode: true, pinnedAt, trending }}
     >

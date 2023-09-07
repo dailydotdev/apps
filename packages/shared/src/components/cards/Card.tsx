@@ -71,11 +71,10 @@ export const ListCardDivider = classed(
 
 export const getPostClassNames = (
   post: Post,
-  showAsRead: boolean,
   ...postClassNames: string[]
 ): string =>
   classNames(
-    { [styles.read]: showAsRead, [styles.trending]: post.trending > 0 },
+    { [styles.read]: post.read, [styles.trending]: post.trending > 0 },
     styles.post,
     'group',
     ...postClassNames,

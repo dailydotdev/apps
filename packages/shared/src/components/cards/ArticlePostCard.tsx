@@ -66,7 +66,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
       {...props}
       className={getPostClassNames(
         post,
-        false,
         classNames(
           className,
           showFeedback && '!p-0',
