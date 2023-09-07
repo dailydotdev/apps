@@ -163,7 +163,9 @@ const useVotePost = <T extends { id: string } = { id: string }>({
       return;
     }
 
-    if (!user) return showLogin(AuthTriggers.Upvote);
+    if (!user) {
+      return showLogin(AuthTriggers.Upvote);
+    }
 
     if (post?.userState?.vote === UserPostVote.Up) {
       trackEvent(
