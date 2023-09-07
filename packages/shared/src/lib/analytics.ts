@@ -29,6 +29,8 @@ export enum Origin {
   // search - start
   HomePage = 'home page',
   SearchPage = 'search page',
+  HistoryPage = 'history page',
+  HistoryTooltip = 'history tooltip',
   // search - end
 }
 
@@ -92,6 +94,7 @@ export enum AnalyticsEvent {
   FocusSearch = 'focus search',
   SubmitSearch = 'submit search',
   OpenSearchHistory = 'open search history',
+  OpenSearchHistoryTooltip = 'open search history tooltip',
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',
   CopySearch = 'copy search',

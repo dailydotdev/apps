@@ -17,12 +17,15 @@ import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import { SearchQuestion } from '../../graphql/search';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
-export type SuggestionOrigin = Origin.HomePage | Origin.SearchPage;
+export type SuggestionOrigin =
+  | Origin.HomePage
+  | Origin.SearchPage
+  | Origin.HistoryPage;
 
 type SearchBarSuggestionProps = ButtonProps<AllowedTags> & {
-  id?: SearchQuestion['id'];
-  prompt?: SearchQuestion['question'];
-  origin?: SuggestionOrigin;
+  id: SearchQuestion['id'];
+  prompt: SearchQuestion['question'];
+  origin: SuggestionOrigin;
   isHistory?: boolean;
 };
 

@@ -13,7 +13,7 @@ import { useSearchHistory } from '../../hooks/search';
 import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import { getSearchUrl } from '../../graphql/search';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const contextMenuId = 'search-history-input';
@@ -47,7 +47,17 @@ export function SearchHistoryButton(): ReactElement {
       id: node.sessionId,
       icon: <TimerIcon />,
       label: node.prompt,
-      action: () => router.push(getSearchUrl({ id: node.sessionId })),
+      action: () => {
+        trackEvent({
+          event_name: AnalyticsEvent.Click,
+          target_type: TargetType.SearchHistory,
+          target_id: node.sessionId,
+          feed_item_title: node.prompt,
+          extra: JSON.stringify({ origin: Origin.HistoryTooltip }),
+        });
+
+        return router.push(getSearchUrl({ id: node.sessionId }));
+      },
     }));
 
     result.push({
@@ -91,6 +101,9 @@ export function SearchHistoryButton(): ReactElement {
         id={contextMenuId}
         options={options}
         onHidden={() => setIsMenuOpen(false)}
+        onShown={() => {
+          trackEvent({ event_name: AnalyticsEvent.OpenSearchHistoryTooltip });
+        }}
       />
     </>
   );

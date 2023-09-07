@@ -3,7 +3,7 @@ import { getSearchUrl } from '../../graphql/search';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import { SearchEmpty } from './SearchEmpty';
 import { SearchHistoryContainer } from './common';
-import { SearchBarSuggestion } from './SearchBarSuggestion';
+import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 import { SearchSkeleton } from './SearchSkeleton';
 import TimerIcon from '../icons/Timer';
 import { useSearchHistory } from '../../hooks/search';
@@ -12,12 +12,14 @@ interface SearchHistoryProps {
   showEmptyState?: boolean;
   className?: string;
   title?: string;
+  origin: SuggestionOrigin;
 }
 
 export function SearchHistory({
   showEmptyState = true,
   className,
   title,
+  origin,
 }: SearchHistoryProps): ReactElement {
   const {
     result: { isLoading },
@@ -40,6 +42,7 @@ export function SearchHistory({
       </span>
       {nodes?.map(({ node: suggestion }) => (
         <SearchBarSuggestion
+          origin={origin}
           isHistory
           key={suggestion.sessionId}
           id={suggestion.sessionId}

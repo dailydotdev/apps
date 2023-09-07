@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
+import { PlaceholderSearchSuggestion } from './PlaceholderSearchSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
 import { getSearchUrl, SearchQuestion } from '../../graphql/search';
@@ -28,12 +29,12 @@ export function SearchBarSuggestionList({
 
   if (!user) {
     return (
-      <SearchBarSuggestion
+      <PlaceholderSearchSuggestion
         className={className}
         onClick={() => showLogin(LoginTrigger.SearchSuggestion)}
       >
         Sign up and read your first post to get search recommendations
-      </SearchBarSuggestion>
+      </PlaceholderSearchSuggestion>
     );
   }
 
