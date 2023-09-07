@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import {
   AllowedTags,
@@ -8,52 +14,62 @@ import {
 } from '../buttons/Button';
 import { AiIcon } from '../icons';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
-import { SearchSession } from '../../graphql/search';
+import { SearchQuestion } from '../../graphql/search';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
-export type SuggestionOrigin = Origin.HomePage | Origin.SearchPage;
+export type SuggestionOrigin =
+  | Origin.HomePage
+  | Origin.SearchPage
+  | Origin.HistoryPage;
 
 type SearchBarSuggestionProps = ButtonProps<AllowedTags> & {
-  suggestion?: Partial<SearchSession>;
-  origin?: SuggestionOrigin;
+  id: SearchQuestion['id'];
+  prompt: SearchQuestion['question'];
+  origin: SuggestionOrigin;
   isHistory?: boolean;
 };
 
 export const SearchBarSuggestion = ({
   className,
   origin,
+  id: suggestionId,
+  isHistory,
+  prompt,
   ...props
 }: SearchBarSuggestionProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
+  const impressionEmitted = useRef(false);
 
   useEffect(() => {
-    if (!props.isHistory && props.suggestion?.id) {
+    if (!isHistory && suggestionId && !impressionEmitted.current) {
       trackEvent({
         event_name: AnalyticsEvent.Impression,
         target_type: TargetType.SearchRecommendation,
-        target_id: props.suggestion.id,
-        feed_item_title: props.suggestion.prompt,
+        target_id: suggestionId,
+        feed_item_title: prompt,
         extra: JSON.stringify({ origin }),
       });
+
+      impressionEmitted.current = true;
     }
 
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.suggestion?.id]);
+  }, [suggestionId, isHistory]);
 
   const handleSuggestionsClick = useCallback(() => {
-    if (props.suggestion?.id) {
+    if (suggestionId) {
       trackEvent({
         event_name: AnalyticsEvent.Click,
-        target_type: props.isHistory
+        target_type: isHistory
           ? TargetType.SearchHistory
           : TargetType.SearchRecommendation,
-        target_id: props.suggestion.id,
-        feed_item_title: props.suggestion.prompt,
+        target_id: suggestionId,
+        feed_item_title: prompt,
         extra: JSON.stringify({ origin }),
       });
     }
-  }, [origin, props.suggestion, trackEvent, props.isHistory]);
+  }, [origin, suggestionId, prompt, trackEvent, isHistory]);
 
   return (
     <Button
