@@ -29,6 +29,8 @@ export enum Origin {
   // search - start
   HomePage = 'home page',
   SearchPage = 'search page',
+  HistoryPage = 'history page',
+  HistoryTooltip = 'history tooltip',
   // search - end
 }
 

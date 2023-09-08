@@ -120,15 +120,18 @@ export default function PostItemCard({
                 numUpvotes={post.numUpvotes}
               />
             </div>
-            <div className="flex ml-4 tablet:ml-0">
+            <div className="flex mt-1 tablet:mt-1 ml-4 tablet:ml-0">
               {showButtons && showVoteActions && (
                 <>
                   <Button
                     buttonSize={ButtonSize.Small}
                     className={classNames(
                       'btn-tertiary',
-                      showVoteActions ? 'flex' : 'hidden laptop:flex',
+                      showVoteActions
+                        ? 'flex btn-tertiary-avocado'
+                        : 'hidden laptop:flex',
                     )}
+                    pressed={post?.userState?.vote === UserPostVote.Up}
                     onClick={(e) => {
                       e.preventDefault();
                       toggleUpvote({ post, origin: analyticsOrigin });
@@ -143,8 +146,11 @@ export default function PostItemCard({
                     buttonSize={ButtonSize.Small}
                     className={classNames(
                       'btn-tertiary',
-                      showVoteActions ? 'flex' : 'hidden laptop:flex',
+                      showVoteActions
+                        ? 'flex btn-tertiary-ketchup'
+                        : 'hidden laptop:flex',
                     )}
+                    pressed={post?.userState?.vote === UserPostVote.Down}
                     onClick={(e) => {
                       e.preventDefault();
                       toggleDownvote({ post, origin: analyticsOrigin });
