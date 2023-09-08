@@ -103,6 +103,7 @@ export function MobileSearch({
           className="!p-4"
           showEmptyState={false}
           title="Search history"
+          origin={suggestionsProps.origin}
         />
       </div>
     </InteractivePopup>
