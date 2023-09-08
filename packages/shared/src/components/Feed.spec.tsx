@@ -15,7 +15,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import {
   ADD_BOOKMARKS_MUTATION,
-  CANCEL_UPVOTE_MUTATION,
   FeedData,
   HIDE_POST_MUTATION,
   Post,
@@ -24,8 +23,9 @@ import {
   PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
-  UPVOTE_MUTATION,
   PostType,
+  VOTE_POST_MUTATION,
+  UserPostVote,
 } from '../graphql/posts';
 import {
   MockedGraphQLResponse,
@@ -264,8 +264,11 @@ it('should send upvote mutation', async () => {
     }),
     {
       request: {
-        query: UPVOTE_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          vote: UserPostVote.Up,
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -286,14 +289,22 @@ it('should send cancel upvote mutation', async () => {
       edges: [
         {
           ...defaultFeedPage.edges[0],
-          node: { ...defaultFeedPage.edges[0].node, upvoted: true },
+          node: {
+            ...defaultFeedPage.edges[0].node,
+            userState: {
+              vote: UserPostVote.Up,
+            },
+          },
         },
       ],
     }),
     {
       request: {
-        query: CANCEL_UPVOTE_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          vote: UserPostVote.None,
+        },
       },
       result: () => {
         mutationCalled = true;

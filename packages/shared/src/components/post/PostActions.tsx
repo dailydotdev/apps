@@ -51,12 +51,10 @@ export function PostActions({
   };
 
   const onToggleDownvote = async () => {
-    if (post?.userState?.vote === UserPostVote.Down) {
-      onClose(true);
-    }
-
-    if (post?.userState?.vote === UserPostVote.None) {
+    if (post.userState?.vote !== UserPostVote.Down) {
       onShowPanel();
+    } else {
+      onClose(true);
     }
 
     await toggleDownvote({ post, origin });
