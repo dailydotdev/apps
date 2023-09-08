@@ -1,6 +1,5 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement, useContext, useState } from 'react';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import React, { ReactElement, useState } from 'react';
 import { useSubmitArticle } from '../../hooks/useSubmitArticle';
 import EmbedIcon from '../icons/Embed';
 import LinkIcon from '../icons/Link';
