@@ -32,6 +32,8 @@ export enum Origin {
   HistoryPage = 'history page',
   HistoryTooltip = 'history tooltip',
   // search - end
+  History = 'history',
+  FeedbackCard = 'feedback card',
 }
 
 export enum LoginTrigger {

@@ -32,7 +32,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
         <Button
           id="upvote-post-btn"
           pressed={post?.userState?.vote === UserPostVote.Up}
-          onClick={() => toggleUpvote({ post, origin: Origin.Feed })}
+          onClick={() => toggleUpvote({ post, origin: Origin.FeedbackCard })}
           icon={
             <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
           }
@@ -42,7 +42,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
         <Button
           id="downvote-post-btn"
           pressed={post?.userState?.vote === UserPostVote.Down}
-          onClick={() => toggleDownvote({ post, origin: Origin.Feed })}
+          onClick={() => toggleDownvote({ post, origin: Origin.FeedbackCard })}
           icon={
             <DownvoteIcon
               secondary={post?.userState?.vote === UserPostVote.Down}

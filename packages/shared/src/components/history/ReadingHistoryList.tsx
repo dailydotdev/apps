@@ -78,6 +78,7 @@ export default function ReadHistoryList({
             }
             onHide={(params) => onHide({ ...params, ...indexes })}
             showVoteActions={isFeedbackEnabled}
+            analyticsOrigin={Origin.History}
           />,
         );
 
