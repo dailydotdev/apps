@@ -1,16 +1,14 @@
 import { FeedItem, UpdateFeedPost } from '../useFeed';
-import { PostItem } from '../../graphql/posts';
-import { feedAnalyticsExtra, optimisticPostUpdateInFeed } from '../../lib/feed';
+import { feedAnalyticsExtra } from '../../lib/feed';
 import { Origin } from '../../lib/analytics';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
 import {
   UseVotePost,
   UseVotePostMutationProps,
-  UseVotePostProps,
-  voteMutationHandlers,
   voteMutationMatcher,
 } from './types';
 import { useVotePost } from './useVotePost';
+import { mutateVoteFeedPost } from './utils';
 
 export type UseFeedVotePostProps = {
   feedName: string;
@@ -20,65 +18,6 @@ export type UseFeedVotePostProps = {
 };
 
 export type UseFeedVotePost = UseVotePost;
-
-const mutateVoteFeedPost = ({
-  id,
-  vote,
-  items,
-  updatePost,
-}: UseVotePostMutationProps & {
-  items: FeedItem[];
-  updatePost: UpdateFeedPost;
-}): ReturnType<UseVotePostProps['onMutate']> => {
-  if (!items) {
-    return undefined;
-  }
-
-  const mutationHandler = voteMutationHandlers[vote];
-
-  if (!mutationHandler) {
-    return undefined;
-  }
-
-  const postIndexToUpdate = items.findIndex(
-    (item) => item.type === 'post' && item.post.id === id,
-  );
-
-  if (postIndexToUpdate === -1) {
-    return undefined;
-  }
-
-  const previousVote = (items[postIndexToUpdate] as PostItem)?.post?.userState
-    ?.vote;
-
-  optimisticPostUpdateInFeed(
-    items,
-    updatePost,
-    mutationHandler,
-  )({ index: postIndexToUpdate });
-
-  return () => {
-    const postIndexToRollback = items.findIndex(
-      (item) => item.type === 'post' && item.post.id === id,
-    );
-
-    if (postIndexToRollback === -1) {
-      return;
-    }
-
-    const rollbackMutationHandler = voteMutationHandlers[previousVote];
-
-    if (!rollbackMutationHandler) {
-      return;
-    }
-
-    optimisticPostUpdateInFeed(
-      items,
-      updatePost,
-      rollbackMutationHandler,
-    )({ index: postIndexToUpdate });
-  };
-};
 
 export const useFeedVotePost = ({
   feedName,
