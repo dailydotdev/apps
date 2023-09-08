@@ -1,16 +1,16 @@
-import {
-  UseVotePost,
-  useVotePost,
-  UseVotePostMutationProps,
-  UseVotePostProps,
-  voteMutationHandlers,
-  voteMutationMatcher,
-} from '../useVotePost';
 import { FeedItem, UpdateFeedPost } from '../useFeed';
 import { PostItem } from '../../graphql/posts';
 import { feedAnalyticsExtra, optimisticPostUpdateInFeed } from '../../lib/feed';
 import { Origin } from '../../lib/analytics';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
+import {
+  UseVotePost,
+  UseVotePostMutationProps,
+  UseVotePostProps,
+  voteMutationHandlers,
+  voteMutationMatcher,
+} from './types';
+import { useVotePost } from './useVotePost';
 
 export type UseFeedVotePostProps = {
   feedName: string;
@@ -80,12 +80,12 @@ const mutateVoteFeedPost = ({
   };
 };
 
-export default function useFeedVotePost({
+export const useFeedVotePost = ({
   feedName,
   ranking,
   items,
   updatePost,
-}: UseFeedVotePostProps): UseFeedVotePost {
+}: UseFeedVotePostProps): UseFeedVotePost => {
   useMutationSubscription({
     matcher: voteMutationMatcher,
     callback: ({ mutation }) => {
@@ -143,4 +143,4 @@ export default function useFeedVotePost({
       });
     },
   };
-}
+};

@@ -1,98 +1,30 @@
-import { useMutation, useQueryClient } from 'react-query';
-import { useCallback, useContext } from 'react';
-import { graphqlUrl } from '../lib/config';
+import { useContext, useCallback } from 'react';
+import { useQueryClient, useMutation } from 'react-query';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import AuthContext from '../../contexts/AuthContext';
 import {
-  Post,
   PostData,
-  ReadHistoryPost,
-  UserPostVote,
   VOTE_POST_MUTATION,
-} from '../graphql/posts';
-import { useRequestProtocol } from './useRequestProtocol';
-import AuthContext from '../contexts/AuthContext';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { PostAnalyticsEventFnOptions, postAnalyticsEvent } from '../lib/feed';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
-import { AuthTriggers } from '../lib/auth';
+  UserPostVote,
+} from '../../graphql/posts';
+import { AnalyticsEvent } from '../../lib/analytics';
+import { AuthTriggers } from '../../lib/auth';
+import { graphqlUrl } from '../../lib/config';
+import { postAnalyticsEvent } from '../../lib/feed';
 import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
-} from './usePostById';
-import { UseMutationMatcher } from './mutationSubscription/types';
-
-export type ToggleVoteProps = {
-  origin: Origin;
-  post: Post | ReadHistoryPost;
-  opts?: PostAnalyticsEventFnOptions;
-};
-
-export type VoteProps = {
-  id: string;
-};
-
-export type UseVotePost = {
-  upvotePost: (props: VoteProps) => Promise<void>;
-  downvotePost: (props: VoteProps) => Promise<void>;
-  cancelPostVote: (props: VoteProps) => Promise<void>;
-  toggleUpvote: (props: ToggleVoteProps) => Promise<void>;
-  toggleDownvote: (props: ToggleVoteProps) => Promise<void>;
-};
-
-export type UseVotePostMutationProps = {
-  id: string;
-  vote: UserPostVote;
-};
-
-export type UseVotePostRollback = () => void;
-
-export type UseVotePostProps = {
-  onMutate?: (
-    props: UseVotePostMutationProps,
-  ) => UseVotePostRollback | undefined;
-  variables?: unknown;
-};
-
-export const upvoteMutationKey = ['post', 'mutation'];
-
-export const voteMutationMatcher: UseMutationMatcher = ({ mutation }) => {
-  return (
-    mutation.state.status === 'success' &&
-    mutation.options.mutationKey?.toString() === upvoteMutationKey.toString()
-  );
-};
-
-export const voteMutationHandlers: Record<
-  UserPostVote,
-  (post: Post | ReadHistoryPost) => Partial<Post>
-> = {
-  [UserPostVote.Up]: (post) => ({
-    numUpvotes: post.numUpvotes + 1,
-    userState: {
-      ...post?.userState,
-      vote: UserPostVote.Up,
-    },
-  }),
-  [UserPostVote.Down]: (post) => ({
-    numUpvotes:
-      post?.userState?.vote === UserPostVote.Up
-        ? post.numUpvotes - 1
-        : post.numUpvotes,
-    userState: {
-      ...post?.userState,
-      vote: UserPostVote.Down,
-    },
-  }),
-  [UserPostVote.None]: (post) => ({
-    numUpvotes:
-      post.userState?.vote === UserPostVote.Up
-        ? post.numUpvotes - 1
-        : post.numUpvotes,
-    userState: {
-      ...post?.userState,
-      vote: UserPostVote.None,
-    },
-  }),
-};
+} from '../usePostById';
+import { useRequestProtocol } from '../useRequestProtocol';
+import {
+  UseVotePostProps,
+  UseVotePost,
+  voteMutationHandlers,
+  UseVotePostMutationProps,
+  upvoteMutationKey,
+  VoteProps,
+  ToggleVoteProps,
+} from './types';
 
 const useVotePost = ({
   onMutate,

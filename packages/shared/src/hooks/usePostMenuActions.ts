@@ -10,7 +10,7 @@ import {
 import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
-import { useVotePost } from './useVotePost';
+import { useVotePost } from './vote/useVotePost';
 import { Origin } from '../lib/analytics';
 import { useBlockPostPanel } from './post/useBlockPostPanel';
 

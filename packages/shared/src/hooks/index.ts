@@ -1,7 +1,7 @@
 export * from './useGenerateUsername';
 export * from './squads';
 export * from './useReferralCampaign';
-export * from './useVotePost';
+export * from './vote';
 export * from './useSquadNavigation';
 export * from './useLeaveSquad';
 export * from './useJoinSquad';
@@ -10,4 +10,3 @@ export * from './chat';
 export * from './useExtensionPermission';
 export * from './usePostFeedback';
 export * from './mutationSubscription';
-export * from './useReadHistoryVotePost';

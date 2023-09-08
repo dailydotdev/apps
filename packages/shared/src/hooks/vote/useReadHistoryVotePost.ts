@@ -1,22 +1,22 @@
 import { useContext } from 'react';
 import { QueryClient, useQueryClient } from 'react-query';
-import {
-  UseVotePost,
-  useVotePost,
-  UseVotePostMutationProps,
-  UseVotePostProps,
-  voteMutationHandlers,
-} from './useVotePost';
-import { ReadHistoryInfiniteData } from './useInfiniteReadingHistory';
+import AuthContext from '../../contexts/AuthContext';
+import { Edge } from '../../graphql/common';
 import {
   generateQueryKey,
   RequestKey,
   updateReadingHistoryListPost,
-} from '../lib/query';
-import { PostItem } from '../graphql/posts';
-import { Edge } from '../graphql/common';
-import AuthContext from '../contexts/AuthContext';
-import { LoggedUser } from '../lib/user';
+} from '../../lib/query';
+import { LoggedUser } from '../../lib/user';
+import { PostItem } from '../useFeed';
+import { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
+import {
+  UseVotePost,
+  UseVotePostMutationProps,
+  UseVotePostProps,
+  voteMutationHandlers,
+} from './types';
+import { useVotePost } from './useVotePost';
 
 export type UseReadHistoryVotePostProps = {
   data: ReadHistoryInfiniteData;
