@@ -20,18 +20,9 @@ const NewSourceModal = dynamic(
 );
 
 export function ContributeSection(props: SectionCommonProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
   const { isOpen: showSubmitArticle, onIsOpen: setShowSubmitArticle } =
     useSubmitArticle();
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
-  const trackAndShowSubmitArticle = () => {
-    trackEvent({
-      event_name: 'start submit article',
-      feed_item_title: 'Submit article',
-      extra: JSON.stringify({ has_access: true }),
-    });
-    setShowSubmitArticle(true);
-  };
 
   const contributeMenuItems: SidebarMenuItem[] = [
     {
@@ -39,7 +30,7 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
         <ListIcon Icon={() => <LinkIcon secondary={active} />} />
       ),
       title: 'Submit article',
-      action: trackAndShowSubmitArticle,
+      action: () => setShowSubmitArticle(true),
       active: showSubmitArticle,
     },
     {

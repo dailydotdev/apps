@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
@@ -25,6 +31,7 @@ import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { Justify } from '../utilities';
+import { isNullOrUndefined } from '../../lib/func';
 
 type SubmitArticleModalProps = {
   headerCopy: string;
@@ -40,6 +47,7 @@ export default function SubmitArticleModal({
   const submitFormRef = useRef<HTMLFormElement>();
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
+  const isTracked = useRef(false);
   const { trackEvent } = useContext(AnalyticsContext);
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -172,6 +180,23 @@ export default function SubmitArticleModal({
       </Alert>
     );
   };
+
+  useEffect(() => {
+    if (
+      !isFetched ||
+      isTracked.current ||
+      isNullOrUndefined(submissionAvailability?.hasAccess)
+    ) {
+      return;
+    }
+
+    trackEvent({
+      event_name: 'start submit article',
+      feed_item_title: 'Submit article',
+      extra: JSON.stringify({ has_access: submissionAvailability.hasAccess }),
+    });
+    isTracked.current = true;
+  }, [isFetched, submissionAvailability?.hasAccess, trackEvent]);
 
   if (!isFetched) {
     return <></>;
