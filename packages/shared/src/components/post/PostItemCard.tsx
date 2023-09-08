@@ -1,7 +1,6 @@
-import React, { MouseEvent, ReactElement, useContext } from 'react';
+import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { useQueryClient } from 'react-query';
 import { HidePostItemCardProps } from '../../graphql/users';
 import { PostItem, UserPostVote } from '../../graphql/posts';
 import XIcon from '../icons/MiniClose';
@@ -17,9 +16,6 @@ import { useReadHistoryVotePost } from '../../hooks';
 import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
 import { Origin } from '../../lib/analytics';
-import { RequestKey, generateQueryKey } from '../../lib/query';
-import AuthContext from '../../contexts/AuthContext';
-import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 
 export interface PostItemCardProps {
   className?: string;
@@ -47,7 +43,6 @@ export default function PostItemCard({
   showVoteActions = false,
   analyticsOrigin = Origin.Feed,
 }: PostItemCardProps): ReactElement {
-  const { user } = useContext(AuthContext);
   const { timestampDb, post } = postItem;
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
@@ -55,14 +50,7 @@ export default function PostItemCard({
   };
   const article = post?.sharedPost ?? post;
 
-  const client = useQueryClient();
-  const readingHistory = client.getQueryData<ReadHistoryInfiniteData>(
-    generateQueryKey(RequestKey.ReadingHistory, user),
-  );
-
-  const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost({
-    data: readingHistory,
-  });
+  const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost();
 
   const classes = classNames(
     'flex relative flex-row py-3 pr-5 pl-9 w-full',
