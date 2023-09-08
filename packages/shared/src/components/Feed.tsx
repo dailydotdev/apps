@@ -193,6 +193,13 @@ export default function Feed<T>({
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
 
+  const { toggleUpvote, toggleDownvote } = useFeedVotePost({
+    feedName,
+    ranking,
+    items,
+    updatePost,
+  });
+
   if (!loadedSettings) {
     return <></>;
   }
@@ -206,15 +213,6 @@ export default function Feed<T>({
     // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCommentPopup(feedName);
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { onUpvote, onDownvote } = useFeedVotePost(
-    items,
-    updatePost,
-    virtualizedNumCards,
-    feedName,
-    ranking,
-  );
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const onBookmark = useFeedBookmarkPost(
@@ -427,8 +425,8 @@ export default function Feed<T>({
             user={user}
             feedName={feedName}
             ranking={ranking}
-            onUpvote={onUpvote}
-            onDownvote={onDownvote}
+            onUpvote={toggleUpvote}
+            onDownvote={toggleDownvote}
             onBookmark={onBookmark}
             onPostClick={onPostCardClick}
             onShare={onShareClick}

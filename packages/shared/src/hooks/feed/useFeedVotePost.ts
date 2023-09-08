@@ -1,229 +1,146 @@
-import { useContext, useEffect } from 'react';
-import { useQueryClient } from 'react-query';
 import {
+  UseVotePost,
   useVotePost,
-  cancelUpvotePostMutationKey,
-  upvotePostMutationKey,
-  downvotePostMutationKey,
-  cancelDownvotePostMutationKey,
-  mutationHandlers,
+  UseVotePostMutationProps,
+  UseVotePostProps,
+  voteMutationHandlers,
+  voteMutationMatcher,
 } from '../useVotePost';
-import { FeedItem } from '../useFeed';
-import { Post, UserPostVote } from '../../graphql/posts';
-import AuthContext from '../../contexts/AuthContext';
-import {
-  feedAnalyticsExtra,
-  optimisticPostUpdateInFeed,
-  postAnalyticsEvent,
-} from '../../lib/feed';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AuthTriggers } from '../../lib/auth';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { FeedItem, UpdateFeedPost } from '../useFeed';
+import { PostItem } from '../../graphql/posts';
+import { feedAnalyticsExtra, optimisticPostUpdateInFeed } from '../../lib/feed';
+import { Origin } from '../../lib/analytics';
+import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
 
 export type UseFeedVotePostProps = {
-  id: string;
-  index: number;
+  feedName: string;
+  ranking: string;
+  items: FeedItem[];
+  updatePost: UpdateFeedPost;
 };
 
-export type UseFeedVotePost = {
-  onUpvote: (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-  ) => Promise<void>;
-  onDownvote: (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-  ) => Promise<void>;
-  toggleVote: (
-    post: Post,
-    index: number,
-    vote: number,
-    row: number,
-    column: number,
-  ) => Promise<void>;
+export type UseFeedVotePost = UseVotePost;
+
+const mutateVoteFeedPost = ({
+  id,
+  vote,
+  items,
+  updatePost,
+}: UseVotePostMutationProps & {
+  items: FeedItem[];
+  updatePost: UpdateFeedPost;
+}): ReturnType<UseVotePostProps['onMutate']> => {
+  if (!items) {
+    return undefined;
+  }
+
+  const mutationHandler = voteMutationHandlers[vote];
+
+  if (!mutationHandler) {
+    return undefined;
+  }
+
+  const postIndexToUpdate = items.findIndex(
+    (item) => item.type === 'post' && item.post.id === id,
+  );
+
+  if (postIndexToUpdate === -1) {
+    return undefined;
+  }
+
+  const previousVote = (items[postIndexToUpdate] as PostItem)?.post?.userState
+    ?.vote;
+
+  optimisticPostUpdateInFeed(
+    items,
+    updatePost,
+    mutationHandler,
+  )({ index: postIndexToUpdate });
+
+  return () => {
+    const postIndexToRollback = items.findIndex(
+      (item) => item.type === 'post' && item.post.id === id,
+    );
+
+    if (postIndexToRollback === -1) {
+      return;
+    }
+
+    const rollbackMutationHandler = voteMutationHandlers[previousVote];
+
+    if (!rollbackMutationHandler) {
+      return;
+    }
+
+    optimisticPostUpdateInFeed(
+      items,
+      updatePost,
+      rollbackMutationHandler,
+    )({ index: postIndexToUpdate });
+  };
 };
 
-const upvotePostKey = upvotePostMutationKey.toString();
-const cancelUpvotePostKey = cancelUpvotePostMutationKey.toString();
-const downvotePostKey = downvotePostMutationKey.toString();
-const cancelDownvotePostKey = cancelDownvotePostMutationKey.toString();
-const mutationKeyToHandlerMap = {
-  [upvotePostKey]: mutationHandlers.upvote,
-  [cancelUpvotePostKey]: mutationHandlers.cancelUpvote,
-  [downvotePostKey]: mutationHandlers.downvote,
-  [cancelDownvotePostKey]: mutationHandlers.cancelDownvote,
-};
+export default function useFeedVotePost({
+  feedName,
+  ranking,
+  items,
+  updatePost,
+}: UseFeedVotePostProps): UseFeedVotePost {
+  useMutationSubscription({
+    matcher: voteMutationMatcher,
+    callback: ({ mutation }) => {
+      const mutationVariables = mutation.options
+        .variables as unknown as UseVotePostMutationProps;
 
-export default function useFeedVotePost(
-  items: FeedItem[],
-  updatePost: (page: number, index: number, post: Post) => void,
-  columns?: number,
-  feedName?: string,
-  ranking?: string,
-): UseFeedVotePost {
-  const queryClient = useQueryClient();
-  const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+      if (!mutationVariables || !items) {
+        return;
+      }
 
-  const { upvotePost, cancelPostUpvote, downvotePost, cancelPostDownvote } =
-    useVotePost<UseFeedVotePostProps>({
-      onUpvotePostMutate: optimisticPostUpdateInFeed(
+      mutateVoteFeedPost({
+        ...mutationVariables,
         items,
         updatePost,
-        mutationHandlers.upvote,
-      ),
-      onCancelPostUpvoteMutate: optimisticPostUpdateInFeed(
+      });
+    },
+  });
+
+  const { toggleUpvote, toggleDownvote, ...restVotePost } = useVotePost({
+    variables: { feedName },
+    onMutate: ({ id, vote }) => {
+      return mutateVoteFeedPost({
+        id,
+        vote,
         items,
         updatePost,
-        mutationHandlers.cancelUpvote,
-      ),
-      onDownvotePostMutate: optimisticPostUpdateInFeed(
-        items,
-        updatePost,
-        mutationHandlers.downvote,
-      ),
-      onCancelPostDownvoteMutate: optimisticPostUpdateInFeed(
-        items,
-        updatePost,
-        mutationHandlers.cancelDownvote,
-      ),
-    });
-
-  useEffect(() => {
-    const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
-      if (event.state.status !== 'success') {
-        return;
-      }
-
-      const mutationKey = event.options.mutationKey?.toString();
-
-      const mutationHandler = mutationKeyToHandlerMap[mutationKey];
-
-      if (!mutationHandler) {
-        return;
-      }
-
-      const variables = event.options
-        .variables as unknown as UseFeedVotePostProps;
-
-      if (!variables) {
-        return;
-      }
-
-      const { id, index: indexFromEvent } = variables;
-
-      const mutationFromFeedHook = typeof indexFromEvent !== 'undefined';
-
-      if (mutationFromFeedHook) {
-        return;
-      }
-
-      const index = items.findIndex(
-        (item) => item.type === 'post' && item.post.id === id,
-      );
-
-      if (index === -1) {
-        return;
-      }
-
-      optimisticPostUpdateInFeed(items, updatePost, mutationHandler)({ index });
-    });
-
-    return () => {
-      unsubscribe();
-    };
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, updatePost]);
+      });
+    },
+  });
 
   return {
-    onUpvote: async (post, index, row, column): Promise<void> => {
-      if (!user) {
-        showLogin(AuthTriggers.Upvote);
-        return;
-      }
+    ...restVotePost,
+    toggleUpvote: ({ post, origin, opts }) => {
+      const analyticsExtra = feedAnalyticsExtra(feedName, ranking);
 
-      if (post.userState?.vote === UserPostVote.Up) {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
-            columns,
-            column,
-            row,
-            ...feedAnalyticsExtra(feedName, ranking),
-          }),
-        );
-        await upvotePost({ id: post.id, index });
-      } else {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
-            columns,
-            column,
-            row,
-            ...feedAnalyticsExtra(feedName, ranking),
-          }),
-        );
-        await cancelPostUpvote({ id: post.id, index });
-      }
+      return toggleUpvote({
+        post,
+        origin: origin || (analyticsExtra.extra.origin as Origin),
+        opts: {
+          ...opts,
+          ...analyticsExtra,
+        },
+      });
     },
-    onDownvote: async (post, index, row, column): Promise<void> => {
-      if (!user) {
-        showLogin(AuthTriggers.Downvote);
-        return;
-      }
+    toggleDownvote: ({ post, origin, opts }) => {
+      const analyticsExtra = feedAnalyticsExtra(feedName, ranking);
 
-      if (post.userState?.vote === UserPostVote.Down) {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
-            columns,
-            column,
-            row,
-            ...feedAnalyticsExtra(feedName, ranking),
-          }),
-        );
-        await downvotePost({ id: post.id, index });
-      } else {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
-            columns,
-            column,
-            row,
-            ...feedAnalyticsExtra(feedName, ranking),
-          }),
-        );
-        await cancelPostDownvote({ id: post.id, index });
-      }
-    },
-    toggleVote: async (post, index, row, column): Promise<void> => {
-      if (!user) {
-        showLogin(AuthTriggers.Upvote);
-        return;
-      }
-
-      if (post.userState?.vote === UserPostVote.Up) {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
-            columns,
-            column,
-            row,
-            ...feedAnalyticsExtra(feedName, ranking),
-          }),
-        );
-        await upvotePost({ id: post.id, index });
-      } else {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
-            columns,
-            column,
-            row,
-            ...feedAnalyticsExtra(feedName, ranking),
-          }),
-        );
-        await cancelPostUpvote({ id: post.id, index });
-      }
+      return toggleDownvote({
+        post,
+        origin: origin || (analyticsExtra.extra.origin as Origin),
+        opts: {
+          ...opts,
+          ...analyticsExtra,
+        },
+      });
     },
   };
 }

@@ -1,6 +1,7 @@
-import React, { MouseEvent, ReactElement } from 'react';
+import React, { MouseEvent, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useQueryClient } from 'react-query';
 import { HidePostItemCardProps } from '../../graphql/users';
 import { PostItem, UserPostVote } from '../../graphql/posts';
 import XIcon from '../icons/MiniClose';
@@ -12,10 +13,13 @@ import { ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinary } from '../../lib/image';
-import { mutationHandlers, usePostFeedback, useVotePost } from '../../hooks';
+import { useReadHistoryVotePost } from '../../hooks';
 import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
-import useUpdatePost from '../../hooks/useUpdatePost';
+import { Origin } from '../../lib/analytics';
+import { RequestKey, generateQueryKey } from '../../lib/query';
+import AuthContext from '../../contexts/AuthContext';
+import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 
 export interface PostItemCardProps {
   className?: string;
@@ -24,7 +28,8 @@ export interface PostItemCardProps {
   clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   onContextMenu?: (event: React.MouseEvent, post: PostItem) => void;
-  isFeedbackEnabled?: boolean;
+  showVoteActions?: boolean;
+  analyticsOrigin?: Origin;
 }
 
 const SourceShadow = classed(
@@ -39,43 +44,29 @@ export default function PostItemCard({
   onHide,
   className,
   onContextMenu,
+  showVoteActions = false,
+  analyticsOrigin = Origin.Feed,
 }: PostItemCardProps): ReactElement {
+  const { user } = useContext(AuthContext);
   const { timestampDb, post } = postItem;
-  const { isFeedbackEnabled } = usePostFeedback({ post });
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
   };
   const article = post?.sharedPost ?? post;
-  const { updatePost } = useUpdatePost();
 
-  const onUpvotePostMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.upvote(post),
-  });
-  const onCancelPostUpvoteMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.cancelUpvote(post),
-  });
-  const onDownvotePostMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.downvote(post),
-  });
-  const onCancelPostDownvoteMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.cancelDownvote(post),
-  });
+  const client = useQueryClient();
+  const readingHistory = client.getQueryData<ReadHistoryInfiniteData>(
+    generateQueryKey(RequestKey.ReadingHistory, user),
+  );
 
-  const { toggleUpvote, toggleDownvote } = useVotePost({
-    onUpvotePostMutate,
-    onCancelPostUpvoteMutate,
-    onDownvotePostMutate,
-    onCancelPostDownvoteMutate,
+  const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost({
+    data: readingHistory,
   });
 
   const classes = classNames(
     'flex relative flex-row py-3 pr-5 pl-9 w-full',
-    isFeedbackEnabled ? 'items-start tablet:items-center' : 'items-center',
+    showVoteActions ? 'items-start tablet:items-center' : 'items-center',
     clickable && 'hover:bg-theme-hover hover:cursor-pointer',
     className,
   );
@@ -100,13 +91,13 @@ export default function PostItemCard({
             loading="lazy"
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
-          <SourceShadow className={classNames(isFeedbackEnabled && 'top-8')} />
+          <SourceShadow className={classNames(showVoteActions && 'top-8')} />
           <ProfilePicture
             size="small"
             rounded="full"
             className={classNames(
               'absolute left-6',
-              isFeedbackEnabled && 'top-8',
+              showVoteActions && 'top-8',
             )}
             user={{
               image: post.source.image,
@@ -117,7 +108,7 @@ export default function PostItemCard({
           <div
             className={classNames(
               'flex-1 flex',
-              isFeedbackEnabled ? 'flex-col tablet:flex-row' : 'items-center',
+              showVoteActions ? 'flex-col tablet:flex-row' : 'items-center',
             )}
           >
             <div className="flex flex-col flex-1 ml-4">
@@ -130,17 +121,17 @@ export default function PostItemCard({
               />
             </div>
             <div className="flex ml-4 tablet:ml-0">
-              {showButtons && isFeedbackEnabled && (
+              {showButtons && showVoteActions && (
                 <>
                   <Button
                     buttonSize={ButtonSize.Small}
                     className={classNames(
                       'btn-tertiary',
-                      isFeedbackEnabled ? 'flex' : 'hidden laptop:flex',
+                      showVoteActions ? 'flex' : 'hidden laptop:flex',
                     )}
                     onClick={(e) => {
                       e.preventDefault();
-                      toggleUpvote(post);
+                      toggleUpvote({ post, origin: analyticsOrigin });
                     }}
                     icon={
                       <UpvoteIcon
@@ -152,11 +143,11 @@ export default function PostItemCard({
                     buttonSize={ButtonSize.Small}
                     className={classNames(
                       'btn-tertiary',
-                      isFeedbackEnabled ? 'flex' : 'hidden laptop:flex',
+                      showVoteActions ? 'flex' : 'hidden laptop:flex',
                     )}
                     onClick={(e) => {
                       e.preventDefault();
-                      toggleDownvote(post);
+                      toggleDownvote({ post, origin: analyticsOrigin });
                     }}
                     icon={
                       <DownvoteIcon
@@ -166,7 +157,7 @@ export default function PostItemCard({
                   />
                 </>
               )}
-              {showButtons && !isFeedbackEnabled && onHide && (
+              {showButtons && !showVoteActions && onHide && (
                 <Button
                   buttonSize={ButtonSize.Small}
                   className="hidden laptop:flex btn-tertiary"

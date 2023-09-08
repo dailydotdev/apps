@@ -4,8 +4,8 @@ import DownvoteIcon from '../icons/Downvote';
 import MiniCloseIcon from '../icons/MiniClose';
 import UpvoteIcon from '../icons/Upvote';
 import { Post, UserPostVote } from '../../graphql/posts';
-import { usePostFeedback, useVotePost, mutationHandlers } from '../../hooks';
-import useUpdatePost from '../../hooks/useUpdatePost';
+import { usePostFeedback, useVotePost } from '../../hooks';
+import { Origin } from '../../lib/analytics';
 
 interface FeedbackCardProps {
   post: Post;
@@ -13,31 +13,8 @@ interface FeedbackCardProps {
 
 export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
-  const { updatePost } = useUpdatePost();
 
-  const onUpvotePostMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.upvote(post),
-  });
-  const onCancelPostUpvoteMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.cancelUpvote(post),
-  });
-  const onDownvotePostMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.downvote(post),
-  });
-  const onCancelPostDownvoteMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.cancelDownvote(post),
-  });
-
-  const { toggleUpvote, toggleDownvote } = useVotePost({
-    onUpvotePostMutate,
-    onCancelPostUpvoteMutate,
-    onDownvotePostMutate,
-    onCancelPostDownvoteMutate,
-  });
+  const { toggleUpvote, toggleDownvote } = useVotePost();
 
   return (
     <div className="flex-1 p-6 space-y-4">
@@ -55,7 +32,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
         <Button
           id="upvote-post-btn"
           pressed={post?.userState?.vote === UserPostVote.Up}
-          onClick={() => toggleUpvote(post)}
+          onClick={() => toggleUpvote({ post, origin: Origin.Feed })}
           icon={
             <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
           }
@@ -65,7 +42,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
         <Button
           id="downvote-post-btn"
           pressed={post?.userState?.vote === UserPostVote.Down}
-          onClick={() => toggleDownvote(post)}
+          onClick={() => toggleDownvote({ post, origin: Origin.Feed })}
           icon={
             <DownvoteIcon
               secondary={post?.userState?.vote === UserPostVote.Down}

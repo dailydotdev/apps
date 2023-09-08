@@ -86,12 +86,15 @@ export interface FeedItemPosition {
   column?: number;
   row?: number;
 }
+
+export type PostAnalyticsEventFnOptions = FeedItemPosition & {
+  extra?: Record<string, unknown>;
+};
+
 export function postAnalyticsEvent(
   eventName: string,
   post: Post | ReadHistoryPost | PostBootData,
-  opts?: FeedItemPosition & {
-    extra?: Record<string, unknown>;
-  },
+  opts?: PostAnalyticsEventFnOptions,
 ): PostItemAnalyticsEvent {
   return {
     event_name: eventName,

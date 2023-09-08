@@ -14,6 +14,8 @@ import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
+import { Origin } from '../lib/analytics';
+import { UseVotePost } from '../hooks';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -42,20 +44,8 @@ export type FeedItemComponentProps = {
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
-  onUpvote: (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-    upvoted: boolean,
-  ) => Promise<void>;
-  onDownvote: (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-    upvoted: boolean,
-  ) => Promise<void>;
+  onUpvote: UseVotePost['toggleUpvote'];
+  onDownvote: UseVotePost['toggleDownvote'];
   onBookmark: (
     post: Post,
     index: number,
@@ -163,8 +153,28 @@ export default function FeedItemComponent({
             ...item.post,
           }}
           data-testid="postItem"
-          onUpvoteClick={(post) => onUpvote(post, index, row, column)}
-          onDownvoteClick={(post) => onDownvote(post, index, row, column)}
+          onUpvoteClick={(post) => {
+            onUpvote({
+              post,
+              origin: Origin.Feed,
+              opts: {
+                columns,
+                column,
+                row,
+              },
+            });
+          }}
+          onDownvoteClick={(post) => {
+            onDownvote({
+              post,
+              origin: Origin.Feed,
+              opts: {
+                columns,
+                column,
+                row,
+              },
+            });
+          }}
           onPostClick={(post) => onPostClick(post, index, row, column)}
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)

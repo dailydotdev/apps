@@ -1,67 +1,80 @@
-import { useMutation } from 'react-query';
-import { useContext } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
+import { useCallback, useContext } from 'react';
 import { graphqlUrl } from '../lib/config';
 import {
   Post,
+  PostData,
   ReadHistoryPost,
   UserPostVote,
   VOTE_POST_MUTATION,
 } from '../graphql/posts';
-import { MutateFunc } from '../lib/query';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../lib/feed';
+import { PostAnalyticsEventFnOptions, postAnalyticsEvent } from '../lib/feed';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { AuthTriggers } from '../lib/auth';
+import {
+  getPostByIdKey,
+  updatePostCache as updateSinglePostCache,
+} from './usePostById';
+import { UseMutationMatcher } from './mutationSubscription/types';
 
-export type UseVotePostProps<T> = {
-  onUpvotePostMutate?: MutateFunc<T>;
-  onCancelPostUpvoteMutate?: MutateFunc<T>;
-  onDownvotePostMutate?: MutateFunc<T>;
-  onCancelPostDownvoteMutate?: MutateFunc<T>;
-  toggleUpvote?: (post: Post | ReadHistoryPost) => MutateFunc<T>;
-  toggleDownvote?: (post: Post | ReadHistoryPost) => MutateFunc<T>;
-};
-export type UseVotePost<T> = {
-  upvotePost: (variables: T) => Promise<void>;
-  cancelPostUpvote: (variables: T) => Promise<void>;
-  downvotePost: (variables: T) => Promise<void>;
-  cancelPostDownvote: (variables: T) => Promise<void>;
-  toggleUpvote: (post: Post | ReadHistoryPost) => Promise<void>;
-  toggleDownvote: (post: Post | ReadHistoryPost) => Promise<void>;
+export type ToggleVoteProps = {
+  origin: Origin;
+  post: Post | ReadHistoryPost;
+  opts?: PostAnalyticsEventFnOptions;
 };
 
-export const upvotePostMutationKey = ['post', 'mutation', 'upvote'];
-export const cancelUpvotePostMutationKey = ['post', 'mutation', 'cancelUpvote'];
-export const downvotePostMutationKey = ['post', 'mutation', 'downvote'];
-export const cancelDownvotePostMutationKey = [
-  'post',
-  'mutation',
-  'cancelDownvote',
-];
+export type VoteProps = {
+  id: string;
+};
 
-export const mutationHandlers: Record<
-  'upvote' | 'cancelUpvote' | 'downvote' | 'cancelDownvote',
+export type UseVotePost = {
+  upvotePost: (props: VoteProps) => Promise<void>;
+  downvotePost: (props: VoteProps) => Promise<void>;
+  cancelPostVote: (props: VoteProps) => Promise<void>;
+  toggleUpvote: (props: ToggleVoteProps) => Promise<void>;
+  toggleDownvote: (props: ToggleVoteProps) => Promise<void>;
+};
+
+export type UseVotePostMutationProps = {
+  id: string;
+  vote: UserPostVote;
+};
+
+export type UseVotePostRollback = () => void;
+
+export type UseVotePostProps = {
+  onMutate?: (
+    props: UseVotePostMutationProps,
+  ) => UseVotePostRollback | undefined;
+  variables?: unknown;
+};
+
+export const upvoteMutationKey = ['post', 'mutation'];
+
+export const voteMutationMatcher: UseMutationMatcher = ({ mutation }) => {
+  return (
+    mutation.state.status === 'success' &&
+    mutation.options.mutationKey?.toString() === upvoteMutationKey.toString()
+  );
+};
+
+export const voteMutationHandlers: Record<
+  UserPostVote,
   (post: Post | ReadHistoryPost) => Partial<Post>
 > = {
-  upvote: (post) => ({
+  [UserPostVote.Up]: (post) => ({
     numUpvotes: post.numUpvotes + 1,
     userState: {
       ...post?.userState,
       vote: UserPostVote.Up,
     },
   }),
-  cancelUpvote: (post) => ({
-    numUpvotes: post.numUpvotes - 1,
-    userState: {
-      ...post?.userState,
-      vote: UserPostVote.None,
-    },
-  }),
-  downvote: (post) => ({
+  [UserPostVote.Down]: (post) => ({
     numUpvotes:
-      post?.userState?.vote === UserPostVote.Down
+      post?.userState?.vote === UserPostVote.Up
         ? post.numUpvotes - 1
         : post.numUpvotes,
     userState: {
@@ -69,7 +82,11 @@ export const mutationHandlers: Record<
       vote: UserPostVote.Down,
     },
   }),
-  cancelDownvote: (post) => ({
+  [UserPostVote.None]: (post) => ({
+    numUpvotes:
+      post.userState?.vote === UserPostVote.Up
+        ? post.numUpvotes - 1
+        : post.numUpvotes,
     userState: {
       ...post?.userState,
       vote: UserPostVote.None,
@@ -77,151 +94,149 @@ export const mutationHandlers: Record<
   }),
 };
 
-const useVotePost = <T extends { id: string } = { id: string }>({
-  onUpvotePostMutate,
-  onCancelPostUpvoteMutate,
-  onDownvotePostMutate,
-  onCancelPostDownvoteMutate,
-}: UseVotePostProps<T> = {}): UseVotePost<T> => {
+const useVotePost = ({
+  onMutate,
+  variables,
+}: UseVotePostProps = {}): UseVotePost => {
   const { requestMethod } = useRequestProtocol();
+  const client = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { mutateAsync: upvotePost } = useMutation<
-    void,
-    unknown,
-    T,
-    (() => void) | undefined
-  >(
-    ({ id }) =>
-      requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
-        id,
-        vote: UserPostVote.Up,
-      }),
-    {
-      mutationKey: upvotePostMutationKey,
-      onMutate: onUpvotePostMutate,
-      onError: (err, _, rollback) => rollback?.(),
-    },
-  );
+  const defaultOnMutate = ({ id, vote }) => {
+    const mutationHandler = voteMutationHandlers[vote];
 
-  const { mutateAsync: cancelPostUpvote } = useMutation<
-    void,
-    unknown,
-    T,
-    (() => void) | undefined
-  >(
-    ({ id }) =>
-      requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
-        id,
-        vote: UserPostVote.None,
-      }),
-    {
-      mutationKey: cancelUpvotePostMutationKey,
-      onMutate: onCancelPostUpvoteMutate,
-      onError: (err, _, rollback) => rollback?.(),
-    },
-  );
-
-  const { mutateAsync: downvotePost } = useMutation<
-    void,
-    unknown,
-    T,
-    (() => void) | undefined
-  >(
-    ({ id }) =>
-      requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
-        id,
-        vote: UserPostVote.Down,
-      }),
-    {
-      mutationKey: downvotePostMutationKey,
-      onMutate: onDownvotePostMutate,
-      onError: (err, _, rollback) => rollback?.(),
-    },
-  );
-
-  const { mutateAsync: cancelPostDownvote } = useMutation<
-    void,
-    unknown,
-    T,
-    (() => void) | undefined
-  >(
-    ({ id }) =>
-      requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
-        id,
-        vote: UserPostVote.None,
-      }),
-    {
-      mutationKey: cancelDownvotePostMutationKey,
-      onMutate: onCancelPostDownvoteMutate,
-      onError: (err, _, rollback) => rollback?.(),
-    },
-  );
-
-  const toggleUpvote = (post) => {
-    if (!post) {
-      return;
+    if (!mutationHandler) {
+      return undefined;
     }
 
-    if (!user) {
-      return showLogin(AuthTriggers.Upvote);
-    }
+    const previousVote = client.getQueryData<PostData>(getPostByIdKey(id))?.post
+      ?.userState?.vote;
+    updateSinglePostCache(client, id, mutationHandler);
 
-    if (post?.userState?.vote === UserPostVote.Up) {
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
-          extra: { origin: Origin.EngagementLoopVote },
-        }),
-      );
-      return cancelPostUpvote({ id: post.id });
-    }
-    if (post) {
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
-          extra: { origin: Origin.EngagementLoopVote },
-        }),
-      );
-      return upvotePost({ id: post.id });
-    }
+    return () => {
+      const rollbackMutationHandler = voteMutationHandlers[previousVote];
 
-    return undefined;
+      if (!rollbackMutationHandler) {
+        return;
+      }
+
+      updateSinglePostCache(client, id, rollbackMutationHandler);
+    };
   };
 
-  const toggleDownvote = (post) => {
-    if (!post) {
-      return;
-    }
+  const { mutateAsync: votePost, isLoading } = useMutation(
+    ({ id, vote }: UseVotePostMutationProps) => {
+      return requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
+        id,
+        vote,
+      });
+    },
+    {
+      mutationKey: variables
+        ? [...upvoteMutationKey, variables]
+        : upvoteMutationKey,
+      onMutate: onMutate ?? defaultOnMutate,
+      onError: (err, _, rollback?: () => void) => rollback?.(),
+    },
+  );
 
-    if (!user) {
-      showLogin(AuthTriggers.Downvote);
+  const upvotePost = useCallback(
+    ({ id }: VoteProps) => {
+      return votePost({ id, vote: UserPostVote.Up });
+    },
+    [votePost],
+  );
+  const downvotePost = useCallback(
+    ({ id }: VoteProps) => {
+      return votePost({ id, vote: UserPostVote.Down });
+    },
+    [votePost],
+  );
+  const cancelPostVote = useCallback(
+    ({ id }: VoteProps) => {
+      return votePost({ id, vote: UserPostVote.None });
+    },
+    [votePost],
+  );
 
-      return;
-    }
+  const toggleUpvote = useCallback(
+    async ({ post, origin, opts }: ToggleVoteProps) => {
+      if (!post || isLoading) {
+        return;
+      }
 
-    if (post?.userState?.vote === UserPostVote.Down) {
+      if (!user) {
+        showLogin(AuthTriggers.Upvote);
+
+        return;
+      }
+
+      if (post?.userState?.vote === UserPostVote.Up) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
+            ...opts,
+            extra: { ...opts?.extra, origin },
+          }),
+        );
+
+        await cancelPostVote({ id: post.id });
+
+        return;
+      }
+
       trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
-          extra: { origin: Origin.EngagementLoopVote },
+        postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
+          ...opts,
+          extra: { ...opts?.extra, origin },
         }),
       );
 
-      cancelPostDownvote({ id: post.id });
-    } else {
+      await upvotePost({ id: post.id });
+    },
+    [cancelPostVote, showLogin, trackEvent, upvotePost, user, isLoading],
+  );
+
+  const toggleDownvote = useCallback(
+    async ({ post, origin, opts }: ToggleVoteProps) => {
+      if (!post || isLoading) {
+        return;
+      }
+
+      if (!user) {
+        showLogin(AuthTriggers.Downvote);
+
+        return;
+      }
+
+      if (post?.userState?.vote === UserPostVote.Down) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
+            ...opts,
+            extra: { ...opts?.extra, origin },
+          }),
+        );
+
+        await cancelPostVote({ id: post.id });
+
+        return;
+      }
+
       trackEvent(
         postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
-          extra: { origin: Origin.EngagementLoopVote },
+          ...opts,
+          extra: { ...opts?.extra, origin },
         }),
       );
 
       downvotePost({ id: post.id });
-    }
-  };
+    },
+    [cancelPostVote, downvotePost, showLogin, trackEvent, user, isLoading],
+  );
 
   return {
     upvotePost,
-    cancelPostUpvote,
     downvotePost,
-    cancelPostDownvote,
+    cancelPostVote,
     toggleUpvote,
     toggleDownvote,
   };

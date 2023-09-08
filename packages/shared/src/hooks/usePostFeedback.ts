@@ -22,17 +22,16 @@ interface UsePostFeedback {
 
 export const usePostFeedback = ({
   post,
-}: UsePostFeedbackProps): UsePostFeedback => {
+}: UsePostFeedbackProps = {}): UsePostFeedback => {
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
 
-  const isFeatureEnabled = useFeatureIsOn(
+  const isFeedbackEnabled = useFeatureIsOn(
     Features.EngagementLoopJuly2023Upvote.id,
   );
   const isMyFeed = useMemo(() => {
     return feedQueryKey?.some((item) => item === MainFeedPage.MyFeed);
   }, [feedQueryKey]);
-  const isFeedbackEnabled = isFeatureEnabled && isMyFeed;
 
   const dismissFeedbackMutation = useMutation(
     () => dismissPostFeedback(post.id),
@@ -77,12 +76,10 @@ export const usePostFeedback = ({
     },
   );
 
-  const showFeedback = useMemo(() => {
-    if (!isFeedbackEnabled) {
-      return false;
-    }
+  const shouldShowFeedback = isFeedbackEnabled && isMyFeed && !!post?.read;
 
-    if (!post?.read) {
+  const showFeedback = useMemo(() => {
+    if (!shouldShowFeedback) {
       return false;
     }
 
@@ -90,7 +87,7 @@ export const usePostFeedback = ({
       post?.userState?.flags?.feedbackDismiss === true;
 
     return !isFeedbackDismissed;
-  }, [post, isFeedbackEnabled]);
+  }, [post?.userState?.flags?.feedbackDismiss, shouldShowFeedback]);
 
   return {
     showFeedback,

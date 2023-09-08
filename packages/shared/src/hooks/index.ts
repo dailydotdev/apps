@@ -9,3 +9,5 @@ export * from './useJoinReferral';
 export * from './chat';
 export * from './useExtensionPermission';
 export * from './usePostFeedback';
+export * from './mutationSubscription';
+export * from './useReadHistoryVotePost';
