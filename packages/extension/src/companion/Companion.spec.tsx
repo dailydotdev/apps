@@ -7,6 +7,7 @@ import {
   screen,
 } from '@testing-library/preact';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
 import App from './App';
 
 jest.mock('content-scripts-register-polyfill', () => ({}));
@@ -53,6 +54,9 @@ const defaultPostData = {
   trending: true,
   upvoted: true,
   downvoted: false,
+  userState: {
+    vote: UserPostVote.Up,
+  },
 };
 
 const renderComponent = (postdata, settings): RenderResult => {
@@ -111,7 +115,14 @@ describe('companion app', () => {
   });
 
   it('should show upvoted icon unselected', async () => {
-    renderComponent({ upvoted: false }, {});
+    renderComponent(
+      {
+        userState: {
+          vote: UserPostVote.None,
+        },
+      },
+      {},
+    );
     await screen.findByTestId('companion');
     const button = await screen.findByLabelText('Upvote');
     expect(button).toHaveAttribute('aria-pressed', 'false');
@@ -165,7 +176,14 @@ describe('companion app', () => {
   });
 
   it('should show downvoted icon unselected', async () => {
-    renderComponent({ downvoted: false, upvoted: true }, {});
+    renderComponent(
+      {
+        userState: {
+          vote: UserPostVote.Up,
+        },
+      },
+      {},
+    );
     await screen.findByTestId('companion');
     const optionsButton = await screen.findByLabelText('More options');
     fireEvent.click(optionsButton);
@@ -175,7 +193,14 @@ describe('companion app', () => {
   });
 
   it('should show downvoted icon selected', async () => {
-    renderComponent({ downvoted: true, upvoted: false }, {});
+    renderComponent(
+      {
+        userState: {
+          vote: UserPostVote.Down,
+        },
+      },
+      {},
+    );
     await screen.findByTestId('companion');
     const optionsButton = await screen.findByLabelText('More options');
     fireEvent.click(optionsButton);
@@ -185,7 +210,15 @@ describe('companion app', () => {
   });
 
   it('should decrement number of upvotes if downvoting post that was upvoted', async () => {
-    renderComponent({ downvoted: false, upvoted: true, numUpvotes: 6 }, {});
+    renderComponent(
+      {
+        userState: {
+          vote: UserPostVote.Up,
+        },
+        numUpvotes: 6,
+      },
+      {},
+    );
     await screen.findByTestId('companion');
     const optionsButton = await screen.findByLabelText('More options');
     fireEvent.click(optionsButton);
