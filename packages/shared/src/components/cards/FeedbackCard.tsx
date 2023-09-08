@@ -60,7 +60,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
             <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
           }
           aria-label="Upvote"
-          className="btn-secondary"
+          className="btn-secondary btn-secondary-avocado"
         />
         <Button
           id="downvote-post-btn"
@@ -72,7 +72,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
             />
           }
           aria-label="Downvote"
-          className="btn-secondary"
+          className="btn-secondary btn-secondary-ketchup"
         />
       </div>
     </div>
