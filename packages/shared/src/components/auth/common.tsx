@@ -13,7 +13,7 @@ export interface Provider {
   provider: string;
 }
 
-enum SocialProvider {
+export enum SocialProvider {
   // Twitter = 'twitter',
   Facebook = 'facebook',
   Google = 'google',

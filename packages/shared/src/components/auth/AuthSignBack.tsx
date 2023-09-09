@@ -1,66 +1,88 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
-import { storageWrapper as storage } from '../../lib/storageWrapper';
+import React, { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthFormProps, Provider, providerMap } from './common';
-import OrDivider from './OrDivider';
+import { AuthFormProps, providerMap } from './common';
 import AuthModalFooter from './AuthModalFooter';
 import AuthContainer from './AuthContainer';
-import { Button } from '../buttons/Button';
+import { useSignBack } from '../../hooks/auth/useSignBack';
+import { ProfilePicture } from '../ProfilePicture';
+import { SignBackButton } from './SignBackButton';
+import LoginForm, { LoginFormProps } from './LoginForm';
+import { Modal } from '../modals/common/Modal';
+import { ClickableText } from '../buttons/ClickableText';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;
   onRegister?: () => void;
   onProviderClick?: (provider: string) => unknown;
+  loginFormProps?: LoginFormProps;
+  onShowLoginOptions?: MouseEventHandler;
 }
 
-const providers = Object.values(providerMap);
-
-export const SIGNIN_METHOD_KEY = 'signin_method';
-
 export const AuthSignBack = ({
-  children,
+  loginFormProps,
   onRegister,
   onProviderClick,
   simplified,
+  onShowLoginOptions,
 }: AuthSignBackProps): ReactElement => {
-  const signback = useMemo<Provider>(() => {
-    const method = storage.getItem(SIGNIN_METHOD_KEY);
-    storage.removeItem(SIGNIN_METHOD_KEY);
-    const provider = providerMap[method];
-    return provider || providerMap.google;
-  }, []);
+  const { signBack, provider, isLoaded } = useSignBack();
+  const providerItem = providerMap[provider.toLowerCase()];
+
+  if (!isLoaded || !providerItem || !signBack) {
+    return null;
+  }
 
   return (
     <span className="flex flex-col flex-1">
-      {!simplified && <AuthModalHeader title="Login to daily.dev" />}
-      <AuthContainer>
-        <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
-          Sign back in with
+      {!simplified && <AuthModalHeader title="Welcome back!" />}
+      <AuthContainer className="items-center">
+        <p className="mb-2 text-center typo-callout text-theme-label-secondary">
+          Log in to access your account
         </p>
-        <Button
-          icon={signback.icon}
-          onClick={() => onProviderClick?.(signback.provider)}
+        <ConditionalWrapper
+          condition={provider !== 'password'}
+          wrapper={(component) => (
+            <div className="relative">
+              {component}
+              <span className="absolute right-0 bottom-0 p-1 bg-white rounded-8">
+                {providerItem.icon}
+              </span>
+            </div>
+          )}
         >
-          {signback.provider}
-        </Button>
-        <OrDivider />
-        <div className="flex flex-row gap-3 justify-center">
-          {providers
-            .filter(({ provider }) => provider !== signback.provider)
-            .map(({ provider, icon }) => (
-              <Button
-                key={provider}
-                icon={icon}
-                onClick={() => onProviderClick?.(provider)}
-              >
-                {provider}
-              </Button>
-            ))}
-        </div>
-        {children}
+          <ProfilePicture user={signBack} size="xxxxlarge" />
+        </ConditionalWrapper>
+        <span className="mt-1 mb-5 font-bold typo-center">
+          {signBack.email}
+        </span>
+        {provider === 'password' ? (
+          <LoginForm {...loginFormProps} />
+        ) : (
+          <SignBackButton
+            signBack={signBack}
+            provider={provider}
+            onClick={() => onProviderClick(provider)}
+          />
+        )}
+        <div className="flex flex-1" />
+        <AuthModalFooter
+          className="flex-col mt-4 !h-[unset]"
+          isLogin
+          onIsLogin={onRegister}
+        >
+          <span className="flex flex-row mt-3 mb-6">
+            <Modal.Text>Not you?</Modal.Text>
+            <ClickableText
+              className="ml-1 !text-theme-label-primary"
+              onClick={onShowLoginOptions}
+              inverseUnderline
+            >
+              Use another account
+            </ClickableText>
+          </span>
+        </AuthModalFooter>
       </AuthContainer>
-      <div className="flex flex-1" />
-      <AuthModalFooter className="mt-4" isLogin onIsLogin={onRegister} />
     </span>
   );
 };

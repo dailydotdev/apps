@@ -31,6 +31,7 @@ export enum RequestKey {
   ContextMenu = 'context_menu',
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
+  Auth = 'auth',
 }
 
 export type HasConnection<

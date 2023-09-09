@@ -10,7 +10,7 @@ import MailIcon from '../icons/Mail';
 import AuthForm from './AuthForm';
 import { IconSize } from '../Icon';
 
-interface LoginFormProps {
+export interface LoginFormProps {
   onForgotPassword?: () => unknown;
   onPasswordLogin?: (params: LoginFormParams) => void;
   email?: string;

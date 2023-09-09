@@ -9,6 +9,9 @@ import classNames from 'classnames';
 import { IconProps, IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
+import ConditionalWrapper, {
+  ConditionalWrapperProps,
+} from '../ConditionalWrapper';
 
 export enum ButtonSize {
   XXSmall = 'xxsmall',
@@ -35,6 +38,12 @@ export interface StyledButtonProps {
 
 export type IconType = React.ReactElement<IconProps>;
 
+interface ClassName {
+  span?: string;
+  leftIcon?: string;
+  rightIcon?: string;
+}
+
 export interface BaseButtonProps {
   buttonSize?: ButtonSize;
   loading?: boolean;
@@ -48,13 +57,21 @@ export interface BaseButtonProps {
   position?: string;
   disabled?: boolean;
   spanClassName?: string;
+  rightIconWrapper?: Omit<ConditionalWrapperProps, 'children'>;
 }
 
-const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
-  return (icon: React.ReactElement<IconProps>) =>
+export const useGetIconWithSize = (
+  size: ButtonSize,
+  iconOnly: boolean,
+): ((icon: React.ReactElement<IconProps>, className?: string) => ReactNode) => {
+  return (icon: React.ReactElement<IconProps>, className?: string) =>
     React.cloneElement(icon, {
       size: icon.props?.size ?? buttonSizeToIconSize[size],
-      className: classNames(icon.props.className, !iconOnly && 'icon'),
+      className: classNames(
+        icon.props.className,
+        className,
+        !iconOnly && 'icon',
+      ),
     });
 };
 
@@ -88,6 +105,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     iconOnly: showIconOnly,
     onClick,
     spanClassName,
+    rightIconWrapper,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
@@ -115,7 +133,14 @@ function ButtonComponent<TagName extends AllowedTags>(
     >
       {icon && getIconWithSize(icon)}
       {children && <span className={spanClassName}>{children}</span>}
-      {rightIcon && getIconWithSize(rightIcon)}
+      {rightIcon && rightIcon && (
+        <ConditionalWrapper
+          condition={rightIconWrapper?.condition}
+          wrapper={rightIconWrapper?.wrapper}
+        >
+          {getIconWithSize(rightIcon)}
+        </ConditionalWrapper>
+      )}
       {loading && (
         <Loader
           data-testid="buttonLoader"

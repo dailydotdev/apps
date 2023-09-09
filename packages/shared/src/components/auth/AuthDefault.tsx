@@ -7,9 +7,7 @@ import React, {
 } from 'react';
 import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
-import { storageWrapper as storage } from '../../lib/storageWrapper';
 import AuthModalFooter from './AuthModalFooter';
-import { SIGNIN_METHOD_KEY } from './AuthSignBack';
 import { AuthFormProps, Provider } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
@@ -117,7 +115,6 @@ const AuthDefault = ({
   };
 
   const onSocialClick = (provider: string) => {
-    storage.setItem(SIGNIN_METHOD_KEY, provider);
     onProviderClick?.(provider, shouldLogin);
   };
 

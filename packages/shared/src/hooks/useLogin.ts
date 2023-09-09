@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';
@@ -22,6 +22,8 @@ import {
 import useWindowEvents from './useWindowEvents';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { useToastNotification } from './useToastNotification';
+import { SignBackProvider, useSignBack } from './auth/useSignBack';
+import { LoggedUser } from '../lib/user';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -42,16 +44,19 @@ interface UseLoginProps {
   queryEnabled?: boolean;
   queryParams?: EmptyObjectLiteral;
   trigger?: string;
+  provider?: string;
   onSuccessfulLogin?: (() => Promise<void>) | (() => void);
 }
 
 const useLogin = ({
   trigger,
+  provider: providerProp,
   onSuccessfulLogin,
   queryEnabled = true,
   queryParams = {},
   enableSessionVerification = false,
 }: UseLoginProps = {}): UseLogin => {
+  const { onLogin } = useSignBack();
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const { refetchBoot } = useContext(AuthContext);
@@ -88,7 +93,12 @@ const useLogin = ({
           return;
         }
 
-        await refetchBoot();
+        const { data: boot } = await refetchBoot();
+
+        if (boot.user) {
+          onLogin(boot.user as LoggedUser, 'password');
+        }
+
         onSuccessfulLogin?.();
       },
     },
@@ -145,7 +155,12 @@ const useLogin = ({
 
   useWindowEvents('message', AuthEvent.Login, async () => {
     if (!session) {
-      await refetchBoot();
+      const { data: boot } = await refetchBoot();
+
+      if (boot.user) {
+        onLogin(boot.user as LoggedUser, providerProp as SignBackProvider);
+      }
+
       onSuccessfulLogin?.();
       return;
     }
@@ -160,7 +175,12 @@ const useLogin = ({
       session.authenticated_at !== verified.authenticated_at;
 
     if (hasRenewedSession) {
-      await refetchBoot();
+      const { data: boot } = await refetchBoot();
+
+      if (boot.user) {
+        onLogin(boot.user as LoggedUser, providerProp as SignBackProvider);
+      }
+
       onSuccessfulLogin?.();
     }
   });
