@@ -69,6 +69,7 @@ export enum AuthDisplay {
 
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
+  onAuthStateUpdate?: (isLoginFlow: boolean) => void;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -82,6 +83,7 @@ export interface AuthOptionsProps {
 
 function AuthOptions({
   onClose,
+  onAuthStateUpdate,
   onSuccessfulLogin,
   onSuccessfulRegistration,
   className,
@@ -391,10 +393,20 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
-            onRegister={() => onSetActiveDisplay(AuthDisplay.Default)}
+            onRegister={() => {
+              if (isLoginFlow && onAuthStateUpdate) {
+                onAuthStateUpdate(false);
+              }
+              onSetActiveDisplay(AuthDisplay.Default);
+            }}
             onProviderClick={onProviderClick}
             simplified={simplified}
-            onShowLoginOptions={() => setActiveDisplay(AuthDisplay.Default)}
+            onShowLoginOptions={() => {
+              if (!isLoginFlow && onAuthStateUpdate) {
+                onAuthStateUpdate(true);
+              }
+              setActiveDisplay(AuthDisplay.Default);
+            }}
             loginFormProps={{
               isReady,
               loginHint,

@@ -215,6 +215,9 @@ export function OnboardPage(): ReactElement {
               onSuccessfulRegistration={onSuccessfulTransaction}
               isLoginFlow={isLoginFlow}
               className={classNames('w-full', maxAuthWidth)}
+              onAuthStateUpdate={(isLogin) =>
+                setAuth({ isLoginFlow: isLogin, isAuthenticating: true })
+              }
             />
           )}
         >
