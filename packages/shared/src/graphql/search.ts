@@ -4,16 +4,26 @@ import { isNullOrUndefined } from '../lib/func';
 import { Connection, RequestQueryParams } from './common';
 import { webappUrl } from '../lib/constants';
 import { Post } from './posts';
+import { labels } from '../lib';
 
 export const searchPageUrl = `${webappUrl}search`;
 
 export enum SearchChunkErrorCode {
+  StoppedGenerating = '-2',
   Unexpected = '-1',
   Common = '0',
   Bragi = '1',
   Search = '2',
   RateLimit = '3',
 }
+
+export const searchErrorCodeToMessage: Partial<
+  Record<SearchChunkErrorCode, string>
+> = {
+  [SearchChunkErrorCode.RateLimit]: labels.search.rateLimitExceeded,
+  [SearchChunkErrorCode.Unexpected]: labels.search.unexpectedError,
+  [SearchChunkErrorCode.StoppedGenerating]: labels.search.stoppedGenerating,
+};
 
 export interface SearchChunkError {
   message: string;
@@ -48,7 +58,7 @@ export interface Search {
 }
 
 export interface SearchSession {
-  id: string;
+  sessionId: string;
   prompt: string;
   createdAt: Date;
 }
@@ -115,7 +125,7 @@ export const SEARCH_HISTORY_QUERY = gql`
       }
       edges {
         node {
-          id
+          sessionId: id
           prompt
           createdAt
         }
@@ -132,7 +142,7 @@ export const SEARCH_FEEDBACK_MUTATION = gql`
   }
 `;
 
-interface SearchQuestion {
+export interface SearchQuestion {
   id: string;
   question: string;
   post: Post;

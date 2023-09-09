@@ -25,7 +25,7 @@ export const useSearchSuggestions: UseSearchSuggestions = (args) => {
     () =>
       data?.map(({ id, question }) => ({
         id,
-        prompt: question,
+        question,
       })),
     [data],
   );
