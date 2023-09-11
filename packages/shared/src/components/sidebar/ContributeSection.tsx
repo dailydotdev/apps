@@ -20,7 +20,7 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
       ),
       title: 'Submit article',
       action: openSubmitArticle,
-      active: modal.type === LazyModal.SubmitArticle,
+      active: modal?.type === LazyModal.SubmitArticle,
     },
     {
       icon: (active) => (
@@ -28,7 +28,7 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
       ),
       title: 'Suggest new source',
       action: () => openModal({ type: LazyModal.NewSource }),
-      active: modal.type === LazyModal.NewSource,
+      active: modal?.type === LazyModal.NewSource,
     },
   ];
 
