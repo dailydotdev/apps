@@ -10,7 +10,10 @@ import {
 import { AnalyticsEvent } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { graphqlUrl } from '../../lib/config';
-import { postAnalyticsEvent } from '../../lib/feed';
+import {
+  PostAnalyticsEventFnOptions,
+  postAnalyticsEvent,
+} from '../../lib/feed';
 import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
@@ -25,6 +28,20 @@ import {
   VoteProps,
   ToggleVoteProps,
 } from './types';
+
+const prepareVotePostAnalyticsOptions = ({
+  origin,
+  opts,
+}: ToggleVoteProps): PostAnalyticsEventFnOptions => {
+  const { extra, ...restOpts } = opts || {};
+
+  const analyticsOptions: PostAnalyticsEventFnOptions = {
+    ...restOpts,
+    extra: { ...extra, origin },
+  };
+
+  return analyticsOptions;
+};
 
 const useVotePost = ({
   onMutate,
@@ -103,12 +120,19 @@ const useVotePost = ({
         return;
       }
 
+      const analyticsOptions = prepareVotePostAnalyticsOptions({
+        post,
+        origin,
+        opts,
+      });
+
       if (post?.userState?.vote === UserPostVote.Up) {
         trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
-            ...opts,
-            extra: { ...opts?.extra, origin },
-          }),
+          postAnalyticsEvent(
+            AnalyticsEvent.RemovePostUpvote,
+            post,
+            analyticsOptions,
+          ),
         );
 
         await cancelPostVote({ id: post.id });
@@ -117,10 +141,7 @@ const useVotePost = ({
       }
 
       trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
-          ...opts,
-          extra: { ...opts?.extra, origin },
-        }),
+        postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, analyticsOptions),
       );
 
       await upvotePost({ id: post.id });
@@ -140,12 +161,19 @@ const useVotePost = ({
         return;
       }
 
+      const analyticsOptions = prepareVotePostAnalyticsOptions({
+        post,
+        origin,
+        opts,
+      });
+
       if (post?.userState?.vote === UserPostVote.Down) {
         trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
-            ...opts,
-            extra: { ...opts?.extra, origin },
-          }),
+          postAnalyticsEvent(
+            AnalyticsEvent.RemovePostDownvote,
+            post,
+            analyticsOptions,
+          ),
         );
 
         await cancelPostVote({ id: post.id });
@@ -154,10 +182,7 @@ const useVotePost = ({
       }
 
       trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
-          ...opts,
-          extra: { ...opts?.extra, origin },
-        }),
+        postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, analyticsOptions),
       );
 
       downvotePost({ id: post.id });
