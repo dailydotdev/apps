@@ -66,6 +66,15 @@ const FeedFilters = dynamic(
   () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
 );
 
+const SubmitArticle = dynamic(
+  () =>
+    import(/* webpackChunkName: "submitArticleModal" */ './SubmitArticleModal'),
+);
+
+const NewSource = dynamic(
+  () => import(/* webpackChunkName: "newSourceModal" */ './NewSourceModal'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -77,6 +86,8 @@ export const modals = {
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
   [LazyModal.CompanionModal]: CompanionModal,
+  [LazyModal.SubmitArticle]: SubmitArticle,
+  [LazyModal.NewSource]: NewSource,
   [LazyModal.FeedFilters]: FeedFilters,
 };
 

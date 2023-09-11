@@ -33,17 +33,12 @@ import { NotificationPromptSource } from '../../lib/analytics';
 import { Justify } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
 
-type SubmitArticleModalProps = {
-  headerCopy: string;
-} & ModalProps;
-
 const defaultErrorMessage = 'Something went wrong, try again';
 
 export default function SubmitArticleModal({
-  headerCopy,
   onRequestClose,
   ...modalProps
-}: SubmitArticleModalProps): ReactElement {
+}: ModalProps): ReactElement {
   const submitFormRef = useRef<HTMLFormElement>();
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
@@ -209,7 +204,7 @@ export default function SubmitArticleModal({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
     >
-      <Modal.Header title={headerCopy} />
+      <Modal.Header title="Submit article" />
       <Modal.Body>
         <form
           ref={submitFormRef}
