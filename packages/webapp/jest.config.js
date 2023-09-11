@@ -28,12 +28,6 @@ module.exports = {
                 // Required to remove duplicate dependencies from the build
                 ...Object.keys(sharedPackage.peerDependencies).reduce(
                   (acc, dep) => {
-                    if (['react', 'react-dom'].find((name) => name === dep)) {
-                      return {
-                        ...acc,
-                        [dep]: path.resolve('./node_modules/preact/compat'),
-                      };
-                    }
                     return {
                       ...acc,
                       [dep]: path.resolve(`./node_modules/${dep}`),
