@@ -68,9 +68,14 @@ export enum AuthDisplay {
   VerifiedEmail = 'VerifiedEmail',
 }
 
+export interface AuthProps {
+  isAuthenticating: boolean;
+  isLoginFlow: boolean;
+}
+
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
-  onAuthStateUpdate?: (isLoginFlow: boolean) => void;
+  onAuthStateUpdate?: (props: Pick<AuthProps, 'isLoginFlow'>) => void;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -396,7 +401,7 @@ function AuthOptions({
           <AuthSignBack
             onRegister={() => {
               if (isLoginFlow && onAuthStateUpdate) {
-                onAuthStateUpdate(false);
+                onAuthStateUpdate({ isLoginFlow: false });
               }
               onSetActiveDisplay(AuthDisplay.Default);
             }}
@@ -404,7 +409,7 @@ function AuthOptions({
             simplified={simplified}
             onShowLoginOptions={() => {
               if (!isLoginFlow && onAuthStateUpdate) {
-                onAuthStateUpdate(true);
+                onAuthStateUpdate({ isLoginFlow: true });
               }
               setActiveDisplay(AuthDisplay.Default);
             }}
