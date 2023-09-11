@@ -9,6 +9,8 @@ import { updateCachedPagePost } from '../lib/query';
 import { ActiveFeedContext } from '../contexts';
 import { MainFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../lib/analytics';
 
 type UsePostFeedbackProps = {
   post?: Pick<Post, 'id' | 'userState' | 'read'>;
@@ -25,6 +27,7 @@ export const usePostFeedback = ({
 }: UsePostFeedbackProps = {}): UsePostFeedback => {
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const { trackEvent } = useContext(AnalyticsContext);
 
   const isFeedbackEnabled = useFeatureIsOn(
     Features.EngagementLoopJuly2023Upvote.id,
@@ -40,6 +43,10 @@ export const usePostFeedback = ({
         if (!post) {
           return;
         }
+
+        trackEvent({
+          event_name: AnalyticsEvent.ClickDismissFeedback,
+        });
 
         const mutationHandler = (postItem: Post) => {
           return {

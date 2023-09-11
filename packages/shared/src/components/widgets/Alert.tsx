@@ -37,6 +37,7 @@ interface AlertProps {
   title?: ReactNode;
   type?: AlertType;
   children?: ReactNode;
+  flexDirection?: 'flex-col' | 'flex-row';
 }
 
 export const AlertParagraph = classed('p', 'typo-callout mt-3');
@@ -46,13 +47,15 @@ function Alert({
   title,
   children,
   type = AlertType.Info,
+  flexDirection = 'flex-col',
 }: AlertProps): ReactElement {
   const Icon = iconType[type];
 
   return (
     <div
       className={classNames(
-        'flex flex-col p-3 border border-theme-active border-l-4',
+        'flex p-3 border border-theme-active border-l-4',
+        flexDirection,
         borderColor[type],
         children ? 'rounded-16' : 'rounded-12',
         className,

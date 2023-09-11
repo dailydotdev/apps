@@ -86,6 +86,7 @@ export enum AnalyticsEvent {
   RemovePostUpvote = 'remove post upvote',
   DownvotePost = 'downvote post',
   RemovePostDownvote = 'remove post downvote',
+  ClickDismissFeedback = 'click dismiss feedback',
   // vote - end
   // bookmark - start
   BookmarkPost = 'bookmark post',

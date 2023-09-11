@@ -18,7 +18,7 @@ import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { UserIcon } from '../icons';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { AuthFormProps, providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
@@ -55,7 +55,7 @@ export const SocialRegistrationForm = ({
   className,
   provider,
   formRef,
-  title = 'Sign up to daily.dev',
+  title = 'Sign up',
   hints,
   trigger,
   onUpdateHints,
@@ -145,7 +145,7 @@ export const SocialRegistrationForm = ({
 
   return (
     <>
-      {!simplified && <AuthModalHeader title={title} />}
+      <AuthHeader simplified={simplified} title={title} />
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6 px-6 tablet:px-[3.75rem]',
