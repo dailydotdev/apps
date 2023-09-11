@@ -76,7 +76,10 @@ const renderComponent = (
         getRedirectUri={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
-        refetchBoot={onSuccessfulLogin}
+        refetchBoot={() => {
+          onSuccessfulLogin();
+          return { data: {} };
+        }}
       >
         <SettingsContext.Provider value={{ syncSettings: jest.fn() }}>
           <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
