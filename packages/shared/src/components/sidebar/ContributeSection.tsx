@@ -6,23 +6,12 @@ import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 export function ContributeSection(props: SectionCommonProps): ReactElement {
   const router = useRouter();
-  const { user } = useAuthContext();
   const { modal, openModal } = useLazyModal();
-  const { trackEvent } = useAnalyticsContext();
 
-  const trackAndShowSubmitArticle = () => {
-    trackEvent({
-      event_name: 'start submit article',
-      feed_item_title: 'Submit article',
-      extra: JSON.stringify({ has_access: !!user?.canSubmitArticle }),
-    });
-    openModal({ type: LazyModal.SubmitArticle });
-  };
+  const openSubmitArticle = () => openModal({ type: LazyModal.SubmitArticle });
 
   const contributeMenuItems: SidebarMenuItem[] = [
     {
@@ -30,7 +19,7 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
         <ListIcon Icon={() => <LinkIcon secondary={active} />} />
       ),
       title: 'Submit article',
-      action: trackAndShowSubmitArticle,
+      action: openSubmitArticle,
       active: modal.type === LazyModal.SubmitArticle,
     },
     {
@@ -51,7 +40,7 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
     }
 
     const { origin, pathname } = window.location;
-    trackAndShowSubmitArticle();
+    openSubmitArticle();
     router.replace(origin + pathname);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps

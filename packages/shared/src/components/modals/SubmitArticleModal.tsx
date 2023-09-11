@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
@@ -167,6 +173,17 @@ export default function SubmitArticleModal({
       </Alert>
     );
   };
+
+  useEffect(() => {
+    trackEvent({
+      event_name: 'start submit article',
+      feed_item_title: 'Submit article',
+      extra: JSON.stringify({ has_access: !!user?.canSubmitArticle }),
+    });
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!isFetched) {
     return <></>;
