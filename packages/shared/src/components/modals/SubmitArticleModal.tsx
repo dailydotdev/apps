@@ -29,7 +29,11 @@ import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../lib/analytics';
+import {
+  AnalyticsEvent,
+  FeedItemTitle,
+  NotificationPromptSource,
+} from '../../lib/analytics';
 import { Justify } from '../utilities';
 
 const defaultErrorMessage = 'Something went wrong, try again';
@@ -176,8 +180,8 @@ export default function SubmitArticleModal({
 
   useEffect(() => {
     trackEvent({
-      event_name: 'start submit article',
-      feed_item_title: 'Submit article',
+      event_name: AnalyticsEvent.StartSubmitArticle,
+      feed_item_title: FeedItemTitle.SubmitArticle,
       extra: JSON.stringify({ has_access: !!user?.canSubmitArticle }),
     });
 
@@ -196,7 +200,7 @@ export default function SubmitArticleModal({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
     >
-      <Modal.Header title="Submit article" />
+      <Modal.Header title={FeedItemTitle.SubmitArticle} />
       <Modal.Body>
         <form
           ref={submitFormRef}
