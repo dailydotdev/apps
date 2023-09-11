@@ -29,12 +29,13 @@ export const useSignBack = (): UseSignBack => {
   return {
     onLogin: ({ name, email, image }, provider) => {
       setSignBack({ name, email, image });
-      localStorage.setItem(SIGNIN_METHOD_KEY, provider);
+      globalThis?.localStorage.setItem(SIGNIN_METHOD_KEY, provider);
     },
     signBack,
     isLoaded,
     provider: useMemo(
-      () => localStorage.getItem(SIGNIN_METHOD_KEY) as SignBackProvider,
+      () =>
+        globalThis?.localStorage.getItem(SIGNIN_METHOD_KEY) as SignBackProvider,
       [],
     ),
   };
