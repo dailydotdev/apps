@@ -43,8 +43,6 @@ import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
 
 const socialProvider = getProviderMapClone();
-socialProvider.github.style = { backgroundColor: '#383C47' };
-socialProvider.apple.style = { backgroundColor: '#404551' };
 const providers = Object.values(socialProvider);
 
 export interface ChangePasswordParams {
@@ -57,20 +55,9 @@ export interface UpdateProvidersParams {
 }
 
 const removeProvider = getProviderMapClone();
-removeProvider.google.icon.props = {
-  ...removeProvider.google.icon.props,
-  secondary: false,
-};
-const removeProviderList = Object.values(removeProvider).map(
-  ({ style: { backgroundColor, ...style }, className, ...provider }) => ({
-    ...provider,
-    style: { ...style, color: 'var(--theme-label-primary)' },
-    className: classNames(
-      'bg-theme-bg-tertiary hover:bg-theme-color-ketchup text-theme-label-primary',
-      className,
-    ),
-  }),
-);
+removeProvider.google.icon.props.secondary = false;
+removeProvider.facebook.icon.props.secondary = false;
+const removeProviderList = Object.values(removeProvider);
 
 interface AccountSecurityDefaultProps {
   email?: string;
@@ -229,6 +216,7 @@ function AccountSecurityDefault({
         )}
       </AccountContentSection>
       <AccountLoginSection
+        className={{ button: 'btn-primary' }}
         title="Add login account"
         description="Add more accounts to ensure you never lose access to your daily.dev
         profile and to make login quick and easy cross device"
@@ -244,6 +232,7 @@ function AccountSecurityDefault({
         description="Remove the connection between daily.dev and authorized login providers."
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
+        className={{ button: 'btn-secondary hover:bg-theme-color-ketchup' }}
         providers={removeProviderList.filter(({ provider }) =>
           userProviders?.result.includes(provider.toLowerCase()),
         )}
