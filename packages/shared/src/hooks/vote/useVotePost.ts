@@ -56,7 +56,7 @@ const useVotePost = ({
     };
   };
 
-  const { mutateAsync: votePost, isLoading } = useMutation(
+  const { mutateAsync: votePost } = useMutation(
     ({ id, vote }: UseVotePostMutationProps) => {
       return requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
         id,
@@ -93,7 +93,7 @@ const useVotePost = ({
 
   const toggleUpvote = useCallback(
     async ({ post, origin, opts }: ToggleVoteProps) => {
-      if (!post || isLoading) {
+      if (!post) {
         return;
       }
 
@@ -125,12 +125,12 @@ const useVotePost = ({
 
       await upvotePost({ id: post.id });
     },
-    [cancelPostVote, showLogin, trackEvent, upvotePost, user, isLoading],
+    [cancelPostVote, showLogin, trackEvent, upvotePost, user],
   );
 
   const toggleDownvote = useCallback(
     async ({ post, origin, opts }: ToggleVoteProps) => {
-      if (!post || isLoading) {
+      if (!post) {
         return;
       }
 
@@ -162,7 +162,7 @@ const useVotePost = ({
 
       downvotePost({ id: post.id });
     },
-    [cancelPostVote, downvotePost, showLogin, trackEvent, user, isLoading],
+    [cancelPostVote, downvotePost, showLogin, trackEvent, user],
   );
 
   return {
