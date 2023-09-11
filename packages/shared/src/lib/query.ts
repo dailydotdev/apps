@@ -14,7 +14,7 @@ export const generateQueryKey = (
   name: string | RequestKey,
   user: Pick<LoggedUser, 'id'> | null,
   ...additional: unknown[]
-): unknown => {
+): unknown[] => {
   return [name, user?.id ?? 'anonymous', ...additional];
 };
 
