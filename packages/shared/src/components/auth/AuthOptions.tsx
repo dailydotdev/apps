@@ -201,15 +201,6 @@ function AuthOptions({
     provider: chosenProvider,
   });
   const onProfileSuccess = async () => {
-    const { data: boot } = await refetchBoot();
-
-    if (boot.user) {
-      onSignBackLogin(
-        boot.user as LoggedUser,
-        chosenProvider as SignBackProvider,
-      );
-    }
-
     onSuccessfulRegistration?.();
     onClose(null, true);
   };
@@ -421,6 +412,7 @@ function AuthOptions({
               isLoading: isPasswordLoginLoading,
               autoFocus: false,
               onSignup: onForgotPasswordBack,
+              className: 'w-full',
             }}
           />
         </Tab>

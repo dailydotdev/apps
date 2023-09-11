@@ -27,7 +27,7 @@ export const AuthSignBack = ({
   const { signBack, provider, isLoaded } = useSignBack();
   const providerItem = providerMap[provider.toLowerCase()];
 
-  if (!isLoaded || !providerItem || !signBack) {
+  if (!isLoaded || !signBack || (provider !== 'password' && !providerItem)) {
     return null;
   }
 

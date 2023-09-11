@@ -100,10 +100,7 @@ function LoginForm({
           </ClickableText>
         )}
         <Button
-          className={classNames(
-            'flex-1 btn-primary text-theme-label-primary',
-            !isLoading && 'bg-theme-color-cabbage',
-          )}
+          className="flex-1 btn-primary"
           type="submit"
           loading={!isReady}
           disabled={isLoading}
