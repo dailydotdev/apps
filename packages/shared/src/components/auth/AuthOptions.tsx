@@ -201,6 +201,7 @@ function AuthOptions({
     provider: chosenProvider,
   });
   const onProfileSuccess = async () => {
+    await refetchBoot();
     onSuccessfulRegistration?.();
     onClose(null, true);
   };
