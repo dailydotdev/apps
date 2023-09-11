@@ -11,23 +11,13 @@ import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import { MutateFunc } from '@dailydotdev/shared/src/lib/query';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
-import {
-  UseVotePost,
-  UseVotePostProps,
-  useVotePost,
-} from '@dailydotdev/shared/src/hooks';
+import { UseVotePost, useVotePost } from '@dailydotdev/shared/src/hooks';
 import { companionRequest } from './companionRequest';
 
 type UseCompanionActionsParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
   onRemoveBookmarkMutate: MutateFunc<T>;
-} & Pick<
-  UseVotePostProps<{ id: string }>,
-  | 'onUpvotePostMutate'
-  | 'onCancelPostUpvoteMutate'
-  | 'onDownvotePostMutate'
-  | 'onCancelPostDownvoteMutate'
->;
+};
 type UseCompanionActionsRet<T> = {
   blockSource: (variables: T) => Promise<void>;
   bookmark: (variables: T) => Promise<void>;
@@ -35,10 +25,10 @@ type UseCompanionActionsRet<T> = {
   disableCompanion: (variables: T) => Promise<void>;
   removeCompanionHelper: (variables: T) => Promise<void>;
   toggleCompanionExpanded: (variables: T) => Promise<void>;
-} & Pick<
-  UseVotePost<{ id: string }>,
-  'upvotePost' | 'cancelPostUpvote' | 'downvotePost' | 'cancelPostDownvote'
->;
+} & Pick<UseVotePost, 'upvotePost' | 'downvotePost'> & {
+    cancelPostUpvote: UseVotePost['cancelPostVote'];
+    cancelPostDownvote: UseVotePost['cancelPostVote'];
+  };
 
 interface UseCompanionActionsProps {
   id?: string;
@@ -52,10 +42,6 @@ export default function useCompanionActions<
 >({
   onBookmarkMutate,
   onRemoveBookmarkMutate,
-  onUpvotePostMutate,
-  onCancelPostUpvoteMutate,
-  onDownvotePostMutate,
-  onCancelPostDownvoteMutate,
 }: UseCompanionActionsParams<T>): UseCompanionActionsRet<T> {
   const { mutateAsync: blockSource } = useMutation<
     void,
@@ -117,13 +103,7 @@ export default function useCompanionActions<
     },
   );
 
-  const { upvotePost, cancelPostUpvote, downvotePost, cancelPostDownvote } =
-    useVotePost({
-      onUpvotePostMutate,
-      onCancelPostUpvoteMutate,
-      onDownvotePostMutate,
-      onCancelPostDownvoteMutate,
-    });
+  const { upvotePost, downvotePost, cancelPostVote } = useVotePost();
 
   const { mutateAsync: removeCompanionHelper } = useMutation<
     void,
@@ -171,9 +151,9 @@ export default function useCompanionActions<
       bookmark,
       removeBookmark,
       upvotePost,
-      cancelPostUpvote,
+      cancelPostUpvote: cancelPostVote,
       downvotePost,
-      cancelPostDownvote,
+      cancelPostDownvote: cancelPostVote,
       disableCompanion,
       removeCompanionHelper,
       toggleCompanionExpanded,
@@ -183,9 +163,8 @@ export default function useCompanionActions<
       bookmark,
       removeBookmark,
       upvotePost,
-      cancelPostUpvote,
       downvotePost,
-      cancelPostDownvote,
+      cancelPostVote,
       disableCompanion,
       removeCompanionHelper,
       toggleCompanionExpanded,

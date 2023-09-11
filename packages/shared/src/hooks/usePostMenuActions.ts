@@ -1,5 +1,5 @@
 import { useMutation } from 'react-query';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { PromptOptions, usePrompt } from './usePrompt';
 import {
   deletePost,
@@ -10,13 +10,9 @@ import {
 import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
-import { mutationHandlers, useVotePost } from './useVotePost';
-import { postAnalyticsEvent } from '../lib/feed';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
-import useUpdatePost from './useUpdatePost';
+import { useVotePost } from './vote/useVotePost';
+import { Origin } from '../lib/analytics';
 import { useBlockPostPanel } from './post/useBlockPostPanel';
-import { AuthTriggers } from '../lib/auth';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
@@ -55,10 +51,8 @@ export const usePostMenuActions = ({
   onPinSuccessful,
   origin,
 }: UsePostMenuActionsProps): UsePostMenuActions => {
-  const { trackEvent } = useContext(AnalyticsContext);
-  const { user, showLogin } = useAuthContext();
+  const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
-  const { updatePost } = useUpdatePost();
   const { mutateAsync: onDeletePost } = useMutation(
     ({ id }: DeletePostProps) => deletePost(id),
     { onSuccess: (_, vars) => onPostDeleted(vars) },
@@ -91,56 +85,19 @@ export const usePostMenuActions = ({
   );
 
   const { onClose, onShowPanel } = useBlockPostPanel(post);
-
-  const onDownvoteMutate =
-    post &&
-    updatePost({
-      id: post.id,
-      update: mutationHandlers.downvote(post),
-    });
-  const onCancelDownvoteMutate =
-    post &&
-    updatePost({
-      id: post.id,
-      update: mutationHandlers.cancelDownvote(post),
-    });
-  const { downvotePost, cancelPostDownvote } = useVotePost({
-    onDownvotePostMutate: (params) => {
-      onShowPanel();
-      return onDownvoteMutate(params);
-    },
-    onCancelPostDownvoteMutate: (params) => {
-      onClose(true);
-      return onCancelDownvoteMutate(params);
-    },
-  });
+  const { toggleDownvote } = useVotePost();
 
   return {
     onConfirmDeletePost: canDelete ? deletePostPrompt : null,
     onPinPost: canPin ? onPinPost : null,
     onToggleDownvotePost: () => {
-      if (!user) {
-        showLogin(AuthTriggers.Downvote);
-        return;
-      }
-
-      if (post?.userState?.vote === UserPostVote.Down) {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
-            extra: { origin },
-          }),
-        );
-
-        cancelPostDownvote({ id: post.id });
+      if (post.userState?.vote !== UserPostVote.Down) {
+        onShowPanel();
       } else {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
-            extra: { origin },
-          }),
-        );
-
-        downvotePost({ id: post.id });
+        onClose(true);
       }
+
+      toggleDownvote({ post, origin });
     },
   };
 };

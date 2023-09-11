@@ -11,7 +11,6 @@ import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
-import useFeedVotePost from '../hooks/feed/useFeedVotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick, {
@@ -42,6 +41,7 @@ import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
 import { ActiveFeedContext } from '../contexts';
+import { useFeedVotePost } from '../hooks';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -193,6 +193,13 @@ export default function Feed<T>({
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
 
+  const { toggleUpvote, toggleDownvote } = useFeedVotePost({
+    feedName,
+    ranking,
+    items,
+    updatePost,
+  });
+
   if (!loadedSettings) {
     return <></>;
   }
@@ -206,15 +213,6 @@ export default function Feed<T>({
     // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCommentPopup(feedName);
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { onUpvote, onDownvote } = useFeedVotePost(
-    items,
-    updatePost,
-    virtualizedNumCards,
-    feedName,
-    ranking,
-  );
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const onBookmark = useFeedBookmarkPost(
@@ -427,8 +425,8 @@ export default function Feed<T>({
             user={user}
             feedName={feedName}
             ranking={ranking}
-            onUpvote={onUpvote}
-            onDownvote={onDownvote}
+            toggleUpvote={toggleUpvote}
+            toggleDownvote={toggleDownvote}
             onBookmark={onBookmark}
             onPostClick={onPostCardClick}
             onShare={onShareClick}

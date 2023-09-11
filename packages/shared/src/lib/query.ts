@@ -8,7 +8,8 @@ import cloneDeep from 'lodash.clonedeep';
 import { Connection } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
-import { FeedData, Post } from '../graphql/posts';
+import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
+import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
@@ -162,3 +163,45 @@ export const removeCachedPagePost =
       return page;
     });
   };
+
+export const updateReadingHistoryListPost = ({
+  queryKey,
+  pageIndex,
+  index,
+  manipulate,
+  queryClient,
+}: {
+  queryKey: unknown[];
+  pageIndex: number;
+  index: number;
+  manipulate: (post: ReadHistoryPost) => ReadHistoryPost;
+  queryClient: QueryClient;
+}): (() => void) => {
+  const oldData = !!queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
+
+  if (!oldData) {
+    return () => undefined;
+  }
+
+  queryClient.setQueryData<ReadHistoryInfiniteData>(queryKey, (currentData) => {
+    const updatedPage = cloneDeep(currentData.pages[pageIndex]);
+    const currentPostNode = updatedPage.readHistory.edges[index].node;
+
+    currentPostNode.post = {
+      ...currentPostNode.post,
+      ...manipulate(currentPostNode.post),
+    };
+
+    const updatedPages = [...currentData.pages];
+    updatedPages.splice(pageIndex, 1, updatedPage);
+
+    return {
+      ...currentData,
+      pages: updatedPages,
+    };
+  });
+
+  return () => {
+    queryClient.setQueryData(queryKey, oldData);
+  };
+};

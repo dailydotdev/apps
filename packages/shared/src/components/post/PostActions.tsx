@@ -1,19 +1,14 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { QueryKey } from 'react-query';
 import classNames from 'classnames';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
 import { Post, UserPostVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import { postAnalyticsEvent } from '../../lib/feed';
-import AuthContext from '../../contexts/AuthContext';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import ShareIcon from '../icons/Share';
-import useUpdatePost from '../../hooks/useUpdatePost';
-import { mutationHandlers, useVotePost } from '../../hooks';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { AuthTriggers } from '../../lib/auth';
+import { useVotePost } from '../../hooks';
+import { Origin } from '../../lib/analytics';
 import BookmarkIcon from '../icons/Bookmark';
 import DownvoteIcon from '../icons/Downvote';
 import { Card } from '../cards/Card';
@@ -42,95 +37,27 @@ export function PostActions({
   onBookmark,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
-  const { user, showLogin } = useContext(AuthContext);
-  const { updatePost } = useUpdatePost();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
-  const onUpvotePostMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.upvote(post),
-  });
-  const onDownvoteMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.downvote(post),
-  });
-  const onCancelDownvoteMutate = updatePost({
-    id: post.id,
-    update: mutationHandlers.cancelDownvote(post),
-  });
-  const { upvotePost, cancelPostUpvote, downvotePost, cancelPostDownvote } =
-    useVotePost({
-      onUpvotePostMutate: (params) => {
-        onClose(true);
-        return onUpvotePostMutate(params);
-      },
-      onCancelPostUpvoteMutate: updatePost({
-        id: post.id,
-        update: mutationHandlers.cancelUpvote(post),
-      }),
-      onDownvotePostMutate: (params) => {
-        onShowPanel();
-        return onDownvoteMutate(params);
-      },
-      onCancelPostDownvoteMutate: (params) => {
-        onClose(true);
-        return onCancelDownvoteMutate(params);
-      },
-    });
 
-  const toggleUpvote = () => {
-    if (user) {
-      if (post?.userState?.vote === UserPostVote.Up) {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.RemovePostUpvote, post, {
-            extra: { origin },
-          }),
-        );
-        return cancelPostUpvote({ id: post.id });
-      }
-      if (post) {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
-            extra: { origin },
-          }),
-        );
-        return upvotePost({ id: post.id });
-      }
-    } else {
-      showLogin(AuthTriggers.Upvote);
+  const { toggleUpvote, toggleDownvote } = useVotePost();
+
+  const onToggleUpvote = async () => {
+    if (post?.userState?.vote === UserPostVote.None) {
+      onClose(true);
     }
-    return undefined;
+
+    await toggleUpvote({ post, origin });
   };
 
-  const toggleDownvote = () => {
-    if (!post) {
-      return;
-    }
-
-    if (!user) {
-      showLogin(AuthTriggers.Downvote);
-
-      return;
-    }
-
-    if (post?.userState?.vote === UserPostVote.Down) {
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.RemovePostDownvote, post, {
-          extra: { origin },
-        }),
-      );
-
-      cancelPostDownvote({ id: post.id });
+  const onToggleDownvote = async () => {
+    if (post.userState?.vote !== UserPostVote.Down) {
+      onShowPanel();
     } else {
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
-          extra: { origin },
-        }),
-      );
-
-      downvotePost({ id: post.id });
+      onClose(true);
     }
+
+    await toggleDownvote({ post, origin });
   };
 
   return (
@@ -158,7 +85,7 @@ export function PostActions({
           <QuaternaryButton
             id="upvote-post-btn"
             pressed={post?.userState?.vote === UserPostVote.Up}
-            onClick={toggleUpvote}
+            onClick={onToggleUpvote}
             icon={
               <UpvoteIcon
                 secondary={post?.userState?.vote === UserPostVote.Up}
@@ -171,7 +98,7 @@ export function PostActions({
           <QuaternaryButton
             id="downvote-post-btn"
             pressed={post?.userState?.vote === UserPostVote.Down}
-            onClick={toggleDownvote}
+            onClick={onToggleDownvote}
             icon={
               <DownvoteIcon
                 secondary={post?.userState?.vote === UserPostVote.Down}

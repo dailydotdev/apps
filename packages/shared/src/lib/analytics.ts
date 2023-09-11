@@ -32,7 +32,8 @@ export enum Origin {
   HistoryPage = 'history page',
   HistoryTooltip = 'history tooltip',
   // search - end
-  EngagementLoopVote = 'engagement_loop_july2023_upvote',
+  History = 'history',
+  FeedbackCard = 'feedback card',
 }
 
 export enum LoginTrigger {
@@ -85,7 +86,6 @@ export enum AnalyticsEvent {
   RemovePostUpvote = 'remove post upvote',
   DownvotePost = 'downvote post',
   RemovePostDownvote = 'remove post downvote',
-  HideEngagementLoop = 'engagement_loop_july2023_upvote',
   ClickDismissFeedback = 'click dismiss feedback',
   // vote - end
   // bookmark - start

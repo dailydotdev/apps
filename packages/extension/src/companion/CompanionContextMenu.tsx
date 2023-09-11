@@ -76,9 +76,9 @@ export default function CompanionContextMenu({
       >
         <Item
           onClick={onDownvote}
-          aria-pressed={postData.userState?.vote === UserPostVote.Down}
+          aria-pressed={postData?.userState?.vote === UserPostVote.Down}
           aria-label={
-            postData.userState?.vote === UserPostVote.Down
+            postData?.userState?.vote === UserPostVote.Down
               ? 'Remove downvote'
               : 'Downvote'
           }
@@ -87,10 +87,10 @@ export default function CompanionContextMenu({
             size={IconSize.Small}
             className={classNames(
               'mr-2',
-              postData.userState?.vote === UserPostVote.Down &&
+              postData?.userState?.vote === UserPostVote.Down &&
                 'text-theme-color-ketchup',
             )}
-            secondary={postData.userState?.vote === UserPostVote.Down}
+            secondary={postData?.userState?.vote === UserPostVote.Down}
           />{' '}
           Downvote
         </Item>

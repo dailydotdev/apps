@@ -262,22 +262,6 @@ export const VOTE_POST_MUTATION = gql`
   }
 `;
 
-export const UPVOTE_MUTATION = gql`
-  mutation Upvote($id: ID!) {
-    upvote(id: $id) {
-      _
-    }
-  }
-`;
-
-export const CANCEL_UPVOTE_MUTATION = gql`
-  mutation CancelUpvote($id: ID!) {
-    cancelUpvote(id: $id) {
-      _
-    }
-  }
-`;
-
 export const DELETE_POST_MUTATION = gql`
   mutation DeletePost($id: ID!) {
     deletePost(id: $id) {
@@ -659,19 +643,3 @@ export const uploadContentImage = async (
 
   return res.uploadContentImage;
 };
-
-export const DOWNVOTE_MUTATION = gql`
-  mutation Downvote($id: ID!) {
-    downvote(id: $id) {
-      _
-    }
-  }
-`;
-
-export const CANCEL_DOWNVOTE_MUTATION = gql`
-  mutation CancelDownvote($id: ID!) {
-    cancelDownvote(id: $id) {
-      _
-    }
-  }
-`;

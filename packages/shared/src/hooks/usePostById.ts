@@ -30,20 +30,28 @@ export const getPostByIdKey = (id: string): QueryKey => [POST_KEY, id];
 export const updatePostCache = (
   client: QueryClient,
   id: string,
-  { id: _, ...postUpdate }: Partial<Post>,
+  postUpdate:
+    | Partial<Omit<Post, 'id'>>
+    | ((current: Post) => Partial<Omit<Post, 'id'>>),
 ): PostData => {
   const currentPost = client.getQueryData<PostData>(getPostByIdKey(id));
 
-  if (!currentPost) {
+  if (!currentPost?.post) {
     return currentPost;
   }
 
-  return client.setQueryData<PostData>(getPostByIdKey(id), (node) => ({
-    post: {
-      ...node.post,
-      ...postUpdate,
-    },
-  }));
+  return client.setQueryData<PostData>(getPostByIdKey(id), (node) => {
+    const update =
+      typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
+
+    return {
+      post: {
+        ...node.post,
+        ...update,
+        id: node.post.id,
+      },
+    };
+  });
 };
 
 export const removePostComments = (

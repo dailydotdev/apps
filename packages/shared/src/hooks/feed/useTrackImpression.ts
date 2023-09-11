@@ -25,7 +25,7 @@ export default function useTrackImpression(
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
   });
-  const { isFeedbackEnabled } = usePostFeedback({});
+  const { isFeedbackEnabled } = usePostFeedback();
 
   useEffect(() => {
     if (item.type === 'post') {

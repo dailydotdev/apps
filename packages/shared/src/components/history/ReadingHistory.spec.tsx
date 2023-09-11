@@ -127,9 +127,23 @@ describe('PostItemCard component', () => {
 
   const renderCard = (props: Partial<PostItemCardProps> = {}) =>
     render(
-      <QueryClientProvider client={new QueryClient()}>
-        <PostItemCard postItem={defaultHistory} {...props} />
-      </QueryClientProvider>,
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          isLoggedIn: true,
+          closeLogin: jest.fn(),
+        }}
+      >
+        <QueryClientProvider client={new QueryClient()}>
+          <PostItemCard postItem={defaultHistory} {...props} />
+        </QueryClientProvider>
+      </AuthContext.Provider>,
     );
 
   it('should show view history post title', async () => {

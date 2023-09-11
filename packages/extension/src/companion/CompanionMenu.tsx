@@ -23,7 +23,6 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import CreateSharedPostModal, {
   CreateSharedPostModalProps,
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
-import { mutationHandlers } from '@dailydotdev/shared/src/hooks';
 import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
@@ -97,26 +96,6 @@ export default function CompanionMenu({
       updatePost({
         update: { bookmarked: false },
         event: AnalyticsEvent.RemovePostBookmark,
-      }),
-    onUpvotePostMutate: () =>
-      updatePost({
-        update: mutationHandlers.upvote(post),
-        event: AnalyticsEvent.UpvotePost,
-      }),
-    onCancelPostUpvoteMutate: () =>
-      updatePost({
-        update: mutationHandlers.cancelUpvote(post),
-        event: AnalyticsEvent.RemovePostUpvote,
-      }),
-    onDownvotePostMutate: () =>
-      updatePost({
-        update: mutationHandlers.downvote(post),
-        event: AnalyticsEvent.DownvotePost,
-      }),
-    onCancelPostDownvoteMutate: () =>
-      updatePost({
-        update: mutationHandlers.cancelDownvote(post),
-        event: AnalyticsEvent.RemovePostDownvote,
       }),
   });
 
