@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';

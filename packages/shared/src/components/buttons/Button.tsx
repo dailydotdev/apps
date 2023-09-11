@@ -38,12 +38,6 @@ export interface StyledButtonProps {
 
 export type IconType = React.ReactElement<IconProps>;
 
-interface ClassName {
-  span?: string;
-  leftIcon?: string;
-  rightIcon?: string;
-}
-
 export interface BaseButtonProps {
   buttonSize?: ButtonSize;
   loading?: boolean;
@@ -133,7 +127,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     >
       {icon && getIconWithSize(icon)}
       {children && <span className={spanClassName}>{children}</span>}
-      {rightIcon && rightIcon && (
+      {rightIcon && (
         <ConditionalWrapper
           condition={rightIconWrapper?.condition}
           wrapper={rightIconWrapper?.wrapper}
