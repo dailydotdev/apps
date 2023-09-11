@@ -51,12 +51,11 @@ export interface BaseButtonProps {
 }
 
 const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
-  return (icon: React.ReactElement<IconProps>) => {
+  return (icon: React.ReactElement<IconProps>) =>
     React.cloneElement(icon, {
       size: icon.props?.size ?? buttonSizeToIconSize[size],
       className: classNames(icon.props.className, !iconOnly && 'icon'),
     });
-  };
 };
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
