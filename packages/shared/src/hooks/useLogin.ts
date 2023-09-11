@@ -22,6 +22,7 @@ import {
 import useWindowEvents from './useWindowEvents';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { useToastNotification } from './useToastNotification';
+import { labels } from '../lib';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -82,9 +83,11 @@ const useLogin = ({
         if (error) {
           trackEvent({
             event_name: AuthEventNames.LoginError,
-            extra: JSON.stringify({ error: 'Invalid email or password' }),
+            extra: JSON.stringify({
+              error: labels.auth.error.invalidEmailOrPassword,
+            }),
           });
-          setHint('Invalid email or password');
+          setHint(labels.auth.error.invalidEmailOrPassword);
           return;
         }
 
@@ -101,9 +104,11 @@ const useLogin = ({
         if (error) {
           trackEvent({
             event_name: AuthEventNames.LoginError,
-            extra: JSON.stringify({ error: 'Invalid email or password' }),
+            extra: JSON.stringify({
+              error: labels.auth.error.invalidEmailOrPassword,
+            }),
           });
-          setHint('Invalid email or password');
+          setHint(labels.auth.error.invalidEmailOrPassword);
         }
 
         if (redirect) {

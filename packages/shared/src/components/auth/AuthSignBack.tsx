@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { AuthFormProps, Provider, providerMap } from './common';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
@@ -33,7 +33,7 @@ export const AuthSignBack = ({
 
   return (
     <span className="flex flex-col flex-1">
-      {!simplified && <AuthModalHeader title="Login to daily.dev" />}
+      <AuthHeader simplified={simplified} title="Login to daily.dev" />
       <AuthContainer>
         <p className="mb-2 text-center typo-callout text-theme-label-tertiary">
           Sign back in with
@@ -62,7 +62,11 @@ export const AuthSignBack = ({
         {children}
       </AuthContainer>
       <div className="flex flex-1" />
-      <AuthModalFooter className="mt-4" isLogin onIsLogin={onRegister} />
+      <AuthModalFooter
+        onClick={onRegister}
+        text={{ body: 'Not a member yet?', button: 'Sign up' }}
+        className="mt-4"
+      />
     </span>
   );
 };

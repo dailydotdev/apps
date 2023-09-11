@@ -5,17 +5,23 @@ import { CloseModalFunc } from '../modals/common';
 import { Modal } from '../modals/common/Modal';
 import { ModalHeaderKind } from '../modals/common/types';
 
-export interface AuthModalHeaderProps {
+export interface AuthHeaderProps {
+  simplified: boolean;
   title: string;
   className?: string;
   onBack?: CloseModalFunc;
 }
 
-function AuthModalHeader({
+function AuthHeader({
+  simplified = false,
   title,
   className,
   onBack,
-}: AuthModalHeaderProps): ReactElement {
+}: AuthHeaderProps): ReactElement {
+  if (simplified) {
+    return <h2 className="font-bold text-center typo-title2">{title}</h2>;
+  }
+
   return (
     <Modal.Header
       className={className}
@@ -33,4 +39,4 @@ function AuthModalHeader({
   );
 }
 
-export default AuthModalHeader;
+export default AuthHeader;
