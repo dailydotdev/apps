@@ -93,7 +93,7 @@ const renderRegistration = async (
       return { data: { generateUniqueUsername: username } };
     },
   });
-  await waitFor(() => expect(screen.getByText('Sign up to daily.dev')));
+  await waitFor(() => expect(screen.getByTestId('registration_form')));
   const nameInput = screen.getByPlaceholderText('Full name');
   fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
     target: { value: username },

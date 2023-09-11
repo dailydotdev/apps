@@ -3,7 +3,7 @@ import React, { FormEvent, ReactElement, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { AuthFormProps, AuthModalText } from './common';
 import {
   AuthFlow,
@@ -75,7 +75,7 @@ function ChangePasswordForm({
 
   return (
     <>
-      {!simplified && <AuthModalHeader title="Create new password" />}
+      <AuthHeader simplified={simplified} title="Create a new password" />
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onChangePasswordSubmit}

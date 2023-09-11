@@ -18,7 +18,7 @@ import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { ExperimentWinner } from '../../lib/featureValues';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -57,8 +57,8 @@ const AuthDefault = ({
   isLoading,
   isReady,
   trigger,
-  signUpTitle = 'Sign up to daily.dev',
-  logInTitle = 'Log in to daily.dev',
+  signUpTitle = 'Sign up',
+  logInTitle = 'Log in',
   loginButton,
   simplified,
 }: AuthDefaultProps): ReactElement => {
@@ -136,6 +136,7 @@ const AuthDefault = ({
           loginHint={loginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
+          onSignup={() => setShouldLogin(false)}
         />
       );
     }
@@ -153,7 +154,12 @@ const AuthDefault = ({
 
   return (
     <>
-      {!simplified && <AuthModalHeader title={title} />}
+      <AuthHeader simplified={simplified} title={title} />
+      {simplified && !shouldLogin && (
+        <p className="px-6 mt-3 text-center whitespace-pre-line text-theme-label-secondary typo-body">
+          Once you sign up, your personal feed will be ready to explore.
+        </p>
+      )}
       <AuthContainer className={disableRegistration && 'mb-6'}>
         <div className="flex flex-col gap-4">
           {providers.map(({ provider, ...props }) => (
@@ -178,12 +184,17 @@ const AuthDefault = ({
         >
           <AuthModalFooter
             className="mt-4"
-            isLogin={shouldLogin}
-            onIsLogin={(value) => {
-              if (!value) {
+            text={{
+              body: shouldLogin
+                ? 'Not a member yet?'
+                : 'Already a daily.dev member?',
+              button: shouldLogin ? 'Sign up' : 'Log in',
+            }}
+            onClick={() => {
+              if (!shouldLogin) {
                 setRegisterEmail(null);
               }
-              setShouldLogin(value);
+              setShouldLogin(!shouldLogin);
             }}
           />
         </ConditionalWrapper>
