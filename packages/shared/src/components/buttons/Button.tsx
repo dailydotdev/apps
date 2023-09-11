@@ -9,9 +9,6 @@ import classNames from 'classnames';
 import { IconProps, IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
-import ConditionalWrapper, {
-  ConditionalWrapperProps,
-} from '../ConditionalWrapper';
 
 export enum ButtonSize {
   XXSmall = 'xxsmall',
@@ -51,22 +48,15 @@ export interface BaseButtonProps {
   position?: string;
   disabled?: boolean;
   spanClassName?: string;
-  rightIconWrapper?: Omit<ConditionalWrapperProps, 'children'>;
 }
 
-export const useGetIconWithSize = (
-  size: ButtonSize,
-  iconOnly: boolean,
-): ((icon: React.ReactElement<IconProps>, className?: string) => ReactNode) => {
-  return (icon: React.ReactElement<IconProps>, className?: string) =>
+const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
+  return (icon: React.ReactElement<IconProps>) => {
     React.cloneElement(icon, {
       size: icon.props?.size ?? buttonSizeToIconSize[size],
-      className: classNames(
-        icon.props.className,
-        className,
-        !iconOnly && 'icon',
-      ),
+      className: classNames(icon.props.className, !iconOnly && 'icon'),
     });
+  };
 };
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
@@ -99,7 +89,6 @@ function ButtonComponent<TagName extends AllowedTags>(
     iconOnly: showIconOnly,
     onClick,
     spanClassName,
-    rightIconWrapper,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
@@ -127,14 +116,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     >
       {icon && getIconWithSize(icon)}
       {children && <span className={spanClassName}>{children}</span>}
-      {rightIcon && (
-        <ConditionalWrapper
-          condition={rightIconWrapper?.condition}
-          wrapper={rightIconWrapper?.wrapper}
-        >
-          {getIconWithSize(rightIcon)}
-        </ConditionalWrapper>
-      )}
+      {rightIcon && getIconWithSize(rightIcon)}
       {loading && (
         <Loader
           data-testid="buttonLoader"
