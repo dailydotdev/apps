@@ -44,8 +44,6 @@ export type FeedItemComponentProps = {
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
-  onUpvote: UseVotePost['toggleUpvote'];
-  onDownvote: UseVotePost['toggleDownvote'];
   onBookmark: (
     post: Post,
     index: number,
@@ -76,7 +74,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
-};
+} & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
   const item = items[index];
@@ -114,8 +112,8 @@ export default function FeedItemComponent({
   user,
   feedName,
   ranking,
-  onUpvote,
-  onDownvote,
+  toggleUpvote,
+  toggleDownvote,
   onBookmark,
   onPostClick,
   onShare,
@@ -154,7 +152,7 @@ export default function FeedItemComponent({
           }}
           data-testid="postItem"
           onUpvoteClick={(post) => {
-            onUpvote({
+            toggleUpvote({
               post,
               origin: Origin.Feed,
               opts: {
@@ -165,7 +163,7 @@ export default function FeedItemComponent({
             });
           }}
           onDownvoteClick={(post) => {
-            onDownvote({
+            toggleDownvote({
               post,
               origin: Origin.Feed,
               opts: {

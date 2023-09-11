@@ -425,8 +425,8 @@ export default function Feed<T>({
             user={user}
             feedName={feedName}
             ranking={ranking}
-            onUpvote={toggleUpvote}
-            onDownvote={toggleDownvote}
+            toggleUpvote={toggleUpvote}
+            toggleDownvote={toggleDownvote}
             onBookmark={onBookmark}
             onPostClick={onPostCardClick}
             onShare={onShareClick}
