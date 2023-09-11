@@ -397,6 +397,7 @@ function AuthOptions({
               }
               onSetActiveDisplay(AuthDisplay.Default);
             }}
+            isLoginFlow={isLoginFlow}
             onProviderClick={onProviderClick}
             simplified={simplified}
             onShowLoginOptions={() => {

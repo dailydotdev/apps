@@ -1,4 +1,9 @@
-import React, { MouseEventHandler, ReactElement, ReactNode } from 'react';
+import React, {
+  MouseEventHandler,
+  ReactElement,
+  ReactNode,
+  useEffect,
+} from 'react';
 import AuthHeader from './AuthHeader';
 import { AuthFormProps, providerMap } from './common';
 import AuthModalFooter from './AuthModalFooter';
@@ -11,6 +16,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 
 interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;
+  isLoginFlow?: boolean;
   onRegister?: () => void;
   onProviderClick?: (provider: string) => unknown;
   loginFormProps?: LoginFormProps;
@@ -20,14 +26,27 @@ interface AuthSignBackProps extends AuthFormProps {
 export const AuthSignBack = ({
   loginFormProps,
   onRegister,
+  isLoginFlow,
   onProviderClick,
   simplified,
   onShowLoginOptions,
 }: AuthSignBackProps): ReactElement => {
   const { signBack, provider, isLoaded } = useSignBack();
   const providerItem = providerMap[provider.toLowerCase()];
+  const isPreviousData = !!provider && !signBack;
 
-  if (!isLoaded || !signBack || (provider !== 'password' && !providerItem)) {
+  useEffect(() => {
+    if (!isLoaded || signBack) {
+      return;
+    }
+
+    const showLoginFn = isLoginFlow ? onShowLoginOptions : onRegister;
+    showLoginFn?.(null);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, signBack]);
+
+  if (!isLoaded || isPreviousData) {
     return null;
   }
 
