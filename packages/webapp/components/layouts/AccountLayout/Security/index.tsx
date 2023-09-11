@@ -8,7 +8,6 @@ import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
 import { AlertBackground } from '@dailydotdev/shared/src/components/alert/common';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import classNames from 'classnames';
 import React, {
   FormEvent,
   MutableRefObject,
