@@ -13,10 +13,16 @@ export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 export const generateQueryKey = (
   name: string | RequestKey,
   user: Pick<LoggedUser, 'id'> | null,
-  ...additional: unknown[]
-): unknown[] => {
+  ...additional: QueryKey[]
+): QueryKey => {
   return [name, user?.id ?? 'anonymous', ...additional];
 };
+
+export const generateStorageKey = (
+  key: RequestKey,
+  ...params: string[]
+): string =>
+  (generateQueryKey(key, null, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
   Bookmarks = 'bookmarks',

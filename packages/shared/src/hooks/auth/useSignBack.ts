@@ -1,16 +1,15 @@
 import { useMemo } from 'react';
 import usePersistentContext from '../usePersistentContext';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateStorageKey, RequestKey } from '../../lib/query';
 import { SocialProvider } from '../../components/auth/common';
 import { LoggedUser } from '../../lib/user';
 
 export const SIGNIN_METHOD_KEY = 'signin_method';
 
-export const signBackKey = generateQueryKey(
+export const signBackKey = generateStorageKey(
   RequestKey.Auth,
-  null,
   SIGNIN_METHOD_KEY,
-).join(':');
+);
 
 export type SignedInUser = Pick<LoggedUser, 'name' | 'email' | 'image'>;
 export type SignBackProvider = SocialProvider | 'password';
