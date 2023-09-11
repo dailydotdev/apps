@@ -1,6 +1,6 @@
 import { ReactElement, ReactNode } from 'react';
 
-export interface ConditionalWrapperProps {
+interface ConditionalWrapperProps {
   condition: boolean;
   wrapper: (children: ReactNode) => ReactElement;
   children: ReactNode;
