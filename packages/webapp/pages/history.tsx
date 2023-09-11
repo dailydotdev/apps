@@ -18,7 +18,7 @@ import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -81,7 +81,7 @@ const History = (): ReactElement => {
               <ReadingHistory />
             </Tab>
             <Tab label={HistoryType.Search}>
-              <SearchHistory />
+              <SearchHistory origin={Origin.HistoryPage} />
             </Tab>
           </TabContainer>
         )}

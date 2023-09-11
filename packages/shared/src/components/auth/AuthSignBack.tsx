@@ -35,8 +35,8 @@ export const AuthSignBack = ({
 
   return (
     <span className="flex flex-col flex-1">
-      {!simplified && <AuthModalHeader title="Welcome back!" />}
-      <AuthContainer className="items-center">
+      <AuthHeader simplified={simplified} title="Welcome back!" />
+      <AuthContainer>
         <p className="mb-2 text-center typo-callout text-theme-label-secondary">
           Log in to access your account
         </p>
@@ -67,9 +67,9 @@ export const AuthSignBack = ({
         )}
         <div className="flex flex-1" />
         <AuthModalFooter
-          className="flex-col mt-4 !h-[unset]"
-          isLogin
-          onIsLogin={onRegister}
+          text={{ body: 'Not a member yet?', button: 'Sign up' }}
+          onClick={onRegister}
+          className="mt-4"
         >
           <span className="flex flex-row mt-3 mb-6">
             <Modal.Text>Not you?</Modal.Text>

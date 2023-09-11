@@ -18,4 +18,11 @@ export const labels = {
     unexpectedError: 'It worked on my machine. Can you please try again?',
     stoppedGenerating: 'Oops! We encountered an error! Can you try refreshing?',
   },
+  auth: {
+    error: {
+      invalidEmailOrPassword: 'Invalid email or password',
+      generic:
+        '❌ We got some unexpected error from our side, nothing to worry about. Please try again.',
+    },
+  },
 };

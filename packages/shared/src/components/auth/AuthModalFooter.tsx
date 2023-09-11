@@ -1,48 +1,39 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
 import { ClickableText } from '../buttons/ClickableText';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
 import ConditionalWrapper from '../ConditionalWrapper';
 
+interface TextType {
+  body?: string;
+  button: string;
+}
+
 interface AuthModalFooterProps {
   className?: string;
-  isLogin: boolean;
-  onIsLogin: (value: boolean) => void;
-  children?: ReactNode;
+  text: TextType;
+  onClick: MouseEventHandler;
 }
 
 function AuthModalFooter({
   className,
-  isLogin,
-  onIsLogin,
-  children,
+  text,
+  onClick,
 }: AuthModalFooterProps): ReactElement {
   return (
     <Modal.Footer
       className={classNames(className, 'gap-unset')}
       justify={Justify.Center}
     >
-      <ConditionalWrapper
-        condition={!!children}
-        wrapper={(component) => (
-          <>
-            {children}
-            <span className="flex flex-row">{component}</span>
-          </>
-        )}
+
+      {text.body && <Modal.Text>{text.body}</Modal.Text>}
+      <ClickableText
+        className="ml-1 underline text-theme-label-primary"
+        onClick={onClick}
       >
-        <Modal.Text>
-          {isLogin ? 'Don’t have an account?' : 'Already have an account?'}
-        </Modal.Text>
-        <ClickableText
-          className="ml-1 !text-theme-label-primary"
-          onClick={() => onIsLogin(!isLogin)}
-          inverseUnderline
-        >
-          {isLogin ? 'Sign up' : 'Log in'}
-        </ClickableText>
-      </ConditionalWrapper>
+        {text.button}
+      </ClickableText>
     </Modal.Footer>
   );
 }

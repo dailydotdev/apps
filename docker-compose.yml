@@ -49,6 +49,8 @@ services:
       ["npm", "run", "start"]
     ports:
       - "5000:5000"
+    volumes:
+      - .cert:/opt/app/.cert
     environment:
       - TYPEORM_HOST=daily-postgres
       - PORT=5000
@@ -66,3 +68,6 @@ services:
       - JWT_SECRET='|r+.2!!!.Qf_-|63*%.D'
       - JWT_AUDIENCE='Daily Staging'
       - JWT_ISSUER='Daily API Staging'
+      - JWT_PUBLIC_KEY_PATH=/opt/app/.cert/public.pem
+      - JWT_PRIVATE_KEY_PATH=/opt/app/.cert/key.pem
+      - GROWTHBOOK_CLIENT_KEY='local'
