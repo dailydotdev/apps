@@ -35,7 +35,9 @@ export const useSignBack = (): UseSignBack => {
     isLoaded,
     provider: useMemo(
       () =>
-        globalThis?.localStorage.getItem(SIGNIN_METHOD_KEY) as SignBackProvider,
+        globalThis?.localStorage?.getItem(
+          SIGNIN_METHOD_KEY,
+        ) as SignBackProvider,
       [],
     ),
   };
