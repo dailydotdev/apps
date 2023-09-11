@@ -135,7 +135,8 @@ it('should display error messages', async () => {
   mockLoginValidationFlow(params, 400, errorRegistrationMockData);
   fireEvent.submit(form);
   await waitFor(() => {
-    const errorMessage = 'Invalid email or password';
+    const errorMessage =
+      "The email or password you entered doesn't match our records. Please try again or";
     const text = screen.queryByText(errorMessage);
     expect(text).toBeInTheDocument();
   });
