@@ -3,7 +3,12 @@ import classNames from 'classnames';
 import { ClickableText } from '../buttons/ClickableText';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
-import ConditionalWrapper from '../ConditionalWrapper';
+
+interface ClassName {
+  container?: string;
+  body?: string;
+  button?: string;
+}
 
 interface TextType {
   body?: string;
@@ -11,7 +16,7 @@ interface TextType {
 }
 
 interface AuthModalFooterProps {
-  className?: string;
+  className?: ClassName;
   text: TextType;
   onClick: MouseEventHandler;
 }
@@ -23,13 +28,18 @@ function AuthModalFooter({
 }: AuthModalFooterProps): ReactElement {
   return (
     <Modal.Footer
-      className={classNames(className, 'gap-unset')}
+      className={classNames(className?.container, 'gap-unset')}
       justify={Justify.Center}
     >
-
-      {text.body && <Modal.Text>{text.body}</Modal.Text>}
+      {text.body && (
+        <Modal.Text className={className?.body}>{text.body}</Modal.Text>
+      )}
       <ClickableText
-        className="ml-1 underline text-theme-label-primary"
+        className={classNames(
+          className?.button,
+          'ml-1 !text-theme-label-primary',
+        )}
+        inverseUnderline
         onClick={onClick}
       >
         {text.button}

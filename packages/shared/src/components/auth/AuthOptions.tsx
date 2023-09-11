@@ -415,6 +415,7 @@ function AuthOptions({
               onForgotPassword,
               isLoading: isPasswordLoginLoading,
               autoFocus: false,
+              onSignup: onForgotPasswordBack,
             }}
           />
         </Tab>

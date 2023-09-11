@@ -166,6 +166,7 @@ const AuthDefault = ({
               className="btn-primary"
               buttonSize={ButtonSize.Large}
               onClick={() => onSocialClick(provider)}
+              loading={!isReady}
             >
               {provider}
             </Button>
@@ -181,7 +182,7 @@ const AuthDefault = ({
           wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
         >
           <AuthModalFooter
-            className="mt-4"
+            className={{ container: 'mt-4' }}
             text={{
               body: shouldLogin
                 ? 'Not a member yet?'

@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, ReactElement, ReactNode } from 'react';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { AuthFormProps, providerMap } from './common';
 import AuthModalFooter from './AuthModalFooter';
 import AuthContainer from './AuthContainer';
@@ -7,8 +7,6 @@ import { useSignBack } from '../../hooks/auth/useSignBack';
 import { ProfilePicture } from '../ProfilePicture';
 import { SignBackButton } from './SignBackButton';
 import LoginForm, { LoginFormProps } from './LoginForm';
-import { Modal } from '../modals/common/Modal';
-import { ClickableText } from '../buttons/ClickableText';
 import ConditionalWrapper from '../ConditionalWrapper';
 
 interface AuthSignBackProps extends AuthFormProps {
@@ -36,7 +34,7 @@ export const AuthSignBack = ({
   return (
     <span className="flex flex-col flex-1">
       <AuthHeader simplified={simplified} title="Welcome back!" />
-      <AuthContainer>
+      <AuthContainer className="items-center">
         <p className="mb-2 text-center typo-callout text-theme-label-secondary">
           Log in to access your account
         </p>
@@ -67,21 +65,14 @@ export const AuthSignBack = ({
         )}
         <div className="flex flex-1" />
         <AuthModalFooter
-          text={{ body: 'Not a member yet?', button: 'Sign up' }}
+          text={{ body: 'Not you?', button: 'Use another account' }}
+          onClick={onShowLoginOptions}
+        />
+        <AuthModalFooter
+          text={{ body: "Don't have an account?", button: 'Sign up' }}
+          className={{ container: '!border-none pt-0 h-auto' }}
           onClick={onRegister}
-          className="mt-4"
-        >
-          <span className="flex flex-row mt-3 mb-6">
-            <Modal.Text>Not you?</Modal.Text>
-            <ClickableText
-              className="ml-1 !text-theme-label-primary"
-              onClick={onShowLoginOptions}
-              inverseUnderline
-            >
-              Use another account
-            </ClickableText>
-          </span>
-        </AuthModalFooter>
+        />
       </AuthContainer>
     </span>
   );
