@@ -10,11 +10,39 @@ import { IconSize } from '../Icon';
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
   isReady: boolean;
+  showDisclaimer?: boolean;
+}
+
+export function SignupDisclaimer(): ReactElement {
+  return (
+    <p className="w-full text-center text-theme-label-quaternary typo-caption1">
+      By signing up I accept the{' '}
+      <a
+        href={termsOfService}
+        target="_blank"
+        rel="noopener"
+        className="font-bold underline"
+      >
+        Terms of Service
+      </a>{' '}
+      and the{' '}
+      <a
+        href={privacyPolicy}
+        target="_blank"
+        rel="noopener"
+        className="font-bold underline"
+      >
+        Privacy Policy
+      </a>
+      .
+    </p>
+  );
 }
 
 function EmailSignupForm({
   onSubmit,
   isReady,
+  showDisclaimer = true,
 }: EmailSignupFormProps): ReactElement {
   const [email, setEmail] = useState(null);
 
@@ -38,27 +66,7 @@ function EmailSignupForm({
           />
         }
       />
-      <p className="text-center text-theme-label-quaternary typo-caption1">
-        By signing up I accept the{' '}
-        <a
-          href={termsOfService}
-          target="_blank"
-          rel="noopener"
-          className="font-bold underline"
-        >
-          Terms of Service
-        </a>{' '}
-        and the{' '}
-        <a
-          href={privacyPolicy}
-          target="_blank"
-          rel="noopener"
-          className="font-bold underline"
-        >
-          Privacy Policy
-        </a>
-        .
-      </p>
+      {showDisclaimer && <SignupDisclaimer />}
     </AuthForm>
   );
 }
