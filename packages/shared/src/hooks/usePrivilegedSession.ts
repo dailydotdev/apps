@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { AuthSession } from '../lib/kratos';
 import useLogin from './useLogin';
@@ -26,7 +26,8 @@ interface UsePrivilegedSessionProps {
 const usePrivilegedSession = ({
   providers,
 }: UsePrivilegedSessionProps): UsePrivilegedSession => {
-  const { openModal, closeModal } = useLazyModal();
+  const { openModal, updateProps, closeModal } =
+    useLazyModal<LazyModal.VerifySession>();
   const onVerification = useRef<Func>();
   const { displayToast } = useToastNotification();
   const client = useQueryClient();
@@ -53,6 +54,10 @@ const usePrivilegedSession = ({
         }
       },
     });
+
+  useEffect(() => {
+    updateProps({ isReady });
+  }, [updateProps, isReady]);
 
   const setVerifySessionId = useCallback(
     (value: string) => {
