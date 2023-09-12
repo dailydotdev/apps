@@ -74,7 +74,10 @@ export const AuthSignBack = ({
           {signBack.email}
         </span>
         {provider === 'password' ? (
-          <LoginForm {...loginFormProps} />
+          <LoginForm
+            {...loginFormProps}
+            email={loginFormProps.email || signBack.email}
+          />
         ) : (
           <SignBackButton
             signBack={signBack}
