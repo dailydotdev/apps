@@ -430,7 +430,6 @@ it('should increase reading rank progress', async () => {
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
-    reads: 0,
   });
   const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
@@ -448,7 +447,6 @@ it('should increase reading rank progress', async () => {
         lastReadTime: expect.anything(),
         rankLastWeek: undefined,
       },
-      reads: 0,
     });
     const state = queryClient.getQueryState(queryKey);
     expect(state.isInvalidated).toEqual(true);
@@ -460,7 +458,6 @@ it('should not increase reading rank progress when read today', async () => {
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: true, currentRank: 0, progressThisWeek: 0 },
-    reads: 0,
   });
   const el = await screen.findByTitle(
     'One Word Domains — Database of all available one-word domains',
@@ -470,7 +467,6 @@ it('should not increase reading rank progress when read today', async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
     expect(data).toEqual({
       rank: { readToday: true, currentRank: 0, progressThisWeek: 0 },
-      reads: 0,
     });
   });
 });
@@ -490,7 +486,6 @@ it('should increase reading rank progress and rank', async () => {
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 2 },
-    reads: 0,
   });
   const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
@@ -507,7 +502,6 @@ it('should increase reading rank progress and rank', async () => {
         progressThisWeek: 3,
         lastReadTime: expect.anything(),
       },
-      reads: 0,
     });
   });
 });
@@ -517,7 +511,6 @@ it('should not increase reading rank progress when reached final rank', async ()
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 5, progressThisWeek: 7 },
-    reads: 0,
   });
   const el = await screen.findByTitle(
     'One Word Domains — Database of all available one-word domains',
@@ -527,7 +520,6 @@ it('should not increase reading rank progress when reached final rank', async ()
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
     expect(data).toEqual({
       rank: { readToday: false, currentRank: 5, progressThisWeek: 7 },
-      reads: 0,
     });
   });
 });
@@ -557,7 +549,6 @@ it('should increase reading rank progress for anonymous users', async () => {
   const queryKey = getRankQueryKey(null);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
-    reads: 0,
   });
   const main = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
@@ -574,7 +565,6 @@ it('should increase reading rank progress for anonymous users', async () => {
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
       },
-      reads: 0,
     });
   });
 });
