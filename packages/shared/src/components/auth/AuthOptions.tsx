@@ -169,10 +169,8 @@ function AuthOptions({
       const { data } = await refetchBoot();
 
       if (data.user) {
-        onSignBackLogin(
-          data.user as LoggedUser,
-          chosenProvider as SignBackProvider,
-        );
+        const provider = chosenProvider || 'password';
+        onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
       }
 
       await syncSettings(data?.user?.id);
