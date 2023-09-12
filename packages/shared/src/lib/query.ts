@@ -21,6 +21,12 @@ export const generateQueryKey = (
   return [name, user?.id ?? 'anonymous', ...additional];
 };
 
+export const generateStorageKey = (
+  key: RequestKey,
+  ...params: string[]
+): string =>
+  (generateQueryKey(key, null, ...params) as Array<string>).join(':');
+
 export enum RequestKey {
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
@@ -34,6 +40,7 @@ export enum RequestKey {
   ContextMenu = 'context_menu',
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
+  Auth = 'auth',
 }
 
 export type HasConnection<

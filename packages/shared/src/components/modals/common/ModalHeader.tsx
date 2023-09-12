@@ -42,6 +42,7 @@ export function ModalHeader({
   return (
     <ModalHeaderOuter
       className={classNames(
+        'relative',
         (modalTitle || children) && 'border-b border-theme-divider-tertiary',
         className,
       )}

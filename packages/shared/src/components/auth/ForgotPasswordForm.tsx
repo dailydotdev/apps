@@ -72,11 +72,7 @@ function ForgotPasswordForm({
           onChange={() => hint && setHint('')}
           leftIcon={<MailIcon />}
         />
-        <Button
-          className="mt-6 bg-theme-color-cabbage"
-          type="submit"
-          disabled={isLoading}
-        >
+        <Button className="mt-6 btn-primary" type="submit" disabled={isLoading}>
           Send verification code
         </Button>
       </AuthForm>

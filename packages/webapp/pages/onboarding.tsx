@@ -11,7 +11,9 @@ import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressB
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
 import { IntroductionOnboardingTitle } from '@dailydotdev/shared/src/components/onboarding/IntroductionOnboarding';
-import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import AuthOptions, {
+  AuthProps,
+} from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -47,11 +49,6 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
 };
 
 const Title = classed('h2', 'font-bold typo-title2');
-
-interface AuthProps {
-  isAuthenticating: boolean;
-  isLoginFlow: boolean;
-}
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
 
@@ -170,6 +167,9 @@ export function OnboardPage(): ReactElement {
           onSuccessfulRegistration={onSuccessfulTransaction}
           isLoginFlow={isLoginFlow}
           className={classNames('w-full', maxAuthWidth)}
+          onAuthStateUpdate={(props) =>
+            setAuth({ isAuthenticating: true, ...props })
+          }
         />
       );
     }

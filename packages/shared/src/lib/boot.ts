@@ -54,7 +54,7 @@ export type Boot = {
   squads: Squad[];
   postData?: PostBootData;
   isLegacyLogout?: boolean;
-  exp?: { f: string; e: string[] };
+  exp?: { f: string; e: string[]; a: string[] };
 };
 
 export type BootCacheData = Pick<
