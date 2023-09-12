@@ -3,9 +3,10 @@ import TabContainer, {
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import usePrivilegedSession from '@dailydotdev/shared/src/hooks/usePrivilegedSession';
 import React, { ReactElement, useRef, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   AuthFlow,
+  AuthSession,
   getKratosProviders,
   initializeKratosFlow,
   KRATOS_ERROR,
@@ -23,6 +24,10 @@ import {
   useSignBack,
 } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
@@ -51,9 +56,9 @@ const AccountSecurityPage = (): ReactElement => {
     updatePasswordRef.current.reset();
   };
 
-  const { session, initializePrivilegedSession, refetchSession } =
-    usePrivilegedSession({ providers: userProviders?.result });
-
+  const { initializePrivilegedSession } = usePrivilegedSession({
+    providers: userProviders?.result,
+  });
   const { mutateAsync: resetPassword } = useMutation(
     (params: ValidateResetPassword) => submitKratosFlow(params),
     {
@@ -81,6 +86,8 @@ const AccountSecurityPage = (): ReactElement => {
     });
   };
 
+  const client = useQueryClient();
+  const sessionKey = generateQueryKey(RequestKey.CurrentSession, null);
   const { mutateAsync: changeEmail } = useMutation(
     (params: ValidateChangeEmail) => {
       setHint(null);
@@ -103,11 +110,12 @@ const AccountSecurityPage = (): ReactElement => {
         }
 
         setActiveDisplay(Display.Default);
-        await refetchSession();
+        await client.invalidateQueries(sessionKey);
       },
     },
   );
 
+  const session = client.getQueryData<AuthSession>(sessionKey);
   const onChangeEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;

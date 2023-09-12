@@ -1,29 +1,33 @@
 import React, { ReactElement, useState } from 'react';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
-import { LoginFormParams } from './LoginForm';
 import { AuthTriggers } from '../../lib/auth';
 import { Modal, ModalProps } from '../modals/common/Modal';
+import useLogin from '../../hooks/useLogin';
 
 interface VerifySessionModalProps extends ModalProps {
-  isReady: boolean;
   userProviders?: string[];
-  onSocialLogin?: (provider: string) => void;
-  onPasswordLogin?: (params: LoginFormParams) => void;
+  onVerified: () => void;
 }
 
 function VerifySessionModal({
-  onSocialLogin,
   onRequestClose,
-  onPasswordLogin,
   userProviders = [],
-  isReady,
+  onVerified,
   ...props
 }: VerifySessionModalProps): ReactElement {
   const [hint, setHint] = useState('Enter your password to login');
   const filteredProviders = providers.filter(
     ({ provider }) => !userProviders?.indexOf(provider.toLocaleLowerCase()),
   );
+  const { isReady, onSocialLogin, onPasswordLogin } = useLogin({
+    enableSessionVerification: true,
+    queryParams: { refresh: 'true' },
+    onSuccessfulLogin: () => {
+      onVerified();
+      onRequestClose(null);
+    },
+  });
 
   return (
     <Modal

@@ -25,6 +25,7 @@ import { useToastNotification } from './useToastNotification';
 import { SignBackProvider, useSignBack } from './auth/useSignBack';
 import { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -63,7 +64,7 @@ const useLogin = ({
   const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
   const { data: session, refetch: refetchSession } = useQuery(
-    ['current_session'],
+    generateQueryKey(RequestKey.CurrentSession, null),
     getKratosSession,
     { enabled: enableSessionVerification },
   );

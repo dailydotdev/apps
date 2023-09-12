@@ -1,7 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
-import { AuthSession } from '../lib/kratos';
-import useLogin from './useLogin';
+import { useCallback, useRef } from 'react';
 import { useToastNotification } from './useToastNotification';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
@@ -9,15 +6,11 @@ import { LazyModal } from '../components/modals/common/types';
 type Func = () => void | Promise<void>;
 
 interface UsePrivilegedSession {
-  session: AuthSession;
-  refetchSession?: () => Promise<unknown>;
   initializePrivilegedSession?: (
     redirect: string,
     onVerified?: () => void,
   ) => void;
 }
-
-export const VERIFY_SESSION_KEY = 'verify_session';
 
 interface UsePrivilegedSessionProps {
   providers: string[];
@@ -26,58 +19,12 @@ interface UsePrivilegedSessionProps {
 const usePrivilegedSession = ({
   providers,
 }: UsePrivilegedSessionProps): UsePrivilegedSession => {
-  const { openModal, updateProps, closeModal } =
-    useLazyModal<LazyModal.VerifySession>();
-  const onVerification = useRef<Func>();
+  const { openModal } = useLazyModal<LazyModal.VerifySession>();
   const { displayToast } = useToastNotification();
-  const client = useQueryClient();
-  const { data: verifySessionId } = useQuery(VERIFY_SESSION_KEY, () =>
-    client.getQueryData(VERIFY_SESSION_KEY),
-  );
-  const onClearSession = () => {
-    client.setQueryData(VERIFY_SESSION_KEY, null);
-    closeModal();
-  };
-
-  const { session, isReady, onSocialLogin, onPasswordLogin, refetchSession } =
-    useLogin({
-      enableSessionVerification: true,
-      queryEnabled: !!verifySessionId,
-      queryParams: { refresh: 'true' },
-      onSuccessfulLogin: () => {
-        onClearSession();
-        if (onVerification?.current) {
-          onVerification.current();
-          onVerification.current = null;
-        } else {
-          displayToast('Session successfully verified!');
-        }
-      },
-    });
-
-  useEffect(() => {
-    updateProps({ isReady });
-  }, [updateProps, isReady]);
-
-  const setVerifySessionId = useCallback(
-    (value: string) => {
-      openModal({
-        type: LazyModal.VerifySession,
-        props: {
-          isReady,
-          onPasswordLogin,
-          onSocialLogin,
-          userProviders: providers,
-        },
-      });
-
-      client.setQueryData(VERIFY_SESSION_KEY, value);
-    },
-    [client, isReady, onPasswordLogin, onSocialLogin, openModal, providers],
-  );
+  const onVerification = useRef<Func>();
 
   const initializePrivilegedSession = useCallback(
-    (redirect: string, onVerified?: () => void) => {
+    (redirect: string, onVerifiedProps?: () => void) => {
       const url = new URL(redirect);
       if (url.pathname.indexOf('login') === -1) {
         return null;
@@ -87,19 +34,26 @@ const usePrivilegedSession = ({
         return null;
       }
 
-      const returnTo = new URL(url.searchParams.get('return_to'));
-      const flowId = returnTo.searchParams.get('flow');
-      onVerification.current = onVerified;
-      return setVerifySessionId(flowId);
+      onVerification.current = onVerifiedProps;
+
+      const onVerified = () => {
+        if (onVerification?.current) {
+          onVerification.current();
+          onVerification.current = null;
+        } else {
+          displayToast('Session successfully verified!');
+        }
+      };
+
+      return openModal({
+        type: LazyModal.VerifySession,
+        props: { userProviders: providers, onVerified },
+      });
     },
-    [setVerifySessionId],
+    [displayToast, openModal, providers],
   );
 
-  return {
-    session,
-    refetchSession,
-    initializePrivilegedSession,
-  };
+  return { initializePrivilegedSession };
 };
 
 export default usePrivilegedSession;
