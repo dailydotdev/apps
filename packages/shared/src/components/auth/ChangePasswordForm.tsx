@@ -94,6 +94,7 @@ function ChangePasswordForm({
           inputId="password"
           type="password"
           name="password"
+          className={{ container: 'w-full' }}
         />
         <Button className="mt-6 btn-primary" type="submit" disabled={isLoading}>
           Change password
