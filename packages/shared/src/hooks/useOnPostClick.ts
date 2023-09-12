@@ -7,7 +7,7 @@ import {
   optimisticPostUpdateInFeed,
   postAnalyticsEvent,
 } from '../lib/feed';
-import { Post } from '../graphql/posts';
+import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
@@ -67,7 +67,10 @@ export default function useOnPostClick({
                 null,
                 optional?.parent_id,
               ).extra,
-              feedback: isFeedbackEnabled ? true : undefined,
+              feedback:
+                isFeedbackEnabled && post.type === PostType.Article
+                  ? true
+                  : undefined,
             },
           }),
         );
