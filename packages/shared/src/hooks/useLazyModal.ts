@@ -1,11 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { LazyModalType, ModalsType } from '../components/modals/common';
 
 export const MODAL_KEY = 'modal';
 
 type UseLazyModal<K extends keyof ModalsType, T extends LazyModalType<K>> = {
-  updateProps: (data: T['props']) => void;
   openModal: (data: T) => void;
   closeModal: () => void;
   modal: T;
@@ -36,23 +35,12 @@ export function useLazyModal<
     client.setQueryData(MODAL_KEY, null);
   }, [client]);
 
-  const updateProps = useCallback(
-    (data: T['props']) => {
-      client.setQueryData<T>(MODAL_KEY, (current) => {
-        if (!current) {
-          return null;
-        }
-
-        return { ...current, props: { ...current.props, ...data } };
-      });
-    },
-    [client],
+  return useMemo(
+    () => ({
+      openModal,
+      closeModal,
+      modal,
+    }),
+    [openModal, closeModal, modal],
   );
-
-  return {
-    openModal,
-    closeModal,
-    updateProps,
-    modal,
-  };
 }
