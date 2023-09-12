@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { FeedItem, UpdateFeedPost } from '../useFeed';
 import { feedAnalyticsExtra } from '../../lib/feed';
 import { Origin } from '../../lib/analytics';
@@ -57,29 +58,43 @@ export const useFeedVotePost = ({
 
   return {
     ...restVotePost,
-    toggleUpvote: ({ post, origin, opts }) => {
-      const analyticsExtra = feedAnalyticsExtra(feedName, ranking);
+    toggleUpvote: useCallback(
+      ({ post, origin, opts }) => {
+        const analyticsExtra = feedAnalyticsExtra(
+          feedName,
+          ranking,
+          opts?.extra,
+        );
 
-      return toggleUpvote({
-        post,
-        origin: origin || (analyticsExtra.extra.origin as Origin),
-        opts: {
-          ...opts,
-          ...analyticsExtra,
-        },
-      });
-    },
-    toggleDownvote: ({ post, origin, opts }) => {
-      const analyticsExtra = feedAnalyticsExtra(feedName, ranking);
+        return toggleUpvote({
+          post,
+          origin: origin || (analyticsExtra.extra.origin as Origin),
+          opts: {
+            ...opts,
+            ...analyticsExtra,
+          },
+        });
+      },
+      [toggleUpvote, feedName, ranking],
+    ),
+    toggleDownvote: useCallback(
+      ({ post, origin, opts }) => {
+        const analyticsExtra = feedAnalyticsExtra(
+          feedName,
+          ranking,
+          opts?.extra,
+        );
 
-      return toggleDownvote({
-        post,
-        origin: origin || (analyticsExtra.extra.origin as Origin),
-        opts: {
-          ...opts,
-          ...analyticsExtra,
-        },
-      });
-    },
+        return toggleDownvote({
+          post,
+          origin: origin || (analyticsExtra.extra.origin as Origin),
+          opts: {
+            ...opts,
+            ...analyticsExtra,
+          },
+        });
+      },
+      [toggleDownvote, feedName, ranking],
+    ),
   };
 };
