@@ -37,14 +37,12 @@ export default function useTrackImpression(
             columns,
             column,
             row,
-            extra: isFeedbackEnabled
-              ? {
-                  feedback: true,
-                }
-              : undefined,
-            ...feedAnalyticsExtra(feedName, ranking, {
-              scroll_y: window.scrollY,
-            }),
+            extra: {
+              ...feedAnalyticsExtra(feedName, ranking, {
+                scroll_y: window.scrollY,
+              }).extra,
+              feedback: isFeedbackEnabled ? true : undefined,
+            },
           }),
         );
         // eslint-disable-next-line no-param-reassign
