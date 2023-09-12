@@ -2,7 +2,6 @@ import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import usePrivilegedSession from '@dailydotdev/shared/src/hooks/usePrivilegedSession';
-import VerifySessionModal from '@dailydotdev/shared/src/components/auth/VerifySessionModal';
 import React, { ReactElement, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
@@ -50,16 +49,8 @@ const AccountSecurityPage = (): ReactElement => {
     updatePasswordRef.current.reset();
   };
 
-  const {
-    session,
-    showVerifySession,
-    isReady,
-    initializePrivilegedSession,
-    onPasswordLogin,
-    onCloseVerifySession,
-    onSocialLogin,
-    refetchSession,
-  } = usePrivilegedSession();
+  const { session, initializePrivilegedSession, refetchSession } =
+    usePrivilegedSession();
 
   const { mutateAsync: resetPassword } = useMutation(
     (params: ValidateResetPassword) => submitKratosFlow(params),
@@ -187,40 +178,28 @@ const AccountSecurityPage = (): ReactElement => {
   };
 
   return (
-    <>
-      <TabContainer showHeader={false} controlledActive={activeDisplay}>
-        <Tab label={Display.Default}>
-          <AccountSecurityDefault
-            email={session?.identity?.traits?.email}
-            session={session}
-            userProviders={userProviders}
-            updatePasswordRef={updatePasswordRef}
-            onSwitchDisplay={setActiveDisplay}
-            onUpdatePassword={onUpdatePassword}
-            onUpdateProviders={updateSocialProviders}
-          />
-        </Tab>
-        <Tab label={Display.ChangeEmail}>
-          <EmailFormPage
-            title="Change email"
-            onSubmit={onChangeEmail}
-            onSwitchDisplay={setActiveDisplay}
-            hint={hint}
-            setHint={setHint}
-          />
-        </Tab>
-      </TabContainer>
-      {showVerifySession && (
-        <VerifySessionModal
-          isOpen={showVerifySession}
-          isReady={isReady}
+    <TabContainer showHeader={false} controlledActive={activeDisplay}>
+      <Tab label={Display.Default}>
+        <AccountSecurityDefault
+          email={session?.identity?.traits?.email}
+          session={session}
           userProviders={userProviders}
-          onRequestClose={() => onCloseVerifySession()}
-          onPasswordLogin={onPasswordLogin}
-          onSocialLogin={onSocialLogin}
+          updatePasswordRef={updatePasswordRef}
+          onSwitchDisplay={setActiveDisplay}
+          onUpdatePassword={onUpdatePassword}
+          onUpdateProviders={updateSocialProviders}
         />
-      )}
-    </>
+      </Tab>
+      <Tab label={Display.ChangeEmail}>
+        <EmailFormPage
+          title="Change email"
+          onSubmit={onChangeEmail}
+          onSwitchDisplay={setActiveDisplay}
+          hint={hint}
+          setHint={setHint}
+        />
+      </Tab>
+    </TabContainer>
   );
 };
 
