@@ -80,7 +80,7 @@ export default function useOnPostClick({
           await incrementReadingRank();
         }
 
-        if (feedQueryKey) {
+        if (eventName === 'go to link' && feedQueryKey) {
           const mutationHandler = () => {
             return {
               read: true,

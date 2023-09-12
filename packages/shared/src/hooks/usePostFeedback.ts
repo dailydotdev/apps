@@ -53,7 +53,7 @@ export const usePostFeedback = ({
             userState: {
               ...postItem.userState,
               flags: {
-                ...postItem.userState.flags,
+                ...postItem.userState?.flags,
                 feedbackDismiss: true,
               },
             },
