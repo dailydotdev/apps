@@ -165,7 +165,7 @@ const AuthDefault = ({
               icon={icon}
               className="btn-primary"
               buttonSize={ButtonSize.Large}
-              onClick={() => onSocialClick(provider)}
+              onClick={() => onSocialClick(provider.toLowerCase())}
               loading={!isReady}
             >
               {provider}
