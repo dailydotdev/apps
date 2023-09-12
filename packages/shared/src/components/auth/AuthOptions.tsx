@@ -330,7 +330,10 @@ function AuthOptions({
   };
 
   const onShowLogin = () => {
-    onSetActiveDisplay(AuthDisplay.SignBack);
+    if (!isLoginFlow && onAuthStateUpdate) {
+      onAuthStateUpdate({ isLoginFlow: true });
+    }
+    onSetActiveDisplay(AuthDisplay.Default);
   };
 
   return (
