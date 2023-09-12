@@ -632,9 +632,9 @@ it('should report broken link', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
-  await screen.findByRole('alert');
 
   await waitFor(async () => {
+    await screen.findByRole('alert');
     const feed = await screen.findByTestId('posts-feed');
 
     return expect(feed).toHaveAttribute('aria-live', 'assertive');
@@ -681,9 +681,8 @@ it('should report broken link with comment', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
-  await screen.findByRole('alert');
-
   await waitFor(async () => {
+    await screen.findByRole('alert');
     const feed = await screen.findByTestId('posts-feed');
 
     return expect(feed).toHaveAttribute('aria-live', 'assertive');
@@ -726,9 +725,9 @@ it('should report nsfw', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
-  await screen.findByRole('alert');
 
   await waitFor(async () => {
+    await screen.findByRole('alert');
     const feed = await screen.findByTestId('posts-feed');
 
     return expect(feed).toHaveAttribute('aria-live', 'assertive');
@@ -795,9 +794,9 @@ it('should block a source', async () => {
   const contextBtn = await screen.findByText("Don't show posts from Echo JS");
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await screen.findByRole('alert');
 
   await waitFor(async () => {
+    await screen.findByRole('alert');
     const feed = await screen.findByTestId('posts-feed');
 
     return expect(feed).toHaveAttribute('aria-live', 'assertive');
@@ -834,9 +833,9 @@ it('should block a tag', async () => {
   const contextBtn = await screen.findByText('Not interested in #javascript');
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await screen.findByRole('alert');
 
   await waitFor(async () => {
+    await screen.findByRole('alert');
     const feed = await screen.findByTestId('posts-feed');
 
     return expect(feed).toHaveAttribute('aria-live', 'assertive');
@@ -962,9 +961,9 @@ it('should report irrelevant tags', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
-  await screen.findByRole('alert');
 
   await waitFor(async () => {
+    await screen.findByRole('alert');
     const feed = await screen.findByTestId('posts-feed');
 
     return expect(feed).toHaveAttribute('aria-live', 'assertive');
