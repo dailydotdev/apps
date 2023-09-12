@@ -3,6 +3,7 @@ import usePersistentContext from '../usePersistentContext';
 import { generateStorageKey, RequestKey } from '../../lib/query';
 import { SocialProvider } from '../../components/auth/common';
 import { LoggedUser } from '../../lib/user';
+import { isNullOrUndefined } from '../../lib/func';
 
 export const SIGNIN_METHOD_KEY = 'signin_method';
 
@@ -29,11 +30,21 @@ export const useSignBack = (): UseSignBack => {
     usePersistentContext<SignedInUser>(signBackKey);
 
   const onUpdateSignBack: UseSignBack['onUpdateSignBack'] = useCallback(
-    ({ name, email, image }, provider) => {
-      globalThis?.localStorage.setItem(
-        SIGNIN_METHOD_KEY,
-        provider.toLowerCase(),
-      );
+    (user, provider) => {
+      if (isNullOrUndefined(provider)) {
+        globalThis?.localStorage.removeItem(SIGNIN_METHOD_KEY);
+      } else {
+        globalThis?.localStorage.setItem(
+          SIGNIN_METHOD_KEY,
+          provider.toLowerCase(),
+        );
+      }
+
+      if (isNullOrUndefined(user)) {
+        return setSignBack(undefined);
+      }
+
+      const { name, email, image } = user;
       return setSignBack({ name, email, image });
     },
     [setSignBack],
