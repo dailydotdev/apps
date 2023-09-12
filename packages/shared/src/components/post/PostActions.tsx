@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { QueryKey } from 'react-query';
+import React, { ReactElement, useContext } from 'react';
+import { QueryKey, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
@@ -15,6 +15,9 @@ import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
+import { ActiveFeedContext } from '../../contexts';
+import { mutateVoteFeedPost } from '../../hooks/vote/utils';
+import { updateCachedPagePost } from '../../lib/query';
 
 export interface ShareBookmarkProps {
   onShare: (post: Post) => void;
@@ -39,8 +42,19 @@ export function PostActions({
 }: PostActionsProps): ReactElement {
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const queryClient = useQueryClient();
 
-  const { toggleUpvote, toggleDownvote } = useVotePost();
+  const { toggleUpvote, toggleDownvote } = useVotePost({
+    variables: { feedName: feedQueryKey },
+    onMutate: feedQueryKey
+      ? ({ id, vote }) => {
+          const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
+
+          return mutateVoteFeedPost({ id, vote, items, updatePost });
+        }
+      : undefined,
+  });
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserPostVote.None) {
