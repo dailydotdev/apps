@@ -1,11 +1,17 @@
 import { Provider } from '@dailydotdev/shared/src/components/auth/common';
-import ProviderButton from '@dailydotdev/shared/src/components/auth/ProviderButton';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement, ReactNode } from 'react';
+import classNames from 'classnames';
 import AccountContentSection from '../AccountContentSection';
 import {
   ManageSocialProviderTypes,
   ManageSocialProvidersProps,
 } from '../common';
+
+interface ClassName {
+  container?: string;
+  button?: string;
+}
 
 interface AccountLoginSectionProps {
   providers: Provider[];
@@ -14,6 +20,7 @@ interface AccountLoginSectionProps {
   providerActionType: ManageSocialProviderTypes;
   providerAction: (props: ManageSocialProvidersProps) => void;
   children?: ReactNode;
+  className?: ClassName;
 }
 
 const providerLabel = {
@@ -28,6 +35,7 @@ function AccountLoginSection({
   providerActionType,
   providerAction,
   children,
+  className,
 }: AccountLoginSectionProps): ReactElement {
   if (!providers?.length) {
     return null;
@@ -35,20 +43,26 @@ function AccountLoginSection({
 
   return (
     <AccountContentSection title={title} description={description}>
-      <div className="grid grid-cols-1 gap-4 mt-6 w-64">
-        {providers.map(({ provider, ...rest }) => (
-          <ProviderButton
+      <div
+        className={classNames(
+          'grid grid-cols-1 gap-4 mt-6 w-64',
+          className?.container,
+        )}
+      >
+        {providers.map(({ provider, icon }) => (
+          <Button
             key={provider}
+            icon={icon}
+            className={className?.button}
             onClick={() =>
               providerAction({
                 type: providerActionType,
                 provider: provider.toLowerCase(),
               })
             }
-            label={providerLabel[providerActionType]}
-            provider={provider}
-            {...rest}
-          />
+          >
+            {providerLabel[providerActionType]} {provider}
+          </Button>
         ))}
         {children}
       </div>

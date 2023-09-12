@@ -243,10 +243,7 @@ export const SocialRegistrationForm = ({
           <Button
             form="auth-form"
             type="submit"
-            className={classNames(
-              'w-full btn-primary',
-              !isLoading && 'bg-theme-color-cabbage',
-            )}
+            className="w-full btn-primary"
             disabled={isLoading}
           >
             Sign up

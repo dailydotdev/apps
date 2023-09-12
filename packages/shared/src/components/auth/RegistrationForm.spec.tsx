@@ -169,7 +169,7 @@ it('should show login if email exists', async () => {
   const email = 'sshanzel@yahoo.com';
   await renderLogin(email);
 
-  const text = screen.queryByText('Log in with Facebook');
+  const text = screen.queryByText('Facebook');
   expect(text).toBeInTheDocument();
 });
 

@@ -218,11 +218,7 @@ export const RegistrationForm = ({
         wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
       >
         <Modal.Footer>
-          <Button
-            form="auth-form"
-            type="submit"
-            className="w-full bg-theme-color-cabbage"
-          >
+          <Button form="auth-form" type="submit" className="w-full btn-primary">
             Sign up
           </Button>
         </Modal.Footer>
