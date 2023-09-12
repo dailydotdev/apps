@@ -40,14 +40,13 @@ interface AuthDefaultProps extends AuthFormProps {
   isLoading?: boolean;
   isReady: boolean;
   loginButton?: string;
-  initialEmail?: string;
 }
 
 const AuthDefault = ({
   loginHint,
   onSignup,
   onProviderClick,
-  onForgotPassword: handleForgotPassword,
+  onForgotPassword,
   onPasswordLogin,
   targetId,
   isLoginFlow,
@@ -119,10 +118,6 @@ const AuthDefault = ({
     }
 
     return onSignup(email);
-  };
-
-  const onForgotPassword = (email: string) => {
-    handleForgotPassword(email);
   };
 
   const onSocialClick = (provider: string) => {
