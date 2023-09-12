@@ -1,11 +1,10 @@
 import { useCallback, useRef } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { AuthSession, getKratosProviders } from '../lib/kratos';
+import { AuthSession } from '../lib/kratos';
 import useLogin from './useLogin';
 import { useToastNotification } from './useToastNotification';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
-import { disabledRefetch } from '../lib/func';
 
 type Func = () => void | Promise<void>;
 
@@ -20,16 +19,17 @@ interface UsePrivilegedSession {
 
 export const VERIFY_SESSION_KEY = 'verify_session';
 
-const usePrivilegedSession = (): UsePrivilegedSession => {
+interface UsePrivilegedSessionProps {
+  providers: string[];
+}
+
+const usePrivilegedSession = ({
+  providers,
+}: UsePrivilegedSessionProps): UsePrivilegedSession => {
   const { openModal, closeModal } = useLazyModal();
   const onVerification = useRef<Func>();
   const { displayToast } = useToastNotification();
   const client = useQueryClient();
-  const { data: userProviders } = useQuery(
-    'providers',
-    () => getKratosProviders(),
-    { ...disabledRefetch },
-  );
   const { data: verifySessionId } = useQuery(VERIFY_SESSION_KEY, () =>
     client.getQueryData(VERIFY_SESSION_KEY),
   );
@@ -62,13 +62,13 @@ const usePrivilegedSession = (): UsePrivilegedSession => {
           isReady,
           onPasswordLogin,
           onSocialLogin,
-          userProviders,
+          userProviders: providers,
         },
       });
 
       client.setQueryData(VERIFY_SESSION_KEY, value);
     },
-    [client, isReady, onPasswordLogin, onSocialLogin, openModal, userProviders],
+    [client, isReady, onPasswordLogin, onSocialLogin, openModal, providers],
   );
 
   const initializePrivilegedSession = useCallback(

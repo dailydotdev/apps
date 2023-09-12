@@ -2,13 +2,12 @@ import React, { ReactElement, useState } from 'react';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
 import { LoginFormParams } from './LoginForm';
-import { KratosProviderData } from '../../lib/kratos';
 import { AuthTriggers } from '../../lib/auth';
 import { Modal, ModalProps } from '../modals/common/Modal';
 
 interface VerifySessionModalProps extends ModalProps {
   isReady: boolean;
-  userProviders?: KratosProviderData;
+  userProviders?: string[];
   onSocialLogin?: (provider: string) => void;
   onPasswordLogin?: (params: LoginFormParams) => void;
 }
@@ -17,14 +16,13 @@ function VerifySessionModal({
   onSocialLogin,
   onRequestClose,
   onPasswordLogin,
-  userProviders,
+  userProviders = [],
   isReady,
   ...props
 }: VerifySessionModalProps): ReactElement {
   const [hint, setHint] = useState('Enter your password to login');
   const filteredProviders = providers.filter(
-    ({ provider }) =>
-      !userProviders?.result.indexOf(provider.toLocaleLowerCase()),
+    ({ provider }) => !userProviders?.indexOf(provider.toLocaleLowerCase()),
   );
 
   return (

@@ -22,6 +22,7 @@ import {
   SignBackProvider,
   useSignBack,
 } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
@@ -39,6 +40,7 @@ const AccountSecurityPage = (): ReactElement => {
   const { data: userProviders, refetch: refetchProviders } = useQuery(
     'providers',
     () => getKratosProviders(),
+    { ...disabledRefetch },
   );
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
@@ -50,7 +52,7 @@ const AccountSecurityPage = (): ReactElement => {
   };
 
   const { session, initializePrivilegedSession, refetchSession } =
-    usePrivilegedSession();
+    usePrivilegedSession({ providers: userProviders?.result });
 
   const { mutateAsync: resetPassword } = useMutation(
     (params: ValidateResetPassword) => submitKratosFlow(params),
