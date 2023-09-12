@@ -74,7 +74,7 @@ function LoginForm({
         name="identifier"
         label="Email"
         type="email"
-        defaultValue={email}
+        value={email}
         data-testid="login_email"
         saveHintSpace
         onChange={(e) => {
