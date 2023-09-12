@@ -117,6 +117,7 @@ export const GrowthBookProvider = ({
       deviceId,
       version,
       platform: app,
+      ...experimentation?.a,
     };
 
     if (user && 'providers' in user) {
@@ -135,7 +136,7 @@ export const GrowthBookProvider = ({
       };
     }
     gb.setAttributes(atts);
-  }, [app, user, deviceId, gb, version]);
+  }, [app, user, deviceId, gb, version, experimentation?.a]);
 
   return <Provider growthbook={gb}>{children}</Provider>;
 };
