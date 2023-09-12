@@ -110,40 +110,34 @@ importers:
         version: 5.1.5
       next:
         specifier: ^12.2.2
-        version: 12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0)
-      preact:
-        specifier: ^10.8.2
-        version: 10.8.2
-      preact-render-to-string:
-        specifier: ^5.2.0
-        version: 5.2.0(preact@10.8.2)
+        version: 12.2.2(@babel/core@7.17.9)(react-dom@17.0.2)(react@17.0.2)(sass@1.53.0)
       react:
-        specifier: npm:@preact/compat@17.0.2
-        version: /@preact/compat@17.0.2(preact@10.8.2)
+        specifier: 17.0.2
+        version: 17.0.2
       react-dom:
-        specifier: npm:@preact/compat@17.0.2
-        version: /@preact/compat@17.0.2(preact@10.8.2)
+        specifier: 17.0.2
+        version: 17.0.2(react@17.0.2)
       react-intersection-observer:
         specifier: ^8.34.0
-        version: 8.34.0(@preact/compat@17.0.2)
+        version: 8.34.0(react@17.0.2)
       react-modal:
         specifier: ^3.15.1
-        version: 3.15.1(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 3.15.1(react-dom@17.0.2)(react@17.0.2)
       react-query:
         specifier: 3.39.1
-        version: 3.39.1(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 3.39.1(react-dom@17.0.2)(react@17.0.2)
       react-swipeable:
         specifier: ^6.2.2
-        version: 6.2.2(@preact/compat@17.0.2)
+        version: 6.2.2(react@17.0.2)
       react-tooltip:
         specifier: ^4.2.21
-        version: 4.2.21(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 4.2.21(react-dom@17.0.2)(react@17.0.2)
       react-transition-group:
         specifier: ^4.4.2
-        version: 4.4.2(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 4.4.2(react-dom@17.0.2)(react@17.0.2)
       react-virtual:
         specifier: ^2.10.4
-        version: 2.10.4(@preact/compat@17.0.2)
+        version: 2.10.4(react@17.0.2)
       webextension-polyfill-ts:
         specifier: ^0.22.0
         version: 0.22.0
@@ -238,9 +232,6 @@ importers:
       babel-plugin-dynamic-import-node:
         specifier: ^2.3.3
         version: 2.3.3
-      babel-plugin-module-resolver:
-        specifier: ^4.1.0
-        version: 4.1.0
       babel-plugin-react-remove-properties:
         specifier: ^0.3.0
         version: 0.3.0
@@ -407,10 +398,10 @@ importers:
         version: '@gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92'
       '@growthbook/growthbook-react':
         specifier: ^0.17.0
-        version: 0.17.0(@preact/compat@17.0.2)
+        version: 0.17.0(react@17.0.2)
       '@tippyjs/react':
         specifier: ^4.2.5
-        version: 4.2.5(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 4.2.5(react-dom@17.0.2)(react@17.0.2)
       balloon-css:
         specifier: ^1.2.0
         version: 1.2.0
@@ -431,7 +422,7 @@ importers:
         version: 5.3.2
       linkifyjs:
         specifier: ^2.1.9
-        version: 2.1.9(@preact/compat@17.0.2)(@preact/compat@17.0.2)(jquery@3.7.0)
+        version: 2.1.9(jquery@3.7.0)(react-dom@17.0.2)(react@17.0.2)
       lodash.clonedeep:
         specifier: ^4.5.0
         version: 4.5.0
@@ -440,13 +431,13 @@ importers:
         version: 2.6.7
       react-markdown:
         specifier: ^8.0.7
-        version: 8.0.7(@preact/compat@17.0.2)(@types/react@17.0.47)
+        version: 8.0.7(@types/react@17.0.47)(react@17.0.2)
       react-onesignal:
         specifier: ^2.0.4
-        version: 2.0.4(@preact/compat@17.0.2)
+        version: 2.0.4(react@17.0.2)
       react-syntax-highlighter:
         specifier: ^15.5.0
-        version: 15.5.0(@preact/compat@17.0.2)
+        version: 15.5.0(react@17.0.2)
       remark-gfm:
         specifier: ^3.0.1
         version: 3.0.1
@@ -609,7 +600,7 @@ importers:
         version: 12.3.0
       next:
         specifier: ^12.2.2
-        version: 12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0)
+        version: 12.2.2(@babel/core@7.17.9)(react-dom@17.0.2)(react@17.0.2)(sass@1.53.0)
       nock:
         specifier: ^13.3.1
         version: 13.3.1
@@ -641,29 +632,29 @@ importers:
         specifier: ^2.4.1
         version: 2.6.2
       react:
-        specifier: npm:@preact/compat@17.0.2
-        version: /@preact/compat@17.0.2(preact@10.8.2)
+        specifier: 17.0.2
+        version: 17.0.2
       react-dom:
-        specifier: npm:@preact/compat@17.0.2
-        version: /@preact/compat@17.0.2(preact@10.8.2)
+        specifier: 17.0.2
+        version: 17.0.2(react@17.0.2)
       react-intersection-observer:
         specifier: ^8.32.2
-        version: 8.34.0(@preact/compat@17.0.2)
+        version: 8.34.0(react@17.0.2)
       react-modal:
         specifier: ^3.14.3
-        version: 3.15.1(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 3.15.1(react-dom@17.0.2)(react@17.0.2)
       react-query:
         specifier: 3.39.1
-        version: 3.39.1(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 3.39.1(react-dom@17.0.2)(react@17.0.2)
       react-swipeable:
         specifier: ^6.2.0
-        version: 6.2.2(@preact/compat@17.0.2)
+        version: 6.2.2(react@17.0.2)
       react-transition-group:
         specifier: ^4.4.2
-        version: 4.4.2(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 4.4.2(react-dom@17.0.2)(react@17.0.2)
       react-virtual:
         specifier: ^2.8.2
-        version: 2.10.4(@preact/compat@17.0.2)
+        version: 2.10.4(react@17.0.2)
       stylelint:
         specifier: ^13.13.1
         version: 13.13.1
@@ -717,52 +708,43 @@ importers:
         version: 5.1.5
       next:
         specifier: ^12.2.2
-        version: 12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0)
-      next-plugin-preact:
-        specifier: ^3.0.7
-        version: 3.0.7(@prefresh/babel-plugin@0.4.4)(next@12.2.2)(preact-render-to-string@5.2.0)(preact-ssr-prepass@1.2.0)(preact@10.8.2)(webpack@5.72.0)
+        version: 12.2.2(@babel/core@7.17.9)(react-dom@17.0.2)(react@17.0.2)(sass@1.53.0)
       next-pwa:
         specifier: ^5.5.4
         version: 5.5.4(@babel/core@7.17.9)(next@12.2.2)(webpack@5.72.0)
       next-seo:
         specifier: ^5.4.0
-        version: 5.4.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2)
-      preact:
-        specifier: ^10.8.2
-        version: 10.8.2
-      preact-render-to-string:
-        specifier: ^5.1.21
-        version: 5.2.0(preact@10.8.2)
+        version: 5.4.0(next@12.2.2)(react-dom@17.0.2)(react@17.0.2)
       react:
-        specifier: npm:@preact/compat@17.0.2
-        version: /@preact/compat@17.0.2(preact@10.8.2)
+        specifier: 17.0.2
+        version: 17.0.2
       react-dom:
-        specifier: npm:@preact/compat@17.0.2
-        version: /@preact/compat@17.0.2(preact@10.8.2)
+        specifier: 17.0.2
+        version: 17.0.2(react@17.0.2)
       react-flip-toolkit:
         specifier: ^7.1.0
-        version: 7.1.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 7.1.0(react-dom@17.0.2)(react@17.0.2)
       react-intersection-observer:
         specifier: ^8.34.0
-        version: 8.34.0(@preact/compat@17.0.2)
+        version: 8.34.0(react@17.0.2)
       react-modal:
         specifier: ^3.15.1
-        version: 3.15.1(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 3.15.1(react-dom@17.0.2)(react@17.0.2)
       react-parallax-tilt:
         specifier: ^1.7.10
-        version: 1.7.10(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 1.7.10(react-dom@17.0.2)(react@17.0.2)
       react-query:
         specifier: 3.39.1
-        version: 3.39.1(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 3.39.1(react-dom@17.0.2)(react@17.0.2)
       react-swipeable:
         specifier: ^6.2.2
-        version: 6.2.2(@preact/compat@17.0.2)
+        version: 6.2.2(react@17.0.2)
       react-transition-group:
         specifier: ^4.4.2
-        version: 4.4.2(@preact/compat@17.0.2)(@preact/compat@17.0.2)
+        version: 4.4.2(react-dom@17.0.2)(react@17.0.2)
       react-virtual:
         specifier: ^2.10.4
-        version: 2.10.4(@preact/compat@17.0.2)
+        version: 2.10.4(react@17.0.2)
     devDependencies:
       '@babel/preset-typescript':
         specifier: ^7.16.5
@@ -845,9 +827,6 @@ importers:
       babel-plugin-dynamic-import-node:
         specifier: ^2.3.3
         version: 2.3.3
-      babel-plugin-module-resolver:
-        specifier: ^4.1.0
-        version: 4.1.0
       eslint:
         specifier: ^7.32.0
         version: 7.32.0
@@ -2226,14 +2205,14 @@ packages:
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
     dev: true
 
-  /@growthbook/growthbook-react@0.17.0(@preact/compat@17.0.2):
+  /@growthbook/growthbook-react@0.17.0(react@17.0.2):
     resolution: {integrity: sha512-od+bSg3RD9AXfi/TWFDSzRaB6RuJLkUX5eFOZz8u8wL8yDbgd5RF9cwu4lQIF9/tyG1WLu4qipV+SM2v5s4BcQ==}
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@growthbook/growthbook': '@gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92'
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
     dev: false
 
   /@humanwhocodes/config-array@0.5.0:
@@ -2656,19 +2635,13 @@ packages:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
     dev: false
 
-  /@preact/compat@17.0.2(preact@10.8.2):
-    resolution: {integrity: sha512-svzrLCGU++qft7dPmP2hQuSfih73jge2ohoWCT+UQs7i9757p12xMTe3yefylW5t6zMkQEtQ6urPnGT3jh2VCg==}
-    peerDependencies:
-      preact: '*'
-    dependencies:
-      preact: 10.8.2
-
   /@prefresh/babel-plugin@0.4.3:
     resolution: {integrity: sha512-fYAWbU1WDSLn108kKY4eDaaeUcnszFqXjgaGKYXNZ5NLulpRTpsrY+Sbfo9q8LDpWrBpqIgzjrwNnvglWI1xNQ==}
     dev: false
 
   /@prefresh/babel-plugin@0.4.4:
     resolution: {integrity: sha512-/EvgIFMDL+nd20WNvMO0JQnzIl1EJPgmSaSYrZUww7A+aSdKsi37aL07TljrZR1cBMuzFxcr4xvqsUQLFJEukw==}
+    dev: true
 
   /@prefresh/core@1.5.1(preact@10.8.2):
     resolution: {integrity: sha512-e0mB0Oxtog6ZpKPDBYbzFniFJDIktuKMzOHp7sguntU+ot0yi6dbhJRE9Css1qf0u16wdSZjpL2W2ODWuU05Cw==}
@@ -2688,7 +2661,7 @@ packages:
       '@prefresh/core': 1.5.1(preact@10.8.2)
       '@prefresh/utils': 1.2.0
       '@prefresh/webpack': 3.3.3(@prefresh/babel-plugin@0.4.3)(preact@10.8.2)(webpack@5.72.0)
-      next: 12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0)
+      next: 12.2.2(@babel/core@7.17.9)(react-dom@17.0.2)(react@17.0.2)(sass@1.53.0)
       preact: 10.8.2
       webpack: 5.72.0(webpack-cli@4.9.2)
     dev: false
@@ -2722,6 +2695,7 @@ packages:
       '@prefresh/utils': 1.2.0
       preact: 10.8.2
       webpack: 5.72.0(webpack-cli@4.9.2)
+    dev: true
 
   /@reach/observe-rect@1.2.0:
     resolution: {integrity: sha512-Ba7HmkFgfQxZqqaeIWWkNK0rEhpxVQHIoVyW1YDSkGsGIXzcaW4deC8B0pZrNSSyLTdIk7y+5olKt5+g0GmFIQ==}
@@ -3078,14 +3052,14 @@ packages:
       '@testing-library/dom': 9.3.0
     dev: true
 
-  /@tippyjs/react@4.2.5(@preact/compat@17.0.2)(@preact/compat@17.0.2):
+  /@tippyjs/react@4.2.5(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-YBLgy+1zznBNbx4JOoOdFXWMLXjBh9hLPwRtq3s8RRdrez2l3tPBRt2m2909wZd9S1KUeKjOOYYsnitccI9I3A==}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
     dependencies:
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
       tippy.js: 6.3.1
     dev: false
 
@@ -4250,17 +4224,6 @@ packages:
       '@babel/types': 7.22.5
       '@types/babel__core': 7.20.1
       '@types/babel__traverse': 7.20.1
-    dev: true
-
-  /babel-plugin-module-resolver@4.1.0:
-    resolution: {integrity: sha512-MlX10UDheRr3lb3P0WcaIdtCSRlxdQsB1sBqL7W0raF070bGl1HQQq5K3T2vf2XAYie+ww+5AKC/WrkjRO2knA==}
-    engines: {node: '>= 8.0.0'}
-    dependencies:
-      find-babel-config: 1.2.0
-      glob: 7.2.0
-      pkg-up: 3.1.0
-      reselect: 4.1.8
-      resolve: 1.22.2
     dev: true
 
   /babel-plugin-polyfill-corejs2@0.3.3(@babel/core@7.17.9):
@@ -6580,14 +6543,6 @@ packages:
     dependencies:
       to-regex-range: 5.0.1
 
-  /find-babel-config@1.2.0:
-    resolution: {integrity: sha512-jB2CHJeqy6a820ssiqwrKMeyC6nNdmrcgkKWJWmpoxpE8RKciYJXCcXRq1h2AzCo5I5BJeN2tkGEO3hLTuePRA==}
-    engines: {node: '>=4.0.0'}
-    dependencies:
-      json5: 0.5.1
-      path-exists: 3.0.0
-    dev: true
-
   /find-cache-dir@3.3.2:
     resolution: {integrity: sha512-wXZV5emFEjrridIgED11OoUKLxiYjAcqot/NJdAkOhlJ+vGzwhOAfcG5OX1jP+S0PcjEn8bdMJv+g2jwQ3Onig==}
     engines: {node: '>=8'}
@@ -6595,13 +6550,6 @@ packages:
       commondir: 1.0.1
       make-dir: 3.1.0
       pkg-dir: 4.2.0
-
-  /find-up@3.0.0:
-    resolution: {integrity: sha512-1yD6RmLI1XBfxugvORwlck6f75tYL+iR0jqwsOrOxMZyGYqUuDhJ0l4AXdO1iX/FTs9cBAMEk1gWSEx1kSbylg==}
-    engines: {node: '>=6'}
-    dependencies:
-      locate-path: 3.0.0
-    dev: true
 
   /find-up@4.1.0:
     resolution: {integrity: sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw==}
@@ -8437,11 +8385,6 @@ packages:
     resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
     dev: true
 
-  /json5@0.5.1:
-    resolution: {integrity: sha512-4xrs1aW+6N5DalkqSVA8fxh458CXvR99WU8WLKmq4v8eWAL86Xo3BVqyd3SkA9wEVjCMqyvvRRkshAdOnBp5rw==}
-    hasBin: true
-    dev: true
-
   /json5@1.0.2:
     resolution: {integrity: sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==}
     hasBin: true
@@ -8593,7 +8536,7 @@ packages:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
     dev: true
 
-  /linkifyjs@2.1.9(@preact/compat@17.0.2)(@preact/compat@17.0.2)(jquery@3.7.0):
+  /linkifyjs@2.1.9(jquery@3.7.0)(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-74ivurkK6WHvHFozVaGtQWV38FzBwSTGNmJolEgFp7QgR2bl6ArUWlvT4GcHKbPe1z3nWYi+VUdDZk16zDOVug==}
     peerDependencies:
       jquery: '>= 1.11.0'
@@ -8601,8 +8544,8 @@ packages:
       react-dom: '>= 0.14.0'
     dependencies:
       jquery: 3.7.0
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
     dev: false
 
   /loader-runner@4.3.0:
@@ -8625,14 +8568,6 @@ packages:
       big.js: 5.2.2
       emojis-list: 3.0.0
       json5: 2.2.3
-
-  /locate-path@3.0.0:
-    resolution: {integrity: sha512-7AO748wWnIhNqAuaty2ZWHkQHRSNfPVIsPIfwEOWO22AmaoVrWavlOcMR5nzTLNYvp36X220/maaRsrec1G65A==}
-    engines: {node: '>=6'}
-    dependencies:
-      p-locate: 3.0.0
-      path-exists: 3.0.0
-    dev: true
 
   /locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
@@ -9433,10 +9368,6 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /module-alias@2.2.3:
-    resolution: {integrity: sha512-23g5BFj4zdQL/b6tor7Ji+QY4pEfNH784BMslY9Qb0UnJWRAt+lQGLYmRaM0KDBwIG23ffEBELhZDP2rhi9f/Q==}
-    dev: false
-
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
@@ -9505,26 +9436,6 @@ packages:
     resolution: {integrity: sha512-9iN1ka/9zmX1ZvLV9ewJYEk9h7RyRRtqdK0woXcqohu8EWIerfPUjYJPg0ULy0UqP7cslmdGc8xKDJcojlKiaw==}
     dev: true
 
-  /next-plugin-preact@3.0.7(@prefresh/babel-plugin@0.4.4)(next@12.2.2)(preact-render-to-string@5.2.0)(preact-ssr-prepass@1.2.0)(preact@10.8.2)(webpack@5.72.0):
-    resolution: {integrity: sha512-8Xl+SJT3FCZHS7R/6Gana6e95o09UpiyCsK0cw8P/KW2M+lQcYIwIt4ZLZd+K9TW3JZx6KJDLqVbq0Kd6KZsIg==}
-    requiresBuild: true
-    peerDependencies:
-      preact: '>=10'
-      preact-render-to-string: '>=5'
-      preact-ssr-prepass: '>=1'
-    dependencies:
-      '@prefresh/next': 1.5.2(next@12.2.2)(preact@10.8.2)(webpack@5.72.0)
-      '@prefresh/webpack': 3.3.3(@prefresh/babel-plugin@0.4.4)(preact@10.8.2)(webpack@5.72.0)
-      module-alias: 2.2.3
-      preact: 10.8.2
-      preact-render-to-string: 5.2.0(preact@10.8.2)
-      preact-ssr-prepass: 1.2.0(preact@10.8.2)
-    transitivePeerDependencies:
-      - '@prefresh/babel-plugin'
-      - next
-      - webpack
-    dev: false
-
   /next-pwa@5.5.4(@babel/core@7.17.9)(next@12.2.2)(webpack@5.72.0):
     resolution: {integrity: sha512-EgB2MQWGR8oZDzY6US+/D0LOCUhPZYCgeqRVBYDxQWNi0N6XfQOoZPw2COIrg/eMt/rB0M+/mquhAQACs5v4Ag==}
     peerDependencies:
@@ -9533,7 +9444,7 @@ packages:
       babel-loader: 8.2.5(@babel/core@7.17.9)(webpack@5.72.0)
       clean-webpack-plugin: 4.0.0(webpack@5.72.0)
       globby: 11.1.0
-      next: 12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0)
+      next: 12.2.2(@babel/core@7.17.9)(react-dom@17.0.2)(react@17.0.2)(sass@1.53.0)
       terser-webpack-plugin: 5.3.9(webpack@5.72.0)
       workbox-webpack-plugin: 6.6.0(webpack@5.72.0)
       workbox-window: 6.6.0
@@ -9547,16 +9458,16 @@ packages:
       - webpack
     dev: false
 
-  /next-seo@5.4.0(@preact/compat@17.0.2)(@preact/compat@17.0.2)(next@12.2.2):
+  /next-seo@5.4.0(next@12.2.2)(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-R9DhajPwJnR/lsF2hZ8cN8uqr5CVITsRrCG1AF5+ufcaybKYOvnH8sH9MaH4/hpkps3PQ9H71S7J7SPYixAYzQ==}
     peerDependencies:
       next: ^8.1.1-canary.54 || >=9.0.0
       react: '>=16.0.0'
       react-dom: '>=16.0.0'
     dependencies:
-      next: 12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0)
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      next: 12.2.2(@babel/core@7.17.9)(react-dom@17.0.2)(react@17.0.2)(sass@1.53.0)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
     dev: false
 
   /next-tick@1.1.0:
@@ -9570,7 +9481,7 @@ packages:
       escalade: 3.1.1
     dev: true
 
-  /next@12.2.2(@babel/core@7.17.9)(@preact/compat@17.0.2)(@preact/compat@17.0.2)(sass@1.53.0):
+  /next@12.2.2(@babel/core@7.17.9)(react-dom@17.0.2)(react@17.0.2)(sass@1.53.0):
     resolution: {integrity: sha512-zAYFY45aBry/PlKONqtlloRFqU/We3zWYdn2NoGvDZkoYUYQSJC8WMcalS5C19MxbCZLUVCX7D7a6gTGgl2yLg==}
     engines: {node: '>=12.22.0'}
     hasBin: true
@@ -9592,11 +9503,11 @@ packages:
       '@swc/helpers': 0.4.2
       caniuse-lite: 1.0.30001502
       postcss: 8.4.5
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
       sass: 1.53.0
-      styled-jsx: 5.0.2(@babel/core@7.17.9)(@preact/compat@17.0.2)
-      use-sync-external-store: 1.1.0(@preact/compat@17.0.2)
+      styled-jsx: 5.0.2(@babel/core@7.17.9)(react@17.0.2)
+      use-sync-external-store: 1.1.0(react@17.0.2)
     optionalDependencies:
       '@next/swc-android-arm-eabi': 12.2.2
       '@next/swc-android-arm64': 12.2.2
@@ -9978,13 +9889,6 @@ packages:
       yocto-queue: 0.1.0
     dev: true
 
-  /p-locate@3.0.0:
-    resolution: {integrity: sha512-x+12w/To+4GFfgJhBEpiDcLozRJGegY+Ei7/z0tSLkMmxGZNybVMSfWj9aJn8Z5Fc7dBUNJOOVgPv2H7IwulSQ==}
-    engines: {node: '>=6'}
-    dependencies:
-      p-limit: 2.3.0
-    dev: true
-
   /p-locate@4.1.0:
     resolution: {integrity: sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A==}
     engines: {node: '>=8'}
@@ -10083,11 +9987,6 @@ packages:
     resolution: {integrity: sha512-ALzNPpyNq9AqXMBjeymIjFDAkAFH06mHJH/cSBHAgU0s4vfpBn6b2nf8tiRLvagKD8RbTpq2FKTBg7cl9l3c7Q==}
     dev: true
 
-  /path-exists@3.0.0:
-    resolution: {integrity: sha512-bpC7GYwiDYQ4wYLe+FA8lhRjhQCMcQGuSgGGqDkg/QerRWw9CmGRT0iSOVRSZJ29NMLZgIzqaljJ63oaL4NIJQ==}
-    engines: {node: '>=4'}
-    dev: true
-
   /path-exists@4.0.0:
     resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
     engines: {node: '>=8'}
@@ -10170,13 +10069,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 4.1.0
-
-  /pkg-up@3.1.0:
-    resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
-    engines: {node: '>=8'}
-    dependencies:
-      find-up: 3.0.0
-    dev: true
 
   /posix-character-classes@0.1.1:
     resolution: {integrity: sha512-xTgYBc3fuo7Yt7JbiuFxSYGToMoz8fLoE6TC9Wx1P/u+LfeThMOAqmuyECnlBaaJb+u1m9hHiXUEtwW4OzfUJg==}
@@ -10817,23 +10709,6 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
-  /preact-render-to-string@5.2.0(preact@10.8.2):
-    resolution: {integrity: sha512-+RGwSW78Cl+NsZRUbFW1MGB++didsfqRk+IyRVTaqy+3OjtpKK/6HgBtfszUX0YXMfo41k2iaQSseAHGKEwrbg==}
-    peerDependencies:
-      preact: '>=10'
-    dependencies:
-      preact: 10.8.2
-      pretty-format: 3.8.0
-    dev: false
-
-  /preact-ssr-prepass@1.2.0(preact@10.8.2):
-    resolution: {integrity: sha512-UKz6FB2+KepjHQ6aGqiTUMZfGgdoTunxtByczdUNho9UvSRTJw31Np9J+wUSAlJ1kALJGX1BpcBLvO3iohQUSA==}
-    peerDependencies:
-      preact: '>=10 || ^10.0.0-beta.0 || ^10.0.0-alpha.0'
-    dependencies:
-      preact: 10.8.2
-    dev: false
-
   /preact@10.8.2:
     resolution: {integrity: sha512-AKGt0BsDSiAYzVS78jZ9qRwuorY2CoSZtf1iOC6gLb/3QyZt+fLT09aYJBjRc/BEcRc4j+j3ggERMdNE43i1LQ==}
 
@@ -10893,10 +10768,6 @@ packages:
       ansi-styles: 5.2.0
       react-is: 17.0.2
     dev: true
-
-  /pretty-format@3.8.0:
-    resolution: {integrity: sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==}
-    dev: false
 
   /pretty-hrtime@1.0.3:
     resolution: {integrity: sha512-66hKPCr+72mlfiSjlEB1+45IjXSqvVAIy6mocupoww4tBFE9R9IhwwUGoI4G++Tc9Aq+2rxOt0RFU6gPcrte0A==}
@@ -11038,7 +10909,17 @@ packages:
       strip-json-comments: 2.0.1
     dev: true
 
-  /react-flip-toolkit@7.1.0(@preact/compat@17.0.2)(@preact/compat@17.0.2):
+  /react-dom@17.0.2(react@17.0.2):
+    resolution: {integrity: sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==}
+    peerDependencies:
+      react: 17.0.2
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react: 17.0.2
+      scheduler: 0.20.2
+
+  /react-flip-toolkit@7.1.0(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-KJ2IecKpYOJWgtXY9myyJzzC96FJaE9/8pFSAKgIoG54tiUAZ64ksDpmB+QmMofqFTa06RK7xWb9Rfavf8qz4Q==}
     engines: {node: '>=8', npm: '>=5'}
     peerDependencies:
@@ -11047,16 +10928,16 @@ packages:
     dependencies:
       flip-toolkit: 7.1.0
       prop-types: 15.8.1
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
     dev: false
 
-  /react-intersection-observer@8.34.0(@preact/compat@17.0.2):
+  /react-intersection-observer@8.34.0(react@17.0.2):
     resolution: {integrity: sha512-TYKh52Zc0Uptp5/b4N91XydfSGKubEhgZRtcg1rhTKABXijc4Sdr1uTp5lJ8TN27jwUsdXxjHXtHa0kPj704sw==}
     peerDependencies:
       react: ^15.0.0 || ^16.0.0 || ^17.0.0|| ^18.0.0
     dependencies:
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -11071,7 +10952,7 @@ packages:
   /react-lifecycles-compat@3.0.4:
     resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
 
-  /react-markdown@8.0.7(@preact/compat@17.0.2)(@types/react@17.0.47):
+  /react-markdown@8.0.7(@types/react@17.0.47)(react@17.0.2):
     resolution: {integrity: sha512-bvWbzG4MtOU62XqBx3Xx+zB2raaFFsq4mYiAzfjXJMEz2sixgeAfraA3tvzULF02ZdOMUOKTBFFaZJDDrq+BJQ==}
     peerDependencies:
       '@types/react': '>=16'
@@ -11085,7 +10966,7 @@ packages:
       hast-util-whitespace: 2.0.1
       prop-types: 15.8.1
       property-information: 6.2.0
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
       react-is: 18.2.0
       remark-parse: 10.0.2
       remark-rehype: 10.1.0
@@ -11098,7 +10979,7 @@ packages:
       - supports-color
     dev: false
 
-  /react-modal@3.15.1(@preact/compat@17.0.2)(@preact/compat@17.0.2):
+  /react-modal@3.15.1(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-duB9bxOaYg7Zt6TMFldIFxQRtSP+Dg3F1ZX3FXxSUn+3tZZ/9JCgeAQKDg7rhZSAqopq8TFRw3yIbnx77gyFTw==}
     engines: {node: '>=8'}
     peerDependencies:
@@ -11107,31 +10988,31 @@ packages:
     dependencies:
       exenv: 1.2.2
       prop-types: 15.8.1
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
       react-lifecycles-compat: 3.0.4
       warning: 4.0.3
 
-  /react-onesignal@2.0.4(@preact/compat@17.0.2):
+  /react-onesignal@2.0.4(react@17.0.2):
     resolution: {integrity: sha512-llZ4PV1+EsWWZDt0BRils6gAxaxMoYP0Z3rlNivQy4xqUaiO1/PcRaIJ6CuzCci/koDsw5IzLOXEHlV4Yn+d9Q==}
     engines: {node: '>=8', npm: '>=5'}
     peerDependencies:
       react: '>= 16.8'
     dependencies:
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
     dev: false
 
-  /react-parallax-tilt@1.7.10(@preact/compat@17.0.2)(@preact/compat@17.0.2):
+  /react-parallax-tilt@1.7.10(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-dqjppmk1u03sCGMMMwV4voNhey84jy91jcYh03r3+dteyceod/h9+jm+/aVEjx84Sk/VB1uUVdQX4eiOADRDXQ==}
     peerDependencies:
       react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
       react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
     dev: false
 
-  /react-query@3.39.1(@preact/compat@17.0.2)(@preact/compat@17.0.2):
+  /react-query@3.39.1(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-qYKT1bavdDiQZbngWZyPotlBVzcBjDYEJg5RQLBa++5Ix5jjfbEYJmHSZRZD+USVHUSvl/ey9Hu+QfF1QAK80A==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -11146,17 +11027,17 @@ packages:
       '@babel/runtime': 7.17.9
       broadcast-channel: 3.7.0
       match-sorter: 6.3.1
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
 
-  /react-swipeable@6.2.2(@preact/compat@17.0.2):
+  /react-swipeable@6.2.2(react@17.0.2):
     resolution: {integrity: sha512-Oz7nSFrssvq2yvy05aNL3F+yBUqSvLsK6x1mu+rQFOpMdQVnt4izKt1vyjvvTb70q6GQOaSpaB6qniROW2MAzQ==}
     peerDependencies:
       react: ^16.8.3 || ^17 || ^18
     dependencies:
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
 
-  /react-syntax-highlighter@15.5.0(@preact/compat@17.0.2):
+  /react-syntax-highlighter@15.5.0(react@17.0.2):
     resolution: {integrity: sha512-+zq2myprEnQmH5yw6Gqc8lD55QHnpKaU8TOcFeC/Lg/MQSs8UknEA0JC4nTZGFAXC2J2Hyj/ijJ7NlabyPi2gg==}
     peerDependencies:
       react: '>= 0.14.0'
@@ -11165,11 +11046,11 @@ packages:
       highlight.js: 10.7.3
       lowlight: 1.20.0
       prismjs: 1.29.0
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
       refractor: 3.6.0
     dev: false
 
-  /react-tooltip@4.2.21(@preact/compat@17.0.2)(@preact/compat@17.0.2):
+  /react-tooltip@4.2.21(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-zSLprMymBDowknr0KVDiJ05IjZn9mQhhg4PRsqln0OZtURAJ1snt1xi5daZfagsh6vfsziZrc9pErPTDY1ACig==}
     engines: {npm: '>=6.13'}
     peerDependencies:
@@ -11177,12 +11058,12 @@ packages:
       react-dom: '>=16.0.0'
     dependencies:
       prop-types: 15.8.1
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
       uuid: 7.0.3
     dev: false
 
-  /react-transition-group@4.4.2(@preact/compat@17.0.2)(@preact/compat@17.0.2):
+  /react-transition-group@4.4.2(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-/RNYfRAMlZwDSr6z4zNKV6xu53/e2BuaBbGhbyYIXTrmgu/bGHzmqOs7mJSJBHy9Ud+ApHx3QjrkKSp1pxvlFg==}
     peerDependencies:
       react: '>=16.6.0'
@@ -11192,16 +11073,23 @@ packages:
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
-      react: /@preact/compat@17.0.2(preact@10.8.2)
-      react-dom: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
 
-  /react-virtual@2.10.4(@preact/compat@17.0.2):
+  /react-virtual@2.10.4(react@17.0.2):
     resolution: {integrity: sha512-Ir6+oPQZTVHfa6+JL9M7cvMILstFZH/H3jqeYeKI4MSUX+rIruVwFC6nGVXw9wqAw8L0Kg2KvfXxI85OvYQdpQ==}
     peerDependencies:
       react: ^16.6.3 || ^17.0.0
     dependencies:
       '@reach/observe-rect': 1.2.0
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
+
+  /react@17.0.2:
+    resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
 
   /read-cache@1.0.0:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
@@ -11509,10 +11397,6 @@ packages:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
     dev: true
 
-  /reselect@4.1.8:
-    resolution: {integrity: sha512-ab9EmR80F/zQTMNeneUr4cv+jSwPJgIlvEmVwLerwrWVbpLlBuls9XHzIeTFy4cegU2NHBp3va0LKOzU5qFEYQ==}
-    dev: true
-
   /resolve-cwd@3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
     engines: {node: '>=8'}
@@ -11724,6 +11608,12 @@ packages:
     dependencies:
       xmlchars: 2.2.0
     dev: true
+
+  /scheduler@0.20.2:
+    resolution: {integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==}
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
 
   /schema-utils@2.7.0:
     resolution: {integrity: sha512-0ilKFI6QQF5nxDZLFn2dMjvc4hjg/Wkg7rHd3jK6/A4a1Hl9VFdQWvgB1UMGoU94pad1P/8N7fMcEnLnSiju8A==}
@@ -12215,7 +12105,7 @@ packages:
       inline-style-parser: 0.1.1
     dev: false
 
-  /styled-jsx@5.0.2(@babel/core@7.17.9)(@preact/compat@17.0.2):
+  /styled-jsx@5.0.2(@babel/core@7.17.9)(react@17.0.2):
     resolution: {integrity: sha512-LqPQrbBh3egD57NBcHET4qcgshPks+yblyhPlH2GY8oaDgKs8SK4C3dBh3oSJjgzJ3G5t1SYEZGHkP+QEpX9EQ==}
     engines: {node: '>= 12.0.0'}
     peerDependencies:
@@ -12229,7 +12119,7 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.17.9
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
 
   /stylehacks@5.1.1(postcss@8.4.24):
     resolution: {integrity: sha512-sBpcd5Hx7G6seo7b1LkpttvTz7ikD0LlH5RmdcBNb6fFR0Fl7LQwHDFr300q4cwUqi+IYrFGmsIHieMBfnN/Bw==}
@@ -13178,12 +13068,12 @@ packages:
       requires-port: 1.0.0
     dev: true
 
-  /use-sync-external-store@1.1.0(@preact/compat@17.0.2):
+  /use-sync-external-store@1.1.0(react@17.0.2):
     resolution: {integrity: sha512-SEnieB2FPKEVne66NpXPd1Np4R1lTNKfjuy3XdIoPQKYBAFdzbzSZlSn1KJZUiihQLQC5Znot4SBz1EOTBwQAQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      react: /@preact/compat@17.0.2(preact@10.8.2)
+      react: 17.0.2
 
   /use@3.1.1:
     resolution: {integrity: sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==}

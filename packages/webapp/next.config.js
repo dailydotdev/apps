@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-const withPreact = require('next-plugin-preact');
 const withPWA = require('next-pwa');
 const withTM = require('next-transpile-modules')(['@dailydotdev/shared']);
 const sharedPackage = require('../shared/package.json');
@@ -16,8 +15,7 @@ module.exports = withTM(
       dest: 'public',
       disable: process.env.NODE_ENV === 'development',
     },
-    ...withPreact(
-      withBundleAnalyzer({
+      ...withBundleAnalyzer({
         i18n: {
           locales: ["en"],
           defaultLocale: "en",
@@ -54,22 +52,6 @@ module.exports = withTM(
               fullySpecified: false,
             },
           });
-          config.resolve.alias = {
-            ...config.resolve.alias,
-            // Required to remove duplicate dependencies from the build
-            ...Object.keys(sharedPackage.peerDependencies).reduce(
-              (acc, dep) => {
-                if (['react', 'react-dom'].find((name) => name === dep)) {
-                  return {
-                    ...acc,
-                    [dep]: path.resolve('./node_modules/preact/compat'),
-                  };
-                }
-                return { ...acc, [dep]: path.resolve(`./node_modules/${dep}`) };
-              },
-              {},
-            ),
-          };
 
           return config;
         },
@@ -87,6 +69,5 @@ module.exports = withTM(
         reactStrictMode: false,
         productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
       }),
-    ),
   }),
 );
