@@ -1,6 +1,7 @@
 import React, {
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -29,7 +30,7 @@ interface AuthDefaultProps extends AuthFormProps {
   onPasswordLogin?: (params: LoginFormParams) => void;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string, login?: boolean) => unknown;
-  onForgotPassword?: () => unknown;
+  onForgotPassword?: (email?: string) => unknown;
   targetId?: string;
   isLoginFlow?: boolean;
   logInTitle?: string;
@@ -41,13 +42,14 @@ interface AuthDefaultProps extends AuthFormProps {
   isLoading?: boolean;
   isReady: boolean;
   loginButton?: string;
+  initialEmail?: string;
 }
 
 const AuthDefault = ({
   loginHint,
   onSignup,
   onProviderClick,
-  onForgotPassword,
+  onForgotPassword: handleForgotPassword,
   onPasswordLogin,
   targetId,
   isLoginFlow,
@@ -83,6 +85,15 @@ const AuthDefault = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
 
+  const getFormEmail = useCallback((e: React.FormEvent) => {
+    const form = e.currentTarget as HTMLFormElement;
+    const input = Array.from(form.elements).find(
+      (el) => el.getAttribute('name') === 'email',
+    ) as HTMLInputElement;
+
+    return input?.value?.trim();
+  }, []);
+
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -93,11 +104,7 @@ const AuthDefault = ({
       extra: JSON.stringify({ trigger }),
     });
 
-    const form = e.currentTarget as HTMLFormElement;
-    const input = Array.from(form.elements).find(
-      (el) => el.getAttribute('name') === 'email',
-    ) as HTMLInputElement;
-    const email = input?.value?.trim();
+    const email = getFormEmail(e);
 
     if (!email) {
       return null;
@@ -113,7 +120,11 @@ const AuthDefault = ({
       return setShouldLogin(true);
     }
 
-    return onSignup(input.value.trim());
+    return onSignup(email);
+  };
+
+  const onForgotPassword = (email: string) => {
+    handleForgotPassword(email);
   };
 
   const onSocialClick = (provider: string) => {
