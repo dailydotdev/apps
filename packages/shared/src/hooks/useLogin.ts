@@ -57,7 +57,7 @@ const useLogin = ({
   queryParams = {},
   enableSessionVerification = false,
 }: UseLoginProps = {}): UseLogin => {
-  const { onLogin } = useSignBack();
+  const { onUpdateSignBack } = useSignBack();
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const { refetchBoot } = useContext(AuthContext);
@@ -99,7 +99,7 @@ const useLogin = ({
         const { data: boot } = await refetchBoot();
 
         if (boot.user) {
-          onLogin(boot.user as LoggedUser, 'password');
+          onUpdateSignBack(boot.user as LoggedUser, 'password');
         }
 
         onSuccessfulLogin?.();
@@ -163,7 +163,10 @@ const useLogin = ({
       const { data: boot } = await refetchBoot();
 
       if (boot.user) {
-        onLogin(boot.user as LoggedUser, providerProp as SignBackProvider);
+        onUpdateSignBack(
+          boot.user as LoggedUser,
+          providerProp as SignBackProvider,
+        );
       }
 
       onSuccessfulLogin?.();
@@ -183,7 +186,10 @@ const useLogin = ({
       const { data: boot } = await refetchBoot();
 
       if (boot.user) {
-        onLogin(boot.user as LoggedUser, providerProp as SignBackProvider);
+        onUpdateSignBack(
+          boot.user as LoggedUser,
+          providerProp as SignBackProvider,
+        );
       }
 
       onSuccessfulLogin?.();

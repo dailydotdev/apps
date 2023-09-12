@@ -19,6 +19,10 @@ import {
   ValidateResetPassword,
 } from '@dailydotdev/shared/src/lib/auth';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import {
+  SignBackProvider,
+  useSignBack,
+} from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
@@ -32,6 +36,7 @@ const AccountSecurityPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
+  const { onUpdateSignBack, signBack, provider } = useSignBack();
   const { data: userProviders, refetch: refetchProviders } = useQuery(
     'providers',
     () => getKratosProviders(),
@@ -162,6 +167,13 @@ const AccountSecurityPage = (): ReactElement => {
         const { params } = vars;
         if ('link' in params || 'unlink' in params) {
           refetchProviders();
+
+          if ('unlink' in params && params.unlink === provider) {
+            const validProvider = userProviders.result?.find(
+              (userProvider) => userProvider !== provider,
+            );
+            onUpdateSignBack(signBack, validProvider as SignBackProvider);
+          }
         }
       },
     },
