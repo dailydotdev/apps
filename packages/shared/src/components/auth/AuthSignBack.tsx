@@ -17,6 +17,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;
   isLoginFlow?: boolean;
+  isConnectedAccount?: boolean;
   onRegister?: () => void;
   onProviderClick?: (provider: string) => unknown;
   loginFormProps?: LoginFormProps;
@@ -30,6 +31,7 @@ export const AuthSignBack = ({
   onProviderClick,
   simplified,
   onShowLoginOptions,
+  isConnectedAccount,
 }: AuthSignBackProps): ReactElement => {
   const { signBack, provider, isLoaded } = useSignBack();
   const providerItem = providerMap[provider];
@@ -56,6 +58,17 @@ export const AuthSignBack = ({
       <AuthContainer className="items-center">
         <p className="mb-2 text-center typo-callout text-theme-label-secondary">
           Log in to access your account
+          {isConnectedAccount ? (
+            <>
+              {' '}
+              using previously connected method{' '}
+              <strong>
+                <em>(as shown below)</em>
+              </strong>
+            </>
+          ) : (
+            ''
+          )}
         </p>
         <ConditionalWrapper
           condition={provider !== 'password'}

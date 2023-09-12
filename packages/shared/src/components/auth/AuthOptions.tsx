@@ -100,6 +100,7 @@ function AuthOptions({
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const [isConnected, setIsConnected] = useState(false);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
@@ -256,6 +257,7 @@ function AuthOptions({
             image: getNodeValue('traits.image', connected.ui.nodes),
           };
           const { result } = await getKratosProviders(connected.id);
+          setIsConnected(true);
           await onSignBackLogin(registerUser, result[0] as SignBackProvider);
           return onSetActiveDisplay(AuthDisplay.SignBack);
         }
@@ -383,15 +385,18 @@ function AuthOptions({
               if (isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: false });
               }
+              setIsConnected(false);
               onSetActiveDisplay(AuthDisplay.Default);
             }}
             isLoginFlow={isLoginFlow}
+            isConnectedAccount={isConnected}
             onProviderClick={onProviderClick}
             simplified={simplified}
             onShowLoginOptions={() => {
               if (!isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: true });
               }
+              setIsConnected(false);
               setActiveDisplay(AuthDisplay.Default);
             }}
             loginFormProps={{
