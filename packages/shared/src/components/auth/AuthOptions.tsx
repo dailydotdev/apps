@@ -1,6 +1,7 @@
 import React, {
   MutableRefObject,
   ReactElement,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -330,11 +331,13 @@ function AuthOptions({
   };
 
   const onShowLogin = () => {
-    if (!isLoginFlow && onAuthStateUpdate) {
-      onAuthStateUpdate({ isLoginFlow: true });
-    }
-    onSetActiveDisplay(AuthDisplay.Default);
+    onSetActiveDisplay(AuthDisplay.SignBack);
   };
+
+  const onConnectedProfile = useCallback(
+    (provider: SignBackProvider) => onSignBackLogin(connectedUser, provider),
+    [connectedUser, onSignBackLogin],
+  );
 
   return (
     <div
@@ -471,7 +474,11 @@ function AuthOptions({
         <Tab label={AuthDisplay.ConnectedUser}>
           <AuthHeader simplified={simplified} title="Account already exists" />
           {connectedUser && (
-            <ConnectedUserModal user={connectedUser} onLogin={onShowLogin} />
+            <ConnectedUserModal
+              user={connectedUser}
+              onLogin={onShowLogin}
+              onFetchedProviders={onConnectedProfile}
+            />
           )}
         </Tab>
       </TabContainer>

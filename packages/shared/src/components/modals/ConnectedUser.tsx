@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { getKratosProviders } from '../../lib/kratos';
 import { capitalize } from '../../lib/strings';
@@ -16,16 +16,26 @@ export interface ConnectedUser {
 interface ConnectedUserModalProps {
   user: ConnectedUser;
   onLogin: () => void;
+  onFetchedProviders: (provider: string) => void;
 }
 
 function ConnectedUserModal({
   user,
   onLogin,
+  onFetchedProviders,
 }: ConnectedUserModalProps): ReactElement {
-  const { data } = useQuery(
+  const { data, isFetched } = useQuery(
     [{ type: 'registration', flowId: user.flowId }],
     ({ queryKey: [{ flowId }] }) => getKratosProviders(flowId),
   );
+
+  useEffect(() => {
+    if (!isFetched || !data?.result?.length) {
+      return;
+    }
+
+    onFetchedProviders(data.result[0]);
+  }, [data, isFetched, onFetchedProviders]);
 
   return (
     <>

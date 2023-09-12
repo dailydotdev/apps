@@ -32,11 +32,11 @@ export const AuthSignBack = ({
   onShowLoginOptions,
 }: AuthSignBackProps): ReactElement => {
   const { signBack, provider, isLoaded } = useSignBack();
-  const providerItem = providerMap[provider.toLowerCase()];
-  const isPreviousData = !!provider && !signBack;
+  const providerItem = providerMap[provider];
+  const isValid = provider === 'password' || !!providerItem;
 
   useEffect(() => {
-    if (!isLoaded || signBack) {
+    if (!isLoaded || signBack || isValid) {
       return;
     }
 
@@ -44,9 +44,9 @@ export const AuthSignBack = ({
     showLoginFn?.(null);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, signBack]);
+  }, [isLoaded, signBack, isValid]);
 
-  if (!isLoaded || isPreviousData) {
+  if (!isLoaded || !signBack || !isValid) {
     return null;
   }
 
