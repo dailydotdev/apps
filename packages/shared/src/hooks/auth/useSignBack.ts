@@ -18,7 +18,7 @@ interface UseSignBack {
   isLoaded: boolean;
   signBack?: SignedInUser;
   provider?: SignBackProvider;
-  onLogin: (user: SignedInUser, provider: SignBackProvider) => void;
+  onLogin: (user: SignedInUser, provider: SignBackProvider) => Promise<void>;
 }
 
 export const useSignBack = (): UseSignBack => {
@@ -27,11 +27,11 @@ export const useSignBack = (): UseSignBack => {
 
   const onLogin: UseSignBack['onLogin'] = useCallback(
     ({ name, email, image }, provider) => {
-      setSignBack({ name, email, image });
       globalThis?.localStorage.setItem(
         SIGNIN_METHOD_KEY,
         provider.toLowerCase(),
       );
+      return setSignBack({ name, email, image });
     },
     [setSignBack],
   );

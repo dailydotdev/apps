@@ -1,7 +1,6 @@
 import React, {
   MutableRefObject,
   ReactElement,
-  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -30,6 +29,7 @@ import {
   AuthEvent,
   AuthFlow,
   getKratosFlow,
+  getKratosProviders,
   SocialRegistrationFlow,
 } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
@@ -38,9 +38,6 @@ import useLogin from '../../hooks/useLogin';
 import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import ConnectedUserModal, {
-  ConnectedUser as RegistrationConnectedUser,
-} from '../modals/ConnectedUser';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -65,7 +62,6 @@ export enum AuthDisplay {
   CodeVerification = 'code_verification',
   ChangePassword = 'change_password',
   EmailSent = 'email_sent',
-  ConnectedUser = 'connected_user',
   VerifiedEmail = 'VerifiedEmail',
 }
 
@@ -110,8 +106,6 @@ function AuthOptions({
   const { refetchBoot, user, loginState } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [flow, setFlow] = useState('');
-  const [connectedUser, setConnectedUser] =
-    useState<RegistrationConnectedUser>();
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
   );
@@ -259,14 +253,13 @@ function AuthOptions({
           [4010002, 4010003, 4000007].includes(connected?.ui?.messages?.[0]?.id)
         ) {
           const registerUser = {
-            provider: chosenProvider,
             name: getNodeValue('traits.name', connected.ui.nodes),
             email: getNodeValue('traits.email', connected.ui.nodes),
             image: getNodeValue('traits.image', connected.ui.nodes),
-            flowId: connected.id,
           };
-          setConnectedUser(registerUser);
-          return onSetActiveDisplay(AuthDisplay.ConnectedUser);
+          const { result } = await getKratosProviders(connected.id);
+          await onSignBackLogin(registerUser, result[0] as SignBackProvider);
+          return onSetActiveDisplay(AuthDisplay.SignBack);
         }
 
         return displayToast(labels.auth.error.generic);
@@ -329,15 +322,6 @@ function AuthOptions({
     setIsForgotPasswordReturn(true);
     onSetActiveDisplay(defaultDisplay);
   };
-
-  const onShowLogin = () => {
-    onSetActiveDisplay(AuthDisplay.SignBack);
-  };
-
-  const onConnectedProfile = useCallback(
-    (provider: SignBackProvider) => onSignBackLogin(connectedUser, provider),
-    [connectedUser, onSignBackLogin],
-  );
 
   return (
     <div
@@ -470,16 +454,6 @@ function AuthOptions({
               />
             )}
           </EmailVerified>
-        </Tab>
-        <Tab label={AuthDisplay.ConnectedUser}>
-          <AuthHeader simplified={simplified} title="Account already exists" />
-          {connectedUser && (
-            <ConnectedUserModal
-              user={connectedUser}
-              onLogin={onShowLogin}
-              onFetchedProviders={onConnectedProfile}
-            />
-          )}
         </Tab>
       </TabContainer>
     </div>
