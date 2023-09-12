@@ -21,7 +21,7 @@ import MailIcon from '../icons/Mail';
 import { UserIcon } from '../icons';
 import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import AtIcon from '../icons/At';
@@ -124,9 +124,7 @@ export const RegistrationForm = ({
 
   return (
     <>
-      {!simplified && (
-        <AuthModalHeader title="Sign up to daily.dev" onBack={onBack} />
-      )}
+      <AuthHeader simplified={simplified} title="Sign up" onBack={onBack} />
       <AuthForm
         className={classNames(
           'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6 px-6 tablet:px-[3.75rem]',
@@ -220,11 +218,7 @@ export const RegistrationForm = ({
         wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
       >
         <Modal.Footer>
-          <Button
-            form="auth-form"
-            type="submit"
-            className="w-full bg-theme-color-cabbage"
-          >
+          <Button form="auth-form" type="submit" className="w-full btn-primary">
             Sign up
           </Button>
         </Modal.Footer>

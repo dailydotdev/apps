@@ -3,7 +3,7 @@ import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { CloseModalFunc } from '../modals/common';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { AuthFormProps, AuthModalText } from './common';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
@@ -63,7 +63,11 @@ function CodeVerificationForm({
 
   return (
     <>
-      {!simplified && <AuthModalHeader title="Verification" onBack={onBack} />}
+      <AuthHeader
+        simplified={simplified}
+        title="Verification"
+        onBack={onBack}
+      />
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onCodeVerification}
