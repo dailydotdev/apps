@@ -67,7 +67,10 @@ const renderComponent = (): RenderResult => {
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        refetchBoot={refetchBoot}
+        refetchBoot={() => {
+          refetchBoot();
+          return { data: {} };
+        }}
         user={defaultLoggedUser}
         updateUser={updateUser}
         getRedirectUri={jest.fn()}

@@ -8,14 +8,11 @@ import React, {
 } from 'react';
 import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
-import { storageWrapper as storage } from '../../lib/storageWrapper';
 import AuthModalFooter from './AuthModalFooter';
-import { SIGNIN_METHOD_KEY } from './AuthSignBack';
 import { AuthFormProps, Provider } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
-import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
@@ -23,6 +20,7 @@ import AuthHeader from './AuthHeader';
 import { ExperimentWinner } from '../../lib/featureValues';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { Button, ButtonSize } from '../buttons/Button';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -128,7 +126,6 @@ const AuthDefault = ({
   };
 
   const onSocialClick = (provider: string) => {
-    storage.setItem(SIGNIN_METHOD_KEY, provider);
     onProviderClick?.(provider, shouldLogin);
   };
 
@@ -173,15 +170,17 @@ const AuthDefault = ({
       )}
       <AuthContainer className={disableRegistration && 'mb-6'}>
         <div className="flex flex-col gap-4">
-          {providers.map(({ provider, ...props }) => (
-            <ProviderButton
+          {providers.map(({ provider, icon }) => (
+            <Button
               key={provider}
-              provider={provider}
-              label={shouldLogin ? 'Log in with' : 'Sign up with'}
-              onClick={() => onSocialClick(provider.toLowerCase())}
+              icon={icon}
+              className="btn-primary"
+              buttonSize={ButtonSize.Large}
+              onClick={() => onSocialClick(provider)}
               loading={!isReady}
-              {...props}
-            />
+            >
+              {provider}
+            </Button>
           ))}
         </div>
         {getOrDivider()}
@@ -194,7 +193,7 @@ const AuthDefault = ({
           wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
         >
           <AuthModalFooter
-            className="mt-4"
+            className={{ container: 'mt-4' }}
             text={{
               body: shouldLogin
                 ? 'Not a member yet?'

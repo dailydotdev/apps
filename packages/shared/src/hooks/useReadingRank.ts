@@ -38,7 +38,6 @@ type ReturnType = {
   levelUp: boolean;
   shouldShowRankModal: boolean;
   confirmLevelUp: (neverShowRankModal: boolean) => Promise<void>;
-  reads: number;
 };
 
 const defaultRank: MyRankData = {
@@ -49,7 +48,6 @@ const defaultRank: MyRankData = {
     readToday: false,
     rankLastWeek: 0,
   },
-  reads: 0,
 };
 
 const checkShouldShowRankModal = (
@@ -109,7 +107,6 @@ export default function useReadingRank(
   ) =>
     setCachedRank({
       rank: rank.rank,
-      reads: rank.reads,
       userId: user?.id,
       neverShowRankModal: newNeverShowRankModal,
     });
@@ -235,7 +232,6 @@ export default function useReadingRank(
       nextRank: remoteRank?.rank.currentRank,
       progress: cachedRank?.rank.progressThisWeek,
       tags: cachedRank?.rank.tags,
-      reads: remoteRank?.reads,
       levelUp,
       shouldShowRankModal,
       confirmLevelUp: (newNeverShowRankModal) => {
@@ -250,7 +246,6 @@ export default function useReadingRank(
           queryKey,
           (currentRank) => ({
             rank: { ...currentRank.rank, currentRank: 0 },
-            reads: currentRank?.reads,
           }),
         );
         return cacheRank(rank, newNeverShowRankModal);

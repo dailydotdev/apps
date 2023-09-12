@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
-import { AuthSignBack, SIGNIN_METHOD_KEY } from './AuthSignBack';
+import { AuthSignBack } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
 import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
@@ -47,6 +47,12 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
+import {
+  SignBackProvider,
+  SIGNIN_METHOD_KEY,
+  useSignBack,
+} from '../../hooks/auth/useSignBack';
+import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 
 export enum AuthDisplay {
@@ -62,8 +68,14 @@ export enum AuthDisplay {
   VerifiedEmail = 'VerifiedEmail',
 }
 
+export interface AuthProps {
+  isAuthenticating: boolean;
+  isLoginFlow: boolean;
+}
+
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
+  onAuthStateUpdate?: (props: Pick<AuthProps, 'isLoginFlow'>) => void;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -77,6 +89,7 @@ export interface AuthOptionsProps {
 
 function AuthOptions({
   onClose,
+  onAuthStateUpdate,
   onSuccessfulLogin,
   onSuccessfulRegistration,
   className,
@@ -143,6 +156,7 @@ function AuthOptions({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  const { onLogin: onSignBackLogin } = useSignBack();
   const {
     isReady: isRegistrationReady,
     registration,
@@ -153,6 +167,12 @@ function AuthOptions({
     onValidRegistration: async () => {
       setIsRegistration(true);
       const { data } = await refetchBoot();
+
+      if (data.user) {
+        const provider = chosenProvider || 'password';
+        onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
+      }
+
       await syncSettings(data?.user?.id);
       onSetActiveDisplay(AuthDisplay.EmailSent);
       onSuccessfulRegistration?.();
@@ -176,6 +196,7 @@ function AuthOptions({
     onSuccessfulLogin: onLoginCheck,
     ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
+    provider: chosenProvider,
   });
   const onProfileSuccess = async () => {
     await refetchBoot();
@@ -259,6 +280,15 @@ function AuthOptions({
       }
 
       if (!e.data?.social_registration) {
+        const { data: boot } = bootResponse;
+
+        if (boot.user) {
+          onSignBackLogin(
+            boot.user as LoggedUser,
+            chosenProvider as SignBackProvider,
+          );
+        }
+
         return onSuccessfulLogin?.();
       }
 
@@ -360,22 +390,32 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
-            onRegister={() => onSetActiveDisplay(AuthDisplay.Default)}
+            onRegister={() => {
+              if (isLoginFlow && onAuthStateUpdate) {
+                onAuthStateUpdate({ isLoginFlow: false });
+              }
+              onSetActiveDisplay(AuthDisplay.Default);
+            }}
+            isLoginFlow={isLoginFlow}
             onProviderClick={onProviderClick}
             simplified={simplified}
-          >
-            <LoginForm
-              className="mt-3"
-              loginHint={loginHint}
-              onPasswordLogin={onPasswordLogin}
-              onForgotPassword={onForgotPassword}
-              isLoading={isPasswordLoginLoading}
-              autoFocus={false}
-              isReady={isReady}
-              onSignup={onForgotPasswordBack}
-              email={email}
-            />
-          </AuthSignBack>
+            onShowLoginOptions={() => {
+              if (!isLoginFlow && onAuthStateUpdate) {
+                onAuthStateUpdate({ isLoginFlow: true });
+              }
+              setActiveDisplay(AuthDisplay.Default);
+            }}
+            loginFormProps={{
+              isReady,
+              loginHint,
+              onPasswordLogin,
+              onForgotPassword,
+              isLoading: isPasswordLoginLoading,
+              autoFocus: false,
+              onSignup: onForgotPasswordBack,
+              className: 'w-full',
+            }}
+          />
         </Tab>
         <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
@@ -420,7 +460,6 @@ function AuthOptions({
                 }
                 isLoading={isPasswordLoginLoading}
                 onSignup={onForgotPasswordBack}
-                email={email}
               />
             )}
           </EmailVerified>

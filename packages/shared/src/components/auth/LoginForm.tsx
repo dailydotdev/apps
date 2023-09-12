@@ -12,7 +12,7 @@ import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
 
-interface LoginFormProps {
+export interface LoginFormProps {
   onForgotPassword?: (email: string) => unknown;
   onPasswordLogin?: (params: LoginFormParams) => void;
   email?: string;
@@ -106,10 +106,7 @@ function LoginForm({
           </ClickableText>
         )}
         <Button
-          className={classNames(
-            'flex-1 btn-primary text-theme-label-primary',
-            !isLoading && 'bg-theme-color-cabbage',
-          )}
+          className="flex-1 btn-primary"
           type="submit"
           loading={!isReady}
           disabled={isLoading}
