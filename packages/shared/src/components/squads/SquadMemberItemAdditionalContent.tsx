@@ -78,23 +78,22 @@ function SquadMemberItemAdditionalContent({
     </SimpleTooltip>
   );
 
-  const isLoggedUser = loggedUser.id === user.id;
+  const sameUser = loggedUser && loggedUser.id === user.id;
+  const hideOption = sameUser || !loggedUser;
 
   if (role !== SourceMemberRole.Member) {
     return (
       <>
         <SquadMemberBadge
-          className={isLoggedUser ? 'mr-10' : 'mr-2'}
+          className={sameUser ? 'mr-10' : 'mr-2'}
           role={member.role}
         />
-        {isLoggedUser ? null : option}
+        {hideOption ? null : option}
       </>
     );
   }
 
-  if (isLoggedUser) return null;
-
-  return option;
+  return hideOption ? null : option;
 }
 
 export default SquadMemberItemAdditionalContent;

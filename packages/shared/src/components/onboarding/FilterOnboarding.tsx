@@ -28,7 +28,9 @@ export function FilterOnboarding({
     tagCommand({ tags, category: title });
     const result = { ...selectedTopics, [value]: isFollowed };
     setSelectedTopics(result);
-    if (onSelectedTopics) onSelectedTopics(result);
+    if (onSelectedTopics) {
+      onSelectedTopics(result);
+    }
     e.currentTarget.blur();
     if (invalidMessage) {
       setInvalidMessage(null);

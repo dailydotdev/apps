@@ -12,6 +12,11 @@ import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
 import { Origin } from '../../lib/analytics';
+import {
+  SQUAD_COMMENT_JOIN_BANNER_KEY,
+  isSourcePublicSquad,
+} from '../../graphql/squads';
+import usePersistentContext from '../../hooks/usePersistentContext';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -50,6 +55,8 @@ function PostEngagements({
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
+  const [joinNotificationCommentId, setJoinNotificationCommentId] =
+    useState<string>();
   const { onShowUpvoted } = useUpvoteQuery();
   const {
     shareComment,
@@ -58,10 +65,23 @@ function PostEngagements({
     closeShareComment,
     onShowShareNewComment,
   } = useShareComment(analyticsOrigin, enableShowShareNewComment);
+  const [isJoinSquadBannerDismissed] = usePersistentContext(
+    SQUAD_COMMENT_JOIN_BANNER_KEY,
+    false,
+  );
 
   const onCommented = (comment: Comment, isNew: boolean) => {
     if (isNew) {
       setPermissionNotificationCommentId(comment.id);
+
+      if (
+        isSourcePublicSquad(post.source) &&
+        !post.source?.currentMember &&
+        !isJoinSquadBannerDismissed
+      ) {
+        setJoinNotificationCommentId(comment.id);
+      }
+
       onShowShareNewComment(comment.id);
     }
   };
@@ -101,6 +121,7 @@ function PostEngagements({
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
         permissionNotificationCommentId={permissionNotificationCommentId}
+        joinNotificationCommentId={joinNotificationCommentId}
         onCommented={onCommented}
       />
       {authorOnboarding && (

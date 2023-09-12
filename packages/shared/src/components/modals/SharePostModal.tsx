@@ -2,17 +2,18 @@ import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import BasePostModal from './BasePostModal';
 import { NotificationPromptSource, Origin } from '../../lib/analytics';
-import usePostById from '../../hooks/usePostById';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 import { PassedPostNavigationProps } from '../post/PostContent';
-import { PostType } from '../../graphql/posts';
+import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
+import { isSourcePublicSquad } from '../../graphql/squads';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
+  post: Post;
 }
 
 export default function PostModal({
@@ -22,25 +23,26 @@ export default function PostModal({
   onPreviousPost,
   onNextPost,
   postPosition,
+  post,
   onRemovePost,
   ...props
 }: PostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { post, isPostLoadingOrFetching } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: isPostLoadingOrFetching,
+    isLoading: false,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
   const containerClass = 'post-content';
+  const isPublicSquad = isSourcePublicSquad(post.source);
 
   return (
     <BasePostModal
       {...props}
-      size={Modal.Size.Large}
+      size={isPublicSquad ? Modal.Size.XLarge : Modal.Size.Large}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
-      isLoading={isPostLoadingOrFetching}
+      source={post.source}
       loadingClassName={containerClass}
     >
       <EnableNotification
@@ -59,8 +61,9 @@ export default function PostModal({
         onRemovePost={onRemovePost}
         className={{
           container: containerClass,
-          fixedNavigation: { container: 'w-[inherit]', actions: 'ml-auto' },
+          fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
           navigation: { actions: 'tablet:hidden ml-auto' },
+          onboarding: 'mt-8 mb-0',
         }}
       />
     </BasePostModal>

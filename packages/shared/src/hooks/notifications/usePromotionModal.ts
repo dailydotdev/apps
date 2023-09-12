@@ -10,7 +10,9 @@ export const usePromotionModal = (): void => {
   const { openModal } = useLazyModal();
 
   useEffect(() => {
-    if (!query || !query.promoted || !query.sid || !squads) return;
+    if (!query || !query.promoted || !query.sid || !squads) {
+      return;
+    }
 
     const squad = squads.find(({ id, handle }) =>
       [id, handle].includes(query.sid as string),

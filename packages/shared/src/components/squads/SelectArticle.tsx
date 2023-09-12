@@ -15,7 +15,9 @@ export function SquadSelectArticle({
   onRequestClose,
 }: SquadStateProps): ReactElement {
   const { activeView } = useContext(ModalPropsContext);
-  if (ModalState.SelectArticle !== activeView) return null;
+  if (ModalState.SelectArticle !== activeView) {
+    return null;
+  }
 
   const {
     hasData,

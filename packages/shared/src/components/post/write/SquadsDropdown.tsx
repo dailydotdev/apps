@@ -4,6 +4,8 @@ import SquadIcon from '../../icons/Squad';
 import { ButtonSize } from '../../buttons/Button';
 import { Dropdown } from '../../fields/Dropdown';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { verifyPermission } from '../../../graphql/squads';
+import { SourcePermissions } from '../../../graphql/sources';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
@@ -15,10 +17,13 @@ export function SquadsDropdown({
   selected,
 }: SquadsDropdownProps): ReactElement {
   const { squads } = useAuthContext();
-  const squadsList = squads?.map(({ name }) => name) ?? [];
+  const activeSquads = squads?.filter(
+    (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),
+  );
+  const squadsList = activeSquads?.map((squad) => squad.name) ?? [];
 
   const renderDropdownItem = (value: string, index: number) => {
-    const source = squads[index];
+    const source = activeSquads[index];
 
     return <SourceShortInfo source={source} className="pl-1" />;
   };
@@ -27,12 +32,12 @@ export function SquadsDropdown({
     <Dropdown
       icon={
         selected !== -1 ? (
-          <SourceAvatar source={squads[selected]} size="small" />
+          <SourceAvatar source={activeSquads[selected]} size="small" />
         ) : (
           <SquadIcon className="mr-2" />
         )
       }
-      placeholder="Select squad"
+      placeholder="Select Squad"
       buttonSize={ButtonSize.Large}
       className={{
         container: 'mt-6 w-70',

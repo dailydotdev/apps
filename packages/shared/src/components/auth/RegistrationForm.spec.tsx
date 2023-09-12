@@ -12,7 +12,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   mockEmailCheck,
   mockLoginFlow,
-  mockRegistraitonFlow,
+  mockRegistrationFlow,
 } from '../../../__tests__/fixture/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
@@ -39,7 +39,7 @@ const renderComponent = (
   },
 ): RenderResult => {
   const client = new QueryClient();
-  mockRegistraitonFlow();
+  mockRegistrationFlow();
   mockLoginFlow();
   return render(
     <QueryClientProvider client={client}>
@@ -93,7 +93,7 @@ const renderRegistration = async (
       return { data: { generateUniqueUsername: username } };
     },
   });
-  await waitFor(() => expect(screen.getByText('Sign up to daily.dev')));
+  await waitFor(() => expect(screen.getByTestId('registration_form')));
   const nameInput = screen.getByPlaceholderText('Full name');
   fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
     target: { value: username },
@@ -137,7 +137,7 @@ const renderLogin = async (email: string) => {
 //   await renderRegistration(email);
 //   const form = await screen.findByTestId('registration_form');
 //   const params = formToJson(form as HTMLFormElement);
-//   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
+//   mockRegistrationValidationFlow(successfulRegistrationMockData, params);
 //   fireEvent.submit(form);
 //   await waitForNock();
 //   await waitFor(() => {
@@ -156,7 +156,7 @@ const renderLogin = async (email: string) => {
 //   await renderRegistration(email);
 //   const form = await screen.findByTestId('registration_form');
 //   const params = formToJson(form as HTMLFormElement);
-//   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);
+//   mockRegistrationValidationFlow(errorRegistrationMockData, params, 400);
 //   fireEvent.submit(form);
 //   await waitForNock();
 //   await waitFor(() => {
@@ -169,7 +169,7 @@ it('should show login if email exists', async () => {
   const email = 'sshanzel@yahoo.com';
   await renderLogin(email);
 
-  const text = screen.queryByText('Log in with Facebook');
+  const text = screen.queryByText('Facebook');
   expect(text).toBeInTheDocument();
 });
 

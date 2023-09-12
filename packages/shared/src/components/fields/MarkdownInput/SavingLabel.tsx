@@ -15,16 +15,22 @@ export function SavingLabel({
   isUpdating,
   className,
 }: SavingLabelProps): ReactElement {
-  if (!isUptoDate && !isUpdating) return null;
+  if (!isUptoDate && !isUpdating) {
+    return null;
+  }
 
   const getLabel = () => {
-    if (isUpdating) return 'Saving changes';
+    if (isUpdating) {
+      return 'Saving changes';
+    }
 
     return isUptoDate ? 'All changes saved' : '';
   };
 
   const getIcon = () => {
-    if (isUpdating) return <Loader />;
+    if (isUpdating) {
+      return <Loader />;
+    }
 
     return isUptoDate ? <VIcon size={IconSize.Medium} /> : '';
   };

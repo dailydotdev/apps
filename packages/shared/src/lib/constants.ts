@@ -32,6 +32,11 @@ export const updateFirefoxExtensionLink = 'https://r.daily.dev/firefoxupdate';
 export const downloadBrowserExtension = 'https://r.daily.dev/download';
 export const referralToC = 'https://r.daily.dev/referral-toc';
 export const twitter = 'https://r.daily.dev/twitter';
+export const squadsPublicWaitlist = 'https://r.daily.dev/public-squad-waitlist';
+export const squadsPublicSuggestion =
+  'https://r.daily.dev/public-squad-suggestion';
+export const searchFeedback = 'https://r.daily.dev/search-feedback';
+export const searchDocs = 'https://r.daily.dev/search-docs';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';

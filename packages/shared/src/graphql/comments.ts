@@ -5,6 +5,13 @@ import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
 
+export type ReportCommentReason =
+  | 'HATEFUL'
+  | 'HARASSMENT'
+  | 'SPAM'
+  | 'EXPLICIT'
+  | 'MISINFORMATION'
+  | 'OTHER';
 export interface Author {
   __typename?: string;
   id: string;
@@ -35,6 +42,7 @@ export const getCommentHash = (id: string): string => `#c-${id}`;
 
 export interface CommentUpvote extends Upvote {
   comment: Comment;
+  createdAt: Date;
 }
 
 export interface RecommendedMentionsData {
@@ -186,6 +194,18 @@ export const EDIT_COMMENT_MUTATION = gql`
 export const PREVIEW_COMMENT_MUTATION = gql`
   query CommentPreview($content: String!, $sourceId: String) {
     preview: commentPreview(content: $content, sourceId: $sourceId)
+  }
+`;
+
+export const REPORT_COMMENT_MUTATION = gql`
+  mutation ReportComment(
+    $commentId: ID!
+    $reason: ReportCommentReason
+    $note: String
+  ) {
+    reportComment(commentId: $commentId, reason: $reason, note: $note) {
+      _
+    }
   }
 `;
 

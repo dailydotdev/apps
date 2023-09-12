@@ -14,7 +14,9 @@ const checkIsFromNavigation = (): boolean => {
   try {
     const url = new URL(globalThis?.document.referrer);
 
-    if (url?.origin !== globalThis?.window.location.origin) return false;
+    if (url?.origin !== globalThis?.window.location.origin) {
+      return false;
+    }
 
     return url.pathname === NOTIFICATIONS_PATH;
   } catch (err) {

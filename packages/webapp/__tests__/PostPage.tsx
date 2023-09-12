@@ -7,6 +7,7 @@ import {
   RenderResult,
   screen,
   waitFor,
+  within,
 } from '@testing-library/preact';
 
 import {
@@ -245,6 +246,24 @@ it('should set href to the post permalink', async () => {
   await screen.findByText('Learn SQL');
   const el = screen.getAllByTitle('Go to post')[0];
   expect(el).toHaveAttribute('href', 'http://localhost:4000/r/9CuRpr5NiEY5');
+});
+
+it('should display the "read post" link on mobile resolutions', async () => {
+  Object.defineProperty(global, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: query.includes('1020'),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    })),
+  });
+
+  renderPost();
+
+  const container = await screen.findByTestId('postContainer');
+  const el = await within(container).findByTestId('postActionsRead');
+
+  expect(el).toBeInTheDocument();
 });
 
 it('should show post title as heading', async () => {
@@ -719,7 +738,9 @@ describe('downvote flow', () => {
   ): MockedGraphQLResponse<AllTagCategoriesData> => ({
     request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
     result: () => {
-      if (onSuccess) onSuccess();
+      if (onSuccess) {
+        onSuccess();
+      }
       return {
         data: {
           feedSettings: {

@@ -1,20 +1,10 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-} from 'react';
-import classNames from 'classnames';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
-import styles from './Feed.module.css';
 import SettingsContext from '../contexts/SettingsContext';
-import { Spaciness } from '../graphql/settings';
-import ScrollToTopButton from './ScrollToTopButton';
 import useFeedVotePost from '../hooks/feed/useFeedVotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
@@ -34,10 +24,6 @@ import {
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../hooks/useToastNotification';
 import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
@@ -47,6 +33,8 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
+import { FeedContainer } from './feeds';
+import useCompanionTrigger from '../hooks/useCompanionTrigger';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -60,6 +48,9 @@ export interface FeedProps<T>
   header?: ReactNode;
   forceCardMode?: boolean;
   allowPin?: boolean;
+  showSearch?: boolean;
+  besideSearch?: ReactNode;
+  actionButtons?: ReactNode;
 }
 
 interface RankVariables {
@@ -87,50 +78,10 @@ const ScrollFeedFiltersOnboarding = dynamic(
     ),
 );
 
-const listGaps = {
-  cozy: 'gap-5',
-  roomy: 'gap-3',
-};
-const gridGaps = {
-  cozy: 'gap-14',
-  roomy: 'gap-12',
-};
-const getFeedGapPx = {
-  'gap-2': 8,
-  'gap-3': 12,
-  'gap-5': 20,
-  'gap-8': 32,
-  'gap-12': 48,
-  'gap-14': 56,
-};
-const gapClass = (useList: boolean, spaciness: Spaciness) =>
-  useList ? listGaps[spaciness] ?? 'gap-2' : gridGaps[spaciness] ?? 'gap-8';
-
-const cardListClass = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-  4: 'grid-cols-4',
-  5: 'grid-cols-5',
-  6: 'grid-cols-6',
-  7: 'grid-cols-7',
-};
-const cardClass = (useList: boolean, numCards: number): string =>
-  useList ? 'grid-cols-1' : cardListClass[numCards];
-
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
 const calculateColumn = (index: number, numCards: number): number =>
   index % numCards;
-
-const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
-  if (useList && spaciness !== 'eco') {
-    return spaciness === 'cozy'
-      ? { maxWidth: '48.75rem' }
-      : { maxWidth: '63.75rem' };
-  }
-  return {};
-};
 
 const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
@@ -151,6 +102,9 @@ export default function Feed<T>({
   forceCardMode,
   options,
   allowPin,
+  showSearch = true,
+  besideSearch,
+  actionButtons,
 }: FeedProps<T>): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -159,7 +113,6 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
   const { onboardingV2 } = useFeaturesContext();
-  const { subject } = useToastNotification();
   const {
     openNewTab,
     spaciness,
@@ -226,7 +179,6 @@ export default function Feed<T>({
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-  const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
 
   if (!loadedSettings) {
     return <></>;
@@ -271,7 +223,7 @@ export default function Feed<T>({
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const onReadArticleClick = useFeedOnPostClick(
+  const triggerReadArticleClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
@@ -279,6 +231,12 @@ export default function Feed<T>({
     ranking,
     'go to link',
   );
+
+  const {
+    onFeedArticleClick: onReadArticleClick,
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+  } = useCompanionTrigger(triggerReadArticleClick);
 
   const onPostModalOpen = (index: number, callback?: () => unknown) => {
     document.body.classList.add('hidden-scrollbar');
@@ -366,15 +324,6 @@ export default function Feed<T>({
     );
   };
 
-  const style = {
-    '--num-cards': numCards,
-    '--feed-gap': `${feedGapPx / 16}rem`,
-  } as React.CSSProperties;
-  const cardContainerStye = { ...getStyle(useList, spaciness) };
-
-  if (emptyScreen && emptyFeed) {
-    return <>{emptyScreen}</>;
-  }
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -421,106 +370,93 @@ export default function Feed<T>({
 
   const ArticleModal = PostModalMap[selectedPost?.type];
 
+  if (emptyScreen && emptyFeed) {
+    return <>{emptyScreen}</>;
+  }
+
+  const isValidFeed = Object.values(MainFeedPage).includes(
+    feedName as MainFeedPage,
+  );
+
   return (
-    <div
-      className={classNames(
-        'flex flex-col laptopL:mx-auto w-full',
-        styles.container,
-        className,
-      )}
-      style={style}
-    >
-      {header}
-      <div
-        className={classNames(
-          'relative mx-auto w-full',
-          styles.feed,
-          !useList && styles.cards,
-        )}
-        style={cardContainerStye}
-        aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
-        data-testid="posts-feed"
-      >
-        <ScrollToTopButton />
-        <div
-          className={classNames(
-            'grid',
-            gapClass(useList, spaciness),
-            cardClass(useList, numCards),
-          )}
-        >
-          {items.map((item, index) => (
-            <FeedItemComponent
-              items={items}
-              index={index}
-              row={calculateRow(index, virtualizedNumCards)}
-              column={calculateColumn(index, virtualizedNumCards)}
-              columns={virtualizedNumCards}
-              key={getFeedItemKey(items, index)}
-              useList={useList}
-              openNewTab={openNewTab}
-              insaneMode={insaneMode}
-              postMenuIndex={postMenuIndex}
-              showCommentPopupId={showCommentPopupId}
-              setShowCommentPopupId={setShowCommentPopupId}
-              isSendingComment={isSendingComment}
-              comment={comment}
-              user={user}
-              feedName={feedName}
-              ranking={ranking}
-              onUpvote={onUpvote}
-              onBookmark={onBookmark}
-              onPostClick={onPostCardClick}
-              onShare={onShareClick}
-              onMenuClick={onMenuClick}
-              onShareClick={onShareMenuClickTracked}
-              onCommentClick={onCommentClick}
-              onAdClick={onAdClick}
-              onReadArticleClick={onReadArticleClick}
-            />
-          ))}
-        </div>
-        {showScrollOnboardingVersion && (
+    <FeedContainer
+      forceCardMode={forceCardMode}
+      header={header}
+      className={className}
+      showSearch={showSearch && isValidFeed}
+      besideSearch={besideSearch}
+      actionButtons={actionButtons}
+      afterFeed={
+        showScrollOnboardingVersion ? (
           <ScrollFeedFiltersOnboarding
             onInitializeOnboarding={onInitializeOnboardingClick}
           />
-        )}
-        <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-        <PostOptionsMenu
-          {...commonMenuItems}
+        ) : null
+      }
+    >
+      {items.map((item, index) => (
+        <FeedItemComponent
+          items={items}
+          index={index}
+          row={calculateRow(index, virtualizedNumCards)}
+          column={calculateColumn(index, virtualizedNumCards)}
+          columns={virtualizedNumCards}
+          key={getFeedItemKey(items, index)}
+          useList={useList}
+          openNewTab={openNewTab}
+          insaneMode={insaneMode}
+          postMenuIndex={postMenuIndex}
+          showCommentPopupId={showCommentPopupId}
+          setShowCommentPopupId={setShowCommentPopupId}
+          isSendingComment={isSendingComment}
+          comment={comment}
+          user={user}
           feedName={feedName}
-          feedQueryKey={feedQueryKey}
-          postIndex={postMenuIndex}
-          onHidden={() => setPostMenuIndex(null)}
-          onRemovePost={onRemovePost}
+          ranking={ranking}
+          onUpvote={onUpvote}
+          onBookmark={onBookmark}
+          onPostClick={onPostCardClick}
+          onShare={onShareClick}
+          onMenuClick={onMenuClick}
+          onShareClick={onShareMenuClickTracked}
+          onCommentClick={onCommentClick}
+          onAdClick={onAdClick}
+          onReadArticleClick={onReadArticleClick}
+        />
+      ))}
+      <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+      <PostOptionsMenu
+        {...commonMenuItems}
+        feedName={feedName}
+        feedQueryKey={feedQueryKey}
+        postIndex={postMenuIndex}
+        onHidden={() => setPostMenuIndex(null)}
+        onRemovePost={onRemovePost}
+        origin={Origin.Feed}
+        allowPin={allowPin}
+      />
+      <ShareOptionsMenu {...commonMenuItems} onHidden={onShareOptionsHidden} />
+      {selectedPost && ArticleModal && (
+        <ArticleModal
+          isOpen={!!selectedPost}
+          id={selectedPost.id}
+          onRequestClose={() => onCloseModal(false)}
+          onPreviousPost={onPrevious}
+          onNextPost={onNext}
+          postPosition={postPosition}
+          post={selectedPost}
+          onRemovePost={() => onRemovePost(selectedPostIndex)}
+        />
+      )}
+      {sharePost && (
+        <ShareModal
+          isOpen={!!sharePost}
+          post={sharePost}
           origin={Origin.Feed}
-          allowPin={allowPin}
+          {...sharePostFeedLocation}
+          onRequestClose={closeSharePost}
         />
-        <ShareOptionsMenu
-          {...commonMenuItems}
-          onHidden={onShareOptionsHidden}
-        />
-        {selectedPost && ArticleModal && (
-          <ArticleModal
-            isOpen={!!selectedPost}
-            id={selectedPost.id}
-            onRequestClose={() => onCloseModal(false)}
-            onPreviousPost={onPrevious}
-            onNextPost={onNext}
-            postPosition={postPosition}
-            onRemovePost={() => onRemovePost(selectedPostIndex)}
-          />
-        )}
-        {sharePost && (
-          <ShareModal
-            isOpen={!!sharePost}
-            post={sharePost}
-            origin={Origin.Feed}
-            {...sharePostFeedLocation}
-            onRequestClose={closeSharePost}
-          />
-        )}
-      </div>
-    </div>
+      )}
+    </FeedContainer>
   );
 }

@@ -86,15 +86,20 @@ export function SquadComment({
     const text = e.currentTarget.value;
     setLink(text);
     checkUrl(text);
-    if (!text) return setLinkHint(LinkError.Required);
+    if (!text) {
+      return setLinkHint(LinkError.Required);
+    }
 
     if (isValidHttpUrl(text)) {
-      if (linkHint) setLinkHint('');
+      if (linkHint) {
+        setLinkHint('');
+      }
       return null;
     }
 
-    if (!linkHint || linkHint === LinkError.Required)
+    if (!linkHint || linkHint === LinkError.Required) {
       return setLinkHint(LinkError.Invalid);
+    }
 
     return null;
   };

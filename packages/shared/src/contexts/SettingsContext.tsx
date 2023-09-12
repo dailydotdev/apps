@@ -58,7 +58,7 @@ export type SettingsContextData = {
   loadedSettings: boolean;
   customLinks?: string[];
   updateCustomLinks: (links: string[]) => Promise<unknown>;
-  syncSettings: () => Promise<unknown>;
+  syncSettings: (bootUserId?: string) => Promise<unknown>;
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
@@ -166,8 +166,9 @@ export const SettingsContextProvider = ({
 
   const updateRemoteSettingsFn = async (
     newSettings: RemoteSettings,
+    bootUserId?: string,
   ): Promise<void> => {
-    if (userId) {
+    if (userId || bootUserId) {
       await updateRemoteSettings({
         ...newSettings,
       });
@@ -179,8 +180,8 @@ export const SettingsContextProvider = ({
     await updateRemoteSettingsFn(newSettings);
   };
 
-  const syncSettings = async () => {
-    await updateRemoteSettingsFn(settings);
+  const syncSettings = async (bootUserId?: string) => {
+    await updateRemoteSettingsFn(settings, bootUserId);
   };
 
   const contextData = useMemo<SettingsContextData>(

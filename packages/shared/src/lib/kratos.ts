@@ -126,7 +126,7 @@ interface RecoveryAddress {
   via: string;
 }
 
-interface VerifyableAddress extends RecoveryAddress {
+interface VerifiableAddress extends RecoveryAddress {
   status: string;
   verified: boolean;
   verified_at?: Date;
@@ -148,7 +148,7 @@ export interface Identity {
   state_changed_at: DateString;
   traits: IdentityTraits;
   updated_at: DateString;
-  verifiable_addresses: VerifyableAddress[];
+  verifiable_addresses: VerifiableAddress[];
 }
 
 export interface LogoutSessionData {

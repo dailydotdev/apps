@@ -36,11 +36,14 @@ module.exports = {
           bun: 'var(--theme-background-bun)',
           onion: 'var(--theme-background-onion)',
           pepper: 'var(--theme-background-pepper)',
+          pepper40: 'var(--theme-background-pepper-40)',
           mention: {
             primary: 'var(--theme-mention)',
             hover: 'var(--theme-mention-hover)',
           },
           'cabbage-opacity-24': 'var(--theme-background-cabbage-opacity-24)',
+          'overlay-cabbage-opacity': 'var(--theme-overlay-cabbage-opacity)',
+          'overlay-onion-opacity': 'var(--theme-overlay-onion-opacity)',
         },
         label: {
           primary: 'var(--theme-label-primary)',
@@ -65,6 +68,8 @@ module.exports = {
           from: 'var(--theme-overlay-from)',
           to: 'var(--theme-overlay-to)',
           float: {
+            bun: 'var(--theme-overlay-float-bun)',
+            blueCheese: 'var(--theme-overlay-float-blueCheese)',
             cabbage: 'var(--theme-overlay-float-cabbage)',
             avocado: 'var(--theme-overlay-float-avocado)',
             ketchup: 'var(--theme-overlay-float-ketchup)',
@@ -109,6 +114,13 @@ module.exports = {
           purple: 'var(--theme-highlight-purple)',
           label: 'var(--theme-highlight-label)',
         },
+        squads: {
+          avocado: 'var(--theme-squads-avocado)',
+          bacon: 'var(--theme-squads-bacon)',
+          cabbage: 'var(--theme-squads-cabbage)',
+          onion: 'var(--theme-squads-onion)',
+          pepper: 'var(--theme-squads-pepper)',
+        },
       },
       white: '#ffffff',
       transparent: 'transparent',
@@ -127,6 +139,12 @@ module.exports = {
       2: '2',
       3: '3',
       rank: '3',
+      header: '4',
+      sidebar: '7',
+      tooltip: '8',
+      popup: '9',
+      modal: '10',
+      max: '100',
       '-1': '-1',
     },
     maxHeight: {
@@ -218,7 +236,7 @@ module.exports = {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [caret, typography, buttons, require('@tailwindcss/line-clamp')],
+  plugins: [caret, typography, buttons],
   corePlugins: {
     invert: false,
   },

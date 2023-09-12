@@ -7,10 +7,10 @@ import {
   subDays,
 } from 'date-fns';
 
-const oneMinute = 60;
-const oneHour = 3600;
-const oneDay = 86400;
-const oneYear = oneDay * 365;
+export const oneMinute = 60;
+export const oneHour = 3600;
+export const oneDay = 86400;
+export const oneYear = oneDay * 365;
 
 export function postDateFormat(
   value: Date | number | string,
@@ -21,19 +21,25 @@ export function postDateFormat(
   // Calculate time delta in seconds.
   const dt = (now.getTime() - date.getTime()) / 1000;
 
-  if (dt <= oneMinute) return 'Now';
+  if (dt <= oneMinute) {
+    return 'Now';
+  }
 
   if (isSameDay(date, now)) {
     return 'Today';
   }
 
-  if (isSameDay(date, subDays(now, 1))) return 'Yesterday';
+  if (isSameDay(date, subDays(now, 1))) {
+    return 'Yesterday';
+  }
 
   const options: Intl.DateTimeFormatOptions = {
     month: 'short',
     day: '2-digit',
   };
-  if (!isSameYear(date, now)) options.year = 'numeric';
+  if (!isSameYear(date, now)) {
+    options.year = 'numeric';
+  }
   return date.toLocaleString('en-US', options);
 }
 
@@ -44,7 +50,9 @@ export function commentDateFormat(
   const date = new Date(value);
   const dt = (now.getTime() - date.getTime()) / 1000;
 
-  if (dt <= oneMinute) return 'Now';
+  if (dt <= oneMinute) {
+    return 'Now';
+  }
 
   if (dt <= oneHour) {
     const numMinutes = Math.round(dt / oneMinute);

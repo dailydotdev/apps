@@ -67,11 +67,11 @@ const modalKindAndSizeToClassName: Partial<
   },
 };
 export const modalSizeToClassName: Record<ModalSize, string> = {
-  [ModalSize.XSmall]: 'w-[21.25rem]',
-  [ModalSize.Small]: 'w-[26.25rem]',
-  [ModalSize.Medium]: 'w-[35rem]',
-  [ModalSize.Large]: 'w-[42.5rem]',
-  [ModalSize.XLarge]: 'w-[63.75rem]',
+  [ModalSize.XSmall]: '!w-[21.25rem]',
+  [ModalSize.Small]: '!w-[26.25rem]',
+  [ModalSize.Medium]: '!w-[35rem]',
+  [ModalSize.Large]: '!w-[42.5rem]',
+  [ModalSize.XLarge]: '!w-[63.75rem]',
 };
 
 export function Modal({
@@ -95,11 +95,13 @@ export function Modal({
     defaultView ?? stepTitle ?? tabTitle,
   );
   const setActiveView = (view: string) => {
-    if (onViewChange) onViewChange(view);
+    if (onViewChange) {
+      onViewChange(view);
+    }
     setView(view);
   };
   const modalOverlayClassName = classNames(
-    'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-[10]',
+    'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-modal',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
     overlayClassName,

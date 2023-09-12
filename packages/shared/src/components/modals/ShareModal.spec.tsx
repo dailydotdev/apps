@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
 import { IFlags } from 'flagsmith';
+import { useRouter } from 'next/router';
 import ShareModal from './ShareModal';
 import Post from '../../../__tests__/fixture/post';
 import { getFacebookShareLink } from '../../lib/share';
@@ -94,14 +95,20 @@ describe('ShareModal Test Suite:', () => {
     expect(screen.getByText('Share post')).toBeInTheDocument();
   });
 
-  it('should render the component with logged user but no squads and open new squad modal', async () => {
+  it('should render the component with logged user but no squads and open new squad page', async () => {
     renderComponent(true, false);
     const btn = await screen.findByTestId('social-share-New Squad');
 
     expect(btn).toBeInTheDocument();
     btn.click();
+    const useRouterMock = useRouter as jest.Mock;
+    const routerPushMock =
+      useRouterMock.mock.results[useRouterMock.mock.results.length - 1].value
+        .push;
+
     await waitFor(() => {
-      expect(screen.getByText('Welcome to Squads!')).toBeInTheDocument();
+      expect(routerPushMock).toHaveBeenCalled();
+      expect(routerPushMock).toHaveBeenCalledWith('/squads/new?origin=share');
     });
   });
 

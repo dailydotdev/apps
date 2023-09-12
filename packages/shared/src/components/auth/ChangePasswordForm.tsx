@@ -1,9 +1,8 @@
-import classNames from 'classnames';
 import React, { FormEvent, ReactElement, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { AuthFormProps, AuthModalText } from './common';
 import {
   AuthFlow,
@@ -75,7 +74,7 @@ function ChangePasswordForm({
 
   return (
     <>
-      {!simplified && <AuthModalHeader title="Create new password" />}
+      <AuthHeader simplified={simplified} title="Create a new password" />
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onChangePasswordSubmit}
@@ -96,11 +95,7 @@ function ChangePasswordForm({
           type="password"
           name="password"
         />
-        <Button
-          className={classNames('mt-6 bg-theme-color-cabbage')}
-          type="submit"
-          disabled={isLoading}
-        >
+        <Button className="mt-6 btn-primary" type="submit" disabled={isLoading}>
           Change password
         </Button>
       </AuthForm>

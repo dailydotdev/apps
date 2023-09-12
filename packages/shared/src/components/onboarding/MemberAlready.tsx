@@ -17,8 +17,8 @@ export function MemberAlready({
   onLogin,
 }: MemberAlreadyProps): ReactElement {
   return (
-    <span className={classNames('flex', className?.container)}>
-      Already a member?
+    <span className={classNames('flex items-center', className?.container)}>
+      Already a daily.dev member?
       <ClickableText
         className={classNames('ml-1', className?.login)}
         onClick={onLogin}

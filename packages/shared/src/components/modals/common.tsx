@@ -6,12 +6,6 @@ export type CloseModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
 ) => void;
 
-const EditSquadModal = dynamic(
-  () => import(/* webpackChunkName: "editSquadModal" */ './EditSquadModal'),
-);
-const NewSquadModal = dynamic(
-  () => import(/* webpackChunkName: "newSquadModal" */ './NewSquadModal'),
-);
 const SquadMemberModal = dynamic(
   () => import(/* webpackChunkName: "squadMemberModal" */ './SquadMemberModal'),
 );
@@ -44,12 +38,35 @@ const CreateSharedPostModal = dynamic(
 );
 
 const ReportPostModal = dynamic(
-  () => import(/* webpackChunkName: "reportPostModal" */ './ReportPostModal'),
+  () =>
+    import(
+      /* webpackChunkName: "reportPostModal" */ './report/ReportPostModal'
+    ),
+);
+
+const ReportCommentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reportCommentModal" */ './report/ReportCommentModal'
+    ),
+);
+
+const SquadNotificationsModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadNotificationsModal" */ './squads/SquadNotificationsModal'
+    ),
+);
+
+const CompanionModal = dynamic(
+  () => import(/* webpackChunkName: "CompanionModal" */ './CompanionModal'),
+);
+
+const FeedFilters = dynamic(
+  () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
 );
 
 export const modals = {
-  [LazyModal.NewSquad]: NewSquadModal,
-  [LazyModal.EditSquad]: EditSquadModal,
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.SquadTour]: SquadTourModal,
@@ -57,6 +74,10 @@ export const modals = {
   [LazyModal.SquadPromotion]: SquadPromotionModal,
   [LazyModal.CreateSharedPost]: CreateSharedPostModal,
   [LazyModal.ReportPost]: ReportPostModal,
+  [LazyModal.ReportComment]: ReportCommentModal,
+  [LazyModal.SquadNotifications]: SquadNotificationsModal,
+  [LazyModal.CompanionModal]: CompanionModal,
+  [LazyModal.FeedFilters]: FeedFilters,
 };
 
 type GetComponentProps<T> = T extends

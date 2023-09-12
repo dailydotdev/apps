@@ -46,6 +46,8 @@ export interface BaseButtonProps {
   displayClass?: string;
   textPosition?: string;
   position?: string;
+  disabled?: boolean;
+  spanClassName?: string;
 }
 
 const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
@@ -85,6 +87,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     readOnly,
     iconOnly: showIconOnly,
     onClick,
+    spanClassName,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
@@ -111,7 +114,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       )}
     >
       {icon && getIconWithSize(icon)}
-      {children && <span>{children}</span>}
+      {children && <span className={spanClassName}>{children}</span>}
       {rightIcon && getIconWithSize(rightIcon)}
       {loading && (
         <Loader

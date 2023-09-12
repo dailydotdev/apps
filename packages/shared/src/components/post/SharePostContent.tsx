@@ -10,6 +10,7 @@ import ArrowIcon from '../icons/Arrow';
 import { Post } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
+import { combinedClicks } from '../../lib/click';
 
 interface SharePostContentProps {
   post: Post;
@@ -25,12 +26,19 @@ function SharePostContent({
   const [shouldShowSummary, setShouldShowSummary] = useState(true);
 
   const tldrHeight = useMemo(() => {
-    if (height === null) return 'auto';
+    if (height === null) {
+      return 'auto';
+    }
 
     return shouldShowSummary ? height : 0;
   }, [shouldShowSummary, height]);
 
   const isUnknownSource = post.sharedPost.source.id === 'unknown';
+
+  const openArticle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onReadArticle();
+  };
 
   return (
     <>
@@ -69,7 +77,9 @@ function SharePostContent({
                 className="mt-5 btn-secondary w-fit"
                 href={post.sharedPost.permalink}
                 openNewTab={openNewTab}
-                onClick={onReadArticle}
+                title="Go to post"
+                rel="noopener"
+                {...combinedClicks(openArticle)}
               />
             </div>
             <div className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit">
@@ -87,7 +97,9 @@ function SharePostContent({
           <>
             <PostSummary
               ref={(el) => {
-                if (!el?.offsetHeight || height !== null) return;
+                if (!el?.offsetHeight || height !== null) {
+                  return;
+                }
 
                 setHeight(el.offsetHeight);
               }}

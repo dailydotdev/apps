@@ -18,12 +18,26 @@ export const generateQueryKey = (
   return [name, user?.id ?? 'anonymous', ...additional];
 };
 
+export const generateStorageKey = (
+  key: RequestKey,
+  ...params: string[]
+): string =>
+  (generateQueryKey(key, null, ...params) as Array<string>).join(':');
+
 export enum RequestKey {
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
   PostCommentsMutations = 'post_comments_mutations',
   Actions = 'actions',
+  Squad = 'squad',
+  Search = 'search',
+  SearchHistory = 'searchHistory',
+  ReadingHistory = 'readingHistory',
   ReferralCampaigns = 'referral_campaigns',
+  ContextMenu = 'context_menu',
+  NotificationPreference = 'notification_preference',
+  Banner = 'latest_banner',
+  Auth = 'auth',
 }
 
 export type HasConnection<
@@ -50,7 +64,9 @@ export const filterInfiniteCache = <
   condition: (param: TData) => boolean,
 ): TReturn => {
   return client.setQueryData<TReturn>(queryKey, (data) => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
 
     return {
       ...data,
@@ -89,7 +105,9 @@ export const updateInfiniteCache = <
   entity,
 }: UpdateInfiniteCacheProps<TEntity, TData>): TReturn => {
   return client.setQueryData<TReturn>(queryKey, (data) => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
 
     const updated = { ...data };
     const item = updated.pages[page][prop].edges[edge]

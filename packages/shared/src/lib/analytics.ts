@@ -6,11 +6,13 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   PostContextMenu = 'post context menu',
+  PostCommentContextMenu = 'post comment context menu',
   TagsFilter = 'tags filter',
   TagsSearch = 'tags search',
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
   // squads - start
+  SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
   SquadPage = 'squad page',
   Auto = 'auto',
@@ -18,18 +20,28 @@ export enum Origin {
   Share = 'share',
   Notification = 'notification',
   SquadMembersList = 'squad members list',
+  SquadChecklist = 'squad checklist',
+  SquadInvitation = 'squad invitation',
   // squads - end
   PostCommentButton = 'comment button',
   StartDiscussion = 'start discussion button',
-  SquadChecklist = 'squad checklist',
   CompanionContextMenu = 'companion context menu',
+  // search - start
+  HomePage = 'home page',
+  SearchPage = 'search page',
+  HistoryPage = 'history page',
+  HistoryTooltip = 'history tooltip',
+  // search - end
 }
 
 export enum LoginTrigger {
   CreateFeedFilters = 'create feed filters',
+  SearchInput = 'search input',
+  SearchSuggestion = 'search suggestion',
 }
 
 export enum AnalyticsEvent {
+  Click = 'click',
   CommentPost = 'comment post',
   Impression = 'impression',
   ManageTags = 'click manage tags',
@@ -77,16 +89,34 @@ export enum AnalyticsEvent {
   BookmarkPost = 'bookmark post',
   RemovePostBookmark = 'remove post bookmark',
   // bookmark - end
+  ReportComment = 'report comment',
+  // search start
+  FocusSearch = 'focus search',
+  SubmitSearch = 'submit search',
+  OpenSearchHistory = 'open search history',
+  UpvoteSearch = 'upvote search',
+  DownvoteSearch = 'downvote search',
+  CopySearch = 'copy search',
+  ErrorSearch = 'error search',
+  // search end
+  OpenCompanionPermissionModal = 'open companion permission popup',
+  CloseCompanionPermissionModal = 'close companion permission popup',
+  RequestContentScripts = 'request content scripts',
+  ApproveContentScripts = 'approve content scripts',
+  DeclineContentScripts = 'decline content scripts',
 }
 
 export enum TargetType {
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
-  CreateSquadPopup = 'create squad popup',
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
   SignupButton = 'signup button',
+  SquadJoinButton = 'squad join button',
+  SearchRecommendation = 'search rec',
+  SearchHistory = 'search history',
+  SearchSource = 'search source',
 }
 
 export enum NotificationChannel {

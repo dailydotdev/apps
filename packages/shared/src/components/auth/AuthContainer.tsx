@@ -2,10 +2,7 @@ import classNames from 'classnames';
 import React, { forwardRef, HTMLAttributes, MutableRefObject } from 'react';
 import classed from '../../lib/classed';
 
-const Container = classed(
-  'div',
-  'grid grid-cols-1 gap-3 self-center mt-6 w-full',
-);
+const Container = classed('div', 'flex flex-col gap-3 self-center mt-6 w-full');
 
 function AuthContainer(
   { className, children, ...props }: HTMLAttributes<HTMLDivElement>,

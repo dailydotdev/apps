@@ -15,7 +15,7 @@ import TwitterIcon from '../icons/Twitter';
 import SlackIcon from '../icons/Slack';
 import DiscordIcon from '../icons/Discord';
 import GithubIcon from '../icons/GitHub';
-import { useCopyLink } from '../../hooks/useCopyLink';
+import { useCopyLink } from '../../hooks/useCopy';
 import { sharingBookmarks } from '../../lib/constants';
 import { Modal, ModalProps } from './common/Modal';
 import { IconSize } from '../Icon';

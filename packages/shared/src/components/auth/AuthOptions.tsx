@@ -8,9 +8,9 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
-import TabContainer, { Tab } from '../tabs/TabContainer';
+import { Tab, TabContainer } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
-import { AuthSignBack, SIGNIN_METHOD_KEY } from './AuthSignBack';
+import { AuthSignBack } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
 import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
@@ -24,7 +24,7 @@ import {
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import {
   AuthEvent,
   AuthFlow,
@@ -47,6 +47,13 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
+import {
+  SignBackProvider,
+  SIGNIN_METHOD_KEY,
+  useSignBack,
+} from '../../hooks/auth/useSignBack';
+import { LoggedUser } from '../../lib/user';
+import { labels } from '../../lib';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -61,8 +68,14 @@ export enum AuthDisplay {
   VerifiedEmail = 'VerifiedEmail',
 }
 
+export interface AuthProps {
+  isAuthenticating: boolean;
+  isLoginFlow: boolean;
+}
+
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
+  onAuthStateUpdate?: (props: Pick<AuthProps, 'isLoginFlow'>) => void;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -76,6 +89,7 @@ export interface AuthOptionsProps {
 
 function AuthOptions({
   onClose,
+  onAuthStateUpdate,
   onSuccessfulLogin,
   onSuccessfulRegistration,
   className,
@@ -100,6 +114,7 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
   );
+
   const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
     setActiveDisplay(display);
@@ -110,7 +125,6 @@ function AuthOptions({
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
   const windowPopup = useRef<Window>(null);
-
   const onLoginCheck = () => {
     if (isRegistration) {
       return;
@@ -142,6 +156,7 @@ function AuthOptions({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  const { onLogin: onSignBackLogin } = useSignBack();
   const {
     isReady: isRegistrationReady,
     registration,
@@ -151,8 +166,16 @@ function AuthOptions({
     key: 'registration_form',
     onValidRegistration: async () => {
       setIsRegistration(true);
-      await refetchBoot();
-      await syncSettings();
+      const { data } = await refetchBoot();
+
+      if (data.user) {
+        onSignBackLogin(
+          data.user as LoggedUser,
+          chosenProvider as SignBackProvider,
+        );
+      }
+
+      await syncSettings(data?.user?.id);
       onSetActiveDisplay(AuthDisplay.EmailSent);
       onSuccessfulRegistration?.();
     },
@@ -175,6 +198,7 @@ function AuthOptions({
     onSuccessfulLogin: onLoginCheck,
     ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
+    provider: chosenProvider,
   });
   const onProfileSuccess = async () => {
     await refetchBoot();
@@ -244,7 +268,7 @@ function AuthOptions({
           return onSetActiveDisplay(AuthDisplay.ConnectedUser);
         }
 
-        return displayToast('An error occurred, please refresh the page.');
+        return displayToast(labels.auth.error.generic);
       }
       const bootResponse = await refetchBoot();
       if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
@@ -254,10 +278,19 @@ function AuthOptions({
             error: 'Could not find email on social registration',
           }),
         });
-        return displayToast('An error occurred, please refresh and try again.');
+        return displayToast(labels.auth.error.generic);
       }
 
       if (!e.data?.social_registration) {
+        const { data: boot } = bootResponse;
+
+        if (boot.user) {
+          onSignBackLogin(
+            boot.user as LoggedUser,
+            chosenProvider as SignBackProvider,
+          );
+        }
+
         return onSuccessfulLogin?.();
       }
 
@@ -358,20 +391,32 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
-            onRegister={() => onSetActiveDisplay(AuthDisplay.Default)}
+            onRegister={() => {
+              if (isLoginFlow && onAuthStateUpdate) {
+                onAuthStateUpdate({ isLoginFlow: false });
+              }
+              onSetActiveDisplay(AuthDisplay.Default);
+            }}
+            isLoginFlow={isLoginFlow}
             onProviderClick={onProviderClick}
             simplified={simplified}
-          >
-            <LoginForm
-              className="mt-3"
-              loginHint={loginHint}
-              onPasswordLogin={onPasswordLogin}
-              onForgotPassword={onForgotPassword}
-              isLoading={isPasswordLoginLoading}
-              autoFocus={false}
-              isReady={isReady}
-            />
-          </AuthSignBack>
+            onShowLoginOptions={() => {
+              if (!isLoginFlow && onAuthStateUpdate) {
+                onAuthStateUpdate({ isLoginFlow: true });
+              }
+              setActiveDisplay(AuthDisplay.Default);
+            }}
+            loginFormProps={{
+              isReady,
+              loginHint,
+              onPasswordLogin,
+              onForgotPassword,
+              isLoading: isPasswordLoginLoading,
+              autoFocus: false,
+              onSignup: onForgotPasswordBack,
+              className: 'w-full',
+            }}
+          />
         </Tab>
         <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
@@ -397,7 +442,10 @@ function AuthOptions({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailSent}>
-          {!simplified && <AuthModalHeader title="Verify your email address" />}
+          <AuthHeader
+            simplified={simplified}
+            title="Verify your email address"
+          />
           <EmailVerificationSent email={email} />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
@@ -412,12 +460,13 @@ function AuthOptions({
                   onSetActiveDisplay(AuthDisplay.ForgotPassword)
                 }
                 isLoading={isPasswordLoginLoading}
+                onSignup={onForgotPasswordBack}
               />
             )}
           </EmailVerified>
         </Tab>
         <Tab label={AuthDisplay.ConnectedUser}>
-          {!simplified && <AuthModalHeader title="Account already exists" />}
+          <AuthHeader simplified={simplified} title="Account already exists" />
           {connectedUser && (
             <ConnectedUserModal user={connectedUser} onLogin={onShowLogin} />
           )}

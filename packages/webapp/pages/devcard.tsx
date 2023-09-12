@@ -19,7 +19,7 @@ import request from 'graphql-request';
 import { useMutation } from 'react-query';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
-import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
+import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import Tilt from 'react-parallax-tilt';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -28,6 +28,7 @@ import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceh
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
+import { labels } from '@dailydotdev/shared/src/lib';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -163,7 +164,7 @@ const Step2 = ({
   return (
     <div className="flex flex-col self-stretch laptop:self-center mx-2 mt-5">
       <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #DevCard</h1>
-      <main className="flex flex-col laptop:flex-row gap-10 laptopL:gap-20">
+      <main className="flex z-2 flex-col laptop:flex-row gap-10 laptopL:gap-20">
         <section className="flex flex-col">
           <Tilt
             className="overflow-hidden relative self-stretch w-fit"
@@ -310,8 +311,7 @@ const DevCardPage = (): ReactElement => {
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const [imageError, setImageError] = useState<string>();
 
-  const onError = () =>
-    setImageError('Something went wrong, please try again...');
+  const onError = () => setImageError(labels.error.generic);
 
   const { mutateAsync: generateDevCard } = useMutation(
     ({ file, url }: GenerateDevCardParams = {}) =>

@@ -19,38 +19,47 @@ interface UseActions {
 export const useActions = (): UseActions => {
   const client = useQueryClient();
   const { user } = useAuthContext();
+  const actionsKey = generateQueryKey(RequestKey.Actions, user);
   const { data: actions, isFetched: isActionsFetched } = useQuery(
-    generateQueryKey(RequestKey.Actions, user),
-    getUserActions,
+    actionsKey,
+    async () => {
+      const data = await getUserActions();
+      const current = client.getQueryData<Action[]>(actionsKey);
+
+      if (!current || !Array.isArray(current)) {
+        return data;
+      }
+
+      const filtered = data.filter(({ type }) =>
+        current.every((action) => action.type !== type),
+      );
+
+      return [...current, ...filtered];
+    },
     { enabled: !!user },
   );
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {
-      client.setQueryData<Action[]>(
-        generateQueryKey(RequestKey.Actions, user),
-        (data) => {
-          const optimisticAction = {
-            userId: user.id,
-            type,
-            completedAt: new Date(),
-          };
+      client.setQueryData<Action[]>(actionsKey, (data) => {
+        const optimisticAction = {
+          userId: user.id,
+          type,
+          completedAt: new Date(),
+        };
 
-          if (!Array.isArray(data)) {
-            return [optimisticAction];
-          }
+        if (!Array.isArray(data)) {
+          return [optimisticAction];
+        }
 
-          return [...data, optimisticAction];
-        },
-      );
+        return [...data, optimisticAction];
+      });
 
-      return () =>
-        client.setQueryData<Action[]>(
-          generateQueryKey(RequestKey.Actions, user),
-          actions,
-        );
+      return () => client.setQueryData<Action[]>(actionsKey, actions);
     },
     onError: (_, __, rollback: () => void) => {
-      if (rollback) rollback();
+      if (rollback) {
+        rollback();
+      }
     },
   });
 

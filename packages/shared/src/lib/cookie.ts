@@ -89,6 +89,15 @@ export const setCookie = (
   document.cookie = cookieValue;
 };
 
+export const expireCookie = (
+  name: string,
+  options: Partial<Pick<CookieOptions, 'path' | 'domain'>> = {},
+): void => {
+  const { path, domain } = options;
+
+  setCookie(name, 'expired', { path, domain, maxAge: 0 });
+};
+
 export const updateFeatureFlags = (
   flags: IFlags,
   obj: Record<string, FeatureValue>,

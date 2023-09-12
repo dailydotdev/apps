@@ -25,11 +25,16 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import PortalMenu from '../fields/PortalMenu';
+import PortalMenu, { MenuItemProps } from '../fields/PortalMenu';
 import classed from '../../lib/classed';
 import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
 import { RequestKey } from '../../lib/query';
+import FlagIcon from '../icons/Flag';
+import { LazyModal } from '../modals/common/types';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { labels } from '../../lib';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
@@ -67,6 +72,8 @@ export default function CommentActionButtons({
   const { user, showLogin } = useContext(AuthContext);
   const [upvoted, setUpvoted] = useState(comment.upvoted);
   const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
+  const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
 
   const queryClient = useQueryClient();
 
@@ -144,6 +151,47 @@ export default function CommentActionButtons({
       SourcePermissions.CommentDelete,
     );
 
+  const openReportCommentModal = () => {
+    if (!user) {
+      return showLogin(AuthTriggers.ReportComment);
+    }
+
+    return openModal({
+      type: LazyModal.ReportComment,
+      props: {
+        onReport: () => displayToast(labels.reporting.reportFeedbackText),
+        comment,
+        post,
+      },
+    });
+  };
+
+  const commentOptions: MenuItemProps[] = [];
+
+  if (isAuthor) {
+    commentOptions.push({
+      label: 'Edit comment',
+      action: () => onEdit(comment),
+      icon: <EditIcon />,
+    });
+  }
+
+  if (canModifyComment) {
+    commentOptions.push({
+      label: 'Delete comment',
+      action: () => onDelete(comment, parentId),
+      icon: <TrashIcon />,
+    });
+  }
+
+  if (!isAuthor) {
+    commentOptions.push({
+      label: 'Report comment',
+      action: openReportCommentModal,
+      icon: <FlagIcon />,
+    });
+  }
+
   return (
     <div className={classNames('flex flex-row items-center', className)}>
       <SimpleTooltip content="Upvote">
@@ -172,7 +220,7 @@ export default function CommentActionButtons({
           className="mr-3 btn-tertiary-cabbage"
         />
       </SimpleTooltip>
-      {canModifyComment && (
+      {!!commentOptions && (
         <OptionsButton
           tooltipPlacement="top"
           onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
@@ -194,18 +242,13 @@ export default function CommentActionButtons({
         className="menu-primary typo-callout"
         animation="fade"
       >
-        {isAuthor && (
-          <Item onClick={() => onEdit(comment)}>
+        {commentOptions.map(({ label, action, icon }) => (
+          <Item key={label} onClick={action}>
             <ContextItem>
-              <EditIcon /> Edit comment
+              {icon} {label}
             </ContextItem>
           </Item>
-        )}
-        <Item onClick={() => onDelete(comment, parentId)}>
-          <ContextItem className="flex items-center w-full">
-            <TrashIcon /> Delete comment
-          </ContextItem>
-        </Item>
+        ))}
       </PortalMenu>
     </div>
   );

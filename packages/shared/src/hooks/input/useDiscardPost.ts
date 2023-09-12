@@ -36,7 +36,9 @@ export const useDiscardPost = ({
   const [draft, updateDraft, isDraftReady, isUpdatingDraft] =
     usePersistentContext<Partial<WriteForm>>(draftKey, {});
   const onValidateAction = useCallback(() => {
-    if (!formRef.current) return true;
+    if (!formRef.current) {
+      return true;
+    }
 
     const form = formToJson<EditPostProps>(formRef.current);
     const isTitleSaved = checkSavedProperty('title', form, draft, post);

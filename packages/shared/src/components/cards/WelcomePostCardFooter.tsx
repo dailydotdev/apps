@@ -18,7 +18,9 @@ export const WelcomePostCardFooter = ({
   );
 
   const image = useMemo(() => {
-    if (post?.image) return post?.image;
+    if (post?.image) {
+      return post?.image;
+    }
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(post?.contentHtml, 'text/html');

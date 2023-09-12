@@ -9,8 +9,10 @@ import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import AuthForm from './AuthForm';
 import { IconSize } from '../Icon';
+import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
+import { labels } from '../../lib';
 
-interface LoginFormProps {
+export interface LoginFormProps {
   onForgotPassword?: () => unknown;
   onPasswordLogin?: (params: LoginFormParams) => void;
   email?: string;
@@ -20,6 +22,7 @@ interface LoginFormProps {
   isLoading?: boolean;
   isReady: boolean;
   autoFocus?: boolean;
+  onSignup: () => void;
 }
 
 export type LoginFormParams = Pick<
@@ -37,6 +40,7 @@ function LoginForm({
   isLoading,
   isReady,
   autoFocus = true,
+  onSignup,
 }: LoginFormProps): ReactElement {
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -83,7 +87,6 @@ function LoginForm({
         label="Password"
         showStrength={false}
         saveHintSpace
-        hint={hint as string}
         onChange={() => hint && setHint(null)}
       />
       <span className="flex flex-row mt-4 w-full">
@@ -97,10 +100,7 @@ function LoginForm({
           </ClickableText>
         )}
         <Button
-          className={classNames(
-            'flex-1 btn-primary text-theme-label-primary',
-            !isLoading && 'bg-theme-color-cabbage',
-          )}
+          className="flex-1 btn-primary"
           type="submit"
           loading={!isReady}
           disabled={isLoading}
@@ -108,6 +108,21 @@ function LoginForm({
           {loginButton}
         </Button>
       </span>
+      {hint && hint === labels.auth.error.invalidEmailOrPassword && (
+        <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
+          <AlertParagraph className="flex-1 !mt-0">
+            The email or password you entered doesn&apos;t match our records.
+            Please try again or{' '}
+            <button
+              type="button"
+              onClick={onSignup}
+              className="font-bold underline"
+            >
+              create new account.
+            </button>
+          </AlertParagraph>
+        </Alert>
+      )}
     </AuthForm>
   );
 }

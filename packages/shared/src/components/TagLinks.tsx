@@ -11,7 +11,7 @@ interface TagLinkProps {
 
 export function TagLink({ tag, className }: TagLinkProps): ReactElement {
   return (
-    <Link href={getTagPageLink(tag)} passHref key={tag}>
+    <Link href={getTagPageLink(tag)} passHref key={tag} prefetch={false}>
       <Button
         tag="a"
         className={classNames('btn-tertiaryFloat xsmall', className)}

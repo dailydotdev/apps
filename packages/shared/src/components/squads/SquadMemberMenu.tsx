@@ -15,7 +15,7 @@ import SquadIcon from '../icons/Squad';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
-import { ContextMenu, ContextMenuItemProps } from '../fields/PortalMenu';
+import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import { UseSquadActions } from '../../hooks/squads/useSquadActions';
 import { verifyPermission } from '../../graphql/squads';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -64,9 +64,9 @@ const getUpdateRoleOptions = (
     role: SourceMemberRole,
     title: MenuItemTitle,
   ) => UpdateRoleFn,
-): ContextMenuItemProps[] => {
+): MenuItemProps<Promise<unknown>>[] => {
   const promoteToAdmin = {
-    text: MenuItemTitle.PromoteToAdmin,
+    label: MenuItemTitle.PromoteToAdmin,
     icon: <StarIcon size={IconSize.Small} />,
     action: getUpdateRoleFn(
       SourceMemberRole.Admin,
@@ -74,7 +74,7 @@ const getUpdateRoleOptions = (
     ),
   };
   const promoteToModerator = {
-    text: MenuItemTitle.PromoteToModerator,
+    label: MenuItemTitle.PromoteToModerator,
     icon: <UserIcon size={IconSize.Small} />,
     action: getUpdateRoleFn(
       SourceMemberRole.Moderator,
@@ -82,7 +82,7 @@ const getUpdateRoleOptions = (
     ),
   };
   const demoteToModerator = {
-    text: MenuItemTitle.DemoteToModerator,
+    label: MenuItemTitle.DemoteToModerator,
     icon: <BlockIcon size={IconSize.Small} />,
     action: getUpdateRoleFn(
       SourceMemberRole.Moderator,
@@ -90,7 +90,7 @@ const getUpdateRoleOptions = (
     ),
   };
   const demoteToMember = {
-    text: MenuItemTitle.DemoteToMember,
+    label: MenuItemTitle.DemoteToMember,
     icon: <SquadIcon size={IconSize.Small} />,
     action: getUpdateRoleFn(
       SourceMemberRole.Member,
@@ -139,7 +139,9 @@ export default function SquadMemberMenu({
       className: { buttons: 'mt-6' },
     });
 
-    if (!hasConfirmed) return;
+    if (!hasConfirmed) {
+      return;
+    }
 
     await onUpdateRole({
       sourceId: squad.id,
@@ -147,16 +149,20 @@ export default function SquadMemberMenu({
       role,
     });
 
-    if (toastDescription[title]) displayToast(toastDescription[title]);
+    if (toastDescription[title]) {
+      displayToast(toastDescription[title]);
+    }
   };
 
-  const options: ContextMenuItemProps[] = useMemo(() => {
-    if (!member) return [];
+  const options: MenuItemProps[] = useMemo(() => {
+    if (!member || !user) {
+      return [];
+    }
 
     const getUpdateRoleFn =
       (role: SourceMemberRole, title: MenuItemTitle) => () =>
         onUpdateMember(role, title);
-    const menu: ContextMenuItemProps[] = [];
+    const menu: MenuItemProps[] = [];
     const canUpdateRole = verifyPermission(
       squad,
       SourcePermissions.MemberRoleUpdate,
@@ -168,7 +174,7 @@ export default function SquadMemberMenu({
     }
 
     menu.push({
-      text: 'Report member',
+      label: 'Report member',
       icon: <FlagIcon size={IconSize.Small} />,
       anchorProps: {
         href: `${reportSquadMember}#user_id=${user.id}&reportee_id=${member?.user.id}&squad_id=${squad.id}`,
@@ -185,7 +191,7 @@ export default function SquadMemberMenu({
 
     if (canRemoveMember) {
       menu.push({
-        text: MenuItemTitle.BlockMember,
+        label: MenuItemTitle.BlockMember,
         icon: <BlockIcon size={IconSize.Small} />,
         action: getUpdateRoleFn(
           SourceMemberRole.Blocked,

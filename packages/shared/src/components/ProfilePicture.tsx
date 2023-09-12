@@ -90,7 +90,9 @@ function ProfilePictureComponent(
     className,
   );
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   if (nativeLazyLoading) {
     return (

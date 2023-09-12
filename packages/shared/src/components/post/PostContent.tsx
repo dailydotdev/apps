@@ -8,7 +8,7 @@ import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigationProps } from './PostNavigation';
-import { PostModalActionsProps } from './PostModalActions';
+import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
 import {
   ToastSubject,
   useToastNotification,
@@ -21,6 +21,7 @@ import { BasePostContent, PostContentClassName } from './BasePostContent';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
+import useCompanionTrigger from '../../hooks/useCompanionTrigger';
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
@@ -28,7 +29,7 @@ export type PassedPostNavigationProps = Pick<
 >;
 
 export interface PostContentProps
-  extends Pick<PostModalActionsProps, 'onClose' | 'inlineActions'>,
+  extends Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
     PassedPostNavigationProps {
   enableShowShareNewComment?: boolean;
   post?: Post;
@@ -96,6 +97,9 @@ export function PostContent({
     onRemovePost,
   };
 
+  const { onPostArticleClick: onReadArticleClick } =
+    useCompanionTrigger(onReadArticle);
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -108,7 +112,23 @@ export function PostContent({
           className={className?.fixedNavigation}
         />
       )}
-      <PostContainer className={classNames('relative', className?.content)}>
+
+      <PostContainer
+        className={classNames('relative', className?.content)}
+        data-testid="postContainer"
+      >
+        {!hasNavigation && (
+          <PostHeaderActions
+            onBookmark={onToggleBookmark}
+            onShare={onShare}
+            onReadArticle={onReadArticleClick}
+            post={post}
+            onClose={onClose}
+            className="flex tablet:hidden mb-4"
+            contextMenuId="post-widgets-context"
+          />
+        )}
+
         <BasePostContent
           className={{
             ...className,
@@ -134,7 +154,15 @@ export function PostContent({
             className="my-6 font-bold break-words typo-large-title"
             data-testid="post-modal-title"
           >
-            {post.title}
+            <a
+              href={post.permalink}
+              title="Go to post"
+              target="_blank"
+              rel="noopener"
+              {...combinedClicks(onReadArticleClick)}
+            >
+              {post.title}
+            </a>
           </h1>
           {post.summary && (
             <PostSummary className="mb-6" summary={post.summary} />
@@ -150,7 +178,7 @@ export function PostContent({
             title="Go to post"
             target="_blank"
             rel="noopener"
-            {...combinedClicks(onReadArticle)}
+            {...combinedClicks(onReadArticleClick)}
             className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
             style={{ maxWidth: '25.625rem' }}
           >
@@ -174,7 +202,7 @@ export function PostContent({
       <PostWidgets
         onBookmark={onToggleBookmark}
         onShare={onShare}
-        onReadArticle={onReadArticle}
+        onReadArticle={onReadArticleClick}
         post={post}
         className="pb-8"
         onClose={onClose}

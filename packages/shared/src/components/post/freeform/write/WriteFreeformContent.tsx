@@ -61,7 +61,9 @@ export function WriteFreeformContent({
   const { sidebarRendered } = useSidebarRendered();
 
   const getDraftImage = () => {
-    if (!draft?.image) return null;
+    if (!draft?.image) {
+      return null;
+    }
 
     return base64ToFile(draft.image, draft.filename ?? defaultFilename);
   };
@@ -115,7 +117,7 @@ export function WriteFreeformContent({
             <h3 className="font-bold typo-headline">First time? 👋</h3>
             <p className="mt-1 typo-subhead">
               It looks like this is your first time sharing a post with the
-              squad! This is a community we build together. Please be welcoming
+              Squad! This is a community we build together. Please be welcoming
               and open-minded.
             </p>
           </div>

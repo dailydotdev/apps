@@ -52,6 +52,7 @@ body {
   --theme-background-bun: theme('colors.bun.80');
   --theme-background-onion: theme('colors.onion.80');
   --theme-background-pepper: theme('colors.pepper.20');
+  --theme-background-pepper-40: theme('colors.pepper.40');
   /* stylelint-disable-next-line unit-no-unknown */
   --theme-background-cabbage-opacity-24: theme('colors.cabbage.40')3D;
 
@@ -90,12 +91,17 @@ body {
   --theme-overlay-from: theme('colors.onion.40')30;
   --theme-overlay-to: theme('colors.cabbage.40')30;
 
+  --theme-overlay-float-bun: theme('colors.overlay.float.bun');
+  --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
   --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
   --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
   --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;
+
+  --theme-overlay-cabbage-opacity: theme('colors.cabbage.90')A3;
+  --theme-overlay-onion-opacity: theme('colors.onion.90')A3;
 
   --theme-rank-highlight: theme('colors.salt.10');
 
@@ -150,6 +156,12 @@ body {
   --theme-color-water: theme('colors.water.40');
   --theme-color-salt: theme('colors.salt.40');
   --theme-color-email: theme('colors.pepper.10');
+
+  --theme-squads-avocado: theme('colors.avocado.10');
+  --theme-squads-bacon: theme('colors.bacon.60');
+  --theme-squads-cabbage: theme('colors.cabbage.20');
+  --theme-squads-onion: theme('colors.onion.90');
+  --theme-squads-pepper: theme('colors.pepper.10');
 }
 
 @define-mixin light-mode {
@@ -162,7 +174,7 @@ body {
 
   --theme-background-cabbage-blur: theme('colors.cabbage.10')99;
   --theme-background-primary: #ffffff;
-  --theme-background-reverse: theme(colors.pepper.90);
+  --theme-background-reverse: theme('colors.pepper.90');
   --theme-background-secondary: theme('colors.salt.10');
   --theme-background-tertiary: theme('colors.salt.20');
   --theme-background-notification: theme('colors.salt.50');
@@ -170,6 +182,7 @@ body {
   --theme-background-bun: theme('colors.bun.20');
   --theme-background-onion: theme('colors.onion.20');
   --theme-background-pepper: theme('colors.pepper.20');
+  --theme-background-pepper-40: theme('colors.salt.40');
   /* stylelint-disable-next-line unit-no-unknown */
   --theme-background-cabbage-opacity-24: theme('colors.cabbage.40')3D;
 
@@ -208,12 +221,17 @@ body {
   --theme-overlay-from: theme('colors.onion.40')30;
   --theme-overlay-to: theme('colors.cabbage.40')30;
 
+  --theme-overlay-float-bun: theme('colors.overlay.float.bun');
+  --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
   --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
   --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
   --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;
+
+  --theme-overlay-cabbage-opacity: theme('colors.cabbage.90')A3;
+  --theme-overlay-onion-opacity: theme('colors.onion.90')A3;
 
   --theme-rank-highlight: theme('colors.salt.10');
 

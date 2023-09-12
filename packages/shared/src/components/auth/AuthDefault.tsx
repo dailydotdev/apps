@@ -7,21 +7,19 @@ import React, {
 } from 'react';
 import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
-import { storageWrapper as storage } from '../../lib/storageWrapper';
 import AuthModalFooter from './AuthModalFooter';
-import { SIGNIN_METHOD_KEY } from './AuthSignBack';
 import { AuthFormProps, Provider } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
-import ProviderButton from './ProviderButton';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
-import AuthModalHeader from './AuthModalHeader';
+import AuthHeader from './AuthHeader';
 import { ExperimentWinner } from '../../lib/featureValues';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { Button, ButtonSize } from '../buttons/Button';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -57,8 +55,8 @@ const AuthDefault = ({
   isLoading,
   isReady,
   trigger,
-  signUpTitle = 'Sign up to daily.dev',
-  logInTitle = 'Log in to daily.dev',
+  signUpTitle = 'Sign up',
+  logInTitle = 'Log in',
   loginButton,
   simplified,
 }: AuthDefaultProps): ReactElement => {
@@ -117,7 +115,6 @@ const AuthDefault = ({
   };
 
   const onSocialClick = (provider: string) => {
-    storage.setItem(SIGNIN_METHOD_KEY, provider);
     onProviderClick?.(provider, shouldLogin);
   };
 
@@ -136,6 +133,7 @@ const AuthDefault = ({
           loginHint={loginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
+          onSignup={() => setShouldLogin(false)}
         />
       );
     }
@@ -153,19 +151,27 @@ const AuthDefault = ({
 
   return (
     <>
-      {!simplified && <AuthModalHeader title={title} />}
+      <AuthHeader simplified={simplified} title={title} />
+      {simplified && !shouldLogin && (
+        <p className="px-6 mt-3 text-center whitespace-pre-line text-theme-label-secondary typo-body">
+          Once you sign up, your personal feed will be ready to explore.
+        </p>
+      )}
       <AuthContainer className={disableRegistration && 'mb-6'}>
-        {providers.map(({ provider, ...props }) => (
-          <ProviderButton
-            key={provider}
-            provider={provider}
-            label={shouldLogin ? 'Log in with' : 'Sign up with'}
-            className="mb-1"
-            onClick={() => onSocialClick(provider.toLowerCase())}
-            loading={!isReady}
-            {...props}
-          />
-        ))}
+        <div className="flex flex-col gap-4">
+          {providers.map(({ provider, icon }) => (
+            <Button
+              key={provider}
+              icon={icon}
+              className="btn-primary"
+              buttonSize={ButtonSize.Large}
+              onClick={() => onSocialClick(provider)}
+              loading={!isReady}
+            >
+              {provider}
+            </Button>
+          ))}
+        </div>
         {getOrDivider()}
         {getForm()}
       </AuthContainer>
@@ -176,13 +182,18 @@ const AuthDefault = ({
           wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
         >
           <AuthModalFooter
-            className="mt-4"
-            isLogin={shouldLogin}
-            onIsLogin={(value) => {
-              if (!value) {
+            className={{ container: 'mt-4' }}
+            text={{
+              body: shouldLogin
+                ? 'Not a member yet?'
+                : 'Already a daily.dev member?',
+              button: shouldLogin ? 'Sign up' : 'Log in',
+            }}
+            onClick={() => {
+              if (!shouldLogin) {
                 setRegisterEmail(null);
               }
-              setShouldLogin(value);
+              setShouldLogin(!shouldLogin);
             }}
           />
         </ConditionalWrapper>

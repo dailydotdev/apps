@@ -4,7 +4,12 @@ import '@testing-library/jest-dom';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { render, RenderResult, screen } from '@testing-library/preact';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
+import { EXTENSION_PERMISSION_KEY } from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
+import {
+  registerBrowserContentScripts,
+  requestContentScripts,
+} from '../lib/extensionScripts';
 
 let client: QueryClient;
 
@@ -44,6 +49,10 @@ jest.mock('webextension-polyfill-ts', () => {
 
 beforeEach(() => {
   client = new QueryClient();
+  client.setQueryData(EXTENSION_PERMISSION_KEY, () => ({
+    requestContentScripts,
+    registerBrowserContentScripts,
+  }));
 });
 
 const renderComponent = (): RenderResult => {

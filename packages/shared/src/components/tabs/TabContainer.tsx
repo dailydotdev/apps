@@ -44,26 +44,29 @@ export interface TabContainerProps<T extends string> {
   showHeader?: boolean;
   controlledActive?: string;
   tabListProps?: Pick<TabListProps, 'className'>;
+  showBorder?: boolean;
 }
 
-function TabContainer<T extends string = string>({
+export function TabContainer<T extends string = string>({
   children,
   shouldMountInactive = false,
   onActiveChange,
   className = {},
   style,
   showHeader = true,
+  showBorder = true,
   controlledActive,
   tabListProps = {},
 }: TabContainerProps<T>): ReactElement {
   const [active, setActive] = useState(children[0].props.label);
+  const currentActive = controlledActive ?? active;
   const onClick = (label: T) => {
     setActive(label);
     onActiveChange?.(label);
   };
 
   const isTabActive = (child: ReactElement<TabProps<T>>) =>
-    child.props.label === (controlledActive ?? active);
+    child.props.label === currentActive;
 
   const renderSingleComponent = () => {
     if (!shouldMountInactive) {
@@ -98,14 +101,15 @@ function TabContainer<T extends string = string>({
     >
       <header
         className={classNames(
-          'flex flex-row border-b border-theme-divider-tertiary',
+          'flex flex-row',
           className?.header,
+          showBorder && 'border-b border-theme-divider-tertiary',
         )}
       >
         <TabList
           items={children.map((child) => child.props.label)}
           onClick={onClick}
-          active={active}
+          active={currentActive}
           className={tabListProps?.className}
         />
       </header>

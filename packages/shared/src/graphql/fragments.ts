@@ -8,6 +8,9 @@ export const CURRENT_MEMBER_FRAGMENT = gql`
     permissions
     role
     referralToken
+    flags {
+      hideFeedPosts
+    }
   }
 `;
 
@@ -47,6 +50,12 @@ export const SOURCE_BASE_FRAGMENT = gql`
     description
     image
     membersCount
+    privilegedMembers {
+      user {
+        id
+      }
+      role
+    }
     currentMember {
       ...CurrentMember
     }

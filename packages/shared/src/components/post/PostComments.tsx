@@ -32,6 +32,7 @@ interface PostCommentsProps {
   post: Post;
   origin: Origin;
   permissionNotificationCommentId?: string;
+  joinNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
@@ -46,6 +47,7 @@ export function PostComments({
   onClickUpvote,
   modalParentSelector,
   permissionNotificationCommentId,
+  joinNotificationCommentId,
   className = {},
   onCommented,
 }: PostCommentsProps): ReactElement {
@@ -89,7 +91,9 @@ export function PostComments({
         className: 'btn-primary-cabbage',
       },
     };
-    if (!(await showPrompt(options))) return;
+    if (!(await showPrompt(options))) {
+      return;
+    }
 
     trackEvent(postAnalyticsEvent(AnalyticsEvent.DeleteComment, post));
     await deleteComment(commentId, requestMethod);
@@ -105,7 +109,7 @@ export function PostComments({
     }
   }, [commentsCount, scrollToComment]);
 
-  if (post.numComments === 0) {
+  if (commentsCount === 0) {
     return (
       <div className="mt-8 mb-12 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.
@@ -137,6 +141,7 @@ export function PostComments({
           postScoutId={post.scout?.id}
           appendTooltipTo={modalParentSelector ?? (() => container?.current)}
           permissionNotificationCommentId={permissionNotificationCommentId}
+          joinNotificationCommentId={joinNotificationCommentId}
           onCommented={onCommented}
         />
       ))}

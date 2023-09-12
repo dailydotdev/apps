@@ -14,7 +14,9 @@ const Buttons = classed('div', 'flex items-center justify-around self-stretch');
 
 export function PromptElement(props: Partial<ModalProps>): ReactElement {
   const { prompt } = usePrompt();
-  if (!prompt) return null;
+  if (!prompt) {
+    return null;
+  }
   const {
     onFail,
     onSuccess,
@@ -35,7 +37,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       size={promptSize}
       onRequestClose={onFail}
       className={className.modal}
-      overlayClassName="!z-[100]"
+      overlayClassName="!z-max"
       {...props}
     >
       <Modal.Body>

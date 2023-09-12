@@ -28,6 +28,7 @@ module.exports = {
     node: true,
   },
   rules: {
+    curly: ['error', 'all'],
     'react/prop-types': 0,
     'react/require-default-props': 0,
     'react/no-unused-prop-types': 0,

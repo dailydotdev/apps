@@ -30,7 +30,9 @@ export function ModalStepsWrapper({
     useContext(ModalPropsContext);
   const activeStepIndex = steps.findIndex(({ key }) => activeView === key);
   const activeStep = steps[activeStepIndex];
-  if (!activeStep) return null;
+  if (!activeStep) {
+    return null;
+  }
   const previousStep =
     activeStepIndex > 0
       ? () => {

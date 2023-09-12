@@ -22,6 +22,9 @@ import {
 import useWindowEvents from './useWindowEvents';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { useToastNotification } from './useToastNotification';
+import { SignBackProvider, useSignBack } from './auth/useSignBack';
+import { LoggedUser } from '../lib/user';
+import { labels } from '../lib';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -42,16 +45,19 @@ interface UseLoginProps {
   queryEnabled?: boolean;
   queryParams?: EmptyObjectLiteral;
   trigger?: string;
+  provider?: string;
   onSuccessfulLogin?: (() => Promise<void>) | (() => void);
 }
 
 const useLogin = ({
   trigger,
+  provider: providerProp,
   onSuccessfulLogin,
   queryEnabled = true,
   queryParams = {},
   enableSessionVerification = false,
 }: UseLoginProps = {}): UseLogin => {
+  const { onLogin } = useSignBack();
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const { refetchBoot } = useContext(AuthContext);
@@ -82,13 +88,20 @@ const useLogin = ({
         if (error) {
           trackEvent({
             event_name: AuthEventNames.LoginError,
-            extra: JSON.stringify({ error: 'Invalid email or password' }),
+            extra: JSON.stringify({
+              error: labels.auth.error.invalidEmailOrPassword,
+            }),
           });
-          setHint('Invalid email or password');
+          setHint(labels.auth.error.invalidEmailOrPassword);
           return;
         }
 
-        await refetchBoot();
+        const { data: boot } = await refetchBoot();
+
+        if (boot.user) {
+          onLogin(boot.user as LoggedUser, 'password');
+        }
+
         onSuccessfulLogin?.();
       },
     },
@@ -101,9 +114,11 @@ const useLogin = ({
         if (error) {
           trackEvent({
             event_name: AuthEventNames.LoginError,
-            extra: JSON.stringify({ error: 'Invalid email or password' }),
+            extra: JSON.stringify({
+              error: labels.auth.error.invalidEmailOrPassword,
+            }),
           });
-          setHint('Invalid email or password');
+          setHint(labels.auth.error.invalidEmailOrPassword);
         }
 
         if (redirect) {
@@ -145,7 +160,12 @@ const useLogin = ({
 
   useWindowEvents('message', AuthEvent.Login, async () => {
     if (!session) {
-      await refetchBoot();
+      const { data: boot } = await refetchBoot();
+
+      if (boot.user) {
+        onLogin(boot.user as LoggedUser, providerProp as SignBackProvider);
+      }
+
       onSuccessfulLogin?.();
       return;
     }
@@ -160,7 +180,12 @@ const useLogin = ({
       session.authenticated_at !== verified.authenticated_at;
 
     if (hasRenewedSession) {
-      await refetchBoot();
+      const { data: boot } = await refetchBoot();
+
+      if (boot.user) {
+        onLogin(boot.user as LoggedUser, providerProp as SignBackProvider);
+      }
+
       onSuccessfulLogin?.();
     }
   });
