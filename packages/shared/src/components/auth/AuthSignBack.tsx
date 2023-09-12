@@ -17,6 +17,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;
   isLoginFlow?: boolean;
+  isConnectedAccount?: boolean;
   onRegister?: () => void;
   onProviderClick?: (provider: string) => unknown;
   loginFormProps?: LoginFormProps;
@@ -30,13 +31,14 @@ export const AuthSignBack = ({
   onProviderClick,
   simplified,
   onShowLoginOptions,
+  isConnectedAccount,
 }: AuthSignBackProps): ReactElement => {
   const { signBack, provider, isLoaded } = useSignBack();
-  const providerItem = providerMap[provider.toLowerCase()];
-  const isPreviousData = !!provider && !signBack;
+  const providerItem = providerMap[provider];
+  const isValid = signBack && (provider === 'password' || !!providerItem);
 
   useEffect(() => {
-    if (!isLoaded || signBack) {
+    if (!isLoaded || isValid) {
       return;
     }
 
@@ -44,9 +46,9 @@ export const AuthSignBack = ({
     showLoginFn?.(null);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, signBack]);
+  }, [isLoaded, isValid]);
 
-  if (!isLoaded || isPreviousData) {
+  if (!isLoaded || !signBack || !isValid) {
     return null;
   }
 
@@ -56,6 +58,17 @@ export const AuthSignBack = ({
       <AuthContainer className="items-center">
         <p className="mb-2 text-center typo-callout text-theme-label-secondary">
           Log in to access your account
+          {isConnectedAccount ? (
+            <>
+              {' '}
+              using previously connected method{' '}
+              <strong>
+                <em>(as shown below)</em>
+              </strong>
+            </>
+          ) : (
+            ''
+          )}
         </p>
         <ConditionalWrapper
           condition={provider !== 'password'}
@@ -74,7 +87,10 @@ export const AuthSignBack = ({
           {signBack.email}
         </span>
         {provider === 'password' ? (
-          <LoginForm {...loginFormProps} />
+          <LoginForm
+            {...loginFormProps}
+            email={loginFormProps.email || signBack.email}
+          />
         ) : (
           <SignBackButton
             signBack={signBack}

@@ -31,6 +31,7 @@ import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -108,6 +109,7 @@ function AccountSecurityDefault({
   onUpdateProviders,
 }: AccountSecurityDefaultProps): ReactElement {
   const { deleteAccount } = useContext(AuthContext);
+  const { onUpdateSignBack } = useSignBack();
   const [linkProvider, setLinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
   const { showPrompt } = usePrompt();
@@ -138,6 +140,7 @@ function AccountSecurityDefault({
   const deleteAccountPrompt = async () => {
     if (await showPrompt(deleteAccountPromptOptions)) {
       await deleteAccount();
+      await onUpdateSignBack(null, null);
       window.location.replace('/');
     }
   };
