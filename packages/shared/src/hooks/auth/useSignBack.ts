@@ -18,14 +18,17 @@ interface UseSignBack {
   isLoaded: boolean;
   signBack?: SignedInUser;
   provider?: SignBackProvider;
-  onLogin: (user: SignedInUser, provider: SignBackProvider) => Promise<void>;
+  onUpdateSignBack: (
+    user: SignedInUser,
+    provider: SignBackProvider,
+  ) => Promise<void>;
 }
 
 export const useSignBack = (): UseSignBack => {
   const [signBack, setSignBack, isLoaded] =
     usePersistentContext<SignedInUser>(signBackKey);
 
-  const onLogin: UseSignBack['onLogin'] = useCallback(
+  const onUpdateSignBack: UseSignBack['onUpdateSignBack'] = useCallback(
     ({ name, email, image }, provider) => {
       globalThis?.localStorage.setItem(
         SIGNIN_METHOD_KEY,
@@ -37,7 +40,7 @@ export const useSignBack = (): UseSignBack => {
   );
 
   return {
-    onLogin,
+    onUpdateSignBack,
     signBack,
     isLoaded,
     provider: useMemo(
