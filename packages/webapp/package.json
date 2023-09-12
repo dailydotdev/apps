@@ -59,7 +59,7 @@
     "@types/dompurify": "^2.3.2",
     "@types/jest": "^26.0.24",
     "@types/nock": "^11.1.0",
-    "@types/node": "^16.11.41",
+    "@types/node": "^20.6.0",
     "@types/node-fetch": "^2.6.1",
     "@types/react": "^17.0.47",
     "@types/react-dom": "^17.0.16",
