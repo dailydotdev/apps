@@ -5,7 +5,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';

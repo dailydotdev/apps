@@ -3,17 +3,17 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { mockSettingsFlow } from '@dailydotdev/shared/__tests__/fixture/auth';
 import {
+  act,
   fireEvent,
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { getTimeZoneOptions } from '@dailydotdev/shared/src/lib/timezones';
-import { act } from 'preact/test-utils';
 import ProfileOthersPage from '../pages/account/others';
 
 jest.mock('next/router', () => ({

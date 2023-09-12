@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import nock from 'nock';
 import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
@@ -100,10 +100,13 @@ describe('user reading history page', () => {
 
     await waitForNock();
 
-    const afterFetchingBusyState = (
-      await screen.findByTestId('reading-history-container')
-    ).getAttribute('aria-busy');
-    expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
+    await waitFor(async () => {
+      const afterFetchingBusyState = (
+        await screen.findByTestId('reading-history-container')
+      ).getAttribute('aria-busy');
+
+      return expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
+    });
   });
 
   it('should show display empty screen when no view history is found', async () => {

@@ -4,7 +4,7 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import nock from 'nock';
 import { Tab, TabContainer, TabContainerProps } from './TabContainer';
 

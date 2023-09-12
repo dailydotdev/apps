@@ -175,9 +175,9 @@ importers:
       '@testing-library/jest-dom':
         specifier: ^5.16.1
         version: 5.16.1
-      '@testing-library/preact':
-        specifier: ^2.0.1
-        version: 2.0.1(preact@10.8.2)
+      '@testing-library/react':
+        specifier: ^12.1.5
+        version: 12.1.5(react-dom@17.0.2)(react@17.0.2)
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@9.3.0)
@@ -475,12 +475,12 @@ importers:
       '@testing-library/jest-dom':
         specifier: ^5.15.0
         version: 5.16.1
-      '@testing-library/preact':
-        specifier: ^3.2.3
-        version: 3.2.3(preact@10.8.2)
-      '@testing-library/preact-hooks':
-        specifier: ^1.1.0
-        version: 1.1.0(@testing-library/preact@3.2.3)(preact@10.8.2)
+      '@testing-library/react':
+        specifier: ^12.1.5
+        version: 12.1.5(react-dom@17.0.2)(react@17.0.2)
+      '@testing-library/react-hooks':
+        specifier: ^8.0.1
+        version: 8.0.1(@types/react@17.0.47)(react-dom@17.0.2)(react@17.0.2)
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@9.3.0)
@@ -773,9 +773,9 @@ importers:
       '@testing-library/jest-dom':
         specifier: ^5.16.1
         version: 5.16.1
-      '@testing-library/preact':
-        specifier: ^2.0.1
-        version: 2.0.1(preact@10.8.2)
+      '@testing-library/react':
+        specifier: ^12.1.5
+        version: 12.1.5(react-dom@17.0.2)(react@17.0.2)
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@9.3.0)
@@ -3012,34 +3012,41 @@ packages:
       redent: 3.0.0
     dev: true
 
-  /@testing-library/preact-hooks@1.1.0(@testing-library/preact@3.2.3)(preact@10.8.2):
-    resolution: {integrity: sha512-+JIor+NsOHkK3oIrwMDGKGHXTN0JJi462dBJlj4FNbGaDPTlctE6eu2ranWQirh7/FJMkWfzQCP+tk7jmY8ZrQ==}
+  /@testing-library/react-hooks@8.0.1(@types/react@17.0.47)(react-dom@17.0.2)(react@17.0.2):
+    resolution: {integrity: sha512-Aqhl2IVmLt8IovEVarNDFuJDVWVvhnr9/GCU6UUnrYXwgDFF9h2L2o2P9KBni1AST5sT6riAyoukFLyjQUgD/g==}
+    engines: {node: '>=12'}
     peerDependencies:
-      '@testing-library/preact': ^2.0.0
-      preact: ^10.4.8
+      '@types/react': ^16.9.0 || ^17.0.0
+      react: ^16.9.0 || ^17.0.0
+      react-dom: ^16.9.0 || ^17.0.0
+      react-test-renderer: ^16.9.0 || ^17.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react-dom:
+        optional: true
+      react-test-renderer:
+        optional: true
     dependencies:
-      '@testing-library/preact': 3.2.3(preact@10.8.2)
-      preact: 10.8.2
+      '@babel/runtime': 7.17.9
+      '@types/react': 17.0.47
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
+      react-error-boundary: 3.1.4(react@17.0.2)
     dev: true
 
-  /@testing-library/preact@2.0.1(preact@10.8.2):
-    resolution: {integrity: sha512-79kwVOY+3caoLgaPbiPzikjgY0Aya7Fc7TvGtR1upCnz2wrtmPDnN2t9vO7I7vDP2zoA+feSwOH5Q0BFErhaaQ==}
-    engines: {node: '>= 10'}
+  /@testing-library/react@12.1.5(react-dom@17.0.2)(react@17.0.2):
+    resolution: {integrity: sha512-OfTXCJUFgjd/digLUuPxa0+/3ZxsQmE7ub9kcbW/wi96Bh3o/p5vrETcBGfP17NWPGqeYYl5LTRpwyGoMC4ysg==}
+    engines: {node: '>=12'}
     peerDependencies:
-      preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
+      react: <18.0.0
+      react-dom: <18.0.0
     dependencies:
-      '@testing-library/dom': 7.31.2
-      preact: 10.8.2
-    dev: true
-
-  /@testing-library/preact@3.2.3(preact@10.8.2):
-    resolution: {integrity: sha512-y6Kklp1XK3f1X2fWCbujmJyzkf+1BgLYXNgAx21j9+D4CoqMTz5qC4SQufb1L6q/jxLGACzrQ90ewVOTBvHOfg==}
-    engines: {node: '>= 12'}
-    peerDependencies:
-      preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
-    dependencies:
+      '@babel/runtime': 7.17.9
       '@testing-library/dom': 8.20.0
-      preact: 10.8.2
+      '@types/react-dom': 17.0.16
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
     dev: true
 
   /@testing-library/user-event@13.5.0(@testing-library/dom@9.3.0):
@@ -10918,6 +10925,16 @@ packages:
       object-assign: 4.1.1
       react: 17.0.2
       scheduler: 0.20.2
+
+  /react-error-boundary@3.1.4(react@17.0.2):
+    resolution: {integrity: sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==}
+    engines: {node: '>=10', npm: '>=6'}
+    peerDependencies:
+      react: '>=16.13.1'
+    dependencies:
+      '@babel/runtime': 7.17.9
+      react: 17.0.2
+    dev: true
 
   /react-flip-toolkit@7.1.0(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-KJ2IecKpYOJWgtXY9myyJzzC96FJaE9/8pFSAKgIoG54tiUAZ64ksDpmB+QmMofqFTa06RK7xWb9Rfavf8qz4Q==}

@@ -5,7 +5,7 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import PostItemCard, { PostItemCardProps } from '../post/PostItemCard';

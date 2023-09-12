@@ -10,7 +10,7 @@ import {
   screen,
   waitFor,
   within,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import {
@@ -633,8 +633,12 @@ it('should report broken link', async () => {
     ).not.toBeInTheDocument(),
   );
   await screen.findByRole('alert');
-  const feed = await screen.findByTestId('posts-feed');
-  expect(feed).toHaveAttribute('aria-live', 'assertive');
+
+  await waitFor(async () => {
+    const feed = await screen.findByTestId('posts-feed');
+
+    return expect(feed).toHaveAttribute('aria-live', 'assertive');
+  });
 });
 
 it('should report broken link with comment', async () => {
@@ -678,8 +682,12 @@ it('should report broken link with comment', async () => {
     ).not.toBeInTheDocument(),
   );
   await screen.findByRole('alert');
-  const feed = await screen.findByTestId('posts-feed');
-  expect(feed).toHaveAttribute('aria-live', 'assertive');
+
+  await waitFor(async () => {
+    const feed = await screen.findByTestId('posts-feed');
+
+    return expect(feed).toHaveAttribute('aria-live', 'assertive');
+  });
 });
 
 it('should report nsfw', async () => {
@@ -719,8 +727,12 @@ it('should report nsfw', async () => {
     ).not.toBeInTheDocument(),
   );
   await screen.findByRole('alert');
-  const feed = await screen.findByTestId('posts-feed');
-  expect(feed).toHaveAttribute('aria-live', 'assertive');
+
+  await waitFor(async () => {
+    const feed = await screen.findByTestId('posts-feed');
+
+    return expect(feed).toHaveAttribute('aria-live', 'assertive');
+  });
 });
 
 it('should hide post', async () => {
@@ -784,8 +796,12 @@ it('should block a source', async () => {
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await screen.findByRole('alert');
-  const feed = await screen.findByTestId('posts-feed');
-  expect(feed).toHaveAttribute('aria-live', 'assertive');
+
+  await waitFor(async () => {
+    const feed = await screen.findByTestId('posts-feed');
+
+    return expect(feed).toHaveAttribute('aria-live', 'assertive');
+  });
 });
 
 it('should block a tag', async () => {
@@ -819,8 +835,12 @@ it('should block a tag', async () => {
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await screen.findByRole('alert');
-  const feed = await screen.findByTestId('posts-feed');
-  expect(feed).toHaveAttribute('aria-live', 'assertive');
+
+  await waitFor(async () => {
+    const feed = await screen.findByTestId('posts-feed');
+
+    return expect(feed).toHaveAttribute('aria-live', 'assertive');
+  });
 });
 
 it('should open a modal to view post details', async () => {
@@ -943,6 +963,10 @@ it('should report irrelevant tags', async () => {
     ).not.toBeInTheDocument(),
   );
   await screen.findByRole('alert');
-  const feed = await screen.findByTestId('posts-feed');
-  expect(feed).toHaveAttribute('aria-live', 'assertive');
+
+  await waitFor(async () => {
+    const feed = await screen.findByTestId('posts-feed');
+
+    return expect(feed).toHaveAttribute('aria-live', 'assertive');
+  });
 });

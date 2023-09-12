@@ -4,11 +4,11 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React, { useRef } from 'react';
 import nock from 'nock';
-import { renderHook } from '@testing-library/preact-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import { createTestSettings } from '../../../__tests__/fixture/settings';
 import Post from '../../../__tests__/fixture/post';
 import { AuthContextProvider } from '../../contexts/AuthContext';

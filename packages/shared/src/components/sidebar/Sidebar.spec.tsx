@@ -1,6 +1,6 @@
 import React from 'react';
 import nock from 'nock';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { IFlags } from 'flagsmith';
 import AuthContext from '../../contexts/AuthContext';

@@ -99,7 +99,7 @@ export default function PostItemCard({
           {showButtons && (
             <Button
               className="btn-tertiary"
-              data-testId={`post-item-${post.id}`}
+              data-testid={`post-item-${post.id}`}
               icon={<MenuIcon />}
               onClick={(event) => {
                 event.stopPropagation();

@@ -1,4 +1,4 @@
-import { waitFor } from '@testing-library/preact';
+import { waitFor } from '@testing-library/react';
 import nock from 'nock';
 
 export const expectNockDone = (): void => expect(nock.isDone()).toBeTruthy();
@@ -12,9 +12,6 @@ export function expectToHaveAttribute(
   value: string | null | undefined,
 ): Promise<void> {
   return waitFor(() => {
-    if (value === 'false') {
-      return expect(el).not.toHaveAttribute(att);
-    }
     return expect(el).toHaveAttribute(att, value);
   });
 }

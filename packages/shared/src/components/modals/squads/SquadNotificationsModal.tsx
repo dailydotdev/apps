@@ -104,7 +104,7 @@ export function SquadNotificationsModal({
       <Modal.Header title="Notifications" />
       <Modal.Body className="gap-3">
         <Switch
-          data-testId="show_new_posts-switch"
+          data-testid="show_new_posts-switch"
           inputId="show_new_posts-switch"
           name="show_new_posts"
           className="w-20"
@@ -115,7 +115,7 @@ export function SquadNotificationsModal({
           Show new posts on my feed
         </Switch>
         <Switch
-          data-testId="notify_new_posts-switch"
+          data-testid="notify_new_posts-switch"
           inputId="notify_new_posts-switch"
           name="notify_new_posts"
           className="w-20"
@@ -127,7 +127,7 @@ export function SquadNotificationsModal({
         </Switch>
         {squad.currentMember.role === SourceMemberRole.Admin && (
           <Switch
-            data-testId="notify_new_members-switch"
+            data-testid="notify_new_members-switch"
             inputId="notify_new_members-switch"
             name="notify_new_members"
             className="w-20"

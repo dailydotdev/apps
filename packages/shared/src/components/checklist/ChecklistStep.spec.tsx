@@ -4,7 +4,7 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { ChecklistStep } from './ChecklistStep';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { ActionType } from '../../graphql/actions';
