@@ -112,6 +112,14 @@ export const cloudinary = {
   search: {
     og: 'https://daily-now-res.cloudinary.com/image/upload/s--Lq4XRH5V--/f_auto/v1693378429/public/dailv.dev_-_OG_Search',
   },
+  auth: {
+    login: {
+      default:
+        'https://daily-now-res.cloudinary.com/image/upload/s--AZI7rZi_--/f_auto/v1694527819/public/login',
+      small:
+        'https://daily-now-res.cloudinary.com/image/upload/s--OFOFLUY1--/f_auto/v1694527818/public/login_small',
+    },
+  },
 };
 
 export const smallPostImage = (url: string): string => {

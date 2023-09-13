@@ -310,11 +310,12 @@ function AuthOptions({
     });
   };
 
-  const onForgotPassword = () => {
+  const onForgotPassword = (withEmail?: string) => {
     trackEvent({
       event_name: 'click',
       target_type: AuthEventNames.ForgotPassword,
     });
+    setEmail(withEmail);
     onSetActiveDisplay(AuthDisplay.ForgotPassword);
   };
 
