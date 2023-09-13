@@ -180,7 +180,7 @@ export function OnboardPage(): ReactElement {
         onSuccessfulLogin={onSuccessfulLogin}
         onSuccessfulRegistration={onSuccessfulRegistration}
         isLoginFlow={isLoginFlow}
-        className={classNames('w-full', maxAuthWidth)}
+        className={classNames('w-full rounded-none', maxAuthWidth)}
         onAuthStateUpdate={(props: AuthProps) =>
           setAuth({ isAuthenticating: true, ...props })
         }
