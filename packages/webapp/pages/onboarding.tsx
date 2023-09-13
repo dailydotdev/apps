@@ -238,10 +238,45 @@ export function OnboardPage(): ReactElement {
     <Container className="flex-col">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <ProgressBar percentage={isFiltering ? percentage : 0} />
-      <Logo
-        className="py-8 px-10 w-auto laptop:w-full"
-        position={LogoPosition.Relative}
-      />
+      <header
+        className={classNames(
+          'flex justify-between w-full h-full flew-row',
+          !isAuthenticating && !isFiltering && 'mt-20 w-full max-w-[75rem]',
+        )}
+      >
+        <Logo
+          className={
+            !isAuthenticating && !isFiltering
+              ? 'w-auto'
+              : 'py-8 px-10 w-auto laptop:w-full'
+          }
+          logoClassName={
+            !isAuthenticating && !isFiltering ? 'h-logo-big' : 'h-logo'
+          }
+          position={LogoPosition.Relative}
+        />
+
+        {!isAuthenticating && !isFiltering && (
+          <span
+            className={classNames(
+              'flex items-center',
+              'text-theme-label-tertiary py-4',
+            )}
+          >
+            <span className="hidden tablet:block">
+              Already a daily.dev member?
+            </span>
+            <Button
+              className="ml-3 btn-secondary"
+              onClick={() =>
+                setAuth({ isAuthenticating: true, isLoginFlow: true })
+              }
+            >
+              Log in
+            </Button>
+          </span>
+        )}
+      </header>
       <div
         className={classNames(
           'flex relative flex-col flex-1 items-center w-full max-h-[40rem]',
@@ -252,6 +287,7 @@ export function OnboardPage(): ReactElement {
       >
         {getContent()}
       </div>
+
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </Container>
   );
