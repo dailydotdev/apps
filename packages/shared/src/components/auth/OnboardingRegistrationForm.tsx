@@ -140,7 +140,7 @@ const OnboardingRegistrationForm = ({
         {signupProviders.map(({ provider, icon }) => (
           <Button
             key={provider}
-            className="flex flex-1 text-white bg-theme-active border-none btn-primary !justify-center"
+            className="flex flex-1 text-white bg-theme-active"
             icon={icon}
             loading={!isReady}
             onClick={() => onSocialClick(provider)}
