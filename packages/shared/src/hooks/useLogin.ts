@@ -25,18 +25,15 @@ import { useToastNotification } from './useToastNotification';
 import { SignBackProvider, useSignBack } from './auth/useSignBack';
 import { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
-import { generateQueryKey, RequestKey } from '../lib/query';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
 
 interface UseLogin {
-  session: AuthSession;
   isPasswordLoginLoading?: boolean;
   loginFlowData: InitializationData;
   loginHint?: ReturnType<typeof useState>;
   isReady: boolean;
-  refetchSession?: () => Promise<unknown>;
   onSocialLogin: (provider: string) => void;
   onPasswordLogin: (params: LoginFormParams) => void;
 }
@@ -47,6 +44,7 @@ interface UseLoginProps {
   queryParams?: EmptyObjectLiteral;
   trigger?: string;
   provider?: string;
+  session?: AuthSession;
   onSuccessfulLogin?: (() => Promise<void>) | (() => void);
 }
 
@@ -56,18 +54,13 @@ const useLogin = ({
   onSuccessfulLogin,
   queryEnabled = true,
   queryParams = {},
-  enableSessionVerification = false,
+  session,
 }: UseLoginProps = {}): UseLogin => {
   const { onUpdateSignBack } = useSignBack();
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
-  const { data: session, refetch: refetchSession } = useQuery(
-    generateQueryKey(RequestKey.CurrentSession, null),
-    getKratosSession,
-    { enabled: enableSessionVerification },
-  );
   const { data: login } = useQuery(
     [{ type: 'login', params: queryParams }],
     ({ queryKey: [{ params }] }) =>
@@ -199,8 +192,6 @@ const useLogin = ({
 
   return useMemo<UseLogin>(
     () => ({
-      refetchSession,
-      session,
       loginFlowData: login,
       loginHint: [hint, setHint],
       isPasswordLoginLoading: isLoading,
@@ -210,7 +201,7 @@ const useLogin = ({
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session, queryEnabled, queryParams, hint, login, isLoading],
+    [queryEnabled, queryParams, hint, login, isLoading],
   );
 };
 

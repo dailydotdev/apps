@@ -6,8 +6,8 @@ import React, { ReactElement, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   AuthFlow,
-  AuthSession,
   getKratosProviders,
+  getKratosSession,
   initializeKratosFlow,
   KRATOS_ERROR,
   submitKratosFlow,
@@ -115,7 +115,10 @@ const AccountSecurityPage = (): ReactElement => {
     },
   );
 
-  const session = client.getQueryData<AuthSession>(sessionKey);
+  const { data: session } = useQuery(
+    generateQueryKey(RequestKey.CurrentSession, null),
+    getKratosSession,
+  );
   const onChangeEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
