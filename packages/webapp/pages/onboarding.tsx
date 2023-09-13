@@ -32,7 +32,6 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
-import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import {
@@ -43,6 +42,7 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SignupDisclaimer } from '@dailydotdev/shared/src/components/auth/EmailSignupForm';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CookieBanner from '../components/CookieBanner';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -225,11 +225,11 @@ export function OnboardPage(): ReactElement {
                 className="absolute tablet:relative -top-14 -z-1 mt-1 -mb-16 tablet:scale-150"
               >
                 <source
-                  src="https://daily-now-res.cloudinary.com/video/upload/v1694529627/on_boarding_3_i4x40j.mp4"
+                  src={cloudinary.onboarding.video.mp4}
                   type="video/mp4"
                 />
                 <source
-                  src="https://daily-now-res.cloudinary.com/video/upload/v1694590121/on_boarding_3_i4x40j_kfu5fl.webm"
+                  src={cloudinary.onboarding.video.webm}
                   type="video/webm"
                 />
               </video>
@@ -343,7 +343,7 @@ export function OnboardPage(): ReactElement {
 
               <img
                 className="absolute bottom-0 left-0 w-full max-w-[58.75rem]"
-                src="https://daily-now-res.cloudinary.com/image/upload/v1694596741/Glow_o9ehvn.svg"
+                src={cloudinary.onboarding.glow}
                 alt="Gradient background"
               />
             </div>
