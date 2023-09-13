@@ -15,7 +15,6 @@ import {
   AuthSession,
   EmptyObjectLiteral,
   getKratosSession,
-  InitializationData,
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
@@ -31,7 +30,6 @@ const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
 
 interface UseLogin {
   isPasswordLoginLoading?: boolean;
-  loginFlowData: InitializationData;
   loginHint?: ReturnType<typeof useState>;
   isReady: boolean;
   onSocialLogin: (provider: string) => void;
@@ -39,7 +37,6 @@ interface UseLogin {
 }
 
 interface UseLoginProps {
-  enableSessionVerification?: boolean;
   queryEnabled?: boolean;
   queryParams?: EmptyObjectLiteral;
   trigger?: string;
@@ -192,7 +189,6 @@ const useLogin = ({
 
   return useMemo<UseLogin>(
     () => ({
-      loginFlowData: login,
       loginHint: [hint, setHint],
       isPasswordLoginLoading: isLoading,
       isReady: !!login?.ui,

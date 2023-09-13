@@ -1,9 +1,12 @@
 import React, { ReactElement, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
 import { AuthTriggers } from '../../lib/auth';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import useLogin from '../../hooks/useLogin';
+import { AuthSession } from '../../lib/kratos';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 interface VerifySessionModalProps extends ModalProps {
   userProviders?: string[];
@@ -20,8 +23,12 @@ function VerifySessionModal({
   const filteredProviders = providers.filter(
     ({ provider }) => !userProviders?.indexOf(provider.toLocaleLowerCase()),
   );
+  const client = useQueryClient();
+  const session = client.getQueryData<AuthSession>(
+    generateQueryKey(RequestKey.CurrentSession, null),
+  );
   const { isReady, onSocialLogin, onPasswordLogin } = useLogin({
-    enableSessionVerification: true,
+    session,
     queryParams: { refresh: 'true' },
     onSuccessfulLogin: () => {
       onVerified();
