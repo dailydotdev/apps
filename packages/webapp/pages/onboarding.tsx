@@ -305,7 +305,12 @@ export function OnboardPage(): ReactElement {
           </span>
         )}
       </header>
-      <div className="flex flex-wrap flex-1 justify-center px-6 mt-8 laptop:mt-20 w-full max-w-[75rem]">
+      <div
+        className={classNames(
+          'flex flex-wrap justify-center px-6 mt-8 laptop:mt-20 w-full max-w-[75rem]',
+          !isAuthenticating && 'flex-1',
+        )}
+      >
         {!isFiltering && !isAuthenticating && (
           <div
             className={classNames(
