@@ -6,6 +6,7 @@ import React, { ReactElement } from 'react';
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useRouter } from 'next/router';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 
 function Signup(): ReactElement {
   const { formRef } = useAuthForms();
@@ -42,9 +43,12 @@ function Signup(): ReactElement {
         </div>
 
         <picture className="flex object-contain absolute right-0 z-0 items-end laptop:items-center h-full max-h-[calc(100vh-1.5rem)] laptopXL:max-h-[52.875rem]">
-          <source media="(min-width: 1020px)" srcSet="/login.png" />
+          <source
+            media="(min-width: 1020px)"
+            srcSet={cloudinary.auth.login.default}
+          />
           <img
-            src="/login_small.png"
+            src={cloudinary.auth.login.small}
             alt="daily.dev where developers grow together"
           />
         </picture>

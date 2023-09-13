@@ -29,6 +29,7 @@ import {
   AuthEvent,
   AuthFlow,
   getKratosFlow,
+  getKratosProviders,
   SocialRegistrationFlow,
 } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
@@ -37,9 +38,6 @@ import useLogin from '../../hooks/useLogin';
 import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import ConnectedUserModal, {
-  ConnectedUser as RegistrationConnectedUser,
-} from '../modals/ConnectedUser';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -64,7 +62,6 @@ export enum AuthDisplay {
   CodeVerification = 'code_verification',
   ChangePassword = 'change_password',
   EmailSent = 'email_sent',
-  ConnectedUser = 'connected_user',
   VerifiedEmail = 'VerifiedEmail',
 }
 
@@ -103,14 +100,13 @@ function AuthOptions({
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const [isConnected, setIsConnected] = useState(false);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
   const { refetchBoot, user, loginState } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [flow, setFlow] = useState('');
-  const [connectedUser, setConnectedUser] =
-    useState<RegistrationConnectedUser>();
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
   );
@@ -156,7 +152,7 @@ function AuthOptions({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const { onLogin: onSignBackLogin } = useSignBack();
+  const { onUpdateSignBack: onSignBackLogin } = useSignBack();
   const {
     isReady: isRegistrationReady,
     registration,
@@ -201,7 +197,7 @@ function AuthOptions({
   const onProfileSuccess = async () => {
     await refetchBoot();
     onSuccessfulRegistration?.();
-    onClose(null, true);
+    onClose?.(null, true);
   };
   const {
     updateUserProfile,
@@ -256,14 +252,14 @@ function AuthOptions({
           [4010002, 4010003, 4000007].includes(connected?.ui?.messages?.[0]?.id)
         ) {
           const registerUser = {
-            provider: chosenProvider,
             name: getNodeValue('traits.name', connected.ui.nodes),
             email: getNodeValue('traits.email', connected.ui.nodes),
             image: getNodeValue('traits.image', connected.ui.nodes),
-            flowId: connected.id,
           };
-          setConnectedUser(registerUser);
-          return onSetActiveDisplay(AuthDisplay.ConnectedUser);
+          const { result } = await getKratosProviders(connected.id);
+          setIsConnected(true);
+          await onSignBackLogin(registerUser, result[0] as SignBackProvider);
+          return onSetActiveDisplay(AuthDisplay.SignBack);
         }
 
         return displayToast(labels.auth.error.generic);
@@ -314,21 +310,18 @@ function AuthOptions({
     });
   };
 
-  const onForgotPassword = () => {
+  const onForgotPassword = (withEmail?: string) => {
     trackEvent({
       event_name: 'click',
       target_type: AuthEventNames.ForgotPassword,
     });
+    setEmail(withEmail);
     onSetActiveDisplay(AuthDisplay.ForgotPassword);
   };
 
   const onForgotPasswordBack = () => {
     setIsForgotPasswordReturn(true);
     onSetActiveDisplay(defaultDisplay);
-  };
-
-  const onShowLogin = () => {
-    onSetActiveDisplay(AuthDisplay.SignBack);
   };
 
   return (
@@ -393,15 +386,18 @@ function AuthOptions({
               if (isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: false });
               }
+              setIsConnected(false);
               onSetActiveDisplay(AuthDisplay.Default);
             }}
             isLoginFlow={isLoginFlow}
+            isConnectedAccount={isConnected}
             onProviderClick={onProviderClick}
             simplified={simplified}
             onShowLoginOptions={() => {
               if (!isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: true });
               }
+              setIsConnected(false);
               setActiveDisplay(AuthDisplay.Default);
             }}
             loginFormProps={{
@@ -462,12 +458,6 @@ function AuthOptions({
               />
             )}
           </EmailVerified>
-        </Tab>
-        <Tab label={AuthDisplay.ConnectedUser}>
-          <AuthHeader simplified={simplified} title="Account already exists" />
-          {connectedUser && (
-            <ConnectedUserModal user={connectedUser} onLogin={onShowLogin} />
-          )}
         </Tab>
       </TabContainer>
     </div>
