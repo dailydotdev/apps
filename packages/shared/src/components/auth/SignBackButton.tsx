@@ -24,9 +24,11 @@ export function SignBackButton({
     >
       <ProfilePicture user={signBack} size="large" />
       <div className="flex flex-col items-start ml-2 text-theme-label-invert">
-        <span className="font-bold typo-callout">
-          Continue as {signBack.name.split(' ')[0]}
-        </span>
+        {!!signBack.name && (
+          <span className="font-bold typo-callout">
+            Continue as {signBack.name.split(' ')[0]}
+          </span>
+        )}
         <span className="typo-footnote">{signBack.email}</span>
       </div>
       <span className="p-1 ml-auto rounded-8 border border-theme-divider-secondary">
