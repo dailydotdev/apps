@@ -78,7 +78,7 @@ const TrustedCompanies = ({
           <Icon
             key={`trusted-company-${label}`}
             className={classNames(
-              'text-salt-90 opacity-32',
+              'text-theme-label-disabled',
               index !== 0 && 'ml-2 tablet:ml-6',
             )}
             size={iconSize}
