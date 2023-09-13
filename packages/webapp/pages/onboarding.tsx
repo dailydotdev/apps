@@ -244,10 +244,6 @@ export function OnboardPage(): ReactElement {
                 />
               </video>
             }
-            <p className="relative z-3 mb-6 text-center opacity-64 typo-callout text-theme-label-quaternary">
-              Trusted by 300K+ developers from the world&apos;s leading
-              companies
-            </p>
 
             <TrustedCompanies />
           </div>
@@ -335,14 +331,11 @@ export function OnboardPage(): ReactElement {
             <div className="flex relative flex-col tablet:flex-row flex-1 justify-end tablet:items-center pb-6 tablet:pb-0 mt-8 tablet:mt-auto w-full tablet:max-h-[10rem]">
               <SignupDisclaimer className="mb-auto tablet:mb-0" />
 
-              <div className="block tablet:hidden">
-                <TrustedCompanies iconSize={IconSize.Small} />
-
-                <p className="relative z-3 mb-6 text-center opacity-64 typo-callout text-theme-label-quaternary">
-                  Trusted by 300K+ developers from the world&apos;s leading
-                  companies
-                </p>
-              </div>
+              <TrustedCompanies
+                iconSize={IconSize.Small}
+                reverse
+                className="block tablet:hidden"
+              />
 
               <img
                 className="absolute bottom-0 left-0 w-full max-w-[58.75rem]"

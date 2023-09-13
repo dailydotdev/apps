@@ -53,24 +53,38 @@ export const trustedCompaniesMap = {
 export interface TrustedCompaniesProps {
   className?: string;
   iconSize?: IconSize;
+  reverse?: boolean;
 }
 
 const TrustedCompanies = ({
   className = '',
   iconSize = IconSize.Large,
+  reverse = false,
 }: TrustedCompaniesProps): ReactElement => {
   return (
-    <div className={classNames('flex relative z-3 justify-center', className)}>
-      {Object.values(trustedCompaniesMap).map(({ Icon, label }, index) => (
-        <Icon
-          key={`trusted-company-${label}`}
-          className={classNames(
-            'text-salt-90 opacity-32',
-            index !== 0 && 'ml-2 tablet:ml-6',
-          )}
-          size={iconSize}
-        />
-      ))}
+    <div
+      className={classNames(
+        'flex gap-6 items-center',
+        reverse ? 'flex-col-reverse' : 'flex-col',
+        className,
+      )}
+    >
+      <p className="relative z-3 tablet:max-w-full text-center typo-callout text-theme-label-quaternary max-w-[15rem]">
+        Trusted by 300K+ developers from the world&apos;s leading companies
+      </p>
+
+      <div className="flex relative z-3 justify-center">
+        {Object.values(trustedCompaniesMap).map(({ Icon, label }, index) => (
+          <Icon
+            key={`trusted-company-${label}`}
+            className={classNames(
+              'text-salt-90 opacity-32',
+              index !== 0 && 'ml-2 tablet:ml-6',
+            )}
+            size={iconSize}
+          />
+        ))}
+      </div>
     </div>
   );
 };
