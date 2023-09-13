@@ -52,6 +52,7 @@ import {
 } from '../../hooks/auth/useSignBack';
 import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
+import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -63,6 +64,7 @@ export enum AuthDisplay {
   ChangePassword = 'change_password',
   EmailSent = 'email_sent',
   VerifiedEmail = 'VerifiedEmail',
+  OnboardingSignup = 'onboarding_signup',
 }
 
 export interface AuthProps {
@@ -72,7 +74,7 @@ export interface AuthProps {
 
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
-  onAuthStateUpdate?: (props: Pick<AuthProps, 'isLoginFlow'>) => void;
+  onAuthStateUpdate?: (props: Partial<AuthProps>) => void;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -378,6 +380,23 @@ function AuthOptions({
               registration &&
               getNodeValue('csrf_token', registration?.ui?.nodes)
             }
+          />
+        </Tab>
+        <Tab label={AuthDisplay.OnboardingSignup}>
+          <OnboardingRegistrationForm
+            onSignup={(signupEmail) => {
+              setEmail(signupEmail);
+              onSetActiveDisplay(AuthDisplay.SocialRegistration);
+              onAuthStateUpdate({ isAuthenticating: true });
+            }}
+            onExistingEmail={(existingEmail) => {
+              setEmail(existingEmail);
+              onAuthStateUpdate({ isAuthenticating: true, isLoginFlow: true });
+            }}
+            onProviderClick={onProviderClick}
+            trigger={trigger}
+            isReady={isReady}
+            simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

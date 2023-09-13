@@ -9,14 +9,13 @@ import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/Onboardin
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
-import { IntroductionOnboardingTitle } from '@dailydotdev/shared/src/components/onboarding/IntroductionOnboarding';
 import AuthOptions, {
+  AuthDisplay,
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import {
   OnboardingFilteringTitle,
   OnboardingV2,
@@ -41,8 +40,11 @@ import {
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import { SignupDisclaimer } from '@dailydotdev/shared/src/components/auth/EmailSignupForm';
+import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import CookieBanner from '../components/CookieBanner';
+import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -52,13 +54,20 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.V4]: 'Choose the topics you’re passionate about',
 };
 
-const Title = classed('h2', 'font-bold typo-title2');
+const Title = classed('h2', 'font-bold typo-title1');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
 
+// Because of the video colours, we need to adjust the background colour a little bit
+// eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
 const Container = classed(
   'div',
-  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max bg-theme-bg-primary',
+  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max bg-[#0A1119]',
+);
+
+const OnboardingTitle = classed(
+  'h1',
+  'mb-4 font-bold text-transparent bg-clip-text bg-gradient-to-r from-theme-color-bacon to-theme-color-cabbage',
 );
 
 const seo: NextSeoProps = {
@@ -181,44 +190,58 @@ export function OnboardPage(): ReactElement {
 
     return (
       <>
-        {isFiltering ? (
-          <Title className="font-bold typo-title2">{title}</Title>
-        ) : (
-          <IntroductionOnboardingTitle />
+        {isFiltering && (
+          <>
+            <Title className="font-bold text-center">{title}</Title>
+            <p className="mt-3 mb-10 text-center text-theme-label-secondary typo-title3">
+              Pick a few subjects that interest you. <br />
+              You can always change theselater.
+            </p>
+          </>
         )}
-        <p className="px-6 mt-3 text-center whitespace-pre-line text-theme-label-secondary typo-body">
-          Pick a few subjects that interest you. You can always change these
-          later.
-        </p>
         <div className="flex flex-1" />
         {isFiltering ? (
-          <FilterOnboarding
-            className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
-            onSelectedTopics={hasSelectedTopics}
-          />
+          <>
+            <FilterOnboarding
+              className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
+              onSelectedTopics={hasSelectedTopics}
+            />
+            <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">
+              <div className="flex absolute inset-0 -z-1 w-full h-1/2 bg-gradient-to-t to-transparent from-theme-bg-primary" />
+              <div className="flex absolute inset-0 top-1/2 -z-1 w-full h-1/2 bg-theme-bg-primary" />
+              <Button className="btn-primary w-[22.5rem]" onClick={onClickNext}>
+                Next
+              </Button>
+            </div>
+          </>
         ) : (
-          <img
-            alt="Sample illustration of selecting topics"
-            src={onboardingIntroduction}
-            className="absolute tablet:relative top-12 tablet:top-0 tablet:scale-125"
-          />
-        )}
-        <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">
-          <div className="flex absolute inset-0 -z-1 w-full h-1/2 bg-gradient-to-t to-transparent from-theme-bg-primary" />
-          <div className="flex absolute inset-0 top-1/2 -z-1 w-full h-1/2 bg-theme-bg-primary" />
-          <Button className="btn-primary w-[22.5rem]" onClick={onClickNext}>
-            Next
-          </Button>
-          <MemberAlready
-            className={{
-              container: 'text-theme-label-tertiary py-4',
-              login: 'text-theme-label-primary',
-            }}
-            onLogin={() =>
-              setAuth({ isAuthenticating: true, isLoginFlow: true })
+          <div className="hidden laptop:block">
+            {
+              // eslint-disable-next-line jsx-a11y/media-has-caption
+              <video
+                loop
+                autoPlay
+                muted
+                className="absolute tablet:relative -top-14 -z-1 mt-1 -mb-16 tablet:scale-150"
+              >
+                <source
+                  src="https://daily-now-res.cloudinary.com/video/upload/v1694529627/on_boarding_3_i4x40j.mp4"
+                  type="video/mp4"
+                />
+                <source
+                  src="https://daily-now-res.cloudinary.com/video/upload/v1694590121/on_boarding_3_i4x40j_kfu5fl.webm"
+                  type="video/webm"
+                />
+              </video>
             }
-          />
-        </div>
+            <p className="relative z-3 mb-6 text-center opacity-64 typo-callout text-theme-label-quaternary">
+              Trusted by 300K+ developers from the world&apos;s leading
+              companies
+            </p>
+
+            <TrustedCompanies />
+          </div>
+        )}
       </>
     );
   };
@@ -240,7 +263,7 @@ export function OnboardPage(): ReactElement {
       <ProgressBar percentage={isFiltering ? percentage : 0} />
       <header
         className={classNames(
-          'flex justify-between w-full h-full flew-row',
+          'flex justify-between w-full h-full flew-row px-6',
           !isAuthenticating && !isFiltering && 'mt-20 w-full max-w-[75rem]',
         )}
       >
@@ -260,7 +283,7 @@ export function OnboardPage(): ReactElement {
           <span
             className={classNames(
               'flex items-center',
-              'text-theme-label-tertiary py-4',
+              'text-theme-label-tertiary',
             )}
           >
             <span className="hidden tablet:block">
@@ -277,17 +300,65 @@ export function OnboardPage(): ReactElement {
           </span>
         )}
       </header>
-      <div
-        className={classNames(
-          'flex relative flex-col flex-1 items-center w-full max-h-[40rem]',
-          isFiltering
-            ? 'laptop:max-w-[48.75rem] tablet:max-w-[32rem]'
-            : containerClass,
-        )}
-      >
-        {getContent()}
-      </div>
+      <div className="flex flex-wrap flex-1 justify-center px-6 mt-8 laptop:mt-20 w-full max-w-[75rem]">
+        {!isFiltering && !isAuthenticating && (
+          <div
+            className={classNames(
+              'flex flex-1 flex-col laptop:max-w-[27.5rem] laptop:mr-8',
+            )}
+          >
+            <OnboardingTitle className="typo-large-title tablet:typo-mega1">
+              Where developers grow together
+            </OnboardingTitle>
 
+            <h2 className="mb-8 typo-body tablet:typo-title2">
+              Get one personalized feed for all the knowledge you need.
+            </h2>
+
+            <AuthOptions
+              trigger={AuthTriggers.Filter}
+              formRef={formRef}
+              simplified
+              defaultDisplay={AuthDisplay.OnboardingSignup}
+              onSuccessfulLogin={onSuccessfulTransaction}
+              onSuccessfulRegistration={onSuccessfulTransaction}
+              isLoginFlow={isLoginFlow}
+              className={classNames('w-full', maxAuthWidth)}
+              onAuthStateUpdate={(props) =>
+                setAuth({ isAuthenticating: true, ...props })
+              }
+            />
+
+            <div className="flex relative flex-col tablet:flex-row flex-1 justify-end tablet:items-center pb-6 tablet:pb-0 mt-8 tablet:mt-auto w-full tablet:max-h-[10rem]">
+              <SignupDisclaimer className="mb-auto tablet:mb-0" />
+
+              <div className="block tablet:hidden">
+                <TrustedCompanies iconSize={IconSize.Small} />
+
+                <p className="relative z-3 mb-6 text-center opacity-64 typo-callout text-theme-label-quaternary">
+                  Trusted by 300K+ developers from the world&apos;s leading
+                  companies
+                </p>
+              </div>
+
+              <img
+                className="absolute bottom-0 left-0 w-full max-w-[58.75rem]"
+                src="https://daily-now-res.cloudinary.com/image/upload/v1694596741/Glow_o9ehvn.svg"
+                alt="Gradient background"
+              />
+            </div>
+          </div>
+        )}
+
+        <div
+          className={classNames(
+            'laptop:max-w-[37.5rem] tablet:max-w-1/2',
+            isAuthenticating || isFiltering ? 'ml-0' : 'ml-auto',
+          )}
+        >
+          {getContent()}
+        </div>
+      </div>
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </Container>
   );

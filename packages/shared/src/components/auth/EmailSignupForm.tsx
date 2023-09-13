@@ -1,4 +1,5 @@
 import React, { ReactElement, useState } from 'react';
+import classNames from 'classnames';
 import { Button, ButtonSize } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import ArrowIcon from '../icons/Arrow';
@@ -7,15 +8,19 @@ import AuthForm from './AuthForm';
 import { privacyPolicy, termsOfService } from '../../lib/constants';
 import { IconSize } from '../Icon';
 
-interface EmailSignupFormProps {
-  onSubmit: (e: React.FormEvent) => unknown;
-  isReady: boolean;
-  showDisclaimer?: boolean;
+interface SignupDisclaimerProps {
+  className?: string;
 }
-
-export function SignupDisclaimer(): ReactElement {
+export function SignupDisclaimer({
+  className = '',
+}: SignupDisclaimerProps): ReactElement {
   return (
-    <p className="w-full text-center text-theme-label-quaternary typo-caption1">
+    <p
+      className={classNames(
+        'w-full text-center text-theme-label-quaternary typo-caption1',
+        className,
+      )}
+    >
       By signing up I accept the{' '}
       <a
         href={termsOfService}
@@ -37,6 +42,12 @@ export function SignupDisclaimer(): ReactElement {
       .
     </p>
   );
+}
+
+interface EmailSignupFormProps {
+  onSubmit: (e: React.FormEvent) => unknown;
+  isReady: boolean;
+  showDisclaimer?: boolean;
 }
 
 function EmailSignupForm({
