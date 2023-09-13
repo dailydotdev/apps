@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import classed from '../../lib/classed';
+import styles from './Card.module.css';
 
 export enum RaisedLabelType {
   Hot = 'Hot',
@@ -24,7 +25,8 @@ export interface RaisedLabelProps {
 
 export const RaisedLabelContainer = classed(
   'div',
-  'relative group group-hover:transform-none group-hover:z-10 group-hover:transition-transform group-hover:ease-linear group-hover:transition-z-index group-hover:duration-100 group-hover:step-end',
+  `relative`,
+  styles.cardContainer,
 );
 
 export function RaisedLabel({
@@ -45,7 +47,7 @@ export function RaisedLabel({
         <div
           className={classNames(
             'flex items-center px-1',
-            'will-change-auto -z-1 transition-transform duration-100 ease-linear group-hover:transform-none group-hover:z-10 group-hover:transition-transform group-hover:ease-linear group-hover:transition-z-index group-hover:duration-100 group-hover:step-end',
+            styles.flag,
             typeToClassName[type],
             listMode
               ? 'h-5 w-full justify-center mouse:translate-x-9 rounded-l'
