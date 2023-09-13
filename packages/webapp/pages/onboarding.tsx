@@ -170,22 +170,27 @@ export function OnboardPage(): ReactElement {
     setHasSelectTopics(hasTopics);
   };
 
+  const getAuthOptions = (defaultDisplay?: AuthDisplay) => {
+    return (
+      <AuthOptions
+        trigger={AuthTriggers.Filter}
+        formRef={formRef}
+        simplified
+        defaultDisplay={defaultDisplay}
+        onSuccessfulLogin={onSuccessfulLogin}
+        onSuccessfulRegistration={onSuccessfulRegistration}
+        isLoginFlow={isLoginFlow}
+        className={classNames('w-full', maxAuthWidth)}
+        onAuthStateUpdate={(props: AuthProps) =>
+          setAuth({ isAuthenticating: true, ...props })
+        }
+      />
+    );
+  };
+
   const getContent = (): ReactElement => {
-    if (isAuthenticating) {
-      return (
-        <AuthOptions
-          trigger={AuthTriggers.Filter}
-          formRef={formRef}
-          simplified
-          onSuccessfulLogin={onSuccessfulTransaction}
-          onSuccessfulRegistration={onSuccessfulTransaction}
-          isLoginFlow={isLoginFlow}
-          className={classNames('w-full', maxAuthWidth)}
-          onAuthStateUpdate={(props: AuthProps) =>
-            setAuth({ isAuthenticating: true, ...props })
-          }
-        />
-      );
+    if (isAuthenticating && !isFiltering) {
+      return getAuthOptions();
     }
 
     return (
@@ -325,19 +330,7 @@ export function OnboardPage(): ReactElement {
               Get one personalized feed for all the knowledge you need.
             </h2>
 
-            <AuthOptions
-              trigger={AuthTriggers.Filter}
-              formRef={formRef}
-              simplified
-              defaultDisplay={AuthDisplay.OnboardingSignup}
-              onSuccessfulLogin={onSuccessfulTransaction}
-              onSuccessfulRegistration={onSuccessfulTransaction}
-              isLoginFlow={isLoginFlow}
-              className={classNames('w-full', maxAuthWidth)}
-              onAuthStateUpdate={(props: AuthProps) =>
-                setAuth({ isAuthenticating: true, ...props })
-              }
-            />
+            {getAuthOptions(AuthDisplay.OnboardingSignup)}
 
             <div className="flex relative flex-col tablet:flex-row flex-1 justify-end tablet:items-center pb-6 tablet:pb-0 mt-8 tablet:mt-auto w-full tablet:max-h-[10rem]">
               <SignupDisclaimer className="mb-auto tablet:mb-0" />
