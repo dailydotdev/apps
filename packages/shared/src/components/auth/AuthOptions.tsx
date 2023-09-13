@@ -393,7 +393,10 @@ function AuthOptions({
               setEmail(existingEmail);
               onAuthStateUpdate({ isAuthenticating: true, isLoginFlow: true });
             }}
-            onProviderClick={onProviderClick}
+            onProviderClick={(provider, login) => {
+              onProviderClick(provider, login);
+              onAuthStateUpdate({ isAuthenticating: true });
+            }}
             trigger={trigger}
             isReady={isReady}
             simplified={simplified}
