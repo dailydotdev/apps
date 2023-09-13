@@ -3,12 +3,13 @@ import nock from 'nock';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
+  act,
   fireEvent,
   render,
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import {
@@ -20,7 +21,6 @@ import { BootApp, Visit } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
-import { act } from 'preact/test-utils';
 import ProfileNotificationsPage from '../pages/account/notifications';
 
 jest.mock('next/router', () => ({
@@ -38,6 +38,14 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
   client = new QueryClient();
+
+  globalThis.OneSignal = {
+    getRegistrationId: jest.fn().mockResolvedValue('123'),
+  };
+});
+
+afterEach(() => {
+  delete globalThis.OneSignal;
 });
 
 const defaultLoggedUser: LoggedUser = {
@@ -94,8 +102,13 @@ it('should change user push notification', async () => {
   const subscription = await screen.findByTestId('push_notification-switch');
   expect(subscription).not.toBeChecked();
   await subscription.click();
-  const newSubscription = await screen.findByTestId('push_notification-switch');
-  expect(newSubscription).toBeChecked();
+  await waitFor(async () => {
+    const newSubscription = await screen.findByTestId(
+      'push_notification-switch',
+    );
+
+    return expect(newSubscription).toBeChecked();
+  });
 });
 
 it('should change user all email subscription', async () => {

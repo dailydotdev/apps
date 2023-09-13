@@ -16,12 +16,12 @@ import {
   verifiedLoginData,
 } from '@dailydotdev/shared/__tests__/fixture/auth';
 import {
+  act,
   fireEvent,
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
-import { act } from 'preact/test-utils';
+} from '@testing-library/react';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';

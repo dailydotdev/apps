@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { Post } from '../../graphql/posts';
 import defaultFeedPage from '../../../__tests__/fixture/feed';
 import SimilarPosts from './SimilarPosts';

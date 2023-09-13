@@ -5,7 +5,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ArticlePostCard } from './ArticlePostCard';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';

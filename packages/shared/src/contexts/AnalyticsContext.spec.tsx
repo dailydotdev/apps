@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import nock from 'nock';
-import { fireEvent, render, waitFor } from '@testing-library/preact';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AnalyticsContext, { AnalyticsContextProvider } from './AnalyticsContext';
 import { AnalyticsContextData } from '../hooks/analytics/useAnalyticsContextData';

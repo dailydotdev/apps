@@ -32,7 +32,7 @@ const RanksBadges = ({
         style={{
           transform: `translate(${RANK_OFFSET[showRank]})`,
         }}
-        data-testId="badgesContainer"
+        data-testid="badgesContainer"
       >
         {RANKS.map((itemRank) => (
           <RankBadgeItem

@@ -5,7 +5,7 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import App from './App';
 

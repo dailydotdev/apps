@@ -54,7 +54,7 @@
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/preact": "^2.0.1",
+    "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
     "@types/classnames": "^2.2.11",
     "@types/dompurify": "^2.3.1",

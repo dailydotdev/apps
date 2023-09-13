@@ -8,7 +8,7 @@ import {
   screen,
   waitFor,
   within,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 
 import {
   ADD_BOOKMARKS_MUTATION,

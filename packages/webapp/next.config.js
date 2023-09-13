@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const path = require('path');
 const withPWA = require('next-pwa');
 const withTM = require('next-transpile-modules')(['@dailydotdev/shared']);
-const sharedPackage = require('../shared/package.json');
 const { version } = require('../extension/package.json');
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({

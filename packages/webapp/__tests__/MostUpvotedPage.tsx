@@ -2,7 +2,7 @@ import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import { MOST_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { mocked } from 'ts-jest/utils';

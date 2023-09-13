@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/preact-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Post from '../../__tests__/fixture/post';
 import { useChangelog } from './useChangelog';
