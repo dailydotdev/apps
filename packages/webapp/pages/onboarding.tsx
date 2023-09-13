@@ -189,7 +189,12 @@ export function OnboardPage(): ReactElement {
     }
 
     return (
-      <>
+      <div
+        className={classNames(
+          'laptop:max-w-[37.5rem] tablet:max-w-1/2',
+          isAuthenticating || isFiltering ? 'ml-0' : 'ml-auto',
+        )}
+      >
         {isFiltering && (
           <>
             <Title className="font-bold text-center">{title}</Title>
@@ -242,7 +247,7 @@ export function OnboardPage(): ReactElement {
             <TrustedCompanies />
           </div>
         )}
-      </>
+      </div>
     );
   };
 
@@ -350,14 +355,7 @@ export function OnboardPage(): ReactElement {
           </div>
         )}
 
-        <div
-          className={classNames(
-            'laptop:max-w-[37.5rem] tablet:max-w-1/2',
-            isAuthenticating || isFiltering ? 'ml-0' : 'ml-auto',
-          )}
-        >
-          {getContent()}
-        </div>
+        {getContent()}
       </div>
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </Container>
