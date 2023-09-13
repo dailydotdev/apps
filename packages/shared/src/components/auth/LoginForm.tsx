@@ -13,7 +13,7 @@ import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
 
 export interface LoginFormProps {
-  onForgotPassword?: () => unknown;
+  onForgotPassword?: (email: string) => unknown;
   onPasswordLogin?: (params: LoginFormParams) => void;
   email?: string;
   loginHint: ReturnType<typeof useState>;
@@ -48,6 +48,7 @@ function LoginForm({
     onPasswordLogin(form);
   };
   const [shouldFocus, setShouldFocus] = useState(autoFocus);
+  const [innerEmail, setInnerEmail] = useState(email || '');
 
   return (
     <AuthForm
@@ -76,7 +77,12 @@ function LoginForm({
         value={email}
         data-testid="login_email"
         saveHintSpace
-        onChange={() => hint && setHint(null)}
+        onChange={(e) => {
+          setInnerEmail(e.target.value);
+          if (hint) {
+            setHint(null);
+          }
+        }}
         valid={!hint}
         required
       />
@@ -94,7 +100,7 @@ function LoginForm({
           <ClickableText
             type="button"
             className="flex-1 underline grow-[2] btn-primary"
-            onClick={onForgotPassword}
+            onClick={() => onForgotPassword(innerEmail)}
           >
             Forgot password?
           </ClickableText>
