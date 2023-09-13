@@ -3,23 +3,20 @@ import classNames from 'classnames';
 
 interface OrDividerProps {
   className?: string;
-  showLabel?: boolean;
+  label?: string;
 }
 
-function OrDivider({
-  className,
-  showLabel = true,
-}: OrDividerProps): ReactElement {
+function OrDivider({ className, label = 'or' }: OrDividerProps): ReactElement {
   return (
     <div
-      className={classNames('flex relative justify-center w-full', className)}
-    >
-      <span className="absolute top-1/2 z-0 w-full h-px bg-theme-divider-tertiary" />
-      {showLabel && (
-        <div className="z-1 px-3 bg-theme-bg-tertiary text-theme-label-quaternary">
-          or
-        </div>
+      className={classNames(
+        'flex justify-center items-center typo-callout text-theme-label-quaternary',
+        className,
       )}
+    >
+      <div className="flex-1 h-px bg-theme-divider-tertiary" />
+      {label && <span className="px-3">{label}</span>}
+      <div className="flex-1 h-px bg-theme-divider-tertiary" />
     </div>
   );
 }
