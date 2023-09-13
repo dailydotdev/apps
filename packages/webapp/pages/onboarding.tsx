@@ -39,10 +39,10 @@ import {
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { SignupDisclaimer } from '@dailydotdev/shared/src/components/auth/EmailSignupForm';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import CookieBanner from '../components/CookieBanner';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -251,8 +251,6 @@ export function OnboardPage(): ReactElement {
       </div>
     );
   };
-
-  const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
   if (finishedOnboarding) {
     return (
