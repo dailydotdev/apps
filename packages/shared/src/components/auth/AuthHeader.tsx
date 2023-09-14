@@ -1,7 +1,11 @@
-import React, { ReactElement } from 'react';
+import React, {
+  FormEvent,
+  MouseEvent,
+  KeyboardEvent,
+  ReactElement,
+} from 'react';
 import { Button } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
-import { CloseModalFunc } from '../modals/common';
 import { Modal } from '../modals/common/Modal';
 import { ModalHeaderKind } from '../modals/common/types';
 
@@ -9,7 +13,7 @@ export interface AuthHeaderProps {
   simplified: boolean;
   title: string;
   className?: string;
-  onBack?: CloseModalFunc;
+  onBack?: (e: MouseEvent | KeyboardEvent | FormEvent) => void;
 }
 
 function AuthHeader({

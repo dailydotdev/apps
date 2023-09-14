@@ -35,6 +35,7 @@ export enum LazyModal {
   SquadNotifications = 'squadNotifications',
   FeedFilters = 'feedFilters',
   CompanionModal = 'companionModal',
+  VerifySession = 'verifySession',
 }
 
 export type ModalTabItem = {
