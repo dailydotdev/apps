@@ -10,7 +10,8 @@ import { IconType } from '../buttons/Button';
 
 export interface Provider {
   icon: IconType;
-  provider: string;
+  label: string;
+  value: string;
 }
 
 export enum SocialProvider {
@@ -31,19 +32,23 @@ export const providerMap: ProviderMap = {
   // },
   facebook: {
     icon: <FacebookIcon className="socialIcon" secondary />,
-    provider: 'Facebook',
+    label: 'Facebook',
+    value: 'facebook',
   },
   google: {
     icon: <GoogleIcon className="socialIcon" secondary />,
-    provider: 'Google',
+    label: 'Google',
+    value: 'google',
   },
   github: {
     icon: <GitHubIcon className="socialIcon" secondary />,
-    provider: 'GitHub',
+    label: 'GitHub',
+    value: 'gitHub',
   },
   apple: {
     icon: <AppleIcon className="socialIcon" secondary />,
-    provider: 'Apple',
+    label: 'Apple',
+    value: 'apple',
   },
 };
 

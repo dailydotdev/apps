@@ -165,16 +165,16 @@ const AuthDefault = ({
       )}
       <AuthContainer className={disableRegistration && 'mb-6'}>
         <div className="flex flex-col gap-4">
-          {providers.map(({ provider, icon }) => (
+          {providers.map(({ label, value, icon }) => (
             <Button
-              key={provider}
+              key={label}
               icon={icon}
               className="btn-primary"
               buttonSize={ButtonSize.Large}
-              onClick={() => onSocialClick(provider.toLowerCase())}
+              onClick={() => onSocialClick(value)}
               loading={!isReady}
             >
-              {provider}
+              {label}
             </Button>
           ))}
         </div>

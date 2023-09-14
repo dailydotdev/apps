@@ -49,19 +49,19 @@ function AccountLoginSection({
           className?.container,
         )}
       >
-        {providers.map(({ provider, icon }) => (
+        {providers.map(({ label, value, icon }) => (
           <Button
-            key={provider}
+            key={value}
             icon={icon}
             className={className?.button}
             onClick={() =>
               providerAction({
                 type: providerActionType,
-                provider: provider.toLowerCase(),
+                provider: value,
               })
             }
           >
-            {providerLabel[providerActionType]} {provider}
+            {providerLabel[providerActionType]} {label}
           </Button>
         ))}
         {children}
