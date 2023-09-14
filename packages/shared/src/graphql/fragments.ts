@@ -69,6 +69,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
   fragment SharedPostInfo on Post {
     id
     title
+    titleHtml
     image
     readTime
     permalink
