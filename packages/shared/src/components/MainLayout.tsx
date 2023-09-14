@@ -26,7 +26,7 @@ import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
-import { OnboardingV2 } from '../lib/featureValues';
+import { OnboardingV2, OnboardingV3 } from '../lib/featureValues';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
 import { isTesting, webappUrl } from '../lib/constants';
@@ -79,6 +79,7 @@ export default function MainLayout({
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const onboardingV2 = useFeature(feature.onboardingV2);
+  const onboardingV3 = useFeature(feature.onboardingV3);
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
@@ -152,7 +153,8 @@ export default function MainLayout({
   const shouldRedirectOnboarding =
     !user &&
     isPageReady &&
-    onboardingV2 !== OnboardingV2.Control &&
+    (onboardingV2 !== OnboardingV2.Control ||
+      onboardingV3 !== OnboardingV3.Control) &&
     isPageApplicableForOnboarding &&
     !isTesting;
 

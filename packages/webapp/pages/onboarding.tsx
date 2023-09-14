@@ -9,6 +9,7 @@ import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/Onboardin
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
+import { IntroductionOnboardingTitle } from '@dailydotdev/shared/src/components/onboarding/IntroductionOnboarding';
 import AuthOptions, {
   AuthDisplay,
   AuthProps,
@@ -16,9 +17,11 @@ import AuthOptions, {
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import {
   OnboardingFilteringTitle,
   OnboardingV2,
+  OnboardingV3,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -33,6 +36,7 @@ import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
+import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
@@ -60,11 +64,9 @@ const Title = classed('h2', 'font-bold typo-title1');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
 
-// Because of the video colours, we need to adjust the background colour a little bit
-// eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
 const Container = classed(
   'div',
-  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max bg-[#0A1119]',
+  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max',
 );
 
 const OnboardingTitle = classed(
@@ -76,6 +78,48 @@ const seo: NextSeoProps = {
   title: 'Get started',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
+};
+
+interface HeaderProps {
+  showOnboardingPage: boolean;
+  isOnboardingV3: boolean;
+  setAuth: React.Dispatch<React.SetStateAction<AuthProps>>;
+}
+const Header = ({
+  showOnboardingPage,
+  isOnboardingV3,
+  setAuth,
+}: HeaderProps) => {
+  if (!isOnboardingV3 || !showOnboardingPage) {
+    return (
+      <Logo
+        className="py-8 px-10 w-auto laptop:w-full"
+        position={LogoPosition.Relative}
+      />
+    );
+  }
+
+  return (
+    <header className="flex justify-between px-6 mt-20 w-full h-full flew-row max-w-[75rem]">
+      <Logo
+        className="w-auto"
+        logoClassName="h-logo-big"
+        position={LogoPosition.Relative}
+      />
+
+      <span
+        className={classNames('flex items-center', 'text-theme-label-tertiary')}
+      >
+        <span className="hidden tablet:block">Already a daily.dev member?</span>
+        <Button
+          className="ml-3 btn-secondary"
+          onClick={() => setAuth({ isAuthenticating: true, isLoginFlow: true })}
+        >
+          Log in
+        </Button>
+      </span>
+    </header>
+  );
 };
 
 export function OnboardPage(): ReactElement {
@@ -92,12 +136,18 @@ export function OnboardPage(): ReactElement {
   const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
   const onboardingV2 = useFeature(feature.onboardingV2);
+  const onboardingV3 = useFeature(feature.onboardingV3);
   const { growthbook } = useGrowthBookContext();
   const filteringTitle = useFeature(feature.onboardingFilterTitle);
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
   const { alerts } = useContext(AlertContext);
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
+
+  const isOnboardingV3 = onboardingV3 !== OnboardingV3.Control;
+  const formRef = useRef<HTMLFormElement>();
+  const title = versionToTitle[filteringTitle];
+  const percentage = isAuthenticating ? 100 : 50;
 
   const onClickNext = () => {
     const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
@@ -114,10 +164,6 @@ export function OnboardPage(): ReactElement {
     return setAuth({ isAuthenticating: true, isLoginFlow: false });
   };
 
-  const formRef = useRef<HTMLFormElement>();
-  const title = versionToTitle[filteringTitle];
-  const percentage = isAuthenticating ? 100 : 50;
-
   const onSuccessfulTransaction = () => {
     onShouldUpdateFilters(true);
     setFinishedOnboarding(true);
@@ -127,6 +173,10 @@ export function OnboardPage(): ReactElement {
 
     router.push('/');
   };
+
+  const onSuccessfulLogin = () => {};
+
+  const onSuccessfulRegistration = () => {};
 
   useEffect(() => {
     if (!hasSelectTopics || !alerts?.myFeed) {
@@ -179,8 +229,12 @@ export function OnboardPage(): ReactElement {
         formRef={formRef}
         simplified
         defaultDisplay={defaultDisplay}
-        onSuccessfulLogin={onSuccessfulLogin}
-        onSuccessfulRegistration={onSuccessfulRegistration}
+        onSuccessfulLogin={
+          isOnboardingV3 ? onSuccessfulLogin : onSuccessfulTransaction
+        }
+        onSuccessfulRegistration={
+          isOnboardingV3 ? onSuccessfulRegistration : onSuccessfulTransaction
+        }
         isLoginFlow={isLoginFlow}
         className={classNames(
           'w-full rounded-none',
@@ -194,7 +248,7 @@ export function OnboardPage(): ReactElement {
     );
   };
 
-  const getContent = (): ReactElement => {
+  const getContentV3 = (): ReactElement => {
     if (isAuthenticating && !isFiltering) {
       return getAuthOptions();
     }
@@ -258,6 +312,59 @@ export function OnboardPage(): ReactElement {
     );
   };
 
+  const getContent = (): ReactElement => {
+    if (isAuthenticating) {
+      return getAuthOptions();
+    }
+
+    return (
+      <>
+        {isFiltering ? (
+          <Title className="font-bold typo-title2">{title}</Title>
+        ) : (
+          <IntroductionOnboardingTitle />
+        )}
+        <p className="px-6 mt-3 text-center whitespace-pre-line text-theme-label-secondary typo-body">
+          Pick a few subjects that interest you. You can always change these
+          later.
+        </p>
+        <div className="flex flex-1" />
+        {isFiltering ? (
+          <FilterOnboarding
+            className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
+            onSelectedTopics={hasSelectedTopics}
+          />
+        ) : (
+          <img
+            alt="Sample illustration of selecting topics"
+            src={onboardingIntroduction}
+            className="absolute tablet:relative top-12 tablet:top-0 tablet:scale-125"
+          />
+        )}
+        <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">
+          <div className="flex absolute inset-0 -z-1 w-full h-1/2 bg-gradient-to-t to-transparent from-theme-bg-primary" />
+          <div className="flex absolute inset-0 top-1/2 -z-1 w-full h-1/2 bg-theme-bg-primary" />
+          <Button className="btn-primary w-[22.5rem]" onClick={onClickNext}>
+            Next
+          </Button>
+          <MemberAlready
+            className={{
+              container: 'text-theme-label-tertiary py-4',
+              login: 'text-theme-label-primary',
+            }}
+            onLogin={() =>
+              setAuth({ isAuthenticating: true, isLoginFlow: true })
+            }
+          />
+        </div>
+      </>
+    );
+  };
+
+  const showOnboardingPage = !isAuthenticating && !isFiltering;
+
+  const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
+
   if (finishedOnboarding) {
     return (
       <Container className="justify-center typo-title2">
@@ -268,55 +375,26 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <Container className="flex-col">
+    <Container
+      className={
+        // Because of the video colours, we need to adjust the background colour a little bit
+        isOnboardingV3 ? 'bg-[#0A1119]' : 'bg-theme-bg-primary flex-col'
+      }
+    >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <ProgressBar percentage={isFiltering ? percentage : 0} />
-      <header
-        className={classNames(
-          'flex justify-between w-full h-full flew-row px-6',
-          !isAuthenticating && !isFiltering && 'mt-20 w-full max-w-[75rem]',
-        )}
-      >
-        <Logo
-          className={
-            !isAuthenticating && !isFiltering
-              ? 'w-auto'
-              : 'py-8 px-10 w-auto laptop:w-full'
-          }
-          logoClassName={
-            !isAuthenticating && !isFiltering ? 'h-logo-big' : 'h-logo'
-          }
-          position={LogoPosition.Relative}
-        />
-
-        {!isAuthenticating && !isFiltering && (
-          <span
-            className={classNames(
-              'flex items-center',
-              'text-theme-label-tertiary',
-            )}
-          >
-            <span className="hidden tablet:block">
-              Already a daily.dev member?
-            </span>
-            <Button
-              className="ml-3 btn-secondary"
-              onClick={() =>
-                setAuth({ isAuthenticating: true, isLoginFlow: true })
-              }
-            >
-              Log in
-            </Button>
-          </span>
-        )}
-      </header>
+      <Header
+        showOnboardingPage={showOnboardingPage}
+        isOnboardingV3={isOnboardingV3}
+        setAuth={setAuth}
+      />
       <div
         className={classNames(
-          'flex flex-wrap justify-center px-6 mt-8 laptop:mt-20 w-full max-w-[75rem] tablet:gap-10',
-          !isAuthenticating && 'flex-1',
+          'flex flex-wrap justify-center px-6 w-full max-w-[75rem] tablet:gap-10',
+          !isAuthenticating && 'flex-1 mt-8 laptop:mt-20',
         )}
       >
-        {!isFiltering && !isAuthenticating && (
+        {showOnboardingPage && isOnboardingV3 && (
           <div
             className={classNames(
               'flex flex-1 flex-col laptop:max-w-[27.5rem] laptop:mr-8',
@@ -350,7 +428,20 @@ export function OnboardPage(): ReactElement {
           </div>
         )}
 
-        {getContent()}
+        {isOnboardingV3 ? (
+          getContentV3()
+        ) : (
+          <div
+            className={classNames(
+              'flex relative flex-col flex-1 items-center w-full max-h-[40rem]',
+              isFiltering
+                ? 'laptop:max-w-[48.75rem] tablet:max-w-[32rem]'
+                : containerClass,
+            )}
+          >
+            {getContent()}
+          </div>
+        )}
       </div>
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </Container>
