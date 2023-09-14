@@ -336,7 +336,7 @@ export function OnboardPage(): ReactElement {
               />
 
               <img
-                className="absolute bottom-0 left-0 w-full max-w-[58.75rem]"
+                className="absolute bottom-0 left-0 -z-1 w-full max-w-[58.75rem]"
                 src={cloudinary.onboarding.glow}
                 alt="Gradient background"
               />
