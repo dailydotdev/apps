@@ -22,7 +22,7 @@ function VerifySessionModal({
 }: VerifySessionModalProps): ReactElement {
   const [hint, setHint] = useState('Enter your password to login');
   const filteredProviders = providers.filter(
-    ({ provider }) => !userProviders?.indexOf(provider.toLocaleLowerCase()),
+    ({ value }) => !userProviders?.indexOf(value),
   );
   const client = useQueryClient();
   const { user } = useAuthContext();
