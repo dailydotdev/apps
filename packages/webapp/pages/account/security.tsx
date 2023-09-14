@@ -23,7 +23,6 @@ import {
   SignBackProvider,
   useSignBack,
 } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import {
   generateQueryKey,
   RequestKey,
@@ -45,10 +44,8 @@ const AccountSecurityPage = (): ReactElement => {
   const [hint, setHint] = useState<string>(null);
   const { onUpdateSignBack, signBack, provider } = useSignBack();
   const providersKey = generateQueryKey(RequestKey.Providers, user);
-  const { data: userProviders } = useQuery(
-    providersKey,
-    () => getKratosProviders(),
-    { ...disabledRefetch },
+  const { data: userProviders } = useQuery(providersKey, () =>
+    getKratosProviders(),
   );
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
