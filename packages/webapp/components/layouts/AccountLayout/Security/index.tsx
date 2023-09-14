@@ -31,6 +31,7 @@ import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -108,6 +109,7 @@ function AccountSecurityDefault({
   onUpdateProviders,
 }: AccountSecurityDefaultProps): ReactElement {
   const { deleteAccount } = useContext(AuthContext);
+  const { onUpdateSignBack } = useSignBack();
   const [linkProvider, setLinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
   const { showPrompt } = usePrompt();
@@ -138,6 +140,7 @@ function AccountSecurityDefault({
   const deleteAccountPrompt = async () => {
     if (await showPrompt(deleteAccountPromptOptions)) {
       await deleteAccount();
+      await onUpdateSignBack(null, null);
       window.location.replace('/');
     }
   };
@@ -222,8 +225,7 @@ function AccountSecurityDefault({
         providerActionType="link"
         providerAction={manageSocialProviders}
         providers={providers.filter(
-          ({ provider }) =>
-            !userProviders?.result.includes(provider.toLowerCase()),
+          ({ value }) => !userProviders?.result.includes(value),
         )}
       />
       <AccountLoginSection
@@ -232,8 +234,8 @@ function AccountSecurityDefault({
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
         className={{ button: 'btn-secondary hover:bg-theme-color-ketchup' }}
-        providers={removeProviderList.filter(({ provider }) =>
-          userProviders?.result.includes(provider.toLowerCase()),
+        providers={removeProviderList.filter(({ value }) =>
+          userProviders?.result.includes(value),
         )}
       />
       <AccountContentSection

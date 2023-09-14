@@ -47,7 +47,6 @@ export default function useIncrementReadingRank(): ReturnType {
               progressThisWeek: progress,
               lastReadTime: new Date(),
             },
-            reads: currentRank.reads,
           };
         },
       );

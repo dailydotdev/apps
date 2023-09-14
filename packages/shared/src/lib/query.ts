@@ -38,6 +38,7 @@ export enum RequestKey {
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
   Auth = 'auth',
+  CurrentSession = 'current_session',
 }
 
 export type HasConnection<

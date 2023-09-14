@@ -1,95 +1,59 @@
-import { useMemo, useRef } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
-import { LoginFormParams } from '../components/auth/LoginForm';
-import { AuthSession } from '../lib/kratos';
-import useLogin from './useLogin';
+import { useCallback, useRef } from 'react';
 import { useToastNotification } from './useToastNotification';
+import { useLazyModal } from './useLazyModal';
+import { LazyModal } from '../components/modals/common/types';
 
 type Func = () => void | Promise<void>;
 
 interface UsePrivilegedSession {
-  isReady: boolean;
-  session: AuthSession;
-  showVerifySession?: boolean;
-  onCloseVerifySession: () => void;
-  refetchSession?: () => Promise<unknown>;
-  onPasswordLogin?: (params: LoginFormParams) => void;
-  onSocialLogin?: (provider: string) => void;
   initializePrivilegedSession?: (
     redirect: string,
     onVerified?: () => void,
   ) => void;
 }
 
-export const VERIFY_SESSION_KEY = 'verify_session';
+interface UsePrivilegedSessionProps {
+  providers: string[];
+}
 
-const usePrivilegedSession = (): UsePrivilegedSession => {
-  const onVerification = useRef<Func>();
+const usePrivilegedSession = ({
+  providers,
+}: UsePrivilegedSessionProps): UsePrivilegedSession => {
+  const { openModal } = useLazyModal<LazyModal.VerifySession>();
   const { displayToast } = useToastNotification();
-  const client = useQueryClient();
-  const { data: verifySessionId } = useQuery(VERIFY_SESSION_KEY, () =>
-    client.getQueryData(VERIFY_SESSION_KEY),
-  );
-  const setVerifySessionId = (value: string) =>
-    client.setQueryData(VERIFY_SESSION_KEY, value);
+  const onVerification = useRef<Func>();
 
-  const {
-    session,
-    loginFlowData,
-    loginHint,
-    isReady,
-    onSocialLogin,
-    onPasswordLogin,
-    refetchSession,
-  } = useLogin({
-    enableSessionVerification: true,
-    queryEnabled: !!verifySessionId,
-    queryParams: { refresh: 'true' },
-    onSuccessfulLogin: () => {
-      setVerifySessionId(null);
-      if (onVerification?.current) {
-        onVerification.current();
-        onVerification.current = null;
-      } else {
-        displayToast('Session successfully verified!');
+  const initializePrivilegedSession = useCallback(
+    (redirect: string, onVerifiedProps?: () => void) => {
+      const url = new URL(redirect);
+      if (url.pathname.indexOf('login') === -1) {
+        return null;
       }
+
+      if (!url.searchParams.get('refresh')) {
+        return null;
+      }
+
+      onVerification.current = onVerifiedProps;
+
+      const onVerified = () => {
+        if (onVerification?.current) {
+          onVerification.current();
+          onVerification.current = null;
+        } else {
+          displayToast('Session successfully verified!');
+        }
+      };
+
+      return openModal({
+        type: LazyModal.VerifySession,
+        props: { userProviders: providers, onVerified },
+      });
     },
-  });
-
-  const initializePrivilegedSession = (
-    redirect: string,
-    onVerified?: () => void,
-  ) => {
-    const url = new URL(redirect);
-    if (url.pathname.indexOf('login') === -1) {
-      return null;
-    }
-
-    if (!url.searchParams.get('refresh')) {
-      return null;
-    }
-
-    const returnTo = new URL(url.searchParams.get('return_to'));
-    const flowId = returnTo.searchParams.get('flow');
-    onVerification.current = onVerified;
-    return setVerifySessionId(flowId);
-  };
-
-  return useMemo<UsePrivilegedSession>(
-    () => ({
-      session,
-      isReady,
-      showVerifySession: !!verifySessionId,
-      initializePrivilegedSession,
-      onCloseVerifySession: () => setVerifySessionId(null),
-      onPasswordLogin,
-      onSocialLogin,
-      refetchSession,
-    }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session, verifySessionId, loginHint, loginFlowData],
+    [displayToast, openModal, providers],
   );
+
+  return { initializePrivilegedSession };
 };
 
 export default usePrivilegedSession;

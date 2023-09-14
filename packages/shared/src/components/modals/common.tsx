@@ -59,7 +59,7 @@ const SquadNotificationsModal = dynamic(
 );
 
 const CompanionModal = dynamic(
-  () => import(/* webpackChunkName: "CompanionModal" */ './CompanionModal'),
+  () => import(/* webpackChunkName: "companionModal" */ './CompanionModal'),
 );
 
 const FeedFilters = dynamic(
@@ -73,6 +73,13 @@ const SubmitArticle = dynamic(
 
 const NewSource = dynamic(
   () => import(/* webpackChunkName: "newSourceModal" */ './NewSourceModal'),
+);
+
+const VerifySession = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "verifySessionModal" */ '../auth/VerifySessionModal'
+    ),
 );
 
 export const modals = {
@@ -89,6 +96,7 @@ export const modals = {
   [LazyModal.SubmitArticle]: SubmitArticle,
   [LazyModal.NewSource]: NewSource,
   [LazyModal.FeedFilters]: FeedFilters,
+  [LazyModal.VerifySession]: VerifySession,
 };
 
 type GetComponentProps<T> = T extends

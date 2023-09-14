@@ -87,7 +87,7 @@ function CodeVerificationForm({
           onChange={() => hint && setHint('')}
           leftIcon={<KeyIcon />}
         />
-        <Button className="mt-6 bg-theme-color-cabbage" type="submit">
+        <Button className="mt-6 btn-primary" type="submit">
           Verify
         </Button>
         <Button

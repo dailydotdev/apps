@@ -33,6 +33,7 @@ import { IconSize } from '../Icon';
 import { useGenerateUsername } from '../../hooks';
 import AuthContainer from './AuthContainer';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { SignBackProvider, useSignBack } from '../../hooks/auth/useSignBack';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -71,6 +72,7 @@ export const SocialRegistrationForm = ({
   const [name, setName] = useState(user?.name);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
+  const { onUpdateSignBack } = useSignBack();
 
   useEffect(() => {
     trackEvent({
@@ -124,6 +126,10 @@ export const SocialRegistrationForm = ({
       setTwitterHint('Please add your twitter handle');
     }
 
+    onUpdateSignBack(
+      { name: values.name, email: user.email, image: user.image },
+      provider as SignBackProvider,
+    );
     const { file, optOutMarketing, ...rest } = values;
     onSignup({ ...rest, acceptedMarketing: !optOutMarketing });
   };
