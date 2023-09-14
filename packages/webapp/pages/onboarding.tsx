@@ -180,7 +180,11 @@ export function OnboardPage(): ReactElement {
         onSuccessfulLogin={onSuccessfulLogin}
         onSuccessfulRegistration={onSuccessfulRegistration}
         isLoginFlow={isLoginFlow}
-        className={classNames('w-full rounded-none', maxAuthWidth)}
+        className={classNames(
+          'w-full rounded-none',
+          maxAuthWidth,
+          !isAuthenticating && 'max-w-full',
+        )}
         onAuthStateUpdate={(props: AuthProps) =>
           setAuth({ isAuthenticating: true, ...props })
         }
@@ -196,7 +200,7 @@ export function OnboardPage(): ReactElement {
     return (
       <div
         className={classNames(
-          'laptop:max-w-[37.5rem] tablet:max-w-1/2',
+          'flex tablet:flex-1 laptop:max-w-[37.5rem]',
           isAuthenticating || isFiltering ? 'ml-0' : 'ml-auto',
         )}
       >
@@ -209,7 +213,6 @@ export function OnboardPage(): ReactElement {
             </p>
           </>
         )}
-        <div className="flex flex-1" />
         {isFiltering ? (
           <>
             <FilterOnboarding
@@ -225,14 +228,14 @@ export function OnboardPage(): ReactElement {
             </div>
           </>
         ) : (
-          <div className="hidden laptop:block">
+          <div className="hidden tablet:block flex-1">
             {
               // eslint-disable-next-line jsx-a11y/media-has-caption
               <video
                 loop
                 autoPlay
                 muted
-                className="absolute tablet:relative -top-14 -z-1 mt-1 -mb-16 tablet:scale-150"
+                className="tablet:relative tablet:-top-8 laptop:-top-14 -z-1 laptop:mt-1 tablet:-mb-10 laptop:-mb-16 tablet:scale-150"
               >
                 <source
                   src={cloudinary.onboarding.video.mp4}
@@ -306,7 +309,7 @@ export function OnboardPage(): ReactElement {
       </header>
       <div
         className={classNames(
-          'flex flex-wrap justify-center px-6 mt-8 laptop:mt-20 w-full max-w-[75rem]',
+          'flex flex-wrap justify-center px-6 mt-8 laptop:mt-20 w-full max-w-[75rem] tablet:gap-10',
           !isAuthenticating && 'flex-1',
         )}
       >

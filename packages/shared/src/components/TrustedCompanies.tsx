@@ -64,23 +64,20 @@ const TrustedCompanies = ({
   return (
     <div
       className={classNames(
-        'flex gap-6 items-center',
+        'flex flex-1 gap-6 items-center',
         reverse ? 'flex-col-reverse' : 'flex-col',
         className,
       )}
     >
-      <p className="relative z-3 tablet:max-w-full text-center typo-callout text-theme-label-quaternary max-w-[15rem]">
+      <p className="relative z-3 tablet:flex-1 tablet:max-w-full text-center typo-callout text-theme-label-quaternary max-w-[15rem]">
         Trusted by 300K+ developers from the world&apos;s leading companies
       </p>
 
-      <div className="flex relative z-3 justify-center">
-        {Object.values(trustedCompaniesMap).map(({ Icon, label }, index) => (
+      <div className="flex relative z-3 flex-wrap talet:flex-1 gap-2 tablet:gap-6 justify-center items-start">
+        {Object.values(trustedCompaniesMap).map(({ Icon, label }) => (
           <Icon
             key={`trusted-company-${label}`}
-            className={classNames(
-              'text-theme-label-disabled',
-              index !== 0 && 'ml-2 tablet:ml-6',
-            )}
+            className={classNames('text-theme-label-disabled flex-1')}
             size={iconSize}
           />
         ))}
