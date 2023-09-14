@@ -5,15 +5,11 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import CompanionIcon from '@dailydotdev/shared/src/components/icons/App';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
-import { useExtensionPermission } from '@dailydotdev/shared/src/hooks';
+import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { useContentScriptStatus } = useExtensionPermission({
-    origin: 'companion permission button',
-  });
-
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const [showCompanionPermission, setShowCompanionPermission] = useState(false);
 

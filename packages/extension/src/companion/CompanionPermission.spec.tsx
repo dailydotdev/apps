@@ -9,6 +9,7 @@ import { CompanionPermission } from './CompanionPermission';
 import {
   registerBrowserContentScripts,
   requestContentScripts,
+  getContentScriptPermission,
 } from '../lib/extensionScripts';
 
 let client: QueryClient;
@@ -52,6 +53,7 @@ beforeEach(() => {
   client.setQueryData(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
+    getContentScriptPermission,
   }));
 });
 

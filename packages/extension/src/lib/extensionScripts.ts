@@ -1,10 +1,11 @@
 import 'content-scripts-register-polyfill';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
-import { RequestContentScripts } from '@dailydotdev/shared/src/hooks';
-import { useQuery } from 'react-query';
+import {
+  CreateRequestContentScripts,
+  contentScriptKey,
+} from '@dailydotdev/shared/src/hooks';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 
 export const registerBrowserContentScripts =
   (): Promise<ContentScripts.RegisteredContentScript> =>
@@ -33,14 +34,17 @@ export const getContentScriptPermissionAndRegister =
     }
   };
 
-const contentScriptKey = 'permission_key';
-
-export const requestContentScripts: RequestContentScripts = (
-  origin,
+export const requestContentScripts: CreateRequestContentScripts = (
   client,
   trackEvent,
 ) => {
-  return async ({ skipRedirect }: { skipRedirect?: boolean } = {}) => {
+  return async ({
+    origin,
+    skipRedirect,
+  }: {
+    origin: string;
+    skipRedirect?: boolean;
+  }) => {
     trackEvent({
       event_name: AnalyticsEvent.RequestContentScripts,
       extra: JSON.stringify({ origin }),
@@ -70,17 +74,4 @@ export const requestContentScripts: RequestContentScripts = (
 
     return granted;
   };
-};
-
-export const useContentScriptStatus = (): {
-  contentScriptGranted: boolean;
-  isFetched: boolean;
-} => {
-  const { data: contentScriptGranted, isFetched } = useQuery(
-    contentScriptKey,
-    getContentScriptPermission,
-    disabledRefetch,
-  );
-
-  return { contentScriptGranted, isFetched };
 };

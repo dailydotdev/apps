@@ -34,10 +34,13 @@ import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import {
   getContentScriptPermissionAndRegister,
   requestContentScripts,
-  useContentScriptStatus,
   registerBrowserContentScripts,
+  getContentScriptPermission,
 } from '../lib/extensionScripts';
-import { EXTENSION_PERMISSION_KEY } from '../../../shared/src/hooks';
+import {
+  EXTENSION_PERMISSION_KEY,
+  useContentScriptStatus,
+} from '../../../shared/src/hooks';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -70,7 +73,7 @@ function InternalApp({
   useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
-    useContentScriptStatus,
+    getContentScriptPermission,
   }));
 
   useEffect(() => {

@@ -38,7 +38,7 @@ export default function MainFeedPage({
   const [feedName, setFeedName] = useState<string>('default');
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  useCompanionSettings('main feed page');
+  useCompanionSettings();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     setIsSearchOn(true);
