@@ -100,7 +100,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onReadArticleClick={onReadArticleClick}
             />
           )}
-          <CardTitle className={classNames(showFeedback && '!line-clamp-2')}>
+          <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}
           </CardTitle>
         </CardTextContainer>
