@@ -28,6 +28,7 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
@@ -38,6 +39,7 @@ import EmailFormPage from '../../components/layouts/AccountLayout/Security/Email
 
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
+  const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
@@ -87,7 +89,7 @@ const AccountSecurityPage = (): ReactElement => {
   };
 
   const client = useQueryClient();
-  const sessionKey = generateQueryKey(RequestKey.CurrentSession, null);
+  const sessionKey = generateQueryKey(RequestKey.CurrentSession, user);
   const { mutateAsync: changeEmail } = useMutation(
     (params: ValidateChangeEmail) => {
       setHint(null);
@@ -115,10 +117,7 @@ const AccountSecurityPage = (): ReactElement => {
     },
   );
 
-  const { data: session } = useQuery(
-    generateQueryKey(RequestKey.CurrentSession, null),
-    getKratosSession,
-  );
+  const { data: session } = useQuery(sessionKey, getKratosSession);
   const onChangeEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;

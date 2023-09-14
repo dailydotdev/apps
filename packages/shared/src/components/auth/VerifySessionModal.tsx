@@ -7,6 +7,7 @@ import { Modal, ModalProps } from '../modals/common/Modal';
 import useLogin from '../../hooks/useLogin';
 import { AuthSession } from '../../lib/kratos';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface VerifySessionModalProps extends ModalProps {
   userProviders?: string[];
@@ -24,8 +25,9 @@ function VerifySessionModal({
     ({ provider }) => !userProviders?.indexOf(provider.toLocaleLowerCase()),
   );
   const client = useQueryClient();
+  const { user } = useAuthContext();
   const session = client.getQueryData<AuthSession>(
-    generateQueryKey(RequestKey.CurrentSession, null),
+    generateQueryKey(RequestKey.CurrentSession, user),
   );
   const { isReady, onSocialLogin, onPasswordLogin } = useLogin({
     session,
