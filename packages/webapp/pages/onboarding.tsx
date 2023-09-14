@@ -202,7 +202,8 @@ export function OnboardPage(): ReactElement {
     return (
       <div
         className={classNames(
-          'flex tablet:flex-1 laptop:max-w-[37.5rem]',
+          'tablet:flex-1 laptop:max-w-[37.5rem]',
+          !isFiltering && 'flex',
           isAuthenticating || isFiltering ? 'ml-0' : 'ml-auto',
         )}
       >
