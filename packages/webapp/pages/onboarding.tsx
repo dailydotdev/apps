@@ -20,6 +20,7 @@ import {
   OnboardingFilteringTitle,
   OnboardingV2,
 } from '@dailydotdev/shared/src/lib/featureValues';
+import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -33,6 +34,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import {
   useFeature,
@@ -84,7 +86,7 @@ export function OnboardPage(): ReactElement {
   const [isFiltering, setIsFiltering] = useState(false);
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: false,
+    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY),
     isLoginFlow: false,
   });
   const { isAuthenticating, isLoginFlow } = auth;
