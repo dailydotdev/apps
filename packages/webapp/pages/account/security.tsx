@@ -44,8 +44,9 @@ const AccountSecurityPage = (): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
   const { onUpdateSignBack, signBack, provider } = useSignBack();
-  const { data: userProviders, refetch: refetchProviders } = useQuery(
-    'providers',
+  const providersKey = generateQueryKey(RequestKey.Providers, user);
+  const { data: userProviders } = useQuery(
+    providersKey,
     () => getKratosProviders(),
     { ...disabledRefetch },
   );
@@ -169,7 +170,7 @@ const AccountSecurityPage = (): ReactElement => {
 
         const { params } = vars;
         if ('link' in params || 'unlink' in params) {
-          refetchProviders();
+          client.invalidateQueries(providersKey);
 
           if ('unlink' in params && params.unlink === provider) {
             const validProvider = userProviders.result?.find(
