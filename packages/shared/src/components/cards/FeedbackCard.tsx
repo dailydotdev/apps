@@ -19,10 +19,10 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
   return (
     <div className="flex-1 p-6 space-y-4">
       <div className="flex justify-between">
-        <div className="font-bold typo-Callout">Did you like the post?</div>
+        <p className="font-bold typo-callout">Did you like the post?</p>
         <Button
           id="close-engagement-loop-btn"
-          className="relative -top-2.5 -right-2.5"
+          className="relative -top-2.5 -right-2.5 btn-tertiary"
           buttonSize={ButtonSize.XSmall}
           icon={<MiniCloseIcon />}
           onClick={dismissFeedback}
@@ -37,7 +37,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
             <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
           }
           aria-label="Upvote"
-          className="btn-secondary btn-secondary-avocado"
+          className="btn-secondary-avocado"
         />
         <Button
           id="downvote-post-btn"
@@ -49,7 +49,7 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
             />
           }
           aria-label="Downvote"
-          className="btn-secondary btn-secondary-ketchup"
+          className="btn-secondary-ketchup"
         />
       </div>
     </div>

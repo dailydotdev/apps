@@ -47,7 +47,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
-  const hasBeenRead = post?.read;
   const { data } = useBlockPostPanel(post);
   const { showFeedback } = usePostFeedback({ post });
 
@@ -66,11 +65,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       {...props}
       className={getPostClassNames(
         post,
-        classNames(
-          className,
-          showFeedback && '!p-0',
-          !showFeedback && hasBeenRead && styles.read,
-        ),
+        classNames(className, showFeedback && '!p-0'),
         'min-h-[22.5rem]',
       )}
       style={{ ...style, ...customStyle }}
