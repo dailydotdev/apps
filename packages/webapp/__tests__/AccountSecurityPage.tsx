@@ -26,6 +26,7 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import SecurityProfilePage from '../pages/account/security';
 
 jest.mock('next/router', () => ({
@@ -77,6 +78,7 @@ const renderComponent = (): RenderResult => {
         tokenRefreshed
       >
         <SecurityProfilePage />
+        <LazyModalElement />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
