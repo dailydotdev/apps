@@ -11,7 +11,7 @@ type LoaderResult<P> = ComponentClass<P> | FunctionComponent<P>;
 export const DynamicParentPlaceholder = ({
   children,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
 }): ReactElement => <>{children}</>;
 
 export default function dynamicParent<P, T = Record<string, unknown>>(
