@@ -2,7 +2,9 @@ import React, { ReactElement, useContext } from 'react';
 import Link from 'next/link';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import dynamicParent from '@dailydotdev/shared/src/lib/dynamicParent';
+import dynamicParent, {
+  DynamicParentPlaceholder,
+} from '@dailydotdev/shared/src/lib/dynamicParent';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
@@ -17,11 +19,11 @@ const flipperLoader = () =>
 
 const Flipper = dynamicParent(
   () => flipperLoader().then((mod) => mod.Flipper),
-  'div',
+  DynamicParentPlaceholder,
 );
 const Flipped = dynamicParent(
   () => flipperLoader().then((mod) => mod.Flipped),
-  React.Fragment,
+  DynamicParentPlaceholder,
 );
 
 export type Tab = { path: string; title: string };

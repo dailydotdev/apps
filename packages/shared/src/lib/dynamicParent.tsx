@@ -1,6 +1,18 @@
-import React, { ComponentClass, FunctionComponent, ReactHTML } from 'react';
+import React, {
+  ComponentClass,
+  FunctionComponent,
+  ReactHTML,
+  ReactNode,
+} from 'react';
+import { ReactElement } from 'react-markdown/lib/react-markdown';
 
 type LoaderResult<P> = ComponentClass<P> | FunctionComponent<P>;
+
+export const DynamicParentPlaceholder = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => <>{children}</>;
 
 export default function dynamicParent<P, T = Record<string, unknown>>(
   loader: () => Promise<LoaderResult<P>>,
