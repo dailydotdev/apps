@@ -38,6 +38,7 @@ export default function PostItemCard({
   const { timestampDb, post } = postItem;
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault(); // to prevent redirection.
     onHide({ postId: post.id, timestamp: timestampDb });
   };
   const article = post?.sharedPost ?? post;
