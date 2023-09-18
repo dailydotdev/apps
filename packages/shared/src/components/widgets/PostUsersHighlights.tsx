@@ -79,7 +79,7 @@ const Image = (props: SourceAuthorProps) => {
 const UserHighlight = (props: SourceAuthorProps) => {
   const { id, handle, name, username, permalink, userType = 'source' } = props;
   const Icon = getUserIcon(userType);
-  const userTypeNotSource = userType === 'source';
+  const userTypeNotSource = userType !== 'source';
 
   return (
     <div className="flex relative flex-row p-3">
