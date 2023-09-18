@@ -25,6 +25,7 @@ export const generateStorageKey = (
   (generateQueryKey(key, null, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
+  Providers = 'providers',
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
   PostCommentsMutations = 'post_comments_mutations',
