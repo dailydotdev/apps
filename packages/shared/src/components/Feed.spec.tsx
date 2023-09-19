@@ -754,13 +754,13 @@ describe('Feed', () => {
         },
       },
     ]);
-    const [menuBtn] = await screen.findAllByLabelText('Options');
+    const [menuBtn] = screen.getAllByLabelText('Options');
     fireEvent.click(menuBtn);
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
     const brokenLinkBtn = await screen.findByText('NSFW');
     fireEvent.click(brokenLinkBtn);
-    const submitBtn = await screen.findByText('Submit report');
+    const submitBtn = screen.getByText('Submit report');
     fireEvent.click(submitBtn);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
     await waitFor(() =>
@@ -945,7 +945,7 @@ describe('Feed', () => {
         },
       },
     ]);
-    const [menuBtn] = await screen.findAllByLabelText('Options');
+    const [menuBtn] = screen.getAllByLabelText('Options');
     fireEvent.click(menuBtn);
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
@@ -955,7 +955,7 @@ describe('Feed', () => {
     fireEvent.click(irrelevantTagsBtn);
     const javascriptBtn = await screen.findByText('#javascript');
     fireEvent.click(javascriptBtn);
-    const submitBtn = await screen.findByText('Submit report');
+    const submitBtn = screen.getByText('Submit report');
     fireEvent.click(submitBtn);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
     await waitFor(() =>
