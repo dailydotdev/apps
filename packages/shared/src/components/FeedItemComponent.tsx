@@ -154,7 +154,6 @@ export default function FeedItemComponent({
           post={{
             ...item.post,
           }}
-          domProps={{ 'data-testid': 'postItem' }}
           onUpvoteClick={(post, upvoted) =>
             onUpvote(post, index, row, column, upvoted)
           }
@@ -196,7 +195,6 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
-          domProps={{ 'data-testid': 'adItem' }}
           onLinkClick={(ad) => onAdClick(ad, index, row, column)}
           showImage={!insaneMode}
         />

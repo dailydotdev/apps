@@ -16,7 +16,7 @@ export const AdList = forwardRef(function AdList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
-    <ListCard {...domProps} ref={ref}>
+    <ListCard {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <ListCardAside />
       <ListCardDivider />

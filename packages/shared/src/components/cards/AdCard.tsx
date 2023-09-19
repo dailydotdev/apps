@@ -28,7 +28,7 @@ export const AdCard = forwardRef(function AdCard(
   const showBlurredImage = ad.source === 'Carbon';
 
   return (
-    <Card {...domProps} ref={ref}>
+    <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
         <CardTitle

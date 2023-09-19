@@ -50,7 +50,7 @@ function FeedItemContainer(
         </RaisedLabelContainer>
       )}
     >
-      <Component {...domProps} ref={ref}>
+      <Component {...domProps} data-testid="postItem" ref={ref}>
         {children}
       </Component>
     </ConditionalWrapper>
