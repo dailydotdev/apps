@@ -10,6 +10,7 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 interface PostAuthorProps {
   post: Post;
@@ -78,15 +79,22 @@ const Image = (props: SourceAuthorProps) => {
 const UserHighlight = (props: SourceAuthorProps) => {
   const { id, handle, name, username, permalink, userType = 'source' } = props;
   const Icon = getUserIcon(userType);
-  const LinkWrapper = userType === 'source' ? React.Fragment : ProfileTooltip;
+  const userTypeNotSource = userType !== 'source';
 
   return (
     <div className="flex relative flex-row p-3">
-      <LinkWrapper user={{ id }}>
+      <ConditionalWrapper
+        condition={userTypeNotSource}
+        wrapper={(children) => (
+          <ProfileTooltip user={{ id }}>
+            {children as ReactElement}
+          </ProfileTooltip>
+        )}
+      >
         <ProfileLink href={permalink}>
           <Image {...props} />
         </ProfileLink>
-      </LinkWrapper>
+      </ConditionalWrapper>
       {Icon && (
         <Icon
           secondary
@@ -98,7 +106,14 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
         />
       )}
-      <LinkWrapper user={{ id }}>
+      <ConditionalWrapper
+        condition={userTypeNotSource}
+        wrapper={(children) => (
+          <ProfileTooltip user={{ id }}>
+            {children as ReactElement}
+          </ProfileTooltip>
+        )}
+      >
         <div className="flex flex-col ml-4">
           <ProfileLink className="font-bold typo-callout" href={permalink}>
             {name}
@@ -112,7 +127,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
             </ProfileLink>
           )}
         </div>
-      </LinkWrapper>
+      </ConditionalWrapper>
     </div>
   );
 };
