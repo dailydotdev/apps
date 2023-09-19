@@ -31,12 +31,15 @@ function SharePostBar({
   const inputRef = useRef<HTMLInputElement>();
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
-  const [url, setUrl] = useState<string>(undefined);
+  const [url, setUrl] = useState<string>('');
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
+  const [urlFocused, toggleUrlFocus] = useState(false);
   const onSharedSuccessfully = () => {
     inputRef.current.value = '';
-    setUrl(undefined);
+    setUrl('');
   };
+
+  const shouldRenderReadingHistory = !urlFocused && url.length === 0;
 
   const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) =>
     openModal({
@@ -104,14 +107,14 @@ function SharePostBar({
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
           className={classNames(
             'pl-1 tablet:min-w-[11rem] w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-body flex-1 w-full tablet:flex-none tablet:w-auto',
-            url !== undefined && 'flex-1 pr-2',
+            !shouldRenderReadingHistory && 'flex-1 pr-2',
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}
           value={url}
-          onBlur={() => !url?.length && setUrl(undefined)}
-          onFocus={() => !url?.length && setUrl('')}
+          onBlur={() => toggleUrlFocus(false)}
+          onFocus={() => toggleUrlFocus(true)}
         />
-        {url === undefined && (
+        {shouldRenderReadingHistory && (
           <ClickableText
             className="hidden tablet:flex ml-1 font-bold reading-history hover:text-theme-label-primary"
             inverseUnderline
