@@ -78,7 +78,6 @@ const renderComponent = (
     <TestBootProvider
       client={client}
       auth={{ user }}
-      features={{ flags: {} }}
       alerts={{ alerts: defaultAlerts, updateAlerts }}
     >
       {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}

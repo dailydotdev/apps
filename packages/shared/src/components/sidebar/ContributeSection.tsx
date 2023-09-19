@@ -1,43 +1,17 @@
-import dynamic from 'next/dynamic';
-import React, { ReactElement, useContext, useState } from 'react';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { FeaturesData } from '../../contexts/FeaturesContext';
-import { useSubmitArticle } from '../../hooks/useSubmitArticle';
+import React, { ReactElement, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import EmbedIcon from '../icons/Embed';
 import LinkIcon from '../icons/Link';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
-const SubmitArticleModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "submitArticleModal" */ '../modals/SubmitArticleModal'
-    ),
-);
+export function ContributeSection(props: SectionCommonProps): ReactElement {
+  const router = useRouter();
+  const { modal, openModal } = useLazyModal();
 
-const NewSourceModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "newSourceModal" */ '../modals/NewSourceModal'),
-);
-
-type SubmitFlags = Pick<FeaturesData, 'canSubmitArticle'>;
-
-export function ContributeSection({
-  canSubmitArticle,
-  ...props
-}: SectionCommonProps & SubmitFlags): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
-  const { isOpen: showSubmitArticle, onIsOpen: setShowSubmitArticle } =
-    useSubmitArticle();
-  const [showNewSourceModal, setShowNewSourceModal] = useState(false);
-  const trackAndShowSubmitArticle = () => {
-    trackEvent({
-      event_name: 'start submit article',
-      feed_item_title: 'Submit article',
-      extra: JSON.stringify({ has_access: canSubmitArticle }),
-    });
-    setShowSubmitArticle(true);
-  };
+  const openSubmitArticle = () => openModal({ type: LazyModal.SubmitArticle });
 
   const contributeMenuItems: SidebarMenuItem[] = [
     {
@@ -45,40 +19,39 @@ export function ContributeSection({
         <ListIcon Icon={() => <LinkIcon secondary={active} />} />
       ),
       title: 'Submit article',
-      action: trackAndShowSubmitArticle,
-      active: showSubmitArticle,
+      action: openSubmitArticle,
+      active: modal?.type === LazyModal.SubmitArticle,
     },
     {
       icon: (active) => (
         <ListIcon Icon={() => <EmbedIcon secondary={active} />} />
       ),
       title: 'Suggest new source',
-      action: () => setShowNewSourceModal(true),
-      active: showNewSourceModal,
+      action: () => openModal({ type: LazyModal.NewSource }),
+      active: modal?.type === LazyModal.NewSource,
     },
   ];
 
+  useEffect(() => {
+    const search = new URLSearchParams(window.location.search);
+    const query = Object.fromEntries(search);
+    if (!query?.scout) {
+      return;
+    }
+
+    const { origin, pathname } = window.location;
+    openSubmitArticle();
+    router.replace(origin + pathname);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <>
-      <Section
-        title="Contribute"
-        items={contributeMenuItems}
-        {...props}
-        isItemsButton={false}
-      />
-      {showSubmitArticle && (
-        <SubmitArticleModal
-          headerCopy="Submit article"
-          isOpen={showSubmitArticle}
-          onRequestClose={() => setShowSubmitArticle(false)}
-        />
-      )}
-      {showNewSourceModal && (
-        <NewSourceModal
-          isOpen={showNewSourceModal}
-          onRequestClose={() => setShowNewSourceModal(false)}
-        />
-      )}
-    </>
+    <Section
+      title="Contribute"
+      items={contributeMenuItems}
+      {...props}
+      isItemsButton={false}
+    />
   );
 }

@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { useFeaturesContext } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
@@ -37,6 +36,11 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import CookieBanner from '../components/CookieBanner';
 
@@ -76,8 +80,9 @@ export function OnboardPage(): ReactElement {
   });
   const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
-  const { onboardingV2, onboardingFilteringTitle, isFeaturesLoaded } =
-    useFeaturesContext();
+  const onboardingV2 = useFeature(feature.onboardingV2);
+  const { growthbook } = useGrowthBookContext();
+  const filteringTitle = useFeature(feature.onboardingFilterTitle);
   const { onboardingIntroduction } = useThemedAsset();
   const { trackEvent } = useAnalyticsContext();
   const { alerts } = useContext(AlertContext);
@@ -99,7 +104,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const formRef = useRef<HTMLFormElement>();
-  const title = versionToTitle[onboardingFilteringTitle];
+  const title = versionToTitle[filteringTitle];
   const percentage = isAuthenticating ? 100 : 50;
 
   const onSuccessfulTransaction = () => {
@@ -122,7 +127,7 @@ export function OnboardPage(): ReactElement {
     }
   }, [alerts, hasSelectTopics, router]);
 
-  const isPageReady = isFeaturesLoaded && isAuthReady;
+  const isPageReady = growthbook?.ready && isAuthReady;
 
   useEffect(() => {
     if (!isPageReady || isTracked.current) {

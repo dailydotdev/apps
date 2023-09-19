@@ -8,7 +8,6 @@ import {
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../contexts/AuthContext';
@@ -19,7 +18,6 @@ import {
   generateTestAdmin,
   generateTestSquad,
 } from '../../../__tests__/fixture/squads';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { SourceCard, SourceCardBorderColor } from './SourceCard';
 import { LazyModalElement } from '../modals/LazyModalElement';
 import {
@@ -37,12 +35,6 @@ import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
 
 const onClickTest = jest.fn();
 const routerReplace = jest.fn();
-let features: IFlags;
-const defaultFeatures: IFlags = {
-  squad: {
-    enabled: true,
-  },
-};
 const squads = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();
@@ -72,7 +64,6 @@ const openedMembersModal = async () => {
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
-  features = defaultFeatures;
 });
 
 const renderComponent = (
@@ -85,49 +76,47 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AuthContextProvider
-          user={loggedUser}
-          updateUser={jest.fn()}
-          tokenRefreshed
-          getRedirectUri={jest.fn()}
-          loadingUser={false}
-          loadedUserFromCache
-          squads={squads}
-        >
-          <LazyModalElement />
-          <SourceCard
-            title="title"
-            subtitle="subtitle"
-            icon={<div>icon</div>}
-            action={{
-              type: isMember ? 'link' : 'action',
-              text: isMember ? 'View squad' : 'Test action',
-              onClick: isMember ? undefined : onClickTest,
-              href: isMember ? squads[0].permalink : undefined,
-            }}
-            banner={customStyle ? 'banner-image.jpg' : undefined}
-            borderColor={customStyle ? SourceCardBorderColor.Onion : undefined}
-            source={
-              setSource && {
-                ...admin.source,
-                currentMember: setMembers ? admin.source.currentMember : null,
-                members: {
-                  ...admin.source.members,
-                  edges: setMembers ? admin.source.members.edges : [],
-                },
-              }
+      <AuthContextProvider
+        user={loggedUser}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        squads={squads}
+      >
+        <LazyModalElement />
+        <SourceCard
+          title="title"
+          subtitle="subtitle"
+          icon={<div>icon</div>}
+          action={{
+            type: isMember ? 'link' : 'action',
+            text: isMember ? 'View squad' : 'Test action',
+            onClick: isMember ? undefined : onClickTest,
+            href: isMember ? squads[0].permalink : undefined,
+          }}
+          banner={customStyle ? 'banner-image.jpg' : undefined}
+          borderColor={customStyle ? SourceCardBorderColor.Onion : undefined}
+          source={
+            setSource && {
+              ...admin.source,
+              currentMember: setMembers ? admin.source.currentMember : null,
+              members: {
+                ...admin.source.members,
+                edges: setMembers ? admin.source.members.edges : [],
+              },
             }
-            // source={
-            //   hasMembers && {
-            //     ...admin.source,
-            //     image: 'test-image.jpg',
-            //     membersCount: hasMembers ? squads[0].membersCount : undefined,
-            //   }
-            // }
-          />
-        </AuthContextProvider>
-      </FeaturesContextProvider>
+          }
+          // source={
+          //   hasMembers && {
+          //     ...admin.source,
+          //     image: 'test-image.jpg',
+          //     membersCount: hasMembers ? squads[0].membersCount : undefined,
+          //   }
+          // }
+        />
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };

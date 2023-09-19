@@ -27,11 +27,12 @@ import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { OnboardingV2 } from '../lib/featureValues';
-import { useFeaturesContext } from '../contexts/FeaturesContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
 import { isTesting, webappUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
+import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -76,7 +77,8 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
-  const { onboardingV2, isFeaturesLoaded } = useFeaturesContext();
+  const { growthbook } = useGrowthBookContext();
+  const onboardingV2 = useFeature(feature.onboardingV2);
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
@@ -144,7 +146,7 @@ export default function MainLayout({
   const router = useRouter();
   const page = router?.route?.substring(1).trim() as MainFeedPage;
   const isPageReady =
-    (isFeaturesLoaded && router?.isReady && isAuthReady) || isTesting;
+    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
 
   const isPageApplicableForOnboarding = !page || feeds.includes(page);
   const shouldRedirectOnboarding =

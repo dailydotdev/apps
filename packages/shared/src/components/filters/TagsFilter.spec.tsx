@@ -1,5 +1,4 @@
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import React from 'react';
 import {
   render,
@@ -29,7 +28,6 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 
 const showLogin = jest.fn();
 const updateAlerts = jest.fn();
@@ -69,42 +67,38 @@ const createAllTagCategoriesMock = (
 let client: QueryClient;
 
 const defaultAlerts: Alerts = { filter: false };
-const defaultFlags: IFlags = {};
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAllTagCategoriesMock()],
   alertsData = defaultAlerts,
-  flags: IFlags = defaultFlags,
 ): RenderResult => {
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={flags}>
-        <AlertContextProvider
-          alerts={alertsData}
-          updateAlerts={updateAlerts}
-          loadedAlerts
+      <AlertContextProvider
+        alerts={alertsData}
+        updateAlerts={updateAlerts}
+        loadedAlerts
+      >
+        <AuthContext.Provider
+          value={{
+            user: loggedUser,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            trackingId: '',
+            loginState: null,
+            closeLogin: jest.fn(),
+            loadedUserFromCache: true,
+          }}
         >
-          <AuthContext.Provider
-            value={{
-              user: loggedUser,
-              shouldShowLogin: false,
-              showLogin,
-              logout: jest.fn(),
-              updateUser: jest.fn(),
-              tokenRefreshed: true,
-              getRedirectUri: jest.fn(),
-              trackingId: '',
-              loginState: null,
-              closeLogin: jest.fn(),
-              loadedUserFromCache: true,
-            }}
-          >
-            <TagsFilter />
-          </AuthContext.Provider>
-        </AlertContextProvider>
-      </FeaturesContextProvider>
+          <TagsFilter />
+        </AuthContext.Provider>
+      </AlertContextProvider>
     </QueryClientProvider>,
   );
 };
@@ -276,11 +270,7 @@ it('should clear all tags on click', async () => {
 
 it('should utilize query cache to follow a tag when not logged in', async () => {
   loggedUser = null;
-  renderComponent(
-    [createAllTagCategoriesMock(null)],
-    defaultAlerts,
-    defaultFlags,
-  );
+  renderComponent([createAllTagCategoriesMock(null)], defaultAlerts);
   await waitForNock();
   const category = await screen.findByText('Frontend');
   // eslint-disable-next-line testing-library/no-node-access
@@ -306,7 +296,7 @@ it('should utilize query cache to follow a tag when not logged in', async () => 
 it('should utilize query cache to unfollow a tag when not logged in', async () => {
   loggedUser = null;
   const unfollow = 'react';
-  renderComponent([createAllTagCategoriesMock()], defaultAlerts, defaultFlags);
+  renderComponent([createAllTagCategoriesMock()], defaultAlerts);
   await waitForNock();
   const category = await screen.findByText('Frontend');
   // eslint-disable-next-line testing-library/no-node-access
