@@ -28,7 +28,7 @@ export function InfiniteReadingHistory({
     >
       {data?.map((item) => (
         <button
-          key={item.post.id}
+          key={`${item.post.id}-${item.timestamp}`}
           type="button"
           className="group relative -mx-6 hover:bg-theme-hover cursor-pointer"
           onClick={(e) => onArticleClick(e, item)}
