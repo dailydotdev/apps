@@ -832,8 +832,9 @@ describe('Feed', () => {
       );
       expect(data).toBeTruthy();
     });
-    const [menuBtn] = await screen.findAllByLabelText('Options');
+    const [menuBtn] = screen.getAllByLabelText('Options');
     fireEvent.click(menuBtn);
+
     const contextBtn = await screen.findByText("Don't show posts from Echo JS");
     fireEvent.click(contextBtn);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
