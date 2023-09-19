@@ -65,6 +65,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   username: string;
   timezone?: string;
   referralLink?: string;
+  canSubmitArticle?: boolean;
   password?: string;
 }
 

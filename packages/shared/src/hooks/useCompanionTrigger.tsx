@@ -2,9 +2,8 @@ import React, { useCallback, useMemo } from 'react';
 import { useGrowthBook } from '@growthbook/growthbook-react';
 import { FeedPostClick } from './feed/useFeedOnPostClick';
 import { Post } from '../graphql/posts';
-import { Features } from '../lib/featureManagement';
+import { feature } from '../lib/featureManagement';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
-
 import { useExtensionPermission } from './useExtensionPermission';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
@@ -48,7 +47,7 @@ export default function useCompanionTrigger(
     // gb.isOn triggers enrollment in the experiment
     // to avoid noise in the data, only call this if we are in the extension
     if (isExtension) {
-      return gb.isOn(Features.EngagementLoopJuly2023Companion.id);
+      return gb.isOn(feature.engagementLoopJuly2023Companion.id);
     }
 
     return false;
