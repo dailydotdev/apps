@@ -26,6 +26,7 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -142,6 +143,7 @@ export default function App({
               </OnboardingContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>
+          <ReactQueryDevtools />
         </QueryClientProvider>
       </ProgressiveEnhancementContextProvider>
     </RouterContext.Provider>
