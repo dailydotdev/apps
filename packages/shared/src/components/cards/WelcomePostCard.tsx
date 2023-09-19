@@ -23,16 +23,10 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     onShare,
     onShareClick,
     openNewTab,
-    className,
     children,
-    style,
     onReadArticleClick,
     enableSourceHeader = false,
-    enableMenu: _e,
-    showImage: _s,
-    insaneMode: _i,
-    menuOpened: _m,
-    ...props
+    domProps = {},
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -61,14 +55,15 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
 
   return (
     <FeedItemContainer
-      {...props}
-      className={getPostClassNames(
-        post,
-        className,
-        'min-h-[22.5rem]',
-        shouldShowHighlightPulse && 'highlight-pulse',
-      )}
-      style={style}
+      domProps={{
+        ...domProps,
+        className: getPostClassNames(
+          post,
+          domProps.className,
+          'min-h-[22.5rem]',
+          shouldShowHighlightPulse && 'highlight-pulse',
+        ),
+      }}
       ref={ref}
       flagProps={{ pinnedAt }}
     >

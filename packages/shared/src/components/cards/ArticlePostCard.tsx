@@ -27,19 +27,15 @@ export const ArticlePostCard = forwardRef(function PostCard(
     onShare,
     onShareClick,
     openNewTab,
-    enableMenu,
-    menuOpened,
-    className,
     children,
     showImage = true,
-    style,
     insaneMode,
     onReadArticleClick,
-    enableSourceHeader: _,
-    ...props
+    domProps = {},
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { className, style } = domProps;
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
@@ -57,9 +53,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
 
   return (
     <FeedItemContainer
-      {...props}
-      className={getPostClassNames(post, className, 'min-h-[22.5rem]')}
-      style={{ ...style, ...customStyle }}
+      domProps={{
+        ...domProps,
+        style: { ...style, ...customStyle },
+        className: getPostClassNames(post, className, 'min-h-[22.5rem]'),
+      }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >
