@@ -31,7 +31,7 @@ function SharePostBar({
   const inputRef = useRef<HTMLInputElement>();
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
-  const [url, setUrl] = useState<string>(undefined);
+  const [url, setUrl] = useState<string>('');
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const onSharedSuccessfully = () => {
     inputRef.current.value = '';
@@ -108,7 +108,7 @@ function SharePostBar({
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}
           value={url}
-          onBlur={() => !url?.length && setUrl(undefined)}
+          onBlur={() => !url?.length && setUrl('')}
           onFocus={() => !url?.length && setUrl('')}
         />
         {url === undefined && (
