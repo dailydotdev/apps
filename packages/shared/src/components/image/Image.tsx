@@ -12,7 +12,7 @@ interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 
 const ImageComponent = (
   { fallbackSrc, ...props }: ImageProps,
-  ref: Ref<HTMLImageElement> = null,
+  ref?: Ref<HTMLImageElement>,
 ): ReactElement => {
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
     if (fallbackSrc && fallbackSrc !== event.currentTarget.src) {
