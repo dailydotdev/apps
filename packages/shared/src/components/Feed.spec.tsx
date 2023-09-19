@@ -82,10 +82,13 @@ const defaultVariables = {
   loggedIn: true,
 };
 
+const queryClient = new QueryClient();
+
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  queryClient.clear();
   variables = defaultVariables;
 });
 
@@ -132,14 +135,10 @@ const createFeedMock = (
   },
 });
 
-let queryClient: QueryClient;
-
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
-  queryClient = new QueryClient();
-
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
