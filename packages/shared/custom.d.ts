@@ -10,6 +10,6 @@ declare module '*.svg' {
 
 declare module 'react' {
   interface HTMLAttributes {
-    'data-testid'?: string;
+    ['data-testid']?: string;
   }
 }
