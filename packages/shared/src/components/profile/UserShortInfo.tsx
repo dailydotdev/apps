@@ -1,21 +1,10 @@
 import classNames from 'classnames';
-import React, {
-  forwardRef,
-  ReactElement,
-  ReactNode,
-  Ref,
-  SyntheticEvent,
-} from 'react';
+import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
 import { Author } from '../../graphql/comments';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import { getTextEllipsis } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
-
-type AnyTag =
-  | string
-  | React.FunctionComponent<never>
-  | (new (props: never) => React.Component);
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -23,7 +12,7 @@ type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? Props & JSX.IntrinsicAttributes
   : never;
 
-interface UserShortInfoProps<Tag extends AnyTag> {
+interface UserShortInfoProps<Tag extends React.ElementType> {
   user: Author;
   imageSize?: ProfileImageSize;
   className?: {
@@ -45,7 +34,7 @@ const defaultClassName = {
   textWrapper: 'flex-1',
 };
 
-const UserShortInfoComponent = <Tag extends AnyTag>(
+const UserShortInfoComponent = <Tag extends React.ElementType>(
   {
     imageSize = 'xlarge',
     tag,
@@ -58,7 +47,7 @@ const UserShortInfoComponent = <Tag extends AnyTag>(
     showDescription = true,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
-  ref?: Ref<HTMLImageElement>,
+  ref?: Ref<Tag>,
 ): ReactElement => {
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
@@ -69,6 +58,7 @@ const UserShortInfoComponent = <Tag extends AnyTag>(
 
   return (
     <Element
+      ref={ref}
       {...props}
       className={classNames(
         'flex flex-row',
