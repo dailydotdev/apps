@@ -28,6 +28,10 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     style,
     onReadArticleClick,
     enableSourceHeader = false,
+    enableMenu: _e,
+    showImage: _s,
+    insaneMode: _i,
+    menuOpened: _m,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
