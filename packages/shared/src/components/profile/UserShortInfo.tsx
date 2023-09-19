@@ -1,5 +1,11 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
+import React, {
+  forwardRef,
+  ReactElement,
+  ReactNode,
+  Ref,
+  SyntheticEvent,
+} from 'react';
 import { Author } from '../../graphql/comments';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
@@ -39,18 +45,21 @@ const defaultClassName = {
   textWrapper: 'flex-1',
 };
 
-export function UserShortInfo<Tag extends AnyTag>({
-  imageSize = 'xlarge',
-  tag,
-  user,
-  className = {},
-  disableTooltip,
-  scrollingContainer,
-  appendTooltipTo,
-  children,
-  showDescription = true,
-  ...props
-}: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>): ReactElement {
+const UserShortInfoComponent = <Tag extends AnyTag>(
+  {
+    imageSize = 'xlarge',
+    tag,
+    user,
+    className = {},
+    disableTooltip,
+    scrollingContainer,
+    appendTooltipTo,
+    children,
+    showDescription = true,
+    ...props
+  }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
+  ref?: Ref<HTMLImageElement>,
+): ReactElement => {
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
   const tooltipProps: TooltipProps = {
@@ -96,4 +105,6 @@ export function UserShortInfo<Tag extends AnyTag>({
       {children}
     </Element>
   );
-}
+};
+
+export const UserShortInfo = forwardRef(UserShortInfoComponent);
