@@ -324,7 +324,7 @@ function MarkdownInput(
             <Button
               className="ml-auto btn-primary-cabbage"
               type="submit"
-              disabled={isLoading || disabledSubmit}
+              disabled={isLoading || disabledSubmit || input === ''}
               loading={isLoading}
             >
               {submitCopy}
