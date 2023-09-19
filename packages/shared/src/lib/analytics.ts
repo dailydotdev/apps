@@ -43,6 +43,7 @@ export enum LoginTrigger {
 export enum AnalyticsEvent {
   Click = 'click',
   CommentPost = 'comment post',
+  StartSubmitArticle = 'start submit article',
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
@@ -104,6 +105,10 @@ export enum AnalyticsEvent {
   RequestContentScripts = 'request content scripts',
   ApproveContentScripts = 'approve content scripts',
   DeclineContentScripts = 'decline content scripts',
+}
+
+export enum FeedItemTitle {
+  SubmitArticle = 'Submit article',
 }
 
 export enum TargetType {

@@ -1,7 +1,6 @@
 .markdown {
   position: relative;
   word-break: break-word;
-  white-space: pre-line;
 
   & > pre {
     @apply overflow-hidden;

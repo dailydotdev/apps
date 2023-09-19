@@ -1,6 +1,7 @@
 import React, {
   ReactElement,
   ReactNode,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -9,16 +10,19 @@ import { useMutation } from 'react-query';
 import {
   Context,
   GrowthBook,
+  GrowthBookContext,
   GrowthBookProvider as Provider,
   useFeatureValue,
   useFeatureIsOn as gbUseFeatureIsOn,
+  GrowthBookContextValue,
 } from '@growthbook/growthbook-react';
+import { WidenPrimitives, JSONValue } from '@growthbook/growthbook';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { decrypt } from './crypto';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
-import { Features } from '../lib/featureManagement';
+import { Feature } from '../lib/featureManagement';
 
 export type GrowthBookProviderProps = {
   app: BootApp;
@@ -148,10 +152,12 @@ export const GrowthBookProvider = ({
   return <Provider growthbook={gb}>{children}</Provider>;
 };
 
-export const useFeatureIsOn = <T extends Features>(feature: T): boolean =>
+export const useFeatureIsOn = (feature: Feature<JSONValue>): boolean =>
   gbUseFeatureIsOn(feature.id);
 
-export const useFeature = <T extends Features>(
-  feature: T,
-): typeof feature.defaultValue =>
-  useFeatureValue(feature.id, feature.defaultValue);
+export const useFeature = <T extends JSONValue>(
+  feature: Feature<T>,
+): WidenPrimitives<T> => useFeatureValue(feature.id, feature.defaultValue);
+
+export const useGrowthBookContext = (): GrowthBookContextValue =>
+  useContext(GrowthBookContext);
