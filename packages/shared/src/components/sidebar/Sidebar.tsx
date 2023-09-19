@@ -18,7 +18,6 @@ import { DiscoverSection } from './DiscoverSection';
 import { ContributeSection } from './ContributeSection';
 import { ManageSection } from './ManageSection';
 import { MobileMenuIcon } from './MobileMenuIcon';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
 import { SquadsList } from './SquadsList';
@@ -55,7 +54,6 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  const { canSubmitArticle } = useContext(FeaturesContext);
   const { openNewSquad } = useSquadNavigation();
 
   const feedName = getFeedName(activePageProp, {
@@ -129,10 +127,7 @@ export default function Sidebar({
               isItemsButton={isNavButtons}
               className={!!squads?.length && '!mt-6'}
             />
-            <ContributeSection
-              {...defaultRenderSectionProps}
-              canSubmitArticle={canSubmitArticle}
-            />
+            <ContributeSection {...defaultRenderSectionProps} />
             <ManageSection
               {...defaultRenderSectionProps}
               isDndActive={dndActive}

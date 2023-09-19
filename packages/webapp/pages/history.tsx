@@ -16,7 +16,7 @@ import { SearchHistory } from '@dailydotdev/shared/src/components';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -26,7 +26,7 @@ import { HistoryType, ReadingHistory } from '../components/history';
 
 const History = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const searchValue = useFeature(Features.Search);
+  const searchValue = useFeature(feature.search);
   const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
   const seo = (
     <NextSeo

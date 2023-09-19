@@ -411,9 +411,6 @@ importers:
       classnames:
         specifier: ^2.3.1
         version: 2.3.1
-      flagsmith:
-        specifier: ^1.6.10
-        version: 1.6.10
       graphql-ws:
         specifier: ^5.5.5
         version: 5.5.5(graphql@15.8.0)
@@ -679,9 +676,6 @@ importers:
       '@dailydotdev/shared':
         specifier: '*'
         version: link:../shared
-      '@prefresh/next':
-        specifier: ^1.5.2
-        version: 1.5.2(next@12.2.2)(preact@10.8.2)(webpack@5.72.0)
       classnames:
         specifier: ^2.3.1
         version: 2.3.1
@@ -761,9 +755,6 @@ importers:
       '@next/bundle-analyzer':
         specifier: ^12.2.2
         version: 12.2.2
-      '@prefresh/webpack':
-        specifier: ^3.3.3
-        version: 3.3.3(@prefresh/babel-plugin@0.4.4)(preact@10.8.2)(webpack@5.72.0)
       '@svgr/cli':
         specifier: ^5.5.0
         version: 5.5.0
@@ -2634,68 +2625,6 @@ packages:
   /@popperjs/core@2.11.8:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
     dev: false
-
-  /@prefresh/babel-plugin@0.4.3:
-    resolution: {integrity: sha512-fYAWbU1WDSLn108kKY4eDaaeUcnszFqXjgaGKYXNZ5NLulpRTpsrY+Sbfo9q8LDpWrBpqIgzjrwNnvglWI1xNQ==}
-    dev: false
-
-  /@prefresh/babel-plugin@0.4.4:
-    resolution: {integrity: sha512-/EvgIFMDL+nd20WNvMO0JQnzIl1EJPgmSaSYrZUww7A+aSdKsi37aL07TljrZR1cBMuzFxcr4xvqsUQLFJEukw==}
-    dev: true
-
-  /@prefresh/core@1.5.1(preact@10.8.2):
-    resolution: {integrity: sha512-e0mB0Oxtog6ZpKPDBYbzFniFJDIktuKMzOHp7sguntU+ot0yi6dbhJRE9Css1qf0u16wdSZjpL2W2ODWuU05Cw==}
-    peerDependencies:
-      preact: ^10.0.0
-    dependencies:
-      preact: 10.8.2
-
-  /@prefresh/next@1.5.2(next@12.2.2)(preact@10.8.2)(webpack@5.72.0):
-    resolution: {integrity: sha512-D5zFTPvAot6GxvMUAaSdCVOO6gJaJ3DhPSnCOlKCVnGQgmq4e+1AbqV+3ylNOfonFLkxxprbiYQslzAM8XHonQ==}
-    peerDependencies:
-      next: ^9.4.0 || ^10.0.0 || ^11.0.0 || ^12.0.0
-      preact: ^10.4.0
-      webpack: ^4.0.0 || ^5.0.0
-    dependencies:
-      '@prefresh/babel-plugin': 0.4.3
-      '@prefresh/core': 1.5.1(preact@10.8.2)
-      '@prefresh/utils': 1.2.0
-      '@prefresh/webpack': 3.3.3(@prefresh/babel-plugin@0.4.3)(preact@10.8.2)(webpack@5.72.0)
-      next: 12.2.2(@babel/core@7.17.9)(react-dom@17.0.2)(react@17.0.2)(sass@1.53.0)
-      preact: 10.8.2
-      webpack: 5.72.0(webpack-cli@4.9.2)
-    dev: false
-
-  /@prefresh/utils@1.2.0:
-    resolution: {integrity: sha512-KtC/fZw+oqtwOLUFM9UtiitB0JsVX0zLKNyRTA332sqREqSALIIQQxdUCS1P3xR/jT1e2e8/5rwH6gdcMLEmsQ==}
-
-  /@prefresh/webpack@3.3.3(@prefresh/babel-plugin@0.4.3)(preact@10.8.2)(webpack@5.72.0):
-    resolution: {integrity: sha512-uT+A7ZuA7fuuUPNEde6Gmzr4oFnzreW9xw6iqw01nPpDiv46o6YWq1j0oGCbdffzHl3fBpcgkPuY07vIfmZ9Lg==}
-    peerDependencies:
-      '@prefresh/babel-plugin': ^0.4.0
-      preact: ^10.4.0
-      webpack: ^4.0.0 || ^5.0.0
-    dependencies:
-      '@prefresh/babel-plugin': 0.4.3
-      '@prefresh/core': 1.5.1(preact@10.8.2)
-      '@prefresh/utils': 1.2.0
-      preact: 10.8.2
-      webpack: 5.72.0(webpack-cli@4.9.2)
-    dev: false
-
-  /@prefresh/webpack@3.3.3(@prefresh/babel-plugin@0.4.4)(preact@10.8.2)(webpack@5.72.0):
-    resolution: {integrity: sha512-uT+A7ZuA7fuuUPNEde6Gmzr4oFnzreW9xw6iqw01nPpDiv46o6YWq1j0oGCbdffzHl3fBpcgkPuY07vIfmZ9Lg==}
-    peerDependencies:
-      '@prefresh/babel-plugin': ^0.4.0
-      preact: ^10.4.0
-      webpack: ^4.0.0 || ^5.0.0
-    dependencies:
-      '@prefresh/babel-plugin': 0.4.4
-      '@prefresh/core': 1.5.1(preact@10.8.2)
-      '@prefresh/utils': 1.2.0
-      preact: 10.8.2
-      webpack: 5.72.0(webpack-cli@4.9.2)
-    dev: true
 
   /@reach/observe-rect@1.2.0:
     resolution: {integrity: sha512-Ba7HmkFgfQxZqqaeIWWkNK0rEhpxVQHIoVyW1YDSkGsGIXzcaW4deC8B0pZrNSSyLTdIk7y+5olKt5+g0GmFIQ==}
@@ -6564,10 +6493,6 @@ packages:
     dependencies:
       locate-path: 5.0.0
       path-exists: 4.0.0
-
-  /flagsmith@1.6.10:
-    resolution: {integrity: sha512-KzDxsTVb4RD0sLbiqSIWQKi3PxIEFQ6bjubHY1LQ4Up/XQdRKKwRQilGCZpTUVEZMPBEAYMwCQ662oXDsk8oeg==}
-    dev: false
 
   /flat-cache@3.0.4:
     resolution: {integrity: sha512-dm9s5Pw7Jc0GvMYbshN6zchCA9RgQlzzEZX3vylR9IqFfS8XciblUXOKfW6SiuJ0e13eDYZoZV5wdrev7P3Nwg==}
@@ -10715,9 +10640,6 @@ packages:
       nanoid: 3.3.6
       picocolors: 1.0.0
       source-map-js: 1.0.2
-
-  /preact@10.8.2:
-    resolution: {integrity: sha512-AKGt0BsDSiAYzVS78jZ9qRwuorY2CoSZtf1iOC6gLb/3QyZt+fLT09aYJBjRc/BEcRc4j+j3ggERMdNE43i1LQ==}
 
   /prelude-ls@1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}

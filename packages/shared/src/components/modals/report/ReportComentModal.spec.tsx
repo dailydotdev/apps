@@ -8,13 +8,11 @@ import {
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
-import { IFlags } from 'flagsmith';
 import Comment from '../../../../__tests__/fixture/comment';
 import { REPORT_COMMENT_MUTATION } from '../../../graphql/comments';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../../__tests__/fixture/squads';
-import { FeaturesContextProvider } from '../../../contexts/FeaturesContext';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { LazyModalElement } from '../LazyModalElement';
@@ -23,13 +21,6 @@ import Post from '../../../../__tests__/fixture/post';
 
 const defaultPost = Post;
 const defaultComment = Comment;
-let features: IFlags;
-
-const defaultFeatures: IFlags = {
-  squad: {
-    enabled: true,
-  },
-};
 
 Object.assign(navigator, {
   clipboard: {
@@ -40,7 +31,6 @@ Object.assign(navigator, {
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
-  features = defaultFeatures;
 });
 
 const squads = [generateTestSquad()];
@@ -54,26 +44,24 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AuthContextProvider
-          user={loggedIn ? loggedUser : null}
-          updateUser={jest.fn()}
-          tokenRefreshed
-          getRedirectUri={jest.fn()}
-          loadingUser={false}
-          loadedUserFromCache
-          squads={hasSquads ? squads : []}
-        >
-          <LazyModalElement />
-          <ReportCommentModal
-            onReport={jest.fn()}
-            comment={comment || defaultComment}
-            isOpen
-            onRequestClose={jest.fn()}
-            post={defaultPost}
-          />
-        </AuthContextProvider>
-      </FeaturesContextProvider>
+      <AuthContextProvider
+        user={loggedIn ? loggedUser : null}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        squads={hasSquads ? squads : []}
+      >
+        <LazyModalElement />
+        <ReportCommentModal
+          onReport={jest.fn()}
+          comment={comment || defaultComment}
+          isOpen
+          onRequestClose={jest.fn()}
+          post={defaultPost}
+        />
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };

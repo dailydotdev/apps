@@ -7,7 +7,7 @@ import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import SourceIcon from '../icons/Source';
 import { useFeature } from '../GrowthBookProvider';
-import { Features } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 
 interface DiscoverSectionProps extends SectionCommonProps {
@@ -22,7 +22,7 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
-  const searchValue = useFeature(Features.Search);
+  const searchValue = useFeature(feature.search);
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
