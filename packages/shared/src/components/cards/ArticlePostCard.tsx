@@ -35,6 +35,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     style,
     insaneMode,
     onReadArticleClick,
+    enableSourceHeader: _,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
