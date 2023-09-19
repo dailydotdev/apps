@@ -8,7 +8,7 @@ import { PlaceholderCardProps } from './PlaceholderCard';
 const Text = classed(ElementPlaceholder, 'h-3 rounded-xl');
 
 export const PlaceholderList = forwardRef(function PlaceholderList(
-  { className, ...props }: PlaceholderCardProps,
+  { className, showImage, ...props }: PlaceholderCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
