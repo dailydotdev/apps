@@ -14,20 +14,21 @@ import AdAttribution from './AdAttribution';
 
 type Callback = (ad: Ad) => unknown;
 
-export type AdCardProps = {
+export interface AdCardProps {
   ad: Ad;
   onLinkClick?: Callback;
   showImage?: boolean;
-} & HTMLAttributes<HTMLDivElement>;
+  domProps?: HTMLAttributes<HTMLDivElement>;
+}
 
 export const AdCard = forwardRef(function AdCard(
-  { ad, onLinkClick, showImage = true, ...props }: AdCardProps,
+  { ad, onLinkClick, showImage = true, domProps }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
 
   return (
-    <Card {...props} ref={ref}>
+    <Card {...domProps} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
         <CardTitle

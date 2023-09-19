@@ -1,4 +1,10 @@
-import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
+import React, {
+  forwardRef,
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  Ref,
+} from 'react';
 import { Post } from '../../graphql/posts';
 import { Card, ListCard } from './Card';
 import {
@@ -12,12 +18,14 @@ interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
 }
 
-interface FeedItemContainerProps extends HTMLAttributes<HTMLDivElement> {
+interface FeedItemContainerProps {
   flagProps: FlagProps;
+  children: ReactNode;
+  domProps: HTMLAttributes<HTMLDivElement>;
 }
 
 function FeedItemContainer(
-  { flagProps, ...props }: FeedItemContainerProps,
+  { flagProps, children, domProps }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { listMode, pinnedAt, trending } = flagProps;
@@ -31,9 +39,9 @@ function FeedItemContainer(
   return (
     <ConditionalWrapper
       condition={!!pinnedAt || !!trending}
-      wrapper={(children) => (
+      wrapper={(component) => (
         <RaisedLabelContainer>
-          {children}
+          {component}
           <RaisedLabel
             type={type}
             listMode={listMode}
@@ -42,7 +50,9 @@ function FeedItemContainer(
         </RaisedLabelContainer>
       )}
     >
-      <Component {...props} ref={ref} />
+      <Component {...domProps} ref={ref}>
+        {children}
+      </Component>
     </ConditionalWrapper>
   );
 }
