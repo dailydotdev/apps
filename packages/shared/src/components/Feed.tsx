@@ -28,13 +28,14 @@ import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
-import { useFeaturesContext } from '../contexts/FeaturesContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -112,7 +113,7 @@ export default function Feed<T>({
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { onboardingV2 } = useFeaturesContext();
+  const onboardingV2 = useFeature(feature.onboardingV2);
   const {
     openNewTab,
     spaciness,
@@ -152,9 +153,7 @@ export default function Feed<T>({
     if (emptyFeed) {
       onEmptyFeed?.();
     }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emptyFeed]);
+  }, [emptyFeed, onEmptyFeed]);
 
   const showScrollOnboardingVersion =
     sidebarRendered &&
@@ -180,21 +179,13 @@ export default function Feed<T>({
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
 
-  if (!loadedSettings) {
-    return <></>;
-  }
-
   const {
     showCommentPopupId,
     setShowCommentPopupId,
     comment,
     isSendingComment,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCommentPopup(feedName);
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { onUpvote } = useFeedVotePost(
     items,
     updatePost,
@@ -202,8 +193,7 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   const onBookmark = useFeedBookmarkPost(
     items,
     updatePost,
@@ -211,8 +201,7 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   const onPostClick = useFeedOnPostClick(
     items,
     updatePost,
@@ -221,8 +210,6 @@ export default function Feed<T>({
     ranking,
   );
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const triggerReadArticleClick = useFeedOnPostClick(
     items,
     updatePost,
@@ -232,11 +219,36 @@ export default function Feed<T>({
     'go to link',
   );
 
+  const { onFeedArticleClick: onReadArticleClick } = useCompanionTrigger(
+    triggerReadArticleClick,
+  );
+
   const {
-    onFeedArticleClick: onReadArticleClick,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-  } = useCompanionTrigger(triggerReadArticleClick);
+    onMenuClick,
+    onShareMenuClick,
+    postMenuIndex,
+    postMenuLocation,
+    setPostMenuIndex,
+  } = useFeedContextMenu();
+
+  const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
+    useSharePost(Origin.Feed);
+
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPost) {
+      document.body.classList.remove('hidden-scrollbar');
+    }
+  }, [selectedPost]);
+
+  if (!loadedSettings) {
+    return <></>;
+  }
 
   const onPostModalOpen = (index: number, callback?: () => unknown) => {
     document.body.classList.add('hidden-scrollbar');
@@ -251,15 +263,6 @@ export default function Feed<T>({
     onPostModalOpen(index);
   };
 
-  const {
-    onMenuClick,
-    onShareMenuClick,
-    postMenuIndex,
-    postMenuLocation,
-    setPostMenuIndex,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-  } = useFeedContextMenu();
   let lastShareMenuCloseTrackEvent = () => {};
   const onShareMenuClickTracked = (
     e: React.MouseEvent,
@@ -286,11 +289,13 @@ export default function Feed<T>({
       trackEvent(postAnalyticsEvent('close share', post, trackEventOptions));
     };
   };
+
   const onShareOptionsHidden = () => {
     setPostMenuIndex(null);
     lastShareMenuCloseTrackEvent();
   };
-  const onRemovePost = async (removePostIndex) => {
+
+  const onRemovePost = async (removePostIndex: number) => {
     const item = items[removePostIndex] as PostItem;
     removePost(item.page, item.index);
   };
@@ -324,28 +329,9 @@ export default function Feed<T>({
     );
   };
 
-  const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useSharePost(Origin.Feed);
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    return () => {
-      document.body.classList.remove('hidden-scrollbar');
-    };
-  }, []);
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    if (!selectedPost) {
-      document.body.classList.remove('hidden-scrollbar');
-    }
-  }, [selectedPost]);
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>

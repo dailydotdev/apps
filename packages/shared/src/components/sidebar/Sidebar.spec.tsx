@@ -2,7 +2,6 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { IFlags } from 'flagsmith';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../../lib/user';
@@ -20,20 +19,15 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts } from '../../graphql/alerts';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { SearchExperiment } from '../../lib/featureValues';
-import { Features } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 
-let features: IFlags;
 let client: QueryClient;
 const updateAlerts = jest.fn();
 const toggleSidebarExpanded = jest.fn();
 
-const defaultFeatures: IFlags = {};
-
 beforeEach(() => {
   nock.cleanAll();
-  features = {};
 });
 
 const createMockFeedSettings = () => ({
@@ -74,44 +68,41 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={features}>
-        <AlertContextProvider
-          alerts={alertsData}
-          updateAlerts={updateAlerts}
-          loadedAlerts
+      <AlertContextProvider
+        alerts={alertsData}
+        updateAlerts={updateAlerts}
+        loadedAlerts
+      >
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin: jest.fn(),
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            closeLogin: jest.fn(),
+          }}
         >
-          <AuthContext.Provider
+          <ProgressiveEnhancementContext.Provider
             value={{
-              user,
-              shouldShowLogin: false,
-              showLogin: jest.fn(),
-              logout: jest.fn(),
-              updateUser: jest.fn(),
-              tokenRefreshed: true,
-              getRedirectUri: jest.fn(),
-              closeLogin: jest.fn(),
+              windowLoaded: true,
+              nativeShareSupport: true,
+              asyncImageSupport: true,
             }}
           >
-            <ProgressiveEnhancementContext.Provider
-              value={{
-                windowLoaded: true,
-                nativeShareSupport: true,
-                asyncImageSupport: true,
-              }}
-            >
-              <SettingsContext.Provider value={settingsContext}>
-                <Sidebar sidebarRendered />
-              </SettingsContext.Provider>
-            </ProgressiveEnhancementContext.Provider>
-          </AuthContext.Provider>
-        </AlertContextProvider>
-      </FeaturesContextProvider>
+            <SettingsContext.Provider value={settingsContext}>
+              <Sidebar sidebarRendered />
+            </SettingsContext.Provider>
+          </ProgressiveEnhancementContext.Provider>
+        </AuthContext.Provider>
+      </AlertContextProvider>
     </QueryClientProvider>,
   );
 };
 
 it('should not render create my feed button if user has alerts.filter as false', async () => {
-  features = defaultFeatures;
   renderComponent({ filter: false });
   const createMyFeed = screen.queryByText('Create my feed');
   expect(createMyFeed).not.toBeInTheDocument();
@@ -150,7 +141,6 @@ it('should render the mobile sidebar version on small screens', async () => {
 });
 
 it('should show the my feed items if the user has filters', async () => {
-  features = defaultFeatures;
   renderComponent({ filter: false });
   const section = await screen.findByText('My feed');
   expect(section).toBeInTheDocument();
@@ -166,7 +156,7 @@ const sidebarItems = [
 ];
 
 describe('sidebar items', () => {
-  Features.Search.defaultValue = SearchExperiment.Control;
+  feature.search.defaultValue = SearchExperiment.Control;
 
   it.each(sidebarItems.map((item) => [item[0], item[1]]))(
     'it should expect %s to exist',

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { QueryClient } from 'react-query';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { Features } from '@dailydotdev/shared/src/lib/featureManagement';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
@@ -39,14 +39,14 @@ const renderComponent = (layout = getLayout): RenderResult => {
 };
 
 it('should render the search page control', async () => {
-  Features.Search.defaultValue = SearchExperiment.Control;
+  feature.search.defaultValue = SearchExperiment.Control;
   renderComponent(getMainFeedLayout);
   const text = screen.queryByTestId('searchBar');
   expect(text).not.toBeInTheDocument();
 });
 
 it('should render the search page v1', async () => {
-  Features.Search.defaultValue = SearchExperiment.V1;
+  feature.search.defaultValue = SearchExperiment.V1;
   renderComponent();
   const text = screen.queryByTestId('searchBar');
   expect(text).toBeInTheDocument();

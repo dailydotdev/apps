@@ -1,7 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import '@testing-library/jest-dom';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import { EXTENSION_PERMISSION_KEY } from '@dailydotdev/shared/src/hooks';
@@ -60,9 +59,7 @@ beforeEach(() => {
 const renderComponent = (): RenderResult => {
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContext.Provider value={{ flags: {} }}>
-        <CompanionPermission />
-      </FeaturesContext.Provider>
+      <CompanionPermission />
     </QueryClientProvider>,
   );
 };

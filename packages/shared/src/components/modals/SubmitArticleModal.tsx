@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
@@ -23,20 +29,19 @@ import LinkIcon from '../icons/Link';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../lib/analytics';
+import {
+  AnalyticsEvent,
+  FeedItemTitle,
+  NotificationPromptSource,
+} from '../../lib/analytics';
 import { Justify } from '../utilities';
-
-type SubmitArticleModalProps = {
-  headerCopy: string;
-} & ModalProps;
 
 const defaultErrorMessage = 'Something went wrong, try again';
 
 export default function SubmitArticleModal({
-  headerCopy,
   onRequestClose,
   ...modalProps
-}: SubmitArticleModalProps): ReactElement {
+}: ModalProps): ReactElement {
   const submitFormRef = useRef<HTMLFormElement>();
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
@@ -173,6 +178,17 @@ export default function SubmitArticleModal({
     );
   };
 
+  useEffect(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.StartSubmitArticle,
+      feed_item_title: FeedItemTitle.SubmitArticle,
+      extra: JSON.stringify({ has_access: !!user?.canSubmitArticle }),
+    });
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (!isFetched) {
     return <></>;
   }
@@ -184,7 +200,7 @@ export default function SubmitArticleModal({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
     >
-      <Modal.Header title={headerCopy} />
+      <Modal.Header title={FeedItemTitle.SubmitArticle} />
       <Modal.Body>
         <form
           ref={submitFormRef}
@@ -270,7 +286,9 @@ export default function SubmitArticleModal({
             loading={isValidating}
             form="submit-article"
           >
-            <span className={isValidating && 'invisible'}>Submit article</span>
+            <span className={isValidating ? 'invisible' : ''}>
+              Submit article
+            </span>
           </Button>
         )}
         {isSubmitted && (
