@@ -12,7 +12,7 @@ import { FeedHeading } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { useFeature } from '../GrowthBookProvider';
-import { Features } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 
 interface MyFeedHeadingProps {
@@ -31,7 +31,7 @@ function MyFeedHeading({
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const searchVersion = useFeature(Features.Search);
+  const searchVersion = useFeature(feature.search);
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });

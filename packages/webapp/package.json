@@ -17,7 +17,6 @@
   "dependencies": {
     "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "*",
-    "@prefresh/next": "^1.5.2",
     "classnames": "^2.3.1",
     "date-fns": "^2.28.0",
     "date-fns-tz": "1.0.0",
@@ -46,7 +45,6 @@
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
     "@next/bundle-analyzer": "^12.2.2",
-    "@prefresh/webpack": "^3.3.3",
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.1",

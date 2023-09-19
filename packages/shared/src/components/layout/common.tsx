@@ -23,7 +23,7 @@ import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeature } from '../GrowthBookProvider';
-import { Features } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 
@@ -63,7 +63,7 @@ export const SearchControlHeader = ({
   algoState: [selectedAlgo, setSelectedAlgo],
   periodState: [selectedPeriod, setSelectedPeriod],
 }: SearchControlHeaderProps): ReactElement => {
-  const searchVersion = useFeature(Features.Search);
+  const searchVersion = useFeature(feature.search);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { sidebarRendered } = useSidebarRendered();
   const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;

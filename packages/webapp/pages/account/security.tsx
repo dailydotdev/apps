@@ -23,7 +23,6 @@ import {
   SignBackProvider,
   useSignBack,
 } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import {
   generateQueryKey,
   RequestKey,
@@ -44,10 +43,9 @@ const AccountSecurityPage = (): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
   const { onUpdateSignBack, signBack, provider } = useSignBack();
-  const { data: userProviders, refetch: refetchProviders } = useQuery(
-    'providers',
-    () => getKratosProviders(),
-    { ...disabledRefetch },
+  const providersKey = generateQueryKey(RequestKey.Providers, user);
+  const { data: userProviders } = useQuery(providersKey, () =>
+    getKratosProviders(),
   );
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
@@ -169,7 +167,7 @@ const AccountSecurityPage = (): ReactElement => {
 
         const { params } = vars;
         if ('link' in params || 'unlink' in params) {
-          refetchProviders();
+          client.invalidateQueries(providersKey);
 
           if ('unlink' in params && params.unlink === provider) {
             const validProvider = userProviders.result?.find(
