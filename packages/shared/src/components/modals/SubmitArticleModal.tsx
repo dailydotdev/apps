@@ -286,7 +286,9 @@ export default function SubmitArticleModal({
             loading={isValidating}
             form="submit-article"
           >
-            <span className={isValidating && 'invisible'}>Submit article</span>
+            <span className={isValidating ? 'invisible' : ''}>
+              Submit article
+            </span>
           </Button>
         )}
         {isSubmitted && (
