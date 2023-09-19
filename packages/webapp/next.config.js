@@ -2,6 +2,7 @@
 const withPWA = require('next-pwa');
 const withTM = require('next-transpile-modules')(['@dailydotdev/shared']);
 const { version } = require('../extension/package.json');
+const runtimeCaching = require('./cache');
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -12,11 +13,12 @@ module.exports = withTM(
     pwa: {
       dest: 'public',
       disable: process.env.NODE_ENV === 'development',
+      runtimeCaching,
     },
       ...withBundleAnalyzer({
         i18n: {
-          locales: ["en"],
-          defaultLocale: "en",
+          locales: ['en'],
+          defaultLocale: 'en',
         },
         compiler: {
           reactRemoveProperties: { properties: ['^data-testid$'] },
@@ -54,7 +56,7 @@ module.exports = withTM(
           return config;
         },
         env: {
-          CURRENT_VERSION: `'${version}'`
+          CURRENT_VERSION: `'${version}'`,
         },
         rewrites: () => [
           {
