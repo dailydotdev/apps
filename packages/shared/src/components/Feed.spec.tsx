@@ -791,12 +791,12 @@ it('should block a source', async () => {
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
+  // await waitFor(async () => {
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
 
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
+  // });
 });
 
 it('should block a tag', async () => {
