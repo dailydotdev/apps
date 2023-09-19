@@ -192,6 +192,7 @@ export default function CalendarHeatmap<T extends { date: string }>({
     const attrs = binsAttributes[bin];
     return (
       <SimpleTooltip
+        key={index}
         content={valueToTooltip(
           value?.originalValue,
           addDays(startDateWithEmptyDays, index),
