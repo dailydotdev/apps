@@ -12,9 +12,7 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const MyFeed = (): ReactElement => {
-  return <NextSeo {...seo} />;
-};
+const MyFeed = (): ReactElement => <NextSeo {...seo} />;
 
 MyFeed.getLayout = getMainFeedLayout;
 MyFeed.layoutProps = mainFeedLayoutProps;
