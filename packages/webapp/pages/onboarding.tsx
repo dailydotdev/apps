@@ -147,7 +147,6 @@ export function OnboardPage(): ReactElement {
 
   const formRef = useRef<HTMLFormElement>();
   const title = versionToTitle[filteringTitle];
-  const percentage = isAuthenticating ? 100 : 50;
 
   const onClickNext = () => {
     const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
@@ -361,6 +360,16 @@ export function OnboardPage(): ReactElement {
     );
   };
 
+  const getProgressBar = () => {
+    if (isOnboardingV3) {
+      const percentage = isFiltering ? 100 : 50;
+      return <ProgressBar percentage={isAuthenticating ? percentage : 0} />;
+    }
+
+    const percentage = isAuthenticating ? 100 : 50;
+    return <ProgressBar percentage={isFiltering ? percentage : 0} />;
+  };
+
   const showOnboardingPage = !isAuthenticating && !isFiltering;
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
@@ -382,7 +391,7 @@ export function OnboardPage(): ReactElement {
       }
     >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
-      <ProgressBar percentage={isFiltering ? percentage : 0} />
+      {getProgressBar()}
       <Header
         showOnboardingPage={showOnboardingPage}
         isOnboardingV3={isOnboardingV3}
