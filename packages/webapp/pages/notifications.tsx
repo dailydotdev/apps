@@ -30,6 +30,7 @@ import {
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
+import { useRouter } from 'next/router';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -40,16 +41,17 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   );
 
 const contextId = 'notifications-context-menu';
+const seo = (
+  <NextSeo
+    title="Notifications"
+    nofollow
+    noindex
+    titleTemplate="%s | daily.dev"
+  />
+);
 
 const Notifications = (): ReactElement => {
-  const seo = (
-    <NextSeo
-      title="Notifications"
-      nofollow
-      noindex
-      titleTemplate="%s | daily.dev"
-    />
-  );
+  const router = useRouter();
   const { trackEvent } = useAnalyticsContext();
   const { clearUnreadCount, isSubscribed } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
@@ -78,12 +80,13 @@ const Notifications = (): ReactElement => {
 
   const length = queryResult?.data?.pages?.length ?? 0;
 
-  const onNotificationClick = (id: string, type: NotificationType) => {
+  const onNotificationClick = ({ id, type, targetUrl }: Notification) => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotification,
       target_id: id,
       extra: JSON.stringify({ origin: Origin.NonRealTime, type }),
     });
+    router.push(targetUrl);
   };
 
   useEffect(() => {
@@ -152,7 +155,7 @@ const Notifications = (): ReactElement => {
                     {...props}
                     type={type}
                     isUnread={!readAt}
-                    onClick={() => onNotificationClick(id, type)}
+                    onClick={() => onNotificationClick(node)}
                     onOptionsClick={
                       Object.keys(notificationMutingCopy).includes(type)
                         ? (e) => onOptionsClick(e, node)
@@ -181,8 +184,4 @@ const getNotificationsLayout: typeof getLayout = (...props) =>
 
 Notifications.getLayout = getNotificationsLayout;
 
-// TODO WT-1778-move-to-react this is to make build pass
-// revert to Notifications export and fix the react render error
-export default process.env.NODE_ENV === 'test'
-  ? Notifications
-  : (): ReactElement => null;
+export default Notifications;

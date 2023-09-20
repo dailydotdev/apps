@@ -1,7 +1,6 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  findAllByRole,
   findByRole,
   findByText,
   fireEvent,
@@ -214,12 +213,16 @@ it('should replace placeholders with posts and ad', async () => {
   await waitForNock();
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeGreaterThan(0);
-  await Promise.all(
-    elements.map(async (el) =>
-      // eslint-disable-next-line testing-library/prefer-screen-queries
-      expect((await findAllByRole(el, 'link'))[0]).toHaveAttribute('href'),
-    ),
-  );
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const el of elements) {
+    // eslint-disable-next-line no-await-in-loop,@typescript-eslint/no-loop-func
+    await waitFor(async () => {
+      const links = await within(el).findAllByRole('link');
+      expect(links[0]).toHaveAttribute('href');
+    });
+  }
+
   await waitFor(async () => {
     const el = await screen.findByTestId('adItem');
     // eslint-disable-next-line testing-library/prefer-screen-queries

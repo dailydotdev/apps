@@ -6,6 +6,10 @@ interface PortalProps {
 }
 
 function Portal({ children }: PortalProps): ReturnType<typeof createPortal> {
+  if (typeof globalThis?.document === 'undefined') {
+    return null;
+  }
+
   return createPortal(children, globalThis?.document?.body);
 }
 
