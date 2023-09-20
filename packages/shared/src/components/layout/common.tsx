@@ -66,7 +66,6 @@ export const SearchControlHeader = ({
   const searchVersion = useFeature(feature.search);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { sidebarRendered } = useSidebarRendered();
-  const hasFiltered = feedName === MainFeedPage.MyFeed && !alerts?.filter;
   const hasMyFeedAlert = alerts.myFeed;
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { openModal } = useLazyModal();
