@@ -16,7 +16,7 @@ export interface NotificationItemProps
   > {
   isUnread?: boolean;
   targetUrl: string;
-  onClick: MouseEventHandler;
+  onClick?: MouseEventHandler;
   onOptionsClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
@@ -56,13 +56,15 @@ function NotificationItem({
         isUnread && 'bg-theme-float',
       )}
     >
-      <button
-        type="button"
-        aria-label="Open notification"
-        className="absolute inset-0"
-        title={title}
-        onClick={onClick}
-      />
+      {onClick && (
+        <button
+          type="button"
+          aria-label="Open notification"
+          className="absolute inset-0"
+          title={title}
+          onClick={onClick}
+        />
+      )}
       {onOptionsClick && (
         <OptionsButton
           className="hidden group-hover:flex top-3 right-2"
