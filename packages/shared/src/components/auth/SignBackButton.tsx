@@ -31,7 +31,7 @@ export function SignBackButton({
         )}
         <span className="typo-footnote">{signBack.email}</span>
       </div>
-      <span className="p-1 ml-auto rounded-8 border border-theme-divider-secondary">
+      <span className="p-1 ml-auto rounded-8 border border-theme-divider-secondary text-theme-label-invert">
         {item.icon}
       </span>
     </button>

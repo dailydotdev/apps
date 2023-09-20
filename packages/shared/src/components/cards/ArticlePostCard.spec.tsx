@@ -62,9 +62,7 @@ it('should call on upvote click on upvote button click', async () => {
   renderComponent();
   const el = await screen.findByLabelText('Upvote');
   el.click();
-  await waitFor(() =>
-    expect(defaultProps.onUpvoteClick).toBeCalledWith(post, true),
-  );
+  await waitFor(() => expect(defaultProps.onUpvoteClick).toBeCalledWith(post));
 });
 
 it('should call on comment click on comment button click', async () => {

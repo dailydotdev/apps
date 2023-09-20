@@ -1,5 +1,6 @@
-import React, { ReactNode } from 'react';
+import React, { HTMLAttributes, ReactNode } from 'react';
 import classNames from 'classnames';
+import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
@@ -9,11 +10,31 @@ import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Image } from '../image/Image';
 
-const Title = classed(
-  'h3',
-  styles.title,
-  'text-theme-label-primary multi-truncate line-clamp-3 font-bold typo-title3',
-);
+type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
+  lineClamp?: `line-clamp-${number}`;
+  children: ReactNode;
+};
+
+const Title = ({
+  className,
+  lineClamp = 'line-clamp-3',
+  children,
+  ...rest
+}: TitleProps): ReactElement => {
+  return (
+    <h3
+      {...rest}
+      className={classNames(
+        styles.title,
+        'font-bold text-theme-label-primary multi-truncate typo-title3',
+        lineClamp,
+        className,
+      )}
+    >
+      {children}
+    </h3>
+  );
+};
 
 export const FreeformCardTitle = classed(
   'h3',

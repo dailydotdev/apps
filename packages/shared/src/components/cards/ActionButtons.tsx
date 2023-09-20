@@ -2,7 +2,7 @@ import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import styles from './Card.module.css';
-import { Post } from '../../graphql/posts';
+import { Post, UserPostVote } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
@@ -21,7 +21,7 @@ const ShareIcon = dynamic(
 export interface ActionButtonsProps {
   post: Post;
   onMenuClick?: (e: React.MouseEvent) => unknown;
-  onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
+  onUpvoteClick?: (post: Post) => unknown;
   onCommentClick?: (post: Post) => unknown;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
@@ -94,12 +94,22 @@ export default function ActionButtons({
           <div className="flex justify-between">{leftChildren}</div>
         )}
       >
-        <SimpleTooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
+        <SimpleTooltip
+          content={
+            post?.userState?.vote === UserPostVote.Up
+              ? 'Remove upvote'
+              : 'Upvote'
+          }
+        >
           <QuaternaryButton
             id={`post-${post.id}-upvote-btn`}
-            icon={<UpvoteIcon secondary={post.upvoted} />}
-            pressed={post.upvoted}
-            onClick={() => onUpvoteClick?.(post, !post.upvoted)}
+            icon={
+              <UpvoteIcon
+                secondary={post?.userState?.vote === UserPostVote.Up}
+              />
+            }
+            pressed={post?.userState?.vote === UserPostVote.Up}
+            onClick={() => onUpvoteClick?.(post)}
             {...upvoteCommentProps}
             className="btn-tertiary-avocado w-[4.875rem]"
           >
