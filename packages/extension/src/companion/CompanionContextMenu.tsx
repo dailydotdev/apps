@@ -21,6 +21,7 @@ import DownvoteIcon from '@dailydotdev/shared/src/components/icons/Downvote';
 import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
 import { getCompanionWrapper } from './common';
 
 interface CompanionContextMenuProps
@@ -75,16 +76,21 @@ export default function CompanionContextMenu({
       >
         <Item
           onClick={onDownvote}
-          aria-pressed={!!postData?.downvoted}
-          aria-label={postData?.downvoted ? 'Remove downvote' : 'Downvote'}
+          aria-pressed={postData?.userState?.vote === UserPostVote.Down}
+          aria-label={
+            postData?.userState?.vote === UserPostVote.Down
+              ? 'Remove downvote'
+              : 'Downvote'
+          }
         >
           <DownvoteIcon
             size={IconSize.Small}
             className={classNames(
               'mr-2',
-              postData?.downvoted && 'text-theme-color-ketchup',
+              postData?.userState?.vote === UserPostVote.Down &&
+                'text-theme-color-ketchup',
             )}
-            secondary={postData?.downvoted}
+            secondary={postData?.userState?.vote === UserPostVote.Down}
           />{' '}
           Downvote
         </Item>

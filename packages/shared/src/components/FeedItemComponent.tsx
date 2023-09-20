@@ -14,6 +14,8 @@ import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
+import { Origin } from '../lib/analytics';
+import { UseVotePost } from '../hooks';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -42,13 +44,6 @@ export type FeedItemComponentProps = {
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
-  onUpvote: (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-    upvoted: boolean,
-  ) => Promise<void>;
   onBookmark: (
     post: Post,
     index: number,
@@ -79,7 +74,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
-};
+} & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
   const item = items[index];
@@ -117,7 +112,8 @@ export default function FeedItemComponent({
   user,
   feedName,
   ranking,
-  onUpvote,
+  toggleUpvote,
+  toggleDownvote,
   onBookmark,
   onPostClick,
   onShare,
@@ -155,9 +151,28 @@ export default function FeedItemComponent({
             ...item.post,
           }}
           data-testid="postItem"
-          onUpvoteClick={(post, upvoted) =>
-            onUpvote(post, index, row, column, upvoted)
-          }
+          onUpvoteClick={(post) => {
+            toggleUpvote({
+              post,
+              origin: Origin.Feed,
+              opts: {
+                columns,
+                column,
+                row,
+              },
+            });
+          }}
+          onDownvoteClick={(post) => {
+            toggleDownvote({
+              post,
+              origin: Origin.Feed,
+              opts: {
+                columns,
+                column,
+                row,
+              },
+            });
+          }}
           onPostClick={(post) => onPostClick(post, index, row, column)}
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)

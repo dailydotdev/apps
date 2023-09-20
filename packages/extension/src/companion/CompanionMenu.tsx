@@ -23,7 +23,8 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import CreateSharedPostModal, {
   CreateSharedPostModalProps,
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
-import { mutationHandlers } from '@dailydotdev/shared/src/hooks';
+import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
+import { useVotePost } from '@dailydotdev/shared/src/hooks';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
@@ -72,16 +73,15 @@ export default function CompanionMenu({
     );
     return () => setPost(oldPost);
   };
+
+  const { toggleUpvote, toggleDownvote } = useVotePost();
+
   const { sharePost, openSharePost, closeSharePost } = useSharePost(
     Origin.Companion,
   );
   const {
     bookmark,
     removeBookmark,
-    upvotePost,
-    cancelPostUpvote,
-    downvotePost,
-    cancelPostDownvote,
     blockSource,
     disableCompanion,
     removeCompanionHelper,
@@ -96,26 +96,6 @@ export default function CompanionMenu({
       updatePost({
         update: { bookmarked: false },
         event: AnalyticsEvent.RemovePostBookmark,
-      }),
-    onUpvotePostMutate: () =>
-      updatePost({
-        update: mutationHandlers.upvote(post),
-        event: AnalyticsEvent.UpvotePost,
-      }),
-    onCancelPostUpvoteMutate: () =>
-      updatePost({
-        update: mutationHandlers.cancelUpvote(post),
-        event: AnalyticsEvent.RemovePostUpvote,
-      }),
-    onDownvotePostMutate: () =>
-      updatePost({
-        update: mutationHandlers.downvote(post),
-        event: AnalyticsEvent.DownvotePost,
-      }),
-    onCancelPostDownvoteMutate: () =>
-      updatePost({
-        update: mutationHandlers.cancelDownvote(post),
-        event: AnalyticsEvent.RemovePostDownvote,
       }),
   });
 
@@ -151,34 +131,30 @@ export default function CompanionMenu({
     onOptOut();
   };
 
-  const toggleUpvote = async () => {
-    if (user) {
-      if (!post.upvoted) {
-        await upvotePost({ id: post.id });
-      } else {
-        await cancelPostUpvote({ id: post.id });
-      }
-    } else {
+  const onToggleUpvote = async () => {
+    if (!user) {
       window.open(
         `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`,
         '_blank',
       );
+
+      return;
     }
+
+    await toggleUpvote({ post, origin: Origin.CompanionContextMenu });
   };
 
-  const toggleDownvote = async () => {
-    if (user) {
-      if (!post.downvoted) {
-        await downvotePost({ id: post.id });
-      } else {
-        await cancelPostDownvote({ id: post.id });
-      }
-    } else {
+  const onToggleDownvote = async () => {
+    if (!user) {
       window.open(
         `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`,
         '_blank',
       );
+
+      return;
     }
+
+    await toggleDownvote({ post, origin: Origin.CompanionContextMenu });
   };
 
   const toggleBookmark = async () => {
@@ -231,14 +207,18 @@ export default function CompanionMenu({
       />
       <SimpleTooltip
         placement="left"
-        content={post?.upvoted ? 'Remove upvote' : 'Upvote'}
+        content={
+          post?.userState?.vote === UserPostVote.Up ? 'Remove upvote' : 'Upvote'
+        }
         appendTo="parent"
         container={tooltipContainerProps}
       >
         <Button
-          icon={<UpvoteIcon secondary={post?.upvoted} />}
-          pressed={post?.upvoted}
-          onClick={toggleUpvote}
+          icon={
+            <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
+          }
+          pressed={post?.userState?.vote === UserPostVote.Up}
+          onClick={onToggleUpvote}
           className="btn-tertiary-avocado"
         />
       </SimpleTooltip>
@@ -297,7 +277,7 @@ export default function CompanionMenu({
         postData={post}
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
-        onDownvote={toggleDownvote}
+        onDownvote={onToggleDownvote}
       />
       {sharePost && (
         <ShareModal

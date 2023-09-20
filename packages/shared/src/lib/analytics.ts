@@ -32,6 +32,8 @@ export enum Origin {
   HistoryPage = 'history page',
   HistoryTooltip = 'history tooltip',
   // search - end
+  History = 'history',
+  FeedbackCard = 'feedback card',
 }
 
 export enum LoginTrigger {
@@ -85,6 +87,7 @@ export enum AnalyticsEvent {
   RemovePostUpvote = 'remove post upvote',
   DownvotePost = 'downvote post',
   RemovePostDownvote = 'remove post downvote',
+  ClickDismissFeedback = 'click dismiss feedback',
   // vote - end
   // bookmark - start
   BookmarkPost = 'bookmark post',
