@@ -24,6 +24,7 @@ import CreateSharedPostModal, {
   CreateSharedPostModalProps,
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
 import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
+import { useVotePost } from '@dailydotdev/shared/src/hooks';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
@@ -72,16 +73,15 @@ export default function CompanionMenu({
     );
     return () => setPost(oldPost);
   };
+
+  const { toggleUpvote, toggleDownvote } = useVotePost();
+
   const { sharePost, openSharePost, closeSharePost } = useSharePost(
     Origin.Companion,
   );
   const {
     bookmark,
     removeBookmark,
-    upvotePost,
-    cancelPostUpvote,
-    downvotePost,
-    cancelPostDownvote,
     blockSource,
     disableCompanion,
     removeCompanionHelper,
@@ -131,34 +131,30 @@ export default function CompanionMenu({
     onOptOut();
   };
 
-  const toggleUpvote = async () => {
-    if (user) {
-      if (post?.userState?.vote !== UserPostVote.Up) {
-        await upvotePost({ id: post.id });
-      } else {
-        await cancelPostUpvote({ id: post.id });
-      }
-    } else {
+  const onToggleUpvote = async () => {
+    if (!user) {
       window.open(
         `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`,
         '_blank',
       );
+
+      return;
     }
+
+    await toggleUpvote({ post, origin: Origin.CompanionContextMenu });
   };
 
-  const toggleDownvote = async () => {
-    if (user) {
-      if (post?.userState?.vote !== UserPostVote.Down) {
-        await downvotePost({ id: post.id });
-      } else {
-        await cancelPostDownvote({ id: post.id });
-      }
-    } else {
+  const onToggleDownvote = async () => {
+    if (!user) {
       window.open(
         `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`,
         '_blank',
       );
+
+      return;
     }
+
+    await toggleDownvote({ post, origin: Origin.CompanionContextMenu });
   };
 
   const toggleBookmark = async () => {
@@ -222,7 +218,7 @@ export default function CompanionMenu({
             <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
           }
           pressed={post?.userState?.vote === UserPostVote.Up}
-          onClick={toggleUpvote}
+          onClick={onToggleUpvote}
           className="btn-tertiary-avocado"
         />
       </SimpleTooltip>
@@ -281,7 +277,7 @@ export default function CompanionMenu({
         postData={post}
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
-        onDownvote={toggleDownvote}
+        onDownvote={onToggleDownvote}
       />
       {sharePost && (
         <ShareModal

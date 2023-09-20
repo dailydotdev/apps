@@ -11,7 +11,6 @@ import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import { MutateFunc } from '@dailydotdev/shared/src/lib/query';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
-import { UseVotePost, useVotePost } from '@dailydotdev/shared/src/hooks';
 import { companionRequest } from './companionRequest';
 
 type UseCompanionActionsParams<T> = {
@@ -25,10 +24,7 @@ type UseCompanionActionsRet<T> = {
   disableCompanion: (variables: T) => Promise<void>;
   removeCompanionHelper: (variables: T) => Promise<void>;
   toggleCompanionExpanded: (variables: T) => Promise<void>;
-} & Pick<UseVotePost, 'upvotePost' | 'downvotePost'> & {
-    cancelPostUpvote: UseVotePost['cancelPostVote'];
-    cancelPostDownvote: UseVotePost['cancelPostVote'];
-  };
+};
 
 interface UseCompanionActionsProps {
   id?: string;
@@ -103,8 +99,6 @@ export default function useCompanionActions<
     },
   );
 
-  const { upvotePost, downvotePost, cancelPostVote } = useVotePost();
-
   const { mutateAsync: removeCompanionHelper } = useMutation<
     void,
     unknown,
@@ -150,10 +144,6 @@ export default function useCompanionActions<
       blockSource,
       bookmark,
       removeBookmark,
-      upvotePost,
-      cancelPostUpvote: cancelPostVote,
-      downvotePost,
-      cancelPostDownvote: cancelPostVote,
       disableCompanion,
       removeCompanionHelper,
       toggleCompanionExpanded,
@@ -162,9 +152,6 @@ export default function useCompanionActions<
       blockSource,
       bookmark,
       removeBookmark,
-      upvotePost,
-      downvotePost,
-      cancelPostVote,
       disableCompanion,
       removeCompanionHelper,
       toggleCompanionExpanded,
