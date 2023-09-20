@@ -6,13 +6,14 @@ import {
 import { Connection } from './common';
 import { graphqlUrl } from '../lib/config';
 import { EmptyResponse } from './emptyResponse';
+import { WithClassNameProps } from '../components/utilities';
 
 export enum NotificationAvatarType {
   User = 'user',
   Source = 'source',
 }
 
-export interface NotificationAvatar {
+export interface NotificationAvatar extends WithClassNameProps {
   type: NotificationAvatarType;
   image: string;
   name: string;

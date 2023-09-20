@@ -43,7 +43,11 @@ function NotificationItem({
   const avatarComponents =
     avatars
       ?.map?.((avatar) => (
-        <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
+        <NotificationItemAvatar
+          key={avatar.referenceId}
+          className="z-1"
+          {...avatar}
+        />
       ))
       .filter((avatar) => avatar) ?? [];
   const hasAvatar = avatarComponents.length > 0;
@@ -77,9 +81,7 @@ function NotificationItem({
       />
       <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
         {hasAvatar && (
-          <span className="flex z-1 flex-row gap-2 mb-4">
-            {avatarComponents}
-          </span>
+          <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
         )}
         <span
           className="break-words"
