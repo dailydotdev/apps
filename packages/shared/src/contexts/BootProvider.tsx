@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { BootApp, BootCacheData, getBootData } from '../lib/boot';
-import { FeaturesContextProvider } from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
@@ -59,7 +58,6 @@ const updateLocalBootData = (
   const localData = { ...current, ...boot, lastModifier: 'extension' };
   const result = filteredProps(localData, [
     'alerts',
-    'flags',
     'settings',
     'notifications',
     'user',
@@ -89,14 +87,8 @@ export const BootDataProvider = ({
     useState<Partial<BootCacheData>>();
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
   const loadedFromCache = !!cachedBootData;
-  const {
-    user,
-    settings,
-    flags = {},
-    alerts,
-    notifications,
-    squads,
-  } = cachedBootData || {};
+  const { user, settings, alerts, notifications, squads } =
+    cachedBootData || {};
   const {
     data: bootRemoteData,
     refetch,
@@ -183,62 +175,56 @@ export const BootDataProvider = ({
   );
 
   return (
-    <FeaturesContextProvider
-      flags={flags}
-      isFlagsFetched={initialLoad}
-      isFeaturesLoaded={loadedFromCache}
+    <GrowthBookProvider
+      app={app}
+      user={user}
+      deviceId={deviceId}
+      experimentation={cachedBootData?.exp}
+      updateExperimentation={updateExperimentation}
     >
-      <GrowthBookProvider
-        app={app}
+      <AuthContextProvider
         user={user}
-        deviceId={deviceId}
-        experimentation={cachedBootData?.exp}
-        updateExperimentation={updateExperimentation}
+        updateUser={updateUser}
+        tokenRefreshed={updatedAtActive > 0}
+        getRedirectUri={getRedirectUri}
+        loadingUser={!dataUpdatedAt || !user}
+        loadedUserFromCache={loadedFromCache}
+        visit={bootRemoteData?.visit}
+        refetchBoot={refetch}
+        isFetched={isFetched}
+        isLegacyLogout={bootRemoteData?.isLegacyLogout}
+        firstLoad={initialLoad}
+        accessToken={bootRemoteData?.accessToken}
+        squads={squads}
       >
-        <AuthContextProvider
-          user={user}
-          updateUser={updateUser}
-          tokenRefreshed={updatedAtActive > 0}
-          getRedirectUri={getRedirectUri}
-          loadingUser={!dataUpdatedAt || !user}
-          loadedUserFromCache={loadedFromCache}
-          visit={bootRemoteData?.visit}
-          refetchBoot={refetch}
-          isFetched={isFetched}
-          isLegacyLogout={bootRemoteData?.isLegacyLogout}
-          firstLoad={initialLoad}
-          accessToken={bootRemoteData?.accessToken}
-          squads={squads}
+        <SettingsContextProvider
+          settings={settings}
+          loadedSettings={loadedFromCache}
+          updateSettings={updateSettings}
         >
-          <SettingsContextProvider
-            settings={settings}
-            loadedSettings={loadedFromCache}
-            updateSettings={updateSettings}
+          <AlertContextProvider
+            alerts={alerts}
+            isFetched={isFetched}
+            updateAlerts={updateAlerts}
+            loadedAlerts={loadedFromCache}
           >
-            <AlertContextProvider
-              alerts={alerts}
-              isFetched={isFetched}
-              updateAlerts={updateAlerts}
-              loadedAlerts={loadedFromCache}
+            <AnalyticsContextProvider
+              app={app}
+              version={version}
+              getPage={getPage}
+              deviceId={deviceId}
             >
-              <AnalyticsContextProvider
+              <NotificationsContextProvider
                 app={app}
-                version={version}
-                getPage={getPage}
-                deviceId={deviceId}
+                isNotificationsReady={initialLoad}
+                unreadCount={notifications?.unreadNotificationsCount}
               >
-                <NotificationsContextProvider
-                  app={app}
-                  isNotificationsReady={initialLoad}
-                  unreadCount={notifications?.unreadNotificationsCount}
-                >
-                  {children}
-                </NotificationsContextProvider>
-              </AnalyticsContextProvider>
-            </AlertContextProvider>
-          </SettingsContextProvider>
-        </AuthContextProvider>
-      </GrowthBookProvider>
-    </FeaturesContextProvider>
+                {children}
+              </NotificationsContextProvider>
+            </AnalyticsContextProvider>
+          </AlertContextProvider>
+        </SettingsContextProvider>
+      </AuthContextProvider>
+    </GrowthBookProvider>
   );
 };

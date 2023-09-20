@@ -39,7 +39,6 @@ import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
-import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   MockedGraphQLResponse,
@@ -176,33 +175,31 @@ const renderPost = (
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContextProvider flags={{}}>
-        <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: false,
-            showLogin,
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            getRedirectUri: jest.fn(),
-          }}
-        >
-          <SettingsContext.Provider value={createTestSettings()}>
-            <OnboardingContext.Provider
-              value={{
-                myFeedMode: OnboardingMode.Manual,
-                isOnboardingOpen: false,
-                onCloseOnboardingModal: jest.fn(),
-                onInitializeOnboarding: jest.fn(),
-                onShouldUpdateFilters: jest.fn(),
-              }}
-            >
-              <PostPage {...defaultProps} {...props} />
-            </OnboardingContext.Provider>
-          </SettingsContext.Provider>
-        </AuthContext.Provider>
-      </FeaturesContextProvider>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+        }}
+      >
+        <SettingsContext.Provider value={createTestSettings()}>
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <PostPage {...defaultProps} {...props} />
+          </OnboardingContext.Provider>
+        </SettingsContext.Provider>
+      </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };

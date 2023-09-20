@@ -225,8 +225,7 @@ function AccountSecurityDefault({
         providerActionType="link"
         providerAction={manageSocialProviders}
         providers={providers.filter(
-          ({ provider }) =>
-            !userProviders?.result.includes(provider.toLowerCase()),
+          ({ value }) => !userProviders?.result.includes(value),
         )}
       />
       <AccountLoginSection
@@ -235,8 +234,8 @@ function AccountSecurityDefault({
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
         className={{ button: 'btn-secondary hover:bg-theme-color-ketchup' }}
-        providers={removeProviderList.filter(({ provider }) =>
-          userProviders?.result.includes(provider.toLowerCase()),
+        providers={removeProviderList.filter(({ value }) =>
+          userProviders?.result.includes(value),
         )}
       />
       <AccountContentSection

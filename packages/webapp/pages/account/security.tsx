@@ -2,12 +2,12 @@ import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import usePrivilegedSession from '@dailydotdev/shared/src/hooks/usePrivilegedSession';
-import VerifySessionModal from '@dailydotdev/shared/src/components/auth/VerifySessionModal';
 import React, { ReactElement, useRef, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   AuthFlow,
   getKratosProviders,
+  getKratosSession,
   initializeKratosFlow,
   KRATOS_ERROR,
   submitKratosFlow,
@@ -23,6 +23,11 @@ import {
   SignBackProvider,
   useSignBack,
 } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
@@ -33,13 +38,14 @@ import EmailFormPage from '../../components/layouts/AccountLayout/Security/Email
 
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
+  const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [hint, setHint] = useState<string>(null);
   const { onUpdateSignBack, signBack, provider } = useSignBack();
-  const { data: userProviders, refetch: refetchProviders } = useQuery(
-    'providers',
-    () => getKratosProviders(),
+  const providersKey = generateQueryKey(RequestKey.Providers, user);
+  const { data: userProviders } = useQuery(providersKey, () =>
+    getKratosProviders(),
   );
   const { data: settings } = useQuery(['settings'], () =>
     initializeKratosFlow(AuthFlow.Settings),
@@ -50,17 +56,9 @@ const AccountSecurityPage = (): ReactElement => {
     updatePasswordRef.current.reset();
   };
 
-  const {
-    session,
-    showVerifySession,
-    isReady,
-    initializePrivilegedSession,
-    onPasswordLogin,
-    onCloseVerifySession,
-    onSocialLogin,
-    refetchSession,
-  } = usePrivilegedSession();
-
+  const { initializePrivilegedSession } = usePrivilegedSession({
+    providers: userProviders?.result,
+  });
   const { mutateAsync: resetPassword } = useMutation(
     (params: ValidateResetPassword) => submitKratosFlow(params),
     {
@@ -88,6 +86,8 @@ const AccountSecurityPage = (): ReactElement => {
     });
   };
 
+  const client = useQueryClient();
+  const sessionKey = generateQueryKey(RequestKey.CurrentSession, user);
   const { mutateAsync: changeEmail } = useMutation(
     (params: ValidateChangeEmail) => {
       setHint(null);
@@ -110,11 +110,12 @@ const AccountSecurityPage = (): ReactElement => {
         }
 
         setActiveDisplay(Display.Default);
-        await refetchSession();
+        await client.invalidateQueries(sessionKey);
       },
     },
   );
 
+  const { data: session } = useQuery(sessionKey, getKratosSession);
   const onChangeEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
@@ -166,7 +167,7 @@ const AccountSecurityPage = (): ReactElement => {
 
         const { params } = vars;
         if ('link' in params || 'unlink' in params) {
-          refetchProviders();
+          client.invalidateQueries(providersKey);
 
           if ('unlink' in params && params.unlink === provider) {
             const validProvider = userProviders.result?.find(
@@ -187,40 +188,28 @@ const AccountSecurityPage = (): ReactElement => {
   };
 
   return (
-    <>
-      <TabContainer showHeader={false} controlledActive={activeDisplay}>
-        <Tab label={Display.Default}>
-          <AccountSecurityDefault
-            email={session?.identity?.traits?.email}
-            session={session}
-            userProviders={userProviders}
-            updatePasswordRef={updatePasswordRef}
-            onSwitchDisplay={setActiveDisplay}
-            onUpdatePassword={onUpdatePassword}
-            onUpdateProviders={updateSocialProviders}
-          />
-        </Tab>
-        <Tab label={Display.ChangeEmail}>
-          <EmailFormPage
-            title="Change email"
-            onSubmit={onChangeEmail}
-            onSwitchDisplay={setActiveDisplay}
-            hint={hint}
-            setHint={setHint}
-          />
-        </Tab>
-      </TabContainer>
-      {showVerifySession && (
-        <VerifySessionModal
-          isOpen={showVerifySession}
-          isReady={isReady}
+    <TabContainer showHeader={false} controlledActive={activeDisplay}>
+      <Tab label={Display.Default}>
+        <AccountSecurityDefault
+          email={session?.identity?.traits?.email}
+          session={session}
           userProviders={userProviders}
-          onRequestClose={() => onCloseVerifySession()}
-          onPasswordLogin={onPasswordLogin}
-          onSocialLogin={onSocialLogin}
+          updatePasswordRef={updatePasswordRef}
+          onSwitchDisplay={setActiveDisplay}
+          onUpdatePassword={onUpdatePassword}
+          onUpdateProviders={updateSocialProviders}
         />
-      )}
-    </>
+      </Tab>
+      <Tab label={Display.ChangeEmail}>
+        <EmailFormPage
+          title="Change email"
+          onSubmit={onChangeEmail}
+          onSwitchDisplay={setActiveDisplay}
+          hint={hint}
+          setHint={setHint}
+        />
+      </Tab>
+    </TabContainer>
   );
 };
 

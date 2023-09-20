@@ -73,7 +73,6 @@ const renderComponent = (postdata, settings): RenderResult => {
         sessionId: '456',
       }}
       user={defaultUser}
-      flags={{}}
       deviceId="123"
       accessToken={{ token: '', expiresIn: '' }}
       squads={[]}

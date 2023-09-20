@@ -3,7 +3,6 @@ import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { useMutation, useQueryClient } from 'react-query';
 import { Post, dismissPostFeedback } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
-import { Features } from '../lib/featureManagement';
 import { updatePostCache } from './usePostById';
 import { updateCachedPagePost } from '../lib/query';
 import { ActiveFeedContext } from '../contexts';
@@ -11,6 +10,7 @@ import { MainFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
+import { feature } from '../lib/featureManagement';
 
 type UsePostFeedbackProps = {
   post?: Pick<Post, 'id' | 'userState' | 'read'>;
@@ -30,7 +30,7 @@ export const usePostFeedback = ({
   const { trackEvent } = useContext(AnalyticsContext);
 
   const isFeedbackEnabled = useFeatureIsOn(
-    Features.EngagementLoopJuly2023Upvote.id,
+    feature.engagementLoopJuly2023Upvote.id,
   );
   const isMyFeed = useMemo(() => {
     return feedQueryKey?.some((item) => item === MainFeedPage.MyFeed);

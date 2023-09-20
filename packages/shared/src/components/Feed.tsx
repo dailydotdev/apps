@@ -33,7 +33,6 @@ import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
-import { useFeaturesContext } from '../contexts/FeaturesContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
@@ -42,6 +41,8 @@ import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
 import { ActiveFeedContext } from '../contexts';
 import { useFeedVotePost } from '../hooks';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -119,7 +120,7 @@ export default function Feed<T>({
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { onboardingV2 } = useFeaturesContext();
+  const onboardingV2 = useFeature(feature.onboardingV2);
   const {
     openNewTab,
     spaciness,

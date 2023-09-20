@@ -28,6 +28,7 @@ export const generateStorageKey = (
   (generateQueryKey(key, null, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
+  Providers = 'providers',
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
   PostCommentsMutations = 'post_comments_mutations',
@@ -41,6 +42,7 @@ export enum RequestKey {
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
   Auth = 'auth',
+  CurrentSession = 'current_session',
 }
 
 export type HasConnection<

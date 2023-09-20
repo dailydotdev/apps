@@ -54,10 +54,9 @@ import {
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
-import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
-import { Features } from '../lib/featureManagement';
+import { feature } from '../lib/featureManagement';
 import { SearchExperiment } from '../lib/featureValues';
 
 const showLogin = jest.fn();
@@ -94,7 +93,7 @@ const originalScrollTo = window.scrollTo;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
-  Features.Search.defaultValue = SearchExperiment.Control;
+  feature.search.defaultValue = SearchExperiment.Control;
 });
 
 afterAll(() => {
@@ -166,44 +165,42 @@ const renderComponent = (
     toggleSidebarExpanded: jest.fn(),
   };
   return render(
-    <FeaturesContextProvider flags={{}}>
-      <QueryClientProvider client={queryClient}>
-        <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: false,
-            showLogin,
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            getRedirectUri: jest.fn(),
-            closeLogin: jest.fn(),
-            trackingId: user?.id,
-            loginState: null,
-          }}
-        >
-          <LazyModalElement />
-          <SettingsContext.Provider value={settingsContext}>
-            <OnboardingContext.Provider
-              value={{
-                myFeedMode: OnboardingMode.Manual,
-                isOnboardingOpen: false,
-                onCloseOnboardingModal: jest.fn(),
-                onInitializeOnboarding: jest.fn(),
-                onShouldUpdateFilters: jest.fn(),
-              }}
-            >
-              <Toast autoDismissNotifications={false} />
-              <Feed
-                feedQueryKey={['feed']}
-                query={ANONYMOUS_FEED_QUERY}
-                variables={variables}
-              />
-            </OnboardingContext.Provider>
-          </SettingsContext.Provider>
-        </AuthContext.Provider>
-      </QueryClientProvider>
-    </FeaturesContextProvider>,
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: user?.id,
+          loginState: null,
+        }}
+      >
+        <LazyModalElement />
+        <SettingsContext.Provider value={settingsContext}>
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <Toast autoDismissNotifications={false} />
+            <Feed
+              feedQueryKey={['feed']}
+              query={ANONYMOUS_FEED_QUERY}
+              variables={variables}
+            />
+          </OnboardingContext.Provider>
+        </SettingsContext.Provider>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 

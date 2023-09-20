@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';
@@ -15,7 +15,6 @@ import {
   AuthSession,
   EmptyObjectLiteral,
   getKratosSession,
-  InitializationData,
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
@@ -30,22 +29,19 @@ const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
 
 interface UseLogin {
-  session: AuthSession;
   isPasswordLoginLoading?: boolean;
-  loginFlowData: InitializationData;
   loginHint?: ReturnType<typeof useState>;
   isReady: boolean;
-  refetchSession?: () => Promise<unknown>;
   onSocialLogin: (provider: string) => void;
   onPasswordLogin: (params: LoginFormParams) => void;
 }
 
 interface UseLoginProps {
-  enableSessionVerification?: boolean;
   queryEnabled?: boolean;
   queryParams?: EmptyObjectLiteral;
   trigger?: string;
   provider?: string;
+  session?: AuthSession;
   onSuccessfulLogin?: (() => Promise<void>) | (() => void);
 }
 
@@ -55,18 +51,14 @@ const useLogin = ({
   onSuccessfulLogin,
   queryEnabled = true,
   queryParams = {},
-  enableSessionVerification = false,
+  session,
 }: UseLoginProps = {}): UseLogin => {
   const { onUpdateSignBack } = useSignBack();
   const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const { refetchBoot } = useContext(AuthContext);
-  const [hint, setHint] = useState('Enter your password to login');
-  const { data: session, refetch: refetchSession } = useQuery(
-    ['current_session'],
-    getKratosSession,
-    { enabled: enableSessionVerification },
-  );
+  const hintState = useState('Enter your password to login');
+  const [, setHint] = hintState;
   const { data: login } = useQuery(
     [{ type: 'login', params: queryParams }],
     ({ queryKey: [{ params }] }) =>
@@ -128,35 +120,41 @@ const useLogin = ({
     },
   );
 
-  const onSubmitSocialLogin = (provider: string) => {
-    if (!login?.ui) {
-      displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
-      return;
-    }
-    const { nodes, action } = login.ui;
-    const csrfToken = getNodeValue('csrf_token', nodes);
-    const params: LoginSocialParameters = {
-      provider,
-      method: 'oidc',
-      csrf_token: csrfToken,
-    };
-    onSocialLogin({ action, params });
-  };
+  const onSubmitSocialLogin = useCallback(
+    (provider: string) => {
+      if (!login?.ui) {
+        displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
+        return;
+      }
+      const { nodes, action } = login.ui;
+      const csrfToken = getNodeValue('csrf_token', nodes);
+      const params: LoginSocialParameters = {
+        provider,
+        method: 'oidc',
+        csrf_token: csrfToken,
+      };
+      onSocialLogin({ action, params });
+    },
+    [displayToast, login?.ui, onSocialLogin],
+  );
 
-  const onSubmitPasswordLogin = (form: LoginFormParams) => {
-    if (!login?.ui) {
-      displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
-      return;
-    }
-    const { nodes, action } = login.ui;
-    const csrfToken = getNodeValue('csrf_token', nodes);
-    const params: LoginPasswordParameters = {
-      ...form,
-      method: 'password',
-      csrf_token: csrfToken,
-    };
-    onPasswordLogin({ action, params });
-  };
+  const onSubmitPasswordLogin = useCallback(
+    (form: LoginFormParams) => {
+      if (!login?.ui) {
+        displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
+        return;
+      }
+      const { nodes, action } = login.ui;
+      const csrfToken = getNodeValue('csrf_token', nodes);
+      const params: LoginPasswordParameters = {
+        ...form,
+        method: 'password',
+        csrf_token: csrfToken,
+      };
+      onPasswordLogin({ action, params });
+    },
+    [displayToast, login?.ui, onPasswordLogin],
+  );
 
   useWindowEvents('message', AuthEvent.Login, async () => {
     if (!session) {
@@ -196,21 +194,13 @@ const useLogin = ({
     }
   });
 
-  return useMemo<UseLogin>(
-    () => ({
-      refetchSession,
-      session,
-      loginFlowData: login,
-      loginHint: [hint, setHint],
-      isPasswordLoginLoading: isLoading,
-      isReady: !!login?.ui,
-      onSocialLogin: onSubmitSocialLogin,
-      onPasswordLogin: onSubmitPasswordLogin,
-    }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session, queryEnabled, queryParams, hint, login, isLoading],
-  );
+  return {
+    loginHint: hintState,
+    isPasswordLoginLoading: isLoading,
+    isReady: !!login?.ui,
+    onSocialLogin: onSubmitSocialLogin,
+    onPasswordLogin: onSubmitPasswordLogin,
+  };
 };
 
 export default useLogin;

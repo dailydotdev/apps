@@ -33,8 +33,11 @@ export enum LazyModal {
   ReportPost = 'reportPost',
   ReportComment = 'reportComment',
   SquadNotifications = 'squadNotifications',
+  NewSource = 'newSource',
+  SubmitArticle = 'submitArticle',
   FeedFilters = 'feedFilters',
   CompanionModal = 'companionModal',
+  VerifySession = 'verifySession',
 }
 
 export type ModalTabItem = {

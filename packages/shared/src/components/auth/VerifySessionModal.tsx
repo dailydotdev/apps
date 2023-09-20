@@ -1,31 +1,42 @@
 import React, { ReactElement, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
-import { LoginFormParams } from './LoginForm';
-import { KratosProviderData } from '../../lib/kratos';
 import { AuthTriggers } from '../../lib/auth';
 import { Modal, ModalProps } from '../modals/common/Modal';
+import useLogin from '../../hooks/useLogin';
+import { AuthSession } from '../../lib/kratos';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface VerifySessionModalProps extends ModalProps {
-  isReady: boolean;
-  userProviders?: KratosProviderData;
-  onSocialLogin?: (provider: string) => void;
-  onPasswordLogin?: (params: LoginFormParams) => void;
+  userProviders?: string[];
+  onVerified: () => void;
 }
 
 function VerifySessionModal({
-  onSocialLogin,
   onRequestClose,
-  onPasswordLogin,
-  userProviders,
-  isReady,
+  userProviders = [],
+  onVerified,
   ...props
 }: VerifySessionModalProps): ReactElement {
   const [hint, setHint] = useState('Enter your password to login');
   const filteredProviders = providers.filter(
-    ({ provider }) =>
-      !userProviders?.result.indexOf(provider.toLocaleLowerCase()),
+    ({ value }) => !userProviders?.indexOf(value),
   );
+  const client = useQueryClient();
+  const { user } = useAuthContext();
+  const session = client.getQueryData<AuthSession>(
+    generateQueryKey(RequestKey.CurrentSession, user),
+  );
+  const { isReady, onSocialLogin, onPasswordLogin } = useLogin({
+    session,
+    queryParams: { refresh: 'true' },
+    onSuccessfulLogin: () => {
+      onVerified();
+      onRequestClose(null);
+    },
+  });
 
   return (
     <Modal
