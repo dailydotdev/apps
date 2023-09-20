@@ -12,6 +12,23 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
 
+interface PostLinkProps {
+  href: string;
+  as?: string;
+  target?: string;
+  rel?: string;
+  className?: string;
+  children: React.ReactNode;
+}
+
+const PostLink = ({ href, as, children, ...props }: PostLinkProps) => {
+  return (
+    <Link href={href} as={as}>
+      <a {...props}>{children}</a>
+    </Link>
+  );
+};
+
 interface SharePostContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
@@ -34,6 +51,16 @@ function SharePostContent({
   }, [shouldShowSummary, height]);
 
   const isUnknownSource = post.sharedPost.source.id === 'unknown';
+  const postLink = isUnknownSource
+    ? {
+        href: post.sharedPost.permalink,
+        target: '_blank',
+        rel: 'noopener',
+      }
+    : {
+        href: `${post.sharedPost.commentsPermalink}?squad=${post.source.handle}&n=${post.source.name}`,
+        as: post.sharedPost.commentsPermalink,
+      };
 
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -44,55 +71,46 @@ function SharePostContent({
     <>
       <SharePostTitle post={post} />
       <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
-        <Link
-          href={
-            isUnknownSource
-              ? post.sharedPost.permalink
-              : `${post.sharedPost.commentsPermalink}?squad=${post.source.handle}&n=${post.source.name}`
-          }
-          as={isUnknownSource ? undefined : post.sharedPost.commentsPermalink}
-        >
-          {/* eslint-disable-next-line react/jsx-no-comment-textnodes, jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-          <a
-            title="Go to post"
-            target={isUnknownSource ? '_blank' : undefined}
-            rel={isUnknownSource ? 'noopener' : undefined}
-            className="flex flex-col-reverse laptop:flex-row p-4 max-w-full"
-            onClick={onReadArticle}
+        <div className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
+          <div className="flex flex-col flex-1">
+            <PostLink
+              {...postLink}
+              className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body"
+            >
+              {post.sharedPost.title}
+            </PostLink>
+            <PostSourceInfo
+              date={
+                post.sharedPost.readTime
+                  ? `${post.sharedPost.readTime}m read time`
+                  : undefined
+              }
+              source={post.sharedPost.source}
+              size="small"
+            />
+            <ReadArticleButton
+              className="mt-5 btn-secondary w-fit"
+              href={post.sharedPost.permalink}
+              openNewTab={openNewTab}
+              title="Go to post"
+              rel="noopener"
+              {...combinedClicks(openArticle)}
+            />
+          </div>
+
+          <PostLink
+            {...postLink}
+            className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit"
           >
-            <div className="flex flex-col flex-1">
-              <h2 className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body">
-                {post.sharedPost.title}
-              </h2>
-              <PostSourceInfo
-                date={
-                  post.sharedPost.readTime
-                    ? `${post.sharedPost.readTime}m read time`
-                    : undefined
-                }
-                source={post.sharedPost.source}
-                size="small"
-              />
-              <ReadArticleButton
-                className="mt-5 btn-secondary w-fit"
-                href={post.sharedPost.permalink}
-                openNewTab={openNewTab}
-                title="Go to post"
-                rel="noopener"
-                {...combinedClicks(openArticle)}
-              />
-            </div>
-            <div className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit">
-              <LazyImage
-                imgSrc={post.sharedPost.image}
-                imgAlt="Post cover image"
-                ratio="52%"
-                eager
-                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              />
-            </div>
-          </a>
-        </Link>
+            <LazyImage
+              imgSrc={post.sharedPost.image}
+              imgAlt="Post cover image"
+              ratio="52%"
+              eager
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+            />
+          </PostLink>
+        </div>
         {post.sharedPost.summary && (
           <>
             <PostSummary
