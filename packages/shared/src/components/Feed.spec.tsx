@@ -1,7 +1,6 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  findAllByRole,
   findByRole,
   findByText,
   fireEvent,
@@ -208,20 +207,20 @@ it('should add one placeholder when loading', async () => {
   expect(await screen.findByRole('article')).toHaveAttribute('aria-busy');
 });
 
-  it('should replace placeholders with posts and ad', async () => {
-    renderComponent();
-    await waitForNock();
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeGreaterThan(0);
+it('should replace placeholders with posts and ad', async () => {
+  renderComponent();
+  await waitForNock();
+  const elements = await screen.findAllByTestId('postItem');
+  expect(elements.length).toBeGreaterThan(0);
 
-    // eslint-disable-next-line no-restricted-syntax
-    for (const el of elements) {
-      // eslint-disable-next-line no-await-in-loop,@typescript-eslint/no-loop-func
-      await waitFor(async () => {
-        const links = await within(el).findAllByRole('link');
-        expect(links[0]).toHaveAttribute('href');
-      });
-    }
+  // eslint-disable-next-line no-restricted-syntax
+  for (const el of elements) {
+    // eslint-disable-next-line no-await-in-loop,@typescript-eslint/no-loop-func
+    await waitFor(async () => {
+      const links = await within(el).findAllByRole('link');
+      expect(links[0]).toHaveAttribute('href');
+    });
+  }
 
   await waitFor(async () => {
     const el = await screen.findByTestId('adItem');
@@ -711,13 +710,13 @@ it('should report nsfw', async () => {
       },
     },
   ]);
-  const [menuBtn] = screen.getAllByLabelText('Options');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
   fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Report');
   fireEvent.click(contextBtn);
   const brokenLinkBtn = await screen.findByText('NSFW');
   fireEvent.click(brokenLinkBtn);
-  const submitBtn = screen.getByText('Submit report');
+  const submitBtn = await screen.findByText('Submit report');
   fireEvent.click(submitBtn);
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -946,7 +945,7 @@ it('should report irrelevant tags', async () => {
       },
     },
   ]);
-  const [menuBtn] = screen.getAllByLabelText('Options');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
   fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Report');
   fireEvent.click(contextBtn);
@@ -954,7 +953,7 @@ it('should report irrelevant tags', async () => {
   fireEvent.click(irrelevantTagsBtn);
   const javascriptBtn = await screen.findByText('#javascript');
   fireEvent.click(javascriptBtn);
-  const submitBtn = screen.getByText('Submit report');
+  const submitBtn = await screen.findByText('Submit report');
   fireEvent.click(submitBtn);
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
