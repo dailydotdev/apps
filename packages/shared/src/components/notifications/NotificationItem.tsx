@@ -59,8 +59,7 @@ function NotificationItem({
         <button
           type="button"
           aria-label="Open notification"
-          className="absolute inset-0"
-          title={title}
+          className="absolute inset-0 z-0"
           onClick={onClick}
         />
       )}
@@ -78,7 +77,9 @@ function NotificationItem({
       />
       <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
         {hasAvatar && (
-          <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
+          <span className="flex z-1 flex-row gap-2 mb-4">
+            {avatarComponents}
+          </span>
         )}
         <span
           className="break-words"
