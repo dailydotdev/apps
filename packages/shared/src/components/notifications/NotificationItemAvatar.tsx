@@ -38,7 +38,8 @@ function NotificationItemAvatar({
           picture={{ size: 'medium' }}
           user={{
             id: referenceId,
-            username: name,
+            username: referenceId,
+            name,
             image,
             permalink: targetUrl,
           }}

@@ -6,7 +6,7 @@ import { Author } from '../../graphql/comments';
 interface ProfileImageLinkProps extends ProfileLinkProps {
   picture?: Omit<ProfilePictureProps, 'user'>;
   ref?: Ref<HTMLAnchorElement>;
-  user: Pick<Author, 'id' | 'username' | 'permalink' | 'image'>;
+  user: Pick<Author, 'id' | 'name' | 'username' | 'permalink' | 'image'>;
 }
 
 function ProfileImageLinkComponent(
