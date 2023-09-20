@@ -31,7 +31,7 @@ jobs:
           name: Build
           command: npm run build:chrome
           working_directory: packages/extension
-  test:
+  toast:
     docker:
       - image: cimg/node:18.16.0
     resource_class: medium+
@@ -68,4 +68,4 @@ workflows:
   build:
     jobs:
       - build
-      - test
+      - toast
