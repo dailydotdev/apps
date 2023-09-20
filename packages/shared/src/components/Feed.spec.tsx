@@ -15,7 +15,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import {
   ADD_BOOKMARKS_MUTATION,
-  CANCEL_UPVOTE_MUTATION,
   FeedData,
   HIDE_POST_MUTATION,
   Post,
@@ -24,8 +23,9 @@ import {
   PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
-  UPVOTE_MUTATION,
   PostType,
+  VOTE_POST_MUTATION,
+  UserPostVote,
 } from '../graphql/posts';
 import {
   MockedGraphQLResponse,
@@ -54,10 +54,9 @@ import {
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
-import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
-import { Features } from '../lib/featureManagement';
+import { feature } from '../lib/featureManagement';
 import { SearchExperiment } from '../lib/featureValues';
 
 const showLogin = jest.fn();
@@ -94,7 +93,7 @@ const originalScrollTo = window.scrollTo;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
-  Features.Search.defaultValue = SearchExperiment.Control;
+  feature.search.defaultValue = SearchExperiment.Control;
 });
 
 afterAll(() => {
@@ -166,44 +165,42 @@ const renderComponent = (
     toggleSidebarExpanded: jest.fn(),
   };
   return render(
-    <FeaturesContextProvider flags={{}}>
-      <QueryClientProvider client={queryClient}>
-        <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: false,
-            showLogin,
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            getRedirectUri: jest.fn(),
-            closeLogin: jest.fn(),
-            trackingId: user?.id,
-            loginState: null,
-          }}
-        >
-          <LazyModalElement />
-          <SettingsContext.Provider value={settingsContext}>
-            <OnboardingContext.Provider
-              value={{
-                myFeedMode: OnboardingMode.Manual,
-                isOnboardingOpen: false,
-                onCloseOnboardingModal: jest.fn(),
-                onInitializeOnboarding: jest.fn(),
-                onShouldUpdateFilters: jest.fn(),
-              }}
-            >
-              <Toast autoDismissNotifications={false} />
-              <Feed
-                feedQueryKey={['feed']}
-                query={ANONYMOUS_FEED_QUERY}
-                variables={variables}
-              />
-            </OnboardingContext.Provider>
-          </SettingsContext.Provider>
-        </AuthContext.Provider>
-      </QueryClientProvider>
-    </FeaturesContextProvider>,
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: user?.id,
+          loginState: null,
+        }}
+      >
+        <LazyModalElement />
+        <SettingsContext.Provider value={settingsContext}>
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <Toast autoDismissNotifications={false} />
+            <Feed
+              feedQueryKey={['feed']}
+              query={ANONYMOUS_FEED_QUERY}
+              variables={variables}
+            />
+          </OnboardingContext.Provider>
+        </SettingsContext.Provider>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 
@@ -264,8 +261,11 @@ it('should send upvote mutation', async () => {
     }),
     {
       request: {
-        query: UPVOTE_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          vote: UserPostVote.Up,
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -286,14 +286,22 @@ it('should send cancel upvote mutation', async () => {
       edges: [
         {
           ...defaultFeedPage.edges[0],
-          node: { ...defaultFeedPage.edges[0].node, upvoted: true },
+          node: {
+            ...defaultFeedPage.edges[0].node,
+            userState: {
+              vote: UserPostVote.Up,
+            },
+          },
         },
       ],
     }),
     {
       request: {
-        query: CANCEL_UPVOTE_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          vote: UserPostVote.None,
+        },
       },
       result: () => {
         mutationCalled = true;

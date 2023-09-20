@@ -1,4 +1,3 @@
-import { IFlags } from 'flagsmith';
 import { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
@@ -18,7 +17,6 @@ export type PostBootData = Pick<
   | 'trending'
   | 'summary'
   | 'numUpvotes'
-  | 'upvoted'
   | 'numComments'
   | 'bookmarked'
   | 'source'
@@ -31,8 +29,8 @@ export type PostBootData = Pick<
   | 'scout'
   | 'commented'
   | 'type'
-  | 'downvoted'
   | 'flags'
+  | 'userState'
 >;
 
 export enum BootApp {
@@ -49,7 +47,6 @@ export type Boot = {
   accessToken: AccessToken;
   alerts: Alerts;
   visit: Visit;
-  flags: IFlags;
   notifications: NotificationsBootData;
   settings: RemoteSettings;
   squads: Squad[];
@@ -63,7 +60,6 @@ export type BootCacheData = Pick<
   | 'user'
   | 'alerts'
   | 'settings'
-  | 'flags'
   | 'postData'
   | 'notifications'
   | 'squads'

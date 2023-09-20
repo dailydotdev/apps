@@ -1,82 +1,33 @@
-import { IFlags } from 'flagsmith';
+import { JSONValue } from '@growthbook/growthbook';
 import {
   OnboardingV2,
   OnboardingFilteringTitle,
   SearchExperiment,
 } from './featureValues';
 
-export type FeatureValue = string | number | boolean;
+export class Feature<T extends JSONValue> {
+  readonly id: string;
 
-export class Features<T extends FeatureValue = string> {
-  static readonly FeedVersion = new Features('feed_version', '1');
+  readonly defaultValue?: T;
 
-  static readonly SubmitArticle = new Features('submit_article');
-
-  static readonly EngagementLoopJuly2023Companion = new Features(
-    'engagement_loop_july2023_companion',
-  );
-
-  static readonly OnboardingV2 = new Features(
-    'onboarding_v2',
-    OnboardingV2.Control,
-    [OnboardingV2.Control, OnboardingV2.V1],
-  );
-
-  static readonly OnboardingFilteringTitle = new Features(
-    'onboarding_filtering_title',
-    OnboardingFilteringTitle.Control,
-    [
-      OnboardingFilteringTitle.Control,
-      OnboardingFilteringTitle.V1,
-      OnboardingFilteringTitle.V2,
-      OnboardingFilteringTitle.V3,
-      OnboardingFilteringTitle.V4,
-    ],
-  );
-
-  static readonly Search = new Features('search', SearchExperiment.Control);
-
-  static readonly ShowHiring = new Features('show_hiring');
-
-  private constructor(
-    public readonly id: string,
-    public readonly defaultValue?: T,
-    public readonly validTypes?: T[],
-  ) {}
+  constructor(id: string, defaultValue?: T) {
+    this.id = id;
+    this.defaultValue = defaultValue;
+  }
 }
 
-export const isFeaturedEnabled = <T extends FeatureValue = string>(
-  key: Features<T>,
-  flags: IFlags,
-): boolean =>
-  key?.validTypes === undefined ||
-  key?.validTypes?.includes(<T>flags?.[key?.id]?.value)
-    ? flags?.[key?.id]?.enabled
-    : false;
-
-export const getFeatureValue = <T extends FeatureValue = string>(
-  key: Features<T>,
-  flags: IFlags,
-): T => {
-  if (isFeaturedEnabled(key, flags)) {
-    return <T>flags[key?.id].value;
-  }
-
-  return key?.defaultValue ?? undefined;
+const feature = {
+  feedVersion: new Feature('feed_version', 1),
+  onboardingV2: new Feature('onboarding_v2', OnboardingV2.Control),
+  search: new Feature('search', SearchExperiment.Control),
+  onboardingFilterTitle: new Feature(
+    'onboarding_filtering_title',
+    OnboardingFilteringTitle.Control,
+  ),
+  engagementLoopJuly2023Companion: new Feature(
+    'engagement_loop_july2023_companion',
+  ),
+  engagementLoopJuly2023Upvote: new Feature('engagement_loop_july2023_upvote'),
 };
 
-export const getNumberValue = (
-  value: string | number,
-  defaultValue?: number,
-): number => {
-  if (typeof value === 'number') {
-    return value;
-  }
-
-  try {
-    const result = parseInt(value, 10);
-    return result;
-  } catch (err) {
-    return defaultValue;
-  }
-};
+export { feature };

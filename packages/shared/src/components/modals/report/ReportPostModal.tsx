@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from 'react';
 import { RadioOption } from '../../fields/Radio';
-import { Post, ReportReason } from '../../../graphql/posts';
+import { Post, ReadHistoryPost, ReportReason } from '../../../graphql/posts';
 import { Checkbox } from '../../fields/Checkbox';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { PostBootData } from '../../../lib/boot';
@@ -26,14 +26,14 @@ interface OptionalProps {
 }
 
 export type ReportedCallback = (
-  post: Post | PostBootData,
+  post: Post | PostBootData | ReadHistoryPost,
   options: OptionalProps,
 ) => void;
 
 interface Props extends ModalProps {
   index?: number;
   origin: Origin;
-  post: Post | PostBootData;
+  post: Post | PostBootData | ReadHistoryPost;
   onReported?: ReportedCallback;
 }
 
@@ -54,7 +54,7 @@ const reportReasonsMap: Partial<
       selectedTags,
       setSelectedTags,
     }: {
-      post: Post;
+      post: Post | ReadHistoryPost;
       selectedTags: string[];
       setSelectedTags: Dispatch<SetStateAction<string[]>>;
     }) => ReactElement

@@ -2,7 +2,6 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { SharePostCard } from './SharePostCard';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import { sharePost } from '../../../__tests__/fixture/post';
 import { PostCardProps } from './common';
 
@@ -24,11 +23,9 @@ beforeEach(() => {
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
-    <FeaturesContextProvider flags={{}}>
-      <QueryClientProvider client={new QueryClient()}>
-        <SharePostCard {...defaultProps} {...props} />
-      </QueryClientProvider>
-    </FeaturesContextProvider>,
+    <QueryClientProvider client={new QueryClient()}>
+      <SharePostCard {...defaultProps} {...props} />
+    </QueryClientProvider>,
   );
 };
 
@@ -43,9 +40,7 @@ it('should call on upvote click on upvote button click', async () => {
   renderComponent();
   const el = await screen.findByLabelText('Upvote');
   el.click();
-  await waitFor(() =>
-    expect(defaultProps.onUpvoteClick).toBeCalledWith(post, true),
-  );
+  await waitFor(() => expect(defaultProps.onUpvoteClick).toBeCalledWith(post));
 });
 
 it('should call on comment click on comment button click', async () => {

@@ -1,6 +1,6 @@
 import { MainFeedPage } from '../../components/utilities';
 import { useFeature } from '../../components/GrowthBookProvider';
-import { Features } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 
 interface UseFeedNameProps {
@@ -19,7 +19,7 @@ export const useFeedName = ({
   feedName,
   isSearchOn,
 }: UseFeedNameProps): UseFeedName => {
-  const searchVersion = useFeature(Features.Search);
+  const searchVersion = useFeature(feature.search);
 
   return {
     isUpvoted:

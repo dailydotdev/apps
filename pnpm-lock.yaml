@@ -420,9 +420,6 @@ importers:
       classnames:
         specifier: ^2.3.1
         version: 2.3.1
-      flagsmith:
-        specifier: ^1.6.10
-        version: 1.6.10
       graphql-ws:
         specifier: ^5.5.5
         version: 5.5.5(graphql@15.8.0)
@@ -6611,10 +6608,6 @@ packages:
     dependencies:
       locate-path: 5.0.0
       path-exists: 4.0.0
-
-  /flagsmith@1.6.10:
-    resolution: {integrity: sha512-KzDxsTVb4RD0sLbiqSIWQKi3PxIEFQ6bjubHY1LQ4Up/XQdRKKwRQilGCZpTUVEZMPBEAYMwCQ662oXDsk8oeg==}
-    dev: false
 
   /flat-cache@3.0.4:
     resolution: {integrity: sha512-dm9s5Pw7Jc0GvMYbshN6zchCA9RgQlzzEZX3vylR9IqFfS8XciblUXOKfW6SiuJ0e13eDYZoZV5wdrev7P3Nwg==}

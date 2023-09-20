@@ -1,11 +1,16 @@
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import dynamic from 'next/dynamic';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
-import useFeedVotePost from '../hooks/feed/useFeedVotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick, {
@@ -28,13 +33,16 @@ import { useSharePost } from '../hooks/useSharePost';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
-import { useFeaturesContext } from '../contexts/FeaturesContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
+import { ActiveFeedContext } from '../contexts';
+import { useFeedVotePost } from '../hooks';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -112,7 +120,7 @@ export default function Feed<T>({
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { onboardingV2 } = useFeaturesContext();
+  const onboardingV2 = useFeature(feature.onboardingV2);
   const {
     openNewTab,
     spaciness,
@@ -136,6 +144,12 @@ export default function Feed<T>({
     numCards,
     { query, variables, options },
   );
+  const feedContextValue = useMemo(() => {
+    return {
+      queryKey: feedQueryKey,
+      items,
+    };
+  }, [feedQueryKey, items]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {
@@ -180,6 +194,13 @@ export default function Feed<T>({
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
 
+  const { toggleUpvote, toggleDownvote } = useFeedVotePost({
+    feedName,
+    ranking,
+    items,
+    updatePost,
+  });
+
   if (!loadedSettings) {
     return <></>;
   }
@@ -193,15 +214,6 @@ export default function Feed<T>({
     // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useCommentPopup(feedName);
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { onUpvote } = useFeedVotePost(
-    items,
-    updatePost,
-    virtualizedNumCards,
-    feedName,
-    ranking,
-  );
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const onBookmark = useFeedBookmarkPost(
@@ -379,84 +391,90 @@ export default function Feed<T>({
   );
 
   return (
-    <FeedContainer
-      forceCardMode={forceCardMode}
-      header={header}
-      className={className}
-      showSearch={showSearch && isValidFeed}
-      besideSearch={besideSearch}
-      actionButtons={actionButtons}
-      afterFeed={
-        showScrollOnboardingVersion ? (
-          <ScrollFeedFiltersOnboarding
-            onInitializeOnboarding={onInitializeOnboardingClick}
+    <ActiveFeedContext.Provider value={feedContextValue}>
+      <FeedContainer
+        forceCardMode={forceCardMode}
+        header={header}
+        className={className}
+        showSearch={showSearch && isValidFeed}
+        besideSearch={besideSearch}
+        actionButtons={actionButtons}
+        afterFeed={
+          showScrollOnboardingVersion ? (
+            <ScrollFeedFiltersOnboarding
+              onInitializeOnboarding={onInitializeOnboardingClick}
+            />
+          ) : null
+        }
+      >
+        {items.map((item, index) => (
+          <FeedItemComponent
+            items={items}
+            index={index}
+            row={calculateRow(index, virtualizedNumCards)}
+            column={calculateColumn(index, virtualizedNumCards)}
+            columns={virtualizedNumCards}
+            key={getFeedItemKey(items, index)}
+            useList={useList}
+            openNewTab={openNewTab}
+            insaneMode={insaneMode}
+            postMenuIndex={postMenuIndex}
+            showCommentPopupId={showCommentPopupId}
+            setShowCommentPopupId={setShowCommentPopupId}
+            isSendingComment={isSendingComment}
+            comment={comment}
+            user={user}
+            feedName={feedName}
+            ranking={ranking}
+            toggleUpvote={toggleUpvote}
+            toggleDownvote={toggleDownvote}
+            onBookmark={onBookmark}
+            onPostClick={onPostCardClick}
+            onShare={onShareClick}
+            onMenuClick={onMenuClick}
+            onShareClick={onShareMenuClickTracked}
+            onCommentClick={onCommentClick}
+            onAdClick={onAdClick}
+            onReadArticleClick={onReadArticleClick}
           />
-        ) : null
-      }
-    >
-      {items.map((item, index) => (
-        <FeedItemComponent
-          items={items}
-          index={index}
-          row={calculateRow(index, virtualizedNumCards)}
-          column={calculateColumn(index, virtualizedNumCards)}
-          columns={virtualizedNumCards}
-          key={getFeedItemKey(items, index)}
-          useList={useList}
-          openNewTab={openNewTab}
-          insaneMode={insaneMode}
-          postMenuIndex={postMenuIndex}
-          showCommentPopupId={showCommentPopupId}
-          setShowCommentPopupId={setShowCommentPopupId}
-          isSendingComment={isSendingComment}
-          comment={comment}
-          user={user}
+        ))}
+        <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+        <PostOptionsMenu
+          {...commonMenuItems}
           feedName={feedName}
-          ranking={ranking}
-          onUpvote={onUpvote}
-          onBookmark={onBookmark}
-          onPostClick={onPostCardClick}
-          onShare={onShareClick}
-          onMenuClick={onMenuClick}
-          onShareClick={onShareMenuClickTracked}
-          onCommentClick={onCommentClick}
-          onAdClick={onAdClick}
-          onReadArticleClick={onReadArticleClick}
-        />
-      ))}
-      <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-      <PostOptionsMenu
-        {...commonMenuItems}
-        feedName={feedName}
-        feedQueryKey={feedQueryKey}
-        postIndex={postMenuIndex}
-        onHidden={() => setPostMenuIndex(null)}
-        onRemovePost={onRemovePost}
-        origin={Origin.Feed}
-        allowPin={allowPin}
-      />
-      <ShareOptionsMenu {...commonMenuItems} onHidden={onShareOptionsHidden} />
-      {selectedPost && ArticleModal && (
-        <ArticleModal
-          isOpen={!!selectedPost}
-          id={selectedPost.id}
-          onRequestClose={() => onCloseModal(false)}
-          onPreviousPost={onPrevious}
-          onNextPost={onNext}
-          postPosition={postPosition}
-          post={selectedPost}
-          onRemovePost={() => onRemovePost(selectedPostIndex)}
-        />
-      )}
-      {sharePost && (
-        <ShareModal
-          isOpen={!!sharePost}
-          post={sharePost}
+          feedQueryKey={feedQueryKey}
+          postIndex={postMenuIndex}
+          onHidden={() => setPostMenuIndex(null)}
+          onRemovePost={onRemovePost}
           origin={Origin.Feed}
-          {...sharePostFeedLocation}
-          onRequestClose={closeSharePost}
+          allowPin={allowPin}
         />
-      )}
-    </FeedContainer>
+        <ShareOptionsMenu
+          {...commonMenuItems}
+          onHidden={onShareOptionsHidden}
+        />
+        {selectedPost && ArticleModal && (
+          <ArticleModal
+            isOpen={!!selectedPost}
+            id={selectedPost.id}
+            onRequestClose={() => onCloseModal(false)}
+            onPreviousPost={onPrevious}
+            onNextPost={onNext}
+            postPosition={postPosition}
+            post={selectedPost}
+            onRemovePost={() => onRemovePost(selectedPostIndex)}
+          />
+        )}
+        {sharePost && (
+          <ShareModal
+            isOpen={!!sharePost}
+            post={sharePost}
+            origin={Origin.Feed}
+            {...sharePostFeedLocation}
+            onRequestClose={closeSharePost}
+          />
+        )}
+      </FeedContainer>
+    </ActiveFeedContext.Provider>
   );
 }

@@ -8,17 +8,23 @@ import { Post } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
 import { visibleOnGroupHover } from './common';
 
+interface PostCardFooterClassName {
+  image?: string;
+}
+
 type PostCardFooterProps = {
   insaneMode: boolean;
   openNewTab: boolean;
   showImage: boolean;
   post: Post;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
+  className: PostCardFooterClassName;
 };
 
 export const PostCardFooter = ({
   post,
   showImage,
+  className,
 }: PostCardFooterProps): ReactElement => {
   return (
     <>
@@ -36,7 +42,7 @@ export const PostCardFooter = ({
           alt="Post Cover image"
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className="object-cover my-2"
+          className={classNames('object-cover my-2', className.image)}
           loading="lazy"
         />
       )}

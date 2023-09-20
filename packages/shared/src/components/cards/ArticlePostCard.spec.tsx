@@ -8,7 +8,6 @@ import {
 } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ArticlePostCard } from './ArticlePostCard';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import post from '../../../__tests__/fixture/post';
 import { PostCardProps, visibleOnGroupHover } from './common';
 import { AuthContextProvider } from '../../contexts/AuthContext';
@@ -30,18 +29,16 @@ beforeEach(() => {
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
-    <FeaturesContextProvider flags={{}}>
-      <AuthContextProvider
-        user={null}
-        updateUser={jest.fn()}
-        tokenRefreshed={false}
-        getRedirectUri={jest.fn()}
-      >
-        <QueryClientProvider client={new QueryClient()}>
-          <ArticlePostCard {...defaultProps} {...props} />
-        </QueryClientProvider>
-      </AuthContextProvider>
-    </FeaturesContextProvider>,
+    <AuthContextProvider
+      user={null}
+      updateUser={jest.fn()}
+      tokenRefreshed={false}
+      getRedirectUri={jest.fn()}
+    >
+      <QueryClientProvider client={new QueryClient()}>
+        <ArticlePostCard {...defaultProps} {...props} />
+      </QueryClientProvider>
+    </AuthContextProvider>,
   );
 };
 
@@ -65,9 +62,7 @@ it('should call on upvote click on upvote button click', async () => {
   renderComponent();
   const el = await screen.findByLabelText('Upvote');
   el.click();
-  await waitFor(() =>
-    expect(defaultProps.onUpvoteClick).toBeCalledWith(post, true),
-  );
+  await waitFor(() => expect(defaultProps.onUpvoteClick).toBeCalledWith(post));
 });
 
 it('should call on comment click on comment button click', async () => {

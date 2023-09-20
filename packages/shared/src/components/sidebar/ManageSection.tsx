@@ -7,7 +7,7 @@ import SettingsIcon from '../icons/Settings';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useFeature } from '../GrowthBookProvider';
-import { Features } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 
 interface ManageSectionProps extends SectionCommonProps {
@@ -26,7 +26,7 @@ export function ManageSection({
   onShowSettings,
   ...props
 }: ManageSectionProps): ReactElement {
-  const searchValue = useFeature(Features.Search);
+  const searchValue = useFeature(feature.search);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const manageMenuItems: SidebarMenuItem[] = [
     {
