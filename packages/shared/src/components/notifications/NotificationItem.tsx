@@ -1,6 +1,5 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
 import { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
