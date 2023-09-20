@@ -12,16 +12,14 @@ import {
 
 import {
   ADD_BOOKMARKS_MUTATION,
-  CANCEL_UPVOTE_MUTATION,
   Post,
   POST_BY_ID_QUERY,
   PostData,
   PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
-  UPVOTE_MUTATION,
   PostType,
-  DOWNVOTE_MUTATION,
-  CANCEL_DOWNVOTE_MUTATION,
+  VOTE_POST_MUTATION,
+  UserPostVote,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -357,8 +355,11 @@ it('should send upvote mutation', async () => {
     createCommentsMock(),
     {
       request: {
-        query: UPVOTE_MUTATION,
-        variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '0e4005b2d3cf191f8c44c2718a457a1e',
+          vote: UserPostVote.Up,
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -374,12 +375,19 @@ it('should send upvote mutation', async () => {
 it('should send cancel upvote mutation', async () => {
   let mutationCalled = false;
   renderPost({}, [
-    createPostMock({ upvoted: true }),
+    createPostMock({
+      userState: {
+        vote: UserPostVote.Up,
+      },
+    }),
     createCommentsMock(),
     {
       request: {
-        query: CANCEL_UPVOTE_MUTATION,
-        variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '0e4005b2d3cf191f8c44c2718a457a1e',
+          vote: UserPostVote.None,
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -665,8 +673,11 @@ it('should send downvote mutation', async () => {
     createCommentsMock(),
     {
       request: {
-        query: DOWNVOTE_MUTATION,
-        variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '0e4005b2d3cf191f8c44c2718a457a1e',
+          vote: UserPostVote.Down,
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -684,12 +695,19 @@ it('should send cancel downvote mutation', async () => {
   let mutationCalled = false;
 
   renderPost({}, [
-    createPostMock({ downvoted: true }),
+    createPostMock({
+      userState: {
+        vote: UserPostVote.Down,
+      },
+    }),
     createCommentsMock(),
     {
       request: {
-        query: CANCEL_DOWNVOTE_MUTATION,
-        variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '0e4005b2d3cf191f8c44c2718a457a1e',
+          vote: UserPostVote.None,
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -706,12 +724,20 @@ it('should send cancel downvote mutation', async () => {
 it('should decrement number of upvotes if downvoting post that was upvoted', async () => {
   let mutationCalled = false;
   renderPost({}, [
-    createPostMock({ upvoted: true, numUpvotes: 15 }),
+    createPostMock({
+      userState: {
+        vote: UserPostVote.Up,
+      },
+      numUpvotes: 15,
+    }),
     createCommentsMock(),
     {
       request: {
-        query: DOWNVOTE_MUTATION,
-        variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+        query: VOTE_POST_MUTATION,
+        variables: {
+          id: '0e4005b2d3cf191f8c44c2718a457a1e',
+          vote: UserPostVote.Down,
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -755,15 +781,23 @@ describe('downvote flow', () => {
     let queryCalled = false;
     renderPost({}, [
       createActionsMock(),
-      createPostMock({ upvoted: true, numUpvotes: 15 }),
+      createPostMock({
+        userState: {
+          vote: UserPostVote.Up,
+        },
+        numUpvotes: 15,
+      }),
       createAllTagCategoriesMock(() => {
         queryCalled = true;
       }),
       createCommentsMock(),
       {
         request: {
-          query: DOWNVOTE_MUTATION,
-          variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+          query: VOTE_POST_MUTATION,
+          variables: {
+            id: '0e4005b2d3cf191f8c44c2718a457a1e',
+            vote: UserPostVote.Down,
+          },
         },
         result: () => ({ data: { _: true } }),
       },

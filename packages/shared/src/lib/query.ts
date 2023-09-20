@@ -4,9 +4,12 @@ import {
   QueryClientConfig,
   QueryKey,
 } from 'react-query';
+import cloneDeep from 'lodash.clonedeep';
 import { Connection } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
+import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
+import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
@@ -126,4 +129,88 @@ export const defaultQueryClientConfig: QueryClientConfig = {
       refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
     },
   },
+};
+
+export const updateCachedPage = (
+  feedQueryKey: unknown[],
+  queryClient: QueryClient,
+  pageIndex: number,
+  manipulate: (page: Connection<Post>) => Connection<Post>,
+): void => {
+  queryClient.setQueryData<InfiniteData<FeedData>>(
+    feedQueryKey,
+    (currentData) => {
+      const { pages } = currentData;
+      const currentPage = cloneDeep(pages[pageIndex]);
+      currentPage.page = manipulate(currentPage.page);
+      const newPages = [
+        ...pages.slice(0, pageIndex),
+        currentPage,
+        ...pages.slice(pageIndex + 1),
+      ];
+      return { pages: newPages, pageParams: currentData.pageParams };
+    },
+  );
+};
+
+export const updateCachedPagePost =
+  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (pageIndex: number, index: number, post: Post): void => {
+    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      // eslint-disable-next-line no-param-reassign
+      page.edges[index].node = post;
+      return page;
+    });
+  };
+
+export const removeCachedPagePost =
+  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (pageIndex: number, index: number): void => {
+    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      // eslint-disable-next-line no-param-reassign
+      page.edges.splice(index, 1);
+      return page;
+    });
+  };
+
+export const updateReadingHistoryListPost = ({
+  queryKey,
+  pageIndex,
+  index,
+  manipulate,
+  queryClient,
+}: {
+  queryKey: unknown[];
+  pageIndex: number;
+  index: number;
+  manipulate: (post: ReadHistoryPost) => ReadHistoryPost;
+  queryClient: QueryClient;
+}): (() => void) => {
+  const oldData = !!queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
+
+  if (!oldData) {
+    return () => undefined;
+  }
+
+  queryClient.setQueryData<ReadHistoryInfiniteData>(queryKey, (currentData) => {
+    const updatedPage = cloneDeep(currentData.pages[pageIndex]);
+    const currentPostNode = updatedPage.readHistory.edges[index].node;
+
+    currentPostNode.post = {
+      ...currentPostNode.post,
+      ...manipulate(currentPostNode.post),
+    };
+
+    const updatedPages = [...currentData.pages];
+    updatedPages.splice(pageIndex, 1, updatedPage);
+
+    return {
+      ...currentData,
+      pages: updatedPages,
+    };
+  });
+
+  return () => {
+    queryClient.setQueryData(queryKey, oldData);
+  };
 };
