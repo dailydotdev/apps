@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { Notification } from '../../graphql/notifications';
@@ -16,7 +16,7 @@ export interface NotificationItemProps
   > {
   isUnread?: boolean;
   targetUrl: string;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onClick: MouseEventHandler;
   onOptionsClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
@@ -28,7 +28,6 @@ function NotificationItem({
   description,
   avatars,
   attachments,
-  targetUrl,
   onClick,
   onOptionsClick,
 }: NotificationItemProps): ReactElement {
@@ -51,55 +50,58 @@ function NotificationItem({
   const hasAvatar = avatarComponents.length > 0;
 
   return (
-    <Link href={targetUrl} passHref>
-      <a
-        href={targetUrl}
+    <div
+      className={classNames(
+        'relative group flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
+        isUnread && 'bg-theme-float',
+      )}
+    >
+      <button
+        type="button"
+        aria-label="Open notification"
+        className="absolute inset-0"
+        title={title}
         onClick={onClick}
-        className={classNames(
-          'relative group flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
-          isUnread && 'bg-theme-float',
-        )}
-      >
-        {onOptionsClick && (
-          <OptionsButton
-            className="hidden group-hover:flex top-3 right-2"
-            position="absolute"
-            type="button"
-            onClick={onOptionsClick}
-          />
-        )}
-        <NotificationItemIcon
-          icon={icon}
-          iconTheme={notificationTypeTheme[type]}
+      />
+      {onOptionsClick && (
+        <OptionsButton
+          className="hidden group-hover:flex top-3 right-2"
+          position="absolute"
+          type="button"
+          onClick={onOptionsClick}
         />
-        <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
-          {hasAvatar && (
-            <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
-          )}
-          <span
-            className="break-words"
+      )}
+      <NotificationItemIcon
+        icon={icon}
+        iconTheme={notificationTypeTheme[type]}
+      />
+      <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
+        {hasAvatar && (
+          <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
+        )}
+        <span
+          className="break-words"
+          dangerouslySetInnerHTML={{
+            __html: memoizedTitle,
+          }}
+        />
+        {description && (
+          <p
+            className="mt-2 w-4/5 break-words text-theme-label-quaternary"
             dangerouslySetInnerHTML={{
-              __html: memoizedTitle,
+              __html: memoizedDescription,
             }}
           />
-          {description && (
-            <p
-              className="mt-2 w-4/5 break-words text-theme-label-quaternary"
-              dangerouslySetInnerHTML={{
-                __html: memoizedDescription,
-              }}
-            />
-          )}
-          {attachments?.map(({ image, title: attachment }) => (
-            <NotificationItemAttachment
-              key={attachment}
-              image={image}
-              title={attachment}
-            />
-          ))}
-        </div>
-      </a>
-    </Link>
+        )}
+        {attachments?.map(({ image, title: attachment }) => (
+          <NotificationItemAttachment
+            key={attachment}
+            image={image}
+            title={attachment}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
