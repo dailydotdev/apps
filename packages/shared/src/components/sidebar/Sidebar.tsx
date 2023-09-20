@@ -45,7 +45,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { user, squads } = useContext(AuthContext);
+  const { user, squads, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const {
     toggleSidebarExpanded,
@@ -105,7 +105,7 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {!alerts?.filter && (
+            {isLoggedIn && (
               <MyFeedButton
                 {...defaultRenderSectionProps}
                 isButton={isNavButtons}

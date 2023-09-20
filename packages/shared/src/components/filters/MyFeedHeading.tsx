@@ -8,7 +8,6 @@ import AlertPointer, {
 } from '../alert/AlertPointer';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
-import { FeedHeading } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { useFeature } from '../GrowthBookProvider';
@@ -16,7 +15,6 @@ import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 
 interface MyFeedHeadingProps {
-  hasFiltered: boolean;
   isAlertDisabled: boolean;
   sidebarRendered: boolean;
   onOpenFeedFilters: () => void;
@@ -24,7 +22,6 @@ interface MyFeedHeadingProps {
 }
 
 function MyFeedHeading({
-  hasFiltered,
   isAlertDisabled,
   sidebarRendered,
   onUpdateAlerts,
@@ -37,10 +34,6 @@ function MyFeedHeading({
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
     onOpenFeedFilters();
   };
-
-  if (!hasFiltered) {
-    return <FeedHeading>My feed</FeedHeading>;
-  }
 
   const alertProps: Omit<AlertPointerProps, 'children'> = {
     offset: sidebarRendered ? [4, 0] : [-32, 4],
