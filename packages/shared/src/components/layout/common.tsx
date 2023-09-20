@@ -78,7 +78,6 @@ export const SearchControlHeader = ({
   const feedHeading = {
     [MainFeedPage.MyFeed]: (
       <MyFeedHeading
-        hasFiltered={hasFiltered}
         isAlertDisabled={!hasMyFeedAlert}
         sidebarRendered={sidebarRendered}
         onOpenFeedFilters={openFeedFilters}
@@ -102,7 +101,6 @@ export const SearchControlHeader = ({
       feedName === MainFeedPage.MyFeed ? (
         <MyFeedHeading
           key="my-feed"
-          hasFiltered={!alerts?.filter}
           isAlertDisabled={!alerts.myFeed}
           sidebarRendered={sidebarRendered}
           onOpenFeedFilters={openFeedFilters}
