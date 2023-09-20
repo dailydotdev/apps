@@ -40,16 +40,16 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   );
 
 const contextId = 'notifications-context-menu';
+const seo = (
+  <NextSeo
+    title="Notifications"
+    nofollow
+    noindex
+    titleTemplate="%s | daily.dev"
+  />
+);
 
 const Notifications = (): ReactElement => {
-  const seo = (
-    <NextSeo
-      title="Notifications"
-      nofollow
-      noindex
-      titleTemplate="%s | daily.dev"
-    />
-  );
   const { trackEvent } = useAnalyticsContext();
   const { clearUnreadCount, isSubscribed } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
@@ -181,8 +181,4 @@ const getNotificationsLayout: typeof getLayout = (...props) =>
 
 Notifications.getLayout = getNotificationsLayout;
 
-// TODO WT-1778-move-to-react this is to make build pass
-// revert to Notifications export and fix the react render error
-export default process.env.NODE_ENV === 'test'
-  ? Notifications
-  : (): ReactElement => null;
+export default Notifications;
