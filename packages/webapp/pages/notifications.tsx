@@ -181,8 +181,4 @@ const getNotificationsLayout: typeof getLayout = (...props) =>
 
 Notifications.getLayout = getNotificationsLayout;
 
-// TODO WT-1778-move-to-react this is to make build pass
-// revert to Notifications export and fix the react render error
-export default process.env.NODE_ENV === 'test'
-  ? Notifications
-  : (): ReactElement => null;
+export default Notifications;
