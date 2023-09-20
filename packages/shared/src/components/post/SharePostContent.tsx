@@ -15,14 +15,16 @@ import { combinedClicks } from '../../lib/click';
 interface PostLinkProps {
   href: string;
   as?: string;
+  target?: string;
+  rel?: string;
   className?: string;
   children: React.ReactNode;
 }
 
-const PostLink = ({ href, as, className, children }: PostLinkProps) => {
+const PostLink = ({ href, as, children, ...props }: PostLinkProps) => {
   return (
     <Link href={href} as={as}>
-      <a className={className}>{children}</a>
+      <a {...props}>{children}</a>
     </Link>
   );
 };
@@ -49,12 +51,16 @@ function SharePostContent({
   }, [shouldShowSummary, height]);
 
   const isUnknownSource = post.sharedPost.source.id === 'unknown';
-  const postLink = {
-    href: isUnknownSource
-      ? post.sharedPost.permalink
-      : `${post.sharedPost.commentsPermalink}?squad=${post.source.handle}&n=${post.source.name}`,
-    as: isUnknownSource ? undefined : post.sharedPost.commentsPermalink,
-  };
+  const postLink = isUnknownSource
+    ? {
+        href: post.sharedPost.permalink,
+        target: '_blank',
+        rel: 'noopener',
+      }
+    : {
+        href: `${post.sharedPost.commentsPermalink}?squad=${post.source.handle}&n=${post.source.name}`,
+        as: post.sharedPost.commentsPermalink,
+      };
 
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
