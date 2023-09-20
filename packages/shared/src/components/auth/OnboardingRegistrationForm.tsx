@@ -137,15 +137,15 @@ const OnboardingRegistrationForm = ({
       <OrDivider className="mb-8" label="Or sign up with" />
 
       <div className="flex gap-8">
-        {signupProviders.map(({ provider, icon }) => (
+        {signupProviders.map((provider) => (
           <Button
-            key={provider}
+            key={provider.value}
             className="flex flex-1 text-white bg-theme-active"
-            icon={icon}
+            icon={provider.icon}
             loading={!isReady}
-            onClick={() => onSocialClick(provider)}
+            onClick={() => onSocialClick(provider.value)}
           >
-            {provider}
+            {provider.label}
           </Button>
         ))}
       </div>
