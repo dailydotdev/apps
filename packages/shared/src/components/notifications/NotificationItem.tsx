@@ -43,7 +43,11 @@ function NotificationItem({
   const avatarComponents =
     avatars
       ?.map?.((avatar) => (
-        <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
+        <NotificationItemAvatar
+          key={avatar.referenceId}
+          className="z-1"
+          {...avatar}
+        />
       ))
       .filter((avatar) => avatar) ?? [];
   const hasAvatar = avatarComponents.length > 0;
@@ -59,8 +63,7 @@ function NotificationItem({
         <button
           type="button"
           aria-label="Open notification"
-          className="absolute inset-0"
-          title={title}
+          className="absolute inset-0 z-0"
           onClick={onClick}
         />
       )}
