@@ -129,11 +129,6 @@ export function OnboardPage(): ReactElement {
   const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
-  const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY),
-    isLoginFlow: false,
-  });
-  const { isAuthenticating, isLoginFlow } = auth;
   const { onShouldUpdateFilters } = useOnboardingContext();
   const onboardingV2 = useFeature(feature.onboardingV2);
   const onboardingV3 = useFeature(feature.onboardingV3);
@@ -144,6 +139,11 @@ export function OnboardPage(): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const { alerts } = useContext(AlertContext);
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
+  const [auth, setAuth] = useState<AuthProps>({
+    isAuthenticating: isOnboardingV3 && !!storage.getItem(SIGNIN_METHOD_KEY),
+    isLoginFlow: false,
+  });
+  const { isAuthenticating, isLoginFlow } = auth;
 
   const formRef = useRef<HTMLFormElement>();
   const title = versionToTitle[filteringTitle];
