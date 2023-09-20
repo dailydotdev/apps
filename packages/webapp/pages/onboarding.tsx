@@ -137,6 +137,7 @@ export function OnboardPage(): ReactElement {
   const { onShouldUpdateFilters } = useOnboardingContext();
   const onboardingV2 = useFeature(feature.onboardingV2);
   const onboardingV3 = useFeature(feature.onboardingV3);
+  const isOnboardingV3 = onboardingV3 !== OnboardingV3.Control;
   const { growthbook } = useGrowthBookContext();
   const filteringTitle = useFeature(feature.onboardingFilterTitle);
   const { onboardingIntroduction } = useThemedAsset();
@@ -144,7 +145,6 @@ export function OnboardPage(): ReactElement {
   const { alerts } = useContext(AlertContext);
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
 
-  const isOnboardingV3 = onboardingV3 !== OnboardingV3.Control;
   const formRef = useRef<HTMLFormElement>();
   const title = versionToTitle[filteringTitle];
   const percentage = isAuthenticating ? 100 : 50;
@@ -195,7 +195,7 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    if (user || onboardingV2 === OnboardingV2.Control) {
+    if (user || (onboardingV2 === OnboardingV2.Control && !isOnboardingV3)) {
       router.push('/');
       return;
     }
@@ -211,7 +211,7 @@ export function OnboardPage(): ReactElement {
       }),
     });
     isTracked.current = true;
-  }, [trackEvent, isPageReady, onboardingV2, router, user]);
+  }, [trackEvent, isPageReady, onboardingV2, router, user, isOnboardingV3]);
 
   useEffect(() => {
     updateCookieBanner(user);
@@ -391,7 +391,7 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex flex-wrap justify-center px-6 w-full max-w-[75rem] tablet:gap-10',
-          !isAuthenticating && 'flex-1 mt-8 laptop:mt-20',
+          !isAuthenticating && isOnboardingV3 && 'flex-1 mt-8 laptop:mt-20',
         )}
       >
         {showOnboardingPage && isOnboardingV3 && (
