@@ -75,7 +75,7 @@ export const AuthSignBack = ({
           wrapper={(component) => (
             <div className="relative">
               {component}
-              <span className="absolute right-0 bottom-0 p-1 bg-white rounded-8">
+              <span className="absolute right-0 bottom-0 p-1 bg-white rounded-8 text-theme-label-invert">
                 {providerItem.icon}
               </span>
             </div>
