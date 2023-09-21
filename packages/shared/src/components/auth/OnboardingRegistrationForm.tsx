@@ -19,6 +19,8 @@ import MailIcon from '../icons/Mail';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 
+const signupProviders = [providerMap.google, providerMap.github];
+
 interface OnboardingRegistrationFormProps extends AuthFormProps {
   onExistingEmail?: (email: string) => unknown;
   onSignup?: (email: string) => unknown;
@@ -95,8 +97,6 @@ const OnboardingRegistrationForm = ({
   const onSocialClick = (provider: string) => {
     onProviderClick?.(provider, shouldLogin);
   };
-
-  const signupProviders = [providerMap.google, providerMap.github];
 
   return (
     <>
