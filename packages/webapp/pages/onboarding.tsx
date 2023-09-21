@@ -206,7 +206,7 @@ export function OnboardPage(): ReactElement {
     trackEvent({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.MyFeedModal,
-      target_id: onboardingV2,
+      target_id: isOnboardingV3 ? onboardingV3 : onboardingV2,
       extra: JSON.stringify({
         origin: OnboardingMode.Wall,
         steps: [OnboardingStep.Topics],
@@ -214,7 +214,15 @@ export function OnboardPage(): ReactElement {
       }),
     });
     isTracked.current = true;
-  }, [trackEvent, isPageReady, onboardingV2, router, user, isOnboardingV3]);
+  }, [
+    trackEvent,
+    isPageReady,
+    onboardingV2,
+    router,
+    user,
+    isOnboardingV3,
+    onboardingV3,
+  ]);
 
   useEffect(() => {
     updateCookieBanner(user);
