@@ -83,7 +83,7 @@ const seo: NextSeoProps = {
 interface HeaderProps {
   showOnboardingPage: boolean;
   isOnboardingV3: boolean;
-  setAuth: React.Dispatch<React.SetStateAction<AuthProps>>;
+  setAuth: Dispatch<SetStateAction<AuthProps>>;
 }
 const Header = ({
   showOnboardingPage,
