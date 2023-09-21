@@ -106,6 +106,7 @@ const OnboardingRegistrationForm = ({
       <AuthForm className="gap-8 mb-8" onSubmit={onEmailSignup}>
         <TextField
           leftIcon={<MailIcon size={IconSize.Small} />}
+          required
           inputId="email"
           label="Email"
           type="email"
