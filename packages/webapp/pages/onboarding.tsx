@@ -160,6 +160,18 @@ export function OnboardPage(): ReactElement {
       return setIsFiltering(true);
     }
 
+    if (isOnboardingV3) {
+      setFinishedOnboarding(true);
+      if (!hasSelectTopics) {
+        trackEvent({
+          event_name: AnalyticsEvent.OnboardingSkip,
+        });
+
+        onShouldUpdateFilters(true);
+      }
+      return router.push('/');
+    }
+
     return setAuth({ isAuthenticating: true, isLoginFlow: false });
   };
 
