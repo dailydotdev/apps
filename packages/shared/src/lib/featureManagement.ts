@@ -19,7 +19,7 @@ export class Feature<T extends JSONValue> {
 const feature = {
   feedVersion: new Feature('feed_version', 1),
   onboardingV2: new Feature('onboarding_v2', OnboardingV2.Control),
-  search: new Feature('search', SearchExperiment.V1),
+  search: new Feature('search', SearchExperiment.Control),
   onboardingFilterTitle: new Feature(
     'onboarding_filtering_title',
     OnboardingFilteringTitle.Control,
