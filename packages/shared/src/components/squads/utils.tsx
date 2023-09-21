@@ -1,4 +1,3 @@
-import React from 'react';
 import classed from '../../lib/classed';
 import { BasePageContainer, pageBorders } from '../utilities';
 
