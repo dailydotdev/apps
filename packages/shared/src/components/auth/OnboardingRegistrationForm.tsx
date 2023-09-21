@@ -44,8 +44,8 @@ const OnboardingRegistrationForm = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(false);
   const [registerEmail, setRegisterEmail] = useState<string>(null);
-  const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-    checkKratosEmail(emailParam),
+  const { mutateAsync: checkEmail, isLoading } = useMutation(
+    (emailParam: string) => checkKratosEmail(emailParam),
   );
 
   useEffect(() => {
@@ -71,6 +71,9 @@ const OnboardingRegistrationForm = ({
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) {
+      return null;
+    }
 
     trackEvent({
       event_name: 'click',
