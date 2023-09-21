@@ -186,11 +186,10 @@ export function OnboardPage(): ReactElement {
     if (!hasSelectTopics || !alerts?.myFeed) {
       return;
     }
-
-    if (alerts.myFeed === 'created') {
+    if (!isOnboardingV3 && alerts.myFeed === 'created') {
       router.push('/');
     }
-  }, [alerts, hasSelectTopics, router]);
+  }, [alerts, hasSelectTopics, isOnboardingV3, router]);
 
   const isPageReady = growthbook?.ready && isAuthReady;
 
