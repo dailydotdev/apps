@@ -84,7 +84,7 @@ function SharePostContent({
                     ? post.sharedPost.commentsPermalink
                     : post.sharedPost.permalink
                 }
-                openNewTab={openNewTab}
+                openNewTab={isSharedPostSquadPost ? false : openNewTab}
                 title="Go to post"
                 rel="noopener"
                 {...combinedClicks(openArticle)}
