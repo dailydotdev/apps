@@ -76,6 +76,7 @@ const renderComponent = (
         <AuthContext.Provider
           value={{
             user,
+            isLoggedIn: !!user?.id,
             shouldShowLogin: false,
             showLogin: jest.fn(),
             logout: jest.fn(),
