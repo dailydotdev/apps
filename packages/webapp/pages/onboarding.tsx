@@ -60,7 +60,7 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.V4]: 'Choose the topics you’re passionate about',
 };
 
-const Title = classed('h2', 'font-bold typo-title1');
+const Title = classed('h2', 'font-bold');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
 
@@ -297,7 +297,7 @@ export function OnboardPage(): ReactElement {
       >
         {isFiltering && (
           <>
-            <Title className="font-bold text-center">{title}</Title>
+            <Title className="text-center typo-title1">{title}</Title>
             <p className="mt-3 mb-10 text-center text-theme-label-secondary typo-title3">
               Pick a few subjects that interest you. <br />
               You can always change theselater.
@@ -354,7 +354,7 @@ export function OnboardPage(): ReactElement {
     return (
       <>
         {isFiltering ? (
-          <Title className="font-bold typo-title2">{title}</Title>
+          <Title className="typo-title2">{title}</Title>
         ) : (
           <IntroductionOnboardingTitle />
         )}
