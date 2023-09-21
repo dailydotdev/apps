@@ -105,11 +105,8 @@ interface GetDefaultFeedProps {
   hasUser?: boolean;
 }
 
-const getDefaultFeed = ({
-  hasFiltered,
-  hasUser,
-}: GetDefaultFeedProps): MainFeedPage => {
-  if (!hasUser || !hasFiltered) {
+const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): MainFeedPage => {
+  if (!hasUser) {
     return MainFeedPage.Popular;
   }
 
