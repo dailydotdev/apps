@@ -17,8 +17,6 @@ export type Banner = {
   url: string;
 };
 
-export type BannerData = { banner: Banner };
-
 export const BANNER_QUERY = gql`
   query Banner($lastSeen: DateTime) {
     banner(lastSeen: $lastSeen) {
