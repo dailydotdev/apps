@@ -59,33 +59,6 @@ interface InfiniteCacheProps<
   client: QueryClient;
 }
 
-export const filterInfiniteCache = <
-  TEntity extends HasConnection<TEntity>,
-  TKey extends keyof TEntity = keyof TEntity,
-  TData extends TEntity[TKey]['edges'][0] = TEntity[TKey]['edges'][0],
-  TReturn extends InfiniteData<TEntity> = InfiniteData<TEntity>,
->(
-  { client, prop, queryKey }: InfiniteCacheProps<TEntity>,
-  condition: (param: TData) => boolean,
-): TReturn => {
-  return client.setQueryData<TReturn>(queryKey, (data) => {
-    if (!data) {
-      return null;
-    }
-
-    return {
-      ...data,
-      pages: data?.pages?.map((edge) => ({
-        ...edge,
-        [prop]: {
-          ...edge[prop],
-          edges: edge[prop].edges.filter(condition),
-        },
-      })),
-    };
-  });
-};
-
 interface UpdateInfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,
   TData extends TEntity[TKey]['edges'][0]['node'],

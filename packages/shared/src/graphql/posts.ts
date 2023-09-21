@@ -1,6 +1,6 @@
 import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
-import { Connection, Upvote } from './common';
+import { Connection } from './common';
 import { Source, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
@@ -119,20 +119,6 @@ export interface Ad {
   impressionStatus?: number;
 }
 
-export interface ParentComment {
-  handle?: string;
-  authorId?: string;
-  authorName: string;
-  authorImage: string;
-  publishDate?: Date | string;
-  contentHtml?: string;
-  commentId?: string;
-  post: Post;
-  editContent?: string;
-  editId?: string;
-  replyTo?: string;
-}
-
 export type ReadHistoryPost = Pick<
   Post,
   | 'id'
@@ -164,11 +150,6 @@ export interface PostItem {
 
 export interface PostData {
   post: Post;
-}
-
-export interface PostUpvote extends Upvote {
-  post: Post;
-  votedAt: Date;
 }
 
 export const POST_BY_ID_QUERY = gql`
@@ -362,16 +343,6 @@ export const dismissPostFeedback = (id: string): Promise<EmptyResponse> => {
   });
 };
 
-export const votePost = (
-  id: string,
-  vote: UserPostVote,
-): Promise<EmptyResponse> => {
-  return request(graphqlUrl, VOTE_POST_MUTATION, {
-    id,
-    vote,
-  });
-};
-
 export const banPost = (id: string): Promise<EmptyResponse> => {
   return request(graphqlUrl, BAN_POST_MUTATION, {
     id,
@@ -445,12 +416,6 @@ export const POST_BY_URL_QUERY = gql`
   }
   ${SHARED_POST_INFO_FRAGMENT}
 `;
-
-export const getPostByUrl = async (url: string): Promise<Post> => {
-  const res = await request(graphqlUrl, POST_BY_URL_QUERY, { url });
-
-  return res.postByUrl;
-};
 
 export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   mutation SubmitExternalLink(

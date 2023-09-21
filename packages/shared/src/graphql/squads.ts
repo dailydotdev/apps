@@ -287,18 +287,6 @@ export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
 
-export const checkUserMembership = async (
-  sourceId: string,
-  memberId: string,
-): Promise<SourceMember> => {
-  const res = await request(graphqlUrl, CHECK_USER_MEMBERSHIP, {
-    sourceId,
-    memberId,
-  });
-
-  return res.member;
-};
-
 interface SquadMemberMutationProps {
   sourceId: string;
   memberId: string;
