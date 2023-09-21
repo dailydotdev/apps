@@ -1,13 +1,7 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
-import { AuthFormProps, providerMap } from './common';
+import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
@@ -59,15 +53,6 @@ const OnboardingRegistrationForm = ({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
-
-  const getFormEmail = useCallback((e: React.FormEvent) => {
-    const form = e.currentTarget as HTMLFormElement;
-    const input = Array.from(form.elements).find(
-      (el) => el.getAttribute('name') === 'email',
-    ) as HTMLInputElement;
-
-    return input?.value?.trim();
-  }, []);
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
