@@ -154,7 +154,7 @@ it('should get all notifications and send a mutation to read all unread notifica
     unreadCount,
   );
 
-  await waitForNock();
   await screen.findByText(sampleNotification.title);
+  await waitForNock();
   expect(mutationCalled).toBeTruthy();
 });

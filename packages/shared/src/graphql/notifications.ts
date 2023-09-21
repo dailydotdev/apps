@@ -40,15 +40,6 @@ export interface Notification {
   targetUrl: string;
 }
 
-export const newPostCommentTypes = [
-  NotificationType.ArticleNewComment,
-  NotificationType.SquadNewComment,
-];
-export const commentReplyTypes = [
-  NotificationType.SquadReply,
-  NotificationType.CommentReply,
-];
-
 export interface NotificationsData {
   notifications: Connection<Notification>;
 }
