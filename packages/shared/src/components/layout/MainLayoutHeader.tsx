@@ -118,7 +118,7 @@ function MainLayoutHeader({
             <CreatePostButton
               className={classNames(
                 'mr-0 laptop:mr-4',
-                !optOutWeeklyGoal ? 'tablet:mr-4' : 'tablet:mr-0',
+                optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-4',
               )}
             />
           )}
