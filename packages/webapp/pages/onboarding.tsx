@@ -411,6 +411,10 @@ export function OnboardPage(): ReactElement {
 
   const containerClass = isAuthenticating ? maxAuthWidth : 'max-w-[22.25rem]';
 
+  if (!isPageReady) {
+    return null;
+  }
+
   if (finishedOnboarding) {
     return (
       <Container className="justify-center typo-title2">
