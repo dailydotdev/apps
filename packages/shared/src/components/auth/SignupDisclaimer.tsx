@@ -6,9 +6,7 @@ interface SignupDisclaimerProps {
   className?: string;
 }
 
-function SignupDisclaimer({
-  className = '',
-}: SignupDisclaimerProps): ReactElement {
+function SignupDisclaimer({ className }: SignupDisclaimerProps): ReactElement {
   return (
     <p
       className={classNames(
