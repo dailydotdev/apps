@@ -173,9 +173,14 @@ export function OnboardPage(): ReactElement {
     router.push('/');
   };
 
-  const onSuccessfulLogin = () => {};
+  const onSuccessfulLogin = () => {
+    setFinishedOnboarding(true);
+    router.push('/');
+  };
 
-  const onSuccessfulRegistration = () => {};
+  const onSuccessfulRegistration = () => {
+    setIsFiltering(true);
+  };
 
   useEffect(() => {
     if (!hasSelectTopics || !alerts?.myFeed) {
