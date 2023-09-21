@@ -92,9 +92,7 @@ function SharePostContent({
             </div>
             <div className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit">
               <LazyImage
-                imgSrc={
-                  post.sharedPost.image || cloudinary.post.imageCoverPlaceholder
-                }
+                imgSrc={post.sharedPost.image}
                 imgAlt="Post cover image"
                 ratio="52%"
                 eager

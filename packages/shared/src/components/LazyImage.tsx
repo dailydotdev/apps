@@ -40,6 +40,8 @@ function LazyImageComponent(
   }: LazyImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement {
+  const src = imgSrc || fallbackSrc;
+
   const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${
     fit === 'cover' ? 'object-cover' : 'object-contain'
   }`;
@@ -47,13 +49,13 @@ function LazyImageComponent(
     'data-src'?: string;
   };
   if (eager) {
-    imageProps = { src: imgSrc, className: baseImageClass };
+    imageProps = { src, className: baseImageClass };
   } else if (asyncImageSupport) {
-    imageProps = { src: imgSrc, loading: 'lazy', className: baseImageClass };
+    imageProps = { src, loading: 'lazy', className: baseImageClass };
   } else {
     imageProps = {
       className: `lazyload ${baseImageClass}`,
-      'data-src': imgSrc,
+      'data-src': src,
     };
   }
 
@@ -76,7 +78,7 @@ function LazyImageComponent(
       ref={ref}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
-      <img {...imageProps} alt={imgAlt} key={imgSrc} onError={onError} />
+      <img {...imageProps} alt={imgAlt} key={src} onError={onError} />
       {children}
     </div>
   );
