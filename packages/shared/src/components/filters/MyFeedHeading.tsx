@@ -63,7 +63,9 @@ function MyFeedHeading({
           className="mr-auto btn-tertiaryFloat"
           onClick={onClick}
           icon={<FilterIcon />}
-        />
+        >
+          Feed settings
+        </Button>
       </AlertPointer>
     );
   }
@@ -75,7 +77,7 @@ function MyFeedHeading({
         onClick={onClick}
         rightIcon={<FilterIcon />}
       >
-        My feed
+        Feed settings
       </Button>
     </AlertPointer>
   );

@@ -43,7 +43,7 @@ export const providerMap: ProviderMap = {
   github: {
     icon: <GitHubIcon className="socialIcon" secondary />,
     label: 'GitHub',
-    value: 'gitHub',
+    value: 'github',
   },
   apple: {
     icon: <AppleIcon className="socialIcon" secondary />,
