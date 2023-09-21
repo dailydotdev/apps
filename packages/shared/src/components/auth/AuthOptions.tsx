@@ -70,6 +70,8 @@ export enum AuthDisplay {
 export interface AuthProps {
   isAuthenticating: boolean;
   isLoginFlow: boolean;
+  email?: string;
+  defaultDisplay?: AuthDisplay;
 }
 
 export interface AuthOptionsProps {
@@ -84,6 +86,7 @@ export interface AuthOptionsProps {
   simplified?: boolean;
   isLoginFlow?: boolean;
   onDisplayChange?: (value: string) => void;
+  initialEmail?: string;
 }
 
 function AuthOptions({
@@ -98,6 +101,7 @@ function AuthOptions({
   onDisplayChange,
   isLoginFlow,
   simplified = false,
+  initialEmail = '',
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -107,7 +111,7 @@ function AuthOptions({
     {},
   );
   const { refetchBoot, user, loginState } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
@@ -385,13 +389,18 @@ function AuthOptions({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <OnboardingRegistrationForm
             onSignup={(signupEmail) => {
-              setEmail(signupEmail);
-              onSetActiveDisplay(AuthDisplay.SocialRegistration);
-              onAuthStateUpdate({ isAuthenticating: true });
+              onAuthStateUpdate({
+                isAuthenticating: true,
+                email: signupEmail,
+                defaultDisplay: AuthDisplay.Registration,
+              });
             }}
             onExistingEmail={(existingEmail) => {
-              setEmail(existingEmail);
-              onAuthStateUpdate({ isAuthenticating: true, isLoginFlow: true });
+              onAuthStateUpdate({
+                isAuthenticating: true,
+                isLoginFlow: true,
+                email: existingEmail,
+              });
             }}
             onProviderClick={(provider, login) => {
               onProviderClick(provider, login);

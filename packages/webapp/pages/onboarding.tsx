@@ -113,7 +113,13 @@ const Header = ({
         <span className="hidden tablet:block">Already a daily.dev member?</span>
         <Button
           className="ml-3 btn-secondary"
-          onClick={() => setAuth({ isAuthenticating: true, isLoginFlow: true })}
+          onClick={() => {
+            setAuth({
+              isAuthenticating: true,
+              isLoginFlow: true,
+              defaultDisplay: AuthDisplay.Default,
+            });
+          }}
         >
           Log in
         </Button>
@@ -142,8 +148,11 @@ export function OnboardPage(): ReactElement {
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: isOnboardingV3 && !!storage.getItem(SIGNIN_METHOD_KEY),
     isLoginFlow: false,
+    defaultDisplay: isOnboardingV3
+      ? AuthDisplay.OnboardingSignup
+      : AuthDisplay.Default,
   });
-  const { isAuthenticating, isLoginFlow } = auth;
+  const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
 
   const formRef = useRef<HTMLFormElement>();
   const title = versionToTitle[filteringTitle];
@@ -245,25 +254,26 @@ export function OnboardPage(): ReactElement {
     setHasSelectTopics(hasTopics);
   };
 
-  const getAuthOptions = (defaultDisplay?: AuthDisplay) => {
+  const getAuthOptions = () => {
     return (
       <AuthOptions
+        simplified
+        className={classNames(
+          'w-full rounded-none',
+          maxAuthWidth,
+          !isAuthenticating && 'max-w-full',
+        )}
         trigger={AuthTriggers.Filter}
         formRef={formRef}
-        simplified
         defaultDisplay={defaultDisplay}
+        initialEmail={email}
+        isLoginFlow={isLoginFlow}
         onSuccessfulLogin={
           isOnboardingV3 ? onSuccessfulLogin : onSuccessfulTransaction
         }
         onSuccessfulRegistration={
           isOnboardingV3 ? onSuccessfulRegistration : onSuccessfulTransaction
         }
-        isLoginFlow={isLoginFlow}
-        className={classNames(
-          'w-full rounded-none',
-          maxAuthWidth,
-          !isAuthenticating && 'max-w-full',
-        )}
         onAuthStateUpdate={(props: AuthProps) =>
           setAuth({ isAuthenticating: true, ...props })
         }
@@ -441,7 +451,7 @@ export function OnboardPage(): ReactElement {
               Get one personalized feed for all the knowledge you need.
             </h2>
 
-            {getAuthOptions(AuthDisplay.OnboardingSignup)}
+            {getAuthOptions()}
 
             <div className="flex relative flex-col tablet:flex-row flex-1 justify-end tablet:items-center pb-6 tablet:pb-0 mt-8 tablet:mt-auto w-full tablet:max-h-[10rem]">
               <SignupDisclaimer className="mb-auto tablet:mb-0" />
