@@ -11,7 +11,7 @@ import RedisIcon from './icons/Redis';
 import SpotifyIcon from './icons/Spotify';
 import { IconSize } from './Icon';
 
-export const trustedCompaniesMap = {
+export const TRUSTES_COMPANIES_MAP = {
   apple: {
     Icon: AppleIcon,
     label: 'Apple',
@@ -74,7 +74,7 @@ const TrustedCompanies = ({
       </p>
 
       <div className="flex relative z-3 flex-wrap talet:flex-1 gap-2 tablet:gap-6 justify-center items-start">
-        {Object.values(trustedCompaniesMap).map(({ Icon, label }) => (
+        {Object.values(TRUSTES_COMPANIES_MAP).map(({ Icon, label }) => (
           <Icon
             key={`trusted-company-${label}`}
             className={classNames('text-theme-label-disabled flex-1')}
