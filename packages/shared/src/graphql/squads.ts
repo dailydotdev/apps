@@ -268,14 +268,6 @@ export const SQUAD_JOIN_MUTATION = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
-export const CHECK_USER_MEMBERSHIP = gql`
-  query CheckUserMembership($memberId: ID!, $sourceId: ID!) {
-    member: checkUserMembership(memberId: $memberId, sourceId: $sourceId) {
-      role
-    }
-  }
-`;
-
 export const validateSourceHandle = (handle: string, source: Source): boolean =>
   source.handle === handle || source.handle === handle.toLowerCase();
 

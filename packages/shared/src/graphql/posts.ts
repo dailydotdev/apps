@@ -408,15 +408,6 @@ export const getLatestChangelogPost = async (): Promise<Post> => {
   return feedData?.page?.edges?.[0]?.node;
 };
 
-export const POST_BY_URL_QUERY = gql`
-  query PostByUrl($url: String!) {
-    postByUrl(url: $url) {
-      ...SharedPostInfo
-    }
-  }
-  ${SHARED_POST_INFO_FRAGMENT}
-`;
-
 export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
   mutation SubmitExternalLink(
     $sourceId: ID!
