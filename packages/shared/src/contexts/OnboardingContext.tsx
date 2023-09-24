@@ -111,35 +111,6 @@ export const OnboardingContextProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, shouldUpdateFilters, isRegisteringFilters]);
 
-  useEffect(() => {
-    const isHome = !pathname || pathname === '/';
-    const conditions = [
-      !loadedAlerts,
-      !hasOnboardingLoaded,
-      hasTriedOnboarding,
-      !alerts.filter,
-      !isHome,
-      onboardingV2 !== OnboardingV2.Control,
-    ];
-
-    if (conditions.some((condition) => !!condition)) {
-      return;
-    }
-
-    setHasTriedOnboarding(false);
-    setOnboardingMode(OnboardingMode.Auto);
-    setIsOnboarding(true);
-  }, [
-    setHasTriedOnboarding,
-    hasTriedOnboarding,
-    alerts?.filter,
-    hasOnboardingLoaded,
-    user,
-    pathname,
-    loadedAlerts,
-    onboardingV2,
-  ]);
-
   const onCloseOnboardingModal = () => {
     if (onboardingMode === OnboardingMode.Auto) {
       trackEvent({ event_name: AnalyticsEvent.OnboardingSkip });
