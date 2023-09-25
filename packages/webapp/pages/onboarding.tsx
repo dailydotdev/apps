@@ -200,7 +200,7 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    router.push('/');
+    router.replace('/');
   };
 
   const onSuccessfulLogin = () => {
@@ -217,7 +217,7 @@ export function OnboardPage(): ReactElement {
       return;
     }
     if (!isOnboardingV3 && alerts.myFeed === 'created') {
-      router.push('/');
+      router.replace('/');
     }
   }, [alerts, hasSelectTopics, isOnboardingV3, router]);
 
@@ -229,7 +229,7 @@ export function OnboardPage(): ReactElement {
     }
 
     if (user || (onboardingV2 === OnboardingV2.Control && !isOnboardingV3)) {
-      router.push('/');
+      router.replace('/');
       return;
     }
 
