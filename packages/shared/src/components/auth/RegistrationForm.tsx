@@ -127,7 +127,7 @@ export const RegistrationForm = ({
       <AuthHeader simplified={simplified} title="Sign up" onBack={onBack} />
       <AuthForm
         className={classNames(
-          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-6 px-6 tablet:px-[3.75rem]',
+          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-2 px-6 tablet:px-[3.75rem]',
         )}
         ref={formRef}
         onSubmit={onSubmit}
@@ -215,7 +215,9 @@ export const RegistrationForm = ({
       </AuthForm>
       <ConditionalWrapper
         condition={simplified}
-        wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
+        wrapper={(component) => (
+          <AuthContainer className="!mt-0">{component}</AuthContainer>
+        )}
       >
         <Modal.Footer>
           <Button form="auth-form" type="submit" className="w-full btn-primary">
