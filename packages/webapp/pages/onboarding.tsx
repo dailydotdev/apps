@@ -330,13 +330,21 @@ export function OnboardPage(): ReactElement {
           </>
         ) : (
           <div className="hidden tablet:block flex-1">
+            <style>
+              {`.onboarding-video {
+                @media (min-height: 800px){
+                  --tw-scale-x: 1.5;
+                  --tw-scale-y: 1.5;
+                  }
+              }`}
+            </style>
             {
               // eslint-disable-next-line jsx-a11y/media-has-caption
               <video
                 loop
                 autoPlay
                 muted
-                className="tablet:relative tablet:-top-8 laptop:-top-14 -z-1 laptop:mt-1 tablet:-mb-10 laptop:-mb-16 tablet:scale-150"
+                className="tablet:relative tablet:-top-8 laptop:-top-14 -z-1 laptop:mt-1 tablet:-mb-10 laptop:-mb-16 tablet:scale-125 onboarding-video"
                 poster={cloudinary.onboarding.video.poster}
               >
                 <source
