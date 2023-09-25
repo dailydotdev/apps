@@ -21,6 +21,9 @@ import FeedbackIcon from '../icons/Feedback';
 import TourIcon from '../icons/Tour';
 import { useSquadNavigation } from '../../hooks';
 import { MenuItemProps } from '../fields/PortalMenu';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import { Origin } from '../../lib/analytics';
+import LinkIcon from '../icons/Link';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -36,6 +39,10 @@ interface SquadHeaderMenuProps {
 export default function SquadHeaderMenu({
   squad,
 }: SquadHeaderMenuProps): ReactElement {
+  const { trackAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadPage,
+  });
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
@@ -59,16 +66,32 @@ export default function SquadHeaderMenu({
     const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
     const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
-    const list: MenuItemProps[] = [
-      {
-        icon: <ContextMenuIcon Icon={TourIcon} />,
-        action: () =>
-          openModal({
-            type: LazyModal.SquadTour,
-          }),
-        label: 'Learn how Squads work',
-      },
-    ];
+    const list: MenuItemProps[] = [];
+
+    if (canEditSquad) {
+      list.push({
+        icon: <ContextMenuIcon Icon={SettingsIcon} />,
+        action: () => editSquad({ handle: squad.handle }),
+        label: 'Squad settings',
+      });
+    }
+
+    if (!squad.currentMember && squad.public) {
+      list.push({
+        icon: <ContextMenuIcon Icon={LinkIcon} />,
+        action: () => trackAndCopyLink(),
+        label: 'Invitation link',
+      });
+    }
+
+    list.push({
+      icon: <ContextMenuIcon Icon={TourIcon} />,
+      action: () =>
+        openModal({
+          type: LazyModal.SquadTour,
+        }),
+      label: 'Learn how Squads work',
+    });
 
     if (squad.currentMember) {
       list.push({
@@ -102,16 +125,15 @@ export default function SquadHeaderMenu({
       });
     }
 
-    if (canEditSquad) {
-      list.unshift({
-        icon: <ContextMenuIcon Icon={SettingsIcon} />,
-        action: () => editSquad({ handle: squad.handle }),
-        label: 'Squad settings',
-      });
-    }
-
     return list;
-  }, [editSquad, onDeleteSquad, onLeaveSquad, openModal, squad]);
+  }, [
+    editSquad,
+    onDeleteSquad,
+    trackAndCopyLink,
+    onLeaveSquad,
+    openModal,
+    squad,
+  ]);
 
   return (
     <PortalMenu

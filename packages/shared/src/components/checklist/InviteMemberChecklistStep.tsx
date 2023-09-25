@@ -35,7 +35,7 @@ const InviteMemberChecklistStep = ({
           trackAndCopyLink();
         }}
       >
-        Copy invitation link
+        Invitation link
       </Button>
     </ChecklistStep>
   );

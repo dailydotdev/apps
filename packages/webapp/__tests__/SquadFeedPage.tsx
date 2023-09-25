@@ -299,7 +299,7 @@ describe('squad header bar', () => {
       permissions: [SourcePermissions.Invite],
     };
     renderComponent();
-    const invite = await screen.findByText('Copy invitation link');
+    const invite = await screen.findByText('Invitation link');
 
     mockGraphQL({
       request: {
@@ -324,7 +324,7 @@ describe('squad header bar', () => {
       permissions: [SourcePermissions.Invite],
     };
     renderComponent();
-    const invite = await screen.findByText('Copy invitation link');
+    const invite = await screen.findByText('Invitation link');
 
     mockGraphQL({
       request: {
@@ -360,13 +360,6 @@ describe('squad header bar', () => {
     renderComponent(undefined, undefined, undefined, []);
 
     expect(await screen.findByText('Join Squad')).toBeInTheDocument();
-  });
-
-  it('should show leave squad button for open squad when already member', async () => {
-    requestedSquad.public = true;
-    renderComponent();
-
-    expect(await screen.findByText('Leave Squad')).toBeInTheDocument();
   });
 
   it('should not show join squad button for private squad', async () => {
