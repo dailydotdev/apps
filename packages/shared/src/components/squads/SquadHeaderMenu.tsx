@@ -66,24 +66,32 @@ export default function SquadHeaderMenu({
     const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
     const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
-    const list: MenuItemProps[] = [
-      {
-        icon: <ContextMenuIcon Icon={TourIcon} />,
-        action: () =>
-          openModal({
-            type: LazyModal.SquadTour,
-          }),
-        label: 'Learn how Squads work',
-      },
-    ];
+    const list: MenuItemProps[] = [];
+
+    if (canEditSquad) {
+      list.push({
+        icon: <ContextMenuIcon Icon={SettingsIcon} />,
+        action: () => editSquad({ handle: squad.handle }),
+        label: 'Squad settings',
+      });
+    }
 
     if (!squad.currentMember && squad.public) {
-      list.unshift({
+      list.push({
         icon: <ContextMenuIcon Icon={LinkIcon} />,
         action: () => trackAndCopyLink(),
         label: 'Invitation link',
       });
     }
+
+    list.push({
+      icon: <ContextMenuIcon Icon={TourIcon} />,
+      action: () =>
+        openModal({
+          type: LazyModal.SquadTour,
+        }),
+      label: 'Learn how Squads work',
+    });
 
     if (squad.currentMember) {
       list.push({
@@ -114,14 +122,6 @@ export default function SquadHeaderMenu({
           onLeaveSquad();
         },
         label: 'Leave Squad',
-      });
-    }
-
-    if (canEditSquad) {
-      list.unshift({
-        icon: <ContextMenuIcon Icon={SettingsIcon} />,
-        action: () => editSquad({ handle: squad.handle }),
-        label: 'Squad settings',
       });
     }
 
