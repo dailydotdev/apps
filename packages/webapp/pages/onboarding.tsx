@@ -450,7 +450,7 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex flex-wrap justify-center px-6 w-full max-w-[75rem] tablet:gap-10',
-          !isAuthenticating && isOnboardingV3 && 'flex-1 content-center',
+          !isAuthenticating && isOnboardingV3 && 'flex-1 content-center mt-8',
         )}
       >
         {showOnboardingPage && isOnboardingV3 && (
