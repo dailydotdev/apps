@@ -21,6 +21,9 @@ import FeedbackIcon from '../icons/Feedback';
 import TourIcon from '../icons/Tour';
 import { useSquadNavigation } from '../../hooks';
 import { MenuItemProps } from '../fields/PortalMenu';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import { Origin } from '../../lib/analytics';
+import LinkIcon from '../icons/Link';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -36,6 +39,10 @@ interface SquadHeaderMenuProps {
 export default function SquadHeaderMenu({
   squad,
 }: SquadHeaderMenuProps): ReactElement {
+  const { trackAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadPage,
+  });
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
@@ -69,6 +76,14 @@ export default function SquadHeaderMenu({
         label: 'Learn how Squads work',
       },
     ];
+
+    if (!squad.currentMember && squad.public) {
+      list.unshift({
+        icon: <ContextMenuIcon Icon={LinkIcon} />,
+        action: () => trackAndCopyLink(),
+        label: 'Invitation link',
+      });
+    }
 
     if (squad.currentMember) {
       list.push({
