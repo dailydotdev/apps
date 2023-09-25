@@ -337,28 +337,30 @@ export function OnboardPage(): ReactElement {
           </>
         ) : (
           <div className="hidden tablet:block flex-1">
-            {
-              // eslint-disable-next-line jsx-a11y/media-has-caption
-              <video
-                loop
-                autoPlay
-                muted
-                className={classNames(
-                  'tablet:relative -top-16 laptop:-top-0 -z-1 tablet:-mb-10',
-                  styles.video,
-                )}
-                poster={cloudinary.onboarding.video.poster}
-              >
-                <source
-                  src={cloudinary.onboarding.video.mp4}
-                  type="video/mp4"
-                />
-                <source
-                  src={cloudinary.onboarding.video.webm}
-                  type="video/webm"
-                />
-              </video>
-            }
+            <div className="relative pt-[80%] laptopH:pt-[100%]">
+              {
+                // eslint-disable-next-line jsx-a11y/media-has-caption
+                <video
+                  loop
+                  autoPlay
+                  muted
+                  className={classNames(
+                    'absolute -top-[20%] tablet:top-0 left-0 -z-1',
+                    styles.video,
+                  )}
+                  poster={cloudinary.onboarding.video.poster}
+                >
+                  <source
+                    src={cloudinary.onboarding.video.mp4}
+                    type="video/mp4"
+                  />
+                  <source
+                    src={cloudinary.onboarding.video.webm}
+                    type="video/webm"
+                  />
+                </video>
+              }
+            </div>
 
             <TrustedCompanies />
           </div>
