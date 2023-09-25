@@ -337,6 +337,7 @@ export function OnboardPage(): ReactElement {
                 autoPlay
                 muted
                 className="tablet:relative tablet:-top-8 laptop:-top-14 -z-1 laptop:mt-1 tablet:-mb-10 laptop:-mb-16 tablet:scale-150"
+                poster={cloudinary.onboarding.video.poster}
               >
                 <source
                   src={cloudinary.onboarding.video.mp4}
