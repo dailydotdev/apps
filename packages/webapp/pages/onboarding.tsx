@@ -469,7 +469,7 @@ export function OnboardPage(): ReactElement {
 
             {getAuthOptions()}
 
-            <div className="flex relative flex-col tablet:flex-row flex-1 justify-end tablet:items-center pb-6 tablet:pb-0 mt-8 tablet:mt-auto w-full tablet:max-h-[10rem]">
+            <div className="flex relative flex-col tablet:flex-row flex-1 justify-end tablet:items-center pb-6 mt-8 tablet:mt-auto w-full tablet:max-h-[10rem]">
               <SignupDisclaimer className="mb-auto tablet:mb-0" />
 
               <TrustedCompanies

@@ -124,7 +124,7 @@ const OnboardingRegistrationForm = ({
 
       <OrDivider className="mb-8" label="Or sign up with" />
 
-      <div className="flex gap-8">
+      <div className="flex gap-8 pb-8">
         {signupProviders.map((provider) => (
           <Button
             key={provider.value}
