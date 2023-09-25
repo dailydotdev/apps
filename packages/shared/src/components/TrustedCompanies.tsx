@@ -73,7 +73,7 @@ const TrustedCompanies = ({
         Trusted by 300K+ developers from the world&apos;s leading companies
       </p>
 
-      <div className="flex relative z-3 flex-wrap talet:flex-1 gap-2 tablet:gap-6 justify-center items-start">
+      <div className="flex relative z-3 flex-wrap talet:flex-1 gap-2 laptop:gap-6 justify-center items-start">
         {Object.values(TRUSTES_COMPANIES_MAP).map(({ Icon, label }) => (
           <Icon
             key={`trusted-company-${label}`}
