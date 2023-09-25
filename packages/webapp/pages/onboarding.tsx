@@ -53,6 +53,7 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import CookieBanner from '../components/CookieBanner';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import styles from '../components/layouts/Onboarding/index.module.css';
 
 const versionToTitle: Record<OnboardingFilteringTitle, string> = {
   [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
@@ -65,6 +66,7 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
 const Title = classed('h2', 'font-bold');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
+const wrapperMaxWidth = 'max-w-[75rem] laptopXL:max-w-[90rem]';
 
 const Container = classed(
   'div',
@@ -102,7 +104,12 @@ const Header = ({
   }
 
   return (
-    <header className="flex justify-between px-6 mt-6 tablet:mt-16 laptop:mt-20 w-full h-full flew-row max-w-[75rem]">
+    <header
+      className={classNames(
+        'flex justify-between px-6 mt-6 tablet:mt-16 laptop:mt-20 w-full h-full flew-row',
+        wrapperMaxWidth,
+      )}
+    >
       <Logo
         className="w-auto"
         logoClassName="h-6 tablet:h-8"
@@ -336,7 +343,10 @@ export function OnboardPage(): ReactElement {
                 loop
                 autoPlay
                 muted
-                className="tablet:relative tablet:-top-8 laptop:-top-14 -z-1 laptop:mt-1 tablet:-mb-10 laptop:-mb-16 tablet:scale-125 laptopH:scale-150"
+                className={classNames(
+                  'tablet:relative -top-16 laptop:-top-0 -z-1 tablet:-mb-10',
+                  styles.video,
+                )}
                 poster={cloudinary.onboarding.video.poster}
               >
                 <source
@@ -449,7 +459,8 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex flex-wrap justify-center px-6 w-full max-w-[75rem] tablet:gap-10',
+          'flex flex-wrap justify-center px-6 w-full tablet:gap-10',
+          wrapperMaxWidth,
           !isAuthenticating && isOnboardingV3 && 'flex-1 content-center mt-8',
         )}
       >
@@ -487,7 +498,12 @@ export function OnboardPage(): ReactElement {
         )}
       </div>
       {showOnboardingPage && isOnboardingV3 && (
-        <footer className="flex px-6 w-full h-full max-w-[75rem] tablet:min-h-[5rem] laptopH:min-h-[10rem]">
+        <footer
+          className={classNames(
+            'flex px-6 w-full h-full tablet:min-h-[5rem] laptopH:min-h-[10rem]',
+            wrapperMaxWidth,
+          )}
+        >
           <div className="flex relative flex-col flex-1 gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
             <SignupDisclaimer className="mb-0 tablet:mb-10" />
 
