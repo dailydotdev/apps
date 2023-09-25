@@ -187,7 +187,7 @@ export function OnboardPage(): ReactElement {
 
         onShouldUpdateFilters(true);
       }
-      return router.push('/');
+      return router.replace('/');
     }
 
     return setAuth({ isAuthenticating: true, isLoginFlow: false });
@@ -205,7 +205,7 @@ export function OnboardPage(): ReactElement {
 
   const onSuccessfulLogin = () => {
     setFinishedOnboarding(true);
-    router.push('/');
+    router.replace('/');
   };
 
   const onSuccessfulRegistration = () => {
