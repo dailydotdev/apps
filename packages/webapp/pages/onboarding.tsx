@@ -336,7 +336,7 @@ export function OnboardPage(): ReactElement {
                 loop
                 autoPlay
                 muted
-                className="tablet:relative tablet:-top-8 laptop:-top-14 -z-1 laptop:mt-1 tablet:-mb-10 laptop:-mb-16 laptopH:scale-150 tablet:scale-125"
+                className="tablet:relative tablet:-top-8 laptop:-top-14 -z-1 laptop:mt-1 tablet:-mb-10 laptop:-mb-16 tablet:scale-125 laptopH:scale-150"
                 poster={cloudinary.onboarding.video.poster}
               >
                 <source
@@ -450,7 +450,7 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex flex-wrap justify-center px-6 w-full max-w-[75rem] tablet:gap-10',
-          !isAuthenticating && isOnboardingV3 && 'flex-1 mt-8 laptop:mt-20',
+          !isAuthenticating && isOnboardingV3 && 'flex-1 content-center',
         )}
       >
         {showOnboardingPage && isOnboardingV3 && (
@@ -468,22 +468,6 @@ export function OnboardPage(): ReactElement {
             </h2>
 
             {getAuthOptions()}
-
-            <div className="flex relative flex-col tablet:flex-row flex-1 justify-end tablet:items-center pb-6 mt-8 tablet:mt-auto w-full tablet:max-h-[10rem]">
-              <SignupDisclaimer className="mb-auto tablet:mb-0" />
-
-              <TrustedCompanies
-                iconSize={IconSize.Small}
-                reverse
-                className="block tablet:hidden"
-              />
-
-              <img
-                className="absolute bottom-0 left-0 -z-1 w-full max-w-[58.75rem]"
-                src={cloudinary.onboarding.glow}
-                alt="Gradient background"
-              />
-            </div>
           </div>
         )}
 
@@ -502,6 +486,26 @@ export function OnboardPage(): ReactElement {
           </div>
         )}
       </div>
+      {showOnboardingPage && isOnboardingV3 && (
+        <footer className="flex px-6 w-full h-full max-w-[75rem] tablet:min-h-[5rem] laptopH:min-h-[10rem]">
+          <div className="flex relative flex-col flex-1 gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
+            <SignupDisclaimer className="mb-0 tablet:mb-10" />
+
+            <TrustedCompanies
+              iconSize={IconSize.Small}
+              reverse
+              className="block tablet:hidden"
+            />
+
+            <img
+              className="absolute bottom-0 left-0 -z-1 w-full max-w-[58.75rem]"
+              src={cloudinary.onboarding.glow}
+              alt="Gradient background"
+            />
+          </div>
+          <div className="hidden tablet:block flex-1" />
+        </footer>
+      )}
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </Container>
   );
