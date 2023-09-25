@@ -126,7 +126,14 @@ export default function SquadHeaderMenu({
     }
 
     return list;
-  }, [editSquad, onDeleteSquad, onLeaveSquad, openModal, squad]);
+  }, [
+    editSquad,
+    onDeleteSquad,
+    trackAndCopyLink,
+    onLeaveSquad,
+    openModal,
+    squad,
+  ]);
 
   return (
     <PortalMenu
