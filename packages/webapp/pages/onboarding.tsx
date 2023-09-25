@@ -161,10 +161,11 @@ export function OnboardPage(): ReactElement {
 
   useEffect(() => {
     if (isOnboardingV3) {
-      setAuth({ ...auth, defaultDisplay: AuthDisplay.OnboardingSignup });
+      setAuth((currentAuth) => ({
+        ...currentAuth,
+        defaultDisplay: AuthDisplay.OnboardingSignup,
+      }));
     }
-    // Ignore the auth prop to avoid infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnboardingV3]);
   const onClickNext = () => {
     const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
