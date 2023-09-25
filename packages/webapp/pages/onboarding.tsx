@@ -105,7 +105,7 @@ const Header = ({
     <header className="flex justify-between px-6 mt-6 tablet:mt-16 laptop:mt-20 w-full h-full flew-row max-w-[75rem]">
       <Logo
         className="w-auto"
-        logoClassName="h-logo-big"
+        logoClassName="h-6 tablet:h-8"
         position={LogoPosition.Relative}
       />
 
