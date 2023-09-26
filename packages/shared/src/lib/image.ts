@@ -125,8 +125,8 @@ export const cloudinary = {
     video: {
       poster:
         'https://daily-now-res.cloudinary.com/image/upload/v1695643146/first-frame_cnitsj.png',
-      mp4: 'https://daily-now-res.cloudinary.com/video/upload/v1694529627/on_boarding_3_i4x40j.mp4',
-      webm: 'https://daily-now-res.cloudinary.com/video/upload/v1694590121/on_boarding_3_i4x40j_kfu5fl.webm',
+      mp4: 'https://daily-now-res.cloudinary.com/video/upload/s--73UYp7TH--/v1695734378/onboarding-quality_lv3s4v.mp4',
+      webm: 'https://daily-now-res.cloudinary.com/video/upload/v1695734663/onboarding-quality_rtkyqd.webm',
     },
   },
 };
