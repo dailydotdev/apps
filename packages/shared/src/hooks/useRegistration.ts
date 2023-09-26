@@ -54,11 +54,23 @@ const useRegistration = ({
   const { displayToast } = useToastNotification();
   const { trackingId, referral, referralOrigin } = useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
-  const { data: registration, isLoading: isQueryLoading } = useQuery(
-    key,
-    () => initializeKratosFlow(AuthFlow.Registration),
-    { refetchOnWindowFocus: false },
-  );
+  const {
+    data: registration,
+    isLoading: isQueryLoading,
+    error,
+  } = useQuery(key, () => initializeKratosFlow(AuthFlow.Registration), {
+    refetchOnWindowFocus: false,
+  });
+
+  if (error) {
+    trackEvent({
+      event_name: AuthEventNames.RegistrationInitialisationError,
+      extra: JSON.stringify({
+        error,
+        origin: 'initialize registration flow',
+      }),
+    });
+  }
 
   const referralTraits = useMemo(() => {
     return {
