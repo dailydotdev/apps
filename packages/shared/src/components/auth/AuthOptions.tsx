@@ -87,6 +87,7 @@ export interface AuthOptionsProps {
   isLoginFlow?: boolean;
   onDisplayChange?: (value: string) => void;
   initialEmail?: string;
+  targetId?: string;
 }
 
 function AuthOptions({
@@ -100,6 +101,7 @@ function AuthOptions({
   defaultDisplay = AuthDisplay.Default,
   onDisplayChange,
   isLoginFlow,
+  targetId,
   simplified = false,
   initialEmail = '',
 }: AuthOptionsProps): ReactElement {
@@ -409,6 +411,7 @@ function AuthOptions({
             trigger={trigger}
             isReady={isReady}
             simplified={simplified}
+            targetId={targetId}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

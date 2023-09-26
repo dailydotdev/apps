@@ -5,7 +5,6 @@ import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
-import { ExperimentWinner } from '../../lib/featureValues';
 import { Button } from '../buttons/Button';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
@@ -48,7 +47,7 @@ const OnboardingRegistrationForm = ({
         ? AuthEventNames.OpenLogin
         : AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
-      target_id: targetId || ExperimentWinner.AuthVersion,
+      target_id: targetId,
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps

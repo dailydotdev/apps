@@ -281,11 +281,12 @@ export function OnboardPage(): ReactElement {
           maxAuthWidth,
           !isAuthenticating && 'max-w-full',
         )}
-        trigger={AuthTriggers.Filter}
+        trigger={AuthTriggers.Onboarding}
         formRef={formRef}
         defaultDisplay={defaultDisplay}
         initialEmail={email}
         isLoginFlow={isLoginFlow}
+        targetId={isOnboardingV3 ? onboardingV3 : onboardingV2}
         onSuccessfulLogin={
           isOnboardingV3 ? onSuccessfulLogin : onSuccessfulTransaction
         }

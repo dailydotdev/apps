@@ -14,7 +14,7 @@ export enum OnboardingV2 {
 
 export enum OnboardingV3 {
   Control = 'control',
-  V1 = 'v1',
+  V3 = 'v3',
 }
 
 export enum OnboardingFilteringTitle {
