@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { QueryKey, useMutation, useQuery } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
@@ -19,6 +19,7 @@ import {
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { Origin } from '../lib/analytics';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -62,15 +63,17 @@ const useRegistration = ({
     refetchOnWindowFocus: false,
   });
 
-  if (error) {
-    trackEvent({
-      event_name: AuthEventNames.RegistrationInitialisationError,
-      extra: JSON.stringify({
-        error,
-        origin: 'initialize registration flow',
-      }),
-    });
-  }
+  useEffect(() => {
+    if (error) {
+      trackEvent({
+        event_name: AuthEventNames.RegistrationInitialisationError,
+        extra: JSON.stringify({
+          error,
+          origin: Origin.InitializeRegistrationFlow,
+        }),
+      });
+    }
+  }, [error, trackEvent]);
 
   const referralTraits = useMemo(() => {
     return {

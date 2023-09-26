@@ -34,6 +34,7 @@ export enum Origin {
   // search - end
   History = 'history',
   FeedbackCard = 'feedback card',
+  InitializeRegistrationFlow = 'initialize registration flow',
 }
 
 export enum LoginTrigger {
