@@ -337,7 +337,7 @@ export function OnboardPage(): ReactElement {
           </>
         ) : (
           <div className="hidden tablet:block flex-1">
-            <div className="relative pt-[80%] laptopH:pt-[100%]">
+            <div className={classNames('relative', styles.videoWrapper)}>
               {
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video
@@ -502,7 +502,7 @@ export function OnboardPage(): ReactElement {
       {showOnboardingPage && isOnboardingV3 && (
         <footer
           className={classNames(
-            'flex px-6 w-full h-full tablet:min-h-[5rem] laptopH:min-h-[10rem]',
+            'flex px-6 w-full h-full max-h-[10rem]',
             wrapperMaxWidth,
           )}
         >

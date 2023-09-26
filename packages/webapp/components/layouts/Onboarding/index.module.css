@@ -1,3 +1,11 @@
+.videoWrapper {
+  padding-top: 80%;
+
+  @media (min-height: 800px) {
+    padding-top: 100%;
+  }
+}
+
 .video {
   --video-scale: 1.25;
   transform: scale(var(--video-scale));
