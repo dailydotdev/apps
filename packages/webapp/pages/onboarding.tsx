@@ -39,7 +39,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
-import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import {
@@ -139,7 +138,6 @@ const Header = ({
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
-  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
   const isTracked = useRef(false);
   const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
@@ -262,10 +260,6 @@ export function OnboardPage(): ReactElement {
     isOnboardingV3,
     onboardingV3,
   ]);
-
-  useEffect(() => {
-    updateCookieBanner(user);
-  }, [updateCookieBanner, user]);
 
   const hasSelectedTopics = (tags: Record<string, boolean>) => {
     const hasTopics = Object.values(tags).some((value) => value === true);
@@ -525,7 +519,6 @@ export function OnboardPage(): ReactElement {
           <div className="hidden tablet:block flex-1" />
         </footer>
       )}
-      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </Container>
   );
 }
