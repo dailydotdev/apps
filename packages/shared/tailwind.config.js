@@ -183,7 +183,6 @@ module.exports = {
       desktopL: '2156px',
       mouse: { raw: '(pointer: fine)' },
       responsiveModalBreakpoint: '420px',
-      laptopH: { raw: '(min-height: 800px)' },
     },
     extend: {
       gap: {
