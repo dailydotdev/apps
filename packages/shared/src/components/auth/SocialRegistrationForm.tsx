@@ -243,7 +243,9 @@ export const SocialRegistrationForm = ({
       </AuthForm>
       <ConditionalWrapper
         condition={simplified}
-        wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
+        wrapper={(component) => (
+          <AuthContainer className="!mt-0">{component}</AuthContainer>
+        )}
       >
         <Modal.Footer>
           <Button
