@@ -73,7 +73,9 @@ const useRegistration = ({
         }),
       });
     }
-  }, [registrationError, trackEvent]);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registrationError]);
 
   const referralTraits = useMemo(() => {
     return {
