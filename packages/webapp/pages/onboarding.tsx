@@ -301,9 +301,10 @@ export function OnboardPage(): ReactElement {
     return (
       <div
         className={classNames(
-          'tablet:flex-1 laptop:max-w-[37.5rem]',
-          !isFiltering && 'flex',
-          isAuthenticating || isFiltering ? 'ml-0' : 'ml-auto',
+          'flex tablet:flex-1 laptop:max-w-[37.5rem]',
+          isFiltering
+            ? 'flex-col items-center ml-0 tablet:max-w-[32rem] laptop:max-w-[48.75rem]'
+            : 'ml-auto laptop:max-w-[37.5rem]',
         )}
       >
         {isFiltering && (
