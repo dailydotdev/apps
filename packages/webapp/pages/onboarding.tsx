@@ -307,17 +307,13 @@ export function OnboardPage(): ReactElement {
             : 'ml-auto laptop:max-w-[37.5rem]',
         )}
       >
-        {isFiltering && (
+        {isFiltering ? (
           <>
             <Title className="text-center typo-title1">{title}</Title>
             <p className="mt-3 mb-10 text-center text-theme-label-secondary typo-title3">
               Pick a few subjects that interest you. <br />
               You can always change theselater.
             </p>
-          </>
-        )}
-        {isFiltering ? (
-          <>
             <FilterOnboarding
               className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
               onSelectedTopics={hasSelectedTopics}
