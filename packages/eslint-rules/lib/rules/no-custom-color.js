@@ -9,6 +9,7 @@ const alwaysValidClasses = [
   'text-lg',
   'text-xl',
   'text-ellipsis',
+  'bg-clip-text',
   'bg-none',
   'bg-gradient-to-r',
   'bg-gradient-to-l',

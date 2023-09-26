@@ -1,7 +1,6 @@
 import React, {
   ReactElement,
   ReactNode,
-  useCallback,
   useContext,
   useEffect,
   useState,
@@ -9,7 +8,7 @@ import React, {
 import { useMutation } from 'react-query';
 import { checkKratosEmail } from '../../lib/kratos';
 import AuthModalFooter from './AuthModalFooter';
-import { AuthFormProps, Provider } from './common';
+import { AuthFormProps, Provider, getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
@@ -17,7 +16,6 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
-import { ExperimentWinner } from '../../lib/featureValues';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -76,20 +74,11 @@ const AuthDefault = ({
         ? AuthEventNames.OpenLogin
         : AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
-      target_id: targetId || ExperimentWinner.AuthVersion,
+      target_id: targetId,
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
-
-  const getFormEmail = useCallback((e: React.FormEvent) => {
-    const form = e.currentTarget as HTMLFormElement;
-    const input = Array.from(form.elements).find(
-      (el) => el.getAttribute('name') === 'email',
-    ) as HTMLInputElement;
-
-    return input?.value?.trim();
-  }, []);
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();

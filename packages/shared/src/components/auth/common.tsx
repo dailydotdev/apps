@@ -66,3 +66,12 @@ export const AuthModalText = classed(
 export interface AuthFormProps {
   simplified?: boolean;
 }
+
+export const getFormEmail = (e: React.FormEvent): string => {
+  const form = e.currentTarget as HTMLFormElement;
+  const input = Array.from(form.elements).find(
+    (el) => el.getAttribute('name') === 'email',
+  ) as HTMLInputElement;
+
+  return input?.value?.trim();
+};

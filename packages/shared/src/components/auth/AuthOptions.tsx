@@ -52,6 +52,7 @@ import {
 } from '../../hooks/auth/useSignBack';
 import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
+import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -63,16 +64,19 @@ export enum AuthDisplay {
   ChangePassword = 'change_password',
   EmailSent = 'email_sent',
   VerifiedEmail = 'VerifiedEmail',
+  OnboardingSignup = 'onboarding_signup',
 }
 
 export interface AuthProps {
   isAuthenticating: boolean;
   isLoginFlow: boolean;
+  email?: string;
+  defaultDisplay?: AuthDisplay;
 }
 
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
-  onAuthStateUpdate?: (props: Pick<AuthProps, 'isLoginFlow'>) => void;
+  onAuthStateUpdate?: (props: Partial<AuthProps>) => void;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -82,6 +86,8 @@ export interface AuthOptionsProps {
   simplified?: boolean;
   isLoginFlow?: boolean;
   onDisplayChange?: (value: string) => void;
+  initialEmail?: string;
+  targetId?: string;
 }
 
 function AuthOptions({
@@ -95,7 +101,9 @@ function AuthOptions({
   defaultDisplay = AuthDisplay.Default,
   onDisplayChange,
   isLoginFlow,
+  targetId,
   simplified = false,
+  initialEmail = '',
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -105,7 +113,7 @@ function AuthOptions({
     {},
   );
   const { refetchBoot, user, loginState } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
@@ -378,6 +386,32 @@ function AuthOptions({
               registration &&
               getNodeValue('csrf_token', registration?.ui?.nodes)
             }
+          />
+        </Tab>
+        <Tab label={AuthDisplay.OnboardingSignup}>
+          <OnboardingRegistrationForm
+            onSignup={(signupEmail) => {
+              onAuthStateUpdate({
+                isAuthenticating: true,
+                email: signupEmail,
+                defaultDisplay: AuthDisplay.Registration,
+              });
+            }}
+            onExistingEmail={(existingEmail) => {
+              onAuthStateUpdate({
+                isAuthenticating: true,
+                isLoginFlow: true,
+                email: existingEmail,
+              });
+            }}
+            onProviderClick={(provider, login) => {
+              onProviderClick(provider, login);
+              onAuthStateUpdate({ isAuthenticating: true });
+            }}
+            trigger={trigger}
+            isReady={isReady}
+            simplified={simplified}
+            targetId={targetId}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
