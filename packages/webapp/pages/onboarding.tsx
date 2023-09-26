@@ -50,7 +50,6 @@ import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanie
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
-import CookieBanner from '../components/CookieBanner';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
