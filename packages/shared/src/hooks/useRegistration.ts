@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { QueryKey, useMutation, useQuery } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
@@ -19,6 +19,7 @@ import {
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { Origin } from '../lib/analytics';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -54,11 +55,27 @@ const useRegistration = ({
   const { displayToast } = useToastNotification();
   const { trackingId, referral, referralOrigin } = useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
-  const { data: registration, isLoading: isQueryLoading } = useQuery(
-    key,
-    () => initializeKratosFlow(AuthFlow.Registration),
-    { refetchOnWindowFocus: false },
-  );
+  const {
+    data: registration,
+    isLoading: isQueryLoading,
+    error: registrationError,
+  } = useQuery(key, () => initializeKratosFlow(AuthFlow.Registration), {
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (registrationError) {
+      trackEvent({
+        event_name: AuthEventNames.RegistrationInitializationError,
+        extra: JSON.stringify({
+          error: registrationError,
+          origin: Origin.InitializeRegistrationFlow,
+        }),
+      });
+    }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registrationError]);
 
   const referralTraits = useMemo(() => {
     return {

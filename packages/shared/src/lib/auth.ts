@@ -22,6 +22,7 @@ export enum AuthEventNames {
   ForgotPassword = 'forgot password',
   SubmitForgotPassword = 'submit forgot password',
   RegistrationError = 'registration error',
+  RegistrationInitializationError = 'registration initialization error',
 }
 
 export enum AuthTriggers {
