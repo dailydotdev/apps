@@ -58,22 +58,22 @@ const useRegistration = ({
   const {
     data: registration,
     isLoading: isQueryLoading,
-    error,
+    error: registrationError,
   } = useQuery(key, () => initializeKratosFlow(AuthFlow.Registration), {
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    if (error) {
+    if (registrationError) {
       trackEvent({
         event_name: AuthEventNames.RegistrationInitialisationError,
         extra: JSON.stringify({
-          error,
+          error: registrationError,
           origin: Origin.InitializeRegistrationFlow,
         }),
       });
     }
-  }, [error, trackEvent]);
+  }, [registrationError, trackEvent]);
 
   const referralTraits = useMemo(() => {
     return {
