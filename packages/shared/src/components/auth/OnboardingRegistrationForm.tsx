@@ -117,7 +117,11 @@ const OnboardingRegistrationForm = ({
           </>
         )}
 
-        <Button className="w-full btn-primary" type="submit" loading={!isReady}>
+        <Button
+          className="w-full btn-primary"
+          type="submit"
+          loading={!isReady || isLoading}
+        >
           Sign up - it&rsquo;s free ➔
         </Button>
       </AuthForm>
