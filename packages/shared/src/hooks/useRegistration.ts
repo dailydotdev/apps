@@ -66,7 +66,7 @@ const useRegistration = ({
   useEffect(() => {
     if (registrationError) {
       trackEvent({
-        event_name: AuthEventNames.RegistrationInitialisationError,
+        event_name: AuthEventNames.RegistrationInitializationError,
         extra: JSON.stringify({
           error: registrationError,
           origin: Origin.InitializeRegistrationFlow,
