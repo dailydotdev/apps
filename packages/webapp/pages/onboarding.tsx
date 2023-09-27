@@ -318,7 +318,7 @@ export function OnboardPage(): ReactElement {
               className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
               onSelectedTopics={hasSelectedTopics}
             />
-            <div className="flex sticky bottom-0 z-3 flex-col items-center pt-4 mt-4 w-full">
+            <div className="flex sticky bottom-0 z-3 flex-col items-center py-4 mt-4 w-full">
               <div className="flex absolute inset-0 -z-1 w-full h-1/2 bg-gradient-to-t to-transparent from-theme-bg-primary" />
               <div className="flex absolute inset-0 top-1/2 -z-1 w-full h-1/2 bg-theme-bg-primary" />
               <Button className="btn-primary w-[22.5rem]" onClick={onClickNext}>
