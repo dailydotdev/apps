@@ -124,9 +124,9 @@ export const cloudinary = {
     glow: 'https://daily-now-res.cloudinary.com/image/upload/v1694596741/Glow_o9ehvn.svg',
     video: {
       poster:
-        'https://daily-now-res.cloudinary.com/image/upload/v1695643146/first-frame_cnitsj.png',
-      mp4: 'https://daily-now-res.cloudinary.com/video/upload/v1695799279/new_onboarding_video_h8urcy.mp4',
-      webm: 'https://daily-now-res.cloudinary.com/video/upload/v1695799278/new_onboarding_video_bnraak.webm',
+        'https://daily-now-res.cloudinary.com/image/upload/s--4ByPB4N0--/f_auto/v1695807778/daily.dev_onboarding_wall_image.001_fmbk7q',
+      mp4: 'https://daily-now-res.cloudinary.com/video/upload/v1695807779/daily.dev_onboarding_wall_video_qzmrzm.mp4',
+      webm: 'https://daily-now-res.cloudinary.com/video/upload/v1695808184/daily.dev_onboarding_wall_video_qzmrzm_iroigf.webm',
     },
   },
 };
