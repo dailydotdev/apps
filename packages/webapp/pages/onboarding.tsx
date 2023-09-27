@@ -342,12 +342,12 @@ export function OnboardPage(): ReactElement {
                   poster={cloudinary.onboarding.video.poster}
                 >
                   <source
-                    src={cloudinary.onboarding.video.mp4}
-                    type="video/mp4"
-                  />
-                  <source
                     src={cloudinary.onboarding.video.webm}
                     type="video/webm"
+                  />
+                  <source
+                    src={cloudinary.onboarding.video.mp4}
+                    type="video/mp4"
                   />
                 </video>
               }
