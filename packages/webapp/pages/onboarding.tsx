@@ -33,7 +33,10 @@ import {
   AnalyticsEvent,
   TargetType,
 } from '@dailydotdev/shared/src/lib/analytics';
-import { OnboardingStep } from '@dailydotdev/shared/src/components/onboarding/common';
+import {
+  OnboardingStep,
+  OnboardingTitleGradient,
+} from '@dailydotdev/shared/src/components/onboarding/common';
 import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
@@ -69,11 +72,6 @@ const wrapperMaxWidth = 'max-w-[75rem] laptopXL:max-w-[90rem]';
 const Container = classed(
   'div',
   'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max',
-);
-
-const OnboardingTitle = classed(
-  'h1',
-  'mb-4 font-bold text-transparent bg-clip-text bg-gradient-to-r from-theme-color-bacon to-theme-color-cabbage',
 );
 
 const seo: NextSeoProps = {
@@ -463,9 +461,9 @@ export function OnboardPage(): ReactElement {
               'flex flex-1 flex-col laptop:max-w-[27.5rem] laptop:mr-8',
             )}
           >
-            <OnboardingTitle className="typo-large-title tablet:typo-mega1">
+            <OnboardingTitleGradient className="mb-4 typo-large-title tablet:typo-mega1">
               Where developers grow together
-            </OnboardingTitle>
+            </OnboardingTitleGradient>
 
             <h2 className="mb-8 typo-body tablet:typo-title2">
               Get one personalized feed for all the knowledge you need.
