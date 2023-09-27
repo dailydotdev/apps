@@ -342,12 +342,12 @@ export function OnboardPage(): ReactElement {
                   poster={cloudinary.onboarding.video.poster}
                 >
                   <source
-                    src={cloudinary.onboarding.video.mp4}
-                    type="video/mp4"
-                  />
-                  <source
                     src={cloudinary.onboarding.video.webm}
                     type="video/webm"
+                  />
+                  <source
+                    src={cloudinary.onboarding.video.mp4}
+                    type="video/mp4"
                   />
                 </video>
               }
@@ -440,7 +440,7 @@ export function OnboardPage(): ReactElement {
     <Container
       className={
         // Because of the video colours, we need to adjust the background colour a little bit
-        isOnboardingV3 ? 'bg-[#0A1119]' : 'bg-theme-bg-primary flex-col'
+        isOnboardingV3 ? 'bg-[#111119]' : 'bg-theme-bg-primary flex-col'
       }
     >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
