@@ -11,6 +11,13 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
+const securityHeaders = [
+  {
+      key: 'X-Frame-Options',
+      value: 'DENY'
+  }
+]
+
 module.exports = withTM(
   withPWA({
     pwa: {
@@ -84,7 +91,14 @@ module.exports = withTM(
             destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
           },
         ],
-
+        headers: async () => {
+          return [
+              {
+                  source: '/:path*',
+                  headers: securityHeaders
+              }
+          ]
+        },
         poweredByHeader: false,
         reactStrictMode: false,
         productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
