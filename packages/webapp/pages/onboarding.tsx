@@ -440,7 +440,7 @@ export function OnboardPage(): ReactElement {
     <Container
       className={
         // Because of the video colours, we need to adjust the background colour a little bit
-        isOnboardingV3 ? 'bg-[#0F0F1A]' : 'bg-theme-bg-primary flex-col'
+        isOnboardingV3 ? 'bg-[#111119]' : 'bg-theme-bg-primary flex-col'
       }
     >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
