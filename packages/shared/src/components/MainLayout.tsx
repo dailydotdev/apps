@@ -33,8 +33,6 @@ import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import ExtensionOnboarding from './ExtensionOnboarding';
-import { checkIsExtension } from '../lib/func';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -49,7 +47,6 @@ export interface MainLayoutProps
   showSidebar?: boolean;
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
-  onExtensionOnboarding?: () => void;
   onShowDndClick?: () => unknown;
 }
 
@@ -74,7 +71,6 @@ export default function MainLayout({
   className,
   onLogoClick,
   onNavTabClick,
-  onExtensionOnboarding,
   enableSearch,
   onShowDndClick,
   showPostButton,
@@ -151,7 +147,6 @@ export default function MainLayout({
   const page = router?.route?.substring(1).trim() as MainFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const isExtension = checkIsExtension();
 
   const isPageApplicableForOnboarding = !page || feeds.includes(page);
   const shouldRedirectOnboarding =
@@ -162,7 +157,7 @@ export default function MainLayout({
     !isTesting;
 
   useEffect(() => {
-    if (!shouldRedirectOnboarding || isExtension) {
+    if (!shouldRedirectOnboarding) {
       return;
     }
 
@@ -180,20 +175,13 @@ export default function MainLayout({
     });
 
     router.push(`${onboardingUrl}?${params.toString()}`);
-  }, [shouldRedirectOnboarding, router, isExtension]);
+  }, [shouldRedirectOnboarding, router]);
 
-  useEffect(() => {
-    if (shouldRedirectOnboarding && isExtension) {
-      onExtensionOnboarding();
-    }
-  }, [isExtension, onExtensionOnboarding, shouldRedirectOnboarding]);
-
-  if (!isPageReady && isPageApplicableForOnboarding) {
+  if (
+    (!isPageReady && isPageApplicableForOnboarding) ||
+    shouldRedirectOnboarding
+  ) {
     return null;
-  }
-
-  if (isExtension && shouldRedirectOnboarding) {
-    return <ExtensionOnboarding />;
   }
 
   return (
