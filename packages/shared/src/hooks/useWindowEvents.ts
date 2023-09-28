@@ -4,7 +4,7 @@ export interface MessageEventData {
   eventKey?: string;
 }
 
-type EventParameter = keyof WindowEventMap;
+type EventParameter = keyof WindowEventMap | 'web-vitals';
 type KeyedWindowEventHandler<T = unknown> = (e: MessageEvent<T>) => void;
 
 const useWindowEvents = <T extends MessageEventData = MessageEventData>(

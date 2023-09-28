@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { AppProps } from 'next/app';
+import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
@@ -32,6 +32,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -69,7 +70,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { user, closeLogin, shouldShowLogin, loginState } =
     useContext(AuthContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
-
+  useWebVitals();
   useTrackPageView();
   useInAppNotification();
   const { modal, closeModal } = useLazyModal();
@@ -195,4 +196,11 @@ export default function App(props: AppProps): ReactElement {
       </QueryClientProvider>
     </ProgressiveEnhancementContextProvider>
   );
+}
+
+export function reportWebVitals(metric: NextWebVitalsMetric) {
+  if (metric.label === 'web-vital') {
+    const event = new CustomEvent('web-vitals', { detail: metric });
+    globalThis?.window.dispatchEvent(event);
+  }
 }
