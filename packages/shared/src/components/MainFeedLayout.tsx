@@ -36,6 +36,7 @@ import { cloudinary } from '../lib/image';
 import useMedia from '../hooks/useMedia';
 import { laptop, tablet } from '../styles/media';
 import { feature } from '../lib/featureManagement';
+import { isDevelopment } from '../lib/constants';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -162,7 +163,7 @@ export default function MainFeedLayout({
       ),
       variables: {
         ...propsByFeed[feedName].variables,
-        version: feedVersion,
+        version: isDevelopment ? 1 : feedVersion,
       },
     };
   } else {
