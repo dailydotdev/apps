@@ -10,7 +10,6 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
 import { AnalyticsEvent } from '../lib/analytics';
 import { OnboardingMode } from '../graphql/feed';
 import { useMyFeed } from '../hooks/useMyFeed';
@@ -53,18 +52,17 @@ interface OnboardingContextProviderProps {
 export const OnboardingContextProvider = ({
   children,
 }: OnboardingContextProviderProps): ReactElement => {
-  const { pathname } = useRouter() ?? {};
   const { user } = useContext(AuthContext);
-  const { loadedAlerts, alerts } = useContext(AlertContext);
+  const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { registerLocalFilters } = useMyFeed();
   const [isOnboarding, setIsOnboarding] = useState(false);
   const onboardingV2 = useFeature(feature.onboardingV2);
   const [isRegisteringFilters, setIsRegisteringFilters] = useState(false);
   const [shouldUpdateFilters, setShouldUpdateFilters] = useState(false);
-  const [onboardingMode, setOnboardingMode] = useState(OnboardingMode.Manual);
+  const [onboardingMode] = useState(OnboardingMode.Manual);
   const onFeedPageChanged = useRef(null);
-  const [hasTriedOnboarding, setHasTriedOnboarding, hasOnboardingLoaded] =
+  const [hasTriedOnboarding, setHasTriedOnboarding] =
     usePersistentContext<boolean>(LOGGED_USER_ONBOARDING, !alerts.filter);
   const [shouldSkipIntro, setSkipIntro] = useState(false);
 
@@ -110,35 +108,6 @@ export const OnboardingContextProvider = ({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, shouldUpdateFilters, isRegisteringFilters]);
-
-  useEffect(() => {
-    const isHome = !pathname || pathname === '/';
-    const conditions = [
-      !loadedAlerts,
-      !hasOnboardingLoaded,
-      hasTriedOnboarding,
-      !alerts.filter,
-      !isHome,
-      onboardingV2 !== OnboardingV2.Control,
-    ];
-
-    if (conditions.some((condition) => !!condition)) {
-      return;
-    }
-
-    setHasTriedOnboarding(false);
-    setOnboardingMode(OnboardingMode.Auto);
-    setIsOnboarding(true);
-  }, [
-    setHasTriedOnboarding,
-    hasTriedOnboarding,
-    alerts?.filter,
-    hasOnboardingLoaded,
-    user,
-    pathname,
-    loadedAlerts,
-    onboardingV2,
-  ]);
 
   const onCloseOnboardingModal = () => {
     if (onboardingMode === OnboardingMode.Auto) {

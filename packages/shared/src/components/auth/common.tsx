@@ -43,7 +43,7 @@ export const providerMap: ProviderMap = {
   github: {
     icon: <GitHubIcon className="socialIcon" secondary />,
     label: 'GitHub',
-    value: 'gitHub',
+    value: 'github',
   },
   apple: {
     icon: <AppleIcon className="socialIcon" secondary />,
@@ -66,3 +66,12 @@ export const AuthModalText = classed(
 export interface AuthFormProps {
   simplified?: boolean;
 }
+
+export const getFormEmail = (e: React.FormEvent): string => {
+  const form = e.currentTarget as HTMLFormElement;
+  const input = Array.from(form.elements).find(
+    (el) => el.getAttribute('name') === 'email',
+  ) as HTMLInputElement;
+
+  return input?.value?.trim();
+};

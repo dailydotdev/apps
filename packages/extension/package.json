@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "3.27.2",
+  "version": "3.27.3",
   "scripts": {
     "dev:chrome": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
     "dev:firefox": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=firefox webpack --watch",
@@ -102,6 +102,7 @@
     "nock": "^13.2.4",
     "node-fetch": "^2.6.6",
     "postcss": "^8.4.12",
+    "postcss-100vh-fix": "^1.0.2",
     "postcss-custom-media": "^8.0.0",
     "postcss-focus-visible": "^6.0.4",
     "postcss-import": "^14.1.0",

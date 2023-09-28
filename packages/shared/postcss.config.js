@@ -23,6 +23,7 @@ module.exports = {
     'postcss-focus-visible',
     'postcss-custom-media',
     'postcss-mixins',
+    'postcss-100vh-fix',
     process.env.TARGET_BROWSER
       ? require('postcss-rem-to-responsive-pixel')({
           rootValue: 16,

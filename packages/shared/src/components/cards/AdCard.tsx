@@ -25,7 +25,7 @@ export const AdCard = forwardRef(function AdCard(
   { ad, onLinkClick, showImage = true, domProps }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const showBlurredImage = ad.source === 'Carbon';
+  const showBlurredImage = ad.source === 'Carbon' || ad.source === 'EthicalAds';
 
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>

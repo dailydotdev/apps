@@ -5,8 +5,6 @@ import MainLayout, {
 } from '@dailydotdev/shared/src/components/MainLayout';
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
-export default MainLayout;
-
 export const getLayout = (
   page: ReactNode,
   pageProps?: Record<string, unknown>,

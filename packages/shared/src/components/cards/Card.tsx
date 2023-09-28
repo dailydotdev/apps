@@ -1,13 +1,9 @@
 import React, { HTMLAttributes, ReactNode } from 'react';
 import classNames from 'classnames';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
-import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
 import { Post } from '../../graphql/posts';
-import { ProfilePicture } from '../ProfilePicture';
-import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Image } from '../image/Image';
 
 type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
@@ -100,29 +96,3 @@ export const getPostClassNames = (
     'group',
     ...postClassNames,
   );
-
-export const featuredCommentsToButtons = (
-  comments: Comment[],
-  onClick: (comment: Comment) => unknown,
-  selectedId?: string,
-  className = 'mx-1',
-  tooltipPosition: TooltipPosition = 'bottom',
-): ReactNode[] =>
-  comments?.map((comment) => (
-    <SimpleTooltip
-      key={comment.id}
-      placement={tooltipPosition}
-      content={`See ${comment.author.name}'s comment`}
-    >
-      <button
-        type="button"
-        onClick={() => onClick(comment)}
-        className={classNames(
-          'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
-          className,
-        )}
-      >
-        <ProfilePicture size="small" user={comment.author} />
-      </button>
-    </SimpleTooltip>
-  ));

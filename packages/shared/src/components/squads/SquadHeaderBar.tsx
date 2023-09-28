@@ -51,22 +51,22 @@ export function SquadHeaderBar({
   const completedStepsCount = completedSteps.length;
   const totalStepsCount = steps.length;
   const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
+  const showJoinButton = squad.public && !squad.currentMember;
 
   return (
     <div
       {...props}
       className={classNames(
-        'flex flex-row gap-4 h-fit w-full tablet:w-auto',
+        'flex flex-row gap-4 h-fit w-full tablet:w-auto justify-center',
         className,
       )}
     >
       <div className="relative">
-        {verifyPermission(squad, SourcePermissions.Invite) && (
+        {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
           <Button
             className={classNames(
               'btn-secondary',
               tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
-              squad.public && 'hidden tablet:flex',
             )}
             onClick={() => {
               trackAndCopyLink();
@@ -74,11 +74,11 @@ export function SquadHeaderBar({
             icon={<AddUserIcon />}
             disabled={copying}
           >
-            Copy invitation link
+            Invitation link
           </Button>
         )}
       </div>
-      {squad.public && (
+      {showJoinButton && (
         <SquadJoinButton
           className="flex flex-1 tablet:flex-initial tablet:ml-auto w-full tablet:w-auto"
           squad={squad}

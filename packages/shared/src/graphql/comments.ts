@@ -1,5 +1,5 @@
 import request, { gql } from 'graphql-request';
-import { Connection, Upvote } from './common';
+import { Connection } from './common';
 import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
@@ -39,11 +39,6 @@ export interface Comment {
 }
 
 export const getCommentHash = (id: string): string => `#c-${id}`;
-
-export interface CommentUpvote extends Upvote {
-  comment: Comment;
-  createdAt: Date;
-}
 
 export interface RecommendedMentionsData {
   recommendedMentions: UserShortProfile[];

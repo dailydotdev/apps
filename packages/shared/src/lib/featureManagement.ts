@@ -3,6 +3,7 @@ import {
   OnboardingV2,
   OnboardingFilteringTitle,
   SearchExperiment,
+  OnboardingV3,
 } from './featureValues';
 
 export class Feature<T extends JSONValue> {
@@ -19,6 +20,7 @@ export class Feature<T extends JSONValue> {
 const feature = {
   feedVersion: new Feature('feed_version', 1),
   onboardingV2: new Feature('onboarding_v2', OnboardingV2.Control),
+  onboardingV3: new Feature('onboarding_v3', OnboardingV3.Control),
   search: new Feature('search', SearchExperiment.Control),
   onboardingFilterTitle: new Feature(
     'onboarding_filtering_title',
