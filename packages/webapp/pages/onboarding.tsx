@@ -440,7 +440,7 @@ export function OnboardPage(): ReactElement {
     <Container
       className={
         // Because of the video colours, we need to adjust the background colour a little bit
-        isOnboardingV3 ? 'bg-[#111119]' : 'bg-theme-bg-primary flex-col'
+        isOnboardingV3 ? 'bg-[#0e1019]' : 'bg-theme-bg-primary flex-col'
       }
     >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
@@ -452,7 +452,7 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex flex-wrap justify-center px-6 w-full tablet:gap-10',
+          'flex flex-wrap justify-center px-6 w-full tablet:gap-10 flex-grow',
           wrapperMaxWidth,
           !isAuthenticating && isOnboardingV3 && 'flex-1 content-center mt-8',
         )}
