@@ -71,7 +71,7 @@ it('should request most discussed feed when logged-in', async () => {
     createFeedMock(defaultFeedPage, MOST_DISCUSSED_FEED_QUERY, {
       first: 7,
       loggedIn: true,
-      version: 1,
+      version: 15,
     }),
   ]);
   await waitFor(async () => {
@@ -80,13 +80,13 @@ it('should request most discussed feed when logged-in', async () => {
   });
 });
 
-it('should request most discussed feed when not', async () => {
+it('should request most discussed feed when not logged-in', async () => {
   renderComponent(
     [
       createFeedMock(defaultFeedPage, MOST_DISCUSSED_FEED_QUERY, {
         first: 7,
         loggedIn: false,
-        version: 1,
+        version: 15,
       }),
     ],
     null,
