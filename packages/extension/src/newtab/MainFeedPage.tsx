@@ -59,6 +59,10 @@ export default function MainFeedPage({
     }
   };
 
+  const onExtensionOnboarding = (): void => {
+    onPageChanged('/hijacking');
+  };
+
   const activePage = useMemo(() => {
     if (isSearchOn) {
       return '/search';
@@ -95,6 +99,7 @@ export default function MainFeedPage({
       onShowDndClick={() => setShowDnd(true)}
       enableSearch={enableSearch}
       onNavTabClick={onNavTabClick}
+      onExtensionOnboarding={onExtensionOnboarding}
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
       additionalButtons={!loadingUser && <CompanionPopupButton />}
