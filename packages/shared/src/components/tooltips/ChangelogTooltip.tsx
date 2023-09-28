@@ -22,6 +22,7 @@ import CommentIcon from '../icons/Discuss';
 import InteractionCounter from '../InteractionCounter';
 import SettingsContext from '../../contexts/SettingsContext';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { checkIsExtension } from '../../lib/func';
 
 interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
   elementRef: MutableRefObject<TRef>;
@@ -41,7 +42,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
   onRequestClose,
   ...props
 }: ChangelogTooltipProps<TRef>): ReactElement {
-  const isExtension = !!process.env.TARGET_BROWSER;
+  const isExtension = checkIsExtension();
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
   const { latestPost: post, dismiss: dismissChangelog } = useChangelog();
   const toast = useToastNotification();

@@ -6,6 +6,7 @@ import { postAnalyticsEvent } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
 import { Origin } from '../lib/analytics';
+import { checkIsExtension } from '../lib/func';
 
 export enum PostPosition {
   First = 'first',
@@ -32,7 +33,7 @@ export const usePostModalNavigation = (
   canFetchMore: boolean,
 ): UsePostModalNavigation => {
   const [currentPage, setCurrentPage] = useState<string>();
-  const isExtension = !!process.env.TARGET_BROWSER;
+  const isExtension = checkIsExtension();
   const [openedPostIndex, setOpenedPostIndex] = useState<number>(null);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const { trackEvent } = useContext(AnalyticsContext);

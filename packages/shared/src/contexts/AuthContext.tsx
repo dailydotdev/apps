@@ -16,7 +16,7 @@ import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
 import { Squad } from '../graphql/sources';
-import { isNullOrUndefined } from '../lib/func';
+import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
   trigger: AuthTriggersOrString;
@@ -55,7 +55,7 @@ export interface AuthContextData {
   squads?: Squad[];
   isAuthReady?: boolean;
 }
-const isExtension = process.env.TARGET_BROWSER;
+const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;
