@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
-import { webappUrl } from '../lib/constants';
+import { onboardingUrl } from '../lib/constants';
 import { Button, ButtonSize } from './buttons/Button';
 import { cloudinary } from '../lib/image';
 
@@ -22,7 +22,7 @@ const ExtensionOnboarding = (): ReactElement => {
         The magic awaits inside! ✨
       </p>
 
-      <Link href={webappUrl}>
+      <Link href={onboardingUrl}>
         <Button
           className="w-full btn-primary max-w-[18.75rem]"
           buttonSize={ButtonSize.Large}

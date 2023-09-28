@@ -29,7 +29,7 @@ import { useNotificationParams } from '../hooks/useNotificationParams';
 import { OnboardingV2 } from '../lib/featureValues';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
-import { isTesting, webappUrl } from '../lib/constants';
+import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
@@ -166,11 +166,10 @@ export default function MainLayout({
       return;
     }
 
-    const onboarding = `${webappUrl}onboarding`;
     const entries = Object.entries(router.query);
 
     if (entries.length === 0) {
-      router.push(onboarding);
+      router.push(onboardingUrl);
       return;
     }
 
@@ -180,7 +179,7 @@ export default function MainLayout({
       params.append(key, value as string);
     });
 
-    router.push(`${onboarding}?${params.toString()}`);
+    router.push(`${onboardingUrl}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router, isExtension]);
 
   useEffect(() => {
