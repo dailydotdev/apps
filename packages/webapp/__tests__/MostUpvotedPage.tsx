@@ -73,7 +73,7 @@ it('should request most upvoted feed when logged-in', async () => {
       first: 7,
       loggedIn: true,
       period: 7,
-      version: 1,
+      version: 15,
     }),
   ]);
   await waitFor(async () => {
@@ -89,7 +89,7 @@ it('should request most upvoted feed when not', async () => {
         first: 7,
         loggedIn: false,
         period: 7,
-        version: 1,
+        version: 15,
       }),
     ],
     null,
