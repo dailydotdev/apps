@@ -183,12 +183,17 @@ export default function MainLayout({
     router.push(`${onboarding}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router, isExtension]);
 
+  useEffect(() => {
+    if (shouldRedirectOnboarding && isExtension) {
+      onExtensionOnboarding();
+    }
+  }, [isExtension, onExtensionOnboarding, shouldRedirectOnboarding]);
+
   if (!isPageReady && isPageApplicableForOnboarding) {
     return null;
   }
 
   if (isExtension && shouldRedirectOnboarding) {
-    onExtensionOnboarding();
     return <ExtensionOnboarding />;
   }
 
