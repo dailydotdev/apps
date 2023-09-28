@@ -7,7 +7,8 @@ export function useWebVitals(): void {
 
   const trackMetric = useCallback(
     (metric) => {
-      trackEvent({ event_name: metric.name, extra: JSON.stringify(metric) });
+      const { name, entries, id, ...rest } = metric;
+      trackEvent({ event_name: name, extra: JSON.stringify(rest) });
     },
     [trackEvent],
   );
