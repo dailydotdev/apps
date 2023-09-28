@@ -15,11 +15,14 @@ export function useWebVitals(): void {
 
   // Have to wait for document to load and ensure it's not run on SSR
   useEffect(() => {
-    onCLS(trackMetric);
-    onFID(trackMetric);
-    onLCP(trackMetric);
-    onTTFB(trackMetric);
-    onFCP(trackMetric);
+    // We apply sampling rate of 10%
+    if (Math.random() < 0.1) {
+      onCLS(trackMetric);
+      onFID(trackMetric);
+      onLCP(trackMetric);
+      onTTFB(trackMetric);
+      onFCP(trackMetric);
+    }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
