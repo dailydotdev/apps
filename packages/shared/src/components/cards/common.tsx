@@ -1,4 +1,9 @@
-import React, { HTMLAttributes, ReactElement, ReactHTML } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  ReactHTML,
+  ReactNode,
+} from 'react';
 import { Post } from '../../graphql/posts';
 import classed, { ClassedHTML } from '../../lib/classed';
 
@@ -20,7 +25,7 @@ export type Callback = (post: Post) => unknown;
 
 export const Container = classed('div', 'relative flex flex-1 flex-col');
 
-export type PostCardProps = {
+export interface PostCardProps {
   post: Post;
   onPostClick?: Callback;
   onUpvoteClick?: (post: Post) => unknown;
@@ -37,4 +42,6 @@ export type PostCardProps = {
   showImage?: boolean;
   insaneMode?: boolean;
   enableSourceHeader?: boolean;
-} & HTMLAttributes<HTMLDivElement>;
+  children?: ReactNode;
+  domProps?: HTMLAttributes<HTMLDivElement>;
+}

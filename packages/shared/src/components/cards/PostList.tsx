@@ -28,11 +28,8 @@ export const PostList = forwardRef(function PostList(
     onShare,
     onShareClick,
     openNewTab,
-    enableMenu,
-    menuOpened,
-    className,
     children,
-    ...props
+    domProps = {},
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -52,8 +49,10 @@ export const PostList = forwardRef(function PostList(
 
   return (
     <FeedItemContainer
-      {...props}
-      className={getPostClassNames(post, className)}
+      domProps={{
+        ...domProps,
+        className: getPostClassNames(post, domProps.className),
+      }}
       ref={ref}
       flagProps={{ listMode: true, pinnedAt, trending }}
     >

@@ -8,7 +8,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import { NextRouter } from 'next/router';

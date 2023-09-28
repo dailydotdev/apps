@@ -5,7 +5,7 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
 import App from './App';

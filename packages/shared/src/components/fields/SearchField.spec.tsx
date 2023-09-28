@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { SearchField, SearchFieldProps } from './SearchField';
 
 const renderComponent = (

@@ -211,7 +211,6 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
-          data-testid="adItem"
           onLinkClick={(ad) => onAdClick(ad, index, row, column)}
           showImage={!insaneMode}
         />

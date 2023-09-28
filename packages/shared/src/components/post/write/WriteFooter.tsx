@@ -28,7 +28,7 @@ export function WriteFooter({
     >
       {shouldShowCta && (
         <Switch
-          data-testId="push_notification-switch"
+          data-testid="push_notification-switch"
           inputId="push_notification-switch"
           name="push_notification"
           labelClassName="flex-1 font-normal"

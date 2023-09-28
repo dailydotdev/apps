@@ -25,29 +25,25 @@ export const ArticlePostCard = forwardRef(function PostCard(
     post,
     onPostClick,
     onUpvoteClick,
-    onDownvoteClick,
     onCommentClick,
     onBookmarkClick,
     onMenuClick,
     onShare,
     onShareClick,
     openNewTab,
-    enableMenu,
-    menuOpened,
-    className,
     children,
     showImage = true,
-    style,
     insaneMode,
     onReadArticleClick,
-    ...props
+    domProps = {},
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { className, style } = domProps;
+  const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
-  const { data } = useBlockPostPanel(post);
   const { showFeedback } = usePostFeedback({ post });
 
   if (data?.showTagsPanel && post.tags.length > 0) {
@@ -62,13 +58,15 @@ export const ArticlePostCard = forwardRef(function PostCard(
 
   return (
     <FeedItemContainer
-      {...props}
-      className={getPostClassNames(
-        post,
-        classNames(className, showFeedback && '!p-0'),
-        'min-h-[22.5rem]',
-      )}
-      style={{ ...style, ...customStyle }}
+      domProps={{
+        ...domProps,
+        style: { ...style, ...customStyle },
+        className: getPostClassNames(
+          post,
+          classNames(className, showFeedback && '!p-0'),
+          'min-h-[22.5rem]',
+        ),
+      }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >

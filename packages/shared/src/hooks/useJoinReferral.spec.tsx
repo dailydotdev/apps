@@ -1,9 +1,9 @@
 import React from 'react';
-import { renderHook } from '@testing-library/preact-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import nock from 'nock';
-import { waitFor } from '@testing-library/preact';
+import { waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useJoinReferral } from './useJoinReferral';
 import { AuthContextProvider } from '../contexts/AuthContext';

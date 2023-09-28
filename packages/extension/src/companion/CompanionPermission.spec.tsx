@@ -1,13 +1,14 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import '@testing-library/jest-dom';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import { render, RenderResult, screen } from '@testing-library/react';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import { EXTENSION_PERMISSION_KEY } from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
 import {
   registerBrowserContentScripts,
   requestContentScripts,
+  getContentScriptPermission,
 } from '../lib/extensionScripts';
 
 let client: QueryClient;
@@ -51,6 +52,7 @@ beforeEach(() => {
   client.setQueryData(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
+    getContentScriptPermission,
   }));
 });
 

@@ -5,7 +5,7 @@ import {
   render,
   RenderResult,
   screen,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';

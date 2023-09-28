@@ -5,52 +5,45 @@ import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 
 export const EXTENSION_PERMISSION_KEY = 'extension-permission';
 
-export type RequestContentScripts = (
-  origin: string,
+export type RequestContentScripts = (data: {
+  origin: string;
+  skipRedirect?: boolean;
+}) => Promise<boolean>;
+
+export type CreateRequestContentScripts = (
   client: QueryClient,
   trackEvent: (e: AnalyticsEvent) => void,
-) => () => Promise<boolean>;
+) => RequestContentScripts;
 
-export type ContentScriptStatus = () => {
+export type ContentScriptStatus = {
   contentScriptGranted: boolean;
   isFetched: boolean;
 };
 
 interface ExtensionPermission {
-  useContentScriptStatus: ContentScriptStatus;
-  requestContentScripts: (data?: {
-    skipRedirect?: boolean;
-  }) => Promise<boolean>;
+  getContentScriptPermission: () => Promise<boolean>;
+  requestContentScripts: RequestContentScripts;
   registerBrowserContentScripts: () => Promise<never>;
 }
 
-interface UseExtensionPermissionProps {
-  origin: string;
-}
-
-export const useExtensionPermission = ({
-  origin,
-}: UseExtensionPermissionProps): ExtensionPermission => {
+export const useExtensionPermission = (): ExtensionPermission => {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
-  const data = client.getQueryData(EXTENSION_PERMISSION_KEY) || {
-    // to avoid having to check for undefined wherever this is used outside the extension
-    useContentScriptStatus: () => ({}),
-  };
+  const data = client.getQueryData(EXTENSION_PERMISSION_KEY) || {};
 
   const {
     registerBrowserContentScripts,
     requestContentScripts,
-    useContentScriptStatus,
+    getContentScriptPermission,
   } = data as {
     registerBrowserContentScripts: ExtensionPermission['registerBrowserContentScripts'];
-    requestContentScripts: RequestContentScripts;
-    useContentScriptStatus: ContentScriptStatus;
+    requestContentScripts: CreateRequestContentScripts;
+    getContentScriptPermission: ExtensionPermission['getContentScriptPermission'];
   };
 
   return {
     registerBrowserContentScripts,
-    requestContentScripts: requestContentScripts?.(origin, client, trackEvent),
-    useContentScriptStatus,
+    requestContentScripts: requestContentScripts?.(client, trackEvent),
+    getContentScriptPermission,
   };
 };

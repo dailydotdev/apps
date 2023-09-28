@@ -5,7 +5,7 @@ import {
 } from '../../graphql/notifications';
 import SourceButton from '../cards/SourceButton';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
 
 function NotificationItemAvatar({
   type,
@@ -13,10 +13,12 @@ function NotificationItemAvatar({
   name,
   targetUrl,
   referenceId,
+  className,
 }: NotificationAvatar): ReactElement {
   if (type === NotificationAvatarType.Source) {
     return (
       <SourceButton
+        className={className}
         source={{
           id: referenceId,
           handle: referenceId,
@@ -31,10 +33,16 @@ function NotificationItemAvatar({
   if (type === NotificationAvatarType.User) {
     return (
       <ProfileTooltip link={{ href: targetUrl }} user={{ id: referenceId }}>
-        <ProfilePicture
-          user={{ image, id: referenceId }}
-          nativeLazyLoading
-          size="medium"
+        <ProfileImageLink
+          className={className}
+          picture={{ size: 'medium' }}
+          user={{
+            id: referenceId,
+            username: referenceId,
+            name,
+            image,
+            permalink: targetUrl,
+          }}
         />
       </ProfileTooltip>
     );

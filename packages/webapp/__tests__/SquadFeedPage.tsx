@@ -11,7 +11,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { QueryClient } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter } from 'next/router';

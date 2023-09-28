@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { SharePostCard } from './SharePostCard';
 import { sharePost } from '../../../__tests__/fixture/post';

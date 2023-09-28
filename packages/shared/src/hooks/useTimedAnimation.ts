@@ -79,6 +79,13 @@ export const useTimedAnimation = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer]);
 
+  useEffect(() => {
+    return () => {
+      window.clearInterval(interval.current);
+      interval.current = null;
+    };
+  }, []);
+
   return useMemo(
     () => ({
       timer,

@@ -16,7 +16,11 @@ import {
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
 import { postAnalyticsEvent } from '../lib/feed';
-import { updateInfiniteCache } from '../lib/query';
+import {
+  generateQueryKey,
+  RequestKey,
+  updateInfiniteCache,
+} from '../lib/query';
 import { AnalyticsEvent } from '../lib/analytics';
 import { usePostFeedback } from '../hooks';
 
@@ -46,8 +50,8 @@ const updateReadingHistoryPost =
   ): ((args: { id: string }) => Promise<() => void>) =>
   async () => {
     const history = client.getQueryData<ReadHistoryInfiniteData>(queryKey);
-    const { node } = history.pages[page].readHistory.edges[edge];
-    const updated = { ...node, post: { ...node.post, ...post } };
+    const { node } = history?.pages[page].readHistory.edges[edge] || {};
+    const updated = { ...node, post: { ...node?.post, ...post } };
 
     updateInfiniteCache<ReadHistoryData>({
       client,
@@ -88,7 +92,7 @@ export default function PostOptionsReadingHistoryMenu({
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
-  const historyQueryKey = ['readHistory', user?.id];
+  const historyQueryKey = generateQueryKey(RequestKey.ReadingHistory, user);
   const { isFeedbackEnabled } = usePostFeedback({ post });
 
   const { bookmark, removeBookmark } = useBookmarkPost({

@@ -142,7 +142,7 @@ export function SquadDetails({
         <form
           className="flex flex-col gap-4 items-center -mb-2"
           onSubmit={handleSubmit}
-          onChange={handleChange}
+          onBlur={handleChange}
           id="squad-form"
         >
           {!createMode && (

@@ -5,7 +5,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';

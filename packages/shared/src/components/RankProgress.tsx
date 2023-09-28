@@ -102,7 +102,7 @@ const getRankName = (rank: number): string =>
   rank > 0 ? RANKS[rank - 1].name : NO_RANK;
 
 export function RankProgress({
-  progress,
+  progress = 0,
   rank = 0,
   nextRank,
   showRankAnimation = false,

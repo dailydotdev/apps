@@ -113,7 +113,7 @@ const AccountNotificationsPage = (): ReactElement => {
           />
           <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
           <Switch
-            data-testId="push_notification-switch"
+            data-testid="push_notification-switch"
             inputId="push_notification-switch"
             name="push_notification"
             className="w-20"
@@ -166,7 +166,7 @@ const AccountNotificationsPage = (): ReactElement => {
         />
         <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
         <Switch
-          data-testId="email_notification-switch"
+          data-testid="email_notification-switch"
           inputId="email_notification-switch"
           name="email_notification"
           className="w-20"
@@ -181,7 +181,7 @@ const AccountNotificationsPage = (): ReactElement => {
       <div className="grid grid-cols-1 gap-2 mt-6">
         <Checkbox
           name="new_activity"
-          data-testId="new_activity-switch"
+          data-testid="new_activity-switch"
           checked={notificationEmail}
           onToggle={onToggleEmailNotification}
         >
@@ -189,7 +189,7 @@ const AccountNotificationsPage = (): ReactElement => {
         </Checkbox>
         <Checkbox
           name="marketing"
-          data-testId="marketing-switch"
+          data-testid="marketing-switch"
           checked={acceptedMarketing}
           onToggle={onToggleEmailMarketing}
         >

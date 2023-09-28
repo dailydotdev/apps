@@ -132,6 +132,7 @@ function NewCommentComponent(
         buttonSize={buttonSize[size]}
         className="ml-auto btn-secondary"
         readOnly
+        tag="span"
       >
         Post
       </Button>

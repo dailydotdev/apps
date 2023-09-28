@@ -12,11 +12,11 @@ import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
 
 export const AdList = forwardRef(function AdList(
-  { ad, onLinkClick, ...props }: AdCardProps,
+  { ad, onLinkClick, domProps }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
-    <ListCard {...props} ref={ref}>
+    <ListCard {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <ListCardAside />
       <ListCardDivider />

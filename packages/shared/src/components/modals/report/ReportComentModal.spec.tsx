@@ -4,7 +4,7 @@ import {
   screen,
   waitFor,
   fireEvent,
-} from '@testing-library/preact';
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';

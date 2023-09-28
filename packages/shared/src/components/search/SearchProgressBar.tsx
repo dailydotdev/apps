@@ -14,7 +14,7 @@ export const SearchProgressBar = ({
   const isDone = progress >= max;
 
   return (
-    <div className="flex relative gap-3 h-2" data-testId="SearchProgressBar">
+    <div className="flex relative gap-3 h-2" data-testid="SearchProgressBar">
       {Array.from({ length: max }).map((_, index) => (
         <span
           /* eslint-disable-next-line react/no-array-index-key */

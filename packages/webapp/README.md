@@ -1,6 +1,6 @@
 # daily.dev Web App
 
-A Next.js + Preact web application of daily.dev.
+A Next.js + React web application of daily.dev.
 It utilizes the brand new incremental static generation feature of Next.js to deliver pages fast.
 Available at: https://app.daily.dev
 
@@ -9,7 +9,7 @@ Available at: https://app.daily.dev
 * Node (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
 * NPM for managing dependencies.
 * Next.js as a SSR (ISG) framework
-* Preact
+* React
 * Tailwind CSS for styling
 
 ## Project structure

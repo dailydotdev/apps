@@ -56,7 +56,7 @@ export function ReadingHistory(): ReactElement {
     <div
       className="flex flex-col"
       aria-busy={isLoading}
-      data-testId="reading-history-container"
+      data-testid="reading-history-container"
     >
       <PostsSearch
         autoFocus={false}

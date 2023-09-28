@@ -15,9 +15,7 @@ const CompanionPermissionComponent = (
   _,
   ref: Ref<HTMLDivElement>,
 ): ReactElement => {
-  const { requestContentScripts } = useExtensionPermission({
-    origin: 'companion permission popup',
-  });
+  const { requestContentScripts } = useExtensionPermission();
   const link = 'Overview Video';
   const button = 'Activate companion';
   const title = 'Try the new companion feature!';
@@ -38,7 +36,11 @@ const CompanionPermissionComponent = (
         </p>
         <Button
           className="mt-1 w-[12.5rem] btn btn-primary"
-          onClick={() => requestContentScripts()}
+          onClick={() =>
+            requestContentScripts({
+              origin: 'companion permission popup',
+            })
+          }
           buttonSize={ButtonSize.Small}
         >
           {button}

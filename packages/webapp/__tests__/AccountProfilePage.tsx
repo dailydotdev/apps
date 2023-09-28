@@ -1,7 +1,7 @@
 import React from 'react';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import { render, RenderResult, screen } from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AccountProfilePage from '../pages/account/profile';

@@ -4,7 +4,7 @@ import {
   USER_COMMENTS_QUERY,
   UserCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import { render, RenderResult, screen } from '@testing-library/react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';

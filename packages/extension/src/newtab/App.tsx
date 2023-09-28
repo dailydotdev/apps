@@ -26,6 +26,7 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -34,10 +35,13 @@ import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import {
   getContentScriptPermissionAndRegister,
   requestContentScripts,
-  useContentScriptStatus,
   registerBrowserContentScripts,
+  getContentScriptPermission,
 } from '../lib/extensionScripts';
-import { EXTENSION_PERMISSION_KEY } from '../../../shared/src/hooks';
+import {
+  EXTENSION_PERMISSION_KEY,
+  useContentScriptStatus,
+} from '../../../shared/src/hooks';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -70,7 +74,7 @@ function InternalApp({
   useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
-    useContentScriptStatus,
+    getContentScriptPermission,
   }));
 
   useEffect(() => {
@@ -139,6 +143,7 @@ export default function App({
               </OnboardingContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>
+          <ReactQueryDevtools />
         </QueryClientProvider>
       </ProgressiveEnhancementContextProvider>
     </RouterContext.Provider>

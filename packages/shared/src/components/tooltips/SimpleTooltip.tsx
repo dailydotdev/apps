@@ -1,5 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
-import dynamicParent from '../../lib/dynamicParent';
+import dynamicParent, {
+  DynamicParentPlaceholder,
+} from '../../lib/dynamicParent';
 import { getShouldLoadTooltip, TooltipProps } from './BaseTooltip';
 
 const BaseTooltipLoader = () =>
@@ -7,7 +9,7 @@ const BaseTooltipLoader = () =>
 
 const TippyTooltip = dynamicParent<TooltipProps>(
   () => BaseTooltipLoader().then((mod) => mod.BaseTooltip),
-  React.Fragment,
+  DynamicParentPlaceholder,
 );
 
 export function SimpleTooltip({

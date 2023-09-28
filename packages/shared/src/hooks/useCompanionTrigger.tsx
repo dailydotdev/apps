@@ -10,6 +10,7 @@ import { LazyModal } from '../components/modals/common/types';
 import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { useContentScriptStatus } from './useContentScriptStatus';
 
 type CompanionTriggerProps = {
   post: Post;
@@ -52,11 +53,7 @@ export default function useCompanionTrigger(
     return false;
   }, [gb, isExtension]);
 
-  const { requestContentScripts, useContentScriptStatus } =
-    useExtensionPermission({
-      origin: 'companion modal permission button',
-    });
-
+  const { requestContentScripts } = useExtensionPermission();
   const { contentScriptGranted } = useContentScriptStatus();
   const alreadyCompleted = checkHasCompleted(
     ActionType.EngagementLoopJuly2023CompanionModal,
@@ -90,7 +87,10 @@ export default function useCompanionTrigger(
 
   const activateCompanion = useCallback(
     (data) => async (redirectUrl?: string) => {
-      await requestContentScripts({ skipRedirect: true });
+      await requestContentScripts({
+        origin: 'companion modal permission button',
+        skipRedirect: true,
+      });
 
       await customPostClickHandler(
         data.post,

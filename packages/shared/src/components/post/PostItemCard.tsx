@@ -46,6 +46,7 @@ export default function PostItemCard({
   const { timestampDb, post } = postItem;
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     onHide({ postId: post.id, timestamp: timestampDb });
   };
   const article = post?.sharedPost ?? post;
@@ -162,7 +163,7 @@ export default function PostItemCard({
               {showButtons && (
                 <Button
                   className="btn-tertiary"
-                  data-testId={`post-item-${post.id}`}
+                  data-testid={`post-item-${post.id}`}
                   icon={<MenuIcon />}
                   onClick={(event) => {
                     event.stopPropagation();
