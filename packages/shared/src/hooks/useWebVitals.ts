@@ -1,20 +1,25 @@
-import { useContext } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
+import { onCLS, onFCP, onFID, onLCP, onTTFB } from 'web-vitals';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import useWindowEvents from './useWindowEvents';
 
-const WEB_VITALS = 'web_vitals_key';
 export function useWebVitals(): void {
   const { trackEvent } = useContext(AnalyticsContext);
 
-  useWindowEvents(
-    'web-vitals',
-    WEB_VITALS,
-    (e) => {
-      const { detail } = e as CustomEventInit;
-      if (detail) {
-        trackEvent({ event_name: detail.name, extra: JSON.stringify(detail) });
-      }
+  const trackMetric = useCallback(
+    (metric) => {
+      trackEvent({ event_name: metric.name, extra: JSON.stringify(metric) });
     },
-    false,
+    [trackEvent],
   );
+
+  // Have to wait for document to load and ensure it's not run on SSR
+  useEffect(() => {
+    onCLS(trackMetric);
+    onFID(trackMetric);
+    onLCP(trackMetric);
+    onTTFB(trackMetric);
+    onFCP(trackMetric);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
