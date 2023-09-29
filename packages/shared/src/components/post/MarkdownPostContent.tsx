@@ -6,11 +6,11 @@ import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
 import { Image } from '../image/Image';
 
-interface WelcomePostContentProps {
+interface MarkdownPostContentProps {
   post: Post;
 }
 
-function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
+function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   return (
     <>
       <h1 className="my-6 font-bold whitespace-pre-line typo-title2">
@@ -44,4 +44,4 @@ function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
   );
 }
 
-export default WelcomePostContent;
+export default MarkdownPostContent;
