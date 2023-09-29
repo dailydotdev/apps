@@ -22,8 +22,9 @@ const ExtensionOnboarding = (): ReactElement => {
         The magic awaits inside! ✨
       </p>
 
-      <Link href={onboardingUrl}>
+      <Link href={onboardingUrl} passHref>
         <Button
+          tag="a"
           className="w-full btn-primary max-w-[18.75rem]"
           buttonSize={ButtonSize.Large}
         >
