@@ -32,6 +32,7 @@ export type GrowthBookProviderProps = {
   experimentation?: BootCacheData['exp'];
   updateExperimentation?: (exp: BootCacheData['exp']) => unknown;
   children?: ReactNode;
+  isFetched?: boolean;
 };
 
 export const GrowthBookProvider = ({
@@ -42,6 +43,7 @@ export const GrowthBookProvider = ({
   experimentation,
   updateExperimentation,
   children,
+  isFetched,
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
   const { mutateAsync: sendAllocation } = useMutation(
@@ -77,7 +79,7 @@ export const GrowthBookProvider = ({
   );
 
   useEffect(() => {
-    if (gb && experimentation?.f) {
+    if (gb && experimentation?.f && isFetched) {
       const currentFeats = gb.getFeatures();
       // Do not update when the features are already set
       if (!currentFeats || !Object.keys(currentFeats).length) {
@@ -91,7 +93,7 @@ export const GrowthBookProvider = ({
         });
       }
     }
-  }, [gb, experimentation?.f]);
+  }, [gb, experimentation?.f, isFetched]);
 
   useEffect(() => {
     callback.current = async (experiment, result) => {
