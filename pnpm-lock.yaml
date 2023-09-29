@@ -447,6 +447,9 @@ importers:
       uuid:
         specifier: ^8.3.2
         version: 8.3.2
+      web-vitals:
+        specifier: ^3.5.0
+        version: 3.5.0
       webextension-polyfill-ts:
         specifier: ^0.22.0
         version: 0.22.0
@@ -13186,6 +13189,10 @@ packages:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
 
+  /web-vitals@3.5.0:
+    resolution: {integrity: sha512-f5YnCHVG9Y6uLCePD4tY8bO/Ge15NPEQWtvm3tPzDKygloiqtb4SVqRHBcrIAqo2ztqX5XueqDn97zHF0LdT6w==}
+    dev: false
+
   /webext-content-scripts@0.12.0:
     resolution: {integrity: sha512-IWeFx80vhGfFVFYkZJURgMg8oZqtpFhCafXYO0u7fD2Tnd+4xKbgGYCwgvSVFB/NME8i1ZB8jTvk6ofdgYFNig==}
     dependencies:
@@ -13789,7 +13796,7 @@ packages:
     dev: false
 
   '@gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92':
-    resolution: {registry: https://registry.npmjs.org/, tarball: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92}
+    resolution: {tarball: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92}
     name: '@growthbook/growthbook'
     version: 0.27.0
     engines: {node: '>=10'}

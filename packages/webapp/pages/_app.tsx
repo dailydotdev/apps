@@ -32,6 +32,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -69,7 +70,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { user, closeLogin, shouldShowLogin, loginState } =
     useContext(AuthContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
-
+  useWebVitals();
   useTrackPageView();
   useInAppNotification();
   const { modal, closeModal } = useLazyModal();
