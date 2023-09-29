@@ -18,6 +18,7 @@ import LineIcon from './icons/Line';
 import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
+import { checkIsExtension } from '../lib/func';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -59,7 +60,7 @@ export default function Settings({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
-  const isExtension = process.env.TARGET_BROWSER;
+  const isExtension = checkIsExtension();
   const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,

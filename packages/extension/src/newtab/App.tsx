@@ -11,7 +11,9 @@ import Modal from 'react-modal';
 import 'focus-visible';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext, {
+  useAuthContext,
+} from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { browser } from 'webextension-polyfill-ts';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
@@ -28,6 +30,14 @@ import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { isTesting } from '@dailydotdev/shared/src/lib/constants';
+import { OnboardingV2 } from '@dailydotdev/shared/src/lib/featureValues';
+import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -73,6 +83,15 @@ function InternalApp({
   const { contentScriptGranted } = useContentScriptStatus();
   const routeChangedCallbackRef = useTrackPageView();
 
+  const { user, isAuthReady } = useAuthContext();
+  const { growthbook } = useGrowthBookContext();
+  const isPageReady =
+    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
+  const onboardingV2 = useFeature(feature.onboardingV2);
+
+  const shouldRedirectOnboarding =
+    !user && isPageReady && onboardingV2 !== OnboardingV2.Control && !isTesting;
+
   useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
@@ -80,10 +99,10 @@ function InternalApp({
   }));
 
   useEffect(() => {
-    if (routeChangedCallbackRef.current) {
+    if (routeChangedCallbackRef.current && isPageReady) {
       routeChangedCallbackRef.current();
     }
-  }, [routeChangedCallbackRef]);
+  }, [isPageReady, routeChangedCallbackRef]);
 
   const { dismissToast } = useToastNotification();
 
@@ -105,6 +124,18 @@ function InternalApp({
       ? `(${unreadCount}) ${DEFAULT_TAB_TITLE}`
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
+
+  useEffect(() => {
+    if (shouldRedirectOnboarding) {
+      routeChangedCallbackRef.current();
+    }
+  }, [routeChangedCallbackRef, shouldRedirectOnboarding]);
+
+  if (shouldRedirectOnboarding) {
+    // eslint-disable-next-line no-param-reassign
+    pageRef.current = '/hijacking';
+    return <ExtensionOnboarding />;
+  }
 
   return (
     <DndContextProvider>

@@ -11,6 +11,7 @@ import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { useContentScriptStatus } from './useContentScriptStatus';
+import { checkIsExtension } from '../lib/func';
 
 type CompanionTriggerProps = {
   post: Post;
@@ -36,7 +37,7 @@ export default function useCompanionTrigger(
     column?: number,
   ) => Promise<void>,
 ): CompanionTrigger {
-  const isExtension = process.env.TARGET_BROWSER;
+  const isExtension = checkIsExtension();
   const { trackEvent } = useAnalyticsContext();
   const { closeModal: closeLazyModal, openModal: openLazyModal } =
     useLazyModal();
