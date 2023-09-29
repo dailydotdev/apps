@@ -99,11 +99,11 @@ export const SocialShare = ({
   return (
     <>
       {!isComment && !post.private && (
-        <SocialShareContainer title="Share with your squad">
+        <SocialShareContainer title="Share with your squad" className="mb-4">
           <SquadsToShare onClick={(_, squad) => onSquadsShare(squad)} />
         </SocialShareContainer>
       )}
-      <SocialShareContainer title="Share externally" className="mt-4">
+      <SocialShareContainer title="Share externally">
         <SocialShareIcon
           onClick={trackAndCopyLink}
           pressed={copying}
