@@ -19,7 +19,7 @@ function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
         <Image
           src={post.image}
           alt="Post cover image"
-          className="object-cover mb-10 w-full h-auto rounded-xl max-h-[18rem]"
+          className="object-cover mb-10 w-full h-auto rounded-xl max-h-[62.5rem]"
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
         />
       )}
