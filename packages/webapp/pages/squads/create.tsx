@@ -43,7 +43,7 @@ function CreatePost(): ReactElement {
     (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),
   );
   const squad = activeSquads?.[selected];
-  const [display, setDisplay] = useState(WriteFormTab.Share);
+  const [display, setDisplay] = useState(WriteFormTab.NewPost);
   const { displayToast } = useToastNotification();
   const {
     onAskConfirmation,
@@ -128,6 +128,10 @@ function CreatePost(): ReactElement {
           shouldMountInactive
           className={{ header: 'px-1' }}
         >
+          <Tab label={WriteFormTab.NewPost} className="px-5">
+            <SquadsDropdown onSelect={setSelected} selected={selected} />
+            <WriteFreeformContent className="mt-6" />
+          </Tab>
           <Tab label={WriteFormTab.Share} className="px-5">
             <SquadsDropdown onSelect={setSelected} selected={selected} />
             <ShareLink
@@ -138,10 +142,6 @@ function CreatePost(): ReactElement {
                 push(squad.permalink);
               }}
             />
-          </Tab>
-          <Tab label={WriteFormTab.NewPost} className="px-5">
-            <SquadsDropdown onSelect={setSelected} selected={selected} />
-            <WriteFreeformContent className="mt-6" />
           </Tab>
         </TabContainer>
       </WritePageContainer>
