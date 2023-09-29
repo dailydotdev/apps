@@ -18,7 +18,7 @@ function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
       </h1>
       {post.type === PostType.Freeform && post.image && (
         <Link href={post.image}>
-          <a target="_blank">
+          <a target="_blank" rel="noopener">
             <Image
               src={post.image}
               alt="Post cover image"
