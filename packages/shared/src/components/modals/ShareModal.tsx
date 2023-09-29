@@ -1,17 +1,15 @@
-import React, { ReactElement, useContext, useEffect, useRef } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { Post } from '../../graphql/posts';
 import { SocialShare } from '../widgets/SocialShare';
 import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
-import { Comment, getCommentHash } from '../../graphql/comments';
+import { Comment } from '../../graphql/comments';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
-import MarkdownInput, { MarkdownRef } from '../fields/MarkdownInput';
-import { WriteLinkPreview } from '../post/write';
 
 type ShareModalProps = {
   post: Post;
@@ -31,12 +29,8 @@ export default function ShareModal({
   ...props
 }: ShareModalProps): ReactElement {
   const isComment = !!comment;
-  const link = isComment
-    ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
-    : post?.commentsPermalink;
   const { trackEvent } = useContext(AnalyticsContext);
   const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const markdownRef = useRef<MarkdownRef>();
 
   const baseTrackingEvent = (
     eventName: string,
@@ -81,25 +75,6 @@ export default function ShareModal({
     >
       <Modal.Header title={isComment ? 'Share comment' : 'Share post'} />
       <Modal.Body {...handlers}>
-        {isComment ? (
-          <MarkdownInput
-            className={{ container: 'mb-4' }}
-            ref={markdownRef}
-            showUserAvatar
-            textareaProps={{ rows: 4, name: 'commentary' }}
-            allowPreview={false}
-            enabledCommand={{ mention: true }}
-            footer={
-              <WriteLinkPreview
-                className="flex-col-reverse m-3 !w-auto"
-                preview={post}
-                link={link}
-                showPreviewLink={false}
-                isMinimized
-              />
-            }
-          />
-        ) : null}
         <SocialShare
           post={post}
           comment={comment}
