@@ -18,7 +18,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
       </h1>
       {post.type === PostType.Freeform && post.image && (
         <Link href={post.image}>
-          <a target="_blank" rel="noopener">
+          <a target="_blank" rel="noopener noreferrer">
             <Image
               src={post.image}
               alt="Post cover image"
