@@ -152,11 +152,10 @@ export function OnboardPage(): ReactElement {
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: isOnboardingV3 && !!storage.getItem(SIGNIN_METHOD_KEY),
     isLoginFlow: false,
-    defaultDisplay: isOnboardingV3
-      ? AuthDisplay.OnboardingSignup
-      : AuthDisplay.Default,
+    defaultDisplay: AuthDisplay.OnboardingSignup,
   });
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
+  const isPageReady = growthbook?.ready && isAuthReady;
 
   const formRef = useRef<HTMLFormElement>();
   const title = versionToTitle[filteringTitle];
@@ -166,7 +165,6 @@ export function OnboardPage(): ReactElement {
       setAuth((currentAuth) => ({
         ...currentAuth,
         isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY),
-        defaultDisplay: AuthDisplay.OnboardingSignup,
       }));
     }
   }, [isOnboardingV3]);
@@ -225,8 +223,6 @@ export function OnboardPage(): ReactElement {
     }
   }, [alerts, hasSelectTopics, isOnboardingV3, router]);
 
-  const isPageReady = growthbook?.ready && isAuthReady;
-
   useEffect(() => {
     if (!isPageReady || isTracked.current) {
       return;
@@ -275,8 +271,8 @@ export function OnboardPage(): ReactElement {
         )}
         trigger={AuthTriggers.Onboarding}
         formRef={formRef}
-        defaultDisplay={defaultDisplay}
-        forceDefaultDisplay={!isAuthenticating}
+        defaultDisplay={isOnboardingV3 ? defaultDisplay : AuthDisplay.Default}
+        forceDefaultDisplay={isOnboardingV3 && !isAuthenticating}
         initialEmail={email}
         isLoginFlow={isLoginFlow}
         targetId={isOnboardingV3 ? onboardingV3 : onboardingV2}
