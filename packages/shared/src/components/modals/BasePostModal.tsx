@@ -32,7 +32,7 @@ function BasePostModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         className,
-        'mx-auto focus:outline-none bg-theme-bg-primary',
+        'mx-auto focus:outline-none !bg-theme-bg-primary',
       )}
     >
       {isLoading ? (
