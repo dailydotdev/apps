@@ -82,6 +82,7 @@ export interface AuthOptionsProps {
   formRef: MutableRefObject<HTMLFormElement>;
   trigger: AuthTriggersOrString;
   defaultDisplay?: AuthDisplay;
+  forceDefaultDisplay?: boolean;
   className?: string;
   simplified?: boolean;
   isLoginFlow?: boolean;
@@ -99,6 +100,7 @@ function AuthOptions({
   formRef,
   trigger,
   defaultDisplay = AuthDisplay.Default,
+  forceDefaultDisplay,
   onDisplayChange,
   isLoginFlow,
   targetId,
@@ -116,7 +118,9 @@ function AuthOptions({
   const [email, setEmail] = useState(initialEmail);
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
-    storage.getItem(SIGNIN_METHOD_KEY) ? AuthDisplay.SignBack : defaultDisplay,
+    storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
+      ? AuthDisplay.SignBack
+      : defaultDisplay,
   );
 
   const onSetActiveDisplay = (display: AuthDisplay) => {

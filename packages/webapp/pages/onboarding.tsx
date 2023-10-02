@@ -275,6 +275,7 @@ export function OnboardPage(): ReactElement {
         trigger={AuthTriggers.Onboarding}
         formRef={formRef}
         defaultDisplay={defaultDisplay}
+        forceDefaultDisplay={!isAuthenticating}
         initialEmail={email}
         isLoginFlow={isLoginFlow}
         targetId={isOnboardingV3 ? onboardingV3 : onboardingV2}
