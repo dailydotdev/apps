@@ -137,7 +137,7 @@ export default function PostsSearch({
         className={classNames('flex-1 compact', className)}
         inputId="posts-search"
         fieldSize="medium"
-        placeholder={placeholder}
+        placeholder={placeholder ?? 'Find posts'}
         ref={searchBoxRef}
         value={initialQuery}
         valueChanged={onValueChanged}
