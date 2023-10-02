@@ -1,5 +1,5 @@
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import React from 'react';
 import nock from 'nock';
 import { useRouter } from 'next/router';
@@ -9,14 +9,12 @@ import { getFacebookShareLink } from '../../lib/share';
 import { Origin } from '../../lib/analytics';
 import Comment from '../../../__tests__/fixture/comment';
 import { getCommentHash } from '../../graphql/comments';
-import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { ADD_POST_TO_SQUAD_MUTATION } from '../../graphql/squads';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { LazyModalElement } from './LazyModalElement';
-import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { MODAL_KEY } from '../../hooks/useLazyModal';
+import { LazyModal } from './common/types';
 
 const defaultPost = Post;
 const defaultComment = Comment;
@@ -28,9 +26,12 @@ Object.assign(navigator, {
   },
 });
 
+let client: QueryClient;
+
 beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
+  client = new QueryClient();
 });
 
 const squads = [generateTestSquad()];
@@ -40,43 +41,33 @@ const renderComponent = (
   hasSquads = true,
   comment?,
 ): RenderResult => {
-  const client = new QueryClient();
-
   return render(
-    <QueryClientProvider client={client}>
-      <AuthContextProvider
-        user={loggedIn ? loggedUser : null}
-        updateUser={jest.fn()}
-        tokenRefreshed
-        getRedirectUri={jest.fn()}
-        loadingUser={false}
-        loadedUserFromCache
-        squads={hasSquads ? squads : []}
-      >
-        <LazyModalElement />
-        <ShareModal
-          origin={Origin.Feed}
-          post={defaultPost}
-          comment={comment}
-          isOpen
-          onRequestClose={onRequestClose}
-          ariaHideApp={false}
-        />
-      </AuthContextProvider>
-    </QueryClientProvider>,
+    <TestBootProvider
+      client={client}
+      auth={{
+        user: loggedIn ? loggedUser : null,
+        updateUser: jest.fn(),
+        tokenRefreshed: true,
+        getRedirectUri: jest.fn(),
+        loadingUser: false,
+        loadedUserFromCache: true,
+        squads: hasSquads ? squads : [],
+      }}
+    >
+      <LazyModalElement />
+      <ShareModal
+        origin={Origin.Feed}
+        post={defaultPost}
+        comment={comment}
+        isOpen
+        onRequestClose={onRequestClose}
+        ariaHideApp={false}
+      />
+    </TestBootProvider>,
   );
 };
 
 describe('ShareModal Test Suite:', () => {
-  it('should render the article preview', async () => {
-    renderComponent();
-    expect(screen.getByAltText(`${defaultPost.title}`)).toBeInTheDocument();
-    expect(
-      screen.getByAltText(`Avatar of ${defaultPost.source.handle}`),
-    ).toBeInTheDocument();
-    expect(screen.getByText(defaultPost.title)).toBeInTheDocument();
-  });
-
   it('should render the component without logged in user', async () => {
     renderComponent(false, false);
     expect(screen.getByText('Share post')).toBeInTheDocument();
@@ -101,34 +92,10 @@ describe('ShareModal Test Suite:', () => {
 
   it('should render the component with logged user and squads and open the share to squad modal', async () => {
     renderComponent(true, true);
-    let queryCalled = false;
-    mockGraphQL({
-      request: {
-        query: ADD_POST_TO_SQUAD_MUTATION,
-        variables: {
-          id: defaultPost.id,
-          sourceId: squads[0].id,
-          commentary: '',
-        },
-      },
-      result: () => {
-        queryCalled = true;
-        return { data: { sharePost: { id: 123 } } };
-      },
-    });
-    mockGraphQL({
-      request: {
-        query: COMPLETE_ACTION_MUTATION,
-        variables: { type: ActionType.SquadFirstPost },
-      },
-      result: { data: { _: true } },
-    });
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
-
-    expect(btn).toBeInTheDocument();
     btn.click();
-    await waitForNock();
-    await waitFor(() => expect(queryCalled).toBeTruthy());
+    const modal = client.getQueryData(MODAL_KEY);
+    expect(modal.type).toEqual(LazyModal.CreateSharedPost);
   });
 
   it('should render the Facebook button and have the correct link', async () => {

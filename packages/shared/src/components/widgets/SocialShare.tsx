@@ -27,16 +27,18 @@ import { IconSize } from '../Icon';
 import { useSharePost } from '../../hooks/useSharePost';
 import MenuIcon from '../icons/Menu';
 import CopyIcon from '../icons/Copy';
-import { usePostToSquad } from '../../hooks';
 import { SocialShareContainer } from './SocialShareContainer';
 import { useCopyLink } from '../../hooks/useCopy';
 import { SquadsToShare } from '../squads/SquadsToShare';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
+import { Squad } from '../../graphql/sources';
 
 interface SocialShareProps {
   origin: Origin;
   post: Post;
   comment?: Comment;
-  onSquadShare?: (post: Post) => void;
+  onSquadShare?: () => void;
   commentary?: string;
 }
 
@@ -48,7 +50,6 @@ export const SocialShare = ({
   column,
   row,
   onSquadShare,
-  commentary,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const isComment = !!comment;
   const href = isComment
@@ -58,6 +59,7 @@ export const SocialShare = ({
   const link = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
+  const { openModal } = useLazyModal();
   const { trackEvent } = useContext(AnalyticsContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
   const trackClick = (provider: ShareProvider) =>
@@ -70,30 +72,38 @@ export const SocialShare = ({
       }),
     );
 
-  const { onSubmitPost, isPosting } = usePostToSquad({
-    initialPreview: post,
-    onPostSuccess: () => {
-      trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
-      onSquadShare(null);
-    },
-  });
-
   const trackAndCopyLink = () => {
     copyLink();
     trackClick(ShareProvider.CopyLink);
   };
 
+  const onSharedSuccessfully = () => {
+    trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
+
+    if (onSquadShare) {
+      onSquadShare();
+    }
+  };
+
+  const onSquadsShare = (squad: Squad) => {
+    openModal({
+      type: LazyModal.CreateSharedPost,
+      props: {
+        squad,
+        preview: post,
+        onSharedSuccessfully,
+      },
+    });
+  };
+
   return (
     <>
       {!isComment && !post.private && (
-        <SocialShareContainer title="Share with your squad">
-          <SquadsToShare
-            onClick={(e, squad) => onSubmitPost(e, squad.id, commentary)}
-            isLoading={isPosting}
-          />
+        <SocialShareContainer title="Share with your squad" className="mb-4">
+          <SquadsToShare onClick={(_, squad) => onSquadsShare(squad)} />
         </SocialShareContainer>
       )}
-      <SocialShareContainer title="Share externally" className="mt-4">
+      <SocialShareContainer title="Share externally">
         <SocialShareIcon
           onClick={trackAndCopyLink}
           pressed={copying}
