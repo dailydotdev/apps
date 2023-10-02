@@ -17,7 +17,6 @@ type PostCardFooterProps = {
   openNewTab: boolean;
   showImage: boolean;
   post: Post;
-  onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className: PostCardFooterClassName;
 };
 
