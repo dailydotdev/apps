@@ -21,6 +21,7 @@ const PostsSearch = dynamic(
 
 export type MainFeedPageProps = {
   children?: ReactNode;
+  isFinder?: boolean;
 };
 
 const getFeedName = (path: string): string => {
@@ -32,17 +33,20 @@ const getFeedName = (path: string): string => {
 
 export default function MainFeedPage({
   children,
+  isFinder,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
-  const [isSearchOn, setIsSearchOn] = useState(router?.pathname === '/search');
-
+  const isFinderPage = router?.pathname === '/search' || isFinder;
+  const [feedName, setFeedName] = useState(
+    getFeedName(isFinder ? '/search' : router?.pathname),
+  );
+  const [isSearchOn, setIsSearchOn] = useState(isFinderPage);
   useEffect(() => {
     const isMyFeed = router?.pathname === '/my-feed';
     if (getShouldRedirect(isMyFeed, !!user)) {
       router.replace('/');
-    } else if (router?.pathname === '/search') {
+    } else if (isFinderPage) {
       setIsSearchOn(true);
       if (!feedName) {
         setFeedName('popular');
