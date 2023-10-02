@@ -23,6 +23,7 @@ export function DiscoverSection({
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
   const searchValue = useFeature(feature.search);
+  const isControlSearch = searchValue === SearchExperiment.Control;
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
@@ -61,19 +62,16 @@ export function DiscoverSection({
         </span>
       ),
     },
-  ];
-
-  if (searchValue === SearchExperiment.Control) {
-    discoverMenuItems.push({
+    {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <SearchIcon secondary={active} />} />
       ),
-      title: 'Search',
+      title: isControlSearch ? 'Search' : 'Post finder',
       hideOnMobile: true,
-      path: '/search',
+      path: isControlSearch ? '/search' : '/posts/finder',
       action: enableSearch,
-    });
-  }
+    },
+  ];
 
   return (
     <Section
