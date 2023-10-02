@@ -17,7 +17,6 @@ import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
-import ConditionalWrapper from '../ConditionalWrapper';
 import { FeedbackCard } from './FeedbackCard';
 
 export const ArticlePostCard = forwardRef(function PostCard(
@@ -74,30 +73,24 @@ export const ArticlePostCard = forwardRef(function PostCard(
 
       {showFeedback && <FeedbackCard post={post} />}
 
-      <ConditionalWrapper
-        condition={showFeedback}
-        wrapper={(wrapperChildren) => (
-          <div
-            className={classNames(
-              'p-2 border !border-theme-divider-tertiary rounded-2xl overflow-hidden',
-              styles.post,
-              styles.read,
-            )}
-          >
-            {wrapperChildren}
-          </div>
+      <div
+        className={classNames(
+          showFeedback
+            ? 'p-2 border !border-theme-divider-tertiary rounded-2xl overflow-hidden'
+            : 'flex flex-col flex-1',
+          showFeedback && styles.post,
+          showFeedback && styles.read,
         )}
       >
         <CardTextContainer>
-          {!showFeedback && (
-            <PostCardHeader
-              openNewTab={openNewTab}
-              source={post.source}
-              postLink={post.permalink}
-              onMenuClick={(event) => onMenuClick?.(event, post)}
-              onReadArticleClick={onReadArticleClick}
-            />
-          )}
+          <PostCardHeader
+            className={showFeedback ? 'hidden' : 'flex'}
+            openNewTab={openNewTab}
+            source={post.source}
+            postLink={post.permalink}
+            onMenuClick={(event) => onMenuClick?.(event, post)}
+            onReadArticleClick={onReadArticleClick}
+          />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}
           </CardTitle>
@@ -118,7 +111,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
             openNewTab={openNewTab}
             post={post}
             showImage={showImage}
-            onReadArticleClick={onReadArticleClick}
             className={{
               image: classNames(showFeedback && 'mb-0'),
             }}
@@ -142,7 +134,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             />
           )}
         </Container>
-      </ConditionalWrapper>
+      </div>
       {children}
     </FeedItemContainer>
   );
