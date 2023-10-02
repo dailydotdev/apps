@@ -28,6 +28,11 @@ const getFeedName = (path: string): string => {
   if (path === '/') {
     return 'default';
   }
+
+  if (path === '/posts/finder') {
+    return 'search';
+  }
+
   return path.replace(/^\/+/, '');
 };
 
@@ -38,9 +43,7 @@ export default function MainFeedPage({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const isFinderPage = router?.pathname === '/search' || isFinder;
-  const [feedName, setFeedName] = useState(
-    getFeedName(isFinder ? '/search' : router?.pathname),
-  );
+  const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
   const [isSearchOn, setIsSearchOn] = useState(isFinderPage);
   useEffect(() => {
     const isMyFeed = router?.pathname === '/my-feed';
