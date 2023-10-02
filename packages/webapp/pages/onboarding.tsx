@@ -165,6 +165,7 @@ export function OnboardPage(): ReactElement {
     if (isOnboardingV3) {
       setAuth((currentAuth) => ({
         ...currentAuth,
+        isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY),
         defaultDisplay: AuthDisplay.OnboardingSignup,
       }));
     }
