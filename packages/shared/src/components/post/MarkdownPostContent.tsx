@@ -1,27 +1,32 @@
 import React, { ReactElement } from 'react';
+import Link from 'next/link';
 import { Post, PostType } from '../../graphql/posts';
 import Markdown from '../Markdown';
 import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
 import { Image } from '../image/Image';
 
-interface WelcomePostContentProps {
+interface MarkdownPostContentProps {
   post: Post;
 }
 
-function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
+function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   return (
     <>
       <h1 className="my-6 font-bold whitespace-pre-line typo-title2">
         {post.title}
       </h1>
       {post.type === PostType.Freeform && post.image && (
-        <Image
-          src={post.image}
-          alt="Post cover image"
-          className="object-cover mb-10 w-full h-auto rounded-xl max-h-[18rem]"
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-        />
+        <Link href={post.image}>
+          <a target="_blank" rel="noopener noreferrer">
+            <Image
+              src={post.image}
+              alt="Post cover image"
+              className="object-cover mb-10 w-full h-auto rounded-xl max-h-[62.5rem]"
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+            />
+          </a>
+        </Link>
       )}
       <Markdown content={post.contentHtml} />
       {post.type === PostType.Welcome && post.image && (
@@ -39,4 +44,4 @@ function WelcomePostContent({ post }: WelcomePostContentProps): ReactElement {
   );
 }
 
-export default WelcomePostContent;
+export default MarkdownPostContent;
