@@ -33,7 +33,6 @@ export default function PostModal({
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
-  const containerClass = 'post-content';
   const isPublicSquad = isSourcePublicSquad(post.source);
 
   return (
@@ -43,7 +42,7 @@ export default function PostModal({
       onRequestClose={onRequestClose}
       postType={PostType.Share}
       source={post.source}
-      loadingClassName={containerClass}
+      loadingClassName="!pb-2 tablet:pb-0"
     >
       <EnableNotification
         source={NotificationPromptSource.SquadPostModal}
@@ -60,7 +59,6 @@ export default function PostModal({
         origin={Origin.ArticleModal}
         onRemovePost={onRemovePost}
         className={{
-          container: containerClass,
           fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
           navigation: { actions: 'tablet:hidden ml-auto' },
           onboarding: 'mt-8 mb-0',

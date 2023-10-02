@@ -84,7 +84,7 @@ function SquadPostContent({
       )}
       <PostContentContainer
         className={classNames(
-          'relative post-content',
+          'relative tablet:pb-0 !pb-2',
           className?.container,
           isPublicSquad && 'flex-1 flex-col tablet:flex-row',
         )}

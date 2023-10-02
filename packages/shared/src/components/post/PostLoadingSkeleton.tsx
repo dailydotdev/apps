@@ -29,7 +29,7 @@ function PostLoadingSkeleton({
       <PostContentContainer
         className={classNames(className, {
           'm-auto': !publicSquadPost,
-          'tablet:pb-0 tablet:flex-row bg-theme-bg-primary': publicSquadPost,
+          'tablet:pb-0 tablet:flex-row': publicSquadPost,
         })}
         hasNavigation={hasNavigation}
       >
@@ -47,10 +47,7 @@ function PostLoadingSkeleton({
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
-      className={classNames(
-        className,
-        'tablet:pb-0 tablet:flex-row bg-theme-bg-primary',
-      )}
+      className={classNames(className, 'tablet:pb-0 tablet:flex-row')}
     >
       <PostLoadingPlaceholder className="tablet:border-r tablet:border-theme-divider-tertiary" />
     </PostContentContainer>
