@@ -7,6 +7,7 @@ import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 
 interface CardHeaderProps {
+  className?: string;
   children?: ReactNode;
   source: Source;
   onMenuClick?: (e: React.MouseEvent) => void;
@@ -18,6 +19,7 @@ interface CardHeaderProps {
 const Container = getGroupedHoverContainer('span');
 
 export const PostCardHeader = ({
+  className,
   onMenuClick,
   onReadArticleClick,
   children,
@@ -26,7 +28,7 @@ export const PostCardHeader = ({
   openNewTab,
 }: CardHeaderProps): ReactElement => {
   return (
-    <CardHeader>
+    <CardHeader className={className}>
       <SourceButton source={source} />
       {children}
       <Container

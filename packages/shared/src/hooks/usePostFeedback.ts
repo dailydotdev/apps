@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { useMutation, useQueryClient } from 'react-query';
-import { Post, dismissPostFeedback } from '../graphql/posts';
+import { Post, dismissPostFeedback, UserPostVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
 import { updateCachedPagePost } from '../lib/query';
@@ -83,7 +83,11 @@ export const usePostFeedback = ({
     },
   );
 
-  const shouldShowFeedback = isFeedbackEnabled && isMyFeed && !!post?.read;
+  const shouldShowFeedback =
+    isFeedbackEnabled &&
+    isMyFeed &&
+    !!post?.read &&
+    post?.userState?.vote === UserPostVote.None;
 
   const showFeedback = useMemo(() => {
     if (!shouldShowFeedback) {
