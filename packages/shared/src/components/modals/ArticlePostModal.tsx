@@ -40,7 +40,7 @@ export default function ArticlePostModal({
       onRequestClose={onRequestClose}
       postType={PostType.Article}
       source={post.source}
-      loadingClassName="post-content"
+      loadingClassName="!pb-2 tablet:pb-0"
     >
       <PostContent
         position={position}
