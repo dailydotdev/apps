@@ -12,8 +12,6 @@
   }
 
   & :global(.post-content) {
-    @apply bg-theme-bg-primary;
-
     display: flex;
     border: none;
     border-radius: 0;
