@@ -67,7 +67,7 @@ export function DiscoverSection({
         <ListIcon Icon={() => <SearchIcon secondary={active} />} />
       ),
       title: isControlSearch ? 'Search' : 'Post finder',
-      hideOnMobile: true,
+      hideOnMobile: isControlSearch,
       path: isControlSearch ? '/search' : '/posts/finder',
       action: enableSearch,
     },
