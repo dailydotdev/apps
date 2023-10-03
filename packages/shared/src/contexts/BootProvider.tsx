@@ -181,6 +181,7 @@ export const BootDataProvider = ({
       deviceId={deviceId}
       experimentation={cachedBootData?.exp}
       updateExperimentation={updateExperimentation}
+      firstLoad={initialLoad}
     >
       <AuthContextProvider
         user={user}
