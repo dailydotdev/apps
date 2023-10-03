@@ -18,6 +18,7 @@ import {
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/analytics';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
+import { usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -97,6 +98,21 @@ const AccountNotificationsPage = (): ReactElement => {
       NotificationCategory.Marketing,
     );
     updateUserProfile({ acceptedMarketing: value });
+  };
+
+  const {
+    personalizedDigest,
+    isLoading: isPersonalizedDigestLoading,
+    subscribePersonalizedDigest,
+    unsubscribePersonalizedDigest,
+  } = usePersonalizedDigest();
+
+  const onTogglePersonalizedDigest = async () => {
+    if (!personalizedDigest) {
+      await subscribePersonalizedDigest();
+    } else {
+      await unsubscribePersonalizedDigest();
+    }
   };
 
   return (
@@ -194,6 +210,15 @@ const AccountNotificationsPage = (): ReactElement => {
           onToggle={onToggleEmailMarketing}
         >
           Community updates
+        </Checkbox>
+        <Checkbox
+          name="personalizedDigest"
+          data-testid="personalized-digest-switch"
+          checked={!!personalizedDigest}
+          onToggle={onTogglePersonalizedDigest}
+          disabled={isPersonalizedDigestLoading}
+        >
+          Personalized Weekly Digest
         </Checkbox>
         <Checkbox name="newsletter" checked disabled>
           System alerts (security, privacy, etc.)

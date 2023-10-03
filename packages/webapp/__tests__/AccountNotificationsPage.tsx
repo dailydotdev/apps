@@ -20,7 +20,13 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { BootApp, Visit } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
-import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+import {
+  GET_PERSONALIZED_DIGEST_SETTINGS,
+  SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UPDATE_USER_PROFILE_MUTATION,
+} from '@dailydotdev/shared/src/graphql/users';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import ProfileNotificationsPage from '../pages/account/notifications';
 
 jest.mock('next/router', () => ({
@@ -148,4 +154,81 @@ it('should change user notification email subscription', async () => {
   await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
   await waitForNock();
   expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+});
+
+it('should subscribe to weekly digest subscription', async () => {
+  mockGraphQL({
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: {
+      errors: [
+        {
+          message: 'Not subscribed to personalized digest',
+          extensions: {
+            code: ApiError.NotFound,
+          },
+        },
+      ],
+    },
+  });
+
+  renderComponent();
+
+  mockGraphQL({
+    request: { query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, variables: {} },
+    result: {
+      data: {
+        subscribePersonalizedDigest: {
+          preferredDay: 1,
+          preferredHour: 9,
+          preferredTimezone: 'Etc/UTC',
+        },
+      },
+    },
+  });
+
+  const subscription = await screen.findByTestId('personalized-digest-switch');
+  await waitFor(() => expect(subscription).toBeEnabled());
+
+  expect(subscription).not.toBeChecked();
+
+  fireEvent.click(subscription);
+  await waitForNock();
+
+  expect(subscription).toBeChecked();
+});
+
+it('should unsubscribe to weekly digest subscription', async () => {
+  mockGraphQL({
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: {
+      data: {
+        personalizedDigest: {
+          preferredDay: 1,
+          preferredHour: 9,
+          preferredTimezone: 'Etc/UTC',
+        },
+      },
+    },
+  });
+
+  renderComponent();
+
+  mockGraphQL({
+    request: { query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, variables: {} },
+    result: {
+      data: {
+        _: true,
+      },
+    },
+  });
+
+  const subscription = await screen.findByTestId('personalized-digest-switch');
+  await waitFor(() => expect(subscription).toBeEnabled());
+
+  expect(subscription).toBeChecked();
+
+  fireEvent.click(subscription);
+  await waitForNock();
+
+  expect(subscription).not.toBeChecked();
 });
