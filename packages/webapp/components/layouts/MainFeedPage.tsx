@@ -21,28 +21,35 @@ const PostsSearch = dynamic(
 
 export type MainFeedPageProps = {
   children?: ReactNode;
+  isFinder?: boolean;
 };
 
 const getFeedName = (path: string): string => {
   if (path === '/') {
     return 'default';
   }
+
+  if (path === '/posts/finder') {
+    return 'search';
+  }
+
   return path.replace(/^\/+/, '');
 };
 
 export default function MainFeedPage({
   children,
+  isFinder,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
+  const isFinderPage = router?.pathname === '/search' || isFinder;
   const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
-  const [isSearchOn, setIsSearchOn] = useState(router?.pathname === '/search');
-
+  const [isSearchOn, setIsSearchOn] = useState(isFinderPage);
   useEffect(() => {
     const isMyFeed = router?.pathname === '/my-feed';
     if (getShouldRedirect(isMyFeed, !!user)) {
       router.replace('/');
-    } else if (router?.pathname === '/search') {
+    } else if (isFinderPage) {
       setIsSearchOn(true);
       if (!feedName) {
         setFeedName('popular');
@@ -72,7 +79,8 @@ export default function MainFeedPage({
       isSearchOn={isSearchOn}
       onFeedPageChanged={(page) => router.replace(`/${page}`)}
       searchQuery={router.query?.q?.toString()}
-      searchChildren={<PostsSearch placeholder="Search posts" />}
+      searchChildren={<PostsSearch />}
+      isFinder={isFinder}
     >
       {children}
     </MainFeedLayout>

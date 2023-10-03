@@ -82,6 +82,7 @@ export type MainFeedLayoutProps = {
   besideSearch?: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: MainFeedPage) => void;
+  isFinder?: boolean;
 };
 
 const getQueryBasedOnLogin = (
@@ -140,6 +141,7 @@ export default function MainFeedLayout({
   besideSearch,
   onFeedPageChanged,
   navChildren,
+  isFinder,
 }: MainFeedLayoutProps): ReactElement {
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -279,7 +281,7 @@ export default function MainFeedLayout({
 
   return (
     <FeedPage className="relative">
-      {searchVersion === SearchExperiment.V1 && (
+      {searchVersion === SearchExperiment.V1 && !isFinder && (
         <img
           className="absolute top-0 left-0 w-full max-w-[58.75rem]"
           src={getImage()}

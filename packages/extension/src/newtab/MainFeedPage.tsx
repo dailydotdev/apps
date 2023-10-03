@@ -8,6 +8,10 @@ import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -32,6 +36,7 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
+  const searchVersion = useFeature(feature.search);
   const { alerts } = useContext(AlertContext);
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
@@ -41,6 +46,11 @@ export default function MainFeedPage({
   useCompanionSettings();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
+    if (searchVersion !== SearchExperiment.Control) {
+      window.location.assign(`${webappUrl}posts/finder`);
+      return;
+    }
+
     setIsSearchOn(true);
     setSearchQuery(null);
     onPageChanged('/search');

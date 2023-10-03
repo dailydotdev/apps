@@ -20,7 +20,7 @@ const Search = (): ReactElement => {
   const seo = useMemo(() => {
     if ('q' in query) {
       return {
-        title: `${query.q} - daily.dev search`,
+        title: `${query.q} - daily.dev post finder`,
       };
     }
     return {
@@ -36,6 +36,10 @@ const Search = (): ReactElement => {
 };
 
 Search.getLayout = getMainFeedLayout;
-Search.layoutProps = { ...mainFeedLayoutProps, mobileTitle: 'Search' };
+Search.layoutProps = {
+  ...mainFeedLayoutProps,
+  mobileTitle: 'Post finder',
+  isFinder: true,
+};
 
 export default Search;
