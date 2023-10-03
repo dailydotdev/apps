@@ -33,23 +33,34 @@ interface SourceCardProps {
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
+  Burger = 'burger',
+  BlueCheese = 'blueCheese',
+  Lettuce = 'lettuce',
+  Cheese = 'cheese',
+  Bun = 'bun',
+  Ketchup = 'ketchup',
   Bacon = 'bacon',
   Cabbage = 'cabbage',
   Onion = 'onion',
+  Water = 'water',
+  Salt = 'salt',
   Pepper = 'pepper',
 }
 
 const borderColorToClassName: Record<SourceCardBorderColor, string> = {
-  [SourceCardBorderColor.Avocado]:
-    'border-theme-squads-avocado hover:border-theme-squads-avocado',
-  [SourceCardBorderColor.Bacon]:
-    'border-theme-squads-bacon hover:border-theme-squads-bacon',
-  [SourceCardBorderColor.Cabbage]:
-    'border-theme-squads-cabbage hover:border-theme-squads-cabbage',
-  [SourceCardBorderColor.Onion]:
-    'border-theme-squads-onion hover:border-theme-squads-onion',
-  [SourceCardBorderColor.Pepper]:
-    'border-theme-squads-pepper hover:border-theme-squads-pepper',
+  [SourceCardBorderColor.Avocado]: '!border-theme-color-avocado',
+  [SourceCardBorderColor.Burger]: '!border-theme-color-burger',
+  [SourceCardBorderColor.BlueCheese]: '!border-theme-color-blueCheese',
+  [SourceCardBorderColor.Lettuce]: '!border-theme-color-lettuce',
+  [SourceCardBorderColor.Cheese]: '!border-theme-color-cheese',
+  [SourceCardBorderColor.Bun]: '!border-theme-color-bun',
+  [SourceCardBorderColor.Ketchup]: '!border-theme-color-ketchup',
+  [SourceCardBorderColor.Bacon]: '!border-theme-color-bacon',
+  [SourceCardBorderColor.Cabbage]: '!border-theme-color-cabbage',
+  [SourceCardBorderColor.Onion]: '!border-theme-color-onion',
+  [SourceCardBorderColor.Water]: '!border-theme-color-water',
+  [SourceCardBorderColor.Salt]: '!border-theme-color-salt',
+  [SourceCardBorderColor.Pepper]: '!border-theme-color-pepper',
 };
 
 export const SourceCard = ({

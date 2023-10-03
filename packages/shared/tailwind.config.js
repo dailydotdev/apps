@@ -101,6 +101,7 @@ module.exports = {
           onion: 'var(--theme-color-onion)',
           water: 'var(--theme-color-water)',
           salt: 'var(--theme-color-salt)',
+          pepper: 'var(--theme-color-pepper)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
         highlight: {
@@ -113,13 +114,6 @@ module.exports = {
           blue: 'var(--theme-highlight-blue)',
           purple: 'var(--theme-highlight-purple)',
           label: 'var(--theme-highlight-label)',
-        },
-        squads: {
-          avocado: 'var(--theme-squads-avocado)',
-          bacon: 'var(--theme-squads-bacon)',
-          cabbage: 'var(--theme-squads-cabbage)',
-          onion: 'var(--theme-squads-onion)',
-          pepper: 'var(--theme-squads-pepper)',
         },
       },
       white: '#ffffff',
