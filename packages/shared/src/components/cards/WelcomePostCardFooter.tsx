@@ -32,6 +32,12 @@ export const WelcomePostCardFooter = ({
     return undefined;
   }, [post?.contentHtml, post?.image]);
 
+  const decodedText = useMemo(() => {
+    const span = document.createElement('div');
+    span.innerHTML = content || '';
+    return span.innerText || content;
+  }, [content]);
+
   if (image) {
     return (
       <>
@@ -48,7 +54,9 @@ export const WelcomePostCardFooter = ({
   }
   if (content) {
     return (
-      <p className="px-2 break-words line-clamp-6 typo-callout">{content}</p>
+      <p className="px-2 break-words line-clamp-6 typo-callout">
+        {decodedText}
+      </p>
     );
   }
 
