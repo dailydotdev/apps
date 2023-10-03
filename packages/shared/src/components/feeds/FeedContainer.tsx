@@ -115,7 +115,9 @@ export const FeedContainer = ({
     return <></>;
   }
 
-  const isV1Search = searchValue === SearchExperiment.V1 && showSearch;
+  const isFinder = router.pathname === '/posts/finder';
+  const isV1Search =
+    searchValue === SearchExperiment.V1 && showSearch && !isFinder;
   const onSearch = (event: FormEvent, input: string) => {
     event.preventDefault();
     router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);

@@ -80,6 +80,7 @@ export default function MainFeedPage({
       onFeedPageChanged={(page) => router.replace(`/${page}`)}
       searchQuery={router.query?.q?.toString()}
       searchChildren={<PostsSearch />}
+      isFinder={isFinder}
     >
       {children}
     </MainFeedLayout>
