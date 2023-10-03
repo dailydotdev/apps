@@ -49,7 +49,12 @@ export function FixedBottomBanner(): ReactElement {
             showLoginButton={false}
             copy={{ signup: 'Sign up now' }}
           />
-          <Button tag="a" href={tellMeWhy} className="btn-secondary">
+          <Button
+            tag="a"
+            target="_blank"
+            href={tellMeWhy}
+            className="btn-secondary"
+          >
             Tell me why
           </Button>
         </div>
