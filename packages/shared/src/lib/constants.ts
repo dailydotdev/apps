@@ -12,6 +12,7 @@ export const reputationGuide = 'https://r.daily.dev/reputation-guide';
 export const ownershipGuide = 'https://r.daily.dev/claim';
 export const contentGuidelines = 'https://r.daily.dev/content-guidelines';
 export const communityLinksGuidelines = 'https://r.daily.dev/community-links';
+export const tellMeWhy = 'https://r.daily.dev/tellmewhy';
 export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
