@@ -265,7 +265,7 @@ export function OnboardPage(): ReactElement {
       <AuthOptions
         simplified
         className={classNames(
-          'w-full rounded-none',
+          'w-full h-full rounded-none',
           maxAuthWidth,
           !isAuthenticating && 'max-w-full',
         )}
