@@ -35,8 +35,17 @@ const AccountNotificationsPage = (): ReactElement => {
   const { updateUserProfile } = useProfileForm();
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
+  const {
+    personalizedDigest,
+    isLoading: isPersonalizedDigestLoading,
+    subscribePersonalizedDigest,
+    unsubscribePersonalizedDigest,
+  } = usePersonalizedDigest();
+
   const { acceptedMarketing, notificationEmail } = user ?? {};
-  const emailNotification = acceptedMarketing || notificationEmail;
+  const emailNotification =
+    acceptedMarketing || notificationEmail || !!personalizedDigest;
+
   const onToggleEmailSettings = () => {
     const value = !emailNotification;
 
@@ -54,6 +63,12 @@ const AccountNotificationsPage = (): ReactElement => {
       acceptedMarketing: value,
       notificationEmail: value,
     });
+
+    if (value) {
+      subscribePersonalizedDigest();
+    } else {
+      unsubscribePersonalizedDigest();
+    }
   };
 
   const onTrackToggle = (
@@ -100,14 +115,13 @@ const AccountNotificationsPage = (): ReactElement => {
     updateUserProfile({ acceptedMarketing: value });
   };
 
-  const {
-    personalizedDigest,
-    isLoading: isPersonalizedDigestLoading,
-    subscribePersonalizedDigest,
-    unsubscribePersonalizedDigest,
-  } = usePersonalizedDigest();
-
   const onTogglePersonalizedDigest = async () => {
+    onTrackToggle(
+      !personalizedDigest,
+      NotificationChannel.Email,
+      NotificationCategory.Digest,
+    );
+
     if (!personalizedDigest) {
       await subscribePersonalizedDigest();
     } else {

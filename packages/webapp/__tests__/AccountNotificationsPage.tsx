@@ -27,6 +27,7 @@ import {
   UPDATE_USER_PROFILE_MUTATION,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import ProfileNotificationsPage from '../pages/account/notifications';
 
 jest.mock('next/router', () => ({
@@ -38,6 +39,8 @@ jest.mock('next/router', () => ({
 }));
 
 let client: QueryClient;
+let personalizedDigestMock: MockedGraphQLResponse;
+const trackEvent = jest.fn();
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -47,6 +50,20 @@ beforeEach(() => {
 
   globalThis.OneSignal = {
     getRegistrationId: jest.fn().mockResolvedValue('123'),
+  };
+
+  personalizedDigestMock = {
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: {
+      errors: [
+        {
+          message: 'Not subscribed to personalized digest',
+          extensions: {
+            code: ApiError.NotFound,
+          },
+        },
+      ],
+    },
   };
 });
 
@@ -86,6 +103,8 @@ jest
   .mockResolvedValueOnce('granted');
 
 const renderComponent = (user = defaultLoggedUser): RenderResult => {
+  mockGraphQL(personalizedDigestMock);
+
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -95,9 +114,18 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
         visit={defaultVisit}
         tokenRefreshed
       >
-        <NotificationsContextProvider app={BootApp.Webapp}>
-          <ProfileNotificationsPage />
-        </NotificationsContextProvider>
+        <AnalyticsContext.Provider
+          value={{
+            trackEvent,
+            trackEventStart: jest.fn(),
+            trackEventEnd: jest.fn(),
+            sendBeacon: jest.fn(),
+          }}
+        >
+          <NotificationsContextProvider app={BootApp.Webapp}>
+            <ProfileNotificationsPage />
+          </NotificationsContextProvider>
+        </AnalyticsContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -124,12 +152,30 @@ it('should change user all email subscription', async () => {
     notificationEmail: true,
   };
   mockGraphQL(updateProfileMock(data));
+  let personalizedDigestMutationCalled = false;
+  mockGraphQL({
+    request: { query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, variables: {} },
+    result: () => {
+      personalizedDigestMutationCalled = true;
+
+      return {
+        data: {
+          subscribePersonalizedDigest: {
+            preferredDay: 1,
+            preferredHour: 9,
+            preferredTimezone: 'Etc/UTC',
+          },
+        },
+      };
+    },
+  });
   const subscription = await screen.findByTestId('email_notification-switch');
   expect(subscription).not.toBeChecked();
   fireEvent.click(subscription);
-  await waitFor(() =>
-    expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data }),
-  );
+  await waitFor(() => {
+    expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+    expect(personalizedDigestMutationCalled).toBe(true);
+  });
 });
 
 it('should change user email marketing subscription', async () => {
@@ -156,21 +202,7 @@ it('should change user notification email subscription', async () => {
   expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 });
 
-it('should subscribe to weekly digest subscription', async () => {
-  mockGraphQL({
-    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
-    result: {
-      errors: [
-        {
-          message: 'Not subscribed to personalized digest',
-          extensions: {
-            code: ApiError.NotFound,
-          },
-        },
-      ],
-    },
-  });
-
+it('should subscribe to personalized digest subscription', async () => {
   renderComponent();
 
   mockGraphQL({
@@ -197,8 +229,8 @@ it('should subscribe to weekly digest subscription', async () => {
   expect(subscription).toBeChecked();
 });
 
-it('should unsubscribe to weekly digest subscription', async () => {
-  mockGraphQL({
+it('should unsubscribe from personalized digest subscription', async () => {
+  personalizedDigestMock = {
     request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
     result: {
       data: {
@@ -209,7 +241,7 @@ it('should unsubscribe to weekly digest subscription', async () => {
         },
       },
     },
-  });
+  };
 
   renderComponent();
 
@@ -231,4 +263,9 @@ it('should unsubscribe to weekly digest subscription', async () => {
   await waitForNock();
 
   expect(subscription).not.toBeChecked();
+  expect(trackEvent).toHaveBeenCalledTimes(1);
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({ channel: 'email', category: 'digest' }),
+  });
 });
