@@ -4,24 +4,28 @@ import CloseButton from '../CloseButton';
 import LoginButton from '../LoginButton';
 import { Button } from '../buttons/Button';
 import { tellMeWhy } from '../../lib/constants';
-import { useActions } from '../../hooks/useActions';
-import { ActionType } from '../../graphql/actions';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { OnboardingV2 } from '../../lib/featureValues';
 import { useAuthContext } from '../../contexts/AuthContext';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { generateStorageKey, StorageTopic } from '../../lib/storage';
 
 export function FixedBottomBanner(): ReactElement {
   const { user } = useAuthContext();
   const router = useRouter();
   const onboarding = useFeature(feature.onboardingV2);
-  const { checkHasCompleted, completeAction } = useActions();
+  const [isDismissed, setIsDismissed, isFetched] = usePersistentContext(
+    generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
+    false,
+  );
 
   if (
     user ||
     router.pathname === '/onboarding' ||
     onboarding !== OnboardingV2.Control ||
-    checkHasCompleted(ActionType.ExistingAnonymousBanner)
+    !isFetched ||
+    isDismissed
   ) {
     return null;
   }
@@ -31,7 +35,7 @@ export function FixedBottomBanner(): ReactElement {
       <CloseButton
         className="top-4 right-4"
         position="absolute"
-        onClick={() => completeAction(ActionType.ExistingAnonymousBanner)}
+        onClick={() => setIsDismissed(true)}
       />
       <div className="flex flex-col laptop:flex-row gap-4 justify-center laptop:items-center w-full laptop:max-w-[52.25rem]">
         <div className="flex flex-col flex-1 gap-2 w-full">
