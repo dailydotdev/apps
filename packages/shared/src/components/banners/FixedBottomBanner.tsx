@@ -32,15 +32,15 @@ export function FixedBottomBanner({
           </p>
         </div>
         <div className="flex flex-row laptop:flex-col gap-2">
+          <Button tag="a" href={onboardingUrl} className="btn-primary">
+            Sign up now
+          </Button>
           <Button
             tag="a"
             target="_blank"
             href={tellMeWhy}
             className="btn-secondary"
           >
-            Sign up now
-          </Button>
-          <Button tag="a" href={onboardingUrl} className="btn-secondary">
             Tell me why
           </Button>
         </div>
