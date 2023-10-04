@@ -154,7 +154,6 @@ export default function MainLayout({
   const page = router?.route?.substring(1).trim() as MainFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-
   const isPageApplicableForOnboarding = !page || feeds.includes(page);
   const shouldRedirectOnboarding =
     !user &&
