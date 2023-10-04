@@ -23,6 +23,8 @@ import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { AnalyticsContextProvider } from './AnalyticsContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 
+const STALE_TIME = 30 * 1000;
+
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
   filteredKeys: (keyof T)[],
@@ -89,12 +91,16 @@ export const BootDataProvider = ({
   const loadedFromCache = !!cachedBootData;
   const { user, settings, alerts, notifications, squads } =
     cachedBootData || {};
+  const loggedUser = !!(user && 'providers' in user && user?.id);
   const {
     data: bootRemoteData,
     refetch,
     isFetched,
     dataUpdatedAt,
-  } = useQuery(BOOT_QUERY_KEY, () => getBootData(app));
+  } = useQuery(BOOT_QUERY_KEY, () => getBootData(app), {
+    refetchOnWindowFocus: loggedUser,
+    staleTime: STALE_TIME,
+  });
 
   useEffect(() => {
     const boot = getLocalBootData();
