@@ -1,55 +1,24 @@
-import React, { ReactElement, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { differenceInDays } from 'date-fns';
+import React, { ReactElement } from 'react';
 import CloseButton from '../CloseButton';
 import LoginButton from '../LoginButton';
 import { Button } from '../buttons/Button';
 import { tellMeWhy } from '../../lib/constants';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { OnboardingV2 } from '../../lib/featureValues';
-import { useAuthContext } from '../../contexts/AuthContext';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import { generateStorageKey, StorageTopic } from '../../lib/storage';
 
-const anonymousMigrationDate = new Date(2023, 10, 4);
-const now = new Date();
-const daysLeft = differenceInDays(anonymousMigrationDate, now);
+interface FixedBottomBannerProps {
+  onDismiss(): void;
+  daysLeft: number;
+}
 
-export function FixedBottomBanner(): ReactElement {
-  const { user } = useAuthContext();
-  const router = useRouter();
-  const onboarding = useFeature(feature.onboardingV2);
-  const [isDismissed, setIsDismissed, isFetched] = usePersistentContext(
-    generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
-    false,
-  );
-
-  useEffect(() => {
-    if (
-      router.pathname !== '/onboarding' &&
-      anonymousMigrationDate < new Date()
-    ) {
-      router.push('/onboarding');
-    }
-  }, [router]);
-
-  if (
-    user ||
-    router.pathname === '/onboarding' ||
-    onboarding !== OnboardingV2.Control ||
-    !isFetched ||
-    isDismissed
-  ) {
-    return null;
-  }
-
+export function FixedBottomBanner({
+  onDismiss,
+  daysLeft,
+}: FixedBottomBannerProps): ReactElement {
   return (
     <div className="flex fixed inset-0 z-max justify-center items-center p-6 w-full bg-gradient-to-l top-[unset] from-[#EF43FD] to-[#6451F3]">
       <CloseButton
         className="top-4 right-4"
         position="absolute"
-        onClick={() => setIsDismissed(true)}
+        onClick={onDismiss}
       />
       <div className="flex flex-col laptop:flex-row gap-4 justify-center laptop:items-center w-full laptop:max-w-[52.25rem]">
         <div className="flex flex-col flex-1 gap-2 w-full">

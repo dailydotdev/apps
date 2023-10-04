@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { differenceInDays } from 'date-fns';
 import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
@@ -34,6 +35,8 @@ import { useBanner } from '../hooks/useBanner';
 import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { FixedBottomBanner } from './banners/FixedBottomBanner';
+import usePersistentContext from '../hooks/usePersistentContext';
+import { generateStorageKey, StorageTopic } from '../lib/storage';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -55,6 +58,10 @@ const mainLayoutClass = (sidebarExpanded: boolean) =>
   sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
 
 const feeds = Object.values(MainFeedPage);
+
+const anonymousMigrationDate = new Date(2023, 10, 4);
+const now = new Date();
+const daysLeft = differenceInDays(anonymousMigrationDate, now);
 
 export default function MainLayout({
   children,
@@ -95,6 +102,10 @@ export default function MainLayout({
     openMobileSidebar,
     setOpenMobileSidebar,
   });
+  const [isDismissed, setIsDismissed, isFetched] = usePersistentContext(
+    generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
+    false,
+  );
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -153,7 +164,7 @@ export default function MainLayout({
   const shouldRedirectOnboarding =
     !user &&
     isPageReady &&
-    onboardingV2 !== OnboardingV2.Control &&
+    (onboardingV2 !== OnboardingV2.Control || daysLeft < 1) &&
     isPageApplicableForOnboarding &&
     !isTesting;
 
@@ -184,6 +195,9 @@ export default function MainLayout({
   ) {
     return null;
   }
+
+  const shouldShowBanner =
+    !user && onboardingV2 === OnboardingV2.Control && isFetched && !isDismissed;
 
   return (
     <div {...handlers} className="antialiased">
@@ -217,7 +231,12 @@ export default function MainLayout({
         {children}
       </main>
       <PromptElement />
-      <FixedBottomBanner />
+      {shouldShowBanner && (
+        <FixedBottomBanner
+          daysLeft={daysLeft}
+          onDismiss={() => setIsDismissed(true)}
+        />
+      )}
     </div>
   );
 }

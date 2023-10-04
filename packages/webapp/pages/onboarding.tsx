@@ -228,7 +228,7 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    if (user || (onboardingV2 === OnboardingV2.Control && !isOnboardingV3)) {
+    if (user) {
       router.replace('/');
       return;
     }
