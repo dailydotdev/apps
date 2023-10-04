@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { differenceInDays } from 'date-fns';
 import CloseButton from '../CloseButton';
 import LoginButton from '../LoginButton';
 import { Button } from '../buttons/Button';
@@ -11,6 +12,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { generateStorageKey, StorageTopic } from '../../lib/storage';
 
+const anonymousMigrationDate = new Date(2023, 10, 4);
+const now = new Date();
+const daysLeft = differenceInDays(anonymousMigrationDate, now);
+
 export function FixedBottomBanner(): ReactElement {
   const { user } = useAuthContext();
   const router = useRouter();
@@ -19,6 +24,15 @@ export function FixedBottomBanner(): ReactElement {
     generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
     false,
   );
+
+  useEffect(() => {
+    if (
+      router.pathname !== '/onboarding' &&
+      anonymousMigrationDate < new Date()
+    ) {
+      router.push('/onboarding');
+    }
+  }, [router]);
 
   if (
     user ||
@@ -40,7 +54,8 @@ export function FixedBottomBanner(): ReactElement {
       <div className="flex flex-col laptop:flex-row gap-4 justify-center laptop:items-center w-full laptop:max-w-[52.25rem]">
         <div className="flex flex-col flex-1 gap-2 w-full">
           <h1 className="font-bold typo-large-title">
-            Registration is going to be required in 30 days
+            Registration is going to be required in {daysLeft} day
+            {daysLeft > 1 ? 's' : ''}
           </h1>
           <p className="flex flex-1 w-full typo-title3">
             We’d love to see you join our community ❤︎. Signing up gets you free
