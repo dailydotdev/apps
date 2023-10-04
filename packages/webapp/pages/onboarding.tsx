@@ -22,7 +22,6 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import {
   OnboardingFilteringTitle,
-  OnboardingV2,
   OnboardingV3,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
