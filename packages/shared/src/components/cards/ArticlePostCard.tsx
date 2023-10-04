@@ -63,7 +63,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         className: getPostClassNames(
           post,
           classNames(className, showFeedback && '!p-0'),
-          'min-h-[22.5rem]',
+          'min-h-[23.75rem]',
         ),
       }}
       ref={ref}
@@ -91,10 +91,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
           />
-          <CardTitle
-            lineClamp={showFeedback ? 'line-clamp-2' : undefined}
-            className={!showFeedback && 'min-h-[4.875rem]'}
-          >
+          <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}
           </CardTitle>
         </CardTextContainer>
