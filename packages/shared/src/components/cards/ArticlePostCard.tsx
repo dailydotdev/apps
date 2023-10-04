@@ -63,7 +63,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         className: getPostClassNames(
           post,
           classNames(className, showFeedback && '!p-0'),
-          'min-h-[22.5rem]',
+          'min-h-[23.75rem]',
         ),
       }}
       ref={ref}

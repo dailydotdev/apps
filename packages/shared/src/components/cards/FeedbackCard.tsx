@@ -17,12 +17,13 @@ export const FeedbackCard = ({ post }: FeedbackCardProps): ReactElement => {
   const { toggleUpvote, toggleDownvote } = useVotePost();
 
   return (
-    <div className="flex-1 p-6 space-y-4">
-      <div className="flex justify-between">
+    <div className="flex-1 p-6 pb-5 space-y-4">
+      <div className="flex relative justify-between">
         <p className="font-bold typo-callout">Did you like the post?</p>
         <Button
           id="close-engagement-loop-btn"
-          className="relative -top-2.5 -right-2.5 btn-tertiary"
+          className="-top-2.5 -right-2.5 btn-tertiary"
+          position="absolute"
           buttonSize={ButtonSize.XSmall}
           icon={<MiniCloseIcon />}
           onClick={dismissFeedback}
