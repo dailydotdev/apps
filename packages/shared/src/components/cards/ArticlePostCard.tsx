@@ -91,7 +91,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
           />
-          <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
+          <CardTitle
+            lineClamp={showFeedback ? 'line-clamp-2' : undefined}
+            className={!showFeedback && 'min-h-[4.875rem]'}
+          >
             {post.title}
           </CardTitle>
         </CardTextContainer>
