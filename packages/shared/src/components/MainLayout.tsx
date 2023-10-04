@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { differenceInDays } from 'date-fns';
 import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
@@ -27,7 +26,7 @@ import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
-import { OnboardingV2 } from '../lib/featureValues';
+import { daysLeft, OnboardingV2 } from '../lib/featureValues';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
@@ -58,10 +57,6 @@ const mainLayoutClass = (sidebarExpanded: boolean) =>
   sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
 
 const feeds = Object.values(MainFeedPage);
-
-const anonymousMigrationDate = new Date(2023, 10, 4);
-const now = new Date();
-const daysLeft = differenceInDays(anonymousMigrationDate, now);
 
 export default function MainLayout({
   children,

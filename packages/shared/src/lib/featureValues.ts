@@ -1,3 +1,5 @@
+import { differenceInDays } from 'date-fns';
+
 export enum ExperimentWinner {
   ArticleOnboarding = 'v3',
   PostCardShareVersion = 'v2',
@@ -29,3 +31,7 @@ export enum SearchExperiment {
   Control = 'control',
   V1 = 'v1',
 }
+
+const anonymousMigrationDate = new Date(2023, 10, 4);
+const now = new Date();
+export const daysLeft = differenceInDays(anonymousMigrationDate, now);
