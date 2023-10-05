@@ -34,6 +34,7 @@ interface UsePostToSquad {
     e: BaseSyntheticEvent,
     sourceId: string,
     commentary: string,
+    postId?: Post['id'],
   ) => Promise<unknown>;
 }
 
@@ -116,7 +117,12 @@ export const usePostToSquad = ({
     isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;
 
   const onSubmitPost = useCallback(
-    (e: BaseSyntheticEvent, sourceId: string, commentary: string) => {
+    (
+      e: BaseSyntheticEvent,
+      sourceId: string,
+      commentary: string,
+      postId?: Post['id'],
+    ) => {
       e.preventDefault();
 
       if (isPosting) {
@@ -128,6 +134,7 @@ export const usePostToSquad = ({
           id: preview.id,
           sourceId,
           commentary,
+          postId,
         });
       }
 

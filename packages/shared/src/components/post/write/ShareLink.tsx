@@ -7,6 +7,8 @@ import { SubmitExternalLink } from './SubmitExternalLink';
 import { usePostToSquad } from '../../../hooks';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { Post } from '../../../graphql/posts';
+import { useWritePostContext } from '../../../contexts';
+import { WriteLinkPreview } from './WriteLinkPreview';
 
 interface ShareLinkProps {
   squad: Squad;
@@ -21,6 +23,9 @@ export function ShareLink({
 }: ShareLinkProps): ReactElement {
   const { displayToast } = useToastNotification();
   const [commentary, setCommentary] = useState('');
+
+  const { post } = useWritePostContext();
+
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -28,7 +33,7 @@ export function ShareLink({
     isPosting,
     onSubmitPost,
     onUpdatePreview,
-  } = usePostToSquad({ onPostSuccess });
+  } = usePostToSquad({ onPostSuccess, initialPreview: post.sharedPost });
 
   const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -37,7 +42,7 @@ export function ShareLink({
       return displayToast('You must select a Squad to post to!');
     }
 
-    return onSubmitPost(e, squad.id, commentary);
+    return onSubmitPost(e, squad.id, commentary, post.id);
   };
 
   return (
@@ -45,13 +50,23 @@ export function ShareLink({
       className={classNames('flex flex-col gap-4', className)}
       onSubmit={onSubmit}
     >
-      <SubmitExternalLink
-        preview={preview}
-        getLinkPreview={getLinkPreview}
-        isLoadingPreview={isLoadingPreview}
-        onSelectedHistory={onUpdatePreview}
-      />
+      {post.id ? (
+        <WriteLinkPreview
+          link={post.sharedPost.permalink}
+          preview={post.sharedPost}
+          showPreviewLink={false}
+        />
+      ) : (
+        <SubmitExternalLink
+          preview={preview || post.sharedPost}
+          getLinkPreview={getLinkPreview}
+          isLoadingPreview={isLoadingPreview}
+          onSelectedHistory={onUpdatePreview}
+        />
+      )}
+
       <MarkdownInput
+        initialContent={commentary || post?.title}
         enabledCommand={{ mention: true }}
         showMarkdownGuide={false}
         onValueUpdate={setCommentary}

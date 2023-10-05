@@ -48,7 +48,7 @@ export function WriteLinkPreview({
         <WritePreviewContent className={isMinimized && '!py-2 !px-3'}>
           <div className="flex flex-col flex-1 typo-footnote">
             <span className="font-bold line-clamp-2">{preview.title}</span>
-            {preview.source &&
+            {preview.source?.id !== 'unknown' &&
               (isMinimized ? (
                 <SourceAvatar
                   size="small"
