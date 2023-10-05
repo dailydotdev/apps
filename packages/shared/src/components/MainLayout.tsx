@@ -99,7 +99,7 @@ export default function MainLayout({
   });
   const [isDismissed, setIsDismissed, isFetched] = usePersistentContext(
     generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
-    false,
+    true,
   );
 
   const onMobileSidebarToggle = (state: boolean) => {
