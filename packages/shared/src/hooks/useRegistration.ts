@@ -65,10 +65,14 @@ const useRegistration = ({
 
   useEffect(() => {
     if (registrationError) {
+      const serializedError = JSON.stringify(
+        registrationError,
+        Object.getOwnPropertyNames(registrationError),
+      );
       trackEvent({
         event_name: AuthEventNames.RegistrationInitializationError,
         extra: JSON.stringify({
-          error: registrationError,
+          error: serializedError,
           origin: Origin.InitializeRegistrationFlow,
         }),
       });
