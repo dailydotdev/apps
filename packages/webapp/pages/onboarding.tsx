@@ -254,6 +254,18 @@ export function OnboardPage(): ReactElement {
     onboardingV3,
   ]);
 
+  useEffect(() => {
+    console.log('mount');
+    const onChange = () => {
+      console.log('route changed');
+    };
+    router.events.on('routeChangeStart', onChange);
+
+    return () => {
+      router.events.off('routeChangeStart', onChange);
+    };
+  }, [router]);
+
   const hasSelectedTopics = (tags: Record<string, boolean>) => {
     const hasTopics = Object.values(tags).some((value) => value === true);
     setHasSelectTopics(hasTopics);
