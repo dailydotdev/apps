@@ -193,13 +193,6 @@ export default function MainLayout({
   const shouldShowBanner =
     !user && onboardingV2 === OnboardingV2.Control && isFetched && !isDismissed;
 
-  console.log(
-    !user,
-    onboardingV2 === OnboardingV2.Control,
-    isFetched,
-    !isDismissed,
-  );
-
   return (
     <div {...handlers} className="antialiased">
       {customBanner}

@@ -86,6 +86,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     }
 
     const onRouteChange = () => {
+      console.log('route changing');
       closeModal();
     };
 
