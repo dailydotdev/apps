@@ -99,7 +99,7 @@ export default function MainLayout({
   });
   const [isDismissed, setIsDismissed, isFetched] = usePersistentContext(
     generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
-    true,
+    false,
   );
 
   const onMobileSidebarToggle = (state: boolean) => {
@@ -192,6 +192,13 @@ export default function MainLayout({
 
   const shouldShowBanner =
     !user && onboardingV2 === OnboardingV2.Control && isFetched && !isDismissed;
+
+  console.log(
+    !user,
+    onboardingV2 === OnboardingV2.Control,
+    isFetched,
+    !isDismissed,
+  );
 
   return (
     <div {...handlers} className="antialiased">
