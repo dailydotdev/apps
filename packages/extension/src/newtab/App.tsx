@@ -36,7 +36,10 @@ import {
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import { OnboardingV2 } from '@dailydotdev/shared/src/lib/featureValues';
+import {
+  daysLeft,
+  OnboardingV2,
+} from '@dailydotdev/shared/src/lib/featureValues';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -90,7 +93,10 @@ function InternalApp({
   const onboardingV2 = useFeature(feature.onboardingV2);
 
   const shouldRedirectOnboarding =
-    !user && isPageReady && onboardingV2 !== OnboardingV2.Control && !isTesting;
+    !user &&
+    isPageReady &&
+    (onboardingV2 !== OnboardingV2.Control || daysLeft < 1) &&
+    !isTesting;
 
   useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
