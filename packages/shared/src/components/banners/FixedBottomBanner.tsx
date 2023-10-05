@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import CloseButton from '../CloseButton';
 import { Button } from '../buttons/Button';
 import { onboardingUrl, tellMeWhy } from '../../lib/constants';
+import { anchorDefaultRel } from '../../lib/strings';
 
 interface FixedBottomBannerProps {
   onDismiss(): void;
@@ -38,6 +39,7 @@ export function FixedBottomBanner({
           <Button
             tag="a"
             target="_blank"
+            rel={anchorDefaultRel}
             href={tellMeWhy}
             className="btn-secondary"
           >
