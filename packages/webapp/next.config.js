@@ -65,12 +65,6 @@ module.exports = withTM(
         env: {
           CURRENT_VERSION: `'${version}'`,
         },
-        rewrites: () => [
-          {
-            source: '/api/:path*',
-            destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
-          },
-        ],
         headers: async () => {
           return [
               {
