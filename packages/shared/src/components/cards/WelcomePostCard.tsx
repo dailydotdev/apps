@@ -60,7 +60,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         className: getPostClassNames(
           post,
           domProps.className,
-          'min-h-[22.5rem]',
+          'min-h-[23.75rem]',
           shouldShowHighlightPulse && 'highlight-pulse',
         ),
       }}
