@@ -20,6 +20,7 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
       className={classNames(
         className,
         'flex flex-col rounded-2xl p-2 bg-theme-post-disabled',
+        'min-h-[23.75rem]',
       )}
       {...props}
       ref={ref}
