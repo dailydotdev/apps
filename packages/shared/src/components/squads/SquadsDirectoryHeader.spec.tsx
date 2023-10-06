@@ -17,6 +17,13 @@ import { COMPLETED_USER_ACTIONS } from '../../graphql/actions';
 const routerReplace = jest.fn();
 
 beforeEach(async () => {
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/squads',
+        push: routerReplace,
+      } as unknown as NextRouter),
+  );
   nock.cleanAll();
   jest.clearAllMocks();
 });
@@ -45,13 +52,6 @@ const renderComponent = (): RenderResult => {
 };
 
 it('should render the component as a squad user', async () => {
-  mocked(useRouter).mockImplementation(
-    () =>
-      ({
-        pathname: '/squads',
-        push: routerReplace,
-      } as unknown as NextRouter),
-  );
   renderComponent();
 
   const btn = await screen.findByTestId('squad-directory-join-waitlist');
@@ -64,7 +64,7 @@ it('should render the component as a squad user', async () => {
   });
 });
 
-it('should render the component and have a link to join waitlist when squad owner', async () => {
+it('should render the component and have a link to new suqad when squad owner', async () => {
   mockGraphQL({
     request: {
       query: COMPLETED_USER_ACTIONS,
@@ -83,8 +83,12 @@ it('should render the component and have a link to join waitlist when squad owne
 
   renderComponent();
 
-  await waitFor(async () => {
-    const link = await screen.findByTestId('squad-directory-join-waitlist');
-    expect(link).toHaveAttribute('href', squadsPublicWaitlist);
+  const btn = await screen.findByTestId('squad-directory-join-waitlist');
+  btn.click();
+
+  await waitFor(() => {
+    expect(routerReplace).toBeCalledWith(
+      `/squads/new?origin=${Origin.SquadDirectory}`,
+    );
   });
 });
