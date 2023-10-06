@@ -42,6 +42,7 @@ export const GrowthBookProvider = ({
   experimentation,
   updateExperimentation,
   children,
+  firstLoad,
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
   const { mutateAsync: sendAllocation } = useMutation(
@@ -68,18 +69,22 @@ export const GrowthBookProvider = ({
   );
 
   const callback = useRef<Context['trackingCallback']>();
-  const [gb] = useState<GrowthBook>(() => {
-    const growthbook = new GrowthBook({
-      enableDevMode: !isProduction,
-      trackingCallback: (...args) => callback.current?.(...args),
-    });
+  const [gb] = useState<GrowthBook>(
+    () =>
+      new GrowthBook({
+        enableDevMode: !isProduction,
+        trackingCallback: (...args) => callback.current?.(...args),
+        features: experimentation?.features
+          ? experimentation.features
+          : undefined,
+      }),
+  );
 
-    if (experimentation?.features) {
-      growthbook.setFeatures(experimentation.features);
+  useEffect(() => {
+    if (gb && experimentation?.features && firstLoad) {
+      gb.setFeatures(experimentation.features);
     }
-
-    return growthbook;
-  });
+  }, [experimentation?.features, gb, firstLoad]);
 
   useEffect(() => {
     callback.current = async (experiment, result) => {
