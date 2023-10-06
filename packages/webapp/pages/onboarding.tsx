@@ -22,7 +22,6 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import {
   OnboardingFilteringTitle,
-  OnboardingV2,
   OnboardingV3,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
@@ -228,7 +227,7 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    if (user || (onboardingV2 === OnboardingV2.Control && !isOnboardingV3)) {
+    if (user) {
       router.replace('/');
       return;
     }
@@ -266,6 +265,7 @@ export function OnboardPage(): ReactElement {
         simplified
         className={classNames(
           'w-full rounded-none',
+          isOnboardingV3 && 'h-full',
           maxAuthWidth,
           !isAuthenticating && 'max-w-full',
         )}

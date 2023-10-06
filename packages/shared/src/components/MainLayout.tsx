@@ -26,13 +26,16 @@ import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
-import { OnboardingV2 } from '../lib/featureValues';
+import { daysLeft, OnboardingV2 } from '../lib/featureValues';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MainFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { FixedBottomBanner } from './banners/FixedBottomBanner';
+import usePersistentContext from '../hooks/usePersistentContext';
+import { generateStorageKey, StorageTopic } from '../lib/storage';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -94,6 +97,10 @@ export default function MainLayout({
     openMobileSidebar,
     setOpenMobileSidebar,
   });
+  const [isDismissed, setIsDismissed, isFetched] = usePersistentContext(
+    generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
+    false,
+  );
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -147,12 +154,11 @@ export default function MainLayout({
   const page = router?.route?.substring(1).trim() as MainFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-
   const isPageApplicableForOnboarding = !page || feeds.includes(page);
   const shouldRedirectOnboarding =
     !user &&
     isPageReady &&
-    onboardingV2 !== OnboardingV2.Control &&
+    (onboardingV2 !== OnboardingV2.Control || daysLeft < 1) &&
     isPageApplicableForOnboarding &&
     !isTesting;
 
@@ -183,6 +189,13 @@ export default function MainLayout({
   ) {
     return null;
   }
+
+  const shouldShowBanner =
+    !user &&
+    onboardingV2 === OnboardingV2.Control &&
+    isPageApplicableForOnboarding &&
+    isFetched &&
+    !isDismissed;
 
   return (
     <div {...handlers} className="antialiased">
@@ -216,6 +229,12 @@ export default function MainLayout({
         {children}
       </main>
       <PromptElement />
+      {shouldShowBanner && (
+        <FixedBottomBanner
+          daysLeft={daysLeft}
+          onDismiss={() => setIsDismissed(true)}
+        />
+      )}
     </div>
   );
 }

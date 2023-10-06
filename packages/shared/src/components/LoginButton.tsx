@@ -15,7 +15,6 @@ enum ButtonCopy {
   Login = 'Log in',
   Signup = 'Sign up',
 }
-
 const getAnalyticsEvent = (copy: ButtonCopy): AnalyticsEvent => ({
   event_name: 'click',
   target_type:

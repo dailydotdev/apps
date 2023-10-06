@@ -41,11 +41,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(
-          post,
-          domProps.className,
-          'min-h-[22.5rem]',
-        ),
+        className: getPostClassNames(post, domProps.className, 'min-h-card'),
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
