@@ -290,6 +290,12 @@ export type UserPersonalizedDigest = {
   preferredTimezone: string;
 };
 
+export type UserPersonalizedDigestSubscribe = {
+  day?: number;
+  hour?: number;
+  timezone?: string;
+};
+
 export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
   query PersonalizedDigest {
     personalizedDigest {

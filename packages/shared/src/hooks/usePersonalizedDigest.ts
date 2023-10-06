@@ -5,6 +5,7 @@ import {
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UserPersonalizedDigest,
+  UserPersonalizedDigestSubscribe,
 } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { RequestKey, generateQueryKey } from '../lib/query';
@@ -51,9 +52,14 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
 
   const { mutateAsync: subscribePersonalizedDigest } = useMutation(
     async () => {
-      const result = await request<{
-        subscribePersonalizedDigest: UserPersonalizedDigest;
-      }>(graphqlUrl, SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {});
+      const result = await request<
+        {
+          subscribePersonalizedDigest: UserPersonalizedDigest;
+        },
+        Partial<UserPersonalizedDigestSubscribe>
+      >(graphqlUrl, SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
+        timezone: user?.timezone || undefined,
+      });
 
       queryClient.setQueryData(queryKey, result.subscribePersonalizedDigest);
 
