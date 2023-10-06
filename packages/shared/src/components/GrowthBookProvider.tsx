@@ -19,7 +19,6 @@ import {
 import { WidenPrimitives, JSONValue } from '@growthbook/growthbook';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
-import { decrypt } from './crypto';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { Feature } from '../lib/featureManagement';
@@ -43,7 +42,6 @@ export const GrowthBookProvider = ({
   experimentation,
   updateExperimentation,
   children,
-  firstLoad,
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
   const { mutateAsync: sendAllocation } = useMutation(
@@ -70,30 +68,18 @@ export const GrowthBookProvider = ({
   );
 
   const callback = useRef<Context['trackingCallback']>();
-  const [gb] = useState<GrowthBook>(
-    () =>
-      new GrowthBook({
-        enableDevMode: !isProduction,
-        trackingCallback: (...args) => callback.current?.(...args),
-      }),
-  );
+  const [gb] = useState<GrowthBook>(() => {
+    const growthbook = new GrowthBook({
+      enableDevMode: !isProduction,
+      trackingCallback: (...args) => callback.current?.(...args),
+    });
 
-  useEffect(() => {
-    if (gb && experimentation?.f && firstLoad) {
-      const currentFeats = gb.getFeatures();
-      // Do not update when the features are already set
-      if (!currentFeats || !Object.keys(currentFeats).length) {
-        decrypt(
-          experimentation.f,
-          process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
-          'AES-CBC',
-          128,
-        ).then((features) => {
-          gb.setFeatures(JSON.parse(features));
-        });
-      }
+    if (experimentation?.features) {
+      growthbook.setFeatures(experimentation.features);
     }
-  }, [gb, experimentation?.f, firstLoad]);
+
+    return growthbook;
+  });
 
   useEffect(() => {
     callback.current = async (experiment, result) => {
