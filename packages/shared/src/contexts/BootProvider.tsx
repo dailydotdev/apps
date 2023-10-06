@@ -180,10 +180,6 @@ export const BootDataProvider = ({
     [cachedBootData],
   );
 
-  if (initialLoad === null) {
-    return null;
-  }
-
   return (
     <GrowthBookProvider
       app={app}

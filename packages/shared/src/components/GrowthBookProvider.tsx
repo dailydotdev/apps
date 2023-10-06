@@ -5,6 +5,8 @@ import React, {
   useEffect,
   useRef,
   useState,
+  createContext,
+  useMemo,
 } from 'react';
 import { useMutation } from 'react-query';
 import {
@@ -22,6 +24,14 @@ import { BootApp, BootCacheData } from '../lib/boot';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { Feature } from '../lib/featureManagement';
+
+export type FeaturesReadyContextValue = {
+  ready: boolean;
+};
+
+export const FeaturesReadyContext = createContext<FeaturesReadyContextValue>({
+  ready: false,
+});
 
 export type GrowthBookProviderProps = {
   app: BootApp;
@@ -45,6 +55,7 @@ export const GrowthBookProvider = ({
   firstLoad,
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
+  const [ready, setReady] = useState(false);
   const { mutateAsync: sendAllocation } = useMutation(
     async (data: { experimentId: string; variationId: string }) => {
       const res = await fetchMethod(`${apiUrl}/e/x`, {
@@ -74,15 +85,13 @@ export const GrowthBookProvider = ({
       new GrowthBook({
         enableDevMode: !isProduction,
         trackingCallback: (...args) => callback.current?.(...args),
-        features: experimentation?.features
-          ? experimentation.features
-          : undefined,
       }),
   );
 
   useEffect(() => {
     if (gb && experimentation?.features && firstLoad) {
       gb.setFeatures(experimentation.features);
+      setReady(true);
     }
   }, [experimentation?.features, gb, firstLoad]);
 
@@ -142,7 +151,17 @@ export const GrowthBookProvider = ({
     gb.setAttributes(atts);
   }, [app, user, deviceId, gb, version, experimentation?.a]);
 
-  return <Provider growthbook={gb}>{children}</Provider>;
+  const featuresReadyContextValue = useMemo<FeaturesReadyContextValue>(() => {
+    return {
+      ready,
+    };
+  }, [ready]);
+
+  return (
+    <FeaturesReadyContext.Provider value={featuresReadyContextValue}>
+      <Provider growthbook={gb}>{children}</Provider>
+    </FeaturesReadyContext.Provider>
+  );
 };
 
 export const useFeatureIsOn = (feature: Feature<JSONValue>): boolean =>
