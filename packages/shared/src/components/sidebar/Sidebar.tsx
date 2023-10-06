@@ -10,20 +10,20 @@ import {
   SidebarScrollWrapper,
 } from './common';
 import AlertContext from '../../contexts/AlertContext';
-import SidebarUserButton from './SidebarUserButton';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
-import MyFeedButton from './MyFeedButton';
-import { SidebarBottomSectionSection } from './SidebarBottomSection';
-import { DiscoverSection } from './DiscoverSection';
-import { ContributeSection } from './ContributeSection';
-import { ManageSection } from './ManageSection';
-import { MobileMenuIcon } from './MobileMenuIcon';
 import AuthContext from '../../contexts/AuthContext';
 import { getFeedName } from '../MainFeedLayout';
-import { SquadsList } from './SquadsList';
 import { ProfilePicture } from '../ProfilePicture';
-import { useSquadNavigation } from '../../hooks';
-import { Origin } from '../../lib/analytics';
+import {
+  SquadSection,
+  DiscoverSection,
+  ContributeSection,
+  MobileMenuIcon,
+  SidebarUserButton,
+  MyFeedButton,
+  SidebarBottomSection,
+  ManageSection,
+} from './index';
 
 const UserSettingsModal = dynamic(
   () =>
@@ -45,7 +45,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { user, squads, isLoggedIn } = useContext(AuthContext);
+  const { user, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const {
     toggleSidebarExpanded,
@@ -54,7 +54,6 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  const { openNewSquad } = useSquadNavigation();
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -114,18 +113,12 @@ export default function Sidebar({
                 icon={<ProfilePicture size="xsmall" user={user} />}
               />
             )}
-            <SquadsList
-              {...defaultRenderSectionProps}
-              activePage={activePageProp}
-              squads={squads}
-              onNewSquad={() => openNewSquad({ origin: Origin.Sidebar })}
-            />
+            <SquadSection {...defaultRenderSectionProps} />
             <DiscoverSection
               {...defaultRenderSectionProps}
               onNavTabClick={onNavTabClick}
               enableSearch={enableSearch}
               isItemsButton={isNavButtons}
-              className={!!squads?.length && '!mt-6'}
             />
             <ContributeSection {...defaultRenderSectionProps} />
             <ManageSection
@@ -138,7 +131,7 @@ export default function Sidebar({
             />
           </Nav>
           <div className="flex-1" />
-          <SidebarBottomSectionSection
+          <SidebarBottomSection
             {...defaultRenderSectionProps}
             optOutWeeklyGoal={optOutWeeklyGoal}
             showSettings={showSettings}

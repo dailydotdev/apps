@@ -22,7 +22,7 @@ interface SidebarBottomSectionProps extends SectionCommonProps {
   showSettings: boolean;
 }
 
-export function SidebarBottomSectionSection({
+export function SidebarBottomSection({
   optOutWeeklyGoal,
   showSettings,
   ...props
