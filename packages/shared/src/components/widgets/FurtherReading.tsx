@@ -8,7 +8,7 @@ import {
   FurtherReadingData,
 } from '../../graphql/furtherReading';
 import { graphqlUrl } from '../../lib/config';
-import useBookmarkPost from '../../hooks/useBookmarkPost';
+import useBookmarkPostOld from '../../hooks/useBookmarkPost';
 import { Post, PostType } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -121,7 +121,7 @@ export default function FurtherReading({
     },
   );
 
-  const { bookmark, removeBookmark } = useBookmarkPost({
+  const { bookmark, removeBookmark } = useBookmarkPostOld({
     onBookmarkMutate: updatePost(queryClient, queryKey, () => ({
       bookmarked: true,
     })),

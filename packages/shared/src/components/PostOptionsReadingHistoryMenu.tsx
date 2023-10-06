@@ -7,7 +7,7 @@ import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import BookmarkIcon from './icons/Bookmark';
 import XIcon from './icons/MiniClose';
-import useBookmarkPost from '../hooks/useBookmarkPost';
+import useBookmarkPostOld from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import {
   ReadHistoryInfiniteData,
@@ -93,7 +93,7 @@ export default function PostOptionsReadingHistoryMenu({
   const queryClient = useQueryClient();
   const historyQueryKey = generateQueryKey(RequestKey.ReadingHistory, user);
 
-  const { bookmark, removeBookmark } = useBookmarkPost({
+  const { bookmark, removeBookmark } = useBookmarkPostOld({
     onBookmarkMutate: updateReadingHistoryPost(
       queryClient,
       historyQueryKey,

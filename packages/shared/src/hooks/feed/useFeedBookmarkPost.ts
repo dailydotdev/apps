@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import useBookmarkPost from '../useBookmarkPost';
+import useBookmarkPostOld from '../useBookmarkPost';
 import { FeedItem } from '../useFeed';
 import {
   feedAnalyticsExtra,
@@ -28,7 +28,7 @@ export default function useFeedBookmarkPost(
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost<{
+  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPostOld<{
     id: string;
     index: number;
   }>({

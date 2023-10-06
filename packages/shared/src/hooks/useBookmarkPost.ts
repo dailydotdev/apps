@@ -11,26 +11,26 @@ import { MutateFunc } from '../lib/query';
 import { useToastNotification } from './useToastNotification';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 
-type UseBookmarkPostParams<T> = {
+type UseBookmarkPostOldParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
   onRemoveBookmarkMutate: MutateFunc<T>;
   onBookmarkTrackObject?: () => AnalyticsEvent;
   onRemoveBookmarkTrackObject?: () => AnalyticsEvent;
 };
-type UseBookmarkPostRet<T> = {
+type UseBookmarkPostOldRet<T> = {
   bookmark: (variables: T) => Promise<void>;
   bookmarkToast: (targetState: boolean) => void;
   removeBookmark: (variables: T) => Promise<void>;
 };
 
-export default function useBookmarkPost<
+export default function useBookmarkPostOld<
   T extends { id: string } = { id: string },
 >({
   onBookmarkMutate,
   onRemoveBookmarkMutate,
   onBookmarkTrackObject,
   onRemoveBookmarkTrackObject,
-}: UseBookmarkPostParams<T>): UseBookmarkPostRet<T> {
+}: UseBookmarkPostOldParams<T>): UseBookmarkPostOldRet<T> {
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { mutateAsync: bookmark } = useMutation<

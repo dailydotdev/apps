@@ -8,7 +8,7 @@ import {
   POSTS_ENGAGED_SUBSCRIPTION,
 } from '../graphql/posts';
 import useUpdatePost from './useUpdatePost';
-import useBookmarkPost from './useBookmarkPost';
+import useBookmarkPostOld from './useBookmarkPost';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AuthTriggers } from '../lib/auth';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -46,7 +46,7 @@ const usePostContent = ({
       post: post?.sharedPost || post,
       optional: { parent_id: post.sharedPost && post.id },
     });
-  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost({
+  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPostOld({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
     onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
   });
