@@ -139,6 +139,7 @@ export function WriteFreeformContent({
           required
           defaultValue={draft?.title ?? post?.title}
           onInput={onFormUpdate}
+          maxLength={250}
         />
       </AlertPointer>
       <MarkdownInput

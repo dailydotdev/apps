@@ -43,6 +43,16 @@ function useInputFieldFunctions<
     setValidInput(inputRef.current.checkValidity());
   }, 1500);
 
+  useEffect(() => {
+    if (inputRef.current?.value) {
+      setInputLength(inputRef.current.value.length);
+      const inputValidity = inputRef.current.checkValidity();
+      if (inputValidity) {
+        setValidInput(true);
+      }
+    }
+  }, [inputRef]);
+
   const onInput = (event: SyntheticEvent<T, InputEvent>): void => {
     clearIdleTimeout();
     baseOnInput(event);
