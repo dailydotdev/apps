@@ -216,6 +216,9 @@ module.exports = {
         logo: '1.125rem',
         'logo-big': '2.0625rem',
       },
+      minHeight: {
+        card: '23.75rem',
+      },
     },
     lineClamp: {
       1: '1',
