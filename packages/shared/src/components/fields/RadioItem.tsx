@@ -13,6 +13,7 @@ export function RadioItem({
   children,
   className,
   checked,
+  disabled,
   afterElement,
   ...props
 }: RadioItemProps): ReactElement {
@@ -23,7 +24,10 @@ export function RadioItem({
         className={classNames(
           styles.item,
           { [styles.checked]: checked },
-          'relative flex flex-row items-center typo-footnote text-theme-label-tertiary pointer font-bold cursor-pointer select-none hover:text-theme-label-primary focus-within:text-theme-label-primary pr-3',
+          disabled
+            ? 'text-theme-label-disabled'
+            : 'text-theme-label-tertiary pointer hover:text-theme-label-primary focus-within:text-theme-label-primary cursor-pointer',
+          'relative flex flex-row items-center typo-footnote font-bold select-none pr-3',
           className,
         )}
         htmlFor={id}
@@ -32,17 +36,19 @@ export function RadioItem({
           type="radio"
           className="absolute w-0 h-0 opacity-0"
           checked={checked}
+          disabled={disabled}
           {...props}
         />
         <span
           className={classNames(
             'w-8 h-8 p-1.5 rounded-10 mr-1.5',
-            styles.checkmark,
+            !disabled && styles.checkmark,
           )}
         >
           <span
             className={classNames(
-              'w-full h-full flex rounded-full border-2 border-theme-label-tertiary',
+              'w-full h-full flex rounded-full border-2 ',
+              !disabled && 'border-theme-label-tertiary',
               styles.innerRing,
             )}
           />
