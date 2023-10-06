@@ -8,7 +8,6 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { SquadsDirectoryHeader } from '.';
-import { squadsPublicWaitlist } from '../../lib/constants';
 import { LazyModalElement } from '../modals/LazyModalElement';
 import { Origin } from '../../lib/analytics';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
