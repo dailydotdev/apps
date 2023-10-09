@@ -12,14 +12,12 @@ import CameraIcon from '../icons/Camera';
 import { formToJson } from '../../lib/form';
 import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
-import { capitalize } from '../../lib/strings';
+import { anchorDefaultRel, capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
 import SquadIcon from '../icons/Squad';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
-import BetaBadge from '../../svg/BetaBadge';
 import { squadsPublicWaitlist } from '../../lib/constants';
-import { SquadTypeCard } from './SquadTypeCard';
 import { ManageSquadPageFooter } from './utils';
 
 const squadImageId = 'squad_image_file';
@@ -58,6 +56,37 @@ const memberRoleOptions = [
   },
 ];
 
+const squadTypeOptions = [
+  {
+    label: 'Private Squad',
+    value: 'private',
+    afterElement: (
+      <p className="mb-5 ml-10 typo-footnote">
+        Only people who join the squad can see the content
+      </p>
+    ),
+  },
+  {
+    label: 'Public Squad (beta)',
+    value: 'public',
+    disabled: true,
+    afterElement: (
+      <p className="mb-2 ml-10 typo-footnote text-theme-label-tertiary">
+        Everyone can see the content, and the posts may appear on the main
+        feed.&nbsp;
+        <a
+          href={squadsPublicWaitlist}
+          rel={anchorDefaultRel}
+          target="_blank"
+          className="underline text-theme-label-link"
+        >
+          Join waitlist
+        </a>
+      </p>
+    ),
+  },
+];
+
 export function SquadDetails({
   className,
   onSubmit,
@@ -71,7 +100,6 @@ export function SquadDetails({
     description,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
-    public: isPublic,
   } = form;
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
@@ -215,26 +243,12 @@ export function SquadDetails({
             <h4 className="mt-2 font-bold typo-body">
               {createMode ? 'Squad type' : 'Squad'}
             </h4>
-            <div className="flex flex-col tablet:flex-row gap-4 rounded-16 tablet:border-2 border-theme-divider-tertiary">
-              <SquadTypeCard
-                title="Private Squad"
-                description="Only people who join the Squad can see the content"
-                isSelected={!isPublic}
-              />
-              <SquadTypeCard
-                title={
-                  <div className="flex gap-2 items-center">
-                    Public Squad <BetaBadge />
-                  </div>
-                }
-                description="Everyone can see the content and the posts may appear on the main feed"
-                isSelected={isPublic}
-                buttonProps={{
-                  text: 'Join waitlist',
-                  tag: 'a',
-                  target: '_blank',
-                  href: squadsPublicWaitlist,
-                }}
+            <div>
+              <Radio
+                name="squadType"
+                options={squadTypeOptions}
+                value="private"
+                onChange={() => {}}
               />
             </div>
             <div className="flex flex-col tablet:flex-row gap-4 mt-2">

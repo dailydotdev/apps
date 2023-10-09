@@ -17,7 +17,7 @@ const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
 );
 
-export default function SidebarUserButton({
+export function SidebarUserButton({
   sidebarRendered,
 }: SidebarUserButtonProps): ReactElement {
   const { user, loadingUser } = useContext(AuthContext);

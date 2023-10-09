@@ -89,7 +89,7 @@ export function MobileSearch({
           type="text"
           value={input}
           ref={inputRef}
-          placeholder="Ask anything..."
+          placeholder="Ask a question..."
           onInput={(e) => setInput(e.currentTarget.value)}
         />
       </form>
