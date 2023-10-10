@@ -58,6 +58,8 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         },
         Partial<UserPersonalizedDigestSubscribe>
       >(graphqlUrl, SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
+        day: 3,
+        hour: 8,
         timezone: user?.timezone || undefined,
       });
 

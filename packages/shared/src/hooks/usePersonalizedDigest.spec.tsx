@@ -76,7 +76,13 @@ describe('usePersonalizedDigest hook', () => {
     let mutationCalled = false;
 
     mockGraphQL({
-      request: { query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, variables: {} },
+      request: {
+        query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+        variables: {
+          day: 3,
+          hour: 8,
+        },
+      },
       result: () => {
         mutationCalled = true;
 

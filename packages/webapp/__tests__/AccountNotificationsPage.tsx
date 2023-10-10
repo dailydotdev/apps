@@ -154,7 +154,13 @@ it('should change user all email subscription', async () => {
   mockGraphQL(updateProfileMock(data));
   let personalizedDigestMutationCalled = false;
   mockGraphQL({
-    request: { query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, variables: {} },
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 8,
+      },
+    },
     result: () => {
       personalizedDigestMutationCalled = true;
 
@@ -206,7 +212,13 @@ it('should subscribe to personalized digest subscription', async () => {
   renderComponent();
 
   mockGraphQL({
-    request: { query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, variables: {} },
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 8,
+      },
+    },
     result: {
       data: {
         subscribePersonalizedDigest: {
