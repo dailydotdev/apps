@@ -8,6 +8,7 @@ import {
   getUserActions,
 } from '../graphql/actions';
 import { generateQueryKey, RequestKey } from '../lib/query';
+import { disabledRefetch } from '../lib/func';
 
 interface UseActions {
   actions: Action[];
@@ -36,7 +37,7 @@ export const useActions = (): UseActions => {
 
       return [...current, ...filtered];
     },
-    { enabled: !!user },
+    { enabled: !!user, ...disabledRefetch },
   );
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {
