@@ -56,7 +56,9 @@ describe('SearchBar', () => {
     renderComponent();
 
     expect(screen.getByTestId('searchBar')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Ask anything...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Ask a question...'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Beta')).toBeInTheDocument();
   });
 

@@ -77,7 +77,7 @@ function SearchBarInputComponent(
     onFocus: externalOnFocus,
     onBlur: externalOnBlur,
     onClick: externalOnClick,
-    placeholder = 'Ask anything...',
+    placeholder = 'Ask a question...',
   } = inputProps;
   const { inputRef, focused, hasInput, onFocus, onBlur, onInput, setInput } =
     useInputField(value, valueChanged);

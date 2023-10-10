@@ -12,7 +12,7 @@ interface MyFeedButtonProps extends SectionCommonProps {
   onNavTabClick?: (page: string) => void;
 }
 
-function MyFeedButton({
+export function MyFeedButton({
   sidebarExpanded,
   shouldShowLabel,
   activePage,
@@ -33,7 +33,7 @@ function MyFeedButton({
   const isActive = activePage === myFeedMenuItem.path;
 
   return (
-    <NavItem className="mt-0 laptop:mt-2" active={isActive}>
+    <NavItem className="mt-0 laptop:mt-2 laptop:mb-5" active={isActive}>
       <ClickableNavItem item={myFeedMenuItem} isButton={isButton}>
         <ItemInner
           item={myFeedMenuItem}
@@ -44,5 +44,3 @@ function MyFeedButton({
     </NavItem>
   );
 }
-
-export default MyFeedButton;

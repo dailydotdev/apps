@@ -49,7 +49,7 @@ export function Section({
       {title && (
         <NavHeader
           className={classNames(
-            'hidden laptop:block',
+            'hidden laptop:flex',
             sidebarExpanded ? 'opacity-100 px-3' : 'opacity-0 px-0',
           )}
         >
