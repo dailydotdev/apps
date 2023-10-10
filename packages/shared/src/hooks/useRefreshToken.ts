@@ -15,13 +15,11 @@ export function useRefreshToken(
   const saveDelay =
     differencePlusTwoMinutes <= 200 ? 200 : differencePlusTwoMinutes;
 
-  const [useRefresh] = useDebounce(refresh, saveDelay, 1000 * 60);
+  const [callRefresh] = useDebounce(refresh, saveDelay, 1000 * 60);
 
   useEffect(() => {
     if (accessToken?.token) {
-      // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useRefresh();
+      callRefresh();
     }
-  }, [accessToken?.token, useRefresh]);
+  }, [accessToken?.token, callRefresh]);
 }
