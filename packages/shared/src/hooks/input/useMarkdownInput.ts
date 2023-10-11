@@ -111,6 +111,12 @@ export const useMarkdownInput = ({
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
 
+  useEffect(() => {
+    if (input.length === 0 && initialContent.length > 0) {
+      setInput(initialContent);
+    }
+  }, [input, initialContent]);
+
   const onUpdate = (value: string) => {
     setInput(value);
     if (onValueUpdate) {
