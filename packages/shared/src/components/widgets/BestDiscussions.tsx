@@ -12,6 +12,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { WidgetContainer } from './common';
+import { combinedClicks } from '../../lib/click';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -36,8 +37,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     <Link href={post.commentsPermalink} prefetch={false} passHref>
       <CardLink
         title={post.title}
-        onClick={() => onLinkClick(post)}
-        onMouseUp={(event) => event.button === 1 && onLinkClick(post)}
+        {...combinedClicks(() => onLinkClick(post))}
       />
     </Link>
     <h5
@@ -138,8 +138,7 @@ export default function BestDiscussions({
           buttonSize={ButtonSize.Small}
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}
-          onClick={onLucky}
-          onMouseUp={(event) => event.button === 1 && onLucky()}
+          {...combinedClicks(onLucky)}
         >
           I&apos;m feeling lucky
         </Button>

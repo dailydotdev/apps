@@ -11,15 +11,15 @@ export function useRefreshToken(
     new Date(accessToken?.expiresIn),
     new Date(),
   );
-  const [useRefresh] = useDebounce(refresh, difference - 1000 * 60 * 2);
+  const differencePlusTwoMinutes = difference - 1000 * 60 * 2;
+  const saveDelay =
+    differencePlusTwoMinutes <= 200 ? 200 : differencePlusTwoMinutes;
+
+  const [callRefresh] = useDebounce(refresh, saveDelay, 1000 * 60);
 
   useEffect(() => {
-    if (accessToken) {
-      // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useRefresh();
+    if (accessToken?.token) {
+      callRefresh();
     }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, refresh]);
+  }, [accessToken?.token, callRefresh]);
 }
