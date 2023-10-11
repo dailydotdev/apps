@@ -49,8 +49,9 @@ export const useDiscardPost = ({
   const { onAskConfirmation } = useExitConfirmation({ onValidateAction });
 
   const clearDraft = useCallback(async () => {
+    await updateDraft({});
     await deleteCache(draftKey);
-  }, [draftKey]);
+  }, [updateDraft, draftKey]);
 
   return {
     onAskConfirmation,
