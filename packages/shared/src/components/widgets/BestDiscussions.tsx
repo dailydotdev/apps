@@ -37,7 +37,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
       <CardLink
         title={post.title}
         onClick={() => onLinkClick(post)}
-        onMouseUp={(event) => event.button === 1 && onLinkClick(post)}
+        onAuxClick={(event) => event.button === 1 && onLinkClick(post)}
       />
     </Link>
     <h5
@@ -139,7 +139,7 @@ export default function BestDiscussions({
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}
           onClick={onLucky}
-          onMouseUp={(event) => event.button === 1 && onLucky()}
+          onAuxClick={(event) => event.button === 1 && onLucky()}
         >
           I&apos;m feeling lucky
         </Button>

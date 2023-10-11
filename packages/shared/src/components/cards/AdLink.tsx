@@ -15,7 +15,7 @@ export default function AdLink({ ad, onLinkClick }: AdLinkProps): ReactElement {
       rel="noopener"
       title={ad.description}
       onClick={() => onLinkClick?.(ad)}
-      onMouseUp={(event) => event.button === 1 && onLinkClick?.(ad)}
+      onAuxClick={(event) => event.button === 1 && onLinkClick?.(ad)}
     />
   );
 }
