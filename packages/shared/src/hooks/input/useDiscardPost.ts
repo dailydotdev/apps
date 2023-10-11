@@ -51,6 +51,7 @@ export const useDiscardPost = ({
   const clearDraft = useCallback(async () => {
     await updateDraft({});
     await deleteCache(draftKey);
+    await deleteCache(generateWritePostKey());
   }, [updateDraft, draftKey]);
 
   return {
