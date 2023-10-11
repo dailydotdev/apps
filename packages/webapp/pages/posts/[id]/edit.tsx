@@ -108,6 +108,7 @@ function EditPost(): ReactElement {
 
         {post?.type === PostType.Share ? (
           <ShareLink
+            post={post}
             squad={squad}
             className="py-6 px-4"
             onPostSuccess={() => {

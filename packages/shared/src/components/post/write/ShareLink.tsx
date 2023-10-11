@@ -7,24 +7,23 @@ import { SubmitExternalLink } from './SubmitExternalLink';
 import { usePostToSquad } from '../../../hooks';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { Post } from '../../../graphql/posts';
-import { useWritePostContext } from '../../../contexts';
 import { WriteLinkPreview } from './WriteLinkPreview';
 
 interface ShareLinkProps {
   squad: Squad;
+  post?: Post;
   className?: string;
   onPostSuccess: (post: Post, url: string) => void;
 }
 
 export function ShareLink({
   squad,
+  post,
   className,
   onPostSuccess,
 }: ShareLinkProps): ReactElement {
   const { displayToast } = useToastNotification();
   const [commentary, setCommentary] = useState('');
-
-  const { post } = useWritePostContext();
 
   const {
     getLinkPreview,
@@ -32,8 +31,9 @@ export function ShareLink({
     preview,
     isPosting,
     onSubmitPost,
+    onUpdatePost,
     onUpdatePreview,
-  } = usePostToSquad({ onPostSuccess, initialPreview: post.sharedPost });
+  } = usePostToSquad({ onPostSuccess, initialPreview: post?.sharedPost });
 
   const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -42,7 +42,9 @@ export function ShareLink({
       return displayToast('You must select a Squad to post to!');
     }
 
-    return onSubmitPost(e, squad.id, commentary, post.id);
+    return post?.id
+      ? onUpdatePost(e, post.id, squad.id, commentary)
+      : onSubmitPost(e, squad.id, commentary);
   };
 
   return (
@@ -50,7 +52,7 @@ export function ShareLink({
       className={classNames('flex flex-col gap-4', className)}
       onSubmit={onSubmit}
     >
-      {post.id ? (
+      {post?.id ? (
         <WriteLinkPreview
           link={post.sharedPost.permalink}
           preview={post.sharedPost}
@@ -58,7 +60,7 @@ export function ShareLink({
         />
       ) : (
         <SubmitExternalLink
-          preview={preview || post.sharedPost}
+          preview={preview || post?.sharedPost}
           getLinkPreview={getLinkPreview}
           isLoadingPreview={isLoadingPreview}
           onSelectedHistory={onUpdatePreview}
