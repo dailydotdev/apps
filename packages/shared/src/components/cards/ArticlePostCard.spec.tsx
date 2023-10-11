@@ -52,7 +52,7 @@ it('should call on link click on component left click', async () => {
 it('should call on link click on component middle mouse up', async () => {
   renderComponent();
   const el = await screen.findByText('Read post');
-  el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
+  el.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, button: 1 }));
   await waitFor(() =>
     expect(defaultProps.onReadArticleClick).toBeCalledTimes(1),
   );
