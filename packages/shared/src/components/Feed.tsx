@@ -144,6 +144,9 @@ export default function Feed<T>({
     numCards,
     { query, variables, options },
   );
+
+  console.log(items);
+
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -375,6 +378,8 @@ export default function Feed<T>({
   const isValidFeed = Object.values(MainFeedPage).includes(
     feedName as MainFeedPage,
   );
+
+  console.log(items);
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>

@@ -17,6 +17,8 @@ import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
+import FurtherReading from '../widgets/FurtherReading';
+import FurtherReadingSquad from '../widgets/FurtherReadingSquad';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -86,58 +88,61 @@ function SquadPostContent({
         className={classNames(
           'relative tablet:pb-0 !pb-2',
           className?.container,
-          isPublicSquad && 'flex-1 flex-col tablet:flex-row',
+          isPublicSquad && 'flex-1 flex-col  flex-wrap',
         )}
         hasNavigation={hasNavigation}
       >
-        <div
-          className={classNames(
-            'relative px-4 tablet:px-8',
-            className?.content,
-            isPublicSquad && 'flex flex-col flex-1',
-          )}
-        >
-          <BasePostContent
-            className={{
-              ...className,
-              onboarding: classNames('mb-6', className?.onboarding),
-              navigation: {
-                actions: classNames(
-                  'ml-auto',
-                  isPublicSquad && 'tablet:hidden',
-                ),
-                container: classNames('mb-6 pt-6'),
-              },
-            }}
-            isFallback={isFallback}
-            customNavigation={customNavigation}
-            enableShowShareNewComment={enableShowShareNewComment}
-            shouldOnboardAuthor={shouldOnboardAuthor}
-            navigationProps={navigationProps}
-            engagementProps={engagementActions}
-            origin={origin}
-            post={post}
+        <div className="flex flex-row">
+          <div
+            className={classNames(
+              'relative px-4 tablet:px-8',
+              className?.content,
+              isPublicSquad && 'flex flex-col flex-1',
+            )}
           >
-            <PostSourceInfo source={post.source} className="!typo-body" />
-            <SquadPostAuthor
-              author={post.author}
-              role={role}
-              date={postDateFormat(post.createdAt)}
+            <BasePostContent
+              className={{
+                ...className,
+                onboarding: classNames('mb-6', className?.onboarding),
+                navigation: {
+                  actions: classNames(
+                    'ml-auto',
+                    isPublicSquad && 'tablet:hidden',
+                  ),
+                  container: classNames('mb-6 pt-6'),
+                },
+              }}
+              isFallback={isFallback}
+              customNavigation={customNavigation}
+              enableShowShareNewComment={enableShowShareNewComment}
+              shouldOnboardAuthor={shouldOnboardAuthor}
+              navigationProps={navigationProps}
+              engagementProps={engagementActions}
+              origin={origin}
+              post={post}
+            >
+              <PostSourceInfo source={post.source} className="!typo-body" />
+              <SquadPostAuthor
+                author={post.author}
+                role={role}
+                date={postDateFormat(post.createdAt)}
+              />
+              <Content post={post} onReadArticle={onReadArticle} />
+            </BasePostContent>
+          </div>
+          {isPublicSquad && (
+            <SquadPostWidgets
+              onBookmark={onToggleBookmark}
+              onShare={onSharePost}
+              onReadArticle={onReadArticle}
+              post={post}
+              className="px-8 tablet:pl-0 mb-6"
+              onClose={onClose}
+              origin={origin}
             />
-            <Content post={post} onReadArticle={onReadArticle} />
-          </BasePostContent>
+          )}
         </div>
-        {isPublicSquad && (
-          <SquadPostWidgets
-            onBookmark={onToggleBookmark}
-            onShare={onSharePost}
-            onReadArticle={onReadArticle}
-            post={post}
-            className="px-8 tablet:pl-0 mb-6"
-            onClose={onClose}
-            origin={origin}
-          />
-        )}
+        <FurtherReadingSquad currentPost={post} />
       </PostContentContainer>
     </>
   );

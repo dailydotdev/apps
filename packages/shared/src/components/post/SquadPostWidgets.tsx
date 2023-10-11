@@ -2,9 +2,8 @@ import React, { ReactElement, useContext } from 'react';
 import { useQuery } from 'react-query';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
-import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
-import FurtherReading from '../widgets/FurtherReading';
 import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import SourceButton from '../cards/SourceButton';
@@ -75,7 +74,6 @@ export function SquadPostWidgets({
   className,
   onClose,
 }: PostWidgetsProps): ReactElement {
-  const { tokenRefreshed } = useContext(AuthContext);
   const squad = post.source as Squad;
 
   return (
@@ -91,7 +89,6 @@ export function SquadPostWidgets({
       {!!squad && !squad.currentMember && <SquadCard squadSource={squad} />}
       <ShareBar post={post} />
       <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />
-      {tokenRefreshed && <FurtherReading currentPost={post} />}
     </PageWidgets>
   );
 }
