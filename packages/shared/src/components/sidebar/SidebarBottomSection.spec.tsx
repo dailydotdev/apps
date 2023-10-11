@@ -6,7 +6,7 @@ import Post from '../../../__tests__/fixture/post';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts } from '../../graphql/alerts';
-import { SidebarBottomSectionSection } from './SidebarBottomSection';
+import { SidebarBottomSection } from './SidebarBottomSection';
 import { createTestSettings } from '../../../__tests__/fixture/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 
@@ -52,7 +52,7 @@ describe('SidebarBottomSection component', () => {
               updateAlerts={updateAlerts}
               loadedAlerts
             >
-              <SidebarBottomSectionSection
+              <SidebarBottomSection
                 optOutWeeklyGoal
                 showSettings={false}
                 sidebarExpanded={false}
