@@ -112,7 +112,7 @@ export const useMarkdownInput = ({
   const { displayToast } = useToastNotification();
 
   useEffect(() => {
-    if (input.length === 0 && initialContent.length > 0) {
+    if (input?.length === 0 && initialContent?.length > 0) {
       setInput(initialContent);
     }
   }, [input, initialContent]);
