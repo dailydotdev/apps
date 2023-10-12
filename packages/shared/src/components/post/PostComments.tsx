@@ -73,6 +73,7 @@ export function PostComments({
       {
         enabled: !!id && tokenRefreshed,
         refetchInterval: 60 * 1000,
+        refetchOnWindowFocus: false,
       },
     );
   const { hash: commentHash } = window.location;

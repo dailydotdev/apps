@@ -24,6 +24,7 @@ import { base64ToFile } from '../../../../lib/base64';
 import { useWritePostContext, WriteForm } from '../../../../contexts';
 import { defaultMarkdownCommands } from '../../../../hooks/input';
 import { WriteFooter } from '../../write';
+import { isNullOrUndefined } from '../../../../lib/func';
 
 export const generateWritePostKey = (reference = 'create'): string =>
   `write:post:${reference}`;
@@ -146,7 +147,11 @@ export function WriteFreeformContent({
         className={{ container: 'mt-4' }}
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
-        initialContent={draft?.content ?? post?.content}
+        initialContent={
+          draft?.content ?? isNullOrUndefined(post?.content)
+            ? ''
+            : post?.content
+        }
         textareaProps={{ name: 'content' }}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
         isUpdatingDraft={isUpdatingDraft}

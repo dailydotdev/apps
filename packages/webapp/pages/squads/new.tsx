@@ -19,6 +19,8 @@ import {
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -36,6 +38,7 @@ const NewSquad = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const { addSquad } = useBoot();
+  const { completeAction } = useActions();
   const [form] = useState<Partial<SquadForm>>({
     public: false,
   });
@@ -52,6 +55,7 @@ const NewSquad = (): ReactElement => {
       });
 
       addSquad(newSquad);
+      completeAction(ActionType.CreateSquad);
 
       await router.replace(newSquad.permalink);
     } catch (err) {
