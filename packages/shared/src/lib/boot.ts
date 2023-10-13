@@ -87,18 +87,14 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
   });
   const result = await res.json();
 
-  try {
-    const features = await decrypt(
-      result.exp.f,
-      process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
-      'AES-CBC',
-      128,
-    );
+  const features = await decrypt(
+    result.exp.f,
+    process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
+    'AES-CBC',
+    128,
+  );
 
-    result.exp.features = JSON.parse(features);
-  } catch (error) {
-    // TODO features-loading-optimization log error
-  }
+  result.exp.features = JSON.parse(features);
 
   return result;
 }
