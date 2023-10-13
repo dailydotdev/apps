@@ -43,6 +43,7 @@ export enum RequestKey {
   Banner = 'latest_banner',
   Auth = 'auth',
   CurrentSession = 'current_session',
+  PersonalizedDigest = 'personalizedDigest',
 }
 
 export type HasConnection<

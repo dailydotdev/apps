@@ -11,3 +11,4 @@ export * from './useExtensionPermission';
 export * from './usePostFeedback';
 export * from './mutationSubscription';
 export * from './useContentScriptStatus';
+export * from './usePersonalizedDigest';
